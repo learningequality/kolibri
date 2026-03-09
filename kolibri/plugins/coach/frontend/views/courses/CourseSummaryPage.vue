@@ -226,7 +226,7 @@
                   >
                     <template #trailing-actions>
                       <div
-                        class="pill mastery-pill"
+                        class="mastery-pill pill"
                         :style="{
                           backgroundColor: getUnitMasteryColor(unit),
                           borderColor: getUnitMasteryBorderColor(unit),
@@ -234,7 +234,9 @@
                       >
                         <KIcon
                           :icon="isLowMastery(unit) ? 'error' : 'correct'"
-                          :color="isLowMastery(unit) ? $themePalette.red.v_600 : $themePalette.green.v_600"
+                          :color="
+                            isLowMastery(unit) ? $themePalette.red.v_600 : $themePalette.green.v_600
+                          "
                           :style="{ width: '15px', height: '15px' }"
                         />
                         {{ getUnitMasteryLabel(unit) }}
@@ -248,7 +250,7 @@
                         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
                       >
                         <div class="objective-info">
-                          <!-- TODO: Replace with KRouterLink once objective detail route is available -->
+                          <!-- TODO: Replace with KRouterLink once detail route is available -->
                           <span>{{ objective.title }}</span>
                         </div>
                         <div class="objective-sparkline">
@@ -415,7 +417,7 @@
         const index = units.value.findIndex(u => u.id === unit.id);
         const seed = index + 1;
 
-       // TODO: To be replace with real API data once learning objectives endpoint is available
+        // TODO: To be replace with real API data once learning objectives endpoint is available
         return [
           {
             id: `${unit.id}-obj-1`,
@@ -760,8 +762,8 @@
 
   .pill {
     display: inline-flex;
-    align-items: center;
     gap: 3px;
+    align-items: center;
     padding: 4px 12px;
     border-radius: 16px;
   }
@@ -769,8 +771,8 @@
   .mastery-pill {
     height: 22px;
     padding: 2px 8px 2px 3px;
-    font-weight: 100;
     font-size: 12px;
+    font-weight: 100;
     border: 0.75px solid;
   }
 
@@ -821,9 +823,9 @@
 
   .objective-row {
     display: flex;
+    gap: 16px;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
     padding: 16px;
   }
 

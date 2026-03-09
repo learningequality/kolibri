@@ -37,21 +37,21 @@
             <span
               class="tooltip-dot"
               :style="{ backgroundColor: dotColors.low }"
-            />
+            ></span>
             {{ lowCountLabel$({ count: lowCount }) }}
           </div>
           <div class="tooltip-row">
             <span
               class="tooltip-dot"
               :style="{ backgroundColor: dotColors.mid }"
-            />
+            ></span>
             {{ partialCountLabel$({ count: midCount }) }}
           </div>
           <div class="tooltip-row">
             <span
               class="tooltip-dot"
               :style="{ backgroundColor: dotColors.high }"
-            />
+            ></span>
             {{ strongCountLabel$({ count: highCount }) }}
           </div>
         </div>
@@ -213,10 +213,10 @@
   }
 
   .segment {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
     transition: width 0.15s ease;
   }
 
@@ -237,9 +237,9 @@
 
   .tooltip-rows {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     align-items: center;
-    flex-wrap: wrap;
   }
 
   .tooltip-row {
@@ -250,10 +250,10 @@
 
   .tooltip-dot {
     display: inline-block;
+    flex-shrink: 0;
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    flex-shrink: 0;
   }
 
   .tooltip-hint {
