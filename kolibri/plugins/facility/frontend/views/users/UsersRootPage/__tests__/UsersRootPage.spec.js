@@ -27,7 +27,7 @@ const renderComponent = (options = {}) => {
   store.state.route = { params: {} };
   return render(UserPage, {
     store,
-    routes: router,
+    router,
     stubs: ['RouterLinkStub'],
     ...options,
   });

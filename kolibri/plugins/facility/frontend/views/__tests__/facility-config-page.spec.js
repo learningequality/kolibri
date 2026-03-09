@@ -83,6 +83,8 @@ describe('facility config page view', () => {
 
     it('save button is in the bottom bar', () => {
       renderComponent();
+      // Using querySelector for layout container assertion - data-test selector
+      // is appropriate here as we're testing which container the button lives in
       const bottomBar = document.querySelector('[data-test="bottom-bar"]');
       expect(within(bottomBar).getByRole('button', { name: /save/i })).toBeInTheDocument();
     });
@@ -101,6 +103,8 @@ describe('facility config page view', () => {
 
     it('save button is not in the bottom bar', () => {
       renderComponent();
+      // Using querySelector for layout container assertion - data-test selector
+      // is appropriate here as we're testing which container the button lives in
       const bottomBar = document.querySelector('[data-test="bottom-bar"]');
       expect(within(bottomBar).queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
     });

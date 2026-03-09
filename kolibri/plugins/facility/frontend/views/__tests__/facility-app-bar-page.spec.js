@@ -22,14 +22,14 @@ const renderComponent = (props = {}) => {
 };
 
 describe('FacilityAppBarPage', function () {
-  beforeEach(() => {
-    useUser.mockImplementation(() => useUserMock());
-    useFacilities.mockImplementation(() => useFacilitiesMock());
-  });
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
     }));
+  });
+  beforeEach(() => {
+    useUser.mockImplementation(() => useUserMock());
+    useFacilities.mockImplementation(() => useFacilitiesMock());
   });
 
   it('smoke test', () => {
