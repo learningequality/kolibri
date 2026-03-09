@@ -58,8 +58,11 @@ jobs:
         run: |
           export GNUPGHOME=$(mktemp -d)
           echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          echo "pinentry-mode loopback" > "$GNUPGHOME/gpg.conf"
+          echo "allow-loopback-pinentry" > "$GNUPGHOME/gpg-agent.conf"
           echo "${{ secrets.DEBIAN_REPO_SIGNING_KEY }}" | gpg --batch --import
           echo "${{ steps.gpg.outputs.key-id }}:6:" | gpg --batch --import-ownertrust
+          gpgconf --kill gpg-agent
 
       - name: Download .deb from artifact
         if: inputs.deb-file-name
