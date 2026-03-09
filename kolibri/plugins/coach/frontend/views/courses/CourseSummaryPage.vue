@@ -773,7 +773,7 @@
     padding: 2px 8px 2px 3px;
     font-size: 12px;
     font-weight: 100;
-    border: 0.75px solid;
+    border: 1px solid;
   }
 
   .unit-status {
