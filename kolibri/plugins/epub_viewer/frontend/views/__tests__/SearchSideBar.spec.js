@@ -1,27 +1,51 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import { defineComponent, ref } from 'vue';
 import SearchSideBar from '../SearchSideBar';
 
-function createWrapper() {
-  const node = document.createElement('app');
-  document.body.appendChild(node);
-  return mount(SearchSideBar, {
-    propsData: {
-      book: {},
-    },
-    attachTo: node,
-  });
-}
-
 describe('Search side bar', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  function renderComponent() {
+    return render(SearchSideBar, {
+      props: {
+        book: {},
+      },
+      attachTo: document.body,
+    });
+  }
+
+  it('should render', () => {
+    renderComponent();
+
+    const input = screen.getByRole('searchbox');
+    expect(input).toBeInTheDocument();
   });
 
-  it('should allow parent to focus on input box', () => {
-    const wrapper = createWrapper();
-    wrapper.vm.focusOnInput();
-    const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused).toHaveClass('search-input');
+  it('should allow parent to focus on input box', async () => {
+    const Parent = defineComponent({
+      components: { SearchSideBar },
+      setup() {
+        // eslint-disable-next-line vue/no-unused-properties
+        const sidebarRef = ref(null);
+
+        // eslint-disable-next-line vue/no-unused-properties
+        function focusInput() {
+          sidebarRef.value.focusOnInput();
+        }
+
+        // eslint-disable-next-line vue/no-unused-properties
+        return { sidebarRef, focusInput };
+      },
+      template: ` <div>
+        <SearchSideBar ref="sidebarRef" :book="{}" />
+        <button @click="focusInput">Focus</button>
+      </div> `,
+    });
+
+    render(Parent, { attachTo: document.body });
+
+    const button = screen.getByRole('button', { name: 'Focus' });
+    button.click();
+
+    const input = screen.getByRole('searchbox');
+    expect(input).toHaveFocus();
   });
 });

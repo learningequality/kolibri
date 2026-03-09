@@ -1,18 +1,20 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import SearchButton from '../SearchButton';
 
-function createWrapper() {
-  return mount(SearchButton);
-}
-
 describe('Search button', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('should render', () => {
+    render(SearchButton);
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
   });
-  it('should emit an event when the button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find('button').trigger('click');
-    expect(wrapper.emitted().click).toBeTruthy();
+
+  it('should emit an event when the button is clicked', async () => {
+    const { emitted } = render(SearchButton);
+
+    const button = screen.getByRole('button');
+    await fireEvent.click(button);
+
+    expect(emitted().click).toBeTruthy();
   });
 });
