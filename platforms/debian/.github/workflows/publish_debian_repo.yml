@@ -92,7 +92,7 @@ jobs:
           Label: Kolibri
           Suite: stable
           Codename: stable
-          Architectures: all
+          Architectures: amd64 i386 arm64 armhf
           Components: main
           Description: Kolibri Debian repository
           SignWith: ${{ steps.gpg.outputs.key-id }}
