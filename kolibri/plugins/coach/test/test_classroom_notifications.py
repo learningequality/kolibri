@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from django.db.utils import DatabaseError
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -5,6 +8,7 @@ from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import provision_device
+
 
 DUMMY_PASSWORD = "password"
 
@@ -102,5 +106,20 @@ class ClassroomNotificationsTestCase(APITestCase):
         response = self.client.get(
             reverse(self.list_name), {"classroom_id": self.classroom.id}
         )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_database_error_does_not_crash(self):
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+
+        with patch(
+            "kolibri.plugins.coach.api.ClassroomNotificationsViewset.filter_queryset",
+            side_effect=DatabaseError,
+        ):
+            response = self.client.get(
+                reverse(self.list_name), {"classroom_id": self.classroom.id}
+            )
 
         self.assertEqual(response.status_code, 200)
