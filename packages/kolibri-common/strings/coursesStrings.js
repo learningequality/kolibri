@@ -100,6 +100,12 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'There was an error updating the course',
     context: 'Error message when course update fails',
   },
+  courseAssignDeletedUsersError: {
+    message:
+      'There was a problem saving this course. One or more selected users no longer exist in this facility. Please refresh the page and try again.',
+    context:
+      'Error message shown when assigning a course fails because one or more selected individual learners have been deleted from the facility.',
+  },
   courseDeleteError: {
     message: 'There was an error deleting the course assignment',
     context: 'Error message shown when a course assignment could not be removed',
