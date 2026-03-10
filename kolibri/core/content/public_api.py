@@ -2,9 +2,8 @@ from uuid import UUID
 
 from django.db import connection
 from django.db.models import Q
-from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
@@ -13,10 +12,17 @@ from kolibri.core.content import models
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.core.content.utils.sqlalchemybridge import BASES
+from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
+
+
+class OptionalPagination(ValuesViewsetCursorPagination):
+    ordering = ("lft", "id")
+    page_size_query_param = "max_results"
 
 
 class ImportMetadataViewset(GenericViewSet):
     queryset = models.ContentNode.objects.all()
+    pagination_class = OptionalPagination
 
     def get_serializer_class(self):
         """
@@ -43,50 +49,50 @@ class ImportMetadataViewset(GenericViewSet):
             )
         return error
 
-    def retrieve(self, request, pk=None):
-        """
-        An endpoint to retrieve all content metadata required for importing a content node
-        all of its ancestors, and any relevant needed metadata.
+    def _validate_depth(self, depth):
+        if depth is not None:
+            try:
+                depth = int(depth)
+                if depth < 0:
+                    raise ValueError
+            except ValueError:
+                raise ValidationError(
+                    {"error": "Depth parameter must be a non-negative integer."}
+                )
+        return depth
 
-        :param request: request object
-        :param pk: id parent node
-        :return: an object with keys for each content metadata table and a schema_version key
-        """
-        try:
-            UUID(pk)
-        except ValueError:
-            return Response(
-                {"error": "Invalid UUID format."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        content_schema = request.query_params.get(
-            "schema_version", self.default_content_schema
-        )
-
+    def _validate_content_schema(self, content_schema):
         try:
             if int(content_schema) > int(self.default_content_schema):
-                return HttpResponseBadRequest(self._error_message(False))
+                raise ValidationError(self._error_message(False))
             if int(content_schema) < int(self.min_content_schema):
-                return HttpResponseBadRequest(self._error_message(True))
-            base = BASES[content_schema]
+                raise ValidationError(self._error_message(True))
         except ValueError:
-            return HttpResponseBadRequest(
+            raise ValidationError(
                 "Schema version is not parseable by this version of Kolibri"
             )
         except AttributeError:
-            return HttpResponseBadRequest(
+            raise ValidationError(
                 "Schema version is not known by this version of Kolibri"
             )
+        return content_schema
 
-        # Get the model for the target node here - we do this so that we trigger a 404 immediately if the node
-        # does not exist.
+    def _get_retrieve_queryset(self):
+        pk = self.kwargs.get("pk")
+        depth = self.request.query_params.get("depth", None)
         node = get_object_or_404(models.ContentNode.objects.all(), pk=pk)
+        if depth is not None:
+            depth = self._validate_depth(depth)
+            queryset = node.get_descendants(include_self=True).filter(
+                level__lte=node.level + depth
+            )
+        else:
+            queryset = node.get_ancestors(include_self=True)
 
-        nodes = node.get_ancestors(include_self=True)
+        return queryset, node
 
+    def _serialize(self, nodes, node, content_schema):
         data = {}
-
         files = models.File.objects.filter(contentnode__in=nodes)
         through_tags = models.ContentNode.tags.through.objects.filter(
             contentnode__in=nodes
@@ -112,6 +118,8 @@ class ImportMetadataViewset(GenericViewSet):
         channel_metadata = models.ChannelMetadata.objects.filter(id=node.channel_id)
 
         cursor = connection.cursor()
+
+        base = BASES[content_schema]
 
         for qs in [
             nodes,
@@ -151,4 +159,33 @@ class ImportMetadataViewset(GenericViewSet):
 
         data["schema_version"] = content_schema
 
-        return Response(data)
+        return data
+
+    def retrieve(self, request, pk=None):
+        """
+        An endpoint to retrieve all content metadata required for importing a content node
+        all of its ancestors, and any relevant needed metadata.
+
+        :param request: request object
+        :param pk: id parent node
+        :return: an object with keys for each content metadata table and a schema_version key
+        """
+        try:
+            UUID(pk)
+        except ValueError:
+            raise ValidationError({"error": "Invalid UUID format."})
+
+        content_schema = request.query_params.get(
+            "schema_version", self.default_content_schema
+        )
+        self._validate_content_schema(content_schema)
+
+        queryset, node = self._get_retrieve_queryset()
+
+        page_queryset = self.paginate_queryset(queryset)
+
+        if page_queryset is not None:
+            data = self._serialize(page_queryset, node, content_schema)
+            return self.get_paginated_response(data)
+
+        return Response(self._serialize(queryset, node, content_schema))
