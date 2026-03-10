@@ -6,7 +6,7 @@ import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-di
 import ProfilePage from '../index';
 import makeStore from '../../../__tests__/utils/makeStore';
 import useOnMyOwnSetup, {
-  // eslint-disable-next-line import/named
+  // eslint-disable-next-line import-x/named
   useOnMyOwnSetupMock,
 } from '../../../composables/useOnMyOwnSetup';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line

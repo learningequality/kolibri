@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import Vuex, { Store } from 'vuex';
 import DeviceSettingsPage from '../index.vue';
 import usePlugins, {
-  // eslint-disable-next-line import/named
+  // eslint-disable-next-line import-x/named
   usePluginsMock,
 } from '../../../composables/usePlugins';
 

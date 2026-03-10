@@ -7,16 +7,16 @@ import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-di
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
 import { ref } from 'vue';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useDeviceSettings, { useDeviceSettingsMock } from '../../../composables/useDeviceSettings';
 import useLearnerResources, {
   useLearnerResourcesMock,
 } from '../../../composables/useLearnerResources';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');

@@ -12,7 +12,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useUserManagement, { useUserManagementMock } from '<useUserManegement file path>';
  *
  * jest.mock('<useUserManegement file path>')

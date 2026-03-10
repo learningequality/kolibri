@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "eslint-plugin-vue": "^9.33.0",
-    "espree": "^9.6.1",
+    "espree": "^10.4.0",
     "lodash": "catalog:",
     "requireindex": "^1.1.0"
   },
   "devDependencies": {
-    "eslint": "^8.57.0"
+    "eslint": "^9.39.0"
   },
   "engines": {
     "node": ">=20.19.0"

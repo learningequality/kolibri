@@ -8,19 +8,18 @@ import { useDevicesWithFilter } from 'kolibri-common/components/syncComponentSet
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import plugin_data from 'kolibri-plugin-data';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useBaseSearch, {
   useBaseSearchMock,
   injectBaseSearch,
 } from 'kolibri-common/composables/useBaseSearch';
-/* eslint-enable import/named */
-// eslint-disable-next-line import/named
+/* eslint-enable import-x/named */
+// eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import makeStore from '../../__tests__/utils/makeStore';
 import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../constants';
 import TopicsPage from '../TopicsPage';
-// eslint-disable-next-line import/named
 
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 jest.mock('kolibri-plugin-data', () => {

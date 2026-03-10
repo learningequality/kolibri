@@ -12,7 +12,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useTotalProgress, { useTotalProgressMock } from '<useTotalProgress file path>';
  *
  * jest.mock('<useTotalProgress file path>')

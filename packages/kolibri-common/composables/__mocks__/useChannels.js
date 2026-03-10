@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useChannels, { useChannelsMock } from '<useChannels file path>';
  *
  * jest.mock('<useChannels file path>')

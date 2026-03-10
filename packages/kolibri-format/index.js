@@ -12,12 +12,11 @@ const logger = require('kolibri-logging');
 // check for host project's linting configs, otherwise use defaults
 const hostProjectDir = process.cwd();
 
-let esLintConfig;
-try {
-  esLintConfig = require(`${hostProjectDir}/.eslintrc`);
-} catch (e) {
-  esLintConfig = require('./.eslintrc');
-}
+// Find the ESLint flat config file (can't use require() for .mjs, so use fs.existsSync)
+const hostEsLintConfig = path.join(hostProjectDir, 'eslint.config.mjs');
+const esLintConfigFile = fs.existsSync(hostEsLintConfig)
+  ? hostEsLintConfig
+  : path.join(__dirname, 'eslint.config.mjs');
 
 let stylelintConfig;
 try {
@@ -38,10 +37,8 @@ const logging = logger.getLogger('Kolibri Format');
 logging.setLevel(2);
 
 const esLinter = new ESLint({
-  baseConfig: esLintConfig,
+  overrideConfigFile: esLintConfigFile,
   fix: true,
-  // Resolve plugins from kolibri-format's directory, not the cwd
-  resolvePluginsRelativeTo: __dirname,
 });
 
 let esLintFormatter;

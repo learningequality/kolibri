@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useCoreLearn, { useCoreLearnMock } from '<useCoreLearn file path>';
  *
  * jest.mock('<useCoreLearn file path>')

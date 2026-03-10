@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useLearnerResources, {
   useLearnerResourcesMock,
 } from '../../composables/useLearnerResources';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 import ResumableContentGrid from '../LibraryPage/ResumableContentGrid';
 
 jest.mock('../../composables/useLearnerResources');

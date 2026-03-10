@@ -1,3 +1,5 @@
+// Ensure structuredClone is available in the jsdom test environment
+// (needed by ESLint 9's RuleTester)
 import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
 import 'intl';
@@ -13,6 +15,10 @@ import Vuex from 'vuex';
 import logging from 'kolibri-logging';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
+
+if (typeof globalThis.structuredClone === 'undefined') {
+  globalThis.structuredClone = val => JSON.parse(JSON.stringify(val));
+}
 
 /* eslint-disable vue/one-component-per-file */
 

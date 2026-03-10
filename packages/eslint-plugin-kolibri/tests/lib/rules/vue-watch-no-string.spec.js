@@ -2,13 +2,10 @@
 
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-watch-no-string');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('vue-watch-no-string', rule, {

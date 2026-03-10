@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useNav, { useNavMock } from '<useNav file path>';
  *
  * jest.mock('<useNav file path>')

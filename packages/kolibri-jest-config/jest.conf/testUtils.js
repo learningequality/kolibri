@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 // Run `fn` with console.error silenced.  Used to suppress jsdom's
 // "Not implemented: navigation" error which fires whenever code
 // assigns to window.location (non-configurable in modern jsdom).

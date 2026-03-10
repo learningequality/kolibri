@@ -6,17 +6,17 @@ import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useUser from 'kolibri/composables/useUser';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useBaseSearch, { useBaseSearchMock } from 'kolibri-common/composables/useBaseSearch';
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 import { PageNames } from '../../constants';
 import LibraryPage from '../LibraryPage';
 import OtherLibraries from '../LibraryPage/OtherLibraries';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import usePinnedDevices, { usePinnedDevicesMock } from '../../composables/usePinnedDevices';
 import useDevices, { useDevicesMock } from '../../composables/useDevices';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 
 const localVue = createLocalVue();
 localVue.use(Vuex);

@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import useDownloadRequests, { useDownloadRequestsMock } from '<useDownloadRequests file path>';
  *
  * jest.mock('<useDownloadRequests file path>')

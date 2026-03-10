@@ -6,6 +6,7 @@
  */
 'use strict';
 const utils = require('eslint-plugin-vue/lib/utils');
+const kolibriUtils = require('../utils');
 
 /**
  * Split the source code into multiple lines based on the line delimiters.
@@ -58,7 +59,7 @@ function verifyForAlways(context, prevBlock, nextBlock, betweenTokens) {
         for (const [prevToken, nextToken] of paddingLines) {
           const start = prevToken.range[1];
           const end = nextToken.range[0];
-          const paddingText = context.getSourceCode().text.slice(start, end);
+          const paddingText = context.sourceCode.text.slice(start, end);
           const lastSpaces = splitLines(paddingText).pop();
           yield fixer.replaceTextRange([start, end], `\n\n\n${lastSpaces}`);
         }
@@ -88,10 +89,11 @@ module.exports = {
   },
   /** @param {RuleContext} context */
   create(context) {
-    if (!context.parserServices.getDocumentFragment) {
+    const parserServices = kolibriUtils.getParserServices(context);
+    if (!parserServices || !parserServices.getDocumentFragment) {
       return {};
     }
-    const df = context.parserServices.getDocumentFragment();
+    const df = parserServices.getDocumentFragment();
     if (!df) {
       return {};
     }

@@ -1,16 +1,16 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import useChannels, { useChannelsMock } from 'kolibri-common/composables/useChannels';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import makeStore from '../../__tests__/utils/makeStore';
 import TopicsContentPage from '../TopicsContentPage';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useDownloadRequests, {
   useDownloadRequestsMock,
 } from '../../composables/useDownloadRequests';
 import useCoreLearn, { useCoreLearnMock } from '../../composables/useCoreLearn';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');

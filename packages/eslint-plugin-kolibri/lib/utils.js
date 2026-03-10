@@ -6,6 +6,14 @@ const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = require('./constants');
 
 module.exports = {
   /**
+   * Safely access parserServices from the ESLint rule context.
+   * In ESLint 9 flat config, parserServices moved to context.sourceCode.parserServices.
+   */
+  getParserServices(context) {
+    return context.sourceCode && context.sourceCode.parserServices;
+  },
+
+  /**
    * Extract names from references objects
    */
   getReferencesNames(references) {
@@ -27,13 +35,18 @@ module.exports = {
    * If not, report a problem.
    */
   checkVueEslintParser(context) {
-    if (context.parserServices.getTemplateBodyTokenStore == null) {
-      context.report({
-        loc: { line: 1, column: 0 },
-        message:
-          'Use the latest vue-eslint-parser. See also https://vuejs.github.io/eslint-plugin-vue/user-guide/#what-is-the-use-the-latest-vue-eslint-parser-error.',
-      });
-
+    const parserServices = this.getParserServices(context);
+    if (!parserServices || parserServices.getTemplateBodyTokenStore == null) {
+      // Only report the error for .vue files — non-Vue files are expected
+      // to lack the Vue parser and should be silently skipped.
+      const filename = context.filename;
+      if (filename && filename.endsWith('.vue')) {
+        context.report({
+          loc: { line: 1, column: 0 },
+          message:
+            'Use the latest vue-eslint-parser. See also https://vuejs.github.io/eslint-plugin-vue/user-guide/#what-is-the-use-the-latest-vue-eslint-parser-error.',
+        });
+      }
       return false;
     }
 
