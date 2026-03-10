@@ -81,14 +81,14 @@
             :appearanceOverrides="navigationButtonStyle"
             @click="goToQuestion(questionNumber + 1)"
           >
-            <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-            <template #iconAfter>
+            <div class="btn-flex">
+              <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
               <KIcon
                 icon="forward"
                 color="white"
-                :style="navigationIconStyleNext"
+                class="icon"
               />
-            </template>
+            </div>
           </KButton>
           <KButton
             :disabled="questionNumber === 0"
@@ -97,14 +97,15 @@
             :aria-label="$tr('previousQuestion')"
             @click="goToQuestion(questionNumber - 1)"
           >
-            <template #icon>
+            <div class="btn-flex">
               <KIcon
                 icon="back"
                 color="white"
+                class="icon"
                 :style="navigationIconStylePrevious"
               />
-            </template>
-            <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
+              <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
+            </div>
           </KButton>
         </div>
 
@@ -302,16 +303,6 @@
         return this.displayNavigationButtonLabel
           ? {}
           : { minWidth: '36px', width: '36px', padding: 0 };
-      },
-      navigationIconStyleNext() {
-        return this.displayNavigationButtonLabel
-          ? { position: 'relative', top: '3px', left: '4px' }
-          : {};
-      },
-      navigationIconStylePrevious() {
-        return this.displayNavigationButtonLabel
-          ? { position: 'relative', top: '0px', left: '-4px' }
-          : {};
       },
     },
     watch: {
@@ -555,6 +546,17 @@
 
   .bottom-block.window-is-small {
     text-align: center;
+  }
+
+  .btn-flex {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      top: 0;
+    }
   }
 
 </style>

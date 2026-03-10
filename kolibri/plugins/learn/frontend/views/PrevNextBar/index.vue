@@ -9,10 +9,13 @@
       :aria-label="previousLabel$()"
       @click="handlePrev"
     >
-      <template #icon>
-        <KIcon icon="back" />
-      </template>
-      <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
+      <div class="btn-flex">
+        <KIcon
+          class="icon"
+          icon="back"
+        />
+        <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
+      </div>
     </KButton>
 
     <!-- Progress/status in the center -->
@@ -40,10 +43,13 @@
         :aria-label="nextLabel$()"
         @click="handleNext"
       >
-        <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
-        <template #iconAfter>
-          <KIcon icon="forward" />
-        </template>
+        <div class="btn-flex">
+          <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
+          <KIcon
+            class="icon"
+            icon="forward"
+          />
+        </div>
       </KButton>
     </div>
   </div>
@@ -158,6 +164,17 @@
   .actions-area {
     display: flex;
     align-items: center;
+  }
+
+  .btn-flex {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      top: 0;
+    }
   }
 
 </style>
