@@ -21,8 +21,10 @@
       <CourseContentViewer
         v-else-if="currentResource"
         :contentNode="currentResource"
-        :hasNext="nextEnabled"
+        :nextResource="nextAvailableResource"
+        :previousResource="previousAvailableResource"
         @next="handleNext"
+        @prev="handlePrev"
         @finished="onResourceFinished"
       />
     </template>
@@ -71,31 +73,12 @@
       v-if="nextUnit"
       #sidePanelFooter
     >
-      <div class="course-side-panel-footer">
-        <div class="up-next-wrapper">
-          <span class="up-next-label">
-            {{ upNextLabel$() }}
-          </span>
-          <span class="up-next-title">
-            <KTextTruncator
-              :text="nextUnit.title"
-              :maxLines="1"
-            />
-          </span>
-        </div>
-        <div>
-          <KIconButton
-            v-if="canGoToNextUnit"
-            icon="forward"
-            @click="goToNextUnit"
-          />
-          <KIconButton
-            v-else
-            icon="permissions"
-            disabled
-          />
-        </div>
-      </div>
+      <UpNextNavigationFooter
+        :label="upNextLabel$()"
+        :nextNode="nextUnit"
+        :nextEnabled="canGoToNextUnit"
+        @next="goToNextUnit"
+      />
     </template>
   </ResourceLayout>
 
@@ -120,6 +103,7 @@
   import CourseContentViewer from './CourseContentViewer.vue';
   import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
   import useCourseContentProgress from './useCourseContentProgressTracking';
+  import UpNextNavigationFooter from './UpNextNavigationFooter.vue';
 
   export default {
     name: 'CourseUnitView',
@@ -128,6 +112,7 @@
       PrevNextBar,
       CourseContentViewer,
       UnitTreeAccordion,
+      UpNextNavigationFooter,
     },
     setup(props) {
       const router = useRouter();
@@ -295,6 +280,20 @@
         }
         const currentResource = unitResources.value[currentResourceIndexInUnit.value];
         return currentResource.lft < maxResourceLft.value;
+      });
+
+      const nextAvailableResource = computed(() => {
+        if (!nextEnabled.value) {
+          return null;
+        }
+        return unitResources.value[currentResourceIndexInUnit.value + 1];
+      });
+
+      const previousAvailableResource = computed(() => {
+        if (!prevEnabled.value) {
+          return null;
+        }
+        return unitResources.value[currentResourceIndexInUnit.value - 1];
       });
 
       const currentLessonResources = computed(() => {
@@ -770,6 +769,8 @@
         unitNumberLabel,
         prevEnabled,
         nextEnabled,
+        nextAvailableResource,
+        previousAvailableResource,
         maxResourceLft,
         resourceLayoutRef,
         handlePrev,
@@ -817,30 +818,6 @@
     align-items: center;
     min-width: 0;
     line-height: 1.2;
-  }
-
-  .course-side-panel-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 8px 8px 16px;
-
-    .up-next-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-
-      .up-next-label {
-        font-size: 12px;
-      }
-
-      .up-next-title {
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.2;
-      }
-    }
   }
 
   .side-panel-top-bar {
