@@ -4,11 +4,11 @@
     <KPageContainer>
       <CoachHeader :title="coursesLabel$()">
         <template #actions>
-          <KRouterLink
+          <KButton
             primary
             appearance="raised-button"
             :text="assignCourseAction$()"
-            :to="assignCourseRoute"
+            @click="openAssignCourseLink"
           />
         </template>
       </CoachHeader>
@@ -187,9 +187,10 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { useRoute } from 'vue-router/composables';
-  import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import { computed, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -199,6 +200,7 @@
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
   import DeleteCourseConfirmationModal from './modals/DeleteCourseConfirmation.vue';
+  import useAssignCourse from './composables/useAssignCourse';
 
   export default {
     name: 'CoursesRootPage',
@@ -212,6 +214,7 @@
     },
     setup() {
       const route = useRoute();
+      const router = useRouter();
       const instance = getCurrentInstance();
       const store = instance.proxy.$store;
       const modelOpen = ref(null);
@@ -232,8 +235,10 @@
         clearAllFilters$,
         courseDeleted$,
         courseDeleteError$,
+        courseDetailsAction$,
+        editRecipientsAction$,
       } = coursesStrings;
-      const { entireClassLabel$, previewAction$ } = coachStrings;
+      const { entireClassLabel$ } = coachStrings;
       const { show } = useKShow();
       const { windowIsSmall } = useKResponsiveWindow();
       const {
@@ -255,6 +260,12 @@
         updated.delete(courseId);
         updatingCourseIds.value = updated;
       };
+
+      const assignCourseComposable = useAssignCourse({
+        classId: computed(() => route.params.classId),
+      });
+
+      const { selectCourse } = assignCourseComposable;
 
       const assignCourseRoute = computed(() =>
         overrideRoute(route, {
@@ -329,17 +340,63 @@
         courseToDelete.value = null;
       };
 
-      const handleCourseMenuSelect = (selection, course) => {
-        const previewLabel = previewAction$();
-        const editLabel = translateCoreString('editAction');
-        const deleteLabel = translateCoreString('deleteAction');
+      const openAssignCourseLink = () => {
+        assignCourseComposable.resetAssignment();
+        router.push(
+          overrideRoute(route, {
+            name: PageNames.COURSES_ASSIGN,
+          }),
+        );
+      };
 
-        if (selection === previewLabel) {
-          instance.proxy.$router.push(courseSummaryLink(course));
-        } else if (selection === editLabel) {
-          instance.proxy.$router.push(assignCourseRoute.value);
-        } else if (selection === deleteLabel) {
+      const openCourseAssignRecipientsLink = () => {
+        router.push(
+          overrideRoute(route, {
+            name: PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
+          }),
+        );
+      };
+
+      const openCourseDetailsLink = course => {
+        router.push(
+          overrideRoute(route, {
+            name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+            params: { courseId: course.course },
+          }),
+        );
+      };
+
+      const handleCourseMenuSelect = async (selection, course) => {
+        const actions = {
+          viewDetails: courseDetailsAction$(),
+          edit: editRecipientsAction$(),
+          delete: translateCoreString('deleteAction'),
+        };
+
+        if (selection === actions.delete) {
           deleteCourse(course);
+          return;
+        }
+
+        if (selection === actions.viewDetails) {
+          assignCourseComposable.resetAssignment();
+          assignCourseComposable.setExistingAssignment(course);
+          await nextTick();
+          openCourseDetailsLink(course);
+          return;
+        }
+
+        if (selection === actions.edit) {
+          try {
+            const courseContent = await ContentNodeResource.fetchModel({ id: course.course });
+            selectCourse(courseContent);
+            assignCourseComposable.setCourseVisibility(course.active);
+            assignCourseComposable.setExistingAssignment(course);
+            await nextTick();
+            openCourseAssignRecipientsLink();
+          } catch (e) {
+            store.dispatch('handleApiError', e);
+          }
         }
       };
 
@@ -373,6 +430,7 @@
         modelOpen,
         courseToDelete,
         assignCourseRoute,
+        openAssignCourseLink,
         courseSummaryLink,
         coursesLabel$,
         assignCourseAction$,
@@ -395,7 +453,8 @@
         confirmDeleteCourse,
         cancelDeleteCourse,
         handleCourseMenuSelect,
-        previewAction$,
+        editRecipientsAction$,
+        courseDetailsAction$,
         coreString,
         coachString,
       };
@@ -439,8 +498,8 @@
       },
       courseMenuOptions() {
         return [
-          this.previewAction$(),
-          this.coreString('editAction'),
+          this.courseDetailsAction$(),
+          this.editRecipientsAction$(),
           this.coreString('deleteAction'),
         ];
       },

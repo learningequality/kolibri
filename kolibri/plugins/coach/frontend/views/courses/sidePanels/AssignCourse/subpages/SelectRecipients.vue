@@ -1,7 +1,8 @@
 <template>
 
   <SidePanelLayout
-    :goBack="goBack"
+    :goBack="isEditMode ? undefined : goBack"
+    :closePanel="isEditMode ? closePanel : undefined"
     :title="selectRecipientsLabel$()"
     :subtitle="courseNameLabel$({ name: selectedCourseTitle })"
   >
@@ -28,9 +29,9 @@
       </div>
       <div class="bottom-actions">
         <KButton
-          :text="backAction$()"
+          :text="isEditMode ? cancelAction$() : backAction$()"
           :disabled="isSaving"
-          @click="goBack"
+          @click="isEditMode ? closePanel() : goBack()"
         />
         <KButton
           primary
@@ -71,10 +72,16 @@
       const isSaving = ref(false);
       const errorMessage = ref(null);
 
-      const { classId, selectedCourse, assignCourse, selectedGroupIds, selectedLearnerIds } =
-        injectAssignCourse();
+      const {
+        classId,
+        selectedCourse,
+        assignCourse,
+        selectedGroupIds,
+        selectedLearnerIds,
+        courseSessionId,
+      } = injectAssignCourse();
 
-      const { backAction$, defaultErrorMessage$ } = coreStrings;
+      const { cancelAction$, backAction$, defaultErrorMessage$ } = coreStrings;
       const {
         courseNameLabel$,
         assignCourseAction$,
@@ -84,12 +91,18 @@
 
       const selectedCourseTitle = computed(() => selectedCourse.value?.title || '');
 
+      const isEditMode = computed(() => courseSessionId?.value != null);
+
       const goBack = () => {
         router.push(
           overrideRoute(route, {
             name: PageNames.COURSES_ASSIGN_INDEX,
           }),
         );
+      };
+
+      const closePanel = () => {
+        emit('closePanel');
       };
 
       const isAssignButtonDisabled = computed(() => {
@@ -125,15 +138,18 @@
         isSaving,
         errorMessage,
         classId,
+        isEditMode,
         selectedGroupIds,
         selectedLearnerIds,
         selectedCourseTitle,
         isAssignButtonDisabled,
 
         goBack,
+        closePanel,
         handleAssignCourse,
 
         backAction$,
+        cancelAction$,
         courseNameLabel$,
         assignCourseAction$,
         selectRecipientsLabel$,
