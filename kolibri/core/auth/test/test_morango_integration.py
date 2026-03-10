@@ -41,7 +41,6 @@ from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
-from kolibri.core.courses.models import TestStatus
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
@@ -547,7 +546,6 @@ class EcosystemTestCase(MultipleServerTestCase):
             collection_id=classroom.id,
             test_type=TestType.Pre,
             activated_by_id=alto_user.id,
-            status=TestStatus.Active,
         )
 
         # Verify courses sync fully and deserialize functionality doesn't unset user ID
@@ -826,7 +824,6 @@ class EcosystemSingleUserTestCase(MultipleServerTestCase):
             collection_id=classroom.id,
             test_type=TestType.Pre,
             activated_by_id=coach.id,
-            status=TestStatus.Active,
         )
 
         s1.sync(s0, facility, user=learner)
