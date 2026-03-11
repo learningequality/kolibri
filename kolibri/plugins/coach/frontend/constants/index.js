@@ -82,6 +82,7 @@ export const PageNames = {
   /** Attendance */
   ATTENDANCE_NEW: 'ATTENDANCE_NEW',
   ATTENDANCE_HISTORY: 'ATTENDANCE_HISTORY',
+  ATTENDANCE_EDIT: 'ATTENDANCE_EDIT',
 };
 
 export const GroupModals = {
