@@ -182,8 +182,8 @@
                       </span>
                       <span>
                         <span class="unit-item-count">{{
-                          numberOfResources$({
-                            value: (lesson && lesson.on_device_resources) || 0,
+                          numResources$({
+                            num: (lesson && lesson.on_device_resources) || 0,
                           })
                         }}</span>
                         <KIcon
@@ -311,6 +311,7 @@
         numLessons$,
         numUnits$,
         numQuestions$,
+        numResources$,
         preTestLabel$,
         postTestLabel$,
         startCourseAction$,
@@ -509,6 +510,7 @@
         courseContentLabel$,
         numLessons$,
         numQuestions$,
+        numResources$,
         preTestLabel$,
         postTestLabel$,
         startCourseAction$,

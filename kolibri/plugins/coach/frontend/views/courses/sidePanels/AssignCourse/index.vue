@@ -26,7 +26,7 @@
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import { CoursesModals, PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
-  import useAssignCourse from '../../composables/useAssignCourse';
+  import { injectAssignCourse } from '../../composables/useAssignCourse';
   import CloseConfirmationModal from '../../modals/CloseConfirmationModal.vue';
 
   /**
@@ -56,8 +56,7 @@
       const route = useRoute();
       const router = useRouter();
 
-      const classId = computed(() => route.params.classId);
-      const { selectedCourse } = useAssignCourse({ classId });
+      const { selectedCourse, resetAssignment } = injectAssignCourse();
 
       const isFinished = ref(false);
 
@@ -70,15 +69,28 @@
       });
 
       const closeSidePanel = () => {
-        router.push(overrideRoute(route, { name: PageNames.COURSES_ROOT })).catch(e => {
-          if (!isNavigationFailure(e, NavigationFailureType.aborted)) {
-            throw Error(e);
-          }
-        });
+        router
+          .push(
+            overrideRoute(route, {
+              name: PageNames.COURSES_ROOT,
+              query: null,
+            }),
+          )
+          .catch(e => {
+            if (
+              !isNavigationFailure(
+                e,
+                NavigationFailureType.aborted || NavigationFailureType.duplicated,
+              )
+            ) {
+              throw Error(e);
+            }
+          });
       };
 
       const onSuccess = async () => {
         isFinished.value = true;
+        resetAssignment();
         await nextTick();
         closeSidePanel();
         emit('showModal', CoursesModals.ASSIGN_COURSE_SUCCESS);

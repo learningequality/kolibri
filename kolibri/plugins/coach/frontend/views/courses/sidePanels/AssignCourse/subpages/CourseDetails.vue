@@ -1,7 +1,8 @@
 <template>
 
   <SidePanelLayout
-    :goBack="goBack"
+    :goBack="isPreviewMode ? undefined : goBack"
+    :closePanel="isPreviewMode ? closePanel : undefined"
     :title="course ? courseNameLabel$({ name: course.title }) : ''"
     :subtitle="courseSubtitle"
   >
@@ -142,10 +143,11 @@
     <template #bottomNavigation>
       <div class="bottom-actions">
         <KButton
-          :text="backAction$()"
-          @click="goBack"
+          :text="isPreviewMode ? cancelAction$() : backAction$()"
+          @click="isPreviewMode ? closePanel() : goBack()"
         />
         <KButton
+          v-if="!isPreviewMode"
           primary
           :disabled="loading || !course"
           :text="selectRecipientsLabel$()"
@@ -186,11 +188,11 @@
       ContentIcon,
       SidePanelLayout,
     },
-    setup() {
+    setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
 
-      const { backAction$, viewMoreAction$, viewLessAction$ } = coreStrings;
+      const { cancelAction$, backAction$, viewMoreAction$, viewLessAction$ } = coreStrings;
       const {
         courseContentLabel$,
         courseNameLabel$,
@@ -206,7 +208,10 @@
 
       const { numberOfResources$ } = coachStrings;
 
-      const { selectCourse } = injectAssignCourse();
+      const { selectCourse, courseSessionId } = injectAssignCourse();
+
+      // Check if side panel is in preview mode based on query parameter
+      const isPreviewMode = computed(() => courseSessionId?.value != null);
 
       const course = ref(null);
       const units = computed(() => course.value?.children?.results);
@@ -235,6 +240,10 @@
             name: PageNames.COURSES_ASSIGN_INDEX,
           }),
         );
+      };
+
+      const closePanel = () => {
+        emit('closePanel');
       };
 
       const loading = ref(true);
@@ -269,11 +278,14 @@
         descOverflowing,
         loading,
         goBack,
+        closePanel,
         selectRecipients,
         numTestQuestions,
+        isPreviewMode,
 
         courseSubtitle,
         backAction$,
+        cancelAction$,
         preTestLabel$,
         postTestLabel$,
         courseContentLabel$,

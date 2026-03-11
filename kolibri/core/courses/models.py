@@ -20,10 +20,12 @@ class TestType(ChoicesEnum):
     Post = "post"
 
 
-class TestStatus(ChoicesEnum):
-    NotStarted = "not_started"
-    Active = "active"
-    Ended = "ended"
+class UnitPhase(ChoicesEnum):
+    PreTestPending = "pre_test_pending"
+    PreTestActive = "pre_test_active"
+    PostTestPending = "post_test_pending"
+    PostTestActive = "post_test_active"
+    Complete = "complete"
 
 
 class CourseSession(AbstractFacilityDataModel):
@@ -266,9 +268,9 @@ class UnitTestAssignment(AbstractFacilityDataModel):
         null=False,
     )
 
-    # Whether this test is currently active
-    # Only one test can be active per course session at a time
-    is_active = models.BooleanField(default=False)
+    # A UnitTestAssignment with closed=False is active
+    # closed=True indicates it has been closed
+    closed = models.BooleanField(default=False)
 
     # Which coach activated this test (can be null)
     activated_by = models.ForeignKey(
@@ -277,15 +279,6 @@ class UnitTestAssignment(AbstractFacilityDataModel):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-    )
-
-    # Current status of the test
-    status = models.CharField(
-        max_length=20,
-        choices=TestStatus.choices(),
-        default="not_started",
-        blank=False,
-        null=False,
     )
 
     # Permissions: Coaches/admins can create, read, update, delete

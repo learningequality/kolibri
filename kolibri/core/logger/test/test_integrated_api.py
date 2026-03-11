@@ -565,6 +565,77 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_start_session_unit_id_without_test_type_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "course_session_id": course_session.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_without_course_session_id_fails(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_with_node_id_fails(self):
+        course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._make_request(
+            {
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+                "course_session_id": course_session.id,
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_start_session_unit_id_with_quiz_id_fails(self):
+        quiz = create_assigned_quiz_for_user(self.user)
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": uuid.uuid4().hex,
+                "test_type": "pre",
+                "quiz_id": quiz.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_start_session_node_id_has_mastery_model_not_exercise_fails(self):
         self.client.login(
             username=self.user.username,
@@ -589,6 +660,154 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
     def tearDown(self):
         self.client.logout()
+
+
+class ProgressTrackingPrePostTestSessionTestCase(APITestCase):
+    """Tests for the pre/post test progress tracking entry path."""
+
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.channel_id = uuid.uuid4().hex
+        self.content_id = uuid.uuid4().hex
+        self.course_session = create_assigned_course_for_user(
+            self.user, channel_id=self.channel_id, content_id=self.content_id
+        )
+        self.unit_id = uuid.uuid4().hex
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _start_pre_post_session(self, test_type="pre", unit_id=None):
+        return self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": unit_id or self.unit_id,
+                "test_type": test_type,
+                "course_session_id": self.course_session.id,
+            },
+            format="json",
+        )
+
+    def test_start_pre_test_session_succeeds(self):
+        response = self._start_pre_post_session("pre")
+        self.assertEqual(response.status_code, 200)
+
+    def test_start_post_test_session_succeeds(self):
+        response = self._start_pre_post_session("post")
+        self.assertEqual(response.status_code, 200)
+
+    def test_response_contains_mastery_criterion(self):
+        response = self._start_pre_post_session("pre")
+        result = response.json()
+        mastery = result["mastery_criterion"]
+        self.assertEqual(mastery["type"], "pre_post_test")
+        self.assertIn(mastery["version"], ("A", "B"))
+        self.assertEqual(mastery["test_type"], "pre")
+
+    def test_response_contains_context_with_unit_id(self):
+        response = self._start_pre_post_session("pre")
+        result = response.json()
+        self.assertEqual(result["context"]["unit_id"], self.unit_id)
+        self.assertEqual(result["context"]["course_session_id"], self.course_session.id)
+        self.assertNotIn("node_id", result["context"])
+
+    def test_ab_version_is_deterministic(self):
+        """Same inputs always produce the same A/B version."""
+        r1 = self._start_pre_post_session("pre")
+        r2 = self._start_pre_post_session("pre")
+        self.assertEqual(
+            r1.json()["mastery_criterion"]["version"],
+            r2.json()["mastery_criterion"]["version"],
+        )
+
+    def test_pre_and_post_get_opposite_versions(self):
+        """If pre is A, post must be B, and vice versa."""
+        r_pre = self._start_pre_post_session("pre")
+        r_post = self._start_pre_post_session("post")
+        pre_version = r_pre.json()["mastery_criterion"]["version"]
+        post_version = r_post.json()["mastery_criterion"]["version"]
+        self.assertNotEqual(pre_version, post_version)
+        self.assertEqual({pre_version, post_version}, {"A", "B"})
+
+    def test_synthetic_content_id_is_deterministic(self):
+        """Same inputs always produce the same synthetic content_id."""
+        self._start_pre_post_session("pre")
+        log1 = ContentSummaryLog.objects.get(user=self.user)
+        content_id_1 = log1.content_id
+        # Delete and re-start — should get the same content_id
+        ContentSessionLog.objects.all().delete()
+        ContentSummaryLog.objects.all().delete()
+        MasteryLog.objects.all().delete()
+        self._start_pre_post_session("pre")
+        log2 = ContentSummaryLog.objects.get(user=self.user)
+        self.assertEqual(content_id_1, log2.content_id)
+
+    def test_pre_and_post_get_distinct_content_ids(self):
+        """Pre-test and post-test for the same unit get different content_ids."""
+        self._start_pre_post_session("pre")
+        self._start_pre_post_session("post")
+        summary_logs = ContentSummaryLog.objects.filter(user=self.user)
+        content_ids = list(summary_logs.values_list("content_id", flat=True))
+        self.assertEqual(len(content_ids), 2)
+        self.assertNotEqual(content_ids[0], content_ids[1])
+
+    def test_session_creates_logs_with_quiz_kind_and_no_channel(self):
+        """Pre/post test logs use kind=QUIZ and channel_id=None like coach quizzes."""
+        self._start_pre_post_session("pre")
+        session_log = ContentSessionLog.objects.get()
+        self.assertEqual(session_log.kind, content_kinds.QUIZ)
+        self.assertIsNone(session_log.channel_id)
+        summary_log = ContentSummaryLog.objects.get(user=self.user)
+        self.assertEqual(summary_log.kind, content_kinds.QUIZ)
+
+    def test_anonymous_user_fails(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "unit_id": self.unit_id,
+                "test_type": "pre",
+                "course_session_id": self.course_session.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_mastery_log_has_negative_mastery_level(self):
+        """Pre/post tests use negative mastery_level like quizzes."""
+        self._start_pre_post_session("pre")
+        mastery_log = MasteryLog.objects.get()
+        self.assertLess(mastery_log.mastery_level, 0)
+
+    def test_session_resumption_returns_existing_mastery_log(self):
+        """Re-starting the same test resumes the existing mastery log."""
+        r1 = self._start_pre_post_session("pre")
+        mastery_level_1 = r1.json()["context"]["mastery_level"]
+        r2 = self._start_pre_post_session("pre")
+        mastery_level_2 = r2.json()["context"]["mastery_level"]
+        self.assertEqual(mastery_level_1, mastery_level_2)
+        self.assertEqual(MasteryLog.objects.count(), 1)
+
+    def test_pre_and_post_create_separate_mastery_logs(self):
+        """Pre-test and post-test create separate mastery logs (different content_ids)."""
+        self._start_pre_post_session("pre")
+        self._start_pre_post_session("post")
+        self.assertEqual(MasteryLog.objects.count(), 2)
+
+    def test_response_includes_pastattempts_and_totalattempts(self):
+        """Response includes attempt tracking fields."""
+        response = self._start_pre_post_session("pre")
+        result = response.json()
+        self.assertIn("pastattempts", result)
+        self.assertIn("totalattempts", result)
+        self.assertEqual(result["totalattempts"], 0)
+        self.assertEqual(result["complete"], False)
 
 
 class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):

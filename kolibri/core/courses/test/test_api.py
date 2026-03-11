@@ -713,26 +713,44 @@ class UnitTestActivationAPITestCase(APITestCase):
             description=cls.course.description,
         )
 
-    def test_coach_can_activate_pre_test(self):
-        """Test that a coach can activate a pre-test"""
-        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
-
-        response = self.client.post(
+    def _activate_test(self, unit_id, test_type, **kwargs):
+        return self.client.post(
             reverse(
                 "kolibri:core:coursesession-activate-test",
                 kwargs={"pk": self.courseSession.id},
             ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
+            {"unit_contentnode_id": unit_id, "test_type": test_type, **kwargs},
             format="json",
         )
+
+    def _close_test(self, unit_id, test_type):
+        return self.client.post(
+            reverse(
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {"unit_contentnode_id": unit_id, "test_type": test_type},
+            format="json",
+        )
+
+    def _get_active_test(self):
+        return self.client.get(
+            reverse(
+                "kolibri:core:coursesession-active-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+        )
+
+    def test_coach_can_activate_pre_test(self):
+        """Test that a coach can activate a pre-test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
 
         # Verify UnitTestAssignment was created
         assignment = models.UnitTestAssignment.objects.get(
@@ -740,45 +758,24 @@ class UnitTestActivationAPITestCase(APITestCase):
             unit_contentnode_id=self.unit.id,
             test_type="pre",
         )
-        self.assertTrue(assignment.is_active)
-        self.assertEqual(assignment.status, "active")
+        self.assertFalse(assignment.closed)
         self.assertEqual(assignment.activated_by, self.coach)
 
     def test_coach_can_activate_post_test(self):
         """Test that a coach can activate a post-test"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "post",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "post")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["test_type"], "post")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
 
     def test_admin_can_activate_test(self):
         """Test that an admin can activate a test"""
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -786,17 +783,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot activate a test"""
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -804,17 +791,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that activating a test with invalid test_type fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "invalid",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "invalid")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -856,17 +833,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that activating a test with non-existent unit fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": uuid.uuid4().hex,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(uuid.uuid4().hex, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -884,17 +851,7 @@ class UnitTestActivationAPITestCase(APITestCase):
             title="Other Unit",
         )
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": other_unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(other_unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -903,35 +860,15 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # First activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Now close it
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "ended")
+        self.assertEqual(response.data["closed"], True)
 
         # Verify the test is no longer active
         assignment = models.UnitTestAssignment.objects.get(
@@ -939,38 +876,17 @@ class UnitTestActivationAPITestCase(APITestCase):
             unit_contentnode_id=self.unit.id,
             test_type="pre",
         )
-        self.assertFalse(assignment.is_active)
-        self.assertEqual(assignment.status, "ended")
+        self.assertTrue(assignment.closed)
 
     def test_close_test_validation_mismatch_unit(self):
         """Test that closing a test with mismatched unit_contentnode_id fails"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Try to close with different unit_contentnode_id
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit2.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit2.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -979,30 +895,10 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a pre-test
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # Try to close as post-test
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "post",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "post")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -1010,17 +906,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that closing when no test is active returns 404"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1028,31 +914,11 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot close a test"""
         # First, coach activates a test
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
         # learner can not close it
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -1060,31 +926,16 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that active_test endpoint returns full test details"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._activate_test(self.unit.id, "pre")
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("id", response.data)
         self.assertEqual(response.data["unit_contentnode_id"], self.unit.id)
         self.assertEqual(response.data["unit_title"], "Test Unit")
         self.assertEqual(response.data["test_type"], "pre")
-        self.assertEqual(response.data["status"], "active")
+        self.assertEqual(response.data["closed"], False)
         self.assertIsNotNone(response.data["activated_by"])
         self.assertEqual(response.data["activated_by"]["username"], "coach")
         self.assertEqual(response.data["activated_by"]["id"], self.coach.id)
@@ -1093,12 +944,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that active_test returns null when no test is active"""
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data["active_test"])
@@ -1107,12 +953,7 @@ class UnitTestActivationAPITestCase(APITestCase):
         """Test that a non-coach cannot get active test details"""
         self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
 
-        response = self.client.get(
-            reverse(
-                "kolibri:core:coursesession-active-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-        )
+        response = self._get_active_test()
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -1121,44 +962,14 @@ class UnitTestActivationAPITestCase(APITestCase):
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         # Activate a test
-        response1 = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response1 = self._activate_test(self.unit.id, "pre")
         assignment_id_1 = response1.data["id"]
 
         # Close it
-        self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        self._close_test(self.unit.id, "pre")
 
         # Activate it again
-        response2 = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response2 = self._activate_test(self.unit.id, "pre")
         assignment_id_2 = response2.data["id"]
 
         # Should be the same assignment updated
@@ -1174,45 +985,537 @@ class UnitTestActivationAPITestCase(APITestCase):
             1,
         )
 
+    def test_activate_test_returns_unit_phase(self):
+        """activate_test should return unit_phase and active_unit_id"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        response = self._activate_test(self.unit.id, "pre")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+        self.assertIn("active_unit_id", response.data)
+
+    def test_close_test_returns_unit_phase(self):
+        """close_test should return unit_phase and active_unit_id"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+
+        # First activate a test
+        self._activate_test(self.unit.id, "pre")
+
+        # Then close it
+        response = self._close_test(self.unit.id, "pre")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_phase"], "post_test_pending")
+        self.assertIn("active_unit_id", response.data)
+
     def test_unauthenticated_user_cannot_activate_test(self):
         """Test that unauthenticated users cannot activate tests"""
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-activate-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._activate_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthenticated_user_cannot_close_test(self):
         """Test that unauthenticated users cannot close tests"""
-        response = self.client.post(
-            reverse(
-                "kolibri:core:coursesession-close-test",
-                kwargs={"pk": self.courseSession.id},
-            ),
-            {
-                "unit_contentnode_id": self.unit.id,
-                "test_type": "pre",
-            },
-            format="json",
-        )
+        response = self._close_test(self.unit.id, "pre")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_unauthenticated_user_cannot_get_active_test(self):
         """Test that unauthenticated users cannot get active test"""
-        response = self.client.get(
+        response = self._get_active_test()
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class LastUnitTestAPITestCase(APITestCase):
+    """
+    Tests for the last_unit_test endpoint which returns the most recent test
+    based on unit ordering and test type (post > pre within each unit).
+
+    For a course with 3 units, the ordering priority (highest to lowest) is:
+    unit3.post > unit3.pre > unit2.post > unit2.pre > unit1.post > unit1.pre
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="TestFacility")
+        cls.admin = FacilityUser.objects.create(username="admin", facility=cls.facility)
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+
+        cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
+        cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
+        cls.coach.set_password(DUMMY_PASSWORD)
+        cls.coach.save()
+        cls.classroom.add_coach(cls.coach)
+
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.classroom.add_member(cls.learner)
+
+        # Create a course ContentNode
+        channel_id = uuid.uuid4().hex
+        cls.course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Test Course",
+            description="A test course with 3 units",
+        )
+
+        # Create 3 units (children of course) - order matters for lft/rght tree
+        cls.unit1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent_id=cls.course.id,
+            available=True,
+            modality=modalities.UNIT,
+            title="Unit 1: Introduction",
+            description="First unit",
+        )
+
+        cls.unit2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent_id=cls.course.id,
+            available=True,
+            modality=modalities.UNIT,
+            title="Unit 2: Fundamentals",
+            description="Second unit",
+        )
+
+        cls.unit3 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent_id=cls.course.id,
+            available=True,
+            modality=modalities.UNIT,
+            title="Unit 3: Advanced",
+            description="Third unit",
+        )
+
+        cls.courseSession = models.CourseSession.objects.create(
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+            course=cls.course.id,
+            title=cls.course.title,
+            description=cls.course.description,
+        )
+
+        # Course with no units for edge case testing
+        cls.empty_course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            modality=modalities.COURSE,
+            title="Empty Course",
+            description="A course with no units",
+        )
+
+        cls.empty_course_session = models.CourseSession.objects.create(
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+            course=cls.empty_course.id,
+            title=cls.empty_course.title,
+            description=cls.empty_course.description,
+        )
+
+    def setUp(self):
+        # Clean up any UnitTestAssignments between tests
+        models.UnitTestAssignment.objects.filter(
+            course_session=self.courseSession
+        ).delete()
+
+    def _close_test(self, unit_id, test_type):
+        return self.client.post(
             reverse(
-                "kolibri:core:coursesession-active-test",
+                "kolibri:core:coursesession-close-test",
+                kwargs={"pk": self.courseSession.id},
+            ),
+            {"unit_contentnode_id": unit_id, "test_type": test_type},
+            format="json",
+        )
+
+    def _get_last_unit_test(self):
+        """Helper to call the last_unit_test endpoint"""
+        return self.client.get(
+            reverse(
+                "kolibri:core:coursesession-last-unit-test",
                 kwargs={"pk": self.courseSession.id},
             ),
         )
 
+    def _create_test(self, unit, test_type, closed):
+        """Helper to create a UnitTestAssignment directly"""
+        return models.UnitTestAssignment.objects.create(
+            course_session=self.courseSession,
+            collection=self.classroom,
+            unit_contentnode_id=unit.id,
+            test_type=test_type,
+            closed=closed,
+            activated_by=self.coach,
+        )
+
+    def _create_tests_to(self, unit, test_type):
+        """Create all UnitTestAssignments up to and including the given step.
+
+        All steps before the target are created with closed=True; the target step
+        is created with closed=False.  Returns the last created assignment.
+
+        e.g. _create_tests_to(self.unit2, "post") creates:
+        unit1/pre=closed, unit1/post=closed, unit2/pre=closed, unit2/post=active
+        """
+        steps = [
+            (self.unit1, "pre"),
+            (self.unit1, "post"),
+            (self.unit2, "pre"),
+            (self.unit2, "post"),
+            (self.unit3, "pre"),
+            (self.unit3, "post"),
+        ]
+        result = None
+        for step_unit, step_type in steps:
+            is_target = step_unit == unit and step_type == test_type
+            result = self._create_test(
+                step_unit, step_type, False if is_target else True
+            )
+            if is_target:
+                break
+        return result
+
+    # --- Permission tests ---
+
+    def test_coach_can_get_last_unit_test(self):
+        """Test that a coach can access the last_unit_test endpoint"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        response = self._get_last_unit_test()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_can_get_last_unit_test(self):
+        """Test that an admin can access the last_unit_test endpoint"""
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self._get_last_unit_test()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_learner_cannot_get_last_unit_test(self):
+        """Test that a learner cannot access the last_unit_test endpoint"""
+        self.client.login(username=self.learner.username, password=DUMMY_PASSWORD)
+        response = self._get_last_unit_test()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthenticated_user_cannot_get_last_unit_test(self):
+        """Test that unauthenticated users cannot access the endpoint"""
+        response = self._get_last_unit_test()
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    # --- Edge cases ---
+
+    def test_returns_initial_state_when_no_tests_taken(self):
+        """Test that endpoint returns initial course state when no tests have been taken"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["id"])
+        self.assertIsNone(response.data["unit_contentnode_id"])
+        self.assertIsNone(response.data["test_type"])
+        self.assertIsNone(response.data["activated_by"])
+        self.assertEqual(response.data["unit_phase"], "pre_test_pending")
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
+
+    # --- Unit 1 progression ---
+
+    def test_returns_unit1_pre_test_when_active(self):
+        """Starting point: Unit 1 pre-test is active"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit1.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit1_pre_test_when_ended(self):
+        """Unit 1 pre-test completed, lessons phase"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+        self._close_test(self.unit1.id, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit1.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], True)
+
+    def test_returns_unit1_post_test_when_active(self):
+        """Unit 1 post-test active (pre-test already done)"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit1.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit1_post_test_when_ended(self):
+        """Unit 1 complete - both tests ended"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "post")
+        self._close_test(self.unit1.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit1.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], True)
+
+    # --- Unit 2 progression (unit 1 complete) ---
+
+    def test_returns_unit2_pre_test_when_active(self):
+        """Unit 2 pre-test active after unit 1 is complete"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit2.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit2_pre_test_when_ended(self):
+        """Unit 2 pre-test ended, in lessons phase"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "pre")
+        self._close_test(self.unit2.id, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit2.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], True)
+
+    def test_returns_unit2_post_test_when_active(self):
+        """Unit 2 post-test active"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit2.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit2_post_test_when_ended(self):
+        """Unit 2 complete"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "post")
+        self._close_test(self.unit2.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit2.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], True)
+
+    # --- Unit 3 progression (units 1 and 2 complete) ---
+
+    def test_returns_unit3_pre_test_when_active(self):
+        """Unit 3 pre-test active after units 1 and 2 complete"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit3, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit3.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit3_pre_test_when_ended(self):
+        """Unit 3 pre-test ended, in lessons phase"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit3, "pre")
+        self._close_test(self.unit3.id, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit3.id))
+        self.assertEqual(response.data["test_type"], "pre")
+        self.assertEqual(response.data["closed"], True)
+
+    def test_returns_unit3_post_test_when_active(self):
+        """Unit 3 post-test active"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit3, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit3.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], False)
+
+    def test_returns_unit3_post_test_when_course_complete(self):
+        """Course complete - all 3 units finished"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit3, "post")
+        self._close_test(self.unit3.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit3.id))
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["closed"], True)
+
+    # --- Ordering verification tests ---
+
+    def test_post_takes_precedence_over_pre_within_same_unit(self):
+        """Verify that post-test is returned over pre-test for the same unit"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "post")
+        self._close_test(self.unit1.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["test_type"], "post")
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit1.id))
+
+    def test_later_unit_takes_precedence_over_earlier_unit(self):
+        """Verify that unit 2 pre-test is returned over unit 1 post-test"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "pre")
+        self._close_test(self.unit2.id, "pre")
+
+        response = self._get_last_unit_test()
+
+        # Unit 2 pre-test should be returned (higher unit position)
+        self.assertEqual(response.data["unit_contentnode_id"], str(self.unit2.id))
+        self.assertEqual(response.data["test_type"], "pre")
+
+    def test_response_includes_activated_by_info(self):
+        """Verify that the response includes activated_by user info"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertIn("activated_by", response.data)
+        self.assertEqual(response.data["activated_by"]["id"], self.coach.id)
+        self.assertEqual(response.data["activated_by"]["username"], "coach")
+
+    def test_response_structure(self):
+        """Verify the response contains all expected fields"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        test = self._create_tests_to(self.unit1, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertIn("id", response.data)
+        self.assertIn("unit_contentnode_id", response.data)
+        self.assertIn("test_type", response.data)
+        self.assertIn("closed", response.data)
+        self.assertIn("activated_by", response.data)
+        self.assertEqual(response.data["id"], str(test.id))
+
+    # --- unit_phase and active_unit_index tests ---
+
+    def test_unit_phase_pre_test_active(self):
+        """unit_phase should be pre_test_active when a pre-test is running"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
+
+    def test_unit_phase_post_test_pending(self):
+        """unit_phase should be post_test_pending after pre-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+        self._close_test(self.unit1.id, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "post_test_pending")
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
+
+    def test_unit_phase_post_test_active(self):
+        """unit_phase should be post_test_active when a post-test is running"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "post_test_active")
+        self.assertEqual(response.data["active_unit_id"], str(self.unit1.id))
+
+    def test_unit_phase_pre_test_pending_after_post_test_ends(self):
+        """unit_phase should be pre_test_pending for next unit after post-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "post")
+        self._close_test(self.unit1.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "pre_test_pending")
+        self.assertEqual(response.data["active_unit_id"], str(self.unit2.id))
+
+    def test_unit_phase_complete_when_last_unit_post_test_ends(self):
+        """unit_phase should be complete when last unit's post-test ends"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit3, "post")
+        self._close_test(self.unit3.id, "post")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["unit_phase"], "complete")
+        self.assertIsNone(response.data["active_unit_id"])
+
+    def test_active_unit_index_mid_course(self):
+        """active_unit_index should reflect the current unit position"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit2, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertEqual(response.data["active_unit_id"], str(self.unit2.id))
+        self.assertEqual(response.data["unit_phase"], "pre_test_active")
+
+    def test_response_structure_includes_new_fields(self):
+        """Verify response includes unit_phase and active_unit_index"""
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        self._create_tests_to(self.unit1, "pre")
+
+        response = self._get_last_unit_test()
+
+        self.assertIn("unit_phase", response.data)
+        self.assertIn("active_unit_id", response.data)

@@ -1,5 +1,11 @@
 """
 Tests related specifically to integration with Morango.
+
+When creating models for servers passed into test methods from the `multiple_kolibri_servers`
+decorator, all models must be created with the `.create_model(<ModelClass>, **creation_kwargs)`
+method on the server object. Otherwise, the model will only be available within the test's
+database transaction and will not properly sync. Once the model is created, it can be retrieved
+through regular Django ORM calls, with `.using(<server_alias>)`.
 """
 import datetime
 import os
@@ -30,8 +36,13 @@ from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
 from .sync_utils import multiple_kolibri_servers
+from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import TestType
+from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -390,10 +401,11 @@ class EcosystemTestCase(MultipleServerTestCase):
         )
 
         # Add a learnergroup
+        classroom = Classroom.objects.using(s0.db_alias).first()
         s0.create_model(
             LearnerGroup,
             name="learnergroup",
-            parent_id=Classroom.objects.using(s0.db_alias).first().id,
+            parent_id=classroom.id,
         )
         s1.sync(s0, facility)
         self.assertTrue(
@@ -508,10 +520,52 @@ class EcosystemTestCase(MultipleServerTestCase):
                 facility.dataset_id,
             )
 
+        # Create a course
+        course_id = uuid.uuid4().hex
+        s0.create_model(
+            CourseSession,
+            course=course_id,
+            title="Course session",
+            description="",
+            is_active=True,
+            collection_id=classroom.id,
+            created_by_id=alto_user.id,
+        )
+        course_session = CourseSession.objects.using(s0.db_alias).get(course=course_id)
+        s0.create_model(
+            CourseSessionAssignment,
+            course_session_id=course_session.id,
+            collection_id=classroom.id,
+            assigned_by_id=alto_user.id,
+        )
+        unit_contentnode_id = uuid.uuid4().hex
+        s0.create_model(
+            UnitTestAssignment,
+            course_session_id=course_session.id,
+            unit_contentnode_id=unit_contentnode_id,
+            collection_id=classroom.id,
+            test_type=TestType.Pre,
+            activated_by_id=alto_user.id,
+        )
+
+        # Verify courses sync fully and deserialize functionality doesn't unset user ID
+        s1.sync(s0, facility)
+        unit_assign = (
+            UnitTestAssignment.objects.using(s1.db_alias)
+            .filter(unit_contentnode_id=unit_contentnode_id)
+            .first()
+        )
+        self.assertIsNotNone(
+            unit_assign, msg="UnitTestAssignment not synced in full-facility sync"
+        )
+        self.assertIsNotNone(
+            unit_assign.activated_by_id,
+            msg="UnitTestAssignment synced in full-facility sync without activated_by_id",
+        )
+
         # Test migration of ExamLog and ExamAttemptLog from s1 to s2 to verify receipt which
         # requires spoofing kolibri version in syncing info
         exam_title = uuid.uuid4().hex
-        classroom_id = Classroom.objects.using(s1.db_alias).get(name="classroom").id
         s2.create_model(
             FacilityUser,
             username="learner",
@@ -530,7 +584,7 @@ class EcosystemTestCase(MultipleServerTestCase):
                     "title": "a",
                 }
             ],
-            collection_id=classroom_id,
+            collection_id=classroom.id,
             creator_id=alto_user.id,
             active=True,
         )
@@ -538,7 +592,7 @@ class EcosystemTestCase(MultipleServerTestCase):
         s2.create_model(
             ExamAssignment,
             exam_id=exam_id,
-            collection_id=classroom_id,
+            collection_id=classroom.id,
             assigned_by_id=alto_user.id,
         )
 
@@ -717,6 +771,125 @@ class EcosystemSingleUserTestCase(MultipleServerTestCase):
         # Assert that learner1 on s1 is now also marked as soft deleted
         self.assertIsNotNone(
             FacilityUser.all_objects.using(s1.db_alias).get(id=learner1.id).date_deleted
+        )
+
+    @multiple_kolibri_servers(3)
+    def test_single_user_course_syncing(self, servers):
+        self.maxDiff = None
+        s0, s1, s2 = servers
+
+        facility, learner, coach = s0.generate_base_data()
+        alias = s0.db_alias
+
+        classroom = Classroom.objects.using(alias).first()
+        if (
+            not Membership.objects.using(alias)
+            .filter(user_id=learner.id, collection_id=classroom.id)
+            .exists()
+        ):
+            s0.create_model(
+                Membership,
+                user_id=learner.id,
+                collection_id=classroom.id,
+            )
+
+        s0.create_model(
+            Role,
+            user_id=coach.id,
+            collection_id=classroom.id,
+            kind=role_kinds.COACH,
+        )
+
+        course_id = uuid.uuid4().hex
+        s0.create_model(
+            CourseSession,
+            course=course_id,
+            title="Course session",
+            description="",
+            is_active=True,
+            collection_id=classroom.id,
+            created_by_id=coach.id,
+        )
+        course_session = CourseSession.objects.using(alias).get(course=course_id)
+        s0.create_model(
+            CourseSessionAssignment,
+            course_session_id=course_session.id,
+            collection_id=classroom.id,
+            assigned_by_id=coach.id,
+        )
+        s0.create_model(
+            UnitTestAssignment,
+            course_session_id=course_session.id,
+            unit_contentnode_id=uuid.uuid4().hex,
+            collection_id=classroom.id,
+            test_type=TestType.Pre,
+            activated_by_id=coach.id,
+        )
+
+        s1.sync(s0, facility, user=learner)
+        # not a currently expected pathway, but ensures partitioning structure is correct
+        s2.sync(s0, facility, user=coach)
+
+        self.assertTrue(
+            FacilityUser.objects.using(s1.db_alias).filter(id=learner.id).exists(),
+            msg="Learner user should be synced to learner device",
+        )
+        self.assertFalse(
+            FacilityUser.objects.using(s1.db_alias).filter(id=coach.id).exists(),
+            msg="Coach user should not be synced to learner device",
+        )
+        s1_synced_course_session = CourseSession.objects.using(s1.db_alias).get(
+            id=course_session.id
+        )
+        s1_synced_assignment = CourseSessionAssignment.objects.using(s1.db_alias).get(
+            course_session_id=course_session.id, collection_id=classroom.id
+        )
+        s1_synced_unit_test_assignment = UnitTestAssignment.objects.using(
+            s1.db_alias
+        ).get(course_session_id=course_session.id, collection_id=classroom.id)
+
+        self.assertIsNone(
+            s1_synced_course_session.created_by_id,
+            msg="CourseSession.created_by_id should be unset on learner device",
+        )
+        self.assertIsNone(
+            s1_synced_assignment.assigned_by_id,
+            msg="CourseSessionAssignment.assigned_by_id should be unset on learner device",
+        )
+        self.assertIsNone(
+            s1_synced_unit_test_assignment.activated_by_id,
+            msg="UnitTestAssignment.activated_by_id should be unset on learner device",
+        )
+
+        self.assertFalse(
+            FacilityUser.objects.using(s2.db_alias).filter(id=learner.id).exists(),
+            msg="Learner user should not be synced",
+        )
+        self.assertTrue(
+            FacilityUser.objects.using(s2.db_alias).filter(id=coach.id).exists(),
+            msg="Coach user should be synced",
+        )
+        s2_synced_course_session = CourseSession.objects.using(s2.db_alias).get(
+            id=course_session.id
+        )
+        s2_synced_assignment = CourseSessionAssignment.objects.using(s2.db_alias).get(
+            course_session_id=course_session.id, collection_id=classroom.id
+        )
+        s2_synced_unit_test_assignment = UnitTestAssignment.objects.using(
+            s2.db_alias
+        ).get(course_session_id=course_session.id, collection_id=classroom.id)
+
+        self.assertIsNotNone(
+            s2_synced_course_session.created_by_id,
+            msg="CourseSession.created_by_id should be set with coach",
+        )
+        self.assertIsNotNone(
+            s2_synced_assignment.assigned_by_id,
+            msg="CourseSessionAssignment.assigned_by_id should be set with coach",
+        )
+        self.assertIsNotNone(
+            s2_synced_unit_test_assignment.activated_by_id,
+            msg="UnitTestAssignment.activated_by_id should be set with coach",
         )
 
     @multiple_kolibri_servers(2)

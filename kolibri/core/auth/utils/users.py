@@ -50,10 +50,11 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 password,
             ),
         )
+    except NetworkLocationConnectionFailure:
+        raise ResourceGoneError()
     except (
         CommandError,
         NetworkLocationResponseFailure,
-        NetworkLocationConnectionFailure,
     ):
         if password == NOT_SPECIFIED or not password:
             facility_info_url = reverse_path(
@@ -76,7 +77,10 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                     detail="Password is required", code=error_constants.MISSING_PASSWORD
                 )
         else:
-            raise ResourceGoneError()
+            raise AuthenticationFailed(
+                detail="Authentication failed",
+                code=error_constants.AUTHENTICATION_FAILED,
+            )
     auth_info = response.json()
     if len(auth_info) > 1:
         user_info = [u for u in response.json() if u["username"] == username][0]
@@ -101,19 +105,36 @@ def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user
     """
     user_info_url = reverse_path("kolibri:core:publicuser-detail", args=[user_id])
     params = {"facility_id": facility_id}
-    response = client.get(
-        user_info_url,
-        params=params,
-        auth=(
-            "username={}&{}={}".format(
-                adminUsername, FACILITY_CREDENTIAL_KEY, facility_id
+    try:
+        response = client.get(
+            user_info_url,
+            params=params,
+            auth=(
+                "username={}&{}={}".format(
+                    adminUsername, FACILITY_CREDENTIAL_KEY, facility_id
+                ),
+                adminPassword,
             ),
-            adminPassword,
-        ),
-    )
-    if response.status_code == 200:
-        return response.json()
-    elif response.status_code == 404:
-        raise NotFound()
-    else:
+        )
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404:
+            raise NotFound()
+        elif response.status_code in (401, 403):
+            raise AuthenticationFailed(
+                detail="Authentication failed",
+                code=error_constants.AUTHENTICATION_FAILED,
+            )
+        else:
+            raise ResourceGoneError()
+    except NetworkLocationConnectionFailure:
+        raise ResourceGoneError()
+    except NetworkLocationResponseFailure as e:
+        if e.response is not None and e.response.status_code in (401, 403):
+            raise AuthenticationFailed(
+                detail="Authentication failed",
+                code=error_constants.AUTHENTICATION_FAILED,
+            )
+        raise ResourceGoneError()
+    except CommandError:
         raise ResourceGoneError()

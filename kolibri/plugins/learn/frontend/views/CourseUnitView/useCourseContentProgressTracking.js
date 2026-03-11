@@ -8,11 +8,18 @@ const SessionReadyKey = Symbol('SessionReady');
 const ProgressKey = Symbol('Progress');
 const TimeSpentKey = Symbol('TimeSpent');
 const ExtraFieldsKey = Symbol('ExtraFields');
+const PastAttemptsKey = Symbol('PastAttempts');
+const CompleteKey = Symbol('Complete');
+const TotalAttemptsKey = Symbol('TotalAttempts');
+const ContextKey = Symbol('Context');
 const StartTrackingProgressKey = Symbol('StartTrackingProgress');
 const StopTrackingProgressKey = Symbol('StopTrackingProgress');
+const RestartContentSessionKey = Symbol('RestartContentSession');
 const HandleUpdateProgressKey = Symbol('HandleUpdateProgress');
 const HandleAddProgressKey = Symbol('HandleAddProgress');
 const HandleUpdateContentStateKey = Symbol('HandleUpdateContentState');
+const HandleUpdateInteractionKey = Symbol('HandleUpdateInteraction');
+const UpdateContentSessionKey = Symbol('UpdateContentSession');
 const OnErrorKey = Symbol('OnError');
 
 /**
@@ -31,6 +38,10 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     progress,
     time_spent,
     extra_fields,
+    pastattempts,
+    complete,
+    context,
+    totalattempts,
     initContentSession,
     updateContentSession,
     startTrackingProgress,
@@ -77,6 +88,10 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     return wrappedUpdateContentSession({ contentState });
   };
 
+  const handleUpdateInteraction = ({ progress, interaction }) => {
+    return wrappedUpdateContentSession({ progress, interaction });
+  };
+
   const onError = error => {
     errored.value = true;
     store.dispatch('handleApiError', { error });
@@ -85,7 +100,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   /**
    * Initialize the content session for progress tracking
    */
-  const initSession = async () => {
+  const initSession = async (repeat = false) => {
     const node = contentNode.value;
     if (!node) {
       return;
@@ -98,6 +113,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
       await initContentSession({
         node,
         courseSessionId: courseSessionId.value,
+        repeat,
       });
       sessionReady.value = true;
       // Set progress into the content node progress store
@@ -105,6 +121,11 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     } catch (error) {
       store.dispatch('handleApiError', { error });
     }
+  };
+
+  const restartContentSession = async () => {
+    await stopTrackingProgress();
+    await initSession(true);
   };
 
   // Watch for progress changes to keep cache up to date
@@ -128,11 +149,18 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   provide(ProgressKey, progress);
   provide(TimeSpentKey, time_spent);
   provide(ExtraFieldsKey, extra_fields);
+  provide(PastAttemptsKey, pastattempts);
+  provide(CompleteKey, complete);
+  provide(TotalAttemptsKey, totalattempts);
+  provide(ContextKey, context);
   provide(StartTrackingProgressKey, startTrackingProgress);
   provide(StopTrackingProgressKey, stopTrackingProgress);
+  provide(RestartContentSessionKey, restartContentSession);
   provide(HandleUpdateProgressKey, handleUpdateProgress);
   provide(HandleAddProgressKey, handleAddProgress);
   provide(HandleUpdateContentStateKey, handleUpdateContentState);
+  provide(HandleUpdateInteractionKey, handleUpdateInteraction);
+  provide(UpdateContentSessionKey, wrappedUpdateContentSession);
   provide(OnErrorKey, onError);
 }
 
@@ -148,15 +176,27 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  * @property {import('vue').Ref<number|null>} progress The current progress value (0 to 1).
  * @property {import('vue').Ref<number|null>} time_spent The time spent on the content in seconds.
  * @property {Object} extra_fields Reactive object containing extra fields from the session.
+ * @property {import('vue').Ref<Array>} pastattempts An array of past attempts for the content.
+ * @property {import('vue').Ref<boolean|null>} complete Whether the content is marked as
+ *                                                      complete.
+ * @property {import('vue').Ref<number|null>} totalattempts The total number of attempts for the
+ *                                                          content.
+ * @property {import('vue').Ref<Object>} context The context object containing additional
+ *                                              information about the content session.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
  *                                                      final progress.
+ * @property {() => Promise<void>} restartContentSession Restarts the content session, resetting
+ *                                                       progress and time spent.
  * @property {(progressValue: number) => Promise<void>} handleUpdateProgress Updates progress
  *                                                                           to an absolute value.
  * @property {(progressDelta: number) => Promise<void>} handleAddProgress Adds a delta to the
  *                                                                        current progress.
  * @property {(contentState: Object) => Promise<void>} handleUpdateContentState Updates the
  *                                                                              content state.
+ * @property {(interaction: Object) => Promise<void>} handleUpdateInteraction Updates the
+ *                                                                          interaction state.
+ * @property {(data: any) => Promise<void>} updateContentSession Updates the content session.
  * @property {(error: Error) => void} onError Handles errors by flagging the session as errored
  *                                            and dispatching to the store.
  *
@@ -169,11 +209,18 @@ export function injectCourseContentProgress() {
     progress: inject(ProgressKey),
     time_spent: inject(TimeSpentKey),
     extra_fields: inject(ExtraFieldsKey),
+    pastattempts: inject(PastAttemptsKey),
+    complete: inject(CompleteKey),
+    totalattempts: inject(TotalAttemptsKey),
+    context: inject(ContextKey),
     startTrackingProgress: inject(StartTrackingProgressKey),
     stopTrackingProgress: inject(StopTrackingProgressKey),
+    restartContentSession: inject(RestartContentSessionKey),
     handleUpdateProgress: inject(HandleUpdateProgressKey),
     handleAddProgress: inject(HandleAddProgressKey),
     handleUpdateContentState: inject(HandleUpdateContentStateKey),
+    handleUpdateInteraction: inject(HandleUpdateInteractionKey),
+    updateContentSession: inject(UpdateContentSessionKey),
     onError: inject(OnErrorKey),
   };
 }

@@ -1,5 +1,12 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
+/* eslint-disable import/named */
+import useContentNodeProgress, {
+  useContentNodeProgressMock,
+} from '../../../../composables/useContentNodeProgress';
+/* eslint-enable import/named */
 import AssignmentCard from '../index.vue';
+
+jest.mock('../../../../composables/useContentNodeProgress');
 
 // --- Course test data ---
 const baseCourse = {
@@ -7,14 +14,17 @@ const baseCourse = {
   title: 'Test Course 1',
 };
 
+const makeResource = (contentId, progress = 0) => ({
+  contentnode_id: contentId,
+  progress,
+  contentnode: { content_id: contentId },
+});
+
 // --- Lesson test data ---
 const baseLesson = {
   id: '395b68e7be06485cbe65ce159dac6859',
   title: 'Test Lesson 1',
-  progress: {
-    resource_progress: 0,
-    total_resources: 10,
-  },
+  resources: [],
 };
 
 // --- Quiz test data ---
@@ -54,10 +64,6 @@ function makeLessonWrapper(lessonOverrides = {}) {
       lesson: {
         ...baseLesson,
         ...lessonOverrides,
-        progress: {
-          ...baseLesson.progress,
-          ...(lessonOverrides.progress || {}),
-        },
       },
       collectionTitle: 'Test Classroom 1',
       to: { path: '/lesson' },
@@ -86,6 +92,10 @@ function makeQuizWrapper(quizOverrides = {}) {
 }
 
 describe('AssignmentCard', () => {
+  beforeEach(() => {
+    useContentNodeProgress.mockImplementation(() => useContentNodeProgressMock());
+  });
+
   describe('when rendering a course', () => {
     let wrapper;
 
@@ -180,27 +190,68 @@ describe('AssignmentCard', () => {
       };
 
       it('shows no label if there are no resources', () => {
-        wrapper = makeLessonWrapper({ progress: { resource_progress: 10, total_resources: 0 } });
+        wrapper = makeLessonWrapper({ resources: [] });
         expect(wrapper.findComponent({ name: 'KLabeledIcon' }).exists()).toBe(false);
         assertProgressEquals(wrapper, '');
       });
 
       it('shows no label when the lesson has not been started', () => {
-        wrapper = makeLessonWrapper({ progress: { resource_progress: 0 } });
+        // resources exist but none have progress in the map (all default to 0)
+        wrapper = makeLessonWrapper({
+          resources: [makeResource('content1'), makeResource('content2')],
+        });
         expect(wrapper.findComponent({ name: 'KLabeledIcon' }).exists()).toBe(false);
         assertProgressEquals(wrapper, '');
       });
 
       it('shows a "In progress" label if still in progress', () => {
-        wrapper = makeLessonWrapper({ progress: { resource_progress: 1 } });
+        useContentNodeProgress.mockImplementation(() =>
+          useContentNodeProgressMock({
+            contentNodeProgressMap: { content1: 0.5, content2: 0 },
+          }),
+        );
+        wrapper = makeLessonWrapper({
+          resources: [makeResource('content1'), makeResource('content2')],
+        });
         assertProgressEquals(wrapper, 'In progress');
         assertKIconIs(wrapper, 'inProgress');
       });
 
       it('shows a "Completed" label if all resources are complete', () => {
-        wrapper = makeLessonWrapper({ progress: { resource_progress: 10 } });
+        useContentNodeProgress.mockImplementation(() =>
+          useContentNodeProgressMock({
+            contentNodeProgressMap: { content1: 1, content2: 1 },
+          }),
+        );
+        wrapper = makeLessonWrapper({
+          resources: [makeResource('content1'), makeResource('content2')],
+        });
         assertProgressEquals(wrapper, 'Completed');
         assertKIconIs(wrapper, 'mastered');
+      });
+
+      it('uses API-provided resource progress as fallback when not in the map', () => {
+        // resource.progress from API is used when contentNodeProgressMap has no entry
+        wrapper = makeLessonWrapper({
+          resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
+        });
+        assertProgressEquals(wrapper, 'In progress');
+        assertKIconIs(wrapper, 'inProgress');
+      });
+
+      it('uses the higher of API progress and map progress', () => {
+        // contentNodeProgressMap has a higher value than the stale API data
+        useContentNodeProgress.mockImplementation(() =>
+          useContentNodeProgressMock({
+            contentNodeProgressMap: { content1: 1 },
+          }),
+        );
+        wrapper = makeLessonWrapper({
+          resources: [makeResource('content1', 0.5), makeResource('content2', 0)],
+        });
+        // content1: max(1, 0.5)=1, content2: max(0, 0)=0 → sum=1, total=2 → 1-2=-1 → in progress
+        assertProgressEquals(wrapper, 'In progress');
+        assertKIconIs(wrapper, 'inProgress');
       });
     });
   });

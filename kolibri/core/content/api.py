@@ -50,6 +50,7 @@ from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.middleware import session_exempt
@@ -1709,7 +1710,7 @@ class UserContentNodeViewset(
     A content node viewset for filtering on user specific fields.
     """
 
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (DjangoFilterBackend, ValuesViewsetOrderingFilter)
     ordering_fields = ["last_interacted"]
     ordering = ("lft", "id")
     filterset_class = UserContentNodeFilter

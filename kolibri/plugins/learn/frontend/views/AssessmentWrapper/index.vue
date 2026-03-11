@@ -1,4 +1,4 @@
-<template v-if="ready">
+<template>
 
   <div>
     <LessonMasteryBar :requiredCorrectAnswers="totalCorrectRequiredM">

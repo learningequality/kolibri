@@ -1,4 +1,6 @@
+import hashlib
 import logging
+import uuid as uuid_module
 from datetime import timedelta
 from itertools import groupby
 from math import ceil
@@ -89,6 +91,11 @@ class StartSessionSerializer(serializers.Serializer):
     course_session_id = HexStringUUIDField(required=False)
     # Do this as a special way of handling our coach generated quizzes
     quiz_id = HexStringUUIDField(required=False)
+    # Pre/post test fields
+    unit_id = HexStringUUIDField(required=False)
+    test_type = serializers.ChoiceField(
+        choices=[("pre", "Pre"), ("post", "Post")], required=False
+    )
     # A flag to indicate whether to start the session over again
     repeat = serializers.BooleanField(required=False, default=False)
 
@@ -96,11 +103,12 @@ class StartSessionSerializer(serializers.Serializer):
         self._validate_required_fields(data)
         self._validate_context_exclusivity(data)
         self._validate_node_id_fields(data)
+        self._validate_unit_id_fields(data)
         return data
 
     def _validate_required_fields(self, data):
-        if "node_id" not in data and "quiz_id" not in data:
-            raise ValidationError("node_id is required if not a coach assigned quiz")
+        if "node_id" not in data and "quiz_id" not in data and "unit_id" not in data:
+            raise ValidationError("One of node_id, quiz_id, or unit_id is required")
 
     def _validate_context_exclusivity(self, data):
         if "quiz_id" in data and ("lesson_id" in data or "node_id" in data):
@@ -108,6 +116,10 @@ class StartSessionSerializer(serializers.Serializer):
         if "course_session_id" in data and "lesson_id" in data:
             raise ValidationError(
                 "The course_session_id and lesson_id are mutually exclusive identifiers"
+            )
+        if "unit_id" in data and ("node_id" in data or "quiz_id" in data):
+            raise ValidationError(
+                "unit_id must not be combined with node_id or quiz_id"
             )
 
     def _validate_node_id_fields(self, data):
@@ -140,6 +152,21 @@ class StartSessionSerializer(serializers.Serializer):
             errors["mastery_model"] = ValidationError(
                 "mastery model must not be specified for non-exercise kinds"
             )
+
+    def _validate_unit_id_fields(self, data):
+        if "unit_id" not in data:
+            return
+        errors = {}
+        if "test_type" not in data:
+            errors["test_type"] = ValidationError(
+                "test_type is required when unit_id is provided"
+            )
+        if "course_session_id" not in data:
+            errors["course_session_id"] = ValidationError(
+                "course_session_id is required when unit_id is provided"
+            )
+        if errors:
+            raise ValidationError(errors)
 
 
 class InteractionSerializer(serializers.Serializer):
@@ -211,13 +238,21 @@ class LogContext:
     indicate a different try at the assessment.
     course_session_id - represents the id of the CourseSession model object that this
     session is regarding (if any).
+    unit_id - represents the id of the unit ContentNode for pre/post test sessions.
     This is used to encode the values that are sent when initializing a session
     (see its use in the _get_context method below)
     and then also used to hold the values from an existing sessionlog when
     updating a session (see _update_session method).
     """
 
-    __slots__ = "node_id", "quiz_id", "lesson_id", "mastery_level", "course_session_id"
+    __slots__ = (
+        "node_id",
+        "quiz_id",
+        "lesson_id",
+        "mastery_level",
+        "course_session_id",
+        "unit_id",
+    )
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -331,6 +366,38 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             channel_id = None
             kind = content_kinds.QUIZ
             context["quiz_id"] = quiz_id
+        else:
+            # Pre/post test branch — unit_id is guaranteed present by validation
+            unit_id = validated_data["unit_id"]
+            test_type = validated_data["test_type"]
+            self._check_course_session_permissions(user, course_session_id)
+
+            # Deterministic hash for A/B split
+            raw = "{}:{}:{}".format(user.id, course_session_id, unit_id)
+            deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
+
+            # A/B version: last hex digit even -> pre=A/post=B; odd -> reverse
+            last_digit = int(deterministic_hash[-1], 16)
+            if last_digit % 2 == 0:
+                version = "A" if test_type == "pre" else "B"
+            else:
+                version = "B" if test_type == "pre" else "A"
+
+            mastery_model = {
+                "type": exercises.PRE_POST_TEST,
+                "version": version,
+                "test_type": test_type,
+            }
+
+            # Synthetic content_id: UUID5 so pre and post are distinct
+            content_id = uuid_module.uuid5(
+                uuid_module.UUID(deterministic_hash), test_type
+            ).hex
+            channel_id = None
+            kind = content_kinds.QUIZ
+
+            context["unit_id"] = unit_id
+            context["course_session_id"] = course_session_id
         return content_id, channel_id, kind, mastery_model, context
 
     def _get_or_create_summarylog(
@@ -513,7 +580,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         start_timestamp,
         context,
     ):
-        is_quiz = mastery_model["type"] == exercises.QUIZ
+        is_quiz = mastery_model["type"] in (exercises.QUIZ, exercises.PRE_POST_TEST)
         masterylogs = MasteryLog.objects.filter(
             summarylog=summarylog,
             user=user,
@@ -600,7 +667,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             attemptlogs = attemptlogs[: mastery_criterion["n"]]
         elif exercise_type in MAPPING:
             attemptlogs = attemptlogs[: MAPPING[exercise_type]]
-        elif exercise_type == exercises.QUIZ:
+        elif exercise_type in (exercises.QUIZ, exercises.PRE_POST_TEST):
             attemptlogs = attemptlogs.order_by()
         else:
             attemptlogs = attemptlogs[:10]
