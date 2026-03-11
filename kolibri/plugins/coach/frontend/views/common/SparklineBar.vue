@@ -71,7 +71,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
-  export const MIN_SEGMENT_WIDTH_PX = 32;
+  export const MIN_SEGMENT_WIDTH_PX = 8;
 
   export default {
     name: 'SparklineBar',
@@ -126,7 +126,7 @@
         if (totalCount.value === 0) {
           return 'calc(100% / 3)';
         }
-        const proportion = count / totalCount.value;
+        const proportion = Math.max(count, 1) / totalCount.value;
         const offset = MIN_SEGMENT_WIDTH_PX * 3;
         return `calc(${MIN_SEGMENT_WIDTH_PX}px + ${proportion} * (100% - ${offset}px))`;
       }

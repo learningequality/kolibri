@@ -250,8 +250,11 @@
                         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
                       >
                         <div class="objective-info">
-                          <!-- TODO: Replace with KRouterLink once detail route is available -->
-                          <span>{{ objective.title }}</span>
+                          <!-- TODO:  To be replace :to="{}" once objective detail route is available -->
+                          <KRouterLink
+                            :text="objective.title"
+                            :to="{}"
+                          />
                         </div>
                         <div class="objective-sparkline">
                           <SparklineBar
@@ -422,7 +425,7 @@
           {
             id: `${unit.id}-obj-1`,
             title: 'Test objectives1',
-            lowCount: seed * 2,
+            lowCount: 0,
             midCount: seed,
             highCount: seed * 3,
           },

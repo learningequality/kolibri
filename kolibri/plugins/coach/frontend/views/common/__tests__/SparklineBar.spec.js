@@ -43,7 +43,7 @@ describe('SparklineBar', () => {
     });
   });
 
-  it('displays proportional widths with a minimum offset applied to every segment', () => {
+  it('sizes each segment proportionally to its count, with a constant minimum width', () => {
     const { container } = renderSparkline({ lowCount: 1, midCount: 2, highCount: 7 });
     const widths = Array.from(container.querySelectorAll('.segment')).map(
       segment => segment.style.width,
@@ -55,6 +55,15 @@ describe('SparklineBar', () => {
       `calc(${MIN_SEGMENT_WIDTH_PX}px + 0.2 * (100% - ${offset}px))`,
       `calc(${MIN_SEGMENT_WIDTH_PX}px + 0.7 * (100% - ${offset}px))`,
     ]);
+  });
+
+  it('treats a zero-count segment as count 1 so the label remains readable', () => {
+    const { container } = renderSparkline({ lowCount: 0, midCount: 3, highCount: 7 });
+    const [lowWidth] = Array.from(container.querySelectorAll('.segment')).map(
+      segment => segment.style.width,
+    );
+    const offset = MIN_SEGMENT_WIDTH_PX * 3;
+    expect(lowWidth).toBe(`calc(${MIN_SEGMENT_WIDTH_PX}px + 0.1 * (100% - ${offset}px))`);
   });
 
   it('splits the bar evenly when there are no learners in the distribution', () => {
