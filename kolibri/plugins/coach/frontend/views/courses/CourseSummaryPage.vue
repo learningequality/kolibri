@@ -250,7 +250,7 @@
                         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
                       >
                         <div class="objective-info">
-                          <!-- TODO:  To be replace :to="{}" once objective detail route is available -->
+                          <!-- TODO: Replace :to with real route once detail route is available -->
                           <KRouterLink
                             :text="objective.title"
                             :to="{}"
