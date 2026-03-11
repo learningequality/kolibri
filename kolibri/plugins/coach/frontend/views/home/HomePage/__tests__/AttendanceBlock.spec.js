@@ -145,12 +145,18 @@ describe('AttendanceBlock', () => {
     expect(barContainers.at(0).attributes('role')).toBeUndefined();
   });
 
-  it('does not mark counts as aria-hidden since they are meaningful to screen readers', async () => {
+  it('keeps visible counts accessible to screen readers (not aria-hidden)', async () => {
     const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
     await global.flushPromises();
     const counts = wrapper.findAll('.counts');
     expect(counts.length).toBe(2);
     expect(counts.at(0).attributes('aria-hidden')).toBeUndefined();
+  });
+
+  it('does not render visually hidden summary spans (counts are directly accessible)', async () => {
+    const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+    await global.flushPromises();
+    expect(wrapper.findAll('.visuallyhidden').length).toBe(0);
   });
 
   it('dispatches handleApiError when fetchRecentSessions fails', async () => {
