@@ -46,7 +46,7 @@
         }));
       },
       optionValue() {
-        return this.options.find(option => option.value === this.value) || {};
+        return this.options.find(option => option.value === this.value) || { value: '', label: '' };
       },
       description() {
         if (!this.field) {
