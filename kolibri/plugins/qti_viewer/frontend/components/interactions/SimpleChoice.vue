@@ -3,11 +3,13 @@
   <li
     class="qti-simple-choice"
     role="option"
+    :tabindex="isFocused ? 0 : -1"
     :class="
       $computedClass({
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
+        ':focus': $coreOutline,
       })
     "
     :aria-selected="selected"
@@ -15,6 +17,7 @@
     @click="handleClick"
     @keydown.enter="handleClick"
     @keydown.space.prevent="handleClick"
+    @focus="handleFocus"
   >
     <slot></slot>
   </li>
@@ -37,12 +40,26 @@
     setup(props) {
       const isSelected = inject('isSelected');
       const toggleSelection = inject('toggleSelection');
+      const isFocusTargetFn = inject('isFocusTarget');
+      const setFocusedIndex = inject('setFocusedIndex');
 
       const handleClick = () => {
         toggleSelection(props.identifier);
       };
 
+      // When this option receives focus (e.g. via mouse click or keyboard),
+      // sync the parent's focusedIndex to stay consistent.
+      const handleFocus = () => {
+        if (setFocusedIndex) {
+          setFocusedIndex(props.identifier);
+        }
+      };
+
       const selected = computed(() => isSelected(props.identifier));
+
+      const isFocused = computed(() => {
+        return isFocusTargetFn ? isFocusTargetFn(props.identifier) : true;
+      });
 
       const extraStyles = computed(() => {
         if (!selected.value) {
@@ -57,7 +74,9 @@
 
       return {
         selected,
+        isFocused,
         handleClick,
+        handleFocus,
         extraStyles,
       };
     },

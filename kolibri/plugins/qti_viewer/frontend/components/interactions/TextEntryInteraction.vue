@@ -4,12 +4,14 @@
     v-if="interactive"
     v-model="variable"
     class="qti-text-entry-interaction"
+    :aria-label="`${$tr('textEntryLabel')} ${responseIdentifier}`"
     :placeholder="placeholder"
     :style="{
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
       maxWidth: '90%',
     }"
     :type="inputType"
+    autocomplete="off"
   >
   <div
     v-else
@@ -82,12 +84,24 @@
       format: FormatProp(false),
       /* eslint-enable */
     },
+    $trs: {
+      textEntryLabel: {
+        message: 'Text entry',
+        context: 'Accessible label for a text input field in an assessment question',
+      },
+    },
   };
 
 </script>
 
 
 <style scoped>
+
+  .qti-text-entry-interaction {
+    padding: 4px 8px;
+    border: 1px solid;
+    border-radius: 4px;
+  }
 
   .qti-text-entry-interaction-report {
     box-sizing: border-box;

@@ -1,8 +1,9 @@
 <script>
 
   import get from 'lodash/get';
+  import isArray from 'lodash/isArray';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { computed, h, inject, provide } from 'vue';
+  import { computed, getCurrentInstance, h, inject, nextTick, provide, ref, shallowRef, watch } from 'vue';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
 
@@ -10,11 +11,26 @@
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
   }
 
+  /**
+   * Safely normalizes a response value to an array.
+   * Handles null, undefined, scalars, and arrays uniformly.
+   */
+  function getSelectionsArray(value) {
+    if (value === null || value === undefined) {
+      return [];
+    }
+    if (isArray(value)) {
+      return value;
+    }
+    return [value];
+  }
+
   export default {
     name: 'QtiChoiceInteraction',
     tag: 'qti-choice-interaction',
 
     setup(props, { slots, attrs }) {
+      const { proxy } = getCurrentInstance();
       const responses = inject('responses');
 
       const QTI_CONTEXT = inject('QTI_CONTEXT');
@@ -27,43 +43,144 @@
         return typedProps.maxChoices.value !== 1;
       });
 
-      const isSelected = identifier => {
+      // shallowRef wrapper so computeds re-evaluate when the underlying
+      // QTIVariable is replaced (responses object is not reactive).
+      const trackedVariable = shallowRef(null);
+      const selectionVersion = ref(0);
+
+      function syncTrackedVariable() {
         const variable = responses[typedProps.responseIdentifier.value];
-        if (!variable.value) {
+        if (trackedVariable.value !== variable) {
+          trackedVariable.value = variable || null;
+        }
+      }
+
+      const isSelected = identifier => {
+        const variable = trackedVariable.value;
+        // eslint-disable-next-line no-unused-expressions
+        selectionVersion.value;
+        if (!variable || variable.value === null || variable.value === undefined) {
           return false;
         }
-        if (multiSelectable.value) {
-          return variable.value.includes(identifier);
-        }
-        return variable.value === identifier;
+        return getSelectionsArray(variable.value).includes(identifier);
       };
 
       const toggleSelection = identifier => {
         if (!interactive.value) {
           return;
         }
+        syncTrackedVariable();
         const currentlySelected = isSelected(identifier);
-        const variable = responses[typedProps.responseIdentifier.value];
-
-        if (currentlySelected) {
-          variable.value = multiSelectable.value
-            ? variable.value.filter(v => v !== identifier)
-            : null;
-        } else {
-          variable.value = multiSelectable.value
-            ? [...(variable.value || []), identifier]
-            : identifier;
+        const variable = trackedVariable.value;
+        if (!variable) {
+          return false;
         }
 
+        if (currentlySelected) {
+          if (multiSelectable.value) {
+            variable.value = getSelectionsArray(variable.value).filter(v => v !== identifier);
+          } else {
+            variable.value = null;
+          }
+        } else {
+          if (multiSelectable.value) {
+            const maxChoices = typedProps.maxChoices.value;
+            const currentSelections = getSelectionsArray(variable.value);
+            if (maxChoices > 0 && currentSelections.length >= maxChoices) {
+              return false;
+            }
+            variable.value = [...currentSelections, identifier];
+          } else {
+            variable.value = identifier;
+          }
+        }
+
+        selectionVersion.value++;
         return true;
       };
 
-      // Provide functions to child components
+      // When maxChoices changes (e.g. sandbox XML editing), trim excess
+      // selections so the constraint is immediately enforced.
+      watch(
+        () => typedProps.maxChoices.value,
+        newMax => {
+          syncTrackedVariable();
+          const variable = trackedVariable.value;
+          if (!variable) {
+            return;
+          }
+          const selections = getSelectionsArray(variable.value);
+          if (newMax > 0 && selections.length > newMax) {
+            variable.value = multiSelectable.value
+              ? selections.slice(0, newMax)
+              : selections[0] || null;
+            selectionVersion.value++;
+          }
+        },
+      );
+
+      // Roving tabindex: only one option has tabindex="0" at a time;
+      // the rest get tabindex="-1". Arrow keys move focus between options.
+      const focusedIndex = ref(0);
+      // Ordered list of identifiers, updated each render via nextTick.
+      // Used by isFocusTarget and setFocusedIndex provided to children.
+      const orderedIdentifiers = ref([]);
+
+      function handleListKeydown(event) {
+        const count = orderedIdentifiers.value.length;
+        if (count === 0) {
+          return;
+        }
+        const { key } = event;
+        let newIndex = focusedIndex.value;
+        switch (key) {
+          case 'ArrowDown':
+            newIndex = (newIndex + 1) % count;
+            break;
+          case 'ArrowUp':
+            newIndex = (newIndex - 1 + count) % count;
+            break;
+          case 'Home':
+            newIndex = 0;
+            break;
+          case 'End':
+            newIndex = count - 1;
+            break;
+          default:
+            // Don't prevent default for keys we don't handle
+            return;
+        }
+        event.preventDefault();
+        focusedIndex.value = newIndex;
+        const listEl = event.currentTarget;
+        const options = listEl.querySelectorAll('[role="option"]');
+        if (options[newIndex]) {
+          options[newIndex].focus();
+        }
+      }
+
+      // Provide functions to child components (SimpleChoice).
+      // NOTE: Only plain functions work via provide/inject here, NOT refs.
+      // SafeHTML (functional component) creates SimpleChoice vnodes in its
+      // own render scope, so refs provided here are invisible to SimpleChoice.
+      // Functions work because Vue 2 resolves inject values up through the
+      // _provided chain, which includes ChoiceInteraction regardless of how
+      // the vnode was created.
       provide('isSelected', isSelected);
       provide('toggleSelection', toggleSelection);
+      provide('isFocusTarget', identifier => {
+        const idx = orderedIdentifiers.value.indexOf(identifier);
+        return idx >= 0 && idx === focusedIndex.value;
+      });
+      provide('setFocusedIndex', identifier => {
+        const idx = orderedIdentifiers.value.indexOf(identifier);
+        if (idx >= 0) {
+          focusedIndex.value = idx;
+        }
+      });
 
       const getShuffledOrder = choices => {
-        if (!typedProps.shuffle) {
+        if (!typedProps.shuffle.value) {
           return choices;
         }
 
@@ -85,8 +202,8 @@
         return result;
       };
 
-      // Return render function
       return () => {
+        syncTrackedVariable();
         const allContent = slots.default();
         const nonChoiceContent = allContent.filter(
           vnode => getComponentTag(vnode) !== 'qti-simple-choice',
@@ -109,18 +226,39 @@
         // Get shuffled order (or original if shuffle=false)
         const orderedChoices = getShuffledOrder(choices);
 
+        // Keep orderedIdentifiers in sync so that provided functions
+        // (isFocusTarget, setFocusedIndex) can map identifier -> index.
+        // Use nextTick to avoid mutating reactive state during render,
+        // which would trigger an infinite re-render loop in Vue 2.
+        const ids = orderedChoices.map(c => c.identifier);
+        const idsChanged =
+          ids.length !== orderedIdentifiers.value.length ||
+          ids.some((id, i) => id !== orderedIdentifiers.value[i]);
+        if (idsChanged || focusedIndex.value >= ids.length) {
+          nextTick(() => {
+            orderedIdentifiers.value = ids;
+            if (focusedIndex.value >= ids.length) {
+              focusedIndex.value = Math.max(0, ids.length - 1);
+            }
+          });
+        }
+
         const choicesList = h(
           'ul',
           {
             attrs: {
+              role: 'listbox',
+              'aria-label': proxy.$tr('choiceListLabel'),
               'aria-multiselectable': multiSelectable.value,
-              class: (attrs.class || '') + ' qti-choice-interaction',
+            },
+            class: [(attrs.class || ''), 'qti-choice-interaction'],
+            on: {
+              keydown: handleListKeydown,
             },
           },
           orderedChoices.map(choice => choice.vnode),
         );
 
-        // Create container with non-choice content first, then choices list
         return h('div', [...nonChoiceContent, choicesList]);
       };
     },
@@ -135,6 +273,12 @@
         default: null,
       },
       /* eslint-enable */
+    },
+    $trs: {
+      choiceListLabel: {
+        message: 'Answer choices',
+        context: 'Accessible label for the list of answer choices in an assessment question',
+      },
     },
   };
 
