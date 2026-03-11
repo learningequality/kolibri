@@ -18,11 +18,11 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     context: 'Empty state message when no attendance sessions have been created',
   },
   presentCount: {
-    message: '{count, number} {count, plural, one {present} other {present}}',
+    message: '{count, number} present',
     context: 'Count of learners marked as present in an attendance session, e.g. "16 present"',
   },
   absentCount: {
-    message: '{count, number} {count, plural, one {absent} other {absent}}',
+    message: '{count, number} absent',
     context: 'Count of learners marked as absent in an attendance session, e.g. "8 absent"',
   },
 });

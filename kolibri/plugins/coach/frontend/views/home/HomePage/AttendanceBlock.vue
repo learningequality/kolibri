@@ -43,7 +43,7 @@
             ></div>
             <div
               class="bar-segment"
-              :style="barStyle(getAbsentCount(session), session.total_count, absentColor)"
+              :style="barStyle(session.absentCount, session.total_count, absentColor)"
             ></div>
           </div>
         </div>
@@ -60,7 +60,7 @@
               class="dot"
               :style="{ backgroundColor: absentColor }"
             ></span>
-            {{ absentCount$({ count: getAbsentCount(session) }) }}
+            {{ absentCount$({ count: session.absentCount }) }}
           </span>
         </div>
       </BlockItem>
@@ -72,7 +72,7 @@
 
 <script>
 
-  import { onMounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
@@ -126,9 +126,12 @@
         return `${date} ${time}`;
       }
 
-      function getAbsentCount(session) {
-        return session.total_count - session.present_count;
-      }
+      const sessions = computed(() =>
+        recentSessions.value.map(session => {
+          const absentCount = session.total_count - session.present_count;
+          return { ...session, absentCount };
+        }),
+      );
 
       function barStyle(count, total, color) {
         const percentage = total > 0 ? (count / total) * 100 : 0;
@@ -140,9 +143,8 @@
 
       return {
         loading,
-        sessions: recentSessions,
+        sessions,
         sessionDateTime,
-        getAbsentCount,
         barStyle,
         presentColor,
         absentColor,
