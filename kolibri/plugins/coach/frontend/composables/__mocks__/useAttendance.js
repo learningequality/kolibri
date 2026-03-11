@@ -11,7 +11,7 @@
  * with  `mockImplementation` as follows:
  *
  * ```
- * // eslint-disable-next-line import/named
+ * // eslint-disable-next-line import-x/named
  * import { useAttendance, useAttendanceMock } from '<useAttendance file path>';
  *
  * jest.mock('<useAttendance file path>')

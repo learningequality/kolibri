@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import store from 'kolibri/store';
 import makeStore from '../../../../__tests__/utils/makeStore';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../../composables/useAttendance';
 import AttendanceBlock from '../AttendanceBlock.vue';
 

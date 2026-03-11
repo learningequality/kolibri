@@ -1,9 +1,9 @@
 const RuleTester = require('eslint').RuleTester;
 const rule = require('../../../lib/rules/vue-no-rtl-breaking-inline-styles');
+const { vueLanguageOptions } = require('../../helpers');
 
 const tester = new RuleTester({
-  parser: require.resolve('vue-eslint-parser'),
-  parserOptions: { ecmaVersion: 2020 },
+  languageOptions: vueLanguageOptions,
 });
 
 tester.run('vue-no-rtl-breaking-inline-styles', rule, {
@@ -71,7 +71,7 @@ tester.run('vue-no-rtl-breaking-inline-styles', rule, {
           }
         </script>
       `,
-      parserOptions: { sourceType: 'module' },
+      languageOptions: { sourceType: 'module' },
     },
 
     // ===== Valid: Simple identifier reference =====

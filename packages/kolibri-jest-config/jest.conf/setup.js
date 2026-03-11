@@ -29,6 +29,20 @@ failOnConsole({
   shouldFailOnInfo: true,
   shouldFailOnLog: true,
   shouldFailOnWarn: true,
+  // Allow vue-router deprecation warning about the `event` prop on <router-link>.
+  // This warning is triggered by KCard in the design system (kolibri-design-system)
+  // which uses `event=""` to prevent router-link click handling. It cannot be fixed
+  // in this repo; it needs to be addressed in the design system.
+  allowMessage: (message, methodName) => {
+    if (
+      methodName === 'warn' &&
+      typeof message === 'string' &&
+      message.includes("<router-link>'s event prop is deprecated")
+    ) {
+      return true;
+    }
+    return false;
+  },
 });
 
 global.beforeEach(() => {

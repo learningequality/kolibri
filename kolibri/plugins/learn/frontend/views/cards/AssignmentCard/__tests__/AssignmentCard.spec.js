@@ -1,9 +1,9 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
-/* eslint-disable import/named */
+/* eslint-disable import-x/named */
 import useContentNodeProgress, {
   useContentNodeProgressMock,
 } from '../../../../composables/useContentNodeProgress';
-/* eslint-enable import/named */
+/* eslint-enable import-x/named */
 import AssignmentCard from '../index.vue';
 
 jest.mock('../../../../composables/useContentNodeProgress');
