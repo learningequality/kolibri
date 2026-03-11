@@ -911,6 +911,18 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
 
     date_deleted = DateTimeTzField(null=True, blank=True)
 
+    # This field is used when picture login for learners is enabled. It stores the ordered
+    # picture sequence as a dot-separated string, e.g. "3.7.12". This field is only
+    # applicable to learners, so coach and admin users will never have this field set.
+    # The field is intentionally stored as plaintext, because coaches should be able to see
+    # learner passcodes.
+    picture_password = models.CharField(
+        max_length=8, null=True, blank=True, default=None
+    )
+
+    class Meta:
+        unique_together = (("dataset", "picture_password"),)
+
     def get_short_name(self):
         return self.full_name.split(" ", 1)[0]
 
