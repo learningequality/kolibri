@@ -26,6 +26,7 @@ describe('CourseWelcomePage', () => {
     course_id: 'course-1',
     title: 'Introduction to Physics',
     description: 'Learn the fundamentals of physics',
+    lesson_count: 12,
   };
 
   const mockUnits = [
@@ -90,10 +91,6 @@ describe('CourseWelcomePage', () => {
 
   const mockCourseContent = {
     thumbnail: 'thumbnail.png',
-    on_device_resources: 12,
-    children: {
-      results: mockUnits,
-    },
   };
 
   const makeLearnerResourcesMock = ({
@@ -267,7 +264,7 @@ describe('CourseWelcomePage', () => {
 
       await waitFor(() => {
         expect(wrapper.getByTestId('header-title')).toHaveTextContent('Introduction to Physics');
-        expect(wrapper.getByText('2 units · 12 resources')).toBeInTheDocument();
+        expect(wrapper.getByText('2 units · 12 lessons')).toBeInTheDocument();
       });
     });
 

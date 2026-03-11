@@ -10,6 +10,7 @@
       :style="{
         backgroundColor: $themeTokens.surface,
         borderColor: $themePalette.grey.v_400,
+        maxWidth: maxWidth,
         fontSize: '16px',
       }"
     >
@@ -198,8 +199,6 @@
   .search-box-row {
     display: table;
     width: 100%;
-    /* stylelint-disable-next-line */
-    max-width: v-bind('maxWidth');
     border: solid 1px;
     border-radius: $radius;
   }

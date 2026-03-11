@@ -12,7 +12,7 @@ from kolibri.utils.version import version_matches_range
 CURRENT_VERSION = VersionInfo.parse(normalize_version_to_semver(kolibri.__version__))
 
 
-class VersionUpgrade(object):
+class VersionUpgrade:
     """
     Class for version upgrade operations
     """

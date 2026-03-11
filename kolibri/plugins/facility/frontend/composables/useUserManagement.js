@@ -33,6 +33,10 @@ export default function useUserManagement({
     classes,
   });
 
+  const clearSelectedUsers = () => {
+    selectedUsers.value = new Set();
+  };
+
   const fetchUsers = async () => {
     dataLoading.value = true;
     try {
@@ -78,7 +82,7 @@ export default function useUserManagement({
 
   function onChange({ resetSelection = false, affectedClasses = null } = {}) {
     if (resetSelection) {
-      selectedUsers.value = new Set();
+      clearSelectedUsers();
     }
     if (
       // If there isn't any specific class affected, always refetch
@@ -108,6 +112,15 @@ export default function useUserManagement({
     { immediate: true },
   );
 
+  watch([numAppliedFilters, search], (newValues, oldValues) => {
+    const [newNumFilters, newSearch] = newValues;
+    const [oldNumFilters, oldSearch] = oldValues;
+
+    if (newNumFilters !== oldNumFilters || newSearch !== oldSearch) {
+      clearSelectedUsers();
+    }
+  });
+
   return {
     selectedUsers,
     facilityUsers,
@@ -126,5 +139,6 @@ export default function useUserManagement({
     fetchUsers,
     fetchClasses,
     resetFilters,
+    clearSelectedUsers,
   };
 }

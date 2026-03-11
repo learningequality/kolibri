@@ -245,7 +245,7 @@ def reverse_dict(original):
     return final
 
 
-class Validator(object):
+class Validator:
     """
     Class to apply different validation checks on a CSV data reader.
     """

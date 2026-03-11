@@ -6,7 +6,7 @@ from mock import patch
 from kolibri.core.tasks.utils import InfiniteLoopThread
 
 
-class TestBaseCloseableThread(object):
+class TestBaseCloseableThread:
     def test_handles_interpreter_shutting_down(self):
         """
         For python interpreters older than 3.4, we know that it sets

@@ -18,7 +18,7 @@ TEST_STATS_FILE_DATA = {
 }
 
 
-class HookMixin(object):
+class HookMixin:
     """
     This hook will mock stats file JSON (normally created by npm)
     and populate it with test data according to the unique_id of the hook

@@ -19,7 +19,7 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 
 
-class EvaluationMixin(object):
+class EvaluationMixin:
     """
     try0: most recent try
     try1: previous try

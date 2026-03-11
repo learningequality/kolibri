@@ -20,7 +20,7 @@ class License(models.Model):
         abstract = True
 
 
-class File(object):
+class File:
     """
     A mixin for previously deleted fields of the File Model
     """
@@ -33,7 +33,7 @@ class File(object):
     available = models.BooleanField(default=False)
 
 
-class ContentNode(object):
+class ContentNode:
     """
     A mixin for previously deleted field of the File Model
     """

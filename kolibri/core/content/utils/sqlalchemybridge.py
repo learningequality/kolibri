@@ -191,7 +191,7 @@ def load_metadata(name):
     return module.Base.metadata
 
 
-class LazyBases(object):
+class LazyBases:
     _valid_bases = set(CONTENT_DB_SCHEMA_VERSIONS + [CURRENT_SCHEMA_VERSION])
     _loaded_bases = {}
 
@@ -274,7 +274,7 @@ class SchemaNotFoundError(Exception):
     pass
 
 
-class Bridge(object):
+class Bridge:
     def __init__(self, sqlite_file_path=None, schema_version=None, app_name=None):
         if sqlite_file_path is None:
             # If sqlite_file_path is None, we are referencing the Django default database

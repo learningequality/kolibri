@@ -205,7 +205,7 @@ def pids():
     return _psplatform.pids()
 
 
-class Process(object):
+class Process:
     """Represents an OS process with the given PID.
     If PID is omitted current process PID (os.getpid()) is used.
     Raise NoSuchProcess if PID does not exist.

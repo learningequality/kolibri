@@ -1,3 +1,14 @@
+"""
+Kolibri API base classes and utilities.
+
+IMPORTANT: Most Kolibri APIs are internal and unstable, designed for Kolibri's own use.
+They may change without notice. Do not build external applications that depend on these APIs.
+
+EXCEPTION: Public APIs under /public/ URLs are maintained with backwards compatibility.
+See kolibri/core/public/api_urls.py for the public API definitions.
+
+For more information, see: docs/backend_architecture/index.rst
+"""
 import uuid
 
 from django.http import Http404
@@ -297,7 +308,7 @@ def _generate_request(request, query_params, method="GET"):
     return ret
 
 
-class ListModelMixin(object):
+class ListModelMixin:
     def _get_list_queryset(self):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -326,7 +337,7 @@ class ListModelMixin(object):
         return response.data
 
 
-class RetrieveModelMixin(object):
+class RetrieveModelMixin:
     def retrieve(self, request, *args, **kwargs):
         return Response(self.serialize_object())
 

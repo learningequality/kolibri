@@ -372,7 +372,7 @@ def enqueue_automatic_resource_import_if_needed(instance_id=None):
         )
 
     if reqs.exists():
-        automatic_resource_import.enqueue_if_not()
+        automatic_resource_import.enqueue_if_not_active()
 
 
 class AutomaticDownloadValidator(JobValidator):

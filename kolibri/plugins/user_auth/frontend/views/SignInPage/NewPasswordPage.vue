@@ -1,23 +1,19 @@
 <template>
 
   <AuthBase>
-    <div style="text-align: left">
+    <div class="new-password-content">
       <KButton
+        class="go-back-btn"
         appearance="basic-link"
-        style="margin-bottom: 16px"
         data-test="goback"
         @click="goBack"
       >
         <template #icon>
           <KIcon
             icon="back"
+            class="go-back-icon"
             :style="{
               fill: $themeTokens.primary,
-              height: '1.125em',
-              width: '1.125em',
-              position: 'relative',
-              marginRight: '8px',
-              top: '2px',
             }"
           />{{ coreString('goBackAction') }}
         </template>
@@ -55,8 +51,8 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-  import AuthBase from '../AuthBase';
   import { ComponentMap } from '../../constants';
+  import AuthBase from '../AuthBase';
 
   export default {
     name: 'NewPasswordPage',
@@ -139,4 +135,22 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .new-password-content {
+    text-align: left;
+  }
+
+  .go-back-btn {
+    margin-bottom: 16px;
+  }
+
+  .go-back-icon {
+    position: relative;
+    top: 2px;
+    width: 1.125em;
+    height: 1.125em;
+    margin-right: 8px;
+  }
+
+</style>

@@ -309,7 +309,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         return mark_safe("\n".join(tags))
 
 
-class WebpackInclusionMixin(object):
+class WebpackInclusionMixin:
     @abstractproperty
     def bundle_html(self):
         pass

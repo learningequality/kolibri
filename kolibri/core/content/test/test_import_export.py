@@ -54,7 +54,7 @@ def Any(cls):
     return Any()
 
 
-class FalseThenTrue(object):
+class FalseThenTrue:
     def __init__(self, times=1):
         self.times = times
         self.count = 0

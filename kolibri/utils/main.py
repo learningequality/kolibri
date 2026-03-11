@@ -20,6 +20,7 @@ from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
 from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
 from kolibri.plugins.utils import enable_new_default_plugins
@@ -37,7 +38,6 @@ from kolibri.utils.sanity_checks import check_django_stack_ready
 from kolibri.utils.sanity_checks import check_log_file_location
 from kolibri.utils.sanity_checks import DatabaseInaccessible
 from kolibri.utils.sanity_checks import DatabaseNotMigrated
-from kolibri.utils.sanity_checks import ensure_job_tables_created
 from kolibri.utils.server import get_status
 from kolibri.utils.server import NotRunning
 
@@ -152,9 +152,8 @@ def _setup_django():
         raise
 
 
-def _copy_preseeded_db(db_name, target=None):
-    target = target or "{}.sqlite3".format(db_name)
-    target = os.path.join(KOLIBRI_HOME, target)
+def _copy_preseeded_db(db_name):
+    target = get_sqlite_database_path(db_name)
     if not os.path.exists(target):
         try:
             import kolibri.dist
@@ -197,15 +196,11 @@ def _upgrades_before_django_setup(updated, version):
     check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
-        DATABASE_NAMES = [
-            os.path.join(
-                KOLIBRI_HOME, OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3"
-            )
-        ]
-        DATABASE_NAMES += [
-            os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
-            for db in ADDITIONAL_SQLITE_DATABASES
-        ]
+        DATABASE_NAMES = [get_sqlite_database_path("default")]
+
+        for db_name in ADDITIONAL_SQLITE_DATABASES:
+            DATABASE_NAMES.append(get_sqlite_database_path(db_name))
+
         sqlite_check_foreign_keys(DATABASE_NAMES)
         # If we are using sqlite,
         # we can shortcut migrations by using the preseeded databases
@@ -213,7 +208,7 @@ def _upgrades_before_django_setup(updated, version):
         if not version:
             logger.info("Attempting to setup using pre-migrated databases")
             # Only copy the default database if this is a fresh install
-            _copy_preseeded_db("db", target=OPTIONS["Database"]["DATABASE_NAME"])
+            _copy_preseeded_db("default")
 
         if not version or updated:
             # If this is an upgrade, it is possible we've added an additional
@@ -287,16 +282,6 @@ def initialize(  # noqa C901
 
     if not skip_update:
         _upgrades_before_django_setup(updated, version)
-
-        try:
-            ensure_job_tables_created()
-        except Exception as e:
-            logging.error(
-                "The job tables were not fully migrated. Tried to "
-                "create them in the database and an error occurred: "
-                "{}".format(e)
-            )
-            raise
 
     _setup_django()
 

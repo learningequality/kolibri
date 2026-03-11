@@ -7,7 +7,10 @@
         immersive: immersive,
         'floating-shadow': isScrolled,
       }"
-      :style="headerContainerStyleOverrides"
+      :style="[
+        headerContainerStyleOverrides,
+        immersive ? { backgroundColor: $themeTokens.appBar } : {},
+      ]"
     >
       <KIconButton
         v-if="goBack"
@@ -34,6 +37,9 @@
             <div
               v-if="subtitle"
               class="subtitle"
+              :style="{
+                color: $themeTokens.annotation,
+              }"
             >
               {{ subtitle }}
             </div>
@@ -211,16 +217,10 @@
 
       .subtitle {
         font-size: 14px;
-
-        /* stylelint-disable-next-line */
-        color: v-bind('$themeTokens.annotation');
       }
 
       &.immersive {
         @extend %dropshadow-2dp;
-
-        /* stylelint-disable-next-line */
-        background: v-bind('$themeTokens.appBar');
       }
     }
 

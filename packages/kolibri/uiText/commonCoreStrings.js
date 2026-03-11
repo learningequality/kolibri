@@ -476,6 +476,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'A quiz is a summative assessment made up of questions taken from exercises. Quizzes are created by coaches and then assigned to learners in a class.\n\nWe intentionally renamed "exam" to "quiz" in order to encourage use as an informal diagnostic tool for teachers.',
   },
+  quizLabel: {
+    message: 'Quiz',
+    context:
+      'A quiz is a summative assessment made up of questions taken from exercises. Quizzes are created by coaches and then assigned to learners in a class.\n\nWe intentionally renamed "exam" to "quiz" in order to encourage use as an informal diagnostic tool for teachers.',
+  },
   resourcesLabel: {
     message: 'Resources',
     context:
@@ -1647,6 +1652,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'No options selected',
     context:
       'Label for the state of a checkbox when no options are selected. Not visible in the UI.',
+  },
+  ratioLabel: {
+    message: '{number, number}/{total, number}',
+    context: 'Label for a ratio, such as the number of completed items out of the total.',
   },
 });
 

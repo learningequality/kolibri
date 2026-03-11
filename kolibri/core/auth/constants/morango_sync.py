@@ -12,7 +12,7 @@ PARTITION_SUFFIX_LEARNER_RW = ":learner-rw"
 PARTITION_SUFFIX_COACH_RW = ":coach-rw"
 
 
-class ScopeDefinitions(object):
+class ScopeDefinitions:
     """
     Class contains morango scope definition constants for certificates.
     """
@@ -21,7 +21,7 @@ class ScopeDefinitions(object):
     SINGLE_USER = "single-user"
 
 
-class State(object):
+class State:
     """
     Class containing constants for reporting current sync state
     """

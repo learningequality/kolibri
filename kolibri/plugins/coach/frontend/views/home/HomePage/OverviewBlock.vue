@@ -46,7 +46,7 @@
               :text="coachString('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
-              style="margin-left: 24px"
+              class="view-learners-link"
             />
           </template>
         </template>
@@ -145,4 +145,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .view-learners-link {
+    margin-left: 24px;
+  }
+
+</style>

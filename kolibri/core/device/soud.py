@@ -38,7 +38,7 @@ WINDOW_SEC = 3
 MAX_ATTEMPTS = 5
 
 
-class Context(object):
+class Context:
     """
     A helper class to hold the context of a SoUD sync request, providing access to the necessary
     models and data.

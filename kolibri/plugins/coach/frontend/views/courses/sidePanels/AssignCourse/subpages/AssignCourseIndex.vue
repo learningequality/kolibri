@@ -7,14 +7,10 @@
     <template #default>
       <SearchBox
         maxWidth="unset"
+        class="search-box"
         :disabled="isLoading"
         :value="searchKeywords"
         :placeholder="searchByKeyword$()"
-        :style="{
-          marginBottom: '12px',
-          marginRight: '0',
-          marginTop: '8px',
-        }"
         @change="searchKeywords = $event"
       />
       <KCircularLoader
@@ -139,6 +135,12 @@
 
 
 <style lang="scss" scoped>
+
+  .search-box {
+    margin-top: 8px;
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
 
   .bottom-actions {
     display: flex;

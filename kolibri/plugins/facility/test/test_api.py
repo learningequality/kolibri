@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.

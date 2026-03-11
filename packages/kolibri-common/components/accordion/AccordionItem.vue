@@ -32,13 +32,16 @@
             >
               <slot name="leading-actions"></slot>
             </div>
-            <span
-              :style="{
-                color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
-              }"
-            >
-              {{ title }}
-            </span>
+            <slot name="title">
+              <span
+                v-if="title"
+                :style="{
+                  color: disabledTitle ? $themeTokens.textDisabled : 'inherit',
+                }"
+              >
+                {{ title }}
+              </span>
+            </slot>
           </div>
           <div class="trailing-actions">
             <slot name="trailing-actions"></slot>
@@ -87,7 +90,8 @@
     props: {
       title: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
       },
       disabledTitle: {
         type: Boolean,
@@ -119,13 +123,20 @@
         return `accordion-content-${this.uuid}`;
       },
     },
+    watch: {
+      isOpenByDefault(newVal) {
+        if (newVal && !this.isExpanded) {
+          this.toggle();
+        }
+      },
+    },
     mounted() {
       this.registerItem();
       if (this.isOpenByDefault) {
         this.toggle();
       }
     },
-    componentWillUnmount() {
+    beforeDestroy() {
       this.unregisterItem();
     },
   };
@@ -170,6 +181,11 @@
   .title-actions-wrapper {
     display: flex;
     align-items: center;
+    min-width: 0;
+  }
+
+  .title-actions-wrapper {
+    flex: 1;
   }
 
   .content {

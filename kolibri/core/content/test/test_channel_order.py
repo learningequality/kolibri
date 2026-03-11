@@ -7,7 +7,7 @@ from django.test import TestCase
 from kolibri.core.content import models as content
 
 
-class ChannelOrderMixin(object):
+class ChannelOrderMixin:
     def _refresh_data(self, *args):
         for obj in args:
             obj.refresh_from_db()

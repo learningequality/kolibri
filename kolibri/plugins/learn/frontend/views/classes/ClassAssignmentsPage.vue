@@ -16,7 +16,11 @@
           :label="className"
         />
       </h1>
-      <AssignedLessonsCards :lessons="activeLessons" />
+      <AssignedCoursesCards :courses="activeCourses" />
+      <AssignedLessonsCards
+        :lessons="activeLessons"
+        :style="{ marginTop: '44px' }"
+      />
       <AssignedQuizzesCards
         :quizzes="activeQuizzes"
         :style="{ marginTop: '44px' }"
@@ -39,6 +43,7 @@
   import useLearnerResources from '../../composables/useLearnerResources';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
+  import AssignedCoursesCards from './AssignedCoursesCards';
   import AssignedQuizzesCards from './AssignedQuizzesCards';
   import AssignedLessonsCards from './AssignedLessonsCards';
 
@@ -50,6 +55,7 @@
       };
     },
     components: {
+      AssignedCoursesCards,
       AssignedQuizzesCards,
       AssignedLessonsCards,
       KBreadcrumbs,
@@ -57,12 +63,18 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
-      const { fetchClass, getClass, getClassActiveLessons, getClassActiveQuizzes } =
-        useLearnerResources();
+      const {
+        fetchClass,
+        getClass,
+        getClassActiveCourses,
+        getClassActiveLessons,
+        getClassActiveQuizzes,
+      } = useLearnerResources();
 
       const classId = computed(() => props.classId);
       const classroom = computed(() => getClass(classId.value));
       const className = computed(() => (classroom.value ? classroom.value.name : ''));
+      const activeCourses = computed(() => getClassActiveCourses(classId.value));
       const activeLessons = computed(() => getClassActiveLessons(classId.value));
       const activeQuizzes = computed(() => getClassActiveQuizzes(classId.value));
 
@@ -76,6 +88,7 @@
 
       return {
         className,
+        activeCourses,
         activeLessons,
         activeQuizzes,
       };

@@ -48,7 +48,7 @@ def mean(data):
     return None
 
 
-class BaseDeviceSetupMixin(object):
+class BaseDeviceSetupMixin:
     n_facilities = 1
     n_superusers = 1
     n_users = 20  # 20 users x 1 facility = 20 users

@@ -38,7 +38,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gettext
 
       - name: Install Python dependencies
-        run: pip install -r requirements/base.txt
+        run: pip install . -r requirements/base.txt
 
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile

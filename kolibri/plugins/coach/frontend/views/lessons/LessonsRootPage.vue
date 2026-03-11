@@ -95,8 +95,8 @@
                       <KCircularLoader
                         v-if="show(lesson.id, isUpdatingVisibility(lesson.id), 2000)"
                         :key="`loader-${lesson.id}`"
+                        class="visibility-loader"
                         disableDefaultTransition
-                        :style="{ display: 'inline-block', marginLeft: '6px' }"
                         :size="26"
                       />
                       <KSwitch
@@ -499,6 +499,11 @@
     .lesson-button {
       display: none;
     }
+  }
+
+  .visibility-loader {
+    display: inline-block;
+    margin-left: 6px;
   }
 
 </style>

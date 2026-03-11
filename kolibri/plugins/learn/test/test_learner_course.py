@@ -633,4 +633,12 @@ class LearnerCourseTestCase(APITestCase):
         response = get_request.data
         self.assertEqual(response["started"], True)
         self.assertEqual(response["active_test"], None)
-        self.assertEqual(response["resume_position"], None)
+        # Should redirect to the last unit, without pointing to any specific lesson or resource
+        self.assertEqual(
+            response["resume_position"],
+            {
+                "unit_id": units[-1][0].id,
+                "lesson_id": None,
+                "resource_id": None,
+            },
+        )

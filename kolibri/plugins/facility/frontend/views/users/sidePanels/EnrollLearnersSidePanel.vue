@@ -109,6 +109,7 @@
   import { UserKinds } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { localeCompare } from 'kolibri/utils/i18n';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
@@ -189,7 +190,7 @@
             label: classObj.name,
             id: classObj.id,
           }))
-          .sort((a, b) => a.label.localeCompare(b.label)),
+          .sort((a, b) => localeCompare(a.label, b.label)),
       );
 
       const numCoachesSelected = computed(() => {

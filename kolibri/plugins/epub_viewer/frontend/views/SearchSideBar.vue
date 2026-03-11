@@ -18,8 +18,7 @@
           icon="search"
           buttonType="submit"
           :ariaLabel="$tr('submitSearchQuery')"
-          class="d-tc"
-          style="position: relative; top: 4px; left: 8px"
+          class="d-tc search-button"
           size="small"
         />
       </div>
@@ -380,6 +379,12 @@
   .search-input {
     width: 160px;
     vertical-align: middle;
+  }
+
+  .search-button {
+    position: relative;
+    top: 4px;
+    left: 8px;
   }
 
   .search-results-list {

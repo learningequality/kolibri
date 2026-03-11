@@ -118,6 +118,7 @@
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { localeCompare } from 'kolibri/utils/i18n';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import flatMap from 'lodash/flatMap';
   import CloseConfirmationGuard from '../common/CloseConfirmationGuard.vue';
@@ -187,7 +188,7 @@
       // Computed properties
       const formattedClasses = computed(() => {
         return [...props.classes]
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => localeCompare(a.name, b.name))
           .map(({ id, name }) => ({ id, label: name }));
       });
 

@@ -5,6 +5,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Course',
     context: 'Label for a single course that contains units and lessons.',
   },
+  courseLessonCount: {
+    message: '{count, number} {count, plural, one {lesson} other {lessons}}',
+    context: 'Displays the number of lessons in a course, shown on course cards.',
+  },
   coursesLabel: {
     message: 'Courses',
     context: 'Label for courses that contain units and lessons.',
@@ -37,6 +41,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message:
       'Learners in the assigned group will take a pre-test before starting this course. You can adjust assessment availability in the course settings.',
     context: 'Message for the modal that confirms a course has been assigned.',
+  },
+  recentCoursesHeader: {
+    message: 'Recent courses',
+    context:
+      "Section header on the learner's Home page, displaying the most recent courses that the coaches assigned to them.",
+  },
+  yourCoursesHeader: {
+    message: 'Your courses',
+    context:
+      "Heading on the 'Learn > Home' page for a section where a learner can see which courses have been assigned to them.",
   },
   noCoursesAssigned: {
     message: 'You do not have any courses assigned',
@@ -159,5 +173,21 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   resumeCourseAction: {
     message: 'Resume Course',
     context: 'Action label for button to resume a course',
+  },
+  unitNumberLabel: {
+    message: 'Unit {number}',
+    context: 'Label for the unit number shown in the course unit view',
+  },
+  currentLabel: {
+    message: 'Current',
+    context: 'Label for the current lesson in the course unit view',
+  },
+  upNextLabel: {
+    message: 'Up next',
+    context: 'Label for the next unit in the course unit view',
+  },
+  markAsCompleteAction: {
+    message: 'Mark as complete',
+    context: 'Action label for marking a resource as complete',
   },
 });

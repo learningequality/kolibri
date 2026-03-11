@@ -227,6 +227,7 @@
         onChange,
         fetchClasses,
         resetFilters,
+        clearSelectedUsers,
       } = useUserManagement({
         activeFacilityId,
         softDeletedUsers: true,
@@ -263,10 +264,6 @@
         numUsersSelected$,
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
-
-      function clearSelectedUsers() {
-        selectedUsers.value = new Set();
-      }
 
       function onModalBlur() {
         selectedUsers.value.clear();

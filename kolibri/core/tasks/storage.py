@@ -1,23 +1,10 @@
 import logging
-from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
 
-import pytz
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import func as sql_func
-from sqlalchemy import Index
-from sqlalchemy import Integer
-from sqlalchemy import or_
-from sqlalchemy import select
-from sqlalchemy import String
-from sqlalchemy import Table
-from sqlalchemy import text
-from sqlalchemy import update
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
+from django.db import connections
+from django.db import transaction
+from django.db.models import Q
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.constants import Priority
@@ -27,101 +14,30 @@ from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.models import Job as ORMJob
+from kolibri.core.tasks.validation import validate_exception
 from kolibri.core.tasks.validation import validate_interval
 from kolibri.core.tasks.validation import validate_priority
 from kolibri.core.tasks.validation import validate_repeat
 from kolibri.core.tasks.validation import validate_timedelay
-from kolibri.utils.sql_alchemy import db_matches_schema
+from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.utils.time_utils import local_now
-from kolibri.utils.time_utils import naive_utc_datetime
-
-Base = declarative_base()
 
 logger = logging.getLogger(__name__)
-
-
-class ORMJob(Base):
-    """
-    The DB representation of a common.classes.Job object,
-    storing the relevant details needed by the job storage
-    backend.
-    """
-
-    __tablename__ = "jobs"
-
-    # The hex UUID given to the job upon first creation.
-    id = Column(String, primary_key=True, autoincrement=False)
-
-    # The job's state. Inflated here for easier querying to the job's state.
-    state = Column(String, index=True)
-
-    # The job's function string. Inflated here for easier querying of which task type it is.
-    func = Column(String, index=True)
-
-    # The job's priority. Helps to decide which job to run next.
-    priority = Column(Integer, index=True)
-
-    # The queue name passed to the client when the job is scheduled.
-    queue = Column(String, index=True)
-
-    # The JSON string that represents the job
-    saved_job = Column(String)
-
-    time_created = Column(DateTime(timezone=True), server_default=sql_func.now())
-    time_updated = Column(DateTime(timezone=True), onupdate=sql_func.now())
-
-    # Repeat interval in seconds.
-    interval = Column(Integer, default=0)
-
-    # Retry interval in seconds.
-    retry_interval = Column(Integer, nullable=True)
-
-    # Number of times to repeat - None means repeat forever.
-    repeat = Column(Integer, nullable=True)
-
-    scheduled_time = Column(DateTime())
-
-    # Optional references to the worker host, process and thread that are running this job,
-    # and any extra metadata that can be used by specific worker implementations.
-    worker_host = Column(String, nullable=True)
-    worker_process = Column(String, nullable=True)
-    worker_thread = Column(String, nullable=True)
-    worker_extra = Column(String, nullable=True)
-
-    __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
 NO_VALUE = object()
 
 
-class Storage(object):
-    def __init__(self, connection, Base=Base):
-        self.engine = connection
-        if self.engine.name == "sqlite":
-            self.set_sqlite_pragmas()
-        self.Base = Base
-        self.Base.metadata.create_all(self.engine)
-        self.sessionmaker = sessionmaker(bind=self.engine)
+class Storage:
+    def __init__(self):
         self._hooks = list(StorageHook.registered_hooks)
-
-    @contextmanager
-    def session_scope(self):
-        session = self.sessionmaker()
-        try:
-            yield session
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
 
     def __len__(self):
         """
         Returns the number of jobs currently in the storage.
         """
-        with self.engine.connect() as conn:
-            return conn.execute(sql_func.count(ORMJob.id)).scalar()
+        return ORMJob.objects.count()
 
     def __contains__(self, item):
         """
@@ -131,37 +47,13 @@ class Storage(object):
         job_id = item
         if isinstance(item, Job):
             job_id = item.job_id
-        with self.engine.connect() as connection:
-            return (
-                connection.execute(select(ORMJob).where(ORMJob.id == job_id)).fetchone()
-                is not None
-            )
+        return ORMJob.objects.filter(id=job_id).exists()
 
-    @staticmethod
-    def recreate_default_tables(engine):
-        """
-        Recreates the default tables for the job storage backend.
-        """
-        Base.metadata.drop_all(engine)
-        scheduledjobs_base = declarative_base()
-        scheduledjobs_table = Table("scheduledjobs", scheduledjobs_base.metadata)
-        scheduledjobs_table.drop(engine, checkfirst=True)
-        Base.metadata.create_all(engine)
-
-    def set_sqlite_pragmas(self):
-        """
-        Sets the connection PRAGMAs for the sqlalchemy engine stored in self.engine.
-
-        It currently sets:
-        - journal_mode to WAL
-
-        :return: None
-        """
-        try:
-            with self.engine.connect() as conn:
-                conn.execute(text("PRAGMA journal_mode = WAL;"))
-        except OperationalError:
-            pass
+    def _get_job_database_alias(self):
+        db_backend = connections[ORMJob.objects.db].vendor
+        if db_backend == "sqlite":
+            return JOB_STORAGE
+        return None  # Use default database
 
     def _orm_to_job(self, orm_job):
         """
@@ -176,7 +68,12 @@ class Storage(object):
         return job
 
     def enqueue_job(
-        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job given by j to the job queue.
@@ -193,6 +90,7 @@ class Storage(object):
                 interval=0,
                 repeat=0,
                 retry_interval=retry_interval,
+                max_retries=max_retries,
             )
         except JobRunning:
             logger.debug(
@@ -203,23 +101,25 @@ class Storage(object):
             return job.job_id
 
     def enqueue_lifo(
-        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        retry_interval=None,
+        max_retries=None,
     ):
-        naive_utc_now = datetime.utcnow()
-        with self.session_scope() as session:
-            soonest_job = (
-                session.query(ORMJob)
-                .filter(ORMJob.state == State.QUEUED)
-                .filter(ORMJob.scheduled_time <= naive_utc_now)
-                .order_by(ORMJob.scheduled_time)
-                .first()
-            )
-            dt = (
-                pytz.timezone("UTC").localize(soonest_job.scheduled_time)
-                - timedelta(microseconds=1)
-                if soonest_job
-                else self._now()
-            )
+        now = self._now()
+        soonest_job = (
+            ORMJob.objects.filter(state=State.QUEUED)
+            .filter(scheduled_time__lte=now)
+            .order_by("scheduled_time")
+            .first()
+        )
+        dt = (
+            soonest_job.scheduled_time - timedelta(microseconds=1)
+            if soonest_job
+            else self._now()
+        )
         try:
             return self.schedule(
                 dt,
@@ -229,6 +129,7 @@ class Storage(object):
                 interval=0,
                 repeat=0,
                 retry_interval=retry_interval,
+                max_retries=max_retries,
             )
         except JobRunning:
             logger.debug(
@@ -237,6 +138,22 @@ class Storage(object):
                 )
             )
             return job.job_id
+
+    def _enqueue_job_if_not_status(
+        self,
+        job,
+        queue=DEFAULT_QUEUE,
+        priority=Priority.REGULAR,
+        state=State.QUEUED,
+        retry_interval=None,
+    ):
+        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=state)
+        if queued_jobs:
+            return queued_jobs[0].job_id
+
+        return self.enqueue_job(
+            job, queue=queue, priority=priority, retry_interval=retry_interval
+        )
 
     def enqueue_job_if_not_enqueued(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
@@ -249,12 +166,32 @@ class Storage(object):
         :return: enqueued job's id.
         """
 
-        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=State.QUEUED)
-        if queued_jobs:
-            return queued_jobs[0].job_id
+        return self._enqueue_job_if_not_status(
+            job,
+            queue=queue,
+            priority=priority,
+            state=State.QUEUED,
+            retry_interval=retry_interval,
+        )
 
-        return self.enqueue_job(
-            job, queue=queue, priority=priority, retry_interval=retry_interval
+    def enqueue_job_if_not_active(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no job running or
+        next to it.
+
+        N.B. This method does not curently match by job arguments (args and kwargs) but only by the function name.
+
+        :return: enqueued job's id.
+        """
+
+        return self._enqueue_job_if_not_status(
+            job,
+            queue=queue,
+            priority=priority,
+            state=[State.PENDING, State.SCHEDULED, State.QUEUED, State.RUNNING],
+            retry_interval=retry_interval,
         )
 
     def mark_job_as_canceled(self, job_id):
@@ -272,16 +209,13 @@ class Storage(object):
         """
         self._update_job(job_id, State.CANCELING)
 
-    def _filter_next_query(self, query, priority):
-        naive_utc_now = datetime.utcnow()
-        return (
-            query.filter(ORMJob.state == State.QUEUED)
-            .filter(ORMJob.scheduled_time <= naive_utc_now)
-            .filter(ORMJob.priority <= priority)
-            .order_by(ORMJob.priority, ORMJob.scheduled_time, ORMJob.time_created)
-        )
+    def _filter_next_query(self, queryset, priority):
+        now = self._now()
+        return queryset.filter(
+            Q(scheduled_time__lte=now), state=State.QUEUED, priority__lte=priority
+        ).order_by("priority", "scheduled_time", "time_created")
 
-    def _postgres_next_queued_job(self, session, priority):
+    def _postgres_next_queued_job(self, priority):
         """
         For postgres we are doing our best to ensure that the selected job
         is not then also selected by another potentially concurrent worker controller
@@ -289,77 +223,75 @@ class Storage(object):
         This should work as long as our connection uses the default isolation level
         of READ_COMMITTED.
         More details here: https://dba.stackexchange.com/a/69497
-        For SQLAlchemy details here: https://stackoverflow.com/a/25943713
         """
-        subquery = (
-            self._filter_next_query(session.query(ORMJob.id), priority)
-            .limit(1)
-            .with_for_update(skip_locked=True)
-        )
-        return self.engine.execute(
-            update(ORMJob)
-            .values(state=State.SELECTED)
-            .where(ORMJob.id == subquery.scalar_subquery())
-            .returning(ORMJob.saved_job)
-        ).fetchone()
+        with transaction.atomic(using=self._get_job_database_alias()):
+            next_job = (
+                self._filter_next_query(ORMJob.objects.all(), priority)
+                .select_for_update(skip_locked=True)
+                .first()
+            )
 
-    def _sqlite_next_queued_job(self, session, priority):
+            if next_job:
+                next_job.state = State.SELECTED
+                next_job.save()
+                return next_job
+        return None
+
+    def _sqlite_next_queued_job(self, priority):
         """
         Due to the difficulty in appropriately locking the task row
         we do not support multiple task runners potentially duelling
         to lock tasks for SQLite, so here we just do a minimal
         best effort to mark the job as selected for running.
         """
-        orm_job = self._filter_next_query(session.query(ORMJob), priority).first()
+        orm_job = self._filter_next_query(ORMJob.objects.all(), priority).first()
+
         if orm_job:
             orm_job.state = State.SELECTED
-            session.add(orm_job)
+            orm_job.save()
         return orm_job
 
     def get_next_queued_job(self, priority=Priority.REGULAR):
-        with self.session_scope() as s:
-            method = (
-                self._sqlite_next_queued_job
-                if self.engine.dialect.name == "sqlite"
-                else self._postgres_next_queued_job
-            )
-            orm_job = method(s, priority)
+        db_backend = connections[ORMJob.objects.db].vendor
 
-            if orm_job:
-                job = self._orm_to_job(orm_job)
-            else:
-                job = None
+        if db_backend == "sqlite":
+            orm_job = self._sqlite_next_queued_job(priority)
+        else:
+            orm_job = self._postgres_next_queued_job(priority)
 
-            return job
+        if orm_job:
+            return self._orm_to_job(orm_job)
+        return None
 
     def filter_jobs(
         self, queue=None, queues=None, state=None, repeating=None, func=None
     ):
         if queue and queues:
             raise ValueError("Cannot specify both queue and queues")
-        with self.engine.connect() as conn:
-            q = select(ORMJob)
 
-            if queue:
-                q = q.where(ORMJob.queue == queue)
+        queryset = ORMJob.objects.all()
 
-            if queues:
-                q = q.where(ORMJob.queue.in_(queues))
+        if queue:
+            queryset = queryset.filter(queue=queue)
 
-            if state:
-                q = q.where(ORMJob.state == state)
+        if queues:
+            queryset = queryset.filter(queue__in=queues)
 
-            if repeating is True:
-                q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
-            elif repeating is False:
-                q = q.where(ORMJob.repeat == 0)
+        if state:
+            if isinstance(state, list):
+                queryset = queryset.filter(state__in=state)
+            else:
+                queryset = queryset.filter(state=state)
 
-            if func:
-                q = q.where(ORMJob.func == func)
+        if repeating is True:
+            queryset = queryset.filter(Q(repeat__gt=0) | Q(repeat__isnull=True))
+        elif repeating is False:
+            queryset = queryset.filter(repeat=0)
 
-            orm_jobs = conn.execute(q)
+        if func:
+            queryset = queryset.filter(func=func)
 
-            return [self._orm_to_job(o) for o in orm_jobs]
+        return [self._orm_to_job(o) for o in queryset]
 
     def get_canceling_jobs(self, queues=None):
         return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
@@ -373,25 +305,17 @@ class Storage(object):
     def get_all_jobs(self, queue=None, repeating=None):
         return self.filter_jobs(queue=queue, repeating=repeating)
 
-    def test_table_readable(self):
-        # Have to use the self-referential `self.engine.engine` as the inspection
-        # used inside this function complains if we use the `self.engine` object
-        # as it is a Django SimpleLazyObject and it doesn't like it!
-        db_matches_schema({ORMJob.__tablename__: ORMJob}, self.engine.engine)
-
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
         job = self._orm_to_job(orm_job)
         return job
 
     def get_orm_job(self, job_id):
-        with self.engine.connect() as connection:
-            orm_job = connection.execute(
-                select(ORMJob).where(ORMJob.id == job_id)
-            ).fetchone()
-        if orm_job is None:
+        try:
+            orm_job = ORMJob.objects.get(id=job_id)
+            return orm_job
+        except ORMJob.DoesNotExist:
             raise JobNotFound()
-        return orm_job
 
     def restart_job(self, job_id):
         """
@@ -471,28 +395,28 @@ class Storage(object):
         :type force: bool
         :param force: If True, clear the job (or jobs), even if it hasn't completed, failed or been cancelled.
         """
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
+        with transaction.atomic(using=self._get_job_database_alias()):
+            queryset = ORMJob.objects.all()
             if queue:
-                q = q.filter_by(queue=queue)
+                queryset = queryset.filter(queue=queue)
             if job_id:
-                q = q.filter_by(id=job_id)
+                queryset = queryset.filter(id=job_id)
 
             # filter only by the finished jobs, if we are not specified to force
             if not force:
-                q = q.filter(
-                    or_(
-                        ORMJob.state == State.COMPLETED,
-                        ORMJob.state == State.FAILED,
-                        ORMJob.state == State.CANCELED,
-                    )
+                queryset = queryset.filter(
+                    Q(state=State.COMPLETED)
+                    | Q(state=State.FAILED)
+                    | Q(state=State.CANCELED)
                 )
+
             if self._hooks:
-                for orm_job in q:
+                for orm_job in queryset:
                     job = self._orm_to_job(orm_job)
                     for hook in self._hooks:
                         hook.clear(job, orm_job)
-            q.delete(synchronize_session=False)
+
+            queryset.delete()
 
     def update_job_progress(
         self, job_id, progress, total_progress, extra_metadata=None
@@ -556,9 +480,9 @@ class Storage(object):
             # nothing to do
             return
 
-        with self.session_scope() as session:
+        with transaction.atomic(using=self._get_job_database_alias()):
             try:
-                _, orm_job = self._get_job_and_orm_job(job_id, session)
+                _, orm_job = self._get_job_and_orm_job(job_id)
                 if host is not None:
                     orm_job.worker_host = host
                 if process is not None:
@@ -567,11 +491,7 @@ class Storage(object):
                     orm_job.worker_thread = thread
                 if extra is not None:
                     orm_job.worker_extra = extra
-                session.add(orm_job)
-                try:
-                    session.commit()
-                except Exception as e:
-                    logger.error("Got an error running session.commit(): {}".format(e))
+                orm_job.save()
             except JobNotFound:
                 logger.error(
                     "Tried to update job with id {} but it was not found".format(job_id)
@@ -587,6 +507,7 @@ class Storage(object):
         interval=None,
         repeat=NO_VALUE,
         retry_interval=NO_VALUE,
+        exception=None,
     ):
         """
         Because repeat and retry_interval are nullable, None is a semantic value, so we need to use a sentinel value NO_VALUE
@@ -609,6 +530,9 @@ class Storage(object):
         if delay is not None:
             validate_timedelay(delay)
 
+        if exception is not None:
+            validate_exception(exception)
+
         orm_job = self.get_orm_job(job_id)
 
         # Only allow this function to be run on a job that is in a finished state.
@@ -626,6 +550,8 @@ class Storage(object):
             retry_interval=retry_interval
             if retry_interval is not NO_VALUE
             else orm_job.retry_interval,
+            max_retries=orm_job.max_retries,
+            retries=orm_job.retries,
         )
 
         # Set a null new_scheduled_time so that we finish processing if none of the cases below pertain.
@@ -637,12 +563,17 @@ class Storage(object):
             # enqueuing changes - so if it is still set to repeat, it will repeat again after the
             # delayed rerun.
             new_scheduled_time = self._now() + delay
-        elif orm_job.state == State.FAILED and kwargs["retry_interval"] is not None:
-            # If the task has failed, and a retry interval has been specified (either in the original enqueue,
-            # or from the passed in kwargs) then requeue as a retry.
+        elif self._should_retry_on_failed_task(
+            orm_job, exception, kwargs["retry_interval"]
+        ):
             new_scheduled_time = self._now() + timedelta(
                 seconds=kwargs["retry_interval"]
+                if kwargs["retry_interval"] is not None
+                else 10
             )
+            # Increment the retries count.
+            current_retries = orm_job.retries if orm_job.retries is not None else 0
+            kwargs["retries"] = current_retries + 1
 
         elif (
             orm_job.state in {State.COMPLETED, State.FAILED, State.CANCELED}
@@ -661,10 +592,32 @@ class Storage(object):
             # Use the schedule method so that any scheduling hooks are run for this next run of the job.
             self.schedule(new_scheduled_time, job, **kwargs)
 
+    def _should_retry_on_failed_task(self, orm_job, exception, retry_interval):
+        """
+        Determine if a job should be retried based on its retry settings and the exception raised.
+        """
+        if orm_job.state != State.FAILED:
+            return False
+
+        if retry_interval is None and orm_job.max_retries is None:
+            # retry_interval or max_retries should be set to enable retries
+            return False
+
+        current_retries = orm_job.retries if orm_job.retries is not None else 0
+        if orm_job.max_retries is not None and current_retries >= orm_job.max_retries:
+            return False
+
+        job = self._orm_to_job(orm_job)
+        retry_on = job.task.retry_on
+        if retry_on and exception:
+            return any(isinstance(exception, exc) for exc in retry_on)
+
+        return True
+
     def _update_job(self, job_id, state=None, **kwargs):
-        with self.session_scope() as session:
+        with transaction.atomic(using=self._get_job_database_alias()):
             try:
-                job, orm_job = self._get_job_and_orm_job(job_id, session)
+                job, orm_job = self._get_job_and_orm_job(job_id)
                 if state is not None:
                     orm_job.state = job.state = state
                 for kwarg in kwargs:
@@ -677,11 +630,7 @@ class Storage(object):
                             )
                         )
                 orm_job.saved_job = job.to_json()
-                session.add(orm_job)
-                try:
-                    session.commit()
-                except Exception as e:
-                    logger.error("Got an error running session.commit(): {}".format(e))
+                orm_job.save()
                 for hook in self._hooks:
                     hook.update(job, orm_job, state=state, **kwargs)
                 return job, orm_job
@@ -699,9 +648,10 @@ class Storage(object):
                         )
                     )
 
-    def _get_job_and_orm_job(self, job_id, session):
-        orm_job = session.query(ORMJob).filter_by(id=job_id).one_or_none()
-        if orm_job is None:
+    def _get_job_and_orm_job(self, job_id):
+        try:
+            orm_job = ORMJob.objects.get(id=job_id)
+        except ORMJob.DoesNotExist:
             raise JobNotFound()
         job = self._orm_to_job(orm_job)
         return job, orm_job
@@ -715,6 +665,7 @@ class Storage(object):
         interval=0,
         repeat=0,
         retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job for the specified time
@@ -727,6 +678,7 @@ class Storage(object):
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,
+            max_retries=max_retries,
         )
 
     def enqueue_in(
@@ -738,6 +690,7 @@ class Storage(object):
         interval=0,
         repeat=0,
         retry_interval=None,
+        max_retries=None,
     ):
         """
         Add the job in the specified time delta
@@ -753,6 +706,7 @@ class Storage(object):
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,
+            max_retries=max_retries,
         )
 
     def schedule(
@@ -764,6 +718,8 @@ class Storage(object):
         interval=0,
         repeat=0,
         retry_interval=None,
+        retries=None,
+        max_retries=None,
     ):
         """
         Add the job for the specified time, interval, and number of repeats.
@@ -784,33 +740,38 @@ class Storage(object):
         if not isinstance(job, Job):
             raise ValueError("Job argument must be a Job object.")
 
-        with self.session_scope() as session:
-            orm_job = session.get(ORMJob, job.job_id)
+        with transaction.atomic(using=self._get_job_database_alias()):
+            orm_job = ORMJob.objects.filter(id=job.job_id).first()
             if orm_job and orm_job.state == State.RUNNING:
                 raise JobRunning()
 
             job.state = State.QUEUED
-            orm_job = ORMJob(
-                id=job.job_id,
-                state=job.state,
-                func=job.func,
-                priority=priority,
-                queue=queue,
-                interval=interval,
-                repeat=repeat,
-                retry_interval=retry_interval,
-                scheduled_time=naive_utc_datetime(dt),
-                saved_job=job.to_json(),
-            )
-            session.merge(orm_job)
-            try:
-                session.commit()
-            except Exception as e:
-                logger.error("Got an error running session.commit(): {}".format(e))
+            orm_job_data = {
+                "id": job.job_id,
+                "state": job.state,
+                "func": job.func,
+                "priority": priority,
+                "queue": queue,
+                "interval": interval,
+                "repeat": repeat,
+                "retry_interval": retry_interval,
+                "retries": retries,
+                "max_retries": max_retries,
+                "scheduled_time": dt,
+                "saved_job": job.to_json(),
+            }
+
+            if orm_job:
+                # Update existing job
+                for key, value in orm_job_data.items():
+                    setattr(orm_job, key, value)
+                orm_job.save()
+            else:
+                orm_job = ORMJob.objects.create(**orm_job_data)
 
             self._run_scheduled_hooks(orm_job)
 
-            return job.job_id
+        return job.job_id
 
     def _run_scheduled_hooks(self, orm_job):
         job = self._orm_to_job(orm_job)

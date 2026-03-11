@@ -42,7 +42,7 @@
 
             <KIconButton
               icon="optionsHorizontal"
-              style="margin-left: 1em"
+              class="options-button"
             >
               <template #menu>
                 <KDropdownMenu
@@ -238,6 +238,10 @@
     height: 1.5em;
     // Space between icon and text
     margin-right: 0.5em;
+  }
+
+  .options-button {
+    margin-left: 1em;
   }
 
 </style>

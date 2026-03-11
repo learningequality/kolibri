@@ -17,7 +17,7 @@ import {
   LearnerLessonResource,
   LearnerCourseResource,
 } from '../apiResources';
-import { ClassesPageNames } from '../constants';
+import { ClassesPageNames, PageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
@@ -88,6 +88,14 @@ export default function useLearnerResources() {
    */
   const activeClassesLessons = computed(() => {
     return flatMap(get(classes), c => c.lessons);
+  });
+
+  /**
+   * @returns {Array} - All courses assigned to a learner in all their classes
+   * @public
+   */
+  const activeClassesCourses = computed(() => {
+    return flatMap(get(classes), c => c.courses || []);
   });
 
   /**
@@ -191,6 +199,19 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {String} classId
+   * @returns {Array} All courses of a class
+   * @public
+   */
+  function getClassActiveCourses(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.courses) {
+      return [];
+    }
+    return classroom.courses;
+  }
+
+  /**
    * @param {Object} lesson
    * @returns {Object} vue-router link to a lesson page
    * @public
@@ -236,6 +257,23 @@ export default function useLearnerResources() {
         classId: quiz.collection,
         examId: quiz.id,
         questionNumber: 0,
+      },
+    };
+  }
+
+  /**
+   * @param {Object} course
+   * @returns {Object} vue-router link to a course page (placeholder)
+   * @public
+   */
+  function getClassCourseLink(course) {
+    if (!course) {
+      return undefined;
+    }
+    return {
+      name: PageNames.COURSE_CONTENT__COURSE,
+      params: {
+        courseId: course.id,
       },
     };
   }
@@ -495,14 +533,17 @@ export default function useLearnerResources() {
   return {
     classes,
     activeClassesLessons,
+    activeClassesCourses,
     activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
     learnerFinishedAllClasses,
     getClass,
     getClassActiveLessons,
+    getClassActiveCourses,
     getClassActiveQuizzes,
     getClassLessonLink,
+    getClassCourseLink,
     getClassQuizLink,
     fetchClass,
     fetchClasses,

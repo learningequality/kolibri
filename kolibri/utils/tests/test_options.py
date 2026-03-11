@@ -37,7 +37,6 @@ def activate_log_logger(monkeypatch):
     monkeypatch.setattr(logging.Logger, "__log", logging.Logger._log, raising=False)
     monkeypatch.setattr(logging.Logger, "_log", log_logger)
     yield
-    # Use this to clear the list for Py2 compatibility
     del LOG_LOGGER[:]
 
 

@@ -85,7 +85,7 @@ unique_translations_validator = NoRepeatedValueJSONArrayValidator(
 
 
 @deconstructible
-class DescriptionTranslationValidator(object):
+class DescriptionTranslationValidator:
     def __init__(self, custom_demographics_key):
         self.custom_demographics_key = custom_demographics_key
 
@@ -109,7 +109,7 @@ unique_value_validator = NoRepeatedValueJSONArrayValidator(
 
 
 @deconstructible
-class EnumValuesValidator(object):
+class EnumValuesValidator:
     def __init__(self, custom_demographics_key):
         self.custom_demographics_key = custom_demographics_key
 
@@ -129,7 +129,7 @@ class EnumValuesValidator(object):
 
 
 @deconstructible
-class LabelTranslationValidator(object):
+class LabelTranslationValidator:
     def __init__(self, custom_demographics_key):
         self.custom_demographics_key = custom_demographics_key
 

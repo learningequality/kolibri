@@ -1,7 +1,9 @@
 import logging
+from datetime import timedelta
 from urllib.parse import urlparse
 
 import requests
+from django.utils import timezone
 
 import kolibri
 from . import errors
@@ -10,6 +12,7 @@ from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import LocationTypes
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.server import get_urls
@@ -24,6 +27,7 @@ DEFAULT_CONNECT_TIMEOUT = 5
 DEFAULT_READ_TIMEOUT = 60
 # default read timeout when within a job
 DEFAULT_ASYNC_READ_TIMEOUT = 30
+NETWORK_LOCATION_KEEP_ALIVE_TIMEOUT = 5
 # when the network client tries variations of a url, that means the overall length of time it takes
 # is multiplied by the number of variations, so for synchronous operations (in a HTTP request) we
 # make the overall timeout ~= the DEFAULT_READ_TIMEOUT
@@ -76,6 +80,29 @@ class NetworkClient(requests.Session):
                 # if we're within a request thread, then we limit it for an overall time
                 timeout = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_SYNC_READ_TIMEOUT)
         _, self_urls = get_urls()
+
+        # Check if the address is already known
+        network_location = NetworkLocation.objects.filter(base_url=address).first()
+        if network_location:
+            with cls(network_location.base_url, timeout=timeout) as client:
+                last_accessed = network_location.last_accessed
+                if (
+                    last_accessed
+                    and (timezone.now() - last_accessed)
+                    < timedelta(seconds=NETWORK_LOCATION_KEEP_ALIVE_TIMEOUT)
+                    and network_location.connection_status == ConnectionStatus.Okay
+                ):
+                    # If we know this location is okay and its been accessed recently,
+                    # use it without calling connect() to save some resources
+                    return client
+
+                if client.connect(raise_if_unavailable=False):
+                    network_location.last_accessed = timezone.now()
+                    network_location.connection_status = ConnectionStatus.Okay
+                    network_location.save()
+                    return client
+
+        # If we haven't found a known location, try variations
         for url in get_normalized_url_variations(address):
             if url in self_urls:
                 continue  # exclude our own URLs

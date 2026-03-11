@@ -17,12 +17,9 @@
     </div>
     <div
       v-if="hasSelectedUsers"
+      class="divider divider-with-margin"
       :style="{
-        height: '1px',
         backgroundColor: $themeTokens.fineLine,
-        marginBottom: '16px',
-        marginLeft: '-16px',
-        marginRight: '-16px',
       }"
     ></div>
     <div
@@ -45,11 +42,9 @@
     </div>
     <div
       v-if="showUsersTable"
+      class="divider"
       :style="{
-        height: '1px',
         backgroundColor: $themeTokens.fineLine,
-        marginLeft: '-16px',
-        marginRight: '-16px',
       }"
     ></div>
   </div>
@@ -137,6 +132,16 @@
     gap: 8px;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .divider {
+    height: 1px;
+    margin-right: -16px;
+    margin-left: -16px;
+  }
+
+  .divider-with-margin {
     margin-bottom: 16px;
   }
 

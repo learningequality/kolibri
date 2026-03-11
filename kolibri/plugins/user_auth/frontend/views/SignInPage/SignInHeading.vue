@@ -1,18 +1,12 @@
 <template>
 
   <div class="sign-in-text">
-    <div
-      v-if="showFacilityName && !showPasswordForm"
-      style="margin-top: 24px; margin-bottom: 16px; text-align: left"
-    >
+    <div v-if="showFacilityName && !showPasswordForm">
       {{ userString('signInToFacilityLabel', { facility: selectedFacility.name }) }}
     </div>
 
     <!-- Asking for password, has multiple facilities or is not informal -->
-    <div
-      v-else-if="showFacilityName && showPasswordForm"
-      style="margin-top: 24px; margin-bottom: 16px; text-align: left"
-    >
+    <div v-else-if="showFacilityName && showPasswordForm">
       {{
         userString('signingInToFacilityAsUserLabel', {
           facility: selectedFacility.name,

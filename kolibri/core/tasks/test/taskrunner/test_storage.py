@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 import datetime
 import time
 
 import pytest
 import pytz
 from mock import patch
+from requests.exceptions import HTTPError
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.constants import Priority
@@ -14,7 +14,6 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.utils.time_utils import local_now
 
@@ -24,38 +23,44 @@ QUEUE = "pytest"
 
 @pytest.fixture
 def defaultbackend():
-    with connection() as c:
-        b = Storage(c)
-        b.clear(force=True)
-        yield b
-        b.clear(force=True)
+    b = Storage()
+    b.clear(force=True)
+    yield b
+    b.clear(force=True)
+
+
+@register_task(
+    retry_on=[ValueError, TypeError],
+)
+def add(x, y):
+    return x + y
+
+
+@pytest.fixture(autouse=True)
+def register_add_task():
+    # register before tests
+    TaskRegistry[callable_to_import_path(add)] = add
+    try:
+        yield
+    finally:
+        # clear after tests
+        TaskRegistry.clear()
 
 
 @pytest.fixture
-def func():
-    @register_task
-    def add(x, y):
-        return x + y
-
-    TaskRegistry["kolibri.core.tasks.test.taskrunner.test_storage.add"] = add
-
-    yield add
-    TaskRegistry.clear()
+def simplejob():
+    return Job(add)
 
 
-@pytest.fixture
-def simplejob(func):
-    return Job(func)
-
-
+@pytest.mark.django_db(databases="__all__")
 class TestBackend:
-    def test_can_enqueue_single_job(self, defaultbackend, simplejob, func):
+    def test_can_enqueue_single_job(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
 
         new_job = defaultbackend.get_job(job_id)
 
         # Does the returned job record the function we set to run?
-        assert str(new_job.func) == callable_to_import_path(func)
+        assert str(new_job.func) == callable_to_import_path(add)
 
         # Does the job have the right state (QUEUED)?
         assert new_job.state == State.QUEUED
@@ -309,6 +314,134 @@ class TestBackend:
 
         assert requeued_job.state == State.QUEUED
         assert requeued_orm_job.scheduled_time > previous_scheduled_time
+
+    def test_job_retry_on_matching_exception(self, defaultbackend, simplejob):
+        exception = ValueError("Error")
+        job_id = defaultbackend.enqueue_job(
+            simplejob, QUEUE, retry_interval=5, max_retries=3
+        )
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
+        assert requeued_orm_job.retries == 1
+
+    def test_job_retry_on_matching_exception__no_max_retries(
+        self, defaultbackend, simplejob
+    ):
+        exception = ValueError("Error")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, retry_interval=5)
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
+        assert requeued_orm_job.retries == 1
+
+    def test_job_retry_on_matching_exception__no_retry_interval(
+        self, defaultbackend, simplejob
+    ):
+        exception = TypeError("Error")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, max_retries=3)
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
+        assert requeued_orm_job.retries == 1
+
+    def test_job_not_retry_on_matching_exception__no_retry_params(
+        self, defaultbackend, simplejob
+    ):
+        # If job has no retry params, it should not retry even if exception matches
+        exception = ValueError("Error")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.FAILED
+        assert requeued_orm_job.scheduled_time == previous_scheduled_time
+        assert requeued_orm_job.retries is None
+
+    def test_job_not_retry_on_non_matching_exception(self, defaultbackend, simplejob):
+        exception = HTTPError("Error")
+        job_id = defaultbackend.enqueue_job(
+            simplejob, QUEUE, retry_interval=5, max_retries=3
+        )
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.FAILED
+        assert requeued_orm_job.scheduled_time == previous_scheduled_time
+        assert requeued_orm_job.retries is None
+
+    def test_job_not_retry_on_limit_max_retries(self, defaultbackend, simplejob):
+        exception = ValueError("Error")
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, max_retries=1)
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        # Retry first time
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        # When trying to retry second time, it should not retry as max_retries is reached
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, exception=exception
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        retries = requeued_orm_job.retries
+        assert requeued_job.state == State.FAILED
+        assert requeued_orm_job.scheduled_time == previous_scheduled_time
+        assert retries == 1
 
     def test_reschedule_finished_job_canceled(self, defaultbackend, simplejob):
         # Test case where the job is canceled.

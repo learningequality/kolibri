@@ -15,7 +15,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
     def setUp(self):
         super().setUp()
 
-        class TestHook(object):
+        class TestHook:
             pre_transfer = mock.Mock()
             post_transfer = mock.Mock()
 

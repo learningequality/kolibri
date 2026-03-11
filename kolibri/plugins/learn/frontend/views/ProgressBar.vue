@@ -43,7 +43,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import lodashGet from 'lodash/get';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
-
+  import { learnStrings } from './commonLearnStrings';
   /**
    * A progress bar that has three states:
    * - won't display when not started (progress = 0)
@@ -58,7 +58,13 @@
     mixins: [commonCoreStrings],
     setup() {
       const { contentNodeProgressMap, contentNodeProgressMetaDataMap } = useContentNodeProgress();
-      return { contentNodeProgressMap, contentNodeProgressMetaDataMap };
+      const { questionsLeft$, completedPercentLabel$ } = learnStrings;
+      return {
+        contentNodeProgressMap,
+        contentNodeProgressMetaDataMap,
+        questionsLeft$,
+        completedPercentLabel$,
+      };
     },
     props: {
       // eslint-disable-next-line vue/no-unused-properties
@@ -98,27 +104,16 @@
       },
       quizInProgressLabel() {
         if (this.isQuiz) {
-          return this.$tr('questionsLeft', { questionsLeft: this.remainingQuestions });
+          return this.questionsLeft$({ questionsLeft: this.remainingQuestions });
         }
         return '';
       },
       quizCompletedLabel() {
         if (this.isQuiz && this.completed) {
           const percentage = Math.round(100 * this.score);
-          return this.$tr('completedPercentLabel', { score: percentage });
+          return this.completedPercentLabel$({ score: percentage });
         }
         return '';
-      },
-    },
-    $trs: {
-      questionsLeft: {
-        message:
-          '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
-        context: 'Indicates how many questions the learner has left to complete.',
-      },
-      completedPercentLabel: {
-        message: 'Score: {score, number, integer}%',
-        context: 'A label shown to learners on a quiz card when the quiz is completed',
       },
     },
   };

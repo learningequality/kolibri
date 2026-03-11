@@ -228,7 +228,7 @@
   "GettingStartedFormAlt.descriptionParagraph2": "ထောက်ပံ့မှုတစ်ခုကို သီးသန့်စီစဉ်ချင်ပါသလား",
   "GettingStartedFormAlt.gettingStartedHeader": "Kolibri ကိုအသုံးပြုဖို့ ဘယ်လိုစီစဉ်ထားလဲ",
   "GettingStartedFormAlt.skipAction": "ကျော်မည်",
-  "LodUsersManagementStrings.cannotRemoveUserDescription": "ဒီအသုံးပြုသူ ဒီဖုန်း၊ကွန်ပြူတာပေါ်က တစ်ဦးတည်းသော အက်ဒမင်ဖြစ်ပြီး မဖယ်ရှားနိုင်ပါဘူး။ ဒီအသုံးပြုသူကို ဖယ်ရှားချင်တယ်ဆိုရင် နောက်အသုံးပြုကို ဒီဖုန်း၊ကွန်ပြူတာပေါ်မှာ စူပါအက်ဒမင်အဖြစ် ခွင့်ပြုချက် ပေးလိုက်ပါ ဒါမှမဟုတ် လွှဲပြောင်းပေးလိုက်ပါ။",
+  "LodUsersManagementStrings.cannotRemoveUserDescription": "ဒီအသုံးပြုသူ ဒီဖုန်း၊ကွန်ပြူတာပေါ်က တစ်ဦးတည်းသော စူပါအက်ဒမင်ဖြစ်ပြီး ပယ်ဖျတ်လို့မရနိုင်ပါ။ ဒီအသုံးပြုသူကို ဖယ်ရှားချင်တယ်ဆိုရင် နောက်အသုံးပြုကို ဒီဖုန်း၊ကွန်ပြူတာပေါ်မှာ စူပါအက်ဒမင်အဖြစ် ခွင့်ပြုချက် ပေးလိုက်ပါ ဒါမှမဟုတ် လွှဲပြောင်းပေးလိုက်ပါ။",
   "LodUsersManagementStrings.cannotRemoveUserTitle": "အသုံးပြုသူကို မဖယ်ရှားနိုင်ပါဘူး",
   "LodUsersManagementStrings.deviceLimitationsAdminsMessage": "{full_name} ({username})' သည် '{device}' ရှိ စီမံခန့်ခွဲသူဖြစ်သည်။ ဤသင်ကြားမှုဌာနသည် သင်ယူသူများအတွက်သာ အင်္ဂါရပ်များသာဖြစ်သည်။ နည်းပြများနှင့် စီမံခန့်ခွဲသူများအတွက် အင်္ဂါရပ်များကို မရနိုင်ပါ။",
   "LodUsersManagementStrings.deviceLimitationsMessage": "'{full_name} ({username})' သည် '{device}' တွင် {non_admin_role} ဖြစ်သည်။ ဤသင်ကြာမှုဌာနသည် သင်ယူသူများအတွက်သာ အင်္ဂါရပ်များသာဖြစ်သည်။ နည်းပြများနှင့် စီမံခန့်ခွဲသူများအတွက် အင်္ဂါရပ်များကို မရနိုင်ပါ။",

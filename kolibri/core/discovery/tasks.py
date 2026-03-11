@@ -166,10 +166,6 @@ def hydrate_instance(func):
         new_args[1] = KolibriInstance.from_dict(args[1])
         return func(*new_args)
 
-    # for py2.7
-    if not hasattr(wrapped, "__wrapped__"):
-        setattr(wrapped, "__wrapped__", func)
-
     return wrapped
 
 

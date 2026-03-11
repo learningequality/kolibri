@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
@@ -1224,7 +1223,7 @@ class ProgressTrackingViewSetStartSessionCoachQuizResumeTestCase(APITestCase):
         self.client.logout()
 
 
-class UpdateSessionBase(object):
+class UpdateSessionBase:
     def _make_request(self, data):
         data["context"] = {"node_id": self.node.id}
         return self.client.put(
@@ -1527,7 +1526,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
         self.client.logout()
 
 
-class ProgressTrackingViewSetUpdateSessionAssessmentBase(object):
+class ProgressTrackingViewSetUpdateSessionAssessmentBase:
     def _make_request(self, data):
         return self.client.put(
             reverse(

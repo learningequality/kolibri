@@ -4,15 +4,17 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import is_valid_path
+from django.urls import resolve
+from django.urls import Resolver404
 from django.utils import translation
 
 from .translation import get_language_from_request_and_is_from_path
 from kolibri.core.device.hooks import SetupHook
-from kolibri.core.device.utils import DeviceNotProvisioned
+from kolibri.core.device.utils import device_provisioned
 from kolibri.utils.conf import OPTIONS
 
 
-class KolibriLocaleMiddleware(object):
+class KolibriLocaleMiddleware:
     """
     Copied and then modified into a new style middleware from:
     https://github.com/django/django/blob/stable/3.2.x/django/middleware/locale.py#L10
@@ -46,7 +48,6 @@ class KolibriLocaleMiddleware(object):
         response = self.get_response(request)
 
         if language is not None:
-
             language = translation.get_language()
 
             if response.status_code == 404 and not language_from_path:
@@ -86,24 +87,48 @@ class KolibriLocaleMiddleware(object):
         return response
 
 
-class ProvisioningErrorHandler(object):
+class ProvisioningErrorHandler:
     def __init__(self, get_response):
         self.get_response = get_response
-
-    def process_exception(self, request, exception):
-        if (
-            isinstance(exception, DeviceNotProvisioned)
-            and SetupHook.provision_url()
-            and not request.path.startswith(SetupHook.provision_url())
-        ):
-            return redirect(SetupHook.provision_url())
-        return None
+        self._provision_app_name = None
 
     def __call__(self, request):
+        # Resolve the URL first — this is cheap in-memory pattern matching.
+        # If it's not a translated endpoint (i.e. not a plugin page view),
+        # return early without hitting the database for provisioning checks.
+        try:
+            match = resolve(request.path_info)
+        except Resolver404:
+            return self.get_response(request)
+
+        # Only redirect plugin page views, not API endpoints.
+        # Page views served through i18n_patterns have 'translated' set on their callback.
+        # API endpoints are not translated and are always filtered out here.
+        if not getattr(match.func, "translated", False) or device_provisioned():
+            return self.get_response(request)
+
+        try:
+            provision_url = SetupHook.provision_url()
+        except StopIteration:
+            return self.get_response(request)
+
+        if self._provision_app_name is None:
+            self._provision_app_name = resolve(provision_url).app_name
+
+        # Redirect only other plugins' page views to the provisioning URL.
+        # Core views like set_language are also translated (they're inside
+        # i18n_patterns for language prefix routing) but must remain accessible
+        # so the setup wizard can function (e.g. changing language during setup).
+        if (
+            match.app_name != self._provision_app_name
+            and "kolibri:core" not in match.app_name
+        ):
+            return redirect(provision_url)
+
         return self.get_response(request)
 
 
-class DatabaseBusyErrorHandler(object):
+class DatabaseBusyErrorHandler:
     """
     A middleware class to raise a 503 when the database is under heavy load
     For SQLite this will trigger for database locked errors.

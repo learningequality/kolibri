@@ -30,7 +30,7 @@ def get_free_tcp_port():
     return port
 
 
-class KolibriServer(object):
+class KolibriServer:
     def __init__(
         self,
         autostart=True,
@@ -185,7 +185,7 @@ class KolibriServer(object):
         return facility, learner, staff
 
 
-class multiple_kolibri_servers(object):
+class multiple_kolibri_servers:
     def __init__(self, count=2, **server_kwargs):
         self.server_count = count
         self.server_kwargs = [
