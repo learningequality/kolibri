@@ -4,19 +4,45 @@ from django.core.management import call_command
 from django.test import override_settings
 from django.test import TestCase
 from mock import patch
+from morango.models import Certificate
+from morango.models import DatabaseIDModel
+from morango.models import DatabaseMaxCounter
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
+from morango.models import Store
 from morango.sync.controller import MorangoProfileController
 
 from .. import models as auth_models
-from ..management.commands import deprovision
 from .helpers import setup_device
 from .test_api import ClassroomFactory
 from .test_api import LearnerGroupFactory
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.content import models as content_models
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
 from kolibri.core.logger.test.factory_logger import UserSessionLogFactory
+
+MODELS_DELETED_BY_DEPROVISION = [
+    AttemptLog,
+    ContentSessionLog,
+    ContentSummaryLog,
+    auth_models.FacilityUser,
+    auth_models.FacilityDataset,
+    HardDeletedModels,
+    Certificate,
+    DatabaseIDModel,
+    Store,
+    DevicePermissions,
+    DeletedModels,
+    DeviceSettings,
+    DatabaseMaxCounter,
+]
 
 
 def count_instances(models):
@@ -54,16 +80,18 @@ class DeprovisionCommandTestCase(TestCase):
         MorangoProfileController(PROFILE_FACILITY_DATA).serialize_into_store()
 
     @patch("kolibri.core.auth.management.commands.deprovision.confirm_or_exit")
-    def test_setup_no_headers_bad_user_good_user(self, confirm_or_exit_mock):
+    def test_deprovision_deletes_user_data_preserves_content(
+        self, confirm_or_exit_mock
+    ):
         models_that_should_remain = [
             content_models.LocalFile,
             content_models.ContentNode,
             content_models.File,
             content_models.AssessmentMetaData,
         ]
-        assert count_instances(deprovision.MODELS_TO_DELETE) > 0
+        assert count_instances(MODELS_DELETED_BY_DEPROVISION) > 0
         initial_model_count = count_instances(models_that_should_remain)
         assert initial_model_count > 0
         call_command("deprovision")
-        assert count_instances(deprovision.MODELS_TO_DELETE) == 0
+        assert count_instances(MODELS_DELETED_BY_DEPROVISION) == 0
         assert count_instances(models_that_should_remain) == initial_model_count

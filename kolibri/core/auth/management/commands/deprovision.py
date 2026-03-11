@@ -1,43 +1,13 @@
 import logging
 import sys
 
-from morango.models import Certificate
-from morango.models import DatabaseIDModel
-from morango.models import DatabaseMaxCounter
-from morango.models import DeletedModels
-from morango.models import HardDeletedModels
-from morango.models import Store
-
 from kolibri.core.auth.management.utils import confirm_or_exit
-from kolibri.core.auth.models import FacilityDataset
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.deprovision import deprovision
 from kolibri.core.auth.utils.deprovision import get_deprovision_progress_total
-from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.models import DeviceSettings
-from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ContentSessionLog
-from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils.cli import server
 
 logger = logging.getLogger(__name__)
-
-MODELS_TO_DELETE = [
-    AttemptLog,
-    ContentSessionLog,
-    ContentSummaryLog,
-    FacilityUser,
-    FacilityDataset,
-    HardDeletedModels,
-    Certificate,
-    DatabaseIDModel,
-    Store,
-    DevicePermissions,
-    DeletedModels,
-    DeviceSettings,
-    DatabaseMaxCounter,
-]
 
 
 class Command(AsyncCommand):
