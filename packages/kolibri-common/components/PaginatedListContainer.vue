@@ -1,33 +1,15 @@
 <template>
 
   <div>
-    <nav
+    <PaginatedListContainerNav
       v-if="paginationPosition === 'top'"
-      class="pagination-nav"
-    >
-      <span
-        dir="auto"
-        class="pagination-label"
-      >
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
-      </span>
-      <KButtonGroup>
-        <KIconButton
-          :ariaLabel="$tr('previousResults')"
-          :disabled="previousButtonDisabled"
-          size="small"
-          icon="back"
-          @click="changePage(-1)"
-        />
-        <KIconButton
-          :ariaLabel="$tr('nextResults')"
-          :disabled="nextButtonDisabled"
-          size="small"
-          icon="forward"
-          @click="changePage(+1)"
-        />
-      </KButtonGroup>
-    </nav>
+      :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
+      :previousAriaLabel="$tr('previousResults')"
+      :nextAriaLabel="$tr('nextResults')"
+      :previousButtonDisabled="previousButtonDisabled"
+      :nextButtonDisabled="nextButtonDisabled"
+      @changePage="changePage"
+    />
 
     <KGrid>
       <KGridItem :layout12="{ span: searchFieldBlock ? 12 : 7 }">
@@ -49,33 +31,15 @@
       <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
-    <nav
+    <PaginatedListContainerNav
       v-if="paginationPosition === 'bottom'"
-      class="pagination-nav"
-    >
-      <span
-        dir="auto"
-        class="pagination-label"
-      >
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
-      </span>
-      <KButtonGroup>
-        <KIconButton
-          :ariaLabel="$tr('previousResults')"
-          :disabled="previousButtonDisabled"
-          size="small"
-          icon="back"
-          @click="changePage(-1)"
-        />
-        <KIconButton
-          :ariaLabel="$tr('nextResults')"
-          :disabled="nextButtonDisabled"
-          size="small"
-          icon="forward"
-          @click="changePage(+1)"
-        />
-      </KButtonGroup>
-    </nav>
+      :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
+      :previousAriaLabel="$tr('previousResults')"
+      :nextAriaLabel="$tr('nextResults')"
+      :previousButtonDisabled="previousButtonDisabled"
+      :nextButtonDisabled="nextButtonDisabled"
+      @changePage="changePage"
+    />
   </div>
 
 </template>
@@ -86,11 +50,13 @@
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
+  import PaginatedListContainerNav from './PaginatedListContainerNav';
 
   export default {
     name: 'PaginatedListContainer',
     components: {
       FilterTextbox,
+      PaginatedListContainerNav,
     },
     props: {
       // The entire list of items
@@ -200,19 +166,8 @@
 
 <style lang="scss" scoped>
 
-  .pagination-nav {
-    margin-bottom: 8px;
-    text-align: right;
-  }
-
   .text-filter {
     margin-top: 14px;
-  }
-
-  .pagination-label {
-    position: relative;
-    top: -2px;
-    display: inline;
   }
 
 </style>

@@ -295,7 +295,7 @@ describe('AttendanceNewPage', () => {
     guardFn.call(wrapper.vm, { name: 'other' }, {}, next);
 
     expect(next).toHaveBeenCalledWith(false);
-    expect(wrapper.vm.showUnsavedModal).toBe(true);
+    expect(wrapper.vm.pendingRoute).not.toBeNull();
   });
 
   it('confirming unsaved modal allows navigation', async () => {
@@ -321,7 +321,7 @@ describe('AttendanceNewPage', () => {
     await global.flushPromises();
 
     expect(wrapper.vm.isDirty).toBe(false);
-    expect(wrapper.vm.showUnsavedModal).toBe(false);
+    expect(wrapper.vm.pendingRoute).toBeNull();
   });
 });
 

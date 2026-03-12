@@ -132,7 +132,7 @@
     </KModal>
 
     <KModal
-      v-if="showUnsavedModal"
+      v-if="pendingRoute"
       :title="unsavedChangesTitle$()"
       :submitText="leaveAction$()"
       :cancelText="stayAction$()"
@@ -221,7 +221,6 @@
       const isDirty = ref(false);
       const submitting = ref(false);
       const showMarkAllModal = ref(false);
-      const showUnsavedModal = ref(false);
       const pendingRoute = ref(null);
 
       function isPresent(learnerId) {
@@ -302,7 +301,6 @@
 
       // Unsaved changes guard helpers
       function confirmLeave() {
-        showUnsavedModal.value = false;
         const route = pendingRoute.value;
         pendingRoute.value = null;
         isDirty.value = false;
@@ -310,7 +308,6 @@
       }
 
       function cancelLeave() {
-        showUnsavedModal.value = false;
         pendingRoute.value = null;
       }
 
@@ -322,7 +319,6 @@
         isDirty,
         submitting,
         showMarkAllModal,
-        showUnsavedModal,
         pendingRoute,
         presentCount,
         absentCount,
@@ -356,7 +352,6 @@
     beforeRouteLeave(to, from, next) {
       if (this.isDirty && !this.submitting) {
         this.pendingRoute = to;
-        this.showUnsavedModal = true;
         next(false);
       } else {
         next();
