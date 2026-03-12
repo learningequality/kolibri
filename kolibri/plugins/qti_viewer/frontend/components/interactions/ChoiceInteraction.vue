@@ -228,19 +228,27 @@
 
         // Keep orderedIdentifiers in sync so that provided functions
         // (isFocusTarget, setFocusedIndex) can map identifier -> index.
-        // Use nextTick to avoid mutating reactive state during render,
-        // which would trigger an infinite re-render loop in Vue 2.
         const ids = orderedChoices.map(c => c.identifier);
         const idsChanged =
           ids.length !== orderedIdentifiers.value.length ||
           ids.some((id, i) => id !== orderedIdentifiers.value[i]);
         if (idsChanged || focusedIndex.value >= ids.length) {
-          nextTick(() => {
+          const isInitialPopulation = orderedIdentifiers.value.length === 0;
+          if (isInitialPopulation) {
+            // Set synchronously on first render so SimpleChoice components
+            // get the correct tabindex="0" on their initial render.
+            // No re-render loop risk since this only runs once.
             orderedIdentifiers.value = ids;
-            if (focusedIndex.value >= ids.length) {
-              focusedIndex.value = Math.max(0, ids.length - 1);
-            }
-          });
+          } else {
+            // Use nextTick for subsequent updates to avoid mutating
+            // reactive state during render (infinite re-render in Vue 2).
+            nextTick(() => {
+              orderedIdentifiers.value = ids;
+              if (focusedIndex.value >= ids.length) {
+                focusedIndex.value = Math.max(0, ids.length - 1);
+              }
+            });
+          }
         }
 
         const choicesList = h(

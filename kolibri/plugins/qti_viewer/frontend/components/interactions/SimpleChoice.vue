@@ -9,7 +9,7 @@
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
-        ':focus': $coreOutline,
+        ':focus': coreOutline,
       })
     "
     :aria-selected="selected"
@@ -72,12 +72,19 @@
         };
       });
 
+      // Define focus outline that matches Kolibri's standard
+      const coreOutline = {
+        outline: '3px solid rgb(51, 172, 245)',
+        outlineOffset: '2px'
+      };
+
       return {
         selected,
         isFocused,
         handleClick,
         handleFocus,
         extraStyles,
+        coreOutline,
       };
     },
     props: {
