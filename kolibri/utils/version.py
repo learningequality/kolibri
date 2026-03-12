@@ -133,7 +133,9 @@ def get_git_changeset():
         # This does not fail if git is not available or current dir isn't a git
         # repo - it's safe.
         timestamp = git_log.communicate()[0]
-        timestamp = datetime.datetime.utcfromtimestamp(int(timestamp))
+        timestamp = datetime.datetime.fromtimestamp(
+            int(timestamp), tz=datetime.timezone.utc
+        )
         # We have some issues because something normalizes separators to "."
         # From PEP440: With a local version, in addition to the use of . as a
         # separator of segments, the use of - and _ is also acceptable. The

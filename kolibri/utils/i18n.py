@@ -80,7 +80,12 @@ KOLIBRI_SUPPORTED_LANGUAGES = {
 
 
 def get_system_default_language():
-    for loc in (locale.getlocale()[0], locale.getdefaultlocale()[0]):
+    if hasattr(locale, "getdefaultlocale"):
+        default_locale = locale.getdefaultlocale()[0]
+    else:
+        # locale.getdefaultlocale() removed in Python 3.15+
+        default_locale = None
+    for loc in (locale.getlocale()[0], default_locale):
         if loc:
             lang = to_language(loc)
             for lang_code in (lang, lang.split("-")[0]):
