@@ -710,11 +710,22 @@
         }),
       );
 
+      const activeTest = computed(() => {
+        if (!props.testType || !props.unitId) {
+          return null;
+        }
+        return {
+          unitId: props.unitId,
+          testType: props.testType,
+        };
+      });
+
       // Provide progress tracking to child components
       useCourseContentProgress({
         contentNode: currentResource,
         // route courseId refers to courseSessionId
         courseSessionId: toRef(props, 'courseId'),
+        activeTest,
       });
 
       const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();

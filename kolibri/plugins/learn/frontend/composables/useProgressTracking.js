@@ -17,6 +17,7 @@ import logger from 'kolibri-logging';
 import urls from 'kolibri/urls';
 import useUser from 'kolibri/composables/useUser';
 import useTotalProgress from 'kolibri/composables/useTotalProgress';
+import { ContentNodeKinds } from 'kolibri/constants';
 
 const logging = logger.getLogger(__filename);
 
@@ -173,99 +174,184 @@ export default function useProgressTracking(store) {
     });
   }
 
+  const SessionStrategyType = {
+    QUIZ: 'quiz',
+    NODE: 'node',
+    COURSE_TEST: 'course_test',
+  };
+
+  // Each strategy encapsulates one session type's rules
+  const SESSION_STRATEGIES = {
+    [SessionStrategyType.QUIZ]: {
+      validate({ node, courseTest, lessonId }) {
+        if (node || courseTest || lessonId) {
+          throw TypeError('quizId must be the only defined parameter if defined');
+        }
+      },
+      buildData({ quizId }) {
+        const data = {
+          quiz_id: quizId,
+        };
+        return data;
+      },
+      isSessionAlreadyStarted({ quizId }) {
+        return get(context)?.quiz_id === quizId;
+      },
+    },
+    [SessionStrategyType.NODE]: {
+      validate({ node, lessonId, courseSessionId, courseTest }) {
+        if (courseTest) {
+          throw TypeError('courseTest cannot be defined for node sessions');
+        }
+        const required = ['id', 'content_id', 'channel_id', 'kind'];
+        for (const prop of required) {
+          if (!node[prop]) throw TypeError(`node must have ${prop} property`);
+        }
+        if (lessonId && courseSessionId) {
+          throw TypeError('only course_session_id or lessonId can be defined, not both');
+        }
+        if (node.kind === ContentNodeKinds.EXERCISE) {
+          validateExerciseNode(node);
+        }
+      },
+      buildData({ node, lessonId, courseSessionId }) {
+        const data = {
+          node_id: node.id,
+          content_id: node.content_id,
+          channel_id: node.channel_id,
+          kind: node.kind,
+        };
+
+        if (courseSessionId) {
+          data.course_session_id = courseSessionId;
+        }
+
+        if (lessonId) {
+          data.lesson_id = lessonId;
+        }
+
+        if (node.kind === ContentNodeKinds.EXERCISE) {
+          if (node.options?.modality === Modalities.QUIZ) {
+            // The mastery model and the modalities have different
+            // casing, so we don't reuse it here.
+            data.mastery_model = { type: 'quiz' };
+          } else {
+            data.mastery_model = node.assessmentmetadata.mastery_model;
+          }
+        }
+        return data;
+      },
+      isSessionAlreadyStarted({ node, lessonId, courseSessionId }) {
+        const contextValue = get(context);
+        if (!contextValue) {
+          return false;
+        }
+        // To consider the session is already started, the context should have both matching,
+        // the node and the course session or the lesson, depending on what is being tracking.
+        if (contextValue.node_id !== node.id) {
+          return false;
+        }
+        if (courseSessionId) {
+          return contextValue.course_session_id === courseSessionId;
+        }
+        if (lessonId) {
+          return contextValue.lesson_id === lessonId;
+        }
+        // If reached here, it's because node_id is matching
+        return true;
+      },
+    },
+    [SessionStrategyType.COURSE_TEST]: {
+      validate({ node, quizId, courseTest, courseSessionId }) {
+        if (node || quizId) {
+          throw TypeError('courseTest must be the only defined parameter if defined');
+        }
+        if (!courseSessionId) {
+          throw TypeError('courseSessionId must be defined for course test sessions');
+        }
+        if (!courseTest || !courseTest.unitId || !courseTest.testType) {
+          throw TypeError('courseTest must have unitId and testType properties');
+        }
+      },
+      buildData({ courseTest, courseSessionId }) {
+        const data = {
+          course_session_id: courseSessionId,
+          unit_id: courseTest.unitId,
+          test_type: courseTest.testType,
+        };
+        return data;
+      },
+      isSessionAlreadyStarted({ courseTest, courseSessionId }) {
+        const contextValue = get(context);
+        const masteryCriterionValue = get(mastery_criterion);
+        return (
+          contextValue?.course_session_id === courseSessionId &&
+          contextValue?.unit_id === courseTest.unitId &&
+          masteryCriterionValue?.test_type === courseTest.testType
+        );
+      },
+    },
+  };
+
+  function validateExerciseNode(node) {
+    if (!node.assessmentmetadata) {
+      throw new TypeError('node must have assessmentmetadata property');
+    }
+    if (!node.assessmentmetadata.mastery_model) {
+      throw new TypeError('node must have assessmentmetadata property with mastery_model property');
+    }
+    if (!isPlainObject(node.assessmentmetadata.mastery_model)) {
+      throw new TypeError(
+        'node must have assessmentmetadata property with plain object mastery_model property',
+      );
+    }
+    if (!node.assessmentmetadata.mastery_model.type) {
+      throw new TypeError(
+        'node must have assessmentmetadata property with mastery_model property with type property',
+      );
+    }
+  }
+
   /**
    * Initialize a content session for progress tracking
    * To be called on page load for content viewers
    */
-  function initContentSession({ node, lessonId, quizId, repeat = false, courseSessionId } = {}) {
-    const data = {};
-    if (!node && !quizId) {
-      throw TypeError('Must define either node or quizId');
-    }
-    if ((node || lessonId) && quizId) {
-      throw TypeError('quizId must be the only defined parameter if defined');
-    }
-    if (lessonId && courseSessionId) {
-      throw TypeError('only course_session_id or lessonId can be defined, not both');
-    }
-    let sessionStarted = false;
-
-    // Helper to check and set session context
-    function setSessionContext(sessionType, value, isFirst = false) {
-      if (!value) return;
-
-      const contextKey = `${sessionType}_id`;
-      const matches = get(context) && get(context)[contextKey] === value;
-      data[contextKey] = value;
-
-      if (isFirst) {
-        sessionStarted = matches;
-      } else {
-        sessionStarted = sessionStarted && matches;
-      }
-    }
+  function initContentSession({
+    node,
+    lessonId,
+    quizId,
+    repeat = false,
+    courseSessionId,
+    courseTest,
+  } = {}) {
+    let strategyType;
 
     if (quizId) {
-      setSessionContext('quiz', quizId, true);
+      strategyType = SessionStrategyType.QUIZ;
+    } else if (node) {
+      strategyType = SessionStrategyType.NODE;
+    } else if (courseTest) {
+      strategyType = SessionStrategyType.COURSE_TEST;
+    } else {
+      throw TypeError('Must provide parameters to identify session strategy');
     }
 
-    if (node) {
-      if (!node.id) {
-        throw TypeError('node must have id property');
-      }
-      if (!node.content_id) {
-        throw TypeError('node must have content_id property');
-      }
-      if (!node.channel_id) {
-        throw TypeError('node must have channel_id property');
-      }
-      if (!node.kind) {
-        throw TypeError('node must have kind property');
-      }
-      setSessionContext('node', node.id, !quizId);
-      data.content_id = node.content_id;
-      data.channel_id = node.channel_id;
-      data.kind = node.kind;
-      if (courseSessionId) {
-        setSessionContext('course_session', courseSessionId);
-      }
-      if (lessonId) {
-        setSessionContext('lesson', lessonId);
-      }
-      if (node.kind === 'exercise') {
-        if (!node.assessmentmetadata) {
-          throw new TypeError('node must have assessmentmetadata property');
-        }
-        if (!node.assessmentmetadata.mastery_model) {
-          throw new TypeError(
-            'node must have assessmentmetadata property with mastery_model property',
-          );
-        }
-        if (!isPlainObject(node.assessmentmetadata.mastery_model)) {
-          throw new TypeError(
-            'node must have assessmentmetadata property with plain object mastery_model property',
-          );
-        }
-        if (!node.assessmentmetadata.mastery_model.type) {
-          throw new TypeError(
-            'node must have assessmentmetadata property with mastery_model property with type property',
-          );
-        }
-        data.mastery_model = node.assessmentmetadata.mastery_model;
-        if (node.options && node.options.modality === Modalities.QUIZ) {
-          // The mastery model and the modalities have different
-          // casing, so we don't reuse it here.
-          data.mastery_model = { type: 'quiz' };
-        }
-      }
+    const params = { node, lessonId, quizId, courseSessionId, courseTest };
+    const strategy = SESSION_STRATEGIES[strategyType];
+
+    strategy.validate(params);
+
+    const isSessionAlreadyStarted = strategy.isSessionAlreadyStarted(params);
+
+    if (isSessionAlreadyStarted && !repeat) {
+      // If session is already started and we're not explicitly asking to repeat it, do nothing
+      return;
     }
+
+    const data = strategy.buildData(params);
 
     if (repeat) {
       data.repeat = repeat;
-    }
-
-    if (sessionStarted && !repeat) {
-      return;
     }
 
     return makeRequestWithRetry(_makeInitContentSessionRequest, data);

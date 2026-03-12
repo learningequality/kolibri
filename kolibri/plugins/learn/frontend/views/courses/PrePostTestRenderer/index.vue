@@ -102,7 +102,6 @@
                 icon="back"
                 color="white"
                 class="icon"
-                :style="navigationIconStylePrevious"
               />
               <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
             </div>
