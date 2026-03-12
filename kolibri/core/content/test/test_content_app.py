@@ -491,13 +491,17 @@ class ContentNodeAPIBase:
 
     def _recurse_and_assert(self, data, nodes, recursion_depth=0):
         recursion_depths = []
-        for actual, expected in zip(data, nodes):
+        nodes_by_id = {n.id: n for n in nodes}
+        for actual in data:
+            expected = nodes_by_id[actual["id"]]
             children = actual.pop("children", None)
             self._assert_node(actual, expected)
             if children:
-                child_nodes = content.ContentNode.objects.filter(
-                    available=True, parent=expected
-                ).order_by("lft")
+                child_nodes = list(
+                    content.ContentNode.objects.filter(
+                        available=True, parent=expected
+                    ).order_by("lft")
+                )
                 if children["more"] is None:
                     self.assertEqual(len(child_nodes), len(children["results"]))
                 else:
