@@ -73,13 +73,36 @@ describe('UserPage component', () => {
   });
 
   it('shows a search-specific empty state when no users match the search term', async () => {
+    const usersInFacility = [
+      {
+        id: 'alice-1',
+        full_name: 'Alice Johnson',
+        username: 'alice',
+      },
+      {
+        id: 'bob-2',
+        full_name: 'Bob Stone',
+        username: 'bstone',
+      },
+    ];
+    const searchQuery = 'coachy';
+    const searchResults = usersInFacility.filter(user => {
+      const normalizedSearch = searchQuery.toLowerCase();
+      return (
+        user.full_name.toLowerCase().includes(normalizedSearch) ||
+        user.username.toLowerCase().includes(normalizedSearch)
+      );
+    });
+
     await renderPage({
-      routeQuery: { search: 'coachy' },
+      routeQuery: { search: searchQuery },
       userManagement: {
-        facilityUsers: computed(() => []),
+        facilityUsers: computed(() => searchResults),
       },
     });
 
+    expect(usersInFacility).toHaveLength(2);
+    expect(searchResults).toHaveLength(0);
     expect(screen.getByText('No users match this search')).toBeInTheDocument();
   });
 
