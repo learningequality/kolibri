@@ -5,7 +5,7 @@
       dir="auto"
       class="pagination-label"
     >
-      {{ paginationLabel }}
+      {{ label }}
     </span>
     <KButtonGroup>
       <KIconButton
@@ -33,7 +33,7 @@
   export default {
     name: 'PaginatedListContainerNav',
     props: {
-      paginationLabel: {
+      label: {
         type: String,
         required: true,
       },

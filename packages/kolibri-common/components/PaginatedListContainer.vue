@@ -3,7 +3,7 @@
   <div>
     <PaginatedListContainerNav
       v-if="position === 'top'"
-      :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
+      :label="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
       :previousAriaLabel="$tr('previousResults')"
       :nextAriaLabel="$tr('nextResults')"
       :previousButtonDisabled="previousButtonDisabled"
@@ -33,7 +33,7 @@
 
     <PaginatedListContainerNav
       v-if="position === 'bottom'"
-      :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
+      :label="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
       :previousAriaLabel="$tr('previousResults')"
       :nextAriaLabel="$tr('nextResults')"
       :previousButtonDisabled="previousButtonDisabled"
