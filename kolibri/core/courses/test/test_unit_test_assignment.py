@@ -401,6 +401,8 @@ class UnitTestAssignmentDeserializeSyncFilterTestCase(
 ):
     model_class = models.UnitTestAssignment
     user_field_name = "activated_by_id"
+
+
 class PreSaveKwargsTestMixin:
     """
     Shared tests for pre_save update_dirty_bit_to logic.
