@@ -1,6 +1,34 @@
 <template>
 
   <div>
+    <nav
+      v-if="paginationPosition === 'top'"
+      class="pagination-nav"
+    >
+      <span
+        dir="auto"
+        class="pagination-label"
+      >
+        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
+      </span>
+      <KButtonGroup>
+        <KIconButton
+          :ariaLabel="$tr('previousResults')"
+          :disabled="previousButtonDisabled"
+          size="small"
+          icon="back"
+          @click="changePage(-1)"
+        />
+        <KIconButton
+          :ariaLabel="$tr('nextResults')"
+          :disabled="nextButtonDisabled"
+          size="small"
+          icon="forward"
+          @click="changePage(+1)"
+        />
+      </KButtonGroup>
+    </nav>
+
     <KGrid>
       <KGridItem :layout12="{ span: searchFieldBlock ? 12 : 7 }">
         <slot name="otherFilter"></slot>
@@ -21,7 +49,10 @@
       <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
-    <nav class="pagination-nav">
+    <nav
+      v-if="paginationPosition === 'bottom'"
+      class="pagination-nav"
+    >
       <span
         dir="auto"
         class="pagination-label"
@@ -79,6 +110,11 @@
       searchFieldBlock: {
         type: Boolean,
         required: false,
+      },
+      paginationPosition: {
+        type: String,
+        default: 'bottom',
+        validator: value => ['top', 'bottom'].includes(value),
       },
     },
     data() {

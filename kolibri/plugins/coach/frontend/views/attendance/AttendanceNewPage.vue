@@ -10,6 +10,7 @@
       :items="sortedLearners"
       :filterPlaceholder="searchPlaceholder$()"
       :itemsPerPage="50"
+      paginationPosition="top"
     >
       <template #default="{ items }">
         <CoreTable>
