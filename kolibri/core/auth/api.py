@@ -1,8 +1,6 @@
 import logging
 import time
-from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
 from itertools import groupby
 from uuid import UUID
 from uuid import uuid4
@@ -1359,7 +1357,7 @@ class SessionViewSet(viewsets.ViewSet):
             }
         )
 
-        visitor_cookie_expiry = datetime.now(tz=timezone.utc) + timedelta(days=365)
+        visitor_cookie_expiry = now() + timedelta(days=365)
 
         if isinstance(user, AnonymousUser):
             response = Response(session)
