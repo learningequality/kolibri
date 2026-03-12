@@ -123,12 +123,21 @@
     <KModal
       v-if="showMarkAllModal"
       :title="markAllModalTitle$({ count: sortedLearners.length })"
-      :submitText="markAllPresentAction$()"
-      :cancelText="coreString('goBackAction')"
-      @submit="confirmMarkAll"
       @cancel="cancelMarkAll"
     >
       <p>{{ markAllModalDescription$({ count: absentCount }) }}</p>
+      <template #actions>
+        <KButton
+          :text="coreString('goBackAction')"
+          @click="cancelMarkAll"
+        />
+        <KButton
+          data-test="mark-all-confirm"
+          :text="markAllPresentAction$()"
+          :appearanceOverrides="confirmButtonStyles"
+          @click="confirmMarkAll"
+        />
+      </template>
     </KModal>
 
     <KModal
@@ -150,6 +159,8 @@
 
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router/composables';
+  import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { localeCompare } from 'kolibri/utils/i18n';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import store from 'kolibri/store';
@@ -240,6 +251,12 @@
       );
       const absentCount = computed(() => sortedLearners.value.length - presentCount.value);
 
+      const confirmButtonStyles = {
+        color: themeTokens().textInverted,
+        backgroundColor: themeTokens().error,
+        ':hover': { backgroundColor: darken1(themeTokens().error) },
+      };
+
       // Mark all
       const allPresent = computed(
         () => sortedLearners.value.length > 0 && presentCount.value === sortedLearners.value.length,
@@ -328,6 +345,7 @@
         handleMarkAllChange,
         confirmMarkAll,
         cancelMarkAll,
+        confirmButtonStyles,
         handleSubmit,
         handleCancel,
         confirmLeave,

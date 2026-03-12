@@ -61,7 +61,7 @@ const TEST_STUBS = {
     name: 'KModal',
     props: ['title', 'submitText', 'cancelText'],
     template:
-      '<div data-test="modal"><h2>{{ title }}</h2><slot /><button data-test="modal-submit" @click="$emit(\'submit\')">{{ submitText }}</button><button data-test="modal-cancel" @click="$emit(\'cancel\')">{{ cancelText }}</button></div>',
+      '<div data-test="modal"><h2>{{ title }}</h2><slot /><slot name="actions"><button data-test="modal-submit" @click="$emit(\'submit\')">{{ submitText }}</button><button data-test="modal-cancel" @click="$emit(\'cancel\')">{{ cancelText }}</button></slot></div>',
   },
   BottomAppBar: {
     name: 'BottomAppBar',
@@ -199,7 +199,7 @@ describe('AttendanceNewPage', () => {
     await markAllSwitch.trigger('click');
     await global.flushPromises();
 
-    await wrapper.find('[data-test="modal-submit"]').trigger('click');
+    await wrapper.find('[data-test="mark-all-confirm"]').trigger('click');
     await global.flushPromises();
 
     expect(wrapper.text()).toContain('3 present');
