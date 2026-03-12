@@ -92,4 +92,8 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Mark all present',
     context: 'Button text to confirm marking all learners as present',
   },
+  learnersLabel: {
+    message: 'Learners:',
+    context: 'Label preceding the present/absent counts in the bottom bar of the attendance form',
+  },
 });

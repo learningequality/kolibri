@@ -1,5 +1,4 @@
 <template>
-
   <CoachImmersivePage
     :appBarTitle="pageTitle"
     :route="backRoute"
@@ -96,6 +95,8 @@
     <BottomAppBar>
       <div class="bottom-bar-content">
         <div>
+          <span :style="{ color: $themeTokens.annotation }">{{ learnersLabel$() }}</span>
+          {{ ' ' }}
           <span :style="{ color: $themeTokens.annotation }">{{
             presentCount$({ count: presentCount })
           }}</span>
@@ -151,12 +152,9 @@
       <p>{{ unsavedChangesDescription$() }}</p>
     </KModal>
   </CoachImmersivePage>
-
 </template>
 
-
 <script>
-
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router/composables';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
@@ -207,6 +205,7 @@
         presentCount$,
         absentCount$,
         markAllPresentAction$,
+        learnersLabel$,
       } = attendanceStrings;
 
       // Capture timestamp once on component creation
@@ -365,6 +364,7 @@
         presentCount$,
         absentCount$,
         markAllPresentAction$,
+        learnersLabel$,
       };
     },
     beforeRouteLeave(to, from, next) {
@@ -376,12 +376,9 @@
       }
     },
   };
-
 </script>
 
-
 <style lang="scss" scoped>
-
   .attendance-card {
     margin-bottom: 80px;
     border: 1px solid;
@@ -423,5 +420,4 @@
     justify-content: space-between;
     height: 100%;
   }
-
 </style>
