@@ -49,7 +49,7 @@
                       <KSwitch
                         name="mark-all-present"
                         :ariaLabelledBy="'mark-all-present-label'"
-                        :checked="allPresent"
+                        :value="allPresent"
                         @change="handleMarkAllChange"
                       />
                     </div>
@@ -79,7 +79,7 @@
                       </span>
                       <KSwitch
                         :name="`attendance-${learner.id}`"
-                        :checked="isPresent(learner.id)"
+                        :value="isPresent(learner.id)"
                         :ariaLabelledBy="`learner-name-${learner.id}`"
                         @change="toggleLearner(learner.id)"
                       />

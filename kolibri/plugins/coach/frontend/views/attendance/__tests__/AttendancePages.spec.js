@@ -48,9 +48,9 @@ const TEST_STUBS = {
   },
   KSwitch: {
     name: 'KSwitch',
-    props: ['name', 'checked', 'label', 'disabled', 'ariaLabelledBy'],
+    props: ['name', 'value', 'label', 'disabled', 'ariaLabelledBy'],
     template:
-      '<button :data-name="name" :data-checked="checked" @click="$emit(\'change\', !checked)">{{ label }}</button>',
+      '<button :data-name="name" :data-checked="value" @click="$emit(\'change\', !value)">{{ label }}</button>',
   },
   KButton: {
     name: 'KButton',
