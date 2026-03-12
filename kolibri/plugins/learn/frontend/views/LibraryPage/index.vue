@@ -171,7 +171,6 @@
           >
             <LearningActivityChip
               class="chip"
-              style="margin-bottom: 8px; margin-left: 8px"
               :kind="activity"
             />
           </div>

@@ -80,7 +80,6 @@
           v-show="isTimerOpen"
           ref="timer"
           class="menu"
-          :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
           :raised="true"
           :isOpen="isTimerOpen"
           :containFocus="true"
@@ -142,7 +141,6 @@
             v-show="isMenuOpen"
             ref="menu"
             class="menu"
-            :style="{ left: isRtl ? '16px' : 'auto', right: isRtl ? 'auto' : '16px' }"
             :raised="true"
             :isOpen="isMenuOpen"
             :containFocus="true"
@@ -614,6 +612,8 @@
   .menu {
     position: absolute;
     top: 50%;
+    right: 16px;
+    left: auto;
     z-index: 16;
     min-width: 270px;
     transform: translateY(16px);

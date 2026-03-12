@@ -21,9 +21,12 @@
         :collapseAll="collapseAll"
       ></slot>
     </div>
-    <div>
+    <component
+      :is="listWrapperTag"
+      class="accordion-list-wrapper"
+    >
       <slot name="default"></slot>
-    </div>
+    </component>
   </div>
 
 </template>
@@ -63,6 +66,10 @@
         type: Boolean,
         default: true,
       },
+      listWrapperTag: {
+        type: String,
+        default: 'div',
+      },
     },
   };
 
@@ -75,6 +82,12 @@
     padding: 10px;
     border-top: 1px solid;
     border-bottom: 1px solid;
+  }
+
+  .accordion-list-wrapper {
+    padding: 0;
+    margin: 0;
+    list-style: none;
   }
 
 </style>

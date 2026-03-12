@@ -6,7 +6,7 @@ from json_schema_validator.validator import Validator
 
 
 @deconstructible
-class JSON_Schema_Validator(object):
+class JSON_Schema_Validator:
     def __init__(self, schema):
         self.schema = Schema(schema)
 
@@ -24,7 +24,7 @@ class JSON_Schema_Validator(object):
 
 
 @deconstructible
-class NoRepeatedValueJSONArrayValidator(object):
+class NoRepeatedValueJSONArrayValidator:
     def __init__(self, array_key=None, object_key=None):
         """
         A validator that checks that the values of the array are unique.

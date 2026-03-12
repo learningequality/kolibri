@@ -8,18 +8,19 @@
       />
     </h2>
 
-    <CardGrid
+    <KCardGrid
       v-if="lessons && lessons.length > 0"
-      :gridType="1"
+      layout="1-2-3"
+      :layoutOverride="[{ columnGap: '16px', rowGap: '16px' }]"
     >
-      <LessonCard
+      <AssignmentCard
         v-for="lesson in lessons"
         :key="lesson.id"
         :lesson="lesson"
         :to="getClassLessonLink(lesson)"
         :collectionTitle="displayClassName ? getLessonClassName(lesson) : ''"
       />
-    </CardGrid>
+    </KCardGrid>
 
     <p v-else>
       {{ $tr('noLessonsMessage') }}
@@ -32,14 +33,12 @@
 <script>
 
   import useLearnerResources from '../../composables/useLearnerResources';
-  import LessonCard from '../cards/LessonCard';
-  import CardGrid from '../cards/CardGrid';
+  import AssignmentCard from '../cards/AssignmentCard';
 
   export default {
     name: 'AssignedLessonsCards',
     components: {
-      CardGrid,
-      LessonCard,
+      AssignmentCard,
     },
     setup() {
       const { getClass, getClassLessonLink } = useLearnerResources();

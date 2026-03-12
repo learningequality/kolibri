@@ -8,28 +8,28 @@
     <div v-if="!needsToCreatePassword">
       <!-- ** Text and Backlinks ** -->
 
-      <div style="display: block; width: 100%; text-align: left">
+      <div class="navigation-links">
         <!-- In MFD show return to facility select when not asking for password -->
         <KRouterLink
           v-if="hasMultipleFacilities && !showPasswordForm"
+          class="back-link"
           icon="back"
           :text="coreString('changeLearningFacility')"
           :to="backToFacilitySelectionRoute"
-          style="margin-top: 24px; margin-left: -4px"
         />
 
         <!-- When password form shows, show a change user link -->
         <!-- Not using v-else here to be more explicit -->
         <KButton
           v-if="showPasswordForm"
+          class="change-user-btn"
           appearance="basic-link"
           :text="$tr('changeUser')"
-          style="margin-top: 24px; margin-left: 4px"
           @click="clearUser"
         >
           <template #icon>
             <KIcon
-              style="top: 6px; right: 8px; width: 24px; height: 24px"
+              class="change-user-icon"
               icon="back"
               :color="$themeTokens.primary"
             />
@@ -159,15 +159,15 @@
 <script>
 
   import { mapState } from 'vuex';
-  import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
   import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { LoginErrors } from 'kolibri/constants';
-  import { validateUsername } from 'kolibri/utils/validators';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useUser from 'kolibri/composables/useUser';
+  import { validateUsername } from 'kolibri/utils/validators';
+  import { LoginErrors } from 'kolibri/constants';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
@@ -566,6 +566,29 @@
     // Move up snug against the textbox
     margin-top: -2em;
     list-style-type: none;
+  }
+
+  .back-link {
+    margin-top: 24px;
+    margin-left: -4px;
+  }
+
+  .change-user-btn {
+    margin-top: 24px;
+    margin-left: 4px;
+  }
+
+  .change-user-icon {
+    top: 6px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .navigation-links {
+    display: block;
+    width: 100%;
+    text-align: left;
   }
 
 </style>

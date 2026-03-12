@@ -12,7 +12,7 @@ from kolibri.core.auth.models import Session
 FACILITY_CREDENTIAL_KEY = "facility"
 
 
-class FacilityUserBackend(object):
+class FacilityUserBackend:
     """
     A class that implements authentication for FacilityUsers.
     """

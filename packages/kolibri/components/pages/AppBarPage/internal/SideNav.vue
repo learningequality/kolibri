@@ -44,7 +44,7 @@
             >
               <div
                 v-if="showAppNavView"
-                style="margin-bottom: 10px; margin-left: -15px"
+                class="close-button-wrapper"
               >
                 <KIconButton
                   ref="closeButton"
@@ -509,7 +509,13 @@
         }
         // Still no difference?
         // Sort by the URL to ensure consistent ordering
-        return navItemA.url.localeCompare(navItemB.url);
+        if (navItemA.url < navItemB.url) {
+          return -1;
+        }
+        if (navItemA.url > navItemB.url) {
+          return 1;
+        }
+        return 0;
       },
       filterByFullFacilityOnly(item) {
         return !this.isLearnerOnlyImport || !item.fullFacilityOnly;
@@ -719,6 +725,11 @@
   .logo {
     max-width: 100%;
     height: auto;
+  }
+
+  .close-button-wrapper {
+    margin-bottom: 10px;
+    margin-left: -15px;
   }
 
 </style>

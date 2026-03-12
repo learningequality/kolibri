@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
-import useLearnerResources from '../useLearnerResources';
+import useLearnerResources, { setResumableContentNodes } from '../useLearnerResources';
 
 const {
   classes,
@@ -21,6 +21,7 @@ const {
   getClassQuizLink,
   fetchClasses,
   fetchResumableContentNodes,
+  fetchMoreResumableContentNodes,
 } = useLearnerResources();
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
@@ -624,6 +625,65 @@ describe(`useLearnerResources`, () => {
       await fetchResumableContentNodes();
       expect(resumableContentNodes.value).toEqual(TEST_RESUMABLE_CONTENT_NODES);
       expect(moreResumableContentNodes.value).toEqual(more);
+    });
+
+    it('should not call cacheData', async () => {
+      ContentNodeResource.fetchResume = jest
+        .fn()
+        .mockResolvedValue({ results: TEST_RESUMABLE_CONTENT_NODES, more: null });
+      ContentNodeResource.cacheData.mockClear();
+      await fetchResumableContentNodes();
+      expect(ContentNodeResource.cacheData).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchMoreResumableContentNodes', () => {
+    beforeEach(() => {
+      // Set up initial resumable content nodes with a more parameter
+      const initialNodes = TEST_RESUMABLE_CONTENT_NODES.slice(0, 3);
+      const moreParams = { resume: true, max_results: 12, cursor: 'abc' };
+      setResumableContentNodes(initialNodes, moreParams);
+    });
+
+    it('should append results to existing resumable content nodes', async () => {
+      const additionalNodes = TEST_RESUMABLE_CONTENT_NODES.slice(3, 5);
+      const nextMore = { resume: true, max_results: 12, cursor: 'def' };
+      ContentNodeResource.fetchResume = jest
+        .fn()
+        .mockResolvedValue({ results: additionalNodes, more: nextMore });
+      await fetchMoreResumableContentNodes();
+      // Should contain both the initial 3 and the additional 2
+      expect(resumableContentNodes.value).toHaveLength(5);
+      expect(moreResumableContentNodes.value).toEqual(nextMore);
+    });
+
+    it('should not call cacheData', async () => {
+      const additionalNodes = TEST_RESUMABLE_CONTENT_NODES.slice(3, 5);
+      ContentNodeResource.fetchResume = jest
+        .fn()
+        .mockResolvedValue({ results: additionalNodes, more: null });
+      ContentNodeResource.cacheData.mockClear();
+      await fetchMoreResumableContentNodes();
+      expect(ContentNodeResource.cacheData).not.toHaveBeenCalled();
+    });
+
+    it('should clear moreResumableContentNodes when results are empty', async () => {
+      ContentNodeResource.fetchResume = jest.fn().mockResolvedValue({ results: [], more: null });
+      await fetchMoreResumableContentNodes();
+      expect(moreResumableContentNodes.value).toBeNull();
+    });
+
+    it('should clear moreResumableContentNodes when results are missing', async () => {
+      ContentNodeResource.fetchResume = jest.fn().mockResolvedValue({ results: null, more: null });
+      await fetchMoreResumableContentNodes();
+      expect(moreResumableContentNodes.value).toBeNull();
+    });
+
+    it('should not fetch when moreResumableContentNodes is null', async () => {
+      setResumableContentNodes(TEST_RESUMABLE_CONTENT_NODES.slice(0, 3), null);
+      ContentNodeResource.fetchResume = jest.fn();
+      await fetchMoreResumableContentNodes();
+      expect(ContentNodeResource.fetchResume).not.toHaveBeenCalled();
     });
   });
 });

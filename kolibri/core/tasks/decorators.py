@@ -17,6 +17,7 @@ def register_task(
     permission_classes=None,
     long_running=False,
     status_fn=None,
+    retry_on=None,
 ):
     """
     Registers the decorated function as task.
@@ -36,6 +37,7 @@ def register_task(
             permission_classes=permission_classes,
             long_running=long_running,
             status_fn=status_fn,
+            retry_on=retry_on,
         )
 
     return RegisteredTask(
@@ -49,4 +51,5 @@ def register_task(
         permission_classes=permission_classes,
         long_running=long_running,
         status_fn=status_fn,
+        retry_on=retry_on,
     )

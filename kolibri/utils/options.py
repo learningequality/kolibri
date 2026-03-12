@@ -313,7 +313,7 @@ def cache_option(value):
         raise VdtValueError(value)
 
 
-class LazyImportFunction(object):
+class LazyImportFunction:
     """
     A function wrapper that will import a module when called.
     """

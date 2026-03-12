@@ -14,7 +14,7 @@
         <h1 class="exam-title">
           <!-- KLabeledIcon does not have an 'exam' token, but rather 'quiz' -->
           <KLabeledIcon
-            :icon="examOrLesson === 'exam' ? 'quiz' : 'lesson'"
+            :icon="icon"
             :label="resource.title"
           />
         </h1>
@@ -26,7 +26,8 @@
         <slot name="dropdown"></slot>
       </div>
     </div>
-    <MissingResourceAlert v-if="resource.missing_resource" />
+    <MissingResourceAlert v-if="hasChannels && resource.missing_resource && !loading" />
+    <NoResourceAlert v-if="!hasChannels && !loading" />
     <UiAlert
       v-if="isFromOldKolibri && showAlert"
       type="warning"
@@ -47,7 +48,9 @@
   import { mapState } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import NoResourceAlert from 'kolibri-common/components/NoResourceAlert.vue';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import useChannels from 'kolibri-common/composables/useChannels';
   import BackLink from './BackLink';
 
   export default {
@@ -56,10 +59,14 @@
       MissingResourceAlert,
       BackLink,
       UiAlert,
+      NoResourceAlert,
     },
     setup() {
+      const { fetchChannels } = useChannels();
       const { warningForQuizFromOldKolibri$ } = searchAndFilterStrings;
       return {
+        fetchChannels,
+
         warningForQuizFromOldKolibri$,
       };
     },
@@ -83,6 +90,8 @@
     data() {
       return {
         showAlert: true,
+        channels: [],
+        loading: false,
       };
     },
     computed: {
@@ -94,7 +103,7 @@
         return this.lessonMap[this.$route.params.lessonId] || {};
       },
       resource() {
-        return this.examOrLesson === 'lesson' ? this.lesson : this.exam;
+        return this.isExam ? this.exam : this.lesson;
       },
       isActive() {
         return this.exam.active;
@@ -107,6 +116,29 @@
       },
       isFromOldKolibri() {
         return this.isExamOldVersion && !this.isExamDraft && !this.isActive;
+      },
+      hasChannels() {
+        return this.channels.length > 0;
+      },
+      isExam() {
+        return this.examOrLesson === 'exam';
+      },
+      icon() {
+        return this.isExam ? 'quiz' : 'lesson';
+      },
+    },
+    async mounted() {
+      await this.loadChannels();
+    },
+    methods: {
+      async loadChannels() {
+        this.loading = true;
+        try {
+          const params = this.isExam ? { contains_exercise: true } : {};
+          this.channels = await this.fetchChannels(params);
+        } finally {
+          this.loading = false;
+        }
       },
     },
   };

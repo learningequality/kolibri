@@ -10,7 +10,7 @@
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
-        <h1 :style="{ marginLeft: '-8px' }">
+        <h1 class="section-heading">
           {{ injectedtr('otherLibraries') }}
         </h1>
       </KGridItem>
@@ -74,7 +74,7 @@
     <h2
       v-if="!threeLibrariesOrFewer && pinnedDevicesExist && unpinnedDevicesExist"
       data-test="pinned-label"
-      :style="{ marginLeft: '-8px' }"
+      class="section-heading"
     >
       {{ injectedtr('pinned') }}
     </h2>
@@ -105,7 +105,7 @@
         <h2
           v-if="pinnedDevicesExist"
           data-test="more-label"
-          :style="{ marginTop: '0px', marginLeft: '-8px' }"
+          class="more-heading section-heading"
         >
           {{ injectedtr('moreLibraries') }}
         </h2>
@@ -272,6 +272,14 @@
   .connection-status {
     margin-bottom: 10px;
     margin-left: -8px;
+  }
+
+  .section-heading {
+    margin-left: -8px;
+  }
+
+  .more-heading {
+    margin-top: 0;
   }
 
 </style>

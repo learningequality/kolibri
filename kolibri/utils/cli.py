@@ -21,7 +21,7 @@ from kolibri.plugins.utils import enable_default_plugins
 from kolibri.plugins.utils import enable_plugins
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.utils import server
-from kolibri.utils.compat import module_exists
+from kolibri.utils.modules import module_exists
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
 from kolibri.utils.debian_check import check_debian_user

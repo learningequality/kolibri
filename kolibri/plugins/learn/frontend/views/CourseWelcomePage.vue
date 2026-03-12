@@ -182,8 +182,8 @@
                       </span>
                       <span>
                         <span class="unit-item-count">{{
-                          numberOfResources$({
-                            value: (lesson && lesson.on_device_resources) || 0,
+                          numResources$({
+                            num: (lesson && lesson.on_device_resources) || 0,
                           })
                         }}</span>
                         <KIcon
@@ -269,7 +269,6 @@
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
-  import { coachStrings } from '../../../coach/frontend/views/common/commonCoachStrings';
   import useLearnerResources from '../composables/useLearnerResources';
   import { PageNames } from '../constants';
   import ChannelThumbnail from './ChannelThumbnail.vue';
@@ -312,13 +311,12 @@
         numLessons$,
         numUnits$,
         numQuestions$,
+        numResources$,
         preTestLabel$,
         postTestLabel$,
         startCourseAction$,
         resumeCourseAction$,
       } = coursesStrings;
-
-      const { numberOfResources$ } = coachStrings;
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
@@ -390,24 +388,34 @@
         return {
           name: pageName,
           params: {
-            courseId: course.value?.course_id,
+            courseId: course.value?.id,
             ...params,
           },
         };
       }
 
       function openCourseContentPage() {
-        if (courseStarted.value) {
-          const { unit_id, lesson_id } = courseProgress.value?.resume_position ?? {};
-          return createCourseContentRoute(PageNames.COURSE_CONTENT__LESSON, {
+        const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
+
+        if (unit_id) {
+          if (lesson_id && resource_id) {
+            return createCourseContentRoute(PageNames.COURSE_CONTENT__RESOURCE, {
+              unitId: unit_id,
+              lessonId: lesson_id,
+              resourceId: resource_id,
+            });
+          }
+          return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
             unitId: unit_id,
-            lessonId: lesson_id,
           });
         }
 
-        return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
+        // Course not yet started — navigate to the first unit.
+        // checkRedirectToUnitTree will then find the first lesson and resource.
+        // TO DO: update with proper conditional checks after course activation
+        // and pre and post test assessments are merged in
+        return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
           unitId: units.value?.[0]?.id,
-          testType: TestType.PRE,
         });
       }
 
@@ -445,10 +453,8 @@
           return '';
         }
         const unitsText = numUnits$({ num: units.value?.length });
-        const message =
-          unitsText +
-          ' · ' +
-          numberOfResources$({ value: courseContent.value?.on_device_resources });
+        const lessonNum = course.value.lesson_count;
+        const message = unitsText + ' · ' + numLessons$({ num: lessonNum });
         return message;
       });
 
@@ -504,7 +510,7 @@
         courseContentLabel$,
         numLessons$,
         numQuestions$,
-        numberOfResources$,
+        numResources$,
         preTestLabel$,
         postTestLabel$,
         startCourseAction$,

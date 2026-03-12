@@ -136,8 +136,11 @@ pytest kolibri/path/to/test/                          # Python (directory)
 pytest kolibri/core/auth/test/ -k test_login          # Python (filter by name)
 pnpm run test-jest -- path/to/file.spec.js            # Frontend (single file)
 pnpm run test-jest -- --testPathPattern learn          # Frontend (filter by pattern)
-pre-commit run --all-files                            # Lint
+pre-commit run --all-files                            # Lint (all files)
+pre-commit run --files path/to/File.vue               # Lint (specific file)
 ```
+
+Always use `pre-commit` as the single entry point for linting — do not invoke ESLint or other linters directly.
 
 ## Docs Reference
 

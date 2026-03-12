@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-21 11:18-0800\n"
-"PO-Revision-Date: 2025-12-09 14:23\n"
+"POT-Creation-Date: 2026-02-25 21:35+0000\n"
+"PO-Revision-Date: 2026-02-25 22:07\n"
 "Last-Translator: \n"
 "Language-Team: Persian\n"
 "Language: fa_IR\n"
@@ -170,13 +170,13 @@ msgid "Database ID is not valid"
 msgstr "شناسه‌ی پایگاه داده درست نیست"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:56
+#: core/auth/tasks.py:61
 msgid "Data syncing in progress"
 msgstr "هماهنگ‌سازی داده‌ها در حال انجام"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:60
+#: core/auth/tasks.py:65
 msgid "Do not disconnect your device from the network."
 msgstr "دستگاهتان را از شبکه قطع نکنید."
 
@@ -267,6 +267,10 @@ msgstr "پیشرفت (‎0-1)"
 msgid "Content kind"
 msgstr "نوع محتوا"
 
+#: core/logger/csv_export.py:326
+msgid "Folder level {i+1}"
+msgstr "سطح پوشه {i+1}"
+
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:86
 msgid "Complete"
@@ -337,7 +341,7 @@ msgstr "کُلیبری"
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "هیچ صفحه‌ی مسیریابی مناسبی پیدا نشد. به نظر می‌رسد که Kolibri به درستی پیکربندی نشده است"
 
-#: plugins/coach/kolibri_plugin.py:23
+#: plugins/coach/kolibri_plugin.py:25
 msgid "Coach"
 msgstr "مربی"
 

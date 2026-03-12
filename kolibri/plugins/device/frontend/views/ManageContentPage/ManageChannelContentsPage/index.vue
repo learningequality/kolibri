@@ -19,7 +19,7 @@
           />
         </ChannelContentsSummary>
 
-        <div style="text-align: right">
+        <div class="import-button-container">
           <KButton
             :text="$tr('importMoreAction')"
             @click="shownModal = 'IMPORT_MORE'"
@@ -367,6 +367,10 @@
 
   .banner {
     margin-bottom: 24px;
+  }
+
+  .import-button-container {
+    text-align: right;
   }
 
 </style>

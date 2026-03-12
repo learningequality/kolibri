@@ -18,7 +18,7 @@ from rest_framework.response import Response
 logger = logging.getLogger(__name__)
 
 
-class BulkCreateMixin(object):
+class BulkCreateMixin:
     def get_serializer(self, *args, **kwargs):
         """ if an array is passed, set serializer to many """
         if isinstance(kwargs.get("data", {}), list):
@@ -26,7 +26,7 @@ class BulkCreateMixin(object):
         return super().get_serializer(*args, **kwargs)
 
 
-class BulkDeleteMixin(object):
+class BulkDeleteMixin:
 
     # Taken from https://github.com/miki725/django-rest-framework-bulk
 
@@ -155,7 +155,7 @@ def validate_uuids(ids):
     return ids
 
 
-class FilterByUUIDQuerysetMixin(object):
+class FilterByUUIDQuerysetMixin:
     """
     As a workaround to the SQLITE_MAX_VARIABLE_NUMBER, so we can avoid having to chunk our queries,
     we pass in the list of ids (after being validated) as an inline query statement.

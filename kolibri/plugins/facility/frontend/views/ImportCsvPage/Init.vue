@@ -57,7 +57,7 @@
         <KButton
           :text="coreString('cancelAction')"
           appearance="raised-button"
-          style="margin-left: 0"
+          class="cancel-button"
           @click="$emit('cancel')"
         />
         <KButton
@@ -179,6 +179,10 @@
 
   .caution {
     font-weight: bold;
+  }
+
+  .cancel-button {
+    margin-left: 0;
   }
 
 </style>

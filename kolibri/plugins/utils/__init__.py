@@ -30,7 +30,7 @@ from kolibri.plugins import ConfigDict
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import KolibriHook
-from kolibri.utils.compat import module_exists
+from kolibri.utils.modules import module_exists
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.version import normalize_version_to_semver
 
@@ -186,14 +186,8 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
         )
 
     except ImportError as e:
-        # Python 2: message, Python 3: msg
-        exc_message = getattr(e, "message", getattr(e, "msg", None))
-        # On Python 3, the message is the full path to the module
-        # On Python 2, the message is the last part of the path
-        if (
-            exc_message == "No module named '{}'".format(plugin_module_name)
-            or exc_message == "No module named kolibri_plugin"
-        ):
+        exc_message = str(e)
+        if "No module named '{}'".format(plugin_module_name) in exc_message:
             msg = (
                 "Plugin '{}' exists but does not have an importable kolibri_plugin module"
             ).format(plugin_name)
@@ -301,7 +295,7 @@ class PluginUpdateException(Exception):
     pass
 
 
-class PluginUpdateManager(object):
+class PluginUpdateManager:
     def __init__(self, updated_plugins):
         # Import here as triggers django app loading
         from django.db.migrations.loader import MigrationLoader

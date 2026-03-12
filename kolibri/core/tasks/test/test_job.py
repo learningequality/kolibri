@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import mock
 from django.test.testcases import TestCase
+from requests.exceptions import HTTPError
 
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.exceptions import JobNotRunning
@@ -15,6 +16,10 @@ from kolibri.core.tasks.validation import JobValidator
 
 def status_fn(job):
     pass
+
+
+def fn_with_http_error():
+    raise HTTPError("Test exception")
 
 
 class JobTest(TestCase):

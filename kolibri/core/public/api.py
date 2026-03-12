@@ -332,8 +332,7 @@ class SyncQueueAPIView(APIView):
             last_sync = soud.get_last_successful_sync(instance_id)
 
             if last_sync:
-                # Use this rather than the .timestamp() method for Python 2 compatibility
-                queue_object.last_sync = time.mktime(last_sync.timetuple())
+                queue_object.last_sync = last_sync.timestamp()
             else:
                 queue_object.last_sync = (
                     time.time() - OPTIONS["Deployment"]["SYNC_INTERVAL"]

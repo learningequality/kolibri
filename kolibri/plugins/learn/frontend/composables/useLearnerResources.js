@@ -17,14 +17,14 @@ import {
   LearnerLessonResource,
   LearnerCourseResource,
 } from '../apiResources';
-import { ClassesPageNames } from '../constants';
+import { ClassesPageNames, PageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const _resumableContentNodes = ref([]);
 const moreResumableContentNodes = ref(null);
 const classes = ref([]);
-const { fetchContentNodeProgress } = useContentNodeProgress();
+const { fetchContentNodeProgress, contentNodeProgressMap } = useContentNodeProgress();
 const courses = ref([]);
 const courseContent = ref({});
 const courseProgress = ref({});
@@ -32,13 +32,11 @@ const courseProgress = ref({});
 export function setResumableContentNodes(nodes, more = null) {
   set(_resumableContentNodes, nodes);
   set(moreResumableContentNodes, more);
-  ContentNodeResource.cacheData(nodes);
 }
 
 function addResumableContentNodes(nodes, more = null) {
   set(_resumableContentNodes, [...get(_resumableContentNodes), ...nodes]);
   set(moreResumableContentNodes, more);
-  ContentNodeResource.cacheData(nodes);
 }
 
 function _cacheLessonResources(lesson) {
@@ -69,7 +67,6 @@ export function setClasses(classData) {
 function setCourseData(courseId, content, progress) {
   set(courseContent, { ...get(courseContent), [courseId]: content });
   set(courseProgress, { ...get(courseProgress), [courseId]: progress });
-  ContentNodeResource.cacheData(content);
 }
 
 export default function useLearnerResources() {
@@ -88,6 +85,14 @@ export default function useLearnerResources() {
    */
   const activeClassesLessons = computed(() => {
     return flatMap(get(classes), c => c.lessons);
+  });
+
+  /**
+   * @returns {Array} - All courses assigned to a learner in all their classes
+   * @public
+   */
+  const activeClassesCourses = computed(() => {
+    return flatMap(get(classes), c => c.courses || []);
   });
 
   /**
@@ -136,7 +141,13 @@ export default function useLearnerResources() {
    */
   const resumableClassesResources = computed(() => {
     return get(_classesResources).filter(resource => {
-      return resource.progress && resource.progress < 1 && resource.contentNode;
+      if (!resource.contentNode) return false;
+      const contentId = resource.contentNode.content_id;
+      const progress = Math.max(
+        resource.progress || 0,
+        (contentId && contentNodeProgressMap[contentId]) || 0,
+      );
+      return progress > 0 && progress < 1;
     });
   });
 
@@ -191,6 +202,19 @@ export default function useLearnerResources() {
   }
 
   /**
+   * @param {String} classId
+   * @returns {Array} All courses of a class
+   * @public
+   */
+  function getClassActiveCourses(classId) {
+    const classroom = getClass(classId);
+    if (!classroom || !classroom.courses) {
+      return [];
+    }
+    return classroom.courses;
+  }
+
+  /**
    * @param {Object} lesson
    * @returns {Object} vue-router link to a lesson page
    * @public
@@ -236,6 +260,23 @@ export default function useLearnerResources() {
         classId: quiz.collection,
         examId: quiz.id,
         questionNumber: 0,
+      },
+    };
+  }
+
+  /**
+   * @param {Object} course
+   * @returns {Object} vue-router link to a course page (placeholder)
+   * @public
+   */
+  function getClassCourseLink(course) {
+    if (!course) {
+      return undefined;
+    }
+    return {
+      name: PageNames.COURSE_CONTENT__COURSE,
+      params: {
+        courseId: course.id,
       },
     };
   }
@@ -313,6 +354,8 @@ export default function useLearnerResources() {
     fetchContentNodeProgress(params);
     return ContentNodeResource.fetchResume(params).then(({ results, more }) => {
       if (!results || !results.length) {
+        // Clear the more params so the "View more" button is hidden
+        set(moreResumableContentNodes, null);
         return [];
       }
       addResumableContentNodes(results, more);
@@ -495,14 +538,17 @@ export default function useLearnerResources() {
   return {
     classes,
     activeClassesLessons,
+    activeClassesCourses,
     activeClassesQuizzes,
     resumableClassesQuizzes,
     resumableClassesResources,
     learnerFinishedAllClasses,
     getClass,
     getClassActiveLessons,
+    getClassActiveCourses,
     getClassActiveQuizzes,
     getClassLessonLink,
+    getClassCourseLink,
     getClassQuizLink,
     fetchClass,
     fetchClasses,

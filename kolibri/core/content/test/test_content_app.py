@@ -41,7 +41,7 @@ from kolibri.utils.tests.helpers import override_option
 DUMMY_PASSWORD = "password"
 
 
-class ContentNodeTestBase(object):
+class ContentNodeTestBase:
     """
     Basecase for content metadata methods
     """
@@ -228,7 +228,7 @@ def infer_learning_activity(kind):
     return []
 
 
-class ContentNodeAPIBase(object):
+class ContentNodeAPIBase:
 
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
@@ -2551,6 +2551,7 @@ class KolibriStudioAPITestCase(APITestCase):
 
 
 class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
+    databases = "__all__"
     maxDiff = None
 
     @property

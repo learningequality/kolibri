@@ -14,7 +14,7 @@ from .dummydata import windows_data
 
 
 def _get_mocked_popen(cmd_resp):
-    class MockedPopen(object):
+    class MockedPopen:
         def __init__(self, cmd, *args, **kwargs):
             if cmd not in cmd_resp:
                 raise Exception(
@@ -39,7 +39,7 @@ def _get_mocked_disk_usage(disk_sizes):
 
         sizes = disk_sizes[path]
 
-        class MockDiskSizes(object):
+        class MockDiskSizes:
             f_frsize = 2
             f_blocks = sizes["total"] / 2
             f_bavail = sizes["free"] / 2
@@ -52,7 +52,7 @@ def _get_mocked_disk_usage(disk_sizes):
     return mock_disk_usage
 
 
-class patch_popen(object):
+class patch_popen:
     def __init__(self, cmd_resp):
         self.mocked_popen = _get_mocked_popen(cmd_resp)
 
@@ -61,7 +61,7 @@ class patch_popen(object):
         return f
 
 
-class patch_disk_usage(object):
+class patch_disk_usage:
     def __init__(self, disk_sizes):
         self.mocked_disk_usage = _get_mocked_disk_usage(disk_sizes)
 

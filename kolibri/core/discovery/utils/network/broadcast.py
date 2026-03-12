@@ -64,7 +64,7 @@ NETWORK_EVENTS = {
 logger = logging.getLogger(__name__)
 
 
-class KolibriInstance(object):
+class KolibriInstance:
     """
     Class representing network Kolibri instances, including this instance, on Zeroconf network
     """
@@ -336,7 +336,7 @@ class KolibriInstanceListener(SimplePlugin):
         self.broadcast = broadcast
 
 
-class KolibriBroadcast(object):
+class KolibriBroadcast:
     """
     Responsible for handling Zeroconf service broadcast and listeners
     """

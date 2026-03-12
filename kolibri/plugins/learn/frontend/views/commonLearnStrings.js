@@ -141,6 +141,17 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Go back to all libraries',
     context: '',
   },
+
+  // Quiz/Assignment Progress strings
+  questionsLeft: {
+    message:
+      '{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left',
+    context: 'Indicates how many questions the learner has left to complete.',
+  },
+  completedPercentLabel: {
+    message: 'Score: {score, number, integer}%',
+    context: 'A label shown to learners on a quiz card when the quiz is completed',
+  },
 });
 
 export function learnString(key, args) {

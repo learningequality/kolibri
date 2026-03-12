@@ -59,7 +59,7 @@ class URLTestCaseBase(TestCase):
         clear_process_cache()
 
 
-class URLPrefixTestsBase(object):
+class URLPrefixTestsBase:
     """
     Tests if the `i18n_patterns` is adding the prefix correctly.
     """
@@ -100,7 +100,7 @@ class PrefixedURLPrefixTests(URLPrefixTestsBase, URLTestCaseBase):
     pass
 
 
-class URLRedirectTestsBase(object):
+class URLRedirectTestsBase:
     """
     Tests if the user gets redirected to the right URL when there is no
     language-prefix in the request URL.
@@ -148,7 +148,7 @@ class PrefixedURLRedirectTests(URLRedirectTestsBase, URLTestCaseBase):
     pass
 
 
-class URLRedirectWithoutTrailingSlashTestsBase(object):
+class URLRedirectWithoutTrailingSlashTestsBase:
     """
     Tests the redirect when the requested URL doesn't end with a slash
     """
@@ -197,7 +197,7 @@ class PrefixedURLRedirectWithoutTrailingSlashTests(
     pass
 
 
-class URLResponseTestsBase(object):
+class URLResponseTestsBase:
     """
     Tests if the response has the right language-code.
     """

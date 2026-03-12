@@ -128,7 +128,7 @@
           <KButton
             :primary="true"
             appearance="raised-button"
-            :style="{ marginTop: '24px', marginLeft: '-8px' }"
+            class="save-changes-button"
             :text="coreString('saveChangesAction')"
             name="save-settings"
             :disabled="!settingsHaveChanged"
@@ -189,7 +189,6 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import { createTranslator } from 'kolibri/utils/i18n';
 
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
@@ -199,12 +198,13 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import FacilityAppBarPage from '../FacilityAppBarPage';
-  import EditFacilityNameModal from './EditFacilityNameModal';
-  import CreateManagementPinModal from './CreateManagementPinModal';
-  import ViewPinModal from './ViewPinModal';
-  import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
+  import ChangePinModal from './ChangePinModal';
+  import ViewPinModal from './ViewPinModal';
+  import CreateManagementPinModal from './CreateManagementPinModal';
+  import EditFacilityNameModal from './EditFacilityNameModal';
 
   /**
    * Using the createTranslator to aid concatenation
@@ -505,6 +505,11 @@
   .facility-loader {
     display: inline-block;
     margin-bottom: -0.5em; // To align with the text
+  }
+
+  .save-changes-button {
+    margin-top: 24px;
+    margin-left: -8px;
   }
 
 </style>

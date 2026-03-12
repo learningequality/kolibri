@@ -7,7 +7,7 @@
     <template #actions>
       <KButton
         :disabled="loading"
-        style="margin-right: 16px"
+        class="cancel-button"
         :text="coreStrings.cancelAction$()"
         @click="close"
       />
@@ -29,9 +29,9 @@
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
 
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
@@ -114,6 +114,10 @@
     // Override default global line-height of 1.15 which is not enough
     // space for single lines content modal and makes scrollbar appear.
     line-height: 1.5;
+  }
+
+  .cancel-button {
+    margin-right: 16px;
   }
 
 </style>

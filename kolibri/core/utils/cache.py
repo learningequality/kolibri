@@ -18,7 +18,7 @@ def __get_process_cache():
 process_cache = SimpleLazyObject(__get_process_cache)
 
 
-class RedisSettingsHelper(object):
+class RedisSettingsHelper:
     """
     Small wrapper for the Redis client to explicitly get/set values from the client
     """

@@ -6,13 +6,10 @@ import sys
 from django.apps import apps
 from django.db.utils import OperationalError
 from django.db.utils import ProgrammingError
-from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
-from sqlalchemy.exc import ProgrammingError as SQLAlchemyProgrammingError
 
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
 from .options import generate_empty_options_file
-from kolibri.utils.sql_alchemy import DBSchemaError
 
 logger = logging.getLogger(__name__)
 
@@ -115,20 +112,6 @@ def check_database_is_migrated():
         return
     except (OperationalError, ProgrammingError) as e:
         raise DatabaseNotMigrated(db_exception=e)
-    except Exception as e:
-        raise DatabaseInaccessible(db_exception=e)
-
-
-def ensure_job_tables_created():
-    from kolibri.core.tasks.main import job_storage
-    from kolibri.core.tasks.main import connection
-    from kolibri.core.tasks.storage import Storage
-
-    try:
-        job_storage.test_table_readable()
-    except (SQLAlchemyOperationalError, SQLAlchemyProgrammingError, DBSchemaError):
-        logger.warning("Database table for job storage was not accessible, recreating.")
-        Storage.recreate_default_tables(connection)
     except Exception as e:
         raise DatabaseInaccessible(db_exception=e)
 

@@ -129,7 +129,7 @@ class _registry(dict):
 TaskRegistry = _registry()
 
 
-class RegisteredTask(object):
+class RegisteredTask:
     """
     This class acts as a transparent wrapper around the `func` argument.
 
@@ -159,6 +159,7 @@ class RegisteredTask(object):
         permission_classes=None,
         long_running=False,
         status_fn=None,
+        retry_on=None,
     ):
         """
         :param func: Function to be wrapped as a Registered task
@@ -229,6 +230,7 @@ class RegisteredTask(object):
         self.track_progress = track_progress
         self.long_running = long_running
         self._status_fn = status_fn
+        self.retry_on = self._validate_retry_on(retry_on)
 
         # Make this wrapper object look seamlessly like the wrapped function
         update_wrapper(self, func)
@@ -257,6 +259,17 @@ class RegisteredTask(object):
                 yield permission_class()
             else:
                 yield permission_class
+
+    def _validate_retry_on(self, retry_on):
+        if retry_on is None:
+            return []
+
+        if not isinstance(retry_on, list):
+            raise TypeError("retry_on must be a list of exceptions")
+        for item in retry_on:
+            if not issubclass(item, BaseException):
+                raise TypeError("Each item in retry_on must be an Exception subclass")
+        return retry_on
 
     def check_job_permissions(self, user, job, view):
         for permission in self.permissions:
@@ -321,6 +334,22 @@ class RegisteredTask(object):
         :return: enqueued job's id.
         """
         return job_storage.enqueue_job_if_not_enqueued(
+            job or self._ready_job(**job_kwargs),
+            queue=self.queue,
+            priority=priority or self.priority,
+            retry_interval=retry_interval,
+        )
+
+    def enqueue_if_not_active(
+        self, job=None, retry_interval=None, priority=None, **job_kwargs
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no job running or
+        next to it.
+
+        :return: enqueued job's id.
+        """
+        return job_storage.enqueue_job_if_not_active(
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
             priority=priority or self.priority,

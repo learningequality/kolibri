@@ -15,6 +15,8 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 
 from kolibri.core.analytics.models import PingbackNotificationDismissed
+from kolibri.core.attendance.models import AttendanceRecord
+from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -52,7 +54,7 @@ from kolibri.core.logger.models import UserSessionLog
 logger = logging.getLogger(__name__)
 
 
-class DisablePostDeleteSignal(object):
+class DisablePostDeleteSignal:
     """
     Helper that disables the post_delete signal temporarily when deleting, so Morango doesn't
     create DeletedModels objects for what we're deleting
@@ -67,7 +69,7 @@ class DisablePostDeleteSignal(object):
         self.receivers = None
 
 
-class GroupDeletion(object):
+class GroupDeletion:
     """
     Helper to manage deleting many models, or groups of models
     """
@@ -229,6 +231,8 @@ def _get_class_models(dataset_id):
     return GroupDeletion(
         "Class models",
         querysets=[
+            AttendanceRecord.objects.filter(dataset_id_filter),
+            AttendanceSession.objects.filter(dataset_id_filter),
             ExamAssignment.objects.filter(dataset_id_filter),
             Exam.objects.filter(dataset_id_filter),
             IndividualSyncableExam.objects.filter(dataset_id_filter),

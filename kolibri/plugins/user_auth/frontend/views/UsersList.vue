@@ -5,13 +5,12 @@
       v-for="username in users"
       :key="username"
       class="listed-user"
-      style="width: 100%; margin-left: 0; text-align: left"
       :disabled="busy"
       @click="$emit('userSelected', username)"
     >
       <KIcon
         icon="person"
-        style="margin-right: 8px"
+        class="person-icon"
       />
 
       {{ username }}
@@ -48,6 +47,10 @@
     margin-left: 0;
     text-align: left;
     text-transform: none;
+  }
+
+  .person-icon {
+    margin-right: 8px;
   }
 
 </style>

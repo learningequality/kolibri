@@ -23,7 +23,7 @@ from kolibri.utils.translation import gettext as _
 logger = logging.getLogger(__name__)
 
 
-class State(object):
+class State:
     """
     The State object enumerates a Job's possible valid states.
 
@@ -102,7 +102,7 @@ def default_status_text(job):
 ALLOWED_RETRY_IN_KWARGS = {"priority", "repeat", "interval", "retry_interval"}
 
 
-class Job(object):
+class Job:
     """
     Job represents a function whose execution has been deferred through the Client's schedule function.
 
@@ -362,6 +362,8 @@ class Job(object):
 
         args, kwargs = copy.copy(self.args), copy.copy(self.kwargs)
 
+        exception = None
+
         try:
             # First check whether the job has been cancelled
             self.check_for_cancel()
@@ -370,6 +372,7 @@ class Job(object):
         except UserCancelledError:
             self.storage.mark_job_as_canceled(self.job_id)
         except Exception as e:
+            exception = e
             # If any error occurs, mark the job as failed and save the exception
             traceback_str = traceback.format_exc()
             e.traceback = traceback_str
@@ -377,9 +380,11 @@ class Job(object):
                 "Job {} raised an exception: {}".format(self.job_id, traceback_str)
             )
             self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
-
         self.storage.reschedule_finished_job_if_needed(
-            self.job_id, delay=self._retry_in_delay, **self._retry_in_kwargs
+            self.job_id,
+            delay=self._retry_in_delay,
+            exception=exception,
+            **self._retry_in_kwargs,
         )
         setattr(current_state_tracker, "job", None)
 

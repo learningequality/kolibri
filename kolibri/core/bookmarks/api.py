@@ -1,4 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import UUIDFilter
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
@@ -35,6 +37,26 @@ class BookmarksSerializer(ModelSerializer):
         return data
 
 
+class BookmarksFilterset(FilterSet):
+    descendant_of = UUIDFilter(method="filter_descendant_of")
+
+    class Meta:
+        model = Bookmark
+        fields = ["contentnode_id"]
+
+    def filter_descendant_of(self, queryset, name, value):
+        try:
+            contentnode = ContentNode.objects.get(pk=value)
+        except ContentNode.DoesNotExist:
+            raise ValidationError(
+                "ContentNode for contentnode_id {} does not exist".format(value)
+            )
+        descendant_ids = contentnode.get_descendants(include_self=True).values_list(
+            "id", flat=True
+        )
+        return queryset.filter(contentnode_id__in=descendant_ids)
+
+
 class BookmarksViewSet(ValuesViewset):
     values = ("channel_id", "contentnode_id", "id", "content_id")
     serializer_class = BookmarksSerializer
@@ -44,4 +66,4 @@ class BookmarksViewSet(ValuesViewset):
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filterset_fields = ("contentnode_id",)
+    filterset_class = BookmarksFilterset

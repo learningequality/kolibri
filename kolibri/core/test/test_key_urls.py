@@ -28,6 +28,67 @@ class BeforeDeviceProvisionTests(APITestCase):
             reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
         )
 
+    def test_learn_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(reverse("kolibri:kolibri.plugins.learn:learn"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    def test_coach_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(reverse("kolibri:kolibri.plugins.coach:coach"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    def test_facility_plugin_redirects_to_setup_wizard(self):
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.facility:facility_management")
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.get("location"),
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard"),
+        )
+
+    @patch("kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id")
+    @patch("kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[])
+    def test_setup_wizard_not_redirected(self, *mocks):
+        response = self.client.get(
+            reverse("kolibri:kolibri.plugins.setup_wizard:setupwizard")
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_api_endpoint_not_redirected(self):
+        response = self.client.get("/api/device/deviceinfo/")
+        self.assertEqual(response.status_code, 403)
+
+    def test_set_language_not_redirected(self):
+        response = self.client.post(
+            reverse("kolibri:core:set_language"),
+            {"language": "es"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_logout_not_redirected_by_middleware(self):
+        response = self.client.get(reverse("kolibri:core:logout"))
+        # logout_view redirects to redirect_user, not directly to setup wizard.
+        # If the middleware intercepted this, it would redirect straight to
+        # the setup wizard URL instead.
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("redirectuser", response.get("location"))
+
+    def test_unsupported_browser_not_redirected(self):
+        response = self.client.get(reverse("kolibri:core:unsupported"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unknown_url_not_redirected(self):
+        response = self.client.get("/nonexistent/path/that/does/not/resolve/")
+        self.assertEqual(response.status_code, 404)
+
 
 class KolibriTagNavigationTestCase(APITestCase):
     databases = "__all__"

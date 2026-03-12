@@ -18,6 +18,7 @@ import examRoutes from './examRoutes';
 import lessonsRoutes from './lessonsRoutes';
 import learnersRoutes from './learnersRoutes';
 import groupsRoutes from './groupsRoutes';
+import attendanceRoutes from './attendanceRoutes';
 import coursesRoutes from './coursesRoutes';
 
 function showHomePage(toRoute) {
@@ -38,6 +39,7 @@ export default [
   ...lessonsRoutes,
   ...learnersRoutes,
   ...groupsRoutes,
+  ...attendanceRoutes,
   ...(plugin_data.courses_exist ? coursesRoutes : []),
   {
     name: 'AllFacilitiesPage',

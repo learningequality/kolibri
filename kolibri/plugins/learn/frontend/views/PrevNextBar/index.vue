@@ -9,10 +9,13 @@
       :aria-label="previousLabel$()"
       @click="handlePrev"
     >
-      <template #icon>
-        <KIcon icon="back" />
-      </template>
-      <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
+      <div class="btn-flex">
+        <KIcon
+          class="icon"
+          icon="back"
+        />
+        <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
+      </div>
     </KButton>
 
     <!-- Progress/status in the center -->
@@ -40,10 +43,13 @@
         :aria-label="nextLabel$()"
         @click="handleNext"
       >
-        <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
-        <template #iconAfter>
-          <KIcon icon="forward" />
-        </template>
+        <div class="btn-flex">
+          <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
+          <KIcon
+            class="icon"
+            icon="forward"
+          />
+        </div>
       </KButton>
     </div>
   </div>
@@ -63,8 +69,19 @@
       const { windowBreakpoint } = useKResponsiveWindow();
       const { previousLabel$, nextLabel$ } = coursesStrings;
 
-      const canGoPrev = computed(() => props.currentNumber > 1);
-      const canGoNext = computed(() => props.currentNumber < props.totalNumber);
+      const canGoPrev = computed(() => {
+        if (props.prevEnabled !== null) {
+          return props.prevEnabled;
+        }
+        return props.currentNumber > 1;
+      });
+
+      const canGoNext = computed(() => {
+        if (props.nextEnabled !== null) {
+          return props.nextEnabled;
+        }
+        return props.currentNumber < props.totalNumber;
+      });
 
       // Show text labels on buttons for breakpoints > 0
       const showButtonLabels = computed(() => windowBreakpoint.value > 0);
@@ -104,6 +121,20 @@
         type: String,
         default: '',
       },
+      /**
+       * Override default behavior of enabling/disabling prev button based on currentNumber.
+       */
+      prevEnabled: {
+        type: Boolean,
+        default: null,
+      },
+      /**
+       * Override default behavior of enabling/disabling next button based on currentNumber
+       */
+      nextEnabled: {
+        type: Boolean,
+        default: null,
+      },
     },
   };
 
@@ -133,6 +164,17 @@
   .actions-area {
     display: flex;
     align-items: center;
+  }
+
+  .btn-flex {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+
+    .icon {
+      top: 0;
+    }
   }
 
 </style>

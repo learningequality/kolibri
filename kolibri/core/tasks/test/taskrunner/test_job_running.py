@@ -6,8 +6,6 @@ import pytest
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.core.tasks.storage import Storage
-from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_path_to_callable
@@ -17,12 +15,11 @@ from kolibri.utils.multiprocessing_compat import Event
 
 @pytest.fixture
 def storage_fixture():
-    with connection() as conn:
-        e = Worker(connection=conn)
-        b = Storage(conn)
-        b.clear(force=True)
-        yield b
-        e.shutdown()
+    e = Worker()
+    b = e.storage
+    b.clear(force=True)
+    yield b
+    e.shutdown()
 
 
 @pytest.fixture
@@ -73,7 +70,7 @@ def _underlying_event(f):
     return func
 
 
-class EventProxy(object):
+class EventProxy:
     """
     The tests in this file were originally written when we didn't need
     to pickle objects in storage. That way, we could use threading.Event
@@ -162,7 +159,8 @@ def update_progress_cancelable_job():
             return
 
 
-class TestJobStorage(object):
+@pytest.mark.django_db(databases="__all__", transaction=True)
+class TestJobStorage:
     def test_does_not_enqueue_a_function(self, storage_fixture):
         try:
             storage_fixture.enqueue_job(id)

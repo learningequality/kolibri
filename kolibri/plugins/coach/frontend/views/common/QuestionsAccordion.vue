@@ -7,10 +7,7 @@
           <KCheckbox
             v-if="isSelectable"
             ref="selectAllCheckbox"
-            class="select-all-box"
-            :style="{
-              marginLeft: isSortable ? '1.5em' : '0',
-            }"
+            :class="['select-all-box', { 'select-all-box-sortable': isSortable }]"
             :label="selectAllLabel$()"
             :disabled="selectAllIsDisabled"
             :checked="selectAllIsChecked"
@@ -100,7 +97,7 @@
                 :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
               >
                 <ContentViewer
-                  v-if="getQuestionContent(question)"
+                  v-if="questionContentExists(question)"
                   :ref="`contentRenderer-${question.item}`"
                   :lang="getQuestionContent(question).lang"
                   :files="getQuestionContent(question).files"
@@ -356,6 +353,10 @@
       getDisplayQuestionTitle(question, title) {
         return title || this.coreString('resourceNotFoundOnDevice');
       },
+      questionContentExists(question) {
+        const content = this.getQuestionContent(question);
+        return content && content.available;
+      },
     },
   };
 
@@ -373,6 +374,10 @@
     .select-all-box {
       margin-top: 0;
       margin-bottom: 0;
+
+      &.select-all-box-sortable {
+        margin-left: 1.5em;
+      }
 
       // Vertical centering here into the KCheckbox
       /deep/ & label {

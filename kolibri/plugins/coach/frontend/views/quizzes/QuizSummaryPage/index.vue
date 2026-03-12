@@ -20,7 +20,7 @@
               :to="classRoute(PageNames.QUIZ_PREVIEW, {}, { last: PageNames.EXAM_SUMMARY })"
               :text="coachString('previewAction')"
               appearance="raised-button"
-              style="margin-right: 8px"
+              class="preview-button"
             />
             <QuizOptionsDropdownMenu
               :exam="exam"
@@ -373,6 +373,10 @@
   // over modal overlay and snackbar
   /deep/ .perseus-radio-selected {
     z-index: 0 !important;
+  }
+
+  .preview-button {
+    margin-right: 8px;
   }
 
 </style>

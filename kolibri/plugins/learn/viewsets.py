@@ -19,7 +19,6 @@ from kolibri.core.content.api import ContentNodeViewset
 from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
-from kolibri.core.courses.models import TestStatus
 from kolibri.core.courses.models import TestType
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import exam_assignment_lookup
@@ -476,7 +475,7 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
             collection__membership__user=request.user
         )
         unit_test_active = unit_test_assignments_qs.filter(
-            status=TestStatus.Active,
+            closed=False,
         ).first()
 
         if unit_test_active:
@@ -489,7 +488,7 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
 
         most_recent_pre_test_completed = (
             unit_test_assignments_qs.filter(
-                status=TestStatus.Ended,
+                closed=True,
                 test_type=TestType.Pre,
             )
             .annotate(
@@ -534,6 +533,13 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
                 "unit_id": unit_contentnode_id,
                 "lesson_id": first_incomplete_resource.parent_id,
                 "resource_id": first_incomplete_resource.id,
+            }
+        else:
+            # All resources in the unit are complete, so resume at unit level
+            response_data["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
             }
 
         return Response(response_data)

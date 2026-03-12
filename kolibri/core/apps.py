@@ -91,17 +91,18 @@ class KolibriCoreConfig(AppConfig):
         and not on a per connection basis.
         :return:
         """
-        from django.db import connection
+        from django.db import connections
 
-        if connection.vendor == "sqlite":
-            cursor = connection.cursor()
+        for connection in connections.all():
+            if connection.vendor == "sqlite":
+                cursor = connection.cursor()
 
-            # http://www.sqlite.org/wal.html
-            # WAL's main advantage allows simultaneous reads
-            # and writes (vs. the default exclusive write lock)
-            # at the cost of a slight penalty to all reads.
-            cursor.execute(START_PRAGMAS)
-            connection.close()
+                # http://www.sqlite.org/wal.html
+                # WAL's main advantage allows simultaneous reads
+                # and writes (vs. the default exclusive write lock)
+                # at the cost of a slight penalty to all reads.
+                cursor.execute(START_PRAGMAS)
+                connection.close()
 
     @staticmethod
     def check_file_storage_settings():

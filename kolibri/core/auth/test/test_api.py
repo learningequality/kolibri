@@ -1774,7 +1774,7 @@ class LoginLogoutTestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
 
 
-class SignUpBase(object):
+class SignUpBase:
     @classmethod
     def setUpTestData(cls):
         cls.facility = FacilityFactory.create()

@@ -1,14 +1,18 @@
 """
 Tests for `kolibri.utils.main` module.
 """
+import os
 import unittest
 
 import pytest
+from django.conf import settings
 from django.db.utils import OperationalError
+from mock import MagicMock
 from mock import patch
 
 import kolibri
 from kolibri.utils import main
+from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.version import truncate_version
 
 # from django.conf import settings
@@ -145,6 +149,35 @@ def test_update_no_version_change(
     main.initialize()
     update.assert_not_called()
     dbbackup.assert_not_called()
+
+
+@pytest.mark.skipif(
+    "sqlite3" not in settings.DATABASES["default"]["ENGINE"],
+    reason="Not applicable in postgres",
+)
+@patch("kolibri.utils.main.shutil.copyfile")
+@patch("kolibri.utils.main.os.path.exists", return_value=False)
+def test_copy_preseeded_db_uses_target_basename(mock_exists, mock_copyfile):
+    """
+    Regression test: _copy_preseeded_db should derive the source filename
+    from the target path's basename (e.g. 'db.sqlite3' for the default
+    database), not from db_name + '.sqlite3' (which would be 'default.sqlite3').
+    """
+    mock_dist = MagicMock()
+    mock_dist.__file__ = os.path.join("/fake", "dist", "__init__.py")
+
+    with patch.dict("sys.modules", {"kolibri.dist": mock_dist}):
+        main._copy_preseeded_db("default")
+
+        expected_source = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__), "..", "..", "dist", "home", "db.sqlite3"
+            )
+        )
+        mock_copyfile.assert_called_once_with(
+            expected_source,
+            os.path.join(KOLIBRI_HOME, "db.sqlite3"),
+        )
 
 
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)

@@ -37,7 +37,6 @@ from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.utils.time_utils import naive_utc_datetime
 
 
 DUMMY_PASSWORD = "password"
@@ -63,11 +62,12 @@ def fake_job(**kwargs):
     return Mock(spec=Job, **fake_data)
 
 
-class dummy_orm_job_data(object):
-    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=None)
+class dummy_orm_job_data:
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1)
     repeat = 5
     interval = 8600
     retry_interval = 5
+    max_retries = 3
 
 
 @patch("kolibri.core.tasks.api.job_storage")
@@ -701,7 +701,7 @@ class SoudTasksTestCase(TestCase):
         mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=30)
         mock_job = mock_job_storage.get_orm_job.return_value
         mock_job.state = State.QUEUED
-        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        mock_job.scheduled_time = timezone.now()
         enqueue_soud_sync_processing()
         mock_task.enqueue_in.assert_not_called()
 
@@ -714,7 +714,7 @@ class SoudTasksTestCase(TestCase):
         mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=1)
         mock_job = mock_job_storage.get_orm_job.return_value
         mock_job.state = State.RUNNING
-        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        mock_job.scheduled_time = timezone.now()
         enqueue_soud_sync_processing()
         mock_task.enqueue_in.assert_not_called()
 
@@ -727,9 +727,7 @@ class SoudTasksTestCase(TestCase):
         mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=10)
         mock_job = mock_job_storage.get_orm_job.return_value
         mock_job.state = State.QUEUED
-        mock_job.scheduled_time = naive_utc_datetime(
-            timezone.now() + datetime.timedelta(seconds=15)
-        )
+        mock_job.scheduled_time = timezone.now() + datetime.timedelta(seconds=15)
         enqueue_soud_sync_processing()
         mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
 
@@ -743,9 +741,7 @@ class SoudTasksTestCase(TestCase):
         mock_job = mock_job_storage.get_orm_job.return_value
         mock_job.state = State.COMPLETED
         # far in the past
-        mock_job.scheduled_time = naive_utc_datetime(
-            timezone.now() - datetime.timedelta(seconds=100)
-        )
+        mock_job.scheduled_time = timezone.now() - datetime.timedelta(seconds=100)
         enqueue_soud_sync_processing()
         mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
 
@@ -759,9 +755,7 @@ class SoudTasksTestCase(TestCase):
         mock_job = mock_job_storage.get_orm_job.return_value
         mock_job.state = State.COMPLETED
         # far in the past
-        mock_job.scheduled_time = naive_utc_datetime(
-            timezone.now() - datetime.timedelta(seconds=100)
-        )
+        mock_job.scheduled_time = timezone.now() - datetime.timedelta(seconds=100)
         mock_task.enqueue_in.side_effect = JobRunning()
         enqueue_soud_sync_processing()
         mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))

@@ -1,11 +1,20 @@
 <template>
 
   <SidePanelLayout
-    :goBack="goBack"
+    :goBack="isEditMode ? undefined : goBack"
+    :closePanel="isEditMode ? closePanel : undefined"
     :title="selectRecipientsLabel$()"
     :subtitle="courseNameLabel$({ name: selectedCourseTitle })"
   >
     <template #default>
+      <UiAlert
+        v-if="errorMessage"
+        type="error"
+        :dismissible="true"
+        @dismiss="errorMessage = null"
+      >
+        {{ errorMessage }}
+      </UiAlert>
       <LearnersAndGroupsSelector
         showSelectClassOption
         :classId="classId"
@@ -20,9 +29,9 @@
       </div>
       <div class="bottom-actions">
         <KButton
-          :text="backAction$()"
+          :text="isEditMode ? cancelAction$() : backAction$()"
           :disabled="isSaving"
-          @click="goBack"
+          @click="isEditMode ? closePanel() : goBack()"
         />
         <KButton
           primary
@@ -43,7 +52,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { computed, onMounted, ref } from 'vue';
-  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
@@ -55,20 +64,34 @@
     components: {
       SidePanelLayout,
       LearnersAndGroupsSelector,
+      UiAlert,
     },
     setup(props, { emit }) {
       const route = useRoute();
       const router = useRouter();
       const isSaving = ref(false);
-      const { createSnackbar } = useSnackbar();
+      const errorMessage = ref(null);
 
-      const { classId, selectedCourse, assignCourse, selectedGroupIds, selectedLearnerIds } =
-        injectAssignCourse();
+      const {
+        classId,
+        selectedCourse,
+        assignCourse,
+        selectedGroupIds,
+        selectedLearnerIds,
+        courseSessionId,
+      } = injectAssignCourse();
 
-      const { backAction$, defaultErrorMessage$ } = coreStrings;
-      const { courseNameLabel$, assignCourseAction$, selectRecipientsLabel$ } = coursesStrings;
+      const { cancelAction$, backAction$, defaultErrorMessage$ } = coreStrings;
+      const {
+        courseNameLabel$,
+        assignCourseAction$,
+        selectRecipientsLabel$,
+        courseAssignDeletedUsersError$,
+      } = coursesStrings;
 
       const selectedCourseTitle = computed(() => selectedCourse.value?.title || '');
+
+      const isEditMode = computed(() => courseSessionId?.value != null);
 
       const goBack = () => {
         router.push(
@@ -76,6 +99,10 @@
             name: PageNames.COURSES_ASSIGN_INDEX,
           }),
         );
+      };
+
+      const closePanel = () => {
+        emit('closePanel');
       };
 
       const isAssignButtonDisabled = computed(() => {
@@ -91,7 +118,11 @@
           await assignCourse();
           emit('success');
         } catch (error) {
-          createSnackbar(defaultErrorMessage$());
+          if (error?.response?.data?.learner_ids) {
+            errorMessage.value = courseAssignDeletedUsersError$();
+          } else {
+            errorMessage.value = defaultErrorMessage$();
+          }
         } finally {
           isSaving.value = false;
         }
@@ -105,16 +136,20 @@
 
       return {
         isSaving,
+        errorMessage,
         classId,
+        isEditMode,
         selectedGroupIds,
         selectedLearnerIds,
         selectedCourseTitle,
         isAssignButtonDisabled,
 
         goBack,
+        closePanel,
         handleAssignCourse,
 
         backAction$,
+        cancelAction$,
         courseNameLabel$,
         assignCourseAction$,
         selectRecipientsLabel$,

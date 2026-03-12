@@ -34,6 +34,14 @@
               : 'continueLearningOnYourOwn'
           "
         />
+        <AssignedCoursesCards
+          v-if="hasActiveClassesCourses"
+          class="section"
+          :courses="activeClassesCourses"
+          displayClassName
+          recent
+          data-test="recentCourses"
+        />
         <AssignedLessonsCards
           v-if="hasActiveClassesLessons"
           class="section"
@@ -58,6 +66,7 @@
           :short="
             Boolean(
               displayClasses ||
+                hasActiveClassesCourses ||
                 continueLearning ||
                 hasActiveClassesLessons ||
                 hasActiveClassesQuizzes,
@@ -79,6 +88,7 @@
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useDeviceSettings from '../../composables/useDeviceSettings';
@@ -89,6 +99,7 @@
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import { inClasses } from '../../composables/useCoreLearn';
   import { PageNames } from '../../constants';
+  import AssignedCoursesCards from '../classes/AssignedCoursesCards';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
@@ -108,6 +119,7 @@
   export default {
     name: 'HomePage',
     components: {
+      AssignedCoursesCards,
       AssignedLessonsCards,
       AssignedQuizzesCards,
       YourClasses,
@@ -128,6 +140,7 @@
       const { localChannelsCache, fetchChannels } = useChannels();
       const {
         classes,
+        activeClassesCourses,
         activeClassesLessons,
         activeClassesQuizzes,
         resumableClassesQuizzes,
@@ -153,6 +166,10 @@
         () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn),
       );
 
+      const hasActiveClassesCourses = computed(
+        () =>
+          get(isUserLoggedIn) && get(activeClassesCourses) && get(activeClassesCourses).length > 0,
+      );
       const hasActiveClassesLessons = computed(
         () =>
           get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0,
@@ -190,10 +207,12 @@
             // Update our hydrated class membership boolean in case it has changed
             // since the learn page was opened.
             set(inClasses, Boolean(response.data.classrooms.length));
+            const resumableResults = response.data.resumable_resources.results || [];
             setResumableContentNodes(
-              response.data.resumable_resources.results || [],
+              resumableResults,
               response.data.resumable_resources.more || null,
             );
+            ContentNodeResource.cacheData(resumableResults);
             for (const progress of response.data.resumable_resources_progress) {
               setContentNodeProgress(progress);
             }
@@ -223,8 +242,10 @@
       return {
         channels: localChannelsCache,
         classes,
+        activeClassesCourses,
         activeClassesLessons,
         activeClassesQuizzes,
+        hasActiveClassesCourses,
         hasActiveClassesLessons,
         hasActiveClassesQuizzes,
         continueLearningFromClasses,

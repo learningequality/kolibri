@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils.functional import wraps
 
 
-class DummyOperation(object):
+class DummyOperation:
     def __init__(self):
         self.obj = None
 
@@ -20,7 +20,7 @@ class DummyOperation(object):
             self.obj.delete()
 
 
-class PostgresLock(object):
+class PostgresLock:
     def __init__(self, key=None):
         self.key = key
 

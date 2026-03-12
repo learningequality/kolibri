@@ -34,7 +34,6 @@
         <KGridItem
           :layout12="{ span: 8 }"
           class="column-pane"
-          :style="!showQuestionsList ? { overflow: 'unset' } : {}"
         >
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
             <KPageContainer

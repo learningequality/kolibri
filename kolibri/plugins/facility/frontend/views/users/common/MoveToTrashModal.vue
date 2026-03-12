@@ -17,19 +17,14 @@
             {{ numAdminsSelected$({ num: adminUsers.length }) }}
           </span>
         </KLabeledIcon>
-        <p
-          :style="{
-            marginLeft: adminUsers.length ? '32px' : '0',
-            margin: 0,
-          }"
-        >
+        <p :class="['trash-warning', { 'trash-warning-indented': adminUsers.length }]">
           {{ moveToTrashWarning$() }}
         </p>
       </div>
       <template #actions>
         <KButton
           :disabled="loading"
-          style="margin-right: 16px"
+          class="cancel-button"
           :text="coreStrings.cancelAction$()"
           @click="close"
         />
@@ -52,16 +47,15 @@
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
 
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { UserKinds } from 'kolibri/constants';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
-
-  import { _userState } from '../../../modules/mappers';
   import useActionWithUndo from '../../../composables/useActionWithUndo';
+  import { _userState } from '../../../modules/mappers';
 
   export default {
     name: 'MoveToTrashModal',
@@ -197,6 +191,18 @@
 
   .fix-line-height {
     line-height: 1.5;
+  }
+
+  .trash-warning {
+    margin: 0;
+  }
+
+  .trash-warning-indented {
+    margin-left: 32px;
+  }
+
+  .cancel-button {
+    margin-right: 16px;
   }
 
 </style>
