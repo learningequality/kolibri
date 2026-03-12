@@ -2,7 +2,7 @@
 
   <div>
     <PaginatedListContainerNav
-      v-if="paginationPosition === 'top'"
+      v-if="position === 'top'"
       :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
       :previousAriaLabel="$tr('previousResults')"
       :nextAriaLabel="$tr('nextResults')"
@@ -32,7 +32,7 @@
     </div>
 
     <PaginatedListContainerNav
-      v-if="paginationPosition === 'bottom'"
+      v-if="position === 'bottom'"
       :paginationLabel="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
       :previousAriaLabel="$tr('previousResults')"
       :nextAriaLabel="$tr('nextResults')"
@@ -77,7 +77,7 @@
         type: Boolean,
         required: false,
       },
-      paginationPosition: {
+      position: {
         type: String,
         default: 'bottom',
         validator: value => ['top', 'bottom'].includes(value),

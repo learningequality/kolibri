@@ -1,4 +1,5 @@
 <template>
+
   <CoachImmersivePage
     :appBarTitle="pageTitle"
     :route="backRoute"
@@ -14,7 +15,7 @@
         :filterPlaceholder="searchPlaceholder$()"
         :itemsPerPage="50"
         :searchFieldBlock="true"
-        paginationPosition="top"
+        position="top"
       >
         <template #default="{ items }">
           <CoreTable>
@@ -152,9 +153,12 @@
       <p>{{ unsavedChangesDescription$() }}</p>
     </KModal>
   </CoachImmersivePage>
+
 </template>
 
+
 <script>
+
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router/composables';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
@@ -376,9 +380,12 @@
       }
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .attendance-card {
     margin-bottom: 80px;
     border: 1px solid;
@@ -420,4 +427,5 @@
     justify-content: space-between;
     height: 100%;
   }
+
 </style>
