@@ -3,11 +3,7 @@
   <div>
     <PaginatedListContainerNav
       v-if="position === 'top'"
-      :label="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
-      :previousAriaLabel="$tr('previousResults')"
-      :nextAriaLabel="$tr('nextResults')"
-      :previousButtonDisabled="previousButtonDisabled"
-      :nextButtonDisabled="nextButtonDisabled"
+      v-bind="navProps"
       @changePage="changePage"
     />
 
@@ -33,11 +29,7 @@
 
     <PaginatedListContainerNav
       v-if="position === 'bottom'"
-      :label="$tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems })"
-      :previousAriaLabel="$tr('previousResults')"
-      :nextAriaLabel="$tr('nextResults')"
-      :previousButtonDisabled="previousButtonDisabled"
-      :nextButtonDisabled="nextButtonDisabled"
+      v-bind="navProps"
       @changePage="changePage"
     />
   </div>
@@ -113,6 +105,19 @@
       },
       visibleFilteredItems() {
         return this.filteredItems.slice(this.startRange, this.endRange);
+      },
+      navProps() {
+        return {
+          label: this.$tr('pagination', {
+            visibleStartRange: this.visibleStartRange,
+            visibleEndRange: this.visibleEndRange,
+            numFilteredItems: this.numFilteredItems,
+          }),
+          previousAriaLabel: this.$tr('previousResults'),
+          nextAriaLabel: this.$tr('nextResults'),
+          previousButtonDisabled: this.previousButtonDisabled,
+          nextButtonDisabled: this.nextButtonDisabled,
+        };
       },
       previousButtonDisabled() {
         return this.currentPage === 1 || this.numFilteredItems === 0;

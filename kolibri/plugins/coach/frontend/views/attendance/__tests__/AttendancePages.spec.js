@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import store from 'kolibri/store';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import makeStore from '../../../__tests__/utils/makeStore';
 import classSummaryModule from '../../../modules/classSummary';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
-// eslint-disable-next-line import/named
+// eslint-disable-next-line import-x/named
 import AttendanceNewPage from '../AttendanceNewPage.vue';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
@@ -255,33 +255,7 @@ describe('AttendanceNewPage', () => {
     expect(router.currentRoute.name).toBe(initialRoute);
   });
 
-  it('sets isDirty when a learner is toggled', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-
-    expect(wrapper.vm.isDirty).toBe(false);
-
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    expect(wrapper.vm.isDirty).toBe(true);
-  });
-
-  it('isDirty remains true even if learner is toggled back to absent', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    expect(wrapper.vm.isDirty).toBe(true);
-  });
-
-  it('beforeRouteLeave shows unsaved modal when isDirty is true', async () => {
+  it('blocks navigation after a learner is toggled', async () => {
     const { wrapper } = makeNewPageWrapper();
     await global.flushPromises();
 
@@ -295,7 +269,28 @@ describe('AttendanceNewPage', () => {
     guardFn.call(wrapper.vm, { name: 'other' }, {}, next);
 
     expect(next).toHaveBeenCalledWith(false);
-    expect(wrapper.vm.pendingRoute).not.toBeNull();
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('[data-test="modal"]').exists()).toBe(true);
+  });
+
+  it('blocks navigation even after toggling a learner back to absent', async () => {
+    const { wrapper } = makeNewPageWrapper();
+    await global.flushPromises();
+
+    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
+    await learnerSwitches.at(0).trigger('click');
+    await global.flushPromises();
+    await learnerSwitches.at(0).trigger('click');
+    await global.flushPromises();
+
+    const next = jest.fn();
+    const guard = wrapper.vm.$options.beforeRouteLeave;
+    const guardFn = Array.isArray(guard) ? guard[0] : guard;
+    guardFn.call(wrapper.vm, { name: 'other' }, {}, next);
+
+    expect(next).toHaveBeenCalledWith(false);
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('[data-test="modal"]').exists()).toBe(true);
   });
 
   it('confirming unsaved modal allows navigation', async () => {
@@ -315,13 +310,12 @@ describe('AttendanceNewPage', () => {
       {},
       next,
     );
-    await global.flushPromises();
+    await wrapper.vm.$nextTick();
 
     await wrapper.find('[data-test="modal-submit"]').trigger('click');
     await global.flushPromises();
 
-    expect(wrapper.vm.isDirty).toBe(false);
-    expect(wrapper.vm.pendingRoute).toBeNull();
+    expect(wrapper.find('[data-test="modal"]').exists()).toBe(false);
   });
 });
 
