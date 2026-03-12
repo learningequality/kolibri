@@ -6,81 +6,103 @@
   >
     <h1>{{ pageTitle }}</h1>
 
-    <PaginatedListContainer
-      :items="sortedLearners"
-      :filterPlaceholder="searchPlaceholder$()"
-      :itemsPerPage="50"
-      paginationPosition="top"
+    <div
+      class="attendance-card"
+      :style="{ borderColor: $themeTokens.fineLine }"
     >
-      <template #default="{ items }">
-        <CoreTable>
-          <template #headers>
-            <th class="visuallyhidden">
-              {{ learnerColumnHeader$() }}
-            </th>
-            <th class="visuallyhidden">
-              {{ statusColumnHeader$() }}
-            </th>
-          </template>
-          <template #tbody>
-            <tbody>
-              <tr
-                class="mark-all-row"
-                :style="{ backgroundColor: $themePalette.grey.v_100 }"
-              >
-                <td>
-                  <span
-                    id="mark-all-present-label"
-                    class="mark-all-label"
-                  >
-                    {{ markAllPresentLabel$() }}
-                  </span>
-                </td>
-                <td class="status-col">
-                  <KSwitch
-                    name="mark-all-present"
-                    :ariaLabelledBy="'mark-all-present-label'"
-                    :checked="allPresent"
-                    @change="handleMarkAllChange"
-                  />
-                </td>
-              </tr>
-              <tr
-                v-for="learner in items"
-                :key="learner.id"
-                :style="isPresent(learner.id) ? { backgroundColor: $themePalette.blue.v_100 } : {}"
-              >
-                <td>
-                  <span :id="`learner-name-${learner.id}`">{{ learner.name }}</span>
-                </td>
-                <td class="status-col">
-                  <div class="status-cell">
+      <PaginatedListContainer
+        :items="sortedLearners"
+        :filterPlaceholder="searchPlaceholder$()"
+        :itemsPerPage="50"
+        :searchFieldBlock="true"
+        paginationPosition="top"
+      >
+        <template #default="{ items }">
+          <CoreTable>
+            <template #headers>
+              <th class="visuallyhidden">
+                {{ learnerColumnHeader$() }}
+              </th>
+              <th class="visuallyhidden">
+                {{ statusColumnHeader$() }}
+              </th>
+            </template>
+            <template #tbody>
+              <tbody>
+                <tr
+                  class="mark-all-row"
+                  :style="{
+                    backgroundColor: $themeTokens.surface,
+                    borderBottom: `1px solid ${$themeTokens.fineLine}`,
+                  }"
+                >
+                  <td>
                     <span
-                      v-if="isPresent(learner.id)"
-                      class="present-label"
-                      :style="{ color: $themeTokens.annotation }"
+                      id="mark-all-present-label"
+                      class="mark-all-label"
                     >
-                      {{ presentLabel$() }}
+                      {{ markAllPresentLabel$() }}
                     </span>
-                    <KSwitch
-                      :name="`attendance-${learner.id}`"
-                      :checked="isPresent(learner.id)"
-                      :ariaLabelledBy="`learner-name-${learner.id}`"
-                      @change="toggleLearner(learner.id)"
-                    />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </CoreTable>
-      </template>
-    </PaginatedListContainer>
+                  </td>
+                  <td class="status-col">
+                    <div class="status-cell">
+                      <KSwitch
+                        name="mark-all-present"
+                        :ariaLabelledBy="'mark-all-present-label'"
+                        :checked="allPresent"
+                        @change="handleMarkAllChange"
+                      />
+                    </div>
+                  </td>
+                </tr>
+                <tr
+                  v-for="learner in items"
+                  :key="learner.id"
+                  :style="{
+                    backgroundColor: isPresent(learner.id)
+                      ? $themePalette.blue.v_100
+                      : $themeTokens.surface,
+                    borderBottom: `1px solid ${$themeTokens.fineLine}`,
+                  }"
+                >
+                  <td>
+                    <span :id="`learner-name-${learner.id}`">{{ learner.name }}</span>
+                  </td>
+                  <td class="status-col">
+                    <div class="status-cell">
+                      <span
+                        v-if="isPresent(learner.id)"
+                        class="present-label"
+                        :style="{ color: $themeTokens.primary }"
+                      >
+                        {{ presentLabel$() }}
+                      </span>
+                      <KSwitch
+                        :name="`attendance-${learner.id}`"
+                        :checked="isPresent(learner.id)"
+                        :ariaLabelledBy="`learner-name-${learner.id}`"
+                        @change="toggleLearner(learner.id)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </template>
+          </CoreTable>
+        </template>
+      </PaginatedListContainer>
+    </div>
 
     <BottomAppBar>
       <div class="bottom-bar-content">
-        <div class="bottom-bar-counts">
-          {{ bottomBarSummary$({ present: presentCount, absent: absentCount }) }}
+        <div>
+          <span :style="{ color: $themeTokens.annotation }">{{
+            presentCount$({ count: presentCount })
+          }}</span>
+          <span> · </span>
+          <span :style="{ color: $themePalette.red.v_500 }">{{
+            absentCount$({ count: absentCount })
+          }}</span>
         </div>
         <KButtonGroup>
           <KButton
@@ -171,7 +193,8 @@
         leaveAction$,
         stayAction$,
         submitAttendanceAction$,
-        bottomBarSummary$,
+        presentCount$,
+        absentCount$,
         markAllPresentAction$,
       } = attendanceStrings;
 
@@ -325,7 +348,8 @@
         leaveAction$,
         stayAction$,
         submitAttendanceAction$,
-        bottomBarSummary$,
+        presentCount$,
+        absentCount$,
         markAllPresentAction$,
       };
     },
@@ -345,11 +369,26 @@
 
 <style lang="scss" scoped>
 
+  .attendance-card {
+    margin-bottom: 80px;
+    border: 1px solid;
+    border-radius: 4px;
+
+    /deep/ .pagination-nav {
+      padding: 8px 8px 0;
+    }
+
+    /deep/ .text-filter {
+      margin-top: 0;
+    }
+  }
+
   .mark-all-label {
     font-weight: bold;
   }
 
-  .status-col {
+  /deep/ .status-col {
+    width: 120px;
     text-align: right;
   }
 
@@ -370,10 +409,6 @@
     align-items: center;
     justify-content: space-between;
     height: 100%;
-  }
-
-  .bottom-bar-counts {
-    font-weight: bold;
   }
 
 </style>

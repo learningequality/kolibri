@@ -88,10 +88,6 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Submit attendance',
     context: 'Button text to submit the attendance session',
   },
-  bottomBarSummary: {
-    message: 'Learners: {present, number} present · {absent, number} absent',
-    context: 'Summary text in the bottom bar showing present and absent learner counts',
-  },
   markAllPresentAction: {
     message: 'Mark all present',
     context: 'Button text to confirm marking all learners as present',
