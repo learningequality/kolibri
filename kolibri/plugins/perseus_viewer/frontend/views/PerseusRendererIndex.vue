@@ -58,6 +58,7 @@
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
+  import { normalizeUserInput } from '../numeralNormalization';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
@@ -566,7 +567,8 @@
         if (!this.itemRenderer) {
           return {};
         }
-        const userInput = this.itemRenderer.getUserInput();
+        // Normalize any non-Western numerals so saved state is always ASCII.
+        const userInput = normalizeUserInput(this.itemRenderer.getUserInput());
         // To prevent propagation of our locally replaced blob URLs into answers,
         // we need to replace them with the original URLs.
         return restoreImageUrls(
@@ -620,17 +622,18 @@
        */
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
-          const userInput = this.itemRenderer.getUserInput();
+          // getAnswerState normalizes non-Western numerals and restores image URLs.
+          const answerState = this.getAnswerState();
+          const userInput = answerState.userInput;
           const widgetIds = this.itemRenderer.getWidgetIds();
+          // Restore the rubric's image URLs too: getAnswerState put userInput into
+          // ${☣ LOCALPATH} space, and image-content answers (orderer, sorter, …)
+          // only score correct when rubric and userInput share one URL space.
+          const rubric = restoreImageUrls(this.item.question, this.perseusFileUrl);
           // Use the content language for locale-sensitive scoring (e.g., decimal separators)
           const locale = this.lang?.id || 'en';
-          const score = scorePerseusItem(this.item.question, userInput, locale);
-          const emptyWidgets = emptyWidgetsFunctional(
-            this.item.question.widgets,
-            widgetIds,
-            userInput,
-            locale,
-          );
+          const score = scorePerseusItem(rubric, userInput, locale);
+          const emptyWidgets = emptyWidgetsFunctional(rubric.widgets, widgetIds, userInput, locale);
           const empty = emptyWidgets.length > 0;
           const correct = score.type === 'points' && score.earned === score.total;
           const message = score.message || null;
