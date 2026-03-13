@@ -21,7 +21,7 @@
           <CoreTable>
             <template #headers>
               <th class="visuallyhidden">
-                {{ learnerColumnHeader$() }}
+                {{ coreString('learnerLabel') }}
               </th>
               <th class="visuallyhidden">
                 {{ statusColumnHeader$() }}
@@ -162,7 +162,7 @@
   import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router/composables';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { localeCompare } from 'kolibri/utils/i18n';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import store from 'kolibri/store';
@@ -193,7 +193,6 @@
       const {
         pageHeading$,
         searchPlaceholder$,
-        learnerColumnHeader$,
         statusColumnHeader$,
         presentLabel$,
         markAllPresentLabel$,
@@ -256,8 +255,8 @@
 
       const confirmButtonStyles = {
         color: themeTokens().textInverted,
-        backgroundColor: themeTokens().error,
-        ':hover': { backgroundColor: darken1(themeTokens().error) },
+        backgroundColor: themePalette().red.v_600,
+        ':hover': { backgroundColor: darken1(themePalette().red.v_600) },
       };
 
       // Mark all
@@ -354,7 +353,6 @@
         confirmLeave,
         cancelLeave,
         searchPlaceholder$,
-        learnerColumnHeader$,
         statusColumnHeader$,
         presentLabel$,
         markAllPresentLabel$,

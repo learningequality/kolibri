@@ -33,10 +33,6 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Search for a learner',
     context: 'Placeholder text for the search box used to filter the learner list',
   },
-  learnerColumnHeader: {
-    message: 'Learner',
-    context: 'Visually hidden table column header for learner names',
-  },
   statusColumnHeader: {
     message: 'Status',
     context: 'Visually hidden table column header for attendance status',
