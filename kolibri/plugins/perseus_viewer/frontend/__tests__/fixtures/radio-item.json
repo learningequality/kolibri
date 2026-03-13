@@ -1,0 +1,44 @@
+{
+  "question": {
+    "content": "What is 2 + 2?\n\n[[☃ radio 1]]",
+    "images": {},
+    "widgets": {
+      "radio 1": {
+        "type": "radio",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "choices": [
+            { "content": "3", "correct": false },
+            { "content": "4", "correct": true },
+            { "content": "5", "correct": false },
+            { "content": "6", "correct": false }
+          ],
+          "randomize": false,
+          "multipleSelect": false,
+          "countChoices": false,
+          "displayCount": null,
+          "hasNoneOfTheAbove": false,
+          "deselectEnabled": false
+        },
+        "version": { "major": 1, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": [
+    {
+      "content": "Think about adding two pairs together.",
+      "images": {},
+      "widgets": {}
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 export default (widget, rubric) => {
   const correct = rubric.answerForms.find(answer => answer.considered === 'correct');
-  // TODO rtibbles: Parse this value to give a simplified, student appropriate form?
-  widget.setInputValue('', correct.value);
+  // Expression user input is a plain string
+  widget.props.handleUserInput(correct.value);
 };

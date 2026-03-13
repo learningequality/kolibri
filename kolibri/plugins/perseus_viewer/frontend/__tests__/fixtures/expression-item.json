@@ -1,0 +1,37 @@
+{
+  "question": {
+    "content": "Simplify $2x + 3x$.\n\n[[☃ expression 1]]",
+    "images": {},
+    "widgets": {
+      "expression 1": {
+        "type": "expression",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "answerForms": [
+            {
+              "value": "5x",
+              "form": true,
+              "simplify": true,
+              "considered": "correct"
+            }
+          ],
+          "buttonSets": ["basic"],
+          "functions": ["f", "g", "h"],
+          "times": false
+        },
+        "version": { "major": 1, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": []
+}

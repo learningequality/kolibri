@@ -1,0 +1,29 @@
+{
+  "question": {
+    "content": "Sort the numbers in ascending order.\n\n[[☃ sorter 1]]",
+    "images": {},
+    "widgets": {
+      "sorter 1": {
+        "type": "sorter",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "correct": ["1", "2", "3", "4", "5"],
+          "layout": "horizontal",
+          "padding": true
+        },
+        "version": { "major": 0, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": []
+}

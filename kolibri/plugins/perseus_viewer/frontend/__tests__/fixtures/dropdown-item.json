@@ -1,0 +1,32 @@
+{
+  "question": {
+    "content": "What color is the sky?\n\n[[☃ dropdown 1]]",
+    "images": {},
+    "widgets": {
+      "dropdown 1": {
+        "type": "dropdown",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "placeholder": "Select an answer",
+          "choices": [
+            { "content": "Red", "correct": false },
+            { "content": "Blue", "correct": true },
+            { "content": "Green", "correct": false }
+          ]
+        },
+        "version": { "major": 0, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": []
+}

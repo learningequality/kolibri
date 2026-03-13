@@ -1,11 +1,4 @@
 export default (widget, rubric) => {
-  const plot = rubric.correct;
-
-  widget.props.onChange(
-    {
-      plot,
-    },
-    null, // cb
-    false, // silent
-  );
+  // Grapher scoring checks userInput.type and userInput.coords
+  widget.props.handleUserInput(rubric.correct);
 };

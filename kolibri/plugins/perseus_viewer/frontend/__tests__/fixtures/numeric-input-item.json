@@ -1,0 +1,40 @@
+{
+  "question": {
+    "content": "What is 3 × 7?\n\n[[☃ numeric-input 1]]",
+    "images": {},
+    "widgets": {
+      "numeric-input 1": {
+        "type": "numeric-input",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "answers": [
+            {
+              "value": 21,
+              "status": "correct",
+              "message": "Correct!",
+              "simplify": "required",
+              "strict": false,
+              "maxError": null
+            }
+          ],
+          "size": "normal",
+          "coefficient": false,
+          "labelText": "",
+          "rightAlign": false
+        },
+        "version": { "major": 0, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": []
+}

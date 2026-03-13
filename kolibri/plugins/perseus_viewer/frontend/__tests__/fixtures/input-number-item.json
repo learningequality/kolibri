@@ -1,0 +1,33 @@
+{
+  "question": {
+    "content": "What is 10 ÷ 2?\n\n[[☃ input-number 1]]",
+    "images": {},
+    "widgets": {
+      "input-number 1": {
+        "type": "input-number",
+        "alignment": "default",
+        "static": false,
+        "graded": true,
+        "options": {
+          "value": 5,
+          "simplify": "required",
+          "size": "normal",
+          "inexact": false,
+          "maxError": 0.1,
+          "answerType": "number",
+          "rightAlign": false
+        },
+        "version": { "major": 0, "minor": 0 }
+      }
+    }
+  },
+  "answerArea": {
+    "calculator": false,
+    "chi2Table": false,
+    "periodicTable": false,
+    "tTable": false,
+    "zTable": false
+  },
+  "itemDataVersion": { "major": 0, "minor": 1 },
+  "hints": []
+}
