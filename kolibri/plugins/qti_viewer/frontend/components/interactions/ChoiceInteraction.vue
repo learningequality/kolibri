@@ -1,9 +1,18 @@
 <script>
 
   import get from 'lodash/get';
-  import isArray from 'lodash/isArray';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { computed, getCurrentInstance, h, inject, nextTick, provide, ref, shallowRef, watch } from 'vue';
+  import {
+    computed,
+    getCurrentInstance,
+    h,
+    inject,
+    nextTick,
+    provide,
+    ref,
+    shallowRef,
+    watch,
+  } from 'vue';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
 
@@ -19,7 +28,7 @@
     if (value === null || value === undefined) {
       return [];
     }
-    if (isArray(value)) {
+    if (Array.isArray(value)) {
       return value;
     }
     return [value];
@@ -59,7 +68,7 @@
         const variable = trackedVariable.value;
         // eslint-disable-next-line no-unused-expressions
         selectionVersion.value;
-        if (!variable || variable.value === null || variable.value === undefined) {
+        if (!variable) {
           return false;
         }
         return getSelectionsArray(variable.value).includes(identifier);
@@ -259,7 +268,7 @@
               'aria-label': proxy.$tr('choiceListLabel'),
               'aria-multiselectable': multiSelectable.value,
             },
-            class: [(attrs.class || ''), 'qti-choice-interaction'],
+            class: [attrs.class || '', 'qti-choice-interaction'],
             on: {
               keydown: handleListKeydown,
             },

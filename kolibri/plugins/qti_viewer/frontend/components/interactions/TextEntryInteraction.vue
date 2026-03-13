@@ -3,12 +3,13 @@
   <input
     v-if="interactive"
     v-model="variable"
-    class="qti-text-entry-interaction"
+    :class="['qti-text-entry-interaction', $computedClass({ ':focus': coreOutline })]"
     :aria-label="`${$tr('textEntryLabel')} ${responseIdentifier}`"
     :placeholder="placeholder"
     :style="{
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
       maxWidth: '90%',
+      border: `1px solid ${$themeTokens.fineLine}`,
     }"
     :type="inputType"
     autocomplete="off"
@@ -25,7 +26,7 @@
 
 <script>
 
-  import { computed, inject } from 'vue';
+  import { computed, getCurrentInstance, inject } from 'vue';
   import useTypedProps from '../../composables/useTypedProps';
   import {
     NumberProp,
@@ -41,6 +42,7 @@
     tag: 'qti-text-entry-interaction',
 
     setup(props) {
+      const { proxy } = getCurrentInstance();
       const responses = inject('responses');
       const typedProps = useTypedProps(props);
       const interactive = inject('interactive');
@@ -71,6 +73,7 @@
         placeholder: typedProps.placeholderText,
         interactive,
         inputType,
+        coreOutline: proxy.$coreOutline,
       };
     },
     props: {
@@ -99,7 +102,6 @@
 
   .qti-text-entry-interaction {
     padding: 4px 8px;
-    border: 1px solid;
     border-radius: 4px;
   }
 

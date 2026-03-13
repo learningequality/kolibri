@@ -4,16 +4,15 @@
     class="qti-simple-choice"
     role="option"
     :tabindex="isFocused ? 0 : -1"
-    :class="
+    :class="[
       $computedClass({
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
-        ':focus': coreOutline,
-      })
-    "
+      }),
+    ]"
     :aria-selected="selected"
-    :style="extraStyles"
+    :style="[extraStyles, { '--focus-color': outlineColor }]"
     @click="handleClick"
     @keydown.enter="handleClick"
     @keydown.space.prevent="handleClick"
@@ -27,7 +26,7 @@
 
 <script>
 
-  import { computed, inject } from 'vue';
+  import { computed, getCurrentInstance, inject } from 'vue';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
@@ -38,6 +37,8 @@
     tag: 'qti-simple-choice',
 
     setup(props) {
+      const { proxy } = getCurrentInstance();
+      const outlineColor = proxy.$themeTokens.primary;
       const isSelected = inject('isSelected');
       const toggleSelection = inject('toggleSelection');
       const isFocusTargetFn = inject('isFocusTarget');
@@ -72,19 +73,13 @@
         };
       });
 
-      // Define focus outline that matches Kolibri's standard
-      const coreOutline = {
-        outline: '3px solid rgb(51, 172, 245)',
-        outlineOffset: '2px'
-      };
-
       return {
+        outlineColor,
         selected,
         isFocused,
         handleClick,
         handleFocus,
         extraStyles,
-        coreOutline,
       };
     },
     props: {
@@ -107,6 +102,15 @@
     border: 1px solid transparent;
     border-radius: 8px;
     transition: all 0.3s ease;
+
+    &:focus {
+      outline: 3px solid var(--focus-color);
+      outline-offset: 2px;
+    }
+
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
 
     &::marker {
       content: '';
