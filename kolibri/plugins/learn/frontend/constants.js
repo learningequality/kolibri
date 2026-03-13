@@ -48,3 +48,10 @@ export const pageNameToModuleMap = {
 };
 
 export const KolibriStudioId = plugin_data.studioDevice?.instance_id;
+
+export const TestType = Object.freeze({
+  PRE: 'pre',
+  POST: 'post',
+});
+
+export const PRE_POST_TEST_CRITERION = 'pre_post_test';

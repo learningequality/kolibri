@@ -9,13 +9,27 @@
         }"
       >
         <KCircularLoader v-if="submitting" />
-        <QuizReport
+        <div
           v-else-if="mastered"
-          :userId="userId"
-          :userName="userFullName"
-          :content="content"
-          @repeat="repeat"
-        />
+          class="complete-test"
+        >
+          <div
+            class="icon-wrapper"
+            :style="{ backgroundColor: $themePalette.green.v_100 }"
+          >
+            <KIcon
+              icon="pointsActive"
+              :color="$themePalette.green.v_500"
+              class="icon"
+            />
+          </div>
+          <strong>
+            {{ completionTitle }}
+          </strong>
+          <p>
+            {{ completionDescription }}
+          </p>
+        </div>
         <div v-else>
           <h1>
             {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
@@ -30,7 +44,6 @@
             :assessment="true"
             :allowHints="false"
             :answerState="currentAttempt.answer"
-            :progress="progress"
             :userId="userId"
             :userFullName="userFullName"
             :timeSpent="timeSpent"
@@ -48,15 +61,26 @@
           </UiAlert>
           <KModal
             v-if="submitModalOpen"
-            :title="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
-            :submitText="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+            :title="submitTestAction$()"
+            :submitText="submitTestAction$()"
             :cancelText="coreString('goBackAction')"
             @submit="finishExam"
             @cancel="toggleModal"
           >
             <p>{{ $tr('areYouSure') }}</p>
-            <p v-if="questionsUnanswered">
-              {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
+            <p
+              v-if="questionsUnanswered"
+              class="alert"
+              :style="{ backgroundColor: $themePalette.yellow.v_100 }"
+            >
+              <KIcon
+                icon="warning"
+                class="icon"
+                :color="$themeTokens.warning"
+              />
+              <span>
+                {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
+              </span>
             </p>
           </KModal>
         </div>
@@ -114,7 +138,7 @@
             {{ answeredText }}
           </div>
           <KButton
-            :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
+            :text="submitTestAction$()"
             :primary="false"
             appearance="flat-button"
             class="submit-button"
@@ -142,12 +166,6 @@
         />
       </nav>
     </template>
-    <template
-      v-if="$slots.sidePanelFooter && !mastered"
-      #sidePanelFooter
-    >
-      <slot name="sidePanelFooter"></slot>
-    </template>
   </ResourceLayout>
 
 </template>
@@ -159,11 +177,13 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import get from 'lodash/get';
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import shuffled from 'kolibri-common/utils/shuffled';
   import { LearnerClassroomResource } from '../../../apiResources';
   import ResourceLayout from '../../ResourceLayout/index.vue';
+  import { PRE_POST_TEST_CRITERION, TestType } from '../../../constants';
   import AnswerHistory from './AnswerHistory';
-  import QuizReport from './QuizReport';
 
   let _uid = 0;
 
@@ -172,17 +192,18 @@
     components: {
       AnswerHistory,
       UiAlert,
-      QuizReport,
       ResourceLayout,
     },
     mixins: [commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
       const answerHistoryWrapperId = `answer-history-wrapper-${_uid++}`;
+      const { submitTestAction$ } = coursesStrings;
 
       return {
         answerHistoryWrapperId,
         windowBreakpoint,
+        submitTestAction$,
       };
     },
     props: {
@@ -193,12 +214,6 @@
       extraFields: {
         type: Object,
         default: () => ({}),
-      },
-      // An explicit record of the current progress through this
-      // piece of content.
-      progress: {
-        type: Number,
-        default: 0,
       },
       // An identifier for the user interacting with this content
       userId: {
@@ -225,13 +240,13 @@
         type: Number,
         default: 0,
       },
+      masteryCriterion: {
+        type: Object,
+        required: true,
+      },
       // TODO: is this a sustainable way to pass this?
       updateContentSession: {
         type: Function,
-        default: () => {},
-      },
-      isSurvey: {
-        type: Boolean,
         default: () => {},
       },
     },
@@ -266,13 +281,54 @@
           }
         );
       },
-      itemIdArray() {
-        if (this.content.assessmentmetadata.randomize) {
-          // Differentiate the seed for each 'try' indicated by the masteryLevel.
-          const seed = this.userId ? this.userId + this.masteryLevel : Date.now();
-          return shuffled(this.content.assessmentmetadata.assessment_item_ids, seed);
+      testType() {
+        const masteryType = this.masteryCriterion.type;
+        if (masteryType !== PRE_POST_TEST_CRITERION) {
+          return null;
         }
-        return this.content.assessmentmetadata.assessment_item_ids;
+        return this.masteryCriterion.test_type;
+      },
+      completionTitle() {
+        const { preTestCompleted$, postTestCompleted$ } = coursesStrings;
+        if (this.testType === TestType.PRE) {
+          return preTestCompleted$();
+        }
+        if (this.testType === TestType.POST) {
+          return postTestCompleted$();
+        }
+        return '';
+      },
+      completionDescription() {
+        const { preTestCompletedDescription$, postTestCompletedDescription$ } = coursesStrings;
+        if (this.testType === TestType.PRE) {
+          return preTestCompletedDescription$();
+        }
+        if (this.testType === TestType.POST) {
+          return postTestCompletedDescription$();
+        }
+        return '';
+      },
+      itemIdArray() {
+        const masteryType = this.masteryCriterion.type;
+        if (masteryType !== PRE_POST_TEST_CRITERION) {
+          return [];
+        }
+        const preposttestVersion = this.masteryCriterion.version;
+        const preposttestAssesments = get(
+          this.content,
+          'options.completion_criteria.threshold.pre_post_test',
+        );
+
+        let assessmentItemIds = [];
+        if (preposttestVersion === 'A') {
+          assessmentItemIds = preposttestAssesments?.version_a_item_ids || [];
+        }
+        if (preposttestVersion === 'B') {
+          assessmentItemIds = preposttestAssesments?.version_b_item_ids || [];
+        }
+
+        const seed = this.userId ? this.userId + this.masteryLevel : Date.now();
+        return shuffled(assessmentItemIds, seed);
       },
       itemId() {
         return this.itemIdArray[this.questionNumber];
@@ -293,7 +349,7 @@
         return this.questionsTotal - this.questionsAnswered;
       },
       questionsTotal() {
-        return this.content.assessmentmetadata.assessment_item_ids.length;
+        return this.itemIdArray.length;
       },
       displayNavigationButtonLabel() {
         return this.windowBreakpoint > 0;
@@ -342,18 +398,8 @@
           data.force = true;
           data.immediate = true;
           this.submitting = true;
-        } else {
-          // We don't set progress to 1 until the quiz is submitted, so we max out here.
-          // If any interaction has happened, we set a peppercorn progress so that it shows
-          // as interacted with.
-          data.progress = Math.max(
-            0.001,
-            Math.min(
-              this.pastattempts.length / this.content.assessmentmetadata.assessment_item_ids.length,
-              0.99,
-            ),
-          );
         }
+
         return this.updateContentSession(data).then(() => {
           if (close) {
             this.stopTracking();
@@ -427,21 +473,8 @@
       stopTracking(...args) {
         this.$emit('stopTracking', ...args);
       },
-      repeat() {
-        this.$emit('repeat');
-      },
     },
     $trs: {
-      submitExam: {
-        message: 'Submit quiz',
-        context:
-          'Action that learner takes to submit their quiz answers so that the coach can review them.',
-      },
-      submitSurvey: {
-        message: 'Submit survey',
-        context:
-          'Action that learner takes to submit their exam answers so that they can be reviewed.',
-      },
       questionsAnswered: {
         message:
           '{numAnswered, number} of {numTotal, number} {numTotal, plural, one {question answered} other {questions answered}}',
@@ -552,6 +585,43 @@
     gap: 4px;
     align-items: center;
     justify-content: center;
+
+    .icon {
+      top: 0;
+    }
+  }
+
+  .complete-test {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    .icon-wrapper {
+      padding: 24px;
+      border-radius: 50%;
+
+      .icon {
+        top: 4px;
+        left: 2px;
+        width: 52px;
+        height: 52px;
+        font-size: 52px;
+      }
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .alert {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 4px;
 
     .icon {
       top: 0;

@@ -21,6 +21,7 @@ const HandleUpdateContentStateKey = Symbol('HandleUpdateContentState');
 const HandleUpdateInteractionKey = Symbol('HandleUpdateInteraction');
 const UpdateContentSessionKey = Symbol('UpdateContentSession');
 const OnErrorKey = Symbol('OnError');
+const MasteryCriterionKey = Symbol('MasteryCriterion');
 
 /**
  * Composable that manages progress tracking for course content.
@@ -44,6 +45,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
     complete,
     context,
     totalattempts,
+    mastery_criterion,
     initContentSession,
     updateContentSession,
     startTrackingProgress,
@@ -167,6 +169,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
   provide(CompleteKey, complete);
   provide(TotalAttemptsKey, totalattempts);
   provide(ContextKey, context);
+  provide(MasteryCriterionKey, mastery_criterion);
   provide(StartTrackingProgressKey, startTrackingProgress);
   provide(StopTrackingProgressKey, stopTrackingProgress);
   provide(RestartContentSessionKey, restartContentSession);
@@ -197,6 +200,8 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
  *                                                          content.
  * @property {import('vue').Ref<Object>} context The context object containing additional
  *                                              information about the content session.
+ * @property {import('vue').Ref<Object|null>} mastery_criterion The mastery criterion for the
+ *                                                              content,if applicable.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
  *                                                      final progress.
@@ -227,6 +232,7 @@ export function injectCourseContentProgress() {
     complete: inject(CompleteKey),
     totalattempts: inject(TotalAttemptsKey),
     context: inject(ContextKey),
+    mastery_criterion: inject(MasteryCriterionKey),
     startTrackingProgress: inject(StartTrackingProgressKey),
     stopTrackingProgress: inject(StopTrackingProgressKey),
     restartContentSession: inject(RestartContentSessionKey),

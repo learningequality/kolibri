@@ -19,8 +19,8 @@
         disableDefaultTransition
       />
       <CourseContentViewer
-        v-else-if="currentResource"
-        :contentNode="currentResource"
+        v-else-if="contentNodeToRender"
+        :contentNode="contentNodeToRender"
         :nextResource="nextAvailableResource"
         :previousResource="previousAvailableResource"
         @next="handleNext"
@@ -720,6 +720,13 @@
         };
       });
 
+      const contentNodeToRender = computed(() => {
+        if (activeTest.value) {
+          return unitTree.value;
+        }
+        return currentResource.value;
+      });
+
       // Provide progress tracking to child components
       useCourseContentProgress({
         contentNode: currentResource,
@@ -776,6 +783,7 @@
         canGoToNextUnit,
         currentLesson,
         currentResource,
+        contentNodeToRender,
         prevNextLabel,
         unitNumberLabel,
         prevEnabled,
