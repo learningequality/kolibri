@@ -7,6 +7,7 @@ from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.serializers import DateTimeTzField
 
 
 class AttendanceRecordSerializer(ModelSerializer):
@@ -21,6 +22,7 @@ class AttendanceRecordSerializer(ModelSerializer):
 class AttendanceSessionSerializer(ModelSerializer):
     attendance_records = AttendanceRecordSerializer(many=True, required=False)
     collection = PrimaryKeyRelatedField(queryset=Collection.objects.all())
+    session_start_datetime = DateTimeTzField(required=False)
 
     class Meta:
         model = AttendanceSession
