@@ -57,13 +57,13 @@ describe('SparklineBar', () => {
     ]);
   });
 
-  it('treats a zero-count segment as count 1 so the label remains readable', () => {
+  it('gives a zero-count segment only the minimum width with no proportional addition', () => {
     const { container } = renderSparkline({ lowCount: 0, midCount: 3, highCount: 7 });
     const [lowWidth] = Array.from(container.querySelectorAll('.segment')).map(
       segment => segment.style.width,
     );
     const offset = MIN_SEGMENT_WIDTH_PX * 3;
-    expect(lowWidth).toBe(`calc(${MIN_SEGMENT_WIDTH_PX}px + 0.1 * (100% - ${offset}px))`);
+    expect(lowWidth).toBe(`calc(${MIN_SEGMENT_WIDTH_PX}px + 0 * (100% - ${offset}px))`);
   });
 
   it('splits the bar evenly when there are no learners in the distribution', () => {
