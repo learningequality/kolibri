@@ -58,7 +58,11 @@
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
-  import { normalizeUserInput, localizeKeypadDigits } from '../numeralNormalization';
+  import {
+    normalizeUserInput,
+    localizeKeypadDigits,
+    localizeUserInput,
+  } from '../numeralNormalization';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
@@ -585,6 +589,11 @@
         if (userInput) {
           // Restore image URLs from placeholders to blob URLs
           userInput = JSON.parse(replaceImageUrls(JSON.stringify(userInput), this.perseusFileUrl));
+          // Localize ASCII digits back to the content locale's numeral system
+          // so users see their saved answers in their native format.
+          // (Phase 1 normalized input to ASCII for scoring/storage.)
+          const locale = this.lang && this.lang.id;
+          userInput = localizeUserInput(userInput, locale);
           // Restore each widget's user input via the Renderer's handleUserInput callback
           const widgetIds = this.itemRenderer.getWidgetIds();
           for (const id of widgetIds) {
