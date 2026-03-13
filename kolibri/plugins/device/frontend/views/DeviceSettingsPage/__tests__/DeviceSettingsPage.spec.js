@@ -58,8 +58,8 @@ const store = new Store({
     isPageLoading: () => false,
   },
   actions: {
-    createSnackbar() { },
-    notLoading() { },
+    createSnackbar() {},
+    notLoading() {},
   },
   modules: {
     deviceInfo: {
