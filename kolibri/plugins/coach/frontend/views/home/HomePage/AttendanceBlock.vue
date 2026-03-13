@@ -10,7 +10,7 @@
     </template>
 
     <div>
-      <KButton
+      <KRouterLink
         :text="markAttendanceAction$()"
         :primary="true"
         appearance="raised-button"
@@ -73,8 +73,6 @@
 <script>
 
   import { computed, onMounted, ref } from 'vue';
-  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
-  import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import store from 'kolibri/store';
@@ -89,8 +87,6 @@
     components: {
       Block,
       BlockItem,
-      KButton,
-      KCircularLoader,
     },
     mixins: [commonCoach],
     setup() {
