@@ -1,4 +1,2 @@
-submodules
-!static/mathjax
-!frontend/dist
-!frontend/dist/fonts/*.ttf
+# MathJax fonts are copied from the mathjax-full node_modules dep at build time
+static/assets/mathjax/fonts/
