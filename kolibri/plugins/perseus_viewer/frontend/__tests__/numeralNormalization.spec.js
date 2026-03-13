@@ -1,4 +1,10 @@
-import { normalizeNumerals, normalizeUserInput, getLocalizedDigits } from '../numeralNormalization';
+import {
+  normalizeNumerals,
+  normalizeUserInput,
+  getLocalizedDigits,
+  localizeNumerals,
+  localizeUserInput,
+} from '../numeralNormalization';
 
 describe('normalizeNumerals', () => {
   it('converts Eastern Arabic digits to ASCII', () => {
@@ -170,5 +176,111 @@ describe('getLocalizedDigits', () => {
     expect(getLocalizedDigits('fr')).toBeNull();
     expect(getLocalizedDigits('de')).toBeNull();
     expect(getLocalizedDigits('es')).toBeNull();
+  });
+});
+
+describe('localizeNumerals', () => {
+  it('converts ASCII digits to Eastern Arabic for ar-EG', () => {
+    expect(localizeNumerals('42', 'ar-EG')).toBe('٤٢');
+  });
+
+  it('converts all 10 digits for Arabic locale', () => {
+    expect(localizeNumerals('0123456789', 'ar-EG')).toBe('٠١٢٣٤٥٦٧٨٩');
+  });
+
+  it('leaves non-digit characters unchanged', () => {
+    expect(localizeNumerals('x+y', 'ar-EG')).toBe('x+y');
+  });
+
+  it('handles mixed digits and text', () => {
+    expect(localizeNumerals('2x+3', 'ar-EG')).toBe('٢x+٣');
+  });
+
+  it('handles decimal numbers', () => {
+    expect(localizeNumerals('3.14', 'ar-EG')).toBe('٣.١٤');
+  });
+
+  it('returns string unchanged for English locale', () => {
+    expect(localizeNumerals('42', 'en')).toBe('42');
+  });
+
+  it('returns string unchanged for null locale', () => {
+    expect(localizeNumerals('42', null)).toBe('42');
+  });
+
+  it('returns non-string values unchanged', () => {
+    expect(localizeNumerals(42, 'ar-EG')).toBe(42);
+    expect(localizeNumerals(null, 'ar-EG')).toBe(null);
+    expect(localizeNumerals(undefined, 'ar-EG')).toBe(undefined);
+  });
+
+  it('returns empty string unchanged', () => {
+    expect(localizeNumerals('', 'ar-EG')).toBe('');
+  });
+});
+
+describe('localizeUserInput', () => {
+  it('localizes numeric-input widget state', () => {
+    const input = {
+      'numeric-input 1': { currentValue: '42' },
+    };
+    expect(localizeUserInput(input, 'ar-EG')).toEqual({
+      'numeric-input 1': { currentValue: '٤٢' },
+    });
+  });
+
+  it('localizes expression widget state (plain string)', () => {
+    const input = {
+      'expression 1': '2x+3',
+    };
+    expect(localizeUserInput(input, 'ar-EG')).toEqual({
+      'expression 1': '٢x+٣',
+    });
+  });
+
+  it('leaves dropdown widget state unchanged (numeric value)', () => {
+    const input = {
+      'dropdown 1': { value: 2 },
+    };
+    expect(localizeUserInput(input, 'ar-EG')).toEqual({
+      'dropdown 1': { value: 2 },
+    });
+  });
+
+  it('handles multiple widgets', () => {
+    const input = {
+      'numeric-input 1': { currentValue: '21' },
+      'numeric-input 2': { currentValue: '7' },
+      'expression 1': '5x',
+    };
+    expect(localizeUserInput(input, 'ar-EG')).toEqual({
+      'numeric-input 1': { currentValue: '٢١' },
+      'numeric-input 2': { currentValue: '٧' },
+      'expression 1': '٥x',
+    });
+  });
+
+  it('returns input unchanged for English locale', () => {
+    const input = { 'numeric-input 1': { currentValue: '42' } };
+    expect(localizeUserInput(input, 'en')).toEqual(input);
+  });
+
+  it('handles null and undefined gracefully', () => {
+    expect(localizeUserInput(null, 'ar-EG')).toBe(null);
+    expect(localizeUserInput(undefined, 'ar-EG')).toBe(undefined);
+  });
+
+  it('handles nested arrays', () => {
+    const input = ['4', ['2', '3']];
+    expect(localizeUserInput(input, 'ar-EG')).toEqual(['٤', ['٢', '٣']]);
+  });
+
+  it('is the inverse of normalizeUserInput for Arabic', () => {
+    const original = {
+      'numeric-input 1': { currentValue: '42' },
+      'expression 1': '2x+3',
+    };
+    const localized = localizeUserInput(original, 'ar-EG');
+    expect(normalizeUserInput(localized)).toEqual(original);
   });
 });

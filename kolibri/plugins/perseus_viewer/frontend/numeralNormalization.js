@@ -111,4 +111,41 @@ function getLocalizedDigits(locale) {
   }
 }
 
-export { normalizeNumerals, normalizeUserInput, getLocalizedDigits, nonWesternDigitRegex };
+/**
+ * Convert ASCII digits in a string to localized digits for a given locale.
+ * The reverse of normalizeNumerals: "42" → "٤٢" for Arabic.
+ * Returns the string unchanged if the locale's digits match ASCII.
+ */
+function localizeNumerals(str, locale) {
+  if (typeof str !== 'string') {
+    return str;
+  }
+  const digits = getLocalizedDigits(locale);
+  if (!digits) {
+    return str;
+  }
+  return str.replace(/[0-9]/g, d => digits[Number(d)]);
+}
+
+/**
+ * Recursively localize all string values in a user input object.
+ * The reverse of normalizeUserInput: converts ASCII digits back to
+ * the locale's native numeral system for display in widgets.
+ *
+ * Used when restoring saved answer state so that users see their
+ * answers in their native numeral format, not as ASCII digits.
+ */
+function localizeUserInput(input, locale) {
+  if (!getLocalizedDigits(locale)) {
+    return input;
+  }
+  return deepMapStrings(input, s => localizeNumerals(s, locale));
+}
+
+export {
+  normalizeNumerals,
+  normalizeUserInput,
+  getLocalizedDigits,
+  localizeNumerals,
+  localizeUserInput,
+};
