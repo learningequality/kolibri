@@ -847,128 +847,28 @@
 
 <style lang="scss">
 
-  // Reset global styles so that we don't interfere with perseus styling
-
   .perseus-root {
     position: relative;
     z-index: 0;
     height: 100%;
 
-    div,
-    span,
-    applet,
-    object,
-    iframe,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    blockquote,
-    pre,
-    a,
-    abbr,
-    acronym,
-    address,
-    big,
-    cite,
-    code,
-    del,
-    dfn,
-    em,
-    img,
-    ins,
-    kbd,
-    q,
-    s,
-    samp,
-    small,
-    strike,
-    strong,
-    sub,
-    sup,
-    tt,
-    var,
-    b,
-    u,
-    i,
-    center,
-    dl,
-    dt,
-    dd,
-    ol,
-    ul,
-    li,
-    fieldset,
-    form,
-    label,
-    legend,
-    table,
-    caption,
-    tbody,
-    tfoot,
-    thead,
-    tr,
-    th,
-    td,
-    article,
-    aside,
-    canvas,
-    details,
-    embed,
-    figure,
-    figcaption,
-    footer,
-    header,
-    hgroup,
-    menu,
-    nav,
-    output,
-    ruby,
-    section,
-    summary,
-    time,
-    mark,
-    audio,
-    video {
+    // Perseus v75 uses Aphrodite (CSS-in-JS) for its own styling, but
+    // still expects certain browser defaults to be neutralized.
+    // Unlike v22, a full Eric Meyer reset is too aggressive here — it
+    // fights with Perseus's inline-block layout for radio choices.
+    // Instead, we surgically reset just the elements that Kolibri's
+    // global styles interfere with.
+    fieldset {
       padding: 0;
       margin: 0;
-      vertical-align: baseline;
-    }
-
-    /* HTML5 display-role reset for older browsers */
-    article,
-    aside,
-    details,
-    figcaption,
-    figure,
-    footer,
-    header,
-    hgroup,
-    menu,
-    nav,
-    section {
-      display: block;
+      border: 0;
     }
 
     ol,
     ul {
+      padding: 0;
+      margin: 0;
       list-style: none;
-    }
-
-    blockquote,
-    q {
-      quotes: none;
-    }
-
-    blockquote::before,
-    blockquote::after,
-    q::before,
-    q::after {
-      content: '';
-      content: none;
     }
 
     table {
@@ -976,22 +876,35 @@
       border-collapse: collapse;
     }
 
-    .simple-button {
-      position: relative;
-      padding: 5px 10px;
-      margin: 3px;
-      font-family: inherit;
-      line-height: 20px;
-      color: #444444 !important;
-      text-decoration: none !important;
-      text-shadow: none;
-      cursor: pointer !important;
-      background-color: #e7e7e7;
-      background-image: linear-gradient(to bottom, #eeeeee, #dcdcdc);
-      background-repeat: repeat-x;
-      border: 1px solid #e6e6e6;
-      border-radius: 3px;
-      transition: box-shadow ease-in-out 0.15s;
+    fieldset[class*='perseus_'] {
+      // The choice indicator is position:fixed with no insets, so it sits at
+      // its static (top-left) position. Flex-centering the <li> resolves that
+      // static position to vertical-center — without pulling the indicator into
+      // flow, so Perseus' constant content offset (which keeps choices aligned
+      // when review mode widens correct indicators) is preserved. Scoped to
+      // role="listitem" to avoid other widgets' styled <li>s.
+      li[role='listitem'] {
+        display: flex;
+        align-items: center;
+      }
+
+      // Perseus offsets the content with margin-inline-start to clear its
+      // position:fixed indicator. With the indicator back in flow (flex) that
+      // margin pushes the content too far and overlaps the next choice's
+      // indicator, so we drop it and rely on column-gap above instead.
+      > div {
+        overflow: visible !important;
+      }
+    }
+
+    // MathJax CHTML draws each glyph ~0.5em left of its layout cursor
+    // (the MJXZERO/MJXTEX font pair uses negative-offset glyphs, and the
+    // 0.5em padding-right on each mjx-c::before compensates for the NEXT
+    // char). The first glyph has nothing before it, so without a matching
+    // offset on the container it overflows left into whatever precedes —
+    // most visibly, the multiple-choice indicator button.
+    mjx-container.MathJax {
+      padding-inline-start: 0.5em;
     }
   }
 
