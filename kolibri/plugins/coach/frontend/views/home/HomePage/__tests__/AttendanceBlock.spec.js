@@ -45,11 +45,6 @@ const MOCK_SESSIONS = [
 ];
 
 const STUBS = {
-  KButton: {
-    name: 'KButton',
-    props: ['text', 'primary', 'to'],
-    template: '<button>{{ text }}</button>',
-  },
   KCircularLoader: {
     name: 'KCircularLoader',
     template: '<div data-test="loader">Loading...</div>',
