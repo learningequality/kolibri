@@ -1,11 +1,4 @@
 export default (widget, rubric) => {
-  const answers = rubric.answers;
-
-  widget.props.onChange(
-    {
-      answers,
-    },
-    null, // cb
-    false, // silent
-  );
+  // Table scoring uses filterNonEmpty on the userInput (array of row arrays)
+  widget.props.handleUserInput(rubric.answers);
 };

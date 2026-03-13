@@ -29,6 +29,14 @@
 
 <script>
 
+  // Import Wonder Blocks design tokens (CSS custom properties) required by
+  // Perseus and math-input components.
+  import '@khanacademy/wonder-blocks-tokens/styles.css';
+  // Import Perseus and math-input CSS globally (not in scoped <style> block,
+  // since Perseus renders via React and scoped selectors won't match).
+  import '@khanacademy/perseus/styles.css';
+  import '@khanacademy/math-input/styles.css';
+
   import { StyleSheet } from 'aphrodite';
   import invert from 'lodash/invert';
   import get from 'lodash/get';
@@ -36,18 +44,16 @@
   import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { defer } from 'underscore';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
-  import { createPortal, render, unmountComponentAtNode } from 'react-dom';
+  import { createPortal } from 'react-dom';
+  import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
-  import {
-    MathInputI18nContextProvider,
-    StatefulKeypadContextProvider,
-    KeypadContext,
-    MobileKeypad,
-  } from '@khanacademy/math-input';
+  import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
+  import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
+  import { MathInputI18nContextProvider, MobileKeypad } from '@khanacademy/math-input';
+  import { StatefulKeypadContextProvider, KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
@@ -66,7 +72,14 @@
 
   const logging = logger.getLogger(__filename);
 
-  const sorterWidgetRegex = /sorter [0-9]+/;
+  // No-op stubs for Perseus dependency injection. Perseus requires these
+  // but Kolibri doesn't use KA's analytics, video, or URL generation.
+  const noOpAnalyticsEvent = async () => {};
+  const perseusNoOpDependencies = {
+    analytics: { onAnalyticsEvent: noOpAnalyticsEvent },
+    generateUrl: ({ url }) => url,
+    useVideo: () => ({ status: 'success', data: { video: null } }),
+  };
 
   // Regex for all images, we use the differential matches in the first matching
   // group to determine if it's a graphie image or a regular image.
@@ -217,32 +230,50 @@
 
     return url;
   };
+
+  perseus.Util.getImageSizeModern = async function getImageSizeModern(url) {
+    const image = new Image();
+
+    return new Promise((resolve, reject) => {
+      // Handle the success case
+      image.onload = () => {
+        resolve([image.naturalWidth, image.naturalHeight]);
+      };
+
+      // Handle the error case
+      image.onerror = reject;
+
+      // Kick off the loading
+      image.src = perseus.Util.getRealImageUrl(url);
+    });
+  };
+
+  // Cheap 32-bit string hash for deriving a stable React key from item data
+  // when no itemId is available (items can be driven by the raw itemData prop).
+  // It only needs to differ between distinct items; a collision merely falls
+  // back to the previous in-place reconcile behaviour for that rare pair.
+  function quickHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
+    }
+    return hash;
+  }
+
   perseus.Util.getImageSize = (url, callback) => {
-    const img = new Image();
-
-    img.onload = function () {
-      // Vendored from perseus to override image handling
-      if (img.width === 0 && img.height === 0) {
-        var _document$body;
-
-        (_document$body = document.body) === null || _document$body === void 0
-          ? void 0
-          : _document$body.appendChild(img);
-
-        defer(function () {
-          var _document$body2;
-
-          callback(img.clientWidth, img.clientHeight);
-          (_document$body2 = document.body) === null || _document$body2 === void 0
-            ? void 0
-            : _document$body2.removeChild(img);
-        });
-      } else {
-        callback(img.width, img.height);
+    // The previous implementation was only for IE11 compatibility,
+    // which we do not support anymore.
+    perseus.Util.getImageSizeModern(url).then(([width, height]) => {
+      if (callback) {
+        // Perseus calls this with a (width, height) callback and uses the two
+        // arguments directly (e.g. SvgImage.onImageLoad sets imageDimensions:
+        // [width, height]). getImageSizeModern resolves a [width, height] array,
+        // so spread it — passing the array as a single arg makes width the whole
+        // array and height undefined, yielding a NaN graphie box that falls back
+        // to 340x340 and overflows/misaligns labels on auto-sized SVG images.
+        callback(width, height);
       }
-    };
-
-    img.src = perseus.Util.getRealImageUrl(url);
+    });
   };
 
   export default {
@@ -307,6 +338,9 @@
     created() {
       this.itemRenderer = null;
       this.keypadElement = null;
+      this.root = null;
+      // React key for the current item; set per new item in renderNewItem.
+      this.itemRenderKey = null;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -336,10 +370,9 @@
         // Pass our logging object to capture Log messages from Perseus
         Log: logging,
       });
-      const initPromise = perseus.init({ skipMathJax: true });
+      perseus.init();
       // Try to load the appropriate directional CSS for the particular content
-      const cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
-      Promise.all([initPromise, cssPromise]).then(() => {
+      this.$options.contentModule.loadDirectionalCSS(this.contentDirection).then(() => {
         if (this.defaultFile) {
           this.loadItemData();
         } else if (this.itemData) {
@@ -415,11 +448,7 @@
               this.itemRendererUpdating = false;
             }
           },
-          dependencies: {
-            analytics: {
-              onAnalyticsEvent: async () => {},
-            },
-          },
+          dependencies: perseusNoOpDependencies,
         };
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
@@ -452,7 +481,7 @@
                   setKeypadElement(el);
                 },
                 onDismiss: () => renderer && renderer.blur(),
-                onAnalyticsEvent: async () => {},
+                onAnalyticsEvent: noOpAnalyticsEvent,
               }),
               document.body,
             ),
@@ -471,11 +500,14 @@
           children: perseusStringsElement,
         });
         const dependencyContextElement = e(perseus.Dependencies.DependenciesContext.Provider, {
-          analytics: { onAnalyticsEvent: async () => {} },
+          value: perseusNoOpDependencies,
           children: mathInputStringsElement,
         });
         const renderStateRootElement = e(RenderStateRoot, { children: dependencyContextElement });
-        render(renderStateRootElement, this.$refs.perseus);
+        if (!this.root) {
+          this.root = createRoot(this.$refs.perseus);
+        }
+        this.root.render(renderStateRootElement);
       },
       renderNewItem() {
         // Clear any pending state reset calls
@@ -498,7 +530,7 @@
       },
       _resetState(val) {
         if (!val) {
-          this.restoreSerializedState(this.blankState);
+          this.restoreAnswerState(this.blankState);
         }
         this.setAnswer();
       },
@@ -521,83 +553,64 @@
         // to ensure clean up without worrying about whether React has already cleaned up this
         // component.
         try {
-          unmountComponentAtNode(this.$refs.perseus);
+          if (this.root) {
+            this.root.unmount();
+            this.root = null;
+          }
           this.itemRenderer = null;
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
       },
-      /*
-       * Special method to extract the current state of a Perseus Sorter widget
-       * as it does not currently properly support getSerializedState
-       */
-      addSorterState(questionState) {
-        this.itemRenderer.getWidgetIds().forEach(id => {
-          if (sorterWidgetRegex.test(id)) {
-            if (questionState[id]) {
-              const sortableComponent =
-                this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
-              questionState[id].options = sortableComponent.getOptions();
-            }
-          }
-        });
-        return questionState;
-      },
-      getSerializedState() {
+      getAnswerState() {
         if (!this.itemRenderer) {
           return {};
         }
-        // Default to empty array
-        let hints = [];
-        if (this.itemRenderer.hintsRenderer) {
-          hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
-            this.itemRenderer.hintsRenderer.refs[key].getSerializedState(),
+        const userInput = this.itemRenderer.getUserInput();
+        // To prevent propagation of our locally replaced blob URLs into answers,
+        // we need to replace them with the original URLs.
+        return restoreImageUrls(
+          { userInput, hintsVisible: this.hintsVisible },
+          this.perseusFileUrl,
+        );
+      },
+      restoreAnswerState(answerState) {
+        if (!answerState) {
+          return;
+        }
+        let userInput;
+        if (answerState.userInput) {
+          // New UserInputMap format
+          userInput = answerState.userInput;
+        } else if (answerState.question) {
+          // Old serialized state format (pre-v75) — convert using deprecated helper.
+          // This backward compatibility path must be kept indefinitely because
+          // existing saved answer states in the wild use this format.
+          userInput = perseus.deriveUserInputFromSerializedState(
+            answerState.question,
+            this.item.question.widgets,
           );
         }
-        const question = this.addSorterState(
-          this.itemRenderer.questionRenderer.getSerializedState(),
-        );
-        // To prevent propagation of our locally replace blob URLs into answers,
-        // we need to replace them with the original URLs.
-        return restoreImageUrls({ hints, question }, this.perseusFileUrl);
-      },
-      restoreSerializedState(answerState) {
-        if (answerState && answerState.question && answerState.hints) {
-          answerState = JSON.parse(
-            replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl),
-          );
+        if (userInput) {
+          // Restore image URLs from placeholders to blob URLs
+          userInput = JSON.parse(replaceImageUrls(JSON.stringify(userInput), this.perseusFileUrl));
+          // Restore each widget's user input via the Renderer's handleUserInput callback
           const widgetIds = this.itemRenderer.getWidgetIds();
-          // Because of a switch between the input-number and numeric-input widgets
-          // it seems it is possible for us to have a serialized state with keys
-          // that do not correspond to any widgets. We need to sanitize the state
-          // before restoring it.
-          const sanitizedQuestion = {};
-          for (const key of widgetIds) {
-            if (answerState.question[key]) {
-              sanitizedQuestion[key] = answerState.question[key];
+          for (const id of widgetIds) {
+            if (userInput[id] !== undefined) {
+              this.itemRenderer.questionRenderer.props.handleUserInput(id, userInput[id], false);
             }
           }
-          answerState.question = sanitizedQuestion;
-          this.itemRenderer.restoreSerializedState(answerState);
-          widgetIds.forEach(id => {
-            if (sorterWidgetRegex.test(id)) {
-              if (answerState.question[id]) {
-                const sortableComponent =
-                  this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
-                const newProps = Object.assign({}, sortableComponent.props, {
-                  options: answerState.question[id].options,
-                });
-                sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
-              }
-            }
-          });
+        }
+        if (answerState.hintsVisible) {
+          this.hintsVisible = answerState.hintsVisible;
         }
       },
       setAnswer() {
-        this.blankState = this.getSerializedState();
-        // If a passed in answerState is an object with the right keys, restore.
-        if (this.answerState && this.answerState.question && this.answerState.hints) {
-          this.restoreSerializedState(this.answerState);
+        this.blankState = this.getAnswerState();
+        // If a passed in answerState has user input or old-format question/hints, restore.
+        if (this.answerState && (this.answerState.userInput || this.answerState.question)) {
+          this.restoreAnswerState(this.answerState);
         } else if (this.showCorrectAnswer) {
           this.setCorrectAnswer();
         }
@@ -607,20 +620,33 @@
        */
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
-          const check = this.itemRenderer.scoreInput();
-          if (check.message && check.empty) {
-            this.message = check.message;
+          const userInput = this.itemRenderer.getUserInput();
+          const widgetIds = this.itemRenderer.getWidgetIds();
+          // Use the content language for locale-sensitive scoring (e.g., decimal separators)
+          const locale = this.lang?.id || 'en';
+          const score = scorePerseusItem(this.item.question, userInput, locale);
+          const emptyWidgets = emptyWidgetsFunctional(
+            this.item.question.widgets,
+            widgetIds,
+            userInput,
+            locale,
+          );
+          const empty = emptyWidgets.length > 0;
+          const correct = score.type === 'points' && score.earned === score.total;
+          const message = score.message || null;
+
+          if (message && empty) {
+            this.message = message;
           }
           // Even if the answer is 'empty' according to perseus, it can contain
           // meaningful state - so we should still return it.
           // The most salient example of this is multi-select multiple choice
           // where if insufficient responses have been given, this is counted
           // as 'empty'.
-          const answerState = this.getSerializedState();
           // We cannot reliably get simplified answers from Perseus, so don't try.
           const simpleAnswer = '';
           return {
-            correct: check.correct,
+            correct,
             answerState,
             simpleAnswer,
           };
@@ -648,7 +674,7 @@
         if (this.itemRenderer && this.hintsVisible < this.totalHints) {
           this.hintsVisible += 1;
           this.renderItem();
-          this.$emit('hintTaken', { answerState: this.getSerializedState() });
+          this.$emit('hintTaken', { answerState: this.getAnswerState() });
         }
       },
       interactionCallback() {
@@ -683,6 +709,13 @@
         }
       },
       setItemData(itemData) {
+        const result = parseAndMigratePerseusItem(itemData);
+        if (isFailure(result)) {
+          logging.warn('Failed to migrate Perseus item data', result.detail);
+          // Fall through with original data as graceful degradation
+        } else {
+          itemData = result.value;
+        }
         if (this.validateItemData(itemData)) {
           this.item = itemData;
           // Don't store blank state for another item.
@@ -733,10 +766,6 @@
 
 <style lang="scss" scoped>
 
-  @import '~katex/dist/katex.css';
-  @import '~../dist/index.css';
-  @import '~../dist/math-input.css';
-
   /deep/ .perseus-hint-renderer {
     padding-left: 16px;
     border-left-style: none;
@@ -754,14 +783,6 @@
   .perseus-mobile {
     .perseus {
       padding: 16px;
-    }
-
-    .problem-area {
-      padding: 0;
-    }
-
-    /deep/ .perseus-renderer {
-      padding: 0;
     }
   }
 
@@ -833,15 +854,6 @@
     }
   }
 
-  /deep/ .perseus-renderer {
-    padding: 16px;
-  }
-
-  /deep/ .pure-g {
-    // Overrides Perseus smushing the letter spacing on mobile
-    letter-spacing: inherit;
-  }
-
 </style>
 
 
@@ -906,6 +918,12 @@
     mjx-container.MathJax {
       padding-inline-start: 0.5em;
     }
+  }
+
+  .perseus-keypad-container {
+    // Add a solid background so page content doesn't show through
+    background: #f7f8fa;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .perseus-keypad-container > div > div {

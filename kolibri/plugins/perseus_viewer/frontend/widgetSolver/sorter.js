@@ -1,7 +1,6 @@
 export default (widget, rubric) => {
-  const sortableComponent = widget.refs.sortable;
-  const newProps = Object.assign({}, sortableComponent.props, {
+  widget.props.handleUserInput({
     options: rubric.correct,
+    changed: true,
   });
-  sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
 };
