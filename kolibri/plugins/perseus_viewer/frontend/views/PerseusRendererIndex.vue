@@ -58,6 +58,7 @@
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
+  import { normalizeUserInput } from '../numeralNormalization';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
@@ -543,7 +544,8 @@
         if (!this.itemRenderer) {
           return {};
         }
-        const userInput = this.itemRenderer.getUserInput();
+        // Normalize any non-Western numerals so saved state is always ASCII.
+        const userInput = normalizeUserInput(this.itemRenderer.getUserInput());
         // To prevent propagation of our locally replaced blob URLs into answers,
         // we need to replace them with the original URLs.
         return restoreImageUrls(
@@ -597,7 +599,9 @@
        */
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
-          const userInput = this.itemRenderer.getUserInput();
+          // getAnswerState normalizes non-Western numerals and restores image URLs.
+          const answerState = this.getAnswerState();
+          const userInput = answerState.userInput;
           const widgetIds = this.itemRenderer.getWidgetIds();
           // Use the content language for locale-sensitive scoring (e.g., decimal separators)
           const locale = this.lang || 'en';
