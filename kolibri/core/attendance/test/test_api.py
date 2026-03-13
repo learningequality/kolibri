@@ -1,5 +1,7 @@
+from datetime import datetime
 from datetime import timedelta
 
+import pytz
 from django.utils.timezone import now
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -76,6 +78,64 @@ class AttendanceSessionAPITestCase(APITestCase):
         self.assertTrue(
             AttendanceSession.objects.filter(created_by=self.coach).exists()
         )
+
+    def test_create_session_with_iso_8601_datetime(self):
+        """Frontend sends session_start_datetime as ISO 8601 string with T and Z.
+
+        Regression test: submitting an ISO 8601 datetime caused a 500 because
+        the auto-generated ModelField wrapper called DateTimeTzField.to_python()
+        directly with the raw ISO string, which did not handle the T separator or
+        Z UTC suffix. Fix: declare session_start_datetime explicitly in the
+        serializer using the DRF DateTimeTzField, which handles ISO 8601 natively.
+        """
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            "session_start_datetime": "2026-03-12T22:07:09.048Z",
+            "attendance_records": [],
+        }
+        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        self.assertEqual(response.status_code, 201)
+        session = AttendanceSession.objects.get(id=response.data["id"])
+        expected = datetime(2026, 3, 12, 22, 7, 9, tzinfo=pytz.utc)
+        self.assertEqual(
+            session.session_start_datetime.astimezone(pytz.utc).replace(microsecond=0),
+            expected,
+        )
+
+    def test_create_session_with_offset_datetime(self):
+        """Frontend may send session_start_datetime with a UTC offset instead of Z."""
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            # -05:00 offset → same UTC instant as the Z test above
+            "session_start_datetime": "2026-03-12T17:07:09.048-05:00",
+            "attendance_records": [],
+        }
+        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        self.assertEqual(response.status_code, 201)
+        session = AttendanceSession.objects.get(id=response.data["id"])
+        expected = datetime(2026, 3, 12, 22, 7, 9, tzinfo=pytz.utc)
+        self.assertEqual(
+            session.session_start_datetime.astimezone(pytz.utc).replace(microsecond=0),
+            expected,
+        )
+
+    def test_create_session_without_datetime_uses_default(self):
+        """Omitting session_start_datetime should succeed; model default fires.
+
+        Validates that required=False on the serializer field correctly defers
+        to the model's default=local_now rather than producing a null.
+        """
+        self._login(self.coach)
+        data = {
+            "collection": self.classroom.id,
+            "attendance_records": [],
+        }
+        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        self.assertEqual(response.status_code, 201)
+        session = AttendanceSession.objects.get(id=response.data["id"])
+        self.assertIsNotNone(session.session_start_datetime)
 
     def test_admin_can_create_session(self):
         self._login(self.admin)
