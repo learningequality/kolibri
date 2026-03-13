@@ -461,7 +461,7 @@
 
       function getUnitMasteryLabel(unit) {
         const index = units.value.findIndex(u => u.id === unit.id);
-        const seed = index + 1;
+        const seed = index + 8;
         return isLowMastery(unit)
           ? lowMasteryLabel$({ count: Math.round(4 / seed) })
           : strongMasteryLabel$();
