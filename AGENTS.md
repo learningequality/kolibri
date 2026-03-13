@@ -13,26 +13,25 @@ pip install -r requirements/dev.txt   # Python deps
 pnpm install                          # Node deps
 pre-commit install                    # Required — commits fail without this
 export KOLIBRI_RUN_MODE=dev
-kolibri manage migrate                # Database migrations
+kolibri configure setup               # Database migrations and updates
 ```
 
-Dev servers (run in separate terminals):
+Dev server:
 ```bash
-pnpm run python-devserver  # Django on port 8000
-pnpm run watch             # Webpack watcher
+pnpm devserver             # Django on port 8000 + Webpack watcher + sandbox dev server
 ```
 
-→ Full setup: `docs/getting_started.rst` | Architecture: `docs/stack.rst`
+→ Full setup: `docs/getting_started.rst` | Architecture: `docs/stack.rst` | Dev data: `docs/howtos/dev_data_setup.md`
 
 ## Critical Gotchas
 
 ### ⚠️ BEFORE Writing Any Vue Component, Search for Existing Ones
 Do not create a new component without first searching for an existing solution:
 1. **Kolibri Design System** ([docs](https://design-system.learningequality.org/)) — `KButton`, `KCircularLoader`, `KTextbox`, `KSelect`, `KModal`, `KCheckbox`, `KIcon`, etc.
-2. **`packages/kolibri/components/`** — `CoreTable`, `AuthMessage`, `BottomAppBar`, `AppBar`, etc.
+2. **`packages/kolibri/components/`** — `AuthMessage`, `BottomAppBar`, `AppBar`, etc.
 3. **`packages/kolibri-common/components/`** — `AccordionContainer`, `BaseToolbar`, etc.
 
-Use existing components (e.g., `CoreTable` for tabular data, `KCircularLoader` for loading states). If one does 80% of what you need, wrap it — do not rewrite.
+Use existing components (e.g., `KTable` for tabular data, `KCircularLoader` for loading states). If one does 80% of what you need, wrap it — do not rewrite.
 
 ### ⚠️ Use Theme Tokens, Not Hard-Coded Colors
 Never use raw color values. Access theme colors via `$themeTokens` and `$themePalette`:
@@ -121,7 +120,7 @@ kolibri/
 
 ## Key Conventions
 
-**Python:** F-strings preferred. One import per line. `DateTimeTzField` for timestamps (not Django's `DateTimeField`). `UUIDField` from morango for syncable models. Descriptive migration names (no `_auto_`).
+**Python:** F-strings preferred. One import per line. `DateTimeTzField` for timestamps (not Django's `DateTimeField`). `UUIDField` from morango for syncable models. Descriptive migration names (no `_auto_`). All imports at file top — inline imports are only permitted to prevent circular imports.
 
 **Vue:** PascalCase filenames. Component `name` must match filename. Use `computed()` for derived values.
 
@@ -134,13 +133,13 @@ kolibri/
 ```bash
 pytest kolibri/path/to/test/                          # Python (directory)
 pytest kolibri/core/auth/test/ -k test_login          # Python (filter by name)
-pnpm run test-jest -- path/to/file.spec.js            # Frontend (single file)
-pnpm run test-jest -- --testPathPattern learn          # Frontend (filter by pattern)
+pnpm test-jest path/to/file.spec.js                # Frontend (single file)
+pnpm test-jest --testPathPattern learn              # Frontend (filter by pattern)
 pre-commit run --all-files                            # Lint (all files)
 pre-commit run --files path/to/File.vue               # Lint (specific file)
 ```
 
-Always use `pre-commit` as the single entry point for linting — do not invoke ESLint or other linters directly.
+Do NOT use `npx jest` or invoke Jest directly — always use `pnpm test-jest`. Always use `pre-commit` as the single entry point for linting — do not invoke ESLint or other linters directly.
 
 ## Docs Reference
 
