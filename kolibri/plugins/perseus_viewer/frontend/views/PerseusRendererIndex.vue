@@ -2,6 +2,7 @@
 
   <div
     v-if="itemId || itemData"
+    ref="perseusRoot"
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
     @keydown.enter.prevent="answerGiven"
@@ -63,9 +64,11 @@
   const translator = wrapPerseusMessages(perseusTranslator);
 
   const keypadStyle = StyleSheet.create({
+    // This style is passed to MobileKeypad but Aphrodite specificity
+    // means the internal fixed positioning wins. The actual override
+    // is done via CSS !important on .perseus-keypad-container below.
     keypadContainer: {
       zIndex: 20,
-      pointerEvents: 'none',
     },
   });
 
@@ -457,7 +460,7 @@
                 onDismiss: () => renderer && renderer.blur(),
                 onAnalyticsEvent: noOpAnalyticsEvent,
               }),
-              document.body,
+              this.$refs.perseusRoot,
             ),
         );
         const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
@@ -759,19 +762,10 @@
       padding: 16px;
     }
 
-    .problem-area {
-      padding: 0;
-    }
-
     /deep/ .perseus-renderer {
       padding: 0;
     }
   }
-
-  /* Perseus Hacks */
-
-  /* The rest in this <style> block are mostly styles that
-   help force Perseus exercises to render within the allotted space. */
 
   .framework-perseus {
     position: relative; /* Make it a positioning context */
@@ -782,21 +776,6 @@
     // Orderer widget wrapper. Stops it from going off screen right
     /deep/ .orderer {
       min-width: 0;
-    }
-
-    // Multiple choice table padding/margin fixes for clean appearance
-    /deep/ .widget-block > div {
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    /deep/ .perseus-widget-radio {
-      margin: 0 !important;
-    }
-
-    /deep/ .perseus-widget-radio-fieldset {
-      padding-right: 0 !important;
-      padding-left: 0 !important;
     }
   }
 
@@ -835,11 +814,6 @@
     padding: 16px;
   }
 
-  /deep/ .pure-g {
-    // Overrides Perseus smushing the letter spacing on mobile
-    letter-spacing: inherit;
-  }
-
 </style>
 
 
@@ -851,14 +825,17 @@
     height: 100%;
   }
 
+  // Override MobileKeypad's Aphrodite-injected position:fixed so the
+  // keypad overlays .perseus-root instead of the viewport.
+  // !important is required because Aphrodite injects its styles after ours.
   .perseus-keypad-container {
-    // Add a solid background so page content doesn't show through
-    background: #f7f8fa;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .perseus-keypad-container > div > div {
-    pointer-events: auto;
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 20;
+    background: transparent;
+    border-style: none !important;
   }
 
 </style>
