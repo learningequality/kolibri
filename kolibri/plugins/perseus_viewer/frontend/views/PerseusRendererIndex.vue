@@ -58,7 +58,7 @@
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
-  import { normalizeUserInput } from '../numeralNormalization';
+  import { normalizeUserInput, localizeKeypadDigits } from '../numeralNormalization';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
@@ -311,6 +311,9 @@
     },
     beforeDestroy() {
       this.$emit('stopTracking');
+      if (this._keypadDigitObserver) {
+        this._keypadDigitObserver.disconnect();
+      }
       this.clearItemRenderer();
       cleanUpPerseusFile(this.perseusFileUrl);
     },
@@ -455,6 +458,15 @@
                   const domNode = el.getDOMNode();
                   if (domNode) {
                     domNode.classList.add('perseus-keypad-container');
+                    // Localize digit buttons for non-Western numeral systems.
+                    // Clean up any previous observer before creating a new one.
+                    if (this._keypadDigitObserver) {
+                      this._keypadDigitObserver.disconnect();
+                    }
+                    this._keypadDigitObserver = localizeKeypadDigits(
+                      domNode,
+                      this.lang && this.lang.id,
+                    );
                   }
                   setKeypadElement(el);
                 },

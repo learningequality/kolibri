@@ -63,4 +63,116 @@ function deepMapStrings(input, fn) {
   return input;
 }
 
-export { normalizeNumerals, normalizeUserInput, nonWesternDigitRegex };
+/**
+ * Recursively normalize all string values in a user input object.
+ * Handles the nested structures returned by getUserInput(), e.g.:
+ *   { "numeric-input 1": { currentValue: "٤٢" } }
+ *   { "expression 1": "٢x+٣" }
+ *   { "radio 1": { selectedChoiceIds: ["radio-choice-1"] } }
+ *
+ * Non-string values (numbers, booleans, arrays of non-strings) pass through
+ * unchanged. Choice IDs like "radio-choice-1" contain only ASCII so they
+ * are unaffected by normalization.
+ */
+function normalizeUserInput(input) {
+  return deepMapStrings(input, normalizeNumerals);
+}
+
+// Cache for getLocalizedDigits — keyed by locale string.
+const _digitCache = {};
+
+/**
+ * Get the localized digits 0-9 for a locale using Intl.NumberFormat.
+ * Returns null if the locale uses Western Arabic numerals (no localization needed).
+ * Otherwise returns an array of 10 strings: [localizedZero, ..., localizedNine].
+ * Results are cached per locale.
+ */
+function getLocalizedDigits(locale) {
+  if (!locale) {
+    return null;
+  }
+  if (locale in _digitCache) {
+    return _digitCache[locale];
+  }
+  try {
+    const formatter = new Intl.NumberFormat(locale, { useGrouping: false });
+    const digits = [];
+    for (let i = 0; i < 10; i++) {
+      digits.push(formatter.format(i));
+    }
+    // If all digits are the same as ASCII, no localization is needed
+    const result = digits.every((d, i) => d === String(i)) ? null : digits;
+    _digitCache[locale] = result;
+    return result;
+  } catch (e) {
+    _digitCache[locale] = null;
+    return null;
+  }
+}
+
+/**
+ * Localize the on-screen keypad's digit buttons for a given locale.
+ *
+ * The MobileKeypad renders digits as SVG paths (for pixel-perfect rendering).
+ * This function replaces the SVG with a styled text span showing the localized
+ * digit, while preserving the button's aria-label for accessibility.
+ *
+ * @param {Element} keypadContainer - The keypad's root DOM element
+ * @param {string} locale - The content locale (e.g., 'ar', 'hi', 'bn')
+ * @returns {MutationObserver|null} An observer watching for re-renders, or null
+ *   if no localization was needed. Call .disconnect() on cleanup.
+ */
+function localizeKeypadDigits(keypadContainer, locale) {
+  const digits = getLocalizedDigits(locale);
+  if (!digits) {
+    return null;
+  }
+
+  function applyLocalization() {
+    for (let i = 0; i < 10; i++) {
+      const btn = keypadContainer.querySelector(`button[aria-label="${i}"]`);
+      if (!btn) {
+        continue;
+      }
+      // Skip if we've already localized this button
+      if (btn.dataset.localizedDigit === digits[i]) {
+        continue;
+      }
+      const svg = btn.querySelector('svg');
+      if (!svg) {
+        continue;
+      }
+      // Hide the SVG and insert a text span in its place
+      svg.style.display = 'none';
+      // Remove any previously inserted span (in case of re-localization)
+      const existing = btn.querySelector('.localized-digit');
+      if (existing) {
+        existing.textContent = digits[i];
+      } else {
+        const span = document.createElement('span');
+        span.className = 'localized-digit';
+        span.textContent = digits[i];
+        span.style.cssText =
+          'font-size: 22px; font-weight: 700; color: #21242C; ' +
+          'display: flex; align-items: center; justify-content: center; ' +
+          'width: 40px; height: 40px;';
+        svg.parentNode.insertBefore(span, svg);
+      }
+      btn.dataset.localizedDigit = digits[i];
+    }
+  }
+
+  applyLocalization();
+
+  // Watch for React re-renders that might reset our DOM changes
+  const observer = new MutationObserver(applyLocalization);
+  observer.observe(keypadContainer, { childList: true, subtree: true });
+  return observer;
+}
+
+export {
+  normalizeNumerals,
+  normalizeUserInput,
+  getLocalizedDigits,
+  localizeKeypadDigits,
+};

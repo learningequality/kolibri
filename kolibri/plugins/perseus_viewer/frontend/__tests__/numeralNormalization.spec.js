@@ -1,7 +1,8 @@
 import {
   normalizeNumerals,
   normalizeUserInput,
-  nonWesternDigitRegex,
+  getLocalizedDigits,
+  localizeKeypadDigits,
 } from '../numeralNormalization';
 
 describe('normalizeNumerals', () => {
@@ -145,5 +146,82 @@ describe('normalizeNumerals selectivity', () => {
 
   it('does not modify letters', () => {
     expect(normalizeNumerals('abc')).toBe('abc');
+  });
+});
+
+describe('getLocalizedDigits', () => {
+  it('returns null for English locale', () => {
+    expect(getLocalizedDigits('en')).toBeNull();
+  });
+
+  it('returns null for null/undefined locale', () => {
+    expect(getLocalizedDigits(null)).toBeNull();
+    expect(getLocalizedDigits(undefined)).toBeNull();
+  });
+
+  it('returns localized digits for Arabic locale', () => {
+    const digits = getLocalizedDigits('ar-EG');
+    // ar-EG uses Eastern Arabic numerals
+    if (digits) {
+      expect(digits).toHaveLength(10);
+      expect(digits[0]).toBe('٠');
+      expect(digits[1]).toBe('١');
+      expect(digits[9]).toBe('٩');
+    }
+  });
+
+  it('returns null for locales using Western digits', () => {
+    // French, German, Spanish all use Western Arabic digits
+    expect(getLocalizedDigits('fr')).toBeNull();
+    expect(getLocalizedDigits('de')).toBeNull();
+    expect(getLocalizedDigits('es')).toBeNull();
+  });
+});
+
+describe('localizeKeypadDigits', () => {
+  function createMockKeypad() {
+    const container = document.createElement('div');
+    for (let i = 0; i < 10; i++) {
+      const btn = document.createElement('button');
+      btn.setAttribute('aria-label', String(i));
+      const outerDiv = document.createElement('div');
+      const innerDiv = document.createElement('div');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.innerHTML = '<path d="M10 10"/>';
+      innerDiv.appendChild(svg);
+      outerDiv.appendChild(innerDiv);
+      btn.appendChild(outerDiv);
+      container.appendChild(btn);
+    }
+    return container;
+  }
+
+  it('returns null for English locale (no localization needed)', () => {
+    const container = createMockKeypad();
+    const observer = localizeKeypadDigits(container, 'en');
+    expect(observer).toBeNull();
+  });
+
+  it('replaces SVGs with localized digit text for Arabic locale', () => {
+    const container = createMockKeypad();
+    const observer = localizeKeypadDigits(container, 'ar-EG');
+    if (observer) {
+      // Check that digit buttons were localized
+      const btn1 = container.querySelector('[aria-label="1"]');
+      const span = btn1.querySelector('.localized-digit');
+      expect(span).not.toBeNull();
+      expect(span).toHaveTextContent('١');
+
+      // SVG should be hidden
+      const svg = btn1.querySelector('svg');
+      expect(svg).toHaveStyle({ display: 'none' });
+
+      observer.disconnect();
+    }
+  });
+
+  it('returns null for null locale', () => {
+    const container = createMockKeypad();
+    expect(localizeKeypadDigits(container, null)).toBeNull();
   });
 });
