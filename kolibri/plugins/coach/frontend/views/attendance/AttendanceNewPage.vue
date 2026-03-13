@@ -165,6 +165,7 @@
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { localeCompare } from 'kolibri/utils/i18n';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
+  import { now } from 'kolibri/utils/serverClock';
   import store from 'kolibri/store';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import CoreTable from 'kolibri/components/CoreTable';
@@ -212,7 +213,7 @@
       } = attendanceStrings;
 
       // Capture timestamp once on component creation
-      const sessionStartDatetime = new Date();
+      const sessionStartDatetime = now();
       const { date: formattedDate, time: formattedTime } =
         formatAttendanceDateTime(sessionStartDatetime);
 

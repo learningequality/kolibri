@@ -2,13 +2,13 @@ import { render, screen } from '@testing-library/vue';
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import store from 'kolibri/store';
-// eslint-disable-next-line import-x/named
+// eslint-disable-next-line import/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import makeStore from '../../../__tests__/utils/makeStore';
 import classSummaryModule from '../../../modules/classSummary';
-// eslint-disable-next-line import-x/named
+// eslint-disable-next-line import/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
-// eslint-disable-next-line import-x/named
+// eslint-disable-next-line import/named
 import AttendanceNewPage from '../AttendanceNewPage.vue';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
