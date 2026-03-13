@@ -298,6 +298,9 @@
     },
     beforeDestroy() {
       this.$emit('stopTracking');
+      if (this._overflowResizeHandler) {
+        window.removeEventListener('resize', this._overflowResizeHandler);
+      }
       this.clearItemRenderer();
       cleanUpPerseusFile(this.perseusFileUrl);
     },
@@ -325,8 +328,10 @@
         kaLocale: 'en',
         // For some reason this is defined here as well as in the apiOptions
         isMobile: this.isMobile,
-        // We already preprocess all URLs
-        // we may need to enhance this if we find one of the uses of it is breaking.
+        // Identity function: we already preprocess all content URLs ourselves.
+        // Despite generateUrl being added in v70, staticUrl is still read from
+        // dependencies in v75 by the Protractor and Grapher widgets (for their
+        // own bundled assets), so it must stay defined or those widgets throw.
         staticUrl: url => url,
         // Pass our logging object to capture Log messages from Perseus
         Log: logging,
@@ -342,9 +347,6 @@
         }
         this.$emit('startTracking');
       });
-    },
-    mounted() {
-      this.$emit('mounted');
     },
     methods: {
       validateItemData(obj) {
@@ -805,7 +807,12 @@
     flex: 1;
     flex-direction: column;
     padding: 24px;
-    overflow: auto; /* Allow scrolling if needed */
+    // Default for the exercise (Learn) layout, which bounds our height above a
+    // fixed mastery bar: we scroll the content here so that bar and the header
+    // stay put. In the quiz layout an outer column already scrolls, so this
+    // would add a redundant nested scrollbar — setOverflowForScrollContext()
+    // switches it to `visible` there. Keep this default in sync with that JS.
+    overflow: auto;
     background: white;
   }
 
