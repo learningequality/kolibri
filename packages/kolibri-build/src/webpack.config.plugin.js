@@ -124,8 +124,6 @@ module.exports = (
       publicPath: 'auto',
     },
     resolve: {
-      // Add the plugin's node_modules first so pnpm can resolve plugin-specific dependencies
-      modules: [path.join(data.plugin_path, 'node_modules')],
       alias,
     },
     resolveLoader: {
