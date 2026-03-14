@@ -331,7 +331,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         session.save()
 
         self._login(self.admin)
-        yesterday = (now() - timedelta(days=1)).date().isoformat()
+        yesterday = (now() - timedelta(days=1)).isoformat()
         response = self.client.get(ATTENDANCE_SESSION_URL, {"start_date": yesterday})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
@@ -342,7 +342,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         session.save()
 
         self._login(self.admin)
-        yesterday = (now() - timedelta(days=1)).date().isoformat()
+        yesterday = (now() - timedelta(days=1)).isoformat()
         response = self.client.get(ATTENDANCE_SESSION_URL, {"end_date": yesterday})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
@@ -395,6 +395,28 @@ class AttendanceSessionAPITestCase(APITestCase):
         self.assertEqual(len(response.data), 2)
 
     # ---- PAGINATION ----
+
+    def test_list_includes_present_and_total_counts(self):
+        """List endpoint should include present_count and total_count annotations."""
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner, present=True
+        )
+        learner2 = FacilityUser.objects.create(
+            username="learner_count", facility=self.facility
+        )
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=learner2, present=False
+        )
+        self._login(self.coach)
+        response = self.client.get(
+            ATTENDANCE_SESSION_URL, {"collection": self.classroom.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        results = response.data
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["present_count"], 1)
+        self.assertEqual(results[0]["total_count"], 2)
 
     def test_pagination_with_page_size(self):
         for _ in range(3):

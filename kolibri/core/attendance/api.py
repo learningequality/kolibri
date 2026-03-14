@@ -1,11 +1,8 @@
-import datetime
-
 from django.db.models import Count
 from django.db.models import Q
-from django.utils import timezone
-from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import IsoDateTimeFilter
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -19,28 +16,10 @@ from kolibri.core.auth.api import OptionalPageNumberPagination
 
 
 class AttendanceSessionFilter(FilterSet):
-    start_date = CharFilter(method="filter_start_date")
-    end_date = CharFilter(method="filter_end_date")
-
-    def _parse_date(self, value):
-        try:
-            date = datetime.datetime.strptime(value, "%Y-%m-%d").date()
-        except (ValueError, TypeError):
-            return None
-        return timezone.make_aware(datetime.datetime.combine(date, datetime.time.min))
-
-    def filter_start_date(self, queryset, name, value):
-        date = self._parse_date(value)
-        if date is None:
-            return queryset
-        return queryset.filter(session_start_datetime__gte=date)
-
-    def filter_end_date(self, queryset, name, value):
-        date = self._parse_date(value)
-        if date is None:
-            return queryset
-        end_date = date + datetime.timedelta(days=1)
-        return queryset.filter(session_start_datetime__lt=end_date)
+    start_date = IsoDateTimeFilter(
+        field_name="session_start_datetime", lookup_expr="gte"
+    )
+    end_date = IsoDateTimeFilter(field_name="session_start_datetime", lookup_expr="lt")
 
     class Meta:
         model = AttendanceSession
@@ -73,7 +52,17 @@ class AttendanceSessionViewSet(ValuesViewset):
         "session_start_datetime",
         "date_created",
         "date_modified",
+        "present_count",
+        "total_count",
     )
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            present_count=Count(
+                "attendance_records", filter=Q(attendance_records__present=True)
+            ),
+            total_count=Count("attendance_records"),
+        )
 
     def get_queryset(self):
         return AttendanceSession.objects.order_by("-session_start_datetime")
@@ -85,18 +74,6 @@ class AttendanceSessionViewSet(ValuesViewset):
         except (ValueError, TypeError):
             limit = 5
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.annotate(
-            present_count=Count(
-                "attendance_records", filter=Q(attendance_records__present=True)
-            ),
-            total_count=Count("attendance_records"),
-        )[:limit]
-        data = queryset.values(
-            "id",
-            "collection",
-            "created_by",
-            "session_start_datetime",
-            "present_count",
-            "total_count",
-        )
+        queryset = self.annotate_queryset(queryset)[:limit]
+        data = queryset.values(*self.values)
         return Response(list(data))
