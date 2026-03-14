@@ -32,6 +32,8 @@ function createDefaults() {
     sessions: ref([]),
     currentSession: ref(null),
     recentSessions: ref([]),
+    totalPages: ref(1),
+    sessionCount: ref(0),
     fetchRecentSessions: jest.fn(() => Promise.resolve([])),
     fetchSessions: jest.fn(() => Promise.resolve([])),
     fetchSession: jest.fn(() => Promise.resolve(null)),

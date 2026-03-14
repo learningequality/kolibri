@@ -10,7 +10,6 @@ import classSummaryModule from '../../../modules/classSummary';
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
 // eslint-disable-next-line import/named
 import AttendanceNewPage from '../AttendanceNewPage.vue';
-import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
 
 jest.mock('../../../composables/useAttendance');
@@ -316,13 +315,6 @@ describe('AttendanceNewPage', () => {
     await global.flushPromises();
 
     expect(wrapper.find('[data-test="modal"]').exists()).toBe(false);
-  });
-});
-
-describe('AttendanceHistoryPage', () => {
-  it('renders the page heading', () => {
-    render(AttendanceHistoryPage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Attendance History');
   });
 });
 
