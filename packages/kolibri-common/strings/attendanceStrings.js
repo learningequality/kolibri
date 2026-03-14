@@ -92,4 +92,73 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Learners:',
     context: 'Label preceding the present/absent counts in the bottom bar of the attendance form',
   },
+  noSessionsFoundMessage: {
+    message: 'No attendance sessions found',
+    context: 'Empty state message when no attendance sessions match the current filter',
+  },
+  dateLabel: {
+    message: 'Date',
+    context: 'Column header for the date of an attendance session',
+  },
+  attendanceHistoryTitle: {
+    message: 'Attendance History',
+    context: 'Page heading for viewing attendance history',
+  },
+  backToClassLabel: {
+    message: 'Back to class',
+    context: 'Link text to navigate back to the class home page',
+  },
+  dateRangeLabel: {
+    message: 'Date range',
+    context: 'Label for the date range filter dropdown',
+  },
+  pastDays: {
+    message: 'Past {count, number} days',
+    context:
+      'Date range filter option for sessions in the past N days, e.g. "Past 7 days", "Past 30 days"',
+  },
+  allTime: {
+    message: 'All time',
+    context: 'Date range filter option to show all attendance sessions',
+  },
+  customLabel: {
+    message: 'Custom',
+    context: 'Date range filter option to select a custom date range',
+  },
+  customDateRangeTitle: {
+    message: 'Select date range',
+    context: 'Title for the custom date range picker dialog',
+  },
+  customDateRangeDescription: {
+    message: 'Choose start and end dates for filtering attendance sessions',
+    context: 'Description for the custom date range picker dialog',
+  },
+  startDateLabel: {
+    message: 'Start date',
+    context: 'Label for the start date field in the date range picker',
+  },
+  endDateLabel: {
+    message: 'End date',
+    context: 'Label for the end date field in the date range picker',
+  },
+  previousMonthLabel: {
+    message: 'Previous month',
+    context: 'Accessible label for the previous month navigation button in date picker',
+  },
+  nextMonthLabel: {
+    message: 'Next month',
+    context: 'Accessible label for the next month navigation button in date picker',
+  },
+  applyLabel: {
+    message: 'Apply',
+    context: 'Button label to apply the selected custom date range',
+  },
+  presentColumnHeader: {
+    message: 'Present',
+    context: 'Column header for the count of learners present',
+  },
+  absentColumnHeader: {
+    message: 'Absent',
+    context: 'Column header for the count of learners absent',
+  },
 });
