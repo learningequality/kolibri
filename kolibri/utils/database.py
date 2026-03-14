@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sqlite3
+from contextlib import closing
 from datetime import datetime
 
 
@@ -83,8 +84,7 @@ def sqlite_check_foreign_keys(database_paths):
         if not os.path.exists(name):
             continue
 
-        db_connection = sqlite3.connect(name)
-        with sqlite3.connect(name) as db_connection:
+        with closing(sqlite3.connect(name)) as db_connection:
             cursor = db_connection.cursor()
 
             violations_by_table = _collect_violations_by_table(cursor)
