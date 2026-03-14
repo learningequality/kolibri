@@ -1,4 +1,5 @@
 <template>
+
   <CoachAppBarPage>
     <KPageContainer>
       <BackLink
@@ -77,9 +78,12 @@
       />
     </KPageContainer>
   </CoachAppBarPage>
+
 </template>
 
+
 <script>
+
   import { ref, computed, watch } from 'vue';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
@@ -332,4 +336,5 @@
       };
     },
   };
+
 </script>
