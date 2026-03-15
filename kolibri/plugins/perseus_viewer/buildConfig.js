@@ -98,6 +98,15 @@ module.exports = {
         /react\/jsx-runtime/,
         require.resolve('react/jsx-runtime'),
       ),
+      // Wonder Blocks components import from react-router-dom-v5-compat,
+      // which re-exports from react-router@6. The Perseus plugin only has
+      // react-router@5, so the v6 APIs (useInRouterContext, useNavigate)
+      // are undefined. Replace with a shim that returns "no router" so
+      // Wonder Blocks falls back to plain <a> tags.
+      new webpack.NormalModuleReplacementPlugin(
+        /react-router-dom-v5-compat/,
+        path.resolve(__dirname, 'frontend', 'reactRouterShim.js'),
+      ),
     ],
   },
 };
