@@ -22,6 +22,7 @@
         </div>
       </div>
     </div>
+    <NumericKeypad :lang="lang" />
   </div>
 
 </template>
@@ -37,7 +38,6 @@
   import '@khanacademy/perseus/styles.css';
   import '@khanacademy/math-input/styles.css';
 
-  import { StyleSheet } from 'aphrodite';
   import invert from 'lodash/invert';
   import get from 'lodash/get';
   import ZipFile from 'kolibri-zip';
@@ -47,29 +47,23 @@
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
   import { createElement as e } from 'react';
-  import { createPortal } from 'react-dom';
   import { createRoot } from 'react-dom/client';
   import * as perseus from '@khanacademy/perseus';
   import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
   import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
-  import { MathInputI18nContextProvider, MobileKeypad } from '@khanacademy/math-input';
-  import { StatefulKeypadContextProvider, KeypadContext } from '@khanacademy/keypad-context';
+  import { MathInputI18nContextProvider } from '@khanacademy/math-input';
+  import { KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
   import { normalizeUserInput } from '../numeralNormalization';
+  import useKeypad from '../composables/useKeypad';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
+  import NumericKeypad from './NumericKeypad';
 
   const translator = wrapPerseusMessages(perseusTranslator);
-
-  const keypadStyle = StyleSheet.create({
-    keypadContainer: {
-      zIndex: 20,
-      pointerEvents: 'none',
-    },
-  });
 
   const logging = logger.getLogger(__filename);
 
@@ -279,13 +273,20 @@
 
   export default {
     name: 'PerseusRendererIndex',
+    components: {
+      NumericKeypad,
+    },
     setup(props, context) {
       const { windowBreakpoint } = useKResponsiveWindow();
       const { defaultFile, contentDirection } = useContentViewer(props, context);
+      const { keypadAPI, keypadContextValue } = useKeypad();
+
       return {
         windowBreakpoint,
         defaultFile,
         contentDirection,
+        keypadAPI,
+        keypadContextValue,
       };
     },
     props: contentViewerProps,
@@ -333,12 +334,14 @@
       if (this._overflowResizeHandler) {
         window.removeEventListener('resize', this._overflowResizeHandler);
       }
+      if (this.$refs.perseus) {
+        this.$refs.perseus.removeEventListener('pointerdown', this.reshowKeypadOnInput);
+      }
       this.clearItemRenderer();
       cleanUpPerseusFile(this.perseusFileUrl);
     },
     created() {
       this.itemRenderer = null;
-      this.keypadElement = null;
       this.root = null;
       // React key for the current item; set per new item in renderNewItem.
       this.itemRenderKey = null;
@@ -453,47 +456,19 @@
         };
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
-        const keypadContextConsumerElement = e(
-          KeypadContext.Consumer,
-          { key: 'keypadContextConsumer' },
-          ({ keypadElement }) => {
-            this.keypadElement = keypadElement;
-            return e(perseus.ServerItemRenderer, {
-              ...itemRenderData,
-              keypadElement: this.interactive ? keypadElement : null,
-            });
-          },
-        );
-        const keypadWithContextElement = e(
-          KeypadContext.Consumer,
-          { key: 'keypadWithContext ' },
-          ({ setKeypadElement, renderer }) =>
-            createPortal(
-              e(MobileKeypad, {
-                style: keypadStyle.keypadContainer,
-                onElementMounted: el => {
-                  // We need to add the class to the container element
-                  // but the MobileKeypad component does not pass through
-                  // React's className prop to the root element.
-                  const domNode = el.getDOMNode();
-                  if (domNode) {
-                    domNode.classList.add('perseus-keypad-container');
-                  }
-                  setKeypadElement(el);
-                },
-                onDismiss: () => renderer && renderer.blur(),
-                onAnalyticsEvent: noOpAnalyticsEvent,
-              }),
-              document.body,
-            ),
-        );
-        const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
-          children: [keypadContextConsumerElement, keypadWithContextElement],
+        const itemRendererElement = e(perseus.ServerItemRenderer, {
+          // Keyed per loaded item so React remounts the item subtree (running
+          // graphie cleanup) on item switch instead of reconciling imperative
+          // graphie widget state in place, which crashes mid-swap. Stable
+          // across hint re-renders (same key) so those still update in place.
+          key: this.itemRenderKey,
+          ...itemRenderData,
+          keypadElement: this.interactive ? this.keypadAPI : null,
         });
         const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
           locale: this.lang,
           strings: translator,
-          children: statefulKeypadContextProviderElement,
+          children: itemRendererElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
           locale: this.lang,
@@ -504,9 +479,14 @@
           value: perseusNoOpDependencies,
           children: mathInputStringsElement,
         });
-        const renderStateRootElement = e(RenderStateRoot, { children: dependencyContextElement });
+        const keypadContextElement = e(KeypadContext.Provider, {
+          value: this.keypadContextValue,
+          children: dependencyContextElement,
+        });
+        const renderStateRootElement = e(RenderStateRoot, { children: keypadContextElement });
         if (!this.root) {
           this.root = createRoot(this.$refs.perseus);
+          this.$refs.perseus.addEventListener('pointerdown', this.reshowKeypadOnInput);
         }
         this.root.render(renderStateRootElement);
       },
@@ -514,8 +494,8 @@
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
         // Dismiss the keypad
-        if (this.keypadElement) {
-          this.keypadElement.dismiss();
+        if (this.keypadAPI) {
+          this.keypadAPI.dismiss();
         }
         this.$once('itemRendererUpdated', () => {
           // Blur any previously focused element once we have rendered a new item
@@ -527,6 +507,10 @@
           // so we need to ensure that the itemRenderer is available and up to date first.
           this.setAnswer();
         });
+        // Derive a fresh key for this item so the item subtree remounts cleanly
+        // rather than reconciling the previous item's graphie state. Prefer the
+        // itemId; fall back to a hash of the item when driven by the itemData prop.
+        this.itemRenderKey = this.itemId || quickHash(JSON.stringify(this.item));
         this.renderItem();
       },
       _resetState(val) {
@@ -688,6 +672,12 @@
         // dismiss the error message when user click anywhere inside the perseus element.
         this.message = null;
       },
+      reshowKeypadOnInput(event) {
+        // MathInput's own click-to-reshow lags a render on mouse; do it on pointerdown.
+        if (this.interactive && event.target.closest('.keypad-input')) {
+          this.keypadAPI.activate();
+        }
+      },
       loadItemData() {
         // Only try to do this if itemId is defined.
         if (this.itemId && this.defaultFile && this.defaultFile.storage_url) {
@@ -789,11 +779,6 @@
     }
   }
 
-  /* Perseus Hacks */
-
-  /* The rest in this <style> block are mostly styles that
-   help force Perseus exercises to render within the allotted space. */
-
   .framework-perseus {
     position: relative; /* Make it a positioning context */
     display: flex;
@@ -804,26 +789,6 @@
     /deep/ .orderer {
       min-width: 0;
     }
-
-    // Multiple choice table padding/margin fixes for clean appearance
-    /deep/ .widget-block > div {
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    /deep/ .perseus-widget-radio {
-      margin: 0 !important;
-    }
-
-    /deep/ .perseus-widget-radio-fieldset {
-      padding-right: 0 !important;
-      padding-left: 0 !important;
-    }
-  }
-
-  // try to prevent nested scroll bars
-  .perseus-widget-container > div {
-    overflow: visible !important;
   }
 
   .perseus {
@@ -831,12 +796,7 @@
     flex: 1;
     flex-direction: column;
     padding: 24px;
-    // Default for the exercise (Learn) layout, which bounds our height above a
-    // fixed mastery bar: we scroll the content here so that bar and the header
-    // stay put. In the quiz layout an outer column already scrolls, so this
-    // would add a redundant nested scrollbar — setOverflowForScrollContext()
-    // switches it to `visible` there. Keep this default in sync with that JS.
-    overflow: auto;
+    overflow: visible;
     background: white;
   }
 
@@ -864,7 +824,6 @@
 
   .perseus-root {
     position: relative;
-    z-index: 0;
     height: 100%;
 
     // Perseus v75 uses Aphrodite (CSS-in-JS) for its own styling, but
@@ -903,34 +862,25 @@
         align-items: center;
       }
 
-      // Perseus offsets the content with margin-inline-start to clear its
-      // position:fixed indicator. With the indicator back in flow (flex) that
-      // margin pushes the content too far and overlaps the next choice's
-      // indicator, so we drop it and rely on column-gap above instead.
+      // Perseus wraps the choices in a div with an inline overflow-x: auto.
+      // Because one axis is non-visible, the browser forces overflow-y to auto
+      // as well, producing a nested vertical scrollbar around the choices. Let
+      // them flow into the surrounding scroll context instead. (!important is
+      // required to beat Perseus' inline overflow-x.)
       > div {
         overflow: visible !important;
       }
     }
 
-    // MathJax CHTML draws each glyph ~0.5em left of its layout cursor
-    // (the MJXZERO/MJXTEX font pair uses negative-offset glyphs, and the
-    // 0.5em padding-right on each mjx-c::before compensates for the NEXT
-    // char). The first glyph has nothing before it, so without a matching
-    // offset on the container it overflows left into whatever precedes —
-    // most visibly, the multiple-choice indicator button.
-    mjx-container.MathJax {
-      padding-inline-start: 0.5em;
+    // Disable Perseus' click-to-zoom on images (added in v72.2.0). It overlays
+    // a full-size "Zoom image" button on every non-decorative image, including
+    // tiny ones where zooming is unhelpful, and adds unwanted whitespace around
+    // some formulas. There is no apiOption to opt out, so we hide the overlay
+    // button (always a direct child of .svg-image) — the image still renders,
+    // it just isn't clickable to zoom.
+    .svg-image > button {
+      display: none;
     }
-  }
-
-  .perseus-keypad-container {
-    // Add a solid background so page content doesn't show through
-    background: #f7f8fa;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .perseus-keypad-container > div > div {
-    pointer-events: auto;
   }
 
 </style>

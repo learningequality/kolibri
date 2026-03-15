@@ -559,6 +559,7 @@
 
   .content-wrapper {
     height: 100%;
+    overflow: auto;
   }
 
   .bottom-bar {

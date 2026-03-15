@@ -78,4 +78,37 @@ function normalizeUserInput(input) {
   return deepMapStrings(input, normalizeNumerals);
 }
 
-export { normalizeNumerals, normalizeUserInput, nonWesternDigitRegex };
+// Cache for getLocalizedDigits — keyed by locale string.
+const _digitCache = {};
+
+/**
+ * Get the localized digits 0-9 for a locale using Intl.NumberFormat.
+ * Returns null if the locale's digits are identical to ASCII 0-9
+ * (meaning no character remapping is needed for display or input).
+ * Otherwise returns an array of 10 strings representing digits 0-9.
+ * Results are cached per locale.
+ */
+function getLocalizedDigits(locale) {
+  if (!locale) {
+    return null;
+  }
+  if (locale in _digitCache) {
+    return _digitCache[locale];
+  }
+  try {
+    const formatter = new Intl.NumberFormat(locale, { useGrouping: false });
+    const digits = [];
+    for (let i = 0; i < 10; i++) {
+      digits.push(formatter.format(i));
+    }
+    // If all digits match ASCII, no remapping is needed
+    const result = digits.every((d, i) => d === String(i)) ? null : digits;
+    _digitCache[locale] = result;
+    return result;
+  } catch (e) {
+    _digitCache[locale] = null;
+    return null;
+  }
+}
+
+export { normalizeNumerals, normalizeUserInput, getLocalizedDigits, nonWesternDigitRegex };
