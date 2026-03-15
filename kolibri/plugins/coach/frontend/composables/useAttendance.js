@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import AttendanceRecordResource from 'kolibri-common/apiResources/AttendanceRecordResource';
 import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 
@@ -60,6 +61,20 @@ export function useAttendance() {
     });
   }
 
+  function fetchRecords(sessionId) {
+    return AttendanceRecordResource.fetchCollection({
+      getParams: { attendance_session: sessionId },
+      force: true,
+    });
+  }
+
+  function bulkUpdateRecords(sessionId, records) {
+    return AttendanceRecordResource.bulkUpdate({
+      attendance_session: sessionId,
+      records,
+    });
+  }
+
   function formatAttendanceDateTime(date) {
     const dateObj = date instanceof Date ? date : new Date(date);
     return {
@@ -87,6 +102,8 @@ export function useAttendance() {
     fetchRecentSessions,
     createSession,
     updateSession,
+    fetchRecords,
+    bulkUpdateRecords,
     formatAttendanceDateTime,
   };
 }

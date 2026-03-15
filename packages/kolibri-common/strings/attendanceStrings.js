@@ -84,6 +84,19 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Submit attendance',
     context: 'Button text to submit the attendance session',
   },
+  editPageHeading: {
+    message: 'Edit attendance: {date} ({time})',
+    context: 'Page heading and app bar title when editing an existing attendance session',
+  },
+  saveConfirmationTitle: {
+    message: 'Save {count, number} {count, plural, one {change} other {changes}}?',
+    context:
+      'Title of the confirmation modal when saving edited attendance, showing the number of changes made',
+  },
+  updateSuccessMessage: {
+    message: 'Attendance updated',
+    context: 'Snackbar message shown after successfully updating an existing attendance session',
+  },
   markAllPresentAction: {
     message: 'Mark all present',
     context: 'Button text to confirm marking all learners as present',

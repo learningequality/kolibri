@@ -39,6 +39,8 @@ function createDefaults() {
     fetchSession: jest.fn(() => Promise.resolve(null)),
     createSession: jest.fn(() => Promise.resolve({})),
     updateSession: jest.fn(() => Promise.resolve({})),
+    fetchRecords: jest.fn(() => Promise.resolve([])),
+    bulkUpdateRecords: jest.fn(() => Promise.resolve({})),
     formatAttendanceDateTime: jest.fn(() => ({
       date: '2026-03-09',
       time: '10:00 AM',
