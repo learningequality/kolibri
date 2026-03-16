@@ -2,10 +2,17 @@ import logging
 
 from django.utils import timezone
 from jnius import autoclass
+from kolibri.core.device.hooks import CheckIsMeteredHook
+from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.hooks import ShareFileHook
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+
+from android_utils import is_active_network_metered
+from android_utils import os_user
+from android_utils import share_by_intent
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
@@ -18,6 +25,27 @@ logger = logging.getLogger(__name__)
 
 class AndroidApp(KolibriPluginBase):
     pass
+
+
+@register_hook
+class AndroidGetOSUserHook(GetOSUserHook):
+    def get_os_user(self, auth_token=None):
+        return os_user(auth_token)
+
+
+@register_hook
+class AndroidCheckIsMeteredHook(CheckIsMeteredHook):
+    def check_is_metered(self):
+        try:
+            return bool(is_active_network_metered())
+        except Exception:
+            return False
+
+
+@register_hook
+class AndroidShareFileHook(ShareFileHook):
+    def share_file(self, *args, **kwargs):
+        return share_by_intent(*args, **kwargs)
 
 
 @register_hook
