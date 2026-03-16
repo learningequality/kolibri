@@ -1,5 +1,8 @@
 import logging
 
+from android_utils import is_active_network_metered
+from android_utils import os_user
+from android_utils import share_by_intent
 from django.utils import timezone
 from jnius import autoclass
 from kolibri.core.device.hooks import CheckIsMeteredHook
@@ -9,10 +12,6 @@ from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
-
-from android_utils import is_active_network_metered
-from android_utils import os_user
-from android_utils import share_by_intent
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")

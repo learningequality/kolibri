@@ -31,9 +31,9 @@ class AppPlugin(SimplePlugin):
         self.bus.subscribe("SERVING", self.SERVING)
 
     def SERVING(self, port):
-        start_url = "http://127.0.0.1:{port}".format(
-            port=port
-        ) + app_initialize_url(auth_token=auth_token_value)
+        start_url = "http://127.0.0.1:{port}".format(port=port) + app_initialize_url(
+            auth_token=auth_token_value
+        )
         loadUrl(start_url)
 
 
