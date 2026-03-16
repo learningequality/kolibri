@@ -2,8 +2,8 @@ from datetime import datetime
 from datetime import timedelta
 
 import pytz
+from django.urls import reverse
 from django.utils.timezone import now
-from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from kolibri.core.attendance.models import AttendanceRecord
@@ -15,7 +15,25 @@ from kolibri.core.auth.models import Membership
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 
-ATTENDANCE_SESSION_URL = "/api/attendance/attendancesession/"
+
+def _session_list_url():
+    return reverse("kolibri:core:attendancesession-list")
+
+
+def _session_detail_url(pk):
+    return reverse("kolibri:core:attendancesession-detail", kwargs={"pk": pk})
+
+
+def _session_recent_url():
+    return reverse("kolibri:core:attendancesession-recent")
+
+
+def _record_list_url():
+    return reverse("kolibri:core:attendancerecord-list")
+
+
+def _record_bulk_update_url():
+    return reverse("kolibri:core:attendancerecord-bulk-update")
 
 
 class AttendanceSessionAPITestCase(APITestCase):
@@ -45,9 +63,6 @@ class AttendanceSessionAPITestCase(APITestCase):
         cls.learner.save()
         Membership.objects.create(user=cls.learner, collection=cls.classroom)
 
-    def setUp(self):
-        self.client = APIClient()
-
     def _login(self, user):
         self.client.login(
             username=user.username,
@@ -73,7 +88,7 @@ class AttendanceSessionAPITestCase(APITestCase):
                 {"user": self.learner.id, "present": True},
             ],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertTrue(
             AttendanceSession.objects.filter(created_by=self.coach).exists()
@@ -94,7 +109,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "session_start_datetime": "2026-03-12T22:07:09.048Z",
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         session = AttendanceSession.objects.get(id=response.data["id"])
         expected = datetime(2026, 3, 12, 22, 7, 9, tzinfo=pytz.utc)
@@ -112,7 +127,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "session_start_datetime": "2026-03-12T17:07:09.048-05:00",
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         session = AttendanceSession.objects.get(id=response.data["id"])
         expected = datetime(2026, 3, 12, 22, 7, 9, tzinfo=pytz.utc)
@@ -132,7 +147,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "collection": self.classroom.id,
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         session = AttendanceSession.objects.get(id=response.data["id"])
         self.assertIsNotNone(session.session_start_datetime)
@@ -143,7 +158,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "collection": self.classroom.id,
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_learner_cannot_create_session(self):
@@ -152,7 +167,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "collection": self.classroom.id,
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_anonymous_cannot_create_session(self):
@@ -160,7 +175,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "collection": self.classroom.id,
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 403)
 
     def test_created_by_is_set_from_request_user(self):
@@ -170,7 +185,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "created_by": self.admin.id,  # should be ignored
             "attendance_records": [],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         session = AttendanceSession.objects.latest("date_created")
         self.assertEqual(session.created_by, self.coach)
@@ -183,7 +198,7 @@ class AttendanceSessionAPITestCase(APITestCase):
                 {"user": self.learner.id, "present": True},
             ],
         }
-        response = self.client.post(ATTENDANCE_SESSION_URL, data, format="json")
+        response = self.client.post(_session_list_url(), data, format="json")
         self.assertEqual(response.status_code, 201)
         session = AttendanceSession.objects.latest("date_created")
         self.assertEqual(session.attendance_records.count(), 1)
@@ -196,27 +211,27 @@ class AttendanceSessionAPITestCase(APITestCase):
     def test_coach_can_list_sessions(self):
         self._create_session()
         self._login(self.coach)
-        response = self.client.get(ATTENDANCE_SESSION_URL)
+        response = self.client.get(_session_list_url())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
     def test_admin_can_list_sessions(self):
         self._create_session()
         self._login(self.admin)
-        response = self.client.get(ATTENDANCE_SESSION_URL)
+        response = self.client.get(_session_list_url())
         self.assertEqual(response.status_code, 200)
         self.assertGreaterEqual(len(response.data), 1)
 
     def test_learner_gets_empty_list(self):
         self._create_session()
         self._login(self.learner)
-        response = self.client.get(ATTENDANCE_SESSION_URL)
+        response = self.client.get(_session_list_url())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
     def test_anonymous_gets_empty_list(self):
         self._create_session()
-        response = self.client.get(ATTENDANCE_SESSION_URL)
+        response = self.client.get(_session_list_url())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
@@ -225,13 +240,25 @@ class AttendanceSessionAPITestCase(APITestCase):
     def test_coach_can_retrieve_session(self):
         session = self._create_session()
         self._login(self.coach)
-        response = self.client.get(f"{ATTENDANCE_SESSION_URL}{session.id}/")
+        response = self.client.get(_session_detail_url(session.id))
         self.assertEqual(response.status_code, 200)
+
+    def test_retrieve_returns_session_fields_and_counts(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner, present=True
+        )
+        self._login(self.coach)
+        response = self.client.get(_session_detail_url(session.id))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["present_count"], 1)
+        self.assertEqual(response.data["total_count"], 1)
+        self.assertNotIn("attendance_records", response.data)
 
     def test_learner_cannot_retrieve_session(self):
         session = self._create_session()
         self._login(self.learner)
-        response = self.client.get(f"{ATTENDANCE_SESSION_URL}{session.id}/")
+        response = self.client.get(_session_detail_url(session.id))
         self.assertEqual(response.status_code, 404)
 
     # ---- UPDATE (PUT/PATCH) ----
@@ -248,9 +275,7 @@ class AttendanceSessionAPITestCase(APITestCase):
                 {"user": self.learner.id, "present": True},
             ],
         }
-        response = self.client.put(
-            f"{ATTENDANCE_SESSION_URL}{session.id}/", data, format="json"
-        )
+        response = self.client.put(_session_detail_url(session.id), data, format="json")
         self.assertEqual(response.status_code, 200)
         record = AttendanceRecord.objects.get(
             attendance_session=session, user=self.learner
@@ -269,7 +294,7 @@ class AttendanceSessionAPITestCase(APITestCase):
                 {"user": self.learner.id, "present": True},
             ],
         }
-        self.client.put(f"{ATTENDANCE_SESSION_URL}{session.id}/", data, format="json")
+        self.client.put(_session_detail_url(session.id), data, format="json")
         self.assertEqual(
             AttendanceRecord.objects.filter(
                 attendance_session=session, user=self.learner
@@ -284,9 +309,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             "collection": self.classroom.id,
             "attendance_records": [],
         }
-        response = self.client.put(
-            f"{ATTENDANCE_SESSION_URL}{session.id}/", data, format="json"
-        )
+        response = self.client.put(_session_detail_url(session.id), data, format="json")
         self.assertEqual(response.status_code, 403)
 
     # ---- DELETE ----
@@ -294,20 +317,20 @@ class AttendanceSessionAPITestCase(APITestCase):
     def test_admin_can_delete_session(self):
         session = self._create_session()
         self._login(self.admin)
-        response = self.client.delete(f"{ATTENDANCE_SESSION_URL}{session.id}/")
+        response = self.client.delete(_session_detail_url(session.id))
         self.assertEqual(response.status_code, 204)
         self.assertFalse(AttendanceSession.objects.filter(id=session.id).exists())
 
     def test_coach_cannot_delete_session(self):
         session = self._create_session()
         self._login(self.coach)
-        response = self.client.delete(f"{ATTENDANCE_SESSION_URL}{session.id}/")
+        response = self.client.delete(_session_detail_url(session.id))
         self.assertEqual(response.status_code, 403)
 
     def test_learner_cannot_delete_session(self):
         session = self._create_session()
         self._login(self.learner)
-        response = self.client.delete(f"{ATTENDANCE_SESSION_URL}{session.id}/")
+        response = self.client.delete(_session_detail_url(session.id))
         self.assertEqual(response.status_code, 403)
 
     # ---- FILTERS ----
@@ -320,7 +343,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         self._create_session(collection=classroom2, user=self.admin)
         self._login(self.admin)
         response = self.client.get(
-            ATTENDANCE_SESSION_URL, {"collection": self.classroom.id}
+            _session_list_url(), {"collection": self.classroom.id}
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -332,7 +355,7 @@ class AttendanceSessionAPITestCase(APITestCase):
 
         self._login(self.admin)
         yesterday = (now() - timedelta(days=1)).isoformat()
-        response = self.client.get(ATTENDANCE_SESSION_URL, {"start_date": yesterday})
+        response = self.client.get(_session_list_url(), {"start_date": yesterday})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
@@ -343,7 +366,7 @@ class AttendanceSessionAPITestCase(APITestCase):
 
         self._login(self.admin)
         yesterday = (now() - timedelta(days=1)).isoformat()
-        response = self.client.get(ATTENDANCE_SESSION_URL, {"end_date": yesterday})
+        response = self.client.get(_session_list_url(), {"end_date": yesterday})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
@@ -358,7 +381,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         session_new.save()
 
         self._login(self.admin)
-        response = self.client.get(ATTENDANCE_SESSION_URL)
+        response = self.client.get(_session_list_url())
         self.assertEqual(response.status_code, 200)
         ids = [item["id"] for item in response.data]
         self.assertEqual(ids[0], session_new.id)
@@ -379,7 +402,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         )
 
         self._login(self.coach)
-        response = self.client.get(f"{ATTENDANCE_SESSION_URL}recent/")
+        response = self.client.get(_session_recent_url())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["present_count"], 1)
@@ -390,7 +413,7 @@ class AttendanceSessionAPITestCase(APITestCase):
             self._create_session()
 
         self._login(self.coach)
-        response = self.client.get(f"{ATTENDANCE_SESSION_URL}recent/", {"limit": 2})
+        response = self.client.get(_session_recent_url(), {"limit": 2})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
 
@@ -410,7 +433,7 @@ class AttendanceSessionAPITestCase(APITestCase):
         )
         self._login(self.coach)
         response = self.client.get(
-            ATTENDANCE_SESSION_URL, {"collection": self.classroom.id}
+            _session_list_url(), {"collection": self.classroom.id}
         )
         self.assertEqual(response.status_code, 200)
         results = response.data
@@ -423,7 +446,166 @@ class AttendanceSessionAPITestCase(APITestCase):
             self._create_session()
 
         self._login(self.admin)
-        response = self.client.get(ATTENDANCE_SESSION_URL, {"page_size": 2, "page": 1})
+        response = self.client.get(_session_list_url(), {"page_size": 2, "page": 1})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 2)
         self.assertEqual(response.data["count"], 3)
+
+
+class AttendanceRecordAPITestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="Record Test Facility")
+        cls.classroom = Classroom.objects.create(
+            name="Record Test Classroom", parent=cls.facility
+        )
+        cls.coach = FacilityUser.objects.create(
+            username="rec_coach", facility=cls.facility
+        )
+        cls.coach.set_password(DUMMY_PASSWORD)
+        cls.coach.save()
+        cls.classroom.add_coach(cls.coach)
+
+        cls.learner1 = FacilityUser.objects.create(
+            username="rec_learner1", facility=cls.facility
+        )
+        cls.learner1.set_password(DUMMY_PASSWORD)
+        cls.learner1.save()
+        Membership.objects.create(user=cls.learner1, collection=cls.classroom)
+
+        cls.learner2 = FacilityUser.objects.create(
+            username="rec_learner2", facility=cls.facility
+        )
+        cls.learner2.set_password(DUMMY_PASSWORD)
+        cls.learner2.save()
+        Membership.objects.create(user=cls.learner2, collection=cls.classroom)
+
+    def _login(self, user):
+        self.client.login(
+            username=user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _create_session(self):
+        return AttendanceSession.objects.create(
+            collection=self.classroom,
+            created_by=self.coach,
+        )
+
+    def test_list_records_filtered_by_session(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=True
+        )
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner2, present=False
+        )
+        self._login(self.coach)
+        response = self.client.get(
+            _record_list_url(), {"attendance_session": session.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
+        users = {r["user"] for r in response.data}
+        self.assertEqual(users, {self.learner1.id, self.learner2.id})
+
+    def test_learner_cannot_list_records(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=True
+        )
+        self._login(self.learner1)
+        response = self.client.get(
+            _record_list_url(), {"attendance_session": session.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+    def test_bulk_update_creates_and_updates_records(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=False
+        )
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [
+                {"user": self.learner1.id, "present": True},
+                {"user": self.learner2.id, "present": True},
+            ],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            AttendanceRecord.objects.get(
+                attendance_session=session, user=self.learner1
+            ).present
+        )
+        self.assertTrue(
+            AttendanceRecord.objects.get(
+                attendance_session=session, user=self.learner2
+            ).present
+        )
+
+    def test_bulk_update_does_not_touch_unsent_records(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=False
+        )
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner2, present=False
+        )
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [
+                {"user": self.learner1.id, "present": True},
+            ],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            AttendanceRecord.objects.get(
+                attendance_session=session, user=self.learner1
+            ).present
+        )
+        self.assertFalse(
+            AttendanceRecord.objects.get(
+                attendance_session=session, user=self.learner2
+            ).present
+        )
+
+    def test_bulk_update_response_includes_record_fields(self):
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=False
+        )
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [
+                {"user": self.learner1.id, "present": True},
+            ],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        record = response.data[0]
+        self.assertIn("id", record)
+        self.assertEqual(record["user"], self.learner1.id)
+        self.assertTrue(record["present"])
+        self.assertEqual(record["attendance_session"], session.id)
+
+    def test_learner_cannot_bulk_update(self):
+        session = self._create_session()
+        self._login(self.learner1)
+        data = {
+            "attendance_session": session.id,
+            "records": [{"user": self.learner1.id, "present": True}],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 403)

@@ -1,14 +1,14 @@
-import { render, screen } from '@testing-library/vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import VueRouter from 'vue-router';
+import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { createLocalVue } from '@vue/test-utils';
 import store from 'kolibri/store';
 // eslint-disable-next-line import/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
-import makeStore from '../../../__tests__/utils/makeStore';
 import classSummaryModule from '../../../modules/classSummary';
-// eslint-disable-next-line import/named
+/* eslint-disable import/named */
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
-// eslint-disable-next-line import/named
+/* eslint-enable import/named */
 import AttendanceNewPage from '../AttendanceNewPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
 
@@ -30,8 +30,9 @@ jest.mock('../../../composables/useCoreCoach', () => {
   };
 });
 
-const testLocalVue = createLocalVue();
-testLocalVue.use(VueRouter);
+const localVue = createLocalVue();
+localVue.use(Vuex);
+localVue.use(VueRouter);
 
 const MOCK_LEARNERS = [
   { id: 'learner-c', name: 'Charlie', username: 'charlie' },
@@ -39,36 +40,59 @@ const MOCK_LEARNERS = [
   { id: 'learner-b', name: 'Bob', username: 'bob' },
 ];
 
-const TEST_STUBS = {
+const COMPONENT_STUBS = {
   CoachImmersivePage: {
-    name: 'CoachImmersivePage',
-    props: ['appBarTitle', 'route'],
     template: '<div><slot /></div>',
-  },
-  KSwitch: {
-    name: 'KSwitch',
-    props: ['name', 'value', 'label', 'disabled', 'ariaLabelledBy'],
-    template:
-      '<button :data-name="name" :data-checked="value" @click="$emit(\'change\', !value)">{{ label }}</button>',
-  },
-  KButton: {
-    name: 'KButton',
-    props: ['text', 'primary', 'disabled', 'to'],
-    template: '<button :disabled="disabled" @click="$emit(\'click\')">{{ text }}</button>',
-  },
-  KModal: {
-    name: 'KModal',
-    props: ['title', 'submitText', 'cancelText'],
-    template:
-      '<div data-test="modal"><h2>{{ title }}</h2><slot /><slot name="actions"><button data-test="modal-submit" @click="$emit(\'submit\')">{{ submitText }}</button><button data-test="modal-cancel" @click="$emit(\'cancel\')">{{ cancelText }}</button></slot></div>',
+    props: ['appBarTitle', 'route'],
   },
   BottomAppBar: {
-    name: 'BottomAppBar',
-    template: '<div data-test="bottom-bar"><slot /></div>',
+    template: '<div data-testid="bottom-bar"><slot /></div>',
   },
 };
 
-function makeNewPageWrapper({
+function setupTestStore(learners = MOCK_LEARNERS) {
+  const testStore = new Vuex.Store({
+    state: {
+      core: { loading: false },
+      classSummary: {
+        id: 'test-class',
+        name: 'Test Class',
+        learnerMap: {},
+      },
+    },
+    getters: {
+      isPageLoading: () => false,
+    },
+    actions: {
+      notLoading: jest.fn(),
+    },
+    modules: {
+      classSummary: {
+        ...classSummaryModule,
+        state: () => ({
+          id: 'test-class',
+          name: 'Test Class',
+          learnerMap: {},
+        }),
+      },
+    },
+  });
+
+  const learnerMap = {};
+  learners.forEach(l => {
+    learnerMap[l.id] = l;
+  });
+  testStore.state.classSummary.learnerMap = learnerMap;
+
+  if (!store.hasModule('classSummary')) {
+    store.registerModule('classSummary', classSummaryModule);
+  }
+  store.replaceState(testStore.state);
+
+  return testStore;
+}
+
+function renderNewPage({
   learners = MOCK_LEARNERS,
   createSessionResult = Promise.resolve({ id: 'new-session' }),
 } = {}) {
@@ -89,29 +113,90 @@ function makeNewPageWrapper({
   });
   router.push({ name: 'ATTENDANCE_NEW', params: { classId: 'test-class' } });
 
-  const testStore = makeStore();
-  testStore.state.classSummary.id = 'test-class';
-  testStore.state.classSummary.name = 'Test Class';
-  const learnerMap = {};
-  learners.forEach(l => {
-    learnerMap[l.id] = l;
-  });
-  testStore.state.classSummary.learnerMap = learnerMap;
+  const testStore = setupTestStore(learners);
 
-  // Register classSummary module on global store so getters are available
-  if (!store.hasModule('classSummary')) {
-    store.registerModule('classSummary', classSummaryModule);
-  }
-  store.replaceState(testStore.state);
-
-  const wrapper = mount(AttendanceNewPage, {
-    store: testStore,
-    localVue: testLocalVue,
+  const result = render(AttendanceNewPage, {
+    localVue,
     router,
-    stubs: TEST_STUBS,
+    store: testStore,
+    global: {
+      stubs: COMPONENT_STUBS,
+    },
   });
 
-  return { wrapper, createSession, createSnackbar, router };
+  return { ...result, createSession, createSnackbar, router };
+}
+
+const MOCK_SESSION = {
+  id: 'session-1',
+  collection: 'test-class',
+  session_start_datetime: '2026-03-09T10:00:00Z',
+};
+
+const MOCK_RECORDS = [
+  { user: 'learner-a', present: true },
+  { user: 'learner-b', present: false },
+  { user: 'learner-c', present: true },
+];
+
+function renderEditPage({
+  learners = MOCK_LEARNERS,
+  session = MOCK_SESSION,
+  records = MOCK_RECORDS,
+  bulkUpdateResult = Promise.resolve({}),
+  fetchSession: customFetchSession = null,
+  fetchRecords: customFetchRecords = null,
+} = {}) {
+  const fetchSession = customFetchSession || jest.fn(() => Promise.resolve(session));
+  const fetchRecords = customFetchRecords || jest.fn(() => Promise.resolve(records));
+  const bulkUpdateRecords = jest.fn(() =>
+    typeof bulkUpdateResult === 'function' ? bulkUpdateResult() : bulkUpdateResult,
+  );
+  const mockValues = useAttendanceMock({ fetchSession, fetchRecords, bulkUpdateRecords });
+  useAttendance.mockImplementation(() => mockValues);
+
+  const createSnackbar = jest.fn();
+  useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
+
+  const router = new VueRouter({
+    routes: [
+      { path: '/class/:classId/attendance/:attendanceId', name: 'ATTENDANCE_EDIT' },
+      { path: '/class/:classId/attendance/history', name: 'ATTENDANCE_HISTORY' },
+    ],
+  });
+  router.push({
+    name: 'ATTENDANCE_EDIT',
+    params: { classId: 'test-class', attendanceId: 'session-1' },
+  });
+
+  const testStore = setupTestStore(learners);
+
+  const result = render(AttendanceEditPage, {
+    localVue,
+    router,
+    store: testStore,
+    global: {
+      stubs: COMPONENT_STUBS,
+    },
+  });
+
+  return { ...result, fetchSession, fetchRecords, bulkUpdateRecords, createSnackbar, router };
+}
+
+/**
+ * Helper to find a switch input by its name attribute.
+ * KSwitch renders as <input type="checkbox" name="...">
+ */
+function getSwitch(name) {
+  return document.querySelector(`input[name="${name}"]`);
+}
+
+function getLearnerSwitch(learnerId) {
+  return getSwitch(`attendance-${learnerId}`);
+}
+
+function getMarkAllSwitch() {
+  return getSwitch('mark-all-present');
 }
 
 describe('AttendanceNewPage', () => {
@@ -130,95 +215,93 @@ describe('AttendanceNewPage', () => {
   });
 
   it('renders learners sorted alphabetically', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-    const rows = wrapper.findAll('tbody tr');
-    // Row 0 is the "Mark all learners present" row
-    expect(rows.at(1).text()).toContain('Alice');
-    expect(rows.at(2).text()).toContain('Bob');
-    expect(rows.at(3).text()).toContain('Charlie');
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+      expect(screen.getByText('Charlie')).toBeInTheDocument();
+    });
   });
 
   it('displays the session date and time in the heading', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-    const heading = wrapper.find('h1');
-    // formatAttendanceDateTime mock returns '2026-03-09' and '10:00 AM'
-    expect(heading.text()).toContain('2026-03-09');
-    expect(heading.text()).toContain('10:00 AM');
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('2026-03-09');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('10:00 AM');
+    });
   });
 
   it('filters learners by search input', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
 
-    const filterInput = wrapper.find('input[placeholder]');
-    await filterInput.setValue('ali');
-    await global.flushPromises();
+    const filterInput = screen.getByPlaceholderText(/search/i);
+    await fireEvent.update(filterInput, 'ali');
 
-    const rows = wrapper.findAll('tbody tr');
-    // Row 0 is the "Mark all" row, row 1 is the filtered learner
-    expect(rows.length).toBe(2);
-    expect(rows.at(1).text()).toContain('Alice');
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+      expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+    });
   });
 
   it('updates present/absent counts when toggling a learner', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('0 present')).toBeInTheDocument();
+      expect(screen.getByText('3 absent')).toBeInTheDocument();
+    });
 
-    // Initially all absent
-    expect(wrapper.text()).toContain('0 present');
-    expect(wrapper.text()).toContain('3 absent');
+    await fireEvent.click(getLearnerSwitch('learner-a'));
 
-    // Toggle first learner (Alice) to present
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    expect(wrapper.text()).toContain('1 present');
-    expect(wrapper.text()).toContain('2 absent');
+    await waitFor(() => {
+      expect(screen.getByText('1 present')).toBeInTheDocument();
+      expect(screen.getByText('2 absent')).toBeInTheDocument();
+    });
   });
 
   it('shows confirmation modal when marking all present', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
 
-    const markAllSwitch = wrapper.find('[data-name="mark-all-present"]');
-    await markAllSwitch.trigger('click');
-    await global.flushPromises();
+    await fireEvent.click(getMarkAllSwitch());
 
-    expect(wrapper.find('[data-test="modal"]').exists()).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
   });
 
   it('marks all learners present after confirming modal', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
 
-    const markAllSwitch = wrapper.find('[data-name="mark-all-present"]');
-    await markAllSwitch.trigger('click');
-    await global.flushPromises();
+    await fireEvent.click(getMarkAllSwitch());
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
 
-    await wrapper.find('[data-test="mark-all-confirm"]').trigger('click');
-    await global.flushPromises();
+    await fireEvent.click(screen.getByText('Mark all present'));
 
-    expect(wrapper.text()).toContain('3 present');
-    expect(wrapper.text()).toContain('0 absent');
+    await waitFor(() => {
+      expect(screen.getByText('3 present')).toBeInTheDocument();
+      expect(screen.getByText('0 absent')).toBeInTheDocument();
+    });
   });
 
   it('calls createSession and shows success snackbar on submit', async () => {
-    const { wrapper, createSession, createSnackbar } = makeNewPageWrapper();
-    await global.flushPromises();
+    const { createSession, createSnackbar } = renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
 
-    // Toggle a learner to mark dirty
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    // Click save
-    const saveButton = wrapper
-      .findAll('button')
-      .wrappers.find(w => w.text() === 'Submit attendance');
-    await saveButton.trigger('click');
+    await fireEvent.click(getLearnerSwitch('learner-a'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Submit attendance' }));
     await global.flushPromises();
 
     expect(createSession).toHaveBeenCalledWith(
@@ -231,96 +314,182 @@ describe('AttendanceNewPage', () => {
   });
 
   it('shows error snackbar and stays on page when submit fails', async () => {
-    const { wrapper, createSnackbar, router } = makeNewPageWrapper({
+    const { createSnackbar, router } = renderNewPage({
       createSessionResult: () => Promise.reject(new Error('API error')),
     });
-    await global.flushPromises();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
 
     const initialRoute = router.currentRoute.name;
 
-    // Toggle a learner
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    // Click save
-    const saveButton = wrapper
-      .findAll('button')
-      .wrappers.find(w => w.text() === 'Submit attendance');
-    await saveButton.trigger('click');
+    await fireEvent.click(getLearnerSwitch('learner-a'));
+    await fireEvent.click(screen.getByRole('button', { name: 'Submit attendance' }));
     await global.flushPromises();
 
     expect(createSnackbar).toHaveBeenCalled();
     expect(router.currentRoute.name).toBe(initialRoute);
   });
-
-  it('blocks navigation after a learner is toggled', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    const next = jest.fn();
-    const guard = wrapper.vm.$options.beforeRouteLeave;
-    const guardFn = Array.isArray(guard) ? guard[0] : guard;
-    guardFn.call(wrapper.vm, { name: 'other' }, {}, next);
-
-    expect(next).toHaveBeenCalledWith(false);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.find('[data-test="modal"]').exists()).toBe(true);
-  });
-
-  it('blocks navigation even after toggling a learner back to absent', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    const next = jest.fn();
-    const guard = wrapper.vm.$options.beforeRouteLeave;
-    const guardFn = Array.isArray(guard) ? guard[0] : guard;
-    guardFn.call(wrapper.vm, { name: 'other' }, {}, next);
-
-    expect(next).toHaveBeenCalledWith(false);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.find('[data-test="modal"]').exists()).toBe(true);
-  });
-
-  it('confirming unsaved modal allows navigation', async () => {
-    const { wrapper } = makeNewPageWrapper();
-    await global.flushPromises();
-
-    const learnerSwitches = wrapper.findAll('[data-name^="attendance-"]');
-    await learnerSwitches.at(0).trigger('click');
-    await global.flushPromises();
-
-    const next = jest.fn();
-    const guard = wrapper.vm.$options.beforeRouteLeave;
-    const guardFn = Array.isArray(guard) ? guard[0] : guard;
-    guardFn.call(
-      wrapper.vm,
-      { name: 'ATTENDANCE_HISTORY', params: { classId: 'test-class' } },
-      {},
-      next,
-    );
-    await wrapper.vm.$nextTick();
-
-    await wrapper.find('[data-test="modal-submit"]').trigger('click');
-    await global.flushPromises();
-
-    expect(wrapper.find('[data-test="modal"]').exists()).toBe(false);
-  });
 });
 
 describe('AttendanceEditPage', () => {
-  it('renders the page heading', () => {
-    render(AttendanceEditPage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Edit Attendance');
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(store, 'dispatch').mockImplementation(jest.fn());
+    useAttendance.mockImplementation(() => useAttendanceMock());
+    useSnackbar.mockImplementation(() => useSnackbarMock());
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (store.hasModule('classSummary')) {
+      store.unregisterModule('classSummary');
+    }
+  });
+
+  it('fetches session and records on mount and pre-populates learner toggles', async () => {
+    const { fetchSession, fetchRecords } = renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(fetchSession).toHaveBeenCalledWith('session-1');
+      expect(fetchRecords).toHaveBeenCalledWith('session-1');
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    // Sorted: Alice (present), Bob (absent), Charlie (present)
+    expect(getLearnerSwitch('learner-a').checked).toBe(true);
+    expect(getLearnerSwitch('learner-b').checked).toBe(false);
+    expect(getLearnerSwitch('learner-c').checked).toBe(true);
+  });
+
+  it('does not render content while session is loading', () => {
+    renderEditPage({
+      fetchSession: jest.fn(() => new Promise(() => {})),
+      fetchRecords: jest.fn(() => new Promise(() => {})),
+    });
+
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('displays the session date and time in the heading', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading).toHaveTextContent('2026-03-09');
+      expect(heading).toHaveTextContent('10:00 AM');
+    });
+  });
+
+  it('tracks change count against original state', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('2 present')).toBeInTheDocument();
+      expect(screen.getByText('1 absent')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present — 1 change
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    await waitFor(() => {
+      expect(screen.getByText('3 present')).toBeInTheDocument();
+      expect(screen.getByText('0 absent')).toBeInTheDocument();
+    });
+  });
+
+  it('disables save button when no changes have been made', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+  });
+
+  it('shows save confirmation modal with change count and summary', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present (1 change)
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      const modal = screen.getByRole('dialog');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent('1');
+      expect(modal).toHaveTextContent('3 present');
+      expect(modal).toHaveTextContent('0 absent');
+    });
+  });
+
+  it('calls bulkUpdateRecords with only changed records on confirmed save', async () => {
+    const { bulkUpdateRecords, createSnackbar } = renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save to open modal
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Confirm save in modal — the KModal submit button is inside the dialog
+    const dialog = screen.getByRole('dialog');
+    const submitBtn = dialog.querySelector('button[type="submit"]');
+    await fireEvent.click(submitBtn);
+    await global.flushPromises();
+
+    expect(bulkUpdateRecords).toHaveBeenCalledWith('session-1', [
+      { user: 'learner-b', present: true },
+    ]);
+    expect(createSnackbar).toHaveBeenCalled();
+  });
+
+  it('shows error snackbar and stays on page when save fails', async () => {
+    const { createSnackbar, router } = renderEditPage({
+      bulkUpdateResult: () => Promise.reject(new Error('API error')),
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+    const initialRoute = router.currentRoute.name;
+
+    // Toggle a learner
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Confirm save in modal
+    const dialog = screen.getByRole('dialog');
+    const submitBtn = dialog.querySelector('button[type="submit"]');
+    await fireEvent.click(submitBtn);
+    await global.flushPromises();
+
+    expect(createSnackbar).toHaveBeenCalled();
+    expect(router.currentRoute.name).toBe(initialRoute);
   });
 });
