@@ -4,6 +4,7 @@ import os
 import webbrowser
 
 import wx
+from kolibri.main import enable_plugin
 from kolibri.utils.conf import KOLIBRI_HOME
 
 from kolibri_app.constants import APP_NAME
@@ -72,6 +73,7 @@ class KolibriApp(wx.App):
             # Create a hidden window to receive messages
             self.create_hidden_window()
 
+        enable_plugin("kolibri_app")
         self.windows = []
         self.kolibri_origin = None
         self.kolibri_url = None

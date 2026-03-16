@@ -7,6 +7,7 @@ This includes functions for:
 """
 import logging
 import sys
+
 import winreg
 
 from kolibri_app.constants import APP_NAME
