@@ -119,16 +119,18 @@
     >
       <p>{{ markAllModalDescription$({ count: absentCount }) }}</p>
       <template #actions>
-        <KButton
-          :text="coreString('goBackAction')"
-          @click="cancelMarkAll"
-        />
-        <KButton
-          data-test="mark-all-confirm"
-          :text="markAllPresentAction$()"
-          :appearanceOverrides="confirmButtonStyles"
-          @click="confirmMarkAll"
-        />
+        <KButtonGroup>
+          <KButton
+            :text="coreString('goBackAction')"
+            @click="cancelMarkAll"
+          />
+          <KButton
+            data-test="mark-all-confirm"
+            :text="markAllPresentAction$()"
+            :appearanceOverrides="confirmButtonStyles"
+            @click="confirmMarkAll"
+          />
+        </KButtonGroup>
       </template>
     </KModal>
 
