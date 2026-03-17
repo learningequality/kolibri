@@ -47,9 +47,6 @@ def _make_url(course_session_id, unit_contentnode_id):
     )
 
 
-# ---------------------------------------------------------------------------
-# Shared fixtures
-# ---------------------------------------------------------------------------
 
 # Fixed UUIDs so test failures are reproducible across runs.
 LO1_ID = "00000000000000000000000000000011"
@@ -58,12 +55,12 @@ LO2_ID = "00000000000000000000000000000022"
 # Version A items: 2 for LO1, 1 for LO2
 ITEM_A1 = "0000000000000000000000000000a001"
 ITEM_A2 = "0000000000000000000000000000a002"
-ITEM_A3 = "0000000000000000000000000000a003"  # maps to LO2
+ITEM_A3 = "0000000000000000000000000000a003" 
 
 # Version B items: 2 for LO1, 1 for LO2
 ITEM_B1 = "0000000000000000000000000000b001"
 ITEM_B2 = "0000000000000000000000000000b002"
-ITEM_B3 = "0000000000000000000000000000b003"  # maps to LO2
+ITEM_B3 = "0000000000000000000000000000b003" 
 
 ASSESSMENT_OBJECTIVES = {
     ITEM_A1: LO1_ID,
@@ -165,10 +162,6 @@ def _create_attempt(learner, course_session_id, unit_id, test_type, items_correc
     return mastery_log
 
 
-# ---------------------------------------------------------------------------
-# Unit tests: pure logic (no HTTP)
-# ---------------------------------------------------------------------------
-
 
 class GetTestVersionTests(SimpleTestCase):
     """get_test_version returns deterministic 'a' or 'b'."""
@@ -224,3 +217,405 @@ class GetTestStatusTests(SimpleTestCase):
         """An assignment that exists but has never been opened must not be reported as closed."""
         a = self._make_assignment(False, TestStatus.NotStarted)
         self.assertEqual(_get_test_status([a]), TEST_STATUS_NOT_ACTIVATED)
+
+
+class ComputeTestScoresTests(TestCase):
+    """_compute_all_test_scores aggregation logic without HTTP layer."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        from kolibri.core.auth.test.test_api import FacilityFactory
+
+        cls.facility = FacilityFactory.create()
+        cls.classroom = Classroom.objects.create(name="cls", parent=cls.facility)
+        cls.learner_a = helpers.create_learner("la", DUMMY_PASSWORD, cls.facility, cls.classroom)
+        cls.learner_b = helpers.create_learner("lb", DUMMY_PASSWORD, cls.facility, cls.classroom)
+
+    def setUp(self):
+        # Generate fresh IDs per test so that each test's synthetic content_ids
+        # are unique, eliminating any risk of ContentSummaryLog UNIQUE-constraint
+        # collisions between tests that share the same learner objects.
+        self.course_session_id = uuid.uuid4().hex
+        self.unit_id = uuid.uuid4().hex
+
+    def test_no_learners_returns_empty(self):
+        result = _compute_all_test_scores([], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES)
+        self.assertEqual(result["pre"], {})
+        self.assertEqual(result["post"], {})
+
+    def test_unattempted_learner_absent_from_scores(self):
+        result = _compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )
+        self.assertNotIn(str(self.learner_a.id), result["pre"])
+        self.assertNotIn(str(self.learner_a.id), result["post"])
+
+    def test_correct_answers_counted_per_lo(self):
+        # Determine which version learner_a will get
+        version = get_test_version(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
+        )
+        if version == "a":
+            items_correct = [ITEM_A1, ITEM_A2]  # 2 correct for LO1
+            items_incorrect = [ITEM_A3]          # 0 correct for LO2
+        else:
+            items_correct = [ITEM_B1, ITEM_B2]
+            items_incorrect = [ITEM_B3]
+
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=items_correct,
+            items_incorrect=items_incorrect,
+        )
+        result = _compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["pre"]
+        lid = str(self.learner_a.id)
+        self.assertIn(lid, result)
+        self.assertEqual(result[lid].get(LO1_ID, 0), 2)
+        self.assertEqual(result[lid].get(LO2_ID, 0), 0)
+
+    def test_attempted_with_zero_correct_included_as_empty_dict(self):
+        version = get_test_version(
+            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id)
+        )
+        if version == "a":
+            items_incorrect = [ITEM_A1, ITEM_A2, ITEM_A3]
+        else:
+            items_incorrect = [ITEM_B1, ITEM_B2, ITEM_B3]
+
+        _create_attempt(
+            self.learner_b,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=[],
+            items_incorrect=items_incorrect,
+        )
+        result = _compute_all_test_scores(
+            [self.learner_b.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["pre"]
+        # Learner attempted but got 0 correct – should appear with empty scores dict
+        self.assertIn(str(self.learner_b.id), result)
+        self.assertEqual(result[str(self.learner_b.id)], {})
+
+    def test_only_complete_mastery_logs_counted(self):
+        """Incomplete (in-progress) mastery logs are ignored."""
+        synthetic_cid = get_synthetic_content_id(
+            str(self.learner_a.id),
+            str(self.course_session_id),
+            str(self.unit_id),
+            "post",
+        )
+        now = timezone.now()
+        channel_id = uuid.uuid4().hex
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            kind=content_kinds.EXERCISE,
+        )
+        session_log = ContentSessionLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            kind=content_kinds.EXERCISE,
+        )
+        incomplete_mastery = MasteryLog.objects.create(
+            user=self.learner_a,
+            summarylog=summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            mastery_level=-2,
+            complete=False,  # still in progress
+        )
+        version = get_test_version(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
+        )
+        item = ITEM_A1 if version == "a" else ITEM_B1
+        AttemptLog.objects.create(
+            masterylog=incomplete_mastery,
+            sessionlog=session_log,
+            user=self.learner_a,
+            item=item,
+            start_timestamp=now - datetime.timedelta(minutes=5),
+            end_timestamp=now,
+            correct=1,
+        )
+
+        result = _compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["post"]
+        self.assertNotIn(str(self.learner_a.id), result)
+
+    def test_pre_and_post_are_independent(self):
+        """Pre-test data does not bleed into post-test scores."""
+        version = get_test_version(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
+        )
+        items_correct = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=items_correct,
+        )
+
+        post_result = _compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["post"]
+        self.assertNotIn(str(self.learner_a.id), post_result)
+
+    def test_duplicate_attempt_items_counted_once(self):
+        """When the same item appears twice in a mastery log, only the most recent attempt counts."""
+        version = get_test_version(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
+        )
+        item = ITEM_A1 if version == "a" else ITEM_B1
+
+        synthetic_cid = get_synthetic_content_id(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id), "pre"
+        )
+        now = timezone.now()
+        channel_id = uuid.uuid4().hex
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+            progress=1.0,
+        )
+        session_log = ContentSessionLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+        )
+        mastery_log = MasteryLog.objects.create(
+            user=self.learner_a,
+            summarylog=summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            completion_timestamp=now,
+            mastery_level=-1,
+            complete=True,
+        )
+        # First attempt on the item: incorrect (earlier timestamp)
+        AttemptLog.objects.create(
+            masterylog=mastery_log,
+            sessionlog=session_log,
+            user=self.learner_a,
+            item=item,
+            start_timestamp=now - datetime.timedelta(minutes=20),
+            end_timestamp=now - datetime.timedelta(minutes=19),
+            correct=0,
+        )
+        # Second attempt on the same item: correct (later timestamp — this one should win)
+        AttemptLog.objects.create(
+            masterylog=mastery_log,
+            sessionlog=session_log,
+            user=self.learner_a,
+            item=item,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            end_timestamp=now - datetime.timedelta(minutes=9),
+            correct=1,
+        )
+
+        result = _compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["pre"]
+        lid = str(self.learner_a.id)
+        self.assertIn(lid, result)
+        # The most-recent attempt is correct, so LO1 should have exactly 1 (not 2).
+        self.assertEqual(result[lid].get(LO1_ID, 0), 1)
+
+    def test_partial_credit_not_counted(self):
+        """correct=0.5 (partial credit) is excluded; only correct==1 counts."""
+        synthetic_cid = get_synthetic_content_id(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id), "pre"
+        )
+        now = timezone.now()
+        channel_id = uuid.uuid4().hex
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+            progress=1.0,
+        )
+        session_log = ContentSessionLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+        )
+        mastery_log = MasteryLog.objects.create(
+            user=self.learner_a,
+            summarylog=summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            completion_timestamp=now,
+            mastery_level=-1,
+            complete=True,
+        )
+        version = get_test_version(
+            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
+        )
+        item = ITEM_A1 if version == "a" else ITEM_B1
+        AttemptLog.objects.create(
+            masterylog=mastery_log,
+            sessionlog=session_log,
+            user=self.learner_a,
+            item=item,
+            start_timestamp=now - datetime.timedelta(minutes=20),
+            end_timestamp=now - datetime.timedelta(minutes=19),
+            correct=0.5,  # partial credit — must NOT count
+        )
+        result = _compute_all_test_scores(
+            [self.learner_a.id], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES
+        )["pre"]
+        lid = str(self.learner_a.id)
+        # Learner appears (complete mastery log) but LO1 score is 0 — partial credit excluded.
+        self.assertIn(lid, result)
+        self.assertEqual(result[lid].get(LO1_ID, 0), 0)
+
+    def test_only_most_recent_complete_mastery_log_used(self):
+        """When a learner has multiple complete mastery logs (retakes), only the most recent is used."""
+        version = get_test_version(
+            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id)
+        )
+        # All items for this version — used in both mastery logs (correct in the
+        # first, incorrect in the second).  Named all_items, not items_correct, to
+        # avoid confusion when they're iterated with correct=0 below.
+        all_items = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+
+        # Build both mastery logs manually so they share the same ContentSummaryLog
+        # (which is required — two ContentSummaryLogs for the same content_id would
+        # violate the morango UNIQUE constraint on source_id = content_id).
+        synthetic_cid = get_synthetic_content_id(
+            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id), "post"
+        )
+        now = timezone.now()
+        later = now + datetime.timedelta(hours=1)
+        channel_id = uuid.uuid4().hex
+
+        shared_summary_log = ContentSummaryLog.objects.create(
+            user=self.learner_b,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=later,
+            kind=content_kinds.EXERCISE,
+            progress=1.0,
+        )
+        session_log1 = ContentSessionLog.objects.create(
+            user=self.learner_b,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+        )
+        session_log2 = ContentSessionLog.objects.create(
+            user=self.learner_b,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=later - datetime.timedelta(minutes=30),
+            end_timestamp=later,
+            kind=content_kinds.EXERCISE,
+        )
+
+        # First (earlier) mastery log: all correct
+        mastery_log1 = MasteryLog.objects.create(
+            user=self.learner_b,
+            summarylog=shared_summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=now - datetime.timedelta(minutes=30),
+            end_timestamp=now,
+            completion_timestamp=now,
+            mastery_level=-1,
+            complete=True,
+        )
+        for i, item in enumerate(all_items):
+            offset = datetime.timedelta(minutes=i * 2)
+            AttemptLog.objects.create(
+                masterylog=mastery_log1,
+                sessionlog=session_log1,
+                user=self.learner_b,
+                item=item,
+                start_timestamp=now - datetime.timedelta(minutes=30) + offset,
+                end_timestamp=now - datetime.timedelta(minutes=30) + offset + datetime.timedelta(minutes=1),
+                correct=1,
+            )
+
+        # Second (later) mastery log on the same summary log: all incorrect
+        mastery_log2 = MasteryLog.objects.create(
+            user=self.learner_b,
+            summarylog=shared_summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=later - datetime.timedelta(minutes=30),
+            end_timestamp=later,
+            completion_timestamp=later,
+            mastery_level=-2,  # different level to avoid source_id collision
+            complete=True,
+        )
+        for i, item in enumerate(all_items):
+            offset = datetime.timedelta(minutes=i * 2)
+            AttemptLog.objects.create(
+                masterylog=mastery_log2,
+                sessionlog=session_log2,
+                user=self.learner_b,
+                item=item,
+                start_timestamp=later - datetime.timedelta(minutes=30) + offset,
+                end_timestamp=later - datetime.timedelta(minutes=30) + offset + datetime.timedelta(minutes=1),
+                correct=0,
+            )
+
+        result = _compute_all_test_scores(
+            [self.learner_b.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["post"]
+        lid = str(self.learner_b.id)
+        # Most recent log has 0 correct — scores dict should be present but empty.
+        self.assertIn(lid, result)
+        self.assertEqual(result[lid], {})
