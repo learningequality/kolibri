@@ -1,6 +1,12 @@
 <template>
 
   <div>
+    <PaginatedListContainerNav
+      v-if="position === 'top'"
+      v-bind="navProps"
+      @changePage="changePage"
+    />
+
     <KGrid>
       <KGridItem :layout12="{ span: searchFieldBlock ? 12 : 7 }">
         <slot name="otherFilter"></slot>
@@ -21,30 +27,11 @@
       <slot v-bind="{ items: visibleFilteredItems, filterInput }"></slot>
     </div>
 
-    <nav class="pagination-nav">
-      <span
-        dir="auto"
-        class="pagination-label"
-      >
-        {{ $tr('pagination', { visibleStartRange, visibleEndRange, numFilteredItems }) }}
-      </span>
-      <KButtonGroup>
-        <KIconButton
-          :ariaLabel="$tr('previousResults')"
-          :disabled="previousButtonDisabled"
-          size="small"
-          icon="back"
-          @click="changePage(-1)"
-        />
-        <KIconButton
-          :ariaLabel="$tr('nextResults')"
-          :disabled="nextButtonDisabled"
-          size="small"
-          icon="forward"
-          @click="changePage(+1)"
-        />
-      </KButtonGroup>
-    </nav>
+    <PaginatedListContainerNav
+      v-if="position === 'bottom'"
+      v-bind="navProps"
+      @changePage="changePage"
+    />
   </div>
 
 </template>
@@ -55,11 +42,13 @@
   import clamp from 'lodash/clamp';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
+  import PaginatedListContainerNav from './PaginatedListContainerNav';
 
   export default {
     name: 'PaginatedListContainer',
     components: {
       FilterTextbox,
+      PaginatedListContainerNav,
     },
     props: {
       // The entire list of items
@@ -79,6 +68,11 @@
       searchFieldBlock: {
         type: Boolean,
         required: false,
+      },
+      position: {
+        type: String,
+        default: 'bottom',
+        validator: value => ['top', 'bottom'].includes(value),
       },
     },
     data() {
@@ -111,6 +105,19 @@
       },
       visibleFilteredItems() {
         return this.filteredItems.slice(this.startRange, this.endRange);
+      },
+      navProps() {
+        return {
+          label: this.$tr('pagination', {
+            visibleStartRange: this.visibleStartRange,
+            visibleEndRange: this.visibleEndRange,
+            numFilteredItems: this.numFilteredItems,
+          }),
+          previousAriaLabel: this.$tr('previousResults'),
+          nextAriaLabel: this.$tr('nextResults'),
+          previousButtonDisabled: this.previousButtonDisabled,
+          nextButtonDisabled: this.nextButtonDisabled,
+        };
       },
       previousButtonDisabled() {
         return this.currentPage === 1 || this.numFilteredItems === 0;
@@ -164,19 +171,8 @@
 
 <style lang="scss" scoped>
 
-  .pagination-nav {
-    margin-bottom: 8px;
-    text-align: right;
-  }
-
   .text-filter {
     margin-top: 14px;
-  }
-
-  .pagination-label {
-    position: relative;
-    top: -2px;
-    display: inline;
   }
 
 </style>
