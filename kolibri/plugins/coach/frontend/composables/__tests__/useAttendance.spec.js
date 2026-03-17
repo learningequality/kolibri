@@ -28,9 +28,14 @@ describe('useAttendance', () => {
   describe('fetchSessions', () => {
     it('should call AttendanceSessionResource.fetchCollection with classId and params', async () => {
       const mockSessions = [{ id: '1' }, { id: '2' }];
-      AttendanceSessionResource.fetchCollection.mockResolvedValue(mockSessions);
+      AttendanceSessionResource.fetchCollection.mockResolvedValue({
+        results: mockSessions,
+        total_pages: 1,
+        count: 2,
+      });
 
-      const { fetchSessions, sessions, attendanceLoading } = useAttendance();
+      const { fetchSessions, sessions, attendanceLoading, totalPages, sessionCount } =
+        useAttendance();
 
       const promise = fetchSessions('class-1', { start_date: '2025-01-01' });
       expect(attendanceLoading.value).toBe(true);
@@ -42,6 +47,8 @@ describe('useAttendance', () => {
         force: true,
       });
       expect(sessions.value).toEqual(mockSessions);
+      expect(totalPages.value).toBe(1);
+      expect(sessionCount.value).toBe(2);
       expect(attendanceLoading.value).toBe(false);
     });
 
