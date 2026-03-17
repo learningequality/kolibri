@@ -163,3 +163,33 @@ def _create_attempt(learner, course_session_id, unit_id, test_type, items_correc
         )
 
     return mastery_log
+
+
+# ---------------------------------------------------------------------------
+# Unit tests: pure logic (no HTTP)
+# ---------------------------------------------------------------------------
+
+
+class GetTestVersionTests(SimpleTestCase):
+    """get_test_version returns deterministic 'a' or 'b'."""
+
+    def test_deterministic(self):
+        lid = uuid.uuid4().hex
+        sid = uuid.uuid4().hex
+        uid = uuid.uuid4().hex
+        v1 = get_test_version(lid, sid, uid)
+        v2 = get_test_version(lid, sid, uid)
+        self.assertEqual(v1, v2)
+        self.assertIn(v1, ("a", "b"))
+
+    def test_hash_byte_below_128_returns_version_a(self):
+        # Directly exercise the branch: first SHA-256 byte < 128 → "a".
+        with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
+            mock_hashlib.sha256.return_value.digest.return_value = bytes([0]) + b"\x00" * 31
+            self.assertEqual(get_test_version("lid", "sid", "uid"), "a")
+
+    def test_hash_byte_128_or_above_returns_version_b(self):
+        # Directly exercise the branch: first SHA-256 byte >= 128 → "b".
+        with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
+            mock_hashlib.sha256.return_value.digest.return_value = bytes([255]) + b"\x00" * 31
+            self.assertEqual(get_test_version("lid", "sid", "uid"), "b")
