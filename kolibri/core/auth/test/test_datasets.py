@@ -135,6 +135,17 @@ class FacilityDatasetTestCase(TestCase):
                 learner_can_edit_password=True, learner_can_login_with_no_password=True
             )
 
+    def test_learner_can_login_with_picture_password_defaults_to_false(self):
+        dataset = FacilityDataset.objects.create()
+        self.assertFalse(dataset.learner_can_login_with_picture_password)
+
+    def test_picture_password_incompatible_with_learner_can_edit_password(self):
+        with self.assertRaises(IncompatibleDeviceSettingError):
+            FacilityDataset.objects.create(
+                learner_can_edit_password=True,
+                learner_can_login_with_picture_password=True,
+            )
+
     def test_null_pin_code(self):
         facility_dataset = FacilityDataset(extra_fields={"pin_code": None})
         facility_dataset.clean_fields()

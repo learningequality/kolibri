@@ -2094,6 +2094,43 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_picture_password_incompatible_with_learner_can_edit_password(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {
+                "learner_can_login_with_picture_password": True,
+                "learner_can_edit_password": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_picture_password_fields_returned_in_facility_settings_response(self):
+        self.facility.dataset.learner_can_edit_password = False
+        self.facility.dataset.learner_can_login_with_picture_password = True
+        self.facility.dataset.picture_password_settings = {
+            "icon_style": "colorful",
+            "show_icon_text": True,
+        }
+        self.facility.dataset.save()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["learner_can_login_with_picture_password"])
+        self.assertEqual(
+            response.data["picture_password_settings"],
+            {"icon_style": "colorful", "show_icon_text": True},
+        )
+
     def test_facility_admin_can_set_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         response = self.update_pin({"pin_code": "1234"})

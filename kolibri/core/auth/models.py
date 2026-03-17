@@ -220,8 +220,18 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_sign_up = models.BooleanField(default=True)
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
+    learner_can_login_with_picture_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
     enable_mark_attendance = models.BooleanField(default=False)
+    picture_password_settings = JSONField(
+        null=True,
+        blank=True,
+        default=None,
+        # Structure: {
+        #   "icon_style": "standard" | "colorful",
+        #   "show_icon_text": true | false
+        # }
+    )
     extra_fields = JSONField(
         null=True,
         blank=True,
@@ -254,6 +264,14 @@ class FacilityDataset(FacilityDataSyncableModel):
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
                 "values incompatible together.".format(
                     self.learner_can_login_with_no_password,
+                    self.learner_can_edit_password,
+                )
+            )
+        if self.learner_can_login_with_picture_password and self.learner_can_edit_password:
+            raise IncompatibleDeviceSettingError(
+                "Device Settings [learner_can_login_with_picture_password={}] & [learner_can_edit_password={}] "
+                "values incompatible together.".format(
+                    self.learner_can_login_with_picture_password,
                     self.learner_can_edit_password,
                 )
             )
