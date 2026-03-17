@@ -1190,12 +1190,25 @@ class CreateSessionSerializer(serializers.Serializer):
             # if it matches the username, without needing a password.
             user = self._check_os_user(request, username)
 
-        # user_id/auth_token authentication
+        # user_id/auth_token authentication (picture-password path)
+        # Only permit this path for learners whose facility has the picture-
+        # password feature enabled.
         if user is None and user_id and auth_token:
-            if TokenGenerator().check_token(user_id, auth_token):
+            if (
+                facility is not None
+                and facility.dataset.learner_can_login_with_picture_password
+                and TokenGenerator().check_token(user_id, auth_token)
+            ):
                 user = FacilityUser.objects.filter(
                     id=user_id, facility=facility
                 ).first()
+                # Confirm the user is actually a learner in this facility.
+                if not (
+                    user is not None
+                    and not user.is_superuser
+                    and not user.roles.exists()
+                ):
+                    user = None
 
         # username/password authentication
         if user is None:
