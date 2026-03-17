@@ -738,3 +738,115 @@ class UnitReportPermissionTests(UnitReportAPIBase):
         self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+
+class UnitReportResponseShapeTests(UnitReportAPIBase):
+    """Verify the response structure matches the spec."""
+
+    def setUp(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+
+    def test_top_level_keys(self):
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        self.assertIn("unit_title", data)
+        self.assertIn("learning_objectives", data)
+        self.assertIn("learners", data)
+        self.assertIn("pre_test", data)
+        self.assertIn("post_test", data)
+
+    def test_unit_title(self):
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.data["unit_title"], "Unit 1: Fractions")
+
+    def test_learning_objectives_shape(self):
+        response = self.client.get(self._get_url())
+        los = response.data["learning_objectives"]
+        self.assertEqual(len(los), 2)
+        lo = los[0]
+        self.assertIn("id", lo)
+        self.assertIn("text", lo)
+        self.assertIn("num_questions", lo)
+
+    def test_num_questions_counts_version_a_items(self):
+        """num_questions should equal the number of version-A items per LO."""
+        response = self.client.get(self._get_url())
+        lo_map = {lo["id"]: lo for lo in response.data["learning_objectives"]}
+        # LO1 has 2 version-A items; LO2 has 1
+        self.assertEqual(lo_map[LO1_ID]["num_questions"], 2)
+        self.assertEqual(lo_map[LO2_ID]["num_questions"], 1)
+
+    def test_learner_shape(self):
+        response = self.client.get(self._get_url())
+        learners = response.data["learners"]
+        self.assertGreater(len(learners), 0)
+        learner = learners[0]
+        self.assertIn("id", learner)
+        self.assertIn("username", learner)
+        self.assertIn("name", learner)
+
+    def test_all_assigned_learners_present(self):
+        response = self.client.get(self._get_url())
+        learner_ids = {lr["id"] for lr in response.data["learners"]}
+        self.assertIn(str(self.learner1.id), learner_ids)
+        self.assertIn(str(self.learner2.id), learner_ids)
+        self.assertIn(str(self.learner3.id), learner_ids)
+
+    def test_test_status_keys(self):
+        response = self.client.get(self._get_url())
+        for key in ("pre_test", "post_test"):
+            self.assertIn("status", response.data[key])
+            self.assertIn("scores", response.data[key])
+
+    def test_not_activated_status_when_no_assignments(self):
+        """No UnitTestAssignment records → both tests are not_activated."""
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+
+    def test_open_status_when_assignment_is_active(self):
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type="pre",
+            is_active=True,
+            status=TestStatus.Active,
+            activated_by=self.facility_coach,
+        )
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_OPEN)
+        self.assertEqual(response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+
+    def test_closed_status_when_assignment_is_ended(self):
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type="pre",
+            is_active=False,
+            status=TestStatus.Ended,
+            activated_by=self.facility_coach,
+        )
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_CLOSED)
+
+    def test_unit_with_null_options_returns_valid_response(self):
+        """ContentNode.options = None is handled gracefully by the 'or {}' guard."""
+        bare_unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title="Bare Unit",
+            kind=content_kinds.EXERCISE,
+            modality=modalities.UNIT,
+            options=None,
+            available=True,
+        )
+        url = _make_url(self.course_session.id, bare_unit.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["learning_objectives"], [])
+        self.assertEqual(response.data["pre_test"]["scores"], {})
+        self.assertEqual(response.data["post_test"]["scores"], {})
