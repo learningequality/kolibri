@@ -270,7 +270,6 @@
         });
       });
 
-      // Note: exports only the current page of sessions (sessions.value is paginated)
       function handleExport() {
         const columns = [
           { name: dateLabel$(), key: 'date' },
@@ -278,11 +277,15 @@
           { name: absentColumnHeader$(), key: 'absent' },
         ];
         const exporter = new CSVExporter(columns, attendanceHistoryTitle$());
-        const data = tableRows.value.map(row => ({
-          date: row[0],
-          present: row[1],
-          absent: row[2],
-        }));
+        const data = sessions.value.map(session => {
+          const totalCount = session.total_count || 0;
+          const presentCount = session.present_count || 0;
+          return {
+            date: $formatDate(new Date(session.session_start_datetime), dateTimeFormatOptions),
+            present: presentCount,
+            absent: totalCount - presentCount,
+          };
+        });
         exporter.export(data);
       }
 
