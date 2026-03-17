@@ -301,6 +301,25 @@ describe('AttendanceHistoryPage', () => {
       expect(pagination.props('itemsPerPage')).toBe(10);
     });
 
+    it('renders pagination above the table', () => {
+      const { wrapper } = makeWrapper({
+        sessions: MOCK_SESSIONS,
+        totalPages: 2,
+        sessionCount: 15,
+      });
+      const pagination = wrapper.findComponent({ name: 'PaginationActions' });
+      const table = wrapper.findComponent({ name: 'KTable' });
+      expect(pagination.exists()).toBe(true);
+      expect(table.exists()).toBe(true);
+
+      // Pagination should appear before the table in DOM order
+      const paginationEl = pagination.element;
+      const tableEl = table.element;
+      const position = paginationEl.compareDocumentPosition(tableEl);
+      // eslint-disable-next-line no-bitwise
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
     it('fetches new page when pagination emits input', async () => {
       const { wrapper, mock } = makeWrapper({
         sessions: MOCK_SESSIONS,

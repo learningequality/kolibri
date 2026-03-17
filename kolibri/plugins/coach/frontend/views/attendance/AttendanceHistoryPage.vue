@@ -84,6 +84,14 @@
         @cancel="showDateRangePicker = false"
       />
 
+      <PaginationActions
+        v-if="totalPages > 1"
+        v-model="currentPage"
+        :itemsPerPage="PAGE_SIZE"
+        :totalPageNumber="totalPages"
+        :numFilteredItems="sessionCount"
+      />
+
       <KTable
         :headers="tableHeaders"
         :rows="tableRows"
@@ -102,14 +110,6 @@
           </template>
         </template>
       </KTable>
-
-      <PaginationActions
-        v-if="totalPages > 1"
-        v-model="currentPage"
-        :itemsPerPage="PAGE_SIZE"
-        :totalPageNumber="totalPages"
-        :numFilteredItems="sessionCount"
-      />
     </KPageContainer>
   </CoachAppBarPage>
 
