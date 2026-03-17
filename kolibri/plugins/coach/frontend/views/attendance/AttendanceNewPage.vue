@@ -1,28 +1,102 @@
 <template>
 
-  <div>
-    <h1>{{ title$() }}</h1>
-  </div>
+  <CoachImmersivePage
+    :appBarTitle="pageTitle"
+    :route="backRoute"
+  >
+    <h1>{{ pageTitle }}</h1>
+
+    <AttendanceFormTable :form="form">
+      <template #action-button>
+        <KButton
+          :text="submitAttendanceAction$()"
+          :primary="true"
+          :disabled="submitting"
+          @click="handleSubmit"
+        />
+      </template>
+    </AttendanceFormTable>
+  </CoachImmersivePage>
 
 </template>
 
 
 <script>
 
-  import { createTranslator } from 'kolibri/utils/i18n';
-
-  const strings = createTranslator('AttendanceNewPage', {
-    title: {
-      message: 'Mark Attendance',
-      context: 'Page heading for taking new attendance',
-    },
-  });
+  import { computed, ref } from 'vue';
+  import { now } from 'kolibri/utils/serverClock';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
+  import useCoreCoach from '../../composables/useCoreCoach';
+  import { useAttendance } from '../../composables/useAttendance';
+  import useAttendanceForm from '../../composables/useAttendanceForm';
+  import CoachImmersivePage from '../CoachImmersivePage';
+  import AttendanceFormTable from './AttendanceFormTable';
 
   export default {
     name: 'AttendanceNewPage',
+    components: {
+      CoachImmersivePage,
+      AttendanceFormTable,
+    },
     setup() {
-      const { title$ } = strings;
-      return { title$ };
+      const { classId } = useCoreCoach();
+      const { formatAttendanceDateTime, createSession } = useAttendance();
+      const { createSnackbar } = useSnackbar();
+
+      const { pageHeading$, submitSuccessMessage$, submitErrorMessage$, submitAttendanceAction$ } =
+        attendanceStrings;
+
+      const isDirty = ref(false);
+      const submitting = ref(false);
+
+      // Capture timestamp once on component creation
+      const sessionStartDatetime = now();
+      const { date: formattedDate, time: formattedTime } =
+        formatAttendanceDateTime(sessionStartDatetime);
+      const pageTitle = pageHeading$({ date: formattedDate, time: formattedTime });
+
+      const form = useAttendanceForm({
+        hasChanges: computed(() => isDirty.value),
+        markClean() {
+          isDirty.value = false;
+        },
+        submitting,
+        onChange() {
+          isDirty.value = true;
+        },
+      });
+
+      async function handleSubmit() {
+        submitting.value = true;
+
+        try {
+          await createSession({
+            collection: classId.value,
+            session_start_datetime: sessionStartDatetime.toISOString(),
+            attendance_records: form.buildRecords(),
+          });
+          isDirty.value = false;
+          form.navigateBack();
+          createSnackbar(submitSuccessMessage$());
+        } catch (_err) {
+          createSnackbar(submitErrorMessage$());
+        } finally {
+          submitting.value = false;
+        }
+      }
+
+      return {
+        pageTitle,
+        submitting,
+        handleSubmit,
+        form,
+        backRoute: form.backRoute,
+        submitAttendanceAction$,
+      };
+    },
+    beforeRouteLeave(to, from, next) {
+      this.form.beforeRouteLeave(to, from, next);
     },
   };
 
