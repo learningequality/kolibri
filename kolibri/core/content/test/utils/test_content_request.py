@@ -4,26 +4,37 @@ from datetime import timedelta
 from functools import partial
 
 import mock
+from django.test import LiveServerTestCase
 from django.test import TestCase
 from django.utils import timezone
+from le_utils.constants import modalities
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
+from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.utils.content_request import _get_descendants_import_metadata
+from kolibri.core.content.utils.content_request import _get_import_metadata
+from kolibri.core.content.utils.content_request import _import_descendants_depth
+from kolibri.core.content.utils.content_request import _merge_import_metadata
 from kolibri.core.content.utils.content_request import _process_content_requests
 from kolibri.core.content.utils.content_request import _process_download
 from kolibri.core.content.utils.content_request import _total_size
 from kolibri.core.content.utils.content_request import completed_downloads_queryset
+from kolibri.core.content.utils.content_request import COURSES_DESCENDANTS_DEPTH
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.content.utils.content_request import InsufficientStorage
+from kolibri.core.content.utils.content_request import MAX_NODES_PER_REQUEST
 from kolibri.core.content.utils.content_request import PreferredDevices
 from kolibri.core.content.utils.content_request import PreferredDevicesWithClient
 from kolibri.core.content.utils.content_request import process_content_removal_requests
@@ -33,7 +44,9 @@ from kolibri.core.content.utils.content_request import synchronize_content_reque
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkError
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
 
@@ -1137,3 +1150,476 @@ class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
         )
         mock_import_manager.return_value.run.assert_called_once()
         self.assertTrue(result)
+
+
+class MergeImportMetadataTestCase(TestCase):
+    """Tests for _merge_import_metadata function"""
+
+    def test_merge_empty_list(self):
+        result = _merge_import_metadata([])
+        self.assertEqual(result, {})
+
+    def test_merge_single_metadata(self):
+        metadata = {
+            ContentNode._meta.db_table: [{"id": "node1"}],
+            File._meta.db_table: [{"id": "file1"}],
+            "schema_version": "5",
+        }
+        result = _merge_import_metadata([metadata])
+        self.assertEqual(result[ContentNode._meta.db_table], [{"id": "node1"}])
+        self.assertEqual(result[File._meta.db_table], [{"id": "file1"}])
+        self.assertEqual(result["schema_version"], "5")
+
+    def test_merge_multiple_metadata(self):
+        metadata1 = {
+            ContentNode._meta.db_table: [{"id": "node1"}],
+            File._meta.db_table: [{"id": "file1"}],
+            "schema_version": "5",
+        }
+        metadata2 = {
+            ContentNode._meta.db_table: [{"id": "node2"}, {"id": "node3"}],
+            File._meta.db_table: [{"id": "file2"}],
+            "schema_version": "5",
+        }
+        result = _merge_import_metadata([metadata1, metadata2])
+        self.assertEqual(len(result[ContentNode._meta.db_table]), 3)
+        self.assertEqual(len(result[File._meta.db_table]), 2)
+
+    def test_merge_ignores_non_dict(self):
+        metadata1 = {ContentNode._meta.db_table: [{"id": "node1"}]}
+        result = _merge_import_metadata([metadata1, None, "invalid"])
+        self.assertEqual(result[ContentNode._meta.db_table], [{"id": "node1"}])
+
+    def test_merge_preserves_simple_fields(self):
+        metadata1 = {"schema_version": "5", "some_bool": True, "some_int": 42}
+        metadata2 = {"schema_version": "5", "some_bool": False, "some_int": 100}
+        result = _merge_import_metadata([metadata1, metadata2])
+        # First value should be preserved for simple fields
+        self.assertEqual(result["schema_version"], "5")
+        self.assertEqual(result["some_bool"], True)
+        self.assertEqual(result["some_int"], 42)
+
+
+class ImportDescendantsDepthTestCase(TestCase):
+    """Tests for _import_descendants_depth function"""
+
+    def test_non_course_node_returns_zero(self):
+        import_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": "node1", "options": "{}"},
+            ]
+        }
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, 0)
+
+    def test_course_node_returns_depth(self):
+        options = '{"modality": "' + modalities.COURSE + '"}'
+        import_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": "node1", "options": options},
+            ]
+        }
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, COURSES_DESCENDANTS_DEPTH)
+
+    def test_node_not_found_returns_zero(self):
+        options = '{"modality": "' + modalities.COURSE + '"}'
+        import_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": "other_node", "options": options},
+            ]
+        }
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, 0)
+
+    def test_invalid_options_json_returns_zero(self):
+        import_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": "node1", "options": "invalid json"},
+            ]
+        }
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, 0)
+
+    def test_empty_metadata_returns_zero(self):
+        import_metadata = {ContentNode._meta.db_table: []}
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, 0)
+
+    def test_missing_options_returns_zero(self):
+        import_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": "node1"},
+            ]
+        }
+        result = _import_descendants_depth(import_metadata, "node1")
+        self.assertEqual(result, 0)
+
+
+@mock.patch(_module + "reverse_path")
+class GetDescendantsImportMetadataTestCase(TestCase):
+    """Tests for _get_descendants_import_metadata function"""
+
+    def setUp(self):
+        self.mock_client = mock.MagicMock()
+        self.contentnode_id = uuid.uuid4().hex
+
+    def test_single_page_response(self, mock_reverse_path):
+        """Test when response has no pagination (no 'more' key)"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        response_data = {
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child1"}],
+                File._meta.db_table: [{"id": "file1"}],
+                "schema_version": "5",
+            }
+        }
+        self.mock_client.get.return_value.json.return_value = response_data
+
+        result = _get_descendants_import_metadata(
+            self.mock_client, self.contentnode_id, depth=1
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][ContentNode._meta.db_table], [{"id": "child1"}])
+        self.mock_client.get.assert_called_once()
+
+    def test_paginated_response(self, mock_reverse_path):
+        """Test when response has multiple pages with 'more' cursor"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        page1_response = {
+            "more": {
+                "schema_version": "5",
+                "depth": "1",
+                "max_results": "1",
+                "cursor": "cD00MQ==",
+            },
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child1"}],
+                "schema_version": "5",
+            },
+        }
+        page2_response = {
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child2"}],
+                "schema_version": "5",
+            }
+        }
+        self.mock_client.get.return_value.json.side_effect = [
+            page1_response,
+            page2_response,
+        ]
+
+        result = _get_descendants_import_metadata(
+            self.mock_client, self.contentnode_id, depth=1
+        )
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0][ContentNode._meta.db_table], [{"id": "child1"}])
+        self.assertEqual(result[1][ContentNode._meta.db_table], [{"id": "child2"}])
+        self.assertEqual(self.mock_client.get.call_count, 2)
+
+    def test_500_error_raises(self, mock_reverse_path):
+        """Test that 500 errors are re-raised"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 500
+        error = NetworkLocationResponseFailure(response=mock_response)
+        self.mock_client.get.side_effect = error
+
+        with self.assertRaises(NetworkLocationResponseFailure):
+            _get_descendants_import_metadata(
+                self.mock_client, self.contentnode_id, depth=1
+            )
+
+    def test_initial_request_has_depth_and_max_results(self, mock_reverse_path):
+        """Test that the initial request includes depth and max_results params"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        response_data = {
+            "results": {
+                ContentNode._meta.db_table: [],
+                "schema_version": "5",
+            }
+        }
+        self.mock_client.get.return_value.json.return_value = response_data
+
+        _get_descendants_import_metadata(
+            self.mock_client, self.contentnode_id, depth=COURSES_DESCENDANTS_DEPTH
+        )
+
+        call_args = self.mock_client.get.call_args[0][0]
+        self.assertIn("depth={}".format(COURSES_DESCENDANTS_DEPTH), call_args)
+        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_args)
+
+    def test_empty_results(self, mock_reverse_path):
+        """Test handling of empty results"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        response_data = {"results": {}}
+        self.mock_client.get.return_value.json.return_value = response_data
+
+        result = _get_descendants_import_metadata(
+            self.mock_client, self.contentnode_id, depth=1
+        )
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], {})
+
+    def test_subsequent_requests_use_cursor(self, mock_reverse_path):
+        """Test that subsequent requests use the cursor from 'more'"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        page1_response = {
+            "more": {
+                "schema_version": "5",
+                "depth": "1",
+                "max_results": "10",
+                "cursor": "cD00MQ==",
+            },
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child1"}],
+            },
+        }
+        page2_response = {
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child2"}],
+            }
+        }
+        self.mock_client.get.return_value.json.side_effect = [
+            page1_response,
+            page2_response,
+        ]
+
+        _get_descendants_import_metadata(self.mock_client, self.contentnode_id, depth=1)
+
+        # Check second call uses cursor params
+        second_call_url = self.mock_client.get.call_args_list[1][0][0]
+        self.assertIn("cursor=cD00MQ%3D%3D", second_call_url)
+
+
+class GetImportMetadataTestCase(TestCase):
+    """Tests for _get_import_metadata function"""
+
+    def setUp(self):
+        self.mock_client = mock.MagicMock()
+        self.contentnode_id = uuid.uuid4().hex
+
+    def _create_basic_metadata(self, contentnode_id, options="{}"):
+        return {
+            ContentNode._meta.db_table: [
+                {
+                    "id": contentnode_id,
+                    "title": "Test Node",
+                    "options": options,
+                }
+            ],
+            File._meta.db_table: [{"id": "file1"}],
+            LocalFile._meta.db_table: [{"id": "localfile1"}],
+            ChannelMetadata._meta.db_table: [{"id": "channel1"}],
+            "schema_version": "5",
+        }
+
+    def test_basic_metadata_retrieval(self):
+        """Test basic metadata retrieval without descendants"""
+        metadata = self._create_basic_metadata(self.contentnode_id)
+        self.mock_client.get.return_value.json.return_value = metadata
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        self.assertEqual(result, metadata)
+        self.mock_client.get.assert_called_once()
+
+    @mock.patch(_module + "_get_descendants_import_metadata")
+    def test_course_node_fetches_descendants(self, mock_get_descendants):
+        """Test that COURSE nodes trigger descendants fetching"""
+        options = '{"modality": "' + modalities.COURSE + '"}'
+        metadata = self._create_basic_metadata(self.contentnode_id, options=options)
+        descendants_metadata = {
+            ContentNode._meta.db_table: [{"id": "child1"}, {"id": "child2"}],
+            File._meta.db_table: [{"id": "child_file1"}],
+        }
+        self.mock_client.get.return_value.json.return_value = metadata
+        mock_get_descendants.return_value = [descendants_metadata]
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        mock_get_descendants.assert_called_once_with(
+            self.mock_client, self.contentnode_id, COURSES_DESCENDANTS_DEPTH
+        )
+        # Check merged results
+        self.assertEqual(len(result[ContentNode._meta.db_table]), 3)
+        self.assertEqual(len(result[File._meta.db_table]), 2)
+
+    @mock.patch(_module + "_get_descendants_import_metadata")
+    def test_non_course_node_does_not_fetch_descendants(self, mock_get_descendants):
+        """Test that non-COURSE nodes don't trigger descendants fetching"""
+        metadata = self._create_basic_metadata(self.contentnode_id)
+        self.mock_client.get.return_value.json.return_value = metadata
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        mock_get_descendants.assert_not_called()
+        self.assertEqual(result, metadata)
+
+    def test_404_returns_none(self):
+        """Test that 404 errors return None"""
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 404
+        error = NetworkLocationResponseFailure(response=mock_response)
+        self.mock_client.get.side_effect = error
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        self.assertIsNone(result)
+
+    def test_400_returns_none(self):
+        """Test that 400 errors return None"""
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 400
+        error = NetworkLocationResponseFailure(response=mock_response)
+        self.mock_client.get.side_effect = error
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        self.assertIsNone(result)
+
+    def test_500_error_raises(self):
+        """Test that 500 errors are re-raised"""
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 500
+        error = NetworkLocationResponseFailure(response=mock_response)
+        self.mock_client.get.side_effect = error
+
+        with self.assertRaises(NetworkLocationResponseFailure):
+            _get_import_metadata(self.mock_client, self.contentnode_id)
+
+    @mock.patch(_module + "_get_descendants_import_metadata")
+    def test_merges_ancestor_and_descendant_metadata(self, mock_get_descendants):
+        """Test that ancestor and descendant metadata are properly merged"""
+        options = '{"modality": "' + modalities.COURSE + '"}'
+        ancestor_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": self.contentnode_id, "options": options},
+                {"id": "parent1"},
+            ],
+            File._meta.db_table: [{"id": "ancestor_file"}],
+            Language._meta.db_table: [{"id": "en"}],
+            "schema_version": "5",
+        }
+        page1_descendants = {
+            ContentNode._meta.db_table: [{"id": "child1"}],
+            File._meta.db_table: [{"id": "child_file1"}],
+        }
+        page2_descendants = {
+            ContentNode._meta.db_table: [{"id": "child2"}],
+            File._meta.db_table: [{"id": "child_file2"}],
+        }
+        self.mock_client.get.return_value.json.return_value = ancestor_metadata
+        mock_get_descendants.return_value = [page1_descendants, page2_descendants]
+
+        result = _get_import_metadata(self.mock_client, self.contentnode_id)
+
+        # Should have: ancestor node + parent + child1 + child2 = 4 nodes
+        self.assertEqual(len(result[ContentNode._meta.db_table]), 4)
+        # Should have: ancestor_file + child_file1 + child_file2 = 3 files
+        self.assertEqual(len(result[File._meta.db_table]), 3)
+        # Language should be preserved
+        self.assertEqual(result[Language._meta.db_table], [{"id": "en"}])
+        self.assertEqual(result["schema_version"], "5")
+
+
+class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
+    """
+    Integration tests for _get_import_metadata against a live server.
+
+    Unlike the unit tests in GetDescendantsImportMetadataTestCase and
+    GetImportMetadataTestCase, these tests use a real NetworkClient making
+    actual HTTP requests to a live Django server, verifying the end-to-end
+    data flow including the correct format of data returned by the endpoint.
+
+    Two cases are covered:
+    - Non-course node: only ancestor metadata is returned
+    - Course node: ancestors are merged with paginated descendant metadata
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        self.builder = ChannelBuilder()
+        self.builder.insert_into_default_db()
+        self.root = ContentNode.objects.get(id=self.builder.root_node["id"])
+        self.network_client = NetworkClient(self.live_server_url)
+
+    def tearDown(self):
+        self.network_client.close()
+
+    def test_non_course_node_returns_ancestor_metadata_only(self):
+        """
+        A non-course node returns the metadata for itself and its ancestors,
+        without fetching any descendants.
+        """
+        # Use a level-1 topic node that has both ancestors (root) and many descendants
+        topic_node = ContentNode.objects.filter(
+            channel_id=self.root.channel_id,
+            level=1,
+        ).first()
+
+        result = _get_import_metadata(self.network_client, topic_node.id)
+
+        self.assertIsNotNone(result)
+        returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
+
+        # Should contain the topic node and its ancestors (root) only
+        expected_ancestor_ids = set(
+            topic_node.get_ancestors(include_self=True).values_list("id", flat=True)
+        )
+        self.assertEqual(returned_node_ids, expected_ancestor_ids)
+
+        # No descendants should be included
+        descendant_ids = set(topic_node.get_descendants().values_list("id", flat=True))
+        self.assertTrue(returned_node_ids.isdisjoint(descendant_ids))
+
+    def test_course_node_returns_merged_ancestor_and_descendant_metadata(self):
+        """
+        A course node triggers paginated descendant fetching via
+        _get_descendants_import_metadata. The final result contains nodes from
+        the ancestors call merged with all descendants up to
+        COURSES_DESCENDANTS_DEPTH levels deep.
+
+        The default ChannelBuilder tree has enough nodes to exceed
+        MAX_NODES_PER_REQUEST, so this exercises the pagination code path
+        end-to-end against a real server.
+        """
+        # Use a level-1 topic node that has both ancestors (root) and many descendants
+        topic_node = ContentNode.objects.filter(
+            channel_id=self.root.channel_id,
+            level=1,
+        ).first()
+        topic_node.options = {"modality": modalities.COURSE}
+        topic_node.save()
+
+        result = _get_import_metadata(self.network_client, topic_node.id)
+
+        self.assertIsNotNone(result)
+        returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
+
+        expected_ancestor_ids = set(
+            topic_node.get_ancestors(include_self=True).values_list("id", flat=True)
+        )
+        expected_descendant_ids = set(
+            topic_node.get_descendants(include_self=True)
+            .filter(level__lte=topic_node.level + COURSES_DESCENDANTS_DEPTH)
+            .values_list("id", flat=True)
+        )
+        expected_node_ids = expected_ancestor_ids.union(expected_descendant_ids)
+        self.assertEqual(returned_node_ids, expected_node_ids)
