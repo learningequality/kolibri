@@ -10,15 +10,6 @@ import CSVExporter from '../../../csv/exporter';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
-jest.mock('kolibri/composables/useUser', () => {
-  const { ref } = require('vue');
-  return {
-    __esModule: true,
-    default: jest.fn(() => ({
-      isAppContext: ref(false),
-    })),
-  };
-});
 jest.mock('../../../csv/exporter', () => {
   const mockExport = jest.fn();
   const MockCSVExporter = jest.fn(() => ({ export: mockExport }));
@@ -100,16 +91,10 @@ const STUBS = {
     props: ['value', 'itemsPerPage', 'totalPageNumber', 'numFilteredItems'],
     template: '<nav class="pagination"><slot /></nav>',
   },
-  KIconButton: {
-    name: 'KIconButton',
-    props: ['icon', 'ariaLabel'],
+  ReportsControls: {
+    name: 'ReportsControls',
     template:
-      '<button :data-icon="icon" :aria-label="ariaLabel" @click="$emit(\'click\')">{{ icon }}</button>',
-  },
-  KTooltip: {
-    name: 'KTooltip',
-    props: ['reference', 'refs'],
-    template: '<span><slot /></span>',
+      '<div class="report-controls"><slot /><button class="export-btn" @click="$emit(\'export\')">Export</button></div>',
   },
 };
 
@@ -141,19 +126,14 @@ function makeWrapper({ sessions = [], totalPages = 1, sessionCount = null, loadi
   testStore.state.classSummary.id = 'class-123';
   store.replaceState(testStore.state);
 
-  const $print = jest.fn();
   const wrapper = mount(AttendanceHistoryPage, {
     store: testStore,
     localVue,
     router,
     stubs: STUBS,
-    mocks: {
-      $isPrint: false,
-      $print,
-    },
   });
 
-  return { wrapper, mock: mockValues, $print };
+  return { wrapper, mock: mockValues };
 }
 
 describe('AttendanceHistoryPage', () => {
@@ -185,36 +165,17 @@ describe('AttendanceHistoryPage', () => {
       expect(wrapper.text()).toContain('Mark attendance');
     });
 
-    it('renders print icon button', () => {
+    it('renders ReportsControls', () => {
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
-      const printBtn = wrapper.find('[aria-label="Print report"]');
-      expect(printBtn.exists()).toBe(true);
+      expect(wrapper.findComponent({ name: 'ReportsControls' }).exists()).toBe(true);
     });
 
-    it('renders export CSV icon button', () => {
-      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
-      const exportBtn = wrapper.find('[aria-label="Export as CSV"]');
-      expect(exportBtn.exists()).toBe(true);
-    });
-
-    it('calls $print when print button is clicked', async () => {
-      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
-      const printMock = jest.fn();
-      wrapper.vm.$print = printMock;
-      const iconButtons = wrapper.findAllComponents({ name: 'KIconButton' });
-      const printBtn = iconButtons.wrappers.find(w => w.props('icon') === 'print');
-      printBtn.vm.$emit('click');
-      await wrapper.vm.$nextTick();
-      expect(printMock).toHaveBeenCalled();
-    });
-
-    it('exports CSV with session data when export button is clicked', async () => {
+    it('exports CSV with session data when ReportsControls emits export', async () => {
       CSVExporter._mockExport.mockClear();
       CSVExporter.mockClear();
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
-      const iconButtons = wrapper.findAllComponents({ name: 'KIconButton' });
-      const exportBtn = iconButtons.wrappers.find(w => w.props('icon') === 'download');
-      exportBtn.vm.$emit('click');
+      const controls = wrapper.findComponent({ name: 'ReportsControls' });
+      controls.vm.$emit('export');
       await wrapper.vm.$nextTick();
 
       expect(CSVExporter).toHaveBeenCalledWith(
