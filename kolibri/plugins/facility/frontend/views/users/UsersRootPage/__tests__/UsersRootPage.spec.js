@@ -1,7 +1,10 @@
-import mock from 'xhr-mock';
-import { mount } from '@vue/test-utils';
+import { computed } from 'vue';
+import { render, screen } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import useUserManagement from '../../../../composables/useUserManagement';
+import { useUserManagementMock } from '../../../../composables/__mocks__/useUserManagement';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import UserPage from '../index';
 
@@ -16,65 +19,113 @@ const router = new VueRouter({
       path: '/userpage/',
       name: 'UserPage',
     },
+    {
+      path: '/userpage/new/',
+      name: 'ADD_NEW_USER_SIDE_PANEL__NEW_USERS',
+    },
+    {
+      path: '/userpage/filters/',
+      name: 'FILTER_USERS_SIDE_PANEL',
+    },
   ],
 });
 
-UserPage.computed.newUserLink = () => ({});
-function makeWrapper(options = {}) {
+async function renderPage({ routeQuery = {}, userManagement = {} } = {}) {
   const store = makeStore();
   store.state.route = { params: {} };
-  return mount(UserPage, {
+  useUserManagement.mockImplementation(() =>
+    useUserManagementMock({
+      ...userManagement,
+    }),
+  );
+  await router.push({ name: 'UserPage', query: routeQuery });
+  const UserPageWithStubbedNewUserLink = {
+    extends: UserPage,
+    computed: {
+      ...(UserPage.computed || {}),
+      newUserLink() {
+        return {};
+      },
+    },
+  };
+  return render(UserPageWithStubbedNewUserLink, {
     store,
     router,
-    stubs: ['RouterLinkStub'],
-    ...options,
   });
 }
 
-// Intentionally made to not match any 'kind' filter
-const unicornUser = { id: '1', kind: 'UNICORN', username: 'unicorn', full_name: 'unicorn' };
-const coachUser = { id: '1', kind: 'coach', username: 'coach', full_name: 'coach' };
-
 describe('UserPage component', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
       windowBreakpoint: 4,
     }));
+    useUserManagement.mockImplementation(() => useUserManagementMock());
   });
-  // replace the real XHR object with the mock XHR object before each test
-  beforeEach(() => mock.setup());
 
-  // put the real XHR object back and clear the mocks after each test
-  afterEach(() => mock.teardown());
+  it('shows the main users management controls', async () => {
+    await renderPage();
 
-  describe('message in empty states', () => {
-    function getUserTableEmptyMessage(wrapper) {
-      return wrapper.findComponent({ name: 'KTable' }).props().emptyMessage;
-    }
+    expect(screen.getByRole('heading', { name: 'Users' })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Search for a user...' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Filter' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Options' })).toBeInTheDocument();
+  });
 
-    it('if a keyword filter is applied, the empty message is "no users match..."', async () => {
-      mock.get(/.*/, {
-        status: 200,
-        body: JSON.stringify({ results: [], page: 1, total_pages: 1, count: 0 }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      setTimeout(async () => {
-        const wrapper = makeWrapper({
-          data() {
-            return {
-              facilityUsers: [{ ...coachUser, ...unicornUser }],
-              roleFilter: { value: 'coach' },
-            };
-          },
-        });
-        wrapper
-          .findComponent({ name: 'PaginatedListContainer' })
-          .setData({ filterInput: 'coachy' });
-        await wrapper.vm.$nextTick();
-        expect(getUserTableEmptyMessage(wrapper)).toEqual("No users match the filter: 'coachy'");
-      }, 1000);
+  it('shows a search-specific empty state when no users match the search term', async () => {
+    const usersInFacility = [
+      {
+        id: 'alice-1',
+        full_name: 'Alice Johnson',
+        username: 'alice',
+      },
+      {
+        id: 'bob-2',
+        full_name: 'Bob Stone',
+        username: 'bstone',
+      },
+    ];
+    const searchQuery = 'coachy';
+    const searchResults = usersInFacility.filter(user => {
+      const normalizedSearch = searchQuery.toLowerCase();
+      return (
+        user.full_name.toLowerCase().includes(normalizedSearch) ||
+        user.username.toLowerCase().includes(normalizedSearch)
+      );
     });
+
+    await renderPage({
+      routeQuery: { search: searchQuery },
+      userManagement: {
+        facilityUsers: computed(() => searchResults),
+      },
+    });
+
+    expect(usersInFacility).toHaveLength(2);
+    expect(searchResults).toHaveLength(0);
+    expect(screen.getByText('No users match this search')).toBeInTheDocument();
+  });
+
+  it('shows a filter-specific empty state when filters are applied', async () => {
+    await renderPage({
+      userManagement: {
+        facilityUsers: computed(() => []),
+        numAppliedFilters: computed(() => 1),
+      },
+    });
+
+    expect(screen.getByText('No users match this filter')).toBeInTheDocument();
+  });
+
+  it('shows combined empty-state messaging when both search and filters are applied', async () => {
+    await renderPage({
+      routeQuery: { search: 'coachy' },
+      userManagement: {
+        facilityUsers: computed(() => []),
+        numAppliedFilters: computed(() => 2),
+      },
+    });
+
+    expect(screen.getByText('No users match this search and these filters')).toBeInTheDocument();
   });
 });

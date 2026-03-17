@@ -3,6 +3,7 @@
   <FacilityAppBarPage>
     <KPageContainer
       data-test="page-container"
+      data-testid="page-container"
       :style="{ marginBottom: '42px' }"
     >
       <p>
@@ -169,7 +170,7 @@
       />
     </KPageContainer>
 
-    <BottomAppBar data-test="bottom-bar">
+    <BottomAppBar data-testid="bottom-bar">
       <KButton
         v-if="!isAppContext"
         :primary="true"
