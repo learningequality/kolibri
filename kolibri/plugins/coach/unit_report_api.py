@@ -73,3 +73,26 @@ def get_synthetic_content_id(learner_id, course_session_id, unit_contentnode_id,
         learner_id, course_session_id, unit_contentnode_id, test_type
     )
     return uuid.uuid5(_SYNTHETIC_CONTENT_ID_NAMESPACE, key).hex
+
+
+def _get_test_status(assignments):
+    """
+    Derive a display status from a list of UnitTestAssignment objects.
+
+    Returns one of:
+      - "not_activated": no assignment exists, or all assignments are still in
+                         the not_started state (created but not yet opened)
+      - "open":          at least one assignment is currently active
+      - "closed":        at least one assignment has been ended (and none active)
+
+    Checking status == TestStatus.Ended explicitly (rather than relying on
+    is_active == False) avoids misclassifying a not_started assignment as
+    "closed".
+    """
+    if not assignments:
+        return TEST_STATUS_NOT_ACTIVATED
+    if any(a.is_active for a in assignments):
+        return TEST_STATUS_OPEN
+    if any(a.status == TestStatus.Ended for a in assignments):
+        return TEST_STATUS_CLOSED
+    return TEST_STATUS_NOT_ACTIVATED
