@@ -3,19 +3,22 @@
   <div class="prev-next-bar">
     <!-- Prev button on the left -->
     <KButton
-      data-testid="prev-button"
-      :disabled="!canGoPrev"
+      class="btn-flex"
       appearance="flat-button"
+      data-testid="prev-button"
+      :style="{ gap: showButtonLabels ? '8px' : '0px' }"
+      :disabled="!canGoPrev"
       :aria-label="previousLabel$()"
+      :text="showButtonLabels ? previousLabel$() : ''"
       @click="handlePrev"
     >
-      <div class="btn-flex">
+      <template #icon>
         <KIcon
-          class="icon"
           icon="back"
+          class="btn-icon"
+          :color="$themeTokens.text"
         />
-        <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
-      </div>
+      </template>
     </KButton>
 
     <!-- Progress/status in the center -->
@@ -37,19 +40,22 @@
         <slot name="actions"></slot>
       </div>
       <KButton
+        primary
+        class="btn-flex"
         data-testid="next-button"
+        :style="{ gap: showButtonLabels ? '8px' : '0px' }"
         :disabled="!canGoNext"
-        appearance="flat-button"
         :aria-label="nextLabel$()"
+        :text="showButtonLabels ? nextLabel$() : ''"
         @click="handleNext"
       >
-        <div class="btn-flex">
-          <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
+        <template #iconAfter>
           <KIcon
-            class="icon"
+            class="btn-icon hotfixed"
             icon="forward"
+            :color="$themeTokens.textInverted"
           />
-        </div>
+        </template>
       </KButton>
     </div>
   </div>
@@ -168,12 +174,22 @@
 
   .btn-flex {
     display: flex;
-    gap: 4px;
     align-items: center;
     justify-content: center;
+    padding: 8px;
+    font-weight: 600;
+    line-height: 135%;
 
-    .icon {
-      top: 0;
+    .btn-icon {
+      top: -2px;
+      flex-grow: 1;
+      width: 16px;
+      height: 16px;
+
+      &.hotfixed {
+        // Remove when https://github.com/learningequality/kolibri-design-system/pull/1219 is in KDS release
+        top: -1px;
+      }
     }
   }
 
