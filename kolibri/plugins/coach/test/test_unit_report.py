@@ -619,3 +619,77 @@ class ComputeTestScoresTests(TestCase):
         # Most recent log has 0 correct — scores dict should be present but empty.
         self.assertIn(lid, result)
         self.assertEqual(result[lid], {})
+
+
+# ---------------------------------------------------------------------------
+# API integration tests
+# ---------------------------------------------------------------------------
+
+
+class UnitReportAPIBase(APITestCase):
+    """Shared setup for API-level tests."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        from kolibri.core.auth.test.test_api import FacilityFactory
+
+        cls.facility = FacilityFactory.create()
+        cls.classroom = Classroom.objects.create(name="classroom", parent=cls.facility)
+
+        cls.facility_admin = helpers.create_facility_admin("fadmin", DUMMY_PASSWORD, cls.facility)
+        cls.facility_coach = helpers.create_coach(
+            "fcoach", DUMMY_PASSWORD, cls.facility, is_facility_coach=True
+        )
+        cls.classroom_coach = helpers.create_coach(
+            "ccoach", DUMMY_PASSWORD, cls.facility, classroom=cls.classroom
+        )
+        cls.other_classroom = Classroom.objects.create(name="other", parent=cls.facility)
+        cls.other_coach = helpers.create_coach(
+            "ocoach", DUMMY_PASSWORD, cls.facility, classroom=cls.other_classroom
+        )
+        cls.learner1 = helpers.create_learner("l1", DUMMY_PASSWORD, cls.facility, cls.classroom)
+        cls.learner2 = helpers.create_learner("l2", DUMMY_PASSWORD, cls.facility, cls.classroom)
+        cls.learner3 = helpers.create_learner("l3", DUMMY_PASSWORD, cls.facility, cls.classroom)
+
+        # Course node (parent) and unit node
+        cls.course_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title="Test Course",
+            kind=content_kinds.TOPIC,
+            modality=modalities.COURSE,
+            available=True,
+        )
+        cls.unit_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title="Unit 1: Fractions",
+            kind=content_kinds.EXERCISE,
+            modality=modalities.UNIT,
+            options=UNIT_OPTIONS,
+            available=True,
+            parent=cls.course_node,
+        )
+
+        # Course session for the classroom
+        cls.course_session = CourseSession.objects.create(
+            course=cls.course_node.id,
+            title="Spring 2025",
+            collection=cls.classroom,
+            created_by=cls.facility_admin,
+            is_active=True,
+        )
+        # Assign the whole classroom to the course session
+        CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.facility_admin,
+        )
+
+    def _get_url(self):
+        return _make_url(self.course_session.id, self.unit_node.id)
