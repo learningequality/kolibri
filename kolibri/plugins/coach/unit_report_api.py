@@ -228,3 +228,30 @@ def _compute_all_test_scores(learner_ids, course_session_id, unit_contentnode_id
         lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
 
     return results
+
+
+class UnitReportPermissions(permissions.BasePermission):
+    """
+    Allow access only to admins and coaches for the classroom associated
+    with the given course session.
+
+    Side effect: on success, caches the validated ``CourseSession`` instance
+    on the view as ``view._course_session`` so that ``UnitReportViewSet.retrieve``
+    can reuse it without a second DB round-trip.
+    """
+
+    def has_permission(self, request, view):
+        # Guard first: AnonymousUser has no has_role_for method.
+        if not request.user.is_authenticated:
+            return False
+        course_session_id = view.kwargs.get("course_session_id")
+        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
+        try:
+            course_session = CourseSession.objects.get(pk=course_session_id)
+            if request.user.has_role_for(allowed_roles, course_session.collection):
+                # Cache so the view can reuse it without a second DB query.
+                view._course_session = course_session
+                return True
+            return False
+        except (CourseSession.DoesNotExist, ValueError):
+            return False
