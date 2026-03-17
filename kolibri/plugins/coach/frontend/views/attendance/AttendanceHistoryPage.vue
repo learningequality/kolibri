@@ -8,14 +8,16 @@
       />
       <KGrid>
         <KGridItem
-          :layout8="{ span: 6 }"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 5 }"
           :layout12="{ span: 9 }"
         >
           <h1>{{ attendanceHistoryTitle$() }}</h1>
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
-          :layout8="{ span: 2 }"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 3 }"
           :layout12="{ span: 3 }"
         >
           <KRouterLink
@@ -27,13 +29,15 @@
         </KGridItem>
       </KGrid>
 
-      <KSelect
-        :label="dateRangeLabel$()"
-        :options="dateRangeOptions"
-        :inline="true"
-        :value="selectedDateRange"
-        @change="handleDateRangeChange"
-      />
+      <ReportsControls @export="exportCSV">
+        <KSelect
+          :label="dateRangeLabel$()"
+          :options="dateRangeOptions"
+          :inline="true"
+          :value="selectedDateRange"
+          @change="handleDateRangeChange"
+        />
+      </ReportsControls>
 
       <KDateRange
         v-if="showDateRangePicker"
@@ -48,6 +52,15 @@
         :nextMonthText="nextMonthLabel$()"
         @submit="handleCustomDateSubmit"
         @cancel="showDateRangePicker = false"
+      />
+
+      <PaginationActions
+        v-if="totalPages > 1"
+        v-model="currentPage"
+        class="pagination-actions"
+        :itemsPerPage="PAGE_SIZE"
+        :totalPageNumber="totalPages"
+        :numFilteredItems="sessionCount"
       />
 
       <KTable
@@ -68,14 +81,6 @@
           </template>
         </template>
       </KTable>
-
-      <PaginationActions
-        v-if="totalPages > 1"
-        v-model="currentPage"
-        :itemsPerPage="PAGE_SIZE"
-        :totalPageNumber="totalPages"
-        :numFilteredItems="sessionCount"
-      />
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -95,8 +100,10 @@
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import BackLink from '../common/BackLink';
+  import ReportsControls from '../common/ReportsControls';
   import useCoreCoach from '../../composables/useCoreCoach';
   import { useAttendance } from '../../composables/useAttendance';
+  import CSVExporter from '../../csv/exporter';
 
   const PAGE_SIZE = 10;
 
@@ -113,6 +120,7 @@
       CoachAppBarPage,
       KDateRange,
       PaginationActions,
+      ReportsControls,
     },
     setup() {
       const { classId } = useCoreCoach();
@@ -255,15 +263,31 @@
         minute: 'numeric',
       };
 
-      const tableRows = computed(() => {
+      const processedSessions = computed(() => {
         return sessions.value.map(session => {
-          const dateObj = new Date(session.session_start_datetime);
           const totalCount = session.total_count || 0;
           const presentCount = session.present_count || 0;
-          const absentCount = totalCount - presentCount;
-          return [$formatDate(dateObj, dateTimeFormatOptions), presentCount, absentCount];
+          return {
+            date: $formatDate(new Date(session.session_start_datetime), dateTimeFormatOptions),
+            present: presentCount,
+            absent: totalCount - presentCount,
+          };
         });
       });
+
+      const tableRows = computed(() => {
+        return processedSessions.value.map(row => [row.date, row.present, row.absent]);
+      });
+
+      function exportCSV() {
+        const columns = [
+          { name: dateLabel$(), key: 'date' },
+          { name: presentColumnHeader$(), key: 'present' },
+          { name: absentColumnHeader$(), key: 'absent' },
+        ];
+        const exporter = new CSVExporter(columns, attendanceHistoryTitle$());
+        exporter.export(processedSessions.value);
+      }
 
       // Fetch sessions whenever page changes (immediate: true handles initial load)
       watch(
@@ -333,8 +357,19 @@
         nextMonthLabel$,
         applyLabel$,
         coreString,
+        exportCSV,
       };
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .pagination-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+</style>

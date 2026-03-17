@@ -6,9 +6,14 @@ import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
 import makeStore from '../../../__tests__/utils/makeStore';
 // eslint-disable-next-line import/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
+import CSVExporter from '../../../csv/exporter';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
+jest.mock('../../../csv/exporter', () => {
+  const MockCSVExporter = jest.fn(() => ({ export: jest.fn() }));
+  return { __esModule: true, default: MockCSVExporter };
+});
 jest.mock('kolibri-common/composables/usePagination', () => {
   const { ref } = require('vue');
   return {
@@ -84,6 +89,11 @@ const STUBS = {
     props: ['value', 'itemsPerPage', 'totalPageNumber', 'numFilteredItems'],
     template: '<nav class="pagination"><slot /></nav>',
   },
+  ReportsControls: {
+    name: 'ReportsControls',
+    template:
+      '<div class="report-controls"><slot /><button class="export-btn" @click="$emit(\'export\')">Export</button></div>',
+  },
 };
 
 const MOCK_SESSIONS = [
@@ -152,6 +162,35 @@ describe('AttendanceHistoryPage', () => {
       const { wrapper } = makeWrapper();
       expect(wrapper.text()).toContain('Mark attendance');
     });
+
+    it('renders ReportsControls', () => {
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      expect(wrapper.findComponent({ name: 'ReportsControls' }).exists()).toBe(true);
+    });
+
+    it('exports CSV with session data when ReportsControls emits export', async () => {
+      CSVExporter.mockClear();
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      const controls = wrapper.findComponent({ name: 'ReportsControls' });
+      controls.vm.$emit('export');
+      await wrapper.vm.$nextTick();
+
+      expect(CSVExporter).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ key: 'date' }),
+          expect.objectContaining({ key: 'present' }),
+          expect.objectContaining({ key: 'absent' }),
+        ]),
+        expect.any(String),
+      );
+      const exporterInstance = CSVExporter.mock.results[0].value;
+      expect(exporterInstance.export).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ present: 15, absent: 5 }),
+          expect.objectContaining({ present: 18, absent: 2 }),
+        ]),
+      );
+    });
   });
 
   describe('data loading', () => {
@@ -219,6 +258,25 @@ describe('AttendanceHistoryPage', () => {
       expect(pagination.props('totalPageNumber')).toBe(2);
       expect(pagination.props('numFilteredItems')).toBe(15);
       expect(pagination.props('itemsPerPage')).toBe(10);
+    });
+
+    it('renders pagination above the table', () => {
+      const { wrapper } = makeWrapper({
+        sessions: MOCK_SESSIONS,
+        totalPages: 2,
+        sessionCount: 15,
+      });
+      const pagination = wrapper.findComponent({ name: 'PaginationActions' });
+      const table = wrapper.findComponent({ name: 'KTable' });
+      expect(pagination.exists()).toBe(true);
+      expect(table.exists()).toBe(true);
+
+      // Pagination should appear before the table in DOM order
+      const paginationEl = pagination.element;
+      const tableEl = table.element;
+      const position = paginationEl.compareDocumentPosition(tableEl);
+      // eslint-disable-next-line no-bitwise
+      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     });
 
     it('fetches new page when pagination emits input', async () => {

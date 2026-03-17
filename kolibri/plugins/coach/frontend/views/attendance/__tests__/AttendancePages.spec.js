@@ -275,6 +275,31 @@ describe('AttendanceNewPage', () => {
     });
   });
 
+  it('wraps mark-all modal action buttons in KButtonGroup', async () => {
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    await fireEvent.click(getMarkAllSwitch());
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    const dialog = screen.getByRole('dialog');
+
+    // KButtonGroup renders as <div class="button-group">. Without KButtonGroup,
+    // no such wrapper exists inside the dialog's actions area.
+    const buttonGroup = dialog.querySelector('.button-group');
+    expect(buttonGroup).not.toBeNull();
+
+    // Verify both buttons are inside the KButtonGroup wrapper
+    const confirmBtn = buttonGroup.querySelector('[data-test="mark-all-confirm"]');
+    expect(confirmBtn).not.toBeNull();
+    const buttons = buttonGroup.querySelectorAll('button');
+    expect(buttons.length).toBe(2);
+  });
+
   it('marks all learners present after confirming modal', async () => {
     renderNewPage();
     await waitFor(() => {
