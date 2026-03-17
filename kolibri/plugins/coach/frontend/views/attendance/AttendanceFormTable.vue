@@ -3,7 +3,7 @@
   <div>
     <div
       class="attendance-card"
-      :style="{ borderColor: $themeTokens.fineLine }"
+      :style="{ borderColor: $themeTokens.fineLine, backgroundColor: $themePalette.grey.v_100 }"
     >
       <PaginatedListContainer
         :items="sortedLearners"
@@ -27,7 +27,7 @@
                 <tr
                   class="mark-all-row"
                   :style="{
-                    backgroundColor: $themeTokens.surface,
+                    backgroundColor: $themePalette.grey.v_100,
                     borderBottom: `1px solid ${$themeTokens.fineLine}`,
                   }"
                 >
@@ -90,16 +90,12 @@
 
     <BottomAppBar>
       <div class="bottom-bar-content">
-        <div>
-          <span :style="{ color: $themeTokens.annotation }">{{ learnersLabel$() }}</span>
+        <div :style="{ color: $themeTokens.annotation }">
+          <span>{{ learnersLabel$() }}</span>
           {{ ' ' }}
-          <span :style="{ color: $themeTokens.annotation }">{{
-            presentCount$({ count: presentCount })
-          }}</span>
+          <span>{{ presentCount$({ count: presentCount }) }}</span>
           <span> · </span>
-          <span :style="{ color: $themePalette.red.v_500 }">{{
-            absentCount$({ count: absentCount })
-          }}</span>
+          <span>{{ absentCount$({ count: absentCount }) }}</span>
         </div>
         <KButtonGroup>
           <KButton
@@ -265,6 +261,11 @@
     /deep/ .text-filter {
       margin-top: 0;
     }
+
+    /deep/ td {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
   }
 
   .mark-all-label {
@@ -281,6 +282,7 @@
     gap: 8px;
     align-items: center;
     justify-content: flex-end;
+    overflow: hidden;
   }
 
   .present-label {
@@ -293,6 +295,9 @@
     align-items: center;
     justify-content: space-between;
     height: 100%;
+    padding-bottom: 16px;
+    padding-left: 24px;
+    overflow: hidden;
   }
 
 </style>
