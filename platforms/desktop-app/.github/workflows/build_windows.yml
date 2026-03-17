@@ -119,12 +119,12 @@ jobs:
       id: get-exe-filename
       shell: pwsh
       run: |
-        $baseName = (Get-ChildItem -Path dist-installer -Filter *.exe).BaseName
+        $baseName = (Get-ChildItem -Path installer/dist-installer -Filter *.exe).BaseName
         $unsignedName = "$baseName-unsigned.exe"
         # The final name depends on whether this is a release build
         $finalName = if ('${{ inputs.release }}' -eq 'true') { "$baseName.exe" } else { $unsignedName }
         # Rename the built file to have the "-unsigned" suffix
-        Rename-Item -Path "dist-installer\$baseName.exe" -NewName $unsignedName
+        Rename-Item -Path "installer/dist-installer\$baseName.exe" -NewName $unsignedName
         echo "unsigned-exe-file-name=$unsignedName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "final-exe-file-name=$finalName" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
@@ -138,7 +138,7 @@ jobs:
         endpoint: 'https://wus2.codesigning.azure.net/'
         trusted-signing-account-name: 'LE-Trusted-Signing-Acct'
         certificate-profile-name: 'LE-Windows-Certificates'
-        files-folder: dist-installer
+        files-folder: installer/dist-installer
         files-folder-filter: ${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}
         file-digest: SHA256
         timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
@@ -148,11 +148,10 @@ jobs:
       if: ${{ inputs.release }}
       shell: pwsh
       run: |
-        # Only for a release, rename the file from "-unsigned.exe" to its final name after signing.
-        Rename-Item -Path "dist-installer\${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}" -NewName "${{ steps.get-exe-filename.outputs.final-exe-file-name }}"
+        Rename-Item -Path "installer/dist-installer\${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}" -NewName "${{ steps.get-exe-filename.outputs.final-exe-file-name }}"
 
     - name: Upload installer artifact
       uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
-        path: dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}
+        path: installer/dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}

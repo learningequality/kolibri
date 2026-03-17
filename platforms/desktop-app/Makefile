@@ -86,13 +86,13 @@ build-dmg: needs-version
 .PHONY: webview2
 # Download WebView2 runtime installer
 webview2:
-	@if [ ! -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe ]; then \
+	@if [ ! -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe ]; then \
 		echo "Downloading WebView2 full installer..."; \
 		( \
-			trap 'echo "Interrupted. Cleaning up..."; rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; exit 1' INT TERM; \
-			wget https://go.microsoft.com/fwlink/?linkid=2124701 -O MicrosoftEdgeWebView2RuntimeInstallerX64.exe || { \
+			trap 'echo "Interrupted. Cleaning up..."; rm -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe; exit 1' INT TERM; \
+			wget https://go.microsoft.com/fwlink/?linkid=2124701 -O installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe || { \
 				echo "\Download failed. Cleaning up..."; \
-				rm -f MicrosoftEdgeWebView2RuntimeInstallerX64.exe; \
+				rm -f installer/MicrosoftEdgeWebView2RuntimeInstallerX64.exe; \
 				exit 1; \
 			} \
 		); \
@@ -102,14 +102,81 @@ webview2:
 
 # Windows Installer Build
 .PHONY: build-installer-windows
-build-installer-windows: needs-version webview2
+build-installer-windows: translations-compile needs-version webview2
 ifeq ($(OS),Windows_NT)
 	# Assumes Inno Setup is installed in the default location.
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
-	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion=$(KOLIBRI_VERSION) kolibri.iss
+	MSYS_NO_PATHCONV=1 "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion=$(KOLIBRI_VERSION) installer/kolibri.iss
 else
 	@echo "Windows installer can only be built on Windows."
 endif
+
+INNO_DEFAULT_ISL ?= C:/Program Files (x86)/Inno Setup 6/Default.isl
+INNO_LANGUAGES_DIR ?= C:/Program Files (x86)/Inno Setup 6/Languages
+
+TRANSLATIONS_DIR := installer/translations
+LOCALE_DIR := $(TRANSLATIONS_DIR)/locale
+TEMPLATE_ISL := $(TRANSLATIONS_DIR)/en.isl
+SCRIPT_ISL_TO_PO := $(TRANSLATIONS_DIR)/isl_to_po.py
+SCRIPT_PO_TO_ISL := $(TRANSLATIONS_DIR)/po_to_isl.py
+
+# New Language Target
+# Usage: make new-language LANG=es_ES
+.PHONY: new-language
+new-language:
+	$(MAKE) guard-LANG
+	@echo "Scaffolding new PO file for locale '$(LANG)'..."
+	$(PYTHON_EXEC) $(SCRIPT_ISL_TO_PO) \
+		--template $(TEMPLATE_ISL) \
+		--output $(LOCALE_DIR)/$(LANG)/messages.po \
+		--lang "$(LANG)" \
+		--inno-dir "$(INNO_LANGUAGES_DIR)" \
+		--no-overwrite
+
+# Export Source Target (en)
+.PHONY: translations-export-source
+translations-export-source:
+	@echo "Exporting master en.isl to locale/en/messages.po (Source)..."
+	$(PYTHON_EXEC) $(SCRIPT_ISL_TO_PO) \
+		--template $(TEMPLATE_ISL) \
+		--output $(LOCALE_DIR)/en/messages.po \
+		--lang "en"
+
+# Compile Target (PO -> ISL)
+.PHONY: translations-compile
+translations-compile:
+	@echo "Compiling PO files to ISL format..."
+	@# Loop through directories in translations/locale/
+	@for lang_dir in $(LOCALE_DIR)/*; do \
+		if [ -d "$$lang_dir" ]; then \
+			lang_code=$$(basename "$$lang_dir"); \
+			\
+			# Skip 'en' because we use the master en.isl template directly \
+			if [ "$$lang_code" = "en" ]; then \
+				continue; \
+			fi; \
+			\
+			po_file="$$lang_dir/messages.po"; \
+			isl_file="$$lang_dir/$${lang_code}.isl"; \
+			\
+			if [ -f "$$po_file" ]; then \
+				echo "  -> Processing $$lang_code ..."; \
+				$(PYTHON_EXEC) $(SCRIPT_PO_TO_ISL) \
+					-t $(TEMPLATE_ISL) \
+					-i "$$po_file" \
+					-o "$$isl_file" \
+					-l "$$lang_code"; \
+			fi \
+		fi \
+	done
+
+.PHONY: update-translations
+update-translations:
+	@echo "Updating master language file from '$(INNO_DEFAULT_ISL)'..."
+	$(PYTHON_EXEC) installer/translations/update_from_inno_default.py \
+		--new-default "$(INNO_DEFAULT_ISL)" \
+		--project-master "$(TEMPLATE_ISL)"
+	@echo "Update complete. Please review update_report.txt and commit the changes to en.isl."
 
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;

@@ -7,7 +7,7 @@
 #ifndef AppVersion
   #error "The AppVersion definition must be passed to the compiler via the command line, e.g., /DAppVersion=x.y.z"
 #endif
-#define SourceDir "dist\" + AppName + "-" + AppVersion
+#define SourceDir "..\dist\" + AppName + "-" + AppVersion
 #define KolibriDataDir "{commonappdata}\kolibri"
 #define NssmExePath "{app}\nssm\nssm.exe"
 #define TaskkillExePath "{sys}\taskkill.exe"
@@ -38,6 +38,42 @@ ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#AppExeName}
 SetupLogging=yes
 CloseApplicationsFilter={#AppExeName}
+ShowLanguageDialog=yes
+
+[Languages]
+Name: "en"; MessagesFile: "translations\en.isl"
+; Name: "ar"; MessagesFile: "translations\locale\ar\ar.isl"
+; Name: "bg_bg"; MessagesFile: "translations\locale\bg-bg\bg-bg.isl"
+; Name: "bn_bd"; MessagesFile: "translations\locale\bn-bd\bn-bd.isl"
+Name: "de"; MessagesFile: "translations\locale\de\de.isl"
+; Name: "el"; MessagesFile: "translations\locale\el\el.isl"
+; Name: "es_es"; MessagesFile: "translations\locale\es-es\es-es.isl"
+; Name: "es_419"; MessagesFile: "translations\locale\es-419\es-419.isl"
+; Name: "fa"; MessagesFile: "translations\locale\fa\fa.isl"
+; Name: "fr_fr"; MessagesFile: "translations\locale\fr-fr\fr-fr.isl"
+; Name: "ff_cm"; MessagesFile: "translations\locale\ff-cm\ff-cm.isl"
+; Name: "gu_in"; MessagesFile: "translations\locale\gu-in\gu-in.isl"
+; Name: "ha"; MessagesFile: "translations\locale\ha\ha.isl"
+; Name: "hi_in"; MessagesFile: "translations\locale\hi-in\hi-in.isl"
+; Name: "ht"; MessagesFile: "translations\locale\ht\ht.isl"
+; Name: "id"; MessagesFile: "translations\locale\id\id.isl"
+; Name: "it"; MessagesFile: "translations\locale\it\it.isl"
+; Name: "ka"; MessagesFile: "translations\locale\ka\ka.isl"
+; Name: "km"; MessagesFile: "translations\locale\km\km.isl"
+; Name: "ko"; MessagesFile: "translations\locale\ko\ko.isl"
+; Name: "mr"; MessagesFile: "translations\locale\mr\mr.isl"
+; Name: "my"; MessagesFile: "translations\locale\my\my.isl"
+; Name: "ny"; MessagesFile: "translations\locale\ny\ny.isl"
+; Name: "pa"; MessagesFile: "translations\locale\pa\pa.isl"
+; Name: "pt_br"; MessagesFile: "translations\locale\pt-br\pt-br.isl"
+; Name: "pt_mz"; MessagesFile: "translations\locale\pt-mz\pt-mz.isl"
+; Name: "sw_tz"; MessagesFile: "translations\locale\sw-tz\sw-tz.isl"
+; Name: "te"; MessagesFile: "translations\locale\te\te.isl"
+; Name: "uk"; MessagesFile: "translations\locale\uk\uk.isl"
+; Name: "ur_pk"; MessagesFile: "translations\locale\ur-pk\ur-pk.isl"
+; Name: "vi"; MessagesFile: "translations\locale\vi\vi.isl"
+; Name: "yo"; MessagesFile: "translations\locale\yo\yo.isl"
+; Name: "zh_hans"; MessagesFile: "translations\locale\zh-hans\zh-hans.isl"
 
 [Registry]
 ; This registry key is used to detect the installed version for upgrades/repairs.
@@ -47,7 +83,7 @@ Root: HKLM; Subkey: "Software\Kolibri"; ValueType: dword; ValueName: "ShowTrayIc
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueName: "KolibriTray"; Flags: uninsdeletevalue
 
 [Tasks]
-Name: "installservice"; Description: "Run Kolibri automatically when the computer starts"; GroupDescription: "Installation Type:";
+Name: "installservice"; Description: "{cm:InstallServiceTask}"; GroupDescription: "{cm:InstallationType}";
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Dirs]
@@ -60,7 +96,7 @@ Source: "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; DestDir: "{tmp}"; Flags:
 
 Source: "{#SourceDir}\{#AppName}-{#AppVersion}.exe"; DestDir: "{app}"; DestName: "{#AppExeName}"; Flags: ignoreversion
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "{#AppName}-{#AppVersion}.exe"
-Source: "vendor\nssm\nssm.exe"; DestDir: "{app}\nssm"; Flags: ignoreversion
+Source: "nssm\nssm.exe"; DestDir: "{app}\nssm"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
@@ -210,14 +246,14 @@ begin
     begin
       Log('ERROR: User data migration failed. Robocopy exit code: ' + IntToStr(ResultCode));
       // Even if robocopy runs but fails, we should inform the user.
-      MsgBox('Kolibri was unable to automatically move your user data to the new location. Please move the contents of "' + SourcePath + '" to "' + DestPath + '" manually.', mbError, MB_OK);
+      MsgBox(FmtMessage(CustomMessage('MigrationFailed'), [SourcePath, DestPath]), mbError, MB_OK);
     end
   end
   else
   begin
     // This block runs if robocopy.exe itself could not be found or executed.
     Log('ERROR: Failed to execute robocopy.exe. Ensure it is in the system PATH. Error code: ' + IntToStr(ResultCode));
-    MsgBox('Kolibri was unable to automatically move your user data to the new location. Please move the contents of "' + SourcePath + '" to "' + DestPath + '" manually.', mbError, MB_OK);
+    MsgBox(FmtMessage(CustomMessage('MigrationFailed'), [SourcePath, DestPath]), mbError, MB_OK);
   end;
 end;
 
@@ -234,14 +270,14 @@ begin
       // if the process fails to launch
       Log(Format('ERROR: Failed to launch process for "%s". System Error: %s', [Description, SysErrorMessage(ResultCode)]));
       if not WizardSilent() then
-         MsgBox(Format('A critical error occurred while trying to run a setup command: %s.'#13#10'The installation cannot continue.', [Description]), mbError, MB_OK);
+         MsgBox(FmtMessage(CustomMessage('CriticalError'), [Description]), mbError, MB_OK);
       Abort;
    end;
    if ResultCode <> 0 then
    begin
       Log(Format('ERROR: Command "%s" failed with a non-zero exit code: %d.', [Description, ResultCode]));
       if not WizardSilent() then
-         MsgBox(Format('A command required for setup failed to execute correctly: %s.'#13#10'Error Code: %d'#13#10'The installation cannot continue.', [Description, ResultCode]), mbError, MB_OK);
+         MsgBox(FmtMessage(CustomMessage('CommandError'), [Description, IntToStr(ResultCode)]), mbError, MB_OK);
       Abort;
    end
    else
@@ -305,7 +341,7 @@ begin
       Log(Format('  -> Installer Version String: "%s"', [InstallerVersionString]));
       Log(Format('  -> Installed Version String: "%s"', [InstalledVersionString]));
       if not WizardSilent() then
-         MsgBox('Could not compare versions due to an invalid version format. Please uninstall the previous version manually and try again.', mbError, MB_OK);
+         MsgBox(CustomMessage('VersionParseError'), mbError, MB_OK);
       Result := False;
       Exit;
    end;
@@ -319,7 +355,7 @@ begin
    begin
       Log(Format('Downgrade detected. Installed version %s is newer than installer version %s. Aborting.', [InstalledVersionString, InstallerVersionString]));
       if not WizardSilent() then
-         MsgBox(Format('A newer version of {#AppName} (%s) is already installed.' + #13#10#13#10 + 'This installer contains version %s, which is older than the installed version.' + #13#10 + 'The setup will now exit.', [InstalledVersionString, InstallerVersionString]), mbInformation, MB_OK);
+         MsgBox(FmtMessage(CustomMessage('NewerVersionInstalled'), [InstalledVersionString, InstallerVersionString]), mbInformation, MB_OK);
       Result := False;
    end
    else if VersionDiff = 0 then
@@ -327,7 +363,7 @@ begin
       Log('Same version detected. Proposing a repair/reinstall.');
       if not WizardSilent() then
       begin
-         if MsgBox('This version of {#AppName} is already installed.' + #13#10#13#10 + 'Do you want to repair the installation by reinstalling it?', mbConfirmation, MB_YESNO) <> IDYES then
+         if MsgBox(FmtMessage(CustomMessage('SameVersionInstalled'), ['{#AppName}']), mbConfirmation, MB_YESNO) <> IDYES then
             Result := False;
       end;
    end
@@ -336,7 +372,7 @@ begin
       Log('Older version detected. Proposing an upgrade.');
       if not WizardSilent() then
       begin
-         if MsgBox(Format('An older version of {#AppName} (%s) was detected.' + #13#10#13#10 + 'Do you want to upgrade to version {#AppVersion}?', [InstalledVersionString]), mbConfirmation, MB_YESNO) <> IDYES then
+         if MsgBox(FmtMessage(CustomMessage('OlderVersionInstalled'), [InstalledVersionString]), mbConfirmation, MB_YESNO) <> IDYES then
             Result := False;
       end;
    end;
@@ -527,8 +563,7 @@ begin
   // Default to NOT deleting user data unless the user explicitly agrees.
   g_DeleteUserData := False;
 
-  if MsgBox('Do you want to completely remove all Kolibri user data?' + #13#10 +
-    'This includes all downloaded content, user accounts, and progress, and cannot be undone.',
+  if MsgBox(CustomMessage('ConfirmUninstallData'),
     mbConfirmation, MB_YESNO) = IDYES then
   begin
     g_DeleteUserData := True;
