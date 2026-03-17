@@ -27,7 +27,7 @@
         </KGridItem>
       </KGrid>
 
-      <ReportsControls @export="handleExport">
+      <ReportsControls @export="exportCSV">
         <KSelect
           :label="dateRangeLabel$()"
           :options="dateRangeOptions"
@@ -277,7 +277,7 @@
         return processedSessions.value.map(row => [row.date, row.present, row.absent]);
       });
 
-      function handleExport() {
+      function exportCSV() {
         const columns = [
           { name: dateLabel$(), key: 'date' },
           { name: presentColumnHeader$(), key: 'present' },
@@ -355,7 +355,7 @@
         nextMonthLabel$,
         applyLabel$,
         coreString,
-        handleExport,
+        exportCSV,
       };
     },
   };

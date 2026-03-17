@@ -11,9 +11,7 @@ import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
 jest.mock('../../../csv/exporter', () => {
-  const mockExport = jest.fn();
-  const MockCSVExporter = jest.fn(() => ({ export: mockExport }));
-  MockCSVExporter._mockExport = mockExport;
+  const MockCSVExporter = jest.fn(() => ({ export: jest.fn() }));
   return { __esModule: true, default: MockCSVExporter };
 });
 jest.mock('kolibri-common/composables/usePagination', () => {
@@ -171,7 +169,6 @@ describe('AttendanceHistoryPage', () => {
     });
 
     it('exports CSV with session data when ReportsControls emits export', async () => {
-      CSVExporter._mockExport.mockClear();
       CSVExporter.mockClear();
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
       const controls = wrapper.findComponent({ name: 'ReportsControls' });
@@ -186,7 +183,8 @@ describe('AttendanceHistoryPage', () => {
         ]),
         expect.any(String),
       );
-      expect(CSVExporter._mockExport).toHaveBeenCalledWith(
+      const exporterInstance = CSVExporter.mock.results[0].value;
+      expect(exporterInstance.export).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({ present: 15, absent: 5 }),
           expect.objectContaining({ present: 18, absent: 2 }),
