@@ -8,14 +8,16 @@
       />
       <KGrid>
         <KGridItem
-          :layout8="{ span: 6 }"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 5 }"
           :layout12="{ span: 9 }"
         >
           <h1>{{ attendanceHistoryTitle$() }}</h1>
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
-          :layout8="{ span: 2 }"
+          :layout4="{ span: 4 }"
+          :layout8="{ span: 3 }"
           :layout12="{ span: 3 }"
         >
           <KRouterLink
