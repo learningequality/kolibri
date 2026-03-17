@@ -41,6 +41,18 @@ const MOCK_LEARNERS = [
   { id: 'learner-b', name: 'Bob', username: 'bob' },
 ];
 
+const MOCK_SESSION = {
+  id: 'session-1',
+  collection: 'test-class',
+  session_start_datetime: '2026-03-09T10:00:00Z',
+};
+
+const MOCK_RECORDS = [
+  { user: 'learner-a', present: true },
+  { user: 'learner-b', present: false },
+  { user: 'learner-c', present: true },
+];
+
 const COMPONENT_STUBS = {
   CoachImmersivePage: {
     template: '<div><slot /></div>',
@@ -121,6 +133,50 @@ function renderNewPage({
   });
 
   return { ...result, createSession, createSnackbar, router };
+}
+
+function renderEditPage({
+  learners = MOCK_LEARNERS,
+  session = MOCK_SESSION,
+  records = MOCK_RECORDS,
+  bulkUpdateResult = Promise.resolve({}),
+  fetchSession: customFetchSession = null,
+  fetchRecords: customFetchRecords = null,
+} = {}) {
+  const fetchSession = customFetchSession || jest.fn(() => Promise.resolve(session));
+  const fetchRecords = customFetchRecords || jest.fn(() => Promise.resolve(records));
+  const bulkUpdateRecords = jest.fn(() =>
+    typeof bulkUpdateResult === 'function' ? bulkUpdateResult() : bulkUpdateResult,
+  );
+  const mockValues = useAttendanceMock({ fetchSession, fetchRecords, bulkUpdateRecords });
+  useAttendance.mockImplementation(() => mockValues);
+
+  const createSnackbar = jest.fn();
+  useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
+
+  const router = new VueRouter({
+    routes: [
+      { path: '/class/:classId/attendance/:attendanceId', name: 'ATTENDANCE_EDIT' },
+      { path: '/class/:classId/attendance/history', name: 'ATTENDANCE_HISTORY' },
+    ],
+  });
+  router.push({
+    name: 'ATTENDANCE_EDIT',
+    params: { classId: 'test-class', attendanceId: 'session-1' },
+  });
+
+  const testStore = setupTestStore(learners);
+
+  const result = render(AttendanceEditPage, {
+    localVue,
+    router,
+    store: testStore,
+    global: {
+      stubs: COMPONENT_STUBS,
+    },
+  });
+
+  return { ...result, fetchSession, fetchRecords, bulkUpdateRecords, createSnackbar, router };
 }
 
 /**
@@ -280,8 +336,163 @@ describe('AttendanceHistoryPage', () => {
 });
 
 describe('AttendanceEditPage', () => {
-  it('renders the page heading', () => {
-    render(AttendanceEditPage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Edit Attendance');
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(store, 'dispatch').mockImplementation(jest.fn());
+    useAttendance.mockImplementation(() => useAttendanceMock());
+    useSnackbar.mockImplementation(() => useSnackbarMock());
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (store.hasModule('classSummary')) {
+      store.unregisterModule('classSummary');
+    }
+  });
+
+  it('fetches session and records on mount and pre-populates learner toggles', async () => {
+    const { fetchSession, fetchRecords } = renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(fetchSession).toHaveBeenCalledWith('session-1');
+      expect(fetchRecords).toHaveBeenCalledWith('session-1');
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    // Sorted: Alice (present), Bob (absent), Charlie (present)
+    expect(getLearnerSwitch('learner-a').checked).toBe(true);
+    expect(getLearnerSwitch('learner-b').checked).toBe(false);
+    expect(getLearnerSwitch('learner-c').checked).toBe(true);
+  });
+
+  it('does not render content while session is loading', () => {
+    renderEditPage({
+      fetchSession: jest.fn(() => new Promise(() => {})),
+      fetchRecords: jest.fn(() => new Promise(() => {})),
+    });
+
+    expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('displays the session date and time in the heading', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading).toHaveTextContent('2026-03-09');
+      expect(heading).toHaveTextContent('10:00 AM');
+    });
+  });
+
+  it('tracks change count against original state', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('2 present')).toBeInTheDocument();
+      expect(screen.getByText('1 absent')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present — 1 change
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    await waitFor(() => {
+      expect(screen.getByText('3 present')).toBeInTheDocument();
+      expect(screen.getByText('0 absent')).toBeInTheDocument();
+    });
+  });
+
+  it('disables save button when no changes have been made', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    });
+  });
+
+  it('shows save confirmation modal with change count and summary', async () => {
+    renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present (1 change)
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      const modal = screen.getByRole('dialog');
+      expect(modal).toBeInTheDocument();
+      expect(modal).toHaveTextContent('1');
+      expect(modal).toHaveTextContent('3 present');
+      expect(modal).toHaveTextContent('0 absent');
+    });
+  });
+
+  it('calls bulkUpdateRecords with only changed records on confirmed save', async () => {
+    const { bulkUpdateRecords, createSnackbar } = renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+
+    // Toggle Bob from absent to present
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save to open modal
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Confirm save in modal — the KModal submit button is inside the dialog
+    const dialog = screen.getByRole('dialog');
+    const submitBtn = dialog.querySelector('button[type="submit"]');
+    await fireEvent.click(submitBtn);
+    await global.flushPromises();
+
+    expect(bulkUpdateRecords).toHaveBeenCalledWith('session-1', [
+      { user: 'learner-b', present: true },
+    ]);
+    expect(createSnackbar).toHaveBeenCalled();
+  });
+
+  it('shows error snackbar and stays on page when save fails', async () => {
+    const { createSnackbar, router } = renderEditPage({
+      bulkUpdateResult: () => Promise.reject(new Error('API error')),
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+    const initialRoute = router.currentRoute.name;
+
+    // Toggle a learner
+    await fireEvent.click(getLearnerSwitch('learner-b'));
+
+    // Click save
+    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Confirm save in modal
+    const dialog = screen.getByRole('dialog');
+    const submitBtn = dialog.querySelector('button[type="submit"]');
+    await fireEvent.click(submitBtn);
+    await global.flushPromises();
+
+    expect(createSnackbar).toHaveBeenCalled();
+    expect(router.currentRoute.name).toBe(initialRoute);
   });
 });
