@@ -6,9 +6,25 @@ import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
 import makeStore from '../../../__tests__/utils/makeStore';
 // eslint-disable-next-line import/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
+import CSVExporter from '../../../csv/exporter';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
+jest.mock('kolibri/composables/useUser', () => {
+  const { ref } = require('vue');
+  return {
+    __esModule: true,
+    default: jest.fn(() => ({
+      isAppContext: ref(false),
+    })),
+  };
+});
+jest.mock('../../../csv/exporter', () => {
+  const mockExport = jest.fn();
+  const MockCSVExporter = jest.fn(() => ({ export: mockExport }));
+  MockCSVExporter._mockExport = mockExport;
+  return { __esModule: true, default: MockCSVExporter };
+});
 jest.mock('kolibri-common/composables/usePagination', () => {
   const { ref } = require('vue');
   return {
@@ -84,6 +100,17 @@ const STUBS = {
     props: ['value', 'itemsPerPage', 'totalPageNumber', 'numFilteredItems'],
     template: '<nav class="pagination"><slot /></nav>',
   },
+  KIconButton: {
+    name: 'KIconButton',
+    props: ['icon', 'ariaLabel'],
+    template:
+      '<button :data-icon="icon" :aria-label="ariaLabel" @click="$emit(\'click\')">{{ icon }}</button>',
+  },
+  KTooltip: {
+    name: 'KTooltip',
+    props: ['reference', 'refs'],
+    template: '<span><slot /></span>',
+  },
 };
 
 const MOCK_SESSIONS = [
@@ -114,14 +141,19 @@ function makeWrapper({ sessions = [], totalPages = 1, sessionCount = null, loadi
   testStore.state.classSummary.id = 'class-123';
   store.replaceState(testStore.state);
 
+  const $print = jest.fn();
   const wrapper = mount(AttendanceHistoryPage, {
     store: testStore,
     localVue,
     router,
     stubs: STUBS,
+    mocks: {
+      $isPrint: false,
+      $print,
+    },
   });
 
-  return { wrapper, mock: mockValues };
+  return { wrapper, mock: mockValues, $print };
 }
 
 describe('AttendanceHistoryPage', () => {
@@ -151,6 +183,54 @@ describe('AttendanceHistoryPage', () => {
     it('renders the mark attendance button', () => {
       const { wrapper } = makeWrapper();
       expect(wrapper.text()).toContain('Mark attendance');
+    });
+
+    it('renders print icon button', () => {
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      const printBtn = wrapper.find('[aria-label="Print report"]');
+      expect(printBtn.exists()).toBe(true);
+    });
+
+    it('renders export CSV icon button', () => {
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      const exportBtn = wrapper.find('[aria-label="Export as CSV"]');
+      expect(exportBtn.exists()).toBe(true);
+    });
+
+    it('calls $print when print button is clicked', async () => {
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      const printMock = jest.fn();
+      wrapper.vm.$print = printMock;
+      const iconButtons = wrapper.findAllComponents({ name: 'KIconButton' });
+      const printBtn = iconButtons.wrappers.find(w => w.props('icon') === 'print');
+      printBtn.vm.$emit('click');
+      await wrapper.vm.$nextTick();
+      expect(printMock).toHaveBeenCalled();
+    });
+
+    it('exports CSV with session data when export button is clicked', async () => {
+      CSVExporter._mockExport.mockClear();
+      CSVExporter.mockClear();
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+      const iconButtons = wrapper.findAllComponents({ name: 'KIconButton' });
+      const exportBtn = iconButtons.wrappers.find(w => w.props('icon') === 'download');
+      exportBtn.vm.$emit('click');
+      await wrapper.vm.$nextTick();
+
+      expect(CSVExporter).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ key: 'date' }),
+          expect.objectContaining({ key: 'present' }),
+          expect.objectContaining({ key: 'absent' }),
+        ]),
+        expect.any(String),
+      );
+      expect(CSVExporter._mockExport).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ present: 15, absent: 5 }),
+          expect.objectContaining({ present: 18, absent: 2 }),
+        ]),
+      );
     });
   });
 

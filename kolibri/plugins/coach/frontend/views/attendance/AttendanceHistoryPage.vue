@@ -27,13 +27,47 @@
         </KGridItem>
       </KGrid>
 
-      <KSelect
-        :label="dateRangeLabel$()"
-        :options="dateRangeOptions"
-        :inline="true"
-        :value="selectedDateRange"
-        @change="handleDateRangeChange"
-      />
+      <div class="filter-row">
+        <KSelect
+          :label="dateRangeLabel$()"
+          :options="dateRangeOptions"
+          :inline="true"
+          :value="selectedDateRange"
+          @change="handleDateRangeChange"
+        />
+        <div
+          v-show="!$isPrint"
+          class="action-icons"
+        >
+          <KIconButton
+            ref="printButton"
+            icon="print"
+            :aria-label="printReportAction$()"
+            @click="$print()"
+          />
+          <KTooltip
+            reference="printButton"
+            :refs="$refs"
+          >
+            {{ printReportAction$() }}
+          </KTooltip>
+
+          <KIconButton
+            v-if="!isAppContext"
+            ref="exportButton"
+            icon="download"
+            :aria-label="exportCSVAction$()"
+            @click="handleExport"
+          />
+          <KTooltip
+            v-if="!isAppContext"
+            reference="exportButton"
+            :refs="$refs"
+          >
+            {{ exportCSVAction$() }}
+          </KTooltip>
+        </div>
+      </div>
 
       <KDateRange
         v-if="showDateRangePicker"
@@ -92,11 +126,14 @@
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { now } from 'kolibri/utils/serverClock';
   import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
+  import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import BackLink from '../common/BackLink';
   import useCoreCoach from '../../composables/useCoreCoach';
   import { useAttendance } from '../../composables/useAttendance';
+  import { coachStrings } from '../common/commonCoachStrings';
+  import CSVExporter from '../../csv/exporter';
 
   const PAGE_SIZE = 10;
 
@@ -119,6 +156,9 @@
 
       const { attendanceLoading, sessions, totalPages, sessionCount, fetchSessions } =
         useAttendance();
+
+      const { isAppContext } = useUser();
+      const { printReportAction$, exportCSVAction$ } = coachStrings;
 
       const { currentPage } = usePagination();
 
@@ -265,6 +305,25 @@
         });
       });
 
+      function handleExport() {
+        const columns = [
+          { name: dateLabel$(), key: 'date' },
+          { name: presentColumnHeader$(), key: 'present' },
+          { name: absentColumnHeader$(), key: 'absent' },
+        ];
+        const exporter = new CSVExporter(columns, attendanceHistoryTitle$());
+        const data = sessions.value.map(session => {
+          const totalCount = session.total_count || 0;
+          const presentCount = session.present_count || 0;
+          return {
+            date: $formatDate(new Date(session.session_start_datetime), dateTimeFormatOptions),
+            present: presentCount,
+            absent: totalCount - presentCount,
+          };
+        });
+        exporter.export(data);
+      }
+
       // Fetch sessions whenever page changes (immediate: true handles initial load)
       watch(
         currentPage,
@@ -333,8 +392,29 @@
         nextMonthLabel$,
         applyLabel$,
         coreString,
+        isAppContext,
+        printReportAction$,
+        exportCSVAction$,
+        handleExport,
       };
     },
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .action-icons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+</style>
