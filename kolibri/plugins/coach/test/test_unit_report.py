@@ -693,3 +693,48 @@ class UnitReportAPIBase(APITestCase):
 
     def _get_url(self):
         return _make_url(self.course_session.id, self.unit_node.id)
+
+
+class UnitReportPermissionTests(UnitReportAPIBase):
+    """Verify who can and cannot access the endpoint."""
+
+    def test_anon_cannot_access(self):
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 403)
+
+    def test_learner_cannot_access(self):
+        self.client.login(username=self.learner1.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 403)
+
+    def test_coach_of_different_classroom_cannot_access(self):
+        self.client.login(username=self.other_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 403)
+
+    def test_classroom_coach_can_access(self):
+        self.client.login(username=self.classroom_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_facility_coach_can_access(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_facility_admin_can_access(self):
+        self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_nonexistent_course_session_returns_403(self):
+        url = _make_url(uuid.uuid4().hex, self.unit_node.id)
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_nonexistent_unit_returns_404(self):
+        url = _make_url(self.course_session.id, uuid.uuid4().hex)
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
