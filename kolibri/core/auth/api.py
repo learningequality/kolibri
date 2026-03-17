@@ -746,7 +746,9 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
             # the list display
             return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
-            dataset__learner_can_login_with_no_password=True, roles=None
+            Q(dataset__learner_can_login_with_no_password=True)
+            | Q(dataset__learner_can_login_with_picture_password=True),
+            roles=None,
         ).filter(
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
         )
