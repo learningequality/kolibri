@@ -196,8 +196,18 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        if attrs.get("learner_can_login_with_picture_password"):
-            settings = attrs.get("picture_password_settings")
+        # For PATCH requests attrs only contains the fields being updated, so
+        # fall back to the existing instance values for any field not included.
+        instance = self.instance
+        picture_password_enabled = attrs.get(
+            "learner_can_login_with_picture_password",
+            instance.learner_can_login_with_picture_password if instance else False,
+        )
+        if picture_password_enabled:
+            settings = attrs.get(
+                "picture_password_settings",
+                instance.picture_password_settings if instance else None,
+            )
             if settings is None:
                 raise serializers.ValidationError(
                     {
