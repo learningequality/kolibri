@@ -45,3 +45,31 @@ _SYNTHETIC_CONTENT_ID_NAMESPACE = uuid.UUID("7c9e4b1a-3d5f-4a8e-9c2b-6d0e1f2a3b4
 TEST_STATUS_NOT_ACTIVATED = "not_activated"
 TEST_STATUS_OPEN = "open"
 TEST_STATUS_CLOSED = "closed"
+
+
+def get_test_version(learner_id, course_session_id, unit_contentnode_id):
+    """
+    Returns 'a' or 'b' based on a deterministic hash of
+    (learner_id, course_session_id, unit_contentnode_id).
+    Implements the A/B split logic defined in issue #14133.
+
+    This function is the canonical definition shared by the learner-side client
+    (which imports it to decide which item set to present) and by server-side
+    tests.  The coach report API itself does not call it directly — instead it
+    queries for both synthetic content_ids (pre and post, versions a and b) in a
+    single pass — but it must live here so that both sides stay in sync.
+    """
+    key = "{}:{}:{}".format(learner_id, course_session_id, unit_contentnode_id)
+    hash_byte = hashlib.sha256(key.encode()).digest()[0]
+    return "a" if hash_byte < 128 else "b"
+
+
+def get_synthetic_content_id(learner_id, course_session_id, unit_contentnode_id, test_type):
+    """
+    Generate a deterministic UUID5 content_id for MasteryLog/AttemptLog tracking.
+    Must match the generation logic used on the learner side (issue #14133).
+    """
+    key = "{}:{}:{}:{}".format(
+        learner_id, course_session_id, unit_contentnode_id, test_type
+    )
+    return uuid.uuid5(_SYNTHETIC_CONTENT_ID_NAMESPACE, key).hex
