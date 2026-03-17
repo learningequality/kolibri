@@ -947,3 +947,51 @@ class UnitReportScoringTests(UnitReportAPIBase):
         pos3 = actual_order.index(str(self.learner3.id))
         self.assertLess(pos1, pos2)
         self.assertLess(pos2, pos3)
+
+
+class UnitReportLearnerGroupTests(UnitReportAPIBase):
+    """
+    Verify that learners assigned via a LearnerGroup (sub-collection) are
+    resolved correctly and appear in the response.
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+
+    def test_learner_group_members_included(self):
+        """
+        A CourseSessionAssignment targeting a LearnerGroup should surface all
+        members of that group in the learners list.
+        """
+        # Create a LearnerGroup inside the existing classroom and add a new learner.
+        group = LearnerGroup.objects.create(name="Group A", parent=self.classroom)
+        # Kolibri requires classroom membership before LearnerGroup membership.
+        group_learner = helpers.create_learner(
+            "gl1", DUMMY_PASSWORD, self.facility,
+            classroom=self.classroom, learner_group=group,
+        )
+
+        # Assign the group (not the whole classroom) to a new course session.
+        group_session = CourseSession.objects.create(
+            course=self.course_node.id,
+            title="Group Session",
+            collection=self.classroom,
+            created_by=self.facility_admin,
+            is_active=True,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=group_session,
+            collection=group,
+            assigned_by=self.facility_admin,
+        )
+
+        url = _make_url(group_session.id, self.unit_node.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        learner_ids = {lr["id"] for lr in response.data["learners"]}
+        self.assertIn(str(group_learner.id), learner_ids)
+        # Learners from the classroom-level assignment are NOT in this session.
+        self.assertNotIn(str(self.learner1.id), learner_ids)
