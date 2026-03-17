@@ -266,6 +266,18 @@ class FacilityDataset(FacilityDataSyncableModel):
         super().save(*args, **kwargs)
 
     def ensure_compatibility(self, *args, **kwargs):
+        if (
+            self.learner_can_login_with_no_password
+            and self.learner_can_login_with_picture_password
+        ):
+            raise IncompatibleDeviceSettingError(
+                "Device Settings [learner_can_login_with_no_password={}] & "
+                "[learner_can_login_with_picture_password={}] "
+                "values incompatible together.".format(
+                    self.learner_can_login_with_no_password,
+                    self.learner_can_login_with_picture_password,
+                )
+            )
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
             raise IncompatibleDeviceSettingError(
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
