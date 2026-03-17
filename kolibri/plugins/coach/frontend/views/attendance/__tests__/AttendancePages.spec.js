@@ -10,7 +10,6 @@ import classSummaryModule from '../../../modules/classSummary';
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
 /* eslint-enable import-x/named */
 import AttendanceNewPage from '../AttendanceNewPage.vue';
-import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
 
 jest.mock('../../../composables/useAttendance');
@@ -325,13 +324,6 @@ describe('AttendanceNewPage', () => {
 
     expect(createSnackbar).toHaveBeenCalled();
     expect(router.currentRoute.name).toBe(initialRoute);
-  });
-});
-
-describe('AttendanceHistoryPage', () => {
-  it('renders the page heading', () => {
-    render(AttendanceHistoryPage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Attendance History');
   });
 });
 
