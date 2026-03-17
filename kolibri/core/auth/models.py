@@ -126,6 +126,16 @@ DEMOGRAPHIC_FIELDS_KEY = "demographic_fields"
 # '"optional":True' is obsolete but needed while we keep using an
 # old json_schema_validator version compatible with python 2.7.
 # "additionalProperties": False must be avoided for backwards compatibility
+picture_password_settings_schema = {
+    "type": "object",
+    "properties": {
+        "icon_style": {"type": "string", "enum": ["standard", "colorful"]},
+        "show_icon_text": {"type": "boolean"},
+    },
+    "required": ["icon_style", "show_icon_text"],
+    "additionalProperties": False,
+}
+
 extra_fields_schema = {
     "type": "object",
     "properties": {
@@ -227,10 +237,7 @@ class FacilityDataset(FacilityDataSyncableModel):
         null=True,
         blank=True,
         default=None,
-        # Structure: {
-        #   "icon_style": "standard" | "colorful",
-        #   "show_icon_text": true | false
-        # }
+        validators=[JSON_Schema_Validator(picture_password_settings_schema)],
     )
     extra_fields = JSONField(
         null=True,
