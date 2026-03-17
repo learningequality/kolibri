@@ -52,14 +52,6 @@
         @cancel="showDateRangePicker = false"
       />
 
-      <PaginationActions
-        v-if="totalPages > 1"
-        v-model="currentPage"
-        :itemsPerPage="PAGE_SIZE"
-        :totalPageNumber="totalPages"
-        :numFilteredItems="sessionCount"
-      />
-
       <KTable
         :headers="tableHeaders"
         :rows="tableRows"
@@ -78,6 +70,15 @@
           </template>
         </template>
       </KTable>
+
+      <PaginationActions
+        v-if="totalPages > 1"
+        v-model="currentPage"
+        class="pagination-actions"
+        :itemsPerPage="PAGE_SIZE"
+        :totalPageNumber="totalPages"
+        :numFilteredItems="sessionCount"
+      />
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -360,3 +361,14 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .pagination-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1em;
+  }
+
+</style>

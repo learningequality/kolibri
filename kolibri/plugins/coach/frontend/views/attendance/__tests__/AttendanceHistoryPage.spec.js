@@ -262,7 +262,7 @@ describe('AttendanceHistoryPage', () => {
       expect(pagination.props('itemsPerPage')).toBe(10);
     });
 
-    it('renders pagination above the table', () => {
+    it('renders pagination below the table', () => {
       const { wrapper } = makeWrapper({
         sessions: MOCK_SESSIONS,
         totalPages: 2,
@@ -273,12 +273,12 @@ describe('AttendanceHistoryPage', () => {
       expect(pagination.exists()).toBe(true);
       expect(table.exists()).toBe(true);
 
-      // Pagination should appear before the table in DOM order
+      // Pagination should appear after the table in DOM order
       const paginationEl = pagination.element;
       const tableEl = table.element;
       const position = paginationEl.compareDocumentPosition(tableEl);
       // eslint-disable-next-line no-bitwise
-      expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(position & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
     });
 
     it('fetches new page when pagination emits input', async () => {
