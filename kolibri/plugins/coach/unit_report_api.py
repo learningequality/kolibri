@@ -255,3 +255,133 @@ class UnitReportPermissions(permissions.BasePermission):
             return False
         except (CourseSession.DoesNotExist, ValueError):
             return False
+
+
+class UnitReportViewSet(viewsets.ViewSet):
+    """
+    Returns aggregated learner performance data for a unit's pre/post tests,
+    broken down by learning objective.
+
+    GET /api/coach/coursesession/{course_session_id}/unit/{unit_contentnode_id}/report/
+    """
+
+    permission_classes = (permissions.IsAuthenticated, UnitReportPermissions)
+
+    def retrieve(self, request, **kwargs):
+        course_session_id = self.kwargs["course_session_id"]
+        unit_contentnode_id = self.kwargs["unit_contentnode_id"]
+
+        # Reuse the CourseSession already fetched and validated by
+        # UnitReportPermissions to avoid a redundant DB query.
+        course_session = getattr(self, "_course_session", None) or get_object_or_404(
+            CourseSession, pk=course_session_id
+        )
+        unit = get_object_or_404(ContentNode, pk=unit_contentnode_id)
+
+        options = unit.options or {}
+
+        # Learning objectives list: [{id, text, metadata?}, ...]
+        raw_los = options.get("learning_objectives") or []
+
+        # Maps assessment item IDs → LO IDs.  Guard against null in the DB.
+        assessment_objectives = options.get("assessment_objectives") or {}
+
+        # Mastery criteria / A-B item lists (schema-mastery_criteria.json)
+        pre_post_test_config = (
+            (options.get("completion_criteria") or {})
+            .get("threshold") or {}
+        ).get("pre_post_test") or {}
+        version_a_item_ids = pre_post_test_config.get("version_a_item_ids") or []
+
+        # num_questions per LO: count of version A items that map to each LO.
+        # Version A is used as the canonical reference; both versions are expected
+        # to cover the same LOs with the same number of questions.
+        lo_question_count = defaultdict(int)
+        version_a_set = set(version_a_item_ids)
+        for item_id, lo_id in assessment_objectives.items():
+            if lo_id is None:
+                continue  # skip malformed entries: str(None) would silently produce "None"
+            if item_id in version_a_set:
+                lo_question_count[str(lo_id)] += 1
+
+        learning_objectives = [
+            {
+                "id": lo["id"],
+                "text": lo["text"],
+                "num_questions": lo_question_count.get(str(lo["id"]), 0),
+            }
+            for lo in raw_los
+        ]
+
+        # Determine assigned learners via CourseSessionAssignment (canonical source).
+        assignment_collection_ids = list(
+            CourseSessionAssignment.objects.filter(
+                course_session=course_session
+            ).values_list("collection_id", flat=True)
+        )
+        # Exclude users who hold a coach or admin role in the assigned
+        # collections so that a dual-role user (enrolled as a member AND
+        # holding a coach role) does not appear in the learner list.
+        coach_admin_ids = Role.objects.filter(
+            collection_id__in=assignment_collection_ids,
+            kind__in=[role_kinds.COACH, role_kinds.ADMIN, role_kinds.ASSIGNABLE_COACH],
+        ).values_list("user_id", flat=True)
+        learners = list(
+            FacilityUser.objects.filter(
+                memberships__collection_id__in=assignment_collection_ids
+            )
+            .exclude(id__in=coach_admin_ids)
+            .distinct()
+            .values("id", "username", name=F("full_name"))
+        )
+        learner_ids = [lr["id"] for lr in learners]
+
+        # Determine test state from UnitTestAssignment records.
+        all_assignments = list(
+            UnitTestAssignment.objects.filter(
+                course_session=course_session,
+                unit_contentnode_id=unit_contentnode_id,
+            )
+        )
+        pre_assignments = [a for a in all_assignments if a.test_type == "pre"]
+        post_assignments = [a for a in all_assignments if a.test_type == "post"]
+
+        pre_status = _get_test_status(pre_assignments)
+        post_status = _get_test_status(post_assignments)
+
+        # Compute scores for both tests in a single DB pass.
+        all_scores = _compute_all_test_scores(
+            learner_ids, course_session_id, unit_contentnode_id, assessment_objectives
+        )
+        pre_scores = all_scores["pre"]
+        post_scores = all_scores["post"]
+
+        # Sort learners ascending by total score (pre + post combined), so that
+        # learners who need the most help appear first.
+        def _total_score(learner):
+            lid = str(learner["id"])
+            return sum(pre_scores.get(lid, {}).values()) + sum(
+                post_scores.get(lid, {}).values()
+            )
+
+        learners_sorted = sorted(learners, key=_total_score)
+
+        # Ensure learner IDs are plain strings in the output.
+        for learner in learners_sorted:
+            learner["id"] = str(learner["id"])
+
+        return Response(
+            {
+                "unit_title": unit.title,
+                "learning_objectives": learning_objectives,
+                "learners": learners_sorted,
+                "pre_test": {
+                    "status": pre_status,
+                    "scores": pre_scores,
+                },
+                "post_test": {
+                    "status": post_status,
+                    "scores": post_scores,
+                },
+            }
+        )
