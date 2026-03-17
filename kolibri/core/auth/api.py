@@ -1215,6 +1215,32 @@ class CreateSessionSerializer(serializers.Serializer):
             # Otherwise attempt full authentication
             user = authenticate(username=username, password=password, facility=facility)
 
+            # When the facility requires picture-password login, learners must
+            # authenticate via the user_id/auth_token path (which is produced by
+            # the picture-password flow). Block direct username+password login for
+            # learners in such facilities so the flag has actual enforcement.
+            # Use a generic INVALID_CREDENTIALS error rather than calling
+            # _throw_validation_error, which probes the DB and would otherwise
+            # reveal whether the username exists (username enumeration).
+            if (
+                user is not None
+                and user.is_active
+                and facility is not None
+                and facility.dataset.learner_can_login_with_picture_password
+                and not user.is_superuser
+                and not user.roles.exists()
+            ):
+                raise RestValidationError(
+                    detail={
+                        "non_field_errors": [
+                            {
+                                "id": error_constants.INVALID_CREDENTIALS,
+                                "metadata": {},
+                            }
+                        ]
+                    }
+                )
+
         if user is not None and user.is_active:
             attrs["user"] = user
             return attrs
