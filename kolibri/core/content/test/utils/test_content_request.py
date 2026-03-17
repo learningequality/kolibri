@@ -4,6 +4,7 @@ from datetime import timedelta
 from functools import partial
 
 import mock
+from django.test import LiveServerTestCase
 from django.test import TestCase
 from django.utils import timezone
 from le_utils.constants import modalities
@@ -20,6 +21,7 @@ from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.content_request import _get_descendants_import_metadata
 from kolibri.core.content.utils.content_request import _get_import_metadata
 from kolibri.core.content.utils.content_request import _import_descendants_depth
@@ -42,6 +44,7 @@ from kolibri.core.content.utils.content_request import synchronize_content_reque
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
@@ -1533,3 +1536,90 @@ class GetImportMetadataTestCase(TestCase):
         # Language should be preserved
         self.assertEqual(result[Language._meta.db_table], [{"id": "en"}])
         self.assertEqual(result["schema_version"], "5")
+
+
+class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
+    """
+    Integration tests for _get_import_metadata against a live server.
+
+    Unlike the unit tests in GetDescendantsImportMetadataTestCase and
+    GetImportMetadataTestCase, these tests use a real NetworkClient making
+    actual HTTP requests to a live Django server, verifying the end-to-end
+    data flow including the correct format of data returned by the endpoint.
+
+    Two cases are covered:
+    - Non-course node: only ancestor metadata is returned
+    - Course node: ancestors are merged with paginated descendant metadata
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        self.builder = ChannelBuilder()
+        self.builder.insert_into_default_db()
+        self.root = ContentNode.objects.get(id=self.builder.root_node["id"])
+        self.network_client = NetworkClient(self.live_server_url)
+
+    def tearDown(self):
+        self.network_client.close()
+
+    def test_non_course_node_returns_ancestor_metadata_only(self):
+        """
+        A non-course node returns the metadata for itself and its ancestors,
+        without fetching any descendants.
+        """
+        # Use a level-1 topic node that has both ancestors (root) and many descendants
+        topic_node = ContentNode.objects.filter(
+            channel_id=self.root.channel_id,
+            level=1,
+        ).first()
+
+        result = _get_import_metadata(self.network_client, topic_node.id)
+
+        self.assertIsNotNone(result)
+        returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
+
+        # Should contain the topic node and its ancestors (root) only
+        expected_ancestor_ids = set(
+            topic_node.get_ancestors(include_self=True).values_list("id", flat=True)
+        )
+        self.assertEqual(returned_node_ids, expected_ancestor_ids)
+
+        # No descendants should be included
+        descendant_ids = set(topic_node.get_descendants().values_list("id", flat=True))
+        self.assertTrue(returned_node_ids.isdisjoint(descendant_ids))
+
+    def test_course_node_returns_merged_ancestor_and_descendant_metadata(self):
+        """
+        A course node triggers paginated descendant fetching via
+        _get_descendants_import_metadata. The final result contains nodes from
+        the ancestors call merged with all descendants up to
+        COURSES_DESCENDANTS_DEPTH levels deep.
+
+        The default ChannelBuilder tree has enough nodes to exceed
+        MAX_NODES_PER_REQUEST, so this exercises the pagination code path
+        end-to-end against a real server.
+        """
+        # Use a level-1 topic node that has both ancestors (root) and many descendants
+        topic_node = ContentNode.objects.filter(
+            channel_id=self.root.channel_id,
+            level=1,
+        ).first()
+        topic_node.options = {"modality": modalities.COURSE}
+        topic_node.save()
+
+        result = _get_import_metadata(self.network_client, topic_node.id)
+
+        self.assertIsNotNone(result)
+        returned_node_ids = {n["id"] for n in result[ContentNode._meta.db_table]}
+
+        expected_ancestor_ids = set(
+            topic_node.get_ancestors(include_self=True).values_list("id", flat=True)
+        )
+        expected_descendant_ids = set(
+            topic_node.get_descendants(include_self=True)
+            .filter(level__lte=topic_node.level + COURSES_DESCENDANTS_DEPTH)
+            .values_list("id", flat=True)
+        )
+        expected_node_ids = expected_ancestor_ids.union(expected_descendant_ids)
+        self.assertEqual(returned_node_ids, expected_node_ids)

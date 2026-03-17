@@ -16,7 +16,7 @@ from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 
 
 class OptionalPagination(ValuesViewsetCursorPagination):
-    ordering = ("lft", "id")
+    ordering = ("lft",)
     page_size_query_param = "max_results"
 
 
