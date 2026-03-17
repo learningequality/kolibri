@@ -260,14 +260,20 @@
         minute: 'numeric',
       };
 
-      const tableRows = computed(() => {
+      const processedSessions = computed(() => {
         return sessions.value.map(session => {
-          const dateObj = new Date(session.session_start_datetime);
           const totalCount = session.total_count || 0;
           const presentCount = session.present_count || 0;
-          const absentCount = totalCount - presentCount;
-          return [$formatDate(dateObj, dateTimeFormatOptions), presentCount, absentCount];
+          return {
+            date: $formatDate(new Date(session.session_start_datetime), dateTimeFormatOptions),
+            present: presentCount,
+            absent: totalCount - presentCount,
+          };
         });
+      });
+
+      const tableRows = computed(() => {
+        return processedSessions.value.map(row => [row.date, row.present, row.absent]);
       });
 
       function handleExport() {
@@ -277,16 +283,7 @@
           { name: absentColumnHeader$(), key: 'absent' },
         ];
         const exporter = new CSVExporter(columns, attendanceHistoryTitle$());
-        const data = sessions.value.map(session => {
-          const totalCount = session.total_count || 0;
-          const presentCount = session.present_count || 0;
-          return {
-            date: $formatDate(new Date(session.session_start_datetime), dateTimeFormatOptions),
-            present: presentCount,
-            absent: totalCount - presentCount,
-          };
-        });
-        exporter.export(data);
+        exporter.export(processedSessions.value);
       }
 
       // Fetch sessions whenever page changes (immediate: true handles initial load)
