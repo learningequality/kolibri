@@ -850,3 +850,100 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         self.assertEqual(response.data["learning_objectives"], [])
         self.assertEqual(response.data["pre_test"]["scores"], {})
         self.assertEqual(response.data["post_test"]["scores"], {})
+
+
+class UnitReportScoringTests(UnitReportAPIBase):
+    """Verify per-LO score aggregation and learner sorting."""
+
+    def setUp(self):
+        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+
+    def test_unattempted_learner_absent_from_scores_map(self):
+        """Learner with no attempt is in learners list but not in scores."""
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+        learner_ids = {lr["id"] for lr in response.data["learners"]}
+        self.assertIn(str(self.learner1.id), learner_ids)
+        self.assertNotIn(str(self.learner1.id), response.data["pre_test"]["scores"])
+        self.assertNotIn(str(self.learner1.id), response.data["post_test"]["scores"])
+
+    def test_per_lo_correct_count_in_scores(self):
+        """Correct answers are tallied per LO for both pre and post tests."""
+        version = get_test_version(
+            str(self.learner2.id), str(self.course_session.id), str(self.unit_node.id)
+        )
+        # Get all 3 items for the correct version
+        if version == "a":
+            all_items = [ITEM_A1, ITEM_A2, ITEM_A3]
+        else:
+            all_items = [ITEM_B1, ITEM_B2, ITEM_B3]
+
+        _create_attempt(
+            self.learner2,
+            self.course_session.id,
+            self.unit_node.id,
+            "pre",
+            items_correct=all_items[:2],   # both LO1 items correct
+            items_incorrect=all_items[2:],  # LO2 item incorrect
+        )
+
+        response = self.client.get(self._get_url())
+        lid = str(self.learner2.id)
+        pre_scores = response.data["pre_test"]["scores"]
+        self.assertIn(lid, pre_scores)
+        lo_scores = pre_scores[lid]
+        self.assertEqual(lo_scores.get(LO1_ID, 0), 2)
+        self.assertEqual(lo_scores.get(LO2_ID, 0), 0)
+
+    def test_both_tests_in_single_response(self):
+        """A learner who attempted both tests has scores in both sections."""
+        version = get_test_version(
+            str(self.learner3.id), str(self.course_session.id), str(self.unit_node.id)
+        )
+        if version == "a":
+            items = [ITEM_A1, ITEM_A2, ITEM_A3]
+        else:
+            items = [ITEM_B1, ITEM_B2, ITEM_B3]
+
+        _create_attempt(
+            self.learner3, self.course_session.id, self.unit_node.id, "pre",
+            items_correct=items[:1],
+        )
+        _create_attempt(
+            self.learner3, self.course_session.id, self.unit_node.id, "post",
+            items_correct=items[:2],
+        )
+
+        response = self.client.get(self._get_url())
+        lid = str(self.learner3.id)
+        self.assertIn(lid, response.data["pre_test"]["scores"])
+        self.assertIn(lid, response.data["post_test"]["scores"])
+
+    def test_learners_sorted_ascending_by_total_score(self):
+        """Learner with lowest combined score appears first."""
+        course_session_id = self.course_session.id
+        unit_id = self.unit_node.id
+
+        # Assign scores 0, 1, 2 correct to learner1, learner2, learner3 respectively.
+        # The loop index i is the number of correct answers for that learner.
+        learners = [self.learner1, self.learner2, self.learner3]
+        for i, learner in enumerate(learners):
+            version = get_test_version(str(learner.id), str(course_session_id), str(unit_id))
+            all_items = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+            _create_attempt(
+                learner, course_session_id, unit_id, "pre",
+                items_correct=all_items[:i],
+                items_incorrect=all_items[i:],
+            )
+
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+        actual_order = [lr["id"] for lr in response.data["learners"]]
+
+        # learner1 scored 0, learner2 scored 1, learner3 scored 2.
+        # Ascending sort means learner1 < learner2 < learner3 in position.
+        pos1 = actual_order.index(str(self.learner1.id))
+        pos2 = actual_order.index(str(self.learner2.id))
+        pos3 = actual_order.index(str(self.learner3.id))
+        self.assertLess(pos1, pos2)
+        self.assertLess(pos2, pos3)
