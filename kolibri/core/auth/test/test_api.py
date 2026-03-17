@@ -2109,6 +2109,27 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_learner_can_edit_password_incompatible_with_existing_picture_password(self):
+        # Reverse direction: picture password already enabled, then try to
+        # enable learner_can_edit_password via a PATCH that only sends that field.
+        self.facility.dataset.learner_can_edit_password = False
+        self.facility.dataset.learner_can_login_with_picture_password = True
+        self.facility.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": False,
+        }
+        self.facility.dataset.save()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.patch(
+            reverse(
+                "kolibri:core:facilitydataset-detail",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            {"learner_can_edit_password": True},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_picture_password_fields_returned_in_facility_settings_response(self):
         self.facility.dataset.learner_can_edit_password = False
         self.facility.dataset.learner_can_login_with_picture_password = True
