@@ -193,3 +193,34 @@ class GetTestVersionTests(SimpleTestCase):
         with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
             mock_hashlib.sha256.return_value.digest.return_value = bytes([255]) + b"\x00" * 31
             self.assertEqual(get_test_version("lid", "sid", "uid"), "b")
+
+
+class GetTestStatusTests(SimpleTestCase):
+    """_get_test_status maps UnitTestAssignment state to response strings."""
+
+    def _make_assignment(self, is_active, status):
+        a = UnitTestAssignment.__new__(UnitTestAssignment)
+        a.is_active = is_active
+        a.status = status
+        return a
+
+    def test_no_assignments_returns_not_activated(self):
+        self.assertEqual(_get_test_status([]), TEST_STATUS_NOT_ACTIVATED)
+
+    def test_active_assignment_returns_open(self):
+        a = self._make_assignment(True, TestStatus.Active)
+        self.assertEqual(_get_test_status([a]), TEST_STATUS_OPEN)
+
+    def test_ended_assignment_returns_closed(self):
+        a = self._make_assignment(False, TestStatus.Ended)
+        self.assertEqual(_get_test_status([a]), TEST_STATUS_CLOSED)
+
+    def test_mixed_active_ended_returns_open(self):
+        a1 = self._make_assignment(True, TestStatus.Active)
+        a2 = self._make_assignment(False, TestStatus.Ended)
+        self.assertEqual(_get_test_status([a1, a2]), TEST_STATUS_OPEN)
+
+    def test_not_started_assignment_returns_not_activated(self):
+        """An assignment that exists but has never been opened must not be reported as closed."""
+        a = self._make_assignment(False, TestStatus.NotStarted)
+        self.assertEqual(_get_test_status([a]), TEST_STATUS_NOT_ACTIVATED)
