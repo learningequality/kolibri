@@ -182,13 +182,12 @@
 
     .btn-icon {
       top: -2px;
-      flex-grow: 1;
       width: 16px;
       height: 16px;
 
       &.hotfixed {
         // Remove when https://github.com/learningequality/kolibri-design-system/pull/1219 is in KDS release
-        top: -1px;
+        top: 0;
       }
     }
   }
