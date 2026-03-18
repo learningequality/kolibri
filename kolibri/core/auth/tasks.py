@@ -308,6 +308,42 @@ def dataportalsync(command, **kwargs):
     call_command(command, **kwargs)
 
 
+# 24 hours in seconds
+KDP_SYNC_INTERVAL = 60 * 60 * 24
+# 1 hour in seconds
+KDP_SYNC_RETRY_INTERVAL = 60 * 60
+
+
+def enqueue_automatic_kdp_sync(facility):
+    """
+    Enqueue a recurring daily sync with KDP for the given facility.
+    Uses a deterministic job ID to prevent duplicate schedules.
+    Retries hourly on failure (e.g. when KDP is unreachable).
+    """
+    validator = SyncJobValidator(
+        data={
+            "type": "kolibri.core.auth.tasks.dataportalsync",
+            "facility": facility.id,
+        }
+    )
+    validator.is_valid(raise_exception=True)
+    job_data = validator.validated_data
+    job_data.pop("enqueue_args", None)
+    try:
+        # Use enqueue_in (not enqueue) because only enqueue_in supports
+        # interval/repeat/retry_interval for recurring scheduling.
+        dataportalsync.enqueue_in(
+            datetime.timedelta(seconds=0),
+            interval=KDP_SYNC_INTERVAL,
+            repeat=None,
+            retry_interval=KDP_SYNC_RETRY_INTERVAL,
+            job_id="kdp_sync_{}".format(facility.id),
+            **job_data,
+        )
+    except JobRunning:
+        logger.info("KDP sync already running for facility {}".format(facility.name))
+
+
 class PeerSyncJobValidator(SyncJobValidator):
     baseurl = serializers.URLField(required=False)
     device_id = serializers.PrimaryKeyRelatedField(
