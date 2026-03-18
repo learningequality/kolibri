@@ -1188,56 +1188,17 @@ class CreateSessionSerializer(serializers.Serializer):
             # if it matches the username, without needing a password.
             user = self._check_os_user(request, username)
 
-        # user_id/auth_token authentication (picture-password path)
-        # Only permit this path for learners whose facility has the picture-
-        # password feature enabled.
+        # user_id/auth_token authentication
         if user is None and user_id and auth_token:
-            if (
-                facility is not None
-                and facility.dataset.picture_password_settings is not None
-                and TokenGenerator().check_token(user_id, auth_token)
-            ):
+            if TokenGenerator().check_token(user_id, auth_token):
                 user = FacilityUser.objects.filter(
                     id=user_id, facility=facility
                 ).first()
-                # Confirm the user is actually a learner in this facility.
-                if not (
-                    user is not None
-                    and not user.is_superuser
-                    and not user.roles.exists()
-                ):
-                    user = None
 
         # username/password authentication
         if user is None:
             # Otherwise attempt full authentication
             user = authenticate(username=username, password=password, facility=facility)
-
-            # When the facility requires picture-password login, learners must
-            # authenticate via the user_id/auth_token path (which is produced by
-            # the picture-password flow). Block direct username+password login for
-            # learners in such facilities so the flag has actual enforcement.
-            # Use a generic INVALID_CREDENTIALS error rather than calling
-            # _throw_validation_error, which probes the DB and would otherwise
-            # reveal whether the username exists (username enumeration).
-            if (
-                user is not None
-                and user.is_active
-                and facility is not None
-                and facility.dataset.picture_password_settings is not None
-                and not user.is_superuser
-                and not user.roles.exists()
-            ):
-                raise RestValidationError(
-                    detail={
-                        "non_field_errors": [
-                            {
-                                "id": error_constants.INVALID_CREDENTIALS,
-                                "metadata": {},
-                            }
-                        ]
-                    }
-                )
 
         if user is not None and user.is_active:
             attrs["user"] = user
