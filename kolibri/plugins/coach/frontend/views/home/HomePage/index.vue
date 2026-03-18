@@ -30,7 +30,6 @@
 <script>
 
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { onBeforeMount } from 'vue';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
   import AttendanceBlock from './AttendanceBlock';
@@ -53,9 +52,7 @@
     setup() {
       const { getFacilityConfig, facilityConfig } = useFacilities();
 
-      onBeforeMount(async () => {
-        await getFacilityConfig();
-      });
+      getFacilityConfig();
 
       return {
         facilityConfig,
