@@ -9,6 +9,7 @@ import { showExam } from '../modules/examViewer/handlers';
 import { showExamReport } from '../modules/examReportViewer/handlers';
 import { inClasses } from '../composables/useCoreLearn';
 import ExamPage from '../views/ExamPage/index.vue';
+import CourseRootPage from '../views/CourseRootPage.vue';
 import CourseUnitView from '../views/CourseUnitView/index.vue';
 import CourseWelcomePage from '../views/CourseWelcomePage';
 import ExamReportViewer from '../views/LearnExamReportViewer';
@@ -86,69 +87,50 @@ export default [
     component: ExamReportViewer,
   },
   {
-    name: PageNames.COURSE_WELCOME,
-    path: '/course/:courseSessionId([a-f0-9]{32})/welcome',
-    component: CourseWelcomePage,
+    path: '/course',
+    component: CourseRootPage,
     handler: () => {
       if (noClassesGuard()) {
         return noClassesGuard();
       }
     },
-    props: true,
-  },
-  {
-    name: PageNames.COURSE_CONTENT__RESOURCE,
-    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})/r/:resourceId([a-f0-9]{32})',
-    handler: () => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-    },
-    component: CourseUnitView,
-    props: true,
-  },
-  {
-    name: PageNames.COURSE_CONTENT__LESSON,
-    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})',
-    handler: () => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-    },
-    component: CourseUnitView,
-    props: true,
-  },
-  {
-    name: PageNames.COURSE_CONTENT_TEST,
-    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/t/:testType(pre|post)',
-    handler: () => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-    },
-    component: CourseUnitView,
-    props: true,
-  },
-  {
-    name: PageNames.COURSE_CONTENT__UNIT,
-    path: '/course/:courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})',
-    handler: () => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-    },
-    component: CourseUnitView,
-    props: true,
-  },
-  {
-    name: PageNames.COURSE_CONTENT__COURSE,
-    path: '/course/:courseId([a-f0-9]{32})',
-    handler: () => {
-      if (noClassesGuard()) {
-        return noClassesGuard();
-      }
-    },
-    component: CourseUnitView,
-    props: true,
+    children: [
+      {
+        name: PageNames.COURSE_WELCOME,
+        path: ':courseSessionId([a-f0-9]{32})/welcome',
+        component: CourseWelcomePage,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT__RESOURCE,
+        path: ':courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})/r/:resourceId([a-f0-9]{32})',
+        component: CourseUnitView,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT__LESSON,
+        path: ':courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/l/:lessonId([a-f0-9]{32})',
+        component: CourseUnitView,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT_TEST,
+        path: ':courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})/t/:testType(pre|post)',
+        component: CourseUnitView,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT__UNIT,
+        path: ':courseId([a-f0-9]{32})/u/:unitId([a-f0-9]{32})',
+        component: CourseUnitView,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT__COURSE,
+        path: ':courseId([a-f0-9]{32})',
+        component: CourseUnitView,
+        props: true,
+      },
+    ],
   },
 ];
