@@ -199,7 +199,9 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         if settings is not None:
             if settings.get("icon_style") not in ("standard", "colorful"):
                 raise serializers.ValidationError(
-                    {"picture_password_settings": "icon_style must be 'standard' or 'colorful'"}
+                    {
+                        "picture_password_settings": "icon_style must be 'standard' or 'colorful'"
+                    }
                 )
             if not isinstance(settings.get("show_icon_text"), bool):
                 raise serializers.ValidationError(
