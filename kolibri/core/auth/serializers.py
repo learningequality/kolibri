@@ -195,8 +195,16 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        # For PATCH requests attrs only contains the fields being updated, so
-        # fall back to the existing instance values for any field not included.
+        settings = attrs.get("picture_password_settings")
+        if settings is not None:
+            if settings.get("icon_style") not in ("standard", "colorful"):
+                raise serializers.ValidationError(
+                    {"picture_password_settings": "icon_style must be 'standard' or 'colorful'"}
+                )
+            if not isinstance(settings.get("show_icon_text"), bool):
+                raise serializers.ValidationError(
+                    {"picture_password_settings": "show_icon_text must be a boolean"}
+                )
         return attrs
 
     def save(self, **kwargs):
