@@ -114,8 +114,10 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    max-width: 1000px;
     height: 100%;
     padding: 24px;
+    margin: auto;
     margin-top: 24px;
 
     .page-title {

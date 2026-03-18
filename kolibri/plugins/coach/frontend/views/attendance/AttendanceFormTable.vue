@@ -13,77 +13,64 @@
         position="top"
       >
         <template #default="{ items }">
-          <CoreTable>
-            <template #headers>
-              <th class="visuallyhidden">
-                {{ coreString('learnerLabel') }}
-              </th>
-              <th class="visuallyhidden">
-                {{ statusColumnHeader$() }}
-              </th>
-            </template>
-            <template #tbody>
-              <tbody>
-                <tr
-                  class="mark-all-row"
-                  :style="{
-                    backgroundColor: $themePalette.grey.v_100,
-                    borderBottom: `1px solid ${$themeTokens.fineLine}`,
-                  }"
+          <div
+            class="mark-all-row"
+            :style="{
+              borderBottom: `1px solid ${$themeTokens.fineLine}`,
+            }"
+          >
+            <span
+              id="mark-all-present-label"
+              class="mark-all-label"
+            >
+              {{ markAllPresentLabel$() }}
+            </span>
+            <div class="status-cell">
+              <KSwitch
+                name="mark-all-present"
+                :ariaLabelledBy="'mark-all-present-label'"
+                :value="allPresent"
+                @change="handleMarkAllChange"
+              />
+            </div>
+          </div>
+
+          <div :style="{ backgroundColor: $themeTokens.surface }">
+            <KTable
+              :headers="tableHeaders"
+              :rows="getTableRows(items)"
+              :caption="markAttendanceAction$()"
+              :stickyColumns="[]"
+            >
+              <template #header="{ header }">
+                <span class="visuallyhidden">{{ header.label }}</span>
+              </template>
+              <template #cell="{ content, colIndex }">
+                <span
+                  v-if="colIndex === 0"
+                  :id="`learner-name-${content.id}`"
+                >{{ content.name }}</span>
+                <div
+                  v-else
+                  class="status-cell"
                 >
-                  <td>
-                    <span
-                      id="mark-all-present-label"
-                      class="mark-all-label"
-                    >
-                      {{ markAllPresentLabel$() }}
-                    </span>
-                  </td>
-                  <td class="status-col">
-                    <div class="status-cell">
-                      <KSwitch
-                        name="mark-all-present"
-                        :ariaLabelledBy="'mark-all-present-label'"
-                        :value="allPresent"
-                        @change="handleMarkAllChange"
-                      />
-                    </div>
-                  </td>
-                </tr>
-                <tr
-                  v-for="learner in items"
-                  :key="learner.id"
-                  :style="{
-                    backgroundColor: isPresent(learner.id)
-                      ? $themePalette.blue.v_100
-                      : $themeTokens.surface,
-                    borderBottom: `1px solid ${$themeTokens.fineLine}`,
-                  }"
-                >
-                  <td>
-                    <span :id="`learner-name-${learner.id}`">{{ learner.name }}</span>
-                  </td>
-                  <td class="status-col">
-                    <div class="status-cell">
-                      <span
-                        v-if="isPresent(learner.id)"
-                        class="present-label"
-                        :style="{ color: $themeTokens.primary }"
-                      >
-                        {{ presentLabel$() }}
-                      </span>
-                      <KSwitch
-                        :name="`attendance-${learner.id}`"
-                        :value="isPresent(learner.id)"
-                        :ariaLabelledBy="`learner-name-${learner.id}`"
-                        @change="toggleLearner(learner.id)"
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </template>
-          </CoreTable>
+                  <span
+                    v-if="isPresent(content.id)"
+                    class="present-label"
+                    :style="{ color: $themeTokens.primary }"
+                  >
+                    {{ presentLabel$() }}
+                  </span>
+                  <KSwitch
+                    :name="`attendance-${content.id}`"
+                    :value="isPresent(content.id)"
+                    :ariaLabelledBy="`learner-name-${content.id}`"
+                    @change="toggleLearner(content.id)"
+                  />
+                </div>
+              </template>
+            </KTable>
+          </div>
         </template>
       </PaginatedListContainer>
     </div>
@@ -150,7 +137,6 @@
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
-  import CoreTable from 'kolibri/components/CoreTable';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
@@ -158,7 +144,6 @@
   export default {
     name: 'AttendanceFormTable',
     components: {
-      CoreTable,
       PaginatedListContainer,
       BottomAppBar,
     },
@@ -178,6 +163,7 @@
         absentCount$,
         markAllPresentAction$,
         learnersLabel$,
+        markAttendanceAction$,
       } = attendanceStrings;
 
       const {
@@ -203,6 +189,24 @@
         ':hover': { backgroundColor: darken1(themePalette().red.v_600) },
       };
 
+      const tableHeaders = [
+        {
+          label: coreString('learnerLabel'),
+          dataType: 'string',
+          columnId: 'learner',
+          width: '100%',
+        },
+        {
+          label: statusColumnHeader$(),
+          dataType: 'undefined',
+          columnId: 'status',
+        },
+      ];
+
+      function getTableRows(items) {
+        return items.map(learner => [learner, learner]);
+      }
+
       return {
         coreString,
         confirmButtonStyles,
@@ -221,7 +225,6 @@
         confirmLeave,
         cancelLeave,
         searchPlaceholder$,
-        statusColumnHeader$,
         presentLabel$,
         markAllPresentLabel$,
         markAllModalTitle$,
@@ -234,6 +237,9 @@
         absentCount$,
         markAllPresentAction$,
         learnersLabel$,
+        markAttendanceAction$,
+        tableHeaders,
+        getTableRows,
       };
     },
     props: {
@@ -266,23 +272,31 @@
       padding-right: 16px;
       padding-left: 16px;
     }
+
+    // Ensure KSwitch meets the 44x44px minimum touch target for accessibility
+    /deep/ .k-switch {
+      min-width: 44px;
+      height: 44px;
+    }
+  }
+
+  .mark-all-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
   }
 
   .mark-all-label {
     font-weight: bold;
   }
 
-  /deep/ .status-col {
-    width: 120px;
-    text-align: right;
-  }
-
   .status-cell {
-    display: inline-flex;
+    display: flex;
     gap: 8px;
     align-items: center;
     justify-content: flex-end;
-    overflow: hidden;
+    white-space: nowrap;
   }
 
   .present-label {

@@ -60,6 +60,7 @@
         :caption="attendanceHistoryTitle$()"
         :emptyMessage="noSessionsFoundMessage$()"
         :dataLoading="attendanceLoading"
+        :stickyColumns="['first']"
       >
         <template #cell="{ content, colIndex, rowIndex }">
           <KRouterLink
