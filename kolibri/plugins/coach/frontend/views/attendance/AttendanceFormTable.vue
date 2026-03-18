@@ -180,7 +180,6 @@
         learnersLabel$,
       } = attendanceStrings;
 
-      // Trigger build
       const {
         sortedLearners,
         allPresent,
