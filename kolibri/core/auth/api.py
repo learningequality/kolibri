@@ -1203,11 +1203,7 @@ class CreateSessionSerializer(serializers.Serializer):
                     id=user_id, facility=facility
                 ).first()
                 # Confirm the user is actually a learner in this facility.
-                if not (
-                    user is not None
-                    and not user.is_superuser
-                    and not user.roles.exists()
-                ):
+                if user is None or user.is_superuser or user.roles.exists():
                     user = None
 
         # username/password authentication

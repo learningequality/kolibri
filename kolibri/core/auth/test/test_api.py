@@ -1775,6 +1775,112 @@ class LoginLogoutTestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
 
 
+class PicturePasswordLoginTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.facility.dataset.learner_can_login_with_picture_password = True
+        cls.facility.dataset.learner_can_edit_password = False
+        cls.facility.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": False,
+        }
+        cls.facility.dataset.save()
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def _session_url(self):
+        return reverse("kolibri:core:session-list")
+
+    def test_learner_username_password_login_rejected_in_picture_password_facility(self):
+        # Learners must use the token path; direct username+password login is blocked
+        # with INVALID_CREDENTIALS (mapped to 401 by the session view)
+        response = self.client.post(
+            self._session_url(),
+            data={
+                "username": self.learner.username,
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertTrue(
+            any(
+                e.get("id") == error_constants.INVALID_CREDENTIALS
+                for e in response.data
+            )
+        )
+
+    def test_admin_username_password_login_allowed_in_picture_password_facility(self):
+        # Coaches/admins are not restricted to the token path
+        response = self.client.post(
+            self._session_url(),
+            data={
+                "username": self.admin.username,
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_token_auth_succeeds_for_learner_in_picture_password_facility(self):
+        from kolibri.core.utils.token_generator import TokenGenerator
+
+        token = TokenGenerator().make_token(self.learner.id)
+        response = self.client.post(
+            self._session_url(),
+            data={
+                "user_id": self.learner.id,
+                "auth_token": token,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_token_auth_rejected_when_facility_flag_disabled(self):
+        from kolibri.core.utils.token_generator import TokenGenerator
+
+        self.facility.dataset.learner_can_login_with_picture_password = False
+        self.facility.dataset.save()
+        try:
+            token = TokenGenerator().make_token(self.learner.id)
+            response = self.client.post(
+                self._session_url(),
+                data={
+                    "user_id": self.learner.id,
+                    "auth_token": token,
+                    "facility": self.facility.id,
+                },
+                format="json",
+            )
+            self.assertNotEqual(response.status_code, 200)
+        finally:
+            self.facility.dataset.learner_can_login_with_picture_password = True
+            self.facility.dataset.save()
+
+    def test_token_auth_rejected_for_admin_in_picture_password_facility(self):
+        from kolibri.core.utils.token_generator import TokenGenerator
+
+        token = TokenGenerator().make_token(self.admin.id)
+        response = self.client.post(
+            self._session_url(),
+            data={
+                "user_id": self.admin.id,
+                "auth_token": token,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertNotEqual(response.status_code, 200)
+
+
 class SignUpBase:
     @classmethod
     def setUpTestData(cls):

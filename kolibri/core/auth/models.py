@@ -133,7 +133,6 @@ picture_password_settings_schema = {
         "show_icon_text": {"type": "boolean"},
     },
     "required": ["icon_style", "show_icon_text"],
-    "additionalProperties": False,
 }
 
 extra_fields_schema = {
