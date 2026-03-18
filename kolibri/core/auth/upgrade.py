@@ -6,6 +6,8 @@ import os
 import shutil
 
 from kolibri.core.auth.models import AdHocGroup
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.upgrade import version_upgrade
 from kolibri.utils import conf
 
@@ -45,3 +47,13 @@ def cleanup_legacy_file_sessions():
             )
         except OSError:
             logger.warning("Failed to remove legacy sessions directory %s", session_dir)
+
+
+@version_upgrade(old_version="<0.19.3")
+def enqueue_kdp_sync_for_registered_facilities():
+    """
+    For facilities already registered with KDP, enqueue automatic daily syncing.
+    Previously, registration did not set up recurring syncs.
+    """
+    for facility in Facility.objects.filter(dataset__registered=True):
+        enqueue_automatic_kdp_sync(facility)

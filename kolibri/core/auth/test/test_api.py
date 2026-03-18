@@ -34,6 +34,7 @@ from ..models import Facility
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
+from .helpers import setup_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
@@ -2704,3 +2705,24 @@ class DeleteImportedUserTestCase(APITransactionTestCase):
         # as we should not propagate deletion of these models to remote devices
         self.assertFalse(DeletedModels.objects.exists())
         self.assertFalse(HardDeletedModels.objects.exists())
+
+
+class KolibriDataPortalViewSetTestCase(APITestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility, self.superuser = setup_device()
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    @patch("kolibri.core.api.enqueue_automatic_kdp_sync")
+    @patch("kolibri.core.api.registerfacility")
+    def test_register_enqueues_automatic_sync(
+        self, mock_registerfacility, mock_enqueue_sync
+    ):
+        mock_registerfacility.return_value.status_code = 200
+        self.client.post(
+            reverse("kolibri:core:portal-register"),
+            {"facility_id": self.facility.id, "token": "test-token"},
+            format="json",
+        )
+        mock_enqueue_sync.assert_called_once_with(self.facility)

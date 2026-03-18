@@ -30,6 +30,7 @@ from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 
 from .utils.portal import registerfacility
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -44,6 +45,7 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
             response = registerfacility(request.data.get("token"), facility)
         except NetworkLocationResponseFailure as e:  # bubble up any response error
             return Response(e.response.json(), status=e.response.status_code)
+        enqueue_automatic_kdp_sync(facility)
         return Response(status=response.status_code)
 
     @action(detail=False, methods=["get"])
