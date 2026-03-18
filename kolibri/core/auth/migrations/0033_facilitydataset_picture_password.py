@@ -1,5 +1,4 @@
 from django.db import migrations
-from django.db import models
 
 import kolibri.core.fields
 import kolibri.core.utils.validators
@@ -12,11 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="facilitydataset",
-            name="learner_can_login_with_picture_password",
-            field=models.BooleanField(default=False),
-        ),
         migrations.AddField(
             model_name="facilitydataset",
             name="picture_password_settings",

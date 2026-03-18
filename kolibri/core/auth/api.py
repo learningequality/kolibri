@@ -230,7 +230,6 @@ class FacilityDatasetViewSet(ValuesViewset):
         "learner_can_sign_up",
         "learner_can_delete_account",
         "learner_can_login_with_no_password",
-        "learner_can_login_with_picture_password",
         "show_download_button_in_learn",
         "enable_mark_attendance",
         "extra_fields",
@@ -747,7 +746,7 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
             return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
             Q(dataset__learner_can_login_with_no_password=True)
-            | Q(dataset__learner_can_login_with_picture_password=True),
+            | Q(dataset__picture_password_settings__isnull=False),
             roles=None,
         ).filter(
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
@@ -809,7 +808,6 @@ dataset_keys = [
     "dataset__learner_can_sign_up",
     "dataset__learner_can_delete_account",
     "dataset__learner_can_login_with_no_password",
-    "dataset__learner_can_login_with_picture_password",
     "dataset__show_download_button_in_learn",
     "dataset__extra_fields",
     "dataset__picture_password_settings",
@@ -1196,14 +1194,18 @@ class CreateSessionSerializer(serializers.Serializer):
         if user is None and user_id and auth_token:
             if (
                 facility is not None
-                and facility.dataset.learner_can_login_with_picture_password
+                and facility.dataset.picture_password_settings is not None
                 and TokenGenerator().check_token(user_id, auth_token)
             ):
                 user = FacilityUser.objects.filter(
                     id=user_id, facility=facility
                 ).first()
                 # Confirm the user is actually a learner in this facility.
-                if user is None or user.is_superuser or user.roles.exists():
+                if not (
+                    user is not None
+                    and not user.is_superuser
+                    and not user.roles.exists()
+                ):
                     user = None
 
         # username/password authentication
@@ -1222,7 +1224,7 @@ class CreateSessionSerializer(serializers.Serializer):
                 user is not None
                 and user.is_active
                 and facility is not None
-                and facility.dataset.learner_can_login_with_picture_password
+                and facility.dataset.picture_password_settings is not None
                 and not user.is_superuser
                 and not user.roles.exists()
             ):

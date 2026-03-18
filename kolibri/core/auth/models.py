@@ -229,7 +229,6 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_sign_up = models.BooleanField(default=True)
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
-    learner_can_login_with_picture_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
     enable_mark_attendance = models.BooleanField(default=False)
     picture_password_settings = JSONField(
@@ -265,18 +264,6 @@ class FacilityDataset(FacilityDataSyncableModel):
         super().save(*args, **kwargs)
 
     def ensure_compatibility(self, *args, **kwargs):
-        if (
-            self.learner_can_login_with_no_password
-            and self.learner_can_login_with_picture_password
-        ):
-            raise IncompatibleDeviceSettingError(
-                "Device Settings [learner_can_login_with_no_password={}] & "
-                "[learner_can_login_with_picture_password={}] "
-                "values incompatible together.".format(
-                    self.learner_can_login_with_no_password,
-                    self.learner_can_login_with_picture_password,
-                )
-            )
         if self.learner_can_login_with_no_password and self.learner_can_edit_password:
             raise IncompatibleDeviceSettingError(
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
@@ -285,11 +272,13 @@ class FacilityDataset(FacilityDataSyncableModel):
                     self.learner_can_edit_password,
                 )
             )
-        if self.learner_can_login_with_picture_password and self.learner_can_edit_password:
+        if (
+            self.picture_password_settings is not None
+            and self.learner_can_edit_password
+        ):
             raise IncompatibleDeviceSettingError(
-                "Device Settings [learner_can_login_with_picture_password={}] & [learner_can_edit_password={}] "
+                "Device Settings [picture_password_settings is set] & [learner_can_edit_password={}] "
                 "values incompatible together.".format(
-                    self.learner_can_login_with_picture_password,
                     self.learner_can_edit_password,
                 )
             )

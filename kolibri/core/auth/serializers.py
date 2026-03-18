@@ -184,7 +184,6 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "learner_can_sign_up",
             "learner_can_delete_account",
             "learner_can_login_with_no_password",
-            "learner_can_login_with_picture_password",
             "show_download_button_in_learn",
             "enable_mark_attendance",
             "extra_fields",
@@ -198,36 +197,6 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # For PATCH requests attrs only contains the fields being updated, so
         # fall back to the existing instance values for any field not included.
-        instance = self.instance
-        picture_password_enabled = attrs.get(
-            "learner_can_login_with_picture_password",
-            instance.learner_can_login_with_picture_password if instance else False,
-        )
-        if picture_password_enabled:
-            settings = attrs.get(
-                "picture_password_settings",
-                instance.picture_password_settings if instance else None,
-            )
-            if settings is None:
-                raise serializers.ValidationError(
-                    {
-                        "picture_password_settings": "picture_password_settings must be provided when learner_can_login_with_picture_password is True"
-                    }
-                )
-            icon_style = settings.get("icon_style")
-            if icon_style not in ("standard", "colorful"):
-                raise serializers.ValidationError(
-                    {
-                        "picture_password_settings": "icon_style must be 'standard' or 'colorful'"
-                    }
-                )
-            show_icon_text = settings.get("show_icon_text")
-            if not isinstance(show_icon_text, bool):
-                raise serializers.ValidationError(
-                    {
-                        "picture_password_settings": "show_icon_text must be a boolean"
-                    }
-                )
         return attrs
 
     def save(self, **kwargs):
@@ -276,7 +245,7 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
         return instance.dataset.learner_can_login_with_no_password
 
     def get_learner_can_login_with_picture_password(self, instance):
-        return instance.dataset.learner_can_login_with_picture_password
+        return instance.dataset.picture_password_settings is not None
 
     def get_learner_can_sign_up(self, instance):
         return instance.dataset.learner_can_sign_up
