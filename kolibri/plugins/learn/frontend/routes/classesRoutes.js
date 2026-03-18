@@ -89,10 +89,11 @@ export default [
   {
     path: '/course',
     component: CourseRootPage,
-    handler: () => {
+    beforeEnter: (to, from, next) => {
       if (noClassesGuard()) {
-        return noClassesGuard();
+        return;
       }
+      next();
     },
     children: [
       {
