@@ -89,6 +89,7 @@ export default [
   {
     path: '/course',
     component: CourseRootPage,
+    redirect: '/',
     beforeEnter: (to, from, next) => {
       if (noClassesGuard()) {
         return;
