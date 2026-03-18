@@ -232,6 +232,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         "learner_can_delete_account",
         "learner_can_login_with_no_password",
         "show_download_button_in_learn",
+        "enable_mark_attendance",
         "extra_fields",
         "description",
         "location",
