@@ -7,7 +7,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: 6 }">
         <KGrid gutter="16">
-          <KGridItem>
+          <KGridItem v-if="facilityConfig.enable_mark_attendance">
             <AttendanceBlock />
           </KGridItem>
           <KGridItem>
@@ -29,6 +29,8 @@
 
 <script>
 
+  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { onBeforeMount } from 'vue';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
   import AttendanceBlock from './AttendanceBlock';
@@ -48,6 +50,17 @@
       QuizzesBlock,
     },
     mixins: [commonCoach],
+    setup() {
+      const { getFacilityConfig, facilityConfig } = useFacilities();
+
+      onBeforeMount(async () => {
+        await getFacilityConfig();
+      });
+
+      return {
+        facilityConfig,
+      };
+    },
   };
 
 </script>
