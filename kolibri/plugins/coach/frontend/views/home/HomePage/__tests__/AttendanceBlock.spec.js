@@ -8,6 +8,15 @@ import { useAttendance, useAttendanceMock } from '../../../../composables/useAtt
 import AttendanceBlock from '../AttendanceBlock.vue';
 
 jest.mock('../../../../composables/useAttendance');
+jest.mock('../../../../composables/useCoreCoach', () => {
+  const { computed } = require('vue');
+  return () => ({
+    classId: computed(() => 'test-class-id'),
+    pageTitle: computed(() => ''),
+    appBarTitle: computed(() => ''),
+    authorized: computed(() => true),
+  });
+});
 jest.mock('kolibri/router', () => ({
   getRoute: jest.fn((name, params) => ({ name, params })),
 }));
@@ -78,7 +87,6 @@ function makeWrapper({ sessions = [], pendingFetch = false, rejectWith = null } 
   useAttendance.mockImplementation(() => mockValues);
 
   const testStore = makeStore();
-  testStore.state.classSummary.id = 'test-class-id';
 
   // Point the kolibri/store singleton state at the test store state
   store.replaceState(testStore.state);

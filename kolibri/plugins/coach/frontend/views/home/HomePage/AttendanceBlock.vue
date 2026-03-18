@@ -77,6 +77,7 @@
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import store from 'kolibri/store';
   import { useAttendance } from '../../../composables/useAttendance';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import Block from './Block';
@@ -90,6 +91,7 @@
     },
     mixins: [commonCoach],
     setup() {
+      const { classId } = useCoreCoach();
       const { recentSessions, fetchRecentSessions, formatAttendanceDateTime } = useAttendance();
       const {
         attendanceLabel$,
@@ -107,8 +109,7 @@
       const absentColor = palette.red.v_500;
 
       onMounted(() => {
-        const classId = store.state.classSummary.id;
-        fetchRecentSessions(classId)
+        fetchRecentSessions(classId.value)
           .catch(error => {
             store.dispatch('handleApiError', { error });
           })
