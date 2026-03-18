@@ -4,18 +4,23 @@
     :appBarTitle="pageTitle"
     :route="backRoute"
   >
-    <h1>{{ pageTitle }}</h1>
+    <div
+      class="attendance-new-page"
+      :style="{ backgroundColor: $themeTokens.surface }"
+    >
+      <h1 class="page-title">{{ pageTitle }}</h1>
 
-    <AttendanceFormTable :form="form">
-      <template #action-button>
-        <KButton
-          :text="submitAttendanceAction$()"
-          :primary="true"
-          :disabled="submitting"
-          @click="handleSubmit"
-        />
-      </template>
-    </AttendanceFormTable>
+      <AttendanceFormTable :form="form">
+        <template #action-button>
+          <KButton
+            :text="submitAttendanceAction$()"
+            :primary="true"
+            :disabled="submitting"
+            @click="handleSubmit"
+          />
+        </template>
+      </AttendanceFormTable>
+    </div>
   </CoachImmersivePage>
 
 </template>
@@ -101,3 +106,21 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .attendance-new-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+    padding: 24px;
+    margin-top: 24px;
+
+    .page-title {
+      margin: 0;
+    }
+  }
+
+</style>

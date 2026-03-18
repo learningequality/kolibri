@@ -7,18 +7,23 @@
     <KCircularLoader v-if="loading" />
 
     <template v-else>
-      <h1>{{ pageTitle }}</h1>
+      <div
+        class="attendance-edit-page"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <h1>{{ pageTitle }}</h1>
 
-      <AttendanceFormTable :form="form">
-        <template #action-button>
-          <KButton
-            :text="coreString('saveAction')"
-            :primary="true"
-            :disabled="changeCount === 0 || saving"
-            @click="handleSave"
-          />
-        </template>
-      </AttendanceFormTable>
+        <AttendanceFormTable :form="form">
+          <template #action-button>
+            <KButton
+              :text="coreString('saveAction')"
+              :primary="true"
+              :disabled="changeCount === 0 || saving"
+              @click="handleSave"
+            />
+          </template>
+        </AttendanceFormTable>
+      </div>
 
       <KModal
         v-if="showSaveModal"
@@ -187,3 +192,21 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .attendance-edit-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+    padding: 24px;
+    margin-top: 24px;
+
+    .page-title {
+      margin: 0;
+    }
+  }
+
+</style>
