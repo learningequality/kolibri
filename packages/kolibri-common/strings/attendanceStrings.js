@@ -174,10 +174,6 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Absent',
     context: 'Column header for the count of learners absent',
   },
-  enrollLearnersMessage: {
-    message: 'Enroll learners to mark attendance',
-    context: 'Empty state message when there are no learners enrolled in the class',
-  },
   noSessionsEnrollMessage: {
     message: 'No attendance sessions yet. Enroll learners to mark attendance',
     context:
