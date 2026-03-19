@@ -13,8 +13,18 @@
       >
         <h1>{{ pageTitle }}</h1>
 
-        <AttendanceFormTable :form="form">
-          <template #action-button>
+        <p v-if="!hasAnyLearners">
+          {{ noLearnersInClassMessage$() }}
+        </p>
+
+        <AttendanceFormTable
+          v-else
+          :form="form"
+        >
+          <template
+            v-if="hasCurrentLearners"
+            #action-button
+          >
             <KButton
               :text="coreString('saveAction')"
               :primary="true"
@@ -78,6 +88,7 @@
         submitErrorMessage$,
         presentCount$,
         absentCount$,
+        noLearnersInClassMessage$,
       } = attendanceStrings;
 
       const loading = ref(true);
@@ -95,6 +106,12 @@
         },
         submitting: saving,
       });
+
+      const hasCurrentLearners = computed(() => form.sortedLearners.value.length > 0);
+      const hasAnyLearners = computed(
+        () =>
+          form.sortedLearners.value.length > 0 || form.sortedPreviouslyEnrolled.value.length > 0,
+      );
 
       const changedRecords = computed(() => {
         const changed = [];
@@ -136,7 +153,8 @@
         showSaveModal.value = false;
       }
 
-      // Load session and records
+      // Load session and records — split into current learners (editable) and
+      // previously enrolled (read-only, shown at the bottom of the form).
       async function loadData(sessionId) {
         loading.value = true;
         try {
@@ -147,12 +165,20 @@
           const { date, time } = formatAttendanceDateTime(session.session_start_datetime);
           pageTitle.value = editPageHeading$({ date, time });
 
-          const map = {};
+          const currentLearnerIds = new Set(form.sortedLearners.value.map(l => l.id));
+          const currentMap = {};
+          const removedRecords = [];
           records.forEach(record => {
-            map[record.user] = record.present;
+            if (currentLearnerIds.has(record.user)) {
+              currentMap[record.user] = record.present;
+            } else {
+              removedRecords.push(record);
+            }
           });
-          form.attendanceMap.value = map;
-          originalAttendanceMap.value = { ...map };
+          form.setEnrolledLearnerIds(new Set(Object.keys(currentMap)));
+          form.attendanceMap.value = currentMap;
+          originalAttendanceMap.value = { ...currentMap };
+          form.setPreviouslyEnrolled(removedRecords);
         } catch (_err) {
           createSnackbar(submitErrorMessage$());
           form.navigateBack();
@@ -181,9 +207,12 @@
         cancelSave,
         form,
         backRoute: form.backRoute,
+        hasCurrentLearners,
+        hasAnyLearners,
         saveConfirmationTitle$,
         presentCount$,
         absentCount$,
+        noLearnersInClassMessage$,
       };
     },
     beforeRouteLeave(to, from, next) {

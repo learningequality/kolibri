@@ -6,6 +6,7 @@
       :style="{ borderColor: $themeTokens.fineLine, backgroundColor: $themePalette.grey.v_100 }"
     >
       <PaginatedListContainer
+        v-if="sortedLearners.length > 0"
         :items="sortedLearners"
         :filterPlaceholder="searchPlaceholder$()"
         :itemsPerPage="50"
@@ -73,6 +74,90 @@
           </div>
         </template>
       </PaginatedListContainer>
+
+      <!--
+        Previously enrolled learners: read-only.
+        When current learners also exist they appear as a static list at the bottom.
+        When there are NO current learners they get their own PaginatedListContainer
+        so the coach can search through them (handled by the v-else-if below).
+      -->
+      <PaginatedListContainer
+        v-else-if="sortedPreviouslyEnrolled.length > 0"
+        :items="sortedPreviouslyEnrolled"
+        :filterPlaceholder="searchPlaceholder$()"
+        :itemsPerPage="50"
+        :searchFieldBlock="true"
+        position="top"
+      >
+        <template #default="{ items }">
+          <div :style="{ backgroundColor: $themeTokens.surface }">
+            <div
+              v-for="learner in items"
+              :key="learner.id"
+              class="previously-enrolled-row"
+              :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
+            >
+              <span
+                :id="`learner-name-removed-${learner.id}`"
+                class="previously-enrolled-name"
+                :style="{ color: $themeTokens.annotation }"
+              >
+                {{ learner.name }} {{ previouslyEnrolledLabel$() }}
+              </span>
+              <div class="status-cell">
+                <span
+                  v-if="learner.present"
+                  class="present-label"
+                  :style="{ color: $themeTokens.annotation }"
+                >
+                  {{ presentLabel$() }}
+                </span>
+                <KSwitch
+                  :name="`attendance-removed-${learner.id}`"
+                  :value="learner.present"
+                  :disabled="true"
+                  :ariaLabelledBy="`learner-name-removed-${learner.id}`"
+                />
+              </div>
+            </div>
+          </div>
+        </template>
+      </PaginatedListContainer>
+
+      <div
+        v-if="sortedLearners.length > 0 && sortedPreviouslyEnrolled.length > 0"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <div
+          v-for="learner in sortedPreviouslyEnrolled"
+          :key="learner.id"
+          class="previously-enrolled-row"
+          :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
+        >
+          <span
+            :id="`learner-name-removed-${learner.id}`"
+            class="previously-enrolled-name"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            {{ learner.name }} {{ previouslyEnrolledLabel$() }}
+          </span>
+          <div class="status-cell">
+            <span
+              v-if="learner.present"
+              class="present-label"
+              :style="{ color: $themeTokens.annotation }"
+            >
+              {{ presentLabel$() }}
+            </span>
+            <KSwitch
+              :name="`attendance-removed-${learner.id}`"
+              :value="learner.present"
+              :disabled="true"
+              :ariaLabelledBy="`learner-name-removed-${learner.id}`"
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <BottomAppBar>
@@ -100,7 +185,7 @@
       :title="markAllModalTitle$({ count: sortedLearners.length })"
       @cancel="cancelMarkAll"
     >
-      <p>{{ markAllModalDescription$({ count: absentCount }) }}</p>
+      <p>{{ markAllModalDescription$({ count: currentAbsentCount }) }}</p>
       <template #actions>
         <KButtonGroup>
           <KButton
@@ -164,13 +249,16 @@
         markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
+        previouslyEnrolledLabel$,
       } = attendanceStrings;
 
       const {
         sortedLearners,
+        sortedPreviouslyEnrolled,
         allPresent,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
+        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -211,9 +299,11 @@
         coreString,
         confirmButtonStyles,
         sortedLearners,
+        sortedPreviouslyEnrolled,
         allPresent,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
+        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -238,6 +328,7 @@
         markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
+        previouslyEnrolledLabel$,
         tableHeaders,
         getTableRows,
       };
@@ -289,6 +380,18 @@
 
   .mark-all-label {
     font-weight: bold;
+  }
+
+  .previously-enrolled-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px;
+  }
+
+  .previously-enrolled-name {
+    flex: 1;
+    font-size: 0.9375em;
   }
 
   .status-cell {

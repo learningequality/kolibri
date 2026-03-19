@@ -134,9 +134,9 @@ const MOCK_SESSION = {
 };
 
 const MOCK_RECORDS = [
-  { user: 'learner-a', present: true },
-  { user: 'learner-b', present: false },
-  { user: 'learner-c', present: true },
+  { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+  { user: 'learner-b', present: false, user_name: 'Bob', user_username: 'bob' },
+  { user: 'learner-c', present: true, user_name: 'Charlie', user_username: 'charlie' },
 ];
 
 function renderEditPage({
@@ -516,5 +516,160 @@ describe('AttendanceEditPage', () => {
 
     expect(createSnackbar).toHaveBeenCalled();
     expect(router.currentRoute.name).toBe(initialRoute);
+  });
+
+  it('shows no-learners message when the session has no records at all', async () => {
+    renderEditPage({ learners: [], records: [] });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('There are no learners in this class')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+  });
+
+  it('shows previously enrolled section (no save button) when all learners are removed but records exist', async () => {
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+    ];
+    renderEditPage({ learners: [], records });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice (Previously enrolled)')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('There are no learners in this class')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+  });
+
+  it('does not show learners added after the session was created', async () => {
+    // learner-a was in the class in January and has a record.
+    // learner-b was added in July and has no record for this session.
+    // learner-b should not appear on the edit page at all.
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+    ];
+    renderEditPage({
+      learners: [
+        { id: 'learner-a', name: 'Alice', username: 'alice' },
+        { id: 'learner-b', name: 'Bob', username: 'bob' },
+      ],
+      records,
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    // Bob joined after this session — should not appear at all
+    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bob (Previously enrolled)')).not.toBeInTheDocument();
+  });
+
+  it('shows searchable list for previously enrolled when no current learners exist', async () => {
+    // All learners removed — previously enrolled should get their own PaginatedListContainer
+    // with a search box, not just a static list.
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+      { user: 'learner-b', present: false, user_name: 'Bob', user_username: 'bob' },
+    ];
+    renderEditPage({ learners: [], records });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice (Previously enrolled)')).toBeInTheDocument();
+      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
+    });
+
+    // Search box should be present for filtering previously enrolled learners
+    expect(screen.getByPlaceholderText('Search for a learner')).toBeInTheDocument();
+
+    // Both previously enrolled toggles should be disabled
+    const aliceSwitch = document.querySelector('input[name="attendance-removed-learner-a"]');
+    const bobSwitch = document.querySelector('input[name="attendance-removed-learner-b"]');
+    expect(aliceSwitch.disabled).toBe(true);
+    expect(bobSwitch.disabled).toBe(true);
+  });
+
+  it('shows previously enrolled learners at the bottom with "(Previously enrolled)" label', async () => {
+    // learner-b and learner-c have been removed from the class; their records survive.
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+      { user: 'learner-b', present: true, user_name: 'Bob', user_username: 'bob' },
+      { user: 'learner-c', present: false, user_name: 'Charlie', user_username: 'charlie' },
+    ];
+    renderEditPage({
+      learners: [{ id: 'learner-a', name: 'Alice', username: 'alice' }],
+      records,
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
+      expect(screen.getByText('Charlie (Previously enrolled)')).toBeInTheDocument();
+    });
+  });
+
+  it('previously enrolled toggles are disabled', async () => {
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+      { user: 'learner-b', present: true, user_name: 'Bob', user_username: 'bob' },
+    ];
+    renderEditPage({
+      learners: [{ id: 'learner-a', name: 'Alice', username: 'alice' }],
+      records,
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
+    });
+
+    const removedSwitch = document.querySelector('input[name="attendance-removed-learner-b"]');
+    expect(removedSwitch).not.toBeNull();
+    expect(removedSwitch.disabled).toBe(true);
+  });
+
+  it('includes previously enrolled learners in present and absent counts', async () => {
+    // Alice (current, present) + Bob (removed, present) + Charlie (removed, absent)
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+      { user: 'learner-b', present: true, user_name: 'Bob', user_username: 'bob' },
+      { user: 'learner-c', present: false, user_name: 'Charlie', user_username: 'charlie' },
+    ];
+    renderEditPage({
+      learners: [{ id: 'learner-a', name: 'Alice', username: 'alice' }],
+      records,
+    });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('2 present')).toBeInTheDocument();
+      expect(screen.getByText('1 absent')).toBeInTheDocument();
+    });
+  });
+
+  it('does not show negative absent count when records include removed learners', async () => {
+    // All 3 learners were present; 2 of 3 have since been removed.
+    // Total: 3 present, 0 absent — previously enrolled are included in the count.
+    const records = [
+      { user: 'learner-a', present: true, user_name: 'Alice', user_username: 'alice' },
+      { user: 'learner-b', present: true, user_name: 'Bob', user_username: 'bob' },
+      { user: 'learner-c', present: true, user_name: 'Charlie', user_username: 'charlie' },
+    ];
+    renderEditPage({ learners: [{ id: 'learner-a', name: 'Alice', username: 'alice' }], records });
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    // 3 total present (Alice current + Bob and Charlie previously enrolled), 0 absent.
+    expect(screen.getByText('3 present')).toBeInTheDocument();
+    expect(screen.getByText('0 absent')).toBeInTheDocument();
   });
 });

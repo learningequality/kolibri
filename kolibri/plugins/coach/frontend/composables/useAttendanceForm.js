@@ -23,6 +23,8 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
   const { classId } = useCoreCoach();
 
   const attendanceMap = ref({});
+  const previouslyEnrolledMap = ref({});
+  const enrolledLearnerIds = ref(null);
   const showMarkAllModal = ref(false);
   const pendingRoute = ref(null);
 
@@ -33,8 +35,14 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
 
   const sortedLearners = computed(() => {
     const learners = store.getters['classSummary/learners'] || [];
-    return [...learners].sort((a, b) => localeCompare(a.name, b.name));
+    return [...learners]
+      .filter(l => enrolledLearnerIds.value === null || enrolledLearnerIds.value.has(l.id))
+      .sort((a, b) => localeCompare(a.name, b.name));
   });
+
+  function setEnrolledLearnerIds(ids) {
+    enrolledLearnerIds.value = ids;
+  }
 
   function isPresent(learnerId) {
     return !!attendanceMap.value[learnerId];
@@ -48,11 +56,43 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     if (onChange) onChange();
   }
 
-  const presentCount = computed(() => Object.values(attendanceMap.value).filter(Boolean).length);
-  const absentCount = computed(() => sortedLearners.value.length - presentCount.value);
+  const sortedPreviouslyEnrolled = computed(() =>
+    Object.values(previouslyEnrolledMap.value).sort((a, b) => localeCompare(a.name, b.name)),
+  );
+
+  function setPreviouslyEnrolled(records) {
+    const map = {};
+    records.forEach(r => {
+      map[r.user] = {
+        id: r.user,
+        name: r.user_name || '',
+        username: r.user_username || '',
+        present: r.present,
+      };
+    });
+    previouslyEnrolledMap.value = map;
+  }
+
+  const currentPresentCount = computed(
+    () => sortedLearners.value.filter(l => !!attendanceMap.value[l.id]).length,
+  );
+  const removedPresentCount = computed(
+    () => Object.values(previouslyEnrolledMap.value).filter(r => r.present).length,
+  );
+  const presentCount = computed(() => currentPresentCount.value + removedPresentCount.value);
+  const currentAbsentCount = computed(
+    () => sortedLearners.value.length - currentPresentCount.value,
+  );
+  const absentCount = computed(
+    () =>
+      sortedLearners.value.length +
+      Object.keys(previouslyEnrolledMap.value).length -
+      presentCount.value,
+  );
 
   const allPresent = computed(
-    () => sortedLearners.value.length > 0 && presentCount.value === sortedLearners.value.length,
+    () =>
+      sortedLearners.value.length > 0 && currentPresentCount.value === sortedLearners.value.length,
   );
 
   function setAllLearners(value) {
@@ -117,8 +157,12 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     attendanceMap,
     backRoute,
     sortedLearners,
+    sortedPreviouslyEnrolled,
+    setPreviouslyEnrolled,
+    setEnrolledLearnerIds,
     presentCount,
     absentCount,
+    currentAbsentCount,
     allPresent,
     showMarkAllModal,
     pendingRoute,

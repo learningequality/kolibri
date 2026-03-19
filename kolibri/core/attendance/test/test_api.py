@@ -624,6 +624,57 @@ class AttendanceRecordAPITestCase(APITestCase):
         self.assertTrue(record["present"])
         self.assertEqual(record["attendance_session"], session.id)
 
+    def test_list_records_includes_user_name_and_username(self):
+        self.learner1.full_name = "Alice Smith"
+        self.learner1.save()
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=True
+        )
+        self._login(self.coach)
+        response = self.client.get(
+            _record_list_url(), {"attendance_session": session.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        record = response.data[0]
+        self.assertEqual(record["user_name"], "Alice Smith")
+        self.assertEqual(record["user_username"], self.learner1.username)
+
+    def test_list_records_preserves_user_name_after_learner_removed_from_class(self):
+        self.learner1.full_name = "Bob Jones"
+        self.learner1.save()
+        session = self._create_session()
+        AttendanceRecord.objects.create(
+            attendance_session=session, user=self.learner1, present=True
+        )
+        # Remove learner1 from the class — their record and name must still be accessible.
+        Membership.objects.filter(
+            user=self.learner1, collection=self.classroom
+        ).delete()
+        self._login(self.coach)
+        response = self.client.get(
+            _record_list_url(), {"attendance_session": session.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        record = response.data[0]
+        self.assertEqual(record["user_name"], "Bob Jones")
+        self.assertEqual(record["user"], self.learner1.id)
+
+    def test_bulk_update_response_includes_user_name_and_username(self):
+        self.learner1.full_name = "Charlie Brown"
+        self.learner1.save()
+        session = self._create_session()
+        self._login(self.coach)
+        data = {
+            "attendance_session": session.id,
+            "records": [{"user": self.learner1.id, "present": True}],
+        }
+        response = self.client.post(_record_bulk_update_url(), data, format="json")
+        self.assertEqual(response.status_code, 200)
+        record = response.data[0]
+        self.assertEqual(record["user_name"], "Charlie Brown")
+        self.assertEqual(record["user_username"], self.learner1.username)
+
     def test_learner_cannot_bulk_update(self):
         session = self._create_session()
         self._login(self.learner1)
