@@ -17,6 +17,7 @@ export default function useCoreCoach(store) {
   const appBarTitle = computed(() => getAppBarTitle());
   const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
   const classId = computed(() => get(route).params.classId);
+  const className = computed(() => store.state.classSummary.name);
   const groups = computed(() => store.getters['classSummary/groups']);
   const { isSuperuser } = useUser();
   const { facilities } = useFacilities();
@@ -95,6 +96,7 @@ export default function useCoreCoach(store) {
     initClassInfo,
     refreshClassSummary,
     classId,
+    className,
     groups,
     authorized,
     pageTitle,
