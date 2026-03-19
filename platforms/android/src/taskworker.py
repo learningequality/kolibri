@@ -1,12 +1,11 @@
 import logging
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
-from android_utils import os_user
+from kolibri.main import enable_plugin
 from kolibri.main import initialize
-from kolibri.plugins.app.utils import interface
 
+enable_plugin("android_app_plugin")
 initialize(skip_update=True)
-interface.register(get_os_user=os_user)
 
 logger = logging.getLogger(__name__)
 
