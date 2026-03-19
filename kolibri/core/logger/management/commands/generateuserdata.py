@@ -81,6 +81,13 @@ class Command(BaseCommand):
             dest="max_channels",
             help="Maximum number of channels to add activities to.",
         )
+        parser.add_argument(
+            "--num-attendance-sessions",
+            type=int,
+            default=25,
+            dest="num_attendance_sessions",
+            help="Number of attendance sessions to be created per class.",
+        )
         # TODO(cpauya):
         # parser.add_argument(
         #     "--num-groups",
@@ -121,6 +128,7 @@ class Command(BaseCommand):
         num_content_items = options["num_content_items"]
         num_lessons = options["num_lessons"]
         num_exams = options["num_exams"]
+        num_attendance_sessions = options["num_attendance_sessions"]
         max_channels = options["max_channels"]
         device_name = options["device_name"]
         verbosity = options.get("verbosity", 1)
@@ -253,6 +261,15 @@ class Command(BaseCommand):
                     exams=num_exams,
                     now=now,
                     device_name=device_name,
+                    verbosity=verbosity,
+                )
+
+                # create attendance sessions
+                utils.create_attendance_for_classroom(
+                    classroom=classroom,
+                    facility=facility,
+                    sessions=num_attendance_sessions,
+                    now=now,
                     verbosity=verbosity,
                 )
 
