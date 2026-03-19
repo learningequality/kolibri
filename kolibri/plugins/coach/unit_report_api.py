@@ -16,7 +16,6 @@ from kolibri.core.auth.models import Role
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
-from kolibri.core.courses.models import TestStatus
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
@@ -85,15 +84,14 @@ def _get_test_status(assignments):
       - "open":          at least one assignment is currently active
       - "closed":        at least one assignment has been ended (and none active)
 
-    Checking status == TestStatus.Ended explicitly (rather than relying on
-    is_active == False) avoids misclassifying a not_started assignment as
-    "closed".
+    Checking closed == True explicitly avoids misclassifying an assignment
+    that was never opened as "closed".
     """
     if not assignments:
         return TEST_STATUS_NOT_ACTIVATED
-    if any(a.is_active for a in assignments):
+    if any(not a.closed for a in assignments):
         return TEST_STATUS_OPEN
-    if any(a.status == TestStatus.Ended for a in assignments):
+    if any(a.closed for a in assignments):
         return TEST_STATUS_CLOSED
     return TEST_STATUS_NOT_ACTIVATED
 

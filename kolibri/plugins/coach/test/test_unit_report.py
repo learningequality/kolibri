@@ -17,7 +17,6 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
-from kolibri.core.courses.models import TestStatus
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
@@ -191,32 +190,26 @@ class GetTestVersionTests(SimpleTestCase):
 class GetTestStatusTests(SimpleTestCase):
     """_get_test_status maps UnitTestAssignment state to response strings."""
 
-    def _make_assignment(self, is_active, status):
+    def _make_assignment(self, closed):
         a = UnitTestAssignment.__new__(UnitTestAssignment)
-        a.is_active = is_active
-        a.status = status
+        a.closed = closed
         return a
 
     def test_no_assignments_returns_not_activated(self):
         self.assertEqual(_get_test_status([]), TEST_STATUS_NOT_ACTIVATED)
 
     def test_active_assignment_returns_open(self):
-        a = self._make_assignment(True, TestStatus.Active)
+        a = self._make_assignment(closed=False)
         self.assertEqual(_get_test_status([a]), TEST_STATUS_OPEN)
 
     def test_ended_assignment_returns_closed(self):
-        a = self._make_assignment(False, TestStatus.Ended)
+        a = self._make_assignment(closed=True)
         self.assertEqual(_get_test_status([a]), TEST_STATUS_CLOSED)
 
     def test_mixed_active_ended_returns_open(self):
-        a1 = self._make_assignment(True, TestStatus.Active)
-        a2 = self._make_assignment(False, TestStatus.Ended)
+        a1 = self._make_assignment(closed=False)
+        a2 = self._make_assignment(closed=True)
         self.assertEqual(_get_test_status([a1, a2]), TEST_STATUS_OPEN)
-
-    def test_not_started_assignment_returns_not_activated(self):
-        """An assignment that exists but has never been opened must not be reported as closed."""
-        a = self._make_assignment(False, TestStatus.NotStarted)
-        self.assertEqual(_get_test_status([a]), TEST_STATUS_NOT_ACTIVATED)
 
 
 class ComputeTestScoresTests(TestCase):
@@ -811,8 +804,7 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
             test_type="pre",
-            is_active=True,
-            status=TestStatus.Active,
+            closed=False,
             activated_by=self.facility_coach,
         )
         response = self.client.get(self._get_url())
@@ -825,8 +817,7 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
             test_type="pre",
-            is_active=False,
-            status=TestStatus.Ended,
+            closed=True,
             activated_by=self.facility_coach,
         )
         response = self.client.get(self._get_url())
