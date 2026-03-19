@@ -39,7 +39,7 @@ def _chunked(lst, size):
 # (NAMESPACE_DNS, NAMESPACE_URL, etc.).
 _SYNTHETIC_CONTENT_ID_NAMESPACE = uuid.UUID("7c9e4b1a-3d5f-4a8e-9c2b-6d0e1f2a3b4c")
 
-# Status strings returned by _get_test_status and surfaced in the API response.
+# Status strings returned by get_test_status and surfaced in the API response.
 # Exported as constants so callers can import them instead of duplicating literals.
 TEST_STATUS_NOT_ACTIVATED = "not_activated"
 TEST_STATUS_OPEN = "open"
@@ -76,29 +76,112 @@ def get_synthetic_content_id(
     return uuid.uuid5(_SYNTHETIC_CONTENT_ID_NAMESPACE, key).hex
 
 
-def _get_test_status(assignments):
+def get_test_status(assignments):
     """
     Derive a display status from a list of UnitTestAssignment objects.
 
-    Returns one of:
-      - "not_activated": no assignment exists, or all assignments are still in
-                         the not_started state (created but not yet opened)
-      - "open":          at least one assignment is currently active
-      - "closed":        at least one assignment has been ended (and none active)
+    UnitTestAssignment has a single ``closed: BooleanField``.  The possible
+    return values are:
 
-    Checking closed == True explicitly avoids misclassifying an assignment
-    that was never opened as "closed".
+      - "not_activated": no assignment exists yet
+      - "open":          at least one assignment has closed=False (still active)
+      - "closed":        assignments exist and all have closed=True
     """
     if not assignments:
         return TEST_STATUS_NOT_ACTIVATED
     if any(not a.closed for a in assignments):
         return TEST_STATUS_OPEN
-    if any(a.closed for a in assignments):
-        return TEST_STATUS_CLOSED
-    return TEST_STATUS_NOT_ACTIVATED
+    return TEST_STATUS_CLOSED
 
 
-def _compute_all_test_scores(
+def _fetch_mastery_logs(content_id_to_meta):
+    """
+    *content_id_to_meta* is a dict mapping synthetic content_id → meta dict.
+    For each key, find the most recent complete MasteryLog via a correlated DB
+    subquery (max end_timestamp per content_id).  Chunked to stay within
+    SQLite's variable limit.
+
+    Returns (mastery_log_ids, mastery_log_to_meta) where mastery_log_to_meta
+    maps mastery log id → {learner_id, test_type}.
+    """
+    # Correlated subquery: picks the latest completed MasteryLog per
+    # summarylog content_id, avoiding a race with Python-side sort dedup.
+    # The seen_content_ids guard handles the rare identical-timestamp tie.
+    latest_ts_subquery = (
+        MasteryLog.objects.filter(
+            summarylog__content_id=OuterRef("summarylog__content_id"),
+            complete=True,
+            end_timestamp__isnull=False,
+        )
+        .order_by("-end_timestamp")
+        .values("end_timestamp")[:1]
+    )
+
+    mastery_log_ids = []
+    mastery_log_to_meta = {}
+    seen_content_ids = set()
+
+    for chunk in _chunked(list(content_id_to_meta.keys()), _IN_CHUNK_SIZE):
+        for ml in MasteryLog.objects.filter(
+            summarylog__content_id__in=chunk,
+            complete=True,
+            end_timestamp__isnull=False,
+            end_timestamp=Subquery(latest_ts_subquery),
+        ).values("id", "summarylog__content_id"):
+            cid = ml["summarylog__content_id"]
+            if cid not in seen_content_ids:
+                seen_content_ids.add(cid)
+                mastery_log_ids.append(ml["id"])
+                mastery_log_to_meta[ml["id"]] = content_id_to_meta[cid]
+
+    return mastery_log_ids, mastery_log_to_meta
+
+
+def _fetch_deduplicated_attempts(mastery_log_ids):
+    """
+    Fetch AttemptLogs for the given mastery log ids and deduplicate per
+    (masterylog_id, item) by keeping the attempt with the latest end_timestamp.
+    Done in Python rather than via ORDER BY to avoid sensitivity to DB ordering
+    behaviour (ties/NULLs).  Chunked to stay within SQLite's variable limit.
+
+    Returns {(masterylog_id, item): log_dict}.
+    """
+    item_latest = {}
+    for chunk in _chunked(mastery_log_ids, _IN_CHUNK_SIZE):
+        for log in AttemptLog.objects.filter(masterylog_id__in=chunk).values(
+            "masterylog_id", "item", "correct", "end_timestamp"
+        ):
+            key = (log["masterylog_id"], log["item"])
+            existing = item_latest.get(key)
+            if existing is None or log["end_timestamp"] > existing["end_timestamp"]:
+                item_latest[key] = log
+    return item_latest
+
+
+def _accumulate_scores(
+    results, item_latest, mastery_log_to_meta, assessment_objectives
+):
+    """
+    Accumulate correct counts per learner per LO per test type into *results*.
+
+    Only fully-correct attempts (correct == 1.0) contribute; partial credit
+    (0 < correct < 1) is intentionally excluded.
+    """
+    for (ml_id, item), log in item_latest.items():
+        if log["correct"] != 1:  # only fully-correct (1.0); partial credit excluded
+            continue
+        meta = mastery_log_to_meta.get(ml_id)
+        if meta is None:
+            continue
+        lo_id = assessment_objectives.get(item)
+        if lo_id is None:
+            continue
+        lo_scores = results[meta["test_type"]].setdefault(str(meta["learner_id"]), {})
+        lo_id_str = str(lo_id)
+        lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
+
+
+def compute_all_test_scores(
     learner_ids, course_session_id, unit_contentnode_id, assessment_objectives
 ):
     """
@@ -106,17 +189,9 @@ def _compute_all_test_scores(
     single pair of DB queries.
 
     For each learner × test_type, generates a synthetic content_id and looks up
-    the most recent complete MasteryLog with that content_id, selected via a
-    correlated DB subquery (max end_timestamp per content_id) to avoid a race
-    condition that a Python-side sort over a large result set would have.
-    AttemptLogs are mapped to learning objectives via assessment_objectives;
-    when the same item appears more than once in a mastery log, the most recent
-    attempt (by end_timestamp) wins — resolved entirely in Python to avoid
-    relying on database-level ordering guarantees.
-
-    Only fully-correct attempts (correct == 1.0) contribute to the score.
-    Partial-credit values (0 < correct < 1) are intentionally excluded; for
-    pre/post quiz assessments the data model uses 0 or 1 exclusively.
+    the most recent complete MasteryLog with that content_id.  AttemptLogs are
+    mapped to learning objectives via assessment_objectives; when the same item
+    appears more than once in a mastery log, the most recent attempt wins.
 
     Returns:
         {
@@ -124,19 +199,14 @@ def _compute_all_test_scores(
             "post": { learner_id_str: { lo_id_str: correct_count }, ... },
         }
 
-    Absence in the returned dict has two distinct causes:
-      - No MasteryLog at all: the learner has not started the test.
-      - MasteryLog exists but complete=False: the learner started but has not
-        finished; in-progress logs are intentionally excluded so partial
-        in-flight data does not skew the coach view.
-    In both cases the learner will not appear in the inner dict for that test
-    type.  A learner who finished (complete=True) is always present, even when
-    every answer was wrong (empty scores dict).
+    A learner who completed the test is always present in the inner dict (even
+    if every answer was wrong).  A learner who never started, or whose
+    MasteryLog is still in-progress (complete=False), is absent.
     """
     if not learner_ids:
         return {"pre": {}, "post": {}}
 
-    # Build synthetic content_id → (learner_id, test_type) for both test types
+    # Build synthetic content_id → (learner_id, test_type) for both test types.
     content_id_to_meta = {}
     for learner_id in learner_ids:
         for test_type in ("pre", "post"):
@@ -151,83 +221,19 @@ def _compute_all_test_scores(
                 "test_type": test_type,
             }
 
-    # Correlated subquery: for a given MasteryLog row, return the maximum
-    # end_timestamp among all complete, non-null MasteryLogs that share the
-    # same summarylog content_id.  Filtering the outer query to only rows
-    # where end_timestamp = Subquery(...) picks the most-recent log per
-    # learner × test_type atomically in the DB, avoiding a race condition
-    # that Python-side sort deduplication would be subject to.  This matters
-    # because a learner can retake a test: each retake produces a new
-    # MasteryLog against the same ContentSummaryLog, and only the latest
-    # completed attempt should count.
-    # The seen_content_ids guard handles the rare tie (identical timestamps).
-    _latest_ts_subquery = (
-        MasteryLog.objects.filter(
-            summarylog__content_id=OuterRef("summarylog__content_id"),
-            complete=True,
-            end_timestamp__isnull=False,
-        )
-        .order_by("-end_timestamp")
-        .values("end_timestamp")[:1]
-    )
-
-    mastery_log_ids = []
-    mastery_log_to_meta = {}
-    seen_content_ids = set()
-
-    # Chunk the content_id IN list to stay within SQLite's variable limit.
-    for chunk in _chunked(list(content_id_to_meta.keys()), _IN_CHUNK_SIZE):
-        for ml in MasteryLog.objects.filter(
-            summarylog__content_id__in=chunk,
-            complete=True,
-            end_timestamp__isnull=False,
-            end_timestamp=Subquery(_latest_ts_subquery),
-        ).values("id", "summarylog__content_id"):
-            cid = ml["summarylog__content_id"]
-            if cid not in seen_content_ids:
-                seen_content_ids.add(cid)
-                mastery_log_ids.append(ml["id"])
-                mastery_log_to_meta[ml["id"]] = content_id_to_meta[cid]
+    mastery_log_ids, mastery_log_to_meta = _fetch_mastery_logs(content_id_to_meta)
 
     results = {"pre": {}, "post": {}}
-
     if not mastery_log_ids:
         return results
 
     # Initialise every learner that has a complete mastery log so they appear
-    # in the results even if they answered every question incorrectly.
+    # even if they answered every question incorrectly.
     for meta in mastery_log_to_meta.values():
         results[meta["test_type"]].setdefault(str(meta["learner_id"]), {})
 
-    # Fetch all attempt logs and deduplicate per (masterylog, item) by keeping
-    # the attempt with the latest end_timestamp.  Done in Python rather than
-    # via ORDER BY so it is not sensitive to DB ordering behaviour (ties/NULLs).
-    # The mastery_log_ids list is chunked to avoid SQLite variable-count limits.
-    item_latest = {}  # (masterylog_id, item) -> log dict
-    for chunk in _chunked(mastery_log_ids, _IN_CHUNK_SIZE):
-        for log in AttemptLog.objects.filter(masterylog_id__in=chunk).values(
-            "masterylog_id", "item", "correct", "end_timestamp"
-        ):
-            key = (log["masterylog_id"], log["item"])
-            existing = item_latest.get(key)
-            if existing is None or log["end_timestamp"] > existing["end_timestamp"]:
-                item_latest[key] = log
-
-    # Accumulate correct counts per learner per LO per test type.
-    for (ml_id, item), log in item_latest.items():
-        if log["correct"] != 1:  # only fully-correct (1.0); partial credit excluded
-            continue
-        meta = mastery_log_to_meta.get(ml_id)
-        if meta is None:
-            continue
-        lo_id = assessment_objectives.get(item)
-        if lo_id is None:
-            continue
-        test_type = meta["test_type"]
-        learner_id_str = str(meta["learner_id"])
-        lo_id_str = str(lo_id)
-        lo_scores = results[test_type].setdefault(learner_id_str, {})
-        lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
+    item_latest = _fetch_deduplicated_attempts(mastery_log_ids)
+    _accumulate_scores(results, item_latest, mastery_log_to_meta, assessment_objectives)
 
     return results
 
@@ -265,6 +271,11 @@ class UnitReportViewSet(viewsets.ViewSet):
     broken down by learning objective.
 
     GET /api/coach/coursesession/{course_session_id}/unit/{unit_contentnode_id}/report/
+
+    Note: Uses ``viewsets.ViewSet`` rather than ``ReadOnlyValuesViewset`` because
+    the response is a deeply nested structure (per-learner scores keyed by LO id)
+    that cannot be expressed as a flat ``values`` tuple.  The single ``retrieve``
+    action makes this a read-only endpoint in practice.
     """
 
     permission_classes = (permissions.IsAuthenticated, UnitReportPermissions)
@@ -323,6 +334,10 @@ class UnitReportViewSet(viewsets.ViewSet):
         # Exclude users who hold a coach or admin role in the assigned
         # collections so that a dual-role user (enrolled as a member AND
         # holding a coach role) does not appear in the learner list.
+        # Note: this exclusion is scoped to the assignment collections only.
+        # A facility-level admin who is not a member of any assignment collection
+        # will not appear here (correct); one who IS a member would be excluded
+        # by the coach_admin_ids filter below (also correct).
         coach_admin_ids = Role.objects.filter(
             collection_id__in=assignment_collection_ids,
             kind__in=[role_kinds.COACH, role_kinds.ADMIN, role_kinds.ASSIGNABLE_COACH],
@@ -347,11 +362,11 @@ class UnitReportViewSet(viewsets.ViewSet):
         pre_assignments = [a for a in all_assignments if a.test_type == "pre"]
         post_assignments = [a for a in all_assignments if a.test_type == "post"]
 
-        pre_status = _get_test_status(pre_assignments)
-        post_status = _get_test_status(post_assignments)
+        pre_status = get_test_status(pre_assignments)
+        post_status = get_test_status(post_assignments)
 
         # Compute scores for both tests in a single DB pass.
-        all_scores = _compute_all_test_scores(
+        all_scores = compute_all_test_scores(
             learner_ids, course_session_id, unit_contentnode_id, assessment_objectives
         )
         pre_scores = all_scores["pre"]

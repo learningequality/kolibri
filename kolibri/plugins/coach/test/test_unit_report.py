@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
@@ -14,6 +15,7 @@ from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
@@ -22,9 +24,9 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
-from kolibri.plugins.coach.unit_report_api import _compute_all_test_scores
-from kolibri.plugins.coach.unit_report_api import _get_test_status
+from kolibri.plugins.coach.unit_report_api import compute_all_test_scores
 from kolibri.plugins.coach.unit_report_api import get_synthetic_content_id
+from kolibri.plugins.coach.unit_report_api import get_test_status
 from kolibri.plugins.coach.unit_report_api import get_test_version
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
@@ -132,6 +134,8 @@ def _create_attempt(
         kind=content_kinds.EXERCISE,
         progress=1.0,
     )
+    # ContentSessionLog is required to satisfy the AttemptLog FK; it is not
+    # queried by the system under test.
     session_log = ContentSessionLog.objects.create(
         user=learner,
         content_id=synthetic_cid,
@@ -202,40 +206,41 @@ class GetTestVersionTests(SimpleTestCase):
 
 
 class GetTestStatusTests(SimpleTestCase):
-    """_get_test_status maps UnitTestAssignment state to response strings."""
+    """get_test_status maps UnitTestAssignment state to response strings."""
 
     def _make_assignment(self, closed):
-        a = UnitTestAssignment.__new__(UnitTestAssignment)
-        a.closed = closed
-        return a
+        return SimpleNamespace(closed=closed)
 
     def test_no_assignments_returns_not_activated(self):
-        self.assertEqual(_get_test_status([]), TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(get_test_status([]), TEST_STATUS_NOT_ACTIVATED)
 
     def test_active_assignment_returns_open(self):
         a = self._make_assignment(closed=False)
-        self.assertEqual(_get_test_status([a]), TEST_STATUS_OPEN)
+        self.assertEqual(get_test_status([a]), TEST_STATUS_OPEN)
 
-    def test_ended_assignment_returns_closed(self):
+    def test_closed_assignment_returns_closed_status(self):
         a = self._make_assignment(closed=True)
-        self.assertEqual(_get_test_status([a]), TEST_STATUS_CLOSED)
+        self.assertEqual(get_test_status([a]), TEST_STATUS_CLOSED)
+
+    def test_all_closed_assignments_returns_closed(self):
+        a1 = self._make_assignment(closed=True)
+        a2 = self._make_assignment(closed=True)
+        self.assertEqual(get_test_status([a1, a2]), TEST_STATUS_CLOSED)
 
     def test_mixed_active_ended_returns_open(self):
         a1 = self._make_assignment(closed=False)
         a2 = self._make_assignment(closed=True)
-        self.assertEqual(_get_test_status([a1, a2]), TEST_STATUS_OPEN)
+        self.assertEqual(get_test_status([a1, a2]), TEST_STATUS_OPEN)
 
 
 class ComputeTestScoresTests(TestCase):
-    """_compute_all_test_scores aggregation logic without HTTP layer."""
+    """compute_all_test_scores aggregation logic without HTTP layer."""
 
     databases = "__all__"
 
     @classmethod
     def setUpTestData(cls):
         provision_device()
-        from kolibri.core.auth.test.test_api import FacilityFactory
-
         cls.facility = FacilityFactory.create()
         cls.classroom = Classroom.objects.create(name="cls", parent=cls.facility)
         cls.learner_a = helpers.create_learner(
@@ -253,14 +258,14 @@ class ComputeTestScoresTests(TestCase):
         self.unit_id = uuid.uuid4().hex
 
     def test_no_learners_returns_empty(self):
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES
         )
         self.assertEqual(result["pre"], {})
         self.assertEqual(result["post"], {})
 
     def test_unattempted_learner_absent_from_scores(self):
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -289,7 +294,7 @@ class ComputeTestScoresTests(TestCase):
             items_correct=items_correct,
             items_incorrect=items_incorrect,
         )
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -317,7 +322,7 @@ class ComputeTestScoresTests(TestCase):
             items_correct=[],
             items_incorrect=items_incorrect,
         )
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_b.id],
             self.course_session_id,
             self.unit_id,
@@ -373,7 +378,7 @@ class ComputeTestScoresTests(TestCase):
             correct=1,
         )
 
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -400,7 +405,7 @@ class ComputeTestScoresTests(TestCase):
             items_correct=items_correct,
         )
 
-        post_result = _compute_all_test_scores(
+        post_result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -471,7 +476,7 @@ class ComputeTestScoresTests(TestCase):
             correct=1,
         )
 
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -532,7 +537,7 @@ class ComputeTestScoresTests(TestCase):
             end_timestamp=now - datetime.timedelta(minutes=19),
             correct=0.5,  # partial credit — must NOT count
         )
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_a.id],
             self.course_session_id,
             self.unit_id,
@@ -648,7 +653,7 @@ class ComputeTestScoresTests(TestCase):
                 correct=0,
             )
 
-        result = _compute_all_test_scores(
+        result = compute_all_test_scores(
             [self.learner_b.id],
             self.course_session_id,
             self.unit_id,
@@ -673,8 +678,6 @@ class UnitReportAPIBase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         provision_device()
-        from kolibri.core.auth.test.test_api import FacilityFactory
-
         cls.facility = FacilityFactory.create()
         cls.classroom = Classroom.objects.create(name="classroom", parent=cls.facility)
 
@@ -894,6 +897,18 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         )
         response = self.client.get(self._get_url())
         self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_CLOSED)
+
+    def test_dual_role_user_excluded_from_learners(self):
+        """A user who is both a classroom member and a coach is not in the learners list."""
+        dual_role = helpers.create_learner(
+            "dual_role_excl", DUMMY_PASSWORD, self.facility, classroom=self.classroom
+        )
+        self.classroom.add_coach(dual_role)
+
+        response = self.client.get(self._get_url())
+        self.assertEqual(response.status_code, 200)
+        learner_ids = {lr["id"] for lr in response.data["learners"]}
+        self.assertNotIn(str(dual_role.id), learner_ids)
 
     def test_unit_with_null_options_returns_valid_response(self):
         """ContentNode.options = None is handled gracefully by the 'or {}' guard."""
