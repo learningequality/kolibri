@@ -7,7 +7,7 @@ import kolibri.core.utils.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("kolibriauth", "0032_alter_facilityuser_managers"),
+        ("kolibriauth", "0033_facilityuser_add_picture_password"),
     ]
 
     operations = [
