@@ -321,12 +321,17 @@ describe('AttendanceHistoryPage', () => {
       // KDateRange should be hidden after submit
       expect(wrapper.findComponent({ name: 'KDateRange' }).exists()).toBe(false);
 
+      // end_date should be the start of the NEXT day so the backend's
+      // exclusive "lt" filter includes the entire end date (#14424)
+      const expectedEndDate = new Date(endDate);
+      expectedEndDate.setDate(expectedEndDate.getDate() + 1);
+
       // Should have re-fetched with ISO datetime params
       expect(mock.fetchSessions).toHaveBeenCalledWith(
         'class-123',
         expect.objectContaining({
           start_date: startDate.toISOString(),
-          end_date: endDate.toISOString(),
+          end_date: expectedEndDate.toISOString(),
           page: 1,
         }),
       );

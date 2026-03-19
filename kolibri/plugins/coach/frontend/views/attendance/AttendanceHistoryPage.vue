@@ -190,9 +190,14 @@
 
       function getDateRange(filterValue) {
         if (filterValue === DateRangeFilters.CUSTOM_APPLIED) {
+          // KDateRange returns dates at midnight (start of day). The backend
+          // end_date filter uses exclusive lt, so we send midnight of the NEXT
+          // day to include all sessions on the selected end date (#14424).
+          const exclusiveEnd = new Date(customEndDate.value);
+          exclusiveEnd.setDate(exclusiveEnd.getDate() + 1);
           return {
             start_date: customStartDate.value.toISOString(),
-            end_date: customEndDate.value.toISOString(),
+            end_date: exclusiveEnd.toISOString(),
           };
         }
         if (filterValue === DateRangeFilters.ALL_TIME) {
