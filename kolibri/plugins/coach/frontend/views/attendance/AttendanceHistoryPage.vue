@@ -93,6 +93,7 @@
   import { ref, computed, watch } from 'vue';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
+  import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
   import usePagination from 'kolibri-common/composables/usePagination';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
@@ -124,7 +125,7 @@
       ReportsControls,
     },
     setup() {
-      const { classId } = useCoreCoach();
+      const { classId, className } = useCoreCoach();
 
       const { attendanceLoading, sessions, totalPages, sessionCount, fetchSessions } =
         useAttendance();
@@ -264,8 +265,8 @@
         minute: 'numeric',
       };
 
-      const processedSessions = computed(() => {
-        return sessions.value.map(session => {
+      function processSessionData(rawSessions) {
+        return rawSessions.map(session => {
           const totalCount = session.total_count || 0;
           const presentCount = session.present_count || 0;
           return {
@@ -274,20 +275,45 @@
             absent: totalCount - presentCount,
           };
         });
+      }
+
+      const processedSessions = computed(() => {
+        return processSessionData(sessions.value);
       });
 
       const tableRows = computed(() => {
         return processedSessions.value.map(row => [row.date, row.present, row.absent]);
       });
 
+      function fetchAllSessionPages(params) {
+        const pageNumbers = Array.from({ length: totalPages.value }, (_, i) => i + 1);
+        return Promise.all(
+          pageNumbers.map(page =>
+            AttendanceSessionResource.fetchCollection({
+              getParams: { collection: classId.value, ...params, page },
+              force: true,
+            }).then(data => data.results),
+          ),
+        ).then(pages => pages.flat());
+      }
+
       function exportCSV() {
-        const columns = [
-          { name: dateLabel$(), key: 'date' },
-          { name: presentColumnHeader$(), key: 'present' },
-          { name: absentColumnHeader$(), key: 'absent' },
-        ];
-        const exporter = new CSVExporter(columns, attendanceHistoryTitle$());
-        exporter.export(processedSessions.value);
+        const dateParams = getDateRange(selectedDateRange.value.value);
+        const params = { ...dateParams, page_size: PAGE_SIZE };
+
+        fetchAllSessionPages(params).then(allSessions => {
+          const columns = [
+            { name: dateLabel$(), key: 'date' },
+            { name: presentColumnHeader$(), key: 'present' },
+            { name: absentColumnHeader$(), key: 'absent' },
+          ];
+          const exporter = new CSVExporter(columns, className.value);
+          exporter.addNames({
+            report: attendanceHistoryTitle$(),
+            date: $formatDate(today, { year: 'numeric', month: 'short', day: 'numeric' }),
+          });
+          exporter.export(processSessionData(allSessions));
+        });
       }
 
       // Fetch sessions whenever page changes (immediate: true handles initial load)

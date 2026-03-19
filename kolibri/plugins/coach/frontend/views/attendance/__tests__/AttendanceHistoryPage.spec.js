@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import store from 'kolibri/store';
 import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
+import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
 import makeStore from '../../../__tests__/utils/makeStore';
 // eslint-disable-next-line import/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
@@ -10,8 +11,9 @@ import CSVExporter from '../../../csv/exporter';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
+jest.mock('kolibri-common/apiResources/AttendanceSessionResource');
 jest.mock('../../../csv/exporter', () => {
-  const MockCSVExporter = jest.fn(() => ({ export: jest.fn() }));
+  const MockCSVExporter = jest.fn(() => ({ export: jest.fn(), addNames: jest.fn() }));
   return { __esModule: true, default: MockCSVExporter };
 });
 jest.mock('kolibri-common/composables/usePagination', () => {
@@ -26,8 +28,10 @@ jest.mock('kolibri-common/composables/usePagination', () => {
 });
 jest.mock('../../../composables/useCoreCoach', () => {
   const { computed } = require('vue');
+  const store = require('kolibri/store').default;
   return () => ({
     classId: computed(() => 'class-123'),
+    className: computed(() => store.state.classSummary.name || ''),
     pageTitle: computed(() => ''),
     appBarTitle: computed(() => ''),
     authorized: computed(() => true),
@@ -111,7 +115,13 @@ const MOCK_SESSIONS = [
   },
 ];
 
-function makeWrapper({ sessions = [], totalPages = 1, sessionCount = null, loading = false } = {}) {
+function makeWrapper({
+  sessions = [],
+  totalPages = 1,
+  sessionCount = null,
+  loading = false,
+  className = 'Test Class',
+} = {}) {
   const mockValues = useAttendanceMock({
     sessions: ref(sessions),
     totalPages: ref(totalPages),
@@ -122,6 +132,7 @@ function makeWrapper({ sessions = [], totalPages = 1, sessionCount = null, loadi
 
   const testStore = makeStore();
   testStore.state.classSummary.id = 'class-123';
+  testStore.state.classSummary.name = className;
   store.replaceState(testStore.state);
 
   const wrapper = mount(AttendanceHistoryPage, {
@@ -168,12 +179,47 @@ describe('AttendanceHistoryPage', () => {
       expect(wrapper.findComponent({ name: 'ReportsControls' }).exists()).toBe(true);
     });
 
+    it('includes class name and export date in CSV filename', async () => {
+      CSVExporter.mockClear();
+      const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS, className: 'My Class' });
+
+      AttendanceSessionResource.fetchCollection.mockResolvedValue({
+        results: MOCK_SESSIONS,
+        total_pages: 1,
+        count: 2,
+      });
+
+      const controls = wrapper.findComponent({ name: 'ReportsControls' });
+      controls.vm.$emit('export');
+      await global.flushPromises();
+
+      // CSVExporter constructor receives the class name as the base filename
+      expect(CSVExporter).toHaveBeenCalledWith(expect.any(Array), 'My Class');
+
+      // addNames is called with the report title and export date
+      const exporterInstance = CSVExporter.mock.results[0].value;
+      expect(exporterInstance.addNames).toHaveBeenCalledWith(
+        expect.objectContaining({
+          report: 'Attendance History',
+          date: expect.stringContaining('2026'),
+        }),
+      );
+    });
+
     it('exports CSV with session data when ReportsControls emits export', async () => {
       CSVExporter.mockClear();
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
+
+      // Mock the resource to return a paginated response for the single-page export
+      AttendanceSessionResource.fetchCollection.mockResolvedValue({
+        results: MOCK_SESSIONS,
+        total_pages: 1,
+        count: 2,
+      });
+
       const controls = wrapper.findComponent({ name: 'ReportsControls' });
       controls.vm.$emit('export');
-      await wrapper.vm.$nextTick();
+      await global.flushPromises();
 
       expect(CSVExporter).toHaveBeenCalledWith(
         expect.arrayContaining([
@@ -188,6 +234,96 @@ describe('AttendanceHistoryPage', () => {
         expect.arrayContaining([
           expect.objectContaining({ present: 15, absent: 5 }),
           expect.objectContaining({ present: 18, absent: 2 }),
+        ]),
+      );
+    });
+
+    it('exports all pages of session data when multiple pages exist', async () => {
+      CSVExporter.mockClear();
+      const page1Sessions = [
+        {
+          id: 'session-1',
+          session_start_datetime: '2026-03-10T09:00:00Z',
+          present_count: 15,
+          total_count: 20,
+        },
+        {
+          id: 'session-2',
+          session_start_datetime: '2026-03-09T09:00:00Z',
+          present_count: 18,
+          total_count: 20,
+        },
+      ];
+      const page2Sessions = [
+        {
+          id: 'session-3',
+          session_start_datetime: '2026-03-08T09:00:00Z',
+          present_count: 10,
+          total_count: 20,
+        },
+        {
+          id: 'session-4',
+          session_start_datetime: '2026-03-07T09:00:00Z',
+          present_count: 12,
+          total_count: 20,
+        },
+      ];
+      const page3Sessions = [
+        {
+          id: 'session-5',
+          session_start_datetime: '2026-03-06T09:00:00Z',
+          present_count: 5,
+          total_count: 20,
+        },
+      ];
+
+      const { wrapper } = makeWrapper({
+        sessions: page1Sessions,
+        totalPages: 3,
+        sessionCount: 5,
+      });
+
+      // Mock the resource to return page-specific paginated responses
+      AttendanceSessionResource.fetchCollection.mockImplementation(({ getParams }) => {
+        const pageData = {
+          1: page1Sessions,
+          2: page2Sessions,
+          3: page3Sessions,
+        };
+        return Promise.resolve({
+          results: pageData[getParams.page] || [],
+          total_pages: 3,
+          count: 5,
+        });
+      });
+
+      const controls = wrapper.findComponent({ name: 'ReportsControls' });
+      controls.vm.$emit('export');
+      await global.flushPromises();
+
+      // Should have fetched all 3 pages
+      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledTimes(3);
+      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
+        expect.objectContaining({ getParams: expect.objectContaining({ page: 1 }) }),
+      );
+      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
+        expect.objectContaining({ getParams: expect.objectContaining({ page: 2 }) }),
+      );
+      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
+        expect.objectContaining({ getParams: expect.objectContaining({ page: 3 }) }),
+      );
+
+      // Should have exported exactly 5 sessions from all 3 pages
+      const exporterInstance = CSVExporter.mock.results[0].value;
+      const exportedData = exporterInstance.export.mock.calls[0][0];
+      expect(exportedData).toHaveLength(5);
+      expect(exportedData).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ present: 15, absent: 5 }),
+          expect.objectContaining({ present: 18, absent: 2 }),
+          expect.objectContaining({ present: 10, absent: 10 }),
+          expect.objectContaining({ present: 12, absent: 8 }),
+          expect.objectContaining({ present: 5, absent: 15 }),
         ]),
       );
     });
