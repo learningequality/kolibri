@@ -6,8 +6,8 @@
       :style="{ borderColor: $themeTokens.fineLine, backgroundColor: $themePalette.grey.v_100 }"
     >
       <PaginatedListContainer
-        v-if="sortedLearners.length > 0"
-        :items="sortedLearners"
+        v-if="allItems.length > 0"
+        :items="allItems"
         :filterPlaceholder="searchPlaceholder$()"
         :itemsPerPage="50"
         :searchFieldBlock="true"
@@ -15,6 +15,7 @@
       >
         <template #default="{ items }">
           <div
+            v-if="sortedLearners.length > 0"
             class="mark-all-row"
             :style="{
               borderBottom: `1px solid ${$themeTokens.fineLine}`,
@@ -47,117 +48,60 @@
                 <span class="visuallyhidden">{{ header.label }}</span>
               </template>
               <template #cell="{ content, colIndex }">
-                <span
-                  v-if="colIndex === 0"
-                  :id="`learner-name-${content.id}`"
-                >{{ content.name }}</span>
+                <template v-if="colIndex === 0">
+                  <span
+                    v-if="content.previouslyEnrolled"
+                    :id="`learner-name-removed-${content.id}`"
+                    class="previously-enrolled-name"
+                    :style="{ color: $themeTokens.annotation }"
+                  >
+                    {{ previouslyEnrolledLabel$({ name: content.name }) }}
+                  </span>
+                  <span
+                    v-else
+                    :id="`learner-name-${content.id}`"
+                  >{{ content.name }}</span>
+                </template>
                 <div
                   v-else
                   class="status-cell"
                 >
-                  <span
-                    v-if="isPresent(content.id)"
-                    class="present-label"
-                    :style="{ color: $themeTokens.primary }"
-                  >
-                    {{ presentLabel$() }}
-                  </span>
-                  <KSwitch
-                    :name="`attendance-${content.id}`"
-                    :value="isPresent(content.id)"
-                    :ariaLabelledBy="`learner-name-${content.id}`"
-                    @change="toggleLearner(content.id)"
-                  />
+                  <template v-if="content.previouslyEnrolled">
+                    <span
+                      v-if="content.present"
+                      class="present-label"
+                      :style="{ color: $themeTokens.annotation }"
+                    >
+                      {{ presentLabel$() }}
+                    </span>
+                    <KSwitch
+                      :name="`attendance-removed-${content.id}`"
+                      :value="content.present"
+                      :disabled="true"
+                      :ariaLabelledBy="`learner-name-removed-${content.id}`"
+                    />
+                  </template>
+                  <template v-else>
+                    <span
+                      v-if="isPresent(content.id)"
+                      class="present-label"
+                      :style="{ color: $themeTokens.primary }"
+                    >
+                      {{ presentLabel$() }}
+                    </span>
+                    <KSwitch
+                      :name="`attendance-${content.id}`"
+                      :value="isPresent(content.id)"
+                      :ariaLabelledBy="`learner-name-${content.id}`"
+                      @change="toggleLearner(content.id)"
+                    />
+                  </template>
                 </div>
               </template>
             </KTable>
           </div>
         </template>
       </PaginatedListContainer>
-
-      <!--
-        Previously enrolled learners: read-only.
-        When current learners also exist they appear as a static list at the bottom.
-        When there are NO current learners they get their own PaginatedListContainer
-        so the coach can search through them (handled by the v-else-if below).
-      -->
-      <PaginatedListContainer
-        v-else-if="sortedPreviouslyEnrolled.length > 0"
-        :items="sortedPreviouslyEnrolled"
-        :filterPlaceholder="searchPlaceholder$()"
-        :itemsPerPage="50"
-        :searchFieldBlock="true"
-        position="top"
-      >
-        <template #default="{ items }">
-          <div :style="{ backgroundColor: $themeTokens.surface }">
-            <div
-              v-for="learner in items"
-              :key="learner.id"
-              class="previously-enrolled-row"
-              :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
-            >
-              <span
-                :id="`learner-name-removed-${learner.id}`"
-                class="previously-enrolled-name"
-                :style="{ color: $themeTokens.annotation }"
-              >
-                {{ previouslyEnrolledLabel$({ name: learner.name }) }}
-              </span>
-              <div class="status-cell">
-                <span
-                  v-if="learner.present"
-                  class="present-label"
-                  :style="{ color: $themeTokens.annotation }"
-                >
-                  {{ presentLabel$() }}
-                </span>
-                <KSwitch
-                  :name="`attendance-removed-${learner.id}`"
-                  :value="learner.present"
-                  :disabled="true"
-                  :ariaLabelledBy="`learner-name-removed-${learner.id}`"
-                />
-              </div>
-            </div>
-          </div>
-        </template>
-      </PaginatedListContainer>
-
-      <div
-        v-if="sortedLearners.length > 0 && sortedPreviouslyEnrolled.length > 0"
-        :style="{ backgroundColor: $themeTokens.surface }"
-      >
-        <div
-          v-for="learner in sortedPreviouslyEnrolled"
-          :key="learner.id"
-          class="previously-enrolled-row"
-          :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
-        >
-          <span
-            :id="`learner-name-removed-${learner.id}`"
-            class="previously-enrolled-name"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            {{ previouslyEnrolledLabel$({ name: learner.name }) }}
-          </span>
-          <div class="status-cell">
-            <span
-              v-if="learner.present"
-              class="present-label"
-              :style="{ color: $themeTokens.annotation }"
-            >
-              {{ presentLabel$() }}
-            </span>
-            <KSwitch
-              :name="`attendance-removed-${learner.id}`"
-              :value="learner.present"
-              :disabled="true"
-              :ariaLabelledBy="`learner-name-removed-${learner.id}`"
-            />
-          </div>
-        </div>
-      </div>
     </div>
 
     <BottomAppBar>
@@ -219,6 +163,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
@@ -271,6 +216,11 @@
         cancelLeave,
       } = props.form;
 
+      const allItems = computed(() => [
+        ...sortedLearners.value.map(l => ({ ...l, previouslyEnrolled: false })),
+        ...sortedPreviouslyEnrolled.value.map(l => ({ ...l, previouslyEnrolled: true })),
+      ]);
+
       const confirmButtonStyles = {
         color: themeTokens().textInverted,
         backgroundColor: themePalette().red.v_600,
@@ -298,8 +248,8 @@
       return {
         coreString,
         confirmButtonStyles,
+        allItems,
         sortedLearners,
-        sortedPreviouslyEnrolled,
         allPresent,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
@@ -382,15 +332,7 @@
     font-weight: bold;
   }
 
-  .previously-enrolled-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 16px;
-  }
-
   .previously-enrolled-name {
-    flex: 1;
     font-size: 0.9375em;
   }
 

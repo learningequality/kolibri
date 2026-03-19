@@ -175,7 +175,9 @@
               removedRecords.push(record);
             }
           });
-          form.setEnrolledLearnerIds(new Set(Object.keys(currentMap)));
+          if (Object.keys(currentMap).length > 0) {
+            form.setEnrolledLearnerIds(new Set(Object.keys(currentMap)));
+          }
           form.attendanceMap.value = currentMap;
           originalAttendanceMap.value = { ...currentMap };
           form.setPreviouslyEnrolled(removedRecords);
