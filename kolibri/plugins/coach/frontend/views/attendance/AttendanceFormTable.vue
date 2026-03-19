@@ -102,7 +102,7 @@
                 class="previously-enrolled-name"
                 :style="{ color: $themeTokens.annotation }"
               >
-                {{ learner.name }} {{ previouslyEnrolledLabel$() }}
+                {{ previouslyEnrolledLabel$({ name: learner.name }) }}
               </span>
               <div class="status-cell">
                 <span
@@ -139,7 +139,7 @@
             class="previously-enrolled-name"
             :style="{ color: $themeTokens.annotation }"
           >
-            {{ learner.name }} {{ previouslyEnrolledLabel$() }}
+            {{ previouslyEnrolledLabel$({ name: learner.name }) }}
           </span>
           <div class="status-cell">
             <span
