@@ -22,13 +22,13 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_OPEN
 from kolibri.plugins.coach.unit_report_api import _compute_all_test_scores
 from kolibri.plugins.coach.unit_report_api import _get_test_status
 from kolibri.plugins.coach.unit_report_api import get_synthetic_content_id
 from kolibri.plugins.coach.unit_report_api import get_test_version
+from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
+from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
+from kolibri.plugins.coach.unit_report_api import TEST_STATUS_OPEN
 
 DUMMY_PASSWORD = "password"
 
@@ -46,7 +46,6 @@ def _make_url(course_session_id, unit_contentnode_id):
     )
 
 
-
 # Fixed UUIDs so test failures are reproducible across runs.
 LO1_ID = "00000000000000000000000000000011"
 LO2_ID = "00000000000000000000000000000022"
@@ -54,12 +53,12 @@ LO2_ID = "00000000000000000000000000000022"
 # Version A items: 2 for LO1, 1 for LO2
 ITEM_A1 = "0000000000000000000000000000a001"
 ITEM_A2 = "0000000000000000000000000000a002"
-ITEM_A3 = "0000000000000000000000000000a003" 
+ITEM_A3 = "0000000000000000000000000000a003"
 
 # Version B items: 2 for LO1, 1 for LO2
 ITEM_B1 = "0000000000000000000000000000b001"
 ITEM_B2 = "0000000000000000000000000000b002"
-ITEM_B3 = "0000000000000000000000000000b003" 
+ITEM_B3 = "0000000000000000000000000000b003"
 
 ASSESSMENT_OBJECTIVES = {
     ITEM_A1: LO1_ID,
@@ -79,7 +78,14 @@ UNIT_OPTIONS = {
     "completion_criteria": {
         "threshold": {
             "pre_post_test": {
-                "assessment_item_ids": [ITEM_A1, ITEM_A2, ITEM_A3, ITEM_B1, ITEM_B2, ITEM_B3],
+                "assessment_item_ids": [
+                    ITEM_A1,
+                    ITEM_A2,
+                    ITEM_A3,
+                    ITEM_B1,
+                    ITEM_B2,
+                    ITEM_B3,
+                ],
                 "version_a_item_ids": [ITEM_A1, ITEM_A2, ITEM_A3],
                 "version_b_item_ids": [ITEM_B1, ITEM_B2, ITEM_B3],
             }
@@ -102,7 +108,9 @@ def _make_content_node(parent_id=None):
     return node
 
 
-def _create_attempt(learner, course_session_id, unit_id, test_type, items_correct, items_incorrect=None):
+def _create_attempt(
+    learner, course_session_id, unit_id, test_type, items_correct, items_incorrect=None
+):
     """
     Create ContentSummaryLog + MasteryLog + AttemptLogs for a learner's test attempt.
 
@@ -154,12 +162,14 @@ def _create_attempt(learner, course_session_id, unit_id, test_type, items_correc
             user=learner,
             item=item,
             start_timestamp=now - datetime.timedelta(minutes=30) + offset,
-            end_timestamp=now - datetime.timedelta(minutes=30) + offset + datetime.timedelta(minutes=1),
+            end_timestamp=now
+            - datetime.timedelta(minutes=30)
+            + offset
+            + datetime.timedelta(minutes=1),
             correct=correct,
         )
 
     return mastery_log
-
 
 
 class GetTestVersionTests(SimpleTestCase):
@@ -177,13 +187,17 @@ class GetTestVersionTests(SimpleTestCase):
     def test_hash_byte_below_128_returns_version_a(self):
         # Directly exercise the branch: first SHA-256 byte < 128 → "a".
         with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
-            mock_hashlib.sha256.return_value.digest.return_value = bytes([0]) + b"\x00" * 31
+            mock_hashlib.sha256.return_value.digest.return_value = (
+                bytes([0]) + b"\x00" * 31
+            )
             self.assertEqual(get_test_version("lid", "sid", "uid"), "a")
 
     def test_hash_byte_128_or_above_returns_version_b(self):
         # Directly exercise the branch: first SHA-256 byte >= 128 → "b".
         with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
-            mock_hashlib.sha256.return_value.digest.return_value = bytes([255]) + b"\x00" * 31
+            mock_hashlib.sha256.return_value.digest.return_value = (
+                bytes([255]) + b"\x00" * 31
+            )
             self.assertEqual(get_test_version("lid", "sid", "uid"), "b")
 
 
@@ -224,8 +238,12 @@ class ComputeTestScoresTests(TestCase):
 
         cls.facility = FacilityFactory.create()
         cls.classroom = Classroom.objects.create(name="cls", parent=cls.facility)
-        cls.learner_a = helpers.create_learner("la", DUMMY_PASSWORD, cls.facility, cls.classroom)
-        cls.learner_b = helpers.create_learner("lb", DUMMY_PASSWORD, cls.facility, cls.classroom)
+        cls.learner_a = helpers.create_learner(
+            "la", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
+        cls.learner_b = helpers.create_learner(
+            "lb", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
 
     def setUp(self):
         # Generate fresh IDs per test so that each test's synthetic content_ids
@@ -235,7 +253,9 @@ class ComputeTestScoresTests(TestCase):
         self.unit_id = uuid.uuid4().hex
 
     def test_no_learners_returns_empty(self):
-        result = _compute_all_test_scores([], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES)
+        result = _compute_all_test_scores(
+            [], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES
+        )
         self.assertEqual(result["pre"], {})
         self.assertEqual(result["post"], {})
 
@@ -256,7 +276,7 @@ class ComputeTestScoresTests(TestCase):
         )
         if version == "a":
             items_correct = [ITEM_A1, ITEM_A2]  # 2 correct for LO1
-            items_incorrect = [ITEM_A3]          # 0 correct for LO2
+            items_incorrect = [ITEM_A3]  # 0 correct for LO2
         else:
             items_correct = [ITEM_B1, ITEM_B2]
             items_incorrect = [ITEM_B3]
@@ -366,7 +386,11 @@ class ComputeTestScoresTests(TestCase):
         version = get_test_version(
             str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
         )
-        items_correct = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+        items_correct = (
+            [ITEM_A1, ITEM_A2, ITEM_A3]
+            if version == "a"
+            else [ITEM_B1, ITEM_B2, ITEM_B3]
+        )
 
         _create_attempt(
             self.learner_a,
@@ -392,7 +416,10 @@ class ComputeTestScoresTests(TestCase):
         item = ITEM_A1 if version == "a" else ITEM_B1
 
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id), "pre"
+            str(self.learner_a.id),
+            str(self.course_session_id),
+            str(self.unit_id),
+            "pre",
         )
         now = timezone.now()
         channel_id = uuid.uuid4().hex
@@ -458,7 +485,10 @@ class ComputeTestScoresTests(TestCase):
     def test_partial_credit_not_counted(self):
         """correct=0.5 (partial credit) is excluded; only correct==1 counts."""
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id), "pre"
+            str(self.learner_a.id),
+            str(self.course_session_id),
+            str(self.unit_id),
+            "pre",
         )
         now = timezone.now()
         channel_id = uuid.uuid4().hex
@@ -503,7 +533,10 @@ class ComputeTestScoresTests(TestCase):
             correct=0.5,  # partial credit — must NOT count
         )
         result = _compute_all_test_scores(
-            [self.learner_a.id], self.course_session_id, self.unit_id, ASSESSMENT_OBJECTIVES
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
         )["pre"]
         lid = str(self.learner_a.id)
         # Learner appears (complete mastery log) but LO1 score is 0 — partial credit excluded.
@@ -518,13 +551,20 @@ class ComputeTestScoresTests(TestCase):
         # All items for this version — used in both mastery logs (correct in the
         # first, incorrect in the second).  Named all_items, not items_correct, to
         # avoid confusion when they're iterated with correct=0 below.
-        all_items = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+        all_items = (
+            [ITEM_A1, ITEM_A2, ITEM_A3]
+            if version == "a"
+            else [ITEM_B1, ITEM_B2, ITEM_B3]
+        )
 
         # Build both mastery logs manually so they share the same ContentSummaryLog
         # (which is required — two ContentSummaryLogs for the same content_id would
         # violate the morango UNIQUE constraint on source_id = content_id).
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id), "post"
+            str(self.learner_b.id),
+            str(self.course_session_id),
+            str(self.unit_id),
+            "post",
         )
         now = timezone.now()
         later = now + datetime.timedelta(hours=1)
@@ -575,7 +615,10 @@ class ComputeTestScoresTests(TestCase):
                 user=self.learner_b,
                 item=item,
                 start_timestamp=now - datetime.timedelta(minutes=30) + offset,
-                end_timestamp=now - datetime.timedelta(minutes=30) + offset + datetime.timedelta(minutes=1),
+                end_timestamp=now
+                - datetime.timedelta(minutes=30)
+                + offset
+                + datetime.timedelta(minutes=1),
                 correct=1,
             )
 
@@ -598,7 +641,10 @@ class ComputeTestScoresTests(TestCase):
                 user=self.learner_b,
                 item=item,
                 start_timestamp=later - datetime.timedelta(minutes=30) + offset,
-                end_timestamp=later - datetime.timedelta(minutes=30) + offset + datetime.timedelta(minutes=1),
+                end_timestamp=later
+                - datetime.timedelta(minutes=30)
+                + offset
+                + datetime.timedelta(minutes=1),
                 correct=0,
             )
 
@@ -632,20 +678,30 @@ class UnitReportAPIBase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.classroom = Classroom.objects.create(name="classroom", parent=cls.facility)
 
-        cls.facility_admin = helpers.create_facility_admin("fadmin", DUMMY_PASSWORD, cls.facility)
+        cls.facility_admin = helpers.create_facility_admin(
+            "fadmin", DUMMY_PASSWORD, cls.facility
+        )
         cls.facility_coach = helpers.create_coach(
             "fcoach", DUMMY_PASSWORD, cls.facility, is_facility_coach=True
         )
         cls.classroom_coach = helpers.create_coach(
             "ccoach", DUMMY_PASSWORD, cls.facility, classroom=cls.classroom
         )
-        cls.other_classroom = Classroom.objects.create(name="other", parent=cls.facility)
+        cls.other_classroom = Classroom.objects.create(
+            name="other", parent=cls.facility
+        )
         cls.other_coach = helpers.create_coach(
             "ocoach", DUMMY_PASSWORD, cls.facility, classroom=cls.other_classroom
         )
-        cls.learner1 = helpers.create_learner("l1", DUMMY_PASSWORD, cls.facility, cls.classroom)
-        cls.learner2 = helpers.create_learner("l2", DUMMY_PASSWORD, cls.facility, cls.classroom)
-        cls.learner3 = helpers.create_learner("l3", DUMMY_PASSWORD, cls.facility, cls.classroom)
+        cls.learner1 = helpers.create_learner(
+            "l1", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
+        cls.learner2 = helpers.create_learner(
+            "l2", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
+        cls.learner3 = helpers.create_learner(
+            "l3", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
 
         # Course node (parent) and unit node
         cls.course_node = ContentNode.objects.create(
@@ -706,29 +762,39 @@ class UnitReportPermissionTests(UnitReportAPIBase):
         self.assertEqual(response.status_code, 403)
 
     def test_classroom_coach_can_access(self):
-        self.client.login(username=self.classroom_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
 
     def test_facility_coach_can_access(self):
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
 
     def test_facility_admin_can_access(self):
-        self.client.login(username=self.facility_admin.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
 
     def test_nonexistent_course_session_returns_403(self):
         url = _make_url(uuid.uuid4().hex, self.unit_node.id)
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
     def test_nonexistent_unit_returns_404(self):
         url = _make_url(self.course_session.id, uuid.uuid4().hex)
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -737,7 +803,9 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
     """Verify the response structure matches the spec."""
 
     def setUp(self):
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
 
     def test_top_level_keys(self):
         response = self.client.get(self._get_url())
@@ -796,7 +864,9 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         """No UnitTestAssignment records → both tests are not_activated."""
         response = self.client.get(self._get_url())
         self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
-        self.assertEqual(response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(
+            response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED
+        )
 
     def test_open_status_when_assignment_is_active(self):
         UnitTestAssignment.objects.create(
@@ -809,7 +879,9 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         )
         response = self.client.get(self._get_url())
         self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_OPEN)
-        self.assertEqual(response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(
+            response.data["post_test"]["status"], TEST_STATUS_NOT_ACTIVATED
+        )
 
     def test_closed_status_when_assignment_is_ended(self):
         UnitTestAssignment.objects.create(
@@ -847,7 +919,9 @@ class UnitReportScoringTests(UnitReportAPIBase):
     """Verify per-LO score aggregation and learner sorting."""
 
     def setUp(self):
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
 
     def test_unattempted_learner_absent_from_scores_map(self):
         """Learner with no attempt is in learners list but not in scores."""
@@ -874,7 +948,7 @@ class UnitReportScoringTests(UnitReportAPIBase):
             self.course_session.id,
             self.unit_node.id,
             "pre",
-            items_correct=all_items[:2],   # both LO1 items correct
+            items_correct=all_items[:2],  # both LO1 items correct
             items_incorrect=all_items[2:],  # LO2 item incorrect
         )
 
@@ -897,11 +971,17 @@ class UnitReportScoringTests(UnitReportAPIBase):
             items = [ITEM_B1, ITEM_B2, ITEM_B3]
 
         _create_attempt(
-            self.learner3, self.course_session.id, self.unit_node.id, "pre",
+            self.learner3,
+            self.course_session.id,
+            self.unit_node.id,
+            "pre",
             items_correct=items[:1],
         )
         _create_attempt(
-            self.learner3, self.course_session.id, self.unit_node.id, "post",
+            self.learner3,
+            self.course_session.id,
+            self.unit_node.id,
+            "post",
             items_correct=items[:2],
         )
 
@@ -919,10 +999,19 @@ class UnitReportScoringTests(UnitReportAPIBase):
         # The loop index i is the number of correct answers for that learner.
         learners = [self.learner1, self.learner2, self.learner3]
         for i, learner in enumerate(learners):
-            version = get_test_version(str(learner.id), str(course_session_id), str(unit_id))
-            all_items = [ITEM_A1, ITEM_A2, ITEM_A3] if version == "a" else [ITEM_B1, ITEM_B2, ITEM_B3]
+            version = get_test_version(
+                str(learner.id), str(course_session_id), str(unit_id)
+            )
+            all_items = (
+                [ITEM_A1, ITEM_A2, ITEM_A3]
+                if version == "a"
+                else [ITEM_B1, ITEM_B2, ITEM_B3]
+            )
             _create_attempt(
-                learner, course_session_id, unit_id, "pre",
+                learner,
+                course_session_id,
+                unit_id,
+                "pre",
                 items_correct=all_items[:i],
                 items_incorrect=all_items[i:],
             )
@@ -949,7 +1038,9 @@ class UnitReportLearnerGroupTests(UnitReportAPIBase):
     databases = "__all__"
 
     def setUp(self):
-        self.client.login(username=self.facility_coach.username, password=DUMMY_PASSWORD)
+        self.client.login(
+            username=self.facility_coach.username, password=DUMMY_PASSWORD
+        )
 
     def test_learner_group_members_included(self):
         """
@@ -960,8 +1051,11 @@ class UnitReportLearnerGroupTests(UnitReportAPIBase):
         group = LearnerGroup.objects.create(name="Group A", parent=self.classroom)
         # Kolibri requires classroom membership before LearnerGroup membership.
         group_learner = helpers.create_learner(
-            "gl1", DUMMY_PASSWORD, self.facility,
-            classroom=self.classroom, learner_group=group,
+            "gl1",
+            DUMMY_PASSWORD,
+            self.facility,
+            classroom=self.classroom,
+            learner_group=group,
         )
 
         # Assign the group (not the whole classroom) to a new course session.

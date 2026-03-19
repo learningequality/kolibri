@@ -63,7 +63,9 @@ def get_test_version(learner_id, course_session_id, unit_contentnode_id):
     return "a" if hash_byte < 128 else "b"
 
 
-def get_synthetic_content_id(learner_id, course_session_id, unit_contentnode_id, test_type):
+def get_synthetic_content_id(
+    learner_id, course_session_id, unit_contentnode_id, test_type
+):
     """
     Generate a deterministic UUID5 content_id for MasteryLog/AttemptLog tracking.
     Must match the generation logic used on the learner side (issue #14133).
@@ -96,7 +98,9 @@ def _get_test_status(assignments):
     return TEST_STATUS_NOT_ACTIVATED
 
 
-def _compute_all_test_scores(learner_ids, course_session_id, unit_contentnode_id, assessment_objectives):
+def _compute_all_test_scores(
+    learner_ids, course_session_id, unit_contentnode_id, assessment_objectives
+):
     """
     Compute per-learner, per-LO correct counts for both pre and post tests in a
     single pair of DB queries.
@@ -137,7 +141,10 @@ def _compute_all_test_scores(learner_ids, course_session_id, unit_contentnode_id
     for learner_id in learner_ids:
         for test_type in ("pre", "post"):
             synthetic_cid = get_synthetic_content_id(
-                str(learner_id), str(course_session_id), str(unit_contentnode_id), test_type
+                str(learner_id),
+                str(course_session_id),
+                str(unit_contentnode_id),
+                test_type,
             )
             content_id_to_meta[synthetic_cid] = {
                 "learner_id": learner_id,
@@ -170,15 +177,12 @@ def _compute_all_test_scores(learner_ids, course_session_id, unit_contentnode_id
 
     # Chunk the content_id IN list to stay within SQLite's variable limit.
     for chunk in _chunked(list(content_id_to_meta.keys()), _IN_CHUNK_SIZE):
-        for ml in (
-            MasteryLog.objects.filter(
-                summarylog__content_id__in=chunk,
-                complete=True,
-                end_timestamp__isnull=False,
-                end_timestamp=Subquery(_latest_ts_subquery),
-            )
-            .values("id", "summarylog__content_id")
-        ):
+        for ml in MasteryLog.objects.filter(
+            summarylog__content_id__in=chunk,
+            complete=True,
+            end_timestamp__isnull=False,
+            end_timestamp=Subquery(_latest_ts_subquery),
+        ).values("id", "summarylog__content_id"):
             cid = ml["summarylog__content_id"]
             if cid not in seen_content_ids:
                 seen_content_ids.add(cid)
@@ -286,8 +290,7 @@ class UnitReportViewSet(viewsets.ViewSet):
 
         # Mastery criteria / A-B item lists (schema-mastery_criteria.json)
         pre_post_test_config = (
-            (options.get("completion_criteria") or {})
-            .get("threshold") or {}
+            (options.get("completion_criteria") or {}).get("threshold") or {}
         ).get("pre_post_test") or {}
         version_a_item_ids = pre_post_test_config.get("version_a_item_ids") or []
 
