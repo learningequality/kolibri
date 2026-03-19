@@ -181,6 +181,6 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
   noSessionsEnrollMessage: {
     message: 'No attendance sessions yet. Enroll learners to mark attendance',
     context:
-      'Empty state message when no attendance sessions exist and no learners are enrolled in the class',
+      'Empty state message when no attendance sessions exist and no learners are enrolled in the class.',
   },
 });
