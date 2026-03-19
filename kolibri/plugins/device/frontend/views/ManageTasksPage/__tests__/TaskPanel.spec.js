@@ -15,7 +15,6 @@ describe('TaskPanel', () => {
     type: TaskTypes.DISKCONTENTEXPORT,
     status: 'CANCELED',
     clearable: true,
-    percentage: 1.0,
     extra_metadata: {
       channel_name: 'Canceled disk export channel test',
       started_by_username: 'Tester',
