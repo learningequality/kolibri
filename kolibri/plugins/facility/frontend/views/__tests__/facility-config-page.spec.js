@@ -39,7 +39,7 @@ describe('facility config page view', () => {
   it('has all of the settings', () => {
     const wrapper = makeWrapper();
     const checkboxes = wrapper.findAllComponents({ name: 'KCheckbox' });
-    expect(checkboxes.length).toEqual(6);
+    expect(checkboxes.length).toEqual(7);
     const labels = [
       'Allow learners to edit their username',
       'Allow learners to edit their full name',
@@ -47,6 +47,7 @@ describe('facility config page view', () => {
       'Require password for learners',
       'Allow learners to edit their password when signed in',
       "Show 'download' button with resources",
+      'Allow coaches to take attendance (English only)',
     ];
     labels.forEach((label, idx) => {
       expect(checkboxes.at(idx).props().label).toEqual(label);
