@@ -6,7 +6,8 @@
       :style="{ borderColor: $themeTokens.fineLine, backgroundColor: $themePalette.grey.v_100 }"
     >
       <PaginatedListContainer
-        :items="sortedLearners"
+        v-if="allItems.length > 0"
+        :items="allItems"
         :filterPlaceholder="searchPlaceholder$()"
         :itemsPerPage="50"
         :searchFieldBlock="true"
@@ -14,6 +15,7 @@
       >
         <template #default="{ items }">
           <div
+            v-if="sortedLearners.length > 0"
             class="mark-all-row"
             :style="{
               borderBottom: `1px solid ${$themeTokens.fineLine}`,
@@ -46,27 +48,54 @@
                 <span class="visuallyhidden">{{ header.label }}</span>
               </template>
               <template #cell="{ content, colIndex }">
-                <span
-                  v-if="colIndex === 0"
-                  :id="`learner-name-${content.id}`"
-                >{{ content.name }}</span>
+                <template v-if="colIndex === 0">
+                  <span
+                    v-if="content.previouslyEnrolled"
+                    :id="`learner-name-removed-${content.id}`"
+                    class="previously-enrolled-name"
+                    :style="{ color: $themeTokens.annotation }"
+                  >
+                    {{ previouslyEnrolledLabel$({ name: content.name }) }}
+                  </span>
+                  <span
+                    v-else
+                    :id="`learner-name-${content.id}`"
+                  >{{ content.name }}</span>
+                </template>
                 <div
                   v-else
                   class="status-cell"
                 >
-                  <span
-                    v-if="isPresent(content.id)"
-                    class="present-label"
-                    :style="{ color: $themeTokens.primary }"
-                  >
-                    {{ presentLabel$() }}
-                  </span>
-                  <KSwitch
-                    :name="`attendance-${content.id}`"
-                    :value="isPresent(content.id)"
-                    :ariaLabelledBy="`learner-name-${content.id}`"
-                    @change="toggleLearner(content.id)"
-                  />
+                  <template v-if="content.previouslyEnrolled">
+                    <span
+                      v-if="content.present"
+                      class="present-label"
+                      :style="{ color: $themeTokens.annotation }"
+                    >
+                      {{ presentLabel$() }}
+                    </span>
+                    <KSwitch
+                      :name="`attendance-removed-${content.id}`"
+                      :value="content.present"
+                      :disabled="true"
+                      :ariaLabelledBy="`learner-name-removed-${content.id}`"
+                    />
+                  </template>
+                  <template v-else>
+                    <span
+                      v-if="isPresent(content.id)"
+                      class="present-label"
+                      :style="{ color: $themeTokens.primary }"
+                    >
+                      {{ presentLabel$() }}
+                    </span>
+                    <KSwitch
+                      :name="`attendance-${content.id}`"
+                      :value="isPresent(content.id)"
+                      :ariaLabelledBy="`learner-name-${content.id}`"
+                      @change="toggleLearner(content.id)"
+                    />
+                  </template>
                 </div>
               </template>
             </KTable>
@@ -100,7 +129,7 @@
       :title="markAllModalTitle$({ count: sortedLearners.length })"
       @cancel="cancelMarkAll"
     >
-      <p>{{ markAllModalDescription$({ count: absentCount }) }}</p>
+      <p>{{ markAllModalDescription$({ count: currentAbsentCount }) }}</p>
       <template #actions>
         <KButtonGroup>
           <KButton
@@ -134,6 +163,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
@@ -164,13 +194,16 @@
         markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
+        previouslyEnrolledLabel$,
       } = attendanceStrings;
 
       const {
         sortedLearners,
+        sortedPreviouslyEnrolled,
         allPresent,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
+        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -182,6 +215,11 @@
         confirmLeave,
         cancelLeave,
       } = props.form;
+
+      const allItems = computed(() => [
+        ...sortedLearners.value.map(l => ({ ...l, previouslyEnrolled: false })),
+        ...sortedPreviouslyEnrolled.value.map(l => ({ ...l, previouslyEnrolled: true })),
+      ]);
 
       const confirmButtonStyles = {
         color: themeTokens().textInverted,
@@ -210,10 +248,12 @@
       return {
         coreString,
         confirmButtonStyles,
+        allItems,
         sortedLearners,
         allPresent,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
+        currentAbsentCount: currentAbsentCountValue,
         showMarkAllModal,
         pendingRoute,
         isPresent,
@@ -238,6 +278,7 @@
         markAllPresentAction$,
         learnersLabel$,
         markAttendanceAction$,
+        previouslyEnrolledLabel$,
         tableHeaders,
         getTableRows,
       };
@@ -289,6 +330,10 @@
 
   .mark-all-label {
     font-weight: bold;
+  }
+
+  .previously-enrolled-name {
+    font-size: 0.9375em;
   }
 
   .status-cell {

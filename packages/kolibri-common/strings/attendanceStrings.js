@@ -174,6 +174,16 @@ export const attendanceStrings = createTranslator('AttendanceStrings', {
     message: 'Absent',
     context: 'Column header for the count of learners absent',
   },
+  previouslyEnrolledLabel: {
+    message: '{name} (Previously enrolled)',
+    context:
+      'Learner name with suffix in attendance history when that learner is no longer enrolled in the class. The name placeholder allows translators to reorder the components.',
+  },
+  noLearnersInClassMessage: {
+    message: 'There are no learners in this class',
+    context:
+      'Message shown on the attendance form or history page when the class currently has no learners',
+  },
   noSessionsEnrollMessage: {
     message: 'No attendance sessions yet. Enroll learners to mark attendance',
     context:

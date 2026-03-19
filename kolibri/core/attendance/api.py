@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Count
+from django.db.models import F
 from django.db.models import Q
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -129,7 +130,20 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filterset_class = AttendanceRecordFilter
 
-    values = ("id", "user", "present", "attendance_session")
+    values = (
+        "id",
+        "user",
+        "present",
+        "attendance_session",
+        "user_name",
+        "user_username",
+    )
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            user_name=F("user__full_name"),
+            user_username=F("user__username"),
+        )
 
     def get_queryset(self):
         return AttendanceRecord.objects.all()
@@ -179,7 +193,9 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                     records_to_create.append(record)
             if records_to_create:
                 AttendanceRecord.objects.bulk_create(records_to_create)
-        all_records = AttendanceRecord.objects.filter(
-            attendance_session=session, user_id__in=user_ids
+        all_records = self.annotate_queryset(
+            AttendanceRecord.objects.filter(
+                attendance_session=session, user_id__in=user_ids
+            )
         ).values(*self.values)
         return Response(list(all_records))
