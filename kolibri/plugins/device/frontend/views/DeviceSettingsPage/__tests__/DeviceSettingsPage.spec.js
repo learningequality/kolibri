@@ -93,7 +93,7 @@ function getButtons() {
   const disallowGuestAccess = screen.getByRole('radio', {
     name: /Learners must sign in to explore resources/i,
   });
-  const unlistedChannels = screen.queryByRole('checkbox', {
+  const unlistedChannels = screen.getByRole('checkbox', {
     name: /Allow other devices on this network to view and import my unlisted channels/i,
   });
 
@@ -126,48 +126,94 @@ describe('DeviceSettingsPage', () => {
   it('loads the data from getDeviceSettings', async () => {
     api.getDeviceSettings.mockResolvedValue(DeviceSettingsData);
     await makeWrapper();
-    const { signInPage, unlistedChannels } = getButtons();
-    // VTL best practice: we don't test internal component data, we test the DOM state!
-    expect(signInPage).toBeChecked();
-    if (unlistedChannels) {
-      expect(unlistedChannels).toBeChecked();
-    }
+    const {
+      signInPage,
+      learnPage,
+      allowGuestAccess,
+      disallowGuestAccess,
+      lockedContent,
+      unlistedChannels,
+    } = getButtons();
 
-    expect(screen.getAllByText(/english/i)[0]).toBeInTheDocument();
+    expect(signInPage).toBeChecked();
+    expect(learnPage).not.toBeChecked();
+
+    expect(lockedContent).toBeChecked();
+    expect(allowGuestAccess).not.toBeChecked();
+    expect(disallowGuestAccess).not.toBeChecked();
+    expect(unlistedChannels).toBeChecked();
+    expect(screen.getAllByText('English')[0]).toBeInTheDocument();
   });
 
-  function setMockedData(allowGuestAccess, allowAllAccess) {
+  function setMockedData(allowGuestAccess, allowAllAccess, allowPeerUnlistedChannelImport = false) {
     api.getDeviceSettings.mockResolvedValue({
       landingPage: 'sign-in',
       allowGuestAccess: allowGuestAccess,
       allowLearnerUnassignedResourceAccess: allowAllAccess,
+      allowPeerUnlistedChannelImport: allowPeerUnlistedChannelImport,
     });
   }
 
   describe('landing page section', () => {
     // These should be the inverse of the "submitting settings" tests below
+
     it('hydrates with the correct state when guest access is allowed', async () => {
       setMockedData(true, true);
       await makeWrapper();
-      // The "Allow users to explore..." radio button should be checked
-      const { allowGuestAccess } = getButtons();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
       expect(allowGuestAccess).toBeChecked();
+      expect(disallowGuestAccess).not.toBeChecked();
+      expect(lockedContent).not.toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     it('hydrates with the correct state when guest access is disallowed', async () => {
       setMockedData(false, true);
       await makeWrapper();
-      // The "Learners must sign in..." radio button should checked
-      const { disallowGuestAccess } = getButtons();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
+      expect(allowGuestAccess).not.toBeChecked();
       expect(disallowGuestAccess).toBeChecked();
+      expect(lockedContent).not.toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     it('hydrates with the correct state when content is locked', async () => {
       setMockedData(false, false);
       await makeWrapper();
-      // The "Signed in learners only see resources assigned to them" button should be checked
-      const { lockedContent } = getButtons();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
+      expect(allowGuestAccess).not.toBeChecked();
+      expect(disallowGuestAccess).not.toBeChecked();
       expect(lockedContent).toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     // The fourth possibility with guest access but no channels tab should be impossible
@@ -175,12 +221,12 @@ describe('DeviceSettingsPage', () => {
     it('if Learn page is the landing page, sign-in page options are disabled', async () => {
       api.getDeviceSettings.mockResolvedValue({
         landingPage: 'learn',
-        // The guest access button should not be checked
         allowGuestAccess: true,
       });
 
       await makeWrapper();
-      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent } = getButtons();
+      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent, unlistedChannels } =
+        getButtons();
       // Learn page button is enabled and checked
       expect(learnPage).toBeEnabled();
       expect(learnPage).toBeChecked();
@@ -190,6 +236,9 @@ describe('DeviceSettingsPage', () => {
         expect(button).toBeDisabled();
         expect(button).not.toBeChecked();
       });
+
+      // allowPeerUnlistedChannelImport defaults to null (falsy)
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     it('if switching from Learn to Sign-In, "Allow users to explore..." is selected', async () => {
