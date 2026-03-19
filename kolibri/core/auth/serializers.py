@@ -197,6 +197,10 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         settings = attrs.get("picture_password_settings")
         if settings is not None:
+            if not isinstance(settings, dict):
+                raise serializers.ValidationError(
+                    {"picture_password_settings": "Must be an object or null"}
+                )
             if settings.get("icon_style") not in ("standard", "colorful"):
                 raise serializers.ValidationError(
                     {
@@ -246,16 +250,12 @@ class CreateFacilitySerializer(serializers.ModelSerializer):
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
     learner_can_login_with_no_password = serializers.SerializerMethodField()
-    learner_can_login_with_picture_password = serializers.SerializerMethodField()
     learner_can_sign_up = serializers.SerializerMethodField()
     on_my_own_setup = serializers.SerializerMethodField()
     picture_password_settings = serializers.SerializerMethodField()
 
     def get_learner_can_login_with_no_password(self, instance):
         return instance.dataset.learner_can_login_with_no_password
-
-    def get_learner_can_login_with_picture_password(self, instance):
-        return instance.dataset.picture_password_settings is not None
 
     def get_learner_can_sign_up(self, instance):
         return instance.dataset.learner_can_sign_up
@@ -275,7 +275,6 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
             "dataset",
             "name",
             "learner_can_login_with_no_password",
-            "learner_can_login_with_picture_password",
             "learner_can_sign_up",
             "on_my_own_setup",
             "picture_password_settings",
