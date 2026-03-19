@@ -9,7 +9,7 @@
       {{ attendanceLabel$() }}
     </template>
 
-    <div>
+    <div v-if="learners.length">
       <KRouterLink
         :text="markAttendanceAction$()"
         :primary="true"
@@ -20,9 +20,14 @@
 
     <KCircularLoader v-if="loading" />
 
-    <p v-else-if="sessions.length === 0">
-      {{ noSessionsMessage$() }}
-    </p>
+    <div v-else-if="sessions.length === 0">
+      <p v-if="learners.length">
+        {{ noSessionsMessage$() }}
+      </p>
+      <p v-else>
+        {{ noSessionsEnrollMessage$() }}
+      </p>
+    </div>
 
     <template v-else>
       <BlockItem
@@ -100,6 +105,7 @@
         noSessionsMessage$,
         presentCount$,
         absentCount$,
+        noSessionsEnrollMessage$,
       } = attendanceStrings;
 
       const loading = ref(true);
@@ -107,6 +113,8 @@
       const palette = themePalette();
       const presentColor = palette.green.v_500;
       const absentColor = palette.red.v_500;
+
+      const learners = computed(() => store.getters['classSummary/learners']);
 
       onMounted(() => {
         fetchRecentSessions(classId.value)
@@ -152,6 +160,8 @@
         presentCount$,
         absentCount$,
         PageNames,
+        learners,
+        noSessionsEnrollMessage$,
       };
     },
   };
