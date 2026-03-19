@@ -6,6 +6,7 @@ from django.db.models import F
 from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.shortcuts import get_object_or_404
+from le_utils.constants import modalities
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -285,11 +286,15 @@ class UnitReportViewSet(viewsets.ViewSet):
         unit_contentnode_id = self.kwargs["unit_contentnode_id"]
 
         # Reuse the CourseSession already fetched and validated by
-        # UnitReportPermissions to avoid a redundant DB query.
+        # UnitReportPermissions to avoid a redundant DB query.  The fallback
+        # get_object_or_404 fires only if UnitReportPermissions is not in the
+        # permission chain (e.g. during testing or future refactors).
         course_session = getattr(self, "_course_session", None) or get_object_or_404(
             CourseSession, pk=course_session_id
         )
-        unit = get_object_or_404(ContentNode, pk=unit_contentnode_id)
+        unit = get_object_or_404(
+            ContentNode, pk=unit_contentnode_id, modality=modalities.UNIT
+        )
 
         options = unit.options or {}
 
