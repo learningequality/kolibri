@@ -370,6 +370,30 @@ class AttendanceSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
+    def test_filter_by_end_date_includes_sessions_on_end_date(self):
+        """Sessions on the end date are included when end_date is next day midnight.
+
+        Regression test for #14424: the frontend must send midnight of the day
+        AFTER the user-selected end date so the exclusive lt filter includes all
+        sessions on the selected date.
+        """
+        session = self._create_session()
+        session.session_start_datetime = now().replace(
+            hour=14, minute=30, second=0, microsecond=0
+        )
+        session.save()
+
+        self._login(self.admin)
+        # Simulate what the frontend should send: midnight of the next day
+        next_day_midnight = now().replace(
+            hour=0, minute=0, second=0, microsecond=0
+        ) + timedelta(days=1)
+        response = self.client.get(
+            _session_list_url(), {"end_date": next_day_midnight.isoformat()}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
     # ---- DEFAULT ORDERING ----
 
     def test_default_ordering_is_newest_first(self):
