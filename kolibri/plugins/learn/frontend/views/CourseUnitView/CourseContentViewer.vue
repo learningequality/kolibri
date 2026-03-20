@@ -6,8 +6,30 @@
       disableDefaultTransition
     />
     <template v-else>
+      <PrePostTestRenderer
+        v-if="isPrePostTest"
+        class="content-viewer"
+        :content="contentNode"
+        :extraFields="extra_fields"
+        :userId="currentUserId"
+        :userFullName="fullName"
+        :timeSpent="time_spent"
+        :pastattempts="pastattempts"
+        :mastered="complete"
+        :masteryLevel="masteryLevel"
+        :masteryCriterion="mastery_criterion"
+        :updateContentSession="updateContentSession"
+        @startTracking="startTrackingProgress"
+        @stopTracking="stopTrackingProgress"
+        @updateInteraction="handleUpdateInteraction"
+        @updateProgress="handleUpdateProgress"
+        @updateContentState="handleUpdateContentState"
+        @repeat="restartContentSession"
+        @error="onError"
+        @finished="onFinished"
+      />
       <ContentViewer
-        v-if="!contentNode.assessmentmetadata"
+        v-else-if="!contentNode.assessmentmetadata"
         class="content-viewer"
         :lang="contentNode.lang"
         :files="contentNode.files"
@@ -101,6 +123,8 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import AssessmentWrapper from '../courses/AssessmentWrapper/index.vue';
   import QuizRenderer from '../courses/QuizRenderer/index.vue';
+  import PrePostTestRenderer from '../courses/PrePostTestRenderer/index.vue';
+  import { PRE_POST_TEST_CRITERION } from '../../constants';
   import { injectCourseContentProgress } from './useCourseContentProgressTracking';
   import UpNextNavigationFooter from './UpNextNavigationFooter.vue';
 
@@ -124,6 +148,7 @@
     components: {
       QuizRenderer,
       AssessmentWrapper,
+      PrePostTestRenderer,
       UpNextNavigationFooter,
     },
     setup(props, { emit }) {
@@ -136,6 +161,7 @@
         complete,
         context,
         totalattempts,
+        mastery_criterion,
         handleUpdateInteraction,
         startTrackingProgress,
         stopTrackingProgress,
@@ -155,6 +181,10 @@
 
       const isSurvey = computed(() => {
         return props.contentNode.modality === Modalities.SURVEY;
+      });
+
+      const isPrePostTest = computed(() => {
+        return mastery_criterion.value?.type === PRE_POST_TEST_CRITERION;
       });
 
       const masteryLevel = computed(() => {
@@ -178,9 +208,11 @@
         pastattempts,
         complete,
         totalattempts,
+        mastery_criterion,
 
         // computed
         isSurvey,
+        isPrePostTest,
         masteryLevel,
         isPracticeQuiz,
 

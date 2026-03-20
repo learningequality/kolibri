@@ -375,4 +375,24 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Click to view details',
     context: 'Tooltip prompt inviting the user to click the sparkline bar for more detail',
   },
+  preTestCompleted: {
+    message: 'Pre-test completed!',
+    context: 'Snackbar message when a pre-test is completed',
+  },
+  postTestCompleted: {
+    message: 'Post-test completed!',
+    context: 'Snackbar message when a post-test is completed',
+  },
+  preTestCompletedDescription: {
+    message: 'You will be able to continue once your coach closes this pre-test.',
+    context: 'Description text shown when a pre-test is completed',
+  },
+  postTestCompletedDescription: {
+    message: 'You will be able to continue once your coach closes this post-test.',
+    context: 'Description text shown when a post-test is completed',
+  },
+  submitTestAction: {
+    message: 'Submit test',
+    context: 'Action label for button to submit a pre-test or post-test.',
+  },
 });
