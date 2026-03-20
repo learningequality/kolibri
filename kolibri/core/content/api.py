@@ -58,6 +58,7 @@ from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.models import ContentDownloadRequest
+from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
@@ -109,6 +110,20 @@ REMOTE_URL_PARAM = "baseurl"
 
 def get_cache_key(*args, **kwargs):
     return str(ContentCacheKey.get_cache_key())
+
+
+def get_course_ids():
+    cache_key = "COURSE_IDS_{}".format(get_cache_key())
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return cached_data
+    updated_data = list(
+        ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).values_list("id", flat=True)
+    )
+    cache.set(cache_key, updated_data, 3600)
+    return updated_data
 
 
 def metadata_cache(view_func, cache_key_func=get_cache_key):
@@ -465,6 +480,7 @@ contentnode_filter_fields = [
     "tree_id",
     "lft__gt",
     "rght__lt",
+    "exclude_course_ancestry",
 ]
 
 
@@ -498,10 +514,29 @@ class ContentNodeFilter(FilterSet):
     exclude_modalities = ChoiceInFilter(
         field_name="modality", choices=modalities.choices, exclude=True
     )
+    exclude_course_ancestry = BooleanFilter(method="filter_exclude_course_ancestry")
 
     class Meta:
         model = models.ContentNode
         fields = contentnode_filter_fields
+
+    def filter_exclude_course_ancestry(self, queryset, name, value):
+        """
+        Exclude any resources that are descended from a Course.
+        :param queryset: ContentNode queryset to filter
+        :param name: filter field name
+        :param value: boolean indicating whether to apply the exclusion
+        :return: filtered queryset excluding course descendants if value is True
+        """
+        if not value:
+            return queryset
+        has_course_ancestor = ContentNode.objects.filter(
+            id__in=get_course_ids(),
+            lft__lt=OuterRef("lft"),
+            rght__gt=OuterRef("rght"),
+            tree_id=OuterRef("tree_id"),
+        )
+        return queryset.exclude(Exists(has_course_ancestor))
 
     def filter_ids(self, queryset, name, value):
         return queryset.filter_by_uuids(value)
@@ -570,7 +605,10 @@ class ContentNodeFilter(FilterSet):
         return queryset.filter(kind__in=kinds).order_by("lft")
 
     def filter_exclude_content_ids(self, queryset, name, value):
-        return queryset.exclude_by_content_ids(value.split(","))
+        if not value:
+            return queryset
+        else:
+            return queryset.exclude_by_content_ids(value.split(","))
 
     def filter_include_coach_content(self, queryset, name, value):
         if value:
@@ -1278,7 +1316,6 @@ class ContentNodeSearchViewset(ContentNodeViewset):
 
         # iterate over each query type, and build up search results
         for query in all_queries:
-
             # in each pass, don't take any items already in the result set
             matches = (
                 queryset.exclude_by_content_ids(list(content_ids), validate=False)
@@ -1700,7 +1737,10 @@ class UserContentNodeFilter(ContentNodeFilter):
 
     class Meta:
         model = models.ContentNode
-        fields = contentnode_filter_fields + ["resume", "lesson"]
+        fields = contentnode_filter_fields + [
+            "resume",
+            "lesson",
+        ]
 
 
 class UserContentNodeViewset(
@@ -1868,7 +1908,6 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             identifier=identifier, baseurl=baseurl, keyword=keyword, language=language
         )
         try:
-
             resp = client.get(url)
             # map the channel list into the format the Kolibri client-side expects
             channels = list(map(self._studio_response_to_kolibri_response, resp.json()))

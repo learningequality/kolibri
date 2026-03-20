@@ -1609,6 +1609,67 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertNotIn(str(lesson_topic.id), [node["id"] for node in response.data])
         self.assertNotIn(str(course_topic.id), [node["id"] for node in response.data])
 
+    def test_exclude_course_ancestry_filter(self):
+        # Mark c2 (a topic with children) as a Course
+        course_node = content.ContentNode.objects.get(title="c2")
+        course_node.modality = modalities.COURSE
+        course_node.available = True
+        course_node.save()
+
+        # Get the descendants of the course node
+        descendant_ids = set(
+            str(pk)
+            for pk in content.ContentNode.objects.filter(
+                tree_id=course_node.tree_id,
+                lft__gt=course_node.lft,
+                rght__lt=course_node.rght,
+            )
+            .filter(available=True)
+            .values_list("id", flat=True)
+        )
+        self.assertGreater(len(descendant_ids), 0)
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"exclude_course_ancestry": True},
+        )
+
+        result_ids = {node["id"] for node in response.data}
+
+        # Course descendants should be excluded
+        self.assertTrue(descendant_ids.isdisjoint(result_ids))
+
+        # The course node itself should still be present
+        self.assertIn(str(course_node.id), result_ids)
+
+    def test_exclude_course_ancestry_filter_false(self):
+        # Mark c2 as a Course
+        course_node = content.ContentNode.objects.get(title="c2")
+        course_node.modality = modalities.COURSE
+        course_node.available = True
+        course_node.save()
+
+        descendant_ids = set(
+            str(pk)
+            for pk in content.ContentNode.objects.filter(
+                tree_id=course_node.tree_id,
+                lft__gt=course_node.lft,
+                rght__lt=course_node.rght,
+            )
+            .filter(available=True)
+            .values_list("id", flat=True)
+        )
+
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"exclude_course_ancestry": False},
+        )
+
+        result_ids = {node["id"] for node in response.data}
+
+        # With false, descendants should NOT be excluded
+        self.assertTrue(descendant_ids.issubset(result_ids))
+
     def _setup_contentnode_progress(self):
         # set up data for testing progress_fraction field on content node endpoint
         facility = Facility.objects.create(name="MyFac")
