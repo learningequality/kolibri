@@ -8,7 +8,7 @@ List of the most important changes for each release.
 
 Special English-only prerelease of attendance tracking feature to support partnership feedback and testing.
 
-#### Attendance Taking (Closed feature release until 0.20)
+#### Attendance Tracking (Special English-only prerelease until 0.20)
 * Add AttendanceSession and AttendanceRecord models by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14323
 * Add attendance REST API endpoints by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14332
 * Add AttendanceSessionResource and useAttendance composable by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14335
