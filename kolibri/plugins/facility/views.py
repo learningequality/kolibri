@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime as dt
 
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
@@ -27,6 +26,7 @@ from kolibri.core.logger.csv_export import (
 )
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import GenerateCSVLogRequest
+from kolibri.utils.time_utils import utc_now
 
 CSV_EXPORT_FILENAMES = {}
 CSV_EXPORT_FILENAMES.update(LOGGER_CSV_EXPORT_FILENAMES)
@@ -82,7 +82,7 @@ def first_log_date(request, facility_id):
         .order_by("start_timestamp")
         .first()
     )
-    first_log_date = first_log.start_timestamp if first_log is not None else dt.utcnow()
+    first_log_date = first_log.start_timestamp if first_log is not None else utc_now()
     response = {
         "first_log_date": first_log_date.isoformat(),
     }
