@@ -443,6 +443,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Pre,
                 closed=True,
+                activated_by=self.coach,
             )
 
             UnitTestAssignment.objects.create(
@@ -451,6 +452,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Post,
                 closed=True,
+                activated_by=self.coach,
             )
 
         unit, lessons = units[2]
@@ -460,6 +462,7 @@ class LearnerCourseTestCase(APITestCase):
             collection=self.classroom,
             test_type=TestType.Pre,
             closed=False,
+            activated_by=self.coach,
         )
 
         self.client.login(username="learner", password=DUMMY_PASSWORD)
@@ -488,6 +491,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Pre,
                 closed=True,
+                activated_by=self.coach,
             )
 
             UnitTestAssignment.objects.create(
@@ -496,6 +500,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Post,
                 closed=True,
+                activated_by=self.coach,
             )
 
         unit, lessons = units[3]
@@ -505,6 +510,7 @@ class LearnerCourseTestCase(APITestCase):
             collection=self.classroom,
             test_type=TestType.Pre,
             closed=True,
+            activated_by=self.coach,
         )
 
         UnitTestAssignment.objects.create(
@@ -513,6 +519,7 @@ class LearnerCourseTestCase(APITestCase):
             collection=self.classroom,
             test_type=TestType.Post,
             closed=False,
+            activated_by=self.coach,
         )
 
         self.client.login(username="learner", password=DUMMY_PASSWORD)
@@ -541,6 +548,7 @@ class LearnerCourseTestCase(APITestCase):
             collection=self.classroom,
             test_type=TestType.Pre,
             closed=True,
+            activated_by=self.coach,
         )
 
         resume_lesson, lesson_resources = lessons[0]
@@ -575,6 +583,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Pre,
                 closed=True,
+                activated_by=self.coach,
             )
             UnitTestAssignment.objects.create(
                 course_session=course_session,
@@ -582,6 +591,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Post,
                 closed=True,
+                activated_by=self.coach,
             )
 
             for lesson, lesson_resources in lessons:
@@ -602,6 +612,7 @@ class LearnerCourseTestCase(APITestCase):
             collection=self.classroom,
             test_type=TestType.Pre,
             closed=True,
+            activated_by=self.coach,
         )
         resume_lesson, lesson_resources = lessons[0]
         resource_1 = lesson_resources[0]
@@ -648,6 +659,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Pre,
                 closed=True,
+                activated_by=self.coach,
             )
             UnitTestAssignment.objects.create(
                 course_session=course_session,
@@ -655,6 +667,7 @@ class LearnerCourseTestCase(APITestCase):
                 collection=self.classroom,
                 test_type=TestType.Post,
                 closed=True,
+                activated_by=self.coach,
             )
 
             for lesson, lesson_resources in lessons:

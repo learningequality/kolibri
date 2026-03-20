@@ -474,6 +474,7 @@ class CourseSessionViewset(ValuesViewset):
                 unit_contentnode_id=unit_contentnode_id,
                 test_type=test_type,
                 collection=course_session.collection,
+                defaults={"activated_by": request.user},
             )
 
             unit_test_assignment.closed = False
