@@ -2,6 +2,49 @@
 
 List of the most important changes for each release.
 
+## 0.19.3
+
+### High-level overview
+
+Special English-only prerelease of attendance tracking feature to support partnership feedback and testing.
+
+#### Attendance Taking (Closed feature release until 0.20)
+* Add AttendanceSession and AttendanceRecord models by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14323
+* Add attendance REST API endpoints by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14332
+* Add AttendanceSessionResource and useAttendance composable by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14335
+* Add AttendanceBlock to coach class home page by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14355
+* Add attendance stub pages and route wiring by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14362
+* Fix ISO 8601 datetime parsing for attendance session creation by @marcellamaki in https://github.com/learningequality/kolibri/pull/14378
+* Attendance UI improvements: KButtonGroup, print/export, pagination by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14394
+* Fix attendance UI: scrollbars, contrast, button wrapping, pagination, and layout by @akolson in https://github.com/learningequality/kolibri/pull/14398
+* Implement AttendanceNewPage — attendance-taking form by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14364
+* Replace KButton with KRouterLink in AttendanceBlock by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14381
+* Implement AttendanceHistoryPage — attendance session history by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14379
+* Implement AttendanceEditPage for editing existing attendance sessions by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14382
+* Toggle overflow by @marcellamaki in https://github.com/learningequality/kolibri/pull/14401
+* Enqueue automatic daily KDP sync after facility registration by @rtibbles in https://github.com/learningequality/kolibri/pull/14404
+* Add feature flag to facility settings and conditionally render attendance block by @akolson in https://github.com/learningequality/kolibri/pull/14405
+
+#### Added/Changed/Fixed
+* update version 0.19.2 to .3 by @marcellamaki in https://github.com/learningequality/kolibri/pull/14360
+* Add autoapproval of identical translations from translation memory as part of upload by @rtibbles in https://github.com/learningequality/kolibri/pull/14252
+* Tweaks to agent instructions and how tos. by @rtibbles in https://github.com/learningequality/kolibri/pull/14377
+
+
+#### Pre-Post Tests: Foundational feature work (to be released in 0.20)
+* [Pre|Post Tests] Progress tracking  by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14316
+* Integrate assesment wrapper to CourseUnitView by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14248
+* Fix missing/mismatched string on course welcome page by @marcellamaki in https://github.com/learningequality/kolibri/pull/14330
+* Fix course unit navigation issues by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14319
+* Rename compat.py to modules.py and update imports by @ketan0919 in https://github.com/learningequality/kolibri/pull/14336
+* Integrate course quiz renderer to CourseUnitView by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14290
+* improve error handling for deleted users in course assignment by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14210
+* Add morango integration tests for syncing new courses by @bjester in https://github.com/learningequality/kolibri/pull/14214
+* Update courses dropdown options to open course preview and assign recipients side panels by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14203
+* Remove TestStatus reference, use "closed" defaulting to False instead. by @rtibbles in https://github.com/learningequality/kolibri/pull/14361
+* Creates SparklineBar distribution chart component by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14338
+* Import descendants metadata by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14363
+
 
 ## 0.19.2
 
