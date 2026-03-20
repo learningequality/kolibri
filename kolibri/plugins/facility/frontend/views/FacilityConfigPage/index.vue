@@ -199,7 +199,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { createTranslator } from 'kolibri/utils/i18n';
+  import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import RemovePinModal from './RemovePinModal';
   import ChangePinModal from './ChangePinModal';
@@ -282,7 +282,8 @@
       ]),
       ...mapGetters(['facilityPageLinks']),
       ...mapGetters('facilityConfig', ['getFacilityDataLoading']),
-      settingsList: () => settingsList,
+      settingsList: () =>
+        currentLanguage === 'en' ? settingsList.concat('enable_mark_attendance') : settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
       },
@@ -431,6 +432,10 @@
       showDownloadButtonInLearn: {
         message: "Show 'download' button with resources",
         context: "Option on 'Facility settings' page.\n",
+      },
+      enableMarkAttendance: {
+        message: 'Allow coaches to take attendance (English only)',
+        context: "Option on 'Facility settings' page.",
       },
       /* eslint-enable kolibri/vue-no-unused-translations */
       saveFailure: {

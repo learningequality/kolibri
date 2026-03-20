@@ -102,6 +102,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         # Try to create duplicate - should fail
@@ -112,6 +113,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=self.classroom,
                 test_type="pre",  # Same combination
                 closed=False,
+                activated_by=self.coach,
             )
 
     def test_unique_together_allows_different_test_types(self):
@@ -123,6 +125,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=True,
+            activated_by=self.coach,
         )
 
         # Create post-test - should succeed
@@ -132,6 +135,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="post",  # Different test type
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(pre_test.id)
@@ -154,6 +158,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_classroom,  # From facility 2 - different dataset
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn("same dataset", str(context.exception))
@@ -166,6 +171,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         key = "{}:{}:{}:{}".format(
@@ -191,6 +197,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=True,
+            activated_by=self.coach,
         )
 
         unit_id_2 = uuid.uuid4().hex
@@ -200,6 +207,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertNotEqual(
@@ -211,6 +219,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,
             test_type="post",  # Different test type
             closed=False,
+            activated_by=self.coach,
         )
 
         # Different test types should generate different source_ids
@@ -227,6 +236,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.classroom,  # Same as course_session.collection
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -241,6 +251,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
             collection=self.learner_group,  # Child of course_session.collection
             test_type="pre",
             closed=False,
+            activated_by=self.coach,
         )
 
         self.assertIsNotNone(assignment.id)
@@ -263,6 +274,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_classroom,  # Different classroom, not a child
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn(
@@ -288,6 +300,7 @@ class UnitTestAssignmentModelTestCase(TestCase):
                 collection=other_learner_group,  # Child of other_classroom, not self.classroom
                 test_type="pre",
                 closed=False,
+                activated_by=self.coach,
             )
 
         self.assertIn(
@@ -388,6 +401,91 @@ class UnitTestAssignmentDeserializeSyncFilterTestCase(
 ):
     model_class = models.UnitTestAssignment
     user_field_name = "activated_by_id"
+
+
+class PreSaveKwargsTestMixin:
+    """
+    Shared tests for pre_save update_dirty_bit_to logic.
+    Subclasses set model_class, user_field_name, and build_instance().
+    """
+
+    databases = "__all__"
+    model_class = None
+    user_field_name = None
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="TestFacility")
+        cls.classroom = Classroom.objects.create(
+            name="TestClassroom", parent=cls.facility
+        )
+        cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
+        cls.course_session = models.CourseSession.objects.create(
+            course=uuid.uuid4().hex,
+            title="Test",
+            collection=cls.classroom,
+            created_by=cls.coach,
+        )
+
+    def build_instance(self, with_user=True):
+        raise NotImplementedError
+
+    def test_normal_save_raises_when_user_field_is_null(self):
+        instance = self.build_instance(with_user=False)
+        with self.assertRaises(IntegrityError):
+            instance.save()
+
+    def test_deserialization_save_allows_null_user_field(self):
+        instance = self.build_instance(with_user=False)
+        instance.save(update_dirty_bit_to=False)
+        instance.refresh_from_db()
+        self.assertIsNone(getattr(instance, self.user_field_name))
+
+    def test_normal_save_passes_with_user_field_set(self):
+        instance = self.build_instance(with_user=True)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNotNone(getattr(instance, self.user_field_name))
+
+
+class CourseSessionPreSaveTestCase(PreSaveKwargsTestMixin, TestCase):
+    model_class = models.CourseSession
+    user_field_name = "created_by"
+
+    def build_instance(self, with_user=True):
+        return models.CourseSession(
+            course=uuid.uuid4().hex,
+            title="Test",
+            collection=self.classroom,
+            created_by=self.coach if with_user else None,
+        )
+
+
+class CourseSessionAssignmentPreSaveTestCase(PreSaveKwargsTestMixin, TestCase):
+    model_class = models.CourseSessionAssignment
+    user_field_name = "assigned_by"
+
+    def build_instance(self, with_user=True):
+        return models.CourseSessionAssignment(
+            course_session=self.course_session,
+            collection=self.classroom,
+            assigned_by=self.coach if with_user else None,
+        )
+
+
+class UnitTestAssignmentPreSaveTestCase(PreSaveKwargsTestMixin, TestCase):
+    model_class = models.UnitTestAssignment
+    user_field_name = "activated_by"
+
+    def build_instance(self, with_user=True):
+        return models.UnitTestAssignment(
+            course_session=self.course_session,
+            unit_contentnode_id=uuid.uuid4().hex,
+            collection=self.classroom,
+            test_type="pre",
+            activated_by=self.coach if with_user else None,
+        )
 
 
 class TestTypeEnumTestCase(TestCase):

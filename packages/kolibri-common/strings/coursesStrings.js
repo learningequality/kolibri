@@ -342,4 +342,57 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Edit Recipients',
     context: 'Action label for editing which learners are assigned to a course.',
   },
+  sparklineDistributionLabel: {
+    message: '{lowCount, number} low, {midCount, number} medium, {highCount, number} high',
+    context:
+      'Visually hidden accessibility label for the sparkline bar, summarising the distribution of learners across low, medium, and high performance bands.',
+  },
+  lowMasteryLabel: {
+    message: 'Low mastery ({count, number})',
+    context: 'Label shown on a unit accordion header when the unit has low average mastery',
+  },
+  strongMasteryLabel: {
+    message: 'Strong mastery',
+    context: 'Label shown on a unit accordion header when the unit has strong average mastery',
+  },
+  learnersByMasteryLabel: {
+    message: 'Learners by mastery',
+    context: 'Tooltip title for the sparkline bar showing learner distribution by mastery level',
+  },
+  lowCountLabel: {
+    message: '{count, number} low',
+    context: 'Tooltip row showing the number of learners with low mastery',
+  },
+  partialCountLabel: {
+    message: '{count, number} partial',
+    context: 'Tooltip row showing the number of learners with partial mastery',
+  },
+  strongCountLabel: {
+    message: '{count, number} strong',
+    context: 'Tooltip row showing the number of learners with strong mastery',
+  },
+  clickToViewDetailsLabel: {
+    message: 'Click to view details',
+    context: 'Tooltip prompt inviting the user to click the sparkline bar for more detail',
+  },
+  preTestCompleted: {
+    message: 'Pre-test completed!',
+    context: 'Snackbar message when a pre-test is completed',
+  },
+  postTestCompleted: {
+    message: 'Post-test completed!',
+    context: 'Snackbar message when a post-test is completed',
+  },
+  preTestCompletedDescription: {
+    message: 'You will be able to continue once your coach closes this pre-test.',
+    context: 'Description text shown when a pre-test is completed',
+  },
+  postTestCompletedDescription: {
+    message: 'You will be able to continue once your coach closes this post-test.',
+    context: 'Description text shown when a post-test is completed',
+  },
+  submitTestAction: {
+    message: 'Submit test',
+    context: 'Action label for button to submit a pre-test or post-test.',
+  },
 });

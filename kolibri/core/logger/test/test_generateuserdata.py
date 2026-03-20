@@ -1,6 +1,8 @@
 from django.core.management import call_command
 from django.test import TestCase
 
+from kolibri.core.attendance.models import AttendanceRecord
+from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -51,6 +53,18 @@ class GenerateUserDataTest(TestCase):
 
     def test_lessons_created(self):
         self.assertEqual(Lesson.objects.count(), n_lessons * n_classes * n_facilities)
+
+    def test_attendance_sessions_created(self):
+        for classroom in Classroom.objects.all():
+            self.assertTrue(
+                AttendanceSession.objects.filter(collection=classroom).exists()
+            )
+
+    def test_attendance_records_created(self):
+        for session in AttendanceSession.objects.all():
+            self.assertTrue(
+                AttendanceRecord.objects.filter(attendance_session=session).exists()
+            )
 
     def test_no_spacey_names(self):
         for user in FacilityUser.objects.all():

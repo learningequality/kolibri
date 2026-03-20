@@ -35,8 +35,7 @@ These supplement the gotchas in AGENTS.md. With Claude's large context window, t
 - **Constants**: Uppercase strings in dedicated modules with `choices` tuples for model fields (see `kolibri/core/auth/constants/`).
 - **Model permissions**: Syncable models use declarative `RoleBasedPermissions`. Viewsets use `KolibriAuthPermissions` from `kolibri.core.auth.api`.
 - **Error constants**: API validation errors use codes from `kolibri/core/error_constants.py`, mirrored in frontend.
-- **Inline imports**: Only for circular import prevention. All other imports at file top.
 
 ### Multi-Agent / Multi-Worktree Isolation
 
-→ See `docs/howtos/multi_agent_setup.md` for full setup including KOLIBRI_HOME isolation, unique ports, and provisioning commands.
+→ See `docs/howtos/multi_agent_setup.md` for full setup including KOLIBRI_HOME isolation and unique ports.

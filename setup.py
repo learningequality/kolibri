@@ -100,8 +100,9 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     cmdclass={"install_scripts": gen_windows_batch_files},
-    python_requires=">=3.6,  <3.14",
+    python_requires=">=3.6,  <3.15",
 )

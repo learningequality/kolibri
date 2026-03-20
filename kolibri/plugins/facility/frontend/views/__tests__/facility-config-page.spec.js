@@ -52,6 +52,7 @@ describe('facility config page view', () => {
       'Require password for learners',
       'Allow learners to edit their password when signed in',
       "Show 'download' button with resources",
+      'Allow coaches to take attendance (English only)',
     ];
     labels.forEach(label => {
       expect(screen.getByLabelText(label)).toBeInTheDocument();

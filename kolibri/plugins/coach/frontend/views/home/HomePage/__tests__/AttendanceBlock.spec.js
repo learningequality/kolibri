@@ -3,11 +3,21 @@ import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import store from 'kolibri/store';
 import makeStore from '../../../../__tests__/utils/makeStore';
+import classSummaryModule from '../../../../modules/classSummary';
 // eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../../composables/useAttendance';
 import AttendanceBlock from '../AttendanceBlock.vue';
 
 jest.mock('../../../../composables/useAttendance');
+jest.mock('../../../../composables/useCoreCoach', () => {
+  const { computed } = require('vue');
+  return () => ({
+    classId: computed(() => 'test-class-id'),
+    pageTitle: computed(() => ''),
+    appBarTitle: computed(() => ''),
+    authorized: computed(() => true),
+  });
+});
 jest.mock('kolibri/router', () => ({
   getRoute: jest.fn((name, params) => ({ name, params })),
 }));
@@ -45,11 +55,6 @@ const MOCK_SESSIONS = [
 ];
 
 const STUBS = {
-  KButton: {
-    name: 'KButton',
-    props: ['text', 'primary', 'to'],
-    template: '<button>{{ text }}</button>',
-  },
   KCircularLoader: {
     name: 'KCircularLoader',
     template: '<div data-test="loader">Loading...</div>',
@@ -65,7 +70,17 @@ const STUBS = {
   KLabeledIcon: { name: 'KLabeledIcon', template: '<span><slot /></span>' },
 };
 
-function makeWrapper({ sessions = [], pendingFetch = false, rejectWith = null } = {}) {
+const MOCK_LEARNERS = [
+  { id: 'learner-1', name: 'Learner One', username: 'learner1' },
+  { id: 'learner-2', name: 'Learner Two', username: 'learner2' },
+];
+
+function makeWrapper({
+  sessions = [],
+  learners = MOCK_LEARNERS,
+  pendingFetch = false,
+  rejectWith = null,
+} = {}) {
   const recentSessions = ref(sessions);
   let fetchRecentSessions;
   if (rejectWith) {
@@ -83,7 +98,19 @@ function makeWrapper({ sessions = [], pendingFetch = false, rejectWith = null } 
   useAttendance.mockImplementation(() => mockValues);
 
   const testStore = makeStore();
-  testStore.state.classSummary.id = 'test-class-id';
+
+  // Populate learnerMap so the component's learners computed property works
+  const learnerMap = {};
+  learners.forEach(l => {
+    learnerMap[l.id] = l;
+  });
+  testStore.state.classSummary.learnerMap = learnerMap;
+
+  // Ensure the classSummary module is registered on the singleton store
+  // so that store.getters['classSummary/learners'] is available
+  if (!store.hasModule('classSummary')) {
+    store.registerModule('classSummary', classSummaryModule);
+  }
 
   // Point the kolibri/store singleton state at the test store state
   store.replaceState(testStore.state);
@@ -119,10 +146,18 @@ describe('AttendanceBlock', () => {
     expect(wrapper.find('[data-test="loader"]').exists()).toBe(true);
   });
 
-  it('renders empty state when no sessions exist', async () => {
-    const { wrapper } = makeWrapper({ sessions: [] });
+  it('renders empty state when no sessions exist but learners are enrolled', async () => {
+    const { wrapper } = makeWrapper({ sessions: [], learners: MOCK_LEARNERS });
     await global.flushPromises();
     expect(wrapper.text()).toContain('No attendance sessions yet');
+    expect(wrapper.text()).not.toContain('Enroll learners');
+  });
+
+  it('renders enroll message when no sessions and no learners are enrolled', async () => {
+    const { wrapper } = makeWrapper({ sessions: [], learners: [] });
+    await global.flushPromises();
+    expect(wrapper.text()).toContain('No attendance sessions yet');
+    expect(wrapper.text()).toContain('Enroll learners to mark attendance');
   });
 
   it('renders sessions with present and absent counts', async () => {

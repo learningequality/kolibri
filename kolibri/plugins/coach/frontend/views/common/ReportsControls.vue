@@ -22,6 +22,7 @@
       <KTooltip
         reference="printButton"
         :refs="$refs"
+        placement="top"
       >
         {{ coachString('printReportAction') }}
       </KTooltip>
@@ -36,6 +37,7 @@
       <KTooltip
         reference="exportButton"
         :refs="$refs"
+        placement="top"
       >
         {{ coachString('exportCSVAction') }}
       </KTooltip>

@@ -1,8 +1,8 @@
 import { ref, watch, provide, inject } from 'vue';
 import store from 'kolibri/store';
+import isEqual from 'lodash/isEqual';
 import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
 import useProgressTracking from '../../composables/useProgressTracking';
-
 // Individual injection keys for each provided property/function
 const SessionReadyKey = Symbol('SessionReady');
 const ProgressKey = Symbol('Progress');
@@ -21,6 +21,7 @@ const HandleUpdateContentStateKey = Symbol('HandleUpdateContentState');
 const HandleUpdateInteractionKey = Symbol('HandleUpdateInteraction');
 const UpdateContentSessionKey = Symbol('UpdateContentSession');
 const OnErrorKey = Symbol('OnError');
+const MasteryCriterionKey = Symbol('MasteryCriterion');
 
 /**
  * Composable that manages progress tracking for course content.
@@ -28,12 +29,14 @@ const OnErrorKey = Symbol('OnError');
  * to child components via Vue's provide/inject mechanism.
  *
  * @param {Object} options **Required** Configuration options for the composable.
- * @param {import('vue').Ref<Object>} options.contentNode **Required** Reactive ref to the
+ * @param {import('vue').Ref<Object>} options.contentNode **optional** Reactive ref to the
  *                                                        current content node.
  * @param {import('vue').Ref<string>} options.courseSessionId **Required** Reactive ref to the
  *                                                            course session ID.
+ * @param {import('vue').Ref<Object>} options.activeTest **Optional** Reactive ref to the
+ *                                                      active test information, if applicable.
  */
-export default function useCourseContentProgress({ contentNode, courseSessionId }) {
+export default function useCourseContentProgress({ contentNode, courseSessionId, activeTest }) {
   const {
     progress,
     time_spent,
@@ -42,6 +45,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     complete,
     context,
     totalattempts,
+    mastery_criterion,
     initContentSession,
     updateContentSession,
     startTrackingProgress,
@@ -102,7 +106,8 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
    */
   const initSession = async (repeat = false) => {
     const node = contentNode.value;
-    if (!node) {
+    const test = activeTest.value;
+    if (!node && !test) {
       return;
     }
 
@@ -110,11 +115,17 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     errored.value = false;
 
     try {
-      await initContentSession({
-        node,
+      const payload = {
         courseSessionId: courseSessionId.value,
         repeat,
-      });
+      };
+      if (test) {
+        payload.courseTest = test;
+      } else {
+        payload.node = node;
+      }
+
+      await initContentSession(payload);
       sessionReady.value = true;
       // Set progress into the content node progress store
       cacheProgress();
@@ -133,7 +144,6 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
     cacheProgress();
   });
 
-  // Watch for content node changes to reinitialize session
   watch(
     () => contentNode.value?.id,
     (newId, oldId) => {
@@ -142,6 +152,12 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
       }
     },
   );
+
+  watch(activeTest, (newTest, oldTest) => {
+    if (newTest && !isEqual(newTest, oldTest)) {
+      initSession();
+    }
+  });
 
   initSession();
 
@@ -153,6 +169,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
   provide(CompleteKey, complete);
   provide(TotalAttemptsKey, totalattempts);
   provide(ContextKey, context);
+  provide(MasteryCriterionKey, mastery_criterion);
   provide(StartTrackingProgressKey, startTrackingProgress);
   provide(StopTrackingProgressKey, stopTrackingProgress);
   provide(RestartContentSessionKey, restartContentSession);
@@ -183,6 +200,8 @@ export default function useCourseContentProgress({ contentNode, courseSessionId 
  *                                                          content.
  * @property {import('vue').Ref<Object>} context The context object containing additional
  *                                              information about the content session.
+ * @property {import('vue').Ref<Object|null>} mastery_criterion The mastery criterion for the
+ *                                                              content,if applicable.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
  *                                                      final progress.
@@ -213,6 +232,7 @@ export function injectCourseContentProgress() {
     complete: inject(CompleteKey),
     totalattempts: inject(TotalAttemptsKey),
     context: inject(ContextKey),
+    mastery_criterion: inject(MasteryCriterionKey),
     startTrackingProgress: inject(StartTrackingProgressKey),
     stopTrackingProgress: inject(StopTrackingProgressKey),
     restartContentSession: inject(RestartContentSessionKey),

@@ -32,7 +32,6 @@ from logger import plain
 from logger import section
 from logger import step
 from logger import success
-from recorder import capture_manual_flow
 
 
 # Constants
@@ -191,6 +190,8 @@ def capture(ctx):
 
     os.makedirs(HAR_FILES_DIR, exist_ok=True)
 
+    from recorder import capture_manual_flow
+
     info(f"Manual capture mode for Kolibri {kolibri_version}...")
     capture_manual_flow(ctx.obj["server"], har_path)
     success(f"✓ HAR file captured: {har_path}")
@@ -293,6 +294,28 @@ def run(ctx):
         threading.Thread(target=open_browser, daemon=True).start()
 
     subprocess.run(cmd, env=env)
+
+
+@cli.command()
+@click.pass_context
+def setup(ctx):
+    """Provision device, create facility, import users, import channel, and create lesson"""
+    step(1, 5, "Checking device provisioning...")
+    ctx.invoke(provision)
+
+    step(2, 5, "Setting up facility...")
+    ctx.invoke(setup_facility)
+
+    step(3, 5, "Importing users...")
+    ctx.invoke(import_users)
+
+    step(4, 5, "Importing QA channel...")
+    ctx.invoke(import_channel)
+
+    step(5, 5, "Creating comprehensive lesson...")
+    ctx.invoke(create_lesson)
+
+    success("Setup complete")
 
 
 def full(ctx):

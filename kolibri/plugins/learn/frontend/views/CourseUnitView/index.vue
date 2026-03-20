@@ -19,8 +19,8 @@
         disableDefaultTransition
       />
       <CourseContentViewer
-        v-else-if="currentResource"
-        :contentNode="currentResource"
+        v-else-if="contentNodeToRender"
+        :contentNode="contentNodeToRender"
         :nextResource="nextAvailableResource"
         :previousResource="previousAvailableResource"
         @next="handleNext"
@@ -63,8 +63,10 @@
         v-if="unitTree"
         :maxResourceLft="maxResourceLft"
         :unitTree="unitTree"
+        :activeTest="activeTest"
         :currentResourceId="currentResource && currentResource.id"
         :currentLessonId="currentLesson && currentLesson.id"
+        :isUnitComplete="isUnitComplete"
         @finished="onResourceFinished"
         @navigateToResource="handleNavigateToResource"
       />
@@ -203,8 +205,24 @@
         return courseUnits.value[currentUnitIndex.value + 1];
       });
 
+      const isUnitComplete = computed(() => {
+        if (!resumeData.value || !resumeData.value.started) {
+          // no data to make a decision
+          return false;
+        }
+        // If current unit is different, it means that it is a previoius unit,
+        if (resumeData.value.active_test) {
+          return resumeData.value.active_test.unit_id !== props.unitId;
+        }
+        if (resumeData.value.resume_position) {
+          return resumeData.value.resume_position.unit_id !== props.unitId;
+        }
+        // If no resume_position, it means the course is complete,
+        return true;
+      });
+
       const canGoToNextUnit = computed(() => {
-        if (!nextUnit.value) {
+        if (!nextUnit.value || activeTest.value) {
           return false;
         }
         return props.unitId !== resumeData.value?.resume_position?.unit_id;
@@ -269,10 +287,19 @@
         return Number.MAX_SAFE_INTEGER;
       });
 
-      const prevEnabled = computed(() => currentResourceIndexInUnit.value > 0);
+      const prevEnabled = computed(() => {
+        if (activeTest.value) {
+          return false;
+        }
+        return currentResourceIndexInUnit.value > 0;
+      });
 
       const nextEnabled = computed(() => {
-        if (currentResourceIndexInUnit.value === null || maxResourceLft.value === null) {
+        if (
+          activeTest.value ||
+          currentResourceIndexInUnit.value === null ||
+          maxResourceLft.value === null
+        ) {
           return false;
         }
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
@@ -307,7 +334,6 @@
         if (index >= 0) {
           return index;
         }
-        // Shouldn't get here
         return null;
       });
 
@@ -333,6 +359,10 @@
       };
 
       const onResourceFinished = () => {
+        if (activeTest.value) {
+          // when active test, we do nothing when the learner finishes its pre/post test.
+          return;
+        }
         if (
           !resumeData.value?.resume_position ||
           // If finished resource is not the current resource in resume position
@@ -710,11 +740,29 @@
         }),
       );
 
+      const activeTest = computed(() => {
+        if (!props.testType || !props.unitId) {
+          return null;
+        }
+        return {
+          unitId: props.unitId,
+          testType: props.testType,
+        };
+      });
+
+      const contentNodeToRender = computed(() => {
+        if (activeTest.value) {
+          return unitTree.value;
+        }
+        return currentResource.value;
+      });
+
       // Provide progress tracking to child components
       useCourseContentProgress({
         contentNode: currentResource,
         // route courseId refers to courseSessionId
         courseSessionId: toRef(props, 'courseId'),
+        activeTest,
       });
 
       const { contentNodeProgressMap, fetchContentNodeProgress } = useContentNodeProgress();
@@ -765,6 +813,7 @@
         canGoToNextUnit,
         currentLesson,
         currentResource,
+        contentNodeToRender,
         prevNextLabel,
         unitNumberLabel,
         prevEnabled,
@@ -773,6 +822,8 @@
         previousAvailableResource,
         maxResourceLft,
         resourceLayoutRef,
+        isUnitComplete,
+        activeTest,
         handlePrev,
         handleNext,
         onResourceFinished,
