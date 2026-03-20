@@ -54,11 +54,6 @@ function setupTestStore(learners = MOCK_LEARNERS) {
   const testStore = new Vuex.Store({
     state: {
       core: { loading: false },
-      classSummary: {
-        id: 'test-class',
-        name: 'Test Class',
-        learnerMap: {},
-      },
     },
     getters: {
       isPageLoading: () => false,
