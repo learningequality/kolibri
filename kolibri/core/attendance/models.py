@@ -48,8 +48,8 @@ class AttendanceSession(AbstractFacilityDataModel):
     def __str__(self):
         return "AttendanceSession for {}".format(self.collection)
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
         if self._state.adding and self.created_by is None:
             raise IntegrityError("AttendanceSession must be saved with a creator")
         if self.created_by and self.created_by.dataset_id != self.dataset_id:
