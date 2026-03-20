@@ -1,6 +1,5 @@
 import hashlib
 import logging
-import uuid as uuid_module
 from datetime import timedelta
 from itertools import groupby
 from math import ceil
@@ -54,6 +53,7 @@ from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
 from kolibri.core.logger.evaluation import attempts_diff
 from kolibri.core.logger.evaluation import LOG_ORDER_BY
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import parse_attemptslog
 from kolibri.core.notifications.api import parse_summarylog
@@ -389,10 +389,8 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "test_type": test_type,
             }
 
-            # Synthetic content_id: UUID5 so pre and post are distinct
-            content_id = uuid_module.uuid5(
-                uuid_module.UUID(deterministic_hash), test_type
-            ).hex
+            # Synthetic content_id: shared across all learners for this test instance.
+            content_id = get_synthetic_content_id(course_session_id, unit_id, test_type)
             channel_id = None
             kind = content_kinds.QUIZ
 

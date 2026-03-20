@@ -1,9 +1,6 @@
 import datetime
 import uuid
-from types import SimpleNamespace
-from unittest.mock import patch
 
-from django.test import SimpleTestCase
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -24,10 +21,9 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.plugins.coach.unit_report_api import compute_all_test_scores
-from kolibri.plugins.coach.unit_report_api import get_synthetic_content_id
 from kolibri.plugins.coach.unit_report_api import get_test_status
-from kolibri.plugins.coach.unit_report_api import get_test_version
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_OPEN
@@ -96,20 +92,6 @@ UNIT_OPTIONS = {
 }
 
 
-def _make_content_node(parent_id=None):
-    node = ContentNode.objects.create(
-        id=uuid.uuid4().hex,
-        content_id=uuid.uuid4().hex,
-        channel_id=uuid.uuid4().hex,
-        title="Test Unit",
-        kind=content_kinds.EXERCISE,
-        modality=modalities.UNIT,
-        options=UNIT_OPTIONS,
-        available=True,
-    )
-    return node
-
-
 def _create_attempt(
     learner, course_session_id, unit_id, test_type, items_correct, items_incorrect=None
 ):
@@ -120,7 +102,7 @@ def _create_attempt(
     items_incorrect: list of item IDs answered incorrectly (optional)
     """
     synthetic_cid = get_synthetic_content_id(
-        str(learner.id), str(course_session_id), str(unit_id), test_type
+        str(course_session_id), str(unit_id), test_type
     )
     now = timezone.now()
     channel_id = uuid.uuid4().hex
@@ -176,61 +158,65 @@ def _create_attempt(
     return mastery_log
 
 
-class GetTestVersionTests(SimpleTestCase):
-    """get_test_version returns deterministic 'a' or 'b'."""
+class GetTestStatusTests(TestCase):
+    """get_test_status maps a UnitTestAssignment queryset to a response string."""
 
-    def test_deterministic(self):
-        lid = uuid.uuid4().hex
-        sid = uuid.uuid4().hex
-        uid = uuid.uuid4().hex
-        v1 = get_test_version(lid, sid, uid)
-        v2 = get_test_version(lid, sid, uid)
-        self.assertEqual(v1, v2)
-        self.assertIn(v1, ("a", "b"))
+    databases = "__all__"
 
-    def test_hash_byte_below_128_returns_version_a(self):
-        # Directly exercise the branch: first SHA-256 byte < 128 → "a".
-        with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
-            mock_hashlib.sha256.return_value.digest.return_value = (
-                bytes([0]) + b"\x00" * 31
-            )
-            self.assertEqual(get_test_version("lid", "sid", "uid"), "a")
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.classroom = Classroom.objects.create(name="cls", parent=cls.facility)
+        cls.group = LearnerGroup.objects.create(name="grp", parent=cls.classroom)
+        cls.coach = helpers.create_coach(
+            "status_coach", DUMMY_PASSWORD, cls.facility, cls.classroom
+        )
+        cls.course_session = CourseSession.objects.create(
+            course=uuid.uuid4().hex,
+            title="Status Test",
+            collection=cls.classroom,
+            created_by=cls.coach,
+        )
+        cls.unit_id = uuid.uuid4().hex
 
-    def test_hash_byte_128_or_above_returns_version_b(self):
-        # Directly exercise the branch: first SHA-256 byte >= 128 → "b".
-        with patch("kolibri.plugins.coach.unit_report_api.hashlib") as mock_hashlib:
-            mock_hashlib.sha256.return_value.digest.return_value = (
-                bytes([255]) + b"\x00" * 31
-            )
-            self.assertEqual(get_test_version("lid", "sid", "uid"), "b")
+    def _qs(self):
+        return UnitTestAssignment.objects.filter(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            test_type="pre",
+        )
 
-
-class GetTestStatusTests(SimpleTestCase):
-    """get_test_status maps UnitTestAssignment state to response strings."""
-
-    def _make_assignment(self, closed):
-        return SimpleNamespace(closed=closed)
+    def _make_assignment(self, closed, collection=None):
+        return UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_id,
+            collection=collection or self.classroom,
+            test_type="pre",
+            closed=closed,
+            activated_by=self.coach,
+        )
 
     def test_no_assignments_returns_not_activated(self):
-        self.assertEqual(get_test_status([]), TEST_STATUS_NOT_ACTIVATED)
+        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_NOT_ACTIVATED)
 
     def test_active_assignment_returns_open(self):
-        a = self._make_assignment(closed=False)
-        self.assertEqual(get_test_status([a]), TEST_STATUS_OPEN)
+        self._make_assignment(closed=False)
+        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_OPEN)
 
-    def test_closed_assignment_returns_closed_status(self):
-        a = self._make_assignment(closed=True)
-        self.assertEqual(get_test_status([a]), TEST_STATUS_CLOSED)
+    def test_closed_assignment_returns_closed(self):
+        self._make_assignment(closed=True)
+        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_CLOSED)
 
     def test_all_closed_assignments_returns_closed(self):
-        a1 = self._make_assignment(closed=True)
-        a2 = self._make_assignment(closed=True)
-        self.assertEqual(get_test_status([a1, a2]), TEST_STATUS_CLOSED)
+        self._make_assignment(closed=True)
+        self._make_assignment(closed=True, collection=self.group)
+        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_CLOSED)
 
-    def test_mixed_active_ended_returns_open(self):
-        a1 = self._make_assignment(closed=False)
-        a2 = self._make_assignment(closed=True)
-        self.assertEqual(get_test_status([a1, a2]), TEST_STATUS_OPEN)
+    def test_mixed_returns_open(self):
+        self._make_assignment(closed=False)
+        self._make_assignment(closed=True, collection=self.group)
+        self.assertEqual(get_test_status(self._qs()), TEST_STATUS_OPEN)
 
 
 class ComputeTestScoresTests(TestCase):
@@ -275,24 +261,13 @@ class ComputeTestScoresTests(TestCase):
         self.assertNotIn(str(self.learner_a.id), result["post"])
 
     def test_correct_answers_counted_per_lo(self):
-        # Determine which version learner_a will get
-        version = get_test_version(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
-        )
-        if version == "a":
-            items_correct = [ITEM_A1, ITEM_A2]  # 2 correct for LO1
-            items_incorrect = [ITEM_A3]  # 0 correct for LO2
-        else:
-            items_correct = [ITEM_B1, ITEM_B2]
-            items_incorrect = [ITEM_B3]
-
         _create_attempt(
             self.learner_a,
             self.course_session_id,
             self.unit_id,
             "pre",
-            items_correct=items_correct,
-            items_incorrect=items_incorrect,
+            items_correct=[ITEM_A1, ITEM_A2],  # 2 correct for LO1
+            items_incorrect=[ITEM_A3],  # 0 correct for LO2
         )
         result = compute_all_test_scores(
             [self.learner_a.id],
@@ -306,21 +281,13 @@ class ComputeTestScoresTests(TestCase):
         self.assertEqual(result[lid].get(LO2_ID, 0), 0)
 
     def test_attempted_with_zero_correct_included_as_empty_dict(self):
-        version = get_test_version(
-            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id)
-        )
-        if version == "a":
-            items_incorrect = [ITEM_A1, ITEM_A2, ITEM_A3]
-        else:
-            items_incorrect = [ITEM_B1, ITEM_B2, ITEM_B3]
-
         _create_attempt(
             self.learner_b,
             self.course_session_id,
             self.unit_id,
             "pre",
             items_correct=[],
-            items_incorrect=items_incorrect,
+            items_incorrect=[ITEM_A1, ITEM_A2, ITEM_A3],
         )
         result = compute_all_test_scores(
             [self.learner_b.id],
@@ -335,7 +302,6 @@ class ComputeTestScoresTests(TestCase):
     def test_only_complete_mastery_logs_counted(self):
         """Incomplete (in-progress) mastery logs are ignored."""
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_a.id),
             str(self.course_session_id),
             str(self.unit_id),
             "post",
@@ -364,15 +330,11 @@ class ComputeTestScoresTests(TestCase):
             mastery_level=-2,
             complete=False,  # still in progress
         )
-        version = get_test_version(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
-        )
-        item = ITEM_A1 if version == "a" else ITEM_B1
         AttemptLog.objects.create(
             masterylog=incomplete_mastery,
             sessionlog=session_log,
             user=self.learner_a,
-            item=item,
+            item=ITEM_A1,
             start_timestamp=now - datetime.timedelta(minutes=5),
             end_timestamp=now,
             correct=1,
@@ -388,21 +350,12 @@ class ComputeTestScoresTests(TestCase):
 
     def test_pre_and_post_are_independent(self):
         """Pre-test data does not bleed into post-test scores."""
-        version = get_test_version(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
-        )
-        items_correct = (
-            [ITEM_A1, ITEM_A2, ITEM_A3]
-            if version == "a"
-            else [ITEM_B1, ITEM_B2, ITEM_B3]
-        )
-
         _create_attempt(
             self.learner_a,
             self.course_session_id,
             self.unit_id,
             "pre",
-            items_correct=items_correct,
+            items_correct=[ITEM_A1, ITEM_A2, ITEM_A3],
         )
 
         post_result = compute_all_test_scores(
@@ -415,13 +368,7 @@ class ComputeTestScoresTests(TestCase):
 
     def test_duplicate_attempt_items_counted_once(self):
         """When the same item appears twice in a mastery log, only the most recent attempt counts."""
-        version = get_test_version(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
-        )
-        item = ITEM_A1 if version == "a" else ITEM_B1
-
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_a.id),
             str(self.course_session_id),
             str(self.unit_id),
             "pre",
@@ -460,7 +407,7 @@ class ComputeTestScoresTests(TestCase):
             masterylog=mastery_log,
             sessionlog=session_log,
             user=self.learner_a,
-            item=item,
+            item=ITEM_A1,
             start_timestamp=now - datetime.timedelta(minutes=20),
             end_timestamp=now - datetime.timedelta(minutes=19),
             correct=0,
@@ -470,7 +417,7 @@ class ComputeTestScoresTests(TestCase):
             masterylog=mastery_log,
             sessionlog=session_log,
             user=self.learner_a,
-            item=item,
+            item=ITEM_A1,
             start_timestamp=now - datetime.timedelta(minutes=10),
             end_timestamp=now - datetime.timedelta(minutes=9),
             correct=1,
@@ -490,7 +437,6 @@ class ComputeTestScoresTests(TestCase):
     def test_partial_credit_not_counted(self):
         """correct=0.5 (partial credit) is excluded; only correct==1 counts."""
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_a.id),
             str(self.course_session_id),
             str(self.unit_id),
             "pre",
@@ -524,15 +470,11 @@ class ComputeTestScoresTests(TestCase):
             mastery_level=-1,
             complete=True,
         )
-        version = get_test_version(
-            str(self.learner_a.id), str(self.course_session_id), str(self.unit_id)
-        )
-        item = ITEM_A1 if version == "a" else ITEM_B1
         AttemptLog.objects.create(
             masterylog=mastery_log,
             sessionlog=session_log,
             user=self.learner_a,
-            item=item,
+            item=ITEM_A1,
             start_timestamp=now - datetime.timedelta(minutes=20),
             end_timestamp=now - datetime.timedelta(minutes=19),
             correct=0.5,  # partial credit — must NOT count
@@ -550,23 +492,12 @@ class ComputeTestScoresTests(TestCase):
 
     def test_only_most_recent_complete_mastery_log_used(self):
         """When a learner has multiple complete mastery logs (retakes), only the most recent is used."""
-        version = get_test_version(
-            str(self.learner_b.id), str(self.course_session_id), str(self.unit_id)
-        )
-        # All items for this version — used in both mastery logs (correct in the
-        # first, incorrect in the second).  Named all_items, not items_correct, to
-        # avoid confusion when they're iterated with correct=0 below.
-        all_items = (
-            [ITEM_A1, ITEM_A2, ITEM_A3]
-            if version == "a"
-            else [ITEM_B1, ITEM_B2, ITEM_B3]
-        )
+        all_items = [ITEM_A1, ITEM_A2, ITEM_A3]
 
         # Build both mastery logs manually so they share the same ContentSummaryLog
         # (which is required — two ContentSummaryLogs for the same content_id would
         # violate the morango UNIQUE constraint on source_id = content_id).
         synthetic_cid = get_synthetic_content_id(
-            str(self.learner_b.id),
             str(self.course_session_id),
             str(self.unit_id),
             "post",
@@ -786,7 +717,7 @@ class UnitReportPermissionTests(UnitReportAPIBase):
         self.assertEqual(response.status_code, 200)
 
     def test_nonexistent_course_session_returns_403(self):
-        url = _make_url(uuid.uuid4().hex, self.unit_node.id)
+        url = _make_url("0" * 32, self.unit_node.id)
         self.client.login(
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
@@ -949,22 +880,13 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
     def test_per_lo_correct_count_in_scores(self):
         """Correct answers are tallied per LO for both pre and post tests."""
-        version = get_test_version(
-            str(self.learner2.id), str(self.course_session.id), str(self.unit_node.id)
-        )
-        # Get all 3 items for the correct version
-        if version == "a":
-            all_items = [ITEM_A1, ITEM_A2, ITEM_A3]
-        else:
-            all_items = [ITEM_B1, ITEM_B2, ITEM_B3]
-
         _create_attempt(
             self.learner2,
             self.course_session.id,
             self.unit_node.id,
             "pre",
-            items_correct=all_items[:2],  # both LO1 items correct
-            items_incorrect=all_items[2:],  # LO2 item incorrect
+            items_correct=[ITEM_A1, ITEM_A2],  # both LO1 items correct
+            items_incorrect=[ITEM_A3],  # LO2 item incorrect
         )
 
         response = self.client.get(self._get_url())
@@ -977,27 +899,19 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
     def test_both_tests_in_single_response(self):
         """A learner who attempted both tests has scores in both sections."""
-        version = get_test_version(
-            str(self.learner3.id), str(self.course_session.id), str(self.unit_node.id)
-        )
-        if version == "a":
-            items = [ITEM_A1, ITEM_A2, ITEM_A3]
-        else:
-            items = [ITEM_B1, ITEM_B2, ITEM_B3]
-
         _create_attempt(
             self.learner3,
             self.course_session.id,
             self.unit_node.id,
             "pre",
-            items_correct=items[:1],
+            items_correct=[ITEM_A1],
         )
         _create_attempt(
             self.learner3,
             self.course_session.id,
             self.unit_node.id,
             "post",
-            items_correct=items[:2],
+            items_correct=[ITEM_A1, ITEM_A2],
         )
 
         response = self.client.get(self._get_url())
@@ -1012,16 +926,9 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
         # Assign scores 0, 1, 2 correct to learner1, learner2, learner3 respectively.
         # The loop index i is the number of correct answers for that learner.
+        all_items = [ITEM_A1, ITEM_A2, ITEM_A3]
         learners = [self.learner1, self.learner2, self.learner3]
         for i, learner in enumerate(learners):
-            version = get_test_version(
-                str(learner.id), str(course_session_id), str(unit_id)
-            )
-            all_items = (
-                [ITEM_A1, ITEM_A2, ITEM_A3]
-                if version == "a"
-                else [ITEM_B1, ITEM_B2, ITEM_B3]
-            )
             _create_attempt(
                 learner,
                 course_session_id,
@@ -1037,6 +944,9 @@ class UnitReportScoringTests(UnitReportAPIBase):
 
         # learner1 scored 0, learner2 scored 1, learner3 scored 2.
         # Ascending sort means learner1 < learner2 < learner3 in position.
+        # Tie-breaking: Python's sorted() is stable, so equal-score learners
+        # preserve the DB query order (which is undefined).  This test uses
+        # strictly different scores so no tie-breaking is exercised.
         pos1 = actual_order.index(str(self.learner1.id))
         pos2 = actual_order.index(str(self.learner2.id))
         pos3 = actual_order.index(str(self.learner3.id))
@@ -1049,8 +959,6 @@ class UnitReportLearnerGroupTests(UnitReportAPIBase):
     Verify that learners assigned via a LearnerGroup (sub-collection) are
     resolved correctly and appear in the response.
     """
-
-    databases = "__all__"
 
     def setUp(self):
         self.client.login(
