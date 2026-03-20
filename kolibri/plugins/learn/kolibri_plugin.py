@@ -1,4 +1,5 @@
 from django.urls import reverse
+from le_utils.constants import modalities
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
@@ -58,6 +59,11 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
     def plugin_data(self):
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+        from kolibri.core.content.models import ContentNode
+
+        courses_exist = ContentNode.objects.filter(
+            available=True, modality=modalities.COURSE
+        ).exists()
 
         return {
             "allowDownloadOnMeteredConnection": get_device_setting(
@@ -75,6 +81,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
                 "base_url": CENTRAL_CONTENT_BASE_URL,
                 "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
             },
+            "courses_exist": courses_exist,
         }
 
 
