@@ -81,9 +81,9 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: make sign-and-upload
-      - name: Cleanup Launchpad credentials
+      - name: Cleanup credentials
         if: always()
-        run: rm -f /tmp/lp-creds.txt
+        run: rm -f /tmp/lp-creds.txt /tmp/.gpg-passphrase
   wait_for_source_builds:
     needs:
       - check_version

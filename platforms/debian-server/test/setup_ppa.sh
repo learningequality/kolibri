@@ -6,12 +6,16 @@ SUDO=""
 [ "$(id -u)" != "0" ] && SUDO="sudo"
 
 # Detect Ubuntu series for PPA source line
-# On Ubuntu: use the OS codename. On non-Ubuntu (e.g. Debian): require PPA_SERIES env var.
+# PPA_SERIES env var takes precedence (used by CI to ensure all containers use the same series).
+# On Ubuntu without PPA_SERIES: auto-detect from OS. On non-Ubuntu: PPA_SERIES is required.
 . /etc/os-release
-if [ "$ID" = "ubuntu" ]; then
+if [ -n "${PPA_SERIES:-}" ]; then
+  SERIES="$PPA_SERIES"
+elif [ "$ID" = "ubuntu" ]; then
   SERIES="$VERSION_CODENAME"
 else
-  SERIES="${PPA_SERIES:?PPA_SERIES must be set for non-Ubuntu systems (e.g. PPA_SERIES=noble)}"
+  echo "Error: PPA_SERIES must be set for non-Ubuntu systems (e.g. PPA_SERIES=noble)" >&2
+  exit 1
 fi
 
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys DC5BAA93F9E4AE4F0411F97C74F88ADB3194DD81

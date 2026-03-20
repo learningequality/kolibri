@@ -56,9 +56,11 @@ dist: error-pages orig
 # build and sign (signing uses environment GPG_KEY_ID and GPG_PASSPHRASE)
 sign-and-upload: dist
 	@echo "Signing and uploading package..."
+	@test -n "$$GPG_KEY_ID" || { echo "Error: GPG_KEY_ID is not set"; exit 1; }
+	@test -n "$$GPG_PASSPHRASE" || { echo "Error: GPG_PASSPHRASE is not set"; exit 1; }
 	@printf '%s' "$$GPG_PASSPHRASE" > /tmp/.gpg-passphrase
 	debsign -p"gpg --batch --pinentry-mode loopback --passphrase-file /tmp/.gpg-passphrase" \
-		-k"$$GPG_KEY_ID" dist/*.changes
+		-k "$$GPG_KEY_ID" dist/*.changes
 	@rm -f /tmp/.gpg-passphrase
 	@echo "Uploading to PPA..."
 	dput --unchecked ppa:learningequality/kolibri-proposed dist/*.changes
