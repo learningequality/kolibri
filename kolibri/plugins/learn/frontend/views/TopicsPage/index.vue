@@ -264,6 +264,7 @@
   import useUser from 'kolibri/composables/useUser';
   import { ContentNodeKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import Modalities from 'kolibri-constants/Modalities';
   import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
@@ -303,7 +304,7 @@
   }
 
   function _getChildren(id, topic, skip) {
-    let children = topic.children.results || [];
+    let children = topic?.children?.results || [];
     let skipped = false;
     // If there is only one child, and that child is a topic, then display that instead
     while (skip && children.length === 1 && !children[0].is_leaf) {
@@ -432,6 +433,9 @@
         const skip = route.query && route.query.skip === 'true';
         const params = {
           include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
+          // Only hide COURSE from Learners in the library view
+          exclude_modalities:
+            get(isAdmin) || get(isCoach) || get(isSuperuser) ? null : Modalities.COURSE,
           baseurl,
         };
         if (get(isUserLoggedIn) && !baseurl) {

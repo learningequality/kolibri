@@ -5,6 +5,7 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import { coreStoreFactory } from 'kolibri/store';
 import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import Modalities from 'kolibri-constants/Modalities';
 import useBaseSearch from '../useBaseSearch';
 import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
@@ -204,6 +205,8 @@ describe(`useBaseSearch`, () => {
           categories: ['test1', 'test2'],
           max_results: 25,
           include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
         },
       });
     });
@@ -233,6 +236,8 @@ describe(`useBaseSearch`, () => {
           rght__lt: 20,
           max_results: 1,
           include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
         },
       });
     });
@@ -245,6 +250,8 @@ describe(`useBaseSearch`, () => {
           kind: ContentNodeKinds.EXERCISE,
           max_results: 1,
           include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
         },
       });
     });
@@ -270,6 +277,8 @@ describe(`useBaseSearch`, () => {
           categories: ['test1', 'test2'],
           max_results: 25,
           include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
         },
       });
     });
@@ -278,7 +287,13 @@ describe(`useBaseSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: false, max_results: 25, include_coach_content: false },
+        getParams: {
+          categories__isnull: false,
+          max_results: 25,
+          include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
+        },
       });
     });
     it('should ignore other categories when NoCategories is set and search for isnull true', () => {
@@ -286,7 +301,13 @@ describe(`useBaseSearch`, () => {
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { categories__isnull: true, max_results: 25, include_coach_content: false },
+        getParams: {
+          categories__isnull: true,
+          max_results: 25,
+          include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
+        },
       });
     });
     it('should set keywords when defined', () => {
@@ -298,6 +319,8 @@ describe(`useBaseSearch`, () => {
           keywords: `this is just a test`,
           max_results: 25,
           include_coach_content: false,
+          exclude_modalities: Modalities.COURSE,
+          exclude_course_ancestry: true,
         },
       });
     });
