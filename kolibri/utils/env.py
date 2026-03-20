@@ -143,6 +143,57 @@ def forward_port_cgi_module():
     sys.modules["cgi"] = module
 
 
+def monkey_patch_pkgutil():
+    """
+    Monkey patch pkgutil.find_loader for Python 3.14 compatibility.
+    pkgutil.find_loader was removed in Python 3.14, but django-filter 21.1
+    still uses it to check for rest_framework.
+    This can be removed when we upgrade django-filter.
+    """
+    if sys.version_info < (3, 14):
+        return
+    import pkgutil
+
+    if hasattr(pkgutil, "find_loader"):
+        return
+
+    import importlib.util
+
+    def find_loader(fullname):
+        try:
+            spec = importlib.util.find_spec(fullname)
+        except (ImportError, ModuleNotFoundError, ValueError):
+            return None
+        if spec is not None:
+            return spec.loader
+        return None
+
+    pkgutil.find_loader = find_loader
+
+
+def monkey_patch_base_context():
+    """
+    Monkey patch Django's BaseContext.__copy__ for Python 3.14 compatibility.
+    In Python 3.14, super() objects no longer support __dict__ attribute setting,
+    which breaks Django 3.2's BaseContext.__copy__ that does copy(super()).
+    This can be removed when we upgrade to Django 4.2+.
+    """
+    if sys.version_info < (3, 14):
+        return
+    try:
+        from django.template.context import BaseContext
+    except ImportError:
+        return
+
+    def __copy__(self):
+        duplicate = object.__new__(self.__class__)
+        duplicate.__dict__.update(self.__dict__)
+        duplicate.dicts = self.dicts[:]
+        return duplicate
+
+    BaseContext.__copy__ = __copy__
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -166,6 +217,8 @@ def set_env():
 
     # Depends on Django, so we need to wait until our dist has been registered.
     forward_port_cgi_module()
+    monkey_patch_pkgutil()
+    monkey_patch_base_context()
 
     # Set default env
     for key, value in ENVIRONMENT_VARIABLES.items():
