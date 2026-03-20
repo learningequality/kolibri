@@ -1,13 +1,13 @@
 <template>
 
   <ImmersivePage
-    :route="homePageLink"
     :appBarTitle="(course && course.title) || ''"
     :loading="loading"
     icon="back"
     :appBarBgColor="$themeTokens.surface"
     :appBarHoverBgColor="$themePalette.grey.v_100"
     :appearanceOverrides="{ backgroundColor: $themeTokens.surface }"
+    @navIconClick="goBack"
   >
     <KCircularLoader v-if="loading" />
     <div v-else>
@@ -269,6 +269,7 @@
   import SlotTruncator from 'kolibri-common/components/SlotTruncator';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import useLearnerResources from '../composables/useLearnerResources';
   import { PageNames } from '../constants';
   import ChannelThumbnail from './ChannelThumbnail.vue';
@@ -297,6 +298,7 @@
         isCourseLessonAvailable,
         isCurrentCourseLesson,
       } = useLearnerResources();
+      const goBack = useGoBack({ fallbackRoute: { name: PageNames.HOME } });
 
       const loading = ref(true);
       const course = ref(null);
@@ -442,12 +444,6 @@
         );
       };
 
-      const homePageLink = computed(() => {
-        return {
-          name: PageNames.HOME,
-        };
-      });
-
       const courseSubtitle = computed(() => {
         if (loading.value) {
           return '';
@@ -490,7 +486,7 @@
         courseStarted,
         courseSubtitle,
         windowIsLarge,
-        homePageLink,
+        goBack,
         lockedColor,
         lockedUnitItemStyle,
         activeUnitItemStyle,
