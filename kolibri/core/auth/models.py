@@ -221,6 +221,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_delete_account = models.BooleanField(default=True)
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
+    enable_mark_attendance = models.BooleanField(default=False)
     extra_fields = JSONField(
         null=True,
         blank=True,
@@ -361,7 +362,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
         super().full_clean(*args, **kwargs)
 
-    def pre_save(self):
+    def pre_save(self, **kwargs):
         # before saving, ensure we have a dataset, and convert any validation errors into integrity
         # errors, since by this point the `clean_fields` method should already have prevented
         # this situation from arising
@@ -371,7 +372,7 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
             raise IntegrityError(str(e))
 
     def save(self, *args, **kwargs):
-        self.pre_save()
+        self.pre_save(**kwargs)
         super().save(*args, **kwargs)
 
     def ensure_dataset(self, *args, **kwargs):

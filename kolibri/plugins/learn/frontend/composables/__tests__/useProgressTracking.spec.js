@@ -40,16 +40,22 @@ describe('useProgressTracking composable', () => {
       try {
         await initContentSession({});
       } catch (error) {
-        expect(error).toEqual(new TypeError('Must define either node or quizId'));
+        expect(error).toEqual(
+          new TypeError('Must provide parameters to identify session strategy'),
+        );
       }
+      expect.assertions(1);
     });
     it('should throw an error if only lessonId provided', async () => {
       const { initContentSession } = setUp();
       try {
         await initContentSession({ lessonId: 'test_lesson' });
       } catch (error) {
-        expect(error).toEqual(new TypeError('Must define either node or quizId'));
+        expect(error).toEqual(
+          new TypeError('Must provide parameters to identify session strategy'),
+        );
       }
+      expect.assertions(1);
     });
     it('should throw an error if quizId and node provided', async () => {
       const { initContentSession } = setUp();
@@ -60,6 +66,7 @@ describe('useProgressTracking composable', () => {
           new TypeError('quizId must be the only defined parameter if defined'),
         );
       }
+      expect.assertions(1);
     });
     it('should throw an error if quizId and lessonId provided', async () => {
       const { initContentSession } = setUp();
@@ -73,6 +80,7 @@ describe('useProgressTracking composable', () => {
           new TypeError('quizId must be the only defined parameter if defined'),
         );
       }
+      expect.assertions(1);
     });
     it('should throw an error if lessonId and courseSessionId provided', async () => {
       const { initContentSession } = setUp();
@@ -87,6 +95,7 @@ describe('useProgressTracking composable', () => {
           new TypeError('only course_session_id or lessonId can be defined, not both'),
         );
       }
+      expect.assertions(1);
     });
     it.each(['id', 'content_id', 'channel_id', 'kind'])(
       'should throw an error if %s is missing from node',
@@ -99,6 +108,7 @@ describe('useProgressTracking composable', () => {
         } catch (error) {
           expect(error).toEqual(new TypeError(`node must have ${property} property`));
         }
+        expect.assertions(1);
       },
     );
     it('should throw an error if assessmentmetadata is missing from an exercise node', async () => {
@@ -113,6 +123,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError(`node must have assessmentmetadata property`));
       }
+      expect.assertions(1);
     });
     it('should throw an error if mastery_model is missing from assessmentmetadata on an exercise node', async () => {
       const { initContentSession } = setUp();
@@ -129,6 +140,7 @@ describe('useProgressTracking composable', () => {
           new TypeError(`node must have assessmentmetadata property with mastery_model property`),
         );
       }
+      expect.assertions(1);
     });
     it('should throw an error if mastery_model is not an object on assessmentmetadata on an exercise node', async () => {
       const { initContentSession } = setUp();
@@ -149,6 +161,7 @@ describe('useProgressTracking composable', () => {
           ),
         );
       }
+      expect.assertions(1);
     });
     it('should throw an error if there is no type property on mastery_model on assessmentmetadata on an exercise node', async () => {
       const { initContentSession } = setUp();
@@ -169,6 +182,7 @@ describe('useProgressTracking composable', () => {
           ),
         );
       }
+      expect.assertions(1);
     });
     it('should not set a lessonId if the lessonId is a falsey value', async () => {
       const { initContentSession } = setUp();
@@ -439,6 +453,219 @@ describe('useProgressTracking composable', () => {
         course_session_id: course_session_id,
       });
     });
+
+    // COURSE_TEST strategy tests
+    it('should throw an error if courseTest and node provided', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          courseTest: { unitId: 'test_unit', testType: 'pre' },
+          node,
+          courseSessionId: 'test_course_session',
+        });
+      } catch (error) {
+        expect(error).toEqual(new TypeError('courseTest cannot be defined for node sessions'));
+      }
+      expect.assertions(1);
+    });
+    it('should throw an error if courseTest and quizId provided', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          courseTest: { unitId: 'test_unit', testType: 'pre' },
+          quizId: 'test_quiz',
+          courseSessionId: 'test_course_session',
+        });
+      } catch (error) {
+        // quizId is checked first in strategy selection, so it throws the QUIZ strategy error
+        expect(error).toEqual(
+          new TypeError('quizId must be the only defined parameter if defined'),
+        );
+      }
+      expect.assertions(1);
+    });
+    it('should throw an error if courseTest provided without courseSessionId', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          courseTest: { unitId: 'test_unit', testType: 'pre' },
+        });
+      } catch (error) {
+        expect(error).toEqual(
+          new TypeError('courseSessionId must be defined for course test sessions'),
+        );
+      }
+      expect.assertions(1);
+    });
+    it('should throw an error if courseTest is missing unitId', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          courseTest: { testType: 'pre' },
+          courseSessionId: 'test_course_session',
+        });
+      } catch (error) {
+        expect(error).toEqual(new TypeError('courseTest must have unitId and testType properties'));
+      }
+      expect.assertions(1);
+    });
+    it('should throw an error if courseTest is missing testType', async () => {
+      const { initContentSession } = setUp();
+      try {
+        await initContentSession({
+          courseTest: { unitId: 'test_unit' },
+          courseSessionId: 'test_course_session',
+        });
+      } catch (error) {
+        expect(error).toEqual(new TypeError('courseTest must have unitId and testType properties'));
+      }
+      expect.assertions(1);
+    });
+    it('should set course_session_id, unit_id, and test_type when courseTest is provided', async () => {
+      const { initContentSession, context, mastery_criterion } = setUp();
+      const session_id = 'test_session_id';
+      const course_session_id = 'test_course_session_id';
+      const unit_id = 'test_unit_id';
+      const test_type = 'pre';
+      client.__setPayload({
+        session_id,
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type },
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      expect(client.mock.calls[0][0].data).toEqual({
+        course_session_id: course_session_id,
+        unit_id: unit_id,
+        test_type: test_type,
+      });
+      expect(get(context).course_session_id).toEqual(course_session_id);
+      expect(get(context).unit_id).toEqual(unit_id);
+      expect(get(mastery_criterion).test_type).toEqual(test_type);
+    });
+    it('should not make a backend request when the session for courseTest is already active', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const course_session_id = 'test_course_session_id';
+      const unit_id = 'test_unit_id';
+      const test_type = 'pre';
+      const progress = 0.5;
+      const time_spent = 15;
+      const extra_fields = { extra: true };
+      client.__setPayload({
+        session_id,
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type },
+        progress,
+        time_spent,
+        extra_fields,
+        complete: false,
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      client.__reset();
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      expect(client).not.toHaveBeenCalled();
+    });
+    it('should not make a backend request when the session for courseTest is already active unless repeat is true', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const course_session_id = 'test_course_session_id';
+      const unit_id = 'test_unit_id';
+      const test_type = 'pre';
+      const progress = 0.5;
+      const time_spent = 15;
+      const extra_fields = { extra: true };
+      client.__setPayload({
+        session_id,
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type },
+        progress,
+        time_spent,
+        extra_fields,
+        complete: false,
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      client.__reset();
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+        repeat: true,
+      });
+      expect(client).toHaveBeenCalled();
+    });
+    it('should make a backend request when courseTest session has different unit_id', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const course_session_id = 'test_course_session_id';
+      const unit_id = 'test_unit_id';
+      const test_type = 'pre';
+      client.__setPayload({
+        session_id,
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type },
+        progress: 0.5,
+        time_spent: 15,
+        extra_fields: {},
+        complete: false,
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      client.__reset();
+      client.__setPayload({
+        session_id: 'new_session_id',
+        context: { course_session_id, unit_id: 'different_unit' },
+        mastery_criterion: { test_type },
+      });
+      await initContentSession({
+        courseTest: { unitId: 'different_unit', testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      expect(client).toHaveBeenCalled();
+    });
+    it('should make a backend request when courseTest session has different test_type', async () => {
+      const { initContentSession } = setUp();
+      const session_id = 'test_session_id';
+      const course_session_id = 'test_course_session_id';
+      const unit_id = 'test_unit_id';
+      const test_type = 'pre';
+      client.__setPayload({
+        session_id,
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type },
+        progress: 0.5,
+        time_spent: 15,
+        extra_fields: {},
+        complete: false,
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: test_type },
+        courseSessionId: course_session_id,
+      });
+      client.__reset();
+      client.__setPayload({
+        session_id: 'new_session_id',
+        context: { course_session_id, unit_id },
+        mastery_criterion: { test_type: 'post' },
+      });
+      await initContentSession({
+        courseTest: { unitId: unit_id, testType: 'post' },
+        courseSessionId: course_session_id,
+      });
+      expect(client).toHaveBeenCalled();
+    });
   });
   describe('updateContentSession', () => {
     async function initStore(data = {}) {
@@ -474,6 +701,7 @@ describe('useProgressTracking composable', () => {
           new ReferenceError('Cannot update a content session before one has been initialized'),
         );
       }
+      expect.assertions(1);
     });
     it('should throw an error if called with both progress and progressDelta', async () => {
       const { updateContentSession } = await initStore();
@@ -482,6 +710,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError('Must only specify either progressDelta or progress'));
       }
+      expect.assertions(1);
     });
     it('should throw an error if called with non-numeric progress', async () => {
       const { updateContentSession } = await initStore();
@@ -490,6 +719,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError('progress must be a number'));
       }
+      expect.assertions(1);
     });
     it('should throw an error if called with non-numeric progressDelta', async () => {
       const { updateContentSession } = await initStore();
@@ -498,6 +728,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError('progressDelta must be a number'));
       }
+      expect.assertions(1);
     });
     it('should throw an error if called with non-plain object contentState', async () => {
       const { updateContentSession } = await initStore();
@@ -506,6 +737,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError('contentState must be an object'));
       }
+      expect.assertions(1);
     });
     it('should throw an error if called with non-plain object interaction', async () => {
       const { updateContentSession } = await initStore();
@@ -514,6 +746,7 @@ describe('useProgressTracking composable', () => {
       } catch (error) {
         expect(error).toEqual(new TypeError('interaction must be an object'));
       }
+      expect.assertions(1);
     });
     it('should not make a request to the backend if no arguments have been passed', async () => {
       const { updateContentSession } = await initStore();

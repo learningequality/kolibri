@@ -9,8 +9,8 @@
       {{ attendanceLabel$() }}
     </template>
 
-    <div>
-      <KButton
+    <div v-if="learners.length">
+      <KRouterLink
         :text="markAttendanceAction$()"
         :primary="true"
         appearance="raised-button"
@@ -20,9 +20,14 @@
 
     <KCircularLoader v-if="loading" />
 
-    <p v-else-if="sessions.length === 0">
-      {{ noSessionsMessage$() }}
-    </p>
+    <div v-else-if="sessions.length === 0">
+      <p v-if="learners.length">
+        {{ noSessionsMessage$() }}
+      </p>
+      <p v-else>
+        {{ noSessionsEnrollMessage$() }}
+      </p>
+    </div>
 
     <template v-else>
       <BlockItem
@@ -73,12 +78,11 @@
 <script>
 
   import { computed, onMounted, ref } from 'vue';
-  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
-  import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import store from 'kolibri/store';
   import { useAttendance } from '../../../composables/useAttendance';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import Block from './Block';
@@ -89,11 +93,10 @@
     components: {
       Block,
       BlockItem,
-      KButton,
-      KCircularLoader,
     },
     mixins: [commonCoach],
     setup() {
+      const { classId } = useCoreCoach();
       const { recentSessions, fetchRecentSessions, formatAttendanceDateTime } = useAttendance();
       const {
         attendanceLabel$,
@@ -102,6 +105,7 @@
         noSessionsMessage$,
         presentCount$,
         absentCount$,
+        noSessionsEnrollMessage$,
       } = attendanceStrings;
 
       const loading = ref(true);
@@ -110,9 +114,10 @@
       const presentColor = palette.green.v_500;
       const absentColor = palette.red.v_500;
 
+      const learners = computed(() => store.getters['classSummary/learners']);
+
       onMounted(() => {
-        const classId = store.state.classSummary.id;
-        fetchRecentSessions(classId)
+        fetchRecentSessions(classId.value)
           .catch(error => {
             store.dispatch('handleApiError', { error });
           })
@@ -155,6 +160,8 @@
         presentCount$,
         absentCount$,
         PageNames,
+        learners,
+        noSessionsEnrollMessage$,
       };
     },
   };

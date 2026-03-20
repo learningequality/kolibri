@@ -265,8 +265,8 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
         LearnerProgressNotification.objects.filter(quiz_id=self.id).delete()
         super().delete(using, keep_parents)
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # maintain stricter enforcement on when creator is allowed to be null
         if self._state.adding and self.creator is None:
@@ -347,8 +347,8 @@ class ExamAssignment(AbstractFacilityDataModel):
         on_delete=models.CASCADE,
     )
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # this shouldn't happen
         if (

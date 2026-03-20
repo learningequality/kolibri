@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import AttendanceRecordResource from 'kolibri-common/apiResources/AttendanceRecordResource';
 import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 
@@ -6,6 +7,8 @@ const attendanceLoading = ref(false);
 const sessions = ref([]);
 const currentSession = ref(null);
 const recentSessions = ref([]);
+const totalPages = ref(1);
+const sessionCount = ref(0);
 
 export function useAttendance() {
   function fetchSessions(classId, params = {}) {
@@ -15,8 +18,10 @@ export function useAttendance() {
       force: true,
     })
       .then(data => {
-        sessions.value = data;
-        return data;
+        sessions.value = data.results;
+        totalPages.value = data.total_pages || 1;
+        sessionCount.value = data.count || 0;
+        return sessions.value;
       })
       .finally(() => {
         attendanceLoading.value = false;
@@ -56,11 +61,32 @@ export function useAttendance() {
     });
   }
 
+  function fetchRecords(sessionId) {
+    return AttendanceRecordResource.fetchCollection({
+      getParams: { attendance_session: sessionId },
+      force: true,
+    });
+  }
+
+  function bulkUpdateRecords(sessionId, records) {
+    return AttendanceRecordResource.bulkUpdate({
+      attendance_session: sessionId,
+      records,
+    });
+  }
+
   function formatAttendanceDateTime(date) {
     const dateObj = date instanceof Date ? date : new Date(date);
     return {
-      date: attendanceStrings.$formatDate(dateObj),
-      time: attendanceStrings.$formatTime(dateObj),
+      date: attendanceStrings.$formatDate(dateObj, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      }),
+      time: attendanceStrings.$formatTime(dateObj, {
+        hour: 'numeric',
+        minute: 'numeric',
+      }),
     };
   }
 
@@ -69,11 +95,15 @@ export function useAttendance() {
     sessions,
     currentSession,
     recentSessions,
+    totalPages,
+    sessionCount,
     fetchSessions,
     fetchSession,
     fetchRecentSessions,
     createSession,
     updateSession,
+    fetchRecords,
+    bulkUpdateRecords,
     formatAttendanceDateTime,
   };
 }

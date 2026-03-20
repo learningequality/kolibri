@@ -11,6 +11,8 @@
         :style="{
           backgroundColor: $themePalette.grey.v_100,
         }"
+        :disabled="!activeTest || activeTest.testType !== TestType.PRE"
+        :selected="activeTest && activeTest.testType === TestType.PRE"
       >
         <template #leading-actions>
           <KIcon
@@ -154,9 +156,12 @@
 
       <TreeItem
         :title="postTestLabel$()"
+        :description="postTestItemDescription"
+        :disabled="!activeTest || activeTest.testType !== TestType.POST"
         :style="{
           backgroundColor: $themePalette.grey.v_100,
         }"
+        :selected="activeTest && activeTest.testType === TestType.POST"
       >
         <template #leading-actions>
           <KIcon
@@ -168,7 +173,8 @@
         <template #trailing-actions>
           <KIcon
             class="item-icon"
-            icon="notStarted"
+            :icon="isPostTestCompleted ? 'mastered' : 'notStarted'"
+            :color="isPostTestCompleted ? $themePalette.grey.v_400 : undefined"
           />
         </template>
       </TreeItem>
@@ -188,9 +194,11 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
   import TimeDuration from 'kolibri-common/components/TimeDuration.vue';
+  import get from 'lodash/get';
   import { injectCourseContentProgress } from '../useCourseContentProgressTracking';
   import useContentNodeProgress from '../../../composables/useContentNodeProgress';
   import useBookmarks from '../../../composables/useBookmarks';
+  import { TestType } from '../../../constants';
   import TreeItem from './TreeItem.vue';
 
   export default {
@@ -220,6 +228,25 @@
       const { preTestLabel$, postTestLabel$, currentLabel$, markAsCompleteAction$ } =
         coursesStrings;
       const { completedLabel$, ratioLabel$, saveToBookmarks$, removeFromBookmarks$ } = coreStrings;
+
+      const isPostTestCompleted = computed(() => {
+        if (props.isUnitComplete) {
+          return true;
+        }
+        return props.activeTest?.testType === TestType.POST;
+      });
+
+      const postTestItemDescription = computed(() => {
+        if (isPostTestCompleted.value) {
+          return completedLabel$();
+        }
+        const numQuestions = get(
+          props.unitTree,
+          'options.completion_criteria.threshold.pre_post_test.version_a_item_ids.length',
+          0,
+        );
+        return ratioLabel$({ number: 0, total: numQuestions });
+      });
 
       const getLessonRatioLabel = lesson => {
         const lessonResources = lesson.children?.results || [];
@@ -257,10 +284,13 @@
       };
 
       return {
+        TestType,
         lessons,
         contentNodeProgressMap,
         bookmarksMap,
+        isPostTestCompleted,
         loadingBookmarksMap,
+        postTestItemDescription,
         currentResourceProgressSessionReady,
         getResources,
         getLessonRatioLabel,
@@ -288,6 +318,18 @@
       },
       currentLessonId: {
         type: String,
+        default: null,
+      },
+      /**
+       * Whether the current unit is already completed. i.e. we are seeing a
+       * unit previous to the current unit in the unit tree.
+       */
+      isUnitComplete: {
+        type: Boolean,
+        default: false,
+      },
+      activeTest: {
+        type: Object,
         default: null,
       },
       /**

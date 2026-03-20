@@ -80,7 +80,7 @@ class TestScheduler:
         now = "test"
         with pytest.raises(ValueError) as error:
             job_storage.schedule(now, job)
-            assert "must be a datetime object" in str(error.value)
+        assert "must be a datetime object" in str(error.value)
 
     def test_schedule_a_function_gives_value_error_repeat_zero_interval(
         self, job_storage, job
@@ -88,15 +88,15 @@ class TestScheduler:
         now = local_now()
         with pytest.raises(ValueError) as error:
             job_storage.schedule(now, job, interval=0, repeat=None)
-            assert "specify an interval" in str(error.value)
+        assert "specify an interval" in str(error.value)
 
     def test_schedule_a_function_gives_value_error_not_timezone_aware_datetime(
         self, job_storage, job
     ):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now()
         with pytest.raises(ValueError) as error:
             job_storage.schedule(now, job)
-            assert "timezone aware datetime object" in str(error.value)
+        assert "timezone aware datetime object" in str(error.value)
 
     def test_scheduled_repeating_function_updates_old_job(self, job_storage, job):
         now = local_now()

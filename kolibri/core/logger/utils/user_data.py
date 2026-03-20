@@ -10,6 +10,8 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
+from kolibri.core.attendance.models import AttendanceRecord
+from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
@@ -590,6 +592,53 @@ def create_exams_for_classrooms(**options):
                     masterylog=masterylog,
                     sessionlog=sessionlog,
                 )
+
+
+def create_attendance_for_classroom(**options):
+    classroom = options["classroom"]
+    facility = options["facility"]
+    num_sessions = options["sessions"]
+    now = options["now"]
+    verbosity = options.get("verbosity", 1)
+
+    coaches = facility.get_coaches()
+    if coaches:
+        coach = random.choice(coaches)
+    else:
+        members = facility.get_members()
+        if not members:
+            return
+        coach = random.choice(members)
+        facility.add_coach(coach)
+
+    learners = list(classroom.get_members())
+    if not learners:
+        return
+
+    for i in range(num_sessions):
+        session_time = now - datetime.timedelta(days=i, hours=random.randint(0, 6))
+        session = AttendanceSession(
+            collection=classroom,
+            created_by=coach,
+            session_start_datetime=session_time,
+            dataset=classroom.dataset,
+        )
+        session.save()
+
+        for learner in learners:
+            AttendanceRecord(
+                attendance_session=session,
+                user=learner,
+                present=random.random() > 0.2,
+                dataset=classroom.dataset,
+            ).save()
+
+    logger_info(
+        "    Created {} attendance sessions for {}".format(
+            num_sessions, classroom.name
+        ),
+        verbosity=verbosity,
+    )
 
 
 # TODO(cpauya): WIP

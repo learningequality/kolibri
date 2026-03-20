@@ -1,6 +1,8 @@
+import json
 import logging
 import uuid
 from itertools import chain
+from urllib.parse import urlencode
 
 from django.db.models import BigIntegerField
 from django.db.models import BooleanField
@@ -15,6 +17,7 @@ from django.db.models import Value
 from django.db.models import When
 from django.db.models.expressions import CombinedExpression
 from django.db.models.functions import Coalesce
+from le_utils.constants import modalities
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
@@ -508,6 +511,123 @@ def process_content_requests():
         logger.warning(str(e))
 
 
+def _merge_import_metadata(metadata_list):
+    """
+    import_metadata is a dictionary with keys for each model being imported,
+    and values that are lists of metadata for each instance of that model. This
+    function concatenates the lists for each model across multiple import_metadata dictionaries,
+    and return a single import_metadata with all lists concatenated.
+
+    :type metadata_list: list[dict]
+    :rtype: dict
+    """
+    merged_metadata = {}
+
+    for metadata in metadata_list:
+        if type(metadata) is not dict:
+            continue
+
+        for model_name, model_data in metadata.items():
+            if type(model_data) is list:
+                if model_name not in merged_metadata:
+                    merged_metadata[model_name] = []
+                merged_metadata[model_name].extend(model_data)
+
+            elif isinstance(model_data, (str, int, bool)):
+                # for simple fields, we can just take the first one we see, since they should all be the same
+                if model_name not in merged_metadata:
+                    merged_metadata[model_name] = model_data
+
+    return merged_metadata
+
+
+MAX_NODES_PER_REQUEST = 10
+COURSES_DESCENDANTS_DEPTH = 3
+
+
+def _get_descendants_import_metadata(client, contentnode_id, depth):
+    """
+    :type client: NetworkClient
+    :type contentnode_id: str
+    :type depth: int
+    :rtype: list[dict]
+    """
+    has_more = True
+    more = None
+    metadata_list = []
+
+    while has_more:
+        url_path = reverse_path(
+            "kolibri:core:importmetadata-detail",
+            kwargs={"pk": contentnode_id},
+        )
+        if more:
+            url_path += "?" + urlencode(more)
+        else:
+            url_path += "?" + urlencode(
+                {
+                    "depth": depth,
+                    "max_results": MAX_NODES_PER_REQUEST,
+                }
+            )
+
+        try:
+            response = client.get(url_path)
+            json_response = response.json()
+            import_metadata = json_response.get("results", {})
+            metadata_list.append(import_metadata)
+
+            more = json_response.get("more", None)
+            has_more = more is not None
+
+        except NetworkLocationResponseFailure as e:
+            # 400 level errors, like 404, are ignored
+            if e.response is not None and 400 <= e.response.status_code < 500:
+                logger.debug(
+                    "Metadata request failure: GET {} {}".format(
+                        url_path, e.response.status_code
+                    )
+                )
+                break
+            raise e
+
+    return metadata_list
+
+
+def _import_descendants_depth(import_metadata, contentnode_id):
+    """
+    Determines whether we should import the descendants of the content node being imported,
+    based on the import metadata.
+
+    :param import_metadata: The metadata result from the import metadata request for the
+                            content node
+    :type import_metadata: dict
+    :param contentnode_id: The ID of the content node being imported
+    :type contentnode_id: str
+    :return: A number representing the depth of the content node being imported, if 0
+            it means we should not import descendants
+    """
+    contentnodes_metadata = import_metadata.get(ContentNode._meta.db_table, [])
+
+    node_being_imported = next(
+        (
+            node_metadata
+            for node_metadata in contentnodes_metadata
+            if node_metadata["id"] == contentnode_id
+        ),
+        None,
+    )
+
+    try:
+        options_str = node_being_imported.get("options", "{}")
+        options = json.loads(options_str)
+        if options.get("modality") == modalities.COURSE:
+            return COURSES_DESCENDANTS_DEPTH
+        return 0
+    except (json.JSONDecodeError, AttributeError):
+        return 0
+
+
 def _get_import_metadata(client, contentnode_id):
     """
     :type client: NetworkClient
@@ -519,7 +639,21 @@ def _get_import_metadata(client, contentnode_id):
     )
     try:
         response = client.get(url_path)
-        return response.json()
+        import_metadata = response.json()
+
+        # Should we import contentnode's descendants? How far down the tree should we go?
+        descendants_depth_to_import = _import_descendants_depth(
+            import_metadata, contentnode_id
+        )
+        if descendants_depth_to_import > 0:
+            descendants_import_metadata = _get_descendants_import_metadata(
+                client, contentnode_id, descendants_depth_to_import
+            )
+            return _merge_import_metadata(
+                [import_metadata, *descendants_import_metadata]
+            )
+        else:
+            return import_metadata
     except NetworkLocationResponseFailure as e:
         # 400 level errors, like 404, are ignored
         if e.response is not None and 400 <= e.response.status_code < 500:

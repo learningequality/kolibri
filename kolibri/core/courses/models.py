@@ -74,10 +74,16 @@ class CourseSession(AbstractFacilityDataModel):
             self.title, self.collection.name
         )
 
-    def pre_save(self):
-        super().pre_save()
-        # if the created_by user is in a different dataset than the dataset we've determined, then
-        # we'll unset it to prevent deserialization errors when syncing
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
+
+        is_deserialization = kwargs.get("update_dirty_bit_to") is False
+
+        if not is_deserialization and self.created_by is None:
+            raise IntegrityError(
+                "CourseSession must be saved with a non None created_by field"
+            )
+
         if self.created_by and self.created_by.dataset_id != self.dataset_id:
             if not self.created_by.is_superuser:
                 raise IntegrityError(
@@ -163,8 +169,8 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
     # Morango fields
     morango_model_name = "coursesessionassignment"
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # this shouldn't happen
         if (
@@ -176,11 +182,11 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
                 "CourseSession assignment foreign models must be in same dataset"
             )
 
-        # maintain stricter enforcement on when assigned_by is allowed to be null
-        # assignments aren't usually updated, but ensure only during creation
-        if self._state.adding and self.assigned_by is None:
+        is_deserialization = kwargs.get("update_dirty_bit_to") is False
+
+        if not is_deserialization and self.assigned_by is None:
             raise IntegrityError(
-                "CourseSession assignment must be saved with an assigner"
+                "CourseSession assignment must be saved with a non None assigned_by field"
             )
 
         # validate that datasets match so this would be syncable
@@ -340,8 +346,8 @@ class UnitTestAssignment(AbstractFacilityDataModel):
         )
         return str(filter_factory.build(classroom_collection.id))
 
-    def pre_save(self):
-        super().pre_save()
+    def pre_save(self, **kwargs):
+        super().pre_save(**kwargs)
 
         # Ensure course_session and collection are in the same dataset
         if (
@@ -363,7 +369,13 @@ class UnitTestAssignment(AbstractFacilityDataModel):
                     "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
                 )
 
-        # If activated_by is set, validate it's in the same dataset
+        is_deserialization = kwargs.get("update_dirty_bit_to") is False
+
+        if not is_deserialization and self.activated_by is None:
+            raise IntegrityError(
+                "UnitTestAssignment must be saved with an non None activated_by field"
+            )
+
         if self.activated_by and self.activated_by.dataset_id != self.dataset_id:
             # Only allow null for superusers
             if not self.activated_by.is_superuser:
