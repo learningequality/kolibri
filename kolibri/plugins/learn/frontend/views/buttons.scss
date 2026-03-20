@@ -1,0 +1,30 @@
+/*
+ * Styles shared across Course feature for buttons w/ properly aligned icons and text.
+ * These styles may be useful elsewhere and may be worth considering in any KButton refactor
+ */
+@mixin btn-flex {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-weight: 600;
+  line-height: 135%;
+
+  > :empty {
+    // Added because KButton at the moment will render empty spans
+    // that cause the flex gaps to appear between them
+    display: none;
+  }
+
+  .btn-icon {
+    top: -2px;
+    width: 16px;
+    height: 16px;
+
+    &.hotfixed {
+      // Remove when https://github.com/learningequality/kolibri-design-system/pull/1219 is in KDS release
+      top: 0;
+    }
+  }
+}

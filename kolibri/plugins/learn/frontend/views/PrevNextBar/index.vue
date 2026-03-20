@@ -6,7 +6,6 @@
       class="btn-flex"
       appearance="flat-button"
       data-testid="prev-button"
-      :style="{ gap: showButtonLabels ? '8px' : '0px' }"
       :disabled="!canGoPrev"
       :aria-label="previousLabel$()"
       :text="showButtonLabels ? previousLabel$() : ''"
@@ -43,7 +42,6 @@
         primary
         class="btn-flex"
         data-testid="next-button"
-        :style="{ gap: showButtonLabels ? '8px' : '0px' }"
         :disabled="!canGoNext"
         :aria-label="nextLabel$()"
         :text="showButtonLabels ? nextLabel$() : ''"
@@ -149,6 +147,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../buttons';
+
   .prev-next-bar {
     display: flex;
     align-items: center;
@@ -173,23 +173,7 @@
   }
 
   .btn-flex {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    font-weight: 600;
-    line-height: 135%;
-
-    .btn-icon {
-      top: -2px;
-      width: 16px;
-      height: 16px;
-
-      &.hotfixed {
-        // Remove when https://github.com/learningequality/kolibri-design-system/pull/1219 is in KDS release
-        top: 0;
-      }
-    }
+    @include btn-flex;
   }
 
 </style>
