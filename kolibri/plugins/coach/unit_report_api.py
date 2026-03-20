@@ -9,7 +9,6 @@ from rest_framework.response import Response
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.models import Role
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.logger.models import AttemptLog
@@ -206,8 +205,6 @@ class UnitReportPermissions(permissions.BasePermission):
         allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
         try:
             course_session = CourseSession.objects.get(pk=course_session_id)
-            # Cache on the view so retrieve() can reuse it without a second DB hit.
-            view._course_session = course_session
             return request.user.has_role_for(allowed_roles, course_session.collection)
         except (CourseSession.DoesNotExist, ValueError):
             return False
@@ -226,21 +223,13 @@ class UnitReportViewSet(viewsets.ViewSet):
     action makes this a read-only endpoint in practice.
     """
 
-    # UnitReportPermissions rejects unauthenticated requests as its first guard,
-    # so IsAuthenticated is not listed separately.
     permission_classes = (UnitReportPermissions,)
 
     def retrieve(self, request, **kwargs):
         course_session_id = self.kwargs["course_session_id"]
         unit_contentnode_id = self.kwargs["unit_contentnode_id"]
 
-        # _course_session is set by UnitReportPermissions.has_permission()
-        # before this method is called.
-        assert hasattr(self, "_course_session"), (
-            "_course_session must be set by UnitReportPermissions.has_permission() "
-            "before retrieve() is called"
-        )
-        course_session = self._course_session
+        course_session = get_object_or_404(CourseSession, pk=course_session_id)
         unit = get_object_or_404(
             ContentNode, pk=unit_contentnode_id, modality=modalities.UNIT
         )
@@ -283,18 +272,10 @@ class UnitReportViewSet(viewsets.ViewSet):
         assignment_collection_ids = list(
             course_session.assignments.values_list("collection_id", flat=True)
         )
-        # Exclude users who hold a coach or admin role in the assigned
-        # collections so that a dual-role user (enrolled as a member AND
-        # holding a coach role) does not appear in the learner list.
-        coach_admin_ids = Role.objects.filter(
-            collection_id__in=assignment_collection_ids,
-            kind__in=[role_kinds.COACH, role_kinds.ADMIN, role_kinds.ASSIGNABLE_COACH],
-        ).values_list("user_id", flat=True)
         learners = list(
             FacilityUser.objects.filter(
                 memberships__collection_id__in=assignment_collection_ids
             )
-            .exclude(id__in=coach_admin_ids)
             .distinct()
             .values("id", "username", name=F("full_name"))
         )

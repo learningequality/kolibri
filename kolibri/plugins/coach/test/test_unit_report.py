@@ -833,18 +833,6 @@ class UnitReportResponseShapeTests(UnitReportAPIBase):
         response = self.client.get(self._get_url())
         self.assertEqual(response.data["pre_test"]["status"], TEST_STATUS_CLOSED)
 
-    def test_dual_role_user_excluded_from_learners(self):
-        """A user who is both a classroom member and a coach is not in the learners list."""
-        dual_role = helpers.create_learner(
-            "dual_role_excl", DUMMY_PASSWORD, self.facility, classroom=self.classroom
-        )
-        self.classroom.add_coach(dual_role)
-
-        response = self.client.get(self._get_url())
-        self.assertEqual(response.status_code, 200)
-        learner_ids = {lr["id"] for lr in response.data["learners"]}
-        self.assertNotIn(str(dual_role.id), learner_ids)
-
     def test_unit_with_null_options_returns_valid_response(self):
         """ContentNode.options = None is handled gracefully by the 'or {}' guard."""
         bare_unit = ContentNode.objects.create(
