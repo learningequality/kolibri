@@ -4,7 +4,7 @@
     v-if="interactive"
     v-model="variable"
     :class="['qti-text-entry-interaction', $computedClass({ ':focus': coreOutline })]"
-    :aria-label="`${$tr('textEntryLabel')} ${responseIdentifier}`"
+    :aria-label="textEntryLabel$({ identifier: responseIdentifier })"
     :placeholder="placeholder"
     :style="{
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
@@ -26,7 +26,9 @@
 
 <script>
 
-  import { computed, getCurrentInstance, inject } from 'vue';
+  import { computed, inject } from 'vue';
+  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import useTypedProps from '../../composables/useTypedProps';
   import {
     NumberProp,
@@ -37,12 +39,22 @@
   } from '../../utils/props';
   import { BASE_TYPE } from '../../constants';
 
+  const $themeTokens = themeTokens();
+
+  const strings = createTranslator('TextEntryInteractionStrings', {
+    textEntryLabel: {
+      message: 'Text entry {identifier}',
+      context: 'Accessible label for a text input field in an assessment question',
+    },
+  });
+
+  const { textEntryLabel$ } = strings;
+
   export default {
     name: 'TextEntryInteraction',
     tag: 'qti-text-entry-interaction',
 
     setup(props) {
-      const { proxy } = getCurrentInstance();
       const responses = inject('responses');
       const typedProps = useTypedProps(props);
       const interactive = inject('interactive');
@@ -69,11 +81,13 @@
       });
 
       return {
+        $themeTokens,
+        textEntryLabel$,
         variable,
         placeholder: typedProps.placeholderText,
         interactive,
         inputType,
-        coreOutline: proxy.$coreOutline,
+        coreOutline: themeOutlineStyle(),
       };
     },
     props: {
@@ -86,12 +100,6 @@
       placeholderText: StringProp(false),
       format: FormatProp(false),
       /* eslint-enable */
-    },
-    $trs: {
-      textEntryLabel: {
-        message: 'Text entry',
-        context: 'Accessible label for a text input field in an assessment question',
-      },
     },
   };
 

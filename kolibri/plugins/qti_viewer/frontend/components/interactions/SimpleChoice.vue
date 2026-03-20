@@ -3,20 +3,23 @@
   <li
     class="qti-simple-choice"
     role="option"
-    :tabindex="isFocused ? 0 : -1"
+    tabindex="0"
     :class="[
       $computedClass({
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
+        ':focus': {
+          outline: `3px solid ${$themeTokens.primary}`,
+          outlineOffset: '2px',
+        },
       }),
     ]"
     :aria-selected="selected"
-    :style="[extraStyles, { '--focus-color': outlineColor }]"
+    :style="[extraStyles]"
     @click="handleClick"
     @keydown.enter="handleClick"
     @keydown.space.prevent="handleClick"
-    @focus="handleFocus"
   >
     <slot></slot>
   </li>
@@ -26,7 +29,7 @@
 
 <script>
 
-  import { computed, getCurrentInstance, inject } from 'vue';
+  import { computed, inject } from 'vue';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
@@ -37,30 +40,14 @@
     tag: 'qti-simple-choice',
 
     setup(props) {
-      const { proxy } = getCurrentInstance();
-      const outlineColor = proxy.$themeTokens.primary;
       const isSelected = inject('isSelected');
       const toggleSelection = inject('toggleSelection');
-      const isFocusTargetFn = inject('isFocusTarget');
-      const setFocusedIndex = inject('setFocusedIndex');
 
       const handleClick = () => {
         toggleSelection(props.identifier);
       };
 
-      // When this option receives focus (e.g. via mouse click or keyboard),
-      // sync the parent's focusedIndex to stay consistent.
-      const handleFocus = () => {
-        if (setFocusedIndex) {
-          setFocusedIndex(props.identifier);
-        }
-      };
-
       const selected = computed(() => isSelected(props.identifier));
-
-      const isFocused = computed(() => {
-        return isFocusTargetFn ? isFocusTargetFn(props.identifier) : true;
-      });
 
       const extraStyles = computed(() => {
         if (!selected.value) {
@@ -74,11 +61,9 @@
       });
 
       return {
-        outlineColor,
+        $themeTokens,
         selected,
-        isFocused,
         handleClick,
-        handleFocus,
         extraStyles,
       };
     },
@@ -102,11 +87,6 @@
     border: 1px solid transparent;
     border-radius: 8px;
     transition: all 0.3s ease;
-
-    &:focus {
-      outline: 3px solid var(--focus-color);
-      outline-offset: 2px;
-    }
 
     &:focus:not(:focus-visible) {
       outline: none;
