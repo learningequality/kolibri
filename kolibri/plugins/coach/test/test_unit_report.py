@@ -299,8 +299,59 @@ class ComputeTestScoresTests(TestCase):
         self.assertIn(str(self.learner_b.id), result)
         self.assertEqual(result[str(self.learner_b.id)], {})
 
-    def test_only_complete_mastery_logs_counted(self):
-        """Incomplete (in-progress) mastery logs are ignored."""
+    def test_incomplete_mastery_log_excluded(self):
+        """Mastery logs with complete=False are ignored even when end_timestamp is set."""
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session_id),
+            str(self.unit_id),
+            "post",
+        )
+        now = timezone.now()
+        channel_id = uuid.uuid4().hex
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+        )
+        session_log = ContentSessionLog.objects.create(
+            user=self.learner_a,
+            content_id=synthetic_cid,
+            channel_id=channel_id,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            kind=content_kinds.EXERCISE,
+        )
+        incomplete_mastery = MasteryLog.objects.create(
+            user=self.learner_a,
+            summarylog=summary_log,
+            mastery_criterion={"type": "quiz"},
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            end_timestamp=now,  # has end_timestamp but complete=False
+            mastery_level=-2,
+            complete=False,  # still in progress — must be excluded
+        )
+        AttemptLog.objects.create(
+            masterylog=incomplete_mastery,
+            sessionlog=session_log,
+            user=self.learner_a,
+            item=ITEM_A1,
+            start_timestamp=now - datetime.timedelta(minutes=5),
+            end_timestamp=now,
+            correct=1,
+        )
+
+        result = compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            ASSESSMENT_OBJECTIVES,
+        )["post"]
+        self.assertNotIn(str(self.learner_a.id), result)
+
+    def test_mastery_log_without_end_timestamp_excluded(self):
+        """Mastery logs with complete=True but no end_timestamp are ignored."""
         synthetic_cid = get_synthetic_content_id(
             str(self.course_session_id),
             str(self.unit_id),
@@ -322,16 +373,17 @@ class ComputeTestScoresTests(TestCase):
             start_timestamp=now - datetime.timedelta(minutes=10),
             kind=content_kinds.EXERCISE,
         )
-        incomplete_mastery = MasteryLog.objects.create(
+        mastery_no_end = MasteryLog.objects.create(
             user=self.learner_a,
             summarylog=summary_log,
             mastery_criterion={"type": "quiz"},
             start_timestamp=now - datetime.timedelta(minutes=10),
+            # end_timestamp intentionally omitted — must be excluded
             mastery_level=-2,
-            complete=False,  # still in progress
+            complete=True,
         )
         AttemptLog.objects.create(
-            masterylog=incomplete_mastery,
+            masterylog=mastery_no_end,
             sessionlog=session_log,
             user=self.learner_a,
             item=ITEM_A1,
@@ -368,58 +420,28 @@ class ComputeTestScoresTests(TestCase):
 
     def test_duplicate_attempt_items_counted_once(self):
         """When the same item appears twice in a mastery log, only the most recent attempt counts."""
-        synthetic_cid = get_synthetic_content_id(
-            str(self.course_session_id),
-            str(self.unit_id),
+        # Set up a complete mastery log with ITEM_A1 answered incorrectly.
+        mastery_log = _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
             "pre",
+            items_correct=[],
+            items_incorrect=[ITEM_A1],
         )
+        # Add a second (later, correct) attempt on the same item to the same mastery log.
+        session_log = ContentSessionLog.objects.filter(
+            user=self.learner_a,
+            content_id=mastery_log.summarylog.content_id,
+        ).first()
         now = timezone.now()
-        channel_id = uuid.uuid4().hex
-        summary_log = ContentSummaryLog.objects.create(
-            user=self.learner_a,
-            content_id=synthetic_cid,
-            channel_id=channel_id,
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            kind=content_kinds.EXERCISE,
-            progress=1.0,
-        )
-        session_log = ContentSessionLog.objects.create(
-            user=self.learner_a,
-            content_id=synthetic_cid,
-            channel_id=channel_id,
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            kind=content_kinds.EXERCISE,
-        )
-        mastery_log = MasteryLog.objects.create(
-            user=self.learner_a,
-            summarylog=summary_log,
-            mastery_criterion={"type": "quiz"},
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            completion_timestamp=now,
-            mastery_level=-1,
-            complete=True,
-        )
-        # First attempt on the item: incorrect (earlier timestamp)
         AttemptLog.objects.create(
             masterylog=mastery_log,
             sessionlog=session_log,
             user=self.learner_a,
             item=ITEM_A1,
-            start_timestamp=now - datetime.timedelta(minutes=20),
-            end_timestamp=now - datetime.timedelta(minutes=19),
-            correct=0,
-        )
-        # Second attempt on the same item: correct (later timestamp — this one should win)
-        AttemptLog.objects.create(
-            masterylog=mastery_log,
-            sessionlog=session_log,
-            user=self.learner_a,
-            item=ITEM_A1,
-            start_timestamp=now - datetime.timedelta(minutes=10),
-            end_timestamp=now - datetime.timedelta(minutes=9),
+            start_timestamp=now,
+            end_timestamp=now + datetime.timedelta(minutes=1),
             correct=1,
         )
 
@@ -436,47 +458,27 @@ class ComputeTestScoresTests(TestCase):
 
     def test_partial_credit_not_counted(self):
         """correct=0.5 (partial credit) is excluded; only correct==1 counts."""
-        synthetic_cid = get_synthetic_content_id(
-            str(self.course_session_id),
-            str(self.unit_id),
+        # Set up a complete mastery log with ITEM_A2 correct (LO1) to confirm the
+        # learner appears in results, then add a partial-credit attempt on ITEM_A1.
+        mastery_log = _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
             "pre",
+            items_correct=[ITEM_A2],
         )
+        session_log = ContentSessionLog.objects.filter(
+            user=self.learner_a,
+            content_id=mastery_log.summarylog.content_id,
+        ).first()
         now = timezone.now()
-        channel_id = uuid.uuid4().hex
-        summary_log = ContentSummaryLog.objects.create(
-            user=self.learner_a,
-            content_id=synthetic_cid,
-            channel_id=channel_id,
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            kind=content_kinds.EXERCISE,
-            progress=1.0,
-        )
-        session_log = ContentSessionLog.objects.create(
-            user=self.learner_a,
-            content_id=synthetic_cid,
-            channel_id=channel_id,
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            kind=content_kinds.EXERCISE,
-        )
-        mastery_log = MasteryLog.objects.create(
-            user=self.learner_a,
-            summarylog=summary_log,
-            mastery_criterion={"type": "quiz"},
-            start_timestamp=now - datetime.timedelta(minutes=30),
-            end_timestamp=now,
-            completion_timestamp=now,
-            mastery_level=-1,
-            complete=True,
-        )
         AttemptLog.objects.create(
             masterylog=mastery_log,
             sessionlog=session_log,
             user=self.learner_a,
             item=ITEM_A1,
-            start_timestamp=now - datetime.timedelta(minutes=20),
-            end_timestamp=now - datetime.timedelta(minutes=19),
+            start_timestamp=now,
+            end_timestamp=now + datetime.timedelta(minutes=1),
             correct=0.5,  # partial credit — must NOT count
         )
         result = compute_all_test_scores(
@@ -486,9 +488,11 @@ class ComputeTestScoresTests(TestCase):
             ASSESSMENT_OBJECTIVES,
         )["pre"]
         lid = str(self.learner_a.id)
-        # Learner appears (complete mastery log) but LO1 score is 0 — partial credit excluded.
+        # Learner appears (complete mastery log); ITEM_A2 counts (1), ITEM_A1 partial does not.
         self.assertIn(lid, result)
-        self.assertEqual(result[lid].get(LO1_ID, 0), 0)
+        self.assertEqual(
+            result[lid].get(LO1_ID, 0), 1
+        )  # ITEM_A2 correct, ITEM_A1 excluded
 
     def test_only_most_recent_complete_mastery_log_used(self):
         """When a learner has multiple complete mastery logs (retakes), only the most recent is used."""

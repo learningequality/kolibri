@@ -236,6 +236,10 @@ class UnitReportViewSet(viewsets.ViewSet):
 
         # _course_session is set by UnitReportPermissions.has_permission()
         # before this method is called.
+        assert hasattr(self, "_course_session"), (
+            "_course_session must be set by UnitReportPermissions.has_permission() "
+            "before retrieve() is called"
+        )
         course_session = self._course_session
         unit = get_object_or_404(
             ContentNode, pk=unit_contentnode_id, modality=modalities.UNIT
