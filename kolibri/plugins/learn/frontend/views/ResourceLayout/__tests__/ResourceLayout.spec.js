@@ -1843,4 +1843,258 @@ describe('ResourceLayout', () => {
       expect(screen.queryByTestId('uncle-side-panel')).not.toBeInTheDocument();
     });
   });
+
+  describe('default slot stability', () => {
+    it('does not remount the default slot when toggling the side panel open', async () => {
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      expect(mountCount).toHaveBeenCalledTimes(1);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+
+      // Open the side panel
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(1);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not remount the default slot when toggling the side panel closed', async () => {
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      // Open the side panel
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      mountCount.mockClear();
+      unmountCount.mockClear();
+
+      // Close the side panel
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(0);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not remount the default slot when toggling the side panel open in modal mode', async () => {
+      setBreakpoint(1); // Modal mode
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      expect(mountCount).toHaveBeenCalledTimes(1);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+
+      // Open the side panel (modal mode)
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(1);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not remount the default slot when toggling the side panel closed in modal mode', async () => {
+      setBreakpoint(1); // Modal mode
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      // Open the side panel (modal mode)
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      mountCount.mockClear();
+      unmountCount.mockClear();
+
+      // Close the side panel (modal mode - click the close button inside the modal)
+      const modal = screen.getByTestId('side-panel-modal');
+      const closeBtn = modal.querySelector('[data-testid="side-panel-toggle"]');
+      await fireEvent.click(closeBtn);
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(0);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not remount the default slot when breakpoint changes from push to modal mode', async () => {
+      setBreakpoint(4); // Start in push mode
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      // Open side panel in push mode
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      mountCount.mockClear();
+      unmountCount.mockClear();
+
+      // Switch to modal mode
+      setBreakpoint(1);
+      await waitFor(() => {
+        expect(screen.getByTestId('side-panel-modal')).toBeInTheDocument();
+      });
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(0);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not remount the default slot when breakpoint changes from modal to push mode', async () => {
+      setBreakpoint(1); // Start in modal mode
+      const mountCount = jest.fn();
+      const unmountCount = jest.fn();
+
+      const TrackedComponent = {
+        name: 'TrackedComponent',
+        setup() {
+          const { onMounted, onUnmounted } = require('vue');
+          onMounted(() => mountCount());
+          onUnmounted(() => unmountCount());
+          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+        },
+      };
+
+      const Wrapper = {
+        name: 'Wrapper',
+        components: { ResourceLayout, TrackedComponent },
+        template: `
+          <ResourceLayout>
+            <template #default><TrackedComponent /></template>
+            <template #sidePanel><div>Side Panel Content</div></template>
+          </ResourceLayout>
+        `,
+      };
+
+      render(Wrapper);
+
+      // Open side panel in modal mode
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
+      mountCount.mockClear();
+      unmountCount.mockClear();
+
+      // Switch to push mode
+      setBreakpoint(4);
+      await waitFor(() => {
+        expect(screen.getByTestId('side-panel')).toBeInTheDocument();
+      });
+
+      // The default slot should NOT have been remounted
+      expect(mountCount).toHaveBeenCalledTimes(0);
+      expect(unmountCount).toHaveBeenCalledTimes(0);
+    });
+  });
 });
