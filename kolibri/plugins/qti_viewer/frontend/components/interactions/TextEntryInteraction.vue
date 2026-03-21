@@ -129,7 +129,7 @@
       const attrsClass = computed(() => getContextAttrs().class);
 
       const inputDeclaration = computed(() => {
-        return responses[typedProps.responseIdentifier.value];
+        return responses.value[typedProps.responseIdentifier.value];
       });
 
       const variable = computed({
@@ -191,7 +191,6 @@
     padding: 8px;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    background-color: #f8f9fa;
     border-radius: 4px;
   }
 
