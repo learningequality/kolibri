@@ -32,7 +32,9 @@ export const declarationParsers = {
 
 /**
  * Registry of response rule tag names to handler functions.
- * Each handler accepts (ruleNode, combinedVars, declarations).
+ * Each handler accepts (ruleNode, combinedVars, declarations, evaluateNode).
+ * The evaluateNode function is injected by the response processing engine
+ * to avoid circular imports between declarations and the evaluator.
  * @type {{[key: string]: Function}}
  */
 export const ruleHandlers = {

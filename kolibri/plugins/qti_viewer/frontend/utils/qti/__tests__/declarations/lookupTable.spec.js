@@ -7,13 +7,7 @@ import LookupTable from '../../declarations/lookupTable';
 import { outcomeDecl } from '../qtiXmlHelpers';
 import { createMockVariable } from './testSetup';
 
-jest.mock('../../evaluator.js', () => ({
-  evaluateNode: jest.fn(),
-}));
-
-// lookupTable.js pulls in evaluator.js lazily via require(); mirror that here with
-// requireMock so the spec needs no static import of it.
-const { evaluateNode } = jest.requireMock('../../evaluator.js');
+const evaluateNode = jest.fn();
 
 /**
  * Build an outcome declaration with a lookup table, parse it, and attach the
@@ -224,7 +218,7 @@ describe('LookupTable', () => {
       const combinedVars = { SCORE: 0 };
       const declarations = { SCORE: { lookup: value => table.lookup(value) } };
 
-      LookupTable.processRule(ruleNode, combinedVars, declarations);
+      LookupTable.processRule(ruleNode, combinedVars, declarations, evaluateNode);
 
       expect(evaluateNode).toHaveBeenCalledWith(ruleNode.children[0], combinedVars, declarations);
       expect(combinedVars.SCORE).toBe(20);

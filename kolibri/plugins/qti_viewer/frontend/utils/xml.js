@@ -56,11 +56,11 @@ export async function loadQTIPackage(file) {
   const resources = manifestDoc.querySelectorAll('manifest > resources > resource');
 
   // Build resource map keyed by identifier
-  const newResourcesMap = {};
+  const resourcesMap = {};
   for (const resource of resources) {
     const identifier = resource.getAttribute('identifier');
     if (identifier) {
-      newResourcesMap[identifier] = {
+      resourcesMap[identifier] = {
         identifier,
         type: resource.getAttribute('type'),
         href: resource.getAttribute('href'),
@@ -68,8 +68,29 @@ export async function loadQTIPackage(file) {
     }
   }
 
-  if (Object.keys(newResourcesMap).length === 0) {
+  if (Object.keys(resourcesMap).length === 0) {
     throw new Error('IMS Package has no resources');
   }
-  return newResourcesMap;
+
+  // Build a qtiPackage that resolves custom response processing templates
+  // on demand from the zip. Templates are fetched and parsed the first time
+  // they are requested, then cached for subsequent lookups.
+  const templateCache = {};
+  const qtiPackage = {
+    async getResponseProcessingNode(uri) {
+      if (templateCache[uri]) {
+        return templateCache[uri].cloneNode(true);
+      }
+      try {
+        const file = await qtiZip.file(uri);
+        const doc = parseXML(file.toString());
+        templateCache[uri] = doc.documentElement;
+        return templateCache[uri].cloneNode(true);
+      } catch {
+        return null;
+      }
+    },
+  };
+
+  return { resourcesMap, qtiPackage };
 }

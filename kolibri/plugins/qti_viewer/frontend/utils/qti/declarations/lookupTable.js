@@ -111,9 +111,10 @@ export default class LookupTable {
    * @param {Element} ruleNode - The qti-lookup-outcome-value element
    * @param {object} combinedVars - Combined response + outcome variables (mutated)
    * @param {object} declarations - Variable declarations keyed by identifier
+   * @param {Function} evaluateNode - Expression evaluator function,
+   * injected to avoid circular imports
    */
-  static processRule(ruleNode, combinedVars, declarations) {
-    const { evaluateNode } = require('../evaluator.js');
+  static processRule(ruleNode, combinedVars, declarations, evaluateNode) {
     const identifier = ruleNode.getAttribute('identifier');
 
     if (ruleNode.children.length === 0) {
