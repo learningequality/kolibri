@@ -46,13 +46,20 @@ const validateShowHide = createEnumValidator(ShowHide);
  */
 const validateOrientation = createEnumValidator(Orientation);
 
-// Common factory function for creating props
+/**
+ * @typedef {object} VuePropConfig
+ * @property {Function|Function[]} type - Vue prop type constructor(s).
+ * @property {Function} [validator] - Runtime value validator (see Vue docs).
+ * @property {boolean} [required] - Whether the prop is required.
+ * @property {string|number|boolean} [default] - Default value when the prop is optional.
+ */
+
 /**
  * Creates a Vue prop configuration from a base prop object.
- * @param {object} baseProp - Base prop configuration (type, validator, etc.).
- * @param {boolean} required - Whether the prop is required (default: true).
- * @param {unknown} defaultValue - Default value (default: null when not required).
- * @returns {object} Vue prop configuration.
+ * @param {object} baseProp - Base prop configuration (type, validator, etc.)
+ * @param {boolean} [required=true] - Whether the prop is required
+ * @param {string|number|boolean} [defaultValue] - Default value when not required; defaults to null
+ * @returns {VuePropConfig}
  */
 const createProp = (baseProp, required = true, defaultValue) => {
   const prop = { ...baseProp };
@@ -76,27 +83,78 @@ const baseStringProp = { type: String };
 const baseNumberProp = { type: [Number, String], validator: validateNumber };
 const baseBooleanProp = { type: [Boolean, String], validator: validateBoolean };
 
-// Generator functions for props
+// Generator functions for props.
+// Each returns a VuePropConfig ready to drop into a component's `props` object.
+// Call with `(true)` for a required prop, `(false, defaultValue)` for optional.
+
+/**
+ * Prop factory for a QTI identifier attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} QTI identifier-shaped String prop.
+ */
 export const QTIIdentifierProp = (required, defaultValue) =>
   createProp(baseQTIIdentifierProp, required, defaultValue);
 
+/**
+ * Prop factory for a non-negative integer attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} Non-negative integer prop (accepts Number or String).
+ */
 export const NonNegativeIntProp = (required, defaultValue) =>
   createProp(baseNonNegativeIntProp, required, defaultValue);
 
+/**
+ * Prop factory for a Format enum attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} `Format` enum String prop.
+ */
 export const FormatProp = (required, defaultValue) =>
   createProp(baseFormatProp, required, defaultValue);
 
+/**
+ * Prop factory for a show/hide enum attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} `ShowHide` enum String prop.
+ */
 export const ShowHideProp = (required, defaultValue) =>
   createProp(baseShowHideProp, required, defaultValue);
 
+/**
+ * Prop factory for an Orientation enum attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} `Orientation` enum String prop.
+ */
 export const OrientationProp = (required, defaultValue) =>
   createProp(baseOrientationProp, required, defaultValue);
 
+/**
+ * Prop factory for a free-form string attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} Free-form String prop.
+ */
 export const StringProp = (required, defaultValue) =>
   createProp(baseStringProp, required, defaultValue);
 
+/**
+ * Prop factory for a numeric attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} Numeric prop (accepts Number or String).
+ */
 export const NumberProp = (required, defaultValue) =>
   createProp(baseNumberProp, required, defaultValue);
 
+/**
+ * Prop factory for a boolean attribute.
+ * @param {boolean} required - Whether the prop is required
+ * @param {string|number|boolean} defaultValue - Default value when not required
+ * @returns {VuePropConfig} Boolean prop (accepts Boolean or String).
+ */
 export const BooleanProp = (required, defaultValue) =>
   createProp(baseBooleanProp, required, defaultValue);

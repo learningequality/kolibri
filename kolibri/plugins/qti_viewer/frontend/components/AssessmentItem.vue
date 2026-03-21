@@ -15,7 +15,7 @@
   import { computed, inject, provide, watch } from 'vue';
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
-  import { QTIVariable } from '../utils/qti/declarations';
+  import { QTIVariable } from '../utils/qti/variables';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';

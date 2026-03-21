@@ -37,6 +37,18 @@ function coerceValue(value, propDef) {
   }
 }
 
+/**
+ * Wrap each field of the runtime `props` object in a computed ref that coerces
+ * the raw value to its declared type. Useful when a QTI XML attribute arrives
+ * as a string but the prop's declared type is `Boolean` or `Number` — the
+ * returned computeds hand back properly typed values.
+ *
+ * Reads the component's prop definitions via `getCurrentInstance()`, so must
+ * be called from a `setup()` context.
+ * @param {object} props - The runtime props object from setup()
+ * @returns {{[key: string]: import('vue').ComputedRef}} One ComputedRef per
+ * prop key, keyed by the same identifiers as the input `props`.
+ */
 export default function useTypedProps(props) {
   const definitions = getCurrentInstance()?.proxy?.$options?.props || {};
 

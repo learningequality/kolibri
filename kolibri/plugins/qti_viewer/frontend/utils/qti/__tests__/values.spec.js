@@ -5,6 +5,7 @@
 import {
   coerceBoolean,
   validateBoolean,
+  validateNumber,
   coercePoint,
   validatePoint,
   coercePair,
@@ -12,6 +13,8 @@ import {
   coerceDuration,
   validateDuration,
   validateFile,
+  coerceValueWithBaseType,
+  qtiValueKey,
 } from '../values.js';
 
 describe('QTI Value Coercion', () => {
@@ -211,6 +214,96 @@ describe('QTI Value Coercion', () => {
       expect(validateFile({})).toBe(false);
       expect(validateFile(null)).toBe(false);
       expect(validateFile(undefined)).toBe(false);
+    });
+  });
+
+  describe('validateNumber', () => {
+    it('should accept numeric strings', () => {
+      expect(validateNumber('42')).toBe(true);
+      expect(validateNumber('-3.14')).toBe(true);
+      expect(validateNumber('0')).toBe(true);
+    });
+
+    it('should accept number values', () => {
+      expect(validateNumber(42)).toBe(true);
+      expect(validateNumber(-3.14)).toBe(true);
+      expect(validateNumber(0)).toBe(true);
+    });
+
+    it('should reject booleans', () => {
+      // Number(true) === 1, but booleans are not numeric values in QTI.
+      // Accepting them silently produces NaN from parseInt, poisoning arithmetic.
+      expect(validateNumber(true)).toBe(false);
+      expect(validateNumber(false)).toBe(false);
+    });
+
+    it('should reject non-numeric strings', () => {
+      expect(validateNumber('not a number')).toBe(false);
+      // Note: empty string is handled upstream by coerceValueWithBaseType
+      // (returns null before validateNumber is called), so validateNumber
+      // itself does not need to reject it. Number('') === 0 in JS.
+    });
+
+    it('should reject special numeric values', () => {
+      expect(validateNumber(NaN)).toBe(false);
+      expect(validateNumber(Infinity)).toBe(false);
+      expect(validateNumber(-Infinity)).toBe(false);
+    });
+
+    it('should reject objects and arrays', () => {
+      expect(validateNumber([])).toBe(false);
+      expect(validateNumber({})).toBe(false);
+      expect(validateNumber(null)).toBe(false);
+      expect(validateNumber(undefined)).toBe(false);
+    });
+  });
+
+  describe('coerceValueWithBaseType - boolean to numeric rejection', () => {
+    it('should throw TypeError when coercing boolean to integer', () => {
+      expect(() => coerceValueWithBaseType(true, 'integer')).toThrow(TypeError);
+      expect(() => coerceValueWithBaseType(false, 'integer')).toThrow(TypeError);
+    });
+
+    it('should throw TypeError when coercing boolean to float', () => {
+      expect(() => coerceValueWithBaseType(true, 'float')).toThrow(TypeError);
+      expect(() => coerceValueWithBaseType(false, 'float')).toThrow(TypeError);
+    });
+  });
+
+  describe('coerceValueWithBaseType - integer radix', () => {
+    it('should parse integers with explicit radix 10 to avoid octal interpretation', () => {
+      // parseInt without radix could interpret leading-zero strings as octal
+      // in edge cases; ensure we always use base 10
+      expect(coerceValueWithBaseType('010', 'integer')).toBe(10);
+      expect(coerceValueWithBaseType('0100', 'integer')).toBe(100);
+    });
+  });
+
+  describe('qtiValueKey', () => {
+    it('should return string representation for primitives', () => {
+      expect(qtiValueKey('hello')).toBe('hello');
+      expect(qtiValueKey(42)).toBe('42');
+      expect(qtiValueKey(true)).toBe('true');
+    });
+
+    it('should return JSON for arrays without baseType', () => {
+      expect(qtiValueKey([1, 2])).toBe('[1,2]');
+      expect(qtiValueKey(['A', 'B'])).toBe('["A","B"]');
+    });
+
+    it('should normalize pair order so (B,A) keys the same as (A,B)', () => {
+      expect(qtiValueKey(['B', 'A'], 'pair')).toBe(qtiValueKey(['A', 'B'], 'pair'));
+    });
+
+    it('should not normalize directedPair order', () => {
+      expect(qtiValueKey(['A', 'B'], 'directedPair')).not.toBe(
+        qtiValueKey(['B', 'A'], 'directedPair'),
+      );
+    });
+
+    it('should not normalize non-pair arrays', () => {
+      expect(qtiValueKey([1, 2], 'point')).toBe('[1,2]');
+      expect(qtiValueKey([2, 1], 'point')).toBe('[2,1]');
     });
   });
 });
