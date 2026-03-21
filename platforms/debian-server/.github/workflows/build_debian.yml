@@ -75,11 +75,14 @@ jobs:
           echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
+          # Extract key ID from imported key so we don't need a separate secret
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long --with-colons | grep ^sec | head -1 | cut -d: -f5)
+          echo "GPG_KEY_ID=$GPG_KEY_ID" >> "$GITHUB_ENV"
+          echo "Imported GPG key: $GPG_KEY_ID"
       - name: Sign and upload package
         if: steps.check_source.outputs.already_uploaded != 'true'
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: make sign-and-upload
       - name: Cleanup credentials
         if: always()
