@@ -865,6 +865,9 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+      xspattern:
+        specifier: 3.1.0
+        version: 3.1.0
     devDependencies:
       '@testing-library/vue':
         specifier: 'catalog:'
@@ -9928,6 +9931,9 @@ packages:
     engines: {node: '>= 8'}
     hasBin: true
 
+  whynot@5.0.0:
+    resolution: {integrity: sha512-cGGfDPYYqoHoMWqXVc3G+N74u1FhFhrBa+pOO906b9ktRc/JFUdwroTkfPqjKzyoCLVcKr6yy6bYIcWT7jTg2A==}
+
   wicked-good-xpath@1.3.0:
     resolution: {integrity: sha512-Gd9+TUn5nXdwj/hFsPVx5cuHHiF5Bwuc30jZ4+ronF1qHK5O7HD0sgmXWSEgwKquT3ClLoKPVbO6qGwVwLzvAw==}
 
@@ -9998,6 +10004,9 @@ packages:
   xmldom@0.6.0:
     resolution: {integrity: sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==}
     engines: {node: '>=10.0.0'}
+
+  xspattern@3.1.0:
+    resolution: {integrity: sha512-rxtOX8ORJizRqswIdZ72G3thKrHd0Q+TvyUCMByc5VdjDz1nkuZKfPXM3xGdrGi0fwEy+DDJN7DqtAZ06Re4bA==}
 
   xstate@4.38.3:
     resolution: {integrity: sha512-SH7nAaaPQx57dx6qvfcIgqKRXIh4L0A1iYEqim4s1u7c9VoCgzZc+63FY90AKU4ZzOC2cfJzTnpO4zK7fCUzzw==}
@@ -19937,6 +19946,8 @@ snapshots:
     dependencies:
       isexe: 2.0.0
 
+  whynot@5.0.0: {}
+
   wicked-good-xpath@1.3.0: {}
 
   wide-align@1.1.5:
@@ -19992,6 +20003,10 @@ snapshots:
   xmldom@0.1.31: {}
 
   xmldom@0.6.0: {}
+
+  xspattern@3.1.0:
+    dependencies:
+      whynot: 5.0.0
 
   xstate@4.38.3: {}
 
