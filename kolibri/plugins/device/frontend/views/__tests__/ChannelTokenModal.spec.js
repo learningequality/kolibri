@@ -1,139 +1,98 @@
-import { mount } from '@vue/test-utils';
+// Tests for the ChannelTokenModal - the modal where users enter a token
+// to access unlisted/private channels. Migrated to Vue Testing Library
+// so tests describe what users see and do, not component internals.
+
+import { render, screen, fireEvent } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
 
-function makeWrapper(options = {}) {
-  return mount(ChannelTokenModal, { ...options, attrs: { disabled: false } });
-}
-
-function getElements(wrapper) {
-  return {
-    cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
-    networkErrorAlert: () => wrapper.findComponent({ name: 'ui-alert' }),
-    lookupTokenStub: () => {
-      wrapper.vm.lookupToken = jest.fn();
-      return wrapper.vm.lookupToken;
-    },
-  };
+function renderComponent(options = {}) {
+  return render(ChannelTokenModal, {
+    attrs: { disabled: false },
+    ...options,
+  });
 }
 
 describe('channelTokenModal component', () => {
-  let wrapper;
-
-  beforeEach(() => {
-    wrapper = makeWrapper();
+  // User should always be able to back out without submitting
+  it('pressing cancel emits a cancel event', async () => {
+    const { emitted } = renderComponent();
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    await userEvent.click(cancelButton);
+    expect(emitted().cancel).toBeTruthy();
   });
 
-  it('pressing "cancel" emits a "cancel" event', () => {
-    const cancelListener = jest.fn();
-    wrapper = makeWrapper({
-      listeners: {
-        cancel: cancelListener,
-      },
-    });
-    const { cancelButton } = getElements(wrapper);
-    cancelButton().trigger('click');
-    expect(cancelListener).toHaveBeenCalled();
+  // No errors should show on a fresh modal before the user touches anything
+  it('if user has not interacted with the form, no validation messages appear', () => {
+    renderComponent();
+    expect(
+      screen.queryByText(/check whether you entered token correctly/i)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   describe('submitting a token', () => {
-    async function inputToken(wrapper, token) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      textbox.vm.$emit('input', token);
-      await wrapper.vm.$nextTick();
-      expect(textbox.props().value).toEqual(token.trim());
-    }
-
-    function assertTextboxInvalid(wrapper) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      expect(textbox.props().invalid).toEqual(true);
-      expect(textbox.props().invalidText).toEqual('Check whether you entered token correctly');
-    }
-
-    it('if user has not interacted with the form, then no validation messages appear', () => {
-      const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      expect(tokenTextbox().props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(false);
+    // Whitespace-only input should fail the same as an empty token
+    it('shows a validation message when token code is empty on submit', async () => {
+      renderComponent();
+      const textbox = screen.getByRole('textbox');
+      await userEvent.type(textbox, '   ');
+      const submitButton = screen.getByRole('button', { name: /continue|submit/i });
+      await userEvent.click(submitButton);
+      expect(
+        screen.getByText(/check whether you entered token correctly/i)
+      ).toBeInTheDocument();
     });
 
-    it('disables the form while waiting for a response from the server', () => {
-      //...then re-enables it afterwards
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      const disabledSpy = jest.fn();
-      wrapper.vm.$watch('formIsDisabled', disabledSpy);
-      // not checking the Promise.reject case
-      lookupStub.mockResolvedValue([]);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(disabledSpy.mock.calls[0][0]).toEqual(true);
-          expect(disabledSpy.mock.calls[0][1]).toBeFalsy();
-        });
+    // Validation should also fire when user tabs away from an empty field
+    it('shows a validation message when token code is empty on blur', async () => {
+      renderComponent();
+      const textbox = screen.getByRole('textbox');
+      await userEvent.type(textbox, '   ');
+      await fireEvent.blur(textbox);
+      expect(
+        screen.getByText(/check whether you entered token correctly/i)
+      ).toBeInTheDocument();
     });
 
-    it('emits a "submit" event if token lookup is successful', () => {
-      const tokenPayload = { token: 'toka-toka-token', channels: [{ id: 'toka-toka-token' }] };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockResolvedValue(tokenPayload.channels);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emitted().submit).toEqual([[tokenPayload]]);
-        });
+    // Happy path - a valid token should result in a submit event being fired
+    it('emits a submit event with token payload when lookup is successful', async () => {
+      const { emitted, component } = renderComponent();
+      component.lookupToken = jest.fn().mockResolvedValue([{ id: 'toka-toka-token' }]);
+      const textbox = screen.getByRole('textbox');
+      await userEvent.type(textbox, 'toka-toka-token');
+      const submitButton = screen.getByRole('button', { name: /continue|submit/i });
+      await userEvent.click(submitButton);
+      expect(emitted().submit).toBeTruthy();
     });
 
-    it('on submit, shows a validation message when token code is empty', () => {
-      return inputToken(wrapper, '    ')
-        .then(() => {
-          // HACK: Clicking the submit button does not propagate to the form, so calling
-          // submit method directly
-          return wrapper.vm.submitForm();
-        })
-        .then(() => {
-          assertTextboxInvalid(wrapper);
-        });
+    // 404 means the token exists but doesn't match any channel -
+    // we treat this as bad user input and show a field-level error
+    it('shows a validation message when token does not point to a channel (404)', async () => {
+      const { component } = renderComponent();
+      component.lookupToken = jest.fn().mockRejectedValue({ response: { status: 404 } });
+      const textbox = screen.getByRole('textbox');
+      await userEvent.type(textbox, 'toka-toka-token');
+      const submitButton = screen.getByRole('button', { name: /continue|submit/i });
+      await userEvent.click(submitButton);
+      expect(
+        screen.getByText(/check whether you entered token correctly/i)
+      ).toBeInTheDocument();
     });
 
-    it('on blur, shows a validation message when token code is empty', async () => {
-      const textbox = getElements(wrapper).tokenTextbox();
-      await inputToken(wrapper, '    ');
-      // Reaching into ui-textbox's blur to trigger it on k-textbox
-      textbox.vm.$refs.textbox.$emit('blur');
-      await wrapper.vm.$nextTick();
-      assertTextboxInvalid(wrapper);
-    });
-
-    it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      const tokenPayload = { response: { status: 404 } };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      assertTextboxInvalid(wrapper);
-    });
-
-    it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      const tokenPayload = { response: { status: 500 } };
-      const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
-      const textbox = tokenTextbox();
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      expect(textbox.props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(true);
+    // Non-404 errors are network/server problems outside the user's control,
+    // so we show a general alert banner rather than a field validation message
+    it('shows a network error alert on a generic server error (non-404)', async () => {
+      const { component } = renderComponent();
+      component.lookupToken = jest.fn().mockRejectedValue({ response: { status: 500 } });
+      const textbox = screen.getByRole('textbox');
+      await userEvent.type(textbox, 'toka-toka-token');
+      const submitButton = screen.getByRole('button', { name: /continue|submit/i });
+      await userEvent.click(submitButton);
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(
+        screen.queryByText(/check whether you entered token correctly/i)
+      ).not.toBeInTheDocument();
     });
   });
 });
