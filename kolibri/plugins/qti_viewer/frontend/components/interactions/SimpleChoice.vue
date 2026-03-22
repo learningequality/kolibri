@@ -9,10 +9,7 @@
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
-        ':focus': {
-          outline: `3px solid ${$themeTokens.primary}`,
-          outlineOffset: '2px',
-        },
+        ':focus': coreOutline,
       }),
     ]"
     :aria-selected="selected"
@@ -30,10 +27,11 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
+  const coreOutline = themeOutlineStyle();
 
   export default {
     name: 'SimpleChoice',
@@ -62,6 +60,7 @@
 
       return {
         $themeTokens,
+        coreOutline,
         selected,
         handleClick,
         extraStyles,

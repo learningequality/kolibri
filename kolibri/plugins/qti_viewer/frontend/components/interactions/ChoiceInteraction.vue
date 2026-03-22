@@ -88,6 +88,7 @@
         return true;
       };
 
+      // Provide functions to child components
       provide('isSelected', isSelected);
       provide('toggleSelection', toggleSelection);
 
@@ -114,6 +115,7 @@
         return result;
       };
 
+      // Return render function
       return () => {
         const allContent = slots.default();
         const nonChoiceContent = allContent.filter(
@@ -150,6 +152,7 @@
           orderedChoices.map(choice => choice.vnode),
         );
 
+        // Create container with non-choice content first, then choices list
         return h('div', [...nonChoiceContent, choicesList]);
       };
     },
