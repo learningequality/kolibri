@@ -6,10 +6,10 @@
   >
     <div class="img-wrapper">
       <img
+        class="safe-html"
         :src="src"
         :alt="alt"
         :style="imageStyle"
-        v-bind="$attrs"
         @click="openLightbox"
       >
       <KIconButton
@@ -42,7 +42,6 @@
     components: {
       Lightbox,
     },
-    inheritAttrs: false,
     props: {
       src: { type: String, required: true },
       alt: { type: String, default: '' },

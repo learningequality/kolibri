@@ -5,7 +5,7 @@
     data-testid="table-container"
   >
     <table
-      v-bind="$attrs"
+      class="safe-html"
       :style="tableStyle"
     >
       <slot></slot>
@@ -19,8 +19,6 @@
 
   export default {
     name: 'SafeHtmlTable',
-    inheritAttrs: false,
-
     props: {
       node: {
         required: true,
