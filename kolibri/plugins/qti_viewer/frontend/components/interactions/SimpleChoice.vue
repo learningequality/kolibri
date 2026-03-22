@@ -12,7 +12,7 @@
         ':focus': coreOutline,
       }),
     ]"
-    :aria-selected="selected"
+    :aria-selected="String(selected)"
     :style="[extraStyles]"
     @click="handleClick"
     @keydown.enter="handleClick"
