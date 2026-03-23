@@ -720,13 +720,13 @@ class UnitReportPermissionTests(UnitReportAPIBase):
         response = self.client.get(self._get_url())
         self.assertEqual(response.status_code, 200)
 
-    def test_nonexistent_course_session_returns_403(self):
+    def test_nonexistent_course_session_returns_404(self):
         url = _make_url("0" * 32, self.unit_node.id)
         self.client.login(
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
     def test_nonexistent_unit_returns_404(self):
         url = _make_url(self.course_session.id, uuid.uuid4().hex)

@@ -3,11 +3,10 @@ from collections import defaultdict
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from le_utils.constants import modalities
-from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
@@ -191,25 +190,6 @@ def compute_all_test_scores(
     return results
 
 
-class UnitReportPermissions(permissions.BasePermission):
-    """
-    Allow access only to admins and coaches for the classroom associated
-    with the given course session.
-    """
-
-    def has_permission(self, request, view):
-        # Guard first: AnonymousUser has no has_role_for method.
-        if not request.user.is_authenticated:
-            return False
-        course_session_id = view.kwargs.get("course_session_id")
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-        try:
-            course_session = CourseSession.objects.get(pk=course_session_id)
-            return request.user.has_role_for(allowed_roles, course_session.collection)
-        except (CourseSession.DoesNotExist, ValueError):
-            return False
-
-
 class UnitReportViewSet(viewsets.ViewSet):
     """
     Returns aggregated learner performance data for a unit's pre/post tests,
@@ -223,13 +203,14 @@ class UnitReportViewSet(viewsets.ViewSet):
     action makes this a read-only endpoint in practice.
     """
 
-    permission_classes = (UnitReportPermissions,)
+    permission_classes = (KolibriAuthPermissions,)
 
     def retrieve(self, request, **kwargs):
         course_session_id = self.kwargs["course_session_id"]
         unit_contentnode_id = self.kwargs["unit_contentnode_id"]
 
         course_session = get_object_or_404(CourseSession, pk=course_session_id)
+        self.check_object_permissions(request, course_session)
         unit = get_object_or_404(
             ContentNode, pk=unit_contentnode_id, modality=modalities.UNIT
         )
