@@ -126,6 +126,15 @@ DEMOGRAPHIC_FIELDS_KEY = "demographic_fields"
 # '"optional":True' is obsolete but needed while we keep using an
 # old json_schema_validator version compatible with python 2.7.
 # "additionalProperties": False must be avoided for backwards compatibility
+picture_password_settings_schema = {
+    "type": "object",
+    "properties": {
+        "icon_style": {"type": "string", "enum": ["standard", "colorful"]},
+        "show_icon_text": {"type": "boolean"},
+    },
+    "required": ["icon_style", "show_icon_text"],
+}
+
 extra_fields_schema = {
     "type": "object",
     "properties": {
@@ -222,6 +231,12 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
     enable_mark_attendance = models.BooleanField(default=False)
+    picture_password_settings = JSONField(
+        null=True,
+        blank=True,
+        default=None,
+        validators=[JSON_Schema_Validator(picture_password_settings_schema)],
+    )
     extra_fields = JSONField(
         null=True,
         blank=True,
@@ -254,6 +269,16 @@ class FacilityDataset(FacilityDataSyncableModel):
                 "Device Settings [learner_can_login_with_no_password={}] & [learner_can_edit_password={}] "
                 "values incompatible together.".format(
                     self.learner_can_login_with_no_password,
+                    self.learner_can_edit_password,
+                )
+            )
+        if (
+            self.picture_password_settings is not None
+            and self.learner_can_edit_password
+        ):
+            raise IncompatibleDeviceSettingError(
+                "Device Settings [picture_password_settings is set] & [learner_can_edit_password={}] "
+                "values incompatible together.".format(
                     self.learner_can_edit_password,
                 )
             )

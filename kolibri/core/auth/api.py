@@ -233,6 +233,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         "show_download_button_in_learn",
         "enable_mark_attendance",
         "extra_fields",
+        "picture_password_settings",
         "description",
         "location",
         "registered",
@@ -744,7 +745,9 @@ class FacilityUsernameViewSet(ReadOnlyValuesViewset):
             # the list display
             return FacilityUser.objects.all()
         return FacilityUser.objects.filter(
-            dataset__learner_can_login_with_no_password=True, roles=None
+            Q(dataset__learner_can_login_with_no_password=True)
+            | Q(dataset__picture_password_settings__isnull=False),
+            roles=None,
         ).filter(
             Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
         )
@@ -807,6 +810,7 @@ dataset_keys = [
     "dataset__learner_can_login_with_no_password",
     "dataset__show_download_button_in_learn",
     "dataset__extra_fields",
+    "dataset__picture_password_settings",
     "dataset__description",
     "dataset__location",
     "dataset__registered",
