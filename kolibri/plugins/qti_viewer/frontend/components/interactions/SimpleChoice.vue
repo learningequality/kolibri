@@ -87,10 +87,6 @@
     border-radius: 8px;
     transition: all 0.3s ease;
 
-    &:focus:not(:focus-visible) {
-      outline: none;
-    }
-
     &::marker {
       content: '';
     }

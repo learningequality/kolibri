@@ -40,8 +40,11 @@
 
     setup(props, { slots, attrs }) {
       const responses = inject('responses');
+
       const QTI_CONTEXT = inject('QTI_CONTEXT');
+
       const interactive = inject('interactive');
+
       const typedProps = useTypedProps(props);
 
       const multiSelectable = computed(() => {
