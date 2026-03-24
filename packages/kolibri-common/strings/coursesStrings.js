@@ -400,9 +400,24 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Empty state message shown in the learning objectives report when no test has been activated for the unit',
   },
-  testInProgressLabel: {
-    message: 'A test is in progress. Results shown are partial.',
+  preTestInProgress: {
+    message: 'Pre-test in progress',
     context:
-      'Note shown in the learning objectives report when the test is still active and results are incomplete',
+      'Label shown in the accordion header when the pre-test is currently active and learners are still taking it',
+  },
+  preTestResults: {
+    message: 'Pre-test results',
+    context:
+      'Label shown in the accordion header when the pre-test is closed and results are available',
+  },
+  postTestInProgress: {
+    message: 'Post-test in progress',
+    context:
+      'Label shown in the accordion header when the post-test is currently active and learners are still taking it',
+  },
+  postTestResults: {
+    message: 'Post-test results',
+    context:
+      'Label shown in the accordion header when the post-test is closed and results are available',
   },
 });
