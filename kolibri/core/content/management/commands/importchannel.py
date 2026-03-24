@@ -6,6 +6,7 @@ from ...utils import paths
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.utils.channel_transfer import transfer_channel
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -29,9 +30,8 @@ def resolve_channel_token(token, baseurl=None):
     :raises: ValueError if the token is not found or response is invalid
     """
     baseurl = baseurl or CENTRAL_CONTENT_BASE_URL
-    lookup_path = "api/public/v1/channels/lookup/{}?".format(token)
     client = NetworkClient.build_for_address(baseurl)
-    response = client.get(lookup_path)
+    response = client.get(get_channel_lookup_url(identifier=token))
 
     try:
         channels = response.json()
