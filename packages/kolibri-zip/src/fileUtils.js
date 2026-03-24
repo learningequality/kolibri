@@ -9,6 +9,14 @@ try {
   supportsLookbehind = false;
 }
 
+/**
+ * Resolve a relative file path against a base file path within a ZIP archive.
+ * Uses URL resolution to handle '../' and './' segments.
+ *
+ * @param {string} baseFilePath - Path of the referencing file (e.g. 'css/style.css')
+ * @param {string} relativeFilePath - Relative path to resolve (e.g. '../images/icon.png')
+ * @returns {string|null} Absolute path within the ZIP, or null if resolution fails
+ */
 export function getAbsoluteFilePath(baseFilePath, relativeFilePath) {
   // Construct a URL with a dummy base so that we can concatenate the
   // dependency URL with the URL relative to the dependency
@@ -25,15 +33,35 @@ export function getAbsoluteFilePath(baseFilePath, relativeFilePath) {
   return null;
 }
 
+/**
+ * Abstract base class for file path mappers. Subclasses extract and replace
+ * internal file references for a specific file type (e.g. CSS url(), HTML src).
+ */
 export class Mapper {
+  /**
+   * @param {import('./index').ExtractedFile} file - The extracted file to process
+   */
   constructor(file) {
     this.file = file;
   }
 
+  /**
+   * Extract all referenced file paths from the file content.
+   *
+   * @returns {string[]} Array of relative file paths found in the content
+   * @abstract
+   */
   getPaths() {
     throw new Error('Not implemented');
   }
 
+  /**
+   * Replace file references in the content with resolved URLs.
+   *
+   * @param {Object<string, string>} packageFiles - Map of original relative path to replacement URL
+   * @returns {string} File content with paths replaced
+   * @abstract
+   */
   replacePaths() {
     throw new Error('Not implemented');
   }
@@ -51,10 +79,17 @@ const cssPathRegexLegacy =
 
 const unescapePathRegex = /\\(.)/g;
 
+/** @param {string} str - CSS string with backslash escapes
+ *  @returns {string} Unescaped string */
 function unescapeCssString(str) {
   return str.replace(unescapePathRegex, '$1');
 }
 
+/**
+ * Extract file paths from CSS content using lookbehind regex (modern browsers).
+ * @param {string} fileContents - CSS file content
+ * @returns {string[]} Array of referenced file paths
+ */
 function getCSSPathsModern(fileContents) {
   return Array.from(fileContents.matchAll(cssPathRegexModern), match => {
     // match[2] is url() path, match[4] is @import path
@@ -63,6 +98,11 @@ function getCSSPathsModern(fileContents) {
   });
 }
 
+/**
+ * Extract file paths from CSS content without lookbehind (legacy browsers).
+ * @param {string} fileContents - CSS file content
+ * @returns {string[]} Array of referenced file paths
+ */
 function getCSSPathsLegacy(fileContents) {
   return Array.from(fileContents.matchAll(cssPathRegexLegacy)).map(
     ([, urlQuote, urlQuotedPath, urlUnquotedPath, importQuote, importPath]) => {
@@ -76,6 +116,12 @@ function getCSSPathsLegacy(fileContents) {
   );
 }
 
+/**
+ * Replace file paths in CSS content using lookbehind regex (modern browsers).
+ * @param {string} fileContents - CSS file content
+ * @param {Object<string, string>} packageFiles - Map of original path to replacement URL
+ * @returns {string} CSS content with paths replaced
+ */
 function replaceCSSPathsModern(fileContents, packageFiles) {
   return fileContents.replace(
     cssPathRegexModern,
@@ -98,6 +144,12 @@ function replaceCSSPathsModern(fileContents, packageFiles) {
   );
 }
 
+/**
+ * Replace file paths in CSS content without lookbehind (legacy browsers).
+ * @param {string} fileContents - CSS file content
+ * @param {Object<string, string>} packageFiles - Map of original path to replacement URL
+ * @returns {string} CSS content with paths replaced
+ */
 function replaceCSSPathsLegacy(fileContents, packageFiles) {
   return fileContents.replace(
     cssPathRegexLegacy,
@@ -141,6 +193,10 @@ function replaceCSSPathsLegacy(fileContents, packageFiles) {
 export const getCSSPaths = supportsLookbehind ? getCSSPathsModern : getCSSPathsLegacy;
 export const replaceCSSPaths = supportsLookbehind ? replaceCSSPathsModern : replaceCSSPathsLegacy;
 
+/**
+ * Mapper for CSS files. Extracts and replaces `url()` and `@import` references.
+ * Automatically selects modern (lookbehind) or legacy regex based on browser support.
+ */
 class CSSMapper extends Mapper {
   getPaths() {
     return getCSSPaths(this.file.toString());
@@ -159,6 +215,15 @@ const urlAttributes = ['src', 'href'];
 
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
 
+/**
+ * Extract all referenced file paths from HTML/XML content.
+ * Finds paths in src, href, srcset attributes, inline style attributes,
+ * and `<style>` block contents.
+ *
+ * @param {string} fileContents - HTML/XML file content
+ * @param {string} mimeType - MIME type for DOMParser (e.g. 'text/html', 'application/xml')
+ * @returns {string[]} Array of referenced file paths
+ */
 export function getDOMPaths(fileContents, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
   // Get paths from URL attributes (src, href)
@@ -196,6 +261,13 @@ export function getDOMPaths(fileContents, mimeType) {
   return [...urlPaths, ...stylePaths, ...srcsetPaths, ...styleBlockPaths];
 }
 
+/**
+ * Replace URLs in an HTML srcset attribute value.
+ *
+ * @param {string} srcset - srcset attribute value (e.g. 'img.jpg 1x, img2.jpg 2x')
+ * @param {Object<string, string>} packageFiles - Map of original path to replacement URL
+ * @returns {string} srcset value with paths replaced
+ */
 function replaceSrcsetUrls(srcset, packageFiles) {
   if (!srcset) {
     return srcset;
@@ -219,6 +291,16 @@ function replaceSrcsetUrls(srcset, packageFiles) {
     .join(', ');
 }
 
+/**
+ * Replace file references in HTML/XML content with resolved URLs.
+ * Handles src, href, srcset attributes, inline style attributes,
+ * and `<style>` block contents.
+ *
+ * @param {string} fileContents - HTML/XML file content
+ * @param {Object<string, string>} packageFiles - Map of original path to replacement URL
+ * @param {string} mimeType - MIME type for DOMParser (e.g. 'text/html', 'application/xml')
+ * @returns {string} Content with file references replaced
+ */
 export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   const dom = domParser.parseFromString(fileContents.trim(), mimeType);
 
@@ -267,6 +349,10 @@ export function replaceDOMPaths(fileContents, packageFiles, mimeType) {
   return domSerializer.serializeToString(dom);
 }
 
+/**
+ * Mapper for HTML/XML files. Extracts and replaces `src`, `href`, `srcset`
+ * attributes, inline styles, and `<style>` block references.
+ */
 export class DOMMapper extends Mapper {
   getPaths() {
     return getDOMPaths(this.file.toString(), this.file.mimeType);

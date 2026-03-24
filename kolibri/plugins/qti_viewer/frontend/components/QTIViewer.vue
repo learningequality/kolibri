@@ -33,10 +33,6 @@
       // Store resources by identifier
       const resourcesMap = ref({});
 
-      const fileUrl = computed(() => {
-        return defaultFile.value?.storage_url;
-      });
-
       // Reactively get current resource based on itemId
       const currentResource = computed(() => {
         return resourcesMap.value[props.itemId] || null;
@@ -72,15 +68,15 @@
 
       // Load and parse the QTI package
       async function load() {
-        const url = fileUrl.value;
-        if (!url) {
+        const file = defaultFile.value;
+        if (!file) {
           return;
         }
 
         try {
           packageLoading.value = true;
           // Update the resources map
-          resourcesMap.value = await loadQTIPackage(url);
+          resourcesMap.value = await loadQTIPackage(file);
         } catch (err) {
           logging.error('Error loading QTI package:', err);
           reportLoadingError(err);
@@ -97,7 +93,7 @@
       });
 
       // Watch for file changes
-      watch(fileUrl, () => {
+      watch(defaultFile, () => {
         load();
       });
 

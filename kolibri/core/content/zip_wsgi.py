@@ -274,10 +274,7 @@ def get_embedded_file(
 archive_file_types = (HTML5, H5P, BLOOMPUB, BLOOMD, PERSEUS)
 archive_file_extension_match = "|".join(archive_file_types)
 
-# Includes a prefix that is almost certain not to collide
-# with a filename embedded in a zip file. Prefix is:
-# @*._ followed by the encoded base url
-# This is used to allow the base url to be passed in the main
+# Allows a base url to be passed in the main
 # URL and allow relative paths within the loaded HTML5 zip file
 # to maintain the base URL reference. This means when loading
 # from remote URLs, the HTML5 zip can be incrementally loaded based on

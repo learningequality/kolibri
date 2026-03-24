@@ -618,7 +618,7 @@ describe(`useLearnerResources`, () => {
 
   describe('fetchResumableContentNodes', () => {
     it('should set resumable content nodes and the more value', async () => {
-      const more = { test: 1 };
+      const more = { test: 1, exclude_course_ancestry: true };
       ContentNodeResource.fetchResume = jest
         .fn()
         .mockResolvedValue({ results: TEST_RESUMABLE_CONTENT_NODES, more });

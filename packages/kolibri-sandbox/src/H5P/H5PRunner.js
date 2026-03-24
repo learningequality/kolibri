@@ -126,7 +126,7 @@ export default class H5PRunner {
     this.filepath = filepath;
     // A fallback URL to the zipcontent endpoint for this H5P file
     this.zipcontentUrl = new URL(
-      `../../zipcontent/${this.filepath.substring(this.filepath.lastIndexOf('/') + 1)}`,
+      `../../zipcontent/${this.filepath.split('/').pop()}`,
       window.location,
     ).href;
     // Callback to call when H5P has finished loading
@@ -137,9 +137,10 @@ export default class H5PRunner {
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
     const start = performance.now();
+    const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
     // First load the full H5P file
     // Store the zip locally for later reference
-    this.zip = new ZipFile(this.filepath);
+    this.zip = new ZipFile(this.filepath, { largeFileUrlGenerator });
     // Recurse all the package dependencies
     return this.recurseDependencies('h5p.json', true).then(() => {
       // Once we have found all the dependencies, we call this
