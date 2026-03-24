@@ -4,7 +4,7 @@
     <!-- Prev button on the left -->
     <KButton
       class="btn-flex"
-      appearance="flat-button"
+      appearance="raised-button"
       data-testid="prev-button"
       :disabled="!canGoPrev"
       :aria-label="previousLabel$()"

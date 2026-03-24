@@ -76,8 +76,8 @@
         <div class="navigation-buttons-wrapper">
           <KButton
             class="btn-flex"
+            primary
             :disabled="questionNumber === questionsTotal - 1"
-            :primary="true"
             :aria-label="$tr('nextQuestion')"
             :text="displayNavigationButtonLabel ? $tr('nextQuestion') : ''"
             @click="goToQuestion(questionNumber + 1)"
@@ -85,7 +85,7 @@
             <template #iconAfter>
               <KIcon
                 icon="forward"
-                :color="$themeTokens.textInverted"
+                :color="$themeTokens.text"
                 class="btn-icon hotfixed"
               />
             </template>
@@ -93,7 +93,6 @@
           <KButton
             class="btn-flex"
             :disabled="questionNumber === 0"
-            :primary="true"
             :aria-label="$tr('previousQuestion')"
             :text="displayNavigationButtonLabel ? $tr('previousQuestion') : ''"
             @click="goToQuestion(questionNumber - 1)"
@@ -101,7 +100,7 @@
             <template #icon>
               <KIcon
                 icon="back"
-                :color="$themeTokens.textInverted"
+                :color="$themeTokens.text"
                 class="btn-icon"
               />
             </template>
