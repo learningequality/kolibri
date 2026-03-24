@@ -3,20 +3,15 @@
   <div>
     <KCircularLoader v-if="loading" />
     <template v-else-if="activeTestStatus === 'not_activated'">
-      <!-- TODO: Replace with translated string -->
-      <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
-      <p class="empty-state">No test has been activated for this unit yet.</p>
+      <p class="empty-state">{{ noTestDataLabel$() }}</p>
     </template>
     <template v-else>
-      <!-- TODO: Replace with translated string -->
-      <!-- eslint-disable vue/no-bare-strings-in-template -->
       <p
         v-if="activeTestStatus === 'open'"
         class="info-note"
       >
-        A test is in progress. Results shown are partial.
+        {{ testInProgressLabel$() }}
       </p>
-      <!-- eslint-enable vue/no-bare-strings-in-template -->
       <KTable
         :headers="headers"
         :rows="rows"
@@ -72,8 +67,14 @@
       SparklineBar,
     },
     setup(props) {
-      const { learningObjectivesLabel$, masteryLabel$, lowMasteryLabel$, strongMasteryLabel$ } =
-        coursesStrings;
+      const {
+        learningObjectivesLabel$,
+        masteryLabel$,
+        lowMasteryLabel$,
+        strongMasteryLabel$,
+        noTestDataLabel$,
+        testInProgressLabel$,
+      } = coursesStrings;
 
       const { loading, fetchReport, activeTestStatus, bucketedObjectives } = useUnitReport(
         toRef(props, 'courseSessionId'),
@@ -142,6 +143,8 @@
         masteryPillStyle,
         masteryIconColor,
         learningObjectivesLabel$,
+        noTestDataLabel$,
+        testInProgressLabel$,
       };
     },
     props: {
