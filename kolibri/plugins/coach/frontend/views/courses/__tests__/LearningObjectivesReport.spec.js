@@ -75,6 +75,7 @@ function mockUseUnitReport(overrides = {}) {
   const defaults = {
     loading: ref(false),
     fetchReport: jest.fn(),
+    activeTestType: ref('pre'),
     activeTestStatus: ref('closed'),
     bucketedObjectives: ref([]),
   };
@@ -145,35 +146,28 @@ describe('LearningObjectivesReport', () => {
     expect(sparklines[0]).toHaveAttribute('data-high', '3');
   });
 
-  it('shows mastery badges with correct styling (low vs strong)', () => {
+  it('emits report-loaded when data is available', () => {
     mockUseUnitReport({
+      activeTestType: ref('pre'),
       activeTestStatus: ref('closed'),
       bucketedObjectives: ref(MOCK_OBJECTIVES),
     });
-    const { container } = renderComponent();
-
-    const pills = container.querySelectorAll('.mastery-pill');
-    expect(pills).toHaveLength(2);
-
-    // First objective: lowCount=8 > highCount=3 → low mastery
-    expect(pills[0]).toHaveTextContent(/Low mastery/i);
-    expect(screen.getByTestId('row-0').querySelector('[data-testid="icon-error"]')).toBeTruthy();
-
-    // Second objective: lowCount=1 < highCount=10 → strong mastery
-    expect(pills[1]).toHaveTextContent(/Strong mastery/i);
-    expect(screen.getByTestId('row-1').querySelector('[data-testid="icon-correct"]')).toBeTruthy();
+    // The watch fires immediately since bucketedObjectives has data and loading is false
+    const { emitted } = renderComponent();
+    expect(emitted()['report-loaded']).toBeTruthy();
+    expect(emitted()['report-loaded'][0][0]).toMatchObject({
+      activeTestType: 'pre',
+      activeTestStatus: 'closed',
+    });
   });
 
-  it('shows info note when activeTestStatus is open', () => {
+  it('does not emit report-loaded when bucketedObjectives is empty', () => {
     mockUseUnitReport({
-      activeTestStatus: ref('open'),
-      bucketedObjectives: ref(MOCK_OBJECTIVES),
+      activeTestType: ref('pre'),
+      activeTestStatus: ref('closed'),
+      bucketedObjectives: ref([]),
     });
-    renderComponent();
-
-    // Should show info about test in progress
-    expect(screen.getByText(/test is in progress/i)).toBeInTheDocument();
-    // Should still show the table
-    expect(screen.getByTestId('k-table')).toBeInTheDocument();
+    const { emitted } = renderComponent();
+    expect(emitted()['report-loaded']).toBeFalsy();
   });
 });
