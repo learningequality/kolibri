@@ -4,6 +4,19 @@ import useUnitReport from '../useUnitReport';
 
 jest.mock('../../apiResources/unitReport');
 
+const mockGetGroupNamesForLearner = jest.fn(learnerId => {
+  const groups = { 'user-1': ['Group A'], 'user-2': ['Group B', 'Group C'] };
+  return groups[learnerId] || [];
+});
+
+function createMockStore() {
+  return {
+    getters: {
+      'classSummary/getGroupNamesForLearner': mockGetGroupNamesForLearner,
+    },
+  };
+}
+
 const mockReportData = {
   unit_title: 'Unit 1: Letters',
   learning_objectives: [
@@ -37,7 +50,11 @@ describe('useUnitReport', () => {
   });
 
   it('starts with loading=false, becomes true during fetch, false after', async () => {
-    const { loading, fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { loading, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
 
     expect(loading.value).toBe(false);
 
@@ -49,7 +66,7 @@ describe('useUnitReport', () => {
   });
 
   it('calls UnitReportResource.fetchReport with correct params', async () => {
-    const { fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { fetchReport } = useUnitReport(courseSessionId, unitContentnodeId, createMockStore());
 
     await fetchReport();
 
@@ -60,7 +77,11 @@ describe('useUnitReport', () => {
   });
 
   it('exposes raw reportData after fetch', async () => {
-    const { reportData, fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { reportData, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
 
     expect(reportData.value).toBe(null);
 
@@ -70,7 +91,11 @@ describe('useUnitReport', () => {
   });
 
   it('computes bucketedObjectives from pre_test scores when post_test is not_activated', async () => {
-    const { bucketedObjectives, fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { bucketedObjectives, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
 
     await fetchReport();
 
@@ -103,7 +128,11 @@ describe('useUnitReport', () => {
     };
     UnitReportResource.fetchReport.mockResolvedValue(postTestData);
 
-    const { bucketedObjectives, fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { bucketedObjectives, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
 
     await fetchReport();
 
@@ -124,7 +153,11 @@ describe('useUnitReport', () => {
   });
 
   it('exposes activeTestStatus reflecting which test is being shown', async () => {
-    const { activeTestStatus, fetchReport } = useUnitReport(courseSessionId, unitContentnodeId);
+    const { activeTestStatus, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
 
     // Before fetch, no activeTest
     expect(activeTestStatus.value).toBe('not_activated');
@@ -152,11 +185,31 @@ describe('useUnitReport', () => {
     const { bucketedObjectives, activeTest, fetchReport } = useUnitReport(
       courseSessionId,
       unitContentnodeId,
+      createMockStore(),
     );
 
     await fetchReport();
 
     expect(activeTest.value).toBe(null);
     expect(bucketedObjectives.value).toEqual([]);
+  });
+
+  it('enriches learners with group names from the classSummary store', async () => {
+    const { learnersWithGroups, fetchReport } = useUnitReport(
+      courseSessionId,
+      unitContentnodeId,
+      createMockStore(),
+    );
+
+    expect(learnersWithGroups.value).toEqual([]);
+
+    await fetchReport();
+
+    expect(learnersWithGroups.value).toEqual([
+      { id: 'user-1', username: 'alice', name: 'Alice', groups: ['Group A'] },
+      { id: 'user-2', username: 'bob', name: 'Bob', groups: ['Group B', 'Group C'] },
+    ]);
+    expect(mockGetGroupNamesForLearner).toHaveBeenCalledWith('user-1');
+    expect(mockGetGroupNamesForLearner).toHaveBeenCalledWith('user-2');
   });
 });

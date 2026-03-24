@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, getCurrentInstance, ref } from 'vue';
 import UnitReportResource from '../apiResources/unitReport';
 import { bucketAllObjectives } from '../utils/scoreBucketing';
 
@@ -9,7 +9,8 @@ import { bucketAllObjectives } from '../utils/scoreBucketing';
  * @param {import('vue').Ref<string>} courseSessionId
  * @param {import('vue').Ref<string>} unitContentnodeId
  */
-export default function useUnitReport(courseSessionId, unitContentnodeId) {
+export default function useUnitReport(courseSessionId, unitContentnodeId, store) {
+  store = store || getCurrentInstance().proxy.$store;
   const loading = ref(false);
   const reportData = ref(null);
 
@@ -50,6 +51,17 @@ export default function useUnitReport(courseSessionId, unitContentnodeId) {
     return bucketAllObjectives(reportData.value.learning_objectives, activeTest.value.scores);
   });
 
+  const learnersWithGroups = computed(() => {
+    if (!reportData.value) {
+      return [];
+    }
+    const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
+    return reportData.value.learners.map(learner => ({
+      ...learner,
+      groups: getGroupNames(learner.id),
+    }));
+  });
+
   return {
     loading,
     reportData,
@@ -57,5 +69,6 @@ export default function useUnitReport(courseSessionId, unitContentnodeId) {
     activeTest,
     activeTestStatus,
     bucketedObjectives,
+    learnersWithGroups,
   };
 }
