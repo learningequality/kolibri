@@ -610,6 +610,7 @@ describe('AdaptiveHttpReader', () => {
     });
 
     it('throws on network error', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
       xhrMock.reset();
       xhrMock.get('network-error.zip', () => Promise.reject(new Error('Network error')));
 
@@ -618,6 +619,7 @@ describe('AdaptiveHttpReader', () => {
       });
 
       await expect(reader.init()).rejects.toThrow('Network error');
+      console.error.mockRestore(); // eslint-disable-line no-console
     });
   });
 
@@ -655,6 +657,7 @@ describe('AdaptiveHttpReader', () => {
     });
 
     it('throws on network error during range request', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
       const url = 'large-network-error.zip';
       const largeData = createTestData(5 * 1024 * 1024);
 
@@ -681,6 +684,7 @@ describe('AdaptiveHttpReader', () => {
       expect(reader.useLazyMode).toBe(true);
 
       await expect(reader.readUint8Array(1000, 500)).rejects.toThrow('Network error');
+      console.error.mockRestore(); // eslint-disable-line no-console
     });
   });
 

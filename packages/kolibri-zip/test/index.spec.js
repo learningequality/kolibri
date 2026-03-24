@@ -374,11 +374,13 @@ describe('ZipFile public API', () => {
 
   describe('Error handling', () => {
     it('network error is propagated', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
       xhrMock.reset();
       xhrMock.get('error.zip', () => Promise.reject(new Error('Network error')));
 
       const zip = new ZipFile('error.zip');
       await expect(zip.file('any.txt')).rejects.toBeDefined();
+      console.error.mockRestore(); // eslint-disable-line no-console
     });
   });
 });
@@ -658,7 +660,6 @@ describe('ZipFile lazy loading', () => {
 
       const zip = new ZipFile('lazy-small.zip', {
         maxFullLoadSize: 100 * 1024, // Triggers lazy mode
-        largeMediaThreshold: 500 * 1024,
       });
 
       // Wait for init
@@ -788,6 +789,7 @@ describe('ZipFile lazy loading', () => {
 
   describe('Behavior without largeFileUrlGenerator', () => {
     it('large media file is extracted normally when no generator provided', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
       const zipData = createLargeTestZip({
         smallFiles: { 'index.html': '<html></html>' },
         largeVideoSize: 600 * 1024,
@@ -813,9 +815,11 @@ describe('ZipFile lazy loading', () => {
       // Without a URL generator, toString() works (returns binary data as string)
       expect(() => video.toString()).not.toThrow();
       expect(video.toUrl()).toMatch(/^blob:mock-/);
+      console.warn.mockRestore(); // eslint-disable-line no-console
     });
 
     it('all files treated equally without largeFileUrlGenerator', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
       const zipContents = {
         'index.html': strToU8('<html></html>'),
         'small.txt': strToU8('Small file'),
@@ -862,6 +866,7 @@ describe('ZipFile lazy loading', () => {
       expect(small._urlGenerator).toBeNull();
       expect(video._urlGenerator).toBeNull();
       expect(audio._urlGenerator).toBeNull();
+      console.warn.mockRestore(); // eslint-disable-line no-console
     });
   });
 
@@ -962,7 +967,6 @@ describe('ZipFile lazy loading', () => {
       const zip = new ZipFile('h5p-like.zip', {
         maxFullLoadSize: 1000, // Force lazy mode (zip is much larger)
         chunkSize: 50000, // 50KB chunks
-        largeMediaThreshold: 100000, // 100KB - all files are small
       });
 
       // Extract many files sequentially
@@ -999,7 +1003,6 @@ describe('ZipFile lazy loading', () => {
       const zip = new ZipFile('concurrent.zip', {
         maxFullLoadSize: 1000, // Force lazy mode
         chunkSize: 50000, // 50KB chunks
-        largeMediaThreshold: 100000, // 100KB - all files are small
       });
 
       // Extract many files CONCURRENTLY using Promise.all
@@ -1044,7 +1047,6 @@ describe('ZipFile lazy loading', () => {
       const zip = new ZipFile('multi-chunk-concurrent.zip', {
         maxFullLoadSize: 1000, // Force lazy mode
         chunkSize: 2000, // 2KB chunks
-        largeMediaThreshold: 100000,
       });
 
       // Wait for init to complete
