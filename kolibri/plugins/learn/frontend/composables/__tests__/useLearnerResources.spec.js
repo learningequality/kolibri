@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { ClassesPageNames } from '../../constants';
-import { LearnerClassroomResource } from '../../apiResources';
+import { LearnerClassroomResource, LearnerCourseResource } from '../../apiResources';
 import useLearnerResources, { setResumableContentNodes } from '../useLearnerResources';
 
 const {
@@ -20,8 +20,11 @@ const {
   getClassLessonLink,
   getClassQuizLink,
   fetchClasses,
+  fetchCourse,
   fetchResumableContentNodes,
   fetchMoreResumableContentNodes,
+  isUnitTestAvailable,
+  isCourseLessonAvailable,
 } = useLearnerResources();
 
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
@@ -685,5 +688,161 @@ describe(`useLearnerResources`, () => {
       await fetchMoreResumableContentNodes();
       expect(ContentNodeResource.fetchResume).not.toHaveBeenCalled();
     });
+  });
+});
+
+// --- Course lesson/test availability tests ---
+
+const COURSE_ID = 'course-content-1';
+const COURSE_SESSION_ID = 'session-1';
+
+const COURSE_CONTENT_TREE = {
+  id: COURSE_ID,
+  children: {
+    results: [
+      {
+        id: 'unit-1',
+        lft: 2,
+        children: {
+          results: [
+            { id: 'lesson-1a', lft: 3 },
+            { id: 'lesson-1b', lft: 6 },
+          ],
+        },
+      },
+      {
+        id: 'unit-2',
+        lft: 10,
+        children: {
+          results: [
+            { id: 'lesson-2a', lft: 11 },
+            { id: 'lesson-2b', lft: 14 },
+          ],
+        },
+      },
+    ],
+  },
+};
+
+function setupCourseData(progressOverrides = {}) {
+  const progress = {
+    started: false,
+    active_test: null,
+    resume_position: null,
+    ...progressOverrides,
+  };
+
+  LearnerCourseResource.fetchModel = jest.fn().mockResolvedValue({
+    id: COURSE_SESSION_ID,
+    course_id: COURSE_ID,
+  });
+  LearnerCourseResource.getResumeData = jest.fn().mockResolvedValue(progress);
+  ContentNodeResource.fetchTree = jest.fn().mockResolvedValue(COURSE_CONTENT_TREE);
+
+  return fetchCourse({ courseSessionId: COURSE_SESSION_ID });
+}
+
+describe('isUnitTestAvailable', () => {
+  it('returns false when there is no active test', async () => {
+    await setupCourseData({ started: false });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
+  });
+
+  it('returns true when active test matches unit and type', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'pre' },
+    });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(true);
+  });
+
+  it('returns false when active test is for a different unit', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-2', test_type: 'pre' },
+    });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
+  });
+
+  it('returns false when active test is a different type', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'post' },
+    });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
+  });
+});
+
+describe('isCourseLessonAvailable', () => {
+  it('returns false when course has not started', async () => {
+    await setupCourseData({ started: false });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+  });
+
+  it('returns false when started but no resume position', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'pre' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+  });
+
+  it('returns true for a lesson at or before the resume position in the current unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1b', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
+  });
+
+  it('returns false for a lesson ahead of the resume position in the current unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(false);
+  });
+
+  it('returns true for all lessons in a previous unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-2', lesson_id: 'lesson-2a', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
+  });
+
+  it('returns false for lessons in a future unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+  });
+
+  it('returns true for all lessons when the current unit is complete (no lesson_id in resume)', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: null, resource_id: null },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
+  });
+
+  it('returns false for a nonexistent unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'nonexistent', 'lesson-1a')).toBe(false);
+  });
+
+  it('returns false for a nonexistent lesson in the current unit', async () => {
+    await setupCourseData({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1b', resource_id: 'r1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'nonexistent')).toBe(false);
   });
 });

@@ -273,23 +273,31 @@ describe('CourseWelcomePage', () => {
     });
   });
 
-  describe('course not started', () => {
-    beforeEach(() => {
+  describe('course action button state', () => {
+    it('is disabled when course not started and no active pre-test', async () => {
       learnerResources = makeLearnerResourcesMock({ started: false });
       useLearnerResources.mockReturnValue(learnerResources);
-    });
-
-    it('shows "Start course" button when course has not been started', async () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByText(content => content.includes('Start Course'))).toBeInTheDocument();
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
       });
     });
-  });
 
-  describe('course started', () => {
-    beforeEach(() => {
+    it('is enabled when first unit pre-test is active', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'pre' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+      });
+    });
+
+    it('is enabled when course started with resume position', async () => {
       learnerResources = makeLearnerResourcesMock({
         started: true,
         resume_position: {
@@ -297,17 +305,48 @@ describe('CourseWelcomePage', () => {
           lesson_id: 'lesson-1',
           resource_id: 'resource-1',
         },
-        active_test: null,
       });
       useLearnerResources.mockReturnValue(learnerResources);
-    });
-
-    it('shows "Resume course" button when course has been started', async () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByText(content => content.includes('Resume Course'))).toBeInTheDocument();
-        expect(wrapper.queryByText('Start Course')).not.toBeInTheDocument();
+        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+      });
+    });
+
+    it('is enabled when post-test is active', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'post' },
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'lesson-1',
+          resource_id: 'resource-1',
+        },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+      });
+    });
+
+    it('is enabled when a later unit pre-test is active', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-2', test_type: 'pre' },
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'lesson-1',
+          resource_id: 'resource-1',
+        },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
       });
     });
   });

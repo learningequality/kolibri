@@ -33,12 +33,14 @@
             class="course-thumbnail"
             :thumbnail="(courseContent && courseContent.thumbnail) || ''"
           />
-          <KRouterLink
+          <KButton
+            class="course-action-button"
+            data-testid="course-action-button"
             :primary="true"
             appearance="raised-button"
-            style="margin-top: 20px"
             :text="courseStarted ? resumeCourseAction$() : startCourseAction$()"
-            :to="openCourseContentPage()"
+            :disabled="!courseStarted && !firstUnitPreTestActive"
+            @click="navigateToCourseContent"
           />
         </div>
         <div>
@@ -322,7 +324,15 @@
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
-      const courseStarted = computed(() => courseProgress.value?.started);
+      const courseStarted = computed(
+        () => courseProgress.value?.started && courseProgress.value?.resume_position != null,
+      );
+
+      const firstUnitPreTestActive = computed(() => {
+        const firstUnit = units.value?.[0];
+        if (!firstUnit || !course.value) return false;
+        return isUnitTestAvailable(course.value.course_id, firstUnit.id, 'pre');
+      });
 
       const courseContent = computed(() =>
         course.value ? getCourseContent(course.value.course_id) : null,
@@ -413,12 +423,14 @@
         }
 
         // Course not yet started — navigate to the first unit.
-        // checkRedirectToUnitTree will then find the first lesson and resource.
-        // TO DO: update with proper conditional checks after course activation
-        // and pre and post test assessments are merged in
+        // checkRedirect in CourseUnitView will route to the active pre-test.
         return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
           unitId: units.value?.[0]?.id,
         });
+      }
+
+      function navigateToCourseContent() {
+        currentInstance.$router.push(openCourseContentPage());
       }
 
       function openCourseContentUnitTest(unitId, testType) {
@@ -484,6 +496,7 @@
 
         // Computed
         courseStarted,
+        firstUnitPreTestActive,
         courseSubtitle,
         windowIsLarge,
         goBack,
@@ -492,11 +505,11 @@
         activeUnitItemStyle,
 
         // Methods & functions
+        navigateToCourseContent,
         testAvailable,
         lessonAvailable,
         isCurrentLesson,
         getUnitTestQuestionCount,
-        openCourseContentPage,
         openCourseContentUnitTest,
         openCourseContentUnitLesson,
 
@@ -543,6 +556,10 @@
 
   .title {
     margin: 8px 0 16px;
+  }
+
+  .course-action-button {
+    margin-top: 20px;
   }
 
   .course-thumbnail {

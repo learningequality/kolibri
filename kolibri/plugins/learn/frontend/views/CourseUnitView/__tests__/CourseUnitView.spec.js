@@ -193,6 +193,61 @@ describe('CourseUnitView', () => {
       });
     });
 
+    it('redirects to COURSE_WELCOME if not started even when unitId is provided', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+
+      renderComponent({ unitId: UNIT_1 });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_WELCOME,
+          params: { courseSessionId: COURSE_ID },
+        });
+      });
+    });
+
+    it('redirects to active test even when course not yet started', async () => {
+      const activeTest = {
+        unit_id: UNIT_1,
+        test_type: 'pre',
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: false,
+        active_test: activeTest,
+      });
+
+      renderComponent({ unitId: UNIT_1, testType: 'post' });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT_TEST,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            testType: 'pre',
+          },
+        });
+      });
+    });
+
+    it('does not redirect when already on the active test page and course not started', async () => {
+      const activeTest = {
+        unit_id: UNIT_1,
+        test_type: 'pre',
+      };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: false,
+        active_test: activeTest,
+      });
+
+      renderComponent({ unitId: UNIT_1, testType: 'pre' });
+
+      await waitFor(() => {
+        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
+        expect(router.replace).not.toHaveBeenCalled();
+      });
+    });
+
     it('redirects to active test if resume data has active_test', async () => {
       const activeTest = {
         unit_id: UNIT_1,
