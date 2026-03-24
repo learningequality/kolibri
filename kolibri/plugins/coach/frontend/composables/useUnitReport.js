@@ -40,6 +40,13 @@ export default function useUnitReport(courseSessionId, unitContentnodeId, store)
     return null;
   });
 
+  const activeTestType = computed(() => {
+    if (!activeTest.value || !reportData.value) {
+      return null;
+    }
+    return activeTest.value === reportData.value.post_test ? 'post' : 'pre';
+  });
+
   const activeTestStatus = computed(() => {
     return activeTest.value?.status || 'not_activated';
   });
@@ -67,6 +74,7 @@ export default function useUnitReport(courseSessionId, unitContentnodeId, store)
     reportData,
     fetchReport,
     activeTest,
+    activeTestType,
     activeTestStatus,
     bucketedObjectives,
     learnersWithGroups,
