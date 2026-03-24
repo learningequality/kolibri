@@ -46,6 +46,8 @@ def wait_for_kolibri(process, timeout=STARTUP_TIMEOUT):
 def run_smoke_test():
     """Start Kolibri and navigate the setup wizard."""
     # Start Kolibri as a subprocess, inheriting stdout/stderr so CI captures logs
+    env = os.environ.copy()
+    env["KOLIBRI_RUN_MODE"] = "integration-test"
     kolibri_process = subprocess.Popen(
         [
             sys.executable,
@@ -55,6 +57,7 @@ def run_smoke_test():
             "--foreground",
             f"--port={KOLIBRI_PORT}",
         ],
+        env=env,
     )
 
     try:
