@@ -27,6 +27,7 @@
   import SafeHTML from 'kolibri-common/components/SafeHTML';
   import debounce from 'lodash/debounce';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import urls from 'kolibri/urls';
 
   export default {
     name: 'SafeHtml5RendererIndex',
@@ -61,7 +62,9 @@
     },
     async created() {
       const storageUrl = this.defaultFile.storage_url;
-      const zipFile = new ZipFile(storageUrl);
+      const zipFile = new ZipFile(storageUrl, {
+        largeFileUrlGenerator: filepath => urls.zipContentUrl(this.defaultFile, filepath),
+      });
       const entryHtmlFile = await zipFile.file(this.entry);
       this.html = entryHtmlFile.toString();
       this.loading = false;

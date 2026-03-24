@@ -108,16 +108,54 @@ describe('UrlResolver', () => {
     });
 
     test('generates zip content URLs', () => {
-      expect(Urls.zipContentUrl('abc123', 'mp4')).toBe(
-        'http://localhost:8000/zipcontent/abc123.mp4/',
+      expect(
+        Urls.zipContentUrl({
+          checksum: 'abcdef0123456789abcdef0123456789',
+          extension: 'zip',
+          storage_url: 'content/storage/a/b/abcdef0123456789abcdef0123456789.mp4',
+        }),
+      ).toBe('http://localhost:8000/zipcontent/abcdef0123456789abcdef0123456789.zip/');
+
+      expect(
+        Urls.zipContentUrl(
+          {
+            checksum: 'abcdef0123456789abcdef0123456789',
+            extension: 'zip',
+            storage_url: 'content/storage/a/b/abcdef0123456789abcdef0123456789.mp4',
+          },
+          'embedded/vid.mp4',
+        ),
+      ).toBe(
+        'http://localhost:8000/zipcontent/abcdef0123456789abcdef0123456789.zip/embedded/vid.mp4',
       );
 
-      expect(Urls.zipContentUrl('abc123', 'mp4', 'embedded/file.mp4')).toBe(
-        'http://localhost:8000/zipcontent/abc123.mp4/embedded/file.mp4',
+      expect(
+        Urls.zipContentUrl(
+          {
+            checksum: 'abcdef0123456789abcdef0123456789',
+            extension: 'zip',
+            storage_url:
+              'content/storage/a/b/abcdef0123456789abcdef0123456789.mp4?baseurl=http://example.com',
+          },
+          'embedded/vid.mp4',
+        ),
+      ).toBe(
+        `http://localhost:8000/zipcontent/${encodeURIComponent('http://example.com')}/abcdef0123456789abcdef0123456789.zip/embedded/vid.mp4`,
       );
+    });
 
-      expect(Urls.zipContentUrl('abc123', 'mp4', '', 'baseurl')).toBe(
-        'http://localhost:8000/zipcontent/baseurl/abc123.mp4/',
+    test('URL-encodes embedded file path segments in zip content URLs', () => {
+      expect(
+        Urls.zipContentUrl(
+          {
+            checksum: 'abcdef0123456789abcdef0123456789',
+            extension: 'zip',
+            storage_url: 'content/storage/a/b/abcdef0123456789abcdef0123456789.mp4',
+          },
+          'path/file name.txt',
+        ),
+      ).toBe(
+        'http://localhost:8000/zipcontent/abcdef0123456789abcdef0123456789.zip/path/file%20name.txt',
       );
     });
 
