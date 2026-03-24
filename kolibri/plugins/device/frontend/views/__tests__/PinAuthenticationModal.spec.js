@@ -1,130 +1,102 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import { Store } from 'vuex';
-import PinAuthenticationModal from '../PinAuthenticationModal';
+import PinAuthenticationModal from '../PinAuthenticationModal.vue';
 
-const store = new Store({
-  modules: {
-    facilityConfig: {
-      namespaced: true,
-      state: {
-        isFacilityPinValid: true,
-      },
-    },
-  },
-  actions: {
-    createSnackbar() {},
-  },
-});
+let store;
+let isPinValidMock;
+let createSnackbarMock;
 
-function getElements(wrapper) {
-  return {
-    cancelButton: () => wrapper.find('button[name="cancel"]'),
-    pinTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
-    form: () => wrapper.find('form'),
-    isPinValidStub: () => {
-      wrapper.vm.isPinValid = jest.fn();
-      return wrapper.vm.isPinValid;
-    },
-  };
-}
-
-function makeWrapper(options) {
-  return mount(PinAuthenticationModal, { store, ...options });
-}
+const renderComponent = options => {
+  return render(PinAuthenticationModal, {
+    store,
+    ...options,
+  });
+};
 
 describe('PinAuthenticationModal', () => {
-  let wrapper;
-
   beforeEach(() => {
-    wrapper = makeWrapper();
-  });
+    isPinValidMock = jest.fn().mockResolvedValue({ is_pin_valid: true });
+    createSnackbarMock = jest.fn();
 
-  it('clicking cancel causes a "cancel" event to be emitted', () => {
-    const cancelListener = jest.fn();
-    wrapper = makeWrapper({
-      listeners: {
-        cancel: cancelListener,
+    store = new Store({
+      modules: {
+        facilityConfig: {
+          namespaced: true,
+          state: {
+            isFacilityPinValid: true,
+          },
+          actions: {
+            isPinValid: isPinValidMock,
+          },
+        },
+      },
+      actions: {
+        createSnackbar: createSnackbarMock,
       },
     });
-    const elements = getElements(wrapper);
-    elements.cancelButton().trigger('click');
-    expect(cancelListener).toHaveBeenCalled();
+  });
+
+  it('emits cancel when the user clicks Cancel', async () => {
+    const { emitted } = renderComponent();
+
+    await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+
+    expect(emitted()).toHaveProperty('cancel');
+    expect(emitted().cancel).toHaveLength(1);
   });
 
   describe('submitting a PIN', () => {
-    async function inputPin(wrapper, pin) {
-      const textbox = getElements(wrapper).pinTextbox();
-      textbox.vm.$emit('input', pin);
-      await wrapper.vm.$nextTick();
-      expect(textbox.props().value).toEqual(pin.trim());
-    }
+    it('does not show validation messages before the user submits the form', () => {
+      renderComponent();
 
-    function assertTextbox(wrapper, errorText, invalid) {
-      const textbox = getElements(wrapper).pinTextbox();
-      expect(textbox.props().invalid).toEqual(invalid);
-      expect(textbox.props().invalidText).toEqual(errorText);
-    }
-
-    it('if user has not interacted with the form, then no validation messages appear', () => {
-      const { pinTextbox } = getElements(wrapper);
-      expect(pinTextbox().props().invalid).toEqual(false);
+      expect(screen.queryByText('Incorrect PIN, please try again')).not.toBeInTheDocument();
+      expect(screen.queryByText('This field is required')).not.toBeInTheDocument();
+      expect(screen.queryByText('Enter numbers only')).not.toBeInTheDocument();
     });
 
-    it('emits a "submit" event if PIN validation is successful', async () => {
-      const { isPinValidStub } = getElements(wrapper);
-      const isPinValid = isPinValidStub();
-      await isPinValid.mockResolvedValue({ is_pin_valid: true });
-      return await inputPin(wrapper, '1234')
-        .then(() => {
-          const elements = getElements(wrapper);
-          elements.form().trigger('submit');
-        })
-        .then(() => {
-          expect(isPinValid).toHaveBeenCalledWith({ pin_code: '1234' });
-          expect(wrapper.emitted().submit).toEqual([[]]);
-          assertTextbox(wrapper, '', false);
-        });
+    it('emits submit when the user enters a valid PIN and submits', async () => {
+      const { emitted } = renderComponent();
+
+      await userEvent.type(screen.getByLabelText('PIN'), '1234');
+      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(isPinValidMock).toHaveBeenCalledWith(expect.anything(), { pin_code: '1234' });
+        expect(emitted()).toHaveProperty('submit');
+      });
     });
 
-    it('on submit, shows a validation message when PIN code is input but invalid', async () => {
-      //Force is isFacilityPinValid to be false
+    it('shows an incorrect PIN message when the submitted PIN is invalid', async () => {
       store.state.facilityConfig.isFacilityPinValid = false;
+      isPinValidMock.mockResolvedValue({ is_pin_valid: false });
 
-      const { isPinValidStub } = getElements(wrapper);
-      const isPinValid = isPinValidStub();
-      await isPinValid.mockResolvedValue({ is_pin_valid: false });
-      return await inputPin(wrapper, '1234')
-        .then(() => {
-          const elements = getElements(wrapper);
-          elements.form().trigger('submit');
-        })
-        .then(() => {
-          expect(isPinValid).toHaveBeenCalledWith({ pin_code: '1234' });
-          expect(wrapper.emitted().submit).toBeUndefined();
-          assertTextbox(wrapper, 'Incorrect PIN, please try again', true);
-        });
+      renderComponent();
+
+      await userEvent.type(screen.getByLabelText('PIN'), '1234');
+      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      await waitFor(() => {
+        expect(isPinValidMock).toHaveBeenCalledWith(expect.anything(), { pin_code: '1234' });
+        expect(screen.getByText('Incorrect PIN, please try again')).toBeInTheDocument();
+      });
     });
 
-    it('on submit, shows a validation message when PIN has letters', async () => {
-      return inputPin(wrapper, 'abcd')
-        .then(() => {
-          const elements = getElements(wrapper);
-          elements.form().trigger('submit');
-        })
-        .then(() => {
-          assertTextbox(wrapper, 'Enter numbers only', true);
-        });
+    it('shows a numbers-only validation message when the PIN contains letters', async () => {
+      renderComponent();
+
+      await userEvent.type(screen.getByLabelText('PIN'), 'abcd');
+      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      expect(screen.getByText('Enter numbers only')).toBeInTheDocument();
     });
 
-    it('on submit, shows a validation message when PIN code is empty', async () => {
-      return inputPin(wrapper, '')
-        .then(() => {
-          const elements = getElements(wrapper);
-          elements.form().trigger('submit');
-        })
-        .then(() => {
-          assertTextbox(wrapper, 'This field is required', true);
-        });
+    it('shows a required-field validation message when the PIN is empty', async () => {
+      renderComponent();
+
+      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+      expect(screen.getByText('This field is required')).toBeInTheDocument();
     });
   });
 });

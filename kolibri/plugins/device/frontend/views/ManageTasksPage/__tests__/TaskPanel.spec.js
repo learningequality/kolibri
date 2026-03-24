@@ -1,10 +1,13 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import TaskPanel from '../TaskPanel';
 
-function makeWrapper(propsData) {
-  const wrapper = mount(TaskPanel, { propsData });
-  return { wrapper };
+function renderComponent(task) {
+  return render(TaskPanel, {
+    props: {
+      task,
+    },
+  });
 }
 
 describe('TaskPanel', () => {
@@ -20,14 +23,32 @@ describe('TaskPanel', () => {
     },
   };
 
-  it('renders correctly when it is a canceled DISKCONTENTEXPORT task', () => {
-    const { wrapper } = makeWrapper({ task: exportTask });
-    // File size/resource numbers should not be shown for canceled exports
-    expect(wrapper.html()).toMatchSnapshot();
+  it('shows canceled partial export details including resource totals for a canceled disk content export task', () => {
+    renderComponent(exportTask);
+
+    expect(screen.getByText('Canceled')).toBeInTheDocument();
+    expect(
+      screen.getByText(/export resources from 'canceled disk export channel test'/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/started by 'tester'/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+
+    expect(screen.getByText(/500 resources/i)).toBeInTheDocument();
+    expect(screen.getByText(/\(5 KB\)/i)).toBeInTheDocument();
   });
 
-  it('renders correctly when it is a canceled DISKEXPORT task (bulk export)', () => {
-    const { wrapper } = makeWrapper({ task: { ...exportTask, type: TaskTypes.DISKEXPORT } });
-    expect(wrapper.html()).toMatchSnapshot();
+  it('shows canceled bulk export details including resource totals for a canceled disk export task', () => {
+    renderComponent({
+      ...exportTask,
+      type: TaskTypes.DISKEXPORT,
+    });
+
+    expect(screen.getByText('Canceled')).toBeInTheDocument();
+    expect(screen.getByText(/export 'canceled disk export channel test'/i)).toBeInTheDocument();
+    expect(screen.getByText(/started by 'tester'/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+
+    expect(screen.getByText(/500 resources/i)).toBeInTheDocument();
+    expect(screen.getByText(/\(5 KB\)/i)).toBeInTheDocument();
   });
 });
