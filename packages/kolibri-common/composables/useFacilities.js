@@ -35,12 +35,15 @@ export default function useFacilities() {
 
   //actions
   async function getFacilities() {
-    const facilities = await FacilityResource.fetchCollection({ force: true });
-
-    _facilities.value = facilities;
+    _facilities.value = await FacilityResource.fetchCollection({ force: true });
   }
 
-  async function getFacilityConfig(facilityId) {
+  /**
+   * Get the current user's facility, or another facility's config
+   * @param {string|null} [facilityId]
+   * @return {Promise<void>}
+   */
+  async function getFacilityConfig(facilityId = null) {
     const facId = facilityId || userFacilityId.value;
 
     if (!facId) {
