@@ -16,6 +16,7 @@ import {
 } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
 
+import Modalities from 'kolibri-constants/Modalities';
 import { deduplicateResources } from '../utils/contentNode';
 
 export const logging = logger.getLogger(__filename);
@@ -242,6 +243,9 @@ export default function useBaseSearch({
 
   function createBaseSearchGetParams() {
     const getParams = {
+      exclude_modalities:
+        get(isAdmin) || get(isCoach) || get(isSuperuser) ? null : Modalities.COURSE,
+      exclude_course_ancestry: !(get(isAdmin) || get(isCoach) || get(isSuperuser)),
       include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
       baseurl: get(baseurl),
     };

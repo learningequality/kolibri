@@ -115,7 +115,13 @@ export default class BloomRunner {
     this.loaded = loaded;
     // Callback to call when Bloom errors
     this.errored = errored;
-    this.zip = new ZipFile(this.filepath, { filePathMappers });
+    // A fallback URL to the zipcontent endpoint for this Bloom file
+    this.zipcontentUrl = new URL(
+      `../../zipcontent/${this.filepath.split('/').pop()}`,
+      window.location,
+    ).href;
+    const largeFileUrlGenerator = filePath => `${this.zipcontentUrl}/${filePath}`;
+    this.zip = new ZipFile(this.filepath, { filePathMappers, largeFileUrlGenerator });
     return this.processFiles().then(() => {
       if (this.iframe.contentDocument && this.iframe.contentDocument.readyState === 'complete') {
         return this.initBloom();

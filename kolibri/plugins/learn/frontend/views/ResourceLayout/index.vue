@@ -261,37 +261,34 @@
         const mainColumn = h('div', { class: 'main-column' }, mainColumnChildren);
 
         // === ASSEMBLE LAYOUT ===
-        let mainLayout;
-
+        // Always use the same VNode tree structure so that toggling the side
+        // panel does not cause Vue to remount the default slot content.
+        const mainArea = h('div', { class: 'main-area' }, [topBar, mainColumn].filter(Boolean));
+        const bodyChildren = [mainArea];
         if (showPushPanel) {
-          // Push mode: wrap topBar + mainColumn in main-area so the
-          // aside spans the full height of the layout alongside it.
-          const mainArea = h('div', { class: 'main-area' }, [topBar, mainColumn].filter(Boolean));
-          const body = h('div', { attrs: { 'data-testid': 'body' }, class: 'body' }, [
-            mainArea,
-            renderSidePanelAside('menu'),
-          ]);
-          mainLayout = h('div', { class: 'resource-layout' }, [body]);
-        } else {
-          const body = h('div', { attrs: { 'data-testid': 'body' }, class: 'body' }, [mainColumn]);
-          mainLayout = h('div', { class: 'resource-layout' }, [topBar, body].filter(Boolean));
+          bodyChildren.push(renderSidePanelAside('menu'));
         }
+        const body = h('div', { attrs: { 'data-testid': 'body' }, class: 'body' }, bodyChildren);
+        const mainLayout = h('div', { class: 'resource-layout' }, [body]);
 
         // === MODAL MODE ===
+        // Always return the same root structure so the VNode path to the
+        // default slot stays stable across modal/push transitions.
+        const layoutChildren = [mainLayout];
         if (showModalPanel) {
-          const sidePanelModal = h(
-            SidePanelModal,
-            {
-              props: { alignment: 'right', width: SIDE_PANEL_WIDTH },
-              on: { closePanel: closeSidePanel },
-            },
-            [renderSidePanelAside('close', true)],
+          layoutChildren.push(
+            h(
+              SidePanelModal,
+              {
+                props: { alignment: 'right', width: SIDE_PANEL_WIDTH },
+                on: { closePanel: closeSidePanel },
+              },
+              [renderSidePanelAside('close', true)],
+            ),
           );
-
-          return h('div', {}, [mainLayout, sidePanelModal]);
         }
 
-        return mainLayout;
+        return h('div', {}, layoutChildren);
       };
     },
   };
