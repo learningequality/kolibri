@@ -1,12 +1,6 @@
-import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import LearningObjectivesReport from '../LearningObjectivesReport.vue';
-import useUnitReport from '../../../composables/useUnitReport';
-
-jest.mock('../../../composables/useUnitReport', () => {
-  return { __esModule: true, default: jest.fn() };
-});
 
 const MOCK_OBJECTIVES = [
   {
@@ -38,9 +32,6 @@ const STUBS = {
     template: `
       <div data-testid="k-table">
         <caption>{{ caption }}</caption>
-        <template v-if="rows.length === 0 && emptyMessage">
-          <div data-testid="empty-message">{{ emptyMessage }}</div>
-        </template>
         <template v-for="(row, rowIndex) in rows">
           <div :key="rowIndex" :data-testid="'row-' + rowIndex">
             <slot
@@ -58,11 +49,6 @@ const STUBS = {
     props: ['text', 'to'],
     template: '<a data-testid="router-link">{{ text }}</a>',
   },
-  KIcon: {
-    name: 'KIcon',
-    props: ['icon', 'color'],
-    template: '<span :data-testid="\'icon-\' + icon" />',
-  },
   SparklineBar: {
     name: 'SparklineBar',
     props: ['lowCount', 'midCount', 'highCount'],
@@ -71,103 +57,51 @@ const STUBS = {
   },
 };
 
-function mockUseUnitReport(overrides = {}) {
-  const defaults = {
-    loading: ref(false),
-    fetchReport: jest.fn(),
-    activeTestType: ref('pre'),
-    activeTestStatus: ref('closed'),
-    bucketedObjectives: ref([]),
-  };
-  const mockReturn = { ...defaults, ...overrides };
-  useUnitReport.mockReturnValue(mockReturn);
-  return mockReturn;
-}
-
-function renderComponent(props = {}, overrides = {}) {
-  const defaultProps = {
-    courseSessionId: 'session-123',
-    unitContentnodeId: 'unit-abc',
-    ...props,
-  };
-
+function renderComponent(props = {}) {
   return render(LearningObjectivesReport, {
-    props: defaultProps,
+    props: {
+      ...props,
+    },
     stubs: STUBS,
-    ...overrides,
   });
 }
 
 describe('LearningObjectivesReport', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('calls fetchReport on mount', () => {
-    const { fetchReport } = mockUseUnitReport();
-    renderComponent();
-    expect(fetchReport).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows KCircularLoader when loading', () => {
-    mockUseUnitReport({ loading: ref(true) });
-    renderComponent();
+  it('shows KCircularLoader when prefetchedData is null', () => {
+    renderComponent({ prefetchedData: null });
     expect(screen.getByTestId('loader')).toBeInTheDocument();
     expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
   });
 
   it('shows empty state when activeTestStatus is not_activated', () => {
-    mockUseUnitReport({ activeTestStatus: ref('not_activated') });
-    renderComponent();
+    renderComponent({
+      prefetchedData: {
+        activeTestStatus: 'not_activated',
+        bucketedObjectives: [],
+      },
+    });
     expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
     expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    // Should show some kind of empty state message
     expect(screen.getByText(/no test has been activated/i)).toBeInTheDocument();
   });
 
   it('renders LO rows when data is available', () => {
-    mockUseUnitReport({
-      activeTestStatus: ref('closed'),
-      bucketedObjectives: ref(MOCK_OBJECTIVES),
+    renderComponent({
+      prefetchedData: {
+        activeTestStatus: 'closed',
+        bucketedObjectives: MOCK_OBJECTIVES,
+      },
     });
-    renderComponent();
 
     expect(screen.getByTestId('k-table')).toBeInTheDocument();
     expect(screen.getByText('Understand fractions')).toBeInTheDocument();
     expect(screen.getByText('Apply division')).toBeInTheDocument();
 
-    // Each row should have a sparkline bar
     const sparklines = screen.getAllByTestId('sparkline-bar');
     expect(sparklines).toHaveLength(2);
 
-    // First objective sparkline should have correct data
     expect(sparklines[0]).toHaveAttribute('data-low', '8');
     expect(sparklines[0]).toHaveAttribute('data-mid', '4');
     expect(sparklines[0]).toHaveAttribute('data-high', '3');
-  });
-
-  it('emits report-loaded when data is available', () => {
-    mockUseUnitReport({
-      activeTestType: ref('pre'),
-      activeTestStatus: ref('closed'),
-      bucketedObjectives: ref(MOCK_OBJECTIVES),
-    });
-    // The watch fires immediately since bucketedObjectives has data and loading is false
-    const { emitted } = renderComponent();
-    expect(emitted()['report-loaded']).toBeTruthy();
-    expect(emitted()['report-loaded'][0][0]).toMatchObject({
-      activeTestType: 'pre',
-      activeTestStatus: 'closed',
-    });
-  });
-
-  it('does not emit report-loaded when bucketedObjectives is empty', () => {
-    mockUseUnitReport({
-      activeTestType: ref('pre'),
-      activeTestStatus: ref('closed'),
-      bucketedObjectives: ref([]),
-    });
-    const { emitted } = renderComponent();
-    expect(emitted()['report-loaded']).toBeFalsy();
   });
 });

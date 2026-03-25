@@ -214,7 +214,7 @@
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
-                <AccordionContainer>
+                <AccordionContainer :key="activeUnit ? activeUnit.id : 'complete'">
                   <AccordionItem
                     v-for="unit in allUnits"
                     :key="unit.id"
@@ -240,11 +240,7 @@
                       </span>
                     </template>
                     <template #content>
-                      <LearningObjectivesReport
-                        :courseSessionId="courseSessionId"
-                        :unitContentnodeId="unit.id"
-                        @report-loaded="data => onReportLoaded(unit.id, data)"
-                      />
+                      <LearningObjectivesReport :prefetchedData="unitReportInfo[unit.id]" />
                     </template>
                   </AccordionItem>
                 </AccordionContainer>
@@ -293,7 +289,7 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -309,6 +305,8 @@
   import useCourseSession from '../../composables/useCourseSession';
   import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
+  import UnitReportResource from '../../apiResources/unitReport';
+  import { bucketAllObjectives } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
 
   export default {
@@ -401,12 +399,51 @@
       // UI-only state
       const activeModal = ref(null);
 
-      // Per-unit report data emitted by LearningObjectivesReport
+      // Per-unit report data fetched eagerly for mastery pills and titles
       const unitReportInfo = ref({});
 
-      function onReportLoaded(unitId, data) {
-        unitReportInfo.value = { ...unitReportInfo.value, [unitId]: data };
+      function fetchAllUnitReports() {
+        const sessionId = courseSessionId.value;
+        const unitList = allUnits.value;
+        if (!sessionId || !unitList.length) return;
+        for (const unit of unitList) {
+          UnitReportResource.fetchReport({
+            courseSessionId: sessionId,
+            unitContentnodeId: unit.id,
+          }).then(data => {
+            const postTest = data.post_test;
+            const preTest = data.pre_test;
+            let activeTestObj = null;
+            let activeTestType = null;
+            if (postTest.status !== 'not_activated') {
+              activeTestObj = postTest;
+              activeTestType = 'post';
+            } else if (preTest.status !== 'not_activated') {
+              activeTestObj = preTest;
+              activeTestType = 'pre';
+            }
+            const bucketedObjectives = activeTestObj
+              ? bucketAllObjectives(data.learning_objectives, activeTestObj.scores)
+              : [];
+            unitReportInfo.value = {
+              ...unitReportInfo.value,
+              [unit.id]: {
+                activeTestType,
+                activeTestStatus: activeTestObj?.status || 'not_activated',
+                bucketedObjectives,
+                reportData: data,
+              },
+            };
+          });
+        }
       }
+
+      // Fetch reports when units become available
+      watch(allUnits, () => {
+        if (allUnits.value.length) {
+          fetchAllUnitReports();
+        }
+      });
 
       function unitObjectiveTitle(unit) {
         const info = unitReportInfo.value[unit.id];
@@ -634,7 +671,6 @@
 
       return {
         backRoute,
-        courseSessionId,
         dataLoading,
         pageLoading,
         course,
@@ -681,7 +717,7 @@
         onUnitButtonClick,
         allUnits,
         courseObjectiveheaderstyle,
-        onReportLoaded,
+        unitReportInfo,
         unitObjectiveTitle,
         unitHasScores,
         isUnitLowMastery,

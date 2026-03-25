@@ -6,33 +6,35 @@
       <p class="empty-state">{{ noTestDataLabel$() }}</p>
     </template>
     <template v-else>
-      <KTable
-        :headers="headers"
-        :rows="rows"
-        :caption="learningObjectivesLabel$()"
-      >
-        <template #header>
-          <!-- Headers hidden per design; caption provides accessibility -->
-        </template>
-        <template #cell="{ content, rowIndex, colIndex }">
-          <template v-if="colIndex === 0">
-            <!-- TODO: Replace :to with real route once detail route is available -->
-            <KRouterLink
-              class="lo-link"
-              :text="content"
-              :to="{}"
-            />
+      <div class="lo-report-table">
+        <KTable
+          :headers="headers"
+          :rows="rows"
+          :caption="learningObjectivesLabel$()"
+        >
+          <template #header>
+            <!-- Headers hidden per design; caption provides accessibility -->
           </template>
-          <template v-else-if="colIndex === 1">
-            <SparklineBar
-              class="lo-sparkline"
-              :lowCount="objectiveAt(rowIndex).lowCount"
-              :midCount="objectiveAt(rowIndex).midCount"
-              :highCount="objectiveAt(rowIndex).highCount"
-            />
+          <template #cell="{ content, rowIndex, colIndex }">
+            <template v-if="colIndex === 0">
+              <!-- TODO: Replace :to with real route once detail route is available -->
+              <KRouterLink
+                class="lo-link"
+                :text="content"
+                :to="{}"
+              />
+            </template>
+            <template v-else-if="colIndex === 1">
+              <SparklineBar
+                class="lo-sparkline"
+                :lowCount="objectiveAt(rowIndex).lowCount"
+                :midCount="objectiveAt(rowIndex).midCount"
+                :highCount="objectiveAt(rowIndex).highCount"
+              />
+            </template>
           </template>
-        </template>
-      </KTable>
+        </KTable>
+      </div>
     </template>
   </div>
 
@@ -41,9 +43,8 @@
 
 <script>
 
-  import { computed, onMounted, toRef, watch } from 'vue';
+  import { computed, toRef } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import useUnitReport from '../../composables/useUnitReport';
   import SparklineBar from '../common/SparklineBar.vue';
 
   export default {
@@ -51,30 +52,14 @@
     components: {
       SparklineBar,
     },
-    setup(props, { emit }) {
+    setup(props) {
       const { learningObjectivesLabel$, noTestDataLabel$ } = coursesStrings;
 
-      const { loading, fetchReport, activeTestType, activeTestStatus, bucketedObjectives } =
-        useUnitReport(toRef(props, 'courseSessionId'), toRef(props, 'unitContentnodeId'));
+      const data = toRef(props, 'prefetchedData');
 
-      onMounted(() => {
-        fetchReport();
-      });
-
-      // Emit report data to parent for accordion header mastery pill and title
-      watch(
-        [loading, bucketedObjectives],
-        () => {
-          if (!loading.value && bucketedObjectives.value.length) {
-            emit('report-loaded', {
-              activeTestType: activeTestType.value,
-              activeTestStatus: activeTestStatus.value,
-              bucketedObjectives: bucketedObjectives.value,
-            });
-          }
-        },
-        { immediate: true },
-      );
+      const activeTestStatus = computed(() => data.value?.activeTestStatus || 'not_activated');
+      const bucketedObjectives = computed(() => data.value?.bucketedObjectives || []);
+      const loading = computed(() => !data.value);
 
       const headers = computed(() => [
         { label: learningObjectivesLabel$(), dataType: 'string' },
@@ -98,13 +83,9 @@
       };
     },
     props: {
-      courseSessionId: {
-        type: String,
-        required: true,
-      },
-      unitContentnodeId: {
-        type: String,
-        required: true,
+      prefetchedData: {
+        type: Object,
+        default: null,
       },
     },
   };
@@ -124,6 +105,24 @@
 
   .lo-sparkline {
     padding-right: 8px;
+  }
+
+</style>
+
+
+<style>
+
+  /* Visually hide KTable headers while keeping them accessible to screen readers */
+  .lo-report-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
 </style>
