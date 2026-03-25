@@ -85,7 +85,7 @@
             <template #iconAfter>
               <KIcon
                 icon="forward"
-                :color="$themeTokens.text"
+                :color="$themeTokens.textInverted"
                 class="btn-icon hotfixed"
               />
             </template>
