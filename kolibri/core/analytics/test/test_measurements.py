@@ -35,7 +35,7 @@ class GetDbInfoTestCase(TestCase):
             expire_date=now - timedelta(hours=1),
         )
 
-        active_sessions, active_users, active_users_minute = get_db_info()
+        active_sessions, _, _ = get_db_info()
         self.assertEqual(active_sessions, "2")
 
     def test_no_sessions_returns_zero(self):
@@ -101,8 +101,6 @@ class BenchmarkCommandTestCase(TestCase):
     @mock.patch("kolibri.core.analytics.management.commands.benchmark.get_kolibri_process_cmd", return_value=["kolibri", "start"])
     @mock.patch("kolibri.core.analytics.management.commands.benchmark.installation_type", return_value="Unknown")
     @mock.patch("kolibri.core.analytics.management.commands.benchmark.SUPPORTED_OS", True)
-    def test_benchmark_command_runs_without_error(
-        self, mock_install_type, mock_cmd, mock_machine, mock_requests, mock_use
-    ):
+    def test_benchmark_command_runs_without_error(self, *_args):
         """The benchmark management command completes without raising."""
         call_command("benchmark")
