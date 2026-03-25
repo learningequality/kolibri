@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+import mock
+from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 
@@ -83,3 +85,24 @@ class GetDbInfoUserCountsTestCase(TestCase):
         _, active_users, active_users_minute = get_db_info()
         self.assertEqual(active_users, "0")
         self.assertEqual(active_users_minute, "0")
+
+
+class BenchmarkCommandTestCase(TestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        setup_device()
+
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.get_kolibri_use", return_value=("0", "0"))
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.get_requests_info", return_value=("0.01 s", "0.01 s", "0.01 s"))
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.get_machine_info", return_value=("0", "0", "0", "0"))
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.get_kolibri_process_cmd", return_value=["kolibri", "start"])
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.installation_type", return_value="Unknown")
+    @mock.patch("kolibri.core.analytics.management.commands.benchmark.SUPPORTED_OS", True)
+    def test_benchmark_command_runs_without_error(
+        self, mock_install_type, mock_cmd, mock_machine, mock_requests, mock_use
+    ):
+        """The benchmark management command completes without raising."""
+        call_command("benchmark")
