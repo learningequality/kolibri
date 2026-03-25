@@ -131,29 +131,42 @@ def _consolidate_courses_data(request, courses):
         ),
     )
 
-    course_data_map = {}
-
+    # Gather each course's non-topic descendant content ids in one pass, then
+    # look up the user's completed content across all courses in a single query
+    # rather than running one ContentSummaryLog count per course.
+    course_meta = {}
+    all_content_ids = set()
     for course_node in course_nodes:
-        content_qs = (
+        descendant_ids = list(
             course_node.get_descendants()
             .exclude(kind=content_kinds.TOPIC)
             .values_list("content_id", flat=True)
         )
+        course_meta[course_node.id] = (
+            course_node.unit_count,
+            course_node.lesson_count,
+            descendant_ids,
+        )
+        all_content_ids.update(descendant_ids)
 
-        total_content = content_qs.count()
+    completed_content_ids = set(
+        ContentSummaryLog.objects.filter(
+            user=request.user, progress=1, content_id__in=all_content_ids
+        ).values_list("content_id", flat=True)
+    )
 
-        user_completed_content = 0
+    course_data_map = {}
+    for course_id, (unit_count, lesson_count, descendant_ids) in course_meta.items():
+        total_content = len(descendant_ids)
         if total_content:
-            user_completed_content = ContentSummaryLog.objects.filter(
-                user=request.user, progress=1, content_id__in=content_qs
-            ).count()
+            user_completed_content = len(set(descendant_ids) & completed_content_ids)
             progress = user_completed_content / total_content
         else:
             progress = 0
 
-        course_data_map[course_node.id] = {
-            "unit_count": course_node.unit_count,
-            "lesson_count": course_node.lesson_count,
+        course_data_map[course_id] = {
+            "unit_count": unit_count,
+            "lesson_count": lesson_count,
             "progress": progress,
         }
 
