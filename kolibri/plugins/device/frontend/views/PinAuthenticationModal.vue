@@ -5,14 +5,14 @@
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     @submit="submit"
-    @cancel="$emit('cancel')"
+    @cancel="cancel"
   >
     <KTextbox
       ref="pinFocus"
       v-model="pin"
       input="number"
       type="password"
-      :label="$tr('pinPlaceholder')"
+      :label="pinPlaceholder$()"
       :maxlength="4"
       :invalid="showErrorText"
       :invalidText="pinError"
@@ -25,70 +25,108 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { ref } from 'vue';
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
+  const strings = createTranslator('PinAuthenticationModal', {
+    incorrectPin: {
+      message: 'Incorrect PIN, please try again',
+      context: 'Error message displayed when an incorrect PIN is input',
+    },
+    invalidPin: {
+      message: 'Enter four numbers to set as your new PIN',
+      context: 'Error message displayed when a PIN with less than 4 digits is input',
+    },
+    pinPlaceholder: {
+      message: 'PIN',
+      context: 'Placeholder label for a PIN input',
+    },
+  });
 
   export default {
     name: 'PinAuthenticationModal',
     mixins: [commonCoreStrings],
-    data() {
+    setup(props, { emit }) {
+      const pin = ref('');
+      const showErrorText = ref(false);
+      const pinError = ref(null);
+      const pinFocus = ref(null);
+      const { coreString, showSnackbarNotification } = commonCoreStrings.methods;
+      const { incorrectPin$, pinPlaceholder$ } = strings;
+
+      function focus() {
+        if (pinFocus.value) {
+          pinFocus.value.focus();
+        }
+      }
+
+      /**
+       * Validate a PIN code against a facility dataset
+       * @param {string} pinCode - The 4-digit PIN to validate
+       * @returns {Promise<boolean>} - True if PIN is valid, false otherwise
+       */
+      async function validatePin(pinCode) {
+        const response = await client({
+          url: urls['kolibri:core:ispinvalid'](props.facilityDatasetId),
+          method: 'POST',
+          data: { pin_code: pinCode },
+        });
+        return response.data.is_pin_valid;
+      }
+
+      /**
+       * Submit pin for validation and handle response
+       * @return {Promise<void>}
+       */
+      async function submit() {
+        if (!pin.value) {
+          pinError.value = coreString('requiredFieldError');
+          showErrorText.value = true;
+          focus();
+        } else if (!pin.value.match(/^\d+$/)) {
+          pinError.value = coreString('numbersOnly');
+          showErrorText.value = true;
+          focus();
+        } else {
+          try {
+            const valid = await validatePin(pin.value);
+            if (valid) {
+              pinError.value = '';
+              showErrorText.value = false;
+              emit('submit');
+              showSnackbarNotification('pinAuthenticate');
+            } else {
+              pinError.value = incorrectPin$();
+              showErrorText.value = true;
+            }
+          } catch (error) {
+            pinError.value = error['response']['data'];
+            showErrorText.value = true;
+          }
+        }
+      }
+
+      function cancel() {
+        emit('cancel');
+      }
+
       return {
-        pin: '',
-        pinError: null,
-        showErrorText: false,
+        pin,
+        pinError,
+        pinFocus,
+        pinPlaceholder$,
+        showErrorText,
+        submit,
+        cancel,
       };
     },
-    computed: {
-      ...mapState('facilityConfig', ['isFacilityPinValid']),
-    },
-    methods: {
-      ...mapActions('facilityConfig', ['isPinValid']),
-      submit() {
-        if (!this.pin) {
-          this.pinError = this.coreString('requiredFieldError');
-          this.showErrorText = true;
-          this.focus();
-        } else if (!this.pin.match(/^\d+$/)) {
-          this.pinError = this.coreString('numbersOnly');
-          this.showErrorText = true;
-          this.focus();
-        } else {
-          this.isPinValid({ pin_code: this.pin })
-            .then(() => {
-              if (this.isFacilityPinValid) {
-                this.pinError = '';
-                this.showErrorText = false;
-                this.$emit('submit');
-                this.showSnackbarNotification('pinAuthenticate');
-              } else {
-                this.pinError = this.$tr('incorrectPin');
-                this.showErrorText = true;
-              }
-            })
-            .catch(error => {
-              this.pinError = error['response']['data'];
-              this.showErrorText = true;
-            });
-        }
-      },
-      focus: function () {
-        this.$refs.pinFocus.focus();
-      },
-    },
-    $trs: {
-      incorrectPin: {
-        message: 'Incorrect PIN, please try again',
-        context: 'Error message displayed when an incorrect PIN is input',
-      },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      invalidPin: {
-        message: 'Enter four numbers to set as your new PIN',
-        context: 'Error message displayed when a PIN with less than 4 digits is input',
-      },
-      /* eslint-enable kolibri/vue-no-unused-translations */
-      pinPlaceholder: {
-        message: 'PIN',
-        context: 'Placeholder label for a PIN input',
+    props: {
+      facilityDatasetId: {
+        type: String,
+        required: true,
       },
     },
   };

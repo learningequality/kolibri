@@ -7,6 +7,7 @@
     <transition name="delay-entry">
       <PinAuthenticationModal
         v-if="showModal && authenticateWithPin"
+        :facilityId="userFacilityId"
         @submit="submit"
         @cancel="closePinModal"
       />
