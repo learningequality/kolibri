@@ -77,15 +77,17 @@ class Command(BaseCommand):
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
     def handle(self, *args, **options):
-        if not SUPPORTED_OS:
-            logger.error("This OS is not yet supported")
-            sys.exit(1)
+        if SUPPORTED_OS:
+            try:
+                get_kolibri_use()
+            except NotRunning:
+                sys.exit(
+                    "Profile command executed while Kolibri server was not running"
+                )
+            get_requests_info()
+        else:
+            logger.warning("This OS is not yet supported for CPU/memory profiling")
 
-        try:
-            get_kolibri_use()
-        except NotRunning:
-            sys.exit("Profile command executed while Kolibri server was not running")
-        get_requests_info()
         self.messages = []
         self.add_header("Sessions")
         session_parameters = (
@@ -96,25 +98,30 @@ class Command(BaseCommand):
         session_info = get_db_info()
         self.add_section(session_parameters, session_info)
 
-        self.add_header("CPU")
-        kolibri_cpu, kolibri_mem = get_kolibri_use()
-        used_cpu, used_memory, total_memory, total_processes = get_machine_info()
-        cpu_parameters = ("Total processes", "Used CPU", "Kolibri CPU usage")
-        cpu_values = (
-            total_processes,
-            "{} %".format(used_cpu),
-            "{} %".format(kolibri_cpu),
-        )
-        self.add_section(cpu_parameters, cpu_values)
+        if SUPPORTED_OS:
+            self.add_header("CPU")
+            kolibri_cpu, kolibri_mem = get_kolibri_use()
+            used_cpu, used_memory, total_memory, total_processes = get_machine_info()
+            cpu_parameters = ("Total processes", "Used CPU", "Kolibri CPU usage")
+            cpu_values = (
+                total_processes,
+                "{} %".format(used_cpu),
+                "{} %".format(kolibri_cpu),
+            )
+            self.add_section(cpu_parameters, cpu_values)
 
-        self.add_header("Memory")
-        memory_parameters = ("Used memory", "Total memory", "Kolibri memory usage")
-        memory_values = (
-            "{} Mb".format(used_memory),
-            "{} Mb".format(total_memory),
-            "{} Mb".format(kolibri_mem),
-        )
-        self.add_section(memory_parameters, memory_values)
+            self.add_header("Memory")
+            memory_parameters = (
+                "Used memory",
+                "Total memory",
+                "Kolibri memory usage",
+            )
+            memory_values = (
+                "{} Mb".format(used_memory),
+                "{} Mb".format(total_memory),
+                "{} Mb".format(kolibri_mem),
+            )
+            self.add_section(memory_parameters, memory_values)
 
         self.add_header("Channels")
         channels_stats = get_channels_usage_info()
