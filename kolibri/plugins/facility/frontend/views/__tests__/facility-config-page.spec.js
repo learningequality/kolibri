@@ -1,7 +1,9 @@
 import { render, screen, fireEvent, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { ref } from 'vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
+import useFacilityConfig from '../../composables/useFacilityConfig';
 import ConfigPage from '../FacilityConfigPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
@@ -10,6 +12,7 @@ jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => (
   getDeviceSettings: jest.fn(),
 }));
 jest.mock('kolibri/composables/useSnackbar');
+jest.mock('../../composables/useFacilityConfig');
 jest.mock('../FacilityAppBarPage', () => ({
   name: 'FacilityAppBarPage',
   render(h) {
@@ -17,19 +20,43 @@ jest.mock('../FacilityAppBarPage', () => ({
   },
 }));
 
-function renderPage({ props = {}, isAppContext = false } = {}) {
-  useUser.mockImplementation(() => useUserMock({ isAppContext }));
-  const store = makeStore();
-  store.commit('facilityConfig/SET_STATE', {
-    settings: {
-      learner_can_edit_username: false,
-      learner_can_edit_password: false,
-      learner_can_edit_name: false,
-      learner_can_sign_up: false,
-      learner_can_login_with_no_password: false,
-      show_download_button_in_learn: false,
-    },
+function createMockFacilityConfig(overrides = {}) {
+  const settings = ref({
+    learner_can_edit_username: false,
+    learner_can_edit_password: false,
+    learner_can_edit_name: false,
+    learner_can_sign_up: false,
+    learner_can_login_with_no_password: false,
+    show_download_button_in_learn: false,
   });
+
+  return {
+    facilityName: ref('Test Facility'),
+    facilityId: ref('test-facility-id'),
+    settings,
+    settingsCopy: ref({}),
+    facilityDataLoading: ref(false),
+    settingsHaveChanged: ref(false),
+    isPinSet: ref(null),
+    fetchFacilityConfig: jest.fn(),
+    modifySetting: jest.fn((name, value) => {
+      settings.value[name] = value;
+    }),
+    copySettings: jest.fn(),
+    undoSettingsChange: jest.fn(),
+    saveFacilityName: jest.fn(),
+    saveFacilityConfig: jest.fn(),
+    setPin: jest.fn(),
+    unsetPin: jest.fn(),
+    ...overrides,
+  };
+}
+
+function renderPage({ props = {}, isAppContext = false, mockFacilityConfig = {} } = {}) {
+  useUser.mockImplementation(() => useUserMock({ isAppContext }));
+  useFacilityConfig.mockImplementation(() => createMockFacilityConfig(mockFacilityConfig));
+
+  const store = makeStore();
   const dispatch = jest.spyOn(store, 'dispatch');
   const utils = render(ConfigPage, { props, store });
   return { ...utils, store, dispatch };
@@ -60,20 +87,21 @@ describe('facility config page view', () => {
   });
 
   it('updates a facility setting when the admin toggles a checkbox', async () => {
-    const { store } = renderPage();
+    const modifySettingMock = jest.fn();
+    renderPage({ mockFacilityConfig: { modifySetting: modifySettingMock } });
     await fireEvent.click(screen.getByLabelText('Allow learners to edit their username'));
-    expect(store.state.facilityConfig.settings.learner_can_edit_username).toBe(true);
+    expect(modifySettingMock).toHaveBeenCalledWith('learner_can_edit_username', true);
   });
 
   it('saves changes when the admin clicks Save changes', async () => {
-    const { dispatch } = renderPage();
-    dispatch.mockResolvedValue();
+    const saveFacilityConfigMock = jest.fn();
+    renderPage({ mockFacilityConfig: { saveFacilityConfig: saveFacilityConfigMock } });
     await fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
-    expect(dispatch).toHaveBeenCalledWith('facilityConfig/saveFacilityConfig');
+    expect(saveFacilityConfigMock).toHaveBeenCalled();
   });
 
-  describe(`in the browser mode`, () => {
-    it(`shows Save changes in the bottom app bar`, () => {
+  describe('in the browser mode', () => {
+    it('shows Save changes in the bottom app bar', () => {
       renderPage({ isAppContext: false });
       const bottomBar = screen.getByTestId('bottom-bar');
       const pageContainer = screen.getByTestId('page-container');
@@ -84,8 +112,8 @@ describe('facility config page view', () => {
     });
   });
 
-  describe(`in the Android app mode`, () => {
-    it(`shows Save changes in the page content instead of the bottom app bar`, () => {
+  describe('in the Android app mode', () => {
+    it('shows Save changes in the page content instead of the bottom app bar', () => {
       renderPage({ isAppContext: true });
       const bottomBar = screen.getByTestId('bottom-bar');
       const pageContainer = screen.getByTestId('page-container');
