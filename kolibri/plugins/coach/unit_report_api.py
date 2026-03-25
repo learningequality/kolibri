@@ -135,6 +135,11 @@ def _accumulate_scores(
         lo_id = assessment_objectives.get(item)
         if lo_id is None:
             continue
+        # assessment_objectives values may be lists (e.g. ["lo_id"]); unwrap
+        if isinstance(lo_id, list):
+            lo_id = lo_id[0] if lo_id else None
+        if lo_id is None:
+            continue
         lo_scores = results[meta["test_type"]].setdefault(str(meta["learner_id"]), {})
         lo_id_str = str(lo_id)
         lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
@@ -237,6 +242,11 @@ class UnitReportViewSet(viewsets.ViewSet):
         for item_id, lo_id in assessment_objectives.items():
             if lo_id is None:
                 continue  # skip malformed entries: str(None) would silently produce "None"
+            # assessment_objectives values may be lists (e.g. ["lo_id"]); unwrap
+            if isinstance(lo_id, list):
+                lo_id = lo_id[0] if lo_id else None
+            if lo_id is None:
+                continue
             if item_id in version_a_set:
                 lo_question_count[str(lo_id)] += 1
 

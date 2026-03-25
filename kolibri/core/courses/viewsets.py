@@ -624,7 +624,7 @@ class CourseSessionViewset(ValuesViewset):
                     ).values("lft")[:1]
                 )
             )
-            .order_by("-b_lft", "test_type")
+            .order_by("closed", "-b_lft", "test_type")
             .first()
         )
 
