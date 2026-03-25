@@ -38,12 +38,13 @@ def get_db_info():
     active_users = active_users_minute = None
     try:
         connection.ensure_connection()
+        now = timezone.now()
         # Sessions active in the last 10 minutes (includes guest accesses):
         active_sessions = str(
-            Session.objects.filter(expire_date__gte=timezone.now()).count()
+            Session.objects.filter(expire_date__gte=now).count()
         )
-        last_ten_minutes = timezone.now() - timedelta(minutes=10)
-        last_minute = timezone.now() - timedelta(minutes=1)
+        last_ten_minutes = now - timedelta(minutes=10)
+        last_minute = now - timedelta(minutes=1)
         # Active logged users:
         active_users = str(
             UserSessionLog.objects.filter(
