@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.db.utils import OperationalError
 from django.utils import timezone
 
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.auth.models import Session
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -141,7 +142,7 @@ def get_machine_info():
     Gets information on the memory, cpu and processes in the server
     :returns: tuple of strings containing cpu percentage, used memory, free memory and number of active processes
     """
-    if psutil is None:
+    if not SUPPORTED_OS:
         return (None, None, None, None)
     used_cpu = str(psutil.cpu_percent())
     used_memory = str(psutil.virtual_memory().used / pow(10, 6))  # In Megabytes
@@ -175,7 +176,7 @@ def get_kolibri_process_cmd():
     Retrieve from the OS the command line executed to run Kolibri server
     :returns: tuple with command line and its arguments
     """
-    if psutil is None:
+    if not SUPPORTED_OS:
         return None
     kolibri_pid, _ = get_kolibri_process_info()
     try:
@@ -191,7 +192,7 @@ def get_kolibri_use(development=False):
     Gets information on the memory and cpu usage of the current Kolibri process
     :returns: tuple of strings containing cpu percentage and virtual memory used (in Mb)
     """
-    if psutil is None:
+    if not SUPPORTED_OS:
         return (None, None)
     kolibri_mem = kolibri_cpu = "None"
     kolibri_pid, _ = get_kolibri_process_info()
