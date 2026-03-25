@@ -97,19 +97,8 @@ class BenchmarkCommandTestCase(TestCase):
         return_value=("0.01 s", "0.01 s", "0.01 s"),
     )
     @mock.patch(
-        "kolibri.core.analytics.management.commands.benchmark.get_machine_info",
-        return_value=("0", "0", "0", "0"),
-    )
-    @mock.patch(
         "kolibri.core.analytics.management.commands.benchmark.get_kolibri_process_cmd",
         return_value=["kolibri", "start"],
-    )
-    @mock.patch(
-        "kolibri.core.analytics.management.commands.benchmark.installation_type",
-        return_value="Unknown",
-    )
-    @mock.patch(
-        "kolibri.core.analytics.management.commands.benchmark.SUPPORTED_OS", True
     )
     def test_benchmark_command_runs_without_error(self, *_args):
         call_command("benchmark")
