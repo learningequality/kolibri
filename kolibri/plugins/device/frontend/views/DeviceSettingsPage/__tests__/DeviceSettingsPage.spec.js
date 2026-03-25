@@ -1,13 +1,13 @@
-import { mount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import Vuex, { Store } from 'vuex';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
+import { Store } from 'vuex';
 import DeviceSettingsPage from '../index.vue';
 import usePlugins, {
   // eslint-disable-next-line import-x/named
   usePluginsMock,
 } from '../../../composables/usePlugins';
 
-import { getPathPermissions, getDeviceURLs, getDeviceSettings, getPathsPermissions } from '../api';
+import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('../../../composables/usePlugins');
@@ -27,6 +27,7 @@ jest.mock('../api.js', () => ({
   getPathsPermissions: jest.fn(),
   getDeviceURLs: jest.fn(),
   getDeviceSettings: jest.fn(),
+  saveDeviceSettings: jest.fn(),
 }));
 
 jest.mock('../../AvailableChannelsPage/api.js', () => ({
@@ -51,8 +52,6 @@ const DeviceSettingsData = {
   },
 };
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
 const store = new Store({
   state: {},
   getters: {
@@ -73,24 +72,35 @@ const store = new Store({
 });
 
 async function makeWrapper() {
-  const wrapper = mount(DeviceSettingsPage, {
-    wrapper,
+  const routes = [];
+  render(DeviceSettingsPage, {
     store,
-    router: new VueRouter(),
+    routes,
     stubs: ['AppBarPage'],
   });
+
   // Need to wait for beforeMount to finish
   await global.flushPromises();
-  return { wrapper };
 }
 
-function getButtons(wrapper) {
-  const saveButton = wrapper.find('[data-test="saveButton"]');
-  const learnPage = wrapper.find('[data-test="landingPageButton"]');
-  const signInPage = wrapper.find('[data-test="signInPageButton"]');
-  const allowGuestAccess = wrapper.find('[data-test="allowGuestAccessButton"]');
-  const disallowGuestAccess = wrapper.find('[data-test="disallowGuestAccessButton"]');
-  const lockedContent = wrapper.find('[data-test="lockedContentButton"]');
+function getButtons() {
+  const saveButton = screen.getByRole('button', { name: /save changes/i });
+  const learnPage = screen.getByRole('radio', { name: /Learn page/i });
+  const signInPage = screen.getByRole('radio', { name: /Sign-in page/i });
+  const allowGuestAccess = screen.getByRole('radio', {
+    name: /Allow users to explore resources without signing in/i,
+  });
+  const disallowGuestAccess = screen.getByRole('radio', {
+    name: /Learners must sign in to explore resources/i,
+  });
+  const unlistedChannels = screen.getByRole('checkbox', {
+    name: /Allow other devices on this network to view and import my unlisted channels/i,
+  });
+
+  const lockedContent = screen.getByRole('radio', {
+    name: /Signed in learners should only see resources assigned to them in classes/i,
+  });
+
   return {
     learnPage,
     signInPage,
@@ -98,137 +108,168 @@ function getButtons(wrapper) {
     disallowGuestAccess,
     lockedContent,
     saveButton,
+    unlistedChannels,
   };
 }
 
 describe('DeviceSettingsPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getPathPermissions.mockResolvedValue({});
-    getPathsPermissions.mockResolvedValue({});
-    getDeviceURLs.mockResolvedValue({});
-    getDeviceSettings.mockResolvedValue(DeviceSettingsData);
+    api.getPathPermissions.mockResolvedValue({});
+    api.getPathsPermissions.mockResolvedValue({});
+    api.getDeviceURLs.mockResolvedValue({});
+    api.getDeviceSettings.mockResolvedValue(DeviceSettingsData);
     getFreeSpaceOnServer.mockResolvedValue({ freeSpace: 0 });
+    api.saveDeviceSettings.mockResolvedValue({});
   });
 
   it('loads the data from getDeviceSettings', async () => {
-    getDeviceSettings.mockResolvedValue(DeviceSettingsData);
-    const { wrapper } = await makeWrapper();
-    const data = wrapper.vm.$data;
-    expect(data.language).toMatchObject({ value: 'en', label: 'English' });
-    expect(data).toMatchObject({
-      landingPage: 'sign-in',
-      allowPeerUnlistedChannelImport: true,
-      allowOtherBrowsersToConnect: false,
-    });
+    api.getDeviceSettings.mockResolvedValue(DeviceSettingsData);
+    await makeWrapper();
+    const {
+      signInPage,
+      learnPage,
+      allowGuestAccess,
+      disallowGuestAccess,
+      lockedContent,
+      unlistedChannels,
+    } = getButtons();
+
+    expect(signInPage).toBeChecked();
+    expect(learnPage).not.toBeChecked();
+
+    expect(lockedContent).toBeChecked();
+    expect(allowGuestAccess).not.toBeChecked();
+    expect(disallowGuestAccess).not.toBeChecked();
+    expect(unlistedChannels).toBeChecked();
+    expect(screen.getByTestId('languageSelect')).toHaveTextContent('English');
   });
-  async function clickRadioButton(rb) {
-    // HACK(kds-test) You need to call `vm.update(true)` method on KCheckbox to simulate a click
-    rb.vm.update(true);
-    await global.flushPromises();
-  }
 
-  function assertIsDisabled(button, expected) {
-    return expect(button.props().disabled).toBe(expected);
-  }
-
-  function assertIsSelected(button, expected) {
-    /*
-     * HACK(kds-test) The only way to tell it's checked in the DOM
-     * is to check if "buttonValue" and "currentValue" props have the same value
-     */
-    const buttonProps = button.props();
-    const checked = buttonProps.buttonValue === buttonProps.currentValue;
-    expect(checked).toBe(expected);
-  }
-
-  function setMockedData(allowGuestAccess, allowAllAccess) {
-    getDeviceSettings.mockResolvedValue({
+  function setMockedData(allowGuestAccess, allowAllAccess, allowPeerUnlistedChannelImport = false) {
+    api.getDeviceSettings.mockResolvedValue({
       landingPage: 'sign-in',
       allowGuestAccess: allowGuestAccess,
       allowLearnerUnassignedResourceAccess: allowAllAccess,
+      allowPeerUnlistedChannelImport: allowPeerUnlistedChannelImport,
     });
   }
 
   describe('landing page section', () => {
     // These should be the inverse of the "submitting settings" tests below
+
     it('hydrates with the correct state when guest access is allowed', async () => {
       setMockedData(true, true);
-      const { wrapper } = await makeWrapper();
-      // The "Allow users to explore..." radio button should be checked
-      const { allowGuestAccess } = getButtons(wrapper);
-      assertIsSelected(allowGuestAccess, true);
+      await makeWrapper();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
+      expect(allowGuestAccess).toBeChecked();
+      expect(disallowGuestAccess).not.toBeChecked();
+      expect(lockedContent).not.toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     it('hydrates with the correct state when guest access is disallowed', async () => {
       setMockedData(false, true);
-      const { wrapper } = await makeWrapper();
-      // The "Learners must sign in..." radio button should checked
-      const { disallowGuestAccess } = getButtons(wrapper);
-      assertIsSelected(disallowGuestAccess, true);
+      await makeWrapper();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
+      expect(allowGuestAccess).not.toBeChecked();
+      expect(disallowGuestAccess).toBeChecked();
+      expect(lockedContent).not.toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     it('hydrates with the correct state when content is locked', async () => {
       setMockedData(false, false);
-      const { wrapper } = await makeWrapper();
-      // The "Signed in learners only see resources assigned to them" button should be checked
-      const { lockedContent } = getButtons(wrapper);
-      assertIsSelected(lockedContent, true);
+      await makeWrapper();
+      const {
+        signInPage,
+        learnPage,
+        allowGuestAccess,
+        disallowGuestAccess,
+        lockedContent,
+        unlistedChannels,
+      } = getButtons();
+
+      expect(signInPage).toBeChecked();
+      expect(learnPage).not.toBeChecked();
+      expect(allowGuestAccess).not.toBeChecked();
+      expect(disallowGuestAccess).not.toBeChecked();
+      expect(lockedContent).toBeChecked();
+      expect(unlistedChannels).not.toBeChecked();
     });
 
     // The fourth possibility with guest access but no channels tab should be impossible
 
     it('if Learn page is the landing page, sign-in page options are disabled', async () => {
-      getDeviceSettings.mockResolvedValue({
+      api.getDeviceSettings.mockResolvedValue({
         landingPage: 'learn',
-        // The guest access button should not be checked
         allowGuestAccess: true,
       });
 
-      const { wrapper } = await makeWrapper();
-      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent } =
-        getButtons(wrapper);
+      await makeWrapper();
+      const { learnPage, allowGuestAccess, disallowGuestAccess, lockedContent, unlistedChannels } =
+        getButtons();
       // Learn page button is enabled and checked
-      assertIsDisabled(learnPage, false);
-      assertIsSelected(learnPage, true);
+      expect(learnPage).toBeEnabled();
+      expect(learnPage).toBeChecked();
 
       // Every radio button under the Sign-In page option should be disabled
       [allowGuestAccess, disallowGuestAccess, lockedContent].forEach(button => {
-        assertIsDisabled(button, true);
-        assertIsSelected(button, false);
+        expect(button).toBeDisabled();
+        expect(button).not.toBeChecked();
       });
+
+      // allowPeerUnlistedChannelImport defaults to null (falsy)
+      expect(unlistedChannels).not.toBeChecked();
     });
 
-    it('if switching  from Learn to Sign-In, "Allow users to explore..." is selected', async () => {
-      getDeviceSettings.mockResolvedValue({
+    it('if switching from Learn to Sign-In, "Allow users to explore..." is selected', async () => {
+      api.getDeviceSettings.mockResolvedValue({
         landingPage: 'learn',
       });
-      const { wrapper } = await makeWrapper();
-      const { signInPage, allowGuestAccess } = getButtons(wrapper);
-      await clickRadioButton(signInPage);
-      assertIsSelected(allowGuestAccess, true);
-      assertIsDisabled(allowGuestAccess, false);
+      await makeWrapper();
+      const { signInPage, allowGuestAccess } = getButtons();
+      await fireEvent.click(signInPage);
+      expect(allowGuestAccess).toBeChecked();
+      expect(allowGuestAccess).toBeEnabled();
     });
   });
 
   describe('submitting changes', () => {
     beforeEach(() => {
       jest.clearAllMocks();
-      // allow_learner_unassigned_resource_access: allowAllAccess,
+      api.saveDeviceSettings.mockClear();
       const newData = { ...DeviceSettingsData };
       newData.allowLearnerUnassignedResourceAccess = true;
-      getDeviceSettings.mockResolvedValue(newData);
+      api.getDeviceSettings.mockResolvedValue(newData);
       usePlugins.mockImplementation(() => usePluginsMock());
     });
 
     it('landing page is Learn page', async () => {
-      const { wrapper } = await makeWrapper();
-      const saveSpy = jest.spyOn(wrapper.vm, 'saveDeviceSettings').mockResolvedValue();
-      const { learnPage, saveButton } = getButtons(wrapper);
-      await clickRadioButton(learnPage);
-      saveButton.trigger('click');
+      await makeWrapper();
+      const { learnPage, saveButton } = getButtons();
+      await fireEvent.click(learnPage);
+      await fireEvent.click(saveButton);
       await global.flushPromises();
-      expect(saveSpy).toHaveBeenCalledWith(
+      expect(api.saveDeviceSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           landingPage: 'learn',
           allowGuestAccess: true,
@@ -239,16 +280,15 @@ describe('DeviceSettingsPage', () => {
 
     // NOTE: See screenshot in #7247 for how radio button selection should map to settings
     it('"Allow users to explore resources without signing in" is selected', async () => {
-      const { wrapper } = await makeWrapper();
-      const saveSpy = jest.spyOn(wrapper.vm, 'saveDeviceSettings').mockResolvedValue();
-      const { disallowGuestAccess, allowGuestAccess, saveButton } = getButtons(wrapper);
+      await makeWrapper();
+      const { disallowGuestAccess, allowGuestAccess, saveButton } = getButtons();
       // Click "disallow guest access first" to temporarily change settings from initial state
-      await clickRadioButton(disallowGuestAccess);
-      await clickRadioButton(allowGuestAccess);
-      saveButton.trigger('click');
+      await fireEvent.click(disallowGuestAccess);
+      await fireEvent.click(allowGuestAccess);
+      await fireEvent.click(saveButton);
       await global.flushPromises();
       // Implications: Can see "explore without account" AND can see "channels" tab
-      expect(saveSpy).toHaveBeenCalledWith(
+      expect(api.saveDeviceSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           landingPage: 'sign-in',
           allowGuestAccess: true,
@@ -258,14 +298,13 @@ describe('DeviceSettingsPage', () => {
     });
 
     it('"Learners must sign in to explore resources" is selected', async () => {
-      const { wrapper } = await makeWrapper();
-      const saveSpy = jest.spyOn(wrapper.vm, 'saveDeviceSettings').mockResolvedValue();
-      const { disallowGuestAccess, saveButton } = getButtons(wrapper);
-      await clickRadioButton(disallowGuestAccess);
-      saveButton.trigger('click');
+      await makeWrapper();
+      const { disallowGuestAccess, saveButton } = getButtons();
+      await fireEvent.click(disallowGuestAccess);
+      await fireEvent.click(saveButton);
       await global.flushPromises();
       // Implications: Cannot see "explore without account" AND can see "channels" tab
-      expect(saveSpy).toHaveBeenCalledWith(
+      expect(api.saveDeviceSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           landingPage: 'sign-in',
           allowGuestAccess: false,
@@ -275,14 +314,14 @@ describe('DeviceSettingsPage', () => {
     });
 
     it('"Signed in learners only see resources assigned to them in classes" is selected', async () => {
-      const { wrapper } = await makeWrapper();
-      const saveSpy = jest.spyOn(wrapper.vm, 'saveDeviceSettings').mockResolvedValue();
-      const { lockedContent, saveButton } = getButtons(wrapper);
-      await clickRadioButton(lockedContent);
-      saveButton.trigger('click');
+      await makeWrapper();
+      const { lockedContent, saveButton } = getButtons();
+      await fireEvent.click(lockedContent);
+      await fireEvent.click(saveButton);
+
       await global.flushPromises();
       // Implications: Cannot see "explore without account" AND cannot see "channels" tab
-      expect(saveSpy).toHaveBeenCalledWith(
+      expect(api.saveDeviceSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           landingPage: 'sign-in',
           allowGuestAccess: false,
