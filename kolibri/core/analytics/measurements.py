@@ -145,8 +145,9 @@ def get_machine_info():
     if not SUPPORTED_OS:
         return (None, None, None, None)
     used_cpu = str(psutil.cpu_percent())
-    used_memory = str(psutil.virtual_memory().used / pow(10, 6))  # In Megabytes
-    total_memory = str(psutil.virtual_memory().total / pow(10, 6))  # In Megabytes
+    memory = psutil.virtual_memory()
+    used_memory = str(memory.used / pow(10, 6))  # In Megabytes
+    total_memory = str(memory.total / pow(10, 6))  # In Megabytes
     total_processes = str(len(psutil.pids()))
 
     return (used_cpu, used_memory, total_memory, total_processes)

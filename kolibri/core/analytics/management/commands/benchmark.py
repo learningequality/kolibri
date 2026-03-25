@@ -77,15 +77,7 @@ class Command(BaseCommand):
     help = "Outputs performance info and statistics of usage for the running Kolibri instance in this server"
 
     def handle(self, *args, **options):
-        if SUPPORTED_OS:
-            try:
-                get_kolibri_use()
-            except NotRunning:
-                sys.exit(
-                    "Profile command executed while Kolibri server was not running"
-                )
-            get_requests_info()
-        else:
+        if not SUPPORTED_OS:
             logger.warning("This OS is not yet supported for CPU/memory profiling")
 
         self.messages = []
@@ -100,7 +92,12 @@ class Command(BaseCommand):
 
         if SUPPORTED_OS:
             self.add_header("CPU")
-            kolibri_cpu, kolibri_mem = get_kolibri_use()
+            try:
+                kolibri_cpu, kolibri_mem = get_kolibri_use()
+            except NotRunning:
+                sys.exit(
+                    "Profile command executed while Kolibri server was not running"
+                )
             used_cpu, used_memory, total_memory, total_processes = get_machine_info()
             cpu_parameters = ("Total processes", "Used CPU", "Kolibri CPU usage")
             cpu_values = (
