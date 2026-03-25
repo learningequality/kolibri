@@ -39,7 +39,7 @@ def get_db_info():
     try:
         connection.ensure_connection()
         now = timezone.now()
-        # Sessions active in the last 10 minutes (includes guest accesses):
+        # Non-expired sessions (includes guest accesses):
         active_sessions = str(Session.objects.filter(expire_date__gte=now).count())
         last_ten_minutes = now - timedelta(minutes=10)
         last_minute = now - timedelta(minutes=1)
