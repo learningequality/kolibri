@@ -18,18 +18,14 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapActions } from 'vuex';
 
   export default {
     name: 'RemovePinModal',
     mixins: [commonCoreStrings],
     computed: {},
     methods: {
-      ...mapActions('facilityConfig', ['unsetPin']),
       removePin() {
-        this.unsetPin();
         this.$emit('submit');
-        this.showSnackbarNotification('pinRemove');
       },
     },
     $trs: {
