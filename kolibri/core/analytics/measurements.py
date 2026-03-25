@@ -2,7 +2,6 @@ import logging
 from collections import namedtuple
 from datetime import timedelta
 
-from django.contrib.sessions.models import Session
 from django.db import connection
 from django.db.models import Count
 from django.db.models import Sum
@@ -10,6 +9,7 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 
 from kolibri.core.analytics import SUPPORTED_OS
+from kolibri.core.auth.models import Session
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
