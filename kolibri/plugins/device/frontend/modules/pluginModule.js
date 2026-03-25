@@ -1,5 +1,4 @@
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
-import facilityConfig from '../../../facility/frontend/modules/facilityConfig';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
@@ -70,7 +69,5 @@ export default {
     userPermissions,
     // MANAGE_CONTENT_PAGE + wizards
     manageContent,
-    //Facility configurations for pin setup
-    facilityConfig,
   },
 };

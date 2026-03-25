@@ -23,7 +23,6 @@
 
   import Cookies from 'js-cookie';
   import { mapState } from 'vuex';
-  import find from 'lodash/find';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { IsPinAuthenticated } from 'kolibri/constants';
@@ -31,7 +30,6 @@
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
@@ -45,11 +43,9 @@
     mixins: [commonCoreStrings],
     setup() {
       const { isUserLoggedIn, userFacilityId } = useUser();
-      const { facilities } = useFacilities();
       return {
         isUserLoggedIn,
         userFacilityId,
-        facilities,
       };
     },
     data() {
@@ -78,13 +74,6 @@
       },
     },
     watch: {
-      facilities(newValue) {
-        this.currentFacility = find(newValue, { id: this.userFacilityId }) || {};
-        const { dataset } = this.currentFacility;
-        this.$store.commit('facilityConfig/SET_STATE', {
-          facilityDatasetId: dataset.id, //Required for pin authentication
-        });
-      },
       isPinSet: {
         handler(newValue) {
           if (!newValue) {

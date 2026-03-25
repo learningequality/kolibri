@@ -1,22 +1,17 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { Store } from 'vuex';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import PinAuthenticationModal from '../PinAuthenticationModal.vue';
 
-// Mock the client and urls modules
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
-
-let store;
 
 const renderComponent = (options = {}) => {
   return render(PinAuthenticationModal, {
     props: {
       facilityDatasetId: 'test-facility-id',
     },
-    store,
     ...options,
   });
 };
@@ -25,20 +20,6 @@ describe('PinAuthenticationModal', () => {
   beforeEach(() => {
     client.mockResolvedValue({ data: { is_pin_valid: true } });
     urls['kolibri:core:ispinvalid'] = jest.fn().mockReturnValue('/api/mock/ispinvalid/');
-
-    store = new Store({
-      modules: {
-        facilityConfig: {
-          namespaced: true,
-          state: {
-            facilityDatasetId: 'test-dataset-id',
-          },
-        },
-      },
-      actions: {
-        createSnackbar: jest.fn(),
-      },
-    });
   });
 
   afterEach(() => {

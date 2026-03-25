@@ -5,7 +5,6 @@ import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
 import classManagement from './classManagement';
-import facilityConfig from './facilityConfig';
 import userManagement from './userManagement';
 import manageCSV from './manageCSV';
 import importCSV from './importCSV';
@@ -124,7 +123,6 @@ export default {
     classEditManagement,
     classAssignMembers,
     userManagement,
-    facilityConfig,
     manageCSV,
     importCSV,
   },

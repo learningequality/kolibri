@@ -20,7 +20,6 @@ import UsersTrashPage from './views/users/UsersTrashPage/index.vue';
 
 import { showClassesPage } from './modules/classManagement/handlers';
 import { showClassEditPage } from './modules/classEditManagement/handlers';
-import { showFacilityConfigPage } from './modules/facilityConfig/handlers';
 import {
   showLearnerClassEnrollmentPage,
   showCoachClassAssignmentPage,
@@ -159,7 +158,7 @@ export default [
       if (facilityParamRequiredGuard(toRoute, FacilityConfigPage.name)) {
         return;
       }
-      showFacilityConfigPage(store, toRoute);
+      store.dispatch('notLoading');
     },
   },
   {
