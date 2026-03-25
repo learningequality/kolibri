@@ -142,7 +142,7 @@ describe('DeviceSettingsPage', () => {
     expect(allowGuestAccess).not.toBeChecked();
     expect(disallowGuestAccess).not.toBeChecked();
     expect(unlistedChannels).toBeChecked();
-    expect(screen.getAllByText('English')[0]).toBeInTheDocument();
+    expect(screen.getByTestId('languageSelect')).toHaveTextContent('English');
   });
 
   function setMockedData(allowGuestAccess, allowAllAccess, allowPeerUnlistedChannelImport = false) {
