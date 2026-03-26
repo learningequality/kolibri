@@ -34,7 +34,7 @@
   import store from 'kolibri/store';
   import useUser from 'kolibri/composables/useUser';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
@@ -49,7 +49,7 @@
     setup() {
       const route = useRoute();
       const { isUserLoggedIn, userFacilityId } = useUser();
-      const { getFacilityConfig, facilityConfig } = useFacilities();
+      const { fetchFacilityConfig } = useFacilityConfig(userFacilityId.value);
 
       const isPinSet = ref(null);
       const showModal = ref(false);
@@ -65,9 +65,9 @@
 
       onMounted(async () => {
         try {
-          await getFacilityConfig();
-          isPinSet.value = facilityConfig.value.extra_fields?.pin_code;
-          facilityDatasetId.value = facilityConfig.value.id;
+          const facilityConfig = await fetchFacilityConfig();
+          isPinSet.value = Boolean(facilityConfig?.extra_fields?.pin_code);
+          facilityDatasetId.value = facilityConfig.id;
         } catch (error) {
           store.dispatch('handleError', { error, reloadOnReconnect: true });
         }

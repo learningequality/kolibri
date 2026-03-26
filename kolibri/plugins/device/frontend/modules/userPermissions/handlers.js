@@ -44,7 +44,7 @@ function fetchUserPermissions(userId) {
  * @returns Promise<void>
  */
 export function showUserPermissionsPage(store, userId) {
-  const { getFacilities } = useFacilities();
+  const { fetchFacilities } = useFacilities();
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
   const stopLoading = () => store.dispatch('notLoading');
 
@@ -58,7 +58,7 @@ export function showUserPermissionsPage(store, userId) {
 
   const samePage = samePageCheckGenerator(store);
 
-  return Promise.all([fetchUserPermissions(userId), getFacilities()])
+  return Promise.all([fetchUserPermissions(userId), fetchFacilities()])
     .then(([data]) => {
       if (samePage()) {
         setUserPermissionsState({ user: data.user, permissions: data.permissions });

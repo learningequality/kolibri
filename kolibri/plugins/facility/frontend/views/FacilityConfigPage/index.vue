@@ -196,7 +196,8 @@
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
   import store from 'kolibri/store';
-  import useFacilityConfig from '../../composables/useFacilityConfig';
+  import { useRoute } from 'vue-router/composables';
+  import useFacilityEditor from '../../composables/useFacilityEditor';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import RemovePinModal from './RemovePinModal';
   import ChangePinModal from './ChangePinModal';
@@ -321,24 +322,25 @@
     mixins: [commonCoreStrings],
     setup() {
       const { showSnackbarNotification } = commonCoreStrings.methods;
+      const route = useRoute();
       const { createSnackbar } = useSnackbar();
-      const { isAppContext, isSuperuser } = useUser();
+      const { isAppContext, isSuperuser, userFacilityId } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
+      const facilityId = route.params.facility_id || userFacilityId.value;
       const {
         facilityName,
-        facilityId,
         settings,
         facilityDataLoading,
         settingsHaveChanged,
         isPinSet,
-        fetchFacilityConfig,
+        fetchFacility,
         modifySetting,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
         setPin,
         unsetPin,
-      } = useFacilityConfig();
+      } = useFacilityEditor(facilityId);
 
       const {
         pageHeader$,
@@ -385,7 +387,7 @@
         return null;
       });
       const lastPartId = computed(() => {
-        return facilityId.value ? facilityId.value.slice(0, 4) : '';
+        return facilityId ? facilityId.slice(0, 4) : '';
       });
       const changePINLabel = computed(() => {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
@@ -476,7 +478,7 @@
 
       onMounted(async () => {
         try {
-          await fetchFacilityConfig();
+          await fetchFacility();
         } catch (error) {
           store.dispatch('handleError', { error, reloadOnReconnect: true });
         }

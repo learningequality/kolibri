@@ -20,13 +20,15 @@
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
 
   export default {
     name: 'FacilityAppBarPage',
     components: { AppBarPage },
     mixins: [commonCoreStrings],
     setup() {
-      const { userIsMultiFacilityAdmin, currentFacilityName } = useFacilities();
+      const { userIsMultiFacilityAdmin } = useFacilities();
+      const { currentFacilityName } = useFacility();
       return { userIsMultiFacilityAdmin, currentFacilityName };
     },
     props: {

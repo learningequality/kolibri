@@ -4,15 +4,17 @@ import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import useFacilities from 'kolibri-common/composables/useFacilities';
+import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
+import { useFacilityConfig, useFacilityConfigMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import store from 'kolibri/store';
-import useFacilityConfig from '../useFacilityConfig';
+import useFacilityEditor from '../useFacilityEditor';
 
 jest.mock('kolibri-common/apiResources/FacilityResource');
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-common/composables/useFacilities');
+jest.mock('kolibri-common/composables/useFacility');
 jest.mock('vue-router/composables', () => ({
   useRoute: jest.fn(),
 }));
@@ -33,7 +35,7 @@ jest.mock('kolibri/store', () => ({
   },
 }));
 
-describe('useFacilityConfig', () => {
+describe('useFacilityEditor', () => {
   const mockFacilityId = 'test-facility-id';
   const mockDatasetId = 'test-dataset-id';
 
@@ -68,13 +70,20 @@ describe('useFacilityConfig', () => {
     }));
 
     // Mock useFacilities
-    useFacilities.mockReturnValue({
-      setFacilityId: jest.fn(),
-      getFacilities: jest.fn().mockResolvedValue([mockFacility]),
-      getFacilityConfig: jest.fn().mockResolvedValue(mockFacilityConfig),
-      selectedFacility: computed(() => mockFacility),
-      facilityConfig: computed(() => mockFacilityConfig),
-    });
+    useFacilities.mockReturnValue(
+      useFacilitiesMock({
+        fetchFacilities: jest.fn().mockResolvedValue([mockFacility]),
+        getFacility: jest.fn().mockReturnValue(mockFacility),
+      }),
+    );
+
+    // Mock useFacilityConfig
+    useFacilityConfig.mockReturnValue(
+      useFacilityConfigMock({
+        fetchFacilityConfig: jest.fn().mockResolvedValue(mockFacilityConfig),
+        facilityConfig: computed(() => mockFacilityConfig),
+      }),
+    );
 
     // Mock urls
     urls['kolibri:core:facilitydataset_update_pin'] = jest
@@ -92,9 +101,9 @@ describe('useFacilityConfig', () => {
         settingsCopy,
         isFacilityPinValid,
         facilityDataLoading,
-      } = useFacilityConfig(mockFacilityId);
+      } = useFacilityEditor(mockFacilityId);
 
-      expect(facilityId.value).toBe(mockFacilityId);
+      expect(facilityId).toBe(mockFacilityId);
       expect(facilityDatasetId.value).toBe('');
       expect(facilityName.value).toBe('');
       expect(settings.value).toEqual({});
@@ -102,31 +111,19 @@ describe('useFacilityConfig', () => {
       expect(isFacilityPinValid.value).toBe(false);
       expect(facilityDataLoading.value).toBe(false);
     });
-
-    it('uses route facility_id when _facilityId is not provided', () => {
-      mockRoute.params.facility_id = 'route-facility-id';
-      const { facilityId } = useFacilityConfig(null);
-      expect(facilityId.value).toBe('route-facility-id');
-    });
-
-    it('uses store activeFacilityId when no _facilityId or route param', () => {
-      mockRoute.params.facility_id = undefined;
-      const { facilityId } = useFacilityConfig(null);
-      expect(facilityId.value).toBe(mockFacilityId);
-    });
   });
 
   describe('computed properties', () => {
     describe('settingsHaveChanged', () => {
       it('returns false when settings match settingsCopy', () => {
-        const { settings, copySettings, settingsHaveChanged } = useFacilityConfig(mockFacilityId);
+        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor(mockFacilityId);
         settings.value = { learner_can_edit_username: true };
         copySettings();
         expect(settingsHaveChanged.value).toBe(false);
       });
 
       it('returns true when settings differ from settingsCopy', () => {
-        const { settings, copySettings, settingsHaveChanged } = useFacilityConfig(mockFacilityId);
+        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor(mockFacilityId);
         settings.value = { learner_can_edit_username: true };
         copySettings();
         settings.value.learner_can_edit_username = false;
@@ -136,31 +133,31 @@ describe('useFacilityConfig', () => {
 
     describe('isPinSet', () => {
       it('returns pin_code when extra_fields.pin_code exists', () => {
-        const { settings, isPinSet } = useFacilityConfig(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
         settings.value = { extra_fields: { pin_code: '5678' } };
         expect(isPinSet.value).toBe('5678');
       });
 
       it('returns null when extra_fields.pin_code does not exist', () => {
-        const { settings, isPinSet } = useFacilityConfig(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
         settings.value = { extra_fields: {} };
         expect(isPinSet.value).toBe(null);
       });
 
       it('returns null when extra_fields is undefined', () => {
-        const { settings, isPinSet } = useFacilityConfig(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
         settings.value = {};
         expect(isPinSet.value).toBe(null);
       });
     });
   });
 
-  describe('fetchFacilityConfig', () => {
+  describe('fetchFacility', () => {
     it('loads facility config and updates reactive state', async () => {
-      const { fetchFacilityConfig, facilityDatasetId, facilityName, settings, settingsCopy } =
-        useFacilityConfig(mockFacilityId);
+      const { fetchFacility, facilityDatasetId, facilityName, settings, settingsCopy } =
+        useFacilityEditor(mockFacilityId);
 
-      await fetchFacilityConfig();
+      await fetchFacility();
 
       expect(facilityDatasetId.value).toBe(mockDatasetId);
       expect(facilityName.value).toBe('Test Facility');
@@ -169,9 +166,9 @@ describe('useFacilityConfig', () => {
     });
 
     it('sets loading state during fetch', async () => {
-      const { fetchFacilityConfig, facilityDataLoading } = useFacilityConfig(mockFacilityId);
+      const { fetchFacility, facilityDataLoading } = useFacilityEditor(mockFacilityId);
 
-      const fetchPromise = fetchFacilityConfig();
+      const fetchPromise = fetchFacility();
       expect(facilityDataLoading.value).toBe(true);
 
       await fetchPromise;
@@ -180,18 +177,15 @@ describe('useFacilityConfig', () => {
 
     it('resets state on error', async () => {
       const mockError = new Error('Failed to fetch');
-      useFacilities.mockReturnValue({
-        setFacilityId: jest.fn(),
-        getFacilities: jest.fn(),
-        getFacilityConfig: jest.fn().mockRejectedValue(mockError),
-        selectedFacility: computed(() => mockFacility),
+      useFacilityConfig.mockReturnValue({
+        fetchFacilityConfig: jest.fn().mockRejectedValue(mockError),
         facilityConfig: computed(() => ({})),
       });
 
-      const { fetchFacilityConfig, facilityName, settings, settingsCopy } =
-        useFacilityConfig(mockFacilityId);
+      const { fetchFacility, facilityName, settings, settingsCopy } =
+        useFacilityEditor(mockFacilityId);
 
-      await expect(fetchFacilityConfig()).rejects.toThrow('Failed to fetch');
+      await expect(fetchFacility()).rejects.toThrow('Failed to fetch');
       expect(facilityName.value).toBe('');
       expect(settings.value).toEqual({});
       expect(settingsCopy.value).toEqual({});
@@ -200,7 +194,7 @@ describe('useFacilityConfig', () => {
 
   describe('modifySetting', () => {
     it('updates a setting value', () => {
-      const { settings, modifySetting } = useFacilityConfig(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
       settings.value = { learner_can_edit_username: false };
 
       modifySetting('learner_can_edit_username', true);
@@ -209,7 +203,7 @@ describe('useFacilityConfig', () => {
     });
 
     it('does not update non-existent settings', () => {
-      const { settings, modifySetting } = useFacilityConfig(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
       settings.value = { learner_can_edit_username: false };
 
       modifySetting('non_existent_setting', true);
@@ -218,7 +212,7 @@ describe('useFacilityConfig', () => {
     });
 
     it('disables learner_can_edit_password when learner_can_login_with_no_password is true', () => {
-      const { settings, modifySetting } = useFacilityConfig(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
       settings.value = {
         learner_can_login_with_no_password: false,
         learner_can_edit_password: true,
@@ -233,7 +227,7 @@ describe('useFacilityConfig', () => {
 
   describe('modifyAllSettings', () => {
     it('updates multiple settings at once', () => {
-      const { settings, modifyAllSettings } = useFacilityConfig(mockFacilityId);
+      const { settings, modifyAllSettings } = useFacilityEditor(mockFacilityId);
       settings.value = { learner_can_edit_username: false, learner_can_edit_name: false };
 
       modifyAllSettings({
@@ -252,7 +246,7 @@ describe('useFacilityConfig', () => {
 
   describe('copySettings', () => {
     it('copies current settings to settingsCopy', () => {
-      const { settings, settingsCopy, copySettings } = useFacilityConfig(mockFacilityId);
+      const { settings, settingsCopy, copySettings } = useFacilityEditor(mockFacilityId);
       settings.value = { learner_can_edit_username: true };
 
       copySettings();
@@ -263,7 +257,7 @@ describe('useFacilityConfig', () => {
 
   describe('undoSettingsChange', () => {
     it('restores settings from settingsCopy', () => {
-      const { settings, settingsCopy, undoSettingsChange } = useFacilityConfig(mockFacilityId);
+      const { settings, settingsCopy, undoSettingsChange } = useFacilityEditor(mockFacilityId);
       settings.value = { learner_can_edit_username: true };
       settingsCopy.value = { learner_can_edit_username: false };
 
@@ -284,7 +278,7 @@ describe('useFacilityConfig', () => {
         facilityDataLoading,
         resetState,
         setLoading,
-      } = useFacilityConfig(mockFacilityId);
+      } = useFacilityEditor(mockFacilityId);
 
       // Set non-initial values
       facilityDatasetId.value = 'some-id';
@@ -310,7 +304,7 @@ describe('useFacilityConfig', () => {
       const newName = 'New Facility Name';
       FacilityResource.saveModel.mockResolvedValue({ id: mockFacilityId, name: newName });
 
-      const { saveFacilityName, facilityName } = useFacilityConfig(mockFacilityId);
+      const { saveFacilityName, facilityName } = useFacilityEditor(mockFacilityId);
 
       await saveFacilityName(newName);
 
@@ -324,7 +318,7 @@ describe('useFacilityConfig', () => {
 
   describe('saveFacilityConfig', () => {
     it('saves facility config and copies settings', async () => {
-      const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityConfig(mockFacilityId);
+      const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
       settings.value = mockFacilityConfig;
       facilityDatasetId.value = mockDatasetId;
 
@@ -344,7 +338,7 @@ describe('useFacilityConfig', () => {
 
       client.mockResolvedValue(mockResponse);
 
-      const { setPin, settings } = useFacilityConfig(mockFacilityId);
+      const { setPin, settings } = useFacilityEditor(mockFacilityId);
       settings.value = mockFacilityConfig;
 
       await setPin(mockPayload);
@@ -364,7 +358,7 @@ describe('useFacilityConfig', () => {
 
       client.mockResolvedValue(mockResponse);
 
-      const { unsetPin, settings } = useFacilityConfig(mockFacilityId);
+      const { unsetPin, settings } = useFacilityEditor(mockFacilityId);
       settings.value = mockFacilityConfig;
 
       await unsetPin();
@@ -379,13 +373,13 @@ describe('useFacilityConfig', () => {
 
   describe('setLoading', () => {
     it('sets facilityDataLoading to true', () => {
-      const { setLoading, facilityDataLoading } = useFacilityConfig(mockFacilityId);
+      const { setLoading, facilityDataLoading } = useFacilityEditor(mockFacilityId);
       setLoading(true);
       expect(facilityDataLoading.value).toBe(true);
     });
 
     it('sets facilityDataLoading to false', () => {
-      const { setLoading, facilityDataLoading } = useFacilityConfig(mockFacilityId);
+      const { setLoading, facilityDataLoading } = useFacilityEditor(mockFacilityId);
       setLoading(true);
       setLoading(false);
       expect(facilityDataLoading.value).toBe(false);

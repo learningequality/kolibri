@@ -70,6 +70,7 @@
   import partition from 'lodash/partition';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../constants';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
@@ -79,8 +80,9 @@
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { getFacilityConfig, facilities, setFacilityId } = useFacilities();
-      return { getFacilityConfig, facilities, setFacilityId };
+      const { facilities } = useFacilities();
+      const { setFacilityId } = useFacility();
+      return { facilities, setFacilityId };
     },
     props: {
       // This component is interstitial and needs to know where to go when it's done
@@ -118,18 +120,15 @@
       },
     },
     methods: {
-      setFacility(facilityId) {
+      async setFacility(facilityId) {
         const whereToNext = { ...this.whereToNext };
         if (this.$route.query.next) {
           whereToNext.query.next = this.$route.query.next;
         }
         // Save the selected facility, get its config, then move along to next route
-        this.$store.dispatch('setFacilityId', { facilityId }).then(() => {
-          this.setFacilityId(facilityId);
-          this.getFacilityConfig(facilityId).then(() => {
-            this.$router.push(whereToNext);
-          });
-        });
+        await this.$store.dispatch('setFacilityId', { facilityId });
+        await this.setFacilityId(facilityId);
+        this.$router.push(whereToNext);
       },
     },
     $trs: {

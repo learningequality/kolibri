@@ -1,20 +1,18 @@
-import { ref, computed, watch } from 'vue';
-import { useRoute } from 'vue-router/composables';
+import { ref, computed } from 'vue';
 import isEqual from 'lodash/isEqual';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import store from 'kolibri/store';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
 
 /**
- * @param {string} _facilityId  The ID of the facility to edit
+ * @param {string} facilityId  The ID of the facility to edit
  */
-export default function useFacilityConfig(_facilityId) {
-  const { setFacilityId, getFacilities, getFacilityConfig, selectedFacility, facilityConfig } =
-    useFacilities();
-  const route = useRoute();
+export default function useFacilityEditor(facilityId) {
+  const { fetchFacilities, getFacility } = useFacilities();
+  const { fetchFacilityConfig } = useFacilityConfig(facilityId);
 
   // Reactive state
   const facilityDatasetId = ref('');
@@ -25,9 +23,8 @@ export default function useFacilityConfig(_facilityId) {
   const facilityDataLoading = ref(false);
 
   // Computed properties
-  const facilityId = computed(() => {
-    return _facilityId || route.params.facility_id || store.getters.activeFacilityId;
-  });
+  const facility = computed(() => getFacility(facilityId));
+
   const settingsHaveChanged = computed(() => !isEqual(settings.value, settingsCopy.value));
   const isPinSet = computed(() => {
     if (settings.value.extra_fields?.pin_code) {
@@ -44,16 +41,17 @@ export default function useFacilityConfig(_facilityId) {
   /**
    * Loads the facility and it's config into the composable state
    */
-  async function fetchFacilityConfig() {
+  async function fetchFacility() {
     setLoading(true);
 
     try {
-      await Promise.all([getFacilityConfig(facilityId.value), getFacilities()]);
+      const [facilityConfig] = await Promise.all([fetchFacilityConfig(), fetchFacilities()]);
 
-      facilityDatasetId.value = facilityConfig.value.id;
-      facilityName.value = selectedFacility.value.name;
-      settings.value = { ...facilityConfig.value };
-      settingsCopy.value = { ...facilityConfig.value };
+      // Facility name set with watcher
+      facilityDatasetId.value = facilityConfig.id;
+      facilityName.value = facility.value.name;
+      settings.value = { ...facilityConfig };
+      settingsCopy.value = { ...facilityConfig };
       setLoading(false);
     } catch (error) {
       facilityName.value = '';
@@ -104,12 +102,12 @@ export default function useFacilityConfig(_facilityId) {
    */
   async function saveFacilityName(name) {
     const facility = await FacilityResource.saveModel({
-      id: facilityId.value,
+      id: facilityId,
       data: { name },
     });
 
     // Update facilities list
-    await getFacilities();
+    await fetchFacilities();
 
     facilityName.value = name;
     return facility;
@@ -142,11 +140,6 @@ export default function useFacilityConfig(_facilityId) {
     await saveFacilityConfig();
   }
 
-  // Watchers
-  watch(facilityId, newFacilityId => {
-    setFacilityId(newFacilityId);
-  });
-
   return {
     // State
     facilityId,
@@ -160,7 +153,7 @@ export default function useFacilityConfig(_facilityId) {
     settingsHaveChanged,
     isPinSet,
     // Actions
-    fetchFacilityConfig,
+    fetchFacility,
     modifySetting,
     modifyAllSettings,
     copySettings,

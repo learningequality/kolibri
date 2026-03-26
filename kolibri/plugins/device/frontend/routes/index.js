@@ -64,9 +64,9 @@ const routes = [
     // fetch the facilities if redirecting from /welcome, since the WelcomeModal
     // needs it
     beforeEnter(to, from, next) {
-      const { getFacilities } = useFacilities();
+      const { fetchFacilities } = useFacilities();
       if (to.redirectedFrom === '/welcome') {
-        getFacilities().then(next, next);
+        fetchFacilities().then(next, next);
       } else {
         next();
       }

@@ -122,7 +122,7 @@
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
@@ -149,7 +149,7 @@
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { selectedFacility, facilityConfig } = useFacilities();
+      const { selectedFacility, facilityConfig } = useFacility();
       return {
         selectedFacility,
         facilityConfig,

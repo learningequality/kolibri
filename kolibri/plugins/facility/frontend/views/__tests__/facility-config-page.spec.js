@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
-import useFacilityConfig from '../../composables/useFacilityConfig';
+import useFacilityEditor from '../../composables/useFacilityEditor';
 import ConfigPage from '../FacilityConfigPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
@@ -12,12 +12,17 @@ jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => (
   getDeviceSettings: jest.fn(),
 }));
 jest.mock('kolibri/composables/useSnackbar');
-jest.mock('../../composables/useFacilityConfig');
+jest.mock('../../composables/useFacilityEditor');
 jest.mock('../FacilityAppBarPage', () => ({
   name: 'FacilityAppBarPage',
   render(h) {
     return h('div', this.$slots.default);
   },
+}));
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(() => ({
+    params: {},
+  })),
 }));
 
 function createMockFacilityConfig(overrides = {}) {
@@ -38,7 +43,7 @@ function createMockFacilityConfig(overrides = {}) {
     facilityDataLoading: ref(false),
     settingsHaveChanged: ref(false),
     isPinSet: ref(null),
-    fetchFacilityConfig: jest.fn(),
+    fetchFacility: jest.fn(),
     modifySetting: jest.fn((name, value) => {
       settings.value[name] = value;
     }),
@@ -54,7 +59,7 @@ function createMockFacilityConfig(overrides = {}) {
 
 function renderPage({ props = {}, isAppContext = false, mockFacilityConfig = {} } = {}) {
   useUser.mockImplementation(() => useUserMock({ isAppContext }));
-  useFacilityConfig.mockImplementation(() => createMockFacilityConfig(mockFacilityConfig));
+  useFacilityEditor.mockImplementation(() => createMockFacilityConfig(mockFacilityConfig));
 
   const store = makeStore();
   const dispatch = jest.spyOn(store, 'dispatch');

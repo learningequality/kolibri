@@ -3,6 +3,7 @@ import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import useFacility from 'kolibri-common/composables/useFacility';
 import plugin_data from 'kolibri-plugin-data';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
@@ -24,11 +25,11 @@ import coursesRoutes from './coursesRoutes';
 function showHomePage(toRoute) {
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
   const { isSuperuser } = useUser();
-  const { getFacilities, facilities } = useFacilities();
+  const { fetchFacilities, facilities } = useFacilities();
 
   const getFacilitiesPromise =
     get(isSuperuser) && get(facilities).length === 0
-      ? getFacilities().catch(() => {})
+      ? fetchFacilities().catch(() => {})
       : Promise.resolve();
 
   return Promise.all([initClassInfoPromise, getFacilitiesPromise]);
@@ -60,11 +61,12 @@ export default [
       // if user only has access to one facility, facility_id will not be accessible from URL,
       // but always defaulting to userFacilityId would cause problems for multi-facility admins
       const { userFacilityId } = useUser();
-      const { facilities, getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const { facilities, fetchFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const { setFacilityId } = useFacility();
       const facilityId = toRoute.params.facility_id || get(userFacilityId);
 
       if (facilities.value.length === 0) {
-        await getFacilities();
+        await fetchFacilities();
       }
 
       if (userIsMultiFacilityAdmin.value && !toRoute.params.facility_id) {
@@ -73,6 +75,8 @@ export default [
           params: { subtopicName: toRoute.params.subtopicName },
         });
       }
+
+      await setFacilityId(facilityId);
 
       store.dispatch('setClassList', facilityId).then(
         () => {

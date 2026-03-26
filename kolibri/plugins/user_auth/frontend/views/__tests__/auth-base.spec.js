@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { ref } from 'vue';
 import VueRouter from 'vue-router';
 import AuthBase from '../AuthBase';
 import makeStore from '../../__tests__/utils/makeStore';
-import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 
-jest.mock('kolibri-common/composables/useFacilities');
+jest.mock('kolibri-common/composables/useFacility');
 jest.mock('kolibri/urls');
 
 const routes = [{ name: 'SignUpPage', path: '/signup' }];
@@ -16,9 +17,9 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
   query,
 }));
 
-useFacilities.mockImplementation(() =>
-  useFacilitiesMock({
-    facilityConfig: { learner_can_sign_up: true, is_full_facility_import: true },
+useFacility.mockReturnValue(
+  useFacilityMock({
+    facilityConfig: ref({ learner_can_sign_up: true, is_full_facility_import: true }),
   }),
 );
 

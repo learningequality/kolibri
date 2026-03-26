@@ -26,14 +26,14 @@
 
 <script>
 
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import commonUserStrings from '../commonUserStrings';
 
   export default {
     name: 'SignInHeading',
     mixins: [commonUserStrings],
     setup() {
-      const { selectedFacility } = useFacilities();
+      const { selectedFacility } = useFacility();
       return {
         selectedFacility,
       };

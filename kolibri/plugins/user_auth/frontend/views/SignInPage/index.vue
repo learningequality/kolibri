@@ -162,12 +162,12 @@
   import get from 'lodash/get';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
   import useUser from 'kolibri/composables/useUser';
   import { validateUsername } from 'kolibri/utils/validators';
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../../constants';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
@@ -194,7 +194,7 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const { isAppContext, login } = useUser();
-      const { selectedFacility } = useFacilities();
+      const { selectedFacility } = useFacility();
       return { login, isAppContext, selectedFacility };
     },
     data() {

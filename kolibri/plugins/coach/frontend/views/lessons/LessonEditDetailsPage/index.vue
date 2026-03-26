@@ -43,11 +43,11 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { isSuperuser } = useUser();
-      const { getFacilities, facilities } = useFacilities();
+      const { fetchFacilities, facilities } = useFacilities();
       return {
         createSnackbar,
         isSuperuser,
-        getFacilities,
+        fetchFacilities,
         facilities,
       };
     },
@@ -81,12 +81,12 @@
         'initClassInfo',
         this.$route.params.classId,
       );
-      const getFacilitiesPromise =
+      const fetchFacilitiesPromise =
         this.isSuperuser && this.facilities.length === 0
-          ? this.getFacilities().catch(() => {})
+          ? this.fetchFacilities().catch(() => {})
           : Promise.resolve();
 
-      Promise.all([initClassInfoPromise, getFacilitiesPromise])
+      Promise.all([initClassInfoPromise, fetchFacilitiesPromise])
         .then(() =>
           LessonResource.fetchModel({
             id: this.$route.params.lessonId,
