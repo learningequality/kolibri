@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#     "fonttools==4.49.0",
+#     "requests==2.27.1",
+# ]
+# ///
 """
 For usage instructions, see:
     https://kolibri-dev.readthedocs.io/en/develop/references/i18n.html
@@ -21,21 +28,6 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
 logging.StreamHandler(sys.stdout)
 
-
-font_tools_version = "4.49.0"
-
-try:
-    import fontTools  # noqa
-
-    assert fontTools.version == font_tools_version
-except ImportError:
-    utils.install_requirement(f"fonttools=={font_tools_version}")
-except AssertionError:
-    utils.install_requirement(f"fonttools=={font_tools_version}")
-    logging.error(
-        "Wrong fontTools version was installed. This has been updated. Please re-run the command."
-    )
-    sys.exit(1)
 
 import noto_source  # noqa E402
 

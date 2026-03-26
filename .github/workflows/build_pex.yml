@@ -18,30 +18,27 @@ jobs:
   build_pex:
     name: Build PEX
     runs-on: ubuntu-latest
-    container:
-      image: python:3.6-buster
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/cache@v5
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements/*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    - name: Install Python build dependencies
-      run: pip install -r requirements/build.txt
-    - uses: actions/download-artifact@v8
-      with:
-        name: ${{ inputs.whl-file-name }}
-        path: dist
-    - name: Build PEX
-      run: make pex
-    - name: Get PEX filename
-      id: get-pex-filename
-      run: echo "pex-file-name=$(ls dist | grep .pex | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v7
-      with:
-        name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
-        path: dist/${{ steps.get-pex-filename.outputs.pex-file-name }}
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.whl-file-name }}
+          path: dist
+      - name: Build PEX
+        run: make pex
+      - name: Get PEX filename
+        id: get-pex-filename
+        run: echo "pex-file-name=$(basename dist/*.pex)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
+          path: dist/${{ steps.get-pex-filename.outputs.pex-file-name }}

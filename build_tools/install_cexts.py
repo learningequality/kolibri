@@ -1,9 +1,11 @@
+# /// script
+# requires-python = ">=3.6"
+# dependencies = ["requests==2.27.1", "beautifulsoup4==4.8.2", "pip>=20"]
+# ///
 """
 This module defines functions to install c extensions for all the platforms into
 Kolibri.
 
-See requirements/build.txt for the list of requirements that must be installed for this
-script to run.
 Usage:
 > python build_tools/install_cexts.py --file "requirements/cext.txt" --cache-path "/cext_cache"
 
@@ -89,6 +91,8 @@ def run_pip_install(
     """
     return_code = subprocess.call(
         [
+            sys.executable,
+            "-m",
             "pip",
             "install",
             "-q",
@@ -271,7 +275,9 @@ def parse_requirements(args):
     """
     # pip version needs to be greater than 19.3.1 to run this script
     # see https://github.com/pypa/pip/issues/6070
-    pip_version = str(subprocess.check_output(["pip", "--version"]))
+    pip_version = str(
+        subprocess.check_output([sys.executable, "-m", "pip", "--version"])
+    )
     pip_version_major = int(str(pip_version).split(".")[0].split("pip")[1].strip())
     if pip_version_major < 20:
         sys.exit(
