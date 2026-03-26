@@ -1,10 +1,22 @@
+import { MasteryThreshold, ScoreBucket } from '../constants/courseConstants';
+
+/**
+ * Classifies a learner's mastery for a learning objective based on their
+ * correct count and total questions.
+ *
+ * @param {number} correctCount - number of questions answered correctly
+ * @param {number} numQuestions - total questions for this LO
+ * @returns {string} ScoreBucket.LOW, ScoreBucket.MID, or ScoreBucket.HIGH
+ */
+export function classifyLearnerMastery(correctCount, numQuestions) {
+  const ratio = numQuestions > 0 ? correctCount / numQuestions : 0;
+  if (ratio > MasteryThreshold.HIGH) return ScoreBucket.HIGH;
+  if (ratio > MasteryThreshold.LOW) return ScoreBucket.MID;
+  return ScoreBucket.LOW;
+}
+
 /**
  * Buckets learner scores for a single learning objective into low/mid/high counts.
- *
- * Thresholds (percentage of numQuestions correct):
- *   Low:  0-50%  (ratio <= 0.5)
- *   Mid:  51-80% (ratio > 0.5 and <= 0.8)
- *   High: >80%   (ratio > 0.8)
  *
  * @param {Object} scores - { learnerId: { loId: correctCount, ... }, ... }
  * @param {string} loId - the learning objective ID
@@ -18,11 +30,11 @@ export function bucketScoresForObjective(scores, loId, numQuestions) {
 
   for (const learnerId of Object.keys(scores)) {
     const correctCount = scores[learnerId][loId] || 0;
-    const ratio = numQuestions > 0 ? correctCount / numQuestions : 0;
+    const bucket = classifyLearnerMastery(correctCount, numQuestions);
 
-    if (ratio > 0.8) {
+    if (bucket === ScoreBucket.HIGH) {
       highCount++;
-    } else if (ratio > 0.5) {
+    } else if (bucket === ScoreBucket.MID) {
       midCount++;
     } else {
       lowCount++;

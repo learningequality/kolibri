@@ -1,4 +1,93 @@
-import { bucketScoresForObjective, bucketAllObjectives } from '../scoreBucketing';
+import { ScoreBucket } from '../../constants/courseConstants';
+import {
+  classifyLearnerMastery,
+  bucketScoresForObjective,
+  bucketAllObjectives,
+} from '../scoreBucketing';
+
+describe('classifyLearnerMastery', () => {
+  // --- LOW bucket: ratio <= 0.5 ---
+
+  it('returns LOW for 0 correct out of 10', () => {
+    expect(classifyLearnerMastery(0, 10)).toBe(ScoreBucket.LOW);
+  });
+
+  it('returns LOW for 3/10 (30%)', () => {
+    expect(classifyLearnerMastery(3, 10)).toBe(ScoreBucket.LOW);
+  });
+
+  it('returns LOW for exactly 50% (boundary — 5/10)', () => {
+    expect(classifyLearnerMastery(5, 10)).toBe(ScoreBucket.LOW);
+  });
+
+  it('returns LOW when numQuestions is 0', () => {
+    expect(classifyLearnerMastery(0, 0)).toBe(ScoreBucket.LOW);
+  });
+
+  it('returns LOW when numQuestions is 0 even with a positive correctCount', () => {
+    expect(classifyLearnerMastery(5, 0)).toBe(ScoreBucket.LOW);
+  });
+
+  // --- MID bucket: ratio > 0.5 and <= 0.8 ---
+
+  it('returns MID for 51% (boundary — just above low)', () => {
+    // 51/100 = 0.51
+    expect(classifyLearnerMastery(51, 100)).toBe(ScoreBucket.MID);
+  });
+
+  it('returns MID for 6/10 (60%)', () => {
+    expect(classifyLearnerMastery(6, 10)).toBe(ScoreBucket.MID);
+  });
+
+  it('returns MID for exactly 80% (boundary — 8/10)', () => {
+    expect(classifyLearnerMastery(8, 10)).toBe(ScoreBucket.MID);
+  });
+
+  it('returns MID for 4/5 (80%)', () => {
+    expect(classifyLearnerMastery(4, 5)).toBe(ScoreBucket.MID);
+  });
+
+  // --- HIGH bucket: ratio > 0.8 ---
+
+  it('returns HIGH for 81% (boundary — just above mid)', () => {
+    // 81/100 = 0.81
+    expect(classifyLearnerMastery(81, 100)).toBe(ScoreBucket.HIGH);
+  });
+
+  it('returns HIGH for 9/10 (90%)', () => {
+    expect(classifyLearnerMastery(9, 10)).toBe(ScoreBucket.HIGH);
+  });
+
+  it('returns HIGH for 10/10 (100%)', () => {
+    expect(classifyLearnerMastery(10, 10)).toBe(ScoreBucket.HIGH);
+  });
+
+  it('returns HIGH for 5/5 (100%)', () => {
+    expect(classifyLearnerMastery(5, 5)).toBe(ScoreBucket.HIGH);
+  });
+
+  // --- Edge cases with small question counts ---
+
+  it('handles 1 question: 0/1 is LOW', () => {
+    expect(classifyLearnerMastery(0, 1)).toBe(ScoreBucket.LOW);
+  });
+
+  it('handles 1 question: 1/1 is HIGH', () => {
+    expect(classifyLearnerMastery(1, 1)).toBe(ScoreBucket.HIGH);
+  });
+
+  it('handles 2 questions: 1/2 (50%) is LOW', () => {
+    expect(classifyLearnerMastery(1, 2)).toBe(ScoreBucket.LOW);
+  });
+
+  it('handles 3 questions: 2/3 (66.7%) is MID', () => {
+    expect(classifyLearnerMastery(2, 3)).toBe(ScoreBucket.MID);
+  });
+
+  it('handles 3 questions: 3/3 (100%) is HIGH', () => {
+    expect(classifyLearnerMastery(3, 3)).toBe(ScoreBucket.HIGH);
+  });
+});
 
 describe('bucketScoresForObjective', () => {
   it('buckets learner scores into low/mid/high using 50%/80% thresholds', () => {
