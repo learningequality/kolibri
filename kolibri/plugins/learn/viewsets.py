@@ -1,3 +1,6 @@
+import hashlib
+import uuid as uuid_module
+
 from django.db.models import Count
 from django.db.models import OuterRef
 from django.db.models import Q

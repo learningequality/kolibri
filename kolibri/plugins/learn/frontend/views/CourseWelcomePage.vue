@@ -39,7 +39,7 @@
             :primary="true"
             appearance="raised-button"
             :text="courseStarted ? resumeCourseAction$() : startCourseAction$()"
-            :disabled="!courseStarted && !firstUnitPreTestActive"
+            :disabled="buttonDisabled"
             @click="navigateToCourseContent"
           />
         </div>
@@ -328,10 +328,16 @@
         () => courseProgress.value?.started && courseProgress.value?.resume_position != null,
       );
 
-      const firstUnitPreTestActive = computed(() => {
-        const firstUnit = units.value?.[0];
-        if (!firstUnit || !course.value) return false;
-        return isUnitTestAvailable(course.value.course_id, firstUnit.id, 'pre');
+      const hasActiveTest = computed(() => !!courseProgress.value?.active_test);
+
+      const buttonDisabled = computed(() => {
+        if (!courseStarted.value && !hasActiveTest.value) {
+          return true;
+        }
+        if (courseStarted.value && hasActiveTest.value) {
+          return true;
+        }
+        return false;
       });
 
       const courseContent = computed(() =>
@@ -496,7 +502,7 @@
 
         // Computed
         courseStarted,
-        firstUnitPreTestActive,
+        buttonDisabled,
         courseSubtitle,
         windowIsLarge,
         goBack,

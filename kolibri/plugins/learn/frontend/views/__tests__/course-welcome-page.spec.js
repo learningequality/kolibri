@@ -314,7 +314,25 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is enabled when post-test is active', async () => {
+    it('is disabled when learner completed active pre-test (waiting for coach)', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'pre' },
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'lesson-1',
+          resource_id: 'resource-1',
+        },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
+      });
+    });
+
+    it('is disabled when post-test is active', async () => {
       learnerResources = makeLearnerResourcesMock({
         started: true,
         active_test: { unit_id: 'unit-1', test_type: 'post' },
@@ -328,11 +346,11 @@ describe('CourseWelcomePage', () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
       });
     });
 
-    it('is enabled when a later unit pre-test is active', async () => {
+    it('is disabled when a later unit pre-test is active', async () => {
       learnerResources = makeLearnerResourcesMock({
         started: true,
         active_test: { unit_id: 'unit-2', test_type: 'pre' },
@@ -346,7 +364,7 @@ describe('CourseWelcomePage', () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
       });
     });
   });

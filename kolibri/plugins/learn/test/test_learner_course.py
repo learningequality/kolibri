@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 
 from django.urls import reverse
@@ -18,6 +19,7 @@ from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
 
 
 DUMMY_PASSWORD = "password"
@@ -698,3 +700,112 @@ class LearnerCourseTestCase(APITestCase):
                 "resource_id": None,
             },
         )
+
+    def _compute_synthetic_content_id(
+        self, user_id, course_session_id, unit_id, test_type
+    ):
+        raw = "{}:{}:{}".format(user_id, course_session_id, unit_id)
+        deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
+        return uuid.uuid5(uuid.UUID(deterministic_hash), test_type).hex
+
+    def _mark_test_completed(self, course_session, unit, test_type):
+        """Create ContentSummaryLog + MasteryLog to simulate learner completing a test."""
+        synthetic_content_id = self._compute_synthetic_content_id(
+            self.learner.id, course_session.id, unit.id, test_type
+        )
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=synthetic_content_id,
+            kind=content_kinds.QUIZ,
+            progress=1.0,
+            start_timestamp=now(),
+            completion_timestamp=now(),
+        )
+        MasteryLog.objects.create(
+            summarylog=summary_log,
+            user=self.learner,
+            mastery_criterion={"type": "pre_post_test", "test_type": test_type},
+            start_timestamp=now(),
+            end_timestamp=now(),
+            complete=True,
+            mastery_level=-1,
+        )
+
+    def test_learner_course_resume__pre_test_active_and_completed_by_learner(self):
+        """
+        When the learner has completed the active pre-test but the coach
+        hasn't closed it, resume should return both active_test AND
+        resume_position.
+        """
+        course, course_session, units = self._create_course(
+            units=3, lessons=2, resources=2
+        )
+        # Close pre-tests for first 2 units
+        for i in range(2):
+            unit, lessons = units[i]
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+                activated_by=self.coach,
+            )
+
+        # Unit 3 pre-test active (not closed)
+        unit_3, lessons_3 = units[2]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_3.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+
+        # Learner completed the pre-test
+        self._mark_test_completed(course_session, unit_3, TestType.Pre)
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"]["unit_id"], unit_3.id)
+        self.assertEqual(response["active_test"]["test_type"], TestType.Pre)
+        # resume_position should point to first resource of unit 3
+        self.assertIsNotNone(response["resume_position"])
+        self.assertEqual(response["resume_position"]["unit_id"], unit_3.id)
+
+    def test_learner_course_resume__pre_test_active_not_completed_by_learner(self):
+        """
+        When the pre-test is active but the learner hasn't completed it,
+        resume_position should be null (existing behavior preserved).
+        """
+        course, course_session, units = self._create_course(
+            units=3, lessons=2, resources=2
+        )
+        unit_1, _ = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        # No MasteryLog — learner hasn't completed the test
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"]["unit_id"], unit_1.id)
+        self.assertEqual(response["resume_position"], None)
