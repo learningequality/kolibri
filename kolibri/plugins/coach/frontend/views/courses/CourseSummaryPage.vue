@@ -225,20 +225,6 @@
                     }"
                     :isOpenByDefault="activeUnit && activeUnit.id === unit.id"
                   >
-                    <template #trailing-actions>
-                      <span
-                        v-if="unitHasScores(unit.id)"
-                        class="mastery-pill pill"
-                        :style="unitMasteryPillStyle(unit.id)"
-                      >
-                        <KIcon
-                          :icon="isUnitLowMastery(unit.id) ? 'error' : 'correct'"
-                          :color="unitMasteryIconColor(unit.id)"
-                          :style="{ width: '15px', height: '15px' }"
-                        />
-                        {{ unitMasteryLabel(unit.id) }}
-                      </span>
-                    </template>
                     <template #content>
                       <LearningObjectivesReport :prefetchedData="unitReportInfo[unit.id]" />
                     </template>
@@ -347,8 +333,6 @@
         nOfMLearners$,
         activeUnit$,
         visibleToLearnersLabel$,
-        lowMasteryLabel$,
-        strongMasteryLabel$,
         preTestInProgress$,
         preTestResults$,
         postTestInProgress$,
@@ -461,46 +445,6 @@
           return unit.numberedTitle;
         }
         return `${unit.numberedTitle} (${statusLabel})`;
-      }
-
-      function unitTotalCounts(unitId) {
-        const objectives = unitReportInfo.value[unitId]?.bucketedObjectives || [];
-        return objectives.reduce(
-          (acc, obj) => ({
-            low: acc.low + obj.lowCount,
-            high: acc.high + obj.highCount,
-          }),
-          { low: 0, high: 0 },
-        );
-      }
-
-      function unitHasScores(unitId) {
-        const { low, high } = unitTotalCounts(unitId);
-        return low + high > 0;
-      }
-
-      function isUnitLowMastery(unitId) {
-        const { low, high } = unitTotalCounts(unitId);
-        return low > high;
-      }
-
-      function unitMasteryLabel(unitId) {
-        const { low } = unitTotalCounts(unitId);
-        return isUnitLowMastery(unitId) ? lowMasteryLabel$({ count: low }) : strongMasteryLabel$();
-      }
-
-      function unitMasteryPillStyle(unitId) {
-        const palette = themePalette();
-        const low = isUnitLowMastery(unitId);
-        return {
-          backgroundColor: low ? palette.red.v_100 : palette.green.v_100,
-          borderColor: low ? palette.red.v_400 : palette.green.v_400,
-        };
-      }
-
-      function unitMasteryIconColor(unitId) {
-        const palette = themePalette();
-        return isUnitLowMastery(unitId) ? palette.red.v_600 : palette.green.v_600;
       }
 
       const courseObjectiveheaderstyle = computed(() => {
@@ -719,11 +663,6 @@
         courseObjectiveheaderstyle,
         unitReportInfo,
         unitObjectiveTitle,
-        unitHasScores,
-        isUnitLowMastery,
-        unitMasteryLabel,
-        unitMasteryPillStyle,
-        unitMasteryIconColor,
       };
     },
     watch: {
@@ -840,14 +779,6 @@
 
   .status-icon {
     font-weight: bold;
-  }
-
-  .mastery-pill {
-    height: 22px;
-    padding: 2px 8px 2px 3px;
-    font-size: 12px;
-    font-weight: 100;
-    border: 1px solid;
   }
 
   .learning-objectives-tab {
