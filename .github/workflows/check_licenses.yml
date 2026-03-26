@@ -30,7 +30,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/*.txt", "package.json", "**/package.json", "pnpm-lock.yaml", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
+          paths: '["requirements/*.txt", "pyproject.toml", "uv.lock", "package.json", "**/package.json", "pnpm-lock.yaml", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
   licenses:
     name: Licenses check
     needs: pre_job
@@ -45,19 +45,18 @@ jobs:
       with:
         node-version-file: 'package.json'
         cache: 'pnpm'
-    - uses: actions/setup-python@v6
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
       with:
-        python-version: '3.11'
+        enable-cache: true
     - name: Install dependencies
       run: |
-        # Use a Python virtual environment to ensure
-        # our license check is only for packages
-        # explicitly installed for Kolibri
-        python -m venv ./virtualenv_dir
+        # Use an isolated virtual environment so the license check only sees
+        # packages explicitly installed for Kolibri -- the bundled `base`
+        # dependency group from pyproject.toml.
+        uv venv ./virtualenv_dir --python 3.11
         source ./virtualenv_dir/bin/activate
-        python -m pip install --upgrade pip
-        # Actually install all our requirements before doing a license check
-        pip install -r requirements.txt
+        uv pip install --group base
         pnpm install --frozen-lockfile
         pnpm rebuild node-sass
     - name: Check Licenses

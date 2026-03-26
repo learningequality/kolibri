@@ -43,18 +43,20 @@ jobs:
         cache: 'pnpm'
     - name: Install Javascript dependencies
       run: pnpm install --frozen-lockfile
+    - name: Install Python dependencies
+      run: uv sync --group dev
     - name: Build Kolibri
       run: make dist
     - name: Get WHL filename
       id: get-whl-filename
-      run: echo "whl-file-name=$(ls dist | grep .whl | cat)" >> $GITHUB_OUTPUT
+      run: echo "whl-file-name=$(basename dist/*.whl)" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
         path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
     - name: Get TAR filename
       id: get-tar-filename
-      run: echo "tar-file-name=$(ls dist | grep .tar | cat)" >> $GITHUB_OUTPUT
+      run: echo "tar-file-name=$(basename dist/*.tar.gz)" >> "$GITHUB_OUTPUT"
     - uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.get-tar-filename.outputs.tar-file-name }}

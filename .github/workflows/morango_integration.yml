@@ -20,7 +20,6 @@ jobs:
   pre_job:
     name: Path match check
     runs-on: ubuntu-latest
-    # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
@@ -28,7 +27,7 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/base.txt", ".github/workflows/morango_integration.yml", "kolibri/core/auth/**/*.py"]'
+          paths: '["pyproject.toml", "uv.lock", ".github/workflows/morango_integration.yml", "kolibri/core/auth/**/*.py"]'
   morango_integration_tests_sqlite:
     name: Morango Integration Tests for currently supported Python versions
     needs: pre_job
@@ -38,28 +37,24 @@ jobs:
       INTEGRATION_TEST: 'true'
     strategy:
       matrix:
-        python-version: [3.9, '3.10', '3.11', '3.12', '3.13', '3.14']
-
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install tox
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install "tox<4"
-      - name: tox env cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
-          key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
-      - name: Test with tox
-        run: tox -e py${{ matrix.python-version }} -- kolibri/core/auth/test/test_morango_integration.py
+          uv sync --group test --python ${{ matrix.python-version }}
+          uv pip install -e .
+      - name: Test with pytest
+        run: uv run pytest kolibri/core/auth/test/test_morango_integration.py
 
   morango_integration_tests_sqlite_eol_python:
     name: Morango Integration Tests for EOL Python versions
@@ -68,27 +63,48 @@ jobs:
     runs-on: ubuntu-latest
     env:
       INTEGRATION_TEST: 'true'
+      PYTHONPATH: /home/runner/work/kolibri/kolibri
+      KOLIBRI_HOME: /tmp/.kolibri
+      DJANGO_SETTINGS_MODULE: kolibri.deployment.default.settings.test
+      KOLIBRI_RUN_MODE: test
+      SKIP_PY_CHECK: "1"
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7]
     container:
       image: python:${{ matrix.python-version }}-buster
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Install tox
+      - name: Fix apt sources for archived Buster repos
         run: |
-          python -m pip install --upgrade pip
-          pip install "tox<4"
-      - name: tox env cache
-        uses: actions/cache@v5
+          echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
+          echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
+          echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
+          apt-get -y -qq update
+          apt-get install -y git git-lfs
+      - uses: actions/checkout@v6
         with:
-          path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
-          key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
-      - name: Test with tox
-        run: tox -e py${{ matrix.python-version }} -- kolibri/core/auth/test/test_morango_integration.py
-
+          fetch-depth: 0
+      # The buster container runs as root but the checkout is owned by the
+      # runner user, so git refuses to operate without this.
+      - name: Fix git safe directory
+        run: git config --global --add safe.directory /__w/kolibri/kolibri
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: |
+          uv pip install --system --group base --group test
+          uv pip install --system -r requirements/cext.txt
+          make set-eol-python-version-for-tests
+          # Create a kolibri CLI wrapper since pip install -e . can't work on 3.6
+          # (build backend requires Python 3.8+). The morango integration tests
+          # spawn kolibri as a subprocess.
+          echo '#!/usr/bin/env python' > /usr/local/bin/kolibri
+          echo 'from kolibri.utils.cli import main; main()' >> /usr/local/bin/kolibri
+          chmod +x /usr/local/bin/kolibri
+      - name: Test with pytest
+        run: python -m pytest kolibri/core/auth/test/test_morango_integration.py
 
   morango_integration_tests_postgres:
     name: Morango Integration Tests with PostgreSQL
@@ -97,7 +113,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       INTEGRATION_TEST: 'true'
-
     services:
       # Label used to access the service container
       postgres:
@@ -117,23 +132,25 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python 3.9 for Postgres
-        uses: actions/setup-python@v6
+      - uses: actions/checkout@v6
         with:
-          python-version: 3.9
-      - name: Install tox
-        run: |
-          python -m pip install --upgrade pip
-          pip install "tox<4"
-      - name: tox env cache
-        uses: actions/cache@v5
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
-          path: ${{ github.workspace }}/.tox/py3.9
-          key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
-      - name: Test with tox
-        run: tox -e postgres -- kolibri/core/auth/test/test_morango_integration.py
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.9
+        run: uv python install 3.9
+      - name: Install dependencies
+        run: uv sync --group test --extra postgres --python 3.9
+      - name: Test with pytest
+        run: uv run pytest kolibri/core/auth/test/test_morango_integration.py
+        env:
+          KOLIBRI_DATABASE_ENGINE: postgres
+          KOLIBRI_DATABASE_USER: postgres
+          KOLIBRI_DATABASE_NAME: test
+          KOLIBRI_DATABASE_HOST: localhost
+          KOLIBRI_DATABASE_PASSWORD: postgres
+          KOLIBRI_DATABASE_PORT: "5432"
