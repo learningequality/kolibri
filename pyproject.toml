@@ -1,0 +1,213 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri"
+description = "Kolibri - the offline app for universal education"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Learning Equality", email = "info@learningequality.org"},
+]
+keywords = ["education", "offline", "kolibri"]
+requires-python = ">=3.6, <3.15"
+dependencies = []
+dynamic = ["version"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Homepage = "https://github.com/learningequality/kolibri"
+
+[project.scripts]
+kolibri = "kolibri.utils.cli:main"
+
+[project.entry-points."kolibri.plugins"]
+"kolibri.plugins.app" = "kolibri.plugins.app"
+"kolibri.plugins.coach" = "kolibri.plugins.coach"
+"kolibri.plugins.context_translation" = "kolibri.plugins.context_translation"
+"kolibri.plugins.default_theme" = "kolibri.plugins.default_theme"
+"kolibri.plugins.demo_server" = "kolibri.plugins.demo_server"
+"kolibri.plugins.device" = "kolibri.plugins.device"
+"kolibri.plugins.epub_viewer" = "kolibri.plugins.epub_viewer"
+"kolibri.plugins.html5_viewer" = "kolibri.plugins.html5_viewer"
+"kolibri.plugins.facility" = "kolibri.plugins.facility"
+"kolibri.plugins.learn" = "kolibri.plugins.learn"
+"kolibri.plugins.media_player" = "kolibri.plugins.media_player"
+"kolibri.plugins.pdf_viewer" = "kolibri.plugins.pdf_viewer"
+"kolibri.plugins.perseus_viewer" = "kolibri.plugins.perseus_viewer"
+"kolibri.plugins.pwa" = "kolibri.plugins.pwa"
+"kolibri.plugins.qti_viewer" = "kolibri.plugins.qti_viewer"
+"kolibri.plugins.setup_wizard" = "kolibri.plugins.setup_wizard"
+"kolibri.plugins.slideshow_viewer" = "kolibri.plugins.slideshow_viewer"
+"kolibri.plugins.user_auth" = "kolibri.plugins.user_auth"
+"kolibri.plugins.user_profile" = "kolibri.plugins.user_profile"
+"kolibri.plugins.policies" = "kolibri.plugins.policies"
+"kolibri.plugins.bloompub_viewer" = "kolibri.plugins.bloompub_viewer"
+"kolibri.plugins.safe_html5_viewer" = "kolibri.plugins.safe_html5_viewer"
+
+[project.optional-dependencies]
+postgres = ["psycopg2-binary==2.9.9; python_version >= '3.7'"]
+storages = ["django-storages[google]==1.14.5; python_version >= '3.8'", "google-auth==2.38.0; python_version >= '3.8'"]
+
+[dependency-groups]
+base = [
+    "diskcache==5.6.3",
+    "django-csp==3.8",
+    "django-filter==21.1",
+    "django-js-reverse==0.10.2",
+    "djangorestframework==3.14.0",
+    "django==3.2.25",
+    "colorlog==6.8.2",
+    "configobj==5.0.8",
+    "django-mptt==0.14.0",
+    "requests==2.27.1",
+    "cheroot==10.0.1",
+    "magicbus==4.1.2",
+    "le-utils==0.2.17",
+    "jsonfield==3.1.0",
+    "morango==0.8.12",
+    "tzlocal==4.2",
+    "pytz==2024.1",
+    "python-dateutil==2.9.0.post0",
+    "sqlalchemy==1.4.52",
+    "semver==2.13.0",
+    "django-redis-cache==3.0.1",
+    "redis==3.5.3",
+    "html5lib==1.1",
+    "zeroconf-py2compat==0.19.17",
+    "Click==8.0.4",
+    "colorama==0.4.5",
+    "whitenoise==5.3.0",
+    "idna==3.7",
+    "ifaddr==0.1.7",
+    "importlib-metadata==4.8.3",
+    "importlib_resources==5.4.0",
+    "json-schema-validator==2.4.1",
+    "django-sortedm2m==3.1.1",
+]
+test = [
+    {include-group = "base"},
+    "setuptools<82",
+    "setuptools-scm>=8,<10; python_version >= '3.8'",
+    "beautifulsoup4==4.8.2",
+    "factory-boy==2.7.0",
+    "fake-factory==0.5.7",
+    "mock==2.0.0",
+    "mixer==6.0.1",
+    "pytest==6.2.5; python_version < '3.14'",
+    "pytest>=8.0; python_version >= '3.14'",
+    "pytest-django==4.5.2",
+    "pytest-env==0.6.2",
+    "pytest-pythonpath==0.7.2; python_version < '3.14'",
+    "attrs==19.2.0",
+    "parameterized==0.8.1",
+]
+dev = [
+    {include-group = "test"},
+    "ipdb; python_version >= '3.8'",
+    "prek; python_version >= '3.8'",
+    "django-silk; python_version >= '3.8'",
+    "drf-yasg==1.21.7; python_version >= '3.8'",
+    "coreapi==2.3.3; python_version >= '3.8'",
+    "nodeenv>=1.3.3",
+    "sqlacodegen==2.3.0.post1; python_version >= '3.8'",
+]
+docs = [
+    {include-group = "base"},
+    "sphinx>=7,<8; python_version >= '3.9'",
+    "sphinx-intl; python_version >= '3.9'",
+    "sphinx-rtd-theme~=3.0; python_version >= '3.9'",
+    "sphinx-autobuild; python_version >= '3.9'",
+    "m2r2; python_version >= '3.9'",
+    "sphinx-notfound-page; python_version >= '3.9'",
+    "sphinx-llm[gen]==0.4.1; python_version >= '3.9'",
+]
+load-test = [
+    {include-group = "base"},
+    "playwright>=1.40; python_version >= '3.8'",
+    "locust>=2.20; python_version >= '3.8'",
+]
+[tool.uv]
+# Don't install packages published less than 7 days ago (matches dependabot cooldown)
+exclude-newer = "7 days"
+# Exempt our own ecosystem libraries from the cooldown
+exclude-newer-package = {le-utils = "0 seconds", morango = "0 seconds"}
+
+[tool.uv.workspace]
+members = ["."]
+
+[tool.setuptools]
+packages = ["kolibri"]
+
+[tool.setuptools.package-dir]
+kolibri = "kolibri"
+
+[tool.setuptools_scm]
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+)(-(?P<pre>alpha|beta|rc)(?P<pre_n>\\d+))?$"
+version_file = "kolibri/_version.py"
+# Custom template to ensure Python 3.6 compatibility (no `from __future__ import annotations`)
+version_file_template = """# file generated by setuptools-scm\n# don't change, don't track in version control\n__version__ = version = '{version}'\n"""
+
+[tool.ruff]
+line-length = 88
+target-version = "py37"
+exclude = [
+    "kolibri/dist/*",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "T20"]
+ignore = ["E203", "E721", "E741"]
+# Exclude migrations from linting (auto-generated code) but still format them
+exclude = ["kolibri/*/migrations/*"]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 160
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["kolibri"]
+
+[tool.coverage.run]
+branch = true
+source = ["kolibri"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "kolibri/core/webpack/management/commands/devserver.py",
+]
+
+[tool.coverage.report]
+ignore_errors = true
+show_missing = true
+precision = 2
+exclude_lines = [
+    "raise NotImplementedError",
+    "raise AssertionError",
+    "if __name__ == .__main__.:",
+]
+
+
+[tool.kolibri.i18n]
+project = "kolibri"
+locale_data_folder = "kolibri/locale"
+ignore = "**/node_modules/**,**/static/**"

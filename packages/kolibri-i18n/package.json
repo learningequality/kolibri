@@ -32,7 +32,8 @@
     "kolibri-logging": "workspace:*",
     "lodash": "catalog:",
     "recast": "^0.23.11",
-    "toml": "^3.0.0",
+    "smol-toml": "^1.6.1",
+    "smol-toml": "^1.6.1",
     "vue-sfc-descriptor-to-string": "1.0.0"
   },
   "peerDependencies": {
