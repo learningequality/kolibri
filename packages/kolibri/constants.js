@@ -211,3 +211,29 @@ export const LodTypePresets = Object.freeze({
   JOIN: 'JOIN',
   IMPORT: 'IMPORT',
 });
+
+// Mapping of integer IDs to KDS icon names for picture-based login.
+// The `name` field is used for looking up the translated string and rendering the KDS icon.
+//
+// IMPORTANT — treat this mapping as an append-only registry:
+//   • IDs are immutable once assigned.
+//   • Pictures can be added but NEVER removed or reassigned.
+//   • Changing or removing an ID would invalidate stored sequences
+//     or silently point them to the wrong picture.
+//
+// This object should be kept in sync with PICTURE_PASSWORD_SET
+// in kolibri/core/auth/constants/picture_passwords.py.
+export const PICTURE_PASSWORD_SET = {
+  1: { name: 'bee', iconColorful: 'beeColorful', iconStandard: 'beeStandard' },
+  2: { name: 'star', iconColorful: 'starColorful', iconStandard: 'starStandard' },
+  3: { name: 'moon', iconColorful: 'moonColorful', iconStandard: 'moonStandard' },
+  4: { name: 'tree', iconColorful: 'treeColorful', iconStandard: 'treeStandard' },
+  5: { name: 'leaf', iconColorful: 'leafColorful', iconStandard: 'leafStandard' },
+  6: { name: 'mouse', iconColorful: 'mouseColorful', iconStandard: 'mouseStandard' },
+  7: { name: 'water', iconColorful: 'waterColorful', iconStandard: 'waterStandard' },
+  8: { name: 'fish', iconColorful: 'fishColorful', iconStandard: 'fishStandard' },
+  9: { name: 'dog', iconColorful: 'dogColorful', iconStandard: 'dogStandard' },
+  10: { name: 'smile', iconColorful: 'smileColorful', iconStandard: 'smileStandard' },
+  11: { name: 'flower', iconColorful: 'flowerColorful', iconStandard: 'flowerStandard' },
+  12: { name: 'bird', iconColorful: 'birdColorful', iconStandard: 'birdStandard' },
+};
