@@ -383,7 +383,7 @@
       // UI-only state
       const activeModal = ref(null);
 
-      // Per-unit report data fetched eagerly for mastery pills and titles
+      // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});
 
       function fetchAllUnitReports() {
