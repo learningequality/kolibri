@@ -218,7 +218,7 @@ def test_search_latest():
 
     search_root = tempfile.mkdtemp()
 
-    major_version = ".".join(map(str, kolibri.VERSION[:2]))
+    major_version = ".".join(kolibri.__version__.split(".")[:2])
 
     files = [
         "db-v{}_2015-08-02_00-00-00.dump".format(kolibri.__version__),
