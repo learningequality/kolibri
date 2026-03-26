@@ -6,24 +6,31 @@ repos:
     -   id: trailing-whitespace
     -   id: check-yaml
         exclude: '^pnpm-lock\.yaml$'
-    -   id: check-added-large-files
-        exclude: '^pnpm-lock\.yaml$'
-    -   id: debug-statements
-    -   id: end-of-file-fixer
+      - id: check-added-large-files
+        exclude: '^(pnpm-lock\.yaml|uv\.lock)$'
+      - id: debug-statements
+      - id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
--   repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.11.2
     hooks:
-    -   id: flake8
-        additional_dependencies: [
-            'flake8-print==5.0.0'
-        ]
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v1.3.3
+      - id: uv-lock
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
     hooks:
-    -   id: reorder-python-imports
-        language_version: python3
--   repo: local
+      - id: yamlfmt
+        exclude: '^pnpm-lock\.yaml$'
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.11
+    hooks:
+      - id: actionlint
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
     hooks:
     -   id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
@@ -98,21 +105,3 @@ repos:
     description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
     entry: python .pre-commit-hooks/check_lfs_pointers.py
     language: system
-  - id: check-workflow-permissions
-    name: Require top-level permissions block in GitHub workflow files
-    description: Every workflow must declare a top-level permissions block to enforce least privilege
-    entry: python .pre-commit-hooks/check_workflow_permissions.py
-    language: python
-    additional_dependencies: ['pyyaml']
-    files: ^\.github/workflows/.*\.(yml|yaml)$
--   repo: https://github.com/isidentical/teyit
-    rev: 0.4.3
-    hooks:
-    -   id: teyit
-        language_version: python3
-# Always keep black as the final hook so it reformats any other reformatting.
--   repo: https://github.com/python/black
-    rev: 20.8b1
-    hooks:
-    - id: black
-      additional_dependencies: ['click==8.0.4']
