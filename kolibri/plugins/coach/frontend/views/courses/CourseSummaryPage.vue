@@ -232,7 +232,10 @@
                     :isOpenByDefault="activeUnit && activeUnit.id === unit.id"
                   >
                     <template #content>
-                      <LearningObjectivesReport :prefetchedData="unitReportInfo[unit.id]" />
+                      <LearningObjectivesReport
+                        :prefetchedData="unitReportInfo[unit.id]"
+                        @select-objective="onSelectObjective"
+                      />
                     </template>
                   </AccordionItem>
                 </AccordionContainer>
@@ -280,6 +283,12 @@
       :learner="selectedLearner"
       @close="closeLearnerPanel"
     />
+    <LearningObjectiveSidePanel
+      v-if="selectedObjective"
+      :objective="selectedObjective.objective"
+      :reportData="selectedObjective.reportData"
+      @closePanel="onClosePanel"
+    />
   </CoachAppBarPage>
 
 </template>
@@ -309,6 +318,7 @@
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
   import LearnersReport from './LearnersReport.vue';
   import LearnerSidePanel from './LearnerSidePanel.vue';
+  import LearningObjectiveSidePanel from './LearningObjectiveSidePanel.vue';
 
   export default {
     name: 'CourseSummaryPage',
@@ -321,6 +331,7 @@
       LearnerSidePanel,
       LearningObjectivesReport,
       LearnersReport,
+      LearningObjectiveSidePanel,
       Recipients,
     },
     setup() {
@@ -402,6 +413,15 @@
       // UI-only state
       const activeModal = ref(null);
       const selectedLearner = ref(null);
+      const selectedObjective = ref(null);
+
+      function onSelectObjective(data) {
+        selectedObjective.value = data;
+      }
+
+      function onClosePanel() {
+        selectedObjective.value = null;
+      }
 
       // Capture store synchronously while instance context is available
       const store = getCurrentInstance().proxy.$store;
@@ -424,7 +444,7 @@
                 ...unitReportInfo.value,
                 [unit.id]: {
                   ...deriveUnitReportInfo(data),
-                  reportData: data,
+                  reportData: { ...data, unit_title: unit.numberedTitle },
                   learnersWithGroups: data.learners.map(learner => ({
                     ...learner,
                     groups: getGroupNames(learner.id),
@@ -781,6 +801,9 @@
         activeUnitTotalLearners,
         activeModalCompletedCount,
         activeModalInProgressCount,
+        selectedObjective,
+        onSelectObjective,
+        onClosePanel,
       };
     },
   };

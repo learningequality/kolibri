@@ -17,11 +17,11 @@
           </template>
           <template #cell="{ content, rowIndex, colIndex }">
             <template v-if="colIndex === 0">
-              <!-- TODO: Replace :to with real route once detail route is available -->
-              <KRouterLink
+              <KButton
                 class="lo-link"
+                appearance="basic-link"
                 :text="content"
-                :to="{}"
+                @click="onObjectiveClick(rowIndex)"
               />
             </template>
             <template v-else-if="colIndex === 1">
@@ -52,7 +52,7 @@
     components: {
       SparklineBar,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
       const data = toRef(props, 'prefetchedData');
@@ -72,12 +72,20 @@
         return bucketedObjectives.value[rowIndex];
       }
 
+      function onObjectiveClick(rowIndex) {
+        emit('select-objective', {
+          objective: bucketedObjectives.value[rowIndex],
+          reportData: data.value?.reportData,
+        });
+      }
+
       return {
         loading,
         activeTestStatus,
         headers,
         rows,
         objectiveAt,
+        onObjectiveClick,
         learningObjectivesLabel$,
         noTestDataLabel$,
       };
