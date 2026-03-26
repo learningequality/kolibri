@@ -511,4 +511,43 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Part of the LO score display in the learner side panel, showing e.g. "of 5", preceded by a bold count number',
   },
+  preTestAverageLabel: {
+    message: 'Pre: {correct, number} of {total, number} questions',
+    context:
+      'Shows average pre-test score for a learning objective in the side panel, e.g. "Pre: 2 of 5 questions"',
+  },
+  postTestAverageLabel: {
+    message: 'Post: {correct, number} of {total, number} questions',
+    context:
+      'Shows average post-test score for a learning objective in the side panel, e.g. "Post: 4 of 5 questions"',
+  },
+  learnersStrugglingLabel: {
+    message: '{count, plural, one {learner} other {learners}} struggling with this objective',
+    context:
+      'Warning banner in the learning objective side panel. The count is displayed separately as bold text before this string.',
+  },
+  correctOfTotalLabel: {
+    message: '{correct, number} of {total, number}',
+    context:
+      'Score display for a learner on a specific objective, e.g. "3 of 5" meaning 3 correct out of 5',
+  },
+  ofTotalLabel: {
+    message: 'of {total, number}',
+    context:
+      'Displayed after a bold score number in the learner row, e.g. the "of 5" part in "3 of 5"',
+  },
+  testAveragesLabel: {
+    message: 'Test averages',
+    context: 'Label for the test averages row in the learning objective side panel summary',
+  },
+  individualPerformanceLabel: {
+    message: 'Individual learning objective performance',
+    context:
+      'Section heading in the learning objective side panel above the per-learner score list',
+  },
+  sortedByScoreLabel: {
+    message: 'Sorted by score (lowest first)',
+    context:
+      'Subtitle below the individual performance heading explaining the sort order of learner scores',
+  },
 });
