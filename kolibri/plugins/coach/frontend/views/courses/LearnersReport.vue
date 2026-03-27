@@ -31,6 +31,50 @@
           <template v-else-if="colIndex === 1">
             <span>{{ content }}</span>
           </template>
+          <template v-else-if="colIndex === 2">
+            <span
+              v-if="content === 'support_needed'"
+              class="risk-badge risk-badge--wide"
+              :style="supportNeededStyles"
+            >
+              <KIcon
+                icon="error"
+                :color="badgeIconColor"
+                class="badge-icon"
+              />
+              {{ supportNeededLabel$() }}
+            </span>
+            <span
+              v-else-if="content === 'borderline'"
+              class="risk-badge risk-badge--wide"
+              :style="borderlineStyles"
+            >
+              <KIcon
+                icon="error"
+                :color="borderlineIconColor"
+                class="badge-icon"
+              />
+              {{ gainingMomentumLabel$() }}
+            </span>
+            <span
+              v-else-if="content === 'on_track'"
+              class="risk-badge"
+              :style="onTrackStyles"
+            >
+              <KIcon
+                icon="correct"
+                :color="badgeIconColor"
+                class="badge-icon"
+              />
+              {{ onTrackLabel$() }}
+            </span>
+            <span
+              v-else
+              :style="{ color: $themeTokens.annotation }"
+            >
+              &mdash;
+            </span>
+          </template>
         </template>
       </KTable>
     </template>
@@ -45,6 +89,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coachStrings } from '../common/commonCoachStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
   export default {
     name: 'LearnersReport',
@@ -61,6 +106,10 @@
     setup(props) {
       const {
         noTestDataLabel$,
+        supportNeededLabel$,
+        gainingMomentumLabel$,
+        onTrackLabel$,
+        riskLevelLabel$,
         noLearnersAttemptedLabel$,
       } = coursesStrings;
       const { groupsLabel$ } = coachStrings;
@@ -81,7 +130,20 @@
         return data.value?.learnersWithGroups || [];
       });
 
-      const sortedLearners = computed(() => [...learnersWithGroups.value]);
+      function getRiskLevel(ratio) {
+        if (ratio === null) return null;
+        if (ratio <= 0.45) return 'support_needed';
+        if (ratio <= 0.60) return 'borderline';
+        return 'on_track';
+      }
+
+      const sortedLearners = computed(() => {
+        return [...learnersWithGroups.value].map(learner => ({
+          ...learner,
+          ratio: null,
+          riskLevel: null,
+        }));
+      });
 
       const noLearnersAttempted = computed(() => {
         return (
@@ -94,15 +156,47 @@
       const headers = computed(() => [
         { label: '', dataType: 'string', columnId: 'learner' },
         { label: '', dataType: 'string', columnId: 'groups', width: '180px' },
+        { label: '', dataType: 'string', columnId: 'riskLevel', width: '180px' },
       ]);
 
       const rows = computed(() => [
-        [learnerLabel$(), groupsLabel$()],
+        [learnerLabel$(), groupsLabel$(), riskLevelLabel$()],
         ...sortedLearners.value.map(learner => [
           learner.name,
           (learner.groups || []).join(', '),
+          learner.riskLevel ?? '',
         ]),
       ]);
+
+      const supportNeededStyles = computed(() => {
+        const tokens = themeTokens();
+        return {
+          backgroundColor: tokens.error,
+          borderColor: tokens.error,
+          color: tokens.textInverted,
+        };
+      });
+
+      const borderlineStyles = computed(() => {
+        const tokens = themeTokens();
+        return {
+          backgroundColor: tokens.warning,
+          borderColor: tokens.warning,
+          color: tokens.text,
+        };
+      });
+
+      const onTrackStyles = computed(() => {
+        const tokens = themeTokens();
+        return {
+          backgroundColor: tokens.success,
+          borderColor: tokens.success,
+          color: tokens.textInverted,
+        };
+      });
+
+      const badgeIconColor = computed(() => themeTokens().textInverted);
+      const borderlineIconColor = computed(() => themeTokens().text);
 
       return {
         loading,
@@ -114,6 +208,14 @@
         learnersLabel$,
         noTestDataLabel$,
         noLearnersAttemptedLabel$,
+        supportNeededLabel$,
+        gainingMomentumLabel$,
+        onTrackLabel$,
+        supportNeededStyles,
+        borderlineStyles,
+        borderlineIconColor,
+        onTrackStyles,
+        badgeIconColor,
       };
     },
   };
@@ -129,6 +231,28 @@
 
   .empty-state {
     padding: 16px;
+  }
+
+  .risk-badge {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: -50px;
+    padding: 5px 14px 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid;
+    border-radius: 16px;
+  }
+
+  .risk-badge--wide {
+    min-width: 160px;
+  }
+
+  .badge-icon {
+    width: 16px;
+    height: 16px;
   }
 
 </style>
