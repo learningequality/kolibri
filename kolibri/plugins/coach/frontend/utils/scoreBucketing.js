@@ -69,3 +69,33 @@ export function bucketAllObjectives(learningObjectives, scores) {
     };
   });
 }
+
+/**
+ * Given raw unit report API data, determines the active test and buckets
+ * the learning objectives by learner mastery.
+ *
+ * @param {Object} reportData - raw response from UnitReportResource.fetchReport
+ * @returns {{ activeTestType: string|null, activeTestStatus: string,
+ *   bucketedObjectives: Array<Object> }}
+ */
+export function deriveUnitReportInfo(reportData) {
+  const { post_test, pre_test, learning_objectives } = reportData;
+  let activeTest = null;
+  let activeTestType = null;
+
+  if (post_test.status !== 'not_activated') {
+    activeTest = post_test;
+    activeTestType = 'post';
+  } else if (pre_test.status !== 'not_activated') {
+    activeTest = pre_test;
+    activeTestType = 'pre';
+  }
+
+  return {
+    activeTestType,
+    activeTestStatus: activeTest?.status || 'not_activated',
+    bucketedObjectives: activeTest
+      ? bucketAllObjectives(learning_objectives, activeTest.scores)
+      : [],
+  };
+}

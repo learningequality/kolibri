@@ -112,7 +112,8 @@
 
 <style>
 
-  /* Visually hide KTable headers while keeping them accessible to screen readers */
+  /* Visually hide KTable headers while keeping them accessible to screen readers.
+     Unscoped because the thead is rendered by KTable, not this component. */
   .lo-report-table thead {
     position: absolute;
     width: 1px;

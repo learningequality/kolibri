@@ -293,7 +293,7 @@
   import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
-  import { bucketAllObjectives } from '../../utils/scoreBucketing';
+  import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
 
   export default {
@@ -395,31 +395,27 @@
           UnitReportResource.fetchReport({
             courseSessionId: sessionId,
             unitContentnodeId: unit.id,
-          }).then(data => {
-            const postTest = data.post_test;
-            const preTest = data.pre_test;
-            let activeTestObj = null;
-            let activeTestType = null;
-            if (postTest.status !== 'not_activated') {
-              activeTestObj = postTest;
-              activeTestType = 'post';
-            } else if (preTest.status !== 'not_activated') {
-              activeTestObj = preTest;
-              activeTestType = 'pre';
-            }
-            const bucketedObjectives = activeTestObj
-              ? bucketAllObjectives(data.learning_objectives, activeTestObj.scores)
-              : [];
-            unitReportInfo.value = {
-              ...unitReportInfo.value,
-              [unit.id]: {
-                activeTestType,
-                activeTestStatus: activeTestObj?.status || 'not_activated',
-                bucketedObjectives,
-                reportData: data,
-              },
-            };
-          });
+          })
+            .then(data => {
+              unitReportInfo.value = {
+                ...unitReportInfo.value,
+                [unit.id]: {
+                  ...deriveUnitReportInfo(data),
+                  reportData: data,
+                },
+              };
+            })
+            .catch(() => {
+              unitReportInfo.value = {
+                ...unitReportInfo.value,
+                [unit.id]: {
+                  activeTestType: null,
+                  activeTestStatus: 'not_activated',
+                  bucketedObjectives: [],
+                  reportData: null,
+                },
+              };
+            });
         }
       }
 

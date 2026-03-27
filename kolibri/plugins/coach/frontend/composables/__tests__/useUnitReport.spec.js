@@ -182,7 +182,7 @@ describe('useUnitReport', () => {
     };
     UnitReportResource.fetchReport.mockResolvedValue(noTestsData);
 
-    const { bucketedObjectives, activeTest, fetchReport } = useUnitReport(
+    const { bucketedObjectives, activeTestType, fetchReport } = useUnitReport(
       courseSessionId,
       unitContentnodeId,
       createMockStore(),
@@ -190,7 +190,7 @@ describe('useUnitReport', () => {
 
     await fetchReport();
 
-    expect(activeTest.value).toBe(null);
+    expect(activeTestType.value).toBe(null);
     expect(bucketedObjectives.value).toEqual([]);
   });
 

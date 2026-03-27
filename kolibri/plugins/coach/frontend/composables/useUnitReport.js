@@ -1,6 +1,6 @@
 import { computed, getCurrentInstance, ref } from 'vue';
 import UnitReportResource from '../apiResources/unitReport';
-import { bucketAllObjectives } from '../utils/scoreBucketing';
+import { deriveUnitReportInfo } from '../utils/scoreBucketing';
 
 /**
  * Composable that fetches unit report data from the API and exposes
@@ -26,37 +26,18 @@ export default function useUnitReport(courseSessionId, unitContentnodeId, store)
     }
   }
 
-  const activeTest = computed(() => {
+  const derivedInfo = computed(() => {
     if (!reportData.value) {
       return null;
     }
-    const { post_test, pre_test } = reportData.value;
-    if (post_test.status !== 'not_activated') {
-      return post_test;
-    }
-    if (pre_test.status !== 'not_activated') {
-      return pre_test;
-    }
-    return null;
+    return deriveUnitReportInfo(reportData.value);
   });
 
-  const activeTestType = computed(() => {
-    if (!activeTest.value || !reportData.value) {
-      return null;
-    }
-    return activeTest.value === reportData.value.post_test ? 'post' : 'pre';
-  });
+  const activeTestType = computed(() => derivedInfo.value?.activeTestType || null);
 
-  const activeTestStatus = computed(() => {
-    return activeTest.value?.status || 'not_activated';
-  });
+  const activeTestStatus = computed(() => derivedInfo.value?.activeTestStatus || 'not_activated');
 
-  const bucketedObjectives = computed(() => {
-    if (!reportData.value || !activeTest.value) {
-      return [];
-    }
-    return bucketAllObjectives(reportData.value.learning_objectives, activeTest.value.scores);
-  });
+  const bucketedObjectives = computed(() => derivedInfo.value?.bucketedObjectives || []);
 
   const learnersWithGroups = computed(() => {
     if (!reportData.value) {
@@ -73,7 +54,6 @@ export default function useUnitReport(courseSessionId, unitContentnodeId, store)
     loading,
     reportData,
     fetchReport,
-    activeTest,
     activeTestType,
     activeTestStatus,
     bucketedObjectives,
