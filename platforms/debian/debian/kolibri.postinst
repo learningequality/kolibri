@@ -29,6 +29,11 @@ case "$1" in
 
   configure)
 
+    # Install bundled Python if system Python is below minimum version
+    if [ -x /opt/kolibri/bin/install-python.sh ]; then
+        /opt/kolibri/bin/install-python.sh
+    fi
+
     kolibri_configure
     db_stop
 
