@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-"Pre-commit hook to ensure that files designated for Git LFS are actually LFS pointers."
+Pre-commit hook to ensure that files designated for Git LFS are actually LFS pointers.
 
 This prevents accidentally committing binary files that should be managed by Git LFS.
 See: https://github.com/learningequality/kolibri/issues/7099
