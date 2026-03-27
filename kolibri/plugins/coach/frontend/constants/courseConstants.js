@@ -39,3 +39,13 @@ export const ScoreBucket = Object.freeze({
   MID: 'mid',
   HIGH: 'high',
 });
+
+/**
+ * Light background tints for each score bucket, used in learner row styling.
+ * These are lighter than the design system palette v_100 values to match Figma.
+ */
+export const ScoreBucketTints = Object.freeze({
+  [ScoreBucket.LOW]: '#FFF5F4',
+  [ScoreBucket.MID]: '#FFFDF2',
+  [ScoreBucket.HIGH]: '#F2FCF5',
+});

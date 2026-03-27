@@ -15,10 +15,7 @@
           <span class="summary-label">
             {{ completedLabel$() }}
           </span>
-          <span
-            class="summary-value"
-            style="font-weight: bold"
-          >
+          <span class="summary-value summary-value-bold">
             {{ nOfMLearners$({ n: completionCount, m: totalLearners }) }}
           </span>
         </div>
@@ -58,10 +55,7 @@
           icon="error"
           :color="$themePalette.red.v_600"
         />
-        <span>
-          <strong>{{ strugglingCount }}</strong>
-          {{ learnersStrugglingLabel$({ count: strugglingCount }) }}
-        </span>
+        <span>{{ learnersStrugglingLabel$({ count: strugglingCount }) }}</span>
       </div>
 
       <div class="learner-section">
@@ -90,14 +84,11 @@
               />
               {{ learner.name }}
             </span>
-            <span class="learner-score">
-              <span
-                class="score-correct"
-                :style="scoreCorrectStyle(learner.bucket)"
-              >{{ learner.score }}</span>
-              <span class="score-of-total">
-                {{ ofTotalLabel$({ total: objective.numQuestions }) }}
-              </span>
+            <span
+              class="learner-score"
+              :style="scoreStyle(learner.bucket)"
+            >
+              {{ correctOfTotalLabel$({ correct: learner.score, total: objective.numQuestions }) }}
             </span>
           </div>
         </div>
@@ -116,6 +107,8 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { classifyLearnerMastery } from '../../utils/scoreBucketing';
+  import { ScoreBucket, ScoreBucketTints } from '../../constants/courseConstants';
 
   export default {
     name: 'LearningObjectiveSidePanel',
@@ -129,7 +122,7 @@
         preTestAverageLabel$,
         postTestAverageLabel$,
         learnersStrugglingLabel$,
-        ofTotalLabel$,
+        correctOfTotalLabel$,
         testAveragesLabel$,
         individualPerformanceLabel$,
         sortedByScoreLabel$,
@@ -141,7 +134,6 @@
       const tokens = themeTokens();
 
       const unitTitle = computed(() => {
-        // reportData.unit_title already has "Unit N:" prefix from the API
         return props.reportData.unit_title;
       });
 
@@ -184,16 +176,6 @@
       const preTestAverage = computed(() => computeAverage(props.reportData.pre_test));
       const postTestAverage = computed(() => computeAverage(props.reportData.post_test));
 
-      function getBucket(score, numQuestions) {
-        const ratio = numQuestions > 0 ? score / numQuestions : 0;
-        if (ratio > 0.8) {
-          return 'high';
-        } else if (ratio > 0.5) {
-          return 'mid';
-        }
-        return 'low';
-      }
-
       const sortedLearners = computed(() => {
         if (!activeTest.value) {
           return [];
@@ -208,37 +190,30 @@
             return {
               ...learner,
               score,
-              bucket: getBucket(score, numQuestions),
+              bucket: classifyLearnerMastery(score, numQuestions),
             };
           })
           .sort((a, b) => a.score - b.score);
       });
 
       const strugglingCount = computed(() => {
-        return sortedLearners.value.filter(l => l.bucket === 'low').length;
+        return sortedLearners.value.filter(l => l.bucket === ScoreBucket.LOW).length;
       });
-
-      // Light tints from Figma — lighter than palette v_100 values
-      const bucketBackgrounds = {
-        low: '#FFF5F4',
-        mid: '#FFFDF2',
-        high: '#F2FCF5',
-      };
 
       function learnerRowStyle(bucket) {
         return {
-          backgroundColor: bucketBackgrounds[bucket],
+          backgroundColor: ScoreBucketTints[bucket],
         };
       }
 
-      function scoreCorrectStyle(bucket) {
+      function scoreStyle(bucket) {
         return {
-          color: bucket === 'low' ? palette.red.v_600 : tokens.text,
+          color: bucket === ScoreBucket.LOW ? palette.red.v_600 : tokens.text,
         };
       }
 
       const warningBannerStyle = computed(() => ({
-        backgroundColor: bucketBackgrounds.low,
+        backgroundColor: ScoreBucketTints[ScoreBucket.LOW],
         color: palette.red.v_600,
       }));
 
@@ -251,13 +226,13 @@
         sortedLearners,
         strugglingCount,
         learnerRowStyle,
-        scoreCorrectStyle,
+        scoreStyle,
         warningBannerStyle,
         nOfMLearners$,
         preTestAverageLabel$,
         postTestAverageLabel$,
         learnersStrugglingLabel$,
-        ofTotalLabel$,
+        correctOfTotalLabel$,
         completedLabel$,
         testAveragesLabel$,
         individualPerformanceLabel$,
@@ -301,6 +276,10 @@
 
   .summary-value {
     font-size: 14px;
+  }
+
+  .summary-value-bold {
+    font-weight: bold;
   }
 
   .warning-banner {
@@ -352,16 +331,9 @@
   }
 
   .learner-score {
-    white-space: nowrap;
-  }
-
-  .score-correct {
-    font-size: 16px;
-    font-weight: 700;
-  }
-
-  .score-of-total {
     font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
 </style>

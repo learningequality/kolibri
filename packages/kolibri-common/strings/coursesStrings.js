@@ -522,19 +522,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
       'Shows average post-test score for a learning objective in the side panel, e.g. "Post: 4 of 5 questions"',
   },
   learnersStrugglingLabel: {
-    message: '{count, plural, one {learner} other {learners}} struggling with this objective',
+    message:
+      '{count, number} {count, plural, one {learner} other {learners}} struggling with this objective',
     context:
-      'Warning banner in the learning objective side panel. The count is displayed separately as bold text before this string.',
+      'Warning banner in the learning objective side panel showing how many learners scored low',
   },
   correctOfTotalLabel: {
     message: '{correct, number} of {total, number}',
     context:
       'Score display for a learner on a specific objective, e.g. "3 of 5" meaning 3 correct out of 5',
-  },
-  ofTotalLabel: {
-    message: 'of {total, number}',
-    context:
-      'Displayed after a bold score number in the learner row, e.g. the "of 5" part in "3 of 5"',
   },
   testAveragesLabel: {
     message: 'Test averages',

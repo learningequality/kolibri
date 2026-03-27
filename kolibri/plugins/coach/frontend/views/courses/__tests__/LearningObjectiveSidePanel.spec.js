@@ -114,8 +114,7 @@ describe('LearningObjectiveSidePanel', () => {
     renderPanel();
     // user-2 scored 1/4=25% (low), user-3 has no score so 0/4=0% (low)
     // user-1 scored 4/4=100% (high)
-    // The count is rendered separately as <strong>2</strong>
-    expect(screen.getByText(/struggling with this objective/)).toBeInTheDocument();
+    expect(screen.getByText(/2 learners struggling with this objective/)).toBeInTheDocument();
     expect(screen.getByTestId('icon-error')).toBeInTheDocument();
   });
 
@@ -141,13 +140,11 @@ describe('LearningObjectiveSidePanel', () => {
 
   it('sorts learner scores ascending (lowest first)', () => {
     renderPanel();
-    // Score numbers are in their own .score-correct spans
-    const correctSpans = screen
-      .getAllByText(/^[0-4]$/)
-      .filter(el => el.classList.contains('score-correct'));
-    expect(correctSpans[0]).toHaveTextContent('0');
-    expect(correctSpans[1]).toHaveTextContent('1');
-    expect(correctSpans[2]).toHaveTextContent('4');
+    // Scores are rendered as "X of 4" inside .learner-score spans
+    const scoreSpans = screen.getAllByText(/of 4$/);
+    expect(scoreSpans[0]).toHaveTextContent('0 of 4');
+    expect(scoreSpans[1]).toHaveTextContent('1 of 4');
+    expect(scoreSpans[2]).toHaveTextContent('4 of 4');
   });
 
   it('shows learner names in score-sorted order', () => {
@@ -177,11 +174,9 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ reportData: noScoresReport });
-    // All 3 learners should show score 0
-    const correctSpans = screen
-      .getAllByText('0')
-      .filter(el => el.classList.contains('score-correct'));
-    expect(correctSpans).toHaveLength(3);
+    // All 3 learners should show "0 of 4"
+    const scores = screen.getAllByText('0 of 4');
+    expect(scores).toHaveLength(3);
   });
 
   it('uses post-test scores when post-test is activated', () => {
@@ -197,11 +192,9 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ reportData: reportWithPost });
-    const correctSpans = screen
-      .getAllByText(/^[2-4]$/)
-      .filter(el => el.classList.contains('score-correct'));
-    expect(correctSpans[0]).toHaveTextContent('2');
-    expect(correctSpans[1]).toHaveTextContent('3');
-    expect(correctSpans[2]).toHaveTextContent('4');
+    const scores = screen.getAllByText(/of 4$/);
+    expect(scores[0]).toHaveTextContent('2 of 4');
+    expect(scores[1]).toHaveTextContent('3 of 4');
+    expect(scores[2]).toHaveTextContent('4 of 4');
   });
 });
