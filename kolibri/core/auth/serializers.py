@@ -323,6 +323,13 @@ def validate_pin_code(value):
         raise serializers.ValidationError("A Pin must be number")
 
 
+class PicturePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = ("id", "full_name", "username", "picture_password")
+        read_only_fields = ("id", "full_name", "username", "picture_password")
+
+
 class ExtraFieldsSerializer(serializers.Serializer):
     facility = serializers.JSONField(required=False)
     pin_code = serializers.CharField(
