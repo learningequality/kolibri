@@ -70,7 +70,7 @@ def merge_users(source_user, target_user):  # noqa C901
         },
     }
 
-    def _merge_log_data(LogModel):
+    def _merge_log_data(LogModel):  # noqa: C901
         log_map = {}
         id_map[LogModel] = log_map
         new_logs = []

@@ -183,7 +183,7 @@ def get_or_create_classroom_users(**options):
     ]
 
 
-def add_channel_activity_for_user(**options):  # noqa: max-complexity=16
+def add_channel_activity_for_user(**options):  # noqa: C901
     n_content_items = options["n_content_items"]
     channel = options["channel"]
     user = options["user"]

@@ -1027,7 +1027,7 @@ def get_zip_port():
     return zip_port
 
 
-def get_status():  # noqa: max-complexity=16
+def get_status():  # noqa: C901
     """
     Tries to get the PID of a running server.
 
