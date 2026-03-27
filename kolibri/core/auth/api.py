@@ -71,6 +71,7 @@ from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
+from .serializers import PicturePasswordSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
@@ -613,6 +614,63 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
+
+    @decorators.action(
+        detail=False,
+        methods=["get"],
+        url_path="picture-password",
+        permission_classes=[IsAuthenticated],
+    )
+    def picture_password(self, request):
+        user = request.user
+        is_admin = user.is_superuser or _user_is_admin_for_own_facility(user)
+        is_coach = (
+            not is_admin
+            and user.roles.filter(
+                kind__in=[role_kinds.COACH, role_kinds.ASSIGNABLE_COACH]
+            ).exists()
+        )
+
+        if is_admin or is_coach:
+            queryset = (
+                FacilityUser.objects.filter(
+                    facility=user.facility,
+                    roles__isnull=True,
+                )
+                .filter(
+                    Q(devicepermissions__is_superuser=False)
+                    | Q(devicepermissions__isnull=True)
+                )
+                .distinct()
+            )
+
+            class_id = request.query_params.get("classId")
+            if is_coach and not class_id:
+                return Response(
+                    {"detail": "classId is required for coaches"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if class_id:
+                queryset = queryset.filter(memberships__collection_id=class_id)
+
+            learner_id = request.query_params.get("learnerId")
+            if learner_id:
+                queryset = queryset.filter(id=learner_id)
+
+            return Response(PicturePasswordSerializer(queryset, many=True).data)
+
+        # Learner: only their own record
+        learner_id = request.query_params.get("learnerId")
+        if learner_id:
+            try:
+                normalized = UUID(learner_id).hex
+            except (ValueError, AttributeError):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            if normalized != user.id:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
+        return Response(PicturePasswordSerializer(user).data)
 
 
 class DeletedFacilityUserViewSet(
