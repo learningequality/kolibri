@@ -283,6 +283,7 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -452,6 +453,7 @@
           backgroundColor: themePalette().grey.v_100,
           padding: '12px 16px',
           fontWeight: 'bold',
+          textAlign: isRtl(currentLanguage) ? 'right' : 'left',
         };
       });
 
