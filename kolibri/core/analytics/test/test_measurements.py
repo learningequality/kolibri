@@ -1,9 +1,11 @@
+import unittest
 from datetime import timedelta
 
 from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 
+from kolibri.core.analytics import SUPPORTED_OS
 from kolibri.core.analytics.measurements import get_db_info
 from kolibri.core.auth.models import Session
 from kolibri.core.auth.test.helpers import setup_device
@@ -87,11 +89,11 @@ class BenchmarkCommandTestCase(TestCase):
         super().setUpTestData()
         setup_device()
 
+    @unittest.skipUnless(SUPPORTED_OS, "requires psutil support")
     def test_benchmark_command_smoke(self):
-        from kolibri.core.analytics import SUPPORTED_OS
+        call_command("benchmark")
 
-        if SUPPORTED_OS:
+    @unittest.skipIf(SUPPORTED_OS, "only runs on unsupported OS")
+    def test_benchmark_command_unsupported_os(self):
+        with self.assertRaises(SystemExit):
             call_command("benchmark")
-        else:
-            with self.assertRaises(SystemExit):
-                call_command("benchmark")
