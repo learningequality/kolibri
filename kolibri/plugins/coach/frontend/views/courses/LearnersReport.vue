@@ -126,9 +126,26 @@
         return data.value.reportData[testKey]?.scores || {};
       });
 
+      const learningObjectives = computed(() => {
+        return data.value?.reportData?.learning_objectives || [];
+      });
+
       const learnersWithGroups = computed(() => {
         return data.value?.learnersWithGroups || [];
       });
+
+      function getLearnerRatio(learnerId) {
+        const learnerScores = activeTestScores.value[learnerId];
+        if (!learnerScores) return null;
+        let totalCorrect = 0;
+        let totalQuestions = 0;
+        for (const lo of learningObjectives.value) {
+          totalCorrect += learnerScores[lo.id] || 0;
+          totalQuestions += lo.num_questions;
+        }
+        if (totalQuestions === 0) return null;
+        return totalCorrect / totalQuestions;
+      }
 
       function getRiskLevel(ratio) {
         if (ratio === null) return null;
@@ -138,11 +155,19 @@
       }
 
       const sortedLearners = computed(() => {
-        return [...learnersWithGroups.value].map(learner => ({
-          ...learner,
-          ratio: null,
-          riskLevel: null,
-        }));
+        return [...learnersWithGroups.value]
+          .map(learner => {
+            const ratio = getLearnerRatio(learner.id);
+            return { ...learner, ratio, riskLevel: getRiskLevel(ratio) };
+          })
+          .sort((a, b) => {
+            // Unattempted (null ratio) sorted to the end
+            if (a.ratio === null && b.ratio === null) return 0;
+            if (a.ratio === null) return 1;
+            if (b.ratio === null) return -1;
+            // Ascending by score: most help needed (lowest score) first
+            return a.ratio - b.ratio;
+          });
       });
 
       const noLearnersAttempted = computed(() => {
@@ -254,5 +279,6 @@
     width: 16px;
     height: 16px;
   }
+
 
 </style>
