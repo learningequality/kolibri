@@ -25,7 +25,7 @@
           <KIcon
             class="item-icon"
             icon="mastered"
-            :color="$themePalette.grey.v_400"
+            :color="$themeTokens.mastered"
           />
         </template>
       </TreeItem>
@@ -134,7 +134,7 @@
                       v-if="contentNodeProgressMap[resource.content_id] === 1"
                       class="item-icon"
                       icon="mastered"
-                      :color="$themePalette.grey.v_400"
+                      :color="$themeTokens.mastered"
                     />
                     <KIcon
                       v-else-if="contentNodeProgressMap[resource.content_id] > 0"
@@ -174,7 +174,7 @@
           <KIcon
             class="item-icon"
             :icon="isPostTestCompleted ? 'mastered' : 'notStarted'"
-            :color="isPostTestCompleted ? $themePalette.grey.v_400 : undefined"
+            :color="isPostTestCompleted ? $themeTokens.mastered : undefined"
           />
         </template>
       </TreeItem>

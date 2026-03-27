@@ -274,9 +274,9 @@ export default function useLearnerResources() {
       return undefined;
     }
     return {
-      name: PageNames.COURSE_CONTENT__COURSE,
+      name: PageNames.COURSE_WELCOME,
       params: {
-        courseId: course.id,
+        courseSessionId: course.id,
       },
     };
   }

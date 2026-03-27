@@ -149,7 +149,7 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.PRE) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="testAvailable(unit.id, TestType.PRE) ? undefined : lockedColor"
                           class="unit-icons"
                         />
                       </span>
@@ -196,7 +196,13 @@
                                 ? 'mastered'
                                 : 'permissions'
                           "
-                          :color="lockedColor"
+                          :color="
+                            isCurrentLesson(unit.id, lesson.id)
+                              ? undefined
+                              : lessonAvailable(unit.id, lesson.id)
+                                ? $themeTokens.mastered
+                                : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>
@@ -232,7 +238,7 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.POST) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="testAvailable(unit.id, TestType.POST) ? undefined : lockedColor"
                           class="unit-icons"
                         />
                       </span>
