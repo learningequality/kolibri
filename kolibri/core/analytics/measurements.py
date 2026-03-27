@@ -180,6 +180,8 @@ def get_kolibri_process_cmd():
     if not SUPPORTED_OS:
         return None
     kolibri_pid, _ = get_kolibri_process_info()
+    if kolibri_pid is None:
+        return None
     try:
         kolibri_proc = psutil.Process(kolibri_pid)
     except psutil.NoSuchProcess:
