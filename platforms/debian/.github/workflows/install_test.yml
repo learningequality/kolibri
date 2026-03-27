@@ -1,0 +1,57 @@
+name: Install smoke test
+
+on:
+  workflow_call:
+    inputs:
+      deb-file-name:
+        description: "Artifact name of the .deb file to test"
+        required: true
+        type: string
+
+jobs:
+  install_test:
+    name: Install test (${{ matrix.image }}${{ matrix.runner && format(', {0}', matrix.runner) || '' }}${{ matrix.no_system_python && ', no system python3' || '' }}${{ matrix.upgrade_from_deb && ', upgrade' || '' }})
+    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ubuntu:16.04
+            expect_bundled: true
+          - image: ubuntu:18.04
+            expect_bundled: true
+          - image: ubuntu:20.04
+            expect_bundled: true
+          - image: ubuntu:22.04
+          - image: ubuntu:24.04
+          # python3 is only Recommends, so this leg covers the configuration
+          # the bundled interpreter exists for: no system Python at all.
+          - image: ubuntu:24.04
+            no_system_python: true
+            expect_bundled: true
+          - image: ubuntu:20.04
+            runner: ubuntu-24.04-arm
+            expect_bundled: true
+          # Last release before the bundled interpreter: console script to wrapper.
+          - image: ubuntu:20.04
+            upgrade_from_deb: https://github.com/learningequality/kolibri/releases/download/v0.19.5/kolibri_0.19.5-0ubuntu1_all.deb
+            expect_bundled: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.deb-file-name }}
+          path: /tmp/deb
+
+      - name: Run install test in Docker
+        run: |
+          docker run --rm \
+            -v /tmp/deb:/tmp/deb \
+            -v "$PWD/tests:/tmp/tests" \
+            -e NO_SYSTEM_PYTHON="${{ matrix.no_system_python && '1' || '' }}" \
+            -e UPGRADE_FROM_DEB="${{ matrix.upgrade_from_deb }}" \
+            -e EXPECT_BUNDLED="${{ matrix.expect_bundled && '1' || '' }}" \
+            ${{ matrix.image }} \
+            /tmp/tests/install_smoke_test.sh
