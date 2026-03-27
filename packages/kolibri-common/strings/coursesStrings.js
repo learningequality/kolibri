@@ -420,4 +420,116 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Label shown in the accordion header when the post-test is closed and results are available',
   },
+  supportNeededLabel: {
+    message: 'Support needed',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is ≤45%',
+  },
+  gainingMomentumLabel: {
+    message: 'Gaining momentum',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is 46–60%',
+  },
+  onTrackLabel: {
+    message: 'On track',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is above 50%',
+  },
+  riskLevelLabel: {
+    message: 'Risk level',
+    context: 'Column header for the risk level indicator in the Learners report table',
+  },
+  noLearnersAttemptedLabel: {
+    message: 'No learners have attempted this test yet',
+    context:
+      'Empty state message in the Learners report when a test is active but no learner has submitted answers',
+  },
+  learnerReportLabel: {
+    message: 'Learner report',
+    context: 'Subtitle in the learner side panel header, below the learner name',
+  },
+  noProgressLabel: {
+    message: 'No progress yet',
+    context: 'Heading in the learner side panel when the learner has not attempted any test',
+  },
+  hasntStartedUnitsLabel: {
+    message: "{name} hasn't started any units",
+    context:
+      'Description in the learner side panel when the learner has not attempted any test. {name} is the learner name.',
+  },
+  strugglingWithObjectivesPrefixLabel: {
+    message: 'Learner is struggling with',
+    context:
+      'Prefix of the warning banner in the learner side panel. Followed by a bold number and a plural noun, e.g. "Learner is struggling with 3 learning objectives".',
+  },
+  strugglingWithObjectivesSuffixLabel: {
+    message:
+      '{count, plural, one {learning objective} other {learning objectives}}',
+    context:
+      'Plural noun suffix of the warning banner in the learner side panel. Preceded by a bold count, e.g. "Learner is struggling with 3 learning objectives".',
+  },
+  preTestScoreSummaryLabel: {
+    message: 'Pre-test: {correct, number} of {total, number} questions correct',
+    context:
+      "Subheading in the learner side panel showing the learner's total pre-test score across all learning objectives",
+  },
+  postTestScoreSummaryLabel: {
+    message: 'Post-test: {correct, number} of {total, number} questions correct',
+    context:
+      "Subheading in the learner side panel showing the learner's total post-test score across all learning objectives",
+  },
+  xOfYCorrectLabel: {
+    message: '{correct, number} of {total, number} correct',
+    context:
+      'Score label for each learning objective row in the learner side panel, e.g. "3 of 4 correct"',
+  },
+  progressLabel: {
+    message: 'Progress',
+    context: 'Label for the progress section in the learner side panel, displayed in uppercase',
+  },
+  testAveragesLabel: {
+    message: 'Test averages',
+    context: 'Label for the test averages section in the learner side panel, displayed in uppercase',
+  },
+  losCompletedOfLabel: {
+    message: 'of {total, number} LOs completed',
+    context:
+      'Suffix in the learner side panel progress row, following a bold completed count, e.g. "3 of 8 LOs completed"',
+  },
+  preTestLabelPrefix: {
+    message: 'Pre:',
+    context:
+      'Prefix label before the pre-test score in the learner side panel test averages row, e.g. "Pre: 2 of 5 questions"',
+  },
+  postTestLabelPrefix: {
+    message: 'Post:',
+    context:
+      'Prefix label before the post-test score in the learner side panel test averages row, e.g. "Post: 4 of 5 questions"',
+  },
+  testScoreOfTotalLabel: {
+    message: 'of {total, number} questions',
+    context:
+      'Suffix after a colored correct count in the test averages row, e.g. "Pre: 2 of 5 questions"',
+  },
+  individualLoPerformanceLabel: {
+    message: 'Individual learning objective performance',
+    context: 'Section heading in the learner side panel for the LO performance list',
+  },
+  sortedByScoreLowestFirstLabel: {
+    message: 'Sorted by score (lowest first)',
+    context: 'Sub-heading under the Individual learning objective performance section',
+  },
+  learningObjectiveLabel: {
+    message: 'Learning objective',
+    context: 'Column header in the learner side panel LO table',
+  },
+  questionsCorrectLabel: {
+    message: 'Questions correct',
+    context: 'Column header in the learner side panel LO table showing score for each LO',
+  },
+  ofNQuestionsLabel: {
+    message: 'of {total, number}',
+    context:
+      'Part of the LO score display in the learner side panel, showing e.g. "of 5", preceded by a bold count number',
+  },
 });
