@@ -38,7 +38,6 @@
   import orderBy from 'lodash/orderBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
-  import { PageNames } from '../../../constants';
   import Block from './Block';
   import BlockItem from './BlockItem';
   import ItemProgressDisplay from './ItemProgressDisplay';
@@ -53,11 +52,6 @@
       BlockItem,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
-      return {
-        PageNames,
-      };
-    },
     computed: {
       table() {
         const recent = orderBy(this.exams, this.lastActivity, ['desc']).slice(0, MAX_QUIZZES);
