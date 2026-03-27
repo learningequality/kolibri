@@ -86,7 +86,7 @@
   import filterUsersByNames from 'kolibri-common/utils/filterUsersByNames';
   import UserTable from 'kolibri-common/components/UserTable';
   import commonCoach from '../common';
-  import { PageNames } from '../../constants';
+
   import CoachImmersivePage from '../CoachImmersivePage';
 
   export default {
@@ -99,7 +99,6 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        PageNames,
         filterInput: '',
         perPage: 10,
         pageNum: 1,
@@ -173,7 +172,7 @@
           groupId: this.currentGroup.id,
           userIds: this.selectedUsers,
         }).then(() => {
-          this.$router.push(this.$router.getRoute(PageNames.GROUP_SUMMARY), () => {
+          this.$router.push(this.$router.getRoute(this.PageNames.GROUP_SUMMARY), () => {
             this.showSnackbarNotification('learnersEnrolledNoCount', {
               count: this.selectedUsers.length,
             });

@@ -98,7 +98,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { PageNames } from '../../../constants';
+
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CSVExporter from '../../../csv/exporter';
@@ -112,11 +112,6 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
-      return {
-        PageNames,
-      };
-    },
     computed: {
       emptyMessage() {
         return this.coachString('noResourcesInLessonLabel');
@@ -135,7 +130,7 @@
           }
           const tableRow = {
             statusObj: this.getContentStatusObjForLearner(content.content_id, this.learner.id),
-            link: this.classRoute(PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, {
+            link: this.classRoute(this.PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, {
               exerciseId: content.content_id,
               learnerId: this.learner.id,
             }),
