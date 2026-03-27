@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pre-commit hook to ensure files designated for Git LFS are actually LFS pointers.
+"Pre-commit hook to ensure that files designated for Git LFS are actually LFS pointers."
 
 This prevents accidentally committing binary files that should be managed by Git LFS.
 See: https://github.com/learningequality/kolibri/issues/7099
@@ -58,7 +58,7 @@ def is_lfs_pointer(filepath):
             capture_output=True,
             check=True,
         )
-        first_line = result.stdout.split(b"\n")[0].strip()
+        first_line = result.stdout.splitlines()[0].strip()
         return first_line.startswith(LFS_POINTER_HEADER)
     except subprocess.CalledProcessError:
         return False
@@ -91,7 +91,7 @@ def main(filenames):
         logger.error("=" * 80)
         logger.error("")
         logger.error(
-            "The following files should be LFS pointers but contain binary data:"
+            "The following files should be LFS pointers but appear to contain binary data:"
         )
         logger.error("")
 
