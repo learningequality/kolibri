@@ -70,7 +70,7 @@ def get_available_sequence(facility):
     available = all_sequences - assigned
     if not available:
         raise NoAvailableSequences(
-            "All picture password sequences have been assigned " "for this facility."
+            "All picture password sequences have been assigned for this facility."
         )
     return random.choice(list(available))
 
