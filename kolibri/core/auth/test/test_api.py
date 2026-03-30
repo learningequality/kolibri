@@ -2943,6 +2943,7 @@ class PicturePasswordViewSetTestCase(APITestCase):
         returned_ids = {u["id"] for u in response.data}
         self.assertNotIn(self.coach.id, returned_ids)
         self.assertNotIn(self.admin.id, returned_ids)
+        self.assertNotIn(self.superuser.id, returned_ids)
         self.assertIn(self.learner_with_password.id, returned_ids)
 
     def test_list_response_includes_required_fields(self):
