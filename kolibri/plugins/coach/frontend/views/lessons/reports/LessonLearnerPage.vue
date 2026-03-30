@@ -87,7 +87,7 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
-  import { PageNames } from '../../../constants';
+
   import ReportsControls from '../../common/ReportsControls';
   import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
 
@@ -100,11 +100,6 @@
       ReportsResourcesStats,
     },
     mixins: [commonCoach, commonCoreStrings],
-    data() {
-      return {
-        PageNames,
-      };
-    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
@@ -131,7 +126,7 @@
     },
     methods: {
       exerciseLink(exerciseId) {
-        return this.classRoute(PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
+        return this.classRoute(this.PageNames.LESSON_LEARNER_EXERCISE_PAGE_ROOT, { exerciseId });
       },
       showLink(tableRow) {
         return (
