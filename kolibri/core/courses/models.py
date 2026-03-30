@@ -1,6 +1,9 @@
 import hashlib
 
 from django.db import models
+from django.db.models import OuterRef
+from django.db.models import Q
+from django.db.models import Subquery
 from django.db.utils import IntegrityError
 from morango.models import UUIDField
 
@@ -10,8 +13,10 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
+from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
@@ -92,6 +97,90 @@ class CourseSession(AbstractFacilityDataModel):
         return "CourseSession {} for Classroom {}".format(
             self.title, self.collection.name
         )
+
+    def get_resume_data(self, user):
+        """
+        Returns resume state for a given user within this course session.
+
+        :param user: A FacilityUser instance
+        :return: dict with keys:
+            - started (bool)
+            - active_test (dict with unit_id and test_type, or None)
+            - resume_position (dict with unit_id, lesson_id, resource_id, or None)
+        """
+        result = {
+            "started": False,
+            "active_test": None,
+            "resume_position": None,
+        }
+
+        unit_test_assignments_qs = self.unit_test_assignments.filter(
+            collection__membership__user=user
+        )
+
+        unit_test_active = unit_test_assignments_qs.filter(closed=False).first()
+        if unit_test_active:
+            result["active_test"] = {
+                "unit_id": unit_test_active.unit_contentnode_id,
+                "test_type": unit_test_active.test_type,
+            }
+            result["started"] = True
+            return result
+
+        most_recent_pre_test_completed = (
+            unit_test_assignments_qs.filter(
+                closed=True,
+                test_type=TestType.Pre,
+            )
+            .annotate(
+                unit_sort_order=Subquery(
+                    ContentNode.objects.filter(
+                        id=OuterRef("unit_contentnode_id")
+                    ).values("lft")[:1]
+                ),
+            )
+            .order_by("-unit_sort_order")
+            .first()
+        )
+
+        if not most_recent_pre_test_completed:
+            return result
+
+        result["started"] = True
+        unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
+
+        first_incomplete_resource = (
+            ContentNode.objects.filter(
+                parent__parent=unit_contentnode_id,
+                available=True,
+            )
+            .annotate(
+                learner_progress=Subquery(
+                    ContentSummaryLog.objects.filter(
+                        user=user,
+                        content_id=OuterRef("content_id"),
+                    ).values("progress")[:1]
+                ),
+            )
+            .filter(Q(learner_progress__lt=1) | Q(learner_progress__isnull=True))
+            .order_by("lft")
+            .first()
+        )
+
+        if first_incomplete_resource:
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": first_incomplete_resource.parent_id,
+                "resource_id": first_incomplete_resource.id,
+            }
+        else:
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
+            }
+
+        return result
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
