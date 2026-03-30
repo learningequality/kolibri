@@ -270,8 +270,8 @@
         emit('navigateToResource', resource);
       };
 
-      const onCompleteClick = () => {
-        handleUpdateCurrentResourceProgress(1);
+      const onCompleteClick = async () => {
+        await handleUpdateCurrentResourceProgress(1);
         emit('finished');
       };
 
