@@ -15,8 +15,6 @@ from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
-COURSES_DESCENDANTS_DEPTH = 3
-
 
 def course_assignment_lookup(course_id):
     """
@@ -24,7 +22,7 @@ def course_assignment_lookup(course_id):
     :param course_id: a UUID of a course ContentNode
     :return: a tuple of contentnode_id and metadata
     """
-    return (course_id, {"descendants_depth": COURSES_DESCENDANTS_DEPTH})
+    return (course_id, {"import_descendants": True})
 
 
 class TestType(ChoicesEnum):

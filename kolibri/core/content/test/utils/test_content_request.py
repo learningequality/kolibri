@@ -23,7 +23,6 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import DeletedAssignment
-from kolibri.core.content.utils.content_request import _get_descendants_import_metadata
 from kolibri.core.content.utils.content_request import _get_import_metadata
 from kolibri.core.content.utils.content_request import _merge_import_metadata
 from kolibri.core.content.utils.content_request import _process_content_requests
@@ -43,7 +42,6 @@ from kolibri.core.content.utils.content_request import process_download_request
 from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.courses.models import COURSES_DESCENDANTS_DEPTH
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -1205,157 +1203,6 @@ class MergeImportMetadataTestCase(TestCase):
         self.assertEqual(result["some_int"], 42)
 
 
-@mock.patch(_module + "reverse_path")
-class GetDescendantsImportMetadataTestCase(TestCase):
-    """Tests for _get_descendants_import_metadata function"""
-
-    def setUp(self):
-        self.mock_client = mock.MagicMock()
-        self.contentnode_id = uuid.uuid4().hex
-
-    def test_single_page_response(self, mock_reverse_path):
-        """Test when response has no pagination (no 'more' key)"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        response_data = {
-            "results": {
-                ContentNode._meta.db_table: [{"id": "child1"}],
-                File._meta.db_table: [{"id": "file1"}],
-                "schema_version": "5",
-            }
-        }
-        self.mock_client.get.return_value.json.return_value = response_data
-
-        result = _get_descendants_import_metadata(
-            self.mock_client, self.contentnode_id, depth=1
-        )
-
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0][ContentNode._meta.db_table], [{"id": "child1"}])
-        self.mock_client.get.assert_called_once()
-
-    def test_paginated_response(self, mock_reverse_path):
-        """Test when response has multiple pages with 'more' cursor"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        page1_response = {
-            "more": {
-                "schema_version": "5",
-                "depth": "1",
-                "max_results": "1",
-                "cursor": "cD00MQ==",
-            },
-            "results": {
-                ContentNode._meta.db_table: [{"id": "child1"}],
-                "schema_version": "5",
-            },
-        }
-        page2_response = {
-            "results": {
-                ContentNode._meta.db_table: [{"id": "child2"}],
-                "schema_version": "5",
-            }
-        }
-        self.mock_client.get.return_value.json.side_effect = [
-            page1_response,
-            page2_response,
-        ]
-
-        result = _get_descendants_import_metadata(
-            self.mock_client, self.contentnode_id, depth=1
-        )
-
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0][ContentNode._meta.db_table], [{"id": "child1"}])
-        self.assertEqual(result[1][ContentNode._meta.db_table], [{"id": "child2"}])
-        self.assertEqual(self.mock_client.get.call_count, 2)
-
-    def test_500_error_raises(self, mock_reverse_path):
-        """Test that 500 errors are re-raised"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        mock_response = mock.MagicMock()
-        mock_response.status_code = 500
-        error = NetworkLocationResponseFailure(response=mock_response)
-        self.mock_client.get.side_effect = error
-
-        with self.assertRaises(NetworkLocationResponseFailure):
-            _get_descendants_import_metadata(
-                self.mock_client, self.contentnode_id, depth=1
-            )
-
-    def test_initial_request_has_depth_and_max_results(self, mock_reverse_path):
-        """Test that the initial request includes depth and max_results params"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        response_data = {
-            "results": {
-                ContentNode._meta.db_table: [],
-                "schema_version": "5",
-            }
-        }
-        self.mock_client.get.return_value.json.return_value = response_data
-
-        _get_descendants_import_metadata(
-            self.mock_client, self.contentnode_id, depth=COURSES_DESCENDANTS_DEPTH
-        )
-
-        call_args = self.mock_client.get.call_args[0][0]
-        self.assertIn("depth={}".format(COURSES_DESCENDANTS_DEPTH), call_args)
-        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_args)
-
-    def test_empty_results(self, mock_reverse_path):
-        """Test handling of empty results"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        response_data = {"results": {}}
-        self.mock_client.get.return_value.json.return_value = response_data
-
-        result = _get_descendants_import_metadata(
-            self.mock_client, self.contentnode_id, depth=1
-        )
-
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], {})
-
-    def test_subsequent_requests_use_cursor(self, mock_reverse_path):
-        """Test that subsequent requests use the cursor from 'more'"""
-        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
-            self.contentnode_id
-        )
-        page1_response = {
-            "more": {
-                "schema_version": "5",
-                "depth": "1",
-                "max_results": "10",
-                "cursor": "cD00MQ==",
-            },
-            "results": {
-                ContentNode._meta.db_table: [{"id": "child1"}],
-            },
-        }
-        page2_response = {
-            "results": {
-                ContentNode._meta.db_table: [{"id": "child2"}],
-            }
-        }
-        self.mock_client.get.return_value.json.side_effect = [
-            page1_response,
-            page2_response,
-        ]
-
-        _get_descendants_import_metadata(self.mock_client, self.contentnode_id, depth=1)
-
-        # Check second call uses cursor params
-        second_call_url = self.mock_client.get.call_args_list[1][0][0]
-        self.assertIn("cursor=cD00MQ%3D%3D", second_call_url)
-
-
 class GetImportMetadataTestCase(TestCase):
     """Tests for _get_import_metadata function"""
 
@@ -1380,50 +1227,61 @@ class GetImportMetadataTestCase(TestCase):
             "schema_version": "5",
         }
 
-    def test_basic_metadata_retrieval(self):
+    @mock.patch(_module + "reverse_path")
+    def test_basic_metadata_retrieval(self, mock_reverse_path):
         """Test basic metadata retrieval without descendants"""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
         metadata = self._create_basic_metadata(self.contentnode_id)
-        self.mock_client.get.return_value.json.return_value = metadata
+        self.mock_client.get.return_value.json.return_value = {"results": metadata}
 
         result = _get_import_metadata(self.mock_client, self.mock_download)
 
         self.assertEqual(result, metadata)
         self.mock_client.get.assert_called_once()
 
-    @mock.patch(_module + "_get_descendants_import_metadata")
-    def test_descendants_depth_in_metadata_fetches_descendants(
-        self, mock_get_descendants
-    ):
-        """Test that a download with descendants_depth in its metadata triggers descendants fetching"""
-        self.mock_download.metadata = {"descendants_depth": COURSES_DESCENDANTS_DEPTH}
-        metadata = self._create_basic_metadata(self.contentnode_id)
-        descendants_metadata = {
-            ContentNode._meta.db_table: [{"id": "child1"}, {"id": "child2"}],
-            File._meta.db_table: [{"id": "child_file1"}],
+    @mock.patch(_module + "reverse_path")
+    def test_import_descendants_adds_descendants_flag_to_url(self, mock_reverse_path):
+        """Test that import_descendants=True adds descendants=true to the API request URL."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_download.metadata = {"import_descendants": True}
+        combined_metadata = {
+            ContentNode._meta.db_table: [
+                {"id": self.contentnode_id},
+                {"id": "child1"},
+                {"id": "child2"},
+            ],
+            File._meta.db_table: [{"id": "ancestor_file"}, {"id": "child_file1"}],
         }
-        self.mock_client.get.return_value.json.return_value = metadata
-        mock_get_descendants.return_value = [descendants_metadata]
+        self.mock_client.get.return_value.json.return_value = {
+            "results": combined_metadata
+        }
 
         result = _get_import_metadata(self.mock_client, self.mock_download)
 
-        mock_get_descendants.assert_called_once_with(
-            self.mock_client, self.contentnode_id, COURSES_DESCENDANTS_DEPTH
-        )
-        # Check merged results
+        call_url = self.mock_client.get.call_args[0][0]
+        self.assertIn("descendants=true", call_url)
         self.assertEqual(len(result[ContentNode._meta.db_table]), 3)
         self.assertEqual(len(result[File._meta.db_table]), 2)
 
-    @mock.patch(_module + "_get_descendants_import_metadata")
-    def test_no_descendants_depth_does_not_fetch_descendants(
-        self, mock_get_descendants
+    @mock.patch(_module + "reverse_path")
+    def test_no_import_descendants_does_not_add_descendants_flag(
+        self, mock_reverse_path
     ):
-        """Test that downloads without descendants_depth in metadata don't trigger descendants fetching"""
+        """Test that requests without import_descendants do not include descendants=true."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
         metadata = self._create_basic_metadata(self.contentnode_id)
-        self.mock_client.get.return_value.json.return_value = metadata
+        self.mock_client.get.return_value.json.return_value = {"results": metadata}
 
         result = _get_import_metadata(self.mock_client, self.mock_download)
 
-        mock_get_descendants.assert_not_called()
+        call_url = self.mock_client.get.call_args[0][0]
+        self.assertNotIn("descendants", call_url)
         self.assertEqual(result, metadata)
 
     def test_404_returns_none(self):
@@ -1458,53 +1316,141 @@ class GetImportMetadataTestCase(TestCase):
         with self.assertRaises(NetworkLocationResponseFailure):
             _get_import_metadata(self.mock_client, self.mock_download)
 
-    @mock.patch(_module + "_get_descendants_import_metadata")
-    def test_merges_ancestor_and_descendant_metadata(self, mock_get_descendants):
-        """Test that ancestor and descendant metadata are properly merged across pages"""
-        self.mock_download.metadata = {"descendants_depth": COURSES_DESCENDANTS_DEPTH}
-        ancestor_metadata = {
-            ContentNode._meta.db_table: [
-                {"id": self.contentnode_id},
-                {"id": "parent1"},
-            ],
-            File._meta.db_table: [{"id": "ancestor_file"}],
-            Language._meta.db_table: [{"id": "en"}],
-            "schema_version": "5",
+    @mock.patch(_module + "reverse_path")
+    def test_merges_paginated_metadata(self, mock_reverse_path):
+        """Test that paginated pages from the combined endpoint are properly merged."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_download.metadata = {"import_descendants": True}
+        # Page 1 contains the node itself, its parent, and the first child.
+        page1_response = {
+            "more": {"descendants": "true", "max_results": "10", "cursor": "abc"},
+            "results": {
+                ContentNode._meta.db_table: [
+                    {"id": self.contentnode_id},
+                    {"id": "parent1"},
+                    {"id": "child1"},
+                ],
+                File._meta.db_table: [{"id": "ancestor_file"}, {"id": "child_file1"}],
+                Language._meta.db_table: [{"id": "en"}],
+                "schema_version": "5",
+            },
         }
-        page1_descendants = {
-            ContentNode._meta.db_table: [{"id": "child1"}],
-            File._meta.db_table: [{"id": "child_file1"}],
+        # Page 2 contains the second child.
+        page2_response = {
+            "results": {
+                ContentNode._meta.db_table: [{"id": "child2"}],
+                File._meta.db_table: [{"id": "child_file2"}],
+            }
         }
-        page2_descendants = {
-            ContentNode._meta.db_table: [{"id": "child2"}],
-            File._meta.db_table: [{"id": "child_file2"}],
-        }
-        self.mock_client.get.return_value.json.return_value = ancestor_metadata
-        mock_get_descendants.return_value = [page1_descendants, page2_descendants]
+        self.mock_client.get.return_value.json.side_effect = [
+            page1_response,
+            page2_response,
+        ]
 
         result = _get_import_metadata(self.mock_client, self.mock_download)
 
-        # Should have: ancestor node + parent + child1 + child2 = 4 nodes
+        self.assertEqual(self.mock_client.get.call_count, 2)
+        # Should have: node + parent1 + child1 + child2 = 4 nodes
         self.assertEqual(len(result[ContentNode._meta.db_table]), 4)
         # Should have: ancestor_file + child_file1 + child_file2 = 3 files
         self.assertEqual(len(result[File._meta.db_table]), 3)
-        # Language should be preserved
+        # Language and schema_version from page 1 should be preserved
         self.assertEqual(result[Language._meta.db_table], [{"id": "en"}])
         self.assertEqual(result["schema_version"], "5")
+
+    @mock.patch(_module + "reverse_path")
+    def test_initial_request_always_includes_max_results(self, mock_reverse_path):
+        """Test that every first request includes max_results regardless of import_descendants."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_client.get.return_value.json.return_value = {
+            "results": {ContentNode._meta.db_table: []}
+        }
+
+        _get_import_metadata(self.mock_client, self.mock_download)
+
+        call_url = self.mock_client.get.call_args[0][0]
+        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_url)
+
+    @mock.patch(_module + "reverse_path")
+    def test_initial_request_with_descendants_includes_both_flags(
+        self, mock_reverse_path
+    ):
+        """Test that the initial request with import_descendants includes both
+        descendants=true and max_results."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_download.metadata = {"import_descendants": True}
+        self.mock_client.get.return_value.json.return_value = {
+            "results": {ContentNode._meta.db_table: []}
+        }
+
+        _get_import_metadata(self.mock_client, self.mock_download)
+
+        call_url = self.mock_client.get.call_args[0][0]
+        self.assertIn("descendants=true", call_url)
+        self.assertIn("max_results={}".format(MAX_NODES_PER_REQUEST), call_url)
+
+    @mock.patch(_module + "reverse_path")
+    def test_subsequent_requests_use_cursor(self, mock_reverse_path):
+        """Test that follow-up requests use the cursor from the 'more' field."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_download.metadata = {"import_descendants": True}
+        page1_response = {
+            "more": {
+                "descendants": "true",
+                "max_results": "10",
+                "cursor": "cD00MQ==",
+            },
+            "results": {ContentNode._meta.db_table: [{"id": "child1"}]},
+        }
+        page2_response = {"results": {ContentNode._meta.db_table: [{"id": "child2"}]}}
+        self.mock_client.get.return_value.json.side_effect = [
+            page1_response,
+            page2_response,
+        ]
+
+        _get_import_metadata(self.mock_client, self.mock_download)
+
+        second_call_url = self.mock_client.get.call_args_list[1][0][0]
+        self.assertIn("cursor=cD00MQ%3D%3D", second_call_url)
+
+    @mock.patch(_module + "reverse_path")
+    def test_import_descendants_404_returns_none(self, mock_reverse_path):
+        """Test that a 404 during a descendants fetch returns None."""
+        mock_reverse_path.return_value = "/api/public/v2/importmetadata/{}/".format(
+            self.contentnode_id
+        )
+        self.mock_download.metadata = {"import_descendants": True}
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 404
+        self.mock_client.get.side_effect = NetworkLocationResponseFailure(
+            response=mock_response
+        )
+
+        result = _get_import_metadata(self.mock_client, self.mock_download)
+
+        self.assertIsNone(result)
 
 
 class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
     """
     Integration tests for _get_import_metadata against a live server.
 
-    Unlike the unit tests in GetDescendantsImportMetadataTestCase and
-    GetImportMetadataTestCase, these tests use a real NetworkClient making
-    actual HTTP requests to a live Django server, verifying the end-to-end
-    data flow including the correct format of data returned by the endpoint.
+    Unlike the unit tests in GetImportMetadataTestCase, these tests use a real
+    NetworkClient making actual HTTP requests to a live Django server, verifying
+    the end-to-end data flow including the correct format of data returned by
+    the endpoint.
 
     Two cases are covered:
     - Non-course node: only ancestor metadata is returned
-    - Course node: ancestors are merged with paginated descendant metadata
+    - Course node: ancestors and paginated descendant metadata are returned together
     """
 
     databases = "__all__"
@@ -1520,7 +1466,7 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
 
     def test_non_course_node_returns_ancestor_metadata_only(self):
         """
-        A download without descendants_depth returns metadata for the node and its
+        A download without import_descendants returns metadata for the node and its
         ancestors only, without fetching any descendants.
         """
         # Use a level-1 topic node that has both ancestors (root) and many descendants
@@ -1550,10 +1496,9 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
 
     def test_course_node_returns_merged_ancestor_and_descendant_metadata(self):
         """
-        A download with descendants_depth in its metadata triggers paginated descendant
-        fetching via _get_descendants_import_metadata. The final result contains nodes
-        from the ancestors call merged with all descendants up to descendants_depth
-        levels deep.
+        A download with import_descendants in its metadata adds descendants=true to the
+        request, triggering paginated fetching of ancestors and descendants together.
+        The final result contains all ancestor and descendant nodes merged.
 
         The default ChannelBuilder tree has enough nodes to exceed
         MAX_NODES_PER_REQUEST, so this exercises the pagination code path
@@ -1567,7 +1512,7 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
 
         mock_download = mock.MagicMock()
         mock_download.contentnode_id = topic_node.id
-        mock_download.metadata = {"descendants_depth": COURSES_DESCENDANTS_DEPTH}
+        mock_download.metadata = {"import_descendants": True}
 
         result = _get_import_metadata(self.network_client, mock_download)
 
@@ -1578,9 +1523,7 @@ class GetImportMetadataLiveServerTestCase(LiveServerTestCase):
             topic_node.get_ancestors(include_self=True).values_list("id", flat=True)
         )
         expected_descendant_ids = set(
-            topic_node.get_descendants(include_self=True)
-            .filter(level__lte=topic_node.level + COURSES_DESCENDANTS_DEPTH)
-            .values_list("id", flat=True)
+            topic_node.get_descendants(include_self=True).values_list("id", flat=True)
         )
         expected_node_ids = expected_ancestor_ids.union(expected_descendant_ids)
         self.assertEqual(returned_node_ids, expected_node_ids)
@@ -1594,13 +1537,13 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     Covers the three-phase flow end-to-end:
         1. Metadata import — triggered for downloads whose ContentNode is absent.
         2. Descendant request creation — extra download requests are created for
-            descendants of nodes that carry ``descendants_depth`` in their metadata.
+            descendants of nodes that carry ``import_descendants`` in their metadata.
         3. Content download — _process_download is dispatched for every pending
             download that now has metadata.
 
     ``process_metadata_import`` is mocked to simulate the network import by
     creating ContentNode entries as a side effect (including children when
-    ``descendants_depth`` is set).  ``_process_download`` and ``PreferredDevices``
+    ``import_descendants`` is set).  ``_process_download`` and ``PreferredDevices``
     are mocked to avoid real file-transfer and peer-discovery logic.
     """
 
@@ -1608,7 +1551,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         super().setUp()
 
         # Simulate metadata import from a remote peer: creates ContentNode entries
-        # for each requested node, plus children when descendants_depth is set.
+        # for each requested node, plus children when import_descendants is set.
         process_metadata_import_patcher = mock.patch(
             _module + "process_metadata_import"
         )
@@ -1649,7 +1592,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         """
         Simulates what ``import_channel_from_data`` would do after a real network
         fetch: writes ContentNode rows for every requested node.  When a download
-        carries ``descendants_depth``, two child ContentNodes are also created so
+        carries ``import_descendants``, two child ContentNodes are also created so
         that ``_create_related_download_requests_if_needed`` can traverse the tree.
         """
         channel_id = uuid.uuid4().hex
@@ -1663,8 +1606,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
                 channel_id=channel_id,
                 content_id=uuid.uuid4().hex,
             )
-            depth = (download.metadata or {}).get("descendants_depth", 0)
-            if depth > 0:
+            if (download.metadata or {}).get("import_descendants", False):
                 for i in range(2):
                     ContentNode.objects.create(
                         id=uuid.uuid4().hex,
@@ -1717,25 +1659,25 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     # Phase 2: descendant request creation                                 #
     # ------------------------------------------------------------------ #
 
-    def test_no_descendant_requests_created_without_descendants_depth(
+    def test_no_descendant_requests_created_without_import_descendants(
         self, _mock_setting
     ):
-        """A simple download (no descendants_depth) produces exactly one download request."""
+        """A simple download (no import_descendants) produces exactly one download request."""
         self._create_download(metadata=None)
 
         process_content_requests()
 
         self.assertEqual(ContentDownloadRequest.objects.count(), 1)
 
-    def test_descendant_requests_created_when_descendants_depth_set(
+    def test_descendant_requests_created_when_import_descendants_set(
         self, _mock_setting
     ):
         """
-        When a download carries descendants_depth, after metadata import the mock
+        When a download carries import_descendants, after metadata import the mock
         creates child ContentNodes.  process_content_requests must then create one
         ContentDownloadRequest per child.
         """
-        download = self._create_download(metadata={"descendants_depth": 1})
+        download = self._create_download(metadata={"import_descendants": True})
 
         process_content_requests()
 
@@ -1749,15 +1691,15 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
                 ContentDownloadRequest.objects.filter(contentnode_id=child_id).exists()
             )
 
-    def test_descendant_requests_inherit_source_and_omit_descendants_depth(
+    def test_descendant_requests_inherit_source_and_omit_import_descendants(
         self, _mock_setting
     ):
         """
         Requests created for descendants share source_model/source_id with the
-        parent request and do not carry descendants_depth in their own metadata.
+        parent request and do not carry import_descendants in their own metadata.
         """
         download = self._create_download(
-            metadata={"descendants_depth": 1, "extra": "value"}
+            metadata={"import_descendants": True, "extra": "value"}
         )
 
         process_content_requests()
@@ -1767,7 +1709,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
             child_req = ContentDownloadRequest.objects.get(contentnode_id=child_node.id)
             self.assertEqual(child_req.source_model, download.source_model)
             self.assertEqual(child_req.source_id, download.source_id)
-            self.assertNotIn("descendants_depth", child_req.metadata)
+            self.assertNotIn("import_descendants", child_req.metadata)
             self.assertEqual(child_req.metadata.get("extra"), "value")
 
     # ------------------------------------------------------------------ #
@@ -1789,7 +1731,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         _process_download is called for the parent node and every descendant
         whose download request was created during the descendants phase.
         """
-        self._create_download(metadata={"descendants_depth": 1})
+        self._create_download(metadata={"import_descendants": True})
 
         process_content_requests()
 
@@ -1800,7 +1742,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         self, _mock_setting
     ):
         """All download requests end up Completed when _process_download returns True."""
-        self._create_download(metadata={"descendants_depth": 1})
+        self._create_download(metadata={"import_descendants": True})
 
         process_content_requests()
 
@@ -1817,7 +1759,7 @@ class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
 
     Covers both assignment types:
       - ContentAssignment: has contentnode_id and metadata; descendants are
-        resolved via metadata["descendants_depth"] when present.
+        resolved via metadata["import_descendants"] when present.
       - DeletedAssignment: has no contentnode_id or metadata; removal targets
         are derived from the existing SyncInitiated downloads for that source.
     """
@@ -1902,10 +1844,10 @@ class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
             ).exists()
         )
 
-    def test_content_assignment_without_descendants_depth_creates_only_one_removal_request(
+    def test_content_assignment_without_import_descendants_creates_only_one_removal_request(
         self,
     ):
-        """ContentAssignment with no descendants_depth creates exactly one removal request."""
+        """ContentAssignment with no import_descendants creates exactly one removal request."""
         parent, child1, child2 = self._create_node_tree()
         assignment = self._make_content_assignment(
             contentnode_id=parent.id, metadata=None
@@ -1920,15 +1862,15 @@ class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.assertNotIn(child1.id, created_ids)
         self.assertNotIn(child2.id, created_ids)
 
-    def test_content_assignment_with_descendants_depth_creates_removal_requests_for_descendants(
+    def test_content_assignment_with_import_descendants_creates_removal_requests_for_descendants(
         self,
     ):
-        """ContentAssignment with descendants_depth creates removal requests for the node and all
-        descendants up to the given depth."""
+        """ContentAssignment with import_descendants creates removal requests for the node and all
+        its descendants."""
         parent, child1, child2 = self._create_node_tree()
         assignment = self._make_content_assignment(
             contentnode_id=parent.id,
-            metadata={"descendants_depth": 1},
+            metadata={"import_descendants": True},
         )
 
         create_content_removal_requests(self.facility, [assignment])

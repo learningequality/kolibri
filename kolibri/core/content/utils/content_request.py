@@ -101,24 +101,21 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
 def _get_related_contentnode_ids_for_removal(assignment):
     """
     Returns IDs of descendant content nodes that should also be removed when an assignment
-    is removed, based on the ``descendants_depth`` value stored in the assignment's metadata.
+    is removed, based on the ``import_descendants`` flag stored in the assignment's metadata.
 
     :param assignment: A ContentAssignment or DeletedAssignment instance
     :return: A list of content node IDs for the descendants that should be removed,
-            or an empty list if the assignment has no descendants depth or no matching node
+            or an empty list if the assignment has no import_descendants flag or no matching node
     :rtype: list[str]
     """
     metadata = getattr(assignment, "metadata", None)
-    descendants_depth = metadata.get("descendants_depth", 0) if metadata else 0
-    if descendants_depth > 0:
+    import_descendants = (
+        metadata.get("import_descendants", False) if metadata else False
+    )
+    if import_descendants:
         contentnode = ContentNode.objects.filter(id=assignment.contentnode_id).first()
         if contentnode:
-            contentnode_ids = list(
-                contentnode.get_descendants()
-                .filter(level__lte=contentnode.level + descendants_depth)
-                .values_list("id", flat=True)
-            )
-            return contentnode_ids
+            return list(contentnode.get_descendants().values_list("id", flat=True))
     return []
 
 
@@ -512,7 +509,7 @@ class AlreadyAvailable(Exception):
 def _create_related_download_requests_if_needed(incomplete_downloads):
     """
     Creates download requests for the descendants of any incomplete download whose metadata
-    specifies a ``descendants_depth`` greater than zero (e.g. course nodes).
+    has ``import_descendants`` set to True (e.g. course nodes).
 
     After metadata has been imported, the local ``ContentNode`` tree is available, so we
     can resolve the actual descendant IDs and create individual `ContentDownloadRequest` entries
@@ -532,26 +529,24 @@ def _create_related_download_requests_if_needed(incomplete_downloads):
         if not contentnode:
             continue
 
-        descendants_depth = (
-            download_request.metadata.get("descendants_depth", 0)
+        import_descendants = (
+            download_request.metadata.get("import_descendants", False)
             if download_request.metadata
-            else 0
+            else False
         )
-        if descendants_depth > 0:
-            course_descendants = contentnode.get_descendants().filter(
-                level__lte=contentnode.level + descendants_depth
-            )
+        if import_descendants:
+            course_descendants = contentnode.get_descendants()
             derived_assignments = [
                 ContentAssignment(
                     contentnode_id=descendant.id,
                     source_model=download_request.source_model,
                     source_id=download_request.source_id,
-                    # Include everything but descendants_depth in the metadata, since that's only
+                    # Include everything but import_descendants in the metadata, since that's only
                     # relevant for the original request
                     metadata={
                         key: value
                         for key, value in (download_request.metadata or {}).items()
-                        if key != "descendants_depth"
+                        if key != "import_descendants"
                     },
                 )
                 for descendant in course_descendants
@@ -627,43 +622,55 @@ def _merge_import_metadata(metadata_list):
 MAX_NODES_PER_REQUEST = 10
 
 
-def _get_descendants_import_metadata(client, contentnode_id, depth):
+def _get_import_metadata(client, download):
     """
+    Fetches import metadata for a single content node from a remote peer.
+
+    When the download carries ``import_descendants`` in its metadata, the
+    ``descendants=true`` filter is added to the request.  The endpoint then
+    returns both ancestors and descendants together and may paginate the
+    response; this function follows pagination until all pages are collected
+    and merges them into a single dict.
+
+    Returns ``None`` when the remote peer responds with a 4xx error (e.g. 404
+    — node not found on that peer).  Other network errors are re-raised.
+
+    :param client: An active network client pointed at the remote peer
     :type client: NetworkClient
-    :type contentnode_id: str
-    :type depth: int
-    :rtype: list[dict]
+    :param download: The pending download request whose metadata should be imported
+    :type download: ContentDownloadRequest
+    :rtype: None|dict
     """
+    contentnode_id = download.contentnode_id
+    import_descendants = (
+        download.metadata.get("import_descendants", False)
+        if download.metadata
+        else False
+    )
+
+    base_url = reverse_path(
+        "kolibri:core:importmetadata-detail", kwargs={"pk": contentnode_id}
+    )
+
     has_more = True
     more = None
     metadata_list = []
 
     while has_more:
-        url_path = reverse_path(
-            "kolibri:core:importmetadata-detail",
-            kwargs={"pk": contentnode_id},
-        )
         if more:
-            url_path += "?" + urlencode(more)
+            url_path = base_url + "?" + urlencode(more)
         else:
-            url_path += "?" + urlencode(
-                {
-                    "depth": depth,
-                    "max_results": MAX_NODES_PER_REQUEST,
-                }
-            )
+            params = {"max_results": MAX_NODES_PER_REQUEST}
+            if import_descendants:
+                params["descendants"] = "true"
+            url_path = base_url + "?" + urlencode(params)
 
         try:
-            response = client.get(url_path)
-            json_response = response.json()
-            import_metadata = json_response.get("results", {})
-            metadata_list.append(import_metadata)
-
+            json_response = client.get(url_path).json()
+            metadata_list.append(json_response.get("results", {}))
             more = json_response.get("more", None)
             has_more = more is not None
-
         except NetworkLocationResponseFailure as e:
-            # 400 level errors, like 404, are ignored
             if e.response is not None and 400 <= e.response.status_code < 500:
                 logger.debug(
                     "Metadata request failure: GET {} {}".format(
@@ -673,54 +680,7 @@ def _get_descendants_import_metadata(client, contentnode_id, depth):
                 break
             raise e
 
-    return metadata_list
-
-
-def _get_import_metadata(client, download):
-    """
-    Fetches import metadata for a single content node from a remote peer. If the download
-    request carries a ``descendants_depth`` in its metadata, also fetches metadata for
-    all descendants up to that depth and merges everything into one dict.
-
-    Returns ``None`` when the remote peer responds with a 4xx error (e.g. 404 — node not
-    found on that peer). Other network errors are re-raised.
-
-    :param client: An active network client pointed at the remote peer
-    :type client: NetworkClient
-    :param download: The pending download request whose metadata should be imported
-    :type download: ContentDownloadRequest
-    :rtype: None|dict
-    """
-    contentnode_id = download.contentnode_id
-    url_path = reverse_path(
-        "kolibri:core:importmetadata-detail", kwargs={"pk": contentnode_id}
-    )
-    try:
-        response = client.get(url_path)
-        import_metadata = response.json()
-
-        descendants_depth_to_import = (
-            download.metadata.get("descendants_depth", 0) if download.metadata else 0
-        )
-        if descendants_depth_to_import > 0:
-            descendants_import_metadata = _get_descendants_import_metadata(
-                client, contentnode_id, descendants_depth_to_import
-            )
-            return _merge_import_metadata(
-                [import_metadata, *descendants_import_metadata]
-            )
-        else:
-            return import_metadata
-    except NetworkLocationResponseFailure as e:
-        # 400 level errors, like 404, are ignored
-        if e.response is not None and 400 <= e.response.status_code < 500:
-            logger.debug(
-                "Metadata request failure: GET {} {}".format(
-                    url_path, e.response.status_code
-                )
-            )
-            return None
-        raise e
+    return _merge_import_metadata(metadata_list) or None
 
 
 def _import_metadata(client, incomplete_downloads_without_metadata):
