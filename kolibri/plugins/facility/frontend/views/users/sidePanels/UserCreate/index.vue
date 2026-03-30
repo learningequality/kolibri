@@ -153,7 +153,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -199,7 +199,7 @@
       const route = useRoute();
       const router = useRouter();
       const $refs = getCurrentInstance().proxy.$refs;
-      const { getFacilityConfig, facilityConfig } = useFacilities();
+      const { setFacilityId, facilityConfig } = useFacility();
       const { createSnackbar } = useSnackbar();
       const userTypeOptions = [
         {
@@ -453,7 +453,7 @@
       };
 
       onBeforeMount(async () => {
-        await getFacilityConfig(activeFacilityId.value);
+        await setFacilityId(activeFacilityId.value);
         loading.value = false;
       });
 

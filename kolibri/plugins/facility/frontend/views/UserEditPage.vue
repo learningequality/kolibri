@@ -153,7 +153,7 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
 
   export default {
@@ -177,13 +177,13 @@
     setup() {
       const { createSnackbar } = useSnackbar();
       const { currentUserId, logout } = useUser();
-      const { getFacilityConfig, facilityConfig } = useFacilities();
+      const { updateFacilityConfig, facilityConfig } = useFacility();
 
       return {
         logout,
         createSnackbar,
         currentUserId,
-        getFacilityConfig,
+        updateFacilityConfig,
         facilityConfig,
       };
     },
@@ -266,7 +266,7 @@
       },
     },
     created() {
-      const facilityConfigPromise = this.getFacilityConfig();
+      const facilityConfigPromise = this.updateFacilityConfig();
       const facilityUserPromise = FacilityUserResource.fetchModel({
         id: this.$route.params.id,
       }).then(user => {

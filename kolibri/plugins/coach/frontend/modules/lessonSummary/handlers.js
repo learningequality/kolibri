@@ -5,7 +5,7 @@ import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
 
 export async function setLessonSummaryState(store, params) {
-  const { getFacilities, facilities } = useFacilities();
+  const { fetchFacilities, facilities } = useFacilities();
   const { classId, lessonId } = params;
   store.commit('lessonSummary/resources/RESET_STATE');
   store.commit('lessonSummary/SET_STATE', {
@@ -19,7 +19,7 @@ export async function setLessonSummaryState(store, params) {
   const { isSuperuser } = useUser();
   const getFacilitiesPromise =
     get(isSuperuser) && get(facilities).length === 0
-      ? getFacilities().catch(() => {})
+      ? fetchFacilities().catch(() => {})
       : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

@@ -2,7 +2,7 @@ import store from 'kolibri/store';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import useFacilities from 'kolibri-common/composables/useFacilities';
+import useFacility from 'kolibri-common/composables/useFacility';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import ChangeFacility from './views/ChangeFacility';
@@ -20,9 +20,10 @@ import UsernameExists from './views/ChangeFacility/UsernameExists';
 import MergeDifferentAccounts from './views/ChangeFacility/MergeDifferentAccounts';
 
 function preload(next) {
-  const { getFacilityConfig } = useFacilities();
+  const { userFacilityId } = useUser();
+  const { setFacilityId } = useFacility();
   store.commit('CORE_SET_PAGE_LOADING', true);
-  getFacilityConfig().then(() => {
+  setFacilityId(get(userFacilityId)).then(() => {
     store.commit('CORE_SET_PAGE_LOADING', false);
     next();
   });

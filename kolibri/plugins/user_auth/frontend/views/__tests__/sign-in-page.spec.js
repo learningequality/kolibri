@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import { ref } from 'vue';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import SignInPage from '../SignInPage';
 import makeStore from '../../__tests__/utils/makeStore';
@@ -20,17 +21,8 @@ function renderComponent() {
   };
   useFacilities.mockImplementation(() =>
     useFacilitiesMock({
-      facilities: {
-        value: [
-          {
-            id: '123',
-            name: 'test facility',
-            dataset: {},
-          },
-        ],
-      },
-      facilityId: '123',
-      selectedFacility,
+      facilities: ref([{ id: '123', name: 'test facility', dataset: {} }]),
+      getFacility: jest.fn().mockReturnValue(selectedFacility),
     }),
   );
 

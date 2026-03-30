@@ -158,7 +158,7 @@
       });
       const classToCopy = ref({});
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
-      const { getFacilities, userIsMultiFacilityAdmin } = useFacilities();
+      const { fetchFacilities, userIsMultiFacilityAdmin } = useFacilities();
       const store = getCurrentInstance().proxy.$store;
       const displayModal = payload => store.dispatch('classManagement/displayModal', payload);
 
@@ -186,7 +186,7 @@
         classToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,
-        getFacilities,
+        fetchFacilities,
         copyClass$,
         renameClassLabel$,
         deleteClass$,
@@ -272,7 +272,7 @@
       refreshCoreFacilities() {
         if (this.userIsMultiFacilityAdmin) {
           // Update the core facilities object to update classroom number
-          this.getFacilities();
+          this.fetchFacilities();
         }
       },
       handleRenameSuccess() {

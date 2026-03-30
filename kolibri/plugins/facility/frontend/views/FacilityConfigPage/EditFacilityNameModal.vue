@@ -30,11 +30,15 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapState } from 'vuex';
+  import useFacilities from 'kolibri-common/composables/useFacilities';
 
   export default {
     name: 'EditFacilityNameModal',
     mixins: [commonCoreStrings],
+    setup() {
+      const { facilities } = useFacilities();
+      return { facilities };
+    },
     props: {
       facilityId: {
         type: String,
@@ -54,7 +58,6 @@
       };
     },
     computed: {
-      ...mapState('facilityConfig', ['facilities']),
       nameIsInvalidText() {
         if (this.name.trim() === '') {
           return this.coreString('requiredFieldError');

@@ -198,6 +198,7 @@
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
@@ -235,7 +236,8 @@
       } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
-      const { facilityConfig, facilities } = useFacilities();
+      const { facilities } = useFacilities();
+      const { facilityConfig } = useFacility();
 
       const userPermissions = computed(() => pickBy(_userPermissions));
 

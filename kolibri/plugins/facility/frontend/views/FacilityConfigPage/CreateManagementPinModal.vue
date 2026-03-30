@@ -30,7 +30,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapActions } from 'vuex';
 
   export default {
     name: 'CreateManagementPinModal',
@@ -45,7 +44,6 @@
     },
     computed: {},
     methods: {
-      ...mapActions('facilityConfig', ['setPin']),
       submit() {
         if (!this.pin) {
           this.showErrorText = true;
@@ -54,9 +52,7 @@
         } else {
           if (this.pinPattern.test(this.pin)) {
             this.pinError = '';
-            this.setPin({ pin_code: this.pin });
-            this.showSnackbarNotification('pinCreated');
-            this.$emit('submit');
+            this.$emit('submit', { pin_code: this.pin });
           } else {
             this.pinError = this.coreString('numbersOnly');
             this.focus();

@@ -7,6 +7,7 @@
     <transition name="delay-entry">
       <PinAuthenticationModal
         v-if="showModal && authenticateWithPin"
+        :facilityDatasetId="facilityDatasetId"
         @submit="submit"
         @cancel="closePinModal"
       />
@@ -21,16 +22,19 @@
 <script>
 
   import Cookies from 'js-cookie';
+  import { ref, computed, onMounted } from 'vue';
   import { mapState } from 'vuex';
-  import find from 'lodash/find';
+  import { useRoute } from 'vue-router/composables';
+
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { IsPinAuthenticated } from 'kolibri/constants';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
+  import store from 'kolibri/store';
   import useUser from 'kolibri/composables/useUser';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
   import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
@@ -43,53 +47,49 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const route = useRoute();
       const { isUserLoggedIn, userFacilityId } = useUser();
-      const { facilities } = useFacilities();
+      const { fetchFacilityConfig } = useFacilityConfig(userFacilityId.value);
+
+      const isPinSet = ref(null);
+      const showModal = ref(false);
+      const facilityDatasetId = ref(null);
+
+      const pageName = computed(() => route.name);
+      const userIsAuthorized = computed(() => {
+        if (pageName.value === PageNames.BOOKMARKS) {
+          return isUserLoggedIn.value;
+        }
+        return (plugin_data.allowGuestAccess && store.getters.allowAccess) || isUserLoggedIn.value;
+      });
+
+      onMounted(async () => {
+        try {
+          const facilityConfig = await fetchFacilityConfig();
+          isPinSet.value = Boolean(facilityConfig?.extra_fields?.pin_code);
+          facilityDatasetId.value = facilityConfig.id;
+        } catch (error) {
+          store.dispatch('handleError', { error, reloadOnReconnect: true });
+        }
+      });
+
       return {
-        isUserLoggedIn,
-        userFacilityId,
-        facilities,
-      };
-    },
-    data() {
-      return {
-        showModal: false,
-        currentFacility: {},
+        facilityDatasetId,
+        isPinSet,
+        showModal,
+        userIsAuthorized,
       };
     },
     computed: {
       ...mapState(['authenticateWithPin', 'grantPluginAccess']),
-      isPinSet() {
-        const dataset = this.currentFacility['dataset'] || {};
-        const extraFields = dataset['extra_fields'] || {};
-        return extraFields['pin_code'];
-      },
-      userIsAuthorized() {
-        if (this.pageName === PageNames.BOOKMARKS) {
-          return this.isUserLoggedIn;
-        }
-        return (
-          (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
-        );
-      },
-      pageName() {
-        return this.$route.name;
-      },
     },
     watch: {
-      facilities(newValue) {
-        this.currentFacility = find(newValue, { id: this.userFacilityId }) || {};
-        const { dataset } = this.currentFacility;
-        this.$store.commit('facilityConfig/SET_STATE', {
-          facilityDatasetId: dataset.id, //Required for pin authentication
-        });
-      },
       isPinSet: {
         handler(newValue) {
-          if (!newValue) {
+          if (newValue === false) {
             this.grantPluginAccess();
           }
-          this.showModal = newValue && this.authenticateWithPin;
+          this.showModal = newValue === true && this.authenticateWithPin;
         },
         deep: true,
       },

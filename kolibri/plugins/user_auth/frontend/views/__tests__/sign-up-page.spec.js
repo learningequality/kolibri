@@ -1,28 +1,31 @@
 import { render, screen, configure } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import SignUpPage from '../SignUpPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
 configure({ testIdAttribute: 'data-test' });
 
-jest.mock('kolibri-common/composables/useFacilities');
+jest.mock('kolibri-common/composables/useFacility');
 
-const selectedFacility = ref({ id: 1, name: 'Facility 1' });
+const selectedFacility = ref({
+  id: 1,
+  name: 'Facility 1',
+  dataset: {
+    learner_can_login_with_no_password: false,
+  },
+});
 
 function renderComponent() {
   const store = makeStore();
 
-  useFacilities.mockImplementation(() =>
-    useFacilitiesMock({
-      facilities: {
-        value: [
-          { id: 1, name: 'Facility 1' },
-          { id: 2, name: 'Facility 2' },
-        ],
-      },
-      selectedFacility: selectedFacility,
+  useFacility.mockReturnValue(
+    useFacilityMock({
+      selectedFacility,
+      facilityConfig: ref({ learner_can_login_with_no_password: false }),
+      facilityId: computed(() => selectedFacility.value?.id || null),
+      currentFacilityName: computed(() => selectedFacility.value?.name || ''),
     }),
   );
 
@@ -51,7 +54,11 @@ describe('multiFacility signUpPage component', () => {
   it('right facility', async () => {
     renderComponent();
     expect(screen.getByTestId('facilityLabel')).toHaveTextContent('Facility 1');
-    selectedFacility.value = { id: 2, name: 'Facility 2' };
+    selectedFacility.value = {
+      id: 2,
+      name: 'Facility 2',
+      dataset: { learner_can_login_with_no_password: false },
+    };
     expect(await screen.findByText(/Facility 2/)).toBeInTheDocument();
   });
 });

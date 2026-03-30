@@ -1,40 +1,29 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { Store } from 'vuex';
+import client from 'kolibri/client';
+import urls from 'kolibri/urls';
 import PinAuthenticationModal from '../PinAuthenticationModal.vue';
 
-let store;
-let isPinValidMock;
-let createSnackbarMock;
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
 
-const renderComponent = options => {
+const renderComponent = (options = {}) => {
   return render(PinAuthenticationModal, {
-    store,
+    props: {
+      facilityDatasetId: 'test-facility-id',
+    },
     ...options,
   });
 };
 
 describe('PinAuthenticationModal', () => {
   beforeEach(() => {
-    isPinValidMock = jest.fn().mockResolvedValue({ is_pin_valid: true });
-    createSnackbarMock = jest.fn();
+    client.mockResolvedValue({ data: { is_pin_valid: true } });
+    urls['kolibri:core:ispinvalid'] = jest.fn().mockReturnValue('/api/mock/ispinvalid/');
+  });
 
-    store = new Store({
-      modules: {
-        facilityConfig: {
-          namespaced: true,
-          state: {
-            isFacilityPinValid: true,
-          },
-          actions: {
-            isPinValid: isPinValidMock,
-          },
-        },
-      },
-      actions: {
-        createSnackbar: createSnackbarMock,
-      },
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('emits cancel when the user clicks Cancel', async () => {
@@ -62,14 +51,19 @@ describe('PinAuthenticationModal', () => {
       await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
       await waitFor(() => {
-        expect(isPinValidMock).toHaveBeenCalledWith(expect.anything(), { pin_code: '1234' });
         expect(emitted()).toHaveProperty('submit');
       });
+
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'POST',
+          data: { pin_code: '1234' },
+        }),
+      );
     });
 
     it('shows an incorrect PIN message when the submitted PIN is invalid', async () => {
-      store.state.facilityConfig.isFacilityPinValid = false;
-      isPinValidMock.mockResolvedValue({ is_pin_valid: false });
+      client.mockResolvedValue({ data: { is_pin_valid: false } });
 
       renderComponent();
 
@@ -77,7 +71,6 @@ describe('PinAuthenticationModal', () => {
       await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
       await waitFor(() => {
-        expect(isPinValidMock).toHaveBeenCalledWith(expect.anything(), { pin_code: '1234' });
         expect(screen.getByText('Incorrect PIN, please try again')).toBeInTheDocument();
       });
     });

@@ -6,7 +6,7 @@ import { PageNames } from '../constants';
 
 // Place outside the function to keep the state
 const lessonsAreLoading = ref(false);
-const { getFacilities, facilities } = useFacilities();
+const { fetchFacilities, facilities } = useFacilities();
 
 export function useLessons() {
   function setLessonsLoading(loading) {
@@ -18,7 +18,7 @@ export function useLessons() {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       useUser().isSuperuser.value && facilities.value.length === 0
-        ? getFacilities().catch(() => {})
+        ? fetchFacilities().catch(() => {})
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);

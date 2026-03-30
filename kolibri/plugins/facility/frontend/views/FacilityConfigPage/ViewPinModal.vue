@@ -15,16 +15,20 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   export default {
     name: 'ViewPinModal',
     mixins: [commonCoreStrings],
+    props: {
+      pin: {
+        type: String,
+        required: true,
+      },
+    },
     computed: {
-      ...mapState('facilityConfig', ['settings']),
       userPinNumber() {
-        return this.settings['extra_fields']['pin_code'];
+        return this.pin;
       },
     },
     methods: {},

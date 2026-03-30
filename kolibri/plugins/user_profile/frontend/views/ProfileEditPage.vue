@@ -84,7 +84,7 @@
   import useUser from 'kolibri/composables/useUser';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { RoutesMap } from '../constants';
 
   export default {
@@ -104,7 +104,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { isLearnerOnlyImport, isLearner, currentUserId } = useUser();
-      const { facilityConfig } = useFacilities();
+      const { facilityConfig } = useFacility();
       return { isLearnerOnlyImport, isLearner, currentUserId, facilityConfig };
     },
     data() {

@@ -1,13 +1,11 @@
+import { ref, computed } from 'vue';
+
 const MOCK_DEFAULTS = {
-  facilityConfig: {},
-  selectedFacility: {},
-  facilities: [],
-  facilityId: '',
-  userIsMultiFacilityAdmin: false,
-  getFacilities: jest.fn(),
-  getFacilityConfig: jest.fn(),
-  setFacilityConfig: jest.fn(),
-  setFacilities: jest.fn(),
+  facilities: ref([]),
+  hasMultipleFacilities: computed(() => false),
+  userIsMultiFacilityAdmin: computed(() => false),
+  fetchFacilities: jest.fn(),
+  getFacility: jest.fn(),
 };
 
 export function useFacilitiesMock(overrides = {}) {
