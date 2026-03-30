@@ -2888,7 +2888,7 @@ class KolibriDataPortalViewSetTestCase(APITestCase):
         mock_enqueue_sync.assert_called_once_with(self.facility)
 
 
-class PicturePasswordViewSetTestCase(APITestCase):
+class PicturePasswordSerializerTestCase(APITestCase):
     databases = "__all__"
 
     @classmethod
@@ -2896,28 +2896,10 @@ class PicturePasswordViewSetTestCase(APITestCase):
         provision_device()
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
-
-        cls.classroom = models.Classroom.objects.create(
-            parent=cls.facility, name="Test Class"
-        )
-
-        cls.admin = FacilityUserFactory.create(facility=cls.facility)
-        cls.facility.add_admin(cls.admin)
-
-        cls.coach = FacilityUserFactory.create(facility=cls.facility)
-        cls.classroom.add_coach(cls.coach)
-
         cls.learner_with_password = FacilityUserFactory.create(facility=cls.facility)
         cls.learner_with_password.picture_password = "1.2.3"
         cls.learner_with_password.save()
-        cls.classroom.add_member(cls.learner_with_password)
-
         cls.learner_no_password = FacilityUserFactory.create(facility=cls.facility)
-        cls.classroom.add_member(cls.learner_no_password)
-
-        cls.learner_outside_class = FacilityUserFactory.create(facility=cls.facility)
-        cls.learner_outside_class.picture_password = "4.5.6"
-        cls.learner_outside_class.save()
 
     def login(self, user):
         self.client.login(
@@ -2926,83 +2908,19 @@ class PicturePasswordViewSetTestCase(APITestCase):
             facility=self.facility,
         )
 
-    def list_url(self):
-        return reverse("kolibri:core:facilityuser-picture-password")
-
     def detail_url(self, pk):
-        return reverse(
-            "kolibri:core:facilityuser-picture-password-detail", kwargs={"pk": pk}
-        )
+        return reverse("kolibri:core:facilityuser-detail", kwargs={"pk": pk})
 
-    # --- List action ---
-
-    def test_list_returns_only_learners_not_coaches_or_admins(self):
-        self.login(self.admin)
-        response = self.client.get(self.list_url())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        returned_ids = {u["id"] for u in response.data}
-        self.assertNotIn(self.coach.id, returned_ids)
-        self.assertNotIn(self.admin.id, returned_ids)
-        self.assertNotIn(self.superuser.id, returned_ids)
-        self.assertIn(self.learner_with_password.id, returned_ids)
-
-    def test_list_response_includes_required_fields(self):
-        self.login(self.admin)
-        response = self.client.get(self.list_url())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        for user_data in response.data:
-            self.assertIn("full_name", user_data)
-            self.assertIn("username", user_data)
-            self.assertIn("picture_password", user_data)
-
-    def test_list_includes_learners_with_null_picture_password(self):
-        self.login(self.admin)
-        response = self.client.get(self.list_url())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        returned_ids = {u["id"] for u in response.data}
-        self.assertIn(self.learner_no_password.id, returned_ids)
-        null_entry = next(
-            u for u in response.data if u["id"] == self.learner_no_password.id
-        )
-        self.assertIsNone(null_entry["picture_password"])
-
-    def test_list_filtered_by_member_of_returns_collection_learners_only(self):
-        self.login(self.admin)
-        response = self.client.get(self.list_url(), {"member_of": self.classroom.id})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        returned_ids = {u["id"] for u in response.data}
-        self.assertIn(self.learner_with_password.id, returned_ids)
-        self.assertIn(self.learner_no_password.id, returned_ids)
-        self.assertNotIn(self.learner_outside_class.id, returned_ids)
-
-    def test_list_coach_scoped_to_coached_collections(self):
-        self.login(self.coach)
-        response = self.client.get(self.list_url())
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        returned_ids = {u["id"] for u in response.data}
-        self.assertIn(self.learner_with_password.id, returned_ids)
-        self.assertNotIn(self.learner_outside_class.id, returned_ids)
-
-    # --- Detail action ---
-
-    def test_detail_returns_learners_own_record(self):
-        self.login(self.learner_with_password)
+    def test_serializer_includes_picture_password_in_output(self):
+        self.login(self.superuser)
         response = self.client.get(self.detail_url(self.learner_with_password.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["id"], self.learner_with_password.id)
-        self.assertEqual(
-            response.data["picture_password"],
-            self.learner_with_password.picture_password,
-        )
+        self.assertIn("picture_password", response.data)
+        self.assertEqual(response.data["picture_password"], "1.2.3")
 
-    def test_detail_returns_null_picture_password_when_unassigned(self):
-        self.login(self.learner_no_password)
+    def test_picture_password_is_null_when_unassigned(self):
+        self.login(self.superuser)
         response = self.client.get(self.detail_url(self.learner_no_password.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("picture_password", response.data)
         self.assertIsNone(response.data["picture_password"])
-
-    def test_detail_learner_cannot_access_another_users_record(self):
-        self.login(self.learner_with_password)
-        response = self.client.get(self.detail_url(self.learner_no_password.id))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

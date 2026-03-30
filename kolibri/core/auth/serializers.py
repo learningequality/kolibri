@@ -75,8 +75,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "gender",
             "birth_year",
             "extra_demographics",
+            "picture_password",
         )
-        read_only_fields = ("is_superuser",)
+        read_only_fields = ("is_superuser", "picture_password")
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
@@ -321,13 +322,6 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
 def validate_pin_code(value):
     if not value.isdigit():
         raise serializers.ValidationError("A Pin must be number")
-
-
-class PicturePasswordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
-        fields = ("id", "full_name", "username", "picture_password")
-        read_only_fields = ("id", "full_name", "username", "picture_password")
 
 
 class ExtraFieldsSerializer(serializers.Serializer):

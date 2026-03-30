@@ -71,7 +71,6 @@ from .serializers import FacilitySerializer
 from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
-from .serializers import PicturePasswordSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
@@ -573,6 +572,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "birth_year",
         "extra_demographics",
         "date_joined",
+        "picture_password",
     )
 
     ordering_fields = (
@@ -614,24 +614,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
-
-    @decorators.action(detail=False, methods=["get"], url_path="picture-password")
-    def picture_password(self, request):
-        queryset = (
-            self.filter_queryset(self.get_queryset())
-            .filter(roles__isnull=True)
-            .filter(
-                Q(devicepermissions__is_superuser=False)
-                | Q(devicepermissions__isnull=True)
-            )
-            .distinct()
-        )
-        return Response(PicturePasswordSerializer(queryset, many=True).data)
-
-    @decorators.action(detail=True, methods=["get"], url_path="picture-password")
-    def picture_password_detail(self, request, pk=None):
-        instance = self.get_object()
-        return Response(PicturePasswordSerializer(instance).data)
 
 
 class DeletedFacilityUserViewSet(
