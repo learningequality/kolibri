@@ -609,9 +609,9 @@ class CourseSessionViewset(ValuesViewset):
     @action(detail=True, methods=["get"])
     def last_unit_test(self, request, pk=None):
         """
-        Returns the most recent test, active or not, for the given course session
-        with consideration for the order of the units and the natural order in which
-        tests are started & ended
+        Returns the most recent test for the given course session, ordered by
+        unit tree position descending (latest unit first), then by test_type
+        ascending (pre before post within the same unit).
         """
         course_session = self.get_object()
 
@@ -624,7 +624,7 @@ class CourseSessionViewset(ValuesViewset):
                     ).values("lft")[:1]
                 )
             )
-            .order_by("closed", "-b_lft", "test_type")
+            .order_by("-b_lft", "test_type")
             .first()
         )
 

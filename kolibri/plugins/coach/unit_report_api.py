@@ -132,14 +132,10 @@ def _accumulate_scores(
         meta = mastery_log_to_meta.get(ml_id)
         if meta is None:
             continue
-        lo_id = assessment_objectives.get(item)
-        if lo_id is None:
+        lo_ids = assessment_objectives.get(item)
+        if not lo_ids:
             continue
-        # assessment_objectives values may be lists (e.g. ["lo_id"]); unwrap
-        if isinstance(lo_id, list):
-            lo_id = lo_id[0] if lo_id else None
-        if lo_id is None:
-            continue
+        lo_id = lo_ids[0]
         lo_scores = results[meta["test_type"]].setdefault(str(meta["learner_id"]), {})
         lo_id_str = str(lo_id)
         lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
@@ -239,14 +235,10 @@ class UnitReportViewSet(viewsets.ViewSet):
         # to cover the same LOs with the same number of questions.
         lo_question_count = defaultdict(int)
         version_a_set = set(version_a_item_ids)
-        for item_id, lo_id in assessment_objectives.items():
-            if lo_id is None:
-                continue  # skip malformed entries: str(None) would silently produce "None"
-            # assessment_objectives values may be lists (e.g. ["lo_id"]); unwrap
-            if isinstance(lo_id, list):
-                lo_id = lo_id[0] if lo_id else None
-            if lo_id is None:
+        for item_id, lo_ids in assessment_objectives.items():
+            if not lo_ids:
                 continue
+            lo_id = lo_ids[0]
             if item_id in version_a_set:
                 lo_question_count[str(lo_id)] += 1
 

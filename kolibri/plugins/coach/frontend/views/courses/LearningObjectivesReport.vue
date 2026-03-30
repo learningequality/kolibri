@@ -12,8 +12,8 @@
           :rows="rows"
           :caption="learningObjectivesLabel$()"
         >
-          <template #header>
-            <!-- Headers hidden per design; caption provides accessibility -->
+          <template #header="{ header }">
+            {{ header.label }}
           </template>
           <template #cell="{ content, rowIndex, colIndex }">
             <template v-if="colIndex === 0">
@@ -53,7 +53,7 @@
       SparklineBar,
     },
     setup(props) {
-      const { learningObjectivesLabel$, noTestDataLabel$ } = coursesStrings;
+      const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
       const data = toRef(props, 'prefetchedData');
 
@@ -63,7 +63,7 @@
 
       const headers = computed(() => [
         { label: learningObjectivesLabel$(), dataType: 'string' },
-        { label: '', dataType: 'undefined', minWidth: '128px' },
+        { label: masteryLabel$(), dataType: 'undefined', minWidth: '128px' },
       ]);
 
       const rows = computed(() => bucketedObjectives.value.map(obj => [obj.text, obj.id]));
@@ -107,23 +107,11 @@
     padding: 12px 16px 12px 0;
   }
 
-</style>
-
-
-<style>
-
-  /* Visually hide KTable headers while keeping them accessible to screen readers.
-     Unscoped because the thead is rendered by KTable, not this component. */
-  .lo-report-table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  /* Visually hide KTable headers while keeping them in the accessibility tree. */
+  .lo-report-table /deep/ thead {
+    /* Hiding this altogether, but the caption for the table is sufficient
+      for screen readers to understand the context of the table. */
+    display: none;
   }
 
 </style>
