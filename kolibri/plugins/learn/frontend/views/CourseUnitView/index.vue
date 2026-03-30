@@ -27,21 +27,39 @@
         @prev="handlePrev"
         @finished="onResourceFinished"
       />
+      <div
+        v-else-if="showPostTestWaiting"
+        class="post-test-waiting"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
+        <div
+          class="icon-wrapper"
+          :style="{ backgroundColor: $themePalette.green.v_100 }"
+        >
+          <KIcon
+            icon="pointsActive"
+            :color="$themePalette.green.v_500"
+            class="waiting-icon"
+          />
+        </div>
+        <strong>{{ postTestNotOpenYet$() }}</strong>
+        <p>{{ postTestNotOpenYetDescription$() }}</p>
+      </div>
     </template>
     <template
-      v-if="currentResource"
+      v-if="currentResource || showPostTestWaiting"
       #bottomBar
     >
       <PrevNextBar
         class="course-bottom-bar"
-        :progressLabel="prevNextLabel"
-        :prevEnabled="prevEnabled"
-        :nextEnabled="nextEnabled"
+        :progressLabel="showPostTestWaiting ? '' : prevNextLabel"
+        :prevEnabled="showPostTestWaiting ? true : prevEnabled"
+        :nextEnabled="showPostTestWaiting ? false : nextEnabled"
         :style="{
           backgroundColor: $themeTokens.surface,
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
-        @prev="handlePrev"
+        @prev="showPostTestWaiting ? handlePrevFromInterstitial() : handlePrev()"
         @next="handleNext"
       />
     </template>
@@ -221,6 +239,30 @@
         return true;
       });
 
+      // Show the "Post-test not open yet" interstitial when:
+      // - We're on the bare unit URL (no resource, lesson, or test in the route)
+      // - The course is started and the learner has a resume position
+      // - All resources in this unit are complete (resume_position has unit_id
+      //   but no lesson_id/resource_id, meaning nothing left to resume)
+      // - No active test exists (if the post-test were active, checkRedirect
+      //   would have already navigated to it)
+      const showPostTestWaiting = computed(() => {
+        if (props.resourceId || props.lessonId || props.testType) {
+          return false;
+        }
+        if (!resumeData.value?.started || !resumeData.value?.resume_position) {
+          return false;
+        }
+        const rp = resumeData.value.resume_position;
+        if (rp.unit_id !== props.unitId || rp.lesson_id || rp.resource_id) {
+          return false;
+        }
+        if (resumeData.value.active_test !== null) {
+          return false;
+        }
+        return true;
+      });
+
       const canGoToNextUnit = computed(() => {
         if (!nextUnit.value || activeTest.value) {
           return false;
@@ -240,6 +282,13 @@
           resources.push(...(lesson.children.results || []));
         }
         return resources;
+      });
+
+      const lastResource = computed(() => {
+        if (!unitResources.value?.length) {
+          return null;
+        }
+        return unitResources.value[unitResources.value.length - 1];
       });
 
       const currentLesson = computed(() => {
@@ -303,6 +352,18 @@
           return false;
         }
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
+          // On the last resource — enable Next to navigate to the post-test
+          // waiting interstitial (not to a next resource, so nextAvailableResource
+          // will be undefined in this case, which is intentional).
+          const rp = resumeData.value?.resume_position;
+          if (
+            rp?.unit_id === props.unitId &&
+            !rp?.lesson_id &&
+            !rp?.resource_id &&
+            !resumeData.value?.active_test
+          ) {
+            return true;
+          }
           return false;
         }
         const currentResource = unitResources.value[currentResourceIndexInUnit.value];
@@ -313,7 +374,14 @@
         if (!nextEnabled.value) {
           return null;
         }
-        return unitResources.value[currentResourceIndexInUnit.value + 1];
+        const next = unitResources.value[currentResourceIndexInUnit.value + 1];
+        if (!next) {
+          // On the last resource with Next enabled (heading to interstitial) —
+          // return a placeholder so child components (e.g. AssessmentWrapper)
+          // show a "Next" button.
+          return { id: '__interstitial__' };
+        }
+        return next;
       });
 
       const previousAvailableResource = computed(() => {
@@ -417,6 +485,9 @@
        * or if resume position doesn't have where to resume within the unit
        */
       const checkRedirectToUnitTree = () => {
+        if (showPostTestWaiting.value) {
+          return false;
+        }
         if (
           props.unitId === resumeData.value?.resume_position?.unit_id &&
           resumeData.value?.resume_position?.lesson_id &&
@@ -679,6 +750,16 @@
           return;
         }
         const newResourceIndex = currentResourceIndexInUnit.value + 1;
+        if (newResourceIndex >= unitResources.value.length) {
+          router.replace({
+            name: PageNames.COURSE_CONTENT__UNIT,
+            params: {
+              courseId: props.courseId,
+              unitId: props.unitId,
+            },
+          });
+          return;
+        }
         const newResource = unitResources.value[newResourceIndex];
         router.replace({
           name: PageNames.COURSE_CONTENT__RESOURCE,
@@ -690,6 +771,21 @@
           },
         });
         onSidePanelNavigation();
+      };
+
+      const handlePrevFromInterstitial = () => {
+        if (!lastResource.value) {
+          return;
+        }
+        router.replace({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: props.courseId,
+            unitId: props.unitId,
+            lessonId: lastResource.value.parent,
+            resourceId: lastResource.value.id,
+          },
+        });
       };
 
       const handleNavigateToResource = resource => {
@@ -719,8 +815,14 @@
         onSidePanelNavigation();
       };
 
-      const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$, upNextLabel$ } =
-        coursesStrings;
+      const {
+        courseNameLabel$,
+        resourcesProgressLabel$,
+        unitNumberLabel$,
+        upNextLabel$,
+        postTestNotOpenYet$,
+        postTestNotOpenYetDescription$,
+      } = coursesStrings;
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
@@ -820,14 +922,18 @@
         resourceLayoutRef,
         isUnitComplete,
         activeTest,
+        showPostTestWaiting,
         handlePrev,
         handleNext,
+        handlePrevFromInterstitial,
         onResourceFinished,
         goToNextUnit,
         handleNavigateToResource,
 
         upNextLabel$,
         courseNameLabel$,
+        postTestNotOpenYet$,
+        postTestNotOpenYetDescription$,
       };
     },
     props: {
@@ -884,6 +990,33 @@
 
   .course-bottom-bar {
     height: 56px;
+  }
+
+  .post-test-waiting {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 24px;
+
+    .icon-wrapper {
+      padding: 24px;
+      border-radius: 50%;
+
+      .waiting-icon {
+        top: 4px;
+        left: 2px;
+        width: 52px;
+        height: 52px;
+        font-size: 52px;
+      }
+    }
+
+    p {
+      margin: 0;
+    }
   }
 
 </style>

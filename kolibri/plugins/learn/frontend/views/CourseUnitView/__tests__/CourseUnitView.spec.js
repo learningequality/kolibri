@@ -1149,4 +1149,99 @@ describe('CourseUnitView', () => {
       });
     });
   });
+
+  describe('post-test waiting interstitial', () => {
+    it('shows interstitial when on unit URL with all resources complete and no active post-test', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: null,
+        resume_position: {
+          unit_id: UNIT_1,
+          // No lesson_id or resource_id — unit resources are complete
+        },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1 });
+
+      await waitFor(() => {
+        expect(screen.getByText('Post-test not open yet')).toBeInTheDocument();
+        expect(
+          screen.getByText('You may review previous resources until the post-test is activated.'),
+        ).toBeInTheDocument();
+        expect(router.replace).not.toHaveBeenCalled();
+      });
+    });
+
+    it('does not show interstitial when there is an active post-test', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'post' },
+        resume_position: {
+          unit_id: UNIT_1,
+        },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1 });
+
+      // Should redirect to the test, not show interstitial
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT_TEST,
+          }),
+        );
+      });
+    });
+
+    it('does not show interstitial when viewing a specific resource', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: null,
+        resume_position: {
+          unit_id: UNIT_1,
+        },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Post-test not open yet')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows prev button on interstitial that navigates to last resource', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: null,
+        resume_position: {
+          unit_id: UNIT_1,
+        },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1 });
+
+      await waitFor(() => {
+        expect(screen.getByText('Post-test not open yet')).toBeInTheDocument();
+      });
+
+      const prevButton = screen.getByTestId('prev-button');
+      expect(prevButton).toBeEnabled();
+      await fireEvent.click(prevButton);
+
+      expect(router.replace).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: expect.objectContaining({
+            unitId: UNIT_1,
+            lessonId: LESSON_3,
+            resourceId: RESOURCE_3,
+          }),
+        }),
+      );
+    });
+  });
 });

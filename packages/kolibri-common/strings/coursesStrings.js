@@ -383,6 +383,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'You will be able to continue once your coach closes this post-test.',
     context: 'Description text shown when a post-test is completed',
   },
+  postTestNotOpenYet: {
+    message: 'Post-test not open yet',
+    context:
+      'Title shown when a learner completes all unit resources but the post-test has not been activated by the coach',
+  },
+  postTestNotOpenYetDescription: {
+    message: 'You may review previous resources until the post-test is activated.',
+    context:
+      'Description shown when a learner completes all unit resources but the post-test has not been activated by the coach',
+  },
   submitTestAction: {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',
