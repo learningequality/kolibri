@@ -1337,6 +1337,7 @@ class UserRetrieveTestCase(APITestCase):
             "birth_year": user.birth_year,
             "is_superuser": user.is_superuser,
             "extra_demographics": None,
+            "picture_password": user.picture_password,
         }
         roles = []
         user_roles = user.roles.all()
@@ -2886,3 +2887,41 @@ class KolibriDataPortalViewSetTestCase(APITestCase):
             format="json",
         )
         mock_enqueue_sync.assert_called_once_with(self.facility)
+
+
+class PicturePasswordSerializerTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.learner_with_password = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner_with_password.picture_password = "1.2.3"
+        cls.learner_with_password.save()
+        cls.learner_no_password = FacilityUserFactory.create(facility=cls.facility)
+
+    def login(self, user):
+        self.client.login(
+            username=user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def detail_url(self, pk):
+        return reverse("kolibri:core:facilityuser-detail", kwargs={"pk": pk})
+
+    def test_serializer_includes_picture_password_in_output(self):
+        self.login(self.superuser)
+        response = self.client.get(self.detail_url(self.learner_with_password.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("picture_password", response.data)
+        self.assertEqual(response.data["picture_password"], "1.2.3")
+
+    def test_picture_password_is_null_when_unassigned(self):
+        self.login(self.superuser)
+        response = self.client.get(self.detail_url(self.learner_no_password.id))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("picture_password", response.data)
+        self.assertIsNone(response.data["picture_password"])

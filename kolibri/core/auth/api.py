@@ -572,6 +572,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "birth_year",
         "extra_demographics",
         "date_joined",
+        "picture_password",
     )
 
     ordering_fields = (

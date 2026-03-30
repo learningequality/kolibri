@@ -75,8 +75,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "gender",
             "birth_year",
             "extra_demographics",
+            "picture_password",
         )
-        read_only_fields = ("is_superuser",)
+        read_only_fields = ("is_superuser", "picture_password")
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
