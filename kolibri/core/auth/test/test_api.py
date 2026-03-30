@@ -1337,6 +1337,7 @@ class UserRetrieveTestCase(APITestCase):
             "birth_year": user.birth_year,
             "is_superuser": user.is_superuser,
             "extra_demographics": None,
+            "picture_password": user.picture_password,
         }
         roles = []
         user_roles = user.roles.all()
