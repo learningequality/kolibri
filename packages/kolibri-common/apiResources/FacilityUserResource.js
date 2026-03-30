@@ -4,12 +4,6 @@ import client from 'kolibri/client';
 
 export default new Resource({
   name: 'facilityuser',
-  fetchPicturePasswords(params) {
-    return client({
-      url: urls['kolibri:core:facilityuser-picture-password'](),
-      params,
-    });
-  },
   removeImportedUser(user_id) {
     return client({
       url: urls['kolibri:core:deleteimporteduser'](user_id),
