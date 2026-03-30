@@ -7,6 +7,7 @@ from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
@@ -350,6 +351,20 @@ def remoteresourceimport(
         channel_id, peer_id=peer_id, baseurl=baseurl, node_ids=[node_id]
     )
     import_manager.run()
+
+
+@register_task(
+    queue=QUEUE,
+    long_running=False,
+)
+def backfill_content_request_priority():
+    """
+    Backfills priority=ContentRequestPriority.REGULAR on ContentRequest rows where priority is NULL
+    (i.e. rows that pre-date the priority column).
+    """
+    ContentRequest.objects.filter(priority__isnull=True).update(
+        priority=ContentRequestPriority.REGULAR
+    )
 
 
 def enqueue_automatic_resource_import_if_needed(instance_id=None):
