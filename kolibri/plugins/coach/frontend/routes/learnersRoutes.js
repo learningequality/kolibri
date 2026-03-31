@@ -1,4 +1,5 @@
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
 import { PageNames } from '../constants';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
@@ -12,6 +13,21 @@ function defaultHandler() {
 }
 
 export default [
+  {
+    name: PageNames.LEARNER_PASSWORDS,
+    path: OPTIONAL_CLASS + '/passwords',
+    component: AllPasswordsPage,
+    props: route => ({ classId: route.params.classId }),
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LEARNER_PASSWORDS, next)) {
+        return;
+      }
+      defaultHandler();
+    },
+    meta: {
+      titleParts: ['CLASS_NAME'],
+    },
+  },
   {
     name: PageNames.LEARNERS_ROOT,
     path: OPTIONAL_CLASS + ALL_LEARNERS,
