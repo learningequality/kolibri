@@ -72,10 +72,10 @@ importers:
         version: 11.3.0(vue@2.7.16)
       babel-core:
         specifier: 7.0.0-bridge.0
-        version: 7.0.0-bridge.0(@babel/core@7.28.6)
+        version: 7.0.0-bridge.0(@babel/core@7.29.0)
       babel-jest:
         specifier: ^30.2.0
-        version: 30.2.0(@babel/core@7.28.6)
+        version: 30.2.0(@babel/core@7.29.0)
       browserslist-config-kolibri:
         specifier: workspace:*
         version: link:packages/browserslist-config-kolibri
@@ -126,7 +126,7 @@ importers:
         version: 6.0.0
       vue-jest:
         specifier: ^3.0.0
-        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue-template-compiler:
         specifier: 2.7.16
         version: 2.7.16
@@ -581,58 +581,58 @@ importers:
         version: 0.3.16(underscore@1.13.8)
       '@khanacademy/math-input':
         specifier: 19.2.1
-        version: 19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)
+        version: 19.2.1(6ac0904f65b2279ac828787492fcbcb9)
       '@khanacademy/mathjax-renderer':
         specifier: ^2.0.0
         version: 2.2.1
       '@khanacademy/perseus':
         specifier: 22.7.0
-        version: 22.7.0(9b7a5d954d98b63e038e3920e7bdcdae)
+        version: 22.7.0(5cb4cbc58f5828698de1ee50ebe1408d)
       '@khanacademy/perseus-core':
         specifier: ^1.5.2
         version: 1.5.3
       '@khanacademy/wonder-blocks-banner':
         specifier: 3.0.42
-        version: 3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-button':
         specifier: 6.3.1
-        version: 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-clickable':
         specifier: 4.2.1
-        version: 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-core':
         specifier: 6.4.0
-        version: 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-data':
         specifier: 13.0.7
-        version: 13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-dropdown':
         specifier: 5.3.0
-        version: 5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)
+        version: 5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-form':
         specifier: 4.5.1
-        version: 4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-icon':
         specifier: 4.1.0
-        version: 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-layout':
         specifier: 2.0.32
-        version: 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-link':
         specifier: 6.1.1
-        version: 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-pill':
         specifier: 2.2.1
-        version: 2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-popover':
         specifier: 3.2.2
-        version: 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-progress-spinner':
         specifier: 2.1.1
-        version: 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-switch':
         specifier: 1.1.16
-        version: 1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-timing':
         specifier: ^5.0.0
         version: 5.0.2(react@16.14.0)
@@ -641,10 +641,10 @@ importers:
         version: 1.3.0
       '@khanacademy/wonder-blocks-tooltip':
         specifier: 2.3.1
-        version: 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-typography':
         specifier: 2.1.11
-        version: 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+        version: 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-stuff-core':
         specifier: ^1.5.2
         version: 1.5.5
@@ -712,11 +712,11 @@ importers:
         specifier: ^15.6.3
         version: 15.6.3
       react-dom:
-        specifier: 16.14.0
-        version: 16.14.0(react@16.14.0)
+        specifier: 19.2.4
+        version: 19.2.4(react@16.14.0)
       react-popper:
         specifier: ^2.0.0
-        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       react-router:
         specifier: 5.2.1
         version: 5.2.1(react@16.14.0)
@@ -725,10 +725,10 @@ importers:
         version: 5.3.0(react@16.14.0)
       react-transition-group:
         specifier: ^4.4.5
-        version: 4.4.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+        version: 4.4.5(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       react-window:
         specifier: ^1.8.11
-        version: 1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+        version: 1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       underscore:
         specifier: 1.13.8
         version: 1.13.8
@@ -1137,7 +1137,7 @@ importers:
         version: 4.1.1(webpack@5.104.1)
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1)
+        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1)
       vue-style-loader:
         specifier: ^4.1.3
         version: 4.1.3
@@ -1375,7 +1375,7 @@ importers:
     dependencies:
       '@babel/plugin-transform-runtime':
         specifier: ^7.28.5
-        version: 7.28.5(@babel/core@7.28.6)
+        version: 7.28.5(@babel/core@7.29.0)
       '@testing-library/jest-dom':
         specifier: ^6.6.4
         version: 6.9.1
@@ -1393,7 +1393,7 @@ importers:
         version: 2.4.0
       babel-jest:
         specifier: ^30.2.0
-        version: 30.2.0(@babel/core@7.28.6)
+        version: 30.2.0(@babel/core@7.29.0)
       intl:
         specifier: ^1.2.4
         version: 1.2.5
@@ -1426,7 +1426,7 @@ importers:
         version: 2.7.16
       vue-jest:
         specifier: ^3.0.0
-        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue-meta:
         specifier: 'catalog:'
         version: 2.4.0
@@ -1543,7 +1543,7 @@ importers:
         version: 3.3.3
       jscodeshift:
         specifier: ^17.3.0
-        version: 17.3.0(@babel/preset-env@7.28.6(@babel/core@7.28.6))
+        version: 17.3.0(@babel/preset-env@7.28.6(@babel/core@7.29.0))
       kolibri:
         specifier: workspace:*
         version: link:../kolibri
@@ -1558,13 +1558,13 @@ importers:
         version: 4.17.23
       mini-css-extract-plugin:
         specifier: ^2.9.4
-        version: 2.10.0(webpack@5.104.1)
+        version: 2.10.0(webpack@5.105.4)
       node-sass:
         specifier: 9.0.0
         version: 9.0.0
       postcss-loader:
         specifier: ^8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.104.1)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.4)
       process:
         specifier: ^0.11.10
         version: 0.11.10
@@ -1585,7 +1585,7 @@ importers:
         version: 4.3.0
       sass-loader:
         specifier: 16.0.5
-        version: 16.0.5(node-sass@9.0.0)(webpack@5.104.1)
+        version: 16.0.5(node-sass@9.0.0)(webpack@5.105.4)
       semver:
         specifier: ^7.7.2
         version: 7.7.3
@@ -1594,25 +1594,25 @@ importers:
         version: 6.0.1
       style-loader:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.104.1)
+        version: 4.0.0(webpack@5.105.4)
       temp:
         specifier: ^0.8.3
         version: 0.8.4
       terser-webpack-plugin:
         specifier: ^5.3.14
-        version: 5.3.16(webpack@5.104.1)
+        version: 5.3.16(webpack@5.105.4)
       toml:
         specifier: ^3.0.0
         version: 3.0.0
       url-loader:
         specifier: ^4.1.1
-        version: 4.1.1(webpack@5.104.1)
+        version: 4.1.1(webpack@5.105.4)
       vue-jest:
         specifier: ^3.0.0
-        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(vue-template-compiler@2.7.16)(vue@2.7.16)
+        version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1)
+        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.105.4))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.105.4)
       vue-sfc-descriptor-to-string:
         specifier: 1.0.0
         version: 1.0.0
@@ -1663,16 +1663,32 @@ packages:
     resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/code-frame@7.29.0':
+    resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/compat-data@7.28.6':
     resolution: {integrity: sha512-2lfu57JtzctfIrcGMz992hyLlByuzgIk58+hhGCxjKZ3rWI82NnVLjXcaTqkI2NvlcvOskZaiZ5kjUALo3Lpxg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/compat-data@7.29.0':
+    resolution: {integrity: sha512-T1NCJqT/j9+cn8fvkt7jtwbLBfLC/1y1c7NtCeXFRgzGTsafi68MRv8yzkYSapBnFA6L3U2VSc02ciDzoAJhJg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/core@7.28.6':
     resolution: {integrity: sha512-H3mcG6ZDLTlYfaSNi0iOKkigqMFvkTKlGUYlD8GW7nNOYRrevuA46iTypPyv+06V3fEmvvazfntkBU34L0azAw==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/core@7.29.0':
+    resolution: {integrity: sha512-CGOfOJqWjg2qW/Mb6zNsDm+u5vFQ8DxXfbM09z69p5Z6+mE1ikP2jUXw+j42Pf1XTYED2Rni5f95npYeuwMDQA==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/generator@7.28.6':
     resolution: {integrity: sha512-lOoVRwADj8hjf7al89tvQ2a1lf53Z+7tiXMgpZJL3maQPDxh0DgLMN62B2MKUOFcoodBHLMbDM6WAbKgNy5Suw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/generator@7.29.1':
+    resolution: {integrity: sha512-qsaF+9Qcm2Qv8SRIMMscAvG4O3lJ0F1GuMo5HR/Bp02LopNgnZBC/EkbevHFeGs4ls/oPz9v+Bsmzbkbe+0dUw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-annotate-as-pure@7.27.3':
@@ -1762,12 +1778,21 @@ packages:
     resolution: {integrity: sha512-xOBvwq86HHdB7WUDTfKfT/Vuxh7gElQ+Sfti2Cy6yIWNW05P8iUslOVcZ4/sKbE+/jQaukQAdz/gf3724kYdqw==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/helpers@7.29.2':
+    resolution: {integrity: sha512-HoGuUs4sCZNezVEKdVcwqmZN8GoHirLUcLaYVNBK2J0DadGtdcqgr3BCbvH8+XUo4NGjNl3VOtSjEKNzqfFgKw==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/highlight@7.25.9':
     resolution: {integrity: sha512-llL88JShoCsth8fF8R4SJnIn+WLvR6ccFxu1H3FlMhDontdcmZWf2HgIZ7AIqV3Xcck1idlohrN4EUBQz6klbw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/parser@7.28.6':
     resolution: {integrity: sha512-TeR9zWR18BvbfPmGbLampPMW+uW1NZnJlRuuHso8i87QZNq2JRF9i6RgxRqtEq+wQGsS19NNTWr2duhnE49mfQ==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/parser@7.29.2':
+    resolution: {integrity: sha512-4GgRzy/+fsBa72/RZVJmGKPmZu9Byn8o4MoLpmNe1m8ZfYnz5emHLQz3U4gLud6Zwl0RZIcgiLD7Uq7ySFuDLA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -2302,8 +2327,16 @@ packages:
     resolution: {integrity: sha512-fgWX62k02qtjqdSNTAGxmKYY/7FSL9WAS1o2Hu5+I5m9T0yxZzr4cnrfXQ/MX0rIifthCSs6FKTlzYbJcPtMNg==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/traverse@7.29.0':
+    resolution: {integrity: sha512-4HPiQr0X7+waHfyXPZpWPfWL/J7dcN1mx9gL6WdQVMbPnF3+ZhSMs8tCxN7oHddJE9fhNE7+lxdnlyemKfJRuA==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/types@7.28.6':
     resolution: {integrity: sha512-0ZrskXVEHSWIqZM/sQZ4EV3jZJXRkio/WCxaqKZP1g//CEWEPSfeZFcms4XeKBCHU0ZKnIkdJeU/kF+eRp5lBg==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.29.0':
+    resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@0.2.3':
@@ -3608,10 +3641,12 @@ packages:
   '@xmldom/xmldom@0.8.11':
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xmldom/xmldom@0.9.8':
     resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -3652,6 +3687,11 @@ packages:
 
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.16.0:
+    resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -4910,6 +4950,10 @@ packages:
 
   enhanced-resolve@5.18.4:
     resolution: {integrity: sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q==}
+    engines: {node: '>=10.13.0'}
+
+  enhanced-resolve@5.20.1:
+    resolution: {integrity: sha512-Qohcme7V1inbAfvjItgw0EaxVX5q2rdVEZHRBrEQdRZTssLDGsL8Lwrznl8oQ/6kuTJONLaDcGjkNP247XEhcA==}
     engines: {node: '>=10.13.0'}
 
   enquirer@2.4.1:
@@ -7511,6 +7555,11 @@ packages:
     peerDependencies:
       react: ^16.14.0
 
+  react-dom@19.2.4:
+    resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
+    peerDependencies:
+      react: ^19.2.4
+
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
 
@@ -7827,6 +7876,9 @@ packages:
   scheduler@0.19.1:
     resolution: {integrity: sha512-n/zwRWRYSUj0/3g/otKDRPMh6qv2SYMWNq85IEa8iZyAv8od9zDYpGSnpBEjNgcMNq6Scbu5KfIPxNF72R/2EA==}
 
+  scheduler@0.27.0:
+    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
+
   schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
     engines: {node: '>= 10.13.0'}
@@ -7868,6 +7920,11 @@ packages:
 
   semver@7.7.3:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.7.4:
+    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8292,6 +8349,10 @@ packages:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
 
+  tapable@2.3.2:
+    resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
+    engines: {node: '>=6'}
+
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
@@ -8322,8 +8383,29 @@ packages:
       uglify-js:
         optional: true
 
+  terser-webpack-plugin@5.4.0:
+    resolution: {integrity: sha512-Bn5vxm48flOIfkdl5CaD2+1CiUVbonWQ3KQPyP7/EuIl9Gbzq/gQFOzaMFUEgVjB1396tcK0SG8XcNJ/2kDH8g==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      '@swc/core': '*'
+      esbuild: '*'
+      uglify-js: '*'
+      webpack: ^5.1.0
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      esbuild:
+        optional: true
+      uglify-js:
+        optional: true
+
   terser@5.46.0:
     resolution: {integrity: sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  terser@5.46.1:
+    resolution: {integrity: sha512-vzCjQO/rgUuK9sf8VJZvjqiqiHFaZLnOiimmUuOKODxWL8mm/xua7viT7aqX7dgPY60otQjUotzFMmCB4VdmqQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -8851,8 +8933,22 @@ packages:
     resolution: {integrity: sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==}
     engines: {node: '>=10.13.0'}
 
+  webpack-sources@3.3.4:
+    resolution: {integrity: sha512-7tP1PdV4vF+lYPnkMR0jMY5/la2ub5Fc/8VQrrU+lXkiM6C4TjVfGw7iKfyhnTQOsD+6Q/iKw0eFciziRgD58Q==}
+    engines: {node: '>=10.13.0'}
+
   webpack@5.104.1:
     resolution: {integrity: sha512-Qphch25abbMNtekmEGJmeRUhLDbe+QfiWTiqpKYkpCOWY64v9eyl+KRRLmqOFA2AvKPpc9DC6+u2n76tQLBoaA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      webpack-cli: '*'
+    peerDependenciesMeta:
+      webpack-cli:
+        optional: true
+
+  webpack@5.105.4:
+    resolution: {integrity: sha512-jTywjboN9aHxFlToqb0K0Zs9SbBoW4zRUlGzI2tYNxVYcEi/IPpn+Xi4ye5jTLvX2YeLuic/IvxNot+Q1jMoOw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -9039,7 +9135,15 @@ snapshots:
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
+  '@babel/code-frame@7.29.0':
+    dependencies:
+      '@babel/helper-validator-identifier': 7.28.5
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+
   '@babel/compat-data@7.28.6': {}
+
+  '@babel/compat-data@7.29.0': {}
 
   '@babel/core@7.28.6':
     dependencies:
@@ -9061,10 +9165,38 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/core@7.29.0':
+    dependencies:
+      '@babel/code-frame': 7.29.0
+      '@babel/generator': 7.29.1
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helpers': 7.29.2
+      '@babel/parser': 7.29.2
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
+      '@jridgewell/remapping': 2.3.5
+      convert-source-map: 2.0.0
+      debug: 4.4.3
+      gensync: 1.0.0-beta.2
+      json5: 2.2.3
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/generator@7.28.6':
     dependencies:
       '@babel/parser': 7.28.6
       '@babel/types': 7.28.6
+      '@jridgewell/gen-mapping': 0.3.13
+      '@jridgewell/trace-mapping': 0.3.31
+      jsesc: 3.1.0
+
+  '@babel/generator@7.29.1':
+    dependencies:
+      '@babel/parser': 7.29.2
+      '@babel/types': 7.29.0
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
       jsesc: 3.1.0
@@ -9094,6 +9226,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/helper-create-class-features-plugin@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-member-expression-to-functions': 7.28.5
+      '@babel/helper-optimise-call-expression': 7.27.1
+      '@babel/helper-replace-supers': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+      '@babel/traverse': 7.28.6
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/helper-create-regexp-features-plugin@7.28.5(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9101,9 +9247,28 @@ snapshots:
       regexpu-core: 6.4.0
       semver: 6.3.1
 
+  '@babel/helper-create-regexp-features-plugin@7.28.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      regexpu-core: 6.4.0
+      semver: 6.3.1
+    optional: true
+
   '@babel/helper-define-polyfill-provider@0.6.5(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      debug: 4.4.3
+      lodash.debounce: 4.0.8
+      resolve: 1.22.11
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/helper-define-polyfill-provider@0.6.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-compilation-targets': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
       debug: 4.4.3
@@ -9117,7 +9282,7 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.28.5':
     dependencies:
       '@babel/traverse': 7.28.6
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
     transitivePeerDependencies:
       - supports-color
 
@@ -9137,9 +9302,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/helper-module-transforms@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-imports': 7.28.6
+      '@babel/helper-validator-identifier': 7.28.5
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
 
   '@babel/helper-plugin-utils@7.28.6': {}
 
@@ -9152,6 +9326,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/helper-remap-async-to-generator@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-wrap-function': 7.28.6
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/helper-replace-supers@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9160,6 +9344,16 @@ snapshots:
       '@babel/traverse': 7.28.6
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/helper-replace-supers@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-member-expression-to-functions': 7.28.5
+      '@babel/helper-optimise-call-expression': 7.27.1
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
 
   '@babel/helper-skip-transparent-expression-wrappers@7.27.1':
     dependencies:
@@ -9178,7 +9372,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.28.6
       '@babel/traverse': 7.28.6
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
     transitivePeerDependencies:
       - supports-color
 
@@ -9186,6 +9380,11 @@ snapshots:
     dependencies:
       '@babel/template': 7.28.6
       '@babel/types': 7.28.6
+
+  '@babel/helpers@7.29.2':
+    dependencies:
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
 
   '@babel/highlight@7.25.9':
     dependencies:
@@ -9198,6 +9397,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.28.6
 
+  '@babel/parser@7.29.2':
+    dependencies:
+      '@babel/types': 7.29.0
+
   '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.28.5(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9206,15 +9409,36 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.28.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-bugfix-safari-class-field-initializer-scope@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-bugfix-safari-class-field-initializer-scope@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.27.1(@babel/core@7.28.6)':
     dependencies:
@@ -9225,6 +9449,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+      '@babel/plugin-transform-optional-chaining': 7.28.6(@babel/core@7.29.0)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9233,27 +9467,36 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.28.6)':
+  '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly@7.28.6(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.28.6)
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
 
-  '@babel/plugin-proposal-object-rest-spread@7.20.7(@babel/core@7.28.6)':
+  '@babel/plugin-proposal-nullish-coalescing-operator@7.18.6(@babel/core@7.29.0)':
     dependencies:
-      '@babel/compat-data': 7.28.6
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.29.0)
+
+  '@babel/plugin-proposal-object-rest-spread@7.20.7(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/compat-data': 7.29.0
+      '@babel/core': 7.29.0
       '@babel/helper-compilation-targets': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
-      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.28.6)
+      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.29.0)
 
-  '@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.28.6)':
+  '@babel/plugin-proposal-optional-chaining@7.21.0(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
       '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
-      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.28.6)
+      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.29.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -9261,24 +9504,29 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
 
-  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.28.6)':
+  '@babel/plugin-proposal-private-property-in-object@7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
+    optional: true
+
+  '@babel/plugin-syntax-async-generators@7.8.4(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-class-static-block@7.14.5(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-class-static-block@7.14.5(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-flow@7.28.6(@babel/core@7.28.6)':
@@ -9291,19 +9539,30 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-syntax-import-assertions@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-syntax-import-attributes@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-import-attributes@7.28.6(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-import-meta@7.10.4(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.28.6)':
@@ -9311,49 +9570,59 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-jsx@7.28.6(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-logical-assignment-operators@7.10.4(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
-  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.28.6)':
+  '@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-syntax-top-level-await@7.14.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-typescript@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-syntax-typescript@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.28.6)':
@@ -9362,9 +9631,21 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-arrow-functions@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-arrow-functions@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-transform-async-generator-functions@7.28.6(@babel/core@7.28.6)':
@@ -9376,6 +9657,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-async-generator-functions@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-remap-async-to-generator': 7.27.1(@babel/core@7.29.0)
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-async-to-generator@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9385,14 +9676,35 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-async-to-generator@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-imports': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-remap-async-to-generator': 7.27.1(@babel/core@7.29.0)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-block-scoped-functions@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-block-scoped-functions@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-block-scoping@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-block-scoping@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-transform-class-properties@7.28.6(@babel/core@7.28.6)':
@@ -9403,6 +9715,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-class-properties@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-class-features-plugin': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-class-static-block@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9410,6 +9731,15 @@ snapshots:
       '@babel/helper-plugin-utils': 7.28.6
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/plugin-transform-class-static-block@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-class-features-plugin': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
 
   '@babel/plugin-transform-classes@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9423,9 +9753,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-classes@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-globals': 7.28.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-replace-supers': 7.28.6(@babel/core@7.29.0)
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-computed-properties@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/template': 7.28.6
+
+  '@babel/plugin-transform-computed-properties@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
       '@babel/template': 7.28.6
 
@@ -9437,16 +9786,37 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-destructuring@7.28.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-dotall-regex@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-dotall-regex@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-duplicate-keys@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-duplicate-keys@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9454,10 +9824,23 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-dynamic-import@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-dynamic-import@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-explicit-resource-management@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9467,15 +9850,36 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-explicit-resource-management@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/plugin-transform-destructuring': 7.28.5(@babel/core@7.29.0)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-exponentiation-operator@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-exponentiation-operator@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-export-namespace-from@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-export-namespace-from@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-flow-strip-types@7.27.1(@babel/core@7.28.6)':
     dependencies:
@@ -9491,6 +9895,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-for-of@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-function-name@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9500,25 +9913,59 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-function-name@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-json-strings@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-json-strings@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-literals@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-literals@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-logical-assignment-operators@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-logical-assignment-operators@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-member-expression-literals@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-member-expression-literals@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-modules-amd@7.27.1(@babel/core@7.28.6)':
     dependencies:
@@ -9528,6 +9975,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-modules-amd@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-modules-commonjs@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9535,6 +9991,15 @@ snapshots:
       '@babel/helper-plugin-utils': 7.28.6
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/plugin-transform-modules-commonjs@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
 
   '@babel/plugin-transform-modules-systemjs@7.28.5(@babel/core@7.28.6)':
     dependencies:
@@ -9546,6 +10011,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-modules-systemjs@7.28.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-validator-identifier': 7.28.5
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-modules-umd@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9554,26 +10030,60 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-modules-umd@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-transforms': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-named-capturing-groups-regex@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-named-capturing-groups-regex@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-new-target@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-new-target@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-nullish-coalescing-operator@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-nullish-coalescing-operator@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-numeric-separator@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-numeric-separator@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-object-rest-spread@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9586,6 +10096,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-object-rest-spread@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/plugin-transform-destructuring': 7.28.5(@babel/core@7.29.0)
+      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.29.0)
+      '@babel/traverse': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-object-super@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9594,10 +10116,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-object-super@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-replace-supers': 7.28.6(@babel/core@7.29.0)
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-optional-catch-binding@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-optional-catch-binding@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-optional-chaining@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9607,9 +10144,23 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-optional-chaining@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-parameters@7.27.7(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-parameters@7.27.7(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
 
   '@babel/plugin-transform-private-methods@7.28.6(@babel/core@7.28.6)':
@@ -9620,6 +10171,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-private-methods@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-class-features-plugin': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-private-property-in-object@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9629,15 +10189,37 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-private-property-in-object@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-annotate-as-pure': 7.27.3
+      '@babel/helper-create-class-features-plugin': 7.28.6(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/plugin-transform-property-literals@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-property-literals@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-regenerator@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-regenerator@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-regexp-modifiers@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9645,10 +10227,23 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-regexp-modifiers@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-reserved-words@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-reserved-words@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-runtime@7.28.5(@babel/core@7.28.6)':
     dependencies:
@@ -9662,14 +10257,40 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-runtime@7.28.5(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-module-imports': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      babel-plugin-polyfill-corejs2: 0.4.14(@babel/core@7.29.0)
+      babel-plugin-polyfill-corejs3: 0.13.0(@babel/core@7.29.0)
+      babel-plugin-polyfill-regenerator: 0.6.5(@babel/core@7.29.0)
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-shorthand-properties@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-shorthand-properties@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-spread@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@babel/plugin-transform-spread@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.28.6
       '@babel/helper-skip-transparent-expression-wrappers': 7.27.1
     transitivePeerDependencies:
@@ -9680,15 +10301,33 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-sticky-regex@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-template-literals@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-template-literals@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-typeof-symbol@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-typeof-symbol@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-typescript@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9706,11 +10345,24 @@ snapshots:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-unicode-escapes@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-unicode-property-regex@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-unicode-property-regex@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/plugin-transform-unicode-regex@7.27.1(@babel/core@7.28.6)':
     dependencies:
@@ -9718,11 +10370,25 @@ snapshots:
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
 
+  '@babel/plugin-transform-unicode-regex@7.27.1(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
+
   '@babel/plugin-transform-unicode-sets-regex@7.28.6(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.28.6)
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/plugin-transform-unicode-sets-regex@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-create-regexp-features-plugin': 7.28.5(@babel/core@7.29.0)
+      '@babel/helper-plugin-utils': 7.28.6
+    optional: true
 
   '@babel/preset-env@7.28.6(@babel/core@7.28.6)':
     dependencies:
@@ -9800,6 +10466,83 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/preset-env@7.28.6(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/compat-data': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/helper-compilation-targets': 7.28.6
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/helper-validator-option': 7.27.1
+      '@babel/plugin-bugfix-firefox-class-in-computed-class-key': 7.28.5(@babel/core@7.29.0)
+      '@babel/plugin-bugfix-safari-class-field-initializer-scope': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-bugfix-v8-static-class-fields-redefine-readonly': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-proposal-private-property-in-object': 7.21.0-placeholder-for-preset-env.2(@babel/core@7.29.0)
+      '@babel/plugin-syntax-import-assertions': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-syntax-import-attributes': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-syntax-unicode-sets-regex': 7.18.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-arrow-functions': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-async-generator-functions': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-async-to-generator': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-block-scoped-functions': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-block-scoping': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-class-properties': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-class-static-block': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-classes': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-computed-properties': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-destructuring': 7.28.5(@babel/core@7.29.0)
+      '@babel/plugin-transform-dotall-regex': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-duplicate-keys': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-duplicate-named-capturing-groups-regex': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-dynamic-import': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-explicit-resource-management': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-exponentiation-operator': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-export-namespace-from': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-for-of': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-function-name': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-json-strings': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-literals': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-logical-assignment-operators': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-member-expression-literals': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-modules-amd': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-modules-commonjs': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-modules-systemjs': 7.28.5(@babel/core@7.29.0)
+      '@babel/plugin-transform-modules-umd': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-named-capturing-groups-regex': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-new-target': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-nullish-coalescing-operator': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-numeric-separator': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-object-rest-spread': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-object-super': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-optional-catch-binding': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-optional-chaining': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.29.0)
+      '@babel/plugin-transform-private-methods': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-private-property-in-object': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-property-literals': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-regenerator': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-regexp-modifiers': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-reserved-words': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-shorthand-properties': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-spread': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-sticky-regex': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-template-literals': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-typeof-symbol': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-unicode-escapes': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-unicode-property-regex': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-unicode-regex': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-unicode-sets-regex': 7.28.6(@babel/core@7.29.0)
+      '@babel/preset-modules': 0.1.6-no-external-plugins(@babel/core@7.29.0)
+      babel-plugin-polyfill-corejs2: 0.4.14(@babel/core@7.29.0)
+      babel-plugin-polyfill-corejs3: 0.13.0(@babel/core@7.29.0)
+      babel-plugin-polyfill-regenerator: 0.6.5(@babel/core@7.29.0)
+      core-js-compat: 3.47.0
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+    optional: true
+
   '@babel/preset-flow@7.27.1(@babel/core@7.28.6)':
     dependencies:
       '@babel/core': 7.28.6
@@ -9813,6 +10556,14 @@ snapshots:
       '@babel/helper-plugin-utils': 7.28.6
       '@babel/types': 7.28.6
       esutils: 2.0.3
+
+  '@babel/preset-modules@0.1.6-no-external-plugins(@babel/core@7.29.0)':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-plugin-utils': 7.28.6
+      '@babel/types': 7.28.6
+      esutils: 2.0.3
+    optional: true
 
   '@babel/preset-typescript@7.28.5(@babel/core@7.28.6)':
     dependencies:
@@ -9854,7 +10605,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/traverse@7.29.0':
+    dependencies:
+      '@babel/code-frame': 7.29.0
+      '@babel/generator': 7.29.1
+      '@babel/helper-globals': 7.28.0
+      '@babel/parser': 7.29.2
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/types@7.28.6':
+    dependencies:
+      '@babel/helper-string-parser': 7.27.1
+      '@babel/helper-validator-identifier': 7.28.5
+
+  '@babel/types@7.29.0':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
@@ -10394,13 +11162,13 @@ snapshots:
       '@khanacademy/perseus-core': 3.0.5
       underscore: 1.13.8
 
-  '@khanacademy/math-input@19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)':
+  '@khanacademy/math-input@19.2.1(6ac0904f65b2279ac828787492fcbcb9)':
     dependencies:
       '@khanacademy/mathjax-renderer': 2.2.1
       '@khanacademy/perseus-core': 1.5.0
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-popover': 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-popover': 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-timing': 5.0.2(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       '@khanacademy/wonder-stuff-core': 1.5.5
@@ -10411,10 +11179,10 @@ snapshots:
       mathquill: https://codeload.github.com/Khan/mathquill/tar.gz/2060bab7813edde638c0af25920caa6ed73c2b13
       prop-types: 15.8.1
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
-      react-transition-group: 4.4.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-transition-group: 4.4.5(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
 
   '@khanacademy/mathjax-renderer@2.2.1':
     dependencies:
@@ -10444,32 +11212,32 @@ snapshots:
     transitivePeerDependencies:
       - '@khanacademy/wonder-stuff-core'
 
-  '@khanacademy/perseus@22.7.0(9b7a5d954d98b63e038e3920e7bdcdae)':
+  '@khanacademy/perseus@22.7.0(5cb4cbc58f5828698de1ee50ebe1408d)':
     dependencies:
       '@khanacademy/kas': 0.3.16(underscore@1.13.8)
       '@khanacademy/kmath': 0.1.24(underscore@1.13.8)
-      '@khanacademy/math-input': 19.2.1(0da84ede4a3ed570c5512d4c418e5ad7)
+      '@khanacademy/math-input': 19.2.1(6ac0904f65b2279ac828787492fcbcb9)
       '@khanacademy/perseus-core': 1.4.2
       '@khanacademy/perseus-linter': 0.4.0(@khanacademy/wonder-stuff-core@1.5.5)(prop-types@15.8.1)
-      '@khanacademy/pure-markdown': 0.3.27(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      '@khanacademy/simple-markdown': 0.11.4(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-banner': 3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-button': 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-data': 13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-dropdown': 5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-form': 4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-pill': 2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-popover': 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-progress-spinner': 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-switch': 1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/pure-markdown': 0.3.27(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
+      '@khanacademy/simple-markdown': 0.11.4(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-banner': 3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-button': 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-data': 13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-dropdown': 5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-form': 4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-pill': 2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-popover': 3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-progress-spinner': 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-switch': 1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-tooltip': 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-tooltip': 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-stuff-core': 1.5.5
       '@phosphor-icons/core': 2.1.1
       '@popperjs/core': 2.11.8
@@ -10479,11 +11247,11 @@ snapshots:
       intersection-observer: 0.12.2
       jquery: 2.2.4
       lodash.debounce: 4.0.8
-      mafs: 0.18.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      mafs: 0.18.5(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       prop-types: 15.8.1
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
+      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       underscore: 1.13.8
     transitivePeerDependencies:
       - '@khanacademy/mathjax-renderer'
@@ -10493,36 +11261,36 @@ snapshots:
       - react-router-dom
       - react-transition-group
 
-  '@khanacademy/pure-markdown@0.3.27(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/pure-markdown@0.3.27(react-dom@19.2.4(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@khanacademy/perseus-core': 3.7.0
-      '@khanacademy/simple-markdown': 0.13.20(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@khanacademy/simple-markdown': 0.13.20(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@khanacademy/simple-markdown@0.11.4(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/simple-markdown@0.11.4(react-dom@19.2.4(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@khanacademy/perseus-core': 1.4.2
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
-  '@khanacademy/simple-markdown@0.13.20(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/simple-markdown@0.13.20(react-dom@19.2.4(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@khanacademy/perseus-core': 3.7.0
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-banner@3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-banner@3.0.42(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-button': 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-button': 6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10531,10 +11299,10 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-breadcrumbs@2.2.8(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-breadcrumbs@2.2.8(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10543,16 +11311,16 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-button@6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-button@6.3.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-progress-spinner': 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-progress-spinner': 2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
       react-router: 5.2.1(react@16.14.0)
@@ -10561,14 +11329,14 @@ snapshots:
       - '@phosphor-icons/core'
       - react-dom
 
-  '@khanacademy/wonder-blocks-cell@3.4.6(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-cell@3.4.6(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
-      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10576,50 +11344,50 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-clickable@4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-clickable@4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-clickable@4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-clickable@4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-core@6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-core@6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-core@7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-core@7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-data@13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-data@13.0.7(@khanacademy/wonder-stuff-core@1.5.5)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-stuff-core': 1.5.5
       react: 16.14.0
     transitivePeerDependencies:
@@ -10628,38 +11396,38 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-dropdown@5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-dropdown@5.3.0(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react-window@1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-cell': 3.4.6(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-search-field': 2.3.6(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-cell': 3.4.6(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-search-field': 2.3.6(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-timing': 5.0.2(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       '@popperjs/core': 2.11.8
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
+      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       react-router: 5.2.1(react@16.14.0)
       react-router-dom: 5.3.0(react@16.14.0)
-      react-window: 1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-window: 1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
 
-  '@khanacademy/wonder-blocks-form@4.11.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-form@4.11.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
-      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10668,15 +11436,15 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-form@4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-form@4.5.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10685,13 +11453,13 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-icon-button@5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-icon-button@5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.9(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10701,10 +11469,10 @@ snapshots:
       - '@phosphor-icons/core'
       - react-dom
 
-  '@khanacademy/wonder-blocks-icon@4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-icon@4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10713,10 +11481,10 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-icon@4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-icon@4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10725,10 +11493,10 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-layout@2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-layout@2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10737,10 +11505,10 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-layout@2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-layout@2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10749,12 +11517,12 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-link@6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-link@6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10764,32 +11532,32 @@ snapshots:
       - '@phosphor-icons/core'
       - react-dom
 
-  '@khanacademy/wonder-blocks-modal@5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-modal@5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-breadcrumbs': 2.2.8(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-breadcrumbs': 2.2.8(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.2.2(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-timing': 5.0.2(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
-      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
     transitivePeerDependencies:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-pill@2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-pill@2.2.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
-      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-clickable': 4.2.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-link': 6.1.1(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10798,29 +11566,29 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-popover@3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-popover@3.2.2(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-tooltip': 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-tooltip': 2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       '@popperjs/core': 2.11.8
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
+      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
     transitivePeerDependencies:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-progress-spinner@2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-progress-spinner@2.1.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10829,15 +11597,15 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-search-field@2.3.6(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-search-field@2.3.6(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-form': 4.11.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-form': 4.11.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.2.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon-button': 5.6.2(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 2.1.0
-      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@phosphor-icons/core': 2.1.1
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10846,12 +11614,12 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-switch@1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-switch@1.1.16(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-icon': 4.1.0(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-theming': 2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
@@ -10861,11 +11629,11 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-theming@2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-theming@2.0.4(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)':
     dependencies:
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
   '@khanacademy/wonder-blocks-timing@5.0.2(react@16.14.0)':
     dependencies:
@@ -10875,28 +11643,28 @@ snapshots:
 
   '@khanacademy/wonder-blocks-tokens@2.1.0': {}
 
-  '@khanacademy/wonder-blocks-tooltip@2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-tooltip@2.3.1(@phosphor-icons/core@2.1.1)(@popperjs/core@2.11.8)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
-      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-layout': 2.0.32(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-modal': 5.1.17(@phosphor-icons/core@2.1.1)(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@khanacademy/wonder-blocks-tokens': 1.3.0
-      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-typography': 2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       '@popperjs/core': 2.11.8
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
-      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
+      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
     transitivePeerDependencies:
       - '@phosphor-icons/core'
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-typography@2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-typography@2.1.11(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 6.4.0(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10904,10 +11672,10 @@ snapshots:
       - react-router
       - react-router-dom
 
-  '@khanacademy/wonder-blocks-typography@2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
+  '@khanacademy/wonder-blocks-typography@2.1.16(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@babel/runtime': 7.28.6
-      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@16.14.0(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
+      '@khanacademy/wonder-blocks-core': 7.0.1(aphrodite@https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32)(react-dom@19.2.4(react@16.14.0))(react-router-dom@5.3.0(react@16.14.0))(react-router@5.2.1(react@16.14.0))(react@16.14.0)
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       react: 16.14.0
     transitivePeerDependencies:
@@ -10945,7 +11713,7 @@ snapshots:
   '@npmcli/fs@1.1.1':
     dependencies:
       '@gar/promisify': 1.1.3
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@npmcli/fs@2.1.2':
     dependencies:
@@ -11440,9 +12208,9 @@ snapshots:
     optionalDependencies:
       prettier: 2.8.8
 
-  '@vue/component-compiler-utils@3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)':
+  '@vue/component-compiler-utils@3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)':
     dependencies:
-      consolidate: 0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      consolidate: 0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       hash-sum: 1.0.2
       lru-cache: 4.1.5
       merge-source-map: 1.1.0
@@ -11655,6 +12423,10 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
+  acorn-import-phases@1.0.4(acorn@8.16.0):
+    dependencies:
+      acorn: 8.16.0
+
   acorn-jsx@5.3.2(acorn@7.4.1):
     dependencies:
       acorn: 7.4.1
@@ -11666,6 +12438,8 @@ snapshots:
   acorn@7.4.1: {}
 
   acorn@8.15.0: {}
+
+  acorn@8.16.0: {}
 
   aes-decrypter@3.1.3:
     dependencies:
@@ -11904,17 +12678,17 @@ snapshots:
       esutils: 2.0.3
       js-tokens: 3.0.2
 
-  babel-core@7.0.0-bridge.0(@babel/core@7.28.6):
+  babel-core@7.0.0-bridge.0(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
 
-  babel-jest@30.2.0(@babel/core@7.28.6):
+  babel-jest@30.2.0(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@jest/transform': 30.2.0
       '@types/babel__core': 7.20.5
       babel-plugin-istanbul: 7.0.1
-      babel-preset-jest: 30.2.0(@babel/core@7.28.6)
+      babel-preset-jest: 30.2.0(@babel/core@7.29.0)
       chalk: 4.1.2
       graceful-fs: 4.2.11
       slash: 3.0.0
@@ -11954,6 +12728,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-plugin-polyfill-corejs2@0.4.14(@babel/core@7.29.0):
+    dependencies:
+      '@babel/compat-data': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.29.0)
+      semver: 6.3.1
+    transitivePeerDependencies:
+      - supports-color
+
   babel-plugin-polyfill-corejs3@0.13.0(@babel/core@7.28.6):
     dependencies:
       '@babel/core': 7.28.6
@@ -11962,10 +12745,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-plugin-polyfill-corejs3@0.13.0(@babel/core@7.29.0):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.29.0)
+      core-js-compat: 3.47.0
+    transitivePeerDependencies:
+      - supports-color
+
   babel-plugin-polyfill-regenerator@0.6.5(@babel/core@7.28.6):
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.28.6)
+    transitivePeerDependencies:
+      - supports-color
+
+  babel-plugin-polyfill-regenerator@0.6.5(@babel/core@7.29.0):
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.29.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -11989,30 +12787,30 @@ snapshots:
       core-js: 2.6.12
       regenerator-runtime: 0.10.5
 
-  babel-preset-current-node-syntax@1.2.0(@babel/core@7.28.6):
+  babel-preset-current-node-syntax@1.2.0(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.6
-      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.28.6)
-      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.28.6)
-      '@babel/plugin-syntax-class-static-block': 7.14.5(@babel/core@7.28.6)
-      '@babel/plugin-syntax-import-attributes': 7.28.6(@babel/core@7.28.6)
-      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.28.6)
-      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.28.6)
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.28.6)
-      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.28.6)
-      '@babel/plugin-syntax-private-property-in-object': 7.14.5(@babel/core@7.28.6)
-      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.28.6)
+      '@babel/core': 7.29.0
+      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.29.0)
+      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.29.0)
+      '@babel/plugin-syntax-class-static-block': 7.14.5(@babel/core@7.29.0)
+      '@babel/plugin-syntax-import-attributes': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.29.0)
+      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.29.0)
+      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.29.0)
+      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.29.0)
+      '@babel/plugin-syntax-private-property-in-object': 7.14.5(@babel/core@7.29.0)
+      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.29.0)
 
-  babel-preset-jest@30.2.0(@babel/core@7.28.6):
+  babel-preset-jest@30.2.0(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       babel-plugin-jest-hoist: 30.2.0
-      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.28.6)
+      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.29.0)
 
   babel-runtime@6.26.0:
     dependencies:
@@ -12417,11 +13215,11 @@ snapshots:
 
   console-control-strings@1.1.0: {}
 
-  consolidate@0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8):
+  consolidate@0.15.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8):
     dependencies:
       bluebird: 3.7.2
     optionalDependencies:
-      babel-core: 7.0.0-bridge.0(@babel/core@7.28.6)
+      babel-core: 7.0.0-bridge.0(@babel/core@7.29.0)
       lodash: 4.17.23
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
@@ -12503,6 +13301,19 @@ snapshots:
       semver: 7.7.3
     optionalDependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
+
+  css-loader@7.1.2(webpack@5.105.4):
+    dependencies:
+      icss-utils: 5.1.0(postcss@8.5.6)
+      postcss: 8.5.6
+      postcss-modules-extract-imports: 3.1.0(postcss@8.5.6)
+      postcss-modules-local-by-default: 4.2.0(postcss@8.5.6)
+      postcss-modules-scope: 3.2.1(postcss@8.5.6)
+      postcss-modules-values: 4.0.0(postcss@8.5.6)
+      postcss-value-parser: 4.2.0
+      semver: 7.7.3
+    optionalDependencies:
+      webpack: 5.105.4
 
   css-minimizer-webpack-plugin@7.0.2(webpack@5.104.1):
     dependencies:
@@ -12895,6 +13706,11 @@ snapshots:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.0
+
+  enhanced-resolve@5.20.1:
+    dependencies:
+      graceful-fs: 4.2.11
+      tapable: 2.3.2
 
   enquirer@2.4.1:
     dependencies:
@@ -14243,7 +15059,7 @@ snapshots:
 
   istanbul-lib-instrument@6.0.3:
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/parser': 7.28.6
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
@@ -14329,12 +15145,12 @@ snapshots:
 
   jest-config@30.2.0(@types/node@25.0.9):
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@jest/get-type': 30.1.0
       '@jest/pattern': 30.0.1
       '@jest/test-sequencer': 30.2.0
       '@jest/types': 30.2.0
-      babel-jest: 30.2.0(@babel/core@7.28.6)
+      babel-jest: 30.2.0(@babel/core@7.29.0)
       chalk: 4.1.2
       ci-info: 4.3.1
       deepmerge: 4.3.1
@@ -14533,17 +15349,17 @@ snapshots:
 
   jest-snapshot@30.2.0:
     dependencies:
-      '@babel/core': 7.28.6
+      '@babel/core': 7.29.0
       '@babel/generator': 7.28.6
-      '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.28.6)
-      '@babel/plugin-syntax-typescript': 7.28.6(@babel/core@7.28.6)
-      '@babel/types': 7.28.6
+      '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-syntax-typescript': 7.28.6(@babel/core@7.29.0)
+      '@babel/types': 7.29.0
       '@jest/expect-utils': 30.2.0
       '@jest/get-type': 30.1.0
       '@jest/snapshot-utils': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.28.6)
+      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.29.0)
       chalk: 4.1.2
       expect: 30.2.0
       graceful-fs: 4.2.11
@@ -14664,7 +15480,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jscodeshift@17.3.0(@babel/preset-env@7.28.6(@babel/core@7.28.6)):
+  jscodeshift@17.3.0(@babel/preset-env@7.28.6(@babel/core@7.29.0)):
     dependencies:
       '@babel/core': 7.28.6
       '@babel/parser': 7.28.6
@@ -14685,7 +15501,7 @@ snapshots:
       tmp: 0.2.5
       write-file-atomic: 5.0.1
     optionalDependencies:
-      '@babel/preset-env': 7.28.6(@babel/core@7.28.6)
+      '@babel/preset-env': 7.28.6(@babel/core@7.29.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -14900,15 +15716,15 @@ snapshots:
       '@videojs/vhs-utils': 3.0.5
       global: 4.4.0
 
-  mafs@0.18.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  mafs@0.18.5(react-dom@19.2.4(react@16.14.0))(react@16.14.0):
     dependencies:
       '@use-gesture/react': 10.3.1(react@16.14.0)
       computer-modern: 0.1.3
       katex: 0.16.27
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       tiny-invariant: 1.3.3
-      use-resize-observer: 9.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0)
+      use-resize-observer: 9.1.0(react-dom@19.2.4(react@16.14.0))(react@16.14.0)
 
   make-dir@2.1.0:
     dependencies:
@@ -14917,7 +15733,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   make-fetch-happen@10.2.1:
     dependencies:
@@ -15115,6 +15931,12 @@ snapshots:
       schema-utils: 4.3.3
       tapable: 2.3.0
       webpack: 5.104.1(webpack-cli@6.0.1)
+
+  mini-css-extract-plugin@2.10.0(webpack@5.105.4):
+    dependencies:
+      schema-utils: 4.3.3
+      tapable: 2.3.0
+      webpack: 5.105.4
 
   minimalistic-assert@1.0.1: {}
 
@@ -15619,6 +16441,17 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  postcss-loader@8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.4):
+    dependencies:
+      cosmiconfig: 9.0.0(typescript@5.9.3)
+      jiti: 2.6.1
+      postcss: 8.5.6
+      semver: 7.7.3
+    optionalDependencies:
+      webpack: 5.105.4
+    transitivePeerDependencies:
+      - typescript
+
   postcss-media-query-parser@0.2.3: {}
 
   postcss-merge-longhand@7.0.5(postcss@8.5.6):
@@ -15922,6 +16755,12 @@ snapshots:
       prop-types: 15.8.1
       react: 16.14.0
       scheduler: 0.19.1
+    optional: true
+
+  react-dom@19.2.4(react@16.14.0):
+    dependencies:
+      react: 16.14.0
+      scheduler: 0.27.0
 
   react-fast-compare@3.2.2: {}
 
@@ -15931,11 +16770,11 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  react-popper@2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.4(react@16.14.0))(react@16.14.0):
     dependencies:
       '@popperjs/core': 2.11.8
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
       react-fast-compare: 3.2.2
       warning: 4.0.3
 
@@ -15964,21 +16803,21 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  react-transition-group@4.4.5(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  react-transition-group@4.4.5(react-dom@19.2.4(react@16.14.0))(react@16.14.0):
     dependencies:
       '@babel/runtime': 7.28.6
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
-  react-window@1.8.11(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  react-window@1.8.11(react-dom@19.2.4(react@16.14.0))(react@16.14.0):
     dependencies:
       '@babel/runtime': 7.28.6
       memoize-one: 5.2.1
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
   react@16.14.0:
     dependencies:
@@ -16226,12 +17065,12 @@ snapshots:
       scss-tokenizer: 0.4.3
       yargs: 17.7.2
 
-  sass-loader@16.0.5(node-sass@9.0.0)(webpack@5.104.1):
+  sass-loader@16.0.5(node-sass@9.0.0)(webpack@5.105.4):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       node-sass: 9.0.0
-      webpack: 5.104.1(webpack-cli@6.0.1)
+      webpack: 5.105.4
 
   sass-loader@16.0.6(node-sass@9.0.0)(webpack@5.104.1):
     dependencies:
@@ -16250,6 +17089,9 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
       object-assign: 4.1.1
+    optional: true
+
+  scheduler@0.27.0: {}
 
   schema-utils@3.3.0:
     dependencies:
@@ -16289,6 +17131,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.3: {}
+
+  semver@7.7.4: {}
 
   send@0.19.2:
     dependencies:
@@ -16640,6 +17484,10 @@ snapshots:
     dependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
 
+  style-loader@4.0.0(webpack@5.105.4):
+    dependencies:
+      webpack: 5.105.4
+
   style-search@0.1.0: {}
 
   stylehacks@7.0.7(postcss@8.5.6):
@@ -16818,6 +17666,8 @@ snapshots:
 
   tapable@2.3.0: {}
 
+  tapable@2.3.2: {}
+
   tar@6.2.1:
     dependencies:
       chownr: 2.0.0
@@ -16848,10 +17698,34 @@ snapshots:
       terser: 5.46.0
       webpack: 5.104.1(webpack-cli@6.0.1)
 
+  terser-webpack-plugin@5.3.16(webpack@5.105.4):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.3
+      serialize-javascript: 6.0.2
+      terser: 5.46.0
+      webpack: 5.105.4
+
+  terser-webpack-plugin@5.4.0(webpack@5.105.4):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.3
+      terser: 5.46.1
+      webpack: 5.105.4
+
   terser@5.46.0:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.15.0
+      commander: 2.20.3
+      source-map-support: 0.5.21
+
+  terser@5.46.1:
+    dependencies:
+      '@jridgewell/source-map': 0.3.11
+      acorn: 8.16.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -17111,6 +17985,13 @@ snapshots:
       schema-utils: 3.3.0
       webpack: 5.104.1(webpack-cli@6.0.1)
 
+  url-loader@4.1.1(webpack@5.105.4):
+    dependencies:
+      loader-utils: 2.0.4
+      mime-types: 2.1.35
+      schema-utils: 3.3.0
+      webpack: 5.105.4
+
   url-polyfill@1.1.14: {}
 
   url-toolkit@2.2.5: {}
@@ -17120,11 +18001,11 @@ snapshots:
       punycode: 1.4.1
       qs: 6.15.0
 
-  use-resize-observer@9.1.0(react-dom@16.14.0(react@16.14.0))(react@16.14.0):
+  use-resize-observer@9.1.0(react-dom@19.2.4(react@16.14.0))(react@16.14.0):
     dependencies:
       '@juggle/resize-observer': 3.4.0
       react: 16.14.0
-      react-dom: 16.14.0(react@16.14.0)
+      react-dom: 19.2.4(react@16.14.0)
 
   utf8-byte-length@1.0.5: {}
 
@@ -17211,9 +18092,9 @@ snapshots:
       intl-relativeformat: 1.3.0
       vue: 2.7.16
 
-  vue-jest@3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(vue-template-compiler@2.7.16)(vue@2.7.16):
+  vue-jest@3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(vue-template-compiler@2.7.16)(vue@2.7.16):
     dependencies:
-      babel-core: 7.0.0-bridge.0(@babel/core@7.28.6)
+      babel-core: 7.0.0-bridge.0(@babel/core@7.29.0)
       babel-plugin-transform-es2015-modules-commonjs: 6.26.2
       chalk: 2.4.2
       deasync: 0.1.31
@@ -17230,15 +18111,81 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1):
+  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.104.1))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.104.1):
     dependencies:
-      '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.6))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
       css-loader: 7.1.2(webpack@5.104.1)
       hash-sum: 1.0.2
       loader-utils: 1.4.2
       vue-hot-reload-api: 2.3.4
       vue-style-loader: 4.1.3
       webpack: 5.104.1(webpack-cli@6.0.1)
+    optionalDependencies:
+      vue-template-compiler: 2.7.16
+    transitivePeerDependencies:
+      - arc-templates
+      - atpl
+      - babel-core
+      - bracket-template
+      - coffee-script
+      - dot
+      - dust
+      - dustjs-helpers
+      - dustjs-linkedin
+      - eco
+      - ect
+      - ejs
+      - haml-coffee
+      - hamlet
+      - hamljs
+      - handlebars
+      - hogan.js
+      - htmling
+      - jade
+      - jazz
+      - jqtpl
+      - just
+      - liquid-node
+      - liquor
+      - lodash
+      - marko
+      - mote
+      - mustache
+      - nunjucks
+      - plates
+      - pug
+      - qejs
+      - ractive
+      - razor-tmpl
+      - react
+      - react-dom
+      - slm
+      - squirrelly
+      - swig
+      - swig-templates
+      - teacup
+      - templayed
+      - then-jade
+      - then-pug
+      - tinyliquid
+      - toffee
+      - twig
+      - twing
+      - underscore
+      - vash
+      - velocityjs
+      - walrus
+      - whiskers
+
+  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.105.4))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.105.4):
+    dependencies:
+      '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
+      css-loader: 7.1.2(webpack@5.105.4)
+      hash-sum: 1.0.2
+      loader-utils: 1.4.2
+      vue-hot-reload-api: 2.3.4
+      vue-style-loader: 4.1.3
+      webpack: 5.105.4
     optionalDependencies:
       vue-template-compiler: 2.7.16
     transitivePeerDependencies:
@@ -17323,17 +18270,17 @@ snapshots:
 
   vue-template-babel-compiler@2.0.0(vue-template-compiler@2.7.16):
     dependencies:
-      '@babel/core': 7.28.6
-      '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.28.6)
-      '@babel/plugin-proposal-object-rest-spread': 7.20.7(@babel/core@7.28.6)
-      '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.28.6)
-      '@babel/plugin-transform-arrow-functions': 7.27.1(@babel/core@7.28.6)
-      '@babel/plugin-transform-block-scoping': 7.28.6(@babel/core@7.28.6)
-      '@babel/plugin-transform-computed-properties': 7.28.6(@babel/core@7.28.6)
-      '@babel/plugin-transform-destructuring': 7.28.5(@babel/core@7.28.6)
-      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.28.6)
-      '@babel/plugin-transform-spread': 7.28.6(@babel/core@7.28.6)
-      '@babel/types': 7.28.6
+      '@babel/core': 7.29.0
+      '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.29.0)
+      '@babel/plugin-proposal-object-rest-spread': 7.20.7(@babel/core@7.29.0)
+      '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.29.0)
+      '@babel/plugin-transform-arrow-functions': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-block-scoping': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-computed-properties': 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-destructuring': 7.28.5(@babel/core@7.29.0)
+      '@babel/plugin-transform-parameters': 7.27.7(@babel/core@7.29.0)
+      '@babel/plugin-transform-spread': 7.28.6(@babel/core@7.29.0)
+      '@babel/types': 7.29.0
       deepmerge: 4.3.1
       vue-template-compiler: 2.7.16
     transitivePeerDependencies:
@@ -17495,6 +18442,8 @@ snapshots:
 
   webpack-sources@3.3.3: {}
 
+  webpack-sources@3.3.4: {}
+
   webpack@5.104.1(webpack-cli@6.0.1):
     dependencies:
       '@types/eslint-scope': 3.7.7
@@ -17524,6 +18473,38 @@ snapshots:
       webpack-sources: 3.3.3
     optionalDependencies:
       webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.104.1)
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+
+  webpack@5.105.4:
+    dependencies:
+      '@types/eslint-scope': 3.7.7
+      '@types/estree': 1.0.8
+      '@types/json-schema': 7.0.15
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.16.0
+      acorn-import-phases: 1.0.4(acorn@8.16.0)
+      browserslist: 4.28.1
+      chrome-trace-event: 1.0.4
+      enhanced-resolve: 5.20.1
+      es-module-lexer: 2.0.0
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      glob-to-regexp: 0.4.1
+      graceful-fs: 4.2.11
+      json-parse-even-better-errors: 2.3.1
+      loader-runner: 4.3.1
+      mime-types: 2.1.35
+      neo-async: 2.6.2
+      schema-utils: 4.3.3
+      tapable: 2.3.2
+      terser-webpack-plugin: 5.4.0(webpack@5.105.4)
+      watchpack: 2.5.1
+      webpack-sources: 3.3.4
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
