@@ -5,6 +5,7 @@ import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDataset
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
 
 /**
@@ -12,12 +13,19 @@ import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
  */
 export default function useFacilityEditor(facilityId) {
   const { fetchFacilities, getFacility } = useFacilities();
-  const { fetchFacilityConfig } = useFacilityConfig(facilityId);
+  const {
+    isAttendanceFeatureEnabled,
+    isPictureLoginFeatureEnabled,
+    signInOptions,
+    picturePasswordSettings,
+    // TODO: update this composable to use 'facilityConfig' naming instead
+    facilityConfig: settings,
+    fetchFacilityConfig,
+  } = useFacilityConfig(facilityId);
 
   // Reactive state
   const facilityDatasetId = ref('');
   const facilityName = ref('');
-  const settings = ref({});
   const settingsCopy = ref({});
   const isFacilityPinValid = ref(false);
   const facilityDataLoading = ref(false);
@@ -32,6 +40,37 @@ export default function useFacilityEditor(facilityId) {
     }
     return null;
   });
+  const signInOption = computed({
+    get() {
+      // the facility editor uses radio buttons, so it's simpler to have this computed value
+      // return a single value
+      if (signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)) {
+        return OptionsForSignIn.PICTURE_PASSWORD;
+      }
+      return signInOptions.value[0];
+    },
+    set(value) {
+      modifySignInOption(value);
+    },
+  });
+  const picturePasswordStyle = computed({
+    get() {
+      return picturePasswordSettings.value?.icon_style;
+    },
+    set(value) {
+      if (Object.values(PicturePasswordIconStyle).includes(value)) {
+        modifyPicturePasswordSetting('icon_style', value);
+      }
+    },
+  });
+  const picturePasswordShowIconText = computed({
+    get() {
+      return picturePasswordSettings.value?.show_icon_text;
+    },
+    set(value) {
+      modifyPicturePasswordSetting('show_icon_text', Boolean(value));
+    },
+  });
 
   // Actions
   function setLoading(loading) {
@@ -45,17 +84,15 @@ export default function useFacilityEditor(facilityId) {
     setLoading(true);
 
     try {
-      const [facilityConfig] = await Promise.all([fetchFacilityConfig(), fetchFacilities()]);
+      await Promise.all([fetchFacilityConfig(), fetchFacilities()]);
 
       // Facility name set with watcher
-      facilityDatasetId.value = facilityConfig.id;
+      facilityDatasetId.value = settings.value.id;
       facilityName.value = facility.value.name;
-      settings.value = { ...facilityConfig };
-      settingsCopy.value = { ...facilityConfig };
+      settingsCopy.value = { ...settings.value };
       setLoading(false);
     } catch (error) {
       facilityName.value = '';
-      settings.value = {};
       settingsCopy.value = {};
       setLoading(false);
       throw error;
@@ -74,8 +111,33 @@ export default function useFacilityEditor(facilityId) {
     }
   }
 
-  function modifyAllSettings(newSettings) {
-    settings.value = Object.assign({}, settings.value, newSettings);
+  function modifySignInOption(value) {
+    if (value === OptionsForSignIn.PICTURE_PASSWORD) {
+      modifySetting('learner_can_login_with_no_password', true);
+      // Default
+      modifySetting('picture_password_settings', {
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: false,
+      });
+    } else {
+      modifySetting('learner_can_login_with_no_password', value === OptionsForSignIn.USERNAME_ONLY);
+      modifySetting('picture_password_settings', null);
+    }
+  }
+
+  function modifyPicturePasswordSetting(name, value) {
+    if (signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)) {
+      modifySetting('picture_password_settings', {
+        ...picturePasswordSettings.value,
+        [name]: value,
+      });
+    }
+  }
+
+  function modifyExtraFields(newExtraFields) {
+    settings.value = Object.assign({}, settings.value, {
+      extra_fields: newExtraFields,
+    });
   }
 
   function copySettings() {
@@ -89,7 +151,6 @@ export default function useFacilityEditor(facilityId) {
   function resetState() {
     facilityDatasetId.value = '';
     facilityName.value = '';
-    settings.value = {};
     settingsCopy.value = {};
     isFacilityPinValid.value = false;
     setLoading(false);
@@ -127,7 +188,7 @@ export default function useFacilityEditor(facilityId) {
       method: 'POST',
       data: payload,
     });
-    modifyAllSettings({ extra_fields: response.data.extra_fields });
+    modifyExtraFields(response.data.extra_fields);
     await saveFacilityConfig();
   }
 
@@ -136,7 +197,7 @@ export default function useFacilityEditor(facilityId) {
       url: urls['kolibri:core:facilitydataset_update_pin'](facilityDatasetId.value),
       method: 'PATCH',
     });
-    modifyAllSettings({ extra_fields: response.data.extra_fields });
+    modifyExtraFields(response.data.extra_fields);
     await saveFacilityConfig();
   }
 
@@ -152,10 +213,19 @@ export default function useFacilityEditor(facilityId) {
     // Computed
     settingsHaveChanged,
     isPinSet,
+    isAttendanceFeatureEnabled,
+    isPictureLoginFeatureEnabled,
+    signInOption,
+    signInOptions,
+    picturePasswordSettings,
+    picturePasswordStyle,
+    picturePasswordShowIconText,
     // Actions
     fetchFacility,
     modifySetting,
-    modifyAllSettings,
+    modifySignInOption,
+    modifyPicturePasswordSetting,
+    modifyExtraFields,
     copySettings,
     undoSettingsChange,
     resetState,
