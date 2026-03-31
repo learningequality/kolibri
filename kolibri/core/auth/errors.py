@@ -28,3 +28,11 @@ class InvalidMembershipError(KolibriValidationError):
 
 class InvalidCollectionHierarchy(KolibriValidationError):
     pass
+
+
+class NoAvailableSequences(KolibriError):
+    pass
+
+
+class SequenceAlreadyAssigned(KolibriError):
+    pass

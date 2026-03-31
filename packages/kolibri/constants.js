@@ -1,6 +1,14 @@
 import invert from 'lodash/invert';
 import Subjects from 'kolibri-constants/labels/Subjects';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
+// Mapping of IDs to KDS icon names for picture-based login.
+//
+// IMPORTANT — treat this mapping as an append-only registry:
+//   IDs are immutable once assigned.
+//   Pictures can be added but NEVER removed or reassigned.
+//   Changing or removing an ID would invalidate stored sequences
+//   or point them to the wrong picture.
+import PICTURE_PASSWORD_SET from '../../kolibri/core/auth/constants/picture_passwords_set.json';
 // coach-facing
 export { default as ContentNodeResourceType } from 'kolibri-constants/labels/ResourceType';
 export { default as LearningActivities } from 'kolibri-constants/labels/LearningActivities';
@@ -211,3 +219,5 @@ export const LodTypePresets = Object.freeze({
   JOIN: 'JOIN',
   IMPORT: 'IMPORT',
 });
+
+export { PICTURE_PASSWORD_SET };
