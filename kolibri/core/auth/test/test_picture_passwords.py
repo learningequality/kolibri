@@ -1,8 +1,11 @@
 import mock
+from django.db.utils import IntegrityError
 from django.test import TestCase
 
 from ..models import Facility
 from ..models import FacilityUser
+from kolibri.core.auth.errors import NoAvailableSequences
+from kolibri.core.auth.errors import SequenceAlreadyAssigned
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
@@ -158,8 +161,22 @@ class AssignPicturePasswordTestCase(TestCase):
             "kolibri.core.auth.utils.picture_passwords.PICTURE_PASSWORD_SET",
             small_set,
         ):
-            response = assign_picture_password(overflow_learner, self.facility)
-        self.assertEqual(response.status_code, 400)
+            with self.assertRaises(NoAvailableSequences):
+                assign_picture_password(overflow_learner, self.facility)
+
+    def test_raises_sequence_already_assigned_after_two_integrity_errors(self):
+        learner = self._create_learner("collision")
+        with mock.patch(
+            "kolibri.core.auth.utils.picture_passwords.get_available_sequence",
+            side_effect=["1.2.3", "1.2.4"],
+        ):
+            with mock.patch.object(
+                learner,
+                "save",
+                side_effect=[IntegrityError(), IntegrityError()],
+            ):
+                with self.assertRaises(SequenceAlreadyAssigned):
+                    assign_picture_password(learner, self.facility)
 
     def test_persists_to_database(self):
         learner = self._create_learner("persist")

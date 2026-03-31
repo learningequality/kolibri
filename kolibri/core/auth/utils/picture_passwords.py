@@ -5,10 +5,9 @@ from itertools import permutations
 from pathlib import Path
 
 from django.db.utils import IntegrityError
-from rest_framework import status
-from rest_framework.response import Response
 
 from kolibri.core.auth.errors import NoAvailableSequences
+from kolibri.core.auth.errors import SequenceAlreadyAssigned
 from kolibri.core.auth.models import FacilityUser
 
 # mapping of integer IDs to KDS icon names for picture-based login.
@@ -81,29 +80,23 @@ def assign_picture_password(user, facility):
 
     Handles IntegrityError (race condition where another request assigned
     the same sequence between our read and write) by retrying once.
-    Returns an HTTP 400 response if no sequences are available.
+
+    Raises:
+        NoAvailableSequences: if no remaining sequences are available for facility.
+        SequenceAlreadyAssigned: if we hit IntegrityError twice during assignment.
     """
-    try:
-        sequence = get_available_sequence(facility)
-    except NoAvailableSequences:
-        return Response(
-            {"detail": "No available picture password sequences for this facility."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    sequence = get_available_sequence(facility)
 
     try:
         user.picture_password = sequence
         user.save(update_fields=["picture_password"])
     except IntegrityError:
         logger.warning("Picture password collision for user %s, retrying.", user.id)
-        try:
-            sequence = get_available_sequence(facility)
-        except NoAvailableSequences:
-            return Response(
-                {
-                    "detail": "No available picture password sequences for this facility."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        sequence = get_available_sequence(facility)
         user.picture_password = sequence
-        user.save(update_fields=["picture_password"])
+        try:
+            user.save(update_fields=["picture_password"])
+        except IntegrityError as e:
+            raise SequenceAlreadyAssigned(
+                "Picture password sequence assignment failed due to repeated collisions."
+            ) from e

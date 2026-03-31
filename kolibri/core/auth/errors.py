@@ -32,3 +32,7 @@ class InvalidCollectionHierarchy(KolibriValidationError):
 
 class NoAvailableSequences(KolibriError):
     pass
+
+
+class SequenceAlreadyAssigned(KolibriError):
+    pass
