@@ -1,4 +1,3 @@
-import hashlib
 import uuid
 
 from django.urls import reverse
@@ -20,6 +19,7 @@ from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
 
 DUMMY_PASSWORD = "password"
@@ -701,17 +701,10 @@ class LearnerCourseTestCase(APITestCase):
             },
         )
 
-    def _compute_synthetic_content_id(
-        self, user_id, course_session_id, unit_id, test_type
-    ):
-        raw = "{}:{}:{}".format(user_id, course_session_id, unit_id)
-        deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
-        return uuid.uuid5(uuid.UUID(deterministic_hash), test_type).hex
-
     def _mark_test_completed(self, course_session, unit, test_type):
         """Create ContentSummaryLog + MasteryLog to simulate learner completing a test."""
-        synthetic_content_id = self._compute_synthetic_content_id(
-            self.learner.id, course_session.id, unit.id, test_type
+        synthetic_content_id = get_synthetic_content_id(
+            str(course_session.id), str(unit.id), test_type
         )
         summary_log = ContentSummaryLog.objects.create(
             user=self.learner,
