@@ -330,9 +330,21 @@
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
-      const courseStarted = computed(
-        () => courseProgress.value?.started && courseProgress.value?.resume_position != null,
-      );
+      const courseStarted = computed(() => {
+        if (!courseProgress.value?.started) {
+          return false;
+        }
+        if (courseProgress.value?.resume_position != null) {
+          return true;
+        }
+        // No resume_position but started — if the active test is for a unit
+        // beyond the first, the learner has completed previous units.
+        const activeTest = courseProgress.value?.active_test;
+        if (activeTest && units.value?.length > 0) {
+          return activeTest.unit_id !== units.value[0].id;
+        }
+        return false;
+      });
 
       const hasActiveTest = computed(() => !!courseProgress.value?.active_test);
 
@@ -340,7 +352,9 @@
         if (!courseStarted.value && !hasActiveTest.value) {
           return true;
         }
-        if (courseStarted.value && hasActiveTest.value) {
+        // Disabled when the learner has completed the active test and is
+        // waiting for the coach to close it (active test + resume_position).
+        if (hasActiveTest.value && courseProgress.value?.resume_position != null) {
           return true;
         }
         return false;

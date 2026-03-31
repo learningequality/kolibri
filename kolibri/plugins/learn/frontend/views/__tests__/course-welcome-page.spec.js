@@ -350,7 +350,7 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is disabled when a later unit pre-test is active', async () => {
+    it('is disabled when a later unit pre-test is active and learner completed it', async () => {
       learnerResources = makeLearnerResourcesMock({
         started: true,
         active_test: { unit_id: 'unit-2', test_type: 'pre' },
@@ -365,6 +365,21 @@ describe('CourseWelcomePage', () => {
 
       await waitFor(() => {
         expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
+      });
+    });
+
+    it('shows "Resume Course" and is enabled when later unit pre-test is active but not yet taken', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-2', test_type: 'pre' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        const button = wrapper.getByTestId('course-action-button');
+        expect(button).toBeEnabled();
+        expect(button).toHaveTextContent('Resume Course');
       });
     });
   });
