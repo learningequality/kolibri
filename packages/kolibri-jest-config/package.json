@@ -12,7 +12,7 @@
   "private": false,
   "main": "jest.conf/index.js",
   "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.28.5",
+    "@babel/plugin-transform-runtime": "^7.29.0",
     "aphrodite": "^2.4.0",
     "intl": "^1.2.4",
     "kolibri": "workspace:*",
