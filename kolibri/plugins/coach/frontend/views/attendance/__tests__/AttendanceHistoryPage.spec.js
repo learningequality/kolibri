@@ -2,6 +2,8 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import store from 'kolibri/store';
+// eslint-disable-next-line import/named
+import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
 import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
 import makeStore from '../../../__tests__/utils/makeStore';
@@ -11,6 +13,7 @@ import CSVExporter from '../../../csv/exporter';
 import AttendanceHistoryPage from '../AttendanceHistoryPage.vue';
 
 jest.mock('../../../composables/useAttendance');
+jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri-common/apiResources/AttendanceSessionResource');
 jest.mock('../../../csv/exporter', () => {
   const MockCSVExporter = jest.fn(() => ({ export: jest.fn(), addNames: jest.fn() }));
@@ -48,6 +51,11 @@ const router = new VueRouter({
   routes: [
     { path: '/', name: 'HomePage', component: { template: '<div />' } },
     { path: '/attendance/new', name: 'ATTENDANCE_NEW', component: { template: '<div />' } },
+    {
+      path: '/attendance/history',
+      name: 'ATTENDANCE_HISTORY',
+      component: { template: '<div />' },
+    },
     {
       path: '/attendance/:attendanceId',
       name: 'ATTENDANCE_EDIT',
@@ -121,6 +129,7 @@ function makeWrapper({
   sessionCount = null,
   loading = false,
   className = 'Test Class',
+  route = null,
 } = {}) {
   const mockValues = useAttendanceMock({
     sessions: ref(sessions),
@@ -135,6 +144,13 @@ function makeWrapper({
   testStore.state.classSummary.name = className;
   store.replaceState(testStore.state);
 
+  const createSnackbar = jest.fn();
+  useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
+
+  if (route) {
+    router.push(route);
+  }
+
   const wrapper = mount(AttendanceHistoryPage, {
     store: testStore,
     localVue,
@@ -142,7 +158,7 @@ function makeWrapper({
     stubs: STUBS,
   });
 
-  return { wrapper, mock: mockValues };
+  return { wrapper, mock: mockValues, createSnackbar };
 }
 
 describe('AttendanceHistoryPage', () => {
@@ -152,6 +168,7 @@ describe('AttendanceHistoryPage', () => {
     jest.clearAllMocks();
     jest.spyOn(store, 'dispatch').mockImplementation(jest.fn());
     useAttendance.mockImplementation(() => useAttendanceMock());
+    useSnackbar.mockImplementation(() => useSnackbarMock());
   });
 
   afterEach(() => {
@@ -177,6 +194,20 @@ describe('AttendanceHistoryPage', () => {
     it('renders ReportsControls', () => {
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
       expect(wrapper.findComponent({ name: 'ReportsControls' }).exists()).toBe(true);
+    });
+
+    it('shows the snackbar from the route query and clears it', async () => {
+      const { wrapper, createSnackbar } = makeWrapper({
+        route: {
+          name: 'ATTENDANCE_HISTORY',
+          query: { snackbar: 'Attendance submitted' },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(createSnackbar).toHaveBeenCalledWith('Attendance submitted');
+      expect(router.currentRoute.query.snackbar).toBeUndefined();
     });
 
     it('includes class name and export date in CSV filename', async () => {

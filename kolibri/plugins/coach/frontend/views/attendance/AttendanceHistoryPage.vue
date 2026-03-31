@@ -90,7 +90,9 @@
 
 <script>
 
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
@@ -125,6 +127,9 @@
       ReportsControls,
     },
     setup() {
+      const route = useRoute();
+      const router = useRouter();
+      const { createSnackbar } = useSnackbar();
       const { classId, className } = useCoreCoach();
 
       const { attendanceLoading, sessions, totalPages, sessionCount, fetchSessions } =
@@ -188,6 +193,18 @@
       const selectedDateRange = ref(
         baseOptions.find(o => o.value === DateRangeFilters.LAST_30_DAYS),
       );
+
+      onMounted(() => {
+        const { snackbar, ...query } = route.query;
+        if (snackbar) {
+          createSnackbar(snackbar);
+          router.replace({
+            name: route.name,
+            params: route.params,
+            query,
+          });
+        }
+      });
 
       function getDateRange(filterValue) {
         if (filterValue === DateRangeFilters.CUSTOM_APPLIED) {
