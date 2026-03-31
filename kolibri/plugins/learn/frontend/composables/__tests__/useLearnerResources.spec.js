@@ -779,7 +779,7 @@ describe('isCourseLessonAvailable', () => {
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
   });
 
-  it('returns false when started but no resume position', async () => {
+  it('returns false when learner is taking the pre-test (started, no resume position yet)', async () => {
     await setupCourseData({
       started: true,
       active_test: { unit_id: 'unit-1', test_type: 'pre' },
