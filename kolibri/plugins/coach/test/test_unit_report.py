@@ -1,3 +1,4 @@
+import copy
 import datetime
 import uuid
 
@@ -53,7 +54,6 @@ ITEM_A1 = "0000000000000000000000000000a001"
 ITEM_A2 = "0000000000000000000000000000a002"
 ITEM_A3 = "0000000000000000000000000000a003"
 
-# Version A multi-LO item: maps to BOTH LO1 and LO2
 ITEM_A4 = "0000000000000000000000000000a004"
 
 # Version B items: 2 for LO1, 1 for LO2
@@ -61,7 +61,6 @@ ITEM_B1 = "0000000000000000000000000000b001"
 ITEM_B2 = "0000000000000000000000000000b002"
 ITEM_B3 = "0000000000000000000000000000b003"
 
-# Version B multi-LO item: maps to BOTH LO1 and LO2
 ITEM_B4 = "0000000000000000000000000000b004"
 
 ASSESSMENT_OBJECTIVES = {
@@ -97,29 +96,18 @@ UNIT_OPTIONS = {
     },
 }
 
-# Assessment objectives that include multi-LO mappings.
-# Extends the single-LO dict with items that map to TWO learning objectives.
 MULTI_LO_ASSESSMENT_OBJECTIVES = {
     **ASSESSMENT_OBJECTIVES,
     ITEM_A4: [LO1_ID, LO2_ID],
     ITEM_B4: [LO1_ID, LO2_ID],
 }
 
-_BASE_PPT = UNIT_OPTIONS["completion_criteria"]["threshold"]["pre_post_test"]
-MULTI_LO_UNIT_OPTIONS = {
-    **UNIT_OPTIONS,
-    "assessment_objectives": MULTI_LO_ASSESSMENT_OBJECTIVES,
-    "completion_criteria": {
-        "threshold": {
-            "pre_post_test": {
-                "assessment_item_ids": _BASE_PPT["assessment_item_ids"]
-                + [ITEM_A4, ITEM_B4],
-                "version_a_item_ids": _BASE_PPT["version_a_item_ids"] + [ITEM_A4],
-                "version_b_item_ids": _BASE_PPT["version_b_item_ids"] + [ITEM_B4],
-            }
-        }
-    },
-}
+MULTI_LO_UNIT_OPTIONS = copy.deepcopy(UNIT_OPTIONS)
+MULTI_LO_UNIT_OPTIONS["assessment_objectives"] = MULTI_LO_ASSESSMENT_OBJECTIVES
+_ppt = MULTI_LO_UNIT_OPTIONS["completion_criteria"]["threshold"]["pre_post_test"]
+_ppt["assessment_item_ids"] += [ITEM_A4, ITEM_B4]
+_ppt["version_a_item_ids"] += [ITEM_A4]
+_ppt["version_b_item_ids"] += [ITEM_B4]
 
 
 def _create_attempt(
