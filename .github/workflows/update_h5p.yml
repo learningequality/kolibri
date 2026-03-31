@@ -58,7 +58,7 @@ jobs:
         with:
           node-version-file: 'package.json'
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           cache: true
       - name: Install dependencies

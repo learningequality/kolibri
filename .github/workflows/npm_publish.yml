@@ -37,7 +37,7 @@ jobs:
           node-version-file: 'package.json'
           registry-url: 'https://registry.npmjs.org'
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Create tag
