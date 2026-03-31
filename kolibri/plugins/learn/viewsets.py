@@ -593,7 +593,33 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
                 "resource_id": first_incomplete_resource.id,
             }
         else:
-            # All resources in the unit are complete, so resume at unit level
+            # All resources in the unit are complete.
+            # If the post-test is also closed, the unit is fully done —
+            # advance resume_position to the next unit in the course.
+            post_test_closed = unit_test_assignments_qs.filter(
+                unit_contentnode_id=unit_contentnode_id,
+                test_type=TestType.Post,
+                closed=True,
+            ).exists()
+
+            if post_test_closed:
+                current_unit_lft = (
+                    ContentNode.objects.filter(id=unit_contentnode_id)
+                    .values_list("lft", flat=True)
+                    .first()
+                )
+                next_unit = (
+                    ContentNode.objects.filter(
+                        parent_id=course_session.course,
+                        lft__gt=current_unit_lft,
+                    )
+                    .order_by("lft")
+                    .values_list("id", flat=True)
+                    .first()
+                )
+                if next_unit:
+                    unit_contentnode_id = next_unit
+
             response_data["resume_position"] = {
                 "unit_id": unit_contentnode_id,
                 "lesson_id": None,

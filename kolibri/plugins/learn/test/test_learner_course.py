@@ -802,3 +802,57 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["started"], True)
         self.assertEqual(response["active_test"]["unit_id"], unit_1.id)
         self.assertEqual(response["resume_position"], None)
+
+    def test_learner_course_resume__advances_past_completed_unit(self):
+        """
+        When a unit's pre-test is closed, all resources are complete, and the
+        post-test is also closed, resume_position should advance to the next
+        unit rather than staying on the completed one.
+        """
+        course, course_session, units = self._create_course(
+            units=3, lessons=2, resources=2
+        )
+        unit_1, lessons_1 = units[0]
+        unit_2, _ = units[1]
+
+        # Unit 1: pre-test closed, post-test closed
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=True,
+            activated_by=self.coach,
+        )
+
+        # Mark all unit 1 resources as complete
+        for lesson, lesson_resources in lessons_1:
+            for resource in lesson_resources:
+                log = ContentSummaryLog.objects.get(
+                    user=self.learner, content_id=resource.content_id
+                )
+                log.progress = 1.0
+                log.completion_timestamp = now()
+                log.save()
+
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        get_request = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        )
+
+        self.assertEqual(get_request.status_code, 200)
+        response = get_request.data
+        self.assertEqual(response["started"], True)
+        self.assertEqual(response["active_test"], None)
+        # Should advance to unit 2, not stay on completed unit 1
+        self.assertEqual(response["resume_position"]["unit_id"], unit_2.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+        self.assertIsNone(response["resume_position"]["resource_id"])
