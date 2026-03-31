@@ -135,10 +135,10 @@ def _accumulate_scores(
         lo_ids = assessment_objectives.get(item)
         if not lo_ids:
             continue
-        lo_id = lo_ids[0]
         lo_scores = results[meta["test_type"]].setdefault(str(meta["learner_id"]), {})
-        lo_id_str = str(lo_id)
-        lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
+        for lo_id in lo_ids:
+            lo_id_str = str(lo_id)
+            lo_scores[lo_id_str] = lo_scores.get(lo_id_str, 0) + 1
 
 
 def compute_all_test_scores(
@@ -238,9 +238,9 @@ class UnitReportViewSet(viewsets.ViewSet):
         for item_id, lo_ids in assessment_objectives.items():
             if not lo_ids:
                 continue
-            lo_id = lo_ids[0]
             if item_id in version_a_set:
-                lo_question_count[str(lo_id)] += 1
+                for lo_id in lo_ids:
+                    lo_question_count[str(lo_id)] += 1
 
         learning_objectives = [
             {
