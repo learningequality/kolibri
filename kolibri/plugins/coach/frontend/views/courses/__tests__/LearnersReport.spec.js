@@ -206,13 +206,12 @@ describe('LearnersReport', () => {
       };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       const rows = screen.getAllByTestId(/^row-/);
-      // row-0 is the header row; data rows start at index 1
-      // row-1 should be the lowest scorer (Bob = 12.5%)
-      expect(rows[1]).toHaveTextContent('Bob');
-      // row-2 should be Carol (50%)
-      expect(rows[2]).toHaveTextContent('Carol');
-      // row-3 should be Alice (100%)
-      expect(rows[3]).toHaveTextContent('Alice');
+      // row-0 should be the lowest scorer (Bob = 12.5%)
+      expect(rows[0]).toHaveTextContent('Bob');
+      // row-1 should be Carol (50%)
+      expect(rows[1]).toHaveTextContent('Carol');
+      // row-2 should be Alice (100%)
+      expect(rows[2]).toHaveTextContent('Alice');
     });
 
     it('places unattempted learners at the end of the sorted list', () => {

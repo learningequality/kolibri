@@ -100,7 +100,8 @@
   }
 
   .lo-link {
-    padding: 12px 0 12px 16px;
+    padding: 8px 0;
+    padding-inline-start: 8px;
   }
 
   .lo-sparkline {

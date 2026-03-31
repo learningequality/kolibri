@@ -130,7 +130,7 @@
                     </span>
                     <span class="status-message">
                       <b> {{ unitStatusMessages.boldMessage }} </b>
-                      <span style="text-transform: lowercase">{{
+                      <span class="status-plain-message">{{
                         unitStatusMessages.plainMessage
                       }}</span>
                     </span>
@@ -261,7 +261,7 @@
             {{ completedLabel$() }}
           </div>
           <div class="panel-message">
-            {{ nOfMLearners$({ n: 0, m: 10 }) }}
+            {{ nOfMLearners$({ n: activeModalCompletedCount, m: activeUnitTotalLearners }) }}
           </div>
         </div>
         <div class="panel-item">
@@ -269,7 +269,7 @@
             {{ inProgressLabel$() }}
           </div>
           <div class="panel-message">
-            {{ numLearners$({ num: 100 }) }}
+            {{ numLearners$({ num: activeModalInProgressCount }) }}
           </div>
         </div>
       </div>
@@ -354,6 +354,7 @@
         preTestResults$,
         postTestInProgress$,
         postTestResults$,
+        unitTitleWithStatus$,
       } = coursesStrings;
 
       const { recipientsLabel$, sizeLabel$, numberOfResources$ } = coachStrings;
@@ -424,10 +425,15 @@
                 [unit.id]: {
                   ...deriveUnitReportInfo(data),
                   reportData: data,
+                  learnersWithGroups: data.learners.map(learner => ({
+                    ...learner,
+                    groups: getGroupNames(learner.id),
+                  })),
                 },
               };
             })
-            .catch(() => {
+            .catch(error => {
+              store.dispatch('handleApiError', { error });
               unitReportInfo.value = {
                 ...unitReportInfo.value,
                 [unit.id]: {
@@ -435,18 +441,32 @@
                   activeTestStatus: 'not_activated',
                   bucketedObjectives: [],
                   reportData: null,
+                  learnersWithGroups: [],
                 },
               };
             });
         }
       }
 
-      // Fetch reports when units become available
+      // Fetch reports when units become available (immediate: true handles pre-populated cached data)
       watch(allUnits, () => {
         if (allUnits.value.length) {
           fetchAllUnitReports();
         }
-      });
+      }, { immediate: true });
+
+      const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
+      const activeUnitTotalLearners = computed(() => activeUnitReport.value?.learnersWithGroups?.length || 0);
+
+      function activeUnitScoreCount(testKey) {
+        return Object.keys(activeUnitReport.value?.reportData?.[testKey]?.scores || {}).length;
+      }
+
+      const activeModalTestKey = computed(() =>
+        activeUnitReport.value?.activeTestType === 'post' ? 'post_test' : 'pre_test'
+      );
+      const activeModalCompletedCount = computed(() => activeUnitScoreCount(activeModalTestKey.value));
+      const activeModalInProgressCount = computed(() => activeUnitTotalLearners.value - activeModalCompletedCount.value);
 
       function unitObjectiveTitle(unit) {
         const info = unitReportInfo.value[unit.id];
@@ -463,7 +483,7 @@
         if (!statusLabel) {
           return unit.numberedTitle;
         }
-        return `${unit.numberedTitle} (${statusLabel})`;
+        return unitTitleWithStatus$({ title: unit.numberedTitle, status: statusLabel });
       }
 
       const courseObjectiveheaderstyle = computed(() => {
@@ -511,19 +531,19 @@
             };
           case UnitPhase.PRE_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('pre_test'), m: activeUnitTotalLearners.value }),
               plainMessage: completedLabel$(),
               buttonLabel: endPreTest$(),
             };
           case UnitPhase.POST_TEST_PENDING:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('pre_test'), m: activeUnitTotalLearners.value }),
               plainMessage: workingOnLessons$(),
               buttonLabel: startPostTest$(),
             };
           case UnitPhase.POST_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('post_test'), m: activeUnitTotalLearners.value }),
               plainMessage: completedLabel$(),
               buttonLabel: endPostTest$(),
             };
@@ -746,6 +766,10 @@
         learnersReportData,
         learnerRoute,
         closeLearnerPanel,
+        activeUnitTotalLearners,
+        activeUnitScoreCount,
+        activeModalCompletedCount,
+        activeModalInProgressCount,
       };
     },
   };
@@ -757,10 +781,10 @@
 
   .container {
     padding: 0;
+  }
 
-    .header {
-      padding: 8px 24px 24px;
-    }
+  .container .header {
+    padding: 8px 24px 24px;
   }
 
   .go-back {
@@ -796,10 +820,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
+  }
 
-    a {
-      font-weight: bold;
-    }
+  .active-unit a {
+    font-weight: bold;
   }
 
   .active-unit-title {
@@ -837,16 +861,20 @@
     padding: 16px;
     margin-top: 8px;
     border-radius: 8px;
+  }
 
-    .panel-item {
-      width: 50%;
-    }
+  .panel-item {
+    width: 50%;
+  }
 
-    .panel-label {
-      margin-bottom: 8px;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
+  .panel-label {
+    margin-bottom: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .status-plain-message {
+    text-transform: lowercase;
   }
 
   .course-active {

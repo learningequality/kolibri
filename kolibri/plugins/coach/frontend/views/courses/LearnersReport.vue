@@ -15,16 +15,10 @@
         :caption="learnersLabel$()"
       >
         <template #cell="{ content, colIndex, rowIndex }">
-          <template v-if="rowIndex === 0">
-            <span
-              class="header-label"
-              :style="{ color: $themeTokens.annotation }"
-            >{{ content }}</span>
-          </template>
-          <template v-else-if="colIndex === 0">
+          <template v-if="colIndex === 0">
             <KRouterLink
               :text="content"
-              :to="learnerRoute(sortedLearners[rowIndex - 1])"
+              :to="learnerRoute(sortedLearners[rowIndex])"
               icon="person"
             />
           </template>
@@ -179,19 +173,16 @@
       });
 
       const headers = computed(() => [
-        { label: '', dataType: 'string', columnId: 'learner' },
-        { label: '', dataType: 'string', columnId: 'groups', width: '180px' },
-        { label: '', dataType: 'string', columnId: 'riskLevel', width: '180px' },
+        { label: learnerLabel$(), dataType: 'string', columnId: 'learner' },
+        { label: groupsLabel$(), dataType: 'string', columnId: 'groups', width: '180px' },
+        { label: riskLevelLabel$(), dataType: 'string', columnId: 'riskLevel', width: '180px' },
       ]);
 
-      const rows = computed(() => [
-        [learnerLabel$(), groupsLabel$(), riskLevelLabel$()],
-        ...sortedLearners.value.map(learner => [
-          learner.name,
-          (learner.groups || []).join(', '),
-          learner.riskLevel ?? '',
-        ]),
-      ]);
+      const rows = computed(() => sortedLearners.value.map(learner => [
+        learner.name,
+        (learner.groups || []).join(', '),
+        learner.riskLevel ?? '',
+      ]));
 
       const supportNeededStyles = computed(() => {
         const tokens = themeTokens();
@@ -250,10 +241,6 @@
 
 <style scoped>
 
-  .header-label {
-    font-weight: 600;
-  }
-
   .empty-state {
     padding: 16px;
   }
@@ -262,7 +249,6 @@
     display: inline-flex;
     gap: 6px;
     align-items: center;
-    margin-left: -50px;
     padding: 5px 14px 5px 10px;
     font-size: 12px;
     font-weight: 500;

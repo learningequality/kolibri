@@ -131,7 +131,7 @@
             v-for="lo in sortedLOs"
             :key="lo.id"
             class="lo-row"
-            :style="{ borderBottomColor: $themeTokens.fineLine, backgroundColor: lo.ratio >= 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100 }"
+            :style="{ borderBottomColor: $themeTokens.fineLine, backgroundColor: lo.ratio > 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100 }"
           >
             <span class="lo-text">{{ lo.text }}</span>
             <span
@@ -157,7 +157,7 @@
 
   import { computed, toRef } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
 
@@ -234,8 +234,8 @@
       const loCompletedCount = computed(() => loData.value.filter(lo => lo.attempted).length);
       const loTotalCount = computed(() => loData.value.length);
 
-      // An LO is "struggling" when the learner scored below 80%
-      const strugglingCount = computed(() => loData.value.filter(lo => lo.ratio < 0.8).length);
+      // An LO is "struggling" when the learner attempted it but scored in the non-high band (ratio <= 0.8)
+      const strugglingCount = computed(() => loData.value.filter(lo => lo.attempted && lo.ratio <= 0.8).length);
 
       function getTestTotals(testKey) {
         const scores = data.value?.reportData?.[testKey]?.scores?.[props.learner.id];
@@ -252,7 +252,9 @@
       function scoreColor({ correct, total }) {
         const tokens = themeTokens();
         const ratio = total > 0 ? correct / total : 0;
-        return ratio > 0.6 ? tokens.success : tokens.error;
+        if (ratio > 0.6) return tokens.success;
+        if (ratio > 0.45) return themePalette().orange.v_600;
+        return tokens.error;
       }
 
       function closePanel() {
@@ -413,14 +415,6 @@
     align-items: center;
     padding: 10px 12px;
     border-bottom: 1px solid;
-  }
-
-  .lo-border {
-    flex-shrink: 0;
-    width: 4px;
-    height: 36px;
-    margin-right: 12px;
-    border-radius: 2px;
   }
 
   .lo-text {

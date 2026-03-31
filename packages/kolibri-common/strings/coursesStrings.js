@@ -395,6 +395,11 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',
   },
+  unitTitleWithStatus: {
+    message: '{title} ({status})',
+    context:
+      'Accordion header for a unit that shows the unit title with its test status in parentheses, e.g. "Unit 1: Letters (Pre-test results)"',
+  },
   noTestDataLabel: {
     message: 'No test has been activated for this unit yet',
     context:
@@ -433,7 +438,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   onTrackLabel: {
     message: 'On track',
     context:
-      'Risk level badge shown in the Learners report for learners whose aggregate score is above 50%',
+      'Risk level badge shown in the Learners report for learners whose aggregate score is above 60%',
   },
   riskLevelLabel: {
     message: 'Risk level',
@@ -467,16 +472,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
       '{count, plural, one {learning objective} other {learning objectives}}',
     context:
       'Plural noun suffix of the warning banner in the learner side panel. Preceded by a bold count, e.g. "Learner is struggling with 3 learning objectives".',
-  },
-  preTestScoreSummaryLabel: {
-    message: 'Pre-test: {correct, number} of {total, number} questions correct',
-    context:
-      "Subheading in the learner side panel showing the learner's total pre-test score across all learning objectives",
-  },
-  postTestScoreSummaryLabel: {
-    message: 'Post-test: {correct, number} of {total, number} questions correct',
-    context:
-      "Subheading in the learner side panel showing the learner's total post-test score across all learning objectives",
   },
   xOfYCorrectLabel: {
     message: '{correct, number} of {total, number} correct',
