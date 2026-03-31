@@ -10,7 +10,7 @@
     "directory": "packages/eslint-plugin-kolibri"
   },
   "dependencies": {
-    "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-vue": "^10.8.0",
     "espree": "^10.4.0",
     "lodash": "catalog:",
     "requireindex": "^1.1.0"

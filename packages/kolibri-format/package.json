@@ -25,7 +25,7 @@
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-kolibri": "workspace:*",
     "eslint-plugin-small-import": "^1.0.0",
-    "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-vue": "^10.8.0",
     "fast-glob": "3.3.3",
     "globals": "^16.0.0",
     "kolibri-logging": "workspace:*",
