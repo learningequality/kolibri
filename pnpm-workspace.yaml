@@ -1,5 +1,8 @@
 # minimum number of minutes
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - kolibri-constants
+  - kolibri-design-system
 
 packages:
   - packages/*
