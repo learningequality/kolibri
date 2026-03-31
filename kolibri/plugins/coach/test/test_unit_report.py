@@ -1,3 +1,4 @@
+import copy
 import datetime
 import uuid
 
@@ -53,10 +54,14 @@ ITEM_A1 = "0000000000000000000000000000a001"
 ITEM_A2 = "0000000000000000000000000000a002"
 ITEM_A3 = "0000000000000000000000000000a003"
 
+ITEM_A4 = "0000000000000000000000000000a004"
+
 # Version B items: 2 for LO1, 1 for LO2
 ITEM_B1 = "0000000000000000000000000000b001"
 ITEM_B2 = "0000000000000000000000000000b002"
 ITEM_B3 = "0000000000000000000000000000b003"
+
+ITEM_B4 = "0000000000000000000000000000b004"
 
 ASSESSMENT_OBJECTIVES = {
     ITEM_A1: [LO1_ID],
@@ -90,6 +95,19 @@ UNIT_OPTIONS = {
         }
     },
 }
+
+MULTI_LO_ASSESSMENT_OBJECTIVES = {
+    **ASSESSMENT_OBJECTIVES,
+    ITEM_A4: [LO1_ID, LO2_ID],
+    ITEM_B4: [LO1_ID, LO2_ID],
+}
+
+MULTI_LO_UNIT_OPTIONS = copy.deepcopy(UNIT_OPTIONS)
+MULTI_LO_UNIT_OPTIONS["assessment_objectives"] = MULTI_LO_ASSESSMENT_OBJECTIVES
+_ppt = MULTI_LO_UNIT_OPTIONS["completion_criteria"]["threshold"]["pre_post_test"]
+_ppt["assessment_item_ids"] += [ITEM_A4, ITEM_B4]
+_ppt["version_a_item_ids"] += [ITEM_A4]
+_ppt["version_b_item_ids"] += [ITEM_B4]
 
 
 def _create_attempt(
@@ -599,6 +617,50 @@ class ComputeTestScoresTests(TestCase):
         self.assertIn(lid, result)
         self.assertEqual(result[lid], {})
 
+    def test_multi_lo_item_credits_all_mapped_los(self):
+        """A correct answer on an item mapping to multiple LOs credits each LO."""
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=[ITEM_A4],  # maps to [LO1_ID, LO2_ID]
+            items_incorrect=[],
+        )
+        result = compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            MULTI_LO_ASSESSMENT_OBJECTIVES,
+        )["pre"]
+        lid = str(self.learner_a.id)
+        self.assertIn(lid, result)
+        # ITEM_A4 maps to both LO1 and LO2 — both should get credit
+        self.assertEqual(result[lid].get(LO1_ID, 0), 1)
+        self.assertEqual(result[lid].get(LO2_ID, 0), 1)
+
+    def test_incorrect_multi_lo_item_credits_no_lo(self):
+        """An incorrect answer on a multi-LO item credits none of the mapped LOs."""
+        _create_attempt(
+            self.learner_a,
+            self.course_session_id,
+            self.unit_id,
+            "pre",
+            items_correct=[],
+            items_incorrect=[ITEM_A4],  # maps to [LO1_ID, LO2_ID], but wrong
+        )
+        result = compute_all_test_scores(
+            [self.learner_a.id],
+            self.course_session_id,
+            self.unit_id,
+            MULTI_LO_ASSESSMENT_OBJECTIVES,
+        )["pre"]
+        lid = str(self.learner_a.id)
+        self.assertIn(lid, result)
+        # Wrong answer — neither LO should get credit
+        self.assertEqual(result[lid].get(LO1_ID, 0), 0)
+        self.assertEqual(result[lid].get(LO2_ID, 0), 0)
+
 
 # ---------------------------------------------------------------------------
 # API integration tests
@@ -861,6 +923,20 @@ class UnitReportScoringTests(UnitReportAPIBase):
             username=self.facility_coach.username, password=DUMMY_PASSWORD
         )
 
+    def _create_multi_lo_unit(self):
+        """Create a unit ContentNode with multi-LO assessment objectives."""
+        return ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            title="Multi-LO Unit",
+            kind=content_kinds.EXERCISE,
+            modality=modalities.UNIT,
+            options=MULTI_LO_UNIT_OPTIONS,
+            available=True,
+            parent=self.course_node,
+        )
+
     def test_unattempted_learner_absent_from_scores_map(self):
         """Learner with no attempt is in learners list but not in scores."""
         response = self.client.get(self._get_url())
@@ -944,6 +1020,42 @@ class UnitReportScoringTests(UnitReportAPIBase):
         pos3 = actual_order.index(str(self.learner3.id))
         self.assertLess(pos1, pos2)
         self.assertLess(pos2, pos3)
+
+    def test_num_questions_counts_multi_lo_items_for_each_lo(self):
+        """An item mapping to multiple LOs increments num_questions for each mapped LO."""
+        multi_lo_unit = self._create_multi_lo_unit()
+        url = _make_url(self.course_session.id, multi_lo_unit.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        lo_map = {lo["id"]: lo for lo in response.data["learning_objectives"]}
+        # Version A items: ITEM_A1→LO1, ITEM_A2→LO1, ITEM_A3→LO2, ITEM_A4→[LO1, LO2]
+        # LO1: ITEM_A1 + ITEM_A2 + ITEM_A4 = 3
+        # LO2: ITEM_A3 + ITEM_A4 = 2
+        self.assertEqual(lo_map[LO1_ID]["num_questions"], 3)
+        self.assertEqual(lo_map[LO2_ID]["num_questions"], 2)
+
+    def test_multi_lo_scores_via_api(self):
+        """Correct answer on a multi-LO item credits all LOs in the API response."""
+        multi_lo_unit = self._create_multi_lo_unit()
+        _create_attempt(
+            self.learner1,
+            self.course_session.id,
+            multi_lo_unit.id,
+            "pre",
+            items_correct=[ITEM_A4],  # maps to [LO1_ID, LO2_ID]
+            items_incorrect=[],
+        )
+        url = _make_url(self.course_session.id, multi_lo_unit.id)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        lid = str(self.learner1.id)
+        pre_scores = response.data["pre_test"]["scores"]
+        self.assertIn(lid, pre_scores)
+        # ITEM_A4 maps to both LO1 and LO2 — both should get credit
+        self.assertEqual(pre_scores[lid].get(LO1_ID, 0), 1)
+        self.assertEqual(pre_scores[lid].get(LO2_ID, 0), 1)
 
 
 class UnitReportLearnerGroupTests(UnitReportAPIBase):
