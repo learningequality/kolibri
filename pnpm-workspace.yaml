@@ -1,3 +1,6 @@
+# minimum number of minutes
+minimumReleaseAge: 10080
+
 packages:
   - packages/*
   - kolibri/core
