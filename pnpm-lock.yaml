@@ -1070,8 +1070,8 @@ importers:
         specifier: 10.4.23
         version: 10.4.23(postcss@8.5.6)
       babel-loader:
-        specifier: ^10.0.0
-        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: ^10.1.1
+        version: 10.1.1(@babel/core@7.29.0)(webpack@5.104.1)
       browserslist-config-kolibri:
         specifier: 0.18.0
         version: 0.18.0
@@ -1491,8 +1491,8 @@ importers:
         specifier: ^7.29.2
         version: 7.29.2(@babel/core@7.29.0)
       babel-loader:
-        specifier: ^10.0.0
-        version: 10.0.0(@babel/core@7.29.0)(webpack@5.104.1)
+        specifier: ^10.1.1
+        version: 10.1.1(@babel/core@7.29.0)(webpack@5.104.1)
       css-loader:
         specifier: 7.1.2
         version: 7.1.2(webpack@5.104.1)
@@ -3895,12 +3895,18 @@ packages:
     peerDependencies:
       '@babel/core': ^7.11.0 || ^8.0.0-0
 
-  babel-loader@10.0.0:
-    resolution: {integrity: sha512-z8jt+EdS61AMw22nSfoNJAZ0vrtmhPRVi6ghL3rCeRZI8cdNYFiV5xeV3HbE7rlZZNmGH8BVccwWt8/ED0QOHA==}
+  babel-loader@10.1.1:
+    resolution: {integrity: sha512-JwKSzk2kjIe7mgPK+/lyZ2QAaJcpahNAdM+hgR2HI8D0OJVkdj8Rl6J3kaLYki9pwF7P2iWnD8qVv80Lq1ABtg==}
     engines: {node: ^18.20.0 || ^20.10.0 || >=22.0.0}
     peerDependencies:
-      '@babel/core': ^7.12.0
+      '@babel/core': ^7.12.0 || ^8.0.0-beta.1
+      '@rspack/core': ^1.0.0 || ^2.0.0-0
       webpack: '>=5.61.0'
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
 
   babel-messages@6.23.0:
     resolution: {integrity: sha512-Bl3ZiA+LjqaMtNYopA9TYE9HP1tQ+E5dLxE0XrAzcIJeK2UqF0/EaqXwBn9esd4UmTfEab+P+UYQ1GnioFIb/w==}
@@ -11996,10 +12002,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@10.0.0(@babel/core@7.29.0)(webpack@5.104.1):
+  babel-loader@10.1.1(@babel/core@7.29.0)(webpack@5.104.1):
     dependencies:
       '@babel/core': 7.29.0
       find-up: 5.0.0
+    optionalDependencies:
       webpack: 5.104.1(webpack-cli@6.0.1)
 
   babel-messages@6.23.0:

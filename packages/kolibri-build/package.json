@@ -20,7 +20,7 @@
     "@babel/plugin-transform-runtime": "^7.29.0",
     "@babel/preset-env": "^7.29.2",
     "autoprefixer": "10.4.23",
-    "babel-loader": "^10.0.0",
+    "babel-loader": "^10.1.1",
     "browserslist-config-kolibri": "0.18.0",
     "commander": "^14.0.2",
     "core-js": "^3",
