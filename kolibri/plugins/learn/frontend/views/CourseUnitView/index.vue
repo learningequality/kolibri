@@ -30,6 +30,7 @@
       <div
         v-else-if="showPostTestWaiting"
         class="post-test-waiting"
+        data-testid="post-test-waiting-interstitial"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <div

@@ -1165,10 +1165,7 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByText('Post-test not open yet')).toBeInTheDocument();
-        expect(
-          screen.getByText('You may review previous resources until the post-test is activated.'),
-        ).toBeInTheDocument();
+        expect(screen.getByTestId('post-test-waiting-interstitial')).toBeInTheDocument();
         expect(router.replace).not.toHaveBeenCalled();
       });
     });
@@ -1208,7 +1205,7 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
 
       await waitFor(() => {
-        expect(screen.queryByText('Post-test not open yet')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('post-test-waiting-interstitial')).not.toBeInTheDocument();
       });
     });
 
@@ -1225,7 +1222,7 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByText('Post-test not open yet')).toBeInTheDocument();
+        expect(screen.getByTestId('post-test-waiting-interstitial')).toBeInTheDocument();
       });
 
       const prevButton = screen.getByTestId('prev-button');
