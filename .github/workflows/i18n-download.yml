@@ -57,7 +57,7 @@ jobs:
 
       - name: Generate App Token
         id: generate-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
