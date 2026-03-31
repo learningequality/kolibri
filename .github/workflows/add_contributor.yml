@@ -50,7 +50,7 @@ jobs:
 
       - name: GitHub App token
         if: env.new_author == 'true'
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         id: generate-token
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
