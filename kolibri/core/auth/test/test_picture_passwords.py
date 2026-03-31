@@ -148,7 +148,7 @@ class AssignPicturePasswordTestCase(TestCase):
         ]
         self.assertEqual(len(passwords), len(set(passwords)))
 
-    def test_returns_400_when_pool_exhausted(self):
+    def test_raises_no_available_sequences_when_pool_exhausted(self):
         small_set = {1: {}, 2: {}, 3: {}}
         all_seqs = sorted(get_all_valid_sequences(small_set))
         for i, seq in enumerate(all_seqs):
