@@ -2,16 +2,20 @@ import uuid
 
 from django.test import TestCase
 from django.utils import timezone
+from le_utils.constants import modalities
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.utils.cache import process_cache
 
 DUMMY_PASSWORD = "password"
 
@@ -93,7 +97,7 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertIsNone(result["resume_position"])
 
     def test_active_test_returns_started_with_active_test(self):
-        assignment = UnitTestAssignment.objects.create(
+        UnitTestAssignment.objects.create(
             course_session=self.course_session,
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
@@ -109,10 +113,8 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
         self.assertIsNone(result["resume_position"])
 
-        assignment.delete()
-
     def test_completed_pre_test_marks_started(self):
-        assignment = UnitTestAssignment.objects.create(
+        UnitTestAssignment.objects.create(
             course_session=self.course_session,
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
@@ -126,10 +128,8 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertTrue(result["started"])
         self.assertIsNone(result["active_test"])
 
-        assignment.delete()
-
     def test_resume_position_has_incomplete_resource(self):
-        assignment = UnitTestAssignment.objects.create(
+        UnitTestAssignment.objects.create(
             course_session=self.course_session,
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
@@ -147,10 +147,8 @@ class CourseSessionGetResumeDataTestCase(TestCase):
             result["resume_position"]["resource_id"], self.resource_node.id
         )
 
-        assignment.delete()
-
     def test_resume_position_is_unit_level_when_all_resources_complete(self):
-        assignment = UnitTestAssignment.objects.create(
+        UnitTestAssignment.objects.create(
             course_session=self.course_session,
             unit_contentnode_id=self.unit_node.id,
             collection=self.classroom,
@@ -175,8 +173,6 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertIsNone(result["resume_position"]["lesson_id"])
         self.assertIsNone(result["resume_position"]["resource_id"])
 
-        assignment.delete()
-
     def test_unassigned_learner_returns_defaults(self):
         """A learner not in the classroom should see no active tests."""
         other_learner = FacilityUser.objects.create(
@@ -195,3 +191,308 @@ class CourseSessionGetResumeDataTestCase(TestCase):
 
         self.assertFalse(result["started"])
         self.assertIsNone(result["active_test"])
+
+
+class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
+    """
+    Tests for CourseSession.get_course_content_download_priority.
+
+    Priority rules:
+    - CRITICAL: the exact resource being resumed, or the active test unit node
+    - URGENT: the active lesson itself, or any resource that is a direct child of the active lesson
+    - HIGH: any other node within the currently active unit (outside the active lesson)
+    - REGULAR: a node in a future unit, a node outside any unit, the course node
+            itself, or when priority cannot be determined
+    - LOW: a node in a past unit
+    """
+
+    databases = "__all__"
+
+    def setUp(self):
+        # get_course_content_download_priority caches per-session data in process_cache.
+        # Clear it before each test to prevent stale values from a prior test (which shares
+        # the same course_session.pk via setUpTestData) from leaking into the next test.
+        process_cache.clear()
+
+    @classmethod
+    def _create_unit(cls, channel_id, course_node, suffix):
+        """Creates a unit with one lesson and one resource, returning all three nodes."""
+        unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=course_node,
+            available=True,
+            title="Unit {}".format(suffix),
+            modality=modalities.UNIT,
+        )
+        lesson = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=unit,
+            available=True,
+            title="Lesson {}".format(suffix),
+            modality=modalities.LESSON,
+        )
+        resource = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=lesson,
+            available=True,
+            title="Resource {}".format(suffix),
+        )
+        return unit, lesson, resource
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+
+        cls.facility = Facility.objects.create(name="TestFacility2")
+        cls.classroom = Classroom.objects.create(
+            name="TestClassroom2", parent=cls.facility
+        )
+        cls.coach = FacilityUser.objects.create(
+            username="coach2", facility=cls.facility
+        )
+        cls.coach.set_password(DUMMY_PASSWORD)
+        cls.coach.save()
+        cls.classroom.add_coach(cls.coach)
+
+        cls.learner = FacilityUser.objects.create(
+            username="learner2", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.classroom.add_member(cls.learner)
+
+        channel_id = uuid.uuid4().hex
+
+        cls.course_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Priority Test Course",
+            modality=modalities.COURSE,
+        )
+
+        # Units inserted in order — MPTT assigns lft on insert, preserving order
+        cls.unit1_node, cls.lesson1_node, cls.resource1_node = cls._create_unit(
+            channel_id, cls.course_node, "1"
+        )
+        cls.unit2_node, cls.lesson2_node, cls.resource2_node = cls._create_unit(
+            channel_id, cls.course_node, "2"
+        )
+
+        cls.course_session = CourseSession.objects.create(
+            course=cls.course_node.id,
+            title="Priority Test Session",
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.coach,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.coach,
+        )
+
+    def _complete_pre_test(self, unit_node):
+        return UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+
+    def _activate_pre_test(self, unit_node):
+        return UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+
+    def test_returns_regular_for_nonexistent_contentnode(self):
+        priority = self.course_session.get_course_content_download_priority(
+            uuid.uuid4().hex
+        )
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)
+
+    def test_returns_regular_for_course_node(self):
+        priority = self.course_session.get_course_content_download_priority(
+            self.course_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)
+
+    def test_returns_regular_when_no_user_assigned(self):
+        # Create a session with no assigned users
+        other_classroom = Classroom.objects.create(
+            name="EmptyClassroom", parent=self.facility
+        )
+        session = CourseSession.objects.create(
+            course=self.course_node.id,
+            title="No User Session",
+            is_active=True,
+            collection=other_classroom,
+            created_by=self.coach,
+        )
+        priority = session.get_course_content_download_priority(self.resource1_node.id)
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)
+
+    def test_returns_regular_when_course_not_started(self):
+        # Learner is assigned but no pre-test has been completed
+        priority = self.course_session.get_course_content_download_priority(
+            self.resource1_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)
+
+    def test_returns_critical_for_active_test_unit(self):
+        self._activate_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            self.unit1_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.CRITICAL)
+
+    def test_returns_critical_for_current_resume_resource(self):
+        # Pre-test for unit1 completed, resource1 is incomplete -> resume resource
+        self._complete_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            self.resource1_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.CRITICAL)
+
+    def test_returns_urgent_for_active_lesson(self):
+        # Pre-test for unit1 completed. lesson1 is the active lesson -> URGENT
+        self._complete_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            self.lesson1_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.URGENT)
+
+    def test_returns_urgent_for_resource_in_active_lesson(self):
+        # Pre-test for unit1 is completed. resource1 is the first incomplete resource
+        # (resume target -> CRITICAL). A second resource in the same active lesson should
+        # get URGENT.
+        channel_id = self.unit1_node.channel_id
+        second_resource = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson1_node,
+            available=True,
+            title="Resource 1b",
+        )
+        self._complete_pre_test(self.unit1_node)
+        # Confirm resource1 is the resume target (CRITICAL)
+        self.assertEqual(
+            self.course_session.get_course_content_download_priority(
+                self.resource1_node.id
+            ),
+            ContentRequestPriority.CRITICAL,
+        )
+        # second_resource is in the same active lesson but not the resume target
+        priority = self.course_session.get_course_content_download_priority(
+            second_resource.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.URGENT)
+
+    def test_completed_resource_in_active_lesson_becomes_urgent(self):
+        # Pre-test for unit1 completed. resource1 is complete, so second_resource
+        # becomes the resume target (CRITICAL); resource1 should still be URGENT
+        # (same active lesson).
+        channel_id = self.unit1_node.channel_id
+        second_resource = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson1_node,
+            available=True,
+            title="Resource 1b",
+        )
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=self.resource1_node.content_id,
+            channel_id=channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+        self._complete_pre_test(self.unit1_node)
+        self.assertEqual(
+            self.course_session.get_course_content_download_priority(
+                second_resource.id
+            ),
+            ContentRequestPriority.CRITICAL,
+        )
+        self.assertEqual(
+            self.course_session.get_course_content_download_priority(
+                self.resource1_node.id
+            ),
+            ContentRequestPriority.URGENT,
+        )
+
+    def test_returns_high_for_resource_in_active_unit_but_different_lesson(self):
+        # Pre-test for unit1 completed. A resource in a different lesson of unit1
+        # (not the active lesson) should get HIGH.
+        channel_id = self.unit1_node.channel_id
+        other_lesson = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.unit1_node,
+            available=True,
+            title="Lesson 1b",
+            modality=modalities.LESSON,
+        )
+        other_resource = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=other_lesson,
+            available=True,
+            title="Resource in other lesson",
+        )
+        self._complete_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            other_resource.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.HIGH)
+
+    def test_returns_regular_for_resource_in_future_unit(self):
+        # Active unit is unit1; resource2 is in unit2 (future)
+        self._complete_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            self.resource2_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)
+
+    def test_returns_low_for_resource_in_past_unit(self):
+        # Active unit is unit2; resource1 is in unit1 (past)
+        self._complete_pre_test(self.unit1_node)
+        self._complete_pre_test(self.unit2_node)
+        priority = self.course_session.get_course_content_download_priority(
+            self.resource1_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.LOW)
+
+    def test_returns_regular_for_node_outside_any_unit(self):
+        # A contentnode that is not under any course unit
+        orphan_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.course_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Orphan Resource",
+        )
+        self._complete_pre_test(self.unit1_node)
+        priority = self.course_session.get_course_content_download_priority(
+            orphan_node.id
+        )
+        self.assertEqual(priority, ContentRequestPriority.REGULAR)

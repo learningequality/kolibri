@@ -5,6 +5,7 @@ from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.utils import IntegrityError
+from le_utils.constants import modalities
 from morango.models import UUIDField
 
 from kolibri.core.auth.constants import role_kinds
@@ -14,11 +15,15 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.utils.cache import process_cache
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
+
+_COURSE_SESSION_PRIORITY_CACHE_TIMEOUT = 300
 
 
 def course_assignment_lookup(course_id):
@@ -28,6 +33,10 @@ def course_assignment_lookup(course_id):
     :return: a tuple of contentnode_id and metadata
     """
     return (course_id, {"import_descendants": True})
+
+
+def course_content_download_priority(course_session, contentnode_id):
+    return course_session.get_course_content_download_priority(contentnode_id)
 
 
 class TestType(ChoicesEnum):
@@ -91,6 +100,7 @@ class CourseSession(AbstractFacilityDataModel):
         filters=dict(is_active=True),
         lookup_field="course",
         lookup_func=course_assignment_lookup,
+        content_download_priority_func=course_content_download_priority,
     )
 
     def __str__(self):
@@ -181,6 +191,153 @@ class CourseSession(AbstractFacilityDataModel):
             }
 
         return result
+
+    def _get_units(self):
+        """
+        Returns a queryset of ContentNodes that are units within the course.
+        """
+        return ContentNode.objects.filter(parent_id=self.course).order_by("lft")
+
+    def _get_unit_id_for(self, contentnode):
+        """
+        Return the unit id to which a contentnode belongs, or None if it doesn't belong to any unit.
+        """
+        if contentnode.modality == modalities.UNIT:
+            return contentnode.id
+        elif contentnode.modality == modalities.LESSON:
+            return contentnode.parent_id
+        else:
+            return contentnode.parent.parent_id if contentnode.parent else None
+
+    def _get_assigned_user(self):
+        """
+        Empiric way to get a user who is taking the course when we don't have a specific user. Usually for LOD devices there is only one user,
+        so this will work fine, but for multi-user devices we just take the first one for simplicity.
+        Alternatively, we could check the user activity and see the last user who logged in, or we could also
+        try to use all assigned users in the device to set the priority based on everyone.
+        In any case, the active unit, and active test will always be the same for all users assigned to the course, so this
+        additional effort would be to set critical priority for current resources.
+        """
+        cache_key = "COURSE_SESSION_ASSIGNED_USER_{}".format(self.pk)
+        if cache_key not in process_cache:
+            user = FacilityUser.objects.filter(
+                memberships__collection__assigned_courses__course_session=self,
+            ).first()
+            process_cache.set(cache_key, user, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT)
+        else:
+            user = process_cache.get(cache_key)
+        return user
+
+    def _get_cached_resume_data(self, user):
+        cache_key = "COURSE_SESSION_RESUME_DATA_{}_{}".format(self.pk, user.pk)
+        if cache_key not in process_cache:
+            resume_data = self.get_resume_data(user)
+            process_cache.set(
+                cache_key, resume_data, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT
+            )
+        else:
+            resume_data = process_cache.get(cache_key)
+        return resume_data
+
+    def _get_cached_unit_ids(self):
+        cache_key = "COURSE_SESSION_UNIT_IDS_{}".format(self.pk)
+        if cache_key not in process_cache:
+            unit_ids = list(self._get_units().values_list("id", flat=True))
+            process_cache.set(
+                cache_key, unit_ids, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT
+            )
+        else:
+            unit_ids = process_cache.get(cache_key)
+        return unit_ids
+
+    def _get_unit_priority(self, requested_unit_index, active_unit_index):
+        """
+        Returns priority based on whether the requested node's unit is before or after the active unit.
+        """
+        if requested_unit_index < active_unit_index:
+            return ContentRequestPriority.LOW
+        return ContentRequestPriority.REGULAR
+
+    def _get_active_unit_priority(
+        self, contentnode_id, requested_contentnode, resume_position
+    ):
+        """
+        Returns priority for a node that belongs to the currently active unit.
+        Checks whether the node is the active lesson, a child of it (URGENT), or elsewhere in the unit (HIGH).
+        """
+        active_lesson_id = resume_position.get("lesson_id")
+        if active_lesson_id:
+            if contentnode_id == active_lesson_id:
+                return ContentRequestPriority.URGENT
+            if (
+                requested_contentnode.modality != modalities.LESSON
+                and requested_contentnode.parent_id == active_lesson_id
+            ):
+                return ContentRequestPriority.URGENT
+        return ContentRequestPriority.HIGH
+
+    def get_course_content_download_priority(self, contentnode_id):
+        """
+        Determine the priority for downloading a content node based on the user's progress in the course.
+
+        Priority levels (highest to lowest):
+        * CRITICAL: the exact resource currently being resumed, or the active pre/post-test unit node
+        * URGENT: the active lesson itself, or any resource that is a direct child of the active lesson
+        * HIGH: any other node within the currently active unit (but outside the active lesson)
+        * REGULAR: nodes in future (not-yet-reached) units, or when priority cannot be determined
+        * LOW: nodes in past (already-completed) units
+        """
+        requested_contentnode = (
+            ContentNode.objects.select_related("parent")
+            .filter(id=contentnode_id)
+            .first()
+        )
+        if (
+            not requested_contentnode
+            or requested_contentnode.modality == modalities.COURSE
+        ):
+            return ContentRequestPriority.REGULAR
+
+        user = self._get_assigned_user()
+        if not user:
+            return ContentRequestPriority.REGULAR
+
+        resume_data = self._get_cached_resume_data(user)
+        if not resume_data or not resume_data.get("started"):
+            return ContentRequestPriority.REGULAR
+
+        active_test = resume_data.get("active_test") or {}
+        resume_position = resume_data.get("resume_position") or {}
+
+        if (
+            resume_position.get("resource_id") == contentnode_id
+            or active_test.get("unit_id") == contentnode_id
+        ):
+            return ContentRequestPriority.CRITICAL
+
+        active_unit_id = active_test.get("unit_id") or resume_position.get("unit_id")
+        course_unit_ids = self._get_cached_unit_ids()
+
+        if not active_unit_id or active_unit_id not in course_unit_ids:
+            return ContentRequestPriority.REGULAR
+
+        requested_unit_id = self._get_unit_id_for(requested_contentnode)
+        active_unit_index = course_unit_ids.index(active_unit_id)
+        requested_unit_index = (
+            course_unit_ids.index(requested_unit_id)
+            if requested_unit_id in course_unit_ids
+            else None
+        )
+
+        if requested_unit_index is None:
+            return ContentRequestPriority.REGULAR
+
+        if requested_unit_index != active_unit_index:
+            return self._get_unit_priority(requested_unit_index, active_unit_index)
+
+        return self._get_active_unit_priority(
+            contentnode_id, requested_contentnode, resume_position
+        )
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
