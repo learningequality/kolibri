@@ -112,6 +112,7 @@
                 :style="activeUnitStyles"
               >
                 <div class="active-unit-title">
+                  <!-- TODO: Replace :to with real route once unit detail route is available -->
                   <KRouterLink
                     :text="activeUnit.numberedTitle"
                     :to="{}"
@@ -167,6 +168,7 @@
                       class="upcoming-unit"
                       :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
                     >
+                      <!-- TODO: Replace :to with real route once unit detail route is available -->
                       <KRouterLink
                         :text="unit.numberedTitle"
                         :to="{}"
@@ -193,6 +195,7 @@
                       class="upcoming-unit"
                       :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
                     >
+                      <!-- TODO: Replace :to with real route once unit detail route is available -->
                       <KRouterLink
                         :text="unit.numberedTitle"
                         :to="{}"
@@ -210,7 +213,10 @@
               </AccordionContainer>
             </template>
             <template #[TABS.LEARNERS]>
-              <h1>{{ learnersLabel$() }}</h1>
+              <LearnersReport
+                :prefetchedData="learnersReportData"
+                :learnerRoute="learnerRoute"
+              />
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
@@ -268,6 +274,12 @@
         </div>
       </div>
     </KModal>
+    <LearnerSidePanel
+      v-if="selectedLearner"
+      :prefetchedData="learnersReportData"
+      :learner="selectedLearner"
+      @close="closeLearnerPanel"
+    />
   </CoachAppBarPage>
 
 </template>
@@ -275,8 +287,8 @@
 
 <script>
 
-  import { computed, ref, watch } from 'vue';
-  import { useRoute } from 'vue-router/composables';
+  import { computed, getCurrentInstance, ref, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -295,6 +307,8 @@
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
+  import LearnersReport from './LearnersReport.vue';
+  import LearnerSidePanel from './LearnerSidePanel.vue';
 
   export default {
     name: 'CourseSummaryPage',
@@ -304,7 +318,9 @@
       CoachAppBarPage,
       CoachHeader,
       ElapsedTime,
+      LearnerSidePanel,
       LearningObjectivesReport,
+      LearnersReport,
       Recipients,
     },
     setup() {
@@ -353,6 +369,7 @@
       } = coreStrings;
 
       const route = useRoute();
+      const router = useRouter();
       const backRoute = computed(() => {
         // include existing route params/query for classId and such if present
         return { ...route, name: PageNames.COURSES_ROOT };
@@ -383,6 +400,10 @@
 
       // UI-only state
       const activeModal = ref(null);
+      const selectedLearner = ref(null);
+
+      // Capture store synchronously while instance context is available
+      const store = getCurrentInstance().proxy.$store;
 
       // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});
@@ -391,6 +412,7 @@
         const sessionId = courseSessionId.value;
         const unitList = allUnits.value;
         if (!sessionId || !unitList.length) return;
+        const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
         for (const unit of unitList) {
           UnitReportResource.fetchReport({
             courseSessionId: sessionId,
@@ -455,7 +477,7 @@
 
       const TABS = { UNITS: 'units', LEARNERS: 'learners', OBJECTIVES: 'objectives' };
       const activeTabId = ref(TABS.UNITS);
-      const tabs = [
+      const tabs = computed(() => [
         {
           id: TABS.UNITS,
           label: unitsLabel$(),
@@ -468,7 +490,7 @@
           id: TABS.OBJECTIVES,
           label: learningObjectivesLabel$(),
         },
-      ];
+      ]);
 
       // Re-fetch when switching to the Learning Objectives tab so that
       // test state changes made on the Units tab are reflected immediately.
@@ -619,6 +641,57 @@
         };
       });
 
+      // Flat learner data for the Learners tab: prefer active unit, else first unit with data
+      const learnersReportData = computed(() => {
+        if (activeUnit.value) {
+          const info = unitReportInfo.value[activeUnit.value.id];
+          if (info) return info;
+        }
+        for (const unit of allUnits.value) {
+          const info = unitReportInfo.value[unit.id];
+          if (info && info.activeTestStatus !== 'not_activated') return info;
+        }
+        for (const unit of allUnits.value) {
+          const info = unitReportInfo.value[unit.id];
+          if (info) return info;
+        }
+        return null;
+      });
+
+      watch(courseSession, () => store.dispatch('notLoading'));
+
+      // Sync selectedLearner with route query — supports deep-linking to a learner panel
+      watch(
+        [() => route.query.learnerId, learnersReportData],
+        ([learnerId]) => {
+          if (!learnerId) {
+            selectedLearner.value = null;
+            return;
+          }
+          const learner = learnersReportData.value?.learnersWithGroups?.find(
+            l => l.id === learnerId,
+          );
+          selectedLearner.value = learner || null;
+        },
+      );
+
+      function learnerRoute(learner) {
+        return {
+          name: route.name,
+          params: { ...route.params },
+          query: { ...route.query, learnerId: learner.id },
+        };
+      }
+
+      function closeLearnerPanel() {
+        const { learnerId: _removed, ...restQuery } = route.query;
+        router.replace({
+          name: route.name,
+          params: { ...route.params },
+          query: restQuery,
+        });
+      }
+
       return {
         backRoute,
         dataLoading,
@@ -633,6 +706,7 @@
         activeTest,
         activeUnit,
         activeModal,
+        selectedLearner,
 
         courseSession,
         completedUnits,
@@ -669,12 +743,10 @@
         courseObjectiveheaderstyle,
         unitReportInfo,
         unitObjectiveTitle,
+        learnersReportData,
+        learnerRoute,
+        closeLearnerPanel,
       };
-    },
-    watch: {
-      courseSession() {
-        this.$store.dispatch('notLoading');
-      },
     },
   };
 

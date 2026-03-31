@@ -255,7 +255,7 @@
         return ratio > 0.6 ? tokens.success : tokens.error;
       }
 
-function closePanel() {
+      function closePanel() {
         emit('close');
       }
 
@@ -322,7 +322,7 @@ function closePanel() {
     font-size: 13px;
   }
 
-.empty-state {
+  .empty-state {
     padding: 2px 0;
   }
 
