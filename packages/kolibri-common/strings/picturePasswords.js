@@ -23,6 +23,43 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   learnerCreationDisabled: {
     message: 'Learner creation is currently disabled due to reaching limit of 1300 learners.',
     context:
-      'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
+    'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
+  },
+  howLearnersSignIn: {
+    message: 'How learners sign in',
+    context: 'Section heading on Facility settings page',
+  },
+  enterUsernameAndPassword: {
+    message: 'Enter username and password',
+    context: 'Radio option on Facility settings page for login method',
+  },
+  enterUsernameOnly: {
+    message: 'Enter username only',
+    context: 'Radio option on Facility settings page for login method',
+  },
+  picturePassword: {
+    message: 'Picture password',
+    context: 'Radio option on Facility settings page for login method',
+  },
+  picturePasswordDescription: {
+    message:
+      'Learners sign in by selecting a 3-picture sequence, with the option to use a username instead.',
+    context: 'Description for picture password login method',
+  },
+  childFriendlyIcons: {
+    message: 'Child-friendly icons',
+    context: 'Radio option for picture password icon style',
+  },
+  standardIcons: {
+    message: 'Standard icons',
+    context: 'Radio option for picture password icon style',
+  },
+  showIconNames: {
+    message: 'Show icon names',
+    context: 'Checkbox option for picture password settings',
+  },
+  iconStyle: {
+    message: 'Icon style',
+    context: 'Label for icon style radio group',
   },
 });
