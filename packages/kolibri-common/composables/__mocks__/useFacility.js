@@ -1,4 +1,5 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { OptionsForSignIn } from '../../constants/Auth';
 
 const MOCK_DEFAULTS = {
   selectedFacility: ref({}),
@@ -12,6 +13,10 @@ const MOCK_DEFAULTS = {
 
 const MOCK_DEFAULTS_CONFIG = {
   facilityConfig: ref({}),
+  isAttendanceFeatureEnabled: computed(() => true),
+  isPictureLoginFeatureEnabled: computed(() => true),
+  signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
+  picturePasswordSettings: computed(() => null),
   fetchFacilityConfig: jest.fn(),
 };
 
