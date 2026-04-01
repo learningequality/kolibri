@@ -1,9 +1,12 @@
-kolibri-server (0.5.0-0ubuntu2) jammy; urgency=medium
+kolibri-server (0.5.1-0ubuntu1) jammy; urgency=medium
 
   * Addresses issue attempting to copy Kolibri options.ini prior to
     initialization
+  * CI: extract setup steps into Makefile targets
+  * CI: rewrite install tests with native ARM runners
+  * CI: fix build workflow (dynamic series detection, GPG signing)
 
- -- Blaine <blaine@learningequality.org>  Wed, 05 Mar 2025 11:47:19 -0800
+ -- Blaine <blaine@learningequality.org>  Mon, 31 Mar 2026 12:00:00 -0800
 
 kolibri-server (0.5.0-0ubuntu1) jammy; urgency=medium
 
