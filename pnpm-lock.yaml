@@ -13,8 +13,8 @@ catalogs:
       specifier: ^3.47.0
       version: 3.47.0
     kolibri-constants:
-      specifier: 0.2.13
-      version: 0.2.13
+      specifier: 0.2.16
+      version: 0.2.16
     kolibri-design-system:
       specifier: 5.5.2
       version: 5.5.2
@@ -211,7 +211,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-constants:
         specifier: 'catalog:'
-        version: 0.2.13
+        version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.5.2
@@ -442,7 +442,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-constants:
         specifier: 'catalog:'
-        version: 0.2.13
+        version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.5.2
@@ -996,7 +996,7 @@ importers:
         version: 1.2.5
       kolibri-constants:
         specifier: 'catalog:'
-        version: 0.2.13
+        version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.5.2
@@ -1185,7 +1185,7 @@ importers:
         version: link:../kolibri
       kolibri-constants:
         specifier: 'catalog:'
-        version: 0.2.13
+        version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
         version: 5.5.2
@@ -6463,8 +6463,8 @@ packages:
   knuth-shuffle-seeded@1.0.6:
     resolution: {integrity: sha512-9pFH0SplrfyKyojCLxZfMcvkhf5hH0d+UwR9nTVJ/DDQJGuzcXjTwB7TP7sDfehSudlGGaOLblmEWqv04ERVWg==}
 
-  kolibri-constants@0.2.13:
-    resolution: {integrity: sha512-9phJBvqHgZI+SsqXju5wo7024aOhP6+ZnKP//MK8EZLl2g4Ns/cob3WtSK0GA2UgQrHN5cbkm+egppzzUOdVVA==}
+  kolibri-constants@0.2.16:
+    resolution: {integrity: sha512-z2tH+Sl8vBX1Y7O3BYTfwQs33Ozp6QRKZIHhl66A8sZkxUVBFFKOR+SgGOt0U0Q7pT/PH4yfCZ5mu6u8J641zQ==}
 
   kolibri-design-system@5.5.2:
     resolution: {integrity: sha512-Fh1re4glwEFJGBQoe3CQ5Qz97Wkj90gOtzglBB1KBuF38kauO/xGaD3AnRsOvYKe+vOgYCgccr+ODyLafMm4oA==}
@@ -15041,7 +15041,7 @@ snapshots:
     dependencies:
       seed-random: 2.2.0
 
-  kolibri-constants@0.2.13: {}
+  kolibri-constants@0.2.16: {}
 
   kolibri-design-system@5.5.2:
     dependencies:
