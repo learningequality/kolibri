@@ -465,13 +465,24 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   strugglingWithObjectivesPrefixLabel: {
     message: 'Learner is struggling with',
     context:
-      'Prefix of the warning banner in the learner side panel. Followed by a bold number and a plural noun, e.g. "Learner is struggling with 3 learning objectives".',
+      'Prefix of the warning banner in the learner side panel. Followed by a bold count and plural noun, e.g. "Learner is struggling with 3 learning objectives".',
   },
   strugglingWithObjectivesSuffixLabel: {
     message:
-      '{count, plural, one {learning objective} other {learning objectives}}',
+      '{count, number} {count, plural, one {learning objective} other {learning objectives}}',
     context:
-      'Plural noun suffix of the warning banner in the learner side panel. Preceded by a bold count, e.g. "Learner is struggling with 3 learning objectives".',
+      'Bold suffix of the warning banner showing the count and noun, e.g. "3 learning objectives". {count} is formatted as a locale-aware number.',
+  },
+  onTrackWithObjectivesPrefixLabel: {
+    message: 'Learner on track with',
+    context:
+      'Prefix of the success banner in the learner side panel. Followed by a bold count and plural noun, e.g. "Learner on track with 2 learning objectives".',
+  },
+  onTrackWithObjectivesSuffixLabel: {
+    message:
+      '{count, number} {count, plural, one {learning objective} other {learning objectives}}',
+    context:
+      'Bold suffix of the success banner showing the count and noun, e.g. "2 learning objectives". {count} is formatted as a locale-aware number.',
   },
   xOfYCorrectLabel: {
     message: '{correct, number} of {total, number} correct',
@@ -486,10 +497,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Test averages',
     context: 'Label for the test averages section in the learner side panel, displayed in uppercase',
   },
-  losCompletedOfLabel: {
-    message: 'of {total, number} LOs completed',
+  losCompletedLabel: {
+    message: '{completed, number} of {total, number} LOs completed',
     context:
-      'Suffix in the learner side panel progress row, following a bold completed count, e.g. "3 of 8 LOs completed"',
+      'Progress row in the learner side panel showing how many learning objectives the learner has attempted, e.g. "3 of 8 LOs completed"',
   },
   preTestLabelPrefix: {
     message: 'Pre:',

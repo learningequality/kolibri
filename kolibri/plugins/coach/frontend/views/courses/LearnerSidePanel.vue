@@ -42,7 +42,7 @@
       <!-- Content: learner has scores -->
       <template v-else>
 
-        <!-- Stats rows -->
+        <!-- Stats row -->
         <div
           class="stats-row"
           :style="{ borderBottomColor: $themeTokens.fineLine }"
@@ -57,36 +57,7 @@
             class="stats-value"
             :style="{ color: $themeTokens.annotation }"
           >
-            <strong>{{ loCompletedCount }} {{ losCompletedOfLabel$({ total: loTotalCount }) }}</strong>
-          </span>
-        </div>
-
-        <div
-          class="stats-row"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        >
-          <span
-            class="stats-label"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            {{ testAveragesLabel$() }}
-          </span>
-          <span class="stats-value">
-            <span v-if="preTestTotals">
-              {{ preTestLabelPrefix$() }}
-              <span :style="{ color: scoreColor(preTestTotals) }">{{ preTestTotals.correct }}</span>
-              {{ testScoreOfTotalLabel$({ total: preTestTotals.total }) }}
-            </span>
-            <span
-              v-if="preTestTotals && postTestTotals"
-              aria-hidden="true"
-            >&nbsp;&rarr;&nbsp;</span>
-            <span v-if="postTestTotals">
-              {{ postTestLabelPrefix$() }}
-              <span :style="{ color: scoreColor(postTestTotals) }">{{ postTestTotals.correct }}</span>
-              {{ testScoreOfTotalLabel$({ total: postTestTotals.total }) }}
-            </span>
-            <span v-if="!preTestTotals && !postTestTotals">&mdash;</span>
+            <strong>{{ losCompletedLabel$({ completed: loCompletedCount, total: loTotalCount }) }}</strong>
           </span>
         </div>
 
@@ -98,11 +69,26 @@
         >
           <KIcon
             icon="error"
-           :color="$themePalette.orange.v_600"
+            :color="$themePalette.orange.v_600"
             class="warning-icon"
           />
           {{ strugglingWithObjectivesPrefixLabel$() }}
-          <b>{{ strugglingCount }} {{ strugglingWithObjectivesSuffixLabel$({ count: strugglingCount }) }}</b>
+          <b>{{ strugglingWithObjectivesSuffixLabel$({ count: strugglingCount }) }}</b>
+        </div>
+
+        <!-- Success banner when learner is on track with all LOs -->
+        <div
+          v-else
+          class="success-banner"
+          :style="{ backgroundColor: $themePalette.green.v_100 }"
+        >
+          <KIcon
+            icon="correct"
+            :color="$themePalette.green.v_600"
+            class="success-icon"
+          />
+          {{ onTrackWithObjectivesPrefixLabel$() }}
+          <b>{{ onTrackWithObjectivesSuffixLabel$({ count: loTotalCount }) }}</b>
         </div>
 
         <!-- LO section -->
@@ -117,33 +103,37 @@
             {{ sortedByScoreLowestFirstLabel$() }}
           </div>
 
-          <!-- Column headers -->
-          <div
-            class="lo-col-headers"
-            :style="{ color: $themeTokens.annotation, borderBottomColor: $themeTokens.fineLine }"
-          >
-            <span>{{ learningObjectiveLabel$() }}</span>
-            <span>{{ questionsCorrectLabel$() }}</span>
-          </div>
-
-          <!-- LO rows sorted by score ascending -->
-          <div
-            v-for="lo in sortedLOs"
-            :key="lo.id"
-            class="lo-row"
-            :style="{ borderBottomColor: $themeTokens.fineLine, backgroundColor: lo.ratio > 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100 }"
-          >
-            <span class="lo-text">{{ lo.text }}</span>
-            <span
-              class="lo-score"
-              :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
-            >
-              <strong
-                class="lo-count"
-                aria-hidden="true"
-              >{{ lo.correct }}</strong>
-              <span aria-hidden="true"> {{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
-            </span>
+          <!-- LO table -->
+          <div role="table" :aria-label="learnerReportLabel$()">
+            <div role="rowgroup">
+              <div role="row" class="lo-col-headers">
+                <span role="columnheader" class="lo-col-header">{{ learningObjectiveLabel$() }}</span>
+                <span role="columnheader" class="lo-col-header">{{ questionsCorrectLabel$() }}</span>
+              </div>
+            </div>
+            <div role="rowgroup" class="lo-rows">
+              <div
+                v-for="lo in sortedLOs"
+                :key="lo.id"
+                role="row"
+                class="lo-row"
+                :style="{ backgroundColor: lo.ratio >= 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100 }"
+              >
+                <span role="cell" class="lo-cell-text">{{ lo.text }}</span>
+                <span
+                  role="cell"
+                  class="lo-score"
+                  :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
+                >
+                  <strong class="lo-count" aria-hidden="true">{{ lo.correct }}</strong>
+                  <span
+                    class="lo-of-n"
+                    :style="{ color: $themeTokens.annotation }"
+                    aria-hidden="true"
+                  >{{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -157,7 +147,6 @@
 
   import { computed, toRef } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
 
@@ -184,13 +173,11 @@
         hasntStartedUnitsLabel$,
         strugglingWithObjectivesPrefixLabel$,
         strugglingWithObjectivesSuffixLabel$,
+        onTrackWithObjectivesPrefixLabel$,
+        onTrackWithObjectivesSuffixLabel$,
         xOfYCorrectLabel$,
         progressLabel$,
-        testAveragesLabel$,
-        losCompletedOfLabel$,
-        preTestLabelPrefix$,
-        postTestLabelPrefix$,
-        testScoreOfTotalLabel$,
+        losCompletedLabel$,
         individualLoPerformanceLabel$,
         sortedByScoreLowestFirstLabel$,
         learningObjectiveLabel$,
@@ -234,28 +221,7 @@
       const loCompletedCount = computed(() => loData.value.filter(lo => lo.attempted).length);
       const loTotalCount = computed(() => loData.value.length);
 
-      // An LO is "struggling" when the learner attempted it but scored in the non-high band (ratio <= 0.8)
-      const strugglingCount = computed(() => loData.value.filter(lo => lo.attempted && lo.ratio <= 0.8).length);
-
-      function getTestTotals(testKey) {
-        const scores = data.value?.reportData?.[testKey]?.scores?.[props.learner.id];
-        if (!scores || Object.keys(scores).length === 0) return null;
-        const los = learningObjectives.value;
-        const correct = los.reduce((sum, lo) => sum + (scores[lo.id] || 0), 0);
-        const total = los.reduce((sum, lo) => sum + lo.num_questions, 0);
-        return { correct, total };
-      }
-
-      const preTestTotals = computed(() => getTestTotals('pre_test'));
-      const postTestTotals = computed(() => getTestTotals('post_test'));
-
-      function scoreColor({ correct, total }) {
-        const tokens = themeTokens();
-        const ratio = total > 0 ? correct / total : 0;
-        if (ratio > 0.6) return tokens.success;
-        if (ratio > 0.45) return themePalette().orange.v_600;
-        return tokens.error;
-      }
+      const strugglingCount = computed(() => loData.value.filter(lo => lo.ratio < 0.8).length);
 
       function closePanel() {
         emit('close');
@@ -267,13 +233,11 @@
         hasntStartedUnitsLabel$,
         strugglingWithObjectivesPrefixLabel$,
         strugglingWithObjectivesSuffixLabel$,
+        onTrackWithObjectivesPrefixLabel$,
+        onTrackWithObjectivesSuffixLabel$,
         xOfYCorrectLabel$,
         progressLabel$,
-        testAveragesLabel$,
-        losCompletedOfLabel$,
-        preTestLabelPrefix$,
-        postTestLabelPrefix$,
-        testScoreOfTotalLabel$,
+        losCompletedLabel$,
         individualLoPerformanceLabel$,
         sortedByScoreLowestFirstLabel$,
         learningObjectiveLabel$,
@@ -282,11 +246,8 @@
         hasAttempted,
         loCompletedCount,
         loTotalCount,
-        preTestTotals,
-        postTestTotals,
         strugglingCount,
         sortedLOs,
-        scoreColor,
         closePanel,
       };
     },
@@ -386,6 +347,21 @@
     height: 20px;
   }
 
+  .success-banner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+  }
+
+  .success-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+  }
+
   .lo-section {
     margin-top: 16px;
   }
@@ -404,32 +380,46 @@
   .lo-col-headers {
     display: flex;
     justify-content: space-between;
-    padding: 6px 12px;
+    padding: 0 8px 6px;
+  }
+
+  .lo-col-header {
     font-size: 12px;
-    border-bottom: 1px solid;
+    font-weight: 600;
+  }
+
+  .lo-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .lo-row {
     display: flex;
-    gap: 0;
     align-items: center;
-    padding: 10px 12px;
-    border-bottom: 1px solid;
+    justify-content: space-between;
+    padding: 8px;
   }
 
-  .lo-text {
-    flex-grow: 1;
+  .lo-cell-text {
     font-size: 14px;
   }
 
   .lo-score {
-    flex-shrink: 0;
-    font-size: 13px;
+    display: flex;
+    gap: 4px;
+    align-items: baseline;
     white-space: nowrap;
   }
 
   .lo-count {
-    font-size: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .lo-of-n {
+    font-size: 13px;
   }
 
 </style>
