@@ -14,7 +14,9 @@
             <p
               class="learner-subtitle"
               :style="{ color: $themeTokens.annotation }"
-            >{{ learnerReportLabel$() }}</p>
+            >
+              {{ learnerReportLabel$() }}
+            </p>
           </div>
         </div>
       </template>
@@ -41,7 +43,6 @@
 
       <!-- Content: learner has scores -->
       <template v-else>
-
         <!-- Stats row -->
         <div
           class="stats-row"
@@ -57,7 +58,9 @@
             class="stats-value"
             :style="{ color: $themeTokens.annotation }"
           >
-            <strong>{{ losCompletedLabel$({ completed: loCompletedCount, total: loTotalCount }) }}</strong>
+            <strong>{{
+              losCompletedLabel$({ completed: loCompletedCount, total: loTotalCount })
+            }}</strong>
           </span>
         </div>
 
@@ -104,28 +107,52 @@
           </div>
 
           <!-- LO table -->
-          <div role="table" :aria-label="learnerReportLabel$()">
+          <div
+            role="table"
+            :aria-label="learnerReportLabel$()"
+          >
             <div role="rowgroup">
-              <div role="row" class="lo-col-headers">
-                <span role="columnheader" class="lo-col-header">{{ learningObjectiveLabel$() }}</span>
-                <span role="columnheader" class="lo-col-header">{{ questionsCorrectLabel$() }}</span>
+              <div
+                role="row"
+                class="lo-col-headers"
+              >
+                <span
+                  role="columnheader"
+                  class="lo-col-header"
+                >{{ learningObjectiveLabel$() }}</span>
+                <span
+                  role="columnheader"
+                  class="lo-col-header"
+                >{{ questionsCorrectLabel$() }}</span>
               </div>
             </div>
-            <div role="rowgroup" class="lo-rows">
+            <div
+              role="rowgroup"
+              class="lo-rows"
+            >
               <div
                 v-for="lo in sortedLOs"
                 :key="lo.id"
                 role="row"
                 class="lo-row"
-                :style="{ backgroundColor: lo.ratio >= 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100 }"
+                :style="{
+                  backgroundColor:
+                    lo.ratio >= 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100,
+                }"
               >
-                <span role="cell" class="lo-cell-text">{{ lo.text }}</span>
+                <span
+                  role="cell"
+                  class="lo-cell-text"
+                >{{ lo.text }}</span>
                 <span
                   role="cell"
                   class="lo-score"
                   :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
                 >
-                  <strong class="lo-count" aria-hidden="true">{{ lo.correct }}</strong>
+                  <strong
+                    class="lo-count"
+                    aria-hidden="true"
+                  >{{ lo.correct }}</strong>
                   <span
                     class="lo-of-n"
                     :style="{ color: $themeTokens.annotation }"
@@ -155,16 +182,6 @@
     components: {
       SidePanelModal,
       SidePanelLayout,
-    },
-    props: {
-      prefetchedData: {
-        type: Object,
-        required: true,
-      },
-      learner: {
-        type: Object,
-        required: true,
-      },
     },
     setup(props, { emit }) {
       const {
@@ -251,6 +268,16 @@
         closePanel,
       };
     },
+    props: {
+      prefetchedData: {
+        type: Object,
+        required: true,
+      },
+      learner: {
+        type: Object,
+        required: true,
+      },
+    },
   };
 
 </script>
@@ -314,8 +341,8 @@
 
   .stats-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid;
   }

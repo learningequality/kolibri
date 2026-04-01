@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import LearnerSidePanel from '../LearnerSidePanel.vue';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import LearnerSidePanel from '../LearnerSidePanel.vue';
 
 const {
   noProgressLabel$,
@@ -82,9 +82,7 @@ describe('LearnerSidePanel', () => {
 
     it('shows empty state description with learner name', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(
-        screen.getByText(hasntStartedUnitsLabel$({ name: LEARNER.name })),
-      ).toBeInTheDocument();
+      expect(screen.getByText(hasntStartedUnitsLabel$({ name: LEARNER.name }))).toBeInTheDocument();
     });
 
     it('does not show LO rows in empty state', () => {
@@ -129,7 +127,9 @@ describe('LearnerSidePanel', () => {
       const scores = { 'user-1': { 'lo-1': 2, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
-      expect(screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 }))).toBeInTheDocument();
+      expect(
+        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
+      ).toBeInTheDocument();
     });
 
     it('shows warning for just one struggling LO', () => {
@@ -137,7 +137,9 @@ describe('LearnerSidePanel', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
-      expect(screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 1 }))).toBeInTheDocument();
+      expect(
+        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 1 })),
+      ).toBeInTheDocument();
     });
 
     it('shows warning banner for learner with no LO scores (all ratios = 0)', () => {
@@ -145,7 +147,9 @@ describe('LearnerSidePanel', () => {
       const scores = { 'user-1': {} };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
-      expect(screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 }))).toBeInTheDocument();
+      expect(
+        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
+      ).toBeInTheDocument();
     });
 
     it('does not show warning banner when all LOs are at or above 80%', () => {

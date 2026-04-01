@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import LearnersReport from '../LearnersReport.vue';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import LearnersReport from '../LearnersReport.vue';
 
 const {
   noTestDataLabel$,
@@ -56,7 +56,11 @@ const STUBS = {
   },
 };
 
-function makePrefetchedData({ activeTestType = 'pre', activeTestStatus = 'closed', scores = {} } = {}) {
+function makePrefetchedData({
+  activeTestType = 'pre',
+  activeTestStatus = 'closed',
+  scores = {},
+} = {}) {
   return {
     activeTestType,
     activeTestStatus,
@@ -271,9 +275,14 @@ describe('LearnersReport', () => {
 
     it('calls learnerRoute with the learner object for each name link', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      const learnerRoute = jest.fn(learner => ({ name: 'TestRoute', params: { learnerId: learner.id } }));
+      const learnerRoute = jest.fn(learner => ({
+        name: 'TestRoute',
+        params: { learnerId: learner.id },
+      }));
       renderComponent({ prefetchedData: makePrefetchedData({ scores }), learnerRoute });
-      expect(learnerRoute).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-1', name: 'Alice' }));
+      expect(learnerRoute).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'user-1', name: 'Alice' }),
+      );
     });
   });
 });

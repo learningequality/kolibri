@@ -52,12 +52,6 @@
     components: {
       SparklineBar,
     },
-    props: {
-      prefetchedData: {
-        type: Object,
-        default: null,
-      },
-    },
     setup(props) {
       const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
@@ -87,6 +81,12 @@
         learningObjectivesLabel$,
         noTestDataLabel$,
       };
+    },
+    props: {
+      prefetchedData: {
+        type: Object,
+        default: null,
+      },
     },
   };
 

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import LearningObjectivesReport from '../LearningObjectivesReport.vue';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+import LearningObjectivesReport from '../LearningObjectivesReport.vue';
 
 const { noTestDataLabel$ } = coursesStrings;
 

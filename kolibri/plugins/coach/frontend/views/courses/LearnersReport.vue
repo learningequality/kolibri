@@ -28,7 +28,7 @@
           <template v-else-if="colIndex === 2">
             <span
               v-if="content === 'support_needed'"
-              class="risk-badge risk-badge--wide"
+              class="risk-badge risk-badge-wide"
               :style="supportNeededStyles"
             >
               <KIcon
@@ -40,7 +40,7 @@
             </span>
             <span
               v-else-if="content === 'borderline'"
-              class="risk-badge risk-badge--wide"
+              class="risk-badge risk-badge-wide"
               :style="borderlineStyles"
             >
               <KIcon
@@ -81,22 +81,12 @@
 
   import { computed, toRef } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { coachStrings } from '../common/commonCoachStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { coachStrings } from '../common/commonCoachStrings';
 
   export default {
     name: 'LearnersReport',
-    props: {
-      prefetchedData: {
-        type: Object,
-        default: null,
-      },
-      learnerRoute: {
-        type: Function,
-        required: true,
-      },
-    },
     setup(props) {
       const {
         noTestDataLabel$,
@@ -144,7 +134,7 @@
       function getRiskLevel(ratio) {
         if (ratio === null) return null;
         if (ratio <= 0.45) return 'support_needed';
-        if (ratio <= 0.60) return 'borderline';
+        if (ratio <= 0.6) return 'borderline';
         return 'on_track';
       }
 
@@ -178,11 +168,13 @@
         { label: riskLevelLabel$(), dataType: 'string', columnId: 'riskLevel', width: '180px' },
       ]);
 
-      const rows = computed(() => sortedLearners.value.map(learner => [
-        learner.name,
-        (learner.groups || []).join(', '),
-        learner.riskLevel ?? '',
-      ]));
+      const rows = computed(() =>
+        sortedLearners.value.map(learner => [
+          learner.name,
+          (learner.groups || []).join(', '),
+          learner.riskLevel ?? '',
+        ]),
+      );
 
       const supportNeededStyles = computed(() => {
         const tokens = themeTokens();
@@ -234,6 +226,16 @@
         badgeIconColor,
       };
     },
+    props: {
+      prefetchedData: {
+        type: Object,
+        default: null,
+      },
+      learnerRoute: {
+        type: Function,
+        required: true,
+      },
+    },
   };
 
 </script>
@@ -257,7 +259,7 @@
     border-radius: 16px;
   }
 
-  .risk-badge--wide {
+  .risk-badge-wide {
     min-width: 160px;
   }
 
@@ -265,6 +267,5 @@
     width: 16px;
     height: 16px;
   }
-
 
 </style>

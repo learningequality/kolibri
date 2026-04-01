@@ -449,24 +449,34 @@
       }
 
       // Fetch reports when units become available
-      watch(allUnits, () => {
-        if (allUnits.value.length) {
-          fetchAllUnitReports();
-        }
-      }, { immediate: true });
+      watch(
+        allUnits,
+        () => {
+          if (allUnits.value.length) {
+            fetchAllUnitReports();
+          }
+        },
+        { immediate: true },
+      );
 
       const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
-      const activeUnitTotalLearners = computed(() => activeUnitReport.value?.learnersWithGroups?.length || 0);
+      const activeUnitTotalLearners = computed(
+        () => activeUnitReport.value?.learnersWithGroups?.length || 0,
+      );
 
       function activeUnitScoreCount(testKey) {
         return Object.keys(activeUnitReport.value?.reportData?.[testKey]?.scores || {}).length;
       }
 
       const activeModalTestKey = computed(() =>
-        activeUnitReport.value?.activeTestType === 'post' ? 'post_test' : 'pre_test'
+        activeUnitReport.value?.activeTestType === 'post' ? 'post_test' : 'pre_test',
       );
-      const activeModalCompletedCount = computed(() => activeUnitScoreCount(activeModalTestKey.value));
-      const activeModalInProgressCount = computed(() => activeUnitTotalLearners.value - activeModalCompletedCount.value);
+      const activeModalCompletedCount = computed(() =>
+        activeUnitScoreCount(activeModalTestKey.value),
+      );
+      const activeModalInProgressCount = computed(
+        () => activeUnitTotalLearners.value - activeModalCompletedCount.value,
+      );
 
       function unitObjectiveTitle(unit) {
         const info = unitReportInfo.value[unit.id];
@@ -531,19 +541,28 @@
             };
           case UnitPhase.PRE_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('pre_test'), m: activeUnitTotalLearners.value }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('pre_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: completedLabel$(),
               buttonLabel: endPreTest$(),
             };
           case UnitPhase.POST_TEST_PENDING:
             return {
-              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('pre_test'), m: activeUnitTotalLearners.value }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('pre_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: workingOnLessons$(),
               buttonLabel: startPostTest$(),
             };
           case UnitPhase.POST_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: activeUnitScoreCount('post_test'), m: activeUnitTotalLearners.value }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('post_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: completedLabel$(),
               buttonLabel: endPostTest$(),
             };
@@ -681,19 +700,14 @@
       watch(courseSession, () => store.dispatch('notLoading'));
 
       // Sync selectedLearner with route query — supports deep-linking to a learner panel
-      watch(
-        [() => route.query.learnerId, learnersReportData],
-        ([learnerId]) => {
-          if (!learnerId) {
-            selectedLearner.value = null;
-            return;
-          }
-          const learner = learnersReportData.value?.learnersWithGroups?.find(
-            l => l.id === learnerId,
-          );
-          selectedLearner.value = learner || null;
-        },
-      );
+      watch([() => route.query.learnerId, learnersReportData], ([learnerId]) => {
+        if (!learnerId) {
+          selectedLearner.value = null;
+          return;
+        }
+        const learner = learnersReportData.value?.learnersWithGroups?.find(l => l.id === learnerId);
+        selectedLearner.value = learner || null;
+      });
 
       function learnerRoute(learner) {
         return {
