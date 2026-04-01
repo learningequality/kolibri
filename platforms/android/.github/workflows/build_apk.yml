@@ -148,7 +148,7 @@ jobs:
       run: make get-tar tar=${{ inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: ${{ inputs.tar-file-name }}
         path: tar
@@ -170,7 +170,7 @@ jobs:
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       id: get-aab-filename
       run: echo "aab-file-name=$(ls dist | grep .aab | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v7
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       with:
         name: ${{ steps.get-aab-filename.outputs.aab-file-name }}
@@ -199,7 +199,7 @@ jobs:
     - name: Get versionCode
       id: get-version-code
       run: echo "version-code=$(cat .version-code)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
         path: dist/${{ steps.get-apk-filename.outputs.apk-file-name }}
