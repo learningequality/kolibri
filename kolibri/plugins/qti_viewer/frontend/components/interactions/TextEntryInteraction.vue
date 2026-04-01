@@ -3,8 +3,9 @@
   <input
     v-if="interactive"
     v-model="variable"
-    :class="['qti-text-entry-interaction', $computedClass({ ':focus': coreOutline })]"
-    :aria-label="textEntryLabel$({ identifier: responseIdentifier })"
+    v-bind="inputAttrs"
+    :class="['qti-text-entry-interaction', attrsClass, $computedClass({ ':focus': coreOutline })]"
+    :aria-label="textEntryLabel$()"
     :placeholder="placeholder"
     :style="{
       minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
@@ -16,7 +17,7 @@
   >
   <div
     v-else
-    class="qti-text-entry-interaction qti-text-entry-interaction-report"
+    :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
   >
     {{ variable || placeholder }}
   </div>
@@ -43,7 +44,7 @@
 
   const strings = createTranslator('TextEntryInteractionStrings', {
     textEntryLabel: {
-      message: 'Text entry {identifier}',
+      message: 'Your answer',
       context: 'Accessible label for a text input field in an assessment question',
     },
   });
@@ -53,11 +54,79 @@
   export default {
     name: 'TextEntryInteraction',
     tag: 'qti-text-entry-interaction',
+    inheritAttrs: false,
 
-    setup(props) {
-      const responses = inject('responses');
+    setup(props, context) {
+      const responses = inject('responses', {});
       const typedProps = useTypedProps(props);
-      const interactive = inject('interactive');
+      const interactive = inject('interactive', true);
+
+      const getContextAttrs = () => {
+        if (!context || !context.attrs) {
+          return {};
+        }
+        return context.attrs;
+      };
+
+      const ALLOWED_INPUT_ATTRS = new Set([
+        'id',
+        'name',
+        'value',
+        'disabled',
+        'readonly',
+        'required',
+        'min',
+        'max',
+        'step',
+        'minlength',
+        'maxlength',
+        'inputmode',
+        'spellcheck',
+        'autocapitalize',
+        'autocorrect',
+        'enterkeyhint',
+        'tabindex',
+        'title',
+        'lang',
+        'dir',
+        'autofocus',
+        'list',
+      ]);
+
+      const isPrimitiveAttrValue = value => {
+        return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+      };
+
+      const isAriaOrDataAttr = name => {
+        return name.startsWith('aria-') || name.startsWith('data-');
+      };
+
+      const inputAttrs = computed(() => {
+        return Object.entries(getContextAttrs()).reduce((forwardedAttrs, [name, value]) => {
+          if (name === 'class') {
+            return forwardedAttrs;
+          }
+          if (name === 'style') {
+            forwardedAttrs[name] = value;
+            return forwardedAttrs;
+          }
+          if (name === 'placeholder-text') {
+            return forwardedAttrs;
+          }
+          if (name === 'placeholder' || name === 'type' || name === 'aria-label') {
+            return forwardedAttrs;
+          }
+          if (!isPrimitiveAttrValue(value)) {
+            return forwardedAttrs;
+          }
+          if (ALLOWED_INPUT_ATTRS.has(name) || isAriaOrDataAttr(name)) {
+            forwardedAttrs[name] = value;
+          }
+          return forwardedAttrs;
+        }, {});
+      });
+
+      const attrsClass = computed(() => getContextAttrs().class);
 
       const inputDeclaration = computed(() => {
         return responses[typedProps.responseIdentifier.value];
@@ -88,6 +157,8 @@
         interactive,
         inputType,
         coreOutline: themeOutlineStyle(),
+        inputAttrs,
+        attrsClass,
       };
     },
     props: {
