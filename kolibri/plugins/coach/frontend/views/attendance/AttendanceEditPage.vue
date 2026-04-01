@@ -181,7 +181,7 @@
           originalAttendanceMap.value = { ...currentMap };
           form.setPreviouslyEnrolled(removedRecords);
         } catch (_err) {
-          form.navigateBack({ snackbar: submitErrorMessage$() });
+          form.navigateBack({ snackbar: coreString('defaultErrorMessage') });
         } finally {
           loading.value = false;
         }
