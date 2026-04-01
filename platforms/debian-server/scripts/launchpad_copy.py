@@ -202,7 +202,7 @@ class LaunchpadWrapper:
 
     def has_published_binaries(self, ppa, name, version, series_name):
         builds = self.get_builds_for(ppa, name, version, series_name)
-        return not builds or builds[0].buildstate == "Successfully built"
+        return bool(builds) and builds[0].buildstate == "Successfully built"
 
     def get_usable_sources(self, ppa, package_names, series_name):
         res = []
@@ -232,31 +232,36 @@ class LaunchpadWrapper:
             res.append((name, version))
         return res
 
-    def queue_copy(self, name, source_series, target_series, pocket):
-        self.queue[source_series, target_series, pocket].add(name)
+    def queue_copy(self, name, version, source_series, target_series, pocket):
+        self.queue[source_series, target_series, pocket].add((name, version))
 
     def perform_queued_copies(self, ppa):
         first = True
-        for (source_series, target_series, pocket), names in self.queue.items():
-            if not names:
+        for (source_series, target_series, pocket), packages in self.queue.items():
+            if not packages:
                 continue
-            if first:
-                log.info("")
-                first = False
-            log.info("Copying %s to %s", ", ".join(sorted(names)), target_series)
-            try:
-                ppa.syncSources(
-                    from_archive=ppa,
-                    to_series=target_series,
-                    to_pocket=pocket,
-                    include_binaries=True,
-                    source_names=sorted(names),
-                )
-            except lre.BadRequest as e:
-                if "same version already published" in str(e):
-                    log.info("Already copied to %s — skipping", target_series)
-                else:
-                    raise
+            for name, version in sorted(packages):
+                if first:
+                    log.info("")
+                    first = False
+                log.info("Copying %s %s to %s", name, version, target_series)
+                try:
+                    ppa.copyPackage(
+                        from_archive=ppa,
+                        include_binaries=True,
+                        to_series=target_series,
+                        to_pocket=pocket,
+                        source_name=name,
+                        version=version,
+                    )
+                except lre.BadRequest as e:
+                    msg = str(e)
+                    if "same version already published" in msg:
+                        log.info("Already copied to %s — skipping", target_series)
+                    elif "is obsolete and will not accept new uploads" in msg:
+                        log.info("Skip obsolete series %s for %s %s", target_series, name, version)
+                    else:
+                        raise
 
     def copy_to_series(self):
         """Copy packages from source series to all other supported Ubuntu series."""
@@ -279,7 +284,7 @@ class LaunchpadWrapper:
                     mentioned = True
                     log.info("%s %s missing from %s", name, version, target_series_name)
                     if self.has_published_binaries(ppa, name, version, source_series):
-                        self.queue_copy(name, source_series, target_series_name, POCKET)
+                        self.queue_copy(name, version, source_series, target_series_name, POCKET)
                     else:
                         builds = self.get_builds_for(ppa, name, version, source_series)
                         if builds:

@@ -149,32 +149,33 @@ class TestGetCurrentSeries:
 class TestLaunchpadWrapper:
     """Test LaunchpadWrapper queue and filtering logic."""
 
-    def test_queue_copy_accumulates_names(self):
+    def test_queue_copy_accumulates_packages(self):
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
-        wrapper.queue_copy("kolibri-server", "jammy", "focal", "Release")
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "focal", "Release")
 
         assert ("jammy", "noble", "Release") in wrapper.queue
         assert ("jammy", "focal", "Release") in wrapper.queue
-        assert "kolibri-server" in wrapper.queue[("jammy", "noble", "Release")]
+        assert ("kolibri-server", "0.5.1-0ubuntu1") in wrapper.queue[("jammy", "noble", "Release")]
 
     def test_queue_starts_empty(self):
         wrapper = LaunchpadWrapper()
         assert len(wrapper.queue) == 0
 
-    def test_perform_queued_copies_calls_sync_sources(self):
+    def test_perform_queued_copies_calls_copy_package(self):
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
 
         mock_ppa = MagicMock()
         wrapper.perform_queued_copies(mock_ppa)
 
-        mock_ppa.syncSources.assert_called_once_with(
+        mock_ppa.copyPackage.assert_called_once_with(
             from_archive=mock_ppa,
+            include_binaries=True,
             to_series="noble",
             to_pocket="Release",
-            include_binaries=True,
-            source_names=["kolibri-server"],
+            source_name="kolibri-server",
+            version="0.5.1-0ubuntu1",
         )
 
     def test_perform_queued_copies_skips_empty_queues(self):
@@ -182,19 +183,19 @@ class TestLaunchpadWrapper:
         mock_ppa = MagicMock()
         wrapper.perform_queued_copies(mock_ppa)
 
-        mock_ppa.syncSources.assert_not_called()
+        mock_ppa.copyPackage.assert_not_called()
 
-    def test_perform_queued_copies_handles_already_synced(self):
-        """Idempotency: syncSources errors for already-copied packages are handled gracefully."""
+    def test_perform_queued_copies_handles_already_published(self):
+        """Idempotency: copyPackage errors for already-copied packages are handled gracefully."""
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
 
         class MockBadRequest(Exception):
             pass
 
         mock_ppa = MagicMock()
-        mock_ppa.syncSources.side_effect = MockBadRequest(
-            "kolibri-server 0.9.0 in noble (same version already published)"
+        mock_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.5.1-0ubuntu1 in noble (same version already published)"
         )
 
         with patch("launchpad_copy.lre") as mock_lre:
@@ -203,17 +204,34 @@ class TestLaunchpadWrapper:
 
         # Should not raise — the error is handled gracefully
 
-    def test_perform_queued_copies_logs_already_synced(self, caplog):
-        """Idempotency: logs a message when syncSources finds package already exists."""
+    def test_perform_queued_copies_handles_obsolete_series(self):
+        """copyPackage errors for obsolete series are handled gracefully."""
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "jammy", "noble", "Release")
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "trusty", "Release")
 
         class MockBadRequest(Exception):
             pass
 
         mock_ppa = MagicMock()
-        mock_ppa.syncSources.side_effect = MockBadRequest(
-            "kolibri-server 0.9.0 in noble (same version already published)"
+        mock_ppa.copyPackage.side_effect = MockBadRequest("trusty is obsolete and will not accept new uploads")
+
+        with patch("launchpad_copy.lre") as mock_lre:
+            mock_lre.BadRequest = MockBadRequest
+            wrapper.perform_queued_copies(mock_ppa)
+
+        # Should not raise — the error is handled gracefully
+
+    def test_perform_queued_copies_logs_already_published(self, caplog):
+        """Idempotency: logs a message when copyPackage finds package already exists."""
+        wrapper = LaunchpadWrapper()
+        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
+
+        class MockBadRequest(Exception):
+            pass
+
+        mock_ppa = MagicMock()
+        mock_ppa.copyPackage.side_effect = MockBadRequest(
+            "kolibri-server 0.5.1-0ubuntu1 in noble (same version already published)"
         )
 
         with (
