@@ -12,7 +12,7 @@ packages:
 catalog:
   "@vueuse/core": ^11.3.0
   core-js: ^3.47.0
-  kolibri-constants: 0.2.13
+  kolibri-constants: 0.2.16
   kolibri-design-system: 5.5.2
   lodash: ^4.17.23
   vue: 2.7.16
