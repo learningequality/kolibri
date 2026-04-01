@@ -347,14 +347,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Visually hidden accessibility label for the sparkline bar, summarising the distribution of learners across low, medium, and high performance bands.',
   },
-  lowMasteryLabel: {
-    message: 'Low mastery ({count, number})',
-    context: 'Label shown on a unit accordion header when the unit has low average mastery',
-  },
-  strongMasteryLabel: {
-    message: 'Strong mastery',
-    context: 'Label shown on a unit accordion header when the unit has strong average mastery',
-  },
   learnersByMasteryLabel: {
     message: 'Learners by mastery',
     context: 'Tooltip title for the sparkline bar showing learner distribution by mastery level',
@@ -493,29 +485,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Progress',
     context: 'Label for the progress section in the learner side panel, displayed in uppercase',
   },
-  testAveragesLabel: {
-    message: 'Test averages',
-    context: 'Label for the test averages section in the learner side panel, displayed in uppercase',
-  },
   losCompletedLabel: {
     message: '{completed, number} of {total, number} LOs completed',
     context:
       'Progress row in the learner side panel showing how many learning objectives the learner has attempted, e.g. "3 of 8 LOs completed"',
-  },
-  preTestLabelPrefix: {
-    message: 'Pre:',
-    context:
-      'Prefix label before the pre-test score in the learner side panel test averages row, e.g. "Pre: 2 of 5 questions"',
-  },
-  postTestLabelPrefix: {
-    message: 'Post:',
-    context:
-      'Prefix label before the post-test score in the learner side panel test averages row, e.g. "Post: 4 of 5 questions"',
-  },
-  testScoreOfTotalLabel: {
-    message: 'of {total, number} questions',
-    context:
-      'Suffix after a colored correct count in the test averages row, e.g. "Pre: 2 of 5 questions"',
   },
   individualLoPerformanceLabel: {
     message: 'Individual learning objective performance',

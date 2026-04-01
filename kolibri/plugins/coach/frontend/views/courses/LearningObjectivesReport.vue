@@ -113,7 +113,7 @@
    * KTable does not expose a prop to hide column headers, so this targets its
    * internal <thead> element directly. If KTable's markup changes, revisit this.
    */
-  .lo-report-table ::v-deep thead {
+  .lo-report-table /deep/ thead {
     position: absolute;
     width: 1px;
     height: 1px;

@@ -448,7 +448,7 @@
         }
       }
 
-      // Fetch reports when units become available (immediate: true handles pre-populated cached data)
+      // Fetch reports when units become available
       watch(allUnits, () => {
         if (allUnits.value.length) {
           fetchAllUnitReports();
@@ -704,7 +704,8 @@
       }
 
       function closeLearnerPanel() {
-        const { learnerId: _removed, ...restQuery } = route.query;
+        const restQuery = { ...route.query };
+        delete restQuery.learnerId;
         router.replace({
           name: route.name,
           params: { ...route.params },
@@ -750,7 +751,6 @@
         numUnits$,
         upcomingUnitsLabel$,
         lockedLabel$,
-        learnersLabel$,
         completedLabel$,
         inProgressLabel$,
         nOfMLearners$,
@@ -767,7 +767,6 @@
         learnerRoute,
         closeLearnerPanel,
         activeUnitTotalLearners,
-        activeUnitScoreCount,
         activeModalCompletedCount,
         activeModalInProgressCount,
       };
