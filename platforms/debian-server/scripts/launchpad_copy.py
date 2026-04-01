@@ -158,7 +158,6 @@ class LaunchpadWrapper:
         log.debug("Locating the series: %s...", name)
         return ppa.distribution.getSeries(name_or_version=name)
 
-    @functools.cache
     def get_published_sources(self, ppa, series_name=None, status=None):
         kwargs = {}
         if series_name:
@@ -169,7 +168,6 @@ class LaunchpadWrapper:
         log.debug("Listing source packages...")
         return ppa.getPublishedSources(**kwargs)
 
-    @functools.cache
     def get_builds_for_source(self, source):
         log.debug(
             "Listing %s builds for %s %s...",
@@ -179,7 +177,6 @@ class LaunchpadWrapper:
         )
         return source.getBuilds()
 
-    @functools.cache
     def get_source_packages(self, ppa, series_name, package_names=None):
         """Return {package_name: {version: source, ...}, ...}"""
         res = defaultdict(dict)
@@ -207,7 +204,6 @@ class LaunchpadWrapper:
         builds = self.get_builds_for(ppa, name, version, series_name)
         return not builds or builds[0].buildstate == "Successfully built"
 
-    @functools.cache
     def get_usable_sources(self, ppa, package_names, series_name):
         res = []
         for source in self.get_published_sources(ppa, series_name):
