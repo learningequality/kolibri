@@ -50,7 +50,7 @@ deb: error-pages orig
 dist: error-pages orig
 	@mkdir -p dist
 	echo "Building unsigned package..."
-	dpkg-buildpackage -S -us -uc
+	dpkg-buildpackage -S -us -uc -sa
 	mv ../kolibri-server_$(VERSION)* dist/
 	@echo "Package built successfully!"
 # build and sign (signing uses environment GPG_KEY_ID and GPG_PASSPHRASE)
