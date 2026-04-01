@@ -121,8 +121,11 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     showMarkAllModal.value = false;
   }
 
-  function navigateBack() {
-    router.push(backRoute.value);
+  function navigateBack(query = {}) {
+    router.push({
+      ...backRoute.value,
+      query,
+    });
   }
 
   // Unsaved changes guard
