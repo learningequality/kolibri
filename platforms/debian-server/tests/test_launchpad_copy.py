@@ -240,7 +240,7 @@ class TestLaunchpadWrapper:
         src_bad.status = "Published"
 
         with patch.object(wrapper, "get_published_sources", return_value=[src_good, src_bad]):
-            result = LaunchpadWrapper.get_usable_sources.__wrapped__(wrapper, mock_ppa, ("kolibri-server",), "jammy")
+            result = wrapper.get_usable_sources(mock_ppa, ("kolibri-server",), "jammy")
 
         assert len(result) == 1
         assert result[0] == ("kolibri-server", "1.0")
@@ -255,7 +255,7 @@ class TestLaunchpadWrapper:
         src.status = "Superseded"
 
         with patch.object(wrapper, "get_published_sources", return_value=[src]):
-            result = LaunchpadWrapper.get_usable_sources.__wrapped__(wrapper, mock_ppa, ("kolibri-server",), "jammy")
+            result = wrapper.get_usable_sources(mock_ppa, ("kolibri-server",), "jammy")
 
         assert len(result) == 0
 
