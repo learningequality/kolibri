@@ -99,12 +99,14 @@ jobs:
       - name: Install Kolibri
         run: make install-kolibri
       - name: Build .deb package
-        run: make deb
+        run: |
+          make deb
+          cp ../kolibri-server_*.deb ./kolibri-server.deb
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v7
         with:
           name: kolibri-server-deb
-          path: ../kolibri-server_*.deb
+          path: kolibri-server.deb
   wait_for_source_published:
     needs:
       - check_version
