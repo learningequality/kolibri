@@ -680,12 +680,7 @@
         return false;
       };
 
-      const hasRedirected = false;
-
       const checkRedirect = async () => {
-        if (hasRedirected) {
-          return false;
-        }
         if (!resumeData.value) {
           await fetchResumeData();
         }
