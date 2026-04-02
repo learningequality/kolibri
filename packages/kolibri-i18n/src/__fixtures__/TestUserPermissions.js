@@ -81,7 +81,7 @@ export function showUserPermissionsPage(store, userId) {
   // CoreBase parameters for loading state
   setAppBarTitle(translator.$tr('loading'));
 
-  const samePage = samePageCheckGenerator(store);
+  const samePage = samePageCheckGenerator();
   let testThing = translator.$tr('invalidUserTitle');
 
   return Promise.all([fetchUserPermissions(userId), getFacilities()])

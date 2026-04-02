@@ -500,7 +500,7 @@
           set(contents, []);
           set(isRoot, false);
           set(sidePanelIsOpen, false);
-          const shouldResolve = samePageCheckGenerator(store);
+          const shouldResolve = samePageCheckGenerator();
           let promise;
           if (props.deviceId) {
             promise = setCurrentDevice(props.deviceId).then(device => {

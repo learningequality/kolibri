@@ -18,8 +18,8 @@ function fetchFacilityUsers() {
   return FacilityUserResource.fetchCollection();
 }
 
-export function showManagePermissionsPage(store) {
-  const shouldResolve = samePageCheckGenerator(store);
+export function showManagePermissionsPage(store, route) {
+  const shouldResolve = samePageCheckGenerator(route);
   store.commit('managePermissions/SET_LOADING_FACILITY_USERS', true);
   store.dispatch('notLoading'); // We're loading data now, not the page
   const promises = Promise.all([fetchFacilityUsers(store), fetchDevicePermissions()]);

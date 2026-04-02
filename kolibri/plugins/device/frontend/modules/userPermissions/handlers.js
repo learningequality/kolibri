@@ -43,7 +43,7 @@ function fetchUserPermissions(userId) {
  * @param {string} userId
  * @returns Promise<void>
  */
-export function showUserPermissionsPage(store, userId) {
+export function showUserPermissionsPage(store, userId, route) {
   const { fetchFacilities } = useFacilities();
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
   const stopLoading = () => store.dispatch('notLoading');
@@ -56,17 +56,17 @@ export function showUserPermissionsPage(store, userId) {
     return Promise.resolve();
   }
 
-  const samePage = samePageCheckGenerator(store);
+  const shouldResolve = samePageCheckGenerator(route);
 
   return Promise.all([fetchUserPermissions(userId), fetchFacilities()])
     .then(([data]) => {
-      if (samePage()) {
+      if (shouldResolve()) {
         setUserPermissionsState({ user: data.user, permissions: data.permissions });
       }
       stopLoading();
     })
     .catch(error => {
-      if (samePage()) {
+      if (shouldResolve()) {
         if (error.response.status === 404) {
           setUserPermissionsState({ user: null, permissions: {} });
         }

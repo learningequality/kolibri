@@ -287,7 +287,7 @@
         store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
         set(channel, null);
         set(content, null);
-        const shouldResolve = samePageCheckGenerator(store);
+        const shouldResolve = samePageCheckGenerator();
         let promise;
         if (deviceId) {
           promise = setCurrentDevice(deviceId).then(device => {

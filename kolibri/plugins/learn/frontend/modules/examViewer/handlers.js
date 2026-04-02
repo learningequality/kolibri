@@ -7,7 +7,7 @@ import { get } from '@vueuse/core';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 
-export function showExam(store, params, alreadyOnQuiz) {
+export function showExam(store, params, alreadyOnQuiz, route) {
   const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
   if (!alreadyOnQuiz) {
@@ -25,7 +25,7 @@ export function showExam(store, params, alreadyOnQuiz) {
       LearnerClassroomResource.fetchModel({ id: classId }),
       ExamResource.fetchModel({ id: examId }),
     ];
-    const shouldResolve = samePageCheckGenerator(store);
+    const shouldResolve = samePageCheckGenerator(route);
     Promise.all(promises).then(
       ([classroom, exam]) => {
         if (shouldResolve()) {

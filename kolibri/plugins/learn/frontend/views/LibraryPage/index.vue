@@ -307,7 +307,7 @@
         if (get(isUserLoggedIn) && !baseurl) {
           fetchResumableContentNodes();
         }
-        const shouldResolve = samePageCheckGenerator(store);
+        const shouldResolve = samePageCheckGenerator();
         return ContentNodeResource.fetchCollection({
           getParams: {
             parent__isnull: true,

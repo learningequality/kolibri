@@ -41,10 +41,10 @@ export function getDeviceInfo() {
  * @param {Store} store
  * @returns Promise<void>
  */
-export function showDeviceInfoPage(store) {
+export function showDeviceInfoPage(store, route) {
   const { canManageContent } = useUser();
   if (get(canManageContent)) {
-    const shouldResolve = samePageCheckGenerator(store);
+    const shouldResolve = samePageCheckGenerator(route);
     const promises = Promise.all([getDeviceInfo()]);
     return promises
       .then(function onSuccess([deviceInfo]) {

@@ -42,7 +42,7 @@ export default [
       if (classIdParamRequiredGuard(toRoute, PageNames.GROUPS_ROOT, next)) {
         return;
       }
-      showGroupsPage(store, toRoute.params.classId);
+      showGroupsPage(store, toRoute.params.classId, toRoute);
     },
     meta: {
       titleParts: ['groupsLabel', 'CLASS_NAME'],
@@ -53,7 +53,7 @@ export default [
     path: CLASS + GROUP,
     component: GroupMembersPage,
     handler(to) {
-      showGroupsPage(store, to.params.classId);
+      showGroupsPage(store, to.params.classId, to);
     },
     meta: {
       titleParts: ['membersLabel', 'GROUP_NAME', 'CLASS_NAME'],
@@ -64,7 +64,7 @@ export default [
     path: CLASS + GROUP + '/enroll',
     component: GroupEnrollPage,
     handler(to) {
-      showGroupsPage(store, to.params.classId);
+      showGroupsPage(store, to.params.classId, to);
     },
   },
   {

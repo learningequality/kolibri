@@ -73,7 +73,7 @@ function handleError(store, error) {
 
 // Handler for when user goes directly to the Available Channels URL.
 // Params are { drive_id?: string, address_id?: string }
-export function showAvailableChannelsPage(store, params) {
+export function showAvailableChannelsPage(store, params, route) {
   let availableChannelsPromise;
   let selectedDrivePromise;
   const transferType = getTransferType(params);
@@ -119,7 +119,7 @@ export function showAvailableChannelsPage(store, params) {
       return getAvailableChannelsOnPeerServer(store, params.address_id);
     });
   }
-  const shouldResolve = samePageCheckGenerator(store);
+  const shouldResolve = samePageCheckGenerator(route);
   return Promise.all([availableChannelsPromise, selectedDrivePromise]).then(
     function onSuccess([availableChannels, selectedDrive]) {
       if (shouldResolve()) {
