@@ -3,8 +3,15 @@ import shutil
 
 import pytest
 
+from kolibri.core.utils.cache import process_cache
+
 # referenced in pytest.ini
 TEMP_KOLIBRI_HOME = "./.pytest_kolibri_home"
+
+
+@pytest.fixture(autouse=True)
+def clear_process_cache():
+    process_cache.clear()
 
 
 @pytest.fixture(scope="session", autouse=True)

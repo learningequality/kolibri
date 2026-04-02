@@ -192,23 +192,6 @@ class CourseSession(AbstractFacilityDataModel):
 
         return result
 
-    def _get_units(self):
-        """
-        Returns a queryset of ContentNodes that are units within the course.
-        """
-        return ContentNode.objects.filter(parent_id=self.course).order_by("lft")
-
-    def _get_unit_id_for(self, contentnode):
-        """
-        Return the unit id to which a contentnode belongs, or None if it doesn't belong to any unit.
-        """
-        if contentnode.modality == modalities.UNIT:
-            return contentnode.id
-        elif contentnode.modality == modalities.LESSON:
-            return contentnode.parent_id
-        else:
-            return contentnode.parent.parent_id if contentnode.parent else None
-
     def _get_assigned_user(self):
         """
         Empiric way to get a user who is taking the course when we don't have a specific user. Usually for LOD devices there is only one user,
@@ -239,24 +222,18 @@ class CourseSession(AbstractFacilityDataModel):
             resume_data = process_cache.get(cache_key)
         return resume_data
 
-    def _get_cached_unit_ids(self):
-        cache_key = "COURSE_SESSION_UNIT_IDS_{}".format(self.pk)
+    def _get_cached_unit(self, unit_id):
+        cache_key = "COURSE_SESSION_UNIT_{}_{}".format(self.pk, unit_id)
         if cache_key not in process_cache:
-            unit_ids = list(self._get_units().values_list("id", flat=True))
-            process_cache.set(
-                cache_key, unit_ids, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT
+            unit = (
+                ContentNode.objects.filter(id=unit_id, parent_id=self.course)
+                .values("id", "lft", "rght")
+                .first()
             )
+            process_cache.set(cache_key, unit, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT)
         else:
-            unit_ids = process_cache.get(cache_key)
-        return unit_ids
-
-    def _get_unit_priority(self, requested_unit_index, active_unit_index):
-        """
-        Returns priority based on whether the requested node's unit is before or after the active unit.
-        """
-        if requested_unit_index < active_unit_index:
-            return ContentRequestPriority.LOW
-        return ContentRequestPriority.REGULAR
+            unit = process_cache.get(cache_key)
+        return unit
 
     def _get_active_unit_priority(
         self, contentnode_id, requested_contentnode, resume_position
@@ -287,11 +264,7 @@ class CourseSession(AbstractFacilityDataModel):
         * REGULAR: nodes in future (not-yet-reached) units, or when priority cannot be determined
         * LOW: nodes in past (already-completed) units
         """
-        requested_contentnode = (
-            ContentNode.objects.select_related("parent")
-            .filter(id=contentnode_id)
-            .first()
-        )
+        requested_contentnode = ContentNode.objects.filter(id=contentnode_id).first()
         if (
             not requested_contentnode
             or requested_contentnode.modality == modalities.COURSE
@@ -316,28 +289,25 @@ class CourseSession(AbstractFacilityDataModel):
             return ContentRequestPriority.CRITICAL
 
         active_unit_id = active_test.get("unit_id") or resume_position.get("unit_id")
-        course_unit_ids = self._get_cached_unit_ids()
-
-        if not active_unit_id or active_unit_id not in course_unit_ids:
+        active_unit = self._get_cached_unit(active_unit_id)
+        if not active_unit:
             return ContentRequestPriority.REGULAR
 
-        requested_unit_id = self._get_unit_id_for(requested_contentnode)
-        active_unit_index = course_unit_ids.index(active_unit_id)
-        requested_unit_index = (
-            course_unit_ids.index(requested_unit_id)
-            if requested_unit_id in course_unit_ids
-            else None
-        )
+        if (
+            requested_contentnode.lft >= active_unit["lft"]
+            and requested_contentnode.rght <= active_unit["rght"]
+        ):
+            # The requested contentnode belongs to the active unit
+            return self._get_active_unit_priority(
+                contentnode_id, requested_contentnode, resume_position
+            )
 
-        if requested_unit_index is None:
+        if requested_contentnode.lft > active_unit["rght"]:
+            # It belongs to a future unit
             return ContentRequestPriority.REGULAR
 
-        if requested_unit_index != active_unit_index:
-            return self._get_unit_priority(requested_unit_index, active_unit_index)
-
-        return self._get_active_unit_priority(
-            contentnode_id, requested_contentnode, resume_position
-        )
+        # It belongs to a past unit
+        return ContentRequestPriority.LOW
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)

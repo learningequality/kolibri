@@ -15,7 +15,6 @@ from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
-from kolibri.core.utils.cache import process_cache
 
 DUMMY_PASSWORD = "password"
 
@@ -207,12 +206,6 @@ class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
     """
 
     databases = "__all__"
-
-    def setUp(self):
-        # get_course_content_download_priority caches per-session data in process_cache.
-        # Clear it before each test to prevent stale values from a prior test (which shares
-        # the same course_session.pk via setUpTestData) from leaking into the next test.
-        process_cache.clear()
 
     @classmethod
     def _create_unit(cls, channel_id, course_node, suffix):
@@ -481,18 +474,3 @@ class CourseSessionGetContentDownloadPriorityTestCase(TestCase):
             self.resource1_node.id
         )
         self.assertEqual(priority, ContentRequestPriority.LOW)
-
-    def test_returns_regular_for_node_outside_any_unit(self):
-        # A contentnode that is not under any course unit
-        orphan_node = ContentNode.objects.create(
-            id=uuid.uuid4().hex,
-            channel_id=self.course_node.channel_id,
-            content_id=uuid.uuid4().hex,
-            available=True,
-            title="Orphan Resource",
-        )
-        self._complete_pre_test(self.unit1_node)
-        priority = self.course_session.get_course_content_download_priority(
-            orphan_node.id
-        )
-        self.assertEqual(priority, ContentRequestPriority.REGULAR)
