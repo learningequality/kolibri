@@ -87,7 +87,7 @@ jobs:
       - name: Cleanup credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt /tmp/.gpg-passphrase
-  wait_for_source_builds:
+  wait_for_source_published:
     needs:
       - check_version
       - build_package
@@ -104,18 +104,20 @@ jobs:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: |
           echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
-      - name: Wait for source package builds
+      - name: Wait for published binaries in source series
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
-          python3 scripts/launchpad_copy.py wait-for-builds \
+          SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
+          python3 scripts/launchpad_copy.py wait-for-published \
             --package kolibri-server \
-            --version "${{ needs.check_version.outputs.version }}"
+            --version "${{ needs.check_version.outputs.version }}" \
+            --series "$SERIES"
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
   copy_to_other_distributions:
-    needs: wait_for_source_builds
+    needs: wait_for_source_published
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
@@ -137,7 +139,7 @@ jobs:
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
-  wait_for_copy_builds:
+  wait_for_copies_published:
     needs:
       - check_version
       - copy_to_other_distributions
@@ -154,11 +156,11 @@ jobs:
           LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
         run: |
           echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
-      - name: Wait for copy builds to complete
+      - name: Wait for published binaries in all series
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
-          python3 scripts/launchpad_copy.py wait-for-builds \
+          python3 scripts/launchpad_copy.py wait-for-published \
             --package kolibri-server \
             --version "${{ needs.check_version.outputs.version }}"
       - name: Cleanup Launchpad credentials
@@ -166,7 +168,7 @@ jobs:
         run: rm -f /tmp/lp-creds.txt
   block_release_step:
     name: Job to block publish of a release until it has been manually approved
-    needs: wait_for_copy_builds
+    needs: wait_for_copies_published
     runs-on: ubuntu-latest
     environment: release
     steps:

@@ -27,25 +27,6 @@ PACKAGE_WHITELIST = ["kolibri-server"]
 POCKET = "Release"
 APP_NAME = "ppa-kolibri-server-copy-packages"
 
-TERMINAL_BUILD_STATES = frozenset(
-    {
-        "Successfully built",
-        "Failed to build",
-        "Chroot problem",
-        "Failed to upload",
-        "Cancelled build",
-    }
-)
-
-FAILED_BUILD_STATES = frozenset(
-    {
-        "Failed to build",
-        "Chroot problem",
-        "Failed to upload",
-        "Cancelled build",
-    }
-)
-
 log = logging.getLogger(APP_NAME)
 
 STARTUP_TIME = LAST_LOG_TIME = time.time()
@@ -237,35 +218,38 @@ class LaunchpadWrapper:
 
     def perform_queued_copies(self, ppa):
         first = True
+        failures = []
         for (source_series, target_series, pocket), packages in self.queue.items():
             if not packages:
                 continue
-            for name, version in sorted(packages):
-                if first:
-                    log.info("")
-                    first = False
-                log.info("Copying %s %s to %s", name, version, target_series)
-                try:
-                    ppa.copyPackage(
-                        from_archive=ppa,
-                        include_binaries=True,
-                        to_series=target_series,
-                        to_pocket=pocket,
-                        source_name=name,
-                        version=version,
-                    )
-                except lre.BadRequest as e:
-                    msg = str(e)
-                    if "same version already published" in msg:
-                        log.info("Already copied to %s — skipping", target_series)
-                    elif "is obsolete and will not accept new uploads" in msg:
-                        log.info("Skip obsolete series %s for %s %s", target_series, name, version)
-                    else:
-                        raise
+            if first:
+                log.info("")
+                first = False
+            names = sorted(name for name, version in packages)
+            log.info("Copying %s to %s", ", ".join(names), target_series)
+            try:
+                ppa.syncSources(
+                    from_archive=ppa,
+                    to_series=target_series,
+                    to_pocket=pocket,
+                    include_binaries=True,
+                    source_names=names,
+                )
+            except lre.BadRequest as e:
+                msg = str(e)
+                if "same version already published" in msg:
+                    log.info("Already copied to %s — skipping", target_series)
+                else:
+                    log.error("Failed to copy to %s: %s", target_series, msg)
+                    failures.append(target_series)
+        if failures:
+            log.error("Copy failed for series: %s", ", ".join(failures))
+            return 1
+        return 0
 
-    def copy_to_series(self):
+    def copy_to_series(self, source_series=None):
         """Copy packages from source series to all other supported Ubuntu series."""
-        source_series = get_current_series()
+        source_series = source_series or get_current_series()
         log.info(
             "Spinning up the Launchpad API to copy targets in %s (source series: %s)",
             ", ".join(PACKAGE_WHITELIST),
@@ -311,9 +295,9 @@ class LaunchpadWrapper:
                 for notice in notices:
                     log.info(notice)
 
-        self.perform_queued_copies(ppa)
+        result = self.perform_queued_copies(ppa)
         log.debug("All done")
-        return 0
+        return result
 
     def check_source(self, package, version, ppa_name=None):
         """Check if a source package version exists in a PPA.
@@ -333,77 +317,78 @@ class LaunchpadWrapper:
         log.info("%s %s not found in %s", package, version, ppa_name)
         return 1
 
-    def wait_for_builds(self, package, version, ppa_name=None, timeout=1800, interval=60):
-        """Wait for all builds of a source package to reach a terminal state.
+    def wait_for_published(self, package, version, ppa_name=None, series=None, timeout=1800, interval=60):
+        """Wait for published binaries to appear for a package.
 
-        Returns 0 if all builds succeed, 1 on failure or timeout.
+        If series is given, waits for those specific series to have published binaries.
+        If series is None, discovers all series that have a published source for this
+        package+version and waits until every one of them also has published binaries.
+        Returns 0 if all expected series are published, 1 on failure or timeout.
         """
         ppa_name = ppa_name or PROPOSED_PPA_NAME
         ppa = self.get_ppa(ppa_name)
         deadline = time.time() + timeout
+        expected = set(series) if series else None
 
-        # Phase 1: Wait for source to appear
-        log.info("Waiting for %s %s to appear in %s...", package, version, ppa_name)
-        sources = []
+        log.info(
+            "Waiting for %s %s to be published in %s%s...",
+            package,
+            version,
+            ppa_name,
+            " for series: %s" % ", ".join(sorted(expected)) if expected else "",
+        )
+
         while time.time() < deadline:
-            published = ppa.getPublishedSources(
-                source_name=package,
+            # If no explicit series, discover from published sources
+            if expected is None:
+                sources = ppa.getPublishedSources(
+                    source_name=package,
+                    version=version,
+                    order_by_date=True,
+                )
+                source_series = set()
+                for s in sources:
+                    if s.status not in ("Deleted", "Superseded", "Obsolete"):
+                        series_name = s.distro_series_link.rstrip("/").split("/")[-1]
+                        source_series.add(series_name)
+                if not source_series:
+                    log.info("No published sources yet.")
+                    remaining = int(deadline - time.time())
+                    log.info("Retrying in %ds (%ds remaining)...", interval, remaining)
+                    time.sleep(interval)
+                    continue
+                expected = source_series
+                log.info("Discovered %d series with sources: %s", len(expected), ", ".join(sorted(expected)))
+
+            # Check published binaries
+            bins = ppa.getPublishedBinaries(
+                binary_name=package,
                 version=version,
                 order_by_date=True,
             )
-            sources = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
-            if sources:
-                log.info("Found %d source(s) for %s %s", len(sources), package, version)
-                break
-            remaining = int(deadline - time.time())
-            log.info("Source not yet available. Retrying in %ds (%ds remaining)...", interval, remaining)
-            time.sleep(interval)
-        else:
-            log.error("Timeout: %s %s did not appear in %s within %ds", package, version, ppa_name, timeout)
-            return 1
+            published_series = set()
+            for b in bins:
+                if b.status == "Published":
+                    # distro_arch_series_link: .../ubuntu/noble/amd64
+                    series_name = b.distro_arch_series_link.rstrip("/").split("/")[-2]
+                    published_series.add(series_name)
 
-        # Phase 2: Wait for all builds to complete
-        return self._poll_builds(sources, package, version, deadline, interval)
-
-    def _poll_builds(self, sources, package, version, deadline, interval):
-        """Poll builds for all sources until terminal state or timeout."""
-        log.info("Waiting for builds to complete...")
-        while time.time() < deadline:
-            all_terminal = True
-            total = 0
-            succeeded = 0
-            failed = []
-            building = 0
-
-            for source in sources:
-                builds = source.getBuilds()
-                for build in builds:
-                    total += 1
-                    state = build.buildstate
-                    if state == "Successfully built":
-                        succeeded += 1
-                    elif state in FAILED_BUILD_STATES:
-                        failed.append((build.arch_tag, state, build.web_link))
-                    else:
-                        building += 1
-                        all_terminal = False
-
-            if failed:
-                log.error("Build failures detected:")
-                for arch, state, link in failed:
-                    log.error("  %s: %s - %s", arch, state, link)
-                return 1
-
-            if total > 0 and all_terminal:
-                log.info("All %d build(s) completed successfully.", total)
+            missing = expected - published_series
+            if not missing:
+                log.info("All %d series published: %s", len(expected), ", ".join(sorted(published_series)))
                 return 0
+            log.info(
+                "Published in %d/%d series. Missing: %s",
+                len(expected) - len(missing),
+                len(expected),
+                ", ".join(sorted(missing)),
+            )
 
-            log.info("Waiting for builds: %d/%d complete, %d building...", succeeded, total, building)
             remaining = int(deadline - time.time())
             log.info("Retrying in %ds (%ds remaining)...", interval, remaining)
             time.sleep(interval)
 
-        log.error("Timeout: builds for %s %s did not complete within timeout", package, version)
+        log.error("Timeout: %s %s not published within %ds", package, version, timeout)
         return 1
 
     def promote(self):
@@ -476,10 +461,11 @@ def build_parser():
     parser.add_argument("--debug", action="store_true", help="Enable HTTP debug output.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser(
+    copy_parser = subparsers.add_parser(
         "copy-to-series",
         help="Copy packages from source series to all other supported series within a PPA.",
     )
+    copy_parser.add_argument("--series", default=None, help="Source series override (default: auto-detect from OS).")
 
     subparsers.add_parser(
         "promote",
@@ -487,8 +473,8 @@ def build_parser():
     )
 
     wait_parser = subparsers.add_parser(
-        "wait-for-builds",
-        help="Wait for Launchpad builds to complete for a source package.",
+        "wait-for-published",
+        help="Wait for published binaries to appear for a source package.",
     )
     wait_parser.add_argument("--package", required=True, help="Source package name.")
     wait_parser.add_argument("--version", required=True, help="Expected version string.")
@@ -497,6 +483,7 @@ def build_parser():
     wait_parser.add_argument(
         "--interval", type=int, default=60, help="Polling interval in seconds (default: %(default)s)."
     )
+    wait_parser.add_argument("--series", nargs="+", default=None, help="Series to wait for (default: any).")
 
     check_parser = subparsers.add_parser(
         "check-source",
@@ -526,16 +513,17 @@ def configure_logging(args):
 def cmd_copy_to_series(args):
     """Copy packages from source series to all other supported Ubuntu series."""
     lp = LaunchpadWrapper()
-    return lp.copy_to_series()
+    return lp.copy_to_series(source_series=args.series)
 
 
-def cmd_wait_for_builds(args):
-    """Wait for Launchpad builds to complete."""
+def cmd_wait_for_published(args):
+    """Wait for published binaries to appear."""
     lp = LaunchpadWrapper()
-    return lp.wait_for_builds(
+    return lp.wait_for_published(
         package=args.package,
         version=args.version,
         ppa_name=args.ppa,
+        series=args.series,
         timeout=args.timeout,
         interval=args.interval,
     )
@@ -568,8 +556,8 @@ def main():
         return cmd_check_source(args)
     elif args.command == "promote":
         return cmd_promote(args)
-    elif args.command == "wait-for-builds":
-        return cmd_wait_for_builds(args)
+    elif args.command == "wait-for-published":
+        return cmd_wait_for_published(args)
 
 
 if __name__ == "__main__":
