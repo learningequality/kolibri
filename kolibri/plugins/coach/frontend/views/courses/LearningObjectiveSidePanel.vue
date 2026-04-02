@@ -9,13 +9,17 @@
     >
       <div
         class="summary-section"
+        data-testid="summary-section"
         :style="{ backgroundColor: $themePalette.grey.v_100, color: $themeTokens.annotation }"
       >
         <div class="summary-row">
           <span class="summary-label">
             {{ completedLabel$() }}
           </span>
-          <span class="summary-value summary-value-bold">
+          <span
+            class="summary-value summary-value-bold"
+            data-testid="completion-count"
+          >
             {{ nOfMLearners$({ n: completionCount, m: totalLearners }) }}
           </span>
         </div>
@@ -23,24 +27,31 @@
           <span class="summary-label">
             {{ testAveragesLabel$() }}
           </span>
-          <span class="summary-value">
+          <span
+            class="summary-value"
+            data-testid="test-averages"
+          >
             <template v-if="preTestAverage !== null">
-              {{
-                preTestAverageLabel$({
-                  correct: preTestAverage,
-                  total: objective.numQuestions,
-                })
-              }}
+              <span data-testid="pre-test-average">
+                {{
+                  preTestAverageLabel$({
+                    correct: preTestAverage,
+                    total: objective.numQuestions,
+                  })
+                }}
+              </span>
             </template>
             <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
             <template v-if="preTestAverage !== null && postTestAverage !== null"> &rarr; </template>
             <template v-if="postTestAverage !== null">
-              {{
-                postTestAverageLabel$({
-                  correct: postTestAverage,
-                  total: objective.numQuestions,
-                })
-              }}
+              <span data-testid="post-test-average">
+                {{
+                  postTestAverageLabel$({
+                    correct: postTestAverage,
+                    total: objective.numQuestions,
+                  })
+                }}
+              </span>
             </template>
           </span>
         </div>
@@ -49,6 +60,7 @@
       <div
         v-if="strugglingCount > 0"
         class="warning-banner"
+        data-testid="warning-banner"
         :style="warningBannerStyle"
       >
         <KIcon
@@ -75,9 +87,13 @@
             v-for="learner in sortedLearners"
             :key="learner.id"
             class="learner-row"
+            data-testid="learner-row"
             :style="learnerRowStyle(learner.bucket)"
           >
-            <span class="learner-name">
+            <span
+              class="learner-name"
+              data-testid="learner-name"
+            >
               <KIcon
                 icon="person"
                 class="learner-icon"
@@ -86,6 +102,7 @@
             </span>
             <span
               class="learner-score"
+              data-testid="learner-score"
               :style="scoreStyle(learner.bucket)"
             >
               {{ correctOfTotalLabel$({ correct: learner.score, total: objective.numQuestions }) }}
@@ -108,7 +125,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { classifyLearnerMastery } from '../../utils/scoreBucketing';
-  import { ScoreBucket, ScoreBucketTints } from '../../constants/courseConstants';
+  import { ScoreBucket } from '../../constants/courseConstants';
 
   export default {
     name: 'LearningObjectiveSidePanel',
@@ -201,9 +218,15 @@
         return sortedLearners.value.filter(l => l.bucket === ScoreBucket.LOW).length;
       });
 
+      const bucketTints = {
+        [ScoreBucket.LOW]: palette.red.v_100,
+        [ScoreBucket.MID]: palette.yellow.v_100,
+        [ScoreBucket.HIGH]: palette.green.v_100,
+      };
+
       function learnerRowStyle(bucket) {
         return {
-          backgroundColor: ScoreBucketTints[bucket],
+          backgroundColor: bucketTints[bucket],
         };
       }
 
@@ -214,7 +237,7 @@
       }
 
       const warningBannerStyle = computed(() => ({
-        backgroundColor: ScoreBucketTints[ScoreBucket.LOW],
+        backgroundColor: bucketTints[ScoreBucket.LOW],
         color: palette.red.v_600,
       }));
 

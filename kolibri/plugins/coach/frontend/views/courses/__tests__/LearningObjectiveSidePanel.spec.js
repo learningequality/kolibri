@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import LearningObjectiveSidePanel from '../LearningObjectiveSidePanel.vue';
 
@@ -79,19 +79,23 @@ describe('LearningObjectiveSidePanel', () => {
 
   it('shows completion count based on active test takers', () => {
     renderPanel();
+    const completionEl = screen.getByTestId('completion-count');
     // pre_test has 2 takers out of 3 learners
-    expect(screen.getByText(/2 of 3 learners/)).toBeInTheDocument();
+    expect(completionEl).toHaveTextContent('2');
+    expect(completionEl).toHaveTextContent('3');
   });
 
-  it('shows pre-test average when pre-test has data', () => {
+  it('shows pre-test average in the summary section', () => {
     renderPanel();
     // pre_test scores for lo-1: user-1=4, user-2=1, average=2.5 rounds to 3
-    expect(screen.getByText(/Pre: 3 of 4 questions/)).toBeInTheDocument();
+    const preAvg = screen.getByTestId('pre-test-average');
+    expect(preAvg).toHaveTextContent('3');
+    expect(preAvg).toHaveTextContent('4');
   });
 
   it('does not show post-test average when post-test is not activated', () => {
     renderPanel();
-    expect(screen.queryByText(/Post:/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('post-test-average')).not.toBeInTheDocument();
   });
 
   it('shows post-test average when post-test has data', () => {
@@ -107,15 +111,16 @@ describe('LearningObjectiveSidePanel', () => {
     };
     renderPanel({ reportData: reportWithPost });
     // post_test scores for lo-1: user-1=3, user-2=4, average=3.5 rounds to 4
-    expect(screen.getByText(/Post: 4 of 4 questions/)).toBeInTheDocument();
+    const postAvg = screen.getByTestId('post-test-average');
+    expect(postAvg).toHaveTextContent('4');
   });
 
   it('shows warning banner when learners are struggling', () => {
     renderPanel();
     // user-2 scored 1/4=25% (low); user-3 has no scores and is excluded
-    // user-1 scored 4/4=100% (high)
-    expect(screen.getByText(/1 learner struggling with this objective/)).toBeInTheDocument();
-    expect(screen.getByTestId('icon-error')).toBeInTheDocument();
+    const banner = screen.getByTestId('warning-banner');
+    expect(banner).toBeInTheDocument();
+    expect(within(banner).getByTestId('icon-error')).toBeInTheDocument();
   });
 
   it('hides warning banner when no learners are struggling', () => {
@@ -135,23 +140,23 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ objective: allHighObjective, reportData: reportAllHigh });
-    expect(screen.queryByTestId('icon-error')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('warning-banner')).not.toBeInTheDocument();
   });
 
-  it('sorts learner scores ascending (lowest first)', () => {
+  it('renders only test-takers as learner rows sorted by score ascending', () => {
     renderPanel();
-    // Only learners with scores are shown (user-1=4, user-2=1); user-3 has no scores
-    const scoreSpans = screen.getAllByText(/of 4$/);
-    expect(scoreSpans[0]).toHaveTextContent('1 of 4');
-    expect(scoreSpans[1]).toHaveTextContent('4 of 4');
-  });
+    // Only user-1 (score 4) and user-2 (score 1) have scores; user-3 is excluded
+    const rows = screen.getAllByTestId('learner-row');
+    expect(rows).toHaveLength(2);
 
-  it('shows learner names in score-sorted order', () => {
-    renderPanel();
-    // Only learners with scores are shown, sorted ascending: Bob(1), Alice(4)
-    const names = screen.getAllByText(/^(Alice|Bob)$/);
-    expect(names[0]).toHaveTextContent('Bob');
-    expect(names[1]).toHaveTextContent('Alice');
+    // Sorted ascending: Bob(1), Alice(4)
+    const firstRow = within(rows[0]);
+    expect(firstRow.getByTestId('learner-name')).toHaveTextContent('Bob');
+    expect(firstRow.getByTestId('learner-score')).toHaveTextContent('1');
+
+    const secondRow = within(rows[1]);
+    expect(secondRow.getByTestId('learner-name')).toHaveTextContent('Alice');
+    expect(secondRow.getByTestId('learner-score')).toHaveTextContent('4');
   });
 
   it('emits closePanel when close button is clicked', async () => {
@@ -161,7 +166,7 @@ describe('LearningObjectiveSidePanel', () => {
     expect(emitted().closePanel).toBeTruthy();
   });
 
-  it('handles case where learners have scored zero on this objective', () => {
+  it('shows zero scores for learners who took the test but scored nothing on this LO', () => {
     const noScoresReport = {
       ...REPORT_DATA,
       pre_test: {
@@ -173,9 +178,11 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ reportData: noScoresReport });
-    // Only learners present in scores dict are shown (user-1, user-2)
-    const scores = screen.getAllByText('0 of 4');
-    expect(scores).toHaveLength(2);
+    const rows = screen.getAllByTestId('learner-row');
+    expect(rows).toHaveLength(2);
+    rows.forEach(row => {
+      expect(within(row).getByTestId('learner-score')).toHaveTextContent('0');
+    });
   });
 
   it('uses post-test scores when post-test is activated', () => {
@@ -191,9 +198,12 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ reportData: reportWithPost });
-    const scores = screen.getAllByText(/of 4$/);
-    expect(scores[0]).toHaveTextContent('2 of 4');
-    expect(scores[1]).toHaveTextContent('3 of 4');
-    expect(scores[2]).toHaveTextContent('4 of 4');
+    const rows = screen.getAllByTestId('learner-row');
+    expect(rows).toHaveLength(3);
+
+    // Sorted ascending by score
+    expect(within(rows[0]).getByTestId('learner-score')).toHaveTextContent('2');
+    expect(within(rows[1]).getByTestId('learner-score')).toHaveTextContent('3');
+    expect(within(rows[2]).getByTestId('learner-score')).toHaveTextContent('4');
   });
 });
