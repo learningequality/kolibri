@@ -87,6 +87,24 @@ jobs:
       - name: Cleanup credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt /tmp/.gpg-passphrase
+  build_binary_package:
+    name: Build binary .deb for GitHub Pages PPA
+    needs: check_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: make install-build-deps
+      - name: Install Kolibri
+        run: make install-kolibri
+      - name: Build .deb package
+        run: make deb
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kolibri-server-deb
+          path: ../kolibri-server_*.deb
   wait_for_source_published:
     needs:
       - check_version
@@ -168,7 +186,9 @@ jobs:
         run: rm -f /tmp/lp-creds.txt
   block_release_step:
     name: Job to block publish of a release until it has been manually approved
-    needs: wait_for_copies_published
+    needs:
+      - wait_for_copies_published
+      - build_binary_package
     runs-on: ubuntu-latest
     environment: release
     steps:
