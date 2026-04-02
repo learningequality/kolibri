@@ -41,7 +41,7 @@ class TestBuildParser:
 
     def test_promote_subcommand_parsed(self):
         parser = build_parser()
-        args = parser.parse_args(["promote"])
+        args = parser.parse_args(["promote", "--version", "1.0"])
         assert args.command == "promote"
 
     def test_subcommand_required(self):
@@ -118,12 +118,12 @@ class TestBuildParser:
 
     def test_quiet_flag(self):
         parser = build_parser()
-        args = parser.parse_args(["-q", "promote"])
+        args = parser.parse_args(["-q", "promote", "--version", "1.0"])
         assert args.quiet is True
 
     def test_debug_flag(self):
         parser = build_parser()
-        args = parser.parse_args(["--debug", "promote"])
+        args = parser.parse_args(["--debug", "promote", "--version", "1.0"])
         assert args.debug is True
 
 
@@ -299,21 +299,21 @@ class TestConfigureLogging:
 
     def test_default_sets_info_level(self):
         parser = build_parser()
-        args = parser.parse_args(["promote"])
+        args = parser.parse_args(["promote", "--version", "1.0"])
         log.handlers.clear()
         configure_logging(args)
         assert log.level == logging.INFO
 
     def test_quiet_sets_warning_level(self):
         parser = build_parser()
-        args = parser.parse_args(["-q", "promote"])
+        args = parser.parse_args(["-q", "promote", "--version", "1.0"])
         log.handlers.clear()
         configure_logging(args)
         assert log.level == logging.WARNING
 
     def test_vv_sets_debug_level(self):
         parser = build_parser()
-        args = parser.parse_args(["-vv", "promote"])
+        args = parser.parse_args(["-vv", "promote", "--version", "1.0"])
         log.handlers.clear()
         configure_logging(args)
         assert log.level == logging.DEBUG
@@ -333,7 +333,7 @@ class TestPromote:
         mock_pkg = MagicMock()
         mock_pkg.source_package_name = "kolibri-server"
         mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.distro_series_link = "https://api.launchpad.net/1.0/ubuntu/jammy"
         mock_pkg.pocket = "Release"
 
         mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
@@ -350,14 +350,14 @@ class TestPromote:
                 new_callable=lambda: property(lambda self: mock_dest_ppa),
             ),
         ):
-            result = wrapper.promote()
+            result = wrapper.promote(version="0.9.0")
 
-        mock_dest_ppa.copyPackage.assert_called_once_with(
+        mock_dest_ppa.syncSources.assert_called_once_with(
             from_archive=mock_source_ppa,
-            include_binaries=True,
+            to_series="jammy",
             to_pocket="Release",
-            source_name="kolibri-server",
-            version="0.9.0",
+            include_binaries=True,
+            source_names=["kolibri-server"],
         )
         assert result == 0
 
@@ -383,9 +383,9 @@ class TestPromote:
                 new_callable=lambda: property(lambda self: mock_dest_ppa),
             ),
         ):
-            result = wrapper.promote()
+            result = wrapper.promote(version="0.9.0")
 
-        mock_dest_ppa.copyPackage.assert_not_called()
+        mock_dest_ppa.syncSources.assert_not_called()
         assert result == 0
 
     def test_handles_already_published_package_gracefully(self):
@@ -397,7 +397,7 @@ class TestPromote:
         mock_pkg = MagicMock()
         mock_pkg.source_package_name = "kolibri-server"
         mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.distro_series_link = "https://api.launchpad.net/1.0/ubuntu/jammy"
         mock_pkg.pocket = "Release"
 
         mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
@@ -405,7 +405,7 @@ class TestPromote:
         class MockBadRequest(Exception):
             pass
 
-        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+        mock_dest_ppa.syncSources.side_effect = MockBadRequest(
             "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
         )
 
@@ -423,7 +423,7 @@ class TestPromote:
             patch("launchpad_copy.lre") as mock_lre,
         ):
             mock_lre.BadRequest = MockBadRequest
-            result = wrapper.promote()
+            result = wrapper.promote(version="0.9.0")
 
         assert result == 0
 
@@ -436,7 +436,7 @@ class TestPromote:
         mock_pkg = MagicMock()
         mock_pkg.source_package_name = "kolibri-server"
         mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/jammy"
+        mock_pkg.distro_series_link = "https://api.launchpad.net/1.0/ubuntu/jammy"
         mock_pkg.pocket = "Release"
 
         mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
@@ -444,7 +444,7 @@ class TestPromote:
         class MockBadRequest(Exception):
             pass
 
-        mock_dest_ppa.copyPackage.side_effect = MockBadRequest(
+        mock_dest_ppa.syncSources.side_effect = MockBadRequest(
             "kolibri-server 0.9.0 in jammy (same version already published in the target archive)"
         )
 
@@ -463,9 +463,9 @@ class TestPromote:
             caplog.at_level(logging.INFO, logger=log.name),
         ):
             mock_lre.BadRequest = MockBadRequest
-            wrapper.promote()
+            wrapper.promote(version="0.9.0")
 
-        assert any("already published" in r.message.lower() and "kolibri-server" in r.message for r in caplog.records)
+        assert any("already published" in r.message.lower() for r in caplog.records)
 
 
 # --- wait-for-published tests ---
@@ -591,7 +591,7 @@ class TestWaitForPublished:
         mock_pkg = MagicMock()
         mock_pkg.source_package_name = "kolibri-server"
         mock_pkg.source_package_version = "0.9.0"
-        mock_pkg.distro_series_link = "https://lp/ubuntu/xenial"
+        mock_pkg.distro_series_link = "https://api.launchpad.net/1.0/ubuntu/xenial"
         mock_pkg.pocket = "Release"
 
         mock_source_ppa.getPublishedSources.return_value = [mock_pkg]
@@ -599,7 +599,7 @@ class TestWaitForPublished:
         class MockBadRequest(Exception):
             pass
 
-        mock_dest_ppa.copyPackage.side_effect = MockBadRequest("xenial is obsolete and will not accept new uploads")
+        mock_dest_ppa.syncSources.side_effect = MockBadRequest("xenial is obsolete and will not accept new uploads")
 
         with (
             patch.object(
@@ -615,6 +615,6 @@ class TestWaitForPublished:
             patch("launchpad_copy.lre") as mock_lre,
         ):
             mock_lre.BadRequest = MockBadRequest
-            result = wrapper.promote()
+            result = wrapper.promote(version="0.9.0")
 
         assert result == 0

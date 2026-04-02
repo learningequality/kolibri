@@ -391,7 +391,7 @@ class LaunchpadWrapper:
         log.error("Timeout: %s %s not published within %ds", package, version, timeout)
         return 1
 
-    def promote(self):
+    def promote(self, version):
         """Promote published packages from kolibri-proposed to kolibri PPA."""
         log.info("Promoting packages from %s to %s", PROPOSED_PPA_NAME, RELEASE_PPA_NAME)
 
@@ -400,48 +400,47 @@ class LaunchpadWrapper:
 
         packages = source_ppa.getPublishedSources(status="Published", order_by_date=True)
 
-        copied_any = False
+        # Group packages by series for syncSources calls
+        by_series = defaultdict(list)
         for pkg in packages:
             if pkg.source_package_name not in PACKAGE_WHITELIST:
                 continue
+            if pkg.source_package_version != version:
+                continue
+            series_name = pkg.distro_series_link.rstrip("/").split("/")[-1]
+            by_series[series_name].append(pkg)
+
+        if not by_series:
+            log.info("No eligible packages to promote.")
+            return 0
+
+        failures = []
+        for series_name, pkgs in by_series.items():
+            names = sorted(set(p.source_package_name for p in pkgs))
+            log.info("Promoting %s from %s to %s", ", ".join(names), series_name, RELEASE_PPA_NAME)
             try:
-                log.info(
-                    "Copying %s %s (%s) to %s",
-                    pkg.source_package_name,
-                    pkg.source_package_version,
-                    pkg.distro_series_link,
-                    RELEASE_PPA_NAME,
-                )
-                dest_ppa.copyPackage(
+                dest_ppa.syncSources(
                     from_archive=source_ppa,
+                    to_series=series_name,
+                    to_pocket=POCKET,
                     include_binaries=True,
-                    to_pocket=pkg.pocket,
-                    source_name=pkg.source_package_name,
-                    version=pkg.source_package_version,
+                    source_names=names,
                 )
-                copied_any = True
             except lre.BadRequest as e:
                 msg = str(e)
-                if "is obsolete and will not accept new uploads" in msg:
-                    log.info(
-                        "Skip obsolete series for %s %s",
-                        pkg.source_package_name,
-                        pkg.source_package_version,
-                    )
-                elif "same version already published" in msg:
-                    log.info(
-                        "Already published %s %s — skipping",
-                        pkg.source_package_name,
-                        pkg.source_package_version,
-                    )
+                if "same version already published" in msg:
+                    log.info("Already published in %s — skipping", series_name)
+                elif "is obsolete and will not accept new uploads" in msg:
+                    log.info("Skip obsolete series %s", series_name)
                 else:
-                    raise
+                    log.error("Failed to promote to %s: %s", series_name, msg)
+                    failures.append(series_name)
 
-        if not copied_any:
-            log.info("No eligible packages to promote.")
-        else:
-            log.info("Promotion requests submitted.")
+        if failures:
+            log.error("Promotion failed for series: %s", ", ".join(failures))
+            return 1
 
+        log.info("Promotion requests submitted.")
         return 0
 
 
@@ -467,10 +466,11 @@ def build_parser():
     )
     copy_parser.add_argument("--series", default=None, help="Source series override (default: auto-detect from OS).")
 
-    subparsers.add_parser(
+    promote_parser = subparsers.add_parser(
         "promote",
         help="Promote published packages from kolibri-proposed to kolibri PPA.",
     )
+    promote_parser.add_argument("--version", required=True, help="Version to promote.")
 
     wait_parser = subparsers.add_parser(
         "wait-for-published",
@@ -542,7 +542,7 @@ def cmd_check_source(args):
 def cmd_promote(args):
     """Promote published packages from kolibri-proposed to kolibri PPA."""
     lp = LaunchpadWrapper()
-    return lp.promote()
+    return lp.promote(version=args.version)
 
 
 def main():

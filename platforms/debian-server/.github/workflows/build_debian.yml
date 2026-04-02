@@ -175,7 +175,9 @@ jobs:
       - run: echo "Release approved — proceeding to promote to kolibri PPA."
   copy_package_from_proposed_to_ppa:
     name: Promote packages from kolibri-proposed to kolibri
-    needs: block_release_step
+    needs:
+      - check_version
+      - block_release_step
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
@@ -193,7 +195,16 @@ jobs:
         env:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
-          python3 scripts/launchpad_copy.py promote
+          python3 scripts/launchpad_copy.py promote \
+            --version "${{ needs.check_version.outputs.version }}"
+      - name: Wait for promoted packages to be published
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          python3 scripts/launchpad_copy.py wait-for-published \
+            --package kolibri-server \
+            --version "${{ needs.check_version.outputs.version }}" \
+            --ppa kolibri
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
