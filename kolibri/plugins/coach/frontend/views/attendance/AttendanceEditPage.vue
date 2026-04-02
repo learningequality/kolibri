@@ -140,8 +140,7 @@
         try {
           await bulkUpdateRecords(attendanceId.value, changedRecords.value);
           originalAttendanceMap.value = { ...form.attendanceMap.value };
-          form.navigateBack();
-          createSnackbar(updateSuccessMessage$());
+          form.navigateBack({ snackbar: updateSuccessMessage$() });
         } catch (_err) {
           createSnackbar(submitErrorMessage$());
         } finally {
@@ -182,8 +181,7 @@
           originalAttendanceMap.value = { ...currentMap };
           form.setPreviouslyEnrolled(removedRecords);
         } catch (_err) {
-          createSnackbar(submitErrorMessage$());
-          form.navigateBack();
+          form.navigateBack({ snackbar: coreString('defaultErrorMessage') });
         } finally {
           loading.value = false;
         }

@@ -1460,7 +1460,7 @@ class Membership(AbstractFacilityDataModel):
             user=self.user, collection=self.collection
         )
 
-    def save(self, *args, **kwargs):
+    def validate_membership(self):
         if self.collection.kind == collection_kinds.FACILITY:
             raise InvalidMembershipError(
                 "Cannot create membership objects for facilities, as should already be a member by facility attribute"
@@ -1477,6 +1477,9 @@ class Membership(AbstractFacilityDataModel):
                 raise InvalidMembershipError(
                     "Cannot create membership for a user in a LearnerGroup or AdHocGroup when they are not a member of the parent Classrooom"
                 )
+
+    def save(self, *args, **kwargs):
+        self.validate_membership()
         return super().save(*args, **kwargs)
 
     def delete(self, **kwargs):
@@ -1553,7 +1556,7 @@ class Role(AbstractFacilityDataModel):
             user=self.user, kind=self.kind, collection=self.collection
         )
 
-    def save(self, *args, **kwargs):
+    def validate_role(self):
         if (
             self.collection.kind == collection_kinds.LEARNERGROUP
             or self.collection.kind == collection_kinds.ADHOCLEARNERSGROUP
@@ -1562,21 +1565,28 @@ class Role(AbstractFacilityDataModel):
             raise InvalidRoleKind(
                 "Cannot assign roles to Learner Groups or AdHoc Groups"
             )
+        if self.collection.kind == collection_kinds.CLASSROOM:
+            # We only support coaches to be assigned at the classroom level currently
+            if self.kind != role_kinds.COACH:
+                raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
+
+    def ensure_coach_role_at_facility(self):
+        if self.collection.kind == collection_kinds.CLASSROOM:
+            if not Role.objects.filter(
+                user=self.user, collection_id=self.collection.parent_id
+            ).exists():
+                # If the user doesn't already have a facility role, then create the assignable coach role for the user
+                # at the facility level.
+                Role.objects.create(
+                    user=self.user,
+                    collection_id=self.collection.parent_id,
+                    kind=role_kinds.ASSIGNABLE_COACH,
+                )
+
+    def save(self, *args, **kwargs):
+        self.validate_role()
         with transaction.atomic():
-            if self.collection.kind == collection_kinds.CLASSROOM:
-                # We only support coaches to be assigned at the classroom level currently
-                if self.kind != role_kinds.COACH:
-                    raise InvalidRoleKind("Can only assign Coach roles to Classrooms")
-                if not Role.objects.filter(
-                    user=self.user, collection_id=self.collection.parent_id
-                ).exists():
-                    # If the user doesn't already have a facility role, then create the assignable coach role for the user
-                    # at the facility level.
-                    Role.objects.create(
-                        user=self.user,
-                        collection_id=self.collection.parent_id,
-                        kind=role_kinds.ASSIGNABLE_COACH,
-                    )
+            self.ensure_coach_role_at_facility()
             return super().save(*args, **kwargs)
 
     def delete(self, **kwargs):

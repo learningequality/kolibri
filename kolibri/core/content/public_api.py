@@ -49,18 +49,6 @@ class ImportMetadataViewset(GenericViewSet):
             )
         return error
 
-    def _validate_depth(self, depth):
-        if depth is not None:
-            try:
-                depth = int(depth)
-                if depth < 0:
-                    raise ValueError
-            except ValueError:
-                raise ValidationError(
-                    {"error": "Depth parameter must be a non-negative integer."}
-                )
-        return depth
-
     def _validate_content_schema(self, content_schema):
         try:
             if int(content_schema) > int(self.default_content_schema):
@@ -79,13 +67,14 @@ class ImportMetadataViewset(GenericViewSet):
 
     def _get_retrieve_queryset(self):
         pk = self.kwargs.get("pk")
-        depth = self.request.query_params.get("depth", None)
+        descendants = self.request.query_params.get("descendants", None)
         node = get_object_or_404(models.ContentNode.objects.all(), pk=pk)
-        if depth is not None:
-            depth = self._validate_depth(depth)
-            queryset = node.get_descendants(include_self=True).filter(
-                level__lte=node.level + depth
-            )
+        if descendants:
+            # Return ancestors first, then descendants (excluding self to avoid duplication).
+            # Ordering by lft puts ancestors (lower lft) before descendants (higher lft).
+            ancestors = node.get_ancestors(include_self=True)
+            node_descendants = node.get_descendants(include_self=False)
+            queryset = (ancestors | node_descendants).order_by("lft")
         else:
             queryset = node.get_ancestors(include_self=True)
 

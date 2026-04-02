@@ -126,7 +126,7 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
-  import { GroupModals, PageNames } from '../../../constants';
+  import { GroupModals } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import RenameGroupModal from '../GroupsRootPage/RenameGroupModal';
   import DeleteGroupModal from '../GroupsRootPage/DeleteGroupModal';
@@ -144,7 +144,6 @@
     mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
-        PageNames,
         userForRemoval: null,
       };
     },
@@ -182,7 +181,7 @@
       handleSuccessDeleteGroup() {
         this.showSnackbarNotification('groupDeleted');
         this.displayModal(false);
-        this.$router.push(this.classRoute(PageNames.GROUPS_ROOT));
+        this.$router.push(this.classRoute(this.PageNames.GROUPS_ROOT));
       },
       handleOptionSelect(value) {
         switch (value) {

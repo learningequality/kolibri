@@ -10,9 +10,19 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
+from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
+
+
+def course_assignment_lookup(course_id):
+    """
+    Lookup function for the ContentAssignmentManager
+    :param course_id: a UUID of a course ContentNode
+    :return: a tuple of contentnode_id and metadata
+    """
+    return (course_id, {"import_descendants": True})
 
 
 class TestType(ChoicesEnum):
@@ -68,6 +78,15 @@ class CourseSession(AbstractFacilityDataModel):
     date_created = DateTimeTzField(default=local_now, editable=False)
 
     morango_model_name = "coursesession"
+
+    content_assignments = ContentAssignmentManager(
+        # This manager will assign just the course ContentNode, further course nodes
+        # will be requested later
+        one_to_many=False,
+        filters=dict(is_active=True),
+        lookup_field="course",
+        lookup_func=course_assignment_lookup,
+    )
 
     def __str__(self):
         return "CourseSession {} for Classroom {}".format(

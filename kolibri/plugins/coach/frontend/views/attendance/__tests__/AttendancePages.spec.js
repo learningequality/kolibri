@@ -314,7 +314,7 @@ describe('AttendanceNewPage', () => {
     });
   });
 
-  it('calls createSession and shows success snackbar on submit', async () => {
+  it('calls createSession and redirects with a success snackbar query on submit', async () => {
     const { createSession, createSnackbar } = renderNewPage();
     await waitFor(() => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
@@ -330,7 +330,9 @@ describe('AttendanceNewPage', () => {
         attendance_records: expect.arrayContaining([expect.objectContaining({ present: true })]),
       }),
     );
-    expect(createSnackbar).toHaveBeenCalled();
+    expect(createSnackbar).not.toHaveBeenCalled();
+    expect(window.location.hash).toContain('/class/test-class/attendance/history');
+    expect(window.location.hash).toContain('snackbar=');
   });
 
   it('shows error snackbar and stays on page when submit fails', async () => {
@@ -454,7 +456,7 @@ describe('AttendanceEditPage', () => {
     });
   });
 
-  it('calls bulkUpdateRecords with only changed records on confirmed save', async () => {
+  it('calls bulkUpdateRecords and redirects with a success snackbar query on confirmed save', async () => {
     const { bulkUpdateRecords, createSnackbar } = renderEditPage();
     await global.flushPromises();
 
@@ -480,7 +482,9 @@ describe('AttendanceEditPage', () => {
     expect(bulkUpdateRecords).toHaveBeenCalledWith('session-1', [
       { user: 'learner-b', present: true },
     ]);
-    expect(createSnackbar).toHaveBeenCalled();
+    expect(createSnackbar).not.toHaveBeenCalled();
+    expect(window.location.hash).toContain('/class/test-class/attendance/history');
+    expect(window.location.hash).toContain('snackbar=');
   });
 
   it('shows error snackbar and stays on page when save fails', async () => {

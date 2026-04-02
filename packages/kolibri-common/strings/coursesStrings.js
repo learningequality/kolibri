@@ -395,4 +395,29 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',
   },
+  noTestDataLabel: {
+    message: 'No test has been activated for this unit yet',
+    context:
+      'Empty state message shown in the learning objectives report when no test has been activated for the unit',
+  },
+  preTestInProgress: {
+    message: 'Pre-test in progress',
+    context:
+      'Label shown in the accordion header when the pre-test is currently active and learners are still taking it',
+  },
+  preTestResults: {
+    message: 'Pre-test results',
+    context:
+      'Label shown in the accordion header when the pre-test is closed and results are available',
+  },
+  postTestInProgress: {
+    message: 'Post-test in progress',
+    context:
+      'Label shown in the accordion header when the post-test is currently active and learners are still taking it',
+  },
+  postTestResults: {
+    message: 'Post-test results',
+    context:
+      'Label shown in the accordion header when the post-test is closed and results are available',
+  },
 });

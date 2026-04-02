@@ -3,19 +3,21 @@
   <div class="prev-next-bar">
     <!-- Prev button on the left -->
     <KButton
+      class="btn-flex"
+      appearance="raised-button"
       data-testid="prev-button"
       :disabled="!canGoPrev"
-      appearance="flat-button"
       :aria-label="previousLabel$()"
+      :text="showButtonLabels ? previousLabel$() : ''"
       @click="handlePrev"
     >
-      <div class="btn-flex">
+      <template #icon>
         <KIcon
-          class="icon"
           icon="back"
+          class="btn-icon"
+          :color="$themeTokens.text"
         />
-        <span v-if="showButtonLabels">{{ previousLabel$() }}</span>
-      </div>
+      </template>
     </KButton>
 
     <!-- Progress/status in the center -->
@@ -37,19 +39,21 @@
         <slot name="actions"></slot>
       </div>
       <KButton
+        primary
+        class="btn-flex"
         data-testid="next-button"
         :disabled="!canGoNext"
-        appearance="flat-button"
         :aria-label="nextLabel$()"
+        :text="showButtonLabels ? nextLabel$() : ''"
         @click="handleNext"
       >
-        <div class="btn-flex">
-          <span v-if="showButtonLabels">{{ nextLabel$() }}</span>
+        <template #iconAfter>
           <KIcon
-            class="icon"
+            class="btn-icon hotfixed"
             icon="forward"
+            :color="$themeTokens.textInverted"
           />
-        </div>
+        </template>
       </KButton>
     </div>
   </div>
@@ -143,6 +147,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../buttons';
+
   .prev-next-bar {
     display: flex;
     align-items: center;
@@ -167,14 +173,7 @@
   }
 
   .btn-flex {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    justify-content: center;
-
-    .icon {
-      top: 0;
-    }
+    @include btn-flex;
   }
 
 </style>

@@ -1,0 +1,83 @@
+name: Publish Docker Image
+
+on:
+  workflow_call:
+    inputs: &workflow_inputs
+      release-tag:
+        description: Release tag to publish (for example, v0.19.2)
+        required: true
+        type: string
+      tag-latest:
+        description: Tag the image as 'latest'
+        required: false
+        type: boolean
+  workflow_dispatch:
+    inputs: *workflow_inputs
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Parse Kolibri version
+        id: parse-version
+        run: |
+          tag='${{ inputs.release-tag }}'
+          echo "kolibri_version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Github Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub Registry
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: |
+            ghcr.io/${{ env.IMAGE_NAME }}
+            docker.io/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.parse-version.outputs.kolibri_version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.parse-version.outputs.kolibri_version }}
+            type=raw,value=latest,enable=${{ inputs.tag-latest }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./docker
+          file: docker/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          build-args: |
+            KOLIBRI_VERSION=${{ steps.parse-version.outputs.kolibri_version }}
+            KOLIBRI_VERSION_SPEC='==${{ steps.parse-version.outputs.kolibri_version }}'
