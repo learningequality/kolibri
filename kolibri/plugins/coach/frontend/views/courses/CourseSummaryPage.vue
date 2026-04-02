@@ -697,8 +697,6 @@
         return null;
       });
 
-      watch(courseSession, () => store.dispatch('notLoading'));
-
       // Sync selectedLearner with route query — supports deep-linking to a learner panel
       watch([() => route.query.learnerId, learnersReportData], ([learnerId]) => {
         if (!learnerId) {

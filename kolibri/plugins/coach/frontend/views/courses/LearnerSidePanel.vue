@@ -1,7 +1,10 @@
 <template>
 
   <SidePanelModal @closePanel="closePanel">
-    <SidePanelLayout :closePanel="closePanel">
+    <SidePanelLayout
+      :closePanel="closePanel"
+      :contentContainerStyleOverrides="{ paddingTop: '16px' }"
+    >
       <template #title>
         <div class="learner-panel-title">
           <KIcon
@@ -342,6 +345,7 @@
   }
 
   .empty-description {
+    padding-left: 28px;
     margin: 0;
   }
 
