@@ -228,3 +228,77 @@ jobs:
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
+  publish_github_pages_ppa:
+    name: Publish GitHub Pages PPA
+    needs:
+      - build_binary_package
+      - block_release_step
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Install reprepro
+        run: sudo apt-get update && sudo apt-get install -y reprepro
+      - name: Set GPG key ID
+        id: gpg
+        run: |
+          GPG_KEY_ID="${{ vars.DEBIAN_REPO_SIGNING_KEY_ID }}"
+          if [ -z "$GPG_KEY_ID" ]; then
+            echo "::error::No signing key ID provided (set vars.DEBIAN_REPO_SIGNING_KEY_ID)"
+            exit 1
+          fi
+          echo "key-id=$GPG_KEY_ID" >> "$GITHUB_OUTPUT"
+      - name: Import GPG signing key into isolated keyring
+        run: |
+          GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          echo "pinentry-mode loopback" > "$GNUPGHOME/gpg.conf"
+          echo "allow-loopback-pinentry" > "$GNUPGHOME/gpg-agent.conf"
+          echo "${{ secrets.DEBIAN_REPO_SIGNING_KEY }}" | gpg --batch --import
+          echo "${{ steps.gpg.outputs.key-id }}:6:" | gpg --batch --import-ownertrust
+          gpgconf --kill gpg-agent
+      - name: Download .deb artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kolibri-server-deb
+          path: incoming
+      - name: Identify .deb file
+        id: deb
+        run: |
+          DEB_FILE=$(find incoming -maxdepth 1 -name '*.deb' -print -quit)
+          if [ -z "$DEB_FILE" ]; then
+            echo "::error::No .deb file found in incoming/"
+            exit 1
+          fi
+          echo "path=$DEB_FILE" >> "$GITHUB_OUTPUT"
+          echo "Found: $DEB_FILE ($(du -h "$DEB_FILE" | cut -f1))"
+      - name: Build APT repository with reprepro
+        run: |
+          mkdir -p repo/conf
+          cat > repo/conf/distributions <<EOF
+          Origin: Learning Equality
+          Label: Kolibri Server
+          Suite: stable
+          Codename: stable
+          Architectures: amd64 i386 arm64 armhf
+          Components: main
+          Description: Kolibri Server Debian repository
+          SignWith: ${{ steps.gpg.outputs.key-id }}
+          EOF
+          reprepro -b repo includedeb stable "${{ steps.deb.outputs.path }}"
+          gpg --armor --export "${{ steps.gpg.outputs.key-id }}" > repo/pubkey.asc
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: repo
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
