@@ -15,21 +15,21 @@
           <template #header="{ header }">
             {{ header.label }}
           </template>
-          <template #cell="{ content, rowIndex, colIndex }">
+          <template #cell="{ content, colIndex, row }">
             <template v-if="colIndex === 0">
               <KButton
                 class="lo-link"
                 appearance="basic-link"
                 :text="content"
-                @click="onObjectiveClick(rowIndex)"
+                @click="onObjectiveClick(row)"
               />
             </template>
             <template v-else-if="colIndex === 1">
               <SparklineBar
                 class="lo-sparkline"
-                :lowCount="objectiveAt(rowIndex).lowCount"
-                :midCount="objectiveAt(rowIndex).midCount"
-                :highCount="objectiveAt(rowIndex).highCount"
+                :lowCount="objectiveAt(row).lowCount"
+                :midCount="objectiveAt(row).midCount"
+                :highCount="objectiveAt(row).highCount"
               />
             </template>
           </template>
@@ -68,13 +68,14 @@
 
       const rows = computed(() => bucketedObjectives.value.map(obj => [obj.text, obj.id]));
 
-      function objectiveAt(rowIndex) {
-        return bucketedObjectives.value[rowIndex];
+      function objectiveAt(row) {
+        // row is [text, id] — look up by ID to handle KTable sorting
+        return bucketedObjectives.value.find(obj => obj.id === row[1]);
       }
 
-      function onObjectiveClick(rowIndex) {
+      function onObjectiveClick(row) {
         emit('select-objective', {
-          objective: bucketedObjectives.value[rowIndex],
+          objective: objectiveAt(row),
           reportData: data.value?.reportData,
         });
       }

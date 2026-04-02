@@ -112,9 +112,9 @@ describe('LearningObjectiveSidePanel', () => {
 
   it('shows warning banner when learners are struggling', () => {
     renderPanel();
-    // user-2 scored 1/4=25% (low), user-3 has no score so 0/4=0% (low)
+    // user-2 scored 1/4=25% (low); user-3 has no scores and is excluded
     // user-1 scored 4/4=100% (high)
-    expect(screen.getByText(/2 learners struggling with this objective/)).toBeInTheDocument();
+    expect(screen.getByText(/1 learner struggling with this objective/)).toBeInTheDocument();
     expect(screen.getByTestId('icon-error')).toBeInTheDocument();
   });
 
@@ -140,19 +140,18 @@ describe('LearningObjectiveSidePanel', () => {
 
   it('sorts learner scores ascending (lowest first)', () => {
     renderPanel();
-    // Scores are rendered as "X of 4" inside .learner-score spans
+    // Only learners with scores are shown (user-1=4, user-2=1); user-3 has no scores
     const scoreSpans = screen.getAllByText(/of 4$/);
-    expect(scoreSpans[0]).toHaveTextContent('0 of 4');
-    expect(scoreSpans[1]).toHaveTextContent('1 of 4');
-    expect(scoreSpans[2]).toHaveTextContent('4 of 4');
+    expect(scoreSpans[0]).toHaveTextContent('1 of 4');
+    expect(scoreSpans[1]).toHaveTextContent('4 of 4');
   });
 
   it('shows learner names in score-sorted order', () => {
     renderPanel();
-    const names = screen.getAllByText(/^(Alice|Bob|Carol)$/);
-    expect(names[0]).toHaveTextContent('Carol');
-    expect(names[1]).toHaveTextContent('Bob');
-    expect(names[2]).toHaveTextContent('Alice');
+    // Only learners with scores are shown, sorted ascending: Bob(1), Alice(4)
+    const names = screen.getAllByText(/^(Alice|Bob)$/);
+    expect(names[0]).toHaveTextContent('Bob');
+    expect(names[1]).toHaveTextContent('Alice');
   });
 
   it('emits closePanel when close button is clicked', async () => {
@@ -162,7 +161,7 @@ describe('LearningObjectiveSidePanel', () => {
     expect(emitted().closePanel).toBeTruthy();
   });
 
-  it('handles case where no learners have scored', () => {
+  it('handles case where learners have scored zero on this objective', () => {
     const noScoresReport = {
       ...REPORT_DATA,
       pre_test: {
@@ -174,9 +173,9 @@ describe('LearningObjectiveSidePanel', () => {
       },
     };
     renderPanel({ reportData: noScoresReport });
-    // All 3 learners should show "0 of 4"
+    // Only learners present in scores dict are shown (user-1, user-2)
     const scores = screen.getAllByText('0 of 4');
-    expect(scores).toHaveLength(3);
+    expect(scores).toHaveLength(2);
   });
 
   it('uses post-test scores when post-test is activated', () => {

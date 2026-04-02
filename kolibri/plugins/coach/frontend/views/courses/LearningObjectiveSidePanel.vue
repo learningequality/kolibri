@@ -80,7 +80,7 @@
             <span class="learner-name">
               <KIcon
                 icon="person"
-                :style="{ width: '16px', height: '16px' }"
+                class="learner-icon"
               />
               {{ learner.name }}
             </span>
@@ -185,8 +185,9 @@
         const scores = activeTest.value.scores;
 
         return props.reportData.learners
+          .filter(learner => learner.id in scores)
           .map(learner => {
-            const score = (scores[learner.id] && scores[learner.id][loId]) || 0;
+            const score = scores[learner.id][loId] || 0;
             return {
               ...learner,
               score,
@@ -328,6 +329,13 @@
     align-items: center;
     font-size: 14px;
     font-weight: 500;
+  }
+
+  /* Override KIcon default top: 0.125em for proper vertical centering in flex row */
+  .learner-icon {
+    top: 0;
+    width: 16px;
+    height: 16px;
   }
 
   .learner-score {
