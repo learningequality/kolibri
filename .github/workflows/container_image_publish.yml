@@ -1,4 +1,4 @@
-name: Publish Docker Image
+name: Publish Container Image
 
 on:
   workflow_call:
@@ -80,4 +80,4 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             KOLIBRI_VERSION=${{ steps.parse-version.outputs.kolibri_version }}
-            KOLIBRI_VERSION_SPEC='==${{ steps.parse-version.outputs.kolibri_version }}'
+            KOLIBRI_VERSION_SPEC===${{ steps.parse-version.outputs.kolibri_version }}
