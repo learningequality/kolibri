@@ -1,10 +1,6 @@
 export default {
   CORE_SET_PAGE_LOADING(state, value) {
-    const update = { loading: value };
-    if (value) {
-      Object.assign(update, { pageSessionId: state.pageSessionId + 1 });
-    }
-    Object.assign(state, update);
+    state.loading = value;
   },
   CORE_SET_ERROR(state, error) {
     state.error = error;

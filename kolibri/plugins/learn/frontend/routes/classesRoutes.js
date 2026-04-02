@@ -71,7 +71,7 @@ export default [
         fromRoute.name === ClassesPageNames.EXAM_VIEWER &&
         toRoute.params.examId === fromRoute.params.examId &&
         toRoute.params.classId === fromRoute.params.classId;
-      showExam(store, toRoute.params, alreadyOnQuiz);
+      showExam(store, toRoute.params, alreadyOnQuiz, toRoute);
     },
     component: ExamPage,
   },

@@ -24,7 +24,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id });
-  const shouldResolve = samePageCheckGenerator(store);
+  const shouldResolve = samePageCheckGenerator(toRoute);
   return Promise.all([userPromise, classPromise]).then(
     ([facilityUsers, classroom]) => {
       if (shouldResolve()) {
@@ -65,7 +65,7 @@ export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
   });
   // current class
   const classPromise = ClassroomResource.fetchModel({ id, force: true });
-  const shouldResolve = samePageCheckGenerator(store);
+  const shouldResolve = samePageCheckGenerator(toRoute);
   return Promise.all([userPromise, classPromise]).then(
     ([facilityUsers, classroom]) => {
       if (shouldResolve()) {

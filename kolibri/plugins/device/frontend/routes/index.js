@@ -76,9 +76,9 @@ const routes = [
     name: PageNames.MANAGE_PERMISSIONS_PAGE,
     component: withAuthMessage(ManagePermissionsPage, 'superuser'),
     path: '/permissions',
-    handler: ({ name }) => {
-      store.dispatch('preparePage', { name });
-      showManagePermissionsPage(store).then(hideLoadingScreen);
+    handler: toRoute => {
+      store.dispatch('preparePage', { name: toRoute.name });
+      showManagePermissionsPage(store, toRoute).then(hideLoadingScreen);
     },
   },
   {
@@ -139,18 +139,18 @@ const routes = [
     name: PageNames.USER_PERMISSIONS_PAGE,
     component: withAuthMessage(UserPermissionsPage, 'superuser'),
     path: '/permissions/:userId',
-    handler: ({ params, name }) => {
-      store.dispatch('preparePage', { name });
-      showUserPermissionsPage(store, params.userId);
+    handler: toRoute => {
+      store.dispatch('preparePage', { name: toRoute.name });
+      showUserPermissionsPage(store, toRoute.params.userId, toRoute);
     },
   },
   {
     name: PageNames.DEVICE_INFO_PAGE,
     component: withAuthMessage(DeviceInfoPage, 'superuser'),
     path: '/info',
-    handler: ({ name }) => {
-      store.dispatch('preparePage', { name });
-      showDeviceInfoPage(store).then(hideLoadingScreen);
+    handler: toRoute => {
+      store.dispatch('preparePage', { name: toRoute.name });
+      showDeviceInfoPage(store, toRoute).then(hideLoadingScreen);
     },
   },
   {

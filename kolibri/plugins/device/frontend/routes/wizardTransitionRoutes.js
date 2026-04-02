@@ -17,12 +17,16 @@ export default [
     name: ContentWizardPages.AVAILABLE_CHANNELS,
     component: withAuthMessage(AvailableChannelsPage, 'contentManager'),
     path: '/content/channels',
-    handler: ({ query }) => {
-      return showAvailableChannelsPage(store, {
-        address_id: query.address_id,
-        drive_id: query.drive_id,
-        token: query.token,
-      });
+    handler: toRoute => {
+      return showAvailableChannelsPage(
+        store,
+        {
+          address_id: toRoute.query.address_id,
+          drive_id: toRoute.query.drive_id,
+          token: toRoute.query.token,
+        },
+        toRoute,
+      );
     },
   },
   {

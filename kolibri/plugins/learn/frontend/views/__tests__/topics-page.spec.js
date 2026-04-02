@@ -98,6 +98,7 @@ jest.mock('kolibri-common/composables/useChannels');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 // Needed to test anything using mount() where children use this composable
 jest.mock('kolibri-common/composables/useLearningActivities');
+jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);

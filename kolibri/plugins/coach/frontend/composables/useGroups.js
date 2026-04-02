@@ -14,7 +14,7 @@ export function useGroups() {
     groupsAreLoading.value = loading;
   }
 
-  async function showGroupsPage(store, classId) {
+  async function showGroupsPage(store, classId, route) {
     const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const fetchFacilitiesPromise =
       useUser().isSuperuser.value && facilities.value.length === 0
@@ -36,7 +36,7 @@ export function useGroups() {
         force: true,
       }),
     ];
-    const shouldResolve = samePageCheckGenerator(store);
+    const shouldResolve = samePageCheckGenerator(route);
     return Promise.all(promises).then(
       ([classUsers, groupsCollection]) => {
         if (shouldResolve()) {

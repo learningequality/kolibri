@@ -19,6 +19,7 @@ jest.mock('../../composables/useDownloadRequests');
 jest.mock('kolibri-common/composables/useChannels');
 jest.mock('../../composables/useCoreLearn');
 jest.mock('../../composables/useDevices');
+jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));
 
 const CONTENT_ID = 'content-id';
 const CHANNEL_ID = 'channel-id';
