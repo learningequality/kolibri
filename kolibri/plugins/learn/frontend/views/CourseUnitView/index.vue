@@ -350,17 +350,19 @@
         if (showInterstitial.value) {
           return false;
         }
-        if (
-          activeTest.value ||
-          currentResourceIndexInUnit.value === null ||
-          maxResourceLft.value === null
-        ) {
+        if (activeTest.value || currentResourceIndexInUnit.value === null) {
           return false;
         }
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
           // On the last resource — enable Next when the resource is complete
-          // (via local progress map or backend resume data)
+          // (via local progress map or backend resume data).
+          // This takes priority over maxResourceLft so that "Next" works
+          // even during gated states (e.g. PRE_TEST_CLOSE) where maxResourceLft
+          // may be null but the learner needs "Next" to reach the interstitial.
           return lastResourceLocallyComplete.value || allResourcesComplete.value;
+        }
+        if (maxResourceLft.value === null) {
+          return false;
         }
         const currentResource = unitResources.value[currentResourceIndexInUnit.value];
         return currentResource.lft < maxResourceLft.value;
