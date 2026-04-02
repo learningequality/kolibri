@@ -676,9 +676,9 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('shows interstitial when props only have unitId and resume_position only has unit_id', async () => {
-      // already on the right unit (matches resume), but no lesson/resource in
-      // resume — learner completed all resources, gated for post-test
+    it('redirects to last resource when all resources complete and on unit URL', async () => {
+      // All resources complete (resume_position has only unit_id) — redirect
+      // to the last resource so the learner can click "Next" for the interstitial.
       const resumePosition = {
         unit_id: UNIT_1,
       };
@@ -695,7 +695,15 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_3,
+            resourceId: RESOURCE_3,
+          },
+        });
       });
     });
 
@@ -1122,8 +1130,8 @@ describe('CourseUnitView', () => {
     });
   });
 
-  describe('gated learner shows inline interstitial', () => {
-    it('shows interstitial when on unit URL with all resources complete and no active test', async () => {
+  describe('gated learner redirects to last resource', () => {
+    it('redirects to last resource when on unit URL with all resources complete', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: null,
@@ -1137,11 +1145,19 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_3,
+            resourceId: RESOURCE_3,
+          },
+        });
       });
     });
 
-    it('shows interstitial when active test and learner completed it', async () => {
+    it('redirects to last resource when active test completed', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'post' },
@@ -1154,7 +1170,15 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_3,
+            resourceId: RESOURCE_3,
+          },
+        });
       });
     });
 
@@ -1245,7 +1269,7 @@ describe('CourseUnitView', () => {
       expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('shows interstitial when on unit URL (no resourceId) during PRE_TEST_CLOSE', async () => {
+    it('redirects to last resource when on unit URL during PRE_TEST_CLOSE', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'pre' },
@@ -1256,7 +1280,15 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_3,
+            resourceId: RESOURCE_3,
+          },
+        });
       });
     });
 

@@ -474,29 +474,26 @@
        * or if resume position doesn't have where to resume within the unit
        */
       const checkRedirectToUnitTree = () => {
-        // If resume_position has unit_id only (no lesson/resource) and no active
-        // test, the learner is gated — navigate to the gated unit if needed,
-        // then show interstitial inline.
+        // If resume_position has unit_id only (no lesson/resource), the learner
+        // has completed all resources in the unit (or completed a test).
+        // Redirect to the last resource — "Next" from there shows the interstitial.
         const rp = resumeData.value?.resume_position;
-        if (rp && !rp.lesson_id && !rp.resource_id && !resumeData.value?.active_test) {
+        if (rp && !rp.lesson_id && !rp.resource_id) {
           // If viewing a specific resource, let them view it.
           if (props.resourceId) {
             return false;
           }
-          // If navigating to a specific lesson (e.g. from CourseWelcomePage),
-          // skip the interstitial — fall through to the redirect-to-first-resource
-          // logic below which handles lesson routes without a resourceId.
-          if (!props.lessonId) {
-            if (props.unitId !== rp.unit_id) {
-              router.replace({
-                name: PageNames.COURSE_CONTENT__UNIT,
-                params: { courseId: props.courseId, unitId: rp.unit_id },
-              });
-              return true;
-            }
-            showInterstitial.value = true;
-            return false;
+          // Only redirect to the gated unit when no specific lesson/resource was
+          // requested. If the learner is browsing a previous unit, let them.
+          if (props.unitId !== rp.unit_id && !props.lessonId) {
+            router.replace({
+              name: PageNames.COURSE_CONTENT__UNIT,
+              params: { courseId: props.courseId, unitId: rp.unit_id },
+            });
+            return true;
           }
+          // Fall through — the redirect logic below picks the last resource
+          // when all are complete, or the first of a specific lesson.
         }
         if (
           props.unitId === resumeData.value?.resume_position?.unit_id &&
@@ -523,8 +520,16 @@
           }
 
           if (!resourceToRedirect) {
-            // no resource specified, redirect to the first resource of the unit
-            [resourceToRedirect] = unitResources.value;
+            // When all resources are complete (resume_position has only unit_id),
+            // redirect to the last resource so "Next" shows the interstitial.
+            // Otherwise redirect to the first resource of the unit.
+            const allComplete =
+              rp && !rp.lesson_id && !rp.resource_id && rp.unit_id === props.unitId;
+            if (allComplete && unitResources.value?.length) {
+              resourceToRedirect = unitResources.value[unitResources.value.length - 1];
+            } else {
+              [resourceToRedirect] = unitResources.value;
+            }
           }
 
           if (!resourceToRedirect) {
@@ -695,11 +700,13 @@
         if (resumeData.value.active_test) {
           if (resumeData.value.resume_position) {
             // Learner completed the active test — they are gated.
-            // If they're viewing a specific resource (explicit navigation), let them view it.
+            // If they're viewing a specific resource, let them view it.
             if (props.resourceId) {
               return false;
             }
-            // No specific resource — navigate to the gated unit and show interstitial
+            // No specific resource — navigate to the gated unit so the unit tree
+            // loads, then redirect to the last resource. The interstitial is only
+            // shown when the learner clicks "Next".
             const gatedUnitId = resumeData.value.resume_position.unit_id;
             if (props.unitId !== gatedUnitId) {
               router.replace({
@@ -708,8 +715,9 @@
               });
               return true;
             }
-            showInterstitial.value = true;
-            return false;
+            // On the right unit — use checkRedirectToUnitTree to redirect to
+            // the last resource (skipping the "redirect to active test" below).
+            return checkRedirectToUnitTree();
           }
 
           if (
