@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearnerSidePanel from '../LearnerSidePanel.vue';
@@ -77,12 +77,17 @@ describe('LearnerSidePanel', () => {
   describe('empty state', () => {
     it('shows empty state heading when learner has no scores', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.getByText(noProgressLabel$())).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { level: 3, name: noProgressLabel$() }),
+      ).toBeInTheDocument();
     });
 
     it('shows empty state description with learner name', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.getByText(hasntStartedUnitsLabel$({ name: LEARNER.name }))).toBeInTheDocument();
+      const emptyState = document.querySelector('.empty-state');
+      expect(
+        within(emptyState).getByText(hasntStartedUnitsLabel$({ name: LEARNER.name })),
+      ).toBeInTheDocument();
     });
 
     it('does not show LO rows in empty state', () => {
@@ -100,7 +105,7 @@ describe('LearnerSidePanel', () => {
     it('shows learner name', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(LEARNER.name)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: LEARNER.name })).toBeInTheDocument();
     });
   });
 
@@ -109,15 +114,21 @@ describe('LearnerSidePanel', () => {
       // Both LOs have scores → 2 of 2 completed
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(progressLabel$(), { exact: false })).toBeInTheDocument();
-      expect(screen.getByText(losCompletedLabel$({ completed: 2, total: 2 }))).toBeInTheDocument();
+      const statsRow = document.querySelector('.stats-row');
+      expect(within(statsRow).getByText(progressLabel$(), { exact: false })).toBeInTheDocument();
+      expect(
+        within(statsRow).getByText(losCompletedLabel$({ completed: 2, total: 2 })),
+      ).toBeInTheDocument();
     });
 
     it('shows only attempted LOs in PROGRESS count', () => {
       // Only lo-1 has a score entry
       const scores = { 'user-1': { 'lo-1': 3 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(losCompletedLabel$({ completed: 1, total: 2 }))).toBeInTheDocument();
+      const statsRow = document.querySelector('.stats-row');
+      expect(
+        within(statsRow).getByText(losCompletedLabel$({ completed: 1, total: 2 })),
+      ).toBeInTheDocument();
     });
   });
 
@@ -126,9 +137,11 @@ describe('LearnerSidePanel', () => {
       // lo-1: 2/4 = 50% (< 80%), lo-2: 2/4 = 50% (< 80%) → struggling count = 2
       const scores = { 'user-1': { 'lo-1': 2, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
+      const banner = document.querySelector('.warning-banner');
+      expect(banner).toBeTruthy();
+      expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
       expect(
-        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
+        within(banner).getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
       ).toBeInTheDocument();
     });
 
@@ -136,9 +149,11 @@ describe('LearnerSidePanel', () => {
       // lo-1: 4/4 = 100% (not struggling), lo-2: 2/4 = 50% (< 80%, struggling) → count = 1
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
+      const banner = document.querySelector('.warning-banner');
+      expect(banner).toBeTruthy();
+      expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
       expect(
-        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 1 })),
+        within(banner).getByText(strugglingWithObjectivesSuffixLabel$({ count: 1 })),
       ).toBeInTheDocument();
     });
 
@@ -146,9 +161,11 @@ describe('LearnerSidePanel', () => {
       // Learner has a scores entry but no LO keys → all ratios are 0 → all 2 LOs struggling
       const scores = { 'user-1': {} };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
+      const banner = document.querySelector('.warning-banner');
+      expect(banner).toBeTruthy();
+      expect(within(banner).getByText(strugglingWithObjectivesPrefixLabel$())).toBeInTheDocument();
       expect(
-        screen.getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
+        within(banner).getByText(strugglingWithObjectivesSuffixLabel$({ count: 2 })),
       ).toBeInTheDocument();
     });
 
@@ -156,7 +173,7 @@ describe('LearnerSidePanel', () => {
       // lo-1: 4/4 = 100%, lo-2: 4/4 = 100% → no struggling
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.queryByText(strugglingWithObjectivesPrefixLabel$())).not.toBeInTheDocument();
+      expect(document.querySelector('.warning-banner')).toBeNull();
     });
 
     it('does not show warning banner at exactly 80% per LO', () => {
@@ -175,15 +192,19 @@ describe('LearnerSidePanel', () => {
         },
       };
       renderComponent({ prefetchedData });
-      expect(screen.queryByText(strugglingWithObjectivesPrefixLabel$())).not.toBeInTheDocument();
+      expect(document.querySelector('.warning-banner')).toBeNull();
     });
 
     it('shows on-track banner when all LOs are at or above 80%', () => {
       // lo-1: 4/4 = 100%, lo-2: 4/4 = 100% → on track with 2 LOs
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(onTrackWithObjectivesPrefixLabel$())).toBeInTheDocument();
-      expect(screen.getByText(onTrackWithObjectivesSuffixLabel$({ count: 2 }))).toBeInTheDocument();
+      const banner = document.querySelector('.success-banner');
+      expect(banner).toBeTruthy();
+      expect(within(banner).getByText(onTrackWithObjectivesPrefixLabel$())).toBeInTheDocument();
+      expect(
+        within(banner).getByText(onTrackWithObjectivesSuffixLabel$({ count: 2 })),
+      ).toBeInTheDocument();
     });
   });
 
@@ -191,14 +212,16 @@ describe('LearnerSidePanel', () => {
     it('shows section heading', () => {
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(individualLoPerformanceLabel$())).toBeInTheDocument();
+      const loSection = document.querySelector('.lo-section');
+      expect(within(loSection).getByText(individualLoPerformanceLabel$())).toBeInTheDocument();
     });
 
     it('shows column headers', () => {
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(learningObjectiveLabel$())).toBeInTheDocument();
-      expect(screen.getByText(questionsCorrectLabel$())).toBeInTheDocument();
+      const columnHeaders = screen.getAllByRole('columnheader');
+      expect(columnHeaders[0]).toHaveTextContent(learningObjectiveLabel$());
+      expect(columnHeaders[1]).toHaveTextContent(questionsCorrectLabel$());
     });
 
     it('shows correct count and total for each LO via aria-label', () => {

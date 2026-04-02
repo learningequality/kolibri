@@ -143,30 +143,30 @@ describe('LearnersReport', () => {
   });
 
   describe('risk level badges', () => {
-    it('shows "Support needed" badge (red) for learner with score ≤ 45%', () => {
+    it('shows "Support needed" badge (red) for learner with score ≤ 50%', () => {
       // 3/8 = 37.5%
       const scores = { 'user-1': { 'lo-1': 2, 'lo-2': 1 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(supportNeededLabel$())).toBeInTheDocument();
     });
 
-    it('shows "Gaining momentum" badge (yellow) for learner in borderline range 46–60%', () => {
-      // 4/8 = 50%
-      const scores = { 'user-1': { 'lo-1': 2, 'lo-2': 2 } };
+    it('shows "Gaining momentum" badge (yellow) for learner in borderline range > 50% and ≤ 80%', () => {
+      // 5/8 = 62.5%
+      const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(gainingMomentumLabel$())).toBeInTheDocument();
     });
 
-    it('shows "On track" badge for learner with score > 60%', () => {
-      // 6/8 = 75%
-      const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 3 } };
+    it('shows "On track" badge for learner with score > 80%', () => {
+      // 7/8 = 87.5%
+      const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 3 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByText(onTrackLabel$())).toBeInTheDocument();
     });
 
-    it('shows "Support needed" (red) for learner at exactly 45%', () => {
-      // 9/20 = 45% — use 10 questions per LO for integer boundary
-      const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 5 } };
+    it('shows "Support needed" (red) for learner at exactly 50%', () => {
+      // 10/20 = 50% — use 10 questions per LO for integer boundary
+      const scores = { 'user-1': { 'lo-1': 5, 'lo-2': 5 } };
       renderComponent({
         prefetchedData: {
           activeTestType: 'pre',
@@ -185,11 +185,11 @@ describe('LearnersReport', () => {
       expect(screen.getByText(supportNeededLabel$())).toBeInTheDocument();
     });
 
-    it('shows "On track" for learner just above 60%', () => {
-      // 5/8 = 62.5%
+    it('shows "Gaining momentum" for learner just above 50%', () => {
+      // 5/8 = 62.5% — above MasteryThreshold.LOW (0.5), below MasteryThreshold.HIGH (0.8)
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText(onTrackLabel$())).toBeInTheDocument();
+      expect(screen.getByText(gainingMomentumLabel$())).toBeInTheDocument();
     });
 
     it('shows em dash for learners who did not attempt', () => {

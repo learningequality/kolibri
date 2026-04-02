@@ -137,7 +137,9 @@
                 class="lo-row"
                 :style="{
                   backgroundColor:
-                    lo.ratio >= 0.8 ? $themePalette.green.v_100 : $themePalette.yellow.v_100,
+                    lo.ratio >= MasteryThreshold.HIGH
+                      ? $themePalette.green.v_100
+                      : $themePalette.yellow.v_100,
                 }"
               >
                 <span
@@ -176,6 +178,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
+  import { MasteryThreshold } from '../../constants/courseConstants';
 
   export default {
     name: 'LearnerSidePanel',
@@ -238,13 +241,16 @@
       const loCompletedCount = computed(() => loData.value.filter(lo => lo.attempted).length);
       const loTotalCount = computed(() => loData.value.length);
 
-      const strugglingCount = computed(() => loData.value.filter(lo => lo.ratio < 0.8).length);
+      const strugglingCount = computed(
+        () => loData.value.filter(lo => lo.ratio < MasteryThreshold.HIGH).length,
+      );
 
       function closePanel() {
         emit('close');
       }
 
       return {
+        MasteryThreshold,
         learnerReportLabel$,
         noProgressLabel$,
         hasntStartedUnitsLabel$,
