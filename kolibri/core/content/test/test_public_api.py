@@ -121,59 +121,50 @@ class ImportMetadataTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_import_metadata_with_depth_zero(self):
-        """Test that depth=0 returns only the node itself."""
+    def test_import_metadata_with_descendants_returns_ancestors_and_descendants(self):
+        """Test that descendants=true returns both ancestors and descendants (ancestors first)."""
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=0"
+            + "?descendants=true"
         )
         self.assertEqual(response.status_code, 200)
-        # With depth=0, should return only the root node itself
-        nodes_data = response.data[content.ContentNode._meta.db_table]
-        self.assertEqual(len(nodes_data), 1)
-        self.assertEqual(nodes_data[0]["id"], self.root.id)
-
-    def test_import_metadata_with_depth(self):
-        """Test that depth parameter returns descendants instead of ancestors."""
-        response = self.client.get(
-            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=1"
-        )
-        self.assertEqual(response.status_code, 200)
-        # With depth=1, should return the root and its direct children
-        expected_nodes = self.root.get_descendants(include_self=True).filter(
-            level__lte=self.root.level + 1
-        )
+        # For the root node, ancestors (include_self) == [root] and descendants (exclude_self)
+        # == all other nodes, so the combined set equals get_descendants(include_self=True).
+        expected_nodes = self.root.get_descendants(include_self=True)
         nodes_data = response.data[content.ContentNode._meta.db_table]
         self.assertEqual(len(nodes_data), expected_nodes.count())
 
-    def test_import_metadata_with_depth_negative(self):
-        """Test that negative depth returns 400."""
+    def test_import_metadata_with_descendants_includes_ancestors_for_non_root_node(
+        self,
+    ):
+        """Test that descendants=true on a non-root node includes the node's ancestors."""
         response = self.client.get(
-            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=-1"
+            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
+            + "?descendants=true"
         )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.data["error"], "Depth parameter must be a non-negative integer."
-        )
-
-    def test_import_metadata_with_depth_invalid(self):
-        """Test that non-integer depth returns 400."""
-        response = self.client.get(
-            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=abc"
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.data["error"], "Depth parameter must be a non-negative integer."
-        )
+        self.assertEqual(response.status_code, 200)
+        ancestors = self.node.get_ancestors(include_self=True)
+        node_descendants = self.node.get_descendants(include_self=False)
+        expected_count = ancestors.count() + node_descendants.count()
+        nodes_data = response.data[content.ContentNode._meta.db_table]
+        self.assertEqual(len(nodes_data), expected_count)
+        # Ancestors must appear before descendants — verify ordering by lft.
+        returned_ids = [n["id"] for n in nodes_data]
+        ancestor_positions = [
+            returned_ids.index(str(n.id).replace("-", "")) for n in ancestors
+        ]
+        descendant_ids = {str(n.id).replace("-", "") for n in node_descendants}
+        descendant_positions = [
+            i for i, nid in enumerate(returned_ids) if nid in descendant_ids
+        ]
+        if descendant_positions:
+            self.assertLess(max(ancestor_positions), min(descendant_positions))
 
     def test_import_metadata_with_pagination(self):
         """Test that max_results enables pagination."""
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=10&max_results=2"
+            + "?descendants=true&max_results=2"
         )
         self.assertEqual(response.status_code, 200)
         # Paginated response should have 'more' and 'results' keys
@@ -187,7 +178,7 @@ class ImportMetadataTestCase(APITestCase):
         max_results = 2
         response = self.client.get(
             reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.root.id})
-            + "?depth=10&max_results={}".format(max_results)
+            + "?descendants=true&max_results={}".format(max_results)
         )
         self.assertEqual(response.status_code, 200)
         nodes_data = response.data["results"][content.ContentNode._meta.db_table]

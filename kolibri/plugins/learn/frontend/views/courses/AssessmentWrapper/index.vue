@@ -124,6 +124,7 @@
             <transition mode="out-in">
               <KButton
                 v-if="!complete"
+                class="btn-flex"
                 :text="$tr('check')"
                 :primary="!hasNextResource"
                 :class="{ shaking: shake }"
@@ -133,6 +134,7 @@
               <KButton
                 v-else
                 ref="nextButton"
+                class="btn-flex"
                 :text="hasNextResource ? practiceAction$() : $tr('next')"
                 :primary="!hasNextResource"
                 @click="nextQuestion"
@@ -141,10 +143,19 @@
           </div>
           <KButton
             v-if="hasNextResource"
+            class="btn-flex"
             primary
             :text="nextLabel$()"
             @click="$emit('nextResource')"
-          />
+          >
+            <template #iconAfter>
+              <KIcon
+                class="btn-icon hotfixed"
+                icon="forward"
+                :color="$themeTokens.textInverted"
+              />
+            </template>
+          </KButton>
         </div>
       </div>
     </template>
@@ -533,6 +544,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+  @import '../../buttons';
 
   .assesment-wrapper-content {
     display: flex;
@@ -656,6 +668,10 @@
 
   /deep/ .framework-perseus {
     margin: 0 !important;
+  }
+
+  .btn-flex {
+    @include btn-flex;
   }
 
 </style>

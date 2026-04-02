@@ -75,36 +75,35 @@
       >
         <div class="navigation-buttons-wrapper">
           <KButton
+            class="btn-flex"
+            primary
             :disabled="questionNumber === questionsTotal - 1"
-            :primary="true"
             :aria-label="$tr('nextQuestion')"
-            :appearanceOverrides="navigationButtonStyle"
+            :text="displayNavigationButtonLabel ? $tr('nextQuestion') : ''"
             @click="goToQuestion(questionNumber + 1)"
           >
-            <div class="btn-flex">
-              <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+            <template #iconAfter>
               <KIcon
                 icon="forward"
-                color="white"
-                class="icon"
+                :color="$themeTokens.textInverted"
+                class="btn-icon hotfixed"
               />
-            </div>
+            </template>
           </KButton>
           <KButton
+            class="btn-flex"
             :disabled="questionNumber === 0"
-            :primary="true"
-            :appearanceOverrides="navigationButtonStyle"
             :aria-label="$tr('previousQuestion')"
+            :text="displayNavigationButtonLabel ? $tr('previousQuestion') : ''"
             @click="goToQuestion(questionNumber - 1)"
           >
-            <div class="btn-flex">
+            <template #icon>
               <KIcon
                 icon="back"
-                color="white"
-                class="icon"
+                :color="$themeTokens.text"
+                class="btn-icon"
               />
-              <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
-            </div>
+            </template>
           </KButton>
         </div>
 
@@ -117,7 +116,7 @@
             :text="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
             :primary="false"
             appearance="flat-button"
-            class="submit-button"
+            class="btn-flex submit-button"
             @click="toggleModal"
           />
         </div>
@@ -297,11 +296,6 @@
       },
       displayNavigationButtonLabel() {
         return this.windowBreakpoint > 0;
-      },
-      navigationButtonStyle() {
-        return this.displayNavigationButtonLabel
-          ? {}
-          : { minWidth: '36px', width: '36px', padding: 0 };
       },
     },
     watch: {
@@ -485,6 +479,8 @@
 
 <style lang="scss" scoped>
 
+  @import '../../buttons';
+
   .bottom-bar {
     display: flex;
     // Using row-reverse to make the navigation buttons come first in the DOM order for better
@@ -548,14 +544,7 @@
   }
 
   .btn-flex {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    justify-content: center;
-
-    .icon {
-      top: 0;
-    }
+    @include btn-flex;
   }
 
 </style>

@@ -82,8 +82,7 @@
             attendance_records: form.buildRecords(),
           });
           isDirty.value = false;
-          form.navigateBack();
-          createSnackbar(submitSuccessMessage$());
+          form.navigateBack({ snackbar: submitSuccessMessage$() });
         } catch (_err) {
           createSnackbar(submitErrorMessage$());
         } finally {

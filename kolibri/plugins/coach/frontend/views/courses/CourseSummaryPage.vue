@@ -214,56 +214,19 @@
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
-                <AccordionContainer>
+                <AccordionContainer :key="activeUnit ? activeUnit.id : 'complete'">
                   <AccordionItem
                     v-for="unit in allUnits"
                     :key="unit.id"
-                    :title="unit.numberedTitle"
+                    :title="unitObjectiveTitle(unit)"
                     :headerAppearanceOverrides="courseObjectiveheaderstyle"
                     :contentAppearanceOverrides="{
                       padding: '0',
                     }"
+                    :isOpenByDefault="activeUnit && activeUnit.id === unit.id"
                   >
-                    <template #trailing-actions>
-                      <div
-                        class="mastery-pill pill"
-                        :style="{
-                          backgroundColor: getUnitMasteryColor(unit),
-                          borderColor: getUnitMasteryBorderColor(unit),
-                        }"
-                      >
-                        <KIcon
-                          :icon="isLowMastery(unit) ? 'error' : 'correct'"
-                          :color="
-                            isLowMastery(unit) ? $themePalette.red.v_600 : $themePalette.green.v_600
-                          "
-                          :style="{ width: '15px', height: '15px' }"
-                        />
-                        {{ getUnitMasteryLabel(unit) }}
-                      </div>
-                    </template>
                     <template #content>
-                      <div
-                        v-for="objective in getUnitObjectives(unit)"
-                        :key="objective.id"
-                        class="objective-row"
-                        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-                      >
-                        <div class="objective-info">
-                          <!-- TODO: Replace :to with real route once detail route is available -->
-                          <KRouterLink
-                            :text="objective.title"
-                            :to="{}"
-                          />
-                        </div>
-                        <div class="objective-sparkline">
-                          <SparklineBar
-                            :lowCount="objective.lowCount"
-                            :midCount="objective.midCount"
-                            :highCount="objective.highCount"
-                          />
-                        </div>
-                      </div>
+                      <LearningObjectivesReport :prefetchedData="unitReportInfo[unit.id]" />
                     </template>
                   </AccordionItem>
                 </AccordionContainer>
@@ -312,7 +275,7 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useRoute } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -320,6 +283,7 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -328,7 +292,9 @@
   import useCourseSession from '../../composables/useCourseSession';
   import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
-  import SparklineBar from '../common/SparklineBar.vue';
+  import UnitReportResource from '../../apiResources/unitReport';
+  import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
+  import LearningObjectivesReport from './LearningObjectivesReport.vue';
 
   export default {
     name: 'CourseSummaryPage',
@@ -338,8 +304,8 @@
       CoachAppBarPage,
       CoachHeader,
       ElapsedTime,
+      LearningObjectivesReport,
       Recipients,
-      SparklineBar,
     },
     setup() {
       const {
@@ -368,8 +334,10 @@
         nOfMLearners$,
         activeUnit$,
         visibleToLearnersLabel$,
-        lowMasteryLabel$,
-        strongMasteryLabel$,
+        preTestInProgress$,
+        preTestResults$,
+        postTestInProgress$,
+        postTestResults$,
       } = coursesStrings;
 
       const { recipientsLabel$, sizeLabel$, numberOfResources$ } = coachStrings;
@@ -415,64 +383,65 @@
 
       // UI-only state
       const activeModal = ref(null);
-      // TODO:  To be replace with real API data once learning objectives endpoint is available
-      function getUnitObjectives(unit) {
-        const index = units.value.findIndex(u => u.id === unit.id);
-        const seed = index + 1;
 
-        // TODO: To be replace with real API data once learning objectives endpoint is available
-        return [
-          {
-            id: `${unit.id}-obj-1`,
-            title: 'Test objectives1',
-            lowCount: 0,
-            midCount: seed,
-            highCount: seed * 3,
-          },
-          {
-            id: `${unit.id}-obj-2`,
-            title: 'Test objectives2',
-            lowCount: seed * 5,
-            midCount: seed * 3,
-            highCount: seed * 7,
-          },
-          {
-            id: `${unit.id}-obj-3`,
-            title: 'Test objectives3',
-            lowCount: seed * 3,
-            midCount: seed * 2,
-            highCount: seed * 5,
-          },
-          {
-            id: `${unit.id}-obj-4`,
-            title: 'Overall coherence',
-            lowCount: seed * 4,
-            midCount: seed * 5,
-            highCount: seed * 9,
-          },
-        ];
+      // Per-unit report data fetched eagerly for LO report and titles
+      const unitReportInfo = ref({});
+
+      function fetchAllUnitReports() {
+        const sessionId = courseSessionId.value;
+        const unitList = allUnits.value;
+        if (!sessionId || !unitList.length) return;
+        for (const unit of unitList) {
+          UnitReportResource.fetchReport({
+            courseSessionId: sessionId,
+            unitContentnodeId: unit.id,
+          })
+            .then(data => {
+              unitReportInfo.value = {
+                ...unitReportInfo.value,
+                [unit.id]: {
+                  ...deriveUnitReportInfo(data),
+                  reportData: data,
+                },
+              };
+            })
+            .catch(() => {
+              unitReportInfo.value = {
+                ...unitReportInfo.value,
+                [unit.id]: {
+                  activeTestType: null,
+                  activeTestStatus: 'not_activated',
+                  bucketedObjectives: [],
+                  reportData: null,
+                },
+              };
+            });
+        }
       }
 
-      // TODO:  To be Replace with mastery data  from the  API.
-      function isLowMastery(unit) {
-        const index = units.value.findIndex(u => u.id === unit.id);
-        return index % 2 === 0;
-      }
+      // Fetch reports when units become available
+      watch(allUnits, () => {
+        if (allUnits.value.length) {
+          fetchAllUnitReports();
+        }
+      });
 
-      function getUnitMasteryLabel(unit) {
-        const index = units.value.findIndex(u => u.id === unit.id);
-        const seed = index + 8;
-        return isLowMastery(unit)
-          ? lowMasteryLabel$({ count: Math.round(4 / seed) })
-          : strongMasteryLabel$();
-      }
-
-      function getUnitMasteryColor(unit) {
-        return isLowMastery(unit) ? themePalette().red.v_100 : themePalette().green.v_100;
-      }
-
-      function getUnitMasteryBorderColor(unit) {
-        return isLowMastery(unit) ? themePalette().red.v_400 : themePalette().green.v_400;
+      function unitObjectiveTitle(unit) {
+        const info = unitReportInfo.value[unit.id];
+        if (!info || !info.activeTestType) {
+          return unit.numberedTitle;
+        }
+        let statusLabel;
+        if (info.activeTestType === 'pre') {
+          statusLabel = info.activeTestStatus === 'open' ? preTestInProgress$() : preTestResults$();
+        } else if (info.activeTestType === 'post') {
+          statusLabel =
+            info.activeTestStatus === 'open' ? postTestInProgress$() : postTestResults$();
+        }
+        if (!statusLabel) {
+          return unit.numberedTitle;
+        }
+        return `${unit.numberedTitle} (${statusLabel})`;
       }
 
       const courseObjectiveheaderstyle = computed(() => {
@@ -480,6 +449,7 @@
           backgroundColor: themePalette().grey.v_100,
           padding: '12px 16px',
           fontWeight: 'bold',
+          textAlign: isRtl(currentLanguage) ? 'right' : 'left',
         };
       });
 
@@ -499,6 +469,14 @@
           label: learningObjectivesLabel$(),
         },
       ];
+
+      // Re-fetch when switching to the Learning Objectives tab so that
+      // test state changes made on the Units tab are reflected immediately.
+      watch(activeTabId, newTab => {
+        if (newTab === TABS.OBJECTIVES) {
+          fetchAllUnitReports();
+        }
+      });
 
       // Phase-based status messages
       const unitStatusMessages = computed(() => {
@@ -688,12 +666,9 @@
         statusPillStyles,
         onUnitButtonClick,
         allUnits,
-        getUnitObjectives,
-        isLowMastery,
-        getUnitMasteryLabel,
-        getUnitMasteryColor,
-        getUnitMasteryBorderColor,
         courseObjectiveheaderstyle,
+        unitReportInfo,
+        unitObjectiveTitle,
       };
     },
     watch: {
@@ -771,14 +746,6 @@
     border-radius: 16px;
   }
 
-  .mastery-pill {
-    height: 22px;
-    padding: 2px 8px 2px 3px;
-    font-size: 12px;
-    font-weight: 100;
-    border: 1px solid;
-  }
-
   .unit-status {
     display: flex;
     gap: 16px;
@@ -822,24 +789,6 @@
 
   .learning-objectives-tab {
     padding: 0;
-  }
-
-  .objective-row {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-  }
-
-  .objective-info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .objective-sparkline {
-    flex: 1;
-    max-width: 150px;
   }
 
 </style>

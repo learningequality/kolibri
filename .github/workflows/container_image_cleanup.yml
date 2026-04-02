@@ -1,0 +1,29 @@
+name: Cleanup Docker Images
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday at midnight
+  workflow_dispatch:
+    inputs:
+      versions_to_keep:
+        description: 'Number of package versions to keep'
+        required: true
+        default: '5'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Cleanup old package versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: ${{ inputs.versions_to_keep || 5 }}

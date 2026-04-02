@@ -2,7 +2,6 @@ import logging
 from collections import namedtuple
 from datetime import timedelta
 
-from django.contrib.sessions.models import Session
 from django.db import connection
 from django.db.models import Count
 from django.db.models import Sum
@@ -10,6 +9,7 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 
 from kolibri.core.analytics import SUPPORTED_OS
+from kolibri.core.auth.models import Session
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -38,12 +38,11 @@ def get_db_info():
     active_users = active_users_minute = None
     try:
         connection.ensure_connection()
-        # Sessions active in the last 10 minutes (includes guest accesses):
-        active_sessions = str(
-            Session.objects.filter(expire_date__gte=timezone.now()).count()
-        )
-        last_ten_minutes = timezone.now() - timedelta(minutes=10)
-        last_minute = timezone.now() - timedelta(minutes=1)
+        now = timezone.now()
+        # Non-expired sessions (includes guest accesses):
+        active_sessions = str(Session.objects.filter(expire_date__gte=now).count())
+        last_ten_minutes = now - timedelta(minutes=10)
+        last_minute = now - timedelta(minutes=1)
         # Active logged users:
         active_users = str(
             UserSessionLog.objects.filter(
@@ -146,8 +145,9 @@ def get_machine_info():
     if not SUPPORTED_OS:
         return (None, None, None, None)
     used_cpu = str(psutil.cpu_percent())
-    used_memory = str(psutil.virtual_memory().used / pow(10, 6))  # In Megabytes
-    total_memory = str(psutil.virtual_memory().total / pow(10, 6))  # In Megabytes
+    memory = psutil.virtual_memory()
+    used_memory = str(memory.used / pow(10, 6))  # In Megabytes
+    total_memory = str(memory.total / pow(10, 6))  # In Megabytes
     total_processes = str(len(psutil.pids()))
 
     return (used_cpu, used_memory, total_memory, total_processes)
@@ -180,6 +180,8 @@ def get_kolibri_process_cmd():
     if not SUPPORTED_OS:
         return None
     kolibri_pid, _ = get_kolibri_process_info()
+    if kolibri_pid is None:
+        return None
     try:
         kolibri_proc = psutil.Process(kolibri_pid)
     except psutil.NoSuchProcess:
