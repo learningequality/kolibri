@@ -372,7 +372,14 @@
         if (!nextEnabled.value) {
           return null;
         }
-        return unitResources.value[currentResourceIndexInUnit.value + 1] || null;
+        const next = unitResources.value[currentResourceIndexInUnit.value + 1];
+        if (next) {
+          return next;
+        }
+        // On the last resource with nextEnabled — "Next" will show the interstitial.
+        // Return the current resource as a sentinel so content viewers (e.g.
+        // AssessmentWrapper) show their "Next" button.
+        return unitResources.value[currentResourceIndexInUnit.value] || null;
       });
 
       const previousAvailableResource = computed(() => {
