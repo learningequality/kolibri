@@ -26,6 +26,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
     steps:
       - name: Parse Kolibri version
         id: parse-version
@@ -35,36 +36,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v4.1.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v4.1.0
+      - name: Log in to Docker Hub Registry
+        uses: docker/login-action@v4.2.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          scope: '${{ env.IMAGE_NAME }}@push'
       - name: Log in to Github Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Log in to Docker Hub Registry
-        uses: docker/login-action@v4
-        with:
-          registry: docker.io
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Extract metadata (tags, labels)
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@v6.1.0
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
         with:
           images: |
-            ghcr.io/${{ env.IMAGE_NAME }}
             docker.io/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}},value=${{ steps.parse-version.outputs.kolibri_version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.parse-version.outputs.kolibri_version }}
             type=raw,value=latest,enable=${{ inputs.tag-latest }}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v7
+        id: push
+        uses: docker/build-push-action@v7.2.0
         with:
           context: ./docker
           file: docker/Dockerfile
@@ -76,3 +78,15 @@ jobs:
           build-args: |
             KOLIBRI_VERSION=${{ steps.parse-version.outputs.kolibri_version }}
             KOLIBRI_VERSION_SPEC===${{ steps.parse-version.outputs.kolibri_version }}
+      - name: Generate Docker Hub artifact attestation
+        uses: actions/attest@v4.1.0
+        with:
+          subject-name: index.docker.io/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      - name: Generate Github artifact attestation
+        uses: actions/attest@v4.1.0
+        with:
+          subject-name: ghcr.io/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
