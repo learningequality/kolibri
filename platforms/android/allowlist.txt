@@ -1,9 +1,0 @@
-# Ensure that Django's SQLite backend module is included
-sqlite3/*
-lib-dynload/_sqlite3.so
-unittest/*
-wsgiref/*
-lib-dynload/_csv.so
-lib-dynload/_json.so
-# Django REST framework has a dependency on the Django test module
-django/test/*
