@@ -1,4 +1,4 @@
-name: Build Debian source package
+name: Release kolibri-server
 on:
   release:
     types: [published]
