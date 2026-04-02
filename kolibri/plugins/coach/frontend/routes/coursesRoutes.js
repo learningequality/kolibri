@@ -22,6 +22,25 @@ export default [
     meta: {
       titleParts: ['COURSE_NAME', 'CLASS_NAME'],
     },
+    children: [
+      {
+        name: PageNames.COURSE_SUMMARY_ASSIGN,
+        path: 'assign-course/',
+        component: AssignCourseSidePanel,
+        children: [
+          {
+            name: PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
+            path: ':courseId/course-details',
+            component: CourseDetailsSubpage,
+          },
+          {
+            name: PageNames.COURSE_SUMMARY_ASSIGN_SELECT_RECIPIENTS,
+            path: 'select-recipients',
+            component: SelectRecipientsSubpage,
+          },
+        ],
+      },
+    ],
   },
   {
     name: PageNames.COURSES_ROOT,

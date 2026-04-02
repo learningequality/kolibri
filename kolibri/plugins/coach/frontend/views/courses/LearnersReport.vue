@@ -2,12 +2,6 @@
 
   <div>
     <KCircularLoader v-if="loading" />
-    <template v-else-if="activeTestStatus === 'not_activated'">
-      <p class="empty-state">{{ noTestDataLabel$() }}</p>
-    </template>
-    <template v-else-if="noLearnersAttempted">
-      <p class="empty-state">{{ noLearnersAttemptedLabel$() }}</p>
-    </template>
     <template v-else>
       <KTable
         :headers="headers"

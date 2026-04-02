@@ -69,10 +69,14 @@
       });
 
       const closeSidePanel = () => {
+        // When opened from the course summary page, return there; otherwise return to courses list
+        const name = route.params.courseSessionId
+          ? PageNames.COURSE_SUMMARY
+          : PageNames.COURSES_ROOT;
         router
           .push(
             overrideRoute(route, {
-              name: PageNames.COURSES_ROOT,
+              name,
               query: null,
             }),
           )

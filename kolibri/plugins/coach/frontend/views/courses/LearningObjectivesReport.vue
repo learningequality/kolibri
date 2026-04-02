@@ -62,8 +62,8 @@
       const loading = computed(() => !data.value);
 
       const headers = computed(() => [
-        { label: learningObjectivesLabel$(), dataType: 'string' },
-        { label: masteryLabel$(), dataType: 'undefined', minWidth: '128px' },
+        { label: learningObjectivesLabel$(), dataType: 'string', columnId: 'objective' },
+        { label: masteryLabel$(), dataType: 'undefined', minWidth: '128px', columnId: 'mastery' },
       ]);
 
       const rows = computed(() => bucketedObjectives.value.map(obj => [obj.text, obj.id]));
@@ -109,12 +109,13 @@
   }
 
   .lo-link {
-    padding: 8px 0;
-    padding-inline-start: 8px;
+    display: block;
+    padding: 16px 8px 16px 24px;
   }
 
   .lo-sparkline {
-    padding-right: 8px;
+    display: block;
+    padding: 16px 24px 16px 8px;
   }
 
   /*

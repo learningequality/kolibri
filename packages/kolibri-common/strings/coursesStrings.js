@@ -122,6 +122,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Delete course assignment',
     context: 'Title for the modal that confirms course assignment deletion',
   },
+  deleteCourseFromSummaryTitle: {
+    message: 'Delete course',
+    context: 'Title for the confirmation modal when deleting a course from the course detail page',
+  },
+  deleteCourseFromSummaryConfirmation: {
+    message:
+      'Are you sure you want to delete this course? Learners will no longer be able to access the course and their progress, including your access to coach reports, will be deleted.',
+    context: 'Confirmation message when deleting a course from the course detail page',
+  },
   filterCourseStatus: {
     message: 'status',
     context: 'Label for filter dropdown to filter courses by visibility status',
@@ -278,13 +287,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Keep test running',
     context: 'Label for button that cancels modal for ending test',
   },
-  nOfMLearners: {
-    message: '{n, number} of {m, number} learners',
-    context: 'First part of label to be followed by a label "completed"',
+  nOfMLearnersworkingOnLessons: {
+    message: '{n, number} of {m, number} learners working on lessons',
+    context:
+      'Indicates how many learners are currently working on lessons in a unit out of the total number of learners assigned',
   },
-  workingOnLessons: {
-    message: 'working on lessons',
-    context: 'Placed after message "n of m learners" - separated like this for styling',
+  nOfMLearnersCompleted: {
+    message: '{n, number} of {m, number} learners completed',
+    context:
+      'indicates how many learners have completed a unit or course out of the total number of learners assigned',
   },
   activeUnit: {
     message: 'Active unit',
