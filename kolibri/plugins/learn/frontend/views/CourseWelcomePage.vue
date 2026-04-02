@@ -409,6 +409,7 @@
           loading.value = true;
           const { course: fetchedCourse } = await fetchCourse({
             courseSessionId: props.courseSessionId,
+            force: true,
           });
           course.value = fetchedCourse;
         } catch (error) {

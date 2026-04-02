@@ -1,33 +1,36 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="''"
+    :appBarTitle="waitingTitle"
     :loading="loading"
     icon="back"
     :appBarBgColor="$themeTokens.surface"
     :appBarHoverBgColor="$themePalette.grey.v_100"
-    :appearanceOverrides="{ backgroundColor: $themeTokens.surface }"
+    :appearanceOverrides="wrapperStyles"
     @navIconClick="goBack"
   >
-    <KCircularLoader v-if="loading" />
-    <div
-      v-else-if="gatedState"
-      data-testid="course-waiting-page"
-      class="waiting-content"
-    >
+    <template #default="{ pageContentHeight }">
+      <KCircularLoader v-if="loading" />
       <div
-        class="icon-wrapper"
-        :style="{ backgroundColor: $themePalette.green.v_100 }"
+        v-else-if="gatedState"
+        data-testid="course-waiting-page"
+        class="waiting-content"
+        :style="{ minHeight: `${pageContentHeight}px` }"
       >
-        <KIcon
-          icon="pointsActive"
-          :color="$themePalette.green.v_500"
-          class="waiting-icon"
-        />
+        <div
+          class="icon-wrapper"
+          :style="{ backgroundColor: $themePalette.green.v_100 }"
+        >
+          <KIcon
+            icon="pointsActive"
+            :color="$themePalette.green.v_500"
+            class="waiting-icon"
+          />
+        </div>
+        <strong>{{ waitingTitle }}</strong>
+        <p>{{ waitingDescription }}</p>
       </div>
-      <strong>{{ waitingTitle }}</strong>
-      <p>{{ waitingDescription }}</p>
-    </div>
+    </template>
   </ImmersivePage>
 
 </template>
@@ -36,10 +39,11 @@
 <script>
 
   import { computed, onMounted, getCurrentInstance, watch } from 'vue';
+  import store from 'kolibri/store';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useFetch from 'kolibri-common/composables/useFetch.js';
-  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import { LearnerCourseResource } from '../apiResources';
   import { PageNames } from '../constants';
@@ -60,6 +64,12 @@
       const currentInstance = getCurrentInstance().proxy;
       const router = currentInstance.$router;
       const $themePalette = themePalette();
+      const $themeTokens = themeTokens();
+
+      const wrapperStyles = {
+        backgroundColor: $themeTokens.surface,
+        width: '100%',
+      };
 
       const goBack = useGoBack({ fallbackRoute: { name: PageNames.HOME } });
 
@@ -170,6 +180,7 @@
       );
 
       onMounted(() => {
+        store.dispatch('notLoading');
         fetchResumeData();
       });
 
@@ -178,6 +189,7 @@
         gatedState,
         waitingTitle,
         waitingDescription,
+        wrapperStyles,
         goBack,
         $themePalette,
       };
@@ -200,7 +212,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 400px;
+    height: 100%;
     text-align: center;
   }
 

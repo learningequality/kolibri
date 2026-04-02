@@ -11,6 +11,7 @@ import { inClasses } from '../composables/useCoreLearn';
 import ExamPage from '../views/ExamPage/index.vue';
 import CourseRootPage from '../views/CourseRootPage.vue';
 import CourseUnitView from '../views/CourseUnitView/index.vue';
+import CourseWaitingPage from '../views/CourseWaitingPage';
 import CourseWelcomePage from '../views/CourseWelcomePage';
 import ExamReportViewer from '../views/LearnExamReportViewer';
 import AllClassesPage from '../views/classes/AllClassesPage';
@@ -101,6 +102,12 @@ export default [
         name: PageNames.COURSE_WELCOME,
         path: ':courseSessionId([a-f0-9]{32})/welcome',
         component: CourseWelcomePage,
+        props: true,
+      },
+      {
+        name: PageNames.COURSE_CONTENT__WAITING,
+        path: ':courseId([a-f0-9]{32})/waiting',
+        component: CourseWaitingPage,
         props: true,
       },
       {

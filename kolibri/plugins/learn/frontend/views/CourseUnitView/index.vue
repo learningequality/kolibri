@@ -18,20 +18,10 @@
         v-if="loading"
         disableDefaultTransition
       />
-      <CourseContentViewer
-        v-else-if="contentNodeToRender"
-        :contentNode="contentNodeToRender"
-        :nextResource="nextAvailableResource"
-        :previousResource="previousAvailableResource"
-        @next="handleNext"
-        @prev="handlePrev"
-        @finished="onResourceFinished"
-      />
       <div
-        v-else-if="showPostTestWaiting"
-        class="post-test-waiting"
-        data-testid="post-test-waiting-interstitial"
-        :style="{ backgroundColor: $themeTokens.surface }"
+        v-else-if="showInterstitial"
+        data-testid="gated-interstitial"
+        class="interstitial-content"
       >
         <div
           class="icon-wrapper"
@@ -40,27 +30,37 @@
           <KIcon
             icon="pointsActive"
             :color="$themePalette.green.v_500"
-            class="waiting-icon"
+            class="interstitial-icon"
           />
         </div>
-        <strong>{{ postTestNotOpenYet$() }}</strong>
-        <p>{{ postTestNotOpenYetDescription$() }}</p>
+        <strong>{{ interstitialTitle }}</strong>
+        <p>{{ interstitialDescription }}</p>
       </div>
+      <CourseContentViewer
+        v-else-if="contentNodeToRender"
+        :contentNode="contentNodeToRender"
+        :nextResource="nextAvailableResource"
+        :previousResource="previousAvailableResource"
+        @next="handleNext"
+        @prev="handlePrev"
+        @finished="onResourceFinished"
+        @completed="onTestCompleted"
+      />
     </template>
     <template
-      v-if="currentResource || showPostTestWaiting"
+      v-if="currentResource || showInterstitial"
       #bottomBar
     >
       <PrevNextBar
         class="course-bottom-bar"
-        :progressLabel="showPostTestWaiting ? '' : prevNextLabel"
-        :prevEnabled="showPostTestWaiting ? true : prevEnabled"
-        :nextEnabled="showPostTestWaiting ? false : nextEnabled"
+        :progressLabel="showInterstitial ? '' : prevNextLabel"
+        :prevEnabled="prevEnabled"
+        :nextEnabled="nextEnabled"
         :style="{
           backgroundColor: $themeTokens.surface,
           borderTop: `1px solid ${$themeTokens.fineLine}`,
         }"
-        @prev="showPostTestWaiting ? handlePrevFromInterstitial() : handlePrev()"
+        @prev="handlePrev"
         @next="handleNext"
       />
     </template>
@@ -115,6 +115,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri-common/composables/useFetch.js';
+  import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
@@ -138,6 +139,8 @@
     setup(props) {
       const router = useRouter();
       const resourceLayoutRef = ref(null);
+      const showInterstitial = ref(false);
+      const $themePalette = themePalette();
 
       const fetchCourseWithUnits = async () => {
         const courseData = await LearnerCourseResource.fetchModel({
@@ -240,30 +243,6 @@
         return true;
       });
 
-      // Show the "Post-test not open yet" interstitial when:
-      // - We're on the bare unit URL (no resource, lesson, or test in the route)
-      // - The course is started and the learner has a resume position
-      // - All resources in this unit are complete (resume_position has unit_id
-      //   but no lesson_id/resource_id, meaning nothing left to resume)
-      // - No active test exists (if the post-test were active, checkRedirect
-      //   would have already navigated to it)
-      const showPostTestWaiting = computed(() => {
-        if (props.resourceId || props.lessonId || props.testType) {
-          return false;
-        }
-        if (!resumeData.value?.started || !resumeData.value?.resume_position) {
-          return false;
-        }
-        const rp = resumeData.value.resume_position;
-        if (rp.unit_id !== props.unitId || rp.lesson_id || rp.resource_id) {
-          return false;
-        }
-        if (resumeData.value.active_test !== null) {
-          return false;
-        }
-        return true;
-      });
-
       const canGoToNextUnit = computed(() => {
         if (!nextUnit.value || activeTest.value) {
           return false;
@@ -283,13 +262,6 @@
           resources.push(...(lesson.children.results || []));
         }
         return resources;
-      });
-
-      const lastResource = computed(() => {
-        if (!unitResources.value?.length) {
-          return null;
-        }
-        return unitResources.value[unitResources.value.length - 1];
       });
 
       const currentLesson = computed(() => {
@@ -338,13 +310,39 @@
       });
 
       const prevEnabled = computed(() => {
+        if (showInterstitial.value) {
+          return true;
+        }
         if (activeTest.value) {
           return false;
         }
         return currentResourceIndexInUnit.value > 0;
       });
 
+      const allResourcesComplete = computed(() => {
+        const rp = resumeData.value?.resume_position;
+        return rp && !rp.lesson_id && !rp.resource_id && rp.unit_id === props.unitId;
+      });
+
+      // Whether the current resource (last in unit) is locally complete,
+      // checked via the progress map so it works regardless of whether
+      // the "finished" event has fired or resumeData has been updated.
+      const lastResourceLocallyComplete = computed(() => {
+        if (
+          currentResourceIndexInUnit.value === null ||
+          !unitResources.value?.length ||
+          currentResourceIndexInUnit.value < unitResources.value.length - 1
+        ) {
+          return false;
+        }
+        const res = unitResources.value[currentResourceIndexInUnit.value];
+        return (contentNodeProgressMap[res.content_id] || 0) >= 1;
+      });
+
       const nextEnabled = computed(() => {
+        if (showInterstitial.value) {
+          return false;
+        }
         if (
           activeTest.value ||
           currentResourceIndexInUnit.value === null ||
@@ -353,19 +351,9 @@
           return false;
         }
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
-          // On the last resource — enable Next to navigate to the post-test
-          // waiting interstitial (not to a next resource, so nextAvailableResource
-          // will be undefined in this case, which is intentional).
-          const rp = resumeData.value?.resume_position;
-          if (
-            rp?.unit_id === props.unitId &&
-            !rp?.lesson_id &&
-            !rp?.resource_id &&
-            !resumeData.value?.active_test
-          ) {
-            return true;
-          }
-          return false;
+          // On the last resource — enable Next when the resource is complete
+          // (via local progress map or backend resume data)
+          return lastResourceLocallyComplete.value || allResourcesComplete.value;
         }
         const currentResource = unitResources.value[currentResourceIndexInUnit.value];
         return currentResource.lft < maxResourceLft.value;
@@ -375,14 +363,7 @@
         if (!nextEnabled.value) {
           return null;
         }
-        const next = unitResources.value[currentResourceIndexInUnit.value + 1];
-        if (!next) {
-          // On the last resource with Next enabled (heading to interstitial) —
-          // return a placeholder so child components (e.g. AssessmentWrapper)
-          // show a "Next" button.
-          return { id: '__interstitial__' };
-        }
-        return next;
+        return unitResources.value[currentResourceIndexInUnit.value + 1] || null;
       });
 
       const previousAvailableResource = computed(() => {
@@ -486,7 +467,25 @@
        * or if resume position doesn't have where to resume within the unit
        */
       const checkRedirectToUnitTree = () => {
-        if (showPostTestWaiting.value) {
+        // If resume_position has unit_id only (no lesson/resource) and no active
+        // test, the learner is gated — navigate to the gated unit if needed,
+        // then show interstitial inline.
+        const rp = resumeData.value?.resume_position;
+        if (rp && !rp.lesson_id && !rp.resource_id && !resumeData.value?.active_test) {
+          // Only show interstitial when not viewing a specific resource —
+          // if the learner is on a resource, let them view it and use Next
+          // to reach the interstitial.
+          if (props.resourceId) {
+            return false;
+          }
+          if (props.unitId !== rp.unit_id) {
+            router.replace({
+              name: PageNames.COURSE_CONTENT__UNIT,
+              params: { courseId: props.courseId, unitId: rp.unit_id },
+            });
+            return true;
+          }
+          showInterstitial.value = true;
           return false;
         }
         if (
@@ -674,7 +673,12 @@
         return false;
       };
 
+      const hasRedirected = false;
+
       const checkRedirect = async () => {
+        if (hasRedirected) {
+          return false;
+        }
         if (!resumeData.value) {
           await fetchResumeData();
         }
@@ -684,6 +688,21 @@
           return false;
         }
         if (resumeData.value.active_test) {
+          if (resumeData.value.resume_position) {
+            // Learner completed the active test — navigate to the gated unit
+            // (if not already there) so the side panel loads, then show interstitial
+            const gatedUnitId = resumeData.value.resume_position.unit_id;
+            if (props.unitId !== gatedUnitId) {
+              router.replace({
+                name: PageNames.COURSE_CONTENT__UNIT,
+                params: { courseId: props.courseId, unitId: gatedUnitId },
+              });
+              return true;
+            }
+            showInterstitial.value = true;
+            return false;
+          }
+
           if (
             resumeData.value.active_test.unit_id === props.unitId &&
             resumeData.value.active_test.test_type === props.testType
@@ -732,6 +751,10 @@
         if (!prevEnabled.value) {
           return;
         }
+        if (showInterstitial.value) {
+          showInterstitial.value = false;
+          return;
+        }
         const newResourceIndex = currentResourceIndexInUnit.value - 1;
         const newResource = unitResources.value[newResourceIndex];
         router.replace({
@@ -750,17 +773,19 @@
         if (!nextEnabled.value) {
           return;
         }
-        const newResourceIndex = currentResourceIndexInUnit.value + 1;
-        if (newResourceIndex >= unitResources.value.length) {
-          router.replace({
-            name: PageNames.COURSE_CONTENT__UNIT,
-            params: {
-              courseId: props.courseId,
-              unitId: props.unitId,
-            },
-          });
+        // On the last resource with it complete — show interstitial
+        if (lastResourceLocallyComplete.value || allResourcesComplete.value) {
+          // Ensure resumeData reflects all-complete state
+          if (!allResourcesComplete.value) {
+            resumeData.value = {
+              ...resumeData.value,
+              resume_position: { unit_id: props.unitId },
+            };
+          }
+          showInterstitial.value = true;
           return;
         }
+        const newResourceIndex = currentResourceIndexInUnit.value + 1;
         const newResource = unitResources.value[newResourceIndex];
         router.replace({
           name: PageNames.COURSE_CONTENT__RESOURCE,
@@ -774,22 +799,8 @@
         onSidePanelNavigation();
       };
 
-      const handlePrevFromInterstitial = () => {
-        if (!lastResource.value) {
-          return;
-        }
-        router.replace({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: props.courseId,
-            unitId: props.unitId,
-            lessonId: lastResource.value.parent,
-            resourceId: lastResource.value.id,
-          },
-        });
-      };
-
       const handleNavigateToResource = resource => {
+        showInterstitial.value = false;
         router.replace({
           name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
@@ -800,6 +811,18 @@
           },
         });
         onSidePanelNavigation();
+      };
+
+      const onTestCompleted = () => {
+        // Update local resume data so gatingState detects the completed test
+        // (active_test + resume_position → PRE_TEST_CLOSE or POST_TEST_CLOSE)
+        resumeData.value = {
+          ...resumeData.value,
+          resume_position: {
+            unit_id: props.unitId,
+          },
+        };
+        showInterstitial.value = true;
       };
 
       const goToNextUnit = () => {
@@ -821,9 +844,43 @@
         resourcesProgressLabel$,
         unitNumberLabel$,
         upNextLabel$,
+        preTestCompleted$,
+        preTestCompletedDescription$,
         postTestNotOpenYet$,
         postTestNotOpenYetDescription$,
+        postTestCompleted$,
+        postTestCompletedDescription$,
       } = coursesStrings;
+
+      const gatingState = computed(() => {
+        if (!resumeData.value) {
+          return null;
+        }
+        const { active_test, resume_position } = resumeData.value;
+        if (active_test && resume_position) {
+          return active_test.test_type === 'pre' ? 'PRE_TEST_CLOSE' : 'POST_TEST_CLOSE';
+        }
+        if (!active_test && resume_position && !resume_position.lesson_id) {
+          return 'POST_TEST_ACTIVATION';
+        }
+        return null;
+      });
+
+      const GATING_STRINGS = {
+        PRE_TEST_CLOSE: { title: preTestCompleted$, description: preTestCompletedDescription$ },
+        POST_TEST_ACTIVATION: {
+          title: postTestNotOpenYet$,
+          description: postTestNotOpenYetDescription$,
+        },
+        POST_TEST_CLOSE: { title: postTestCompleted$, description: postTestCompletedDescription$ },
+      };
+
+      const interstitialTitle = computed(() =>
+        gatingState.value ? GATING_STRINGS[gatingState.value].title() : '',
+      );
+      const interstitialDescription = computed(() =>
+        gatingState.value ? GATING_STRINGS[gatingState.value].description() : '',
+      );
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
@@ -913,6 +970,9 @@
         currentLesson,
         currentResource,
         contentNodeToRender,
+        showInterstitial,
+        interstitialTitle,
+        interstitialDescription,
         prevNextLabel,
         unitNumberLabel,
         prevEnabled,
@@ -923,18 +983,16 @@
         resourceLayoutRef,
         isUnitComplete,
         activeTest,
-        showPostTestWaiting,
         handlePrev,
         handleNext,
-        handlePrevFromInterstitial,
         onResourceFinished,
+        onTestCompleted,
         goToNextUnit,
         handleNavigateToResource,
+        $themePalette,
 
         upNextLabel$,
         courseNameLabel$,
-        postTestNotOpenYet$,
-        postTestNotOpenYetDescription$,
       };
     },
     props: {
@@ -993,31 +1051,28 @@
     height: 56px;
   }
 
-  .post-test-waiting {
+  .interstitial-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 24px;
+    text-align: center;
+  }
 
-    .icon-wrapper {
-      padding: 24px;
-      border-radius: 50%;
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 16px;
+    border-radius: 50%;
+  }
 
-      .waiting-icon {
-        top: 4px;
-        left: 2px;
-        width: 52px;
-        height: 52px;
-        font-size: 52px;
-      }
-    }
-
-    p {
-      margin: 0;
-    }
+  .interstitial-icon {
+    width: 40px;
+    height: 40px;
   }
 
 </style>

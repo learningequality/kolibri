@@ -368,7 +368,10 @@
         }
       },
       mastered(newVal, oldVal) {
-        if (!newVal && oldVal) {
+        if (newVal && !oldVal) {
+          // Test just completed — notify parent so it can redirect
+          this.$emit('completed');
+        } else if (!newVal && oldVal) {
           // We were looking at a report before but now we are retaking
           // the quiz, so start tracking.
           this.startTracking();

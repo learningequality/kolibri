@@ -393,6 +393,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Description shown when a learner completes all unit resources but the post-test has not been activated by the coach',
   },
+  unitComplete: {
+    message: 'Unit complete',
+    context: 'Title shown when a learner has completed all resources and the post-test for a unit',
+  },
+  unitCompleteDescription: {
+    message: 'You may review previous resources while waiting for the next unit to begin.',
+    context:
+      'Description shown when a learner has completed a unit and the next unit has not been activated',
+  },
   submitTestAction: {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',

@@ -25,6 +25,7 @@
         @updateProgress="handleUpdateProgress"
         @updateContentState="handleUpdateContentState"
         @repeat="restartContentSession"
+        @completed="$emit('completed')"
         @error="onError"
         @finished="onFinished"
       />
@@ -144,7 +145,7 @@
    */
   export default {
     name: 'CourseContentViewer',
-    emits: ['finished', 'next'],
+    emits: ['completed', 'finished', 'next'],
     components: {
       QuizRenderer,
       AssessmentWrapper,

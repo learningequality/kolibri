@@ -226,6 +226,7 @@ describe('CourseWelcomePage', () => {
       await waitFor(() => {
         expect(learnerResources.fetchCourse).toHaveBeenCalledWith({
           courseSessionId: 'course-session-1',
+          force: true,
         });
       });
     });

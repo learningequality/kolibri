@@ -648,10 +648,10 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to the first resource of the unit when resume_position only has unit_id, and props have invalid unit', async () => {
+    it('redirects to resume unit when props have a unit ahead of the resume position', async () => {
       const resumePosition = {
         unit_id: UNIT_1,
-        // No lesson_id or resource_id
+        // No lesson_id or resource_id — unit is gated
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
@@ -660,39 +660,25 @@ describe('CourseUnitView', () => {
 
       setupUnitTree();
 
-      // User is on UNIT_2, but this is ahead of the resume UNIT_1, so should redirect to the first
-      // resource of UNIT_1
+      // User is on UNIT_2, but this is ahead of the resume UNIT_1
       renderComponent({
         unitId: UNIT_2,
       });
 
-      // mock implementation of router.replace to renderComponent with the new params when called
-      router.replace.mockImplementation(({ name, params }) => {
-        if (name.startsWith('COURSE_CONTENT')) {
-          renderComponent({
-            unitId: params.unitId,
-            lessonId: params.lessonId,
-            resourceId: params.resourceId,
-          });
-        }
-      });
-
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
+          name: PageNames.COURSE_CONTENT__UNIT,
           params: {
             courseId: COURSE_ID,
             unitId: UNIT_1,
-            // Should be first resource of UNIT_1
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
           },
         });
       });
     });
 
-    it('redirects to the first resource of the unit when props only have unitId, and resume_position only have the same unit_id', async () => {
-      // already on the right unit (matches resume), but missing lesson/resource params
+    it('shows interstitial when props only have unitId and resume_position only has unit_id', async () => {
+      // already on the right unit (matches resume), but no lesson/resource in
+      // resume — learner completed all resources, gated for post-test
       const resumePosition = {
         unit_id: UNIT_1,
       };
@@ -709,21 +695,11 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            // Should default to first resource
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
+        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
       });
     });
 
-    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with same unit_id, completed', async () => {
-      // already on the right unit
+    it('shows interstitial when resume position has only unit_id (completed unit, same unit)', async () => {
       const resumePosition = {
         unit_id: UNIT_1,
       };
@@ -737,20 +713,10 @@ describe('CourseUnitView', () => {
       renderComponent({
         unitId: UNIT_1,
         lessonId: LESSON_2,
-        // missing resourceId
       });
 
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            // Should default to first resource of the lesson
-            resourceId: RESOURCE_2,
-          },
-        });
+        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
       });
     });
 
@@ -789,8 +755,7 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with next unit_id, completed', async () => {
-      // already on the right unit
+    it('redirects to gated unit when resume position unit differs from current unit', async () => {
       const resumePosition = {
         unit_id: UNIT_2,
       };
@@ -804,19 +769,12 @@ describe('CourseUnitView', () => {
       renderComponent({
         unitId: UNIT_1,
         lessonId: LESSON_2,
-        // missing resourceId
       });
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            // Should default to first resource of the lesson
-            resourceId: RESOURCE_2,
-          },
+          name: PageNames.COURSE_CONTENT__UNIT,
+          params: { courseId: COURSE_ID, unitId: UNIT_2 },
         });
       });
     });
@@ -1150,8 +1108,8 @@ describe('CourseUnitView', () => {
     });
   });
 
-  describe('post-test waiting interstitial', () => {
-    it('shows interstitial when on unit URL with all resources complete and no active post-test', async () => {
+  describe('gated learner shows inline interstitial', () => {
+    it('shows interstitial when on unit URL with all resources complete and no active test', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: null,
@@ -1165,12 +1123,11 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(screen.getByTestId('post-test-waiting-interstitial')).toBeInTheDocument();
-        expect(router.replace).not.toHaveBeenCalled();
+        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
       });
     });
 
-    it('does not show interstitial when there is an active post-test', async () => {
+    it('shows interstitial when active test and learner completed it', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'post' },
@@ -1182,17 +1139,34 @@ describe('CourseUnitView', () => {
       setupUnitTree();
       renderComponent({ unitId: UNIT_1 });
 
-      // Should redirect to the test, not show interstitial
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: PageNames.COURSE_CONTENT_TEST,
-          }),
-        );
+        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
       });
     });
 
-    it('does not show interstitial when viewing a specific resource', async () => {
+    it('does not redirect when viewing a specific resource with full resume position', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: null,
+        resume_position: {
+          unit_id: UNIT_1,
+          lesson_id: LESSON_1,
+          resource_id: RESOURCE_1,
+        },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
+
+      await waitFor(() => {
+        expect(router.replace).not.toHaveBeenCalled();
+      });
+    });
+
+    it('does not show interstitial when viewing a resource and all resources are complete', async () => {
+      // Learner is on the last resource with all resources done (resume_position
+      // has only unit_id). The resource should render with Next enabled, not
+      // the interstitial.
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         active_test: null,
@@ -1205,40 +1179,9 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('post-test-waiting-interstitial')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('gated-interstitial')).not.toBeInTheDocument();
+        expect(router.replace).not.toHaveBeenCalled();
       });
-    });
-
-    it('shows prev button on interstitial that navigates to last resource', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        active_test: null,
-        resume_position: {
-          unit_id: UNIT_1,
-        },
-      });
-
-      setupUnitTree();
-      renderComponent({ unitId: UNIT_1 });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('post-test-waiting-interstitial')).toBeInTheDocument();
-      });
-
-      const prevButton = screen.getByTestId('prev-button');
-      expect(prevButton).toBeEnabled();
-      await fireEvent.click(prevButton);
-
-      expect(router.replace).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: expect.objectContaining({
-            unitId: UNIT_1,
-            lessonId: LESSON_3,
-            resourceId: RESOURCE_3,
-          }),
-        }),
-      );
     });
   });
 });
