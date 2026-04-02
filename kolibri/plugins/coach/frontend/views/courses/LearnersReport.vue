@@ -83,6 +83,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { MasteryThreshold } from '../../constants/courseConstants';
   import { coachStrings } from '../common/commonCoachStrings';
 
   export default {
@@ -133,8 +134,8 @@
 
       function getRiskLevel(ratio) {
         if (ratio === null) return null;
-        if (ratio <= 0.45) return 'support_needed';
-        if (ratio <= 0.6) return 'borderline';
+        if (ratio <= MasteryThreshold.LOW) return 'support_needed';
+        if (ratio <= MasteryThreshold.HIGH) return 'borderline';
         return 'on_track';
       }
 
