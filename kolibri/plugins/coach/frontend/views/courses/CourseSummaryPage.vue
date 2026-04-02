@@ -304,7 +304,9 @@
             {{ completedLabel$() }}
           </div>
           <div class="panel-message">
-            {{ nOfMLearnersCompleted$({ n: activeModalCompletedCount, m: activeUnitTotalLearners }) }}
+            {{
+              nOfMLearnersCompleted$({ n: activeModalCompletedCount, m: activeUnitTotalLearners })
+            }}
           </div>
         </div>
         <div class="panel-item">
@@ -473,20 +475,15 @@
         return parts.join(' - ');
       });
 
-      // Raw report data for the active unit (already fetched by fetchAllUnitReports)
-      const activeUnitReport = computed(() => {
-        if (!activeUnit.value) return null;
-        return unitReportInfo.value[activeUnit.value.id]?.reportData || null;
-      });
-
       // Learner counts derived from the active unit's report
+      // (activeUnitReport is defined below after unitReportInfo is set up)
       const activeUnitLearnerStats = computed(() => {
-        const report = activeUnitReport.value;
-        if (!report) return { total: 0, preTestCompleted: 0, postTestCompleted: 0 };
+        const reportData = unitReportInfo.value[activeUnit.value?.id]?.reportData;
+        if (!reportData) return { total: 0, preTestCompleted: 0, postTestCompleted: 0 };
         return {
-          total: report.learners?.length || 0,
-          preTestCompleted: Object.keys(report.pre_test?.scores || {}).length,
-          postTestCompleted: Object.keys(report.post_test?.scores || {}).length,
+          total: reportData.learners?.length || 0,
+          preTestCompleted: Object.keys(reportData.pre_test?.scores || {}).length,
+          postTestCompleted: Object.keys(reportData.post_test?.scores || {}).length,
         };
       });
 
@@ -567,9 +564,6 @@
       function onClosePanel() {
         selectedObjective.value = null;
       }
-
-      // Capture store synchronously while instance context is available
-      const store = getCurrentInstance().proxy.$store;
 
       // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});

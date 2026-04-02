@@ -371,6 +371,7 @@
 
   .warning-banner {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     padding: 12px 16px;
@@ -386,6 +387,7 @@
 
   .success-banner {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     align-items: center;
     padding: 12px 16px;
