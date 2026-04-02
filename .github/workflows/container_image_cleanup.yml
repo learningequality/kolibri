@@ -1,4 +1,4 @@
-name: Cleanup Docker Images
+name: Cleanup Container Images
 
 on:
   schedule:
