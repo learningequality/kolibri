@@ -269,59 +269,21 @@ i18n-upload-glossary:
 docker-clean:
 	rm -f *.iid *.cid
 
-docker-whl: docker-envlist docker-clean
+docker-whl: docker-clean
 	docker build \
 		--iidfile docker-whl.iid \
-		-f docker/build_whl.dockerfile .
+		-f build_tools/build_whl.dockerfile .
 	docker run \
-		--env-file ./docker/env.list \
 		--cidfile docker-whl.cid \
 		-v pnpm_cache:/pnpm_cache \
 		-v cext_cache:/cext_cache \
 		`cat docker-whl.iid`
 	docker cp `cat docker-whl.cid`:/kolibri/dist/. dist/
-	git checkout -- ./docker/env.list  # restore env.list file
 
-docker-build-base: writeversion
-	docker image build . \
-		-f docker/base.dockerfile \
-		-t "learningequality/kolibribase"
+# Build a docker image for the latest version of Kolibri, tag it as `latest`
+docker-build:
+	$(MAKE) -C docker build
 
-docker-demoserver: docker-envlist
-	# Build the demoserver image
-	docker image build \
-			-f docker/demoserver.dockerfile \
-			-t "learningequality/demoserver" .
-	docker run --init \
-			-v $$PWD/docker/mnt:/docker/mnt \
-			-p 8080:8080 \
-			--env-file ./docker/env.list \
-			--env KOLIBRI_PEX_URL="default" \
-			--env KOLIBRI_CHANNELS_TO_IMPORT="7765d6aeabc35de790f8bc4532aeb529" \
-			"learningequality/demoserver"
-	echo "Check http://localhost:8080 you should have a demoserver running there."
-	git checkout -- ./docker/env.list  # restore env.list file
-
-
-docker-devserver: docker-envlist
-	# Build the kolibridev image: contains source code + pip install -e of kolibri
-	docker image build \
-			-f docker/dev.dockerfile \
-			-t "learningequality/kolibridev" .
-	docker run --init \
-			-v $$PWD/docker/mnt:/docker/mnt \
-			-p 8000:8000 \
-			-p 3000:3000 \
-			--env-file ./docker/env.list \
-			"learningequality/kolibridev" \
-			pnpm run devserver
-	echo "Check http://localhost:8000  you should have devserver running there."
-	git checkout -- ./docker/env.list  # restore env.list file
-
-# Optionally add --env KOLIBRI_PROVISIONDEVICE_FACILITY="Dev Server" to skip setup wizard
-
-# TODO: figure out how to add source code as "volume" so can live-edit,
-# 		  e.g. -v $$PWD/kolibri:/kolibri/kolibri ??
-
-docker-envlist:
-	python build_tools/customize_docker_envlist.py
+# Build a docker image for a specific version of Kolibri: make build-0.19.3
+docker-build-%:
+	$(MAKE) -C docker build-$(subst docker-build-,,$@)
