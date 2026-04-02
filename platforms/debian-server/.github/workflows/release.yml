@@ -10,7 +10,7 @@ jobs:
       version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Extract version from changelog
         id: changelog_version
         run: |
@@ -42,7 +42,7 @@ jobs:
     needs: check_version
     steps:
       - name: checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set changelog distribution to runner series
         run: |
           SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install build dependencies
         run: make install-build-deps
       - name: Install Kolibri
@@ -101,7 +101,7 @@ jobs:
       - name: Build .deb package
         run: make deb
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kolibri-server-deb
           path: ../kolibri-server_*.deb
@@ -112,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -139,7 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -164,7 +164,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -201,7 +201,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -266,7 +266,7 @@ jobs:
           echo "${{ steps.gpg.outputs.key-id }}:6:" | gpg --batch --import-ownertrust
           gpgconf --kill gpg-agent
       - name: Download .deb artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: kolibri-server-deb
           path: incoming
@@ -296,9 +296,9 @@ jobs:
           reprepro -b repo includedeb stable "${{ steps.deb.outputs.path }}"
           gpg --armor --export "${{ steps.gpg.outputs.key-id }}" > repo/pubkey.asc
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: repo
       - name: Deploy to GitHub Pages
         id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

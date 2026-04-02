@@ -14,7 +14,7 @@ jobs:
       ppa_series: ${{ steps.detect_series.outputs.PPA_SERIES }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Detect runner series
         id: detect_series
         run: |
@@ -30,7 +30,7 @@ jobs:
           make deb
           cp ../kolibri-server_*.deb ./kolibri-server.deb
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kolibri-server-deb
           path: kolibri-server.deb
@@ -46,7 +46,7 @@ jobs:
         runner: ['ubuntu-latest', 'ubuntu-24.04-arm']
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup environment
         run: |
           apt-get update
@@ -65,7 +65,7 @@ jobs:
           echo "kolibri-server kolibri-server/port select 8080" | debconf-set-selections
           echo "kolibri-server kolibri-server/zip_content_port select 8081" | debconf-set-selections
       - name: Download .deb artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: kolibri-server-deb
       - name: Install kolibri-server
