@@ -478,6 +478,25 @@ export default function useLearnerResources() {
       return false;
     }
 
+    // When the post-test is active, all resources are locked
+    if (progress.active_test?.test_type === 'post') {
+      return false;
+    }
+
+    // When the pre-test is completed (active + resume_position exists),
+    // no resources have been started yet — lock lessons in the gated unit.
+    // Previous units remain navigable.
+    if (progress.active_test?.test_type === 'pre') {
+      const resumeUnitId = progress.resume_position.unit_id;
+      const currentUnit = units.find(unit => unit.id === resumeUnitId);
+      const targetUnit = units.find(unit => unit.id === unitId);
+      if (!currentUnit || !targetUnit) {
+        return false;
+      }
+      // Previous units are still navigable
+      return targetUnit.lft < currentUnit.lft;
+    }
+
     const resumeUnitId = progress.resume_position.unit_id;
     const resumeLessonId = progress.resume_position.lesson_id;
 

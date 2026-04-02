@@ -845,4 +845,40 @@ describe('isCourseLessonAvailable', () => {
     });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'nonexistent')).toBe(false);
   });
+
+  it('returns false when pre-test is completed (active pre-test + resume_position with only unit_id)', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-2', test_type: 'pre' },
+      resume_position: { unit_id: 'unit-2' },
+    });
+    // PRE_TEST_CLOSE state — lessons in gated unit are locked
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2b')).toBe(false);
+    // But previous units remain navigable
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
+  });
+
+  it('returns false for all lessons when post-test is active', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'post' },
+      resume_position: { unit_id: 'unit-1' },
+    });
+    // POST_TEST_CLOSE state — all resources locked during post-test
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(false);
+  });
+
+  it('returns false for lessons in any unit when post-test is active', async () => {
+    await setupCourseData({
+      started: true,
+      active_test: { unit_id: 'unit-2', test_type: 'post' },
+      resume_position: { unit_id: 'unit-2' },
+    });
+    // Post-test locks ALL lessons, even in previous units
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+  });
 });
