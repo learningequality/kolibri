@@ -283,8 +283,15 @@
           return null;
         }
         if (resumeData.value.active_test) {
-          // when active test, can't navigate to other resources
-          return null;
+          if (resumeData.value.active_test.test_type === 'post') {
+            // Post-test active — all resources locked
+            return null;
+          }
+          // Pre-test active — if completed (resume_position exists but no resource_id),
+          // no resources have been started yet, so lock all.
+          if (resumeData.value.resume_position && !resumeData.value.resume_position.resource_id) {
+            return null;
+          }
         }
         if (resumeData.value.resume_position) {
           const { unit_id: resumeUnitId, resource_id: resumeResourceId } =
