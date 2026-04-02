@@ -1,7 +1,11 @@
 import hashlib
 
 from django.db import models
+from django.db.models import OuterRef
+from django.db.models import Q
+from django.db.models import Subquery
 from django.db.utils import IntegrityError
+from le_utils.constants import modalities
 from morango.models import UUIDField
 
 from kolibri.core.auth.constants import role_kinds
@@ -10,10 +14,16 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.utils.cache import process_cache
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
+
+_COURSE_SESSION_PRIORITY_CACHE_TIMEOUT = 300
 
 
 def course_assignment_lookup(course_id):
@@ -23,6 +33,10 @@ def course_assignment_lookup(course_id):
     :return: a tuple of contentnode_id and metadata
     """
     return (course_id, {"import_descendants": True})
+
+
+def course_content_download_priority(course_session, contentnode_id):
+    return course_session.get_course_content_download_priority(contentnode_id)
 
 
 class TestType(ChoicesEnum):
@@ -86,12 +100,214 @@ class CourseSession(AbstractFacilityDataModel):
         filters=dict(is_active=True),
         lookup_field="course",
         lookup_func=course_assignment_lookup,
+        content_download_priority_func=course_content_download_priority,
     )
 
     def __str__(self):
         return "CourseSession {} for Classroom {}".format(
             self.title, self.collection.name
         )
+
+    def get_resume_data(self, user):
+        """
+        Returns resume state for a given user within this course session.
+
+        :param user: A FacilityUser instance
+        :return: dict with keys:
+            - started (bool)
+            - active_test (dict with unit_id and test_type, or None)
+            - resume_position (dict with unit_id, lesson_id, resource_id, or None)
+        """
+        result = {
+            "started": False,
+            "active_test": None,
+            "resume_position": None,
+        }
+
+        unit_test_assignments_qs = self.unit_test_assignments.filter(
+            collection__membership__user=user
+        )
+
+        unit_test_active = unit_test_assignments_qs.filter(closed=False).first()
+        if unit_test_active:
+            result["active_test"] = {
+                "unit_id": unit_test_active.unit_contentnode_id,
+                "test_type": unit_test_active.test_type,
+            }
+            result["started"] = True
+            return result
+
+        most_recent_pre_test_completed = (
+            unit_test_assignments_qs.filter(
+                closed=True,
+                test_type=TestType.Pre,
+            )
+            .annotate(
+                unit_sort_order=Subquery(
+                    ContentNode.objects.filter(
+                        id=OuterRef("unit_contentnode_id")
+                    ).values("lft")[:1]
+                ),
+            )
+            .order_by("-unit_sort_order")
+            .first()
+        )
+
+        if not most_recent_pre_test_completed:
+            return result
+
+        result["started"] = True
+        unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
+
+        first_incomplete_resource = (
+            ContentNode.objects.filter(
+                parent__parent=unit_contentnode_id,
+                available=True,
+            )
+            .annotate(
+                learner_progress=Subquery(
+                    ContentSummaryLog.objects.filter(
+                        user=user,
+                        content_id=OuterRef("content_id"),
+                    ).values("progress")[:1]
+                ),
+            )
+            .filter(Q(learner_progress__lt=1) | Q(learner_progress__isnull=True))
+            .order_by("lft")
+            .first()
+        )
+
+        if first_incomplete_resource:
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": first_incomplete_resource.parent_id,
+                "resource_id": first_incomplete_resource.id,
+            }
+        else:
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
+            }
+
+        return result
+
+    def _get_assigned_user(self):
+        """
+        Empiric way to get a user who is taking the course when we don't have a specific user. Usually for LOD devices there is only one user,
+        so this will work fine, but for multi-user devices we just take the first one for simplicity.
+        Alternatively, we could check the user activity and see the last user who logged in, or we could also
+        try to use all assigned users in the device to set the priority based on everyone.
+        In any case, the active unit, and active test will always be the same for all users assigned to the course, so this
+        additional effort would be to set critical priority for current resources.
+        """
+        cache_key = "COURSE_SESSION_ASSIGNED_USER_{}".format(self.pk)
+        if cache_key not in process_cache:
+            user = FacilityUser.objects.filter(
+                memberships__collection__assigned_courses__course_session=self,
+            ).first()
+            process_cache.set(cache_key, user, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT)
+        else:
+            user = process_cache.get(cache_key)
+        return user
+
+    def _get_cached_resume_data(self, user):
+        cache_key = "COURSE_SESSION_RESUME_DATA_{}_{}".format(self.pk, user.pk)
+        if cache_key not in process_cache:
+            resume_data = self.get_resume_data(user)
+            process_cache.set(
+                cache_key, resume_data, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT
+            )
+        else:
+            resume_data = process_cache.get(cache_key)
+        return resume_data
+
+    def _get_cached_unit(self, unit_id):
+        cache_key = "COURSE_SESSION_UNIT_{}_{}".format(self.pk, unit_id)
+        if cache_key not in process_cache:
+            unit = (
+                ContentNode.objects.filter(id=unit_id, parent_id=self.course)
+                .values("id", "lft", "rght")
+                .first()
+            )
+            process_cache.set(cache_key, unit, _COURSE_SESSION_PRIORITY_CACHE_TIMEOUT)
+        else:
+            unit = process_cache.get(cache_key)
+        return unit
+
+    def _get_active_unit_priority(
+        self, contentnode_id, requested_contentnode, resume_position
+    ):
+        """
+        Returns priority for a node that belongs to the currently active unit.
+        Checks whether the node is the active lesson, a child of it (URGENT), or elsewhere in the unit (HIGH).
+        """
+        active_lesson_id = resume_position.get("lesson_id")
+        if active_lesson_id:
+            if contentnode_id == active_lesson_id:
+                return ContentRequestPriority.URGENT
+            if (
+                requested_contentnode.modality != modalities.LESSON
+                and requested_contentnode.parent_id == active_lesson_id
+            ):
+                return ContentRequestPriority.URGENT
+        return ContentRequestPriority.HIGH
+
+    def get_course_content_download_priority(self, contentnode_id):
+        """
+        Determine the priority for downloading a content node based on the user's progress in the course.
+
+        Priority levels (highest to lowest):
+        * CRITICAL: the exact resource currently being resumed, or the active pre/post-test unit node
+        * URGENT: the active lesson itself, or any resource that is a direct child of the active lesson
+        * HIGH: any other node within the currently active unit (but outside the active lesson)
+        * REGULAR: nodes in future (not-yet-reached) units, or when priority cannot be determined
+        * LOW: nodes in past (already-completed) units
+        """
+        requested_contentnode = ContentNode.objects.filter(id=contentnode_id).first()
+        if (
+            not requested_contentnode
+            or requested_contentnode.modality == modalities.COURSE
+        ):
+            return ContentRequestPriority.REGULAR
+
+        user = self._get_assigned_user()
+        if not user:
+            return ContentRequestPriority.REGULAR
+
+        resume_data = self._get_cached_resume_data(user)
+        if not resume_data or not resume_data.get("started"):
+            return ContentRequestPriority.REGULAR
+
+        active_test = resume_data.get("active_test") or {}
+        resume_position = resume_data.get("resume_position") or {}
+
+        if (
+            resume_position.get("resource_id") == contentnode_id
+            or active_test.get("unit_id") == contentnode_id
+        ):
+            return ContentRequestPriority.CRITICAL
+
+        active_unit_id = active_test.get("unit_id") or resume_position.get("unit_id")
+        active_unit = self._get_cached_unit(active_unit_id)
+        if not active_unit:
+            return ContentRequestPriority.REGULAR
+
+        if (
+            requested_contentnode.lft >= active_unit["lft"]
+            and requested_contentnode.rght <= active_unit["rght"]
+        ):
+            # The requested contentnode belongs to the active unit
+            return self._get_active_unit_priority(
+                contentnode_id, requested_contentnode, resume_position
+            )
+
+        if requested_contentnode.lft > active_unit["rght"]:
+            # It belongs to a future unit
+            return ContentRequestPriority.REGULAR
+
+        # It belongs to a past unit
+        return ContentRequestPriority.LOW
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
