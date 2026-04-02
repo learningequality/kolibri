@@ -479,21 +479,24 @@
         // then show interstitial inline.
         const rp = resumeData.value?.resume_position;
         if (rp && !rp.lesson_id && !rp.resource_id && !resumeData.value?.active_test) {
-          // Only show interstitial when not viewing a specific resource —
-          // if the learner is on a resource, let them view it and use Next
-          // to reach the interstitial.
+          // If viewing a specific resource, let them view it.
           if (props.resourceId) {
             return false;
           }
-          if (props.unitId !== rp.unit_id) {
-            router.replace({
-              name: PageNames.COURSE_CONTENT__UNIT,
-              params: { courseId: props.courseId, unitId: rp.unit_id },
-            });
-            return true;
+          // If navigating to a specific lesson (e.g. from CourseWelcomePage),
+          // skip the interstitial — fall through to the redirect-to-first-resource
+          // logic below which handles lesson routes without a resourceId.
+          if (!props.lessonId) {
+            if (props.unitId !== rp.unit_id) {
+              router.replace({
+                name: PageNames.COURSE_CONTENT__UNIT,
+                params: { courseId: props.courseId, unitId: rp.unit_id },
+              });
+              return true;
+            }
+            showInterstitial.value = true;
+            return false;
           }
-          showInterstitial.value = true;
-          return false;
         }
         if (
           props.unitId === resumeData.value?.resume_position?.unit_id &&

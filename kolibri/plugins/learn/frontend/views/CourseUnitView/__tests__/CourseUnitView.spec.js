@@ -699,7 +699,7 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('shows interstitial when resume position has only unit_id (completed unit, same unit)', async () => {
+    it('redirects to first resource when navigating to a lesson with only unit_id in resume (completed unit)', async () => {
       const resumePosition = {
         unit_id: UNIT_1,
       };
@@ -716,7 +716,15 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_2,
+            resourceId: RESOURCE_2,
+          },
+        });
       });
     });
 
@@ -755,7 +763,7 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to gated unit when resume position unit differs from current unit', async () => {
+    it('redirects to first resource when navigating to a lesson with resume in a different unit', async () => {
       const resumePosition = {
         unit_id: UNIT_2,
       };
@@ -766,6 +774,7 @@ describe('CourseUnitView', () => {
 
       setupUnitTree();
 
+      // Learner is on UNIT_1 (a previous, completed unit) with a specific lesson
       renderComponent({
         unitId: UNIT_1,
         lessonId: LESSON_2,
@@ -773,8 +782,13 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__UNIT,
-          params: { courseId: COURSE_ID, unitId: UNIT_2 },
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_2,
+            resourceId: RESOURCE_2,
+          },
         });
       });
     });
@@ -1243,6 +1257,30 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+      });
+    });
+
+    it('redirects to first resource when navigating to lesson during POST_TEST_ACTIVATION', async () => {
+      // POST_TEST_ACTIVATION: all resources complete, no active test
+      // Learner clicks a lesson link on CourseWelcomePage (lessonId but no resourceId)
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1 });
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: UNIT_1,
+            lessonId: LESSON_1,
+            resourceId: RESOURCE_1,
+          },
+        });
       });
     });
   });
