@@ -1183,5 +1183,67 @@ describe('CourseUnitView', () => {
         expect(router.replace).not.toHaveBeenCalled();
       });
     });
+
+    it('does not show interstitial when viewing a specific resource during PRE_TEST_CLOSE', async () => {
+      // PRE_TEST_CLOSE: active pre-test + resume_position with only unit_id
+      // Learner explicitly navigated to a resource (e.g. from a previous unit)
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
+
+      // Wait for data to load and checkRedirect to complete
+      await waitFor(() => {
+        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
+        expect(ContentNodeResource.fetchTree).toHaveBeenCalled();
+      });
+      // Allow all microtasks and watchers to settle
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(screen.queryByTestId('gated-interstitial')).not.toBeInTheDocument();
+      expect(router.replace).not.toHaveBeenCalled();
+    });
+
+    it('does not show interstitial when viewing a specific resource during POST_TEST_CLOSE', async () => {
+      // POST_TEST_CLOSE: active post-test + resume_position with only unit_id
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'post' },
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
+
+      // Wait for data to load and checkRedirect to complete
+      await waitFor(() => {
+        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
+        expect(ContentNodeResource.fetchTree).toHaveBeenCalled();
+      });
+      // Allow all microtasks and watchers to settle
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(screen.queryByTestId('gated-interstitial')).not.toBeInTheDocument();
+      expect(router.replace).not.toHaveBeenCalled();
+    });
+
+    it('shows interstitial when on unit URL (no resourceId) during PRE_TEST_CLOSE', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      setupUnitTree();
+      renderComponent({ unitId: UNIT_1 });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('gated-interstitial')).toBeInTheDocument();
+      });
+    });
   });
 });

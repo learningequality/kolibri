@@ -689,8 +689,12 @@
         }
         if (resumeData.value.active_test) {
           if (resumeData.value.resume_position) {
-            // Learner completed the active test — navigate to the gated unit
-            // (if not already there) so the side panel loads, then show interstitial
+            // Learner completed the active test — they are gated.
+            // If they're viewing a specific resource (explicit navigation), let them view it.
+            if (props.resourceId) {
+              return false;
+            }
+            // No specific resource — navigate to the gated unit and show interstitial
             const gatedUnitId = resumeData.value.resume_position.unit_id;
             if (props.unitId !== gatedUnitId) {
               router.replace({
