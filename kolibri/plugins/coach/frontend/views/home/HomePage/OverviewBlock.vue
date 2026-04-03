@@ -59,13 +59,14 @@
 
 <script>
 
-  import { mapGetters, mapActions } from 'vuex';
+  import { mapGetters } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../learn/frontend/constants';
   import commonCoach from '../../common';
+  import { fetchClassSyncStatus } from '../../../composables/fetchClassSyncStatus';
   import { LastPages } from '../../../constants/lastPagesConstants';
 
   export default {
@@ -117,9 +118,8 @@
       this.fetchClassListSyncStatus();
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
       fetchClassListSyncStatus() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+        fetchClassSyncStatus(this.$route.params.classId).then(data => {
           if (Array.isArray(data)) {
             this.userList = data.map(item => item.user);
           }

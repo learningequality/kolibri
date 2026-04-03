@@ -51,8 +51,9 @@
 
   import pickBy from 'lodash/pickBy';
   import useUser from 'kolibri/composables/useUser';
-  import { mapState, mapActions } from 'vuex';
+  import { mapState } from 'vuex';
   import commonCoach from '../common';
+  import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import { ClassesPageNames } from '../../../../learn/frontend/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
   import { PageNames } from '../../constants';
@@ -125,9 +126,8 @@
       this.fetchClassListSyncStatus();
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
       fetchClassListSyncStatus() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+        fetchClassSyncStatus(this.$route.params.classId).then(data => {
           if (Array.isArray(data)) {
             this.userList = data.map(item => item.user);
           }
