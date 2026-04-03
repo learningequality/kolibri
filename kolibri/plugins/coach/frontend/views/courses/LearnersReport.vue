@@ -19,9 +19,6 @@
               class="learner-link"
             />
           </template>
-          <template v-else-if="colIndex === 2">
-            <span>{{ content }}</span>
-          </template>
           <template v-else-if="colIndex === 1">
             <span
               v-if="content === 'support_needed'"
@@ -65,6 +62,9 @@
             >
               &mdash;
             </span>
+          </template>
+          <template v-else-if="colIndex === 2">
+            <span>{{ content }}</span>
           </template>
         </template>
       </KTable>
