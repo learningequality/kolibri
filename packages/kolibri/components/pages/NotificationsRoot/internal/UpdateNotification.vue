@@ -33,7 +33,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapActions, mapMutations } from 'vuex';
   import useUser from 'kolibri/composables/useUser';
 
   export default {
@@ -44,10 +43,6 @@
       return { isSuperuser };
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       title: {
         type: String,
         required: true,
@@ -71,16 +66,7 @@
       };
     },
     methods: {
-      ...mapMutations({
-        removeNotification: 'CORE_REMOVE_NOTIFICATION',
-      }),
-      ...mapActions(['saveDismissedNotification']),
       submit() {
-        if (this.dontShowNotificationAgain) {
-          this.dontShowNotificationAgain = false;
-          this.saveDismissedNotification(this.id);
-        }
-        this.removeNotification(this.id);
         this.$emit('submit');
       },
     },

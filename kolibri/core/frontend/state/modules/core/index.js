@@ -8,7 +8,6 @@ export default {
     return {
       error: '',
       loading: true,
-      notifications: [],
       allowRemoteAccess: plugin_data.allowRemoteAccess,
       // facility
       pageVisible: true,
