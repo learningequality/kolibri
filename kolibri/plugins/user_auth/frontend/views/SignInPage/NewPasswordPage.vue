@@ -52,6 +52,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../../constants';
+  import { setUnspecifiedPassword } from '../../api';
   import AuthBase from '../AuthBase';
 
   export default {
@@ -97,7 +98,7 @@
         if (this.passwordIsValid) {
           this.busy = true;
           try {
-            await this.$store.dispatch('kolibriSetUnspecifiedPassword', this.credentials);
+            await setUnspecifiedPassword(this.credentials);
             await this.signIn();
           } catch {
             // In case user has already set password or user does not exist,
