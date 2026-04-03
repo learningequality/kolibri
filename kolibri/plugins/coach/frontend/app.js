@@ -87,6 +87,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
         PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
         PageNames.COURSES_ROOT,
+        PageNames.COURSE_SUMMARY,
         PageNames.COURSES_ASSIGN,
         PageNames.COURSES_ASSIGN_INDEX,
         PageNames.COURSES_ASSIGN_COURSE_DETAILS,

@@ -24,6 +24,8 @@
   import { computed, ref, nextTick } from 'vue';
   import { isNavigationFailure, NavigationFailureType } from 'vue-router';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { CoursesModals, PageNames } from '../../../../constants';
   import { overrideRoute } from '../../../../utils';
   import { injectAssignCourse } from '../../composables/useAssignCourse';
@@ -56,7 +58,10 @@
       const route = useRoute();
       const router = useRouter();
 
-      const { selectedCourse, resetAssignment } = injectAssignCourse();
+      const { selectedCourse, resetAssignment, courseSessionId, hasRecipientChanges } =
+        injectAssignCourse();
+      const { createSnackbar } = useSnackbar();
+      const { changesSavedNotification$ } = coreStrings;
 
       const isFinished = ref(false);
 
@@ -64,6 +69,9 @@
         // If course assignment process is finished, don't show confirmation
         if (isFinished.value) {
           return false;
+        }
+        if (courseSessionId.value != null) {
+          return hasRecipientChanges.value;
         }
         return selectedCourse.value != null;
       });
@@ -93,11 +101,18 @@
       };
 
       const onSuccess = async () => {
+        const isEditMode = courseSessionId.value != null;
         isFinished.value = true;
         resetAssignment();
         await nextTick();
+
         closeSidePanel();
-        emit('showModal', CoursesModals.ASSIGN_COURSE_SUCCESS);
+
+        if (isEditMode) {
+          createSnackbar(changesSavedNotification$());
+        } else {
+          emit('showModal', CoursesModals.ASSIGN_COURSE_SUCCESS);
+        }
         emit('refreshData');
       };
       return {

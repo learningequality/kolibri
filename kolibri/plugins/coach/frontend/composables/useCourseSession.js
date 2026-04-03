@@ -74,7 +74,7 @@ export default function useCourseSession(courseSessionId) {
           return null;
         });
       })
-      .then(([courseData, testData]) => {
+      .then(courseData => {
         course.value = courseData;
         if (!courseData) return null;
         return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });
@@ -276,6 +276,21 @@ export default function useCourseSession(courseSessionId) {
       });
   }
 
+  /**
+   * Silently re-fetches the course session to pick up changes (e.g. recipient edits)
+   * without triggering the full-page loading state.
+   */
+  function refreshCourseSessionData() {
+    if (!courseSessionId.value) return Promise.resolve();
+    return CourseSessionResource.fetchModel({ id: courseSessionId.value })
+      .then(session => {
+        courseSession.value = session;
+      })
+      .catch(() => {
+        createSnackbar(defaultErrorMessage$());
+      });
+  }
+
   return {
     // Loading state
     pageLoading,
@@ -303,5 +318,6 @@ export default function useCourseSession(courseSessionId) {
     activateTest,
     closeTest,
     toggleCourseActive,
+    refreshCourseSessionData,
   };
 }

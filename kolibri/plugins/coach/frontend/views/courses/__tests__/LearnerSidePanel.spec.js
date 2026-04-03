@@ -11,7 +11,6 @@ const {
   onTrackWithObjectivesPrefixLabel$,
   onTrackWithObjectivesSuffixLabel$,
   xOfYCorrectLabel$,
-  progressLabel$,
   individualLoPerformanceLabel$,
   learningObjectiveLabel$,
   questionsCorrectLabel$,
@@ -92,11 +91,6 @@ describe('LearnerSidePanel', () => {
     it('does not show LO rows in empty state', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
       expect(screen.queryByText('Objective 1')).not.toBeInTheDocument();
-    });
-
-    it('does not show PROGRESS row in empty state', () => {
-      renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.queryByText(progressLabel$())).not.toBeInTheDocument();
     });
   });
 

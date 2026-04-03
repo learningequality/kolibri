@@ -86,7 +86,7 @@
   export default {
     name: 'LearnersReport',
     setup(props) {
-      const { supportNeededLabel$, gainingMomentumLabel$, onTrackLabel$, riskLevelLabel$ } =
+      const { supportNeededLabel$, gainingMomentumLabel$, onTrackLabel$, unitProgressLabel$ } =
         coursesStrings;
       const { groupsLabel$ } = coachStrings;
       const { learnersLabel$, learnerLabel$ } = coreStrings;
@@ -147,7 +147,12 @@
 
       const headers = computed(() => [
         { label: learnerLabel$(), dataType: 'string', columnId: 'learner', minWidth: '160px' },
-        { label: riskLevelLabel$(), dataType: 'string', columnId: 'riskLevel', minWidth: '180px' },
+        {
+          label: unitProgressLabel$(),
+          dataType: 'string',
+          columnId: 'riskLevel',
+          minWidth: '180px',
+        },
         { label: groupsLabel$(), dataType: 'string', columnId: 'groups', minWidth: '160px' },
       ]);
 

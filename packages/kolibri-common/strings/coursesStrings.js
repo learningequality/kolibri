@@ -106,13 +106,13 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Error message shown when assigning a course fails because one or more selected individual learners have been deleted from the facility.',
   },
-  courseDeleteError: {
-    message: 'There was an error deleting the course assignment',
-    context: 'Error message shown when a course assignment could not be removed',
-  },
   courseDeleted: {
-    message: 'Course assignment deleted',
+    message: 'Course deleted',
     context: 'Snackbar message when a course has been deleted',
+  },
+  courseDeleteError: {
+    message: 'There was an error deleting the course',
+    context: 'Error message shown when a course could not be removed',
   },
   deleteCourseConfirmation: {
     message: 'Delete course assignment "{title}"?',
@@ -287,7 +287,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Keep test running',
     context: 'Label for button that cancels modal for ending test',
   },
-  nOfMLearnersworkingOnLessons: {
+  nOfMLearnersWorkingOnLessons: {
     message: '{n, number} of {m, number} learners working on lessons',
     context:
       'Indicates how many learners are currently working on lessons in a unit out of the total number of learners assigned',
@@ -350,7 +350,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context: 'Action label to view course details',
   },
   editRecipientsAction: {
-    message: 'Edit Recipients',
+    message: 'Edit recipients',
     context: 'Action label for editing which learners are assigned to a course.',
   },
   sparklineDistributionLabel: {
@@ -443,9 +443,9 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Risk level badge shown in the Learners report for learners whose aggregate score is above 60%',
   },
-  riskLevelLabel: {
-    message: 'Risk level',
-    context: 'Column header for the risk level indicator in the Learners report table',
+  unitProgressLabel: {
+    message: 'Unit progress',
+    context: 'Column header for the unit progress indicator in the Learners report table',
   },
   noLearnersAttemptedLabel: {
     message: 'No learners have attempted this test yet',

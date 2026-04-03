@@ -21,10 +21,7 @@
               {{ (course && course.title) || (courseSession && courseSession.title) || '' }}
             </h1>
             <div
-             
               v-if="!$isPrint"
-              :style="optionsButtonStyles"
-            
               :style="optionsButtonStyles"
             >
               <KButton
@@ -40,8 +37,8 @@
                 </template>
               </KButton>
             </div>
-          <MissingResourceAlert v-if="contentMissing" />
-      </div>
+            <MissingResourceAlert v-if="contentMissing" />
+          </div>
         </KPageContainer>
       </KGridItem>
 
@@ -62,7 +59,7 @@
               <KSwitch
                 :value="courseSession.active"
                 :disabled="contentMissing"
-              @change="toggleCourseActive"
+                @change="toggleCourseActive"
               />
             </div>
             <div class="status-item">
@@ -302,7 +299,7 @@
       Router allow us access to the course side panels (CourseDetails, SelectRecipients)
       defined as children of COURSE_SUMMARY (in addition to assign courses) in coursesRoutes.js
     -->
-    <router-view />
+    <router-view @refreshData="refreshCourseSessionData" />
 
     <KModal
       v-if="showDeleteModal"
@@ -377,7 +374,6 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
-  import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
@@ -393,6 +389,7 @@
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import { overrideRoute } from '../../utils';
+  import { useCourses } from '../../composables/useCourses';
   import useAssignCourse from './composables/useAssignCourse';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
   import LearnersReport from './LearnersReport.vue';
@@ -469,10 +466,10 @@
       const route = useRoute();
       const router = useRouter();
       const { createSnackbar } = useSnackbar();
-      const backRoute = computed(() => {
-        // include existing route params/query for classId and such if present
-        return { ...route, name: PageNames.COURSES_ROOT };
-      });
+      const backRoute = computed(() => ({
+        name: PageNames.COURSES_ROOT,
+        params: { classId: route.params.classId },
+      }));
 
       const courseSessionId = computed(() => route.params.courseSessionId);
 
@@ -493,6 +490,7 @@
         courseSession,
         toggleCourseActive,
         units,
+        refreshCourseSessionData,
       } = useCourseSession(courseSessionId);
       const allUnits = computed(() => units.value || []);
 
@@ -502,12 +500,6 @@
       const coachPageTitle = computed(() =>
         [course.value?.title, className.value].filter(Boolean).join(' - '),
       );
-
-      const coachPageTitle = computed(() => {
-        const parts = [course.value?.title, store.state.classSummary.name].filter(Boolean);
-        if (isRtl(currentLanguage)) parts.reverse();
-        return parts.join(' - ');
-      });
 
       // Learner counts derived from the active unit's report
       // (activeUnitReport is defined below after unitReportInfo is set up)
@@ -537,10 +529,15 @@
 
       const confirmDeleteCourse = async () => {
         if (!courseSession.value) return;
+        const courseId = courseSession.value.id;
         try {
-          await CourseSessionResource.deleteModel({ id: courseSession.value.id });
-          createSnackbar(courseDeleted$());
-          router.push(backRoute.value);
+          await CourseSessionResource.deleteModel({ id: courseId });
+          // Remove from module-level state so the list page shows correct data immediately
+          removeCourse(courseId);
+          router.push(backRoute.value, async () => {
+            await nextTick();
+            createSnackbar(courseDeleted$());
+          });
         } catch {
           createSnackbar(courseDeleteError$());
         }
@@ -809,6 +806,10 @@
         alignItems: windowIsSmall.value ? 'flex-start' : 'center',
       }));
 
+      const optionsButtonStyles = computed(() =>
+        windowIsSmall.value ? { alignSelf: 'flex-end' } : {},
+      );
+
       // Phase-based button click handler
       function onUnitButtonClick() {
         const unitNum = activeUnitIndex.value + 1;
@@ -971,6 +972,7 @@
         getRecipientNamesForCourseSession,
 
         headerStyles,
+        optionsButtonStyles,
         unitsPillStyles,
         statusPillStyles,
         onUnitButtonClick,
@@ -995,20 +997,8 @@
         deleteCourseFromSummaryTitle$,
         deleteCourseFromSummaryConfirmation$,
         deleteAction$,
+        refreshCourseSessionData,
       };
-    },
-    watch: {
-      courseSession() {
-        this.$store.dispatch('notLoading');
-      },
-      // When the side panel closes and the route returns to COURSE_SUMMARY, the page
-      // is already mounted and courseSession hasn't changed, so the watcher above won't
-      // fire. This catches that case and clears the loading state set by the global guard.
-      '$route.name'(name) {
-        if (name === 'COURSE_SUMMARY' && this.courseSession) {
-          this.$store.dispatch('notLoading');
-        }
-      },
     },
   };
 
@@ -1053,8 +1043,8 @@
 
   .course-active {
     display: flex;
+    gap: 24px;
     align-items: center;
-    justify-content: space-between;
     padding-top: 12px;
   }
 
@@ -1064,6 +1054,7 @@
   }
 
   .status-icon {
+    width: auto;
     font-weight: bold;
   }
 
