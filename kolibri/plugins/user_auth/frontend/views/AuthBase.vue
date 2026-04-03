@@ -188,7 +188,6 @@
 <script>
 
   import { computed } from 'vue';
-  import { get } from '@vueuse/core';
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -212,7 +211,7 @@
       const { facilityConfig } = useFacility();
       const { isAppContext } = useUser();
       const allowAccess = computed(() => {
-        return plugin_data.allowRemoteAccess || get(isAppContext);
+        return plugin_data.allowRemoteAccess || isAppContext.value;
       });
       return { themeConfig, facilityConfig, allowAccess };
     },
