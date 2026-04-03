@@ -46,27 +46,6 @@
 
       <!-- Content: learner has scores -->
       <template v-else>
-        <!-- Stats row -->
-        <div
-          class="stats-row"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        >
-          <span
-            class="stats-label"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            {{ progressLabel$() }}
-          </span>
-          <span
-            class="stats-value"
-            :style="{ color: $themeTokens.annotation }"
-          >
-            <strong>{{
-              losCompletedLabel$({ completed: loCompletedCount, total: loTotalCount })
-            }}</strong>
-          </span>
-        </div>
-
         <!-- Warning banner when learner is struggling with some LOs -->
         <div
           v-if="strugglingCount > 0"
@@ -109,35 +88,35 @@
             {{ sortedByScoreLowestFirstLabel$() }}
           </div>
 
-          <!-- LO table -->
-          <div
-            role="table"
-            :aria-label="learnerReportLabel$()"
+          <table
+            class="lo-table"
+            :aria-label="individualLoPerformanceLabel$()"
           >
-            <div role="rowgroup">
-              <div
-                role="row"
-                class="lo-col-headers"
+            <thead>
+              <tr
+                :style="{
+                  borderTop: `1px solid ${$themeTokens.fineLine}`,
+                  borderBottom: `1px solid ${$themeTokens.fineLine}`,
+                }"
               >
-                <span
-                  role="columnheader"
-                  class="lo-col-header"
-                >{{ learningObjectiveLabel$() }}</span>
-                <span
-                  role="columnheader"
-                  class="lo-col-header"
-                >{{ questionsCorrectLabel$() }}</span>
-              </div>
-            </div>
-            <div
-              role="rowgroup"
-              class="lo-rows"
-            >
-              <div
+                <th
+                  scope="col"
+                  class="lo-th"
+                >
+                  {{ learningObjectiveLabel$() }}
+                </th>
+                <th
+                  scope="col"
+                  class="lo-th lo-th-score"
+                >
+                  {{ questionsCorrectLabel$() }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
                 v-for="lo in sortedLOs"
                 :key="lo.id"
-                role="row"
-                class="lo-row"
                 :style="{
                   backgroundColor:
                     lo.ratio >= MasteryThreshold.HIGH
@@ -145,28 +124,26 @@
                       : $themePalette.yellow.v_100,
                 }"
               >
-                <span
-                  role="cell"
-                  class="lo-cell-text"
-                >{{ lo.text }}</span>
-                <span
-                  role="cell"
-                  class="lo-score"
-                  :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
-                >
-                  <strong
-                    class="lo-count"
-                    aria-hidden="true"
-                  >{{ lo.correct }}</strong>
+                <td class="lo-td">{{ lo.text }}</td>
+                <td class="lo-td lo-td-score">
                   <span
-                    class="lo-of-n"
-                    :style="{ color: $themeTokens.annotation }"
-                    aria-hidden="true"
-                  >{{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
-                </span>
-              </div>
-            </div>
-          </div>
+                    class="lo-score"
+                    :aria-label="xOfYCorrectLabel$({ correct: lo.correct, total: lo.numQuestions })"
+                  >
+                    <strong
+                      class="lo-count"
+                      aria-hidden="true"
+                    >{{ lo.correct }}</strong>
+                    <span
+                      class="lo-of-n"
+                      :style="{ color: $themeTokens.annotation }"
+                      aria-hidden="true"
+                    >{{ ofNQuestionsLabel$({ total: lo.numQuestions }) }}</span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </template>
     </SidePanelLayout>
@@ -199,8 +176,6 @@
         onTrackWithObjectivesPrefixLabel$,
         onTrackWithObjectivesSuffixLabel$,
         xOfYCorrectLabel$,
-        progressLabel$,
-        losCompletedLabel$,
         individualLoPerformanceLabel$,
         sortedByScoreLowestFirstLabel$,
         learningObjectiveLabel$,
@@ -241,7 +216,6 @@
         return [...loData.value].sort((a, b) => a.ratio - b.ratio);
       });
 
-      const loCompletedCount = computed(() => loData.value.filter(lo => lo.attempted).length);
       const loTotalCount = computed(() => loData.value.length);
 
       const strugglingCount = computed(
@@ -262,15 +236,12 @@
         onTrackWithObjectivesPrefixLabel$,
         onTrackWithObjectivesSuffixLabel$,
         xOfYCorrectLabel$,
-        progressLabel$,
-        losCompletedLabel$,
         individualLoPerformanceLabel$,
         sortedByScoreLowestFirstLabel$,
         learningObjectiveLabel$,
         questionsCorrectLabel$,
         ofNQuestionsLabel$,
         hasAttempted,
-        loCompletedCount,
         loTotalCount,
         strugglingCount,
         sortedLOs,
@@ -297,27 +268,26 @@
   .learner-panel-title {
     display: flex;
     gap: 10px;
-    align-items: center;
+    align-items: flex-start;
     overflow: hidden;
   }
 
   .learner-icon {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .learner-name {
     margin: 0;
     overflow: hidden;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .learner-subtitle {
-    margin: 2px 0 0;
+    margin: 4px 0 0;
     font-size: 13px;
   }
 
@@ -347,6 +317,7 @@
   .empty-description {
     padding-left: 28px;
     margin: 0;
+    font-size: 12px;
   }
 
   .stats-row {
@@ -374,9 +345,9 @@
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
-    padding: 12px 16px;
+    padding: 8px 16px;
     margin: 16px 0;
-    border-radius: 4px;
+    font-size: 14px;
   }
 
   .warning-icon {
@@ -402,63 +373,62 @@
   }
 
   .lo-section {
-    margin-top: 16px;
+    margin-top: 24px;
   }
 
   .lo-section-heading {
     margin-bottom: 4px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
   }
 
   .lo-section-subheading {
-    margin-bottom: 12px;
-    font-size: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
   }
 
-  .lo-col-headers {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 8px 6px;
+  .lo-table {
+    width: 100%;
+    border-collapse: collapse;
   }
 
-  .lo-col-header {
-    font-size: 12px;
-    font-weight: 600;
+  .lo-th {
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
   }
 
-  .lo-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  .lo-th-score {
+    text-align: right;
   }
 
-  .lo-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px;
+  .lo-td {
+    padding: 14px 8px;
+    font-size: 15px;
+    vertical-align: middle;
   }
 
-  .lo-cell-text {
-    font-size: 14px;
+  .lo-td-score {
+    text-align: right;
+    white-space: nowrap;
   }
 
   .lo-score {
     display: flex;
     gap: 4px;
     align-items: baseline;
+    justify-content: flex-end;
     white-space: nowrap;
   }
 
   .lo-count {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
+    font-size: 20px;
+    font-weight: 600;
   }
 
   .lo-of-n {
-    font-size: 13px;
+    font-size: 14px;
   }
 
 </style>
