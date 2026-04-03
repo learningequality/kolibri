@@ -101,7 +101,7 @@ def get_course_session_context(user, course_session_id):
     """
     course_session = (
         CourseSession.objects.filter(id=course_session_id)
-        .values("id", classroom_id=F("collection_id"))
+        .values(classroom_id=F("collection_id"))
         .first()
     )
     if not course_session:
