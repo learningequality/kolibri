@@ -5,53 +5,55 @@ from le_utils.constants import content_kinds
 from mock import patch
 from rest_framework.test import APITestCase
 
-from kolibri.core.auth.test.helpers import create_superuser, provision_device
-from kolibri.core.auth.test.test_api import ClassroomFactory, FacilityFactory
+from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.auth.test.test_api import ClassroomFactory
+from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_utils import MasteryLogFactory
 from kolibri.core.content.models import ContentNode
-from kolibri.core.courses.models import CourseSession, CourseSessionAssignment
-from kolibri.core.exams.models import Exam, ExamAssignment
-from kolibri.core.lessons.models import Lesson, LessonAssignment
-from kolibri.core.logger.models import AttemptLog, ExamAttemptLog, ExamLog, MasteryLog
-from kolibri.core.logger.test.factory_logger import (
-    ContentSessionLogFactory,
-    ContentSummaryLogFactory,
-    FacilityUserFactory,
-)
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ExamAttemptLog
+from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
+from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
+from kolibri.core.logger.test.factory_logger import FacilityUserFactory
 from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
-from kolibri.core.notifications.api import (
-    NEEDS_HELP_NOTIFICATION_THRESHOLD,
-    _get_coach_lesson_dict,
-    batch_process_attemptlogs,
-    batch_process_examlogs,
-    batch_process_masterylogs_for_quizzes,
-    batch_process_summarylogs,
-    create_examlog,
-    create_notification,
-    create_summarylog,
-    exist_exam_completed_notification,
-    exist_exam_notification,
-    exist_examattempt_notification,
-    finish_lesson_resource,
-    get_assignments,
-    get_course_session_context,
-    parse_attemptslog,
-    parse_examlog,
-    parse_summarylog,
-    quiz_answered_notification,
-    quiz_completed_notification,
-    quiz_started_notification,
-    start_lesson_assessment,
-    start_lesson_resource,
-    update_lesson_assessment,
-)
-from kolibri.core.notifications.models import (
-    HelpReason,
-    LearnerProgressNotification,
-    NotificationEventType,
-    NotificationObjectType,
-)
+from kolibri.core.notifications.api import _get_coach_lesson_dict
+from kolibri.core.notifications.api import batch_process_attemptlogs
+from kolibri.core.notifications.api import batch_process_examlogs
+from kolibri.core.notifications.api import batch_process_masterylogs_for_quizzes
+from kolibri.core.notifications.api import batch_process_summarylogs
+from kolibri.core.notifications.api import create_examlog
+from kolibri.core.notifications.api import create_notification
+from kolibri.core.notifications.api import create_summarylog
+from kolibri.core.notifications.api import exist_exam_completed_notification
+from kolibri.core.notifications.api import exist_exam_notification
+from kolibri.core.notifications.api import exist_examattempt_notification
+from kolibri.core.notifications.api import finish_lesson_resource
+from kolibri.core.notifications.api import get_assignments
+from kolibri.core.notifications.api import get_course_session_context
+from kolibri.core.notifications.api import NEEDS_HELP_NOTIFICATION_THRESHOLD
+from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import parse_examlog
+from kolibri.core.notifications.api import parse_summarylog
+from kolibri.core.notifications.api import quiz_answered_notification
+from kolibri.core.notifications.api import quiz_completed_notification
+from kolibri.core.notifications.api import quiz_started_notification
+from kolibri.core.notifications.api import start_lesson_assessment
+from kolibri.core.notifications.api import start_lesson_resource
+from kolibri.core.notifications.api import update_lesson_assessment
+from kolibri.core.notifications.models import HelpReason
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.notifications.models import NotificationObjectType
 from kolibri.utils.time_utils import local_now
 
 

@@ -7,26 +7,43 @@ from random import randint
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Case, IntegerField, Q, Sum, Value, When
+from django.db.models import Case
+from django.db.models import IntegerField
+from django.db.models import Q
+from django.db.models import Sum
+from django.db.models import Value
+from django.db.models import When
 from django.db.models.functions import Coalesce
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from django_filters.rest_framework import (BooleanFilter, CharFilter,
-                                           ChoiceFilter, DjangoFilterBackend,
-                                           FilterSet, ModelChoiceFilter,
-                                           NumberFilter, UUIDFilter)
-from le_utils.constants import content_kinds, exercises
-from rest_framework import serializers, viewsets
+from django_filters.rest_framework import BooleanFilter
+from django_filters.rest_framework import CharFilter
+from django_filters.rest_framework import ChoiceFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import ModelChoiceFilter
+from django_filters.rest_framework import NumberFilter
+from django_filters.rest_framework import UUIDFilter
+from le_utils.constants import content_kinds
+from le_utils.constants import exercises
+from rest_framework import serializers
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
+from .models import AttemptLog
+from .models import ContentSessionLog
+from .models import ContentSummaryLog
+from .models import GenerateCSVLogRequest
+from .models import MasteryLog
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import (KolibriAuthPermissions,
-                                   KolibriAuthPermissionsFilter)
-from kolibri.core.auth.models import Facility, dataset_cache
+from kolibri.core.auth.api import KolibriAuthPermissions
+from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.models import dataset_cache
+from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.decorators import query_params_required
@@ -34,22 +51,20 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
-from kolibri.core.logger.evaluation import LOG_ORDER_BY, attempts_diff
+from kolibri.core.logger.evaluation import attempts_diff
+from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
-from kolibri.core.notifications.api import (create_summarylog,
-                                            finish_lesson_resource,
-                                            parse_attemptslog,
-                                            parse_summarylog,
-                                            quiz_answered_notification,
-                                            quiz_completed_notification,
-                                            quiz_started_notification,
-                                            start_lesson_assessment,
-                                            start_lesson_resource)
+from kolibri.core.notifications.api import create_summarylog
+from kolibri.core.notifications.api import finish_lesson_resource
+from kolibri.core.notifications.api import parse_attemptslog
+from kolibri.core.notifications.api import parse_summarylog
+from kolibri.core.notifications.api import quiz_answered_notification
+from kolibri.core.notifications.api import quiz_completed_notification
+from kolibri.core.notifications.api import quiz_started_notification
+from kolibri.core.notifications.api import start_lesson_assessment
+from kolibri.core.notifications.api import start_lesson_resource
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.utils.time_utils import local_now
-
-from .models import (AttemptLog, ContentSessionLog, ContentSummaryLog,
-                     GenerateCSVLogRequest, MasteryLog)
 
 logger = logging.getLogger(__name__)
 
