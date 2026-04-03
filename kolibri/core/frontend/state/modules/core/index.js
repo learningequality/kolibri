@@ -9,8 +9,6 @@ export default {
       error: '',
       loading: true,
       allowRemoteAccess: plugin_data.allowRemoteAccess,
-      // facility
-      pageVisible: true,
     };
   },
   getters,
