@@ -20,7 +20,7 @@ export default [
       store.dispatch('notLoading');
     },
     meta: {
-      titleParts: ['COURSE_NAME', 'CLASS_NAME'],
+      titleParts: ['CLASS_NAME'],
     },
     children: [
       {

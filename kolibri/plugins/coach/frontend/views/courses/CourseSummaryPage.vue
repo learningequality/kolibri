@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage :pageTitle="coachPageTitle">
+  <CoachAppBarPage>
     <KCircularLoader v-if="pageLoading" />
     <KGrid v-else>
       <!-- Header row (full width) -->
@@ -167,7 +167,7 @@
                   @click="onUnitButtonClick"
                 />
               </div>
-              <AccordionContainer>
+              <AccordionContainer :key="activeUnit ? activeUnit.id : 'complete'">
                 <AccordionItem
                   v-if="completedUnits.length"
                   :title="completedUnitsLabel$()"
@@ -377,7 +377,6 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
-  import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
@@ -499,11 +498,9 @@
       const { getRecipientNamesForCourseSession, className } = useClassSummary();
       const { removeCourse } = useCourses();
 
-      const coachPageTitle = computed(() => {
-        const parts = [course.value?.title, className.value].filter(Boolean);
-        if (isRtl(currentLanguage)) parts.reverse();
-        return parts.join(' - ');
-      });
+      const coachPageTitle = computed(() =>
+        [course.value?.title, className.value].filter(Boolean).join(' - '),
+      );
 
       // Learner counts derived from the active unit's report
       // (activeUnitReport is defined below after unitReportInfo is set up)
@@ -921,7 +918,6 @@
       }
 
       return {
-        coachPageTitle,
         backRoute,
         contentMissing,
         dataLoading,
