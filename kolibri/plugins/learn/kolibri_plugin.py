@@ -5,6 +5,7 @@ from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.auth.constants.user_kinds import LEARNER
 from kolibri.core.content.hooks import ContentNodeDisplayHook
 from kolibri.core.device.utils import allow_learner_unassigned_resource_access
+from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
 from kolibri.core.device.utils import LANDING_PAGE_LEARN
@@ -15,6 +16,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import conf
 from kolibri.utils import translation
@@ -74,6 +76,8 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
                 "allow_learner_download_resources"
             ),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
+            "allowRemoteAccess": allow_other_browsers_to_connect()
+            or not interface.enabled,
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
             ],

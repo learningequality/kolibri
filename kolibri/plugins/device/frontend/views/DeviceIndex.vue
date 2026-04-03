@@ -24,7 +24,6 @@
   import Cookies from 'js-cookie';
   import { ref, computed, onMounted } from 'vue';
   import { mapState } from 'vuex';
-  import { useRoute } from 'vue-router/composables';
 
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -33,9 +32,7 @@
   import urls from 'kolibri/urls';
   import store from 'kolibri/store';
   import useUser from 'kolibri/composables/useUser';
-  import plugin_data from 'kolibri-plugin-data';
   import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
-  import { PageNames } from '../constants';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
 
@@ -47,7 +44,6 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const route = useRoute();
       const { isUserLoggedIn, userFacilityId } = useUser();
       const { fetchFacilityConfig } = useFacilityConfig(userFacilityId.value);
 
@@ -55,12 +51,8 @@
       const showModal = ref(false);
       const facilityDatasetId = ref(null);
 
-      const pageName = computed(() => route.name);
       const userIsAuthorized = computed(() => {
-        if (pageName.value === PageNames.BOOKMARKS) {
-          return isUserLoggedIn.value;
-        }
-        return (plugin_data.allowGuestAccess && store.getters.allowAccess) || isUserLoggedIn.value;
+        return isUserLoggedIn.value;
       });
 
       onMounted(async () => {
