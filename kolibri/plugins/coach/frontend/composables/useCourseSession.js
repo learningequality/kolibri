@@ -74,7 +74,7 @@ export default function useCourseSession(courseSessionId) {
           return null;
         });
       })
-      .then(courseData => {
+      .then(([courseData, testData]) => {
         course.value = courseData;
         if (!courseData) return null;
         return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });

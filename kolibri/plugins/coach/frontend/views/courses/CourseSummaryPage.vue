@@ -271,7 +271,7 @@
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
-                <AccordionContainer :key="activeUnit ? activeUnit.id : 'complete'">
+                <AccordionContainer>
                   <AccordionItem
                     v-for="unit in allUnits"
                     :key="unit.id"
@@ -603,15 +603,15 @@
         const unitList = allUnits.value;
         if (!sessionId || !unitList.length) return;
         const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
-        for (const unit of unitList) {
-          UnitReportResource.fetchReport({
-            courseSessionId: sessionId,
-            unitContentnodeId: unit.id,
-          })
-            .then(data => {
-              unitReportInfo.value = {
-                ...unitReportInfo.value,
-                [unit.id]: {
+        Promise.all(
+          unitList.map(unit =>
+            UnitReportResource.fetchReport({
+              courseSessionId: sessionId,
+              unitContentnodeId: unit.id,
+            })
+              .then(data => ({
+                unitId: unit.id,
+                result: {
                   ...deriveUnitReportInfo(data),
                   reportData: { ...data, unit_title: unit.numberedTitle },
                   learnersWithGroups: data.learners.map(learner => ({
@@ -619,22 +619,28 @@
                     groups: getGroupNames(learner.id),
                   })),
                 },
-              };
-            })
-            .catch(error => {
-              store.dispatch('handleApiError', { error });
-              unitReportInfo.value = {
-                ...unitReportInfo.value,
-                [unit.id]: {
-                  activeTestType: null,
-                  activeTestStatus: 'not_activated',
-                  bucketedObjectives: [],
-                  reportData: null,
-                  learnersWithGroups: [],
-                },
-              };
-            });
-        }
+              }))
+              .catch(error => {
+                store.dispatch('handleApiError', { error });
+                return {
+                  unitId: unit.id,
+                  result: {
+                    activeTestType: null,
+                    activeTestStatus: 'not_activated',
+                    bucketedObjectives: [],
+                    reportData: null,
+                    learnersWithGroups: [],
+                  },
+                };
+              }),
+          ),
+        ).then(entries => {
+          const newInfo = {};
+          for (const { unitId, result } of entries) {
+            newInfo[unitId] = result;
+          }
+          unitReportInfo.value = newInfo;
+        });
       }
 
       // Fetch reports when units become available
