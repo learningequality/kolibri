@@ -265,8 +265,8 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, user_id } = useUser();
+      const { tourActive, isTourActive, startTour, endTour } = useTour();
+      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, currentUserId } = useUser();
 
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
@@ -432,8 +432,7 @@
         isTourActive,
         startTour,
         endTour,
-        resumeTour,
-        userId: user_id,
+        userId: currentUserId,
       };
     },
     props: {
@@ -542,11 +541,10 @@
       },
       loading(newVal, oldVal) {
         if (oldVal && !newVal) {
-          const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
-          if (isTourStarted) {
+          if (!this.welcomeModalVisible) {
             setTimeout(() => {
               this.startTour('LibraryPage');
-            }, 3000);
+            }, 300);
           }
         }
       },

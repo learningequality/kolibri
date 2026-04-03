@@ -137,9 +137,11 @@
       },
     },
     mounted() {
-      if (this.topics.length && this.windowIsLarge) {
-        this.startTour('ExploreLibraries');
-      }
+      this.$nextTick(() => {
+        if (this.topics.length && this.windowIsLarge) {
+          this.startTour('ExploreLibraries');
+        }
+      });
     },
   };
 
