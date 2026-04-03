@@ -1,7 +1,7 @@
 FROM images/base.img
 TO images/Kolibri.img
 
-PUMP 100M
+PUMP 500M
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -16,10 +16,13 @@ echo "kolibri-server kolibri-server/zip_content_port select 81" | debconf-set-se
 '
 
 
+# Free space from base image build before installing Kolibri
+RUN apt-get clean
+
 # All files copied at build stage to /pi-gen
 INSTALL dist/*.deb /tmp/kolibri.deb
 
-RUN dpkg -i /tmp/kolibri.deb
+RUN apt-get install -y /tmp/kolibri.deb
 RUN rm /tmp/kolibri.deb
 
 RUN ls -la /home/pi/.kolibri/options.ini
@@ -27,6 +30,8 @@ RUN ls -la /home/pi/.kolibri/options.ini
 RUN apt-get install -y kolibri-server
 
 RUN systemctl enable kolibri-server
+
+RUN apt-get clean
 
 # Zero free space so the image compresses better in the ZIP
 ZERO

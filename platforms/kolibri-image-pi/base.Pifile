@@ -14,25 +14,13 @@ hostname=kolibri
 # Write hostname to /etc/hostname and /etc/hosts
 RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hostname
 RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hosts
-  
 
-
-echo "Done."
-
-INSTALL 644 files/learningequality-ubuntu-kolibri-noble.list /etc/apt/sources.list.d/
-
-# Copy the GPG key file into the Docker image
-INSTALL 644 files/learningequality.gpg.key /tmp/learningequality.gpg.key
-
-# Convert the GPG key to binary format
-RUN bash -c 'gpg --dearmor < /tmp/learningequality.gpg.key > /tmp/learningequality.gpg'
-
-# Install the binary GPG key to the trusted directory
-RUN install -m 644 /tmp/learningequality.gpg /etc/apt/trusted.gpg.d/
-
-# Clean up temporary files
-RUN rm -f /tmp/learningequality.gpg /tmp/learningequality.gpg.key
-
+# Debian 13+ DEB822-format PPAs
+# See: https://kolibri.readthedocs.io/en/latest/install/ubuntu-debian.html#install-from-ppa-repository
+RUN mkdir -p /etc/apt/keyrings
+INSTALL 644 files/learningequality.asc /etc/apt/keyrings/learningequality.asc
+INSTALL 644 files/learningequality-kolibri.sources /etc/apt/sources.list.d/
+INSTALL 644 files/learningequality-kolibri-server.sources /etc/apt/sources.list.d/
 
 RUN mkdir -p "/home/${user}/.kolibri"
 RUN mkdir -p /KOLIBRI_DATA/content
@@ -78,8 +66,12 @@ RUN tee /etc/default/dnsmasq <<EOF
 DNSMASQ_EXCEPT=lo
 EOF
 
-# latest debian version seems to have this line commented
-RUN bash -c "sed -i 's/^#conf-dir=\\/etc\\/dnsmasq.d\\/,.*/conf-dir=\\/etc\\/dnsmasq.d\\/,*.conf/' /etc/dnsmasq.conf"
+# Ensure dnsmasq reads drop-in config files (handles commented, uncommented, or missing line)
+RUN sed -i -E '/^#?conf-dir=\/etc\/dnsmasq\.d/d' /etc/dnsmasq.conf
+
+RUN tee -a /etc/dnsmasq.conf <<EOF
+conf-dir=/etc/dnsmasq.d/,*.conf
+EOF
 
 RUN rm /etc/nginx/sites-enabled/default
 

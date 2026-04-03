@@ -57,17 +57,17 @@ jobs:
       uses: actions/cache@v5
       with:
         path: 'images/source.img'
-        key: ${{ runner.OS }}-source-v2-${{ hashFiles('Makefile') }}
+        key: ${{ runner.OS }}-source-v3-${{ hashFiles('Makefile') }}
     - name: Cache base image
       uses: actions/cache@v5
       with:
         path: 'images/base.img'
-        key: ${{ runner.OS }}-base-v2-${{ hashFiles('base.Pifile', 'files/*') }}
+        key: ${{ runner.OS }}-base-v3-${{ hashFiles('base.Pifile', 'files/*') }}
     - name: Cache pimod
       uses: actions/cache@v5
       with:
         path: pimod
-        key: ${{ runner.OS }}-pimod-v2-${{ hashFiles('Makefile') }}
+        key: ${{ runner.OS }}-pimod-v3-${{ hashFiles('Makefile') }}
     - name: Build Pi image
       run: make zipfile
     - name: Verify image WiFi configuration
