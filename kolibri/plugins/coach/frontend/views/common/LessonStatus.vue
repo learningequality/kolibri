@@ -189,13 +189,13 @@
 <script>
 
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
-  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri/constants';
   import Lockr from 'lockr';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import Recipients from './Recipients';
   import { coachStringsMixin } from './commonCoachStrings';
 
@@ -255,12 +255,11 @@
       this.checkIfAnyLODsInClass();
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
       // modal about lesson sizes should only exist of LODs exist in the class
       // which we are checking via if there have recently been any user syncs
       // TODO: refactor to a more robust check
       checkIfAnyLODsInClass() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+        fetchClassSyncStatus(this.$route.params.classId).then(data => {
           if (data && data.length > 0) {
             this.learnOnlyDevicesExist = true;
           }

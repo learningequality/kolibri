@@ -3,7 +3,6 @@ import client from 'kolibri/client';
 import debounce from 'lodash/debounce';
 import heartbeat from 'kolibri/heartbeat';
 import logger from 'kolibri-logging';
-import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
 import { nextTick } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import sanitizeError from 'kolibri/utils/sanitizeError';
@@ -103,37 +102,4 @@ export function notLoading(store) {
       resolve();
     });
   });
-}
-
-export function fetchUserSyncStatus(store, params) {
-  // for fetching all users that are members of a particular classroom id
-  if (params.member_of) {
-    return UserSyncStatusResource.fetchCollection({
-      force: true,
-      getParams: { member_of: params.member_of },
-    }).then(
-      syncData => {
-        return syncData;
-      },
-      error => {
-        store.dispatch('handleApiError', { error });
-        return error;
-      },
-    );
-  }
-  // for fetching an individual user
-  else if (params.user) {
-    return UserSyncStatusResource.fetchCollection({
-      force: true,
-      getParams: { user: params.user },
-    }).then(
-      syncData => {
-        return syncData;
-      },
-      error => {
-        store.dispatch('handleApiError', { error });
-        return error;
-      },
-    );
-  }
 }
