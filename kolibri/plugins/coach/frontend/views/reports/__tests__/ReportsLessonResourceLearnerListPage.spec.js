@@ -18,6 +18,9 @@ jest.mock('kolibri/router', () => {
     },
   };
 });
+jest.mock('../../../composables/fetchClassSyncStatus', () => ({
+  fetchClassSyncStatus: jest.fn(() => Promise.resolve([])),
+}));
 jest.mock('../../../composables/useCoreCoach', () => {
   return () => {
     return {

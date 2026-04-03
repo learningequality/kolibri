@@ -185,12 +185,12 @@
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import NoResourceAlert from 'kolibri-common/components/NoResourceAlert';
-  import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import plugin_data from 'kolibri-plugin-data';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { mapState, mapGetters } from 'vuex';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage';
@@ -233,10 +233,7 @@
       initClassInfo().then(() => store.dispatch('notLoading'));
 
       // TODO: refactor to a more robust check
-      UserSyncStatusResource.fetchCollection({
-        force: true,
-        getParams: { member_of: classId.value },
-      }).then(data => {
+      fetchClassSyncStatus(classId.value).then(data => {
         if (data && data.length > 0) {
           learnOnlyDevicesExist.value = true;
         }

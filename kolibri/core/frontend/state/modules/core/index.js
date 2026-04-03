@@ -7,8 +7,6 @@ export default {
     return {
       error: '',
       loading: true,
-      // facility
-      pageVisible: true,
     };
   },
   getters,

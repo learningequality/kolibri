@@ -336,9 +336,9 @@
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import Lockr from 'lockr';
   import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri/constants';
-  import { mapActions } from 'vuex';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -432,7 +432,6 @@
       this.checkIfAnyLODsInClass();
     },
     methods: {
-      ...mapActions(['fetchUserSyncStatus']),
       handleOpenQuiz() {
         const promise = ExamResource.saveModel({
           id: this.$route.params.quizId,
@@ -486,7 +485,7 @@
       // which we are checking via if there have recently been any user syncs
       // TODO: refactor to a more robust check
       checkIfAnyLODsInClass() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+        fetchClassSyncStatus(this.$route.params.classId).then(data => {
           if (data && data.length > 0) {
             this.learnOnlyDevicesExist = true;
           }

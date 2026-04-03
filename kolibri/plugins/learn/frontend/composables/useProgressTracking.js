@@ -4,7 +4,7 @@
  * All data exposed by this function belong to a current learner.
  */
 
-import { ref, reactive, getCurrentInstance, onBeforeUnmount } from 'vue';
+import { ref, reactive, onBeforeUnmount } from 'vue';
 import { get, set } from '@vueuse/core';
 import fromPairs from 'lodash/fromPairs';
 import isNumber from 'lodash/isNumber';
@@ -18,6 +18,7 @@ import urls from 'kolibri/urls';
 import useUser from 'kolibri/composables/useUser';
 import useTotalProgress from 'kolibri/composables/useTotalProgress';
 import { ContentNodeKinds } from 'kolibri/constants';
+import { pageVisible } from 'kolibri/utils/browserInfo';
 
 const logging = logger.getLogger(__filename);
 
@@ -71,8 +72,7 @@ function clearObject(obj) {
   }
 }
 
-export default function useProgressTracking(store) {
-  store = store || getCurrentInstance().proxy.$store;
+export default function useProgressTracking() {
   const complete = ref(null);
   const progress_state = ref(null);
   const progress_delta = ref(0);
@@ -572,7 +572,7 @@ export default function useProgressTracking(store) {
     // Reset the elapsed time in the timer
     const elapsedTime = getNewTimeElapsed();
     // Discard the time that has passed if the page is not visible.
-    if (store.state.core.pageVisible && elapsedTime) {
+    if (get(pageVisible) && elapsedTime) {
       /* Update the logging state with new timing information */
       set(time_spent, get(time_spent) + threeDecimalPlaceRoundup(elapsedTime));
       set(time_spent_delta, threeDecimalPlaceRoundup(get(time_spent_delta) + elapsedTime));

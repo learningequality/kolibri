@@ -16,6 +16,14 @@ jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/utils/browserInfo', () => {
+  const actual = jest.requireActual('kolibri/utils/browserInfo');
+  const { ref } = require('vue');
+  return {
+    ...actual,
+    pageVisible: ref(true),
+  };
+});
 
 coreStore.registerModule('core', coreModule);
 

@@ -191,6 +191,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import CoachAppBarPage from '../CoachAppBarPage';
   import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
@@ -299,7 +300,6 @@
     },
     methods: {
       ...mapActions('lessonsRoot', ['createLesson']),
-      ...mapActions(['fetchUserSyncStatus']),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'filterLessonVisible':
@@ -336,7 +336,7 @@
       // which we are checking via if there have recently been any user syncs
       // TODO: refactor to a more robust check
       checkIfAnyLODsInClass() {
-        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+        fetchClassSyncStatus(this.$route.params.classId).then(data => {
           if (data && data.length > 0) {
             this.learnOnlyDevicesExist = true;
           }
