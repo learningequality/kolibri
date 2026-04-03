@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearningObjectivesReport from '../LearningObjectivesReport.vue';
+
+const { noTestDataLabel$ } = coursesStrings;
 
 const MOCK_OBJECTIVES = [
   {
@@ -82,7 +85,7 @@ describe('LearningObjectivesReport', () => {
     });
     expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
     expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    expect(screen.getByText(/no test has been activated/i)).toBeInTheDocument();
+    expect(screen.getByText(noTestDataLabel$())).toBeInTheDocument();
   });
 
   it('renders LO rows when data is available', () => {

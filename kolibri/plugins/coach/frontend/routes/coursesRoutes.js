@@ -1,3 +1,4 @@
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CoursesRootPage from '../views/courses/CoursesRootPage.vue';
 import CourseSummaryPage from '../views/courses/CourseSummaryPage.vue';
@@ -15,6 +16,9 @@ export default [
     name: PageNames.COURSE_SUMMARY,
     path: CLASS + COURSE_SESSION,
     component: CourseSummaryPage,
+    handler() {
+      store.dispatch('notLoading');
+    },
     meta: {
       titleParts: ['COURSE_NAME', 'CLASS_NAME'],
     },

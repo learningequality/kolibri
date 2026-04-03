@@ -112,6 +112,7 @@
                 :style="activeUnitStyles"
               >
                 <div class="active-unit-title">
+                  <!-- TODO: Replace :to with real route once unit detail route is available -->
                   <KRouterLink
                     :text="activeUnit.numberedTitle"
                     :to="{}"
@@ -129,7 +130,7 @@
                     </span>
                     <span class="status-message">
                       <b> {{ unitStatusMessages.boldMessage }} </b>
-                      <span style="text-transform: lowercase">{{
+                      <span class="status-plain-message">{{
                         unitStatusMessages.plainMessage
                       }}</span>
                     </span>
@@ -167,6 +168,7 @@
                       class="upcoming-unit"
                       :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
                     >
+                      <!-- TODO: Replace :to with real route once unit detail route is available -->
                       <KRouterLink
                         :text="unit.numberedTitle"
                         :to="{}"
@@ -193,6 +195,7 @@
                       class="upcoming-unit"
                       :style="{ border: `1px solid ${$themeTokens.fineLine}` }"
                     >
+                      <!-- TODO: Replace :to with real route once unit detail route is available -->
                       <KRouterLink
                         :text="unit.numberedTitle"
                         :to="{}"
@@ -210,7 +213,10 @@
               </AccordionContainer>
             </template>
             <template #[TABS.LEARNERS]>
-              <h1>{{ learnersLabel$() }}</h1>
+              <LearnersReport
+                :prefetchedData="learnersReportData"
+                :learnerRoute="learnerRoute"
+              />
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
@@ -255,7 +261,7 @@
             {{ completedLabel$() }}
           </div>
           <div class="panel-message">
-            {{ nOfMLearners$({ n: 0, m: 10 }) }}
+            {{ nOfMLearners$({ n: activeModalCompletedCount, m: activeUnitTotalLearners }) }}
           </div>
         </div>
         <div class="panel-item">
@@ -263,11 +269,17 @@
             {{ inProgressLabel$() }}
           </div>
           <div class="panel-message">
-            {{ numLearners$({ num: 100 }) }}
+            {{ numLearners$({ num: activeModalInProgressCount }) }}
           </div>
         </div>
       </div>
     </KModal>
+    <LearnerSidePanel
+      v-if="selectedLearner"
+      :prefetchedData="learnersReportData"
+      :learner="selectedLearner"
+      @close="closeLearnerPanel"
+    />
   </CoachAppBarPage>
 
 </template>
@@ -275,8 +287,8 @@
 
 <script>
 
-  import { computed, ref, watch } from 'vue';
-  import { useRoute } from 'vue-router/composables';
+  import { computed, getCurrentInstance, ref, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -295,6 +307,8 @@
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
+  import LearnersReport from './LearnersReport.vue';
+  import LearnerSidePanel from './LearnerSidePanel.vue';
 
   export default {
     name: 'CourseSummaryPage',
@@ -304,7 +318,9 @@
       CoachAppBarPage,
       CoachHeader,
       ElapsedTime,
+      LearnerSidePanel,
       LearningObjectivesReport,
+      LearnersReport,
       Recipients,
     },
     setup() {
@@ -338,6 +354,7 @@
         preTestResults$,
         postTestInProgress$,
         postTestResults$,
+        unitTitleWithStatus$,
       } = coursesStrings;
 
       const { recipientsLabel$, sizeLabel$, numberOfResources$ } = coachStrings;
@@ -353,6 +370,7 @@
       } = coreStrings;
 
       const route = useRoute();
+      const router = useRouter();
       const backRoute = computed(() => {
         // include existing route params/query for classId and such if present
         return { ...route, name: PageNames.COURSES_ROOT };
@@ -383,6 +401,10 @@
 
       // UI-only state
       const activeModal = ref(null);
+      const selectedLearner = ref(null);
+
+      // Capture store synchronously while instance context is available
+      const store = getCurrentInstance().proxy.$store;
 
       // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});
@@ -391,6 +413,7 @@
         const sessionId = courseSessionId.value;
         const unitList = allUnits.value;
         if (!sessionId || !unitList.length) return;
+        const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
         for (const unit of unitList) {
           UnitReportResource.fetchReport({
             courseSessionId: sessionId,
@@ -402,10 +425,15 @@
                 [unit.id]: {
                   ...deriveUnitReportInfo(data),
                   reportData: data,
+                  learnersWithGroups: data.learners.map(learner => ({
+                    ...learner,
+                    groups: getGroupNames(learner.id),
+                  })),
                 },
               };
             })
-            .catch(() => {
+            .catch(error => {
+              store.dispatch('handleApiError', { error });
               unitReportInfo.value = {
                 ...unitReportInfo.value,
                 [unit.id]: {
@@ -413,6 +441,7 @@
                   activeTestStatus: 'not_activated',
                   bucketedObjectives: [],
                   reportData: null,
+                  learnersWithGroups: [],
                 },
               };
             });
@@ -420,11 +449,34 @@
       }
 
       // Fetch reports when units become available
-      watch(allUnits, () => {
-        if (allUnits.value.length) {
-          fetchAllUnitReports();
-        }
-      });
+      watch(
+        allUnits,
+        () => {
+          if (allUnits.value.length) {
+            fetchAllUnitReports();
+          }
+        },
+        { immediate: true },
+      );
+
+      const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
+      const activeUnitTotalLearners = computed(
+        () => activeUnitReport.value?.learnersWithGroups?.length || 0,
+      );
+
+      function activeUnitScoreCount(testKey) {
+        return Object.keys(activeUnitReport.value?.reportData?.[testKey]?.scores || {}).length;
+      }
+
+      const activeModalTestKey = computed(() =>
+        activeUnitReport.value?.activeTestType === 'post' ? 'post_test' : 'pre_test',
+      );
+      const activeModalCompletedCount = computed(() =>
+        activeUnitScoreCount(activeModalTestKey.value),
+      );
+      const activeModalInProgressCount = computed(
+        () => activeUnitTotalLearners.value - activeModalCompletedCount.value,
+      );
 
       function unitObjectiveTitle(unit) {
         const info = unitReportInfo.value[unit.id];
@@ -441,7 +493,7 @@
         if (!statusLabel) {
           return unit.numberedTitle;
         }
-        return `${unit.numberedTitle} (${statusLabel})`;
+        return unitTitleWithStatus$({ title: unit.numberedTitle, status: statusLabel });
       }
 
       const courseObjectiveheaderstyle = computed(() => {
@@ -455,7 +507,7 @@
 
       const TABS = { UNITS: 'units', LEARNERS: 'learners', OBJECTIVES: 'objectives' };
       const activeTabId = ref(TABS.UNITS);
-      const tabs = [
+      const tabs = computed(() => [
         {
           id: TABS.UNITS,
           label: unitsLabel$(),
@@ -468,7 +520,7 @@
           id: TABS.OBJECTIVES,
           label: learningObjectivesLabel$(),
         },
-      ];
+      ]);
 
       // Re-fetch when switching to the Learning Objectives tab so that
       // test state changes made on the Units tab are reflected immediately.
@@ -489,19 +541,28 @@
             };
           case UnitPhase.PRE_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('pre_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: completedLabel$(),
               buttonLabel: endPreTest$(),
             };
           case UnitPhase.POST_TEST_PENDING:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('pre_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: workingOnLessons$(),
               buttonLabel: startPostTest$(),
             };
           case UnitPhase.POST_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({ n: 0, m: 5 }),
+              boldMessage: nOfMLearners$({
+                n: activeUnitScoreCount('post_test'),
+                m: activeUnitTotalLearners.value,
+              }),
               plainMessage: completedLabel$(),
               buttonLabel: endPostTest$(),
             };
@@ -619,6 +680,51 @@
         };
       });
 
+      // Flat learner data for the Learners tab: prefer active unit, else first unit with data
+      const learnersReportData = computed(() => {
+        if (activeUnit.value) {
+          const info = unitReportInfo.value[activeUnit.value.id];
+          if (info) return info;
+        }
+        for (const unit of allUnits.value) {
+          const info = unitReportInfo.value[unit.id];
+          if (info && info.activeTestStatus !== 'not_activated') return info;
+        }
+        for (const unit of allUnits.value) {
+          const info = unitReportInfo.value[unit.id];
+          if (info) return info;
+        }
+        return null;
+      });
+
+      // Sync selectedLearner with route query — supports deep-linking to a learner panel
+      watch([() => route.query.learnerId, learnersReportData], ([learnerId]) => {
+        if (!learnerId) {
+          selectedLearner.value = null;
+          return;
+        }
+        const learner = learnersReportData.value?.learnersWithGroups?.find(l => l.id === learnerId);
+        selectedLearner.value = learner || null;
+      });
+
+      function learnerRoute(learner) {
+        return {
+          name: route.name,
+          params: { ...route.params },
+          query: { ...route.query, learnerId: learner.id },
+        };
+      }
+
+      function closeLearnerPanel() {
+        const restQuery = { ...route.query };
+        delete restQuery.learnerId;
+        router.replace({
+          name: route.name,
+          params: { ...route.params },
+          query: restQuery,
+        });
+      }
+
       return {
         backRoute,
         dataLoading,
@@ -633,6 +739,7 @@
         activeTest,
         activeUnit,
         activeModal,
+        selectedLearner,
 
         courseSession,
         completedUnits,
@@ -656,7 +763,6 @@
         numUnits$,
         upcomingUnitsLabel$,
         lockedLabel$,
-        learnersLabel$,
         completedLabel$,
         inProgressLabel$,
         nOfMLearners$,
@@ -669,12 +775,13 @@
         courseObjectiveheaderstyle,
         unitReportInfo,
         unitObjectiveTitle,
+        learnersReportData,
+        learnerRoute,
+        closeLearnerPanel,
+        activeUnitTotalLearners,
+        activeModalCompletedCount,
+        activeModalInProgressCount,
       };
-    },
-    watch: {
-      courseSession() {
-        this.$store.dispatch('notLoading');
-      },
     },
   };
 
@@ -685,10 +792,10 @@
 
   .container {
     padding: 0;
+  }
 
-    .header {
-      padding: 8px 24px 24px;
-    }
+  .container .header {
+    padding: 8px 24px 24px;
   }
 
   .go-back {
@@ -724,10 +831,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
+  }
 
-    a {
-      font-weight: bold;
-    }
+  .active-unit a {
+    font-weight: bold;
   }
 
   .active-unit-title {
@@ -765,16 +872,20 @@
     padding: 16px;
     margin-top: 8px;
     border-radius: 8px;
+  }
 
-    .panel-item {
-      width: 50%;
-    }
+  .panel-item {
+    width: 50%;
+  }
 
-    .panel-label {
-      margin-bottom: 8px;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
+  .panel-label {
+    margin-bottom: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+
+  .status-plain-message {
+    text-transform: lowercase;
   }
 
   .course-active {
