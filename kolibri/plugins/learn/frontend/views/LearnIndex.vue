@@ -24,9 +24,10 @@
       NotificationsRoot,
     },
     setup() {
-      const { isUserLoggedIn } = useUser();
+      const { isUserLoggedIn, isAppContext } = useUser();
       return {
         isUserLoggedIn,
+        isAppContext,
       };
     },
     computed: {
@@ -34,13 +35,15 @@
         loading: state => state.core.loading,
       }),
 
+      allowAccess() {
+        return plugin_data.allowRemoteAccess || this.isAppContext;
+      },
+
       userIsAuthorized() {
         if (this.pageName === PageNames.BOOKMARKS) {
           return this.isUserLoggedIn;
         }
-        return (
-          (plugin_data.allowGuestAccess && this.$store.getters.allowAccess) || this.isUserLoggedIn
-        );
+        return (plugin_data.allowGuestAccess && this.allowAccess) || this.isUserLoggedIn;
       },
     },
     methods: {},

@@ -16,7 +16,6 @@ from kolibri.core.content.utils.paths import get_content_storage_url
 from kolibri.core.content.utils.paths import get_sandbox_path
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
-from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
@@ -101,8 +100,6 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         return {
             "fullCSSFileModern": static(f"assets/fonts/{modern_hashed}"),
             "fullCSSFileBasic": static(f"assets/fonts/{basic_hashed}"),
-            "allowRemoteAccess": allow_other_browsers_to_connect()
-            or not interface.enabled,
             "appCapabilities": interface.capabilities,
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),

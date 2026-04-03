@@ -4,7 +4,18 @@ import VueRouter from 'vue-router';
 import AuthSelect from '../AuthSelect';
 import makeStore from '../../__tests__/utils/makeStore';
 
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri-common/composables/useFacility');
 jest.mock('kolibri/urls');
+jest.mock('kolibri-plugin-data', () => ({
+  __esModule: true,
+  default: {
+    allowRemoteAccess: true,
+    oidcProviderEnabled: false,
+    allowGuestAccess: false,
+    deviceUnusableReason: null,
+  },
+}));
 
 const routes = [
   { name: 'SignInPage', path: '/signin' },
@@ -20,8 +31,6 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
 
 function renderComponent() {
   const store = makeStore();
-  store.getters = { ...store.getters, allowAccess: true };
-
   return render(AuthSelect, {
     store,
     routes,

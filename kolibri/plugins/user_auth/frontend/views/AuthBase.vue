@@ -6,7 +6,7 @@
         <div class="main-cell table-cell">
           <!-- remote access disabled -->
           <div
-            v-if="!$store.getters.allowAccess || deviceUnusableReason"
+            v-if="!allowAccess || deviceUnusableReason"
             class="box"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
@@ -24,7 +24,7 @@
             >
               {{ logoText }}
             </h1>
-            <template v-if="!$store.getters.allowAccess">
+            <template v-if="!allowAccess">
               <p data-test="restrictedAccess">
                 {{ $tr('restrictedAccess') }}
               </p>
@@ -187,6 +187,7 @@
 
 <script>
 
+  import { computed } from 'vue';
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -195,6 +196,7 @@
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../constants';
   import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
@@ -207,7 +209,11 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const { facilityConfig } = useFacility();
-      return { themeConfig, facilityConfig };
+      const { isAppContext } = useUser();
+      const allowAccess = computed(() => {
+        return plugin_data.allowRemoteAccess || isAppContext.value;
+      });
+      return { themeConfig, facilityConfig, allowAccess };
     },
     props: {
       hideCreateAccount: {

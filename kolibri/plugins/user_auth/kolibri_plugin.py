@@ -1,4 +1,5 @@
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
+from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import get_device_unusable_reason
 from kolibri.core.device.utils import is_landing_page
@@ -8,6 +9,7 @@ from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.app.utils import interface
 from kolibri.plugins.hooks import register_hook
 
 
@@ -29,6 +31,8 @@ class UserAuthAsset(webpack_hooks.WebpackBundleHook):
         return {
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "allowGuestAccess": get_device_setting("allow_guest_access"),
+            "allowRemoteAccess": allow_other_browsers_to_connect()
+            or not interface.enabled,
             "deviceUnusableReason": get_device_unusable_reason(),
         }
 
