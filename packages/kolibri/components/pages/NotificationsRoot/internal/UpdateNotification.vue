@@ -18,13 +18,6 @@
     <p v-if="!isSuperuser">
       {{ $tr('adminMessage') }}
     </p>
-    <p>
-      <KCheckbox
-        :label="$tr('hideNotificationLabel')"
-        :checked="dontShowNotificationAgain"
-        @change="dontShowNotificationAgain = !dontShowNotificationAgain"
-      />
-    </p>
   </KModal>
 
 </template>
@@ -60,11 +53,6 @@
         default: null,
       },
     },
-    data() {
-      return {
-        dontShowNotificationAgain: false,
-      };
-    },
     methods: {
       submit() {
         this.$emit('submit');
@@ -74,11 +62,6 @@
       adminMessage: {
         message: 'Please contact the device administrator for this server',
         context: 'Prompt telling the user to contact the device admin.',
-      },
-      hideNotificationLabel: {
-        message: "Don't show this message again",
-        context:
-          'Notification which upon accepting means that the user will no longer see the message displayed.',
       },
       // The strings below are not actually used in the appplication code.
       // They are included simply to get the strings translated for later use. We should do
