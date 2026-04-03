@@ -496,11 +496,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Progress',
     context: 'Label for the progress section in the learner side panel, displayed in uppercase',
   },
-  losCompletedLabel: {
-    message: '{completed, number} of {total, number} LOs completed',
-    context:
-      'Progress row in the learner side panel showing how many learning objectives the learner has attempted, e.g. "3 of 8 LOs completed"',
-  },
   individualLoPerformanceLabel: {
     message: 'Individual learning objective performance',
     context: 'Section heading in the learner side panel for the LO performance list',
