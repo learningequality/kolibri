@@ -1,5 +1,3 @@
-import urls from 'kolibri/urls';
-import client from 'kolibri/client';
 import debounce from 'lodash/debounce';
 import heartbeat from 'kolibri/heartbeat';
 import logger from 'kolibri-logging';
@@ -52,27 +50,6 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   }
   handleError(store, errorString);
   throw error;
-}
-
-/**
- * Sets a password that is currently not specified
- * due to an account that was created while passwords
- * were not required.
- *
- * @param {object} store The store.
- * @param {object} sessionPayload The session payload.
- */
-export function kolibriSetUnspecifiedPassword(store, { username, password, facility }) {
-  const data = {
-    username,
-    password,
-    facility,
-  };
-  return client({
-    url: urls['kolibri:core:setnonspecifiedpassword'](),
-    data,
-    method: 'post',
-  });
 }
 
 // Session management has been migrated to useUser composable

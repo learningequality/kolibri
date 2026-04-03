@@ -3,20 +3,17 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import useUser from 'kolibri/composables/useUser';
 import { coreStoreFactory } from 'kolibri/store';
+import { setUnspecifiedPassword } from '../../../api';
 import NewPasswordPage from '../NewPasswordPage.vue';
 
 configure({ testIdAttribute: 'data-test' });
 jest.mock('kolibri/composables/useUser');
+jest.mock('../../../api');
 const mockLogin = jest.fn();
-const mockSetUnspecifiedPassword = jest.fn();
 const mockRouterPush = jest.fn();
 
 function renderComponent() {
-  const store = coreStoreFactory({
-    actions: {
-      kolibriSetUnspecifiedPassword: mockSetUnspecifiedPassword,
-    },
-  });
+  const store = coreStoreFactory();
   useUser.mockImplementation(() => ({
     login: mockLogin,
   }));
@@ -45,7 +42,7 @@ describe('NewPasswordPage', () => {
   beforeEach(() => {
     // Reset mocks
     mockLogin.mockReset();
-    mockSetUnspecifiedPassword.mockReset();
+    setUnspecifiedPassword.mockReset();
     mockRouterPush.mockReset();
   });
 
@@ -59,8 +56,7 @@ describe('NewPasswordPage', () => {
     await user.type(passwordInputs[1], password);
     await user.click(submitButton);
     await waitFor(() => {
-      expect(mockSetUnspecifiedPassword).toHaveBeenCalledWith(
-        expect.anything(),
+      expect(setUnspecifiedPassword).toHaveBeenCalledWith(
         expect.objectContaining({
           username: 'testuser',
           facility: 'facility_1',
@@ -80,12 +76,12 @@ describe('NewPasswordPage', () => {
     const user = userEvent.setup();
     const submitButton = screen.getByTestId('submit');
     await user.click(submitButton);
-    expect(mockSetUnspecifiedPassword).not.toHaveBeenCalled();
+    expect(setUnspecifiedPassword).not.toHaveBeenCalled();
     expect(mockLogin).not.toHaveBeenCalled();
   });
 
   it('calls goBack when setUnspecifiedPassword fails', async () => {
-    mockSetUnspecifiedPassword.mockRejectedValue(new Error('Failed'));
+    setUnspecifiedPassword.mockRejectedValue(new Error('Failed'));
     renderComponent();
     const user = userEvent.setup();
     const password = 'password';
