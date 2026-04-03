@@ -217,18 +217,18 @@ def test_filter_new_releases_strips_v_prefix():
     assert len(result) == 1
 
 
-def test_generate_release_entries():
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_generate_release_entries(_mock_codename):
     releases = [
         {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
         {"tag_name": "v0.19.1", "prerelease": False, "published_at": "2025-10-03T17:47:04Z"},
     ]
     entries = generate_release_entries(releases)
 
-    codename = get_current_lts_codename()
     assert len(entries) == 2
     assert "0.19.2-0ubuntu1" in entries[0]["text"]
     assert "0.19.1-0ubuntu1" in entries[1]["text"]
-    assert codename in entries[0]["text"]
+    assert "noble" in entries[0]["text"]
     assert entries[0]["version"] == "0.19.2"
     assert entries[0]["ubuntu_revision"] == 1
 
@@ -319,7 +319,8 @@ def test_interleave_entries_no_packaging():
 
 # --- Tests for generate_updated_changelog ---
 
-def test_generate_updated_changelog_prepends_entries():
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_generate_updated_changelog_prepends_entries(_mock_codename):
     """New entries are prepended to existing changelog content."""
     existing_changelog = SAMPLE_CHANGELOG
     releases = [
@@ -338,7 +339,8 @@ def test_generate_updated_changelog_prepends_entries():
     assert "0.19.0-0ubuntu1" in result
 
 
-def test_generate_updated_changelog_interleaves_packaging():
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_generate_updated_changelog_interleaves_packaging(_mock_codename):
     """Packaging entries from CHANGELOG are interleaved with release entries."""
     existing_changelog = """\
 kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
@@ -383,7 +385,8 @@ def test_generate_updated_changelog_preserves_existing():
     assert result == existing_changelog
 
 
-def test_generate_updated_changelog_packaging_retains_distribution():
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_generate_updated_changelog_packaging_retains_distribution(_mock_codename):
     """Packaging entries retain their original distribution, not the current LTS."""
     existing_changelog = """\
 kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
@@ -416,7 +419,8 @@ kolibri-source (0.18.4-0ubuntu1) jammy; urgency=medium
 
 # --- Tests for main() entrypoint ---
 
-def test_main_writes_updated_changelog(tmp_path):
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_main_writes_updated_changelog(_mock_codename, tmp_path):
     """main() reads files, fetches releases, and writes updated debian/changelog."""
     # Set up file structure
     debian_dir = tmp_path / "debian"
@@ -451,7 +455,8 @@ def test_main_writes_updated_changelog(tmp_path):
     assert "0.19.0-0ubuntu1" in result
 
 
-def test_main_with_packaging_changelog(tmp_path):
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_main_with_packaging_changelog(_mock_codename, tmp_path):
     """main() interleaves packaging CHANGELOG entries."""
     debian_dir = tmp_path / "debian"
     debian_dir.mkdir()
