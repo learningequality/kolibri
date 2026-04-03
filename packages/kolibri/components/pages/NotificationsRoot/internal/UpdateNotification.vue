@@ -18,13 +18,6 @@
     <p v-if="!isSuperuser">
       {{ $tr('adminMessage') }}
     </p>
-    <p>
-      <KCheckbox
-        :label="$tr('hideNotificationLabel')"
-        :checked="dontShowNotificationAgain"
-        @change="dontShowNotificationAgain = !dontShowNotificationAgain"
-      />
-    </p>
   </KModal>
 
 </template>
@@ -33,7 +26,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { mapActions, mapMutations } from 'vuex';
   import useUser from 'kolibri/composables/useUser';
 
   export default {
@@ -44,10 +36,6 @@
       return { isSuperuser };
     },
     props: {
-      id: {
-        type: String,
-        required: true,
-      },
       title: {
         type: String,
         required: true,
@@ -65,22 +53,8 @@
         default: null,
       },
     },
-    data() {
-      return {
-        dontShowNotificationAgain: false,
-      };
-    },
     methods: {
-      ...mapMutations({
-        removeNotification: 'CORE_REMOVE_NOTIFICATION',
-      }),
-      ...mapActions(['saveDismissedNotification']),
       submit() {
-        if (this.dontShowNotificationAgain) {
-          this.dontShowNotificationAgain = false;
-          this.saveDismissedNotification(this.id);
-        }
-        this.removeNotification(this.id);
         this.$emit('submit');
       },
     },
@@ -88,11 +62,6 @@
       adminMessage: {
         message: 'Please contact the device administrator for this server',
         context: 'Prompt telling the user to contact the device admin.',
-      },
-      hideNotificationLabel: {
-        message: "Don't show this message again",
-        context:
-          'Notification which upon accepting means that the user will no longer see the message displayed.',
       },
       // The strings below are not actually used in the appplication code.
       // They are included simply to get the strings translated for later use. We should do

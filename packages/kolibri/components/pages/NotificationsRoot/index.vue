@@ -28,7 +28,6 @@
     <GlobalSnackbar />
     <UpdateNotification
       v-if="!loading && showNotification && mostRecentNotification"
-      :id="mostRecentNotification.id"
       :title="mostRecentNotification.title"
       :msg="mostRecentNotification.msg"
       :linkText="mostRecentNotification.linkText"
