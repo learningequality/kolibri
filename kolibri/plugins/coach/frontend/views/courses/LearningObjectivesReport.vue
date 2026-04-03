@@ -110,12 +110,13 @@
 
   .lo-link {
     display: block;
-    padding: 16px 8px 16px 24px;
+    padding: 4px 12px;
+    font-size: 14px;
   }
 
   .lo-sparkline {
     display: block;
-    padding: 16px 24px 16px 8px;
+    padding: 4px 12px;
   }
 
   /*

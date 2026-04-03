@@ -234,6 +234,36 @@
               </AccordionContainer>
             </template>
             <template #[TABS.LEARNERS]>
+              <div
+                v-if="activeUnit"
+                class="active-unit"
+                :style="activeUnitStyles"
+              >
+                <div
+                  class="active-unit-title"
+                  :style="activeUnitTitleStyles"
+                >
+                  <!-- TODO: Replace :to with real route once unit detail route is available -->
+                  <KRouterLink
+                    :text="activeUnit.numberedTitle"
+                    :to="{}"
+                  />
+                  <div class="unit-status">
+                    <span
+                      class="pill"
+                      :style="statusPillStyles"
+                    >
+                      {{ activeUnit$() }}
+                    </span>
+                    <span
+                      v-if="unitStatusMessages.statusMessage"
+                      class="status-message"
+                    >
+                      {{ unitStatusMessages.statusMessage }}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <LearnersReport
                 :prefetchedData="learnersReportData"
                 :learnerRoute="learnerRoute"
@@ -1073,7 +1103,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 32px;
+    padding: 12px 18px;
     font-size: 14px;
     border-right: unset !important;
     border-left: unset !important;
