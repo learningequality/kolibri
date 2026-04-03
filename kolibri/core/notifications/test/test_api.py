@@ -5,47 +5,53 @@ from le_utils.constants import content_kinds
 from mock import patch
 from rest_framework.test import APITestCase
 
-from kolibri.core.auth.test.helpers import create_superuser
-from kolibri.core.auth.test.helpers import provision_device
-from kolibri.core.auth.test.test_api import ClassroomFactory
-from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.auth.test.helpers import create_superuser, provision_device
+from kolibri.core.auth.test.test_api import ClassroomFactory, FacilityFactory
 from kolibri.core.auth.test.test_utils import MasteryLogFactory
 from kolibri.core.content.models import ContentNode
-from kolibri.core.exams.models import Exam
-from kolibri.core.exams.models import ExamAssignment
-from kolibri.core.lessons.models import Lesson
-from kolibri.core.lessons.models import LessonAssignment
-from kolibri.core.logger.models import AttemptLog
-from kolibri.core.logger.models import ExamAttemptLog
-from kolibri.core.logger.models import ExamLog
-from kolibri.core.logger.models import MasteryLog
-from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
-from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
-from kolibri.core.logger.test.factory_logger import FacilityUserFactory
+from kolibri.core.courses.models import CourseSession, CourseSessionAssignment
+from kolibri.core.exams.models import Exam, ExamAssignment
+from kolibri.core.lessons.models import Lesson, LessonAssignment
+from kolibri.core.logger.models import AttemptLog, ExamAttemptLog, ExamLog, MasteryLog
+from kolibri.core.logger.test.factory_logger import (
+    ContentSessionLogFactory,
+    ContentSummaryLogFactory,
+    FacilityUserFactory,
+)
 from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
-from kolibri.core.notifications.api import _get_lesson_dict
-from kolibri.core.notifications.api import batch_process_attemptlogs
-from kolibri.core.notifications.api import batch_process_examlogs
-from kolibri.core.notifications.api import batch_process_masterylogs_for_quizzes
-from kolibri.core.notifications.api import batch_process_summarylogs
-from kolibri.core.notifications.api import create_examlog
-from kolibri.core.notifications.api import create_notification
-from kolibri.core.notifications.api import create_summarylog
-from kolibri.core.notifications.api import finish_lesson_resource
-from kolibri.core.notifications.api import get_assignments
-from kolibri.core.notifications.api import NEEDS_HELP_NOTIFICATION_THRESHOLD
-from kolibri.core.notifications.api import parse_attemptslog
-from kolibri.core.notifications.api import parse_examlog
-from kolibri.core.notifications.api import parse_summarylog
-from kolibri.core.notifications.api import quiz_completed_notification
-from kolibri.core.notifications.api import quiz_started_notification
-from kolibri.core.notifications.api import start_lesson_assessment
-from kolibri.core.notifications.api import start_lesson_resource
-from kolibri.core.notifications.api import update_lesson_assessment
-from kolibri.core.notifications.models import HelpReason
-from kolibri.core.notifications.models import LearnerProgressNotification
-from kolibri.core.notifications.models import NotificationEventType
-from kolibri.core.notifications.models import NotificationObjectType
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
+from kolibri.core.notifications.api import (
+    NEEDS_HELP_NOTIFICATION_THRESHOLD,
+    _get_coach_lesson_dict,
+    batch_process_attemptlogs,
+    batch_process_examlogs,
+    batch_process_masterylogs_for_quizzes,
+    batch_process_summarylogs,
+    create_examlog,
+    create_notification,
+    create_summarylog,
+    exist_exam_completed_notification,
+    exist_exam_notification,
+    exist_examattempt_notification,
+    finish_lesson_resource,
+    get_assignments,
+    get_course_session_context,
+    parse_attemptslog,
+    parse_examlog,
+    parse_summarylog,
+    quiz_answered_notification,
+    quiz_completed_notification,
+    quiz_started_notification,
+    start_lesson_assessment,
+    start_lesson_resource,
+    update_lesson_assessment,
+)
+from kolibri.core.notifications.models import (
+    HelpReason,
+    LearnerProgressNotification,
+    NotificationEventType,
+    NotificationObjectType,
+)
 from kolibri.utils.time_utils import local_now
 
 
@@ -57,7 +63,10 @@ class NotificationsAPITestCase(APITestCase):
         provision_device()
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
-        _get_lesson_dict.cache_clear()
+        _get_coach_lesson_dict.cache_clear()
+        exist_exam_notification.cache_clear()
+        exist_exam_completed_notification.cache_clear()
+        exist_examattempt_notification.cache_clear()
         self.user1 = FacilityUserFactory.create(facility=self.facility)
         self.user2 = FacilityUserFactory.create(facility=self.facility)
         # create classroom, learner group, add user1
@@ -223,6 +232,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             lesson_id=self.lesson.id,
             timestamp=self.summarylog1.completion_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -271,6 +281,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson.id,
             # End timestamp should be the latest completion time
             timestamp=self.summarylog2.completion_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -319,6 +330,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson.id,
             # End timestamp should be the latest completion time
             timestamp=self.summarylog2.completion_timestamp,
+            course_session_id=None,
         )
 
     def test_parse_retry_summarylog_dont_update_resource_completed_notification(self):
@@ -484,6 +496,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             lesson_id=self.lesson.id,
             timestamp=self.summarylog1.start_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Lesson,
@@ -493,6 +506,7 @@ class NotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson.id,
             timestamp=self.summarylog1.start_timestamp,
+            course_session_id=None,
         )
 
     def test_create_2nd_resource_summarylog_doesnt_update_lesson_started_notification(
@@ -670,6 +684,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog1.start_timestamp,
+            course_session_id=None,
         )
 
         create_notification.assert_any_call(
@@ -680,6 +695,7 @@ class NotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             timestamp=attemptlog1.start_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -701,6 +717,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog1.start_timestamp,
+            course_session_id=None,
         )
 
         create_notification.assert_any_call(
@@ -711,6 +728,7 @@ class NotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             timestamp=attemptlog1.start_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -824,6 +842,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog2.end_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -834,6 +853,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog2.end_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -883,6 +903,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog2.end_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -929,6 +950,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -939,6 +961,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -985,6 +1008,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -1012,6 +1036,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=None,
         )
 
         create_notification.assert_any_call(
@@ -1023,6 +1048,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog.start_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -1050,6 +1076,7 @@ class NotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=None,
         )
 
         create_notification.assert_any_call(
@@ -1061,6 +1088,7 @@ class NotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog.start_timestamp,
+            course_session_id=None,
         )
 
     @patch("kolibri.core.notifications.api.create_notification")
@@ -1387,6 +1415,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=self.summarylog1.start_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -1397,6 +1426,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_2.id,
             timestamp=self.summarylog2.start_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Lesson,
@@ -1406,6 +1436,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             assignment_collections=[self.classroom.id],
             lesson_id=self.lesson_id,
             timestamp=self.summarylog1.start_timestamp,
+            course_session_id=None,
         )
 
     def test_batch_summarylog_lesson_started_notifications_timestamp(self):
@@ -1675,6 +1706,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=self.attemptlog1.end_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -1685,6 +1717,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=self.attemptlog2.end_timestamp,
+            course_session_id=None,
         )
 
     def test_batch_attemptlog_resource_started_notifications(self):
@@ -1754,6 +1787,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             lesson_id=self.lesson_id,
             contentnode_id=self.node_1.id,
             timestamp=attemptlog3.end_timestamp,
+            course_session_id=None,
         )
         create_notification.assert_any_call(
             NotificationObjectType.Resource,
@@ -1765,6 +1799,7 @@ class BulkNotificationsAPITestCase(APITestCase):
             contentnode_id=self.node_1.id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog3.end_timestamp,
+            course_session_id=None,
         )
 
     def test_batch_attemptlog_needs_help_with_correct_attempts(self):
@@ -1850,3 +1885,640 @@ class BulkNotificationsAPITestCase(APITestCase):
             quiz_id=self.exam1.id,
             timestamp=self.examlog1.completion_timestamp,
         )
+
+
+class CourseSessionNotificationsTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        _get_coach_lesson_dict.cache_clear()
+        exist_exam_notification.cache_clear()
+        exist_exam_completed_notification.cache_clear()
+        exist_examattempt_notification.cache_clear()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+
+        cls.channel_id = "15f32edcec565396a1840c5413c92450"
+
+        # Course content node hierarchy: course > unit (lesson) > resource
+        cls.course_node = ContentNode.objects.create(
+            title="Course",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.TOPIC,
+        )
+        cls.lesson_node = ContentNode.objects.create(
+            title="Lesson Node",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.TOPIC,
+            parent=cls.course_node,
+        )
+        cls.resource_node = ContentNode.objects.create(
+            title="Resource Node",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.DOCUMENT,
+            parent=cls.lesson_node,
+        )
+        cls.exercise_node = ContentNode.objects.create(
+            title="Exercise Node",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.EXERCISE,
+            parent=cls.lesson_node,
+        )
+
+        cls.course_session = CourseSession.objects.create(
+            title="Test Course Session",
+            course=cls.course_node.id,
+            collection=cls.classroom,
+            created_by=cls.superuser,
+            is_active=True,
+        )
+        cls.course_assignment = CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.superuser,
+        )
+
+    def test_get_course_session_context(self):
+        result = get_course_session_context(self.user1, self.course_session.id)
+        assert result is not None
+        assert result["classroom_id"] == self.classroom.id
+        assert self.classroom.id in result["assignment_collections"]
+
+    def test_get_course_session_context_invalid_id(self):
+        result = get_course_session_context(self.user1, uuid.uuid4().hex)
+        assert result is None
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_course_content_started_creates_resource_and_lesson_started(
+        self, mock_save
+    ):
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.resource_node.content_id,
+            channel_id=self.channel_id,
+            kind=content_kinds.DOCUMENT,
+        )
+        start_lesson_resource(
+            summarylog,
+            self.resource_node.id,
+            course_session_id=self.course_session.id,
+        )
+        assert mock_save.called
+        notifications = mock_save.call_args[0][0]
+        resource_started = [
+            n
+            for n in notifications
+            if n
+            and n.notification_object == NotificationObjectType.Resource
+            and n.notification_event == NotificationEventType.Started
+        ]
+        assert len(resource_started) == 1
+        assert resource_started[0].contentnode_id == self.resource_node.id
+        assert resource_started[0].lesson_id == self.lesson_node.id
+        assert resource_started[0].course_session_id == self.course_session.id
+        assert resource_started[0].classroom_id == self.classroom.id
+        # Should also create a Lesson Started notification
+        lesson_started = [
+            n
+            for n in notifications
+            if n
+            and n.notification_object == NotificationObjectType.Lesson
+            and n.notification_event == NotificationEventType.Started
+        ]
+        assert len(lesson_started) == 1
+        assert lesson_started[0].lesson_id == self.lesson_node.id
+        assert lesson_started[0].course_session_id == self.course_session.id
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_course_content_completed_creates_resource_completed(self, mock_save):
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.resource_node.content_id,
+            channel_id=self.channel_id,
+            kind=content_kinds.DOCUMENT,
+        )
+        summarylog.progress = 1.0
+        summarylog.completion_timestamp = local_now()
+        summarylog.save()
+        finish_lesson_resource(
+            summarylog,
+            self.resource_node.id,
+            course_session_id=self.course_session.id,
+        )
+        assert mock_save.called
+        notifications = mock_save.call_args[0][0]
+        resource_completed = [
+            n
+            for n in notifications
+            if n
+            and n.notification_object == NotificationObjectType.Resource
+            and n.notification_event == NotificationEventType.Completed
+        ]
+        assert len(resource_completed) == 1
+        assert resource_completed[0].contentnode_id == self.resource_node.id
+        assert resource_completed[0].lesson_id == self.lesson_node.id
+        assert resource_completed[0].course_session_id == self.course_session.id
+
+    def test_course_content_completed_not_created_if_incomplete(self):
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.resource_node.content_id,
+            channel_id=self.channel_id,
+            kind=content_kinds.DOCUMENT,
+        )
+        summarylog.progress = 0.5
+        summarylog.save()
+        finish_lesson_resource(
+            summarylog,
+            self.resource_node.id,
+            course_session_id=self.course_session.id,
+        )
+        assert not LearnerProgressNotification.objects.filter(
+            course_session_id=self.course_session.id,
+            notification_event=NotificationEventType.Completed,
+        ).exists()
+
+    def _create_course_exercise_attemptlog(self, num_failed_interactions=0):
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.exercise_node.content_id,
+            channel_id=self.channel_id,
+            kind=content_kinds.EXERCISE,
+        )
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.exercise_node.content_id,
+            channel_id=self.channel_id,
+        )
+        now = local_now()
+        masterylog = MasteryLog.objects.create(
+            summarylog=summarylog,
+            user=self.user1,
+            start_timestamp=now,
+            mastery_level=1,
+            complete=False,
+        )
+        interaction_history = [
+            {"type": "answer", "correct": 0} for _ in range(num_failed_interactions)
+        ]
+        attemptlog = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=10),
+            time_spent=1.0,
+            complete=True,
+            correct=0,
+            hinted=False,
+            error=False,
+            interaction_history=interaction_history,
+        )
+        return attemptlog
+
+    def test_course_content_attempt_creates_help_notification(self):
+        attemptlog = self._create_course_exercise_attemptlog(
+            num_failed_interactions=NEEDS_HELP_NOTIFICATION_THRESHOLD
+        )
+        start_lesson_assessment(
+            attemptlog,
+            self.exercise_node.id,
+            course_session_id=self.course_session.id,
+        )
+        help_notifications = LearnerProgressNotification.objects.filter(
+            user_id=self.user1.id,
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            course_session_id=self.course_session.id,
+            contentnode_id=self.exercise_node.id,
+            lesson_id=self.lesson_node.id,
+            reason=HelpReason.Multiple,
+        )
+        assert help_notifications.count() == 1
+
+    def test_course_content_attempt_no_help_below_threshold(self):
+        attemptlog = self._create_course_exercise_attemptlog(
+            num_failed_interactions=NEEDS_HELP_NOTIFICATION_THRESHOLD - 1
+        )
+        start_lesson_assessment(
+            attemptlog,
+            self.exercise_node.id,
+            course_session_id=self.course_session.id,
+        )
+        help_notifications = LearnerProgressNotification.objects.filter(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            course_session_id=self.course_session.id,
+        )
+        assert help_notifications.count() == 0
+
+
+class PrePostTestNotificationsTestCase(APITestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        exist_exam_notification.cache_clear()
+        exist_exam_completed_notification.cache_clear()
+        exist_examattempt_notification.cache_clear()
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        _get_coach_lesson_dict.cache_clear()
+        exist_exam_notification.cache_clear()
+        exist_exam_completed_notification.cache_clear()
+        exist_examattempt_notification.cache_clear()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+
+        cls.course_node = ContentNode.objects.create(
+            title="Course",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+        )
+        cls.unit_node = ContentNode.objects.create(
+            title="Unit",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+            kind=content_kinds.TOPIC,
+            parent=cls.course_node,
+        )
+
+        cls.course_session = CourseSession.objects.create(
+            title="Test Course Session",
+            course=cls.course_node.id,
+            collection=cls.classroom,
+            created_by=cls.superuser,
+            is_active=True,
+        )
+        cls.course_assignment = CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.superuser,
+        )
+
+        cls.synthetic_content_id = get_synthetic_content_id(
+            cls.course_session.id, cls.unit_node.id, "pre"
+        )
+
+    def _create_prepost_masterylog(self, complete=False):
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        masterylog = MasteryLog.objects.create(
+            summarylog=summarylog,
+            user=self.user1,
+            start_timestamp=now,
+            mastery_level=-1,
+            complete=complete,
+            completion_timestamp=now if complete else None,
+        )
+        return masterylog
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_prepost_test_started_notification(self, mock_save):
+        masterylog = self._create_prepost_masterylog()
+        quiz_started_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert mock_save.called
+        notification = mock_save.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Quiz
+        assert notification.notification_event == NotificationEventType.Started
+        assert notification.quiz_id == self.synthetic_content_id
+        assert notification.course_session_id == self.course_session.id
+        assert notification.classroom_id == self.classroom.id
+        assert notification.quiz_num_correct == 0
+        assert notification.quiz_num_answered == 0
+
+    def test_prepost_test_started_not_duplicated(self):
+        masterylog = self._create_prepost_masterylog()
+        quiz_started_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Started,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+        # Call again — should not create a duplicate
+        quiz_started_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Started,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_prepost_test_answered_notification(self, mock_save):
+        masterylog = self._create_prepost_masterylog()
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        attemptlog = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            item="test_item",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=5),
+            time_spent=5.0,
+            complete=True,
+            correct=1,
+        )
+        quiz_answered_notification(
+            attemptlog, self.synthetic_content_id, self.course_session.id
+        )
+        assert mock_save.called
+        notification = mock_save.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Quiz
+        assert notification.notification_event == NotificationEventType.Answered
+        assert notification.quiz_id == self.synthetic_content_id
+        assert notification.course_session_id == self.course_session.id
+
+    def test_prepost_test_answered_not_duplicated(self):
+        masterylog = self._create_prepost_masterylog()
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        attemptlog = AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            item="test_item",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=5),
+            time_spent=5.0,
+            complete=True,
+            correct=1,
+        )
+        quiz_answered_notification(
+            attemptlog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Answered,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+        # Call again — should not create a duplicate
+        quiz_answered_notification(
+            attemptlog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Answered,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_prepost_test_completed_notification(self, mock_save):
+        masterylog = self._create_prepost_masterylog(complete=True)
+        sessionlog = ContentSessionLogFactory.create(
+            user=self.user1,
+            content_id=self.synthetic_content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+        )
+        now = local_now()
+        AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            item="test_item_1",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=5),
+            time_spent=5.0,
+            complete=True,
+            correct=1,
+        )
+        AttemptLog.objects.create(
+            masterylog=masterylog,
+            sessionlog=sessionlog,
+            user=self.user1,
+            item="test_item_2",
+            start_timestamp=now,
+            end_timestamp=now + timedelta(seconds=5),
+            time_spent=5.0,
+            complete=True,
+            correct=0,
+        )
+        quiz_completed_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert mock_save.called
+        notification = mock_save.call_args[0][0][0]
+        assert notification.notification_object == NotificationObjectType.Quiz
+        assert notification.notification_event == NotificationEventType.Completed
+        assert notification.quiz_id == self.synthetic_content_id
+        assert notification.course_session_id == self.course_session.id
+        assert notification.quiz_num_correct is not None
+        assert notification.quiz_num_answered is not None
+
+    @patch("kolibri.core.notifications.api.save_notifications")
+    def test_prepost_test_not_completed_if_incomplete(self, mock_save):
+        masterylog = self._create_prepost_masterylog(complete=False)
+        quiz_completed_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert not mock_save.called
+
+    def test_prepost_test_completed_not_duplicated(self):
+        masterylog = self._create_prepost_masterylog(complete=True)
+        quiz_completed_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Completed,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+        # Call again — should not create a duplicate
+        quiz_completed_notification(
+            masterylog, self.synthetic_content_id, self.course_session.id
+        )
+        assert (
+            LearnerProgressNotification.objects.filter(
+                quiz_id=self.synthetic_content_id,
+                notification_event=NotificationEventType.Completed,
+                course_session_id=self.course_session.id,
+            ).count()
+            == 1
+        )
+
+
+class CourseSessionRegressionTestCase(APITestCase):
+    """
+    Verify that course session notifications and lesson notifications
+    create separate records and do not interfere with each other.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        _get_coach_lesson_dict.cache_clear()
+        exist_exam_notification.cache_clear()
+        exist_exam_completed_notification.cache_clear()
+        exist_examattempt_notification.cache_clear()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.classroom = ClassroomFactory.create(parent=cls.facility)
+        cls.classroom.add_member(cls.user1)
+
+        cls.channel_id = "15f32edcec565396a1840c5413c92450"
+
+        cls.course_node = ContentNode.objects.create(
+            title="Course",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.TOPIC,
+        )
+        cls.lesson_node = ContentNode.objects.create(
+            title="Lesson Node",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.TOPIC,
+            parent=cls.course_node,
+        )
+        cls.resource_node = ContentNode.objects.create(
+            title="Resource Node",
+            available=True,
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=cls.channel_id,
+            kind=content_kinds.DOCUMENT,
+            parent=cls.lesson_node,
+        )
+
+        cls.course_session = CourseSession.objects.create(
+            title="Test Course Session",
+            course=cls.course_node.id,
+            collection=cls.classroom,
+            created_by=cls.superuser,
+            is_active=True,
+        )
+        cls.course_assignment = CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.superuser,
+        )
+
+    def test_course_content_started_does_not_affect_lesson_notifications(self):
+        # Create a coach-created lesson containing the resource
+        lesson = Lesson.objects.create(
+            title="Coach Lesson",
+            is_active=True,
+            created_by=self.superuser,
+            collection=self.classroom,
+            resources=[
+                {
+                    "contentnode_id": self.resource_node.id,
+                    "content_id": self.resource_node.content_id,
+                    "channel_id": self.channel_id,
+                },
+            ],
+        )
+        LessonAssignment.objects.create(
+            lesson=lesson,
+            assigned_by=self.superuser,
+            collection=self.classroom,
+        )
+        summarylog = ContentSummaryLogFactory.create(
+            user=self.user1,
+            content_id=self.resource_node.content_id,
+            channel_id=self.channel_id,
+            kind=content_kinds.DOCUMENT,
+        )
+
+        # First: existing lesson notification path
+        create_summarylog(summarylog)
+
+        lesson_notifications = LearnerProgressNotification.objects.filter(
+            lesson_id=lesson.id,
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Started,
+        )
+        assert lesson_notifications.count() == 1
+
+        # Second: course session notification path (separate notifications)
+        start_lesson_resource(
+            summarylog,
+            self.resource_node.id,
+            course_session_id=self.course_session.id,
+        )
+
+        # Lesson notifications unchanged
+        assert lesson_notifications.count() == 1
+
+        # Course session notifications are separate (have course_session_id set)
+        # Includes both Resource Started and Lesson Started
+        course_notifications = LearnerProgressNotification.objects.filter(
+            course_session_id=self.course_session.id,
+            notification_event=NotificationEventType.Started,
+        )
+        assert course_notifications.count() == 2
+
+        # They are distinct records
+        assert not lesson_notifications.filter(
+            course_session_id=self.course_session.id
+        ).exists()
