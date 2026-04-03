@@ -15,11 +15,6 @@ import coreModule from './state/modules/core';
 // set up logging
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
 
-// monitor page visibility
-document.addEventListener('visibilitychange', function () {
-  store.dispatch('setPageVisibility');
-});
-
 // Register core module
 store.registerModule('core', coreModule);
 

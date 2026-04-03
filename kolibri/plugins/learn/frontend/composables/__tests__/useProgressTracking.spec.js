@@ -2,12 +2,10 @@ import { get, set } from '@vueuse/core';
 import omit from 'lodash/omit';
 import client from 'kolibri/client';
 import { UserKinds } from 'kolibri/constants';
-import { coreStoreFactory as makeStore } from 'kolibri/store';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useTotalProgress'; // eslint-disable-line
 import { ref } from 'vue';
 import useProgressTracking from '../useProgressTracking';
-import coreModule from '../../../../../core/frontend/state/modules/core';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
@@ -15,9 +13,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useTotalProgress');
 
 function setUp() {
-  const store = makeStore();
-  store.registerModule('core', coreModule);
-  return { store, ...useProgressTracking(store) };
+  return { ...useProgressTracking() };
 }
 
 const node = {

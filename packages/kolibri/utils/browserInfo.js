@@ -1,4 +1,6 @@
+import debounce from 'lodash/debounce';
 import UAParser from 'ua-parser-js';
+import { ref } from 'vue';
 
 /**
  * A requirements specification object.
@@ -81,3 +83,11 @@ function handlePointerDown(event) {
 window.addEventListener('pointerdown', handlePointerDown);
 
 export let isMouseUsed = localStorage.getItem('mouseUsed') === 'true';
+
+export const pageVisible = ref(true);
+
+const _updatePageVisibility = debounce(() => {
+  pageVisible.value = document.visibilityState === 'visible';
+}, 500);
+
+document.addEventListener('visibilitychange', _updatePageVisibility);

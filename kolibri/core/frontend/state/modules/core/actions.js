@@ -1,4 +1,3 @@
-import debounce from 'lodash/debounce';
 import heartbeat from 'kolibri/heartbeat';
 import logger from 'kolibri-logging';
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
@@ -55,14 +54,6 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
 // Session management has been migrated to useUser composable
 
 // Authentication actions have been migrated to useUser composable
-
-const _setPageVisibility = debounce((store, visibility) => {
-  store.commit('CORE_SET_PAGE_VISIBILITY', visibility);
-}, 500);
-
-export function setPageVisibility(store) {
-  _setPageVisibility(store, document.visibilityState === 'visible');
-}
 
 export function loading(store) {
   return new Promise(resolve => {
