@@ -1,7 +1,7 @@
 <template>
 
   <CoachImmersivePage
-    :loading="pageLoading"
+    :loading="!quizInitialized"
     :appBarTitle="title"
     icon="close"
     :pageTitle="title"
@@ -128,7 +128,6 @@
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import CreateQuizSection from './CreateQuizSection';
 
   export default {
@@ -173,7 +172,6 @@
       const { saveAndClose$ } = coreStrings;
 
       return {
-        pageLoading,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         classId,
@@ -280,9 +278,6 @@
       } else {
         next();
       }
-    },
-    mounted() {
-      pageLoading.value = false;
     },
     async created() {
       window.addEventListener('beforeunload', this.beforeUnload);
