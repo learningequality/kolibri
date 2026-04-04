@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <BackLink
@@ -104,6 +104,7 @@
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
   import ReportsControls from '../../common/ReportsControls';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LearnerLessonPage',
@@ -112,6 +113,9 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     computed: {
       emptyMessage() {
         return this.coachString('noResourcesInLessonLabel');

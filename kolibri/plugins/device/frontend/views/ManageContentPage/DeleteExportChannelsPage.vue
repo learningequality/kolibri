@@ -3,7 +3,7 @@
   <ImmersivePage
     :appBarTitle="appBarTitle"
     :route="backRoute"
-    :loading="loading"
+    :loading="pageLoading || loading"
   >
     <KPageContainer
       v-if="!loading"
@@ -64,6 +64,7 @@
   import { PageNames } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';
+  import { pageLoading } from '../../composables/usePageLoading';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';
@@ -90,6 +91,7 @@
     mixins: [taskNotificationMixin],
     setup() {
       useContentTasks();
+      return { pageLoading };
     },
     props: {
       actionType: {

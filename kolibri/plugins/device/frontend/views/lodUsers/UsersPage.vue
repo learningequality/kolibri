@@ -2,6 +2,7 @@
 
   <AppBarPage
     :title="usersLabel$()"
+    :loading="pageLoading"
     class="users-page"
   >
     <KPageContainer>
@@ -77,6 +78,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
+  import { pageLoading } from '../../composables/usePageLoading';
 
   import { injectLodDeviceUsers } from './composables/useLodDeviceUsers';
   import UsersList from './UsersList.vue';
@@ -151,6 +153,7 @@
       return {
         usersList,
         loading,
+        pageLoading,
         currentUserId,
         userIdToRemove,
         showSelectDevice,

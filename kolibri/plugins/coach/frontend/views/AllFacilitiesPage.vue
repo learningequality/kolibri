@@ -1,6 +1,7 @@
 <template>
 
   <CoachAppBarPage
+    :loading="pageLoading"
     :appBarTitle="coreString('coachLabel')"
     :pageTitle="coreString('allFacilitiesLabel')"
   >
@@ -43,6 +44,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from '../composables/usePageLoading';
   import commonCoach from './common';
   import CoachAppBarPage from './CoachAppBarPage';
 
@@ -56,7 +58,7 @@
     setup() {
       const { userFacilityId } = useUser();
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
-      return { userFacilityId, userIsMultiFacilityAdmin, facilities };
+      return { pageLoading, userFacilityId, userIsMultiFacilityAdmin, facilities };
     },
     props: {
       subtopicName: {

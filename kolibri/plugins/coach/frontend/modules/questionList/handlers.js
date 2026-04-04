@@ -1,11 +1,12 @@
 import store from 'kolibri/store';
 import { showResourceView } from '../resourceDetail/handlers';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function generateQuestionListHandler(paramsToCheck) {
   return function questionListHandler(to, from) {
     if (paramsToCheck.some(param => to.params[param] !== from.params[param])) {
       // Only set loading state if we are not switching
-      store.dispatch('loading');
+      pageLoading.value = true;
     }
     const { exerciseId } = to.params;
     Promise.all([
@@ -14,7 +15,7 @@ export function generateQuestionListHandler(paramsToCheck) {
     ]).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     });
   };
 }
@@ -25,6 +26,7 @@ function showQuestionListView(params) {
       ...params,
     })
     .catch(error => {
+      pageLoading.value = false;
       store.dispatch('handleCoachPageError', error);
     });
 }

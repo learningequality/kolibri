@@ -1,7 +1,10 @@
 <template>
 
   <NotificationsRoot>
-    <AppBarPage :title="coreString('profileLabel')">
+    <AppBarPage
+      :title="coreString('profileLabel')"
+      :loading="pageLoading"
+    >
       <KPageContainer>
         <KGrid>
           <KGridItem
@@ -201,6 +204,7 @@
   import useFacility from 'kolibri-common/composables/useFacility';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 
@@ -238,10 +242,10 @@
       const { fetchPoints, totalPoints } = useTotalProgress();
       const { facilities } = useFacilities();
       const { facilityConfig } = useFacility();
-
       const userPermissions = computed(() => pickBy(_userPermissions));
 
       return {
+        pageLoading,
         currentUser,
         onMyOwnSetup,
         isLearnerOnlyImport,

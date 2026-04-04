@@ -4,7 +4,7 @@
     :appBarTitle="learnString('exploreLibraries')"
     :route="back"
     :primary="false"
-    :loading="loading"
+    :loading="pageLoading"
   >
     <div
       class="page-header"
@@ -83,6 +83,7 @@
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import LibraryItem from './LibraryItem';
@@ -139,6 +140,7 @@
         pinnedDevicesExist,
         deviceChannelsMap,
         back,
+        pageLoading,
         loading: isLoadingChannels,
         moreDevices,
         cardsToDisplay,

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="title"
     icon="back"
     :pageTitle="title"
@@ -85,6 +86,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import QuestionDetailLearnerList from '../QuestionDetailLearnerList';
   import { PageNames } from '../../../constants';
 
@@ -98,6 +100,9 @@
       CoachImmersivePage,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         prevRoute: null,

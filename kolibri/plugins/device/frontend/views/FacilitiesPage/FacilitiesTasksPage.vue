@@ -3,6 +3,7 @@
   <ImmersivePage
     :appBarTitle="$tr('facilitiesTaskManagerTitle')"
     :route="backRoute"
+    :loading="pageLoading"
   >
     <KPageContainer class="device-container">
       <HeaderWithOptions :headerText="coreString('tasksLabel')">
@@ -44,6 +45,7 @@
   import commonTaskStrings from 'kolibri-common/uiText/tasks';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import { pageLoading } from '../../composables/usePageLoading';
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';
@@ -68,6 +70,9 @@
       facilityTasksQueue,
       commonDeviceStrings,
     ],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         // (facilityTasksQueue) facilityTasks

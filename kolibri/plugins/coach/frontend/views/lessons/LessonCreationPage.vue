@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="coachString('createLessonAction')"
     :authorized="true"
     authorizedRole="adminOrCoach"
@@ -34,6 +35,7 @@
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
+  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'LessonCreationPage',
@@ -42,6 +44,9 @@
       CoachImmersivePage,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     computed: {
       classId() {
         return this.$route.params.classId;
@@ -58,7 +63,7 @@
       Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     },
     mounted() {
-      this.$store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
     },
     methods: {
       createLesson(payload) {

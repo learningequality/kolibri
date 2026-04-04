@@ -1,6 +1,9 @@
 <template>
 
-  <CoachAppBarPage :appBarTitle="appBarTitle">
+  <CoachAppBarPage
+    :loading="pageLoading"
+    :appBarTitle="appBarTitle"
+  >
     <KPageContainer v-if="!dataLoading && classListPageEnabled">
       <p>
         <KRouterLink
@@ -72,6 +75,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { PageNames } from '../constants';
+  import { pageLoading } from '../composables/usePageLoading';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
 
@@ -84,7 +88,14 @@
     setup() {
       const { isAdmin, isClassCoach, isFacilityCoach } = useUser();
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
-      return { isAdmin, isClassCoach, isFacilityCoach, userIsMultiFacilityAdmin, facilities };
+      return {
+        pageLoading,
+        isAdmin,
+        isClassCoach,
+        isFacilityCoach,
+        userIsMultiFacilityAdmin,
+        facilities,
+      };
     },
     props: {
       subtopicName: {

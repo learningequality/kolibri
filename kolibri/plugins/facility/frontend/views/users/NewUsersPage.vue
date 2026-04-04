@@ -8,6 +8,7 @@
       height: '100%',
       padding: windowIsSmall ? '0 0.5em' : '0 1em',
     }"
+    :loading="pageLoading"
   >
     <template #default="{ pageContentHeight }">
       <!--
@@ -222,6 +223,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUsersTableSearch from '../../composables/useUsersTableSearch';
   import usePagination from '../../composables/usePagination';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import { PageNames } from '../../constants';
@@ -275,7 +277,6 @@
       });
 
       const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
-
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -357,6 +358,7 @@
       });
 
       return {
+        pageLoading,
         usersTableStyles,
         // Route utilities
         overrideRoute,

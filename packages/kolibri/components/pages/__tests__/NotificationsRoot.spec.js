@@ -40,8 +40,8 @@ describe('NotificationsRoot', function () {
 
   describe('when loaded', function () {
     it('if user is authorized and there is no error, base div for displaying <slot> should be displayed', async () => {
-      const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
+      const { wrapper } = makeWrapper();
+
       await wrapper.vm.$nextTick();
 
       expect(wrapper.find('[data-test="base-page"]').exists()).toBeTruthy();
@@ -51,7 +51,7 @@ describe('NotificationsRoot', function () {
 
     it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
       const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
+
       store.state.core.error = { response: { status: 403 } };
       await wrapper.vm.$nextTick();
 
@@ -62,7 +62,7 @@ describe('NotificationsRoot', function () {
 
     it('if there is an error, the error component in the base page should be rendered', async () => {
       const { wrapper, store } = makeWrapper();
-      store.state.core.loading = false;
+
       store.state.core.error = 'some error here';
       await wrapper.vm.$nextTick();
 
@@ -72,8 +72,8 @@ describe('NotificationsRoot', function () {
     });
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
-      const { wrapper, store } = makeWrapper({ isAdmin: true, isSuperuser: true });
-      store.state.core.loading = false;
+      const { wrapper } = makeWrapper({ isAdmin: true, isSuperuser: true });
+
       wrapper.vm.notifications = [
         {
           id: 2,
@@ -89,8 +89,8 @@ describe('NotificationsRoot', function () {
     });
 
     it('notification modal should not be rendered if notifications do not exist', async () => {
-      const { wrapper, store } = makeWrapper({ kind: [UserKinds.ADMIN] });
-      store.state.core.loading = false;
+      const { wrapper } = makeWrapper({ kind: [UserKinds.ADMIN] });
+
       wrapper.vm.notifications = [];
       await wrapper.vm.$nextTick();
 

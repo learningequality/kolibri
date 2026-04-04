@@ -1,6 +1,9 @@
 <template>
 
-  <CoachAppBarPage showSubNav>
+  <CoachAppBarPage
+    :loading="pageLoading"
+    showSubNav
+  >
     <KPageContainer>
       <CoachHeader :title="coreString('lessonsLabel')">
         <template #actions>
@@ -197,6 +200,7 @@
   import { coachStrings } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../composables/useLessons';
+  import { pageLoading } from '../../composables/usePageLoading';
   import ReportsControls from '../common/ReportsControls';
   import * as csvFields from '../../csv/fields';
   import CSVExporter from '../../csv/exporter';
@@ -219,7 +223,14 @@
       const { lessonsAreLoading } = useLessons();
       const { createSnackbar } = useSnackbar();
       const { windowIsSmall } = useKResponsiveWindow();
-      return { show, lessonsAreLoading, createSnackbar, windowIsSmall, entireClassLabel$ };
+      return {
+        show,
+        lessonsAreLoading,
+        createSnackbar,
+        windowIsSmall,
+        entireClassLabel$,
+        pageLoading,
+      };
     },
     data() {
       return {

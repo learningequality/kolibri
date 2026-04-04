@@ -8,7 +8,6 @@ const sendMachineEvent = jest.fn();
 function makeWrapper({ userId, sourceFacilityUsers } = {}) {
   const store = coreStoreFactory();
   store.registerModule('core', coreModule);
-  store.dispatch('notLoading');
   return mount(ChooseAdmin, {
     store,
     provide: {

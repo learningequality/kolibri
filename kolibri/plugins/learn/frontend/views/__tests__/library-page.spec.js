@@ -45,6 +45,7 @@ jest.mock('../../composables/useLearnerResources');
 jest.mock('kolibri-common/composables/useLearningActivities');
 jest.mock('../../composables/useContentLink');
 jest.mock('../../composables/usePinnedDevices');
+jest.mock('../../composables/usePageLoading');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));
@@ -54,14 +55,11 @@ jest.mock('kolibri/urls');
 
 async function makeWrapper({ options, fullMount = false } = {}) {
   const store = new Store({
-    state: { core: { loading: false } },
-    getters: {
-      isPageLoading: jest.fn(),
-    },
+    state: { core: {} },
+    getters: {},
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
       SET_PAGE_NAME: jest.fn(),
-      CORE_SET_PAGE_LOADING: jest.fn(),
       CORE_SET_ERROR: jest.fn(),
     },
   });

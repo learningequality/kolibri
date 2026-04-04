@@ -12,6 +12,7 @@ import client from 'kolibri/client';
 import useUser from 'kolibri/composables/useUser';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import { currentDeviceData } from '../composables/useDevices';
+import { pageLoading } from './usePageLoading';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -50,7 +51,7 @@ export default function useDownloadRequests(store) {
       for (const obj of downloadRequests) {
         set(downloadRequestMap, obj.contentnode_id, obj);
       }
-      store.dispatch('notLoading');
+      pageLoading.value = false;
       set(loading, false);
       return downloadRequests;
     });

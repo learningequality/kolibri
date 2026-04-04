@@ -3,6 +3,7 @@ import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResour
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../constants';
+import { pageLoading } from './usePageLoading';
 
 // Place outside the function to keep the state
 const lessonsAreLoading = ref(false);
@@ -23,7 +24,7 @@ export function useLessons() {
 
     await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     // on this page, don't handle loading state globally so we can do it locally
-    store.dispatch('notLoading');
+    pageLoading.value = false;
 
     setLessonsLoading(true);
     store.commit('lessonsRoot/SET_STATE', {

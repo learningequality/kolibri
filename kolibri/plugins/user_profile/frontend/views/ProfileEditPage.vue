@@ -6,6 +6,7 @@
     icon="close"
     :appBarTitle="$tr('editProfileHeader')"
     :route="profileRoute"
+    :loading="pageLoading"
   >
     <KPageContainer
       class="narrow-container"
@@ -85,6 +86,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import { pageLoading } from '../composables/usePageLoading';
   import { RoutesMap } from '../constants';
 
   export default {
@@ -105,7 +107,7 @@
     setup() {
       const { isLearnerOnlyImport, isLearner, currentUserId } = useUser();
       const { facilityConfig } = useFacility();
-      return { isLearnerOnlyImport, isLearner, currentUserId, facilityConfig };
+      return { pageLoading, isLearnerOnlyImport, isLearner, currentUserId, facilityConfig };
     },
     data() {
       return {

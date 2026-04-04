@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <MissingResourceAlert v-if="hasChannels && hasMissingResources && !isLoading" />
       <NoResourceAlert v-if="!hasChannels && !isLoading" />
@@ -179,7 +179,7 @@
 
 <script>
 
-  import { getCurrentInstance, ref } from 'vue';
+  import { ref } from 'vue';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
@@ -196,6 +196,7 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import Recipients from '../common/Recipients';
   import useCoreCoach from '../../composables/useCoreCoach';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useQuizzes from '../../composables/useQuizzes';
   import AverageScoreTooltip from '../common/AverageScoreTooltip';
   import ReportsControls from '../common/ReportsControls';
@@ -224,13 +225,12 @@
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, refreshClassSummary } = useCoreCoach();
       const { quizzes, fetchQuizSizes } = useQuizzes();
-      const store = getCurrentInstance().proxy.$store;
       const showOpenConfirmationModal = ref(false);
       const showCloseConfirmationModal = ref(false);
       const activeQuiz = ref(null);
       const learnOnlyDevicesExist = ref(false);
 
-      initClassInfo().then(() => store.dispatch('notLoading'));
+      initClassInfo().then(() => (pageLoading.value = false));
 
       // TODO: refactor to a more robust check
       fetchClassSyncStatus(classId.value).then(data => {
@@ -281,6 +281,7 @@
       });
 
       return {
+        pageLoading,
         quizzes,
         refreshClassSummary,
         PageNames,

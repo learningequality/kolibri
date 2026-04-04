@@ -1,8 +1,11 @@
 <template>
 
-  <DeviceAppBarPage :title="pageTitle">
+  <DeviceAppBarPage
+    :title="pageTitle"
+    :loading="pageLoading"
+  >
     <KPageContainer
-      v-if="!isPageLoading"
+      v-if="!pageLoading"
       class="device-container"
     >
       <UiAlert
@@ -389,6 +392,7 @@
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
@@ -430,7 +434,6 @@
       const dataPlugins = ref(null);
       const { snackbarIsVisible, createSnackbar } = useSnackbar();
       const { facilities } = useFacilities();
-
       fetchPlugins.then(() => {
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
       });
@@ -469,6 +472,7 @@
         snackbarIsVisible,
         createSnackbar,
         facilities,
+        pageLoading,
       };
     },
     data() {
@@ -508,7 +512,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
@@ -673,7 +676,7 @@
             this.primaryStorageLocation,
           ]);
         })
-        .then(() => this.$store.dispatch('notLoading'));
+        .then(() => (this.pageLoading = false));
     },
     methods: {
       setSignInPageOption(settings) {

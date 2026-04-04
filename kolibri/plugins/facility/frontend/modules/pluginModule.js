@@ -2,6 +2,7 @@ import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { pageNameToModuleMap, PageNames } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
 import classManagement from './classManagement';
@@ -16,7 +17,7 @@ export default {
   actions: {
     preparePage(store, options = {}) {
       const { isAsync = true } = options;
-      store.commit('CORE_SET_PAGE_LOADING', isAsync);
+      pageLoading.value = isAsync;
       store.commit('CORE_SET_ERROR', null);
     },
     resetModuleState(store, { fromRoute, toRoute }) {

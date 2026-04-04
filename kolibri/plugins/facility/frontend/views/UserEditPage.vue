@@ -3,6 +3,7 @@
   <ImmersivePage
     :route="$store.getters.facilityPageLinks.UserPage"
     :appBarTitle="coreString('usersLabel')"
+    :loading="loading"
   >
     <KPageContainer class="narrow-container">
       <form
@@ -178,7 +179,6 @@
       const { createSnackbar } = useSnackbar();
       const { currentUserId, logout } = useUser();
       const { updateFacilityConfig, facilityConfig } = useFacility();
-
       return {
         logout,
         createSnackbar,

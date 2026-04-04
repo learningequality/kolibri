@@ -14,6 +14,7 @@ import AttendanceEditPage from '../AttendanceEditPage.vue';
 
 jest.mock('../../../composables/useAttendance');
 jest.mock('kolibri/composables/useSnackbar');
+jest.mock('../../../composables/usePageLoading');
 jest.mock('../../../composables/useCoreCoach', () => {
   const { ref, computed } = require('vue');
   return {
@@ -53,14 +54,9 @@ const COMPONENT_STUBS = {
 function setupTestStore(learners = MOCK_LEARNERS) {
   const testStore = new Vuex.Store({
     state: {
-      core: { loading: false },
+      core: {},
     },
-    getters: {
-      isPageLoading: () => false,
-    },
-    actions: {
-      notLoading: jest.fn(),
-    },
+    getters: {},
     modules: {
       classSummary: {
         ...classSummaryModule,

@@ -3,7 +3,7 @@
   <ImmersivePage
     :primary="false"
     :appBarTitle="importUserLabel$()"
-    :loading="usersLoading || taskLoading"
+    :loading="pageLoading || usersLoading || taskLoading"
     @navIconClick="importLodMachineService.send('RESET_IMPORT')"
   >
     <KPageContainer class="device-container">
@@ -36,6 +36,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   import UsersList from '../UsersList.vue';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
@@ -62,6 +63,7 @@
       const { selectAUser$, importUserLabel$, importUserError$ } = lodUsersManagementStrings;
 
       return {
+        pageLoading,
         remoteAdmin,
         localUsers,
         remoteUsers,

@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <ReportsResourceHeader
         :resource="resource"
@@ -62,6 +62,7 @@
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
   import ReportsControls from '../../common/ReportsControls';
   import { PageNames } from '../../../constants';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'ExerciseQuestionListPage',
@@ -72,6 +73,9 @@
       LearnerProgressRatio,
     },
     mixins: [commonCoach],
+    setup() {
+      return { pageLoading };
+    },
     computed: {
       ...mapState('questionList', ['exercise']),
       ...mapState('resourceDetail', ['resource']),

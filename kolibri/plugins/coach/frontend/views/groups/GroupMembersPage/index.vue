@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <BackLink
@@ -130,6 +130,7 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import RenameGroupModal from '../GroupsRootPage/RenameGroupModal';
   import DeleteGroupModal from '../GroupsRootPage/DeleteGroupModal';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {
@@ -142,6 +143,9 @@
       DeleteGroupModal,
     },
     mixins: [commonCoreStrings, commonCoach],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         userForRemoval: null,

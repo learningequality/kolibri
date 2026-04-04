@@ -1,5 +1,6 @@
 import store from 'kolibri/store';
 import { PageNames } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 import { useGroups } from '../composables/useGroups';
 import GroupsRootPage from '../views/groups/GroupsRootPage';
 import GroupEnrollPage from '../views/groups/GroupEnrollPage';
@@ -30,7 +31,7 @@ const {
 const { showGroupsPage } = useGroups();
 
 function defaultHandler() {
-  store.dispatch('notLoading');
+  pageLoading.value = false;
 }
 
 export default [
@@ -78,7 +79,7 @@ export default [
       ) {
         return showLessonSummaryPage(store, toRoute.params);
       }
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     },
     props: {
       editable: false,

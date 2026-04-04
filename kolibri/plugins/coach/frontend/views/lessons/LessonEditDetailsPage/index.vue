@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="$tr('appBarTitle')"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
@@ -32,6 +33,7 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { PageNames } from '../../../constants';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LessonEditDetailsPage',
@@ -49,6 +51,7 @@
         isSuperuser,
         fetchFacilities,
         facilities,
+        pageLoading,
       };
     },
     data() {
@@ -93,21 +96,20 @@
           }),
         )
         .then(lesson => this.setData(lesson))
-        .catch(error => this.setError(error))
-        .then(() => this.$store.dispatch('notLoading'));
+        .catch(error => this.setError(error));
     },
     methods: {
       // @public
       setData(data) {
         this.lesson = data;
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
       // @public
       setError(error) {
         this.$store.dispatch('handleApiError', { error });
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
       goBackToSummaryPage() {
         return this.$router.push(this.previousPageRoute);

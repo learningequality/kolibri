@@ -1,6 +1,5 @@
 import heartbeat from 'kolibri/heartbeat';
 import logger from 'kolibri-logging';
-import { nextTick } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import sanitizeError from 'kolibri/utils/sanitizeError';
 
@@ -22,7 +21,6 @@ const logging = logger.getLogger(__filename);
 export function handleError(store, errorString) {
   logging.debug(errorString);
   store.commit('CORE_SET_ERROR', errorString);
-  store.commit('CORE_SET_PAGE_LOADING', false);
 }
 
 export function clearError(store) {
@@ -48,26 +46,4 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   }
   handleError(store, errorString);
   throw error;
-}
-
-// Session management has been migrated to useUser composable
-
-// Authentication actions have been migrated to useUser composable
-
-export function loading(store) {
-  return new Promise(resolve => {
-    store.commit('CORE_SET_PAGE_LOADING', true);
-    nextTick(() => {
-      resolve();
-    });
-  });
-}
-
-export function notLoading(store) {
-  return new Promise(resolve => {
-    store.commit('CORE_SET_PAGE_LOADING', false);
-    nextTick(() => {
-      resolve();
-    });
-  });
 }

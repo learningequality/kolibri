@@ -11,6 +11,7 @@ import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('../../../composables/usePlugins');
+jest.mock('../../../composables/usePageLoading');
 jest.mock('kolibri/urls');
 
 jest.mock('kolibri-plugin-data', () => {
@@ -54,12 +55,9 @@ const DeviceSettingsData = {
 
 const store = new Store({
   state: {},
-  getters: {
-    isPageLoading: () => false,
-  },
+  getters: {},
   actions: {
     createSnackbar() {},
-    notLoading() {},
   },
   modules: {
     deviceInfo: {

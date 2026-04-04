@@ -12,6 +12,7 @@
       :appBarTitle="barTitle"
       :appearanceOverrides="{}"
       :primary="false"
+      :loading="loading"
       class="page"
     >
       <template #actions>
@@ -483,45 +484,42 @@
             set(channel, currentChannel);
 
             set(loading, false);
-
-            store.dispatch('notLoading');
             store.commit('CORE_SET_ERROR', null);
           }
         });
       }
 
       function showTopicsTopic() {
-        return store.dispatch('loading').then(() => {
-          const route = currentRoute();
-          store.commit('SET_PAGE_NAME', route.name);
-          set(loading, true);
-          set(topic, null);
-          set(channel, null);
-          set(contents, []);
-          set(isRoot, false);
-          set(sidePanelIsOpen, false);
-          const shouldResolve = samePageCheckGenerator();
-          let promise;
-          if (props.deviceId) {
-            promise = setCurrentDevice(props.deviceId).then(device => {
-              const baseurl = device.base_url;
-              return _loadTopicsTopic({ baseurl, shouldResolve });
-            });
-          } else {
-            promise = _loadTopicsTopic({ shouldResolve });
-          }
-          return promise.catch(error => {
-            if (shouldResolve()) {
-              if (
-                error === StudioNotAllowedError ||
-                (error.response && error.response.status === 410)
-              ) {
-                router.replace({ name: PageNames.LIBRARY });
-                return;
-              }
-              store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-            }
+        const route = currentRoute();
+        store.commit('SET_PAGE_NAME', route.name);
+        set(loading, true);
+        set(topic, null);
+        set(channel, null);
+        set(contents, []);
+        set(isRoot, false);
+        set(sidePanelIsOpen, false);
+        const shouldResolve = samePageCheckGenerator();
+        let promise;
+        if (props.deviceId) {
+          promise = setCurrentDevice(props.deviceId).then(device => {
+            const baseurl = device.base_url;
+            return _loadTopicsTopic({ baseurl, shouldResolve });
           });
+        } else {
+          promise = _loadTopicsTopic({ shouldResolve });
+        }
+        return promise.catch(error => {
+          if (shouldResolve()) {
+            set(loading, false);
+            if (
+              error === StudioNotAllowedError ||
+              (error.response && error.response.status === 410)
+            ) {
+              router.replace({ name: PageNames.LIBRARY });
+              return;
+            }
+            store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          }
         });
       }
 

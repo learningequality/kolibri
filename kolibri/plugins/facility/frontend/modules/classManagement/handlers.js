@@ -1,4 +1,5 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function showClassesPage(store, toRoute) {
   store.dispatch('preparePage');
@@ -13,11 +14,11 @@ export function showClassesPage(store, toRoute) {
         modalShown: false,
         classes: [...classrooms],
       });
-      store.dispatch('notLoading');
+      pageLoading.value = false;
       store.commit('classManagement/SET_STATE', { dataLoading: false });
     })
     .catch(error => {
-      store.dispatch('notLoading');
+      pageLoading.value = false;
       store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       store.commit('classManagement/SET_STATE', { dataLoading: false });
     });

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="title"
     :authorized="$store.getters.userIsAuthorizedForCoach"
     authorizedRole="adminOrCoach"
@@ -35,6 +36,7 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { fetchQuizSummaryPageData } from '../QuizSummaryPage/api';
 
@@ -49,6 +51,7 @@
       const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
         enhancedQuizManagementStrings;
       return {
+        pageLoading,
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
       };
@@ -97,7 +100,7 @@
         this.quiz = exam;
         this.selectedExercises = fromPairs(exerciseContentNodes.map(x => [x.id, x]));
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
       /**
        * @public
@@ -105,7 +108,7 @@
       setError(error) {
         this.$store.dispatch('handleApiError', { error });
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
     },
     $trs: {

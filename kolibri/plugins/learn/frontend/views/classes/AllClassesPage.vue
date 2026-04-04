@@ -1,6 +1,9 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="pageLoading"
+  >
     <KBreadcrumbs
       :items="breadcrumbs"
       :ariaLabel="learnString('classesAndAssignmentsLabel')"
@@ -8,7 +11,7 @@
     <YourClasses
       v-if="isUserLoggedIn"
       :classes="classrooms"
-      :loading="loading"
+      :loading="pageLoading"
     />
     <AuthMessage
       v-else
@@ -26,6 +29,7 @@
   import AuthMessage from 'kolibri/components/AuthMessage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import { pageLoading } from '../../composables/usePageLoading';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
@@ -49,13 +53,11 @@
       const { isUserLoggedIn } = useUser();
       return {
         isUserLoggedIn,
+        pageLoading,
       };
     },
     computed: {
       ...mapState('classes', ['classrooms']),
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       breadcrumbs() {
         return [
           {

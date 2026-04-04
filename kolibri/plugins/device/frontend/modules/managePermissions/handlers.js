@@ -4,6 +4,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
+import { pageLoading } from '../../composables/usePageLoading';
 
 function fetchDevicePermissions() {
   return DevicePermissionsResource.fetchCollection({ force: true }).then(
@@ -21,7 +22,7 @@ function fetchFacilityUsers() {
 export function showManagePermissionsPage(store, route) {
   const shouldResolve = samePageCheckGenerator(route);
   store.commit('managePermissions/SET_LOADING_FACILITY_USERS', true);
-  store.dispatch('notLoading'); // We're loading data now, not the page
+  pageLoading.value = false; // We're loading data now, not the page
   const promises = Promise.all([fetchFacilityUsers(store), fetchDevicePermissions()]);
   return promises
     .then(([users, permissions]) => {

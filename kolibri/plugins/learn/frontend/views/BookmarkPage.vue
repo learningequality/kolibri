@@ -1,6 +1,9 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="pageLoading"
+  >
     <div role="main">
       <h1>
         {{ $tr('bookmarksHeader') }}
@@ -97,6 +100,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
+  import { pageLoading } from '../composables/usePageLoading';
   import useCoreLearn from '../composables/useCoreLearn';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
@@ -131,6 +135,7 @@
         canDownloadExternally,
         fetchContentNodeProgress,
         genContentLinkBackLinkCurrentPage,
+        pageLoading,
         windowIsSmall,
         createSnackbar,
       };

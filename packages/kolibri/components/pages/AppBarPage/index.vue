@@ -26,7 +26,7 @@
         </AppBar>
       </transition>
       <KLinearLoader
-        v-if="isLoading"
+        v-if="loading"
         type="indeterminate"
         :delay="false"
       />
@@ -58,7 +58,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -133,12 +132,8 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
       isAppContextAndTouchDevice() {
         return this.isAppContext && isTouchDevice;
-      },
-      isLoading() {
-        return this.isPageLoading || this.loading;
       },
       wrapperStyles() {
         return this.appearanceOverrides

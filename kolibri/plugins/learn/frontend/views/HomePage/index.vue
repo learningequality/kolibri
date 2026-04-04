@@ -8,9 +8,12 @@
         @cancel="hideWelcomeModal"
       />
     </transition>
-    <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+    <LearnAppBarPage
+      :appBarTitle="learnString('learnLabel')"
+      :loading="pageLoading"
+    >
       <div
-        v-if="!loading"
+        v-if="!pageLoading"
         role="main"
       >
         <ResourceSyncingUiAlert
@@ -91,6 +94,7 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources, {
     setClasses,
@@ -232,9 +236,10 @@
         return hydrateHomePage()
           .then(() => {
             store.commit('SET_PAGE_NAME', PageNames.HOME);
-            store.dispatch('notLoading');
+            pageLoading.value = false;
           })
           .catch(error => {
+            pageLoading.value = false;
             return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
           });
       });
@@ -254,15 +259,10 @@
         displayClasses,
         missingResources,
         hydrateHomePage,
+        pageLoading,
         userId: user_id,
         isLearner,
       };
-    },
-    props: {
-      loading: {
-        type: Boolean,
-        default: null,
-      },
     },
     computed: {
       ...mapState({

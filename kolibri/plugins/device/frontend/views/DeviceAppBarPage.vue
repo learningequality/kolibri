@@ -1,6 +1,9 @@
 <template>
 
-  <AppBarPage :title="title">
+  <AppBarPage
+    :title="title"
+    :loading="loading"
+  >
     <DeprecationWarningBanner style="margin-bottom: 1em" />
 
     <div>
@@ -23,6 +26,10 @@
       title: {
         type: String,
         required: true,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
     },
   };

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     icon="back"
     :primary="false"
     :route="toolbarRoute"
@@ -32,6 +33,7 @@
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import { PageNames } from '../../../constants';
 
   export default {
@@ -41,6 +43,9 @@
       CoachImmersivePage,
     },
     mixins: [commonCoach],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         prevRoute: null,

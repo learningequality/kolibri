@@ -49,7 +49,6 @@ export default [
         next(route);
       } else {
         showSignInPage(store).then(() => {
-          store.commit('CORE_SET_PAGE_LOADING', false);
           next();
         });
       }
@@ -75,7 +74,6 @@ export default [
         next(route);
       } else {
         showSignUpPage(store, from).then(() => {
-          store.commit('CORE_SET_PAGE_LOADING', false);
           next();
         });
       }
@@ -85,7 +83,6 @@ export default [
     path: '/signin-or-signup',
     component: AuthSelect,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
       next();
     },
   },
@@ -93,7 +90,6 @@ export default [
     path: '/set-password',
     component: NewPasswordPage,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
       if (!to.query.facility || !to.query.username) {
         next({ path: '/' });
       } else {
@@ -112,7 +108,6 @@ export default [
     component: FacilitySelect,
     props: true,
     beforeEnter(to, from, next) {
-      store.commit('CORE_SET_PAGE_LOADING', false);
       // This param is required, so return to AuthSelect
       // unless we have it
       if (to.params.whereToNext) {

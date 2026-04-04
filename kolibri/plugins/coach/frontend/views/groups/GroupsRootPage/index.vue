@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <CoachHeader :title="coachString('groupsLabel')">
         <template #actions>
@@ -100,6 +100,7 @@
   import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { GroupModals, PageNames } from '../../../constants';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import CoachHeader from '../../common/CoachHeader.vue';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
@@ -126,6 +127,7 @@
       });
 
       return {
+        pageLoading,
         PageNames,
         selectedGroup,
         setSelectedGroup(name, id) {

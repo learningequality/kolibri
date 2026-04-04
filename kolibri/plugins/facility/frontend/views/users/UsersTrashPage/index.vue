@@ -8,6 +8,7 @@
       height: '100%',
       padding: windowIsSmall ? '0 0.5em' : '0 1em',
     }"
+    :loading="pageLoading"
   >
     <template #default="{ pageContentHeight }">
       <!--
@@ -193,6 +194,7 @@
   import emptyTrashCloudSvg from '../../../images/empty_trash_cloud.svg';
   import useUsersTableSearch from '../../../composables/useUsersTableSearch';
   import usePagination from '../../../composables/usePagination';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import PermanentDeleteModal from './PermanentDeleteModal.vue';
 
   export default {
@@ -234,7 +236,6 @@
       });
 
       const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
-
       const showUsersTable = computed(
         () =>
           facilityUsers.value.length > 0 ||
@@ -352,6 +353,7 @@
       });
 
       return {
+        pageLoading,
         windowIsSmall,
         usersTableStyles,
 

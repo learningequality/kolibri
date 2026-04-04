@@ -1,8 +1,11 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="pageLoading"
+  >
     <div
-      v-if="!$store.state.core.loading"
+      v-if="!pageLoading"
       role="main"
     >
       <KBreadcrumbs
@@ -73,6 +76,7 @@
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
@@ -101,6 +105,7 @@
       return {
         contentNodeProgressMap,
         genContentLinkBackLinkCurrentPage,
+        pageLoading,
         windowIsSmall,
       };
     },

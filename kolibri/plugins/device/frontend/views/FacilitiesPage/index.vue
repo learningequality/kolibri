@@ -1,6 +1,9 @@
 <template>
 
-  <DeviceAppBarPage :title="pageTitle">
+  <DeviceAppBarPage
+    :title="pageTitle"
+    :loading="pageLoading"
+  >
     <KPageContainer class="device-container">
       <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
         <template #options>
@@ -204,6 +207,7 @@
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import some from 'lodash/some';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from '../../composables/usePageLoading';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
@@ -249,6 +253,7 @@
       return {
         windowIsSmall,
         createSnackbar,
+        pageLoading,
       };
     },
     data() {

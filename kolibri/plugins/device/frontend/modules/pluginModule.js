@@ -1,4 +1,5 @@
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';
@@ -42,7 +43,7 @@ export default {
       store.commit('SET_GRANT_PLUGIN_ACCESS', grantAccess);
     },
     preparePage(store, { name, isAsync = true }) {
-      store.commit('CORE_SET_PAGE_LOADING', isAsync);
+      pageLoading.value = isAsync;
       store.commit('SET_PAGE_NAME', name);
       store.commit('CORE_SET_ERROR', null);
     },

@@ -3,6 +3,7 @@ import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export async function setLessonSummaryState(store, params) {
   const { fetchFacilities, facilities } = useFacilities();
@@ -43,14 +44,14 @@ export async function setLessonSummaryState(store, params) {
       });
     })
     .catch(error => {
+      pageLoading.value = false;
       return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     });
 }
 
 export function showLessonSummaryPage(store, params) {
-  return store.dispatch('loading').then(() => {
-    setLessonSummaryState(store, params).then(() => {
-      store.dispatch('notLoading');
-    });
+  pageLoading.value = true;
+  return setLessonSummaryState(store, params).then(() => {
+    pageLoading.value = false;
   });
 }

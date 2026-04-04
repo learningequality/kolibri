@@ -1,6 +1,9 @@
 <template>
 
-  <DeviceAppBarPage :title="pageTitle">
+  <DeviceAppBarPage
+    :title="pageTitle"
+    :loading="pageLoading"
+  >
     <transition name="delay<-entry">
       <PostSetupModalGroup
         v-if="!channelListLoading && welcomeModalVisible"
@@ -91,6 +94,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useUser from 'kolibri/composables/useUser';
+  import { pageLoading } from '../../composables/usePageLoading';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';
@@ -125,7 +129,7 @@
     setup() {
       useContentTasks();
       const { isLearnerOnlyImport, user_id } = useUser();
-      return { isLearnerOnlyImport, userId: user_id };
+      return { isLearnerOnlyImport, userId: user_id, pageLoading };
     },
     data() {
       return {

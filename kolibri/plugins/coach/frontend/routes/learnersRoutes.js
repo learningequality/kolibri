@@ -1,5 +1,5 @@
-import store from 'kolibri/store';
 import { PageNames } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
@@ -8,7 +8,7 @@ import { classIdParamRequiredGuard, RouteSegments } from './utils';
 const { CLASS, OPTIONAL_CLASS, ALL_LEARNERS, LEARNER, LESSON } = RouteSegments;
 
 function defaultHandler() {
-  store.dispatch('notLoading');
+  pageLoading.value = false;
 }
 
 export default [

@@ -3,6 +3,7 @@
   <AppBarPage
     :title="title"
     :appearanceOverrides="appearanceOverrides"
+    :loading="loading"
   >
     <template #default="{ pageContentHeight, appBarHeight }">
       <slot
@@ -40,6 +41,10 @@
         type: Object,
         required: false,
         default: null,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

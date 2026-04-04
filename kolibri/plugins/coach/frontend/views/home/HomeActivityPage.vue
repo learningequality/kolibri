@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <BackLink
@@ -23,6 +23,7 @@
   import CoachAppBarPage from '../CoachAppBarPage';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
+  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'HomeActivityPage',
@@ -31,6 +32,9 @@
       CoachAppBarPage,
     },
     mixins: [commonCoach, nStringsMixin, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     $trs: {
       noActivityLabel: {
         message: 'No activity in your class',

@@ -1,5 +1,5 @@
-import store from 'kolibri/store';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { pageLoading } from '../composables/usePageLoading';
 
 export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
   if (!toRoute.params.classId) {
@@ -12,7 +12,7 @@ export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
       name: redirectPage,
       params: { subtopicName },
     });
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    pageLoading.value = false;
     return true;
   }
 }

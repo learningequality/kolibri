@@ -2,6 +2,7 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { pageLoading } from '../composables/usePageLoading';
 import { PageNames, pageNameToModuleMap } from '../constants';
 import examReportDetail from './examReportDetail';
 import exerciseDetail from './exerciseDetail';
@@ -128,7 +129,7 @@ export default {
       store.dispatch('clearError');
       // only wait around for the results if the class is switching
       if (store.state.classSummary.id !== classId) {
-        store.dispatch('loading');
+        pageLoading.value = true;
         return Promise.all([
           // Make sure we load any class list data, so that we know
           // whether this user has access to multiple classes or not.
@@ -139,6 +140,7 @@ export default {
           }),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
+          pageLoading.value = false;
           store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         });
       } else {
