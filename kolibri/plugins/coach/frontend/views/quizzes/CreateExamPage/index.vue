@@ -157,7 +157,7 @@
       const showError = ref(false);
       const quizInitialized = ref(false);
 
-      initClassInfo().then(() => (pageLoading.value = false));
+      initClassInfo();
 
       const {
         allSectionsEmptyWarning$,
