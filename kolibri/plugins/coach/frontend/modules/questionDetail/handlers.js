@@ -2,6 +2,7 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import store from 'kolibri/store';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import { coachStrings } from '../../views/common/commonCoachStrings';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function questionRootRedirectHandler(params, name, next) {
   return showQuestionDetailView(params).then(learnerId => {
@@ -21,12 +22,12 @@ export function generateQuestionDetailHandler(paramsToCheck) {
     if (paramsToCheck.some(param => to.params[param] !== from.params[param])) {
       // Only set loading state if we are not switching between
       // different views of the same question's learner report.
-      store.dispatch('loading');
+      pageLoading.value = true;
     }
     showQuestionDetailView(to.params).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     });
   };
 }
@@ -98,6 +99,7 @@ function showQuestionDetailView(params) {
       });
     })
     .catch(error => {
+      pageLoading.value = false;
       store.dispatch('handleCoachPageError', error);
     });
 }

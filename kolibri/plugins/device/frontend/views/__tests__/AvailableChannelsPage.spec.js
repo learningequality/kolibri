@@ -5,6 +5,7 @@ import router from './testRouter';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
+jest.mock('../../composables/usePageLoading');
 
 function makeWrapper(options = {}) {
   const { store, props = {} } = options;

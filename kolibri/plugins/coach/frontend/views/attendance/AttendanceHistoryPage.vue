@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <BackLink
         :to="classHomeLink"
@@ -106,6 +106,7 @@
   import BackLink from '../common/BackLink';
   import ReportsControls from '../common/ReportsControls';
   import useCoreCoach from '../../composables/useCoreCoach';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { useAttendance } from '../../composables/useAttendance';
   import CSVExporter from '../../csv/exporter';
 
@@ -377,6 +378,7 @@
       }
 
       return {
+        pageLoading,
         PAGE_SIZE,
         attendanceLoading,
         classHomeLink,

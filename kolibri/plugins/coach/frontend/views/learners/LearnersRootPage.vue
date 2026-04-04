@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <CoachHeader
         :title="$isPrint ? $tr('printLabel', { className }) : coachString('learnersLabel')"
@@ -76,6 +76,7 @@
   import ReportsControls from '../common/ReportsControls';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';
+  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'LearnersRootPage',
@@ -95,6 +96,7 @@
       });
 
       return {
+        pageLoading,
         entireClassLabel$,
         recipientSelected,
         PageNames,

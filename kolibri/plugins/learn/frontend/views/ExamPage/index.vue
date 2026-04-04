@@ -3,8 +3,9 @@
   <ImmersivePage
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
+    :loading="pageLoading"
   >
-    <KCircularLoader v-if="loading || !currentQuestion" />
+    <KCircularLoader v-if="pageLoading || !currentQuestion" />
 
     <div v-else>
       <KGrid :gridStyle="gridStyle">
@@ -325,6 +326,7 @@
   import useUser from 'kolibri/composables/useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
@@ -359,6 +361,7 @@
       const { quizSectionsLabel$, questionsLabel$ } = enhancedQuizManagementStrings;
       const currentQuestionAnswered = ref(false);
       return {
+        pageLoading,
         questionsLabel$,
         quizSectionsLabel$,
         displaySectionTitle,
@@ -385,9 +388,6 @@
       };
     },
     computed: {
-      ...mapState({
-        loading: state => state.core.loading,
-      }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       questionSelectOptions() {
         if (!this.currentSection) return [];

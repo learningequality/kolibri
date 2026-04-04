@@ -1,6 +1,9 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="pageLoading"
+  >
     <NoResourcePage />
   </LearnAppBarPage>
 
@@ -9,6 +12,7 @@
 
 <script>
 
+  import { pageLoading } from '../composables/usePageLoading';
   import LearnAppBarPage from './LearnAppBarPage';
   import NoResourcePage from './LibraryPage/NoResourcePage.vue';
 
@@ -18,6 +22,9 @@
     components: {
       LearnAppBarPage,
       NoResourcePage,
+    },
+    setup() {
+      return { pageLoading };
     },
   };
 

@@ -3,6 +3,7 @@ import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
+import { pageLoading } from '../../composables/usePageLoading';
 
 const { fetchFacilities, facilities } = useFacilities();
 
@@ -14,12 +15,10 @@ export async function showLessonResourceContentPreview(store, params) {
     get(isSuperuser) && get(facilities).length === 0
       ? fetchFacilities().catch(() => {})
       : Promise.resolve();
-
   await Promise.all([initClassInfoPromise, fetchFacilitiesPromise]);
-  return store.dispatch('loading').then(() => {
-    return _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
-      store.dispatch('notLoading');
-    });
+  pageLoading.value = true;
+  return _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
+    pageLoading.value = false;
   });
 }
 
@@ -50,6 +49,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
       return contentNode;
     },
     error => {
+      pageLoading.value = false;
       return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     },
   );

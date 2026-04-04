@@ -4,6 +4,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { pageLoading } from '../../composables/usePageLoading';
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
@@ -46,13 +47,12 @@ function fetchUserPermissions(userId) {
 export function showUserPermissionsPage(store, userId, route) {
   const { fetchFacilities } = useFacilities();
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
-  const stopLoading = () => store.dispatch('notLoading');
 
   // Don't request any data if not an Admin
   const { isSuperuser } = useUser();
   if (!get(isSuperuser)) {
     setUserPermissionsState({ user: null, permissions: {} });
-    stopLoading();
+    pageLoading.value = false;
     return Promise.resolve();
   }
 
@@ -63,7 +63,7 @@ export function showUserPermissionsPage(store, userId, route) {
       if (shouldResolve()) {
         setUserPermissionsState({ user: data.user, permissions: data.permissions });
       }
-      stopLoading();
+      pageLoading.value = false;
     })
     .catch(error => {
       if (shouldResolve()) {
@@ -71,7 +71,7 @@ export function showUserPermissionsPage(store, userId, route) {
           setUserPermissionsState({ user: null, permissions: {} });
         }
         store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-        stopLoading();
+        pageLoading.value = false;
       }
     });
 }

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="className"
     icon="back"
     :route="backlink"
@@ -95,6 +96,7 @@
   import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
   import { fetchClassSyncStatus } from '../composables/fetchClassSyncStatus';
   import CoachImmersivePage from '../views/CoachImmersivePage';
+  import { pageLoading } from '../composables/usePageLoading';
   import { PageNames } from '../constants';
   import SyncStatusDescription from './common/SyncStatusDescription';
   import StorageNotificationBanner from './StorageNotificationBanner';
@@ -110,6 +112,9 @@
       StorageNotificationBanner,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     data: function () {
       return {
         prevRoute: null,

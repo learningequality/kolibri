@@ -1,5 +1,6 @@
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function showManageContentPage(store) {
   store.commit('manageContent/RESET_STATE');
@@ -9,8 +10,10 @@ export function showManageContentPage(store) {
     return Promise.all([
       store.dispatch('manageContent/refreshTaskList'),
       store.dispatch('manageContent/refreshChannelList'),
-    ]).then(() => store.dispatch('notLoading'));
+    ]).then(() => {
+      pageLoading.value = false;
+    });
   }
-  store.dispatch('notLoading');
+  pageLoading.value = false;
   return Promise.resolve();
 }

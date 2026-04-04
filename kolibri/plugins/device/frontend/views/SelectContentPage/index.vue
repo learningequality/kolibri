@@ -4,6 +4,7 @@
     icon="back"
     :appBarTitle="appBarTitle"
     :route="backRoute"
+    :loading="pageLoading"
   >
     <KPageContainer class="device-container">
       <ContentWizardUiAlert
@@ -87,6 +88,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import plugin_data from 'kolibri-plugin-data';
+  import { pageLoading } from '../../composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';
@@ -125,6 +127,7 @@
       const { windowIsSmall } = useKResponsiveWindow();
       return {
         windowIsSmall,
+        pageLoading,
       };
     },
     data() {

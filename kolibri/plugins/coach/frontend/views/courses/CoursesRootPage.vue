@@ -1,6 +1,9 @@
 <template>
 
-  <CoachAppBarPage showSubNav>
+  <CoachAppBarPage
+    :loading="pageLoading"
+    showSubNav
+  >
     <KPageContainer>
       <CoachHeader :title="coursesLabel$()">
         <template #actions>
@@ -198,6 +201,7 @@
   import { useCourses } from '../../composables/useCourses';
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
+  import { pageLoading } from '../../composables/usePageLoading';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
   import DeleteCourseConfirmationModal from './modals/DeleteCourseConfirmation.vue';
   import useAssignCourse from './composables/useAssignCourse';
@@ -404,7 +408,7 @@
       const coachString = (key, args) => coachStrings.$tr(key, args);
       const loadClassData = async classId => {
         await store.dispatch('initClassInfo', classId);
-        store.dispatch('notLoading');
+        pageLoading.value = false;
 
         try {
           await refreshClassCourses();
@@ -426,6 +430,7 @@
       );
 
       return {
+        pageLoading,
         CoursesModals,
         modelOpen,
         courseToDelete,

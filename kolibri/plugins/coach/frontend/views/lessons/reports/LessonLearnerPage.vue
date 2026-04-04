@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <BackLink
@@ -90,6 +90,7 @@
 
   import ReportsControls from '../../common/ReportsControls';
   import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LessonLearnerPage',
@@ -100,6 +101,9 @@
       ReportsResourcesStats,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     computed: {
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];

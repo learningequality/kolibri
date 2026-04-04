@@ -6,6 +6,7 @@ import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { ContentWizardPages, ContentWizardErrors } from '../../constants';
+import { pageLoading } from '../../composables/usePageLoading';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';
 import {
@@ -79,7 +80,7 @@ export function showAvailableChannelsPage(store, params, route) {
   const transferType = getTransferType(params);
 
   store.commit('SET_PAGE_NAME', ContentWizardPages.AVAILABLE_CHANNELS);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  pageLoading.value = true;
   store.commit('manageContent/wizard/RESET_STATE');
 
   if (transferType === null) {
@@ -128,12 +129,12 @@ export function showAvailableChannelsPage(store, params, route) {
           selectedDrive,
           transferType,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        pageLoading.value = false;
       }
     },
     function onFailure(error) {
       if (shouldResolve()) {
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        pageLoading.value = false;
         return handleError(store, error);
       }
     },
@@ -153,7 +154,7 @@ export function showSelectContentPage(store, params) {
 
   store.commit('manageContent/wizard/RESET_STATE');
   store.commit('SET_PAGE_NAME', ContentWizardPages.SELECT_CONTENT);
-  store.commit('CORE_SET_PAGE_LOADING', true);
+  pageLoading.value = true;
 
   if (transferType === null) {
     return router.replace(manageContentPageLink());
@@ -244,10 +245,10 @@ export function showSelectContentPage(store, params) {
       });
     })
     .then(() => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
     })
     .catch(error => {
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
       return handleError(store, error);
     });
 }

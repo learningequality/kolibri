@@ -7,6 +7,7 @@
     <AppBarPage
       :title="appBarTitle || defaultAppBarTitle"
       :showNavigation="Boolean(classId)"
+      :loading="loading"
     >
       <div class="coach-main">
         <slot></slot>
@@ -61,6 +62,10 @@
       appBarTitle: {
         type: String,
         default: null,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
       pageTitle: {
         type: String,

@@ -22,7 +22,6 @@ describe('Vuex store/actions for core module', () => {
       store.registerModule('core', coreModule);
       store.dispatch('handleError', 'catastrophic failure');
       expect(store.state.core.error).toEqual('catastrophic failure');
-      expect(store.state.core.loading).toBeFalsy();
     });
 
     it('handleApiError action updates core state', () => {
@@ -35,7 +34,6 @@ describe('Vuex store/actions for core module', () => {
         expect(e.message).toBe(apiError.message);
       }
       expect(store.state.core.error.match(/Too Bad/)).toHaveLength(1);
-      expect(store.state.core.loading).toBeFalsy();
     });
   });
 

@@ -3,6 +3,7 @@ import TaskResource from 'kolibri/apiResources/TaskResource';
 import coreStore from 'kolibri/store';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { ErrorTypes } from '../../constants';
+import { pageLoading } from '../../composables/usePageLoading';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 
@@ -48,7 +49,7 @@ export function downloadChannelMetadata(store = coreStore) {
   } else if (store.getters['manageContent/wizard/inPeerImportMode']) {
     taskParams.peer = selectedPeer.id;
   }
-  store.commit('CORE_SET_PAGE_LOADING', false);
+  pageLoading.value = false;
 
   return TaskResource.startTask(taskParams)
     .catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }))

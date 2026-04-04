@@ -4,6 +4,7 @@
     class="manage-channel-page"
     :appBarTitle="appBarTitle"
     :route="backRoute"
+    :loading="pageLoading"
   >
     <KPageContainer class="device-container">
       <!-- Show this progress bar to match other import flows -->
@@ -90,6 +91,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useContentTasks from '../../../composables/useContentTasks';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
   import DeleteResourcesModal from '../../SelectContentPage/DeleteResourcesModal';
@@ -127,6 +129,7 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      return { pageLoading };
     },
     data() {
       return {

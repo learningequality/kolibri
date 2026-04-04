@@ -7,6 +7,7 @@ import CourseWelcomePage from '../CourseWelcomePage.vue';
 import useLearnerResources from '../../composables/useLearnerResources';
 
 jest.mock('../../composables/useLearnerResources');
+jest.mock('../../composables/usePageLoading');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
   __esModule: true,
   default: () => ({ windowIsLarge: true }),
@@ -162,16 +163,11 @@ describe('CourseWelcomePage', () => {
 
     store = new Vuex.Store({
       state: {
-        core: {
-          loading: false,
-        },
+        core: {},
       },
-      getters: {
-        isPageLoading: jest.fn(() => false),
-      },
+      getters: {},
       actions: {
         handleApiError: jest.fn(),
-        notLoading: jest.fn(),
       },
       mutations: {
         CORE_SET_ERROR: jest.fn(),

@@ -4,6 +4,7 @@ import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import shuffled from 'kolibri-common/utils/shuffled';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
+import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 
@@ -11,7 +12,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
   const questionNumber = Number(params.questionNumber);
   const { classId, examId } = params;
   if (!alreadyOnQuiz) {
-    store.commit('CORE_SET_PAGE_LOADING', true);
+    pageLoading.value = true;
   }
   store.commit('SET_PAGE_NAME', ClassesPageNames.EXAM_VIEWER);
 
@@ -19,7 +20,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
 
   if (!get(currentUserId)) {
     store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
-    store.commit('CORE_SET_PAGE_LOADING', false);
+    pageLoading.value = false;
   } else {
     const promises = [
       LearnerClassroomResource.fetchModel({ id: classId }),
@@ -54,6 +55,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
 
               // Exam is drawing solely on malformed exercise data, best to quit now
               if (allQuestions.some(question => !question.item)) {
+                pageLoading.value = false;
                 store.dispatch(
                   'handleError',
                   `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
@@ -64,6 +66,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
               }
               // Illegal question number!
               else if (questionNumber >= allQuestions.length) {
+                pageLoading.value = false;
                 store.dispatch(
                   'handleError',
                   `Question number ${questionNumber} is not valid for this quiz`,
@@ -87,11 +90,12 @@ export function showExam(store, params, alreadyOnQuiz, route) {
                 questionNumber,
                 questions: allQuestions,
               });
-              store.commit('CORE_SET_PAGE_LOADING', false);
+              pageLoading.value = false;
               store.commit('CORE_SET_ERROR', null);
             }
           }),
             error => {
+              pageLoading.value = false;
               shouldResolve()
                 ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
                 : null;
@@ -99,6 +103,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
         }
       },
       error => {
+        pageLoading.value = false;
         shouldResolve()
           ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
           : null;

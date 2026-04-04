@@ -7,6 +7,7 @@
       height: '100%',
       padding: '0 1em',
     }"
+    :loading="pageLoading"
   >
     <template #default="{ pageContentHeight }">
       <!--
@@ -207,6 +208,7 @@
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
   import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import useUserManagement from '../../../composables/useUserManagement';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';
@@ -273,7 +275,6 @@
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
       const { currentPage, itemsPerPage } = usePagination({ usersCount, totalPages });
       const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
-
       onMounted(() => {
         fetchClasses();
       });
@@ -340,6 +341,7 @@
       });
 
       return {
+        pageLoading,
         windowIsSmall,
         usersTableStyles,
         // Route utilities

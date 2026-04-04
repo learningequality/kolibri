@@ -7,6 +7,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 import { _userState } from '../modules/mappers';
 import useUsersFilters from './useUsersFilters';
+import { pageLoading } from './usePageLoading';
 
 export default function useUserManagement({
   activeFacilityId,
@@ -57,8 +58,9 @@ export default function useUserManagement({
       totalPages.value = resp.total_pages;
       usersCount.value = resp.count;
       dataLoading.value = false;
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     } catch (error) {
+      pageLoading.value = false;
       // In case of 404 error because of stale pagination try loading users of page 1
       if (error.status === 404 && page.value > 1) {
         router.push({ ...route.value, query: { ...route.value.query, page: 1 } });

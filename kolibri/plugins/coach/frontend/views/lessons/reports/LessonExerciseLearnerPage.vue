@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="exercise.title"
     icon="back"
     :primary="false"
@@ -18,6 +19,7 @@
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import LearnerExerciseReport from '../../common/LearnerExerciseReport';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import { PageNames } from '../../../constants';
 
   export default {
@@ -27,6 +29,9 @@
       LearnerExerciseReport,
     },
     mixins: [commonCoach],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         prevRoute: null,

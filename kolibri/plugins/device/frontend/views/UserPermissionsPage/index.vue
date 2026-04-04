@@ -3,10 +3,10 @@
   <ImmersivePage
     :appBarTitle="$tr('permissionsTitle')"
     :route="backRoute"
-    :loading="isPageLoading"
+    :loading="pageLoading"
   >
     <KPageContainer
-      v-if="!isPageLoading"
+      v-if="!pageLoading"
       class="device-container"
     >
       <h1 v-if="user === null">
@@ -116,7 +116,7 @@
 
 <script>
 
-  import { mapState, mapGetters, mapActions } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserType from 'kolibri-common/utils/userType';
   import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
@@ -124,6 +124,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames } from '../../constants';
 
   export default {
@@ -142,7 +143,7 @@
     setup() {
       const { currentUserId } = useUser();
       const { facilities } = useFacilities();
-      return { currentUserId, facilities };
+      return { currentUserId, facilities, pageLoading };
     },
     data() {
       return {
@@ -153,7 +154,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
       ...mapState('userPermissions', ['user', 'permissions']),
       backRoute() {
         return { name: PageNames.MANAGE_PERMISSIONS_PAGE };

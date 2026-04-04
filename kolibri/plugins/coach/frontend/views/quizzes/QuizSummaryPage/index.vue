@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KGrid
       v-if="exam"
       gutter="16"
@@ -102,6 +102,7 @@
   import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -135,6 +136,7 @@
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
 
       return {
+        pageLoading,
         wereTabsClickedRecently,
         createSnackbar,
         clearSnackbar,
@@ -252,7 +254,7 @@
         const { difficultQuestions } = data;
         this.difficultQuestions = difficultQuestions;
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
       /**
        * @public
@@ -265,7 +267,7 @@
           // unhandled errors in the dispatch to handleApiError
         }
         this.loading = false;
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
       setCurrentAction(action) {
         if (action === 'EDIT_DETAILS') {
@@ -328,7 +330,7 @@
             } else {
               this.$store.dispatch('handleApiError', { error });
             }
-            this.$store.dispatch('notLoading');
+            pageLoading.value = false;
             this.closeModal();
           });
       },

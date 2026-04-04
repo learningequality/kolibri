@@ -5,10 +5,7 @@
     class="main-wrapper"
     :style="mainWrapperStyles"
   >
-    <div
-      v-if="!loading"
-      class="scrolling-pane"
-    >
+    <div class="scrolling-pane">
       <CoreBanner v-if="coreBannerComponent && showDemoBanner">
         <template #default="props">
           <component
@@ -83,7 +80,6 @@
     computed: {
       ...mapState({
         error: state => state.core.error,
-        loading: state => state.core.loading,
       }),
       isAuthorized() {
         return !(

@@ -3,6 +3,7 @@
   <AppBarPage
     :title="coreString('facilityLabel')"
     :showNavigation="false"
+    :loading="pageLoading"
   >
     <KPageContainer style="max-width: 1000px; margin: 32px auto 0">
       <h1>{{ coreString('facilitiesLabel') }}</h1>
@@ -45,6 +46,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from '../composables/usePageLoading';
 
   export default {
     name: 'AllFacilitiesPage',
@@ -60,7 +62,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { facilities, userIsMultiFacilityAdmin } = useFacilities();
-      return { userIsMultiFacilityAdmin, facilities };
+      return { pageLoading, userIsMultiFacilityAdmin, facilities };
     },
     props: {
       subtopicName: {

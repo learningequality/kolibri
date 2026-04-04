@@ -1,6 +1,6 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage :loading="pageLoading">
     <KPageContainer
       data-test="page-container"
       data-testid="page-container"
@@ -198,6 +198,7 @@
   import store from 'kolibri/store';
   import { useRoute } from 'vue-router/composables';
   import useFacilityEditor from '../../composables/useFacilityEditor';
+  import { pageLoading } from '../../composables/usePageLoading';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import RemovePinModal from './RemovePinModal';
   import ChangePinModal from './ChangePinModal';
@@ -485,6 +486,7 @@
       });
 
       return {
+        pageLoading,
         isAppContext,
         isSuperuser,
         userIsMultiFacilityAdmin,

@@ -1,5 +1,6 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import store from 'kolibri/store';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function generateResourceHandler(paramsToCheck) {
   return function resourceHandler(to, from) {
@@ -9,12 +10,12 @@ export function generateResourceHandler(paramsToCheck) {
     if (setLoading) {
       // Only set loading state if we are not switching between
       // different views of the same learner's exercise report.
-      store.dispatch('loading');
+      pageLoading.value = true;
     }
     showResourceView(params).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     });
   };
 }
@@ -33,6 +34,7 @@ export function showResourceView({ resourceId, exerciseId } = {}) {
       });
     },
     error => {
+      pageLoading.value = false;
       store.dispatch('handleCoachPageError', error);
     },
   );

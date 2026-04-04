@@ -2,6 +2,7 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { localeCompare } from 'kolibri/utils/i18n';
 import { _userState } from '../mappers';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function sortUsersByFullName(users) {
   return users.sort((a, b) => {
@@ -28,10 +29,10 @@ export function showClassEditPage(store, classId) {
         classLearners: sortUsersByFullName(facilityUsers).map(_userState),
         classCoaches: sortUsersByFullName(classroom.coaches).map(_userState),
       });
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     })
     .catch(error => {
-      store.dispatch('notLoading');
+      pageLoading.value = false;
       store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     });
 }

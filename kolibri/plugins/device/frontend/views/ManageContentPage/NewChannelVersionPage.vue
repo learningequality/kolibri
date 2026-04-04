@@ -4,6 +4,7 @@
     icon="back"
     :appBarTitle="channelName"
     :route="backRoute"
+    :loading="pageLoading"
   >
     <KPageContainer class="device-container">
       <div v-if="!loadingChannel">
@@ -132,6 +133,7 @@
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { PageNames } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {
@@ -149,6 +151,7 @@
     mixins: [commonCoreStrings],
     setup() {
       useContentTasks();
+      return { pageLoading };
     },
     data() {
       return {

@@ -1,7 +1,7 @@
 <template>
 
-  <CoachAppBarPage>
-    <KGrid v-if="!loading">
+  <CoachAppBarPage :loading="pageLoading">
+    <KGrid v-if="!pageLoading">
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="lesson"
@@ -33,7 +33,7 @@
       </KGridItem>
       <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
         <KPageContainer
-          v-if="!loading"
+          v-if="!pageLoading"
           :topMargin="$isPrint ? 0 : 16"
         >
           <ReportsControls @export="exportCSV" />
@@ -95,6 +95,7 @@
   import ReportsControls from '../../common/ReportsControls';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';
@@ -129,7 +130,7 @@
       watch(lessonId, () => showLessonSummaryPage(store, routeParams.value));
 
       const { createSnackbar, clearSnackbar } = useSnackbar();
-      return { lessonId, createSnackbar, clearSnackbar };
+      return { lessonId, pageLoading, createSnackbar, clearSnackbar };
     },
     props: {
       editable: {
@@ -152,9 +153,6 @@
       ...mapState('lessonSummary', ['currentLesson', 'workingResources', 'resourceCache']),
       classId() {
         return this.currentLesson.classroom.id;
-      },
-      loading() {
-        return this.$store.state.core.loading;
       },
       lessonSelectionRootPage() {
         return this.classRoute(PageNames.LESSON_SELECT_RESOURCES, {
@@ -244,7 +242,7 @@
       },
     },
     watch: {
-      loading(newVal, oldVal) {
+      pageLoading(newVal, oldVal) {
         if (!newVal && oldVal) {
           this.workingResourcesBackup = [...this.$store.state.lessonSummary.workingResources];
         }

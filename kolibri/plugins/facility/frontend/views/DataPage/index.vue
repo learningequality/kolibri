@@ -1,6 +1,6 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage :loading="pageLoading">
     <KPageContainer v-if="canUploadDownloadFiles">
       <p>
         <KRouterLink
@@ -204,6 +204,7 @@
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';
@@ -233,7 +234,7 @@
       const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
-      return { windowIsMedium, windowIsSmall, isAppContext, userIsMultiFacilityAdmin };
+      return { pageLoading, windowIsMedium, windowIsSmall, isAppContext, userIsMultiFacilityAdmin };
     },
     data() {
       return {

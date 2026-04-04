@@ -4,6 +4,7 @@ import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResour
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { pageLoading } from './usePageLoading';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);
@@ -22,7 +23,7 @@ export function useGroups() {
         : Promise.resolve();
 
     await Promise.all([initClassInfoPromise, fetchFacilitiesPromise]);
-    store.dispatch('notLoading');
+    pageLoading.value = false;
 
     setGroupsLoading(true);
 

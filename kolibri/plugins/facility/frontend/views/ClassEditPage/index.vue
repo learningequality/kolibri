@@ -1,6 +1,6 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <KRouterLink
@@ -155,6 +155,7 @@
   import ClassDeleteModal from '../common/ClassDeleteModal';
   import ClassRenameModal from '../common/ClassRenameModal';
   import useDeleteClass from '../../composables/useDeleteClass';
+  import { pageLoading } from '../../composables/usePageLoading';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
   export default {
@@ -178,6 +179,7 @@
       const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
       return {
+        pageLoading,
         classToCopy,
         copyClass$,
         renameClassLabel$,

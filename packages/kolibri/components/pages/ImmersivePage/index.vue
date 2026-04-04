@@ -17,7 +17,7 @@
         </template>
       </ImmersiveToolbar>
       <KLinearLoader
-        v-if="isLoading"
+        v-if="loading"
         type="indeterminate"
         :delay="false"
       />
@@ -36,7 +36,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
@@ -99,10 +98,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
-      isLoading() {
-        return this.isPageLoading || this.loading;
-      },
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides

@@ -3,6 +3,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { _userState } from '../mappers';
+import { pageLoading } from '../../composables/usePageLoading';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
@@ -35,10 +36,11 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
           class: classroom,
           modalShown: false,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        pageLoading.value = false;
       }
     },
     error => {
+      pageLoading.value = false;
       shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
     },
   );
@@ -47,7 +49,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
 export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
   if (toRoute.name !== fromRoute.name) {
-    store.dispatch('loading');
+    pageLoading.value = true;
   }
   const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility eligible to be a coach that is not already a coach
@@ -78,10 +80,10 @@ export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
           modalShown: false,
         });
       }
-      store.dispatch('notLoading');
+      pageLoading.value = false;
     },
     error => {
-      store.dispatch('notLoading');
+      pageLoading.value = false;
       shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
     },
   );

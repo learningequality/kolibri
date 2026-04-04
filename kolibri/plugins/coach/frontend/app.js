@@ -7,6 +7,7 @@ import KolibriApp from 'kolibri-app';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
+import { pageLoading } from './composables/usePageLoading';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import HomeActivityPage from './views/home/HomeActivityPage';
@@ -103,7 +104,7 @@ class CoachToolsModule extends KolibriApp {
         !skipLoading.includes(to.name) &&
         !(to.params.quizId && from.params.quizId && to.name === from.name)
       ) {
-        this.store.dispatch('loading');
+        pageLoading.value = true;
       }
       const promises = [];
 

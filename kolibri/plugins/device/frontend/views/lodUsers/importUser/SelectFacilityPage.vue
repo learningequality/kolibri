@@ -64,6 +64,7 @@
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 
@@ -85,6 +86,7 @@
       return {
         importDeviceId,
         importLodMachineService,
+        pageLoading,
         continueAction$,
         importUserLabel$,
         selectDifferentDeviceLabel$,
@@ -123,7 +125,7 @@
           this.handleContinue(); // If we only have one, just move along
         } else {
           this.loading = false;
-          this.$store.dispatch('notLoading');
+          this.pageLoading = false;
           this.loadingNewAddress = false;
         }
       },

@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer class="container">
       <KCircularLoader v-if="pageLoading" />
       <div
@@ -293,6 +293,7 @@
   import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
 
@@ -673,7 +674,7 @@
     },
     watch: {
       courseSession() {
-        this.$store.dispatch('notLoading');
+        pageLoading.value = false;
       },
     },
   };

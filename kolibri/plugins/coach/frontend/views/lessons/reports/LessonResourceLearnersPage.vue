@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <ReportsResourceHeader
         :resource="resource"
@@ -109,6 +109,7 @@
   import ReportsResourcesStats from '../../common/tables/ReportsResourcesStats';
   import ReportsControls from '../../common/ReportsControls';
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
+  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LessonResourceLearnersPage',
@@ -120,6 +121,9 @@
       ReportsResourceHeader,
     },
     mixins: [commonCoach],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         viewByGroups: Boolean(this.$route.query.groups),

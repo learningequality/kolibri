@@ -68,7 +68,7 @@ export function showUserPermissionsPage(store, userId) {
 
   const setAppBarTitle = title => store.commit('coreBase/SET_APP_BAR_TITLE', title);
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
-  const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
+  const stopLoading = () => {};
 
   // Don't request any data if not an Admin
   if (!useUser().isSuperuser.value) {

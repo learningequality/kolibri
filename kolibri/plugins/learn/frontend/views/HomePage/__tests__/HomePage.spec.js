@@ -25,6 +25,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');
+jest.mock('../../../composables/usePageLoading');
 // Needed to test anything using mount() where children use this composable
 jest.mock('kolibri-common/composables/useLearningActivities');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
@@ -36,17 +37,14 @@ localVue.use(VueRouter);
 
 function makeWrapper() {
   const mockStore = new Store({
-    state: { core: { loading: false }, welcomeModalVisible: false },
-    getters: {
-      isPageLoading: jest.fn(() => false),
-    },
+    state: { core: {}, welcomeModalVisible: false },
+    getters: {},
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
       SET_PAGE_NAME: jest.fn(),
     },
     actions: {
       handleApiError: jest.fn(),
-      notLoading: jest.fn(),
     },
   });
 

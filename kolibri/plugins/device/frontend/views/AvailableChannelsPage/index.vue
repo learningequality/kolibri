@@ -3,6 +3,7 @@
   <ImmersivePage
     :appBarTitle="toolbarTitle"
     :route="backRoute"
+    :loading="pageLoading"
   >
     <KPageContainer class="device-container">
       <ContentWizardUiAlert
@@ -11,7 +12,7 @@
       />
 
       <FilteredChannelListContainer
-        v-if="status === '' && !$store.state.core.loading"
+        v-if="status === '' && !pageLoading"
         :channels="allChannels"
         :selectedChannels.sync="selectedChannels"
         :selectAllCheckbox="multipleMode"
@@ -148,6 +149,7 @@
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import useContentTasks from '../../composables/useContentTasks';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
@@ -176,6 +178,7 @@
     mixins: [commonCoreStrings, commonDeviceStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      return { pageLoading };
     },
     data() {
       return {

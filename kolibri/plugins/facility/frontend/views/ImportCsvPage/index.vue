@@ -3,6 +3,7 @@
   <ImmersivePage
     :route="$store.getters.facilityPageLinks.DataPage"
     :appBarTitle="$tr('toolbarHeader')"
+    :loading="pageLoading"
   >
     <KPageContainer>
       <h1>{{ $tr('pageHeader') }}</h1>
@@ -29,6 +30,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';
@@ -44,6 +46,9 @@
       ImmersivePage,
       Init,
       Preview,
+    },
+    setup() {
+      return { pageLoading };
     },
     computed: {
       ...mapState('importCSV', ['status']),

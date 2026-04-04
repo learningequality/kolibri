@@ -1,8 +1,11 @@
 <template>
 
-  <DeviceAppBarPage :title="pageTitle">
+  <DeviceAppBarPage
+    :title="pageTitle"
+    :loading="pageLoading"
+  >
     <KPageContainer
-      v-if="!isPageLoading"
+      v-if="!pageLoading"
       class="device-container"
     >
       <div>
@@ -80,11 +83,12 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri/components/error/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from '../composables/usePageLoading';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';
@@ -108,6 +112,7 @@
       return {
         windowIsSmall,
         createSnackbar,
+        pageLoading,
       };
     },
     data() {
@@ -117,7 +122,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
       ...mapState('deviceInfo', ['deviceInfo', 'deviceName']),
       buttonText() {
         return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');

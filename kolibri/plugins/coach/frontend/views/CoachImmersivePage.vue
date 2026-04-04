@@ -13,7 +13,7 @@
       :appearanceOverrides="appearanceOverrides"
     >
       <div
-        v-if="!coreLoading"
+        v-if="!loading"
         class="coach-main"
       >
         <slot></slot>
@@ -26,7 +26,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -96,10 +95,9 @@
       },
     },
     computed: {
-      ...mapState({
-        coreLoading: state => state.core.loading,
-        error: state => state.core.error,
-      }),
+      error() {
+        return this.$store.state.core.error;
+      },
     },
     $trs: {
       kolibriTitleMessage: {

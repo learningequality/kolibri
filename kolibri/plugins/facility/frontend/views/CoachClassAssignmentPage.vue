@@ -3,9 +3,9 @@
   <ImmersivePage
     :appBarTitle="className"
     :route="$store.getters.facilityPageLinks.ClassEditPage($route.params.id)"
-    :loading="isPageLoading"
+    :loading="pageLoading"
   >
-    <KPageContainer v-if="!isPageLoading">
+    <KPageContainer v-if="!pageLoading">
       <h1>{{ $tr('pageHeader', { className }) }}</h1>
       <p>{{ $tr('pageSubheader') }}</p>
       <ClassEnrollForm
@@ -24,10 +24,11 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from '../composables/usePageLoading';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {
@@ -44,7 +45,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      return { createSnackbar };
+      return { createSnackbar, pageLoading };
     },
     data() {
       return {
@@ -52,7 +53,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isPageLoading']),
       ...mapState('classAssignMembers', [
         'class',
         'facilityUsers',

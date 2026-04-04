@@ -4,6 +4,7 @@ import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import useChannels from 'kolibri-common/composables/useChannels';
 import { PageNames, ClassesPageNames, KolibriStudioId } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import TopicsPage from '../views/TopicsPage';
@@ -58,7 +59,7 @@ export default [
         next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
-      store.commit('CORE_SET_PAGE_LOADING', true);
+      pageLoading.value = true;
     },
   },
   // Next class routes under home page
@@ -92,7 +93,7 @@ export default [
     path: '/resources-unavailable',
     handler: () => {
       store.commit('SET_PAGE_NAME', PageNames.CONTENT_UNAVAILABLE);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
       store.commit('CORE_SET_ERROR', null);
     },
     component: ContentUnavailablePage,
@@ -161,7 +162,7 @@ export default [
         return;
       }
       store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
       next();
     },
     component: BookmarkPage,
@@ -179,7 +180,7 @@ export default [
         return;
       }
       store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      pageLoading.value = false;
       next();
     },
   },

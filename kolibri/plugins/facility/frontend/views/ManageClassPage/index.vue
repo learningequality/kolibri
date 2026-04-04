@@ -1,6 +1,6 @@
 <template>
 
-  <FacilityAppBarPage>
+  <FacilityAppBarPage :loading="pageLoading">
     <KPageContainer>
       <p>
         <KRouterLink
@@ -133,6 +133,7 @@
   import ClassRenameModal from '../common/ClassRenameModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
   import useDeleteClass from '../../composables/useDeleteClass';
+  import { pageLoading } from '../../composables/usePageLoading';
   import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassCreateModal from './ClassCreateModal';
 
@@ -183,6 +184,7 @@
       };
 
       return {
+        pageLoading,
         classToDelete,
         clearClassToDelete,
         userIsMultiFacilityAdmin,

@@ -5,6 +5,7 @@
       :appBarTitle="coreString('changeLearningFacility')"
       :route="$router.getRoute('PROFILE')"
       :appearanceOverrides="wrapperStyles"
+      :loading="pageLoading"
     >
       <KPageContainer>
         <router-view />
@@ -23,6 +24,7 @@
   import { computed } from 'vue';
   import { interpret } from 'xstate';
   import useUser from 'kolibri/composables/useUser';
+  import { pageLoading } from '../../composables/usePageLoading';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {
@@ -36,7 +38,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { session, userKind } = useUser();
-      return { session, userKind };
+      return { pageLoading, session, userKind };
     },
     data() {
       return {

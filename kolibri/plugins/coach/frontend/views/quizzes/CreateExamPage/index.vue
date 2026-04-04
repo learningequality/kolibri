@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="title"
     icon="close"
     :pageTitle="title"
@@ -115,7 +116,7 @@
   import get from 'lodash/get';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import CatchErrors from 'kolibri/utils/CatchErrors';
-  import { ref, getCurrentInstance } from 'vue';
+  import { ref } from 'vue';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -127,6 +128,7 @@
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import CreateQuizSection from './CreateQuizSection';
 
   export default {
@@ -139,7 +141,6 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const store = getCurrentInstance().proxy.$store;
       const closeConfirmationToRoute = ref(null);
       const { createSnackbar } = useSnackbar();
       const { classId, initClassInfo, groups } = useCoreCoach();
@@ -156,7 +157,7 @@
       const showError = ref(false);
       const quizInitialized = ref(false);
 
-      initClassInfo().then(() => store.dispatch('notLoading'));
+      initClassInfo().then(() => (pageLoading.value = false));
 
       const {
         allSectionsEmptyWarning$,
@@ -172,6 +173,7 @@
       const { saveAndClose$ } = coreStrings;
 
       return {
+        pageLoading,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         classId,
@@ -280,7 +282,7 @@
       }
     },
     mounted() {
-      this.$store.dispatch('notLoading');
+      pageLoading.value = false;
     },
     async created() {
       window.addEventListener('beforeunload', this.beforeUnload);

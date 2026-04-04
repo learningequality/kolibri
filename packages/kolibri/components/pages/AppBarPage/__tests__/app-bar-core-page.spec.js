@@ -9,12 +9,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 const store = new Store({
   state: {
-    core: {
-      loading: false,
-    },
-  },
-  getters: {
-    isPageLoading: () => false,
+    core: {},
   },
 });
 

@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="pageTitle"
     :route="backRoute"
   >
@@ -35,6 +36,7 @@
   import useCoreCoach from '../../composables/useCoreCoach';
   import { useAttendance } from '../../composables/useAttendance';
   import useAttendanceForm from '../../composables/useAttendanceForm';
+  import { pageLoading } from '../../composables/usePageLoading';
   import CoachImmersivePage from '../CoachImmersivePage';
   import AttendanceFormTable from './AttendanceFormTable';
 
@@ -91,6 +93,7 @@
       }
 
       return {
+        pageLoading,
         pageTitle,
         submitting,
         handleSubmit,

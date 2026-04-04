@@ -1,7 +1,10 @@
 <template>
 
-  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <KCircularLoader v-if="loading" />
+  <LearnAppBarPage
+    :appBarTitle="learnString('learnLabel')"
+    :loading="pageLoading"
+  >
+    <KCircularLoader v-if="pageLoading" />
     <div
       v-else
       role="main"
@@ -41,6 +44,7 @@
   import { PageNames, ClassesPageNames } from '../../constants';
 
   import useLearnerResources from '../../composables/useLearnerResources';
+  import { pageLoading } from '../../composables/usePageLoading';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
   import AssignedCoursesCards from './AssignedCoursesCards';
@@ -91,13 +95,10 @@
         activeCourses,
         activeLessons,
         activeQuizzes,
+        pageLoading,
       };
     },
     props: {
-      loading: {
-        type: Boolean,
-        default: false,
-      },
       classId: {
         type: String,
         required: true,

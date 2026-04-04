@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage>
+  <CoachAppBarPage :loading="pageLoading">
     <KPageContainer>
       <LearnerHeader :learnerLessons="getLessons" />
     </KPageContainer>
@@ -134,6 +134,7 @@
   import ReportsControls from '../../common/ReportsControls';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
+  import { pageLoading } from '../../../composables/usePageLoading';
   import LearnerHeader from './LearnerHeader';
 
   export default {
@@ -144,6 +145,9 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         lessonLimit: 10,

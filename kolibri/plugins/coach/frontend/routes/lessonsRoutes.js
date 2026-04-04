@@ -1,6 +1,7 @@
 import store from 'kolibri/store';
 import { showLessonResourceContentPreview } from '../modules/lessonResources/handlers';
 import { PageNames } from '../constants';
+import { pageLoading } from '../composables/usePageLoading';
 
 import { useLessons } from '../composables/useLessons';
 
@@ -57,7 +58,7 @@ const {
 const { showLessonsRootPage } = useLessons();
 
 function defaultHandler() {
-  store.dispatch('notLoading');
+  pageLoading.value = false;
 }
 
 export default [

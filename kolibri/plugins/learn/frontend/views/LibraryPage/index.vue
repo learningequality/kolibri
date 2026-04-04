@@ -225,6 +225,7 @@
     StudioNotAllowedError,
   } from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
+  import { pageLoading } from '../../composables/usePageLoading';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';
@@ -336,13 +337,14 @@
                   .filter(Boolean),
               );
 
-              store.commit('CORE_SET_PAGE_LOADING', false);
+              pageLoading.value = false;
               store.commit('CORE_SET_ERROR', null);
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
               set(rootNodesLoading, false);
             }
           },
           error => {
+            pageLoading.value = false;
             shouldResolve()
               ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
               : null;
@@ -363,7 +365,7 @@
           if (searchKeys.some(key => query[key])) {
             // If currently on a route with search terms
             // just finish early and let the component handle loading
-            store.commit('CORE_SET_PAGE_LOADING', false);
+            pageLoading.value = false;
             store.commit('CORE_SET_ERROR', null);
             store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
             set(rootNodesLoading, false);
@@ -375,7 +377,7 @@
 
       function showLibrary() {
         set(rootNodesLoading, true);
-        store.commit('CORE_SET_PAGE_LOADING', true);
+        pageLoading.value = true;
         if (props.deviceId) {
           return setCurrentDevice(props.deviceId)
             .then(device => {
@@ -426,6 +428,7 @@
         back,
         rootNodesLoading,
         rootNodes,
+        pageLoading,
         isUserLoggedIn,
         isLearner,
         tourActive,
@@ -514,9 +517,6 @@
       studioId() {
         return KolibriStudioId;
       },
-      loading() {
-        return this.$store.state.core.loading;
-      },
     },
     watch: {
       rootNodes(newNodes) {
@@ -540,7 +540,7 @@
         }
         document.documentElement.style.position = '';
       },
-      loading(newVal, oldVal) {
+      pageLoading(newVal, oldVal) {
         if (oldVal && !newVal) {
           const isTourStarted = this.resumeTour(this.userId, 'LibraryPage');
           if (isTourStarted) {

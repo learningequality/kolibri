@@ -1,6 +1,7 @@
 <template>
 
   <CoachImmersivePage
+    :loading="pageLoading"
     :appBarTitle="currentGroup.name"
     icon="back"
     :pageTitle="pageTitle"
@@ -88,6 +89,7 @@
   import commonCoach from '../common';
 
   import CoachImmersivePage from '../CoachImmersivePage';
+  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'GroupEnrollPage',
@@ -97,6 +99,9 @@
       UserTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      return { pageLoading };
+    },
     data() {
       return {
         filterInput: '',
