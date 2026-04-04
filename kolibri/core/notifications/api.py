@@ -13,6 +13,8 @@ from .models import NotificationEventType
 from .models import NotificationObjectType
 from .utils import memoize
 from kolibri.core.content.models import ContentNode
+from kolibri.core.courses.models import CourseSession
+from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -92,6 +94,70 @@ def get_assignments(user, summarylog, attempt=False):
     return lesson_resources
 
 
+def get_course_session_context(user, course_session_id):
+    """
+    Returns classroom_id and assignment_collections for a course session,
+    or None if the course session does not exist.
+    """
+    course_session = (
+        CourseSession.objects.filter(id=course_session_id)
+        .values(classroom_id=F("collection_id"))
+        .first()
+    )
+    if not course_session:
+        return None
+    assignment_collections = list(
+        CourseSessionAssignment.objects.filter(
+            course_session_id=course_session_id,
+            collection_id__in=user.memberships.all().values_list(
+                "collection_id", flat=True
+            ),
+        )
+        .distinct()
+        .values_list("collection_id", flat=True)
+    )
+    return {
+        "classroom_id": course_session["classroom_id"],
+        "assignment_collections": assignment_collections,
+    }
+
+
+def _get_lesson_contentnode_id(node_id):
+    """
+    Returns the parent ContentNode ID for a given node — i.e., the lesson
+    ContentNode that contains the resource being interacted with.
+    """
+    return (
+        ContentNode.objects.filter(id=node_id)
+        .values_list("parent_id", flat=True)
+        .first()
+    )
+
+
+def get_course_lesson_dict(user, node_id, course_session_id):
+    """
+    Build a lesson-like dict for course content so it can be passed to the
+    shared check_and_created_* helpers.  The "lesson" is the parent ContentNode
+    of node_id; its children are the resources.
+    """
+    lesson_contentnode_id = _get_lesson_contentnode_id(node_id)
+    if not lesson_contentnode_id:
+        return None
+    session_context = get_course_session_context(user, course_session_id)
+    if not session_context:
+        return None
+    resources = list(
+        ContentNode.objects.filter(parent_id=lesson_contentnode_id).values("content_id")
+    )
+    return {
+        "id": lesson_contentnode_id,
+        "classroom_id": session_context["classroom_id"],
+        "assignment_collections": session_context["assignment_collections"],
+        "course_session_id": course_session_id,
+        "resources": resources,
+    }
+
+
 def save_notifications(notifications):
     with transaction.atomic():
         for notification in notifications:
@@ -111,6 +177,7 @@ def create_notification(
     quiz_num_correct=None,
     quiz_num_answered=None,
     reason=None,
+    course_session_id=None,
     timestamp=None,
 ):
     notification = LearnerProgressNotification()
@@ -130,6 +197,8 @@ def create_notification(
         notification.quiz_num_answered = quiz_num_answered
     if reason:
         notification.reason = reason
+    if course_session_id:
+        notification.course_session_id = course_session_id
     if timestamp:
         notification.timestamp = timestamp
     if assignment_collections and type(assignment_collections) is list:
@@ -146,6 +215,7 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id, timest
         notification_event=NotificationEventType.Completed,
         lesson_id=lesson["id"],
         contentnode_id=contentnode_id,
+        course_session_id=lesson.get("course_session_id"),
     ).exists():
         # Let's create an Resource Completion notification
         notification = create_notification(
@@ -157,6 +227,7 @@ def check_and_created_completed_resource(lesson, user_id, contentnode_id, timest
             lesson_id=lesson["id"],
             contentnode_id=contentnode_id,
             timestamp=timestamp,
+            course_session_id=lesson.get("course_session_id"),
         )
     return notification
 
@@ -171,6 +242,7 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
         notification_event=NotificationEventType.Completed,
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
+        course_session_id=lesson.get("course_session_id"),
     ).first()
 
     # if it exists, keep the most recent timestamp, as a lesson is completed
@@ -190,6 +262,7 @@ def check_and_created_completed_lesson(lesson, user_id, timestamp):
             assignment_collections=lesson["assignment_collections"],
             lesson_id=lesson["id"],
             timestamp=timestamp,
+            course_session_id=lesson.get("course_session_id"),
         )
 
     return notification
@@ -205,6 +278,7 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
         timestamp=timestamp,
+        course_session_id=lesson.get("course_session_id"),
     ).exists():
         # Let's create an Lesson Answered notification
         notification = create_notification(
@@ -216,6 +290,7 @@ def check_and_created_answered_lesson(lesson, user_id, contentnode_id, timestamp
             lesson_id=lesson["id"],
             contentnode_id=contentnode_id,
             timestamp=timestamp,
+            course_session_id=lesson.get("course_session_id"),
         )
     return notification
 
@@ -229,6 +304,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         notification_event=NotificationEventType.Started,
         lesson_id=lesson["id"],
         contentnode_id=contentnode_id,
+        course_session_id=lesson.get("course_session_id"),
     ).first()
     # if it exists, keep the oldest timestamp, it means that there have been
     # multiple attempts, so the first attempt is the one that counts
@@ -253,6 +329,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
                 lesson_id=lesson["id"],
                 contentnode_id=contentnode_id,
                 timestamp=timestamp,
+                course_session_id=lesson.get("course_session_id"),
             )
         )
 
@@ -263,6 +340,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
         notification_event=NotificationEventType.Started,
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
+        course_session_id=lesson.get("course_session_id"),
     ).first()
 
     # if it exists, keep the oldest timestamp, as a lesson is started
@@ -283,6 +361,7 @@ def check_and_created_started(lesson, user_id, contentnode_id, timestamp):
                 assignment_collections=lesson["assignment_collections"],
                 lesson_id=lesson["id"],
                 timestamp=timestamp,
+                course_session_id=lesson.get("course_session_id"),
             )
         )
 
@@ -310,7 +389,7 @@ def create_summarylog(summarylog):
 
 
 @memoize
-def _get_lesson_dict(lesson_id):
+def _get_coach_lesson_dict(lesson_id):
     return (
         annotate_array_aggregate(
             Lesson.objects.filter(id=lesson_id),
@@ -323,12 +402,26 @@ def _get_lesson_dict(lesson_id):
     )
 
 
-def start_lesson_resource(summarylog, contentnode_id, lesson_id):
+def _get_lesson_dict(lesson_id=None, course_session_id=None, user=None, node_id=None):
+    if course_session_id:
+        return get_course_lesson_dict(user, node_id, course_session_id)
+    return _get_coach_lesson_dict(lesson_id)
+
+
+def start_lesson_resource(
+    summarylog, contentnode_id, lesson_id=None, course_session_id=None
+):
     """
     Called to create resource started notifications (and lesson started notifications)
     when a resource is started within the context of a lesson.
+    Either lesson_id or course_session_id must be provided.
     """
-    lesson = _get_lesson_dict(lesson_id)
+    lesson = _get_lesson_dict(
+        lesson_id,
+        course_session_id=course_session_id,
+        user=summarylog.user,
+        node_id=contentnode_id,
+    )
     if lesson:
         notifications_started = check_and_created_started(
             lesson, summarylog.user_id, contentnode_id, summarylog.start_timestamp
@@ -397,15 +490,23 @@ def _get_lesson_resource_completed_notifications(
     return notifications
 
 
-def finish_lesson_resource(summarylog, contentnode_id, lesson_id):
+def finish_lesson_resource(
+    summarylog, contentnode_id, lesson_id=None, course_session_id=None
+):
     """
     Called to create resource completed notifications (and lesson completed notifications)
     when a resource is finished within the context of a lesson.
+    Either lesson_id or course_session_id must be provided.
     """
     if _is_summary_log_incompleted(summarylog):
         return
 
-    lesson = _get_lesson_dict(lesson_id)
+    lesson = _get_lesson_dict(
+        lesson_id,
+        course_session_id=course_session_id,
+        user=summarylog.user,
+        node_id=contentnode_id,
+    )
     if lesson:
         completion_timestamp = _get_resource_completion_timestamp(summarylog)
         notifications = _get_lesson_resource_completed_notifications(
@@ -434,6 +535,7 @@ def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
         lesson_id=lesson["id"],
         classroom_id=lesson["classroom_id"],
         contentnode_id=contentnode_id,
+        course_session_id=lesson.get("course_session_id"),
     ).first()
 
     # This Event should be triggered only once or updated if the user keeps failing
@@ -449,6 +551,7 @@ def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
             contentnode_id=contentnode_id,
             reason=HelpReason.Multiple,
             timestamp=attemptlog.end_timestamp,
+            course_session_id=lesson.get("course_session_id"),
         )
 
     # If the current attempt is newer and the student keeps failing, update the timestamp
@@ -476,26 +579,44 @@ def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
     return _get_help_needed_notification(attemptlog, contentnode_id, lesson)
 
 
-def start_lesson_assessment(attemptlog, contentnode_id, lesson_id):
-    lesson = _get_lesson_dict(lesson_id)
+def start_lesson_assessment(
+    attemptlog, contentnode_id, lesson_id=None, course_session_id=None
+):
+    lesson = _get_lesson_dict(
+        lesson_id,
+        course_session_id=course_session_id,
+        user=attemptlog.user,
+        node_id=contentnode_id,
+    )
     if lesson:
         notifications = [
             _create_needs_help_notification(attemptlog, contentnode_id, lesson),
-            check_and_created_started(
-                lesson, attemptlog.user_id, contentnode_id, attemptlog.start_timestamp
-            ),
-            check_and_created_answered_lesson(
-                lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
-            )
-            if attemptlog.answer
-            else None,
         ]
+        notifications += check_and_created_started(
+            lesson, attemptlog.user_id, contentnode_id, attemptlog.start_timestamp
+        )
+        if attemptlog.answer:
+            notifications.append(
+                check_and_created_answered_lesson(
+                    lesson,
+                    attemptlog.user_id,
+                    contentnode_id,
+                    attemptlog.end_timestamp,
+                )
+            )
 
         save_notifications(notifications)
 
 
-def update_lesson_assessment(attemptlog, contentnode_id, lesson_id):
-    lesson = _get_lesson_dict(lesson_id)
+def update_lesson_assessment(
+    attemptlog, contentnode_id, lesson_id=None, course_session_id=None
+):
+    lesson = _get_lesson_dict(
+        lesson_id,
+        course_session_id=course_session_id,
+        user=attemptlog.user,
+        node_id=contentnode_id,
+    )
     if lesson:
         notifications = [
             _create_needs_help_notification(attemptlog, contentnode_id, lesson),
@@ -534,21 +655,27 @@ def parse_summarylog(summarylog):
 
 
 @memoize
-def exist_exam_notification(user_id, exam_id):
-    return LearnerProgressNotification.objects.filter(
+def exist_exam_notification(user_id, exam_id, course_session_id=None):
+    qs = LearnerProgressNotification.objects.filter(
         user_id=user_id,
         quiz_id=exam_id,
         notification_event=NotificationEventType.Started,
-    ).exists()
+    )
+    if course_session_id is not None:
+        qs = qs.filter(course_session_id=course_session_id)
+    return qs.exists()
 
 
 @memoize
-def exist_examattempt_notification(user_id, exam_id):
-    return LearnerProgressNotification.objects.filter(
+def exist_examattempt_notification(user_id, exam_id, course_session_id=None):
+    qs = LearnerProgressNotification.objects.filter(
         user_id=user_id,
         quiz_id=exam_id,
         notification_event=NotificationEventType.Answered,
-    ).exists()
+    )
+    if course_session_id is not None:
+        qs = qs.filter(course_session_id=course_session_id)
+    return qs.exists()
 
 
 def num_correct(examlog):
@@ -598,23 +725,45 @@ def created_quiz_notification(examlog, event_type, timestamp):
     save_notifications([notification])
 
 
-def quiz_started_notification(masterylog, quiz_id):
-    if exist_exam_notification(masterylog.user_id, quiz_id):
-        return  # the event has already been triggered
+def _get_quiz_context(user, quiz_id, course_session_id=None):
+    """
+    Returns (collection_id, assigned_collections, course_session_id) for a quiz.
+    When course_session_id is provided, uses course session assignments;
+    otherwise uses exam assignments.
+    """
+    if course_session_id:
+        session_context = get_course_session_context(user, course_session_id)
+        if not session_context:
+            return None
+        return (
+            session_context["classroom_id"],
+            session_context["assignment_collections"],
+            course_session_id,
+        )
     assigned_collections = list(
         ExamAssignment.objects.filter(
             exam_id=quiz_id,
-            collection_id__in=masterylog.user.memberships.all().values_list(
+            collection_id__in=user.memberships.all().values_list(
                 "collection_id", flat=True
             ),
         )
         .distinct()
         .values_list("collection_id", flat=True)
     )
-
     collection_id = (
         Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
     )
+    return (collection_id, assigned_collections, None)
+
+
+def quiz_started_notification(masterylog, quiz_id, course_session_id=None):
+    if exist_exam_notification(masterylog.user_id, quiz_id, course_session_id):
+        return  # the event has already been triggered
+
+    quiz_context = _get_quiz_context(masterylog.user, quiz_id, course_session_id)
+    if not quiz_context:
+        return
+    collection_id, assigned_collections, session_id = quiz_context
 
     notification = create_notification(
         NotificationObjectType.Quiz,
@@ -625,31 +774,40 @@ def quiz_started_notification(masterylog, quiz_id):
         quiz_id=quiz_id,
         quiz_num_correct=0,
         quiz_num_answered=0,
+        course_session_id=session_id,
         timestamp=masterylog.start_timestamp,
     )
 
     save_notifications([notification])
 
-    exist_exam_notification.delete_key(masterylog.user_id, quiz_id)
+    exist_exam_notification.delete_key(masterylog.user_id, quiz_id, course_session_id)
 
 
-def quiz_completed_notification(masterylog, quiz_id):
+@memoize
+def exist_exam_completed_notification(user_id, exam_id, course_session_id=None):
+    qs = LearnerProgressNotification.objects.filter(
+        user_id=user_id,
+        quiz_id=exam_id,
+        notification_event=NotificationEventType.Completed,
+    )
+    if course_session_id is not None:
+        qs = qs.filter(course_session_id=course_session_id)
+    return qs.exists()
+
+
+def quiz_completed_notification(masterylog, quiz_id, course_session_id=None):
     if not masterylog.complete:
         return
-    assigned_collections = list(
-        ExamAssignment.objects.filter(
-            exam_id=quiz_id,
-            collection_id__in=masterylog.user.memberships.all().values_list(
-                "collection_id", flat=True
-            ),
-        )
-        .distinct()
-        .values_list("collection_id", flat=True)
-    )
 
-    collection_id = (
-        Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
-    )
+    if exist_exam_completed_notification(
+        masterylog.user_id, quiz_id, course_session_id
+    ):
+        return
+
+    quiz_context = _get_quiz_context(masterylog.user, quiz_id, course_session_id)
+    if not quiz_context:
+        return
+    collection_id, assigned_collections, session_id = quiz_context
 
     response_data = (
         annotate_response_summary(MasteryLog.objects.filter(id=masterylog.id))
@@ -667,30 +825,26 @@ def quiz_completed_notification(masterylog, quiz_id):
         quiz_id=quiz_id,
         quiz_num_correct=response_data.get("num_correct", 0),
         quiz_num_answered=response_data.get("num_answered", 0),
+        course_session_id=session_id,
         timestamp=masterylog.completion_timestamp,
     )
 
     save_notifications([notification])
 
+    exist_exam_completed_notification.delete_key(
+        masterylog.user_id, quiz_id, course_session_id
+    )
 
-def quiz_answered_notification(attemptlog, quiz_id):
+
+def quiz_answered_notification(attemptlog, quiz_id, course_session_id=None):
     # Checks to add an 'Answered' event
-    if exist_examattempt_notification(attemptlog.user_id, quiz_id):
+    if exist_examattempt_notification(attemptlog.user_id, quiz_id, course_session_id):
         return  # the event has already been triggered
-    assigned_collections = list(
-        ExamAssignment.objects.filter(
-            exam_id=quiz_id,
-            collection_id__in=attemptlog.user.memberships.all().values_list(
-                "collection_id", flat=True
-            ),
-        )
-        .distinct()
-        .values_list("collection_id", flat=True)
-    )
 
-    collection_id = (
-        Exam.objects.filter(id=quiz_id).values_list("collection_id", flat=True).first()
-    )
+    quiz_context = _get_quiz_context(attemptlog.user, quiz_id, course_session_id)
+    if not quiz_context:
+        return
+    collection_id, assigned_collections, session_id = quiz_context
 
     notification = create_notification(
         NotificationObjectType.Quiz,
@@ -701,12 +855,15 @@ def quiz_answered_notification(attemptlog, quiz_id):
         quiz_id=quiz_id,
         quiz_num_correct=0,
         quiz_num_answered=0,
+        course_session_id=session_id,
         timestamp=attemptlog.start_timestamp,
     )
 
     save_notifications([notification])
 
-    exist_examattempt_notification.delete_key(attemptlog.user_id, quiz_id)
+    exist_examattempt_notification.delete_key(
+        attemptlog.user_id, quiz_id, course_session_id
+    )
 
 
 def create_examlog(examlog, timestamp):
