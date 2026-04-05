@@ -1,9 +1,9 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Resource } from 'kolibri/apiResource';
-import store from 'kolibri/store';
 import { SyncStatus } from 'kolibri/constants';
 import { get, useTimeoutPoll } from '@vueuse/core';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 
 const UserSyncStatusResource = new Resource({
   name: 'usersyncstatus',
@@ -35,7 +35,7 @@ export function fetchUserSyncStatus(params) {
       return syncData;
     },
     error => {
-      store.dispatch('handleApiError', { error });
+      handleApiError({ error });
       return error;
     },
   );

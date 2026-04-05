@@ -52,6 +52,7 @@
 
   import { computed, getCurrentInstance, onMounted, ref } from 'vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { UserKinds } from 'kolibri/constants';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
@@ -107,7 +108,7 @@
 
       function handleApiFailure(error) {
         context.emit('close');
-        store.dispatch('handleApiError', { error }, { root: true });
+        handleApiError({ error });
       }
 
       async function createClass() {

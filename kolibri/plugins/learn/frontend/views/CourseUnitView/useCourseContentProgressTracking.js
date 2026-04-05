@@ -1,5 +1,5 @@
 import { ref, watch, provide, inject } from 'vue';
-import store from 'kolibri/store';
+import { handleApiError } from 'kolibri/utils/appError';
 import isEqual from 'lodash/isEqual';
 import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
 import useProgressTracking from '../../composables/useProgressTracking';
@@ -98,7 +98,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
 
   const onError = error => {
     errored.value = true;
-    store.dispatch('handleApiError', { error });
+    handleApiError({ error });
   };
 
   /**
@@ -130,7 +130,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
       // Set progress into the content node progress store
       cacheProgress();
     } catch (error) {
-      store.dispatch('handleApiError', { error });
+      handleApiError({ error });
     }
   };
 

@@ -1,5 +1,6 @@
 import { getExamReport } from 'kolibri-common/quizzes/utils';
 import router from 'kolibri/router';
+import { clearError } from 'kolibri/utils/appError';
 import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 
@@ -41,7 +42,7 @@ export function showExamReport(store, params) {
   const examReportFromState = getExamReportFromState(store.state, params);
   if (examReportFromState) {
     store.commit('examReportViewer/SET_STATE', examReportFromState);
-    store.commit('CORE_SET_ERROR', null);
+    clearError();
     return;
   }
 
@@ -50,7 +51,7 @@ export function showExamReport(store, params) {
   Promise.all([examReportPromise]).then(
     ([examReport]) => {
       store.commit('examReportViewer/SET_STATE', examReport);
-      store.commit('CORE_SET_ERROR', null);
+      clearError();
       pageLoading.value = false;
     },
     () => {

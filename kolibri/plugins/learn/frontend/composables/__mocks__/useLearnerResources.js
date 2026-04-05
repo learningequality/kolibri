@@ -71,4 +71,7 @@ export function useLearnerResourcesMock(overrides = {}) {
   };
 }
 
+export const setClasses = jest.fn();
+export const setResumableContentNodes = jest.fn();
+
 export default jest.fn(() => useLearnerResourcesMock());

@@ -123,6 +123,7 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
@@ -153,6 +154,7 @@
       return {
         selectedFacility,
         facilityConfig,
+        handleApiError,
       };
     },
     data() {
@@ -215,7 +217,7 @@
           if (errorsCaught) {
             this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
           } else {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           }
         });
       },
@@ -293,7 +295,7 @@
                 this.goToFirstStep();
                 this.focusOnInvalidField();
               } else {
-                this.$store.dispatch('handleApiError', { error });
+                this.handleApiError({ error });
               }
             });
         } else {

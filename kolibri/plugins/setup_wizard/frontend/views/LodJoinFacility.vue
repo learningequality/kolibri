@@ -24,6 +24,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { SetupWizardResource } from '../api';
   import { FooterMessageTypes, LodTypePresets as Options } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
@@ -34,6 +35,9 @@
       UserCredentialsForm,
     },
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      return { handleApiError };
+    },
     inject: ['wizardService'],
     data() {
       const footerMessageType = FooterMessageTypes.JOIN_FACILITY;
@@ -80,7 +84,7 @@
             TaskResource.startTask(params)
               .then(() => this.wizardService.send('CONTINUE'))
               .catch(err => {
-                this.$store.dispatch('handleApiError', { error: err });
+                this.handleApiError({ error: err });
               });
           } else {
             const errorData = JSON.parse(data);

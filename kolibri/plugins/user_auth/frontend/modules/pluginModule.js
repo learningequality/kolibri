@@ -1,5 +1,6 @@
 import Lockr from 'lockr';
 import useFacility from 'kolibri-common/composables/useFacility';
+import { clearError } from 'kolibri/utils/appError';
 import { ComponentMap, pageNameToModuleMap } from '../constants';
 import signIn from './signIn';
 
@@ -12,8 +13,8 @@ export default {
     };
   },
   actions: {
-    reset(store) {
-      store.commit('CORE_SET_ERROR', null);
+    reset() {
+      clearError();
     },
     setFacilitiesAndConfig(store) {
       const { fetchFacilities, setFacilityId, selectedFacility } = useFacility();

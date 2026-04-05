@@ -1,11 +1,13 @@
 import { shallowMount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import { error } from 'kolibri/utils/appError';
 import NotificationsRoot from '../NotificationsRoot';
 import { coreStoreFactory as makeStore } from '../../../store';
 import coreModule from '../../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri/utils/appError');
 jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
 jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
 
@@ -29,10 +31,14 @@ function makeWrapper(useUserMockObj = null) {
       },
     },
   });
-  return { wrapper, store };
+  return { wrapper };
 }
 
 describe('NotificationsRoot', function () {
+  beforeEach(() => {
+    error.value = null;
+  });
+
   it('smoke test', () => {
     const { wrapper } = makeWrapper();
     expect(wrapper.exists()).toBe(true);
@@ -50,9 +56,9 @@ describe('NotificationsRoot', function () {
     });
 
     it('if user is not authorized, authorization component in the base page page should be rendered', async () => {
-      const { wrapper, store } = makeWrapper();
+      error.value = { response: { status: 403 } };
+      const { wrapper } = makeWrapper();
 
-      store.state.core.error = { response: { status: 403 } };
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeTruthy();
@@ -61,9 +67,9 @@ describe('NotificationsRoot', function () {
     });
 
     it('if there is an error, the error component in the base page should be rendered', async () => {
-      const { wrapper, store } = makeWrapper();
+      error.value = 'some error here';
+      const { wrapper } = makeWrapper();
 
-      store.state.core.error = 'some error here';
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeTruthy();

@@ -110,6 +110,7 @@
   import get from 'lodash/get';
   import { currentLanguage } from 'kolibri/utils/i18n';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -164,6 +165,7 @@
         selectedFacility,
         importLodMachineService,
         createSnackbar,
+        handleApiError,
         pageLoading,
         isUserAlreadyImported,
         importUserError$,
@@ -388,7 +390,7 @@
             ]);
             if (errorsCaught) {
               this.error = true;
-            } else this.$store.dispatch('handleApiError', { error });
+            } else this.handleApiError({ error });
           });
       },
     },

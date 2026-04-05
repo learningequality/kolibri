@@ -163,6 +163,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri/components/error/AppError';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { error as coreError, clearError } from 'kolibri/utils/appError';
   import { availableLanguages, currentLanguage } from 'kolibri/utils/i18n';
   import { FooterMessageTypes } from '../constants';
 
@@ -173,7 +174,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
-      return { windowIsSmall };
+      return { windowIsSmall, coreError, clearError };
     },
     props: {
       /**
@@ -252,18 +253,11 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
-      coreError() {
-        if (this.$store) {
-          return this.$store.state.core.error;
-        } else {
-          return null;
-        }
-      },
     },
     methods: {
       startOver() {
         this.wizardService.send('START_OVER');
-        this.$store.dispatch('clearError');
+        this.clearError();
       },
       /* If the user is focused on a form element and hits enter, continue */
       handleEnterKey(e) {

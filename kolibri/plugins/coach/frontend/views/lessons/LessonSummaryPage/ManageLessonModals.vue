@@ -33,6 +33,7 @@
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import AssignmentCopyModal from '../../common/assignments/AssignmentCopyModal';
   import AssignmentDeleteModal from '../../common/assignments/AssignmentDeleteModal';
   import { AssignmentActions } from '../../../constants/assignmentsConstants';
@@ -47,7 +48,7 @@
     mixins: [coachStringsMixin, commonCoreStrings],
     setup() {
       const { createSnackbar, clearSnackbar } = useSnackbar();
-      return { createSnackbar, clearSnackbar };
+      return { createSnackbar, clearSnackbar, handleApiError };
     },
     props: {
       // Should be 'COPY' or 'DELETE'
@@ -111,7 +112,7 @@
                 actionCallback: () => this.clearSnackbar(),
               });
             } else {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             }
             this.closeModal();
           });
@@ -128,7 +129,7 @@
             );
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
     },

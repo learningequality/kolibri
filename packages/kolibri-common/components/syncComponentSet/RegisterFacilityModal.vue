@@ -43,6 +43,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import { handleApiError } from 'kolibri/utils/appError';
   import PortalResource from 'kolibri-common/apiResources/PortalResource';
   import { crossComponentTranslator } from 'kolibri/utils/i18n';
   import GettingStartedFormAlt from '../../../../kolibri/plugins/setup_wizard/frontend/views/onboarding-forms/GettingStartedFormAlt';
@@ -51,6 +52,9 @@
   export default {
     name: 'RegisterFacilityModal',
     mixins: [commonCoreStrings],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       displaySkipOption: {
         type: Boolean,
@@ -99,7 +103,7 @@
               this.invalid = true;
               this.submitting = false;
             } else {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             }
           });
       },

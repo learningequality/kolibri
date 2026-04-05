@@ -34,6 +34,7 @@
 
   import fromPairs from 'lodash/fromPairs';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import { pageLoading } from '../../../composables/usePageLoading';
@@ -54,6 +55,7 @@
         pageLoading,
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
+        handleApiError,
       };
     },
     data() {
@@ -106,7 +108,7 @@
        * @public
        */
       setError(error) {
-        this.$store.dispatch('handleApiError', { error });
+        this.handleApiError({ error });
         this.loading = false;
         pageLoading.value = false;
       },

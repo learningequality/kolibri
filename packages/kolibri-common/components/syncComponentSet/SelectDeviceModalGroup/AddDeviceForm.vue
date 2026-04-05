@@ -54,6 +54,7 @@
   import { ERROR_CONSTANTS } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { handleApiError } from 'kolibri/utils/appError';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { createDevice } from './api';
 
@@ -68,6 +69,9 @@
       UiAlert,
     },
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      return { handleApiError };
+    },
     data() {
       return {
         address: '',
@@ -129,7 +133,7 @@
               this.status = Statuses.INVALID_ADDRESS;
               this.$refs.address.focus();
             } else {
-              this.$store.dispatch('handleApiError', { error: err });
+              this.handleApiError({ error: err });
             }
           })
           .then(() => {

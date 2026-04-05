@@ -7,6 +7,7 @@ import Vue from 'vue';
 import bytesForHumans from 'kolibri/uiText/bytesForHumans';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import LessonResource from 'kolibri-common/apiResources/LessonResource';
+import { handleApiError } from 'kolibri/utils/appError';
 import ClassSummaryResource from '../../apiResources/classSummary';
 import dataHelpers from './dataHelpers';
 import { STATUSES } from './constants';
@@ -479,7 +480,7 @@ export default {
             store.commit('SET_CLASS_LESSONS_SIZES', sizes);
           })
           .catch(error => {
-            return store.dispatch('handleApiError', { error }, { root: true });
+            return handleApiError({ error });
           });
       }
       return Promise.resolve();
@@ -491,7 +492,7 @@ export default {
             store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
           })
           .catch(error => {
-            return store.dispatch('handleApiError', { error }, { root: true });
+            return handleApiError({ error });
           });
       }
       return Promise.resolve();

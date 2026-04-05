@@ -1,3 +1,4 @@
+import { clearError } from 'kolibri/utils/appError';
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
 import { pageLoading } from '../composables/usePageLoading';
 import deviceInfo from './deviceInfo';
@@ -45,7 +46,7 @@ export default {
     preparePage(store, { name, isAsync = true }) {
       pageLoading.value = isAsync;
       store.commit('SET_PAGE_NAME', name);
-      store.commit('CORE_SET_ERROR', null);
+      clearError();
     },
     resetModuleState(store, { toRoute, fromRoute }) {
       // Don't reset when going to available channels page

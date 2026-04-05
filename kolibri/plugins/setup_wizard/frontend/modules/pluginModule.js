@@ -1,4 +1,5 @@
 import { currentLanguage } from 'kolibri/utils/i18n';
+import { handleApiError } from 'kolibri/utils/appError';
 
 export default {
   namespace: 'SetupWizard',
@@ -64,7 +65,7 @@ export default {
     **/
     showError(store, errorMsg) {
       store.commit('SET_ERROR', true);
-      store.dispatch('handleApiError', { error: errorMsg });
+      handleApiError({ error: errorMsg });
     },
   },
   mutations: {

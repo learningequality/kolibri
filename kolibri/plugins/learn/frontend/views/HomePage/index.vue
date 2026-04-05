@@ -90,6 +90,7 @@
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
+  import { handleApiError } from 'kolibri/utils/appError';
   import useChannels from 'kolibri-common/composables/useChannels';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
@@ -138,7 +139,6 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-
       const { isUserLoggedIn, user_id, isLearner } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { localChannelsCache, fetchChannels } = useChannels();
@@ -240,7 +240,7 @@
           })
           .catch(error => {
             pageLoading.value = false;
-            return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+            handleApiError({ error, reloadOnReconnect: true });
           });
       });
 

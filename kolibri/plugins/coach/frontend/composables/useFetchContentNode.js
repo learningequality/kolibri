@@ -1,5 +1,6 @@
-import { ref, getCurrentInstance, computed } from 'vue';
+import { ref, computed } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { handleApiError } from 'kolibri/utils/appError';
 import { exerciseToQuestionArray } from '../utils/selectQuestions';
 
 export default function useFetchContentNode(contentId) {
@@ -7,8 +8,6 @@ export default function useFetchContentNode(contentId) {
   const ancestors = ref([]);
   const questions = ref([]);
   const loading = ref(true);
-  const store = getCurrentInstance().proxy.$store;
-
   const fetchContentNode = async () => {
     if (!contentId) {
       return;
@@ -30,7 +29,7 @@ export default function useFetchContentNode(contentId) {
         }
       })
       .catch(error => {
-        store.dispatch('handleApiError', { error });
+        handleApiError({ error });
       });
   };
 

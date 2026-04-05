@@ -312,6 +312,7 @@
 
   import { ref } from 'vue';
   import { mapState } from 'vuex';
+  import { handleApiError } from 'kolibri/utils/appError';
   import isEqual from 'lodash/isEqual';
   import {
     displaySectionTitle,
@@ -377,6 +378,7 @@
         windowIsMedium,
         currentUserId,
         currentQuestionAnswered,
+        handleApiError,
       };
     },
     data() {
@@ -568,7 +570,7 @@
               },
             });
           }
-          this.$store.dispatch('handleApiError', { error: err });
+          this.handleApiError({ error: err });
         });
     },
     methods: {

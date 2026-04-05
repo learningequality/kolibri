@@ -5,6 +5,7 @@ import { ref, computed, getCurrentInstance, watch } from 'vue';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
+import { handleApiError } from 'kolibri/utils/appError';
 import { _userState } from '../modules/mappers';
 import useUsersFilters from './useUsersFilters';
 import { pageLoading } from './usePageLoading';
@@ -65,7 +66,7 @@ export default function useUserManagement({
       if (error.status === 404 && page.value > 1) {
         router.push({ ...route.value, query: { ...route.value.query, page: 1 } });
       } else {
-        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+        handleApiError({ error, reloadOnReconnect: true });
       }
     }
   };
@@ -78,7 +79,7 @@ export default function useUserManagement({
       });
       classes.value = classList;
     } catch (error) {
-      store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      handleApiError({ error, reloadOnReconnect: true });
     }
   };
 

@@ -29,6 +29,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { error } from 'kolibri/utils/appError';
   import useCoreCoach from '../composables/useCoreCoach';
 
   export default {
@@ -60,6 +61,7 @@
         authorizedRole: 'adminOrCoach',
         defaultPageTitle: pageTitle,
         defaultAppBarTitle: appBarTitle,
+        error,
       };
     },
     props: {
@@ -92,11 +94,6 @@
       route: {
         type: Object,
         default: null,
-      },
-    },
-    computed: {
-      error() {
-        return this.$store.state.core.error;
       },
     },
     $trs: {

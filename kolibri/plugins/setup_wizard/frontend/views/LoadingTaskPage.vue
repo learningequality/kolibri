@@ -53,6 +53,7 @@
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { DeviceTypePresets, LodTypePresets, SoudQueue, FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
@@ -64,6 +65,9 @@
     },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       footerMessageType: {
         type: String,
@@ -208,7 +212,7 @@
       },
       retryImport() {
         TaskResource.restart(this.loadingTask.id).catch(error => {
-          this.$store.dispatch('handleApiError', { error });
+          this.handleApiError({ error });
         });
       },
       cancelTask() {

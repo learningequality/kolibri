@@ -1,5 +1,6 @@
 import DevicePermissionsResource from 'kolibri-common/apiResources/DevicePermissionsResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { handleApiError } from 'kolibri/utils/appError';
 
 /**
  * Adds or modifies a DevicePermissions model.
@@ -27,5 +28,5 @@ export function addOrUpdateUserPermissions(store, payload) {
         },
       );
     })
-    .catch(error => store.dispatch('handleApiError', { error }, { root: true }));
+    .catch(error => handleApiError({ error }));
 }

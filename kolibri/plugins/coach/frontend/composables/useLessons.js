@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../constants';
 import { pageLoading } from './usePageLoading';
@@ -44,7 +45,7 @@ export function useLessons() {
         setLessonsLoading(false);
       },
       error => {
-        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+        handleApiError({ error, reloadOnReconnect: true });
         setLessonsLoading(false);
       },
     );

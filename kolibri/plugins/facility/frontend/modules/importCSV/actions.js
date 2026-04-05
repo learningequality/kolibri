@@ -2,6 +2,7 @@ import logger from 'kolibri-logging';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+import { handleApiError } from 'kolibri/utils/appError';
 
 const logging = logger.getLogger(__filename);
 
@@ -58,7 +59,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
       store.commit(commitFinish, task);
     } else if (task && task.status === TaskStatuses.FAILED) {
       if (typeof task.extra_metadata.overall_error === 'undefined') {
-        store.dispatch('handleApiError', { error: task.traceback }, { root: true });
+        handleApiError({ error: task.traceback });
       }
 
       store.commit('SET_FAILED', task);

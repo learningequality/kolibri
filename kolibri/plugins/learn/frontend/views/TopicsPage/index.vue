@@ -263,6 +263,7 @@
   import { getCurrentInstance, ref, watch } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
+  import { handleApiError, clearError } from 'kolibri/utils/appError';
   import { ContentNodeKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import Modalities from 'kolibri-constants/Modalities';
@@ -484,7 +485,7 @@
             set(channel, currentChannel);
 
             set(loading, false);
-            store.commit('CORE_SET_ERROR', null);
+            clearError();
           }
         });
       }
@@ -518,7 +519,7 @@
               router.replace({ name: PageNames.LIBRARY });
               return;
             }
-            store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+            handleApiError({ error, reloadOnReconnect: true });
           }
         });
       }
@@ -552,6 +553,7 @@
         fetchContentNodeTreeProgress,
         loading,
         sidePanelIsOpen,
+        handleApiError,
       };
     },
     props: {
@@ -893,7 +895,7 @@
               this.fetchRemoteBrowsingContentNodeUserData(data);
             })
             .catch(err => {
-              this.$store.dispatch('handleApiError', { error: err });
+              this.handleApiError({ error: err });
             });
         }
         return Promise.resolve();
@@ -923,7 +925,7 @@
               this.fetchRemoteBrowsingContentNodeUserData(data);
             })
             .catch(err => {
-              this.$store.dispatch('handleApiError', { error: err });
+              this.handleApiError({ error: err });
             });
         }
       },

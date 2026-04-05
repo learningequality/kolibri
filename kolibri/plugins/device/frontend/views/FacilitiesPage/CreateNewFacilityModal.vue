@@ -41,12 +41,16 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { Presets } from 'kolibri/constants';
   import { createFacility } from './api';
 
   export default {
     name: 'CreateNewFacilityModal',
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      return { handleApiError };
+    },
     data() {
       return {
         facilityName: '',
@@ -74,7 +78,7 @@
             this.showSnackbarNotification('newLearningFacilityCreated');
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.handleApiError({ error });
           });
       },
     },

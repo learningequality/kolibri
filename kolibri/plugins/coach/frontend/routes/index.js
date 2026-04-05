@@ -1,5 +1,6 @@
 import store from 'kolibri/store';
 import router from 'kolibri/router';
+import { handleApiError } from 'kolibri/utils/appError';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -91,7 +92,7 @@ export default [
             return;
           }
         },
-        error => store.dispatch('handleApiError', { error, reloadOnReconnect: true }),
+        error => handleApiError({ error, reloadOnReconnect: true }),
       );
     },
     meta: {

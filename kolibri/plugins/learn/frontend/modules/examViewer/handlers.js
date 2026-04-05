@@ -3,6 +3,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import shuffled from 'kolibri-common/utils/shuffled';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError, handleError, clearError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
 import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
@@ -19,7 +20,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
   const { currentUserId } = useUser();
 
   if (!get(currentUserId)) {
-    store.commit('CORE_SET_ERROR', 'You must be logged in as a learner to view this page');
+    handleError('You must be logged in as a learner to view this page');
     pageLoading.value = false;
   } else {
     const promises = [
@@ -56,8 +57,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
               // Exam is drawing solely on malformed exercise data, best to quit now
               if (allQuestions.some(question => !question.item)) {
                 pageLoading.value = false;
-                store.dispatch(
-                  'handleError',
+                handleError(
                   `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
                     allQuestions,
                   )}\nExam: ${JSON.stringify(exam)}`,
@@ -67,10 +67,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
               // Illegal question number!
               else if (questionNumber >= allQuestions.length) {
                 pageLoading.value = false;
-                store.dispatch(
-                  'handleError',
-                  `Question number ${questionNumber} is not valid for this quiz`,
-                );
+                handleError(`Question number ${questionNumber} is not valid for this quiz`);
                 return;
               }
 
@@ -91,22 +88,18 @@ export function showExam(store, params, alreadyOnQuiz, route) {
                 questions: allQuestions,
               });
               pageLoading.value = false;
-              store.commit('CORE_SET_ERROR', null);
+              clearError();
             }
           }),
             error => {
               pageLoading.value = false;
-              shouldResolve()
-                ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-                : null;
+              shouldResolve() ? handleApiError({ error, reloadOnReconnect: true }) : null;
             });
         }
       },
       error => {
         pageLoading.value = false;
-        shouldResolve()
-          ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-          : null;
+        shouldResolve() ? handleApiError({ error, reloadOnReconnect: true }) : null;
       },
     );
   }

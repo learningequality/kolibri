@@ -52,6 +52,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { FacilityImportResource } from '../api';
   import { FooterMessageTypes } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
@@ -64,6 +65,9 @@
       UserCredentialsForm,
     },
     mixins: [commonCoreStrings, commonSyncElements],
+    setup() {
+      return { handleApiError };
+    },
     inject: ['wizardService'],
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
@@ -150,7 +154,7 @@
             this.loading = false;
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
       resetFormAndRefocus() {

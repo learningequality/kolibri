@@ -101,6 +101,7 @@
   import get from 'lodash/get';
   import { mapState } from 'vuex';
   import { ref } from 'vue';
+  import { handleApiError } from 'kolibri/utils/appError';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import router from 'kolibri/router';
@@ -178,6 +179,7 @@
         currentUserId,
         full_name,
         createSnackbar,
+        handleApiError,
       };
     },
     props: {
@@ -313,7 +315,7 @@
             this.createSnackbar(this.learnString('resourceCompletedLabel'));
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
       navigateTo(message) {
@@ -325,7 +327,7 @@
             );
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
       onFinished() {

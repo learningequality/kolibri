@@ -202,6 +202,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
+  import { handleApiError, clearError } from 'kolibri/utils/appError';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
@@ -268,7 +269,6 @@
       const router = currentInstance.$router;
       const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, user_id } = useUser();
-
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
         searchTerms,
@@ -338,16 +338,16 @@
               );
 
               pageLoading.value = false;
-              store.commit('CORE_SET_ERROR', null);
+              clearError();
               store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
               set(rootNodesLoading, false);
             }
           },
           error => {
             pageLoading.value = false;
-            shouldResolve()
-              ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-              : null;
+            if (shouldResolve()) {
+              handleApiError({ error, reloadOnReconnect: true });
+            }
             set(rootNodesLoading, false);
           },
         );
@@ -366,7 +366,7 @@
             // If currently on a route with search terms
             // just finish early and let the component handle loading
             pageLoading.value = false;
-            store.commit('CORE_SET_ERROR', null);
+            clearError();
             store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
             set(rootNodesLoading, false);
             return Promise.resolve();

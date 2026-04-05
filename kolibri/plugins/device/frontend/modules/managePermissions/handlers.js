@@ -4,6 +4,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
+import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from '../../composables/usePageLoading';
 
 function fetchDevicePermissions() {
@@ -36,8 +37,8 @@ export function showManagePermissionsPage(store, route) {
     })
     .catch(error => {
       store.commit('managePermissions/SET_LOADING_FACILITY_USERS', false);
-      return shouldResolve()
-        ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-        : null;
+      if (shouldResolve()) {
+        handleApiError({ error, reloadOnReconnect: true });
+      }
     });
 }

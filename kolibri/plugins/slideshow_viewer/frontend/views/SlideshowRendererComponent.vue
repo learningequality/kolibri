@@ -96,6 +96,7 @@
     Pagination as HooperPagination,
   } from 'hooper';
   import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import { handleError } from 'kolibri/utils/appError';
 
   export default {
     name: 'SlideshowRendererComponent',
@@ -111,6 +112,7 @@
       const { files } = useContentViewer(props, context, { defaultDuration: 300 });
       return {
         files,
+        handleError,
       };
     },
     props: contentViewerProps,
@@ -259,7 +261,7 @@
         } catch (err) {
           // If we don't explicitly set an error, the viewer will display broken giving worse
           // UX than getting an error message.
-          this.$store.commit('CORE_SET_ERROR', err);
+          this.handleError(err);
         }
       },
       polyfillSlideObjectFit() {

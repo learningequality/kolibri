@@ -190,6 +190,7 @@
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { useRoute, useRouter } from 'vue-router/composables';
   import { computed, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -399,7 +400,7 @@
             await nextTick();
             openCourseAssignRecipientsLink();
           } catch (e) {
-            store.dispatch('handleApiError', e);
+            handleApiError({ error: e });
           }
         }
       };
@@ -413,7 +414,7 @@
         try {
           await refreshClassCourses();
         } catch (error) {
-          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          handleApiError({ error, reloadOnReconnect: true });
         }
       };
 

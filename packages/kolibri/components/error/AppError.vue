@@ -58,8 +58,8 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapActions, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { error, clearError } from 'kolibri/utils/appError';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {
@@ -68,6 +68,9 @@
       ReportErrorModal,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      return { error, clearError };
+    },
     props: {
       /* Generalize the component to just show the title */
       hideParagraphs: {
@@ -81,9 +84,6 @@
       };
     },
     computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
       headerText() {
         if (this.isPageNotFound) {
           return this.$tr('resourceNotFoundHeader');
@@ -123,7 +123,6 @@
       },
     },
     methods: {
-      ...mapActions(['clearError']),
       revealDetailsModal() {
         this.showDetailsModal = true;
       },

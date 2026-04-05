@@ -194,8 +194,8 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
-  import store from 'kolibri/store';
   import { useRoute } from 'vue-router/composables';
   import useFacilityEditor from '../../composables/useFacilityEditor';
   import { pageLoading } from '../../composables/usePageLoading';
@@ -481,7 +481,7 @@
         try {
           await fetchFacility();
         } catch (error) {
-          store.dispatch('handleError', { error, reloadOnReconnect: true });
+          handleApiError({ error, reloadOnReconnect: true, shouldThrow: false });
         }
       });
 

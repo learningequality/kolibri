@@ -99,6 +99,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ExamResource from 'kolibri-common/apiResources/ExamResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
@@ -141,6 +142,7 @@
         createSnackbar,
         clearSnackbar,
         saveTabsClick,
+        handleApiError,
       };
     },
     data() {
@@ -260,12 +262,7 @@
        * @public
        */
       setError(error) {
-        try {
-          this.$store.dispatch('handleApiError', { error });
-        } catch (e) {
-          // nothing to do here, just catching the error to avoid
-          // unhandled errors in the dispatch to handleApiError
-        }
+        this.handleApiError({ error });
         this.loading = false;
         pageLoading.value = false;
       },
@@ -328,7 +325,7 @@
                 actionCallback: () => this.clearSnackbar(),
               });
             } else {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             }
             pageLoading.value = false;
             this.closeModal();
@@ -343,7 +340,7 @@
             });
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
       detailLink(learnerId) {

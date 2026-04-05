@@ -116,6 +116,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import CatchErrors from 'kolibri/utils/CatchErrors';
+  import { handleApiError } from 'kolibri/utils/appError';
 
   import { FooterMessageTypes } from '../constants';
   import commonProfileStrings from '../../../user_profile/frontend/views/commonProfileStrings';
@@ -145,6 +146,7 @@
         doNotHaveUserCredentials$,
         deviceLimitationsMessage$,
         deviceLimitationsAdminsMessage$,
+        handleApiError,
       };
     },
     data() {
@@ -238,7 +240,7 @@
     beforeMount() {
       this.fetchNetworkLocation(this.deviceId).then(() => {
         if (!this.facility) {
-          this.$store.dispatch('showError', 'Failed to retrieve facilities.');
+          this.handleApiError({ error: 'Failed to retrieve facilities.' });
         }
       });
     },
@@ -260,7 +262,7 @@
           })
           .catch(error => {
             // TODO handle disconnected peers error more gracefully
-            this.$store.dispatch('showError', error);
+            this.handleApiError({ error });
           });
       },
       closeModal() {
@@ -402,7 +404,7 @@
             ]);
             if (errorsCaught) {
               this.error = true;
-            } else this.$store.dispatch('handleApiError', { error });
+            } else this.handleApiError({ error });
           });
       },
     },

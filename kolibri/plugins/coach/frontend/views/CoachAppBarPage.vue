@@ -20,10 +20,10 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { error } from 'kolibri/utils/appError';
   import useCoreCoach from '../composables/useCoreCoach';
 
   export default {
@@ -56,6 +56,7 @@
         classId,
         defaultPageTitle: pageTitle,
         defaultAppBarTitle: appBarTitle,
+        error,
       };
     },
     props: {
@@ -71,11 +72,6 @@
         type: String,
         default: null,
       },
-    },
-    computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
     },
     $trs: {
       kolibriTitleMessage: {

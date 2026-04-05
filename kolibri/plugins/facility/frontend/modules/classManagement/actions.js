@@ -1,4 +1,5 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import { handleApiError } from 'kolibri/utils/appError';
 
 /**
  * Do a POST to create new class
@@ -15,7 +16,7 @@ export function createClass(store, name) {
       store.commit('ADD_CLASS', classroom);
     },
     error => {
-      store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     },
   );
 }

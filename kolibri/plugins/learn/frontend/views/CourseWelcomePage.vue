@@ -263,6 +263,7 @@
   import { ref, onMounted, getCurrentInstance, computed } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
@@ -285,7 +286,6 @@
     },
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
-      const store = currentInstance.$store;
       const { windowIsLarge } = useKResponsiveWindow();
       const $themePalette = themePalette();
 
@@ -376,10 +376,7 @@
           });
           course.value = fetchedCourse;
         } catch (error) {
-          store.dispatch('handleApiError', {
-            error,
-            reloadOnReconnect: true,
-          });
+          handleApiError({ error, reloadOnReconnect: true });
         } finally {
           loading.value = false;
         }

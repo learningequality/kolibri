@@ -1,5 +1,5 @@
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
-import store from 'kolibri/store';
+import { handleApiError } from 'kolibri/utils/appError';
 
 /**
  * Fetch sync status for all members of a class.
@@ -11,7 +11,7 @@ export function fetchClassSyncStatus(classId) {
     force: true,
     getParams: { member_of: classId },
   }).catch(error => {
-    store.dispatch('handleApiError', { error });
+    handleApiError({ error });
     return error;
   });
 }

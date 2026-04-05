@@ -81,6 +81,7 @@
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
   import store from 'kolibri/store';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { useAttendance } from '../../../composables/useAttendance';
   import useCoreCoach from '../../../composables/useCoreCoach';
   import commonCoach from '../../common';
@@ -119,7 +120,7 @@
       onMounted(() => {
         fetchRecentSessions(classId.value)
           .catch(error => {
-            store.dispatch('handleApiError', { error });
+            handleApiError({ error });
           })
           .finally(() => {
             loading.value = false;
