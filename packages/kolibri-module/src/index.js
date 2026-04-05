@@ -62,23 +62,6 @@ export default class KolibriModule {
    */
   ready() {}
 
-  /**
-   * Convenience method to unregister the kolibriModule from listening to certain events.
-   * @param {string} event - the event name
-   * @param {string} method - the name of the method to unbind
-   */
-  stopListening(event, method) {
-    coreApp.stopListening(event, this, method);
-  }
-
-  /**
-   * Convenience method to fire an event on the global Mediator and pass in a data payload.
-   * @param {string} event - the event name
-   * @param {Array} args - additional arguments to the event handler.
-   */
-  emit(...args) {
-    coreApp.emit(...args);
-  }
   get Kolibri() {
     return coreApp;
   }
