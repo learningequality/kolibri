@@ -86,7 +86,7 @@ export default function pluginMediatorFactory(facade) {
     },
 
     /**
-     * Trigger 'ready' function on all registered modules
+     * Mark the mediator as ready and flush all pending ready callbacks.
      **/
     setReady() {
       this._ready = true;
