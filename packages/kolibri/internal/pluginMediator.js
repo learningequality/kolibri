@@ -15,11 +15,6 @@ const logger = logging.getLogger(__filename);
  */
 const publicMethods = [
   'registerKolibriModuleSync',
-  'stopListening',
-  'emit',
-  'on',
-  'once',
-  'off',
   'registerLanguageAssets',
   'registerContentViewer',
   'loadDirectionalCSS',
@@ -40,8 +35,7 @@ function decodeMarkedSafeText(text) {
 
 export default function pluginMediatorFactory(facade) {
   /**
-   * The Mediator object - registers and loads kolibri_modules and acts as
-   * a global event dispatcher.
+   * The Mediator object - registers and loads kolibri_modules.
    */
   const mediator = {
     /**
@@ -50,18 +44,23 @@ export default function pluginMediatorFactory(facade) {
      **/
     _kolibriModuleRegistry: {},
 
-    /**
-     * Keep track of all registered callbacks bound to events - this allows for easier
-     * stopListening later.
-     * kolibriModuleName: {object} - event: {object} - method: callback function
-     **/
-    _callbackRegistry: {},
-
-    // we use a Vue object solely for its event functionality
-    _eventDispatcher: new Vue(),
-
     // wait to call kolibri_module `ready` until dependencies are loaded
     _ready: false,
+
+    /**
+     * Callbacks to invoke when the mediator becomes ready. Accumulated via
+     * registerKolibriModuleSync() when _ready is false; flushed by setReady().
+     * @type {Function[]}
+     */
+    _readyCallbacks: [],
+
+    /**
+     * Map from kolibriModule name to an array of pending callbacks. Callbacks
+     * are queued in retrieveContentViewer() when the module has not yet
+     * registered; flushed and removed in registerKolibriModuleSync().
+     * @type {Object.<string, Function[]>}
+     */
+    _contentViewerCallbacks: {},
 
     /**
      * Keep track of all registered language assets for modules.
@@ -87,180 +86,38 @@ export default function pluginMediatorFactory(facade) {
     },
 
     /**
-     * Trigger 'ready' function on all registered modules
+     * Mark the mediator as ready and flush all pending ready callbacks.
      **/
     setReady() {
       this._ready = true;
-      this.emit('ready');
+      this._readyCallbacks.splice(0).forEach(cb => cb());
     },
 
     /**
      * @param {KolibriModule} kolibriModule - object of KolibriModule class
      * @description Registers a kolibriModule that has already been loaded into the
-     * frontend. Registers event listeners for multiple time and one time events.
-     * When all event listeners have been registered, any buffered callbacks are passed
-     * to the KolibriModule object, in case it was previously registered asynchronously.
+     * frontend. Flushes any pending content viewer callbacks for the module, then
+     * calls kolibriModule.ready() immediately if the mediator is ready, or defers it
+     * until setReady() is called.
      */
     registerKolibriModuleSync(kolibriModule) {
-      // Register all events that will be called repeatedly.
-      this._registerMultipleEvents(kolibriModule);
-      // Register all events that are listened to once and then unbound.
-      this._registerOneTimeEvents(kolibriModule);
-
-      // Create an entry in the kolibriModule registry.
       this._kolibriModuleRegistry[kolibriModule.name] = kolibriModule;
 
       logger.info(`Kolibri Modules: ${kolibriModule.name} registered`);
-      this.emit('kolibri_register', kolibriModule);
+
+      const callbacks = this._contentViewerCallbacks[kolibriModule.name];
+      if (callbacks) {
+        callbacks.forEach(cb => cb(kolibriModule));
+        delete this._contentViewerCallbacks[kolibriModule.name];
+      }
+
       if (this._ready) {
         kolibriModule.ready();
       } else {
-        this._eventDispatcher.$once('ready', () => {
-          kolibriModule.ready();
-        });
+        this._readyCallbacks.push(() => kolibriModule.ready());
       }
     },
 
-    /**
-     * Generic event registration method - inspects KolibriModule class for event
-     * key and then registers all events with
-     * specified event registration method
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @param {string} eventsKey - 'events' or 'once'
-     * @param {Function} eventListenerMethod - Mediator.prototype._registerMultipleEvents or
-     * Mediator.prototype._registerOneTimeEvents
-     * @private
-     */
-    _registerEvents(kolibriModule, eventsKey, eventListenerMethod) {
-      let events;
-      const boundEventListenerMethod = eventListenerMethod.bind(this);
-      // Prevent undefined errors, allow events hash to be either an object or a function.
-      if (typeof kolibriModule[eventsKey] === 'undefined') {
-        events = {};
-      } else if (typeof kolibriModule[eventsKey] === 'function') {
-        events = kolibriModule[eventsKey]();
-      } else {
-        events = kolibriModule[eventsKey];
-      }
-      for (let i = 0; i < Object.getOwnPropertyNames(events).length; i += 1) {
-        const key = Object.getOwnPropertyNames(events)[i];
-        boundEventListenerMethod(key, kolibriModule, events[key]);
-      }
-    },
-
-    /**
-     * Method to register events that will fire multiple times until unregistered.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @private
-     */
-    _registerMultipleEvents(kolibriModule) {
-      this._registerEvents(kolibriModule, 'events', this._registerRepeatedEventListener);
-    },
-
-    /**
-     * Method to register events that will fire only once.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @private
-     */
-    _registerOneTimeEvents(kolibriModule) {
-      this._registerEvents(kolibriModule, 'once', this._registerOneTimeEventListener);
-    },
-
-    /**
-     * Method to register a single repeating event for a particular kolibriModule
-     * with a method of that kolibriModule as a
-     * callback.
-     * @param {string} event - the event name.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @param {string} method - the name of the method of the KolibriModule object.
-     * @private
-     */
-    _registerRepeatedEventListener(event, kolibriModule, method) {
-      this._registerEventListener(event, kolibriModule, method, this._eventDispatcher.$on);
-    },
-
-    /**
-     * Method to register a single one time event for a particular kolibriModule
-     * with a method of that kolibriModule as a callback.
-     * @param {string} event - the event name.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @param {string} method - the name of the method of the KolibriModule object.
-     * @private
-     */
-    _registerOneTimeEventListener(event, kolibriModule, method) {
-      this._registerEventListener(event, kolibriModule, method, this._eventDispatcher.$once);
-    },
-
-    /**
-     * Method to register either a one time or a multitime event and add it to the
-     * callback registry of the Mediator object for easy clean up and stopListening
-     * later.
-     * @param {string} event - the event name.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @param {string} method - the name of the method of the KolibriModule object.
-     * @param {Function} listenMethod - Backbone.Events.listenTo or Backbone.Events.listenToOnce
-     * @private
-     */
-    _registerEventListener(event, kolibriModule, method, listenMethod) {
-      // Create a function that calls the kolibriModule method, while setting
-      // 'this' to the kolibriModule itself.
-      function callback(...args) {
-        kolibriModule[method].apply(kolibriModule, ...args);
-      }
-      if (typeof this._callbackRegistry[kolibriModule.name] === 'undefined') {
-        this._callbackRegistry[kolibriModule.name] = {};
-      }
-      if (typeof this._callbackRegistry[kolibriModule.name][event] === 'undefined') {
-        this._callbackRegistry[kolibriModule.name][event] = {};
-      }
-      // Keep track of this function to allow easy unbinding later.
-      this._callbackRegistry[kolibriModule.name][event][method] = callback;
-      listenMethod.apply(this._eventDispatcher, [event, callback]);
-    },
-
-    /**
-     * Method to unbind event listeners once they have been registered.
-     * @param {string} event - the event name.
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @param {string} method - the name of the method of the KolibriModule object.
-     */
-    stopListening(event, kolibriModule, method) {
-      // Allow an event to be unlistened to.
-      const callback = ((this._callbackRegistry[kolibriModule.name] || {})[event] || {})[method];
-      if (typeof callback !== 'undefined') {
-        this._eventDispatcher.$off(event, callback);
-        delete this._callbackRegistry[kolibriModule.name][event][method];
-      }
-    },
-
-    /**
-     * Proxy to the Vue object that is the global dispatcher.
-     * Takes any arguments and passes them on.
-     */
-    emit(...args) {
-      this._eventDispatcher.$emit(...args);
-    },
-    /**
-     * Proxy to the Vue object that is the global dispatcher.
-     * Takes any arguments and passes them on.
-     */
-    on(...args) {
-      this._eventDispatcher.$on(...args);
-    },
-    /**
-     * Proxy to the Vue object that is the global dispatcher.
-     * Takes any arguments and passes them on.
-     */
-    once(...args) {
-      this._eventDispatcher.$once(...args);
-    },
-    /**
-     * Proxy to the Vue object that is the global dispatcher.
-     * Takes any arguments and passes them on.
-     */
-    off(...args) {
-      this._eventDispatcher.$off(...args);
-    },
     /**
      * A method for directly registering language assets on the mediator.
      * This is used to set language assets as loaded and register them to the Vue intl
@@ -416,11 +273,12 @@ export default function pluginMediatorFactory(facade) {
                 resolveComponent(this._kolibriModuleRegistry[kolibriModuleName]);
               } else {
                 // Or wait until the module has been registered
-                this.on('kolibri_register', moduleName => {
-                  if (moduleName === kolibriModuleName) {
-                    storeTags(this._kolibriModuleRegistry[kolibriModuleName]);
-                    resolveComponent(this._kolibriModuleRegistry[kolibriModuleName]);
-                  }
+                if (!this._contentViewerCallbacks[kolibriModuleName]) {
+                  this._contentViewerCallbacks[kolibriModuleName] = [];
+                }
+                this._contentViewerCallbacks[kolibriModuleName].push(module => {
+                  storeTags(module);
+                  resolveComponent(module);
                 });
               }
             })
