@@ -28,6 +28,7 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
 
   export default {
     name: 'ChangeUserPasswordModal',
@@ -37,7 +38,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
-      return { createSnackbar };
+      return { createSnackbar, handleApiError };
     },
     data() {
       return {
@@ -64,7 +65,7 @@
             this.createSnackbar(this.$tr('passwordChangedNotification'));
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
       focusOnInvalidField() {

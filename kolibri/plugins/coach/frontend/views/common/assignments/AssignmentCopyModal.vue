@@ -51,6 +51,7 @@
   import logging from 'kolibri-logging';
   import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
@@ -69,6 +70,9 @@
       RecipientSelector,
     },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       modalTitle: {
         type: String,
@@ -156,7 +160,7 @@
             this.blockControls = false;
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
             logger.error(error);
             this.blockControls = false;
           });

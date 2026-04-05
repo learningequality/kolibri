@@ -1,6 +1,4 @@
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
-import store from 'kolibri/store';
-import { fetchClassSyncStatus } from '../fetchClassSyncStatus';
 
 jest.mock('kolibri-common/apiResources/UserSyncStatusResource', () => ({
   __esModule: true,
@@ -9,12 +7,19 @@ jest.mock('kolibri-common/apiResources/UserSyncStatusResource', () => ({
   },
 }));
 
-jest.mock('kolibri/store', () => ({
+// Must mock appError before importing fetchClassSyncStatus,
+// since it imports named exports at module level.
+const mockHandleApiError = jest.fn();
+jest.mock('kolibri/utils/appError', () => ({
   __esModule: true,
-  default: {
-    dispatch: jest.fn(),
-  },
+  handleApiError: mockHandleApiError,
+  handleError: jest.fn(),
+  clearError: jest.fn(),
+  error: { value: null },
 }));
+
+// Import after mocks are set up
+const { fetchClassSyncStatus } = require('../fetchClassSyncStatus');
 
 describe('fetchClassSyncStatus', () => {
   afterEach(() => {
@@ -37,13 +42,13 @@ describe('fetchClassSyncStatus', () => {
     expect(result).toEqual(mockData);
   });
 
-  it('dispatches handleApiError and returns the error on failure', async () => {
+  it('calls handleApiError and returns the error on failure', async () => {
     const error = new Error('Network error');
     UserSyncStatusResource.fetchCollection.mockRejectedValue(error);
 
     const result = await fetchClassSyncStatus('class-123');
 
-    expect(store.dispatch).toHaveBeenCalledWith('handleApiError', { error });
+    expect(mockHandleApiError).toHaveBeenCalledWith({ error });
     expect(result).toBe(error);
   });
 });

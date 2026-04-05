@@ -1,5 +1,6 @@
 import orderBy from 'lodash/orderBy';
 import uniqBy from 'lodash/uniqBy';
+import { clearError } from 'kolibri/utils/appError';
 import notificationsResource from '../../apiResources/notifications';
 import { allNotifications, summarizedNotifications } from './getters';
 
@@ -38,7 +39,7 @@ export default {
       store.commit('SET_CURRENT_CLASSROOM_ID', '');
       // Need to clear out 403 error in store to prevent auth message from showing
       // in other places.
-      store.commit('CORE_SET_ERROR', '', { root: true });
+      clearError();
     },
     fetchNotificationsForClass(store, classroomId) {
       if (!store.state.currentClassroomId) {

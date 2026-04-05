@@ -166,6 +166,7 @@
   import { useMemoize } from '@vueuse/core';
   import Modalities from 'kolibri-constants/Modalities';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -739,6 +740,7 @@
         manualSelectionOnNotice$,
         manualSelectionOffNotice$,
         bookmarksCardMessage,
+        handleApiError,
       };
     },
     computed: {
@@ -768,7 +770,7 @@
               });
               this.setWorkingResourcePool([contentNode]);
             } catch (e) {
-              this.$store.dispatch('handleApiError', e);
+              this.handleApiError({ error: e });
             }
           }
           if (this.workingResourcePool.length !== 1) {

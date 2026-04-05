@@ -154,6 +154,7 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import useFacility from 'kolibri-common/composables/useFacility';
   import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
 
@@ -185,6 +186,7 @@
         currentUserId,
         updateFacilityConfig,
         facilityConfig,
+        handleApiError,
       };
     },
     data() {
@@ -284,7 +286,7 @@
           this.loading = false;
         })
         .catch(error => {
-          this.$store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          this.handleApiError({ error, reloadOnReconnect: true });
         });
     },
     methods: {
@@ -390,7 +392,7 @@
         if (this.caughtErrors.length > 0) {
           this.focusOnInvalidField();
         } else {
-          this.$store.dispatch('handleApiError', { error });
+          this.handleApiError({ error });
         }
       },
       focusOnInvalidField() {

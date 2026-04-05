@@ -19,6 +19,7 @@ import useLearnerResources, {
 /* eslint-enable import-x/named */
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
+jest.mock('kolibri/utils/appError');
 jest.mock('kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices');
 jest.mock('kolibri-common/composables/useChannels');
 jest.mock('kolibri/composables/useUser');
@@ -43,9 +44,7 @@ function makeWrapper() {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
       SET_PAGE_NAME: jest.fn(),
     },
-    actions: {
-      handleApiError: jest.fn(),
-    },
+    actions: {},
   });
 
   const router = new VueRouter({

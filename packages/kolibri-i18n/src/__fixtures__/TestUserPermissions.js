@@ -17,6 +17,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 
 const translator = createTranslator('UserPermissionToolbarTitles', {
@@ -98,7 +99,7 @@ export function showUserPermissionsPage(store, userId) {
           setAppBarTitle(translator.$tr('invalidUserTitle'));
           setUserPermissionsState({ user: null, permissions: {} });
         }
-        store.dispatch('handleApiError', { error });
+        handleApiError({ error });
         stopLoading();
       }
     });

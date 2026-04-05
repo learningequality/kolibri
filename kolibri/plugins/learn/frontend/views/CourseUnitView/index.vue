@@ -89,7 +89,7 @@
 
 <script>
 
-  import store from 'kolibri/store';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { useRouter } from 'vue-router/composables';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource.js';
   import { computed, nextTick, ref, toRef, watch } from 'vue';
@@ -770,7 +770,7 @@
 
       watch(error, (newError, oldError) => {
         if (!oldError && newError) {
-          store.dispatch('handleApiError', { error: newError });
+          handleApiError({ error: newError });
         }
       });
 

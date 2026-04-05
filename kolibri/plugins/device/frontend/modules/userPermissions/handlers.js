@@ -4,6 +4,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from '../../composables/usePageLoading';
 
 /**
@@ -70,7 +71,7 @@ export function showUserPermissionsPage(store, userId, route) {
         if (error.response.status === 404) {
           setUserPermissionsState({ user: null, permissions: {} });
         }
-        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+        handleApiError({ error, reloadOnReconnect: true });
         pageLoading.value = false;
       }
     });

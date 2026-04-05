@@ -105,9 +105,10 @@
 <script>
 
   import { useRoute } from 'vue-router/composables';
-  import { getCurrentInstance, ref, computed } from 'vue';
+  import { ref, computed } from 'vue';
   import { UserKinds } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import { handleApiError } from 'kolibri/utils/appError';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { localeCompare } from 'kolibri/utils/i18n';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
@@ -131,7 +132,6 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const store = getCurrentInstance().proxy.$store;
       const route = useRoute();
       const goBack = useGoBack({
         getFallbackRoute: () => {
@@ -247,7 +247,7 @@
             const newMemberships = await MembershipResource.saveCollection({ data: enrollments });
             createdMemberships.value = newMemberships;
           } catch (error) {
-            store.dispatch('handleApiError', { error });
+            handleApiError({ error });
             loading.value = false;
             return false;
           }

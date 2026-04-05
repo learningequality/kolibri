@@ -1,3 +1,4 @@
+import { handleApiError } from 'kolibri/utils/appError';
 import { LearnerClassroomResource } from '../../apiResources';
 import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
@@ -13,11 +14,6 @@ export function showAllClassesPage(store) {
     })
     .catch(error => {
       pageLoading.value = false;
-      if (error instanceof Error) {
-        return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-      }
-
-      // Allows triggering of AuthMessage.vue
-      return store.dispatch('handleError', { error, reloadOnReconnect: true });
+      handleApiError({ error, reloadOnReconnect: true });
     });
 }

@@ -60,7 +60,6 @@ async function makeWrapper({ options, fullMount = false } = {}) {
     mutations: {
       SET_WELCOME_MODAL_VISIBLE: jest.fn(),
       SET_PAGE_NAME: jest.fn(),
-      CORE_SET_ERROR: jest.fn(),
     },
   });
   let wrapper;

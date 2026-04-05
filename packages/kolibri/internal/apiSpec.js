@@ -54,6 +54,7 @@ export default {
   'kolibri/urls': require('kolibri/urls'),
   'kolibri/utils/CatchErrors': require('kolibri/utils/CatchErrors'),
   'kolibri/utils/appCapabilities': require('kolibri/utils/appCapabilities'),
+  'kolibri/utils/appError': require('kolibri/utils/appError'),
   'kolibri/utils/baseClient': require('kolibri/utils/baseClient'),
   'kolibri/utils/browserInfo': require('kolibri/utils/browserInfo'),
   'kolibri/utils/i18n': require('kolibri/utils/i18n'),

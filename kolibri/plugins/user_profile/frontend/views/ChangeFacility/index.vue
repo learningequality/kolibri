@@ -24,6 +24,7 @@
   import { computed } from 'vue';
   import { interpret } from 'xstate';
   import useUser from 'kolibri/composables/useUser';
+  import { handleError } from 'kolibri/utils/appError';
   import { pageLoading } from '../../composables/usePageLoading';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
@@ -38,7 +39,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { session, userKind } = useUser();
-      return { pageLoading, session, userKind };
+      return { pageLoading, session, userKind, handleError };
     },
     data() {
       return {
@@ -125,8 +126,7 @@
     },
     methods: {
       onMachineError(machineState) {
-        this.$store.commit(
-          'CORE_SET_ERROR',
+        this.handleError(
           `An error occured in the '${this.previousMachineStateName}' state of the change facility machine`,
         );
         this.service.send('RESET');

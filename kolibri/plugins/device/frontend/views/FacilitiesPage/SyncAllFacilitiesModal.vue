@@ -41,11 +41,15 @@
 
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {
     name: 'SyncAllFacilitiesModal',
     mixins: [commonCoreStrings],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       facilities: {
         type: Array,
@@ -79,7 +83,7 @@
           })
           .catch(error => {
             // TODO handle failure gracefully
-            this.$store.dispatch('handleApiError', { error });
+            this.handleApiError({ error });
           });
       },
     },

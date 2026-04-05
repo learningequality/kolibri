@@ -2,6 +2,7 @@ import LessonResource from 'kolibri-common/apiResources/LessonResource';
 import router from 'kolibri/router';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import { handleApiError } from 'kolibri/utils/appError';
 import { PageNames } from '../../constants';
 
 const translator = createTranslator('LessonRootActionTexts', {
@@ -37,7 +38,7 @@ export function refreshClassLessons(store, classId) {
       return lessons;
     })
     .catch(error => {
-      return store.dispatch('handleApiError', { error }, { root: true });
+      return handleApiError({ error });
     });
 }
 
@@ -50,7 +51,7 @@ export function fetchLessonsSizes(store, classId, shouldCommit = true) {
       return sizes;
     })
     .catch(error => {
-      return store.dispatch('handleApiError', { error }, { root: true });
+      return handleApiError({ error });
     });
 }
 

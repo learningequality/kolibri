@@ -1,9 +1,6 @@
-import Vue from 'vue';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
 import * as constants from 'kolibri/constants';
-import { coreStoreFactory as makeStore } from '../store';
-import coreModule from '../../../kolibri/core/frontend/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 import * as useUserModule from '../composables/useUser';
 
@@ -14,29 +11,6 @@ jest.mock('kolibri/client');
 jest.mock('kolibri/utils/redirectBrowser');
 
 describe('Vuex store/actions for core module', () => {
-  describe('error handling', () => {
-    const errorMessage = 'testError';
-    Vue.prototype.$formatMessage = () => errorMessage;
-    it('handleError action updates core state', () => {
-      const store = makeStore();
-      store.registerModule('core', coreModule);
-      store.dispatch('handleError', 'catastrophic failure');
-      expect(store.state.core.error).toEqual('catastrophic failure');
-    });
-
-    it('handleApiError action updates core state', () => {
-      const store = makeStore();
-      store.registerModule('core', coreModule);
-      const apiError = { message: 'Too Bad' };
-      try {
-        store.dispatch('handleApiError', { error: apiError });
-      } catch (e) {
-        expect(e.message).toBe(apiError.message);
-      }
-      expect(store.state.core.error.match(/Too Bad/)).toHaveLength(1);
-    });
-  });
-
   describe('useUser composable', () => {
     stubWindowLocation(beforeAll, afterAll);
 

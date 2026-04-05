@@ -1,5 +1,6 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
@@ -50,7 +51,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     },
     error => {
       pageLoading.value = false;
-      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      return handleApiError({ error, reloadOnReconnect: true });
     },
   );
 }

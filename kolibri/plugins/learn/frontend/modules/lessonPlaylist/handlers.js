@@ -1,5 +1,6 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
 import { pageLoading } from '../../composables/usePageLoading';
@@ -36,6 +37,6 @@ export function showLessonPlaylist(store, { lessonId }) {
     })
     .catch(error => {
       pageLoading.value = false;
-      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      handleApiError({ error, reloadOnReconnect: true });
     });
 }

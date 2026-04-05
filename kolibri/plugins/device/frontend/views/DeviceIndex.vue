@@ -30,8 +30,8 @@
   import { IsPinAuthenticated } from 'kolibri/constants';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
-  import store from 'kolibri/store';
   import useUser from 'kolibri/composables/useUser';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
 
   import PinAuthenticationModal from './PinAuthenticationModal';
@@ -46,7 +46,6 @@
     setup() {
       const { isUserLoggedIn, userFacilityId } = useUser();
       const { fetchFacilityConfig } = useFacilityConfig(userFacilityId.value);
-
       const isPinSet = ref(null);
       const showModal = ref(false);
       const facilityDatasetId = ref(null);
@@ -61,7 +60,7 @@
           isPinSet.value = Boolean(facilityConfig?.extra_fields?.pin_code);
           facilityDatasetId.value = facilityConfig.id;
         } catch (error) {
-          store.dispatch('handleError', { error, reloadOnReconnect: true });
+          handleApiError({ error, reloadOnReconnect: true, shouldThrow: false });
         }
       });
 

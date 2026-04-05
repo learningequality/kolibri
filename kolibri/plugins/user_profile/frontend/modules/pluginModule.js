@@ -1,3 +1,4 @@
+import { clearError } from 'kolibri/utils/appError';
 import profile from './profile';
 
 export default {
@@ -7,8 +8,8 @@ export default {
     };
   },
   actions: {
-    reset(store) {
-      store.commit('CORE_SET_ERROR', null);
+    reset() {
+      clearError();
     },
     resetModuleState(store) {
       store.commit('profile/RESET_STATE');

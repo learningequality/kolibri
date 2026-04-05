@@ -1,6 +1,7 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
 import RoleResource from 'kolibri-common/apiResources/RoleResource';
+import { handleApiError } from 'kolibri/utils/appError';
 
 export function removeClassLearner(store, { classId, userId }) {
   if (!classId || !userId) {
@@ -17,7 +18,7 @@ export function removeClassLearner(store, { classId, userId }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     },
   );
 }
@@ -39,7 +40,7 @@ export function removeClassCoach(store, { classId, userId }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     },
   );
 }
@@ -63,7 +64,7 @@ export function updateClass(store, { id, updateData }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     },
   );
 }

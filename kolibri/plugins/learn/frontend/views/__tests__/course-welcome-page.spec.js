@@ -166,12 +166,8 @@ describe('CourseWelcomePage', () => {
         core: {},
       },
       getters: {},
-      actions: {
-        handleApiError: jest.fn(),
-      },
-      mutations: {
-        CORE_SET_ERROR: jest.fn(),
-      },
+      actions: {},
+      mutations: {},
     });
 
     learnerResources = makeLearnerResourcesMock();

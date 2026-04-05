@@ -1,5 +1,6 @@
 import LessonResource from 'kolibri-common/apiResources/LessonResource';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+import { handleApiError } from 'kolibri/utils/appError';
 
 export function resetLessonSummaryState(store) {
   store.commit('RESET_STATE');
@@ -27,7 +28,7 @@ export function updateCurrentLesson(store, lessonId) {
       return lesson;
     },
     error => {
-      return store.dispatch('handleApiError', { error }, { root: true });
+      return handleApiError({ error });
     },
   );
 }

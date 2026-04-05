@@ -1,6 +1,7 @@
 import find from 'lodash/find';
 import router from 'kolibri/router';
 import logger from 'kolibri-logging';
+import { handleApiError } from 'kolibri/utils/appError';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
@@ -69,7 +70,7 @@ function handleError(store, error) {
   }
   // handle other errors generically
   store.commit('manageContent/wizard/RESET_STATE');
-  store.dispatch('handleApiError', { error });
+  handleApiError({ error });
 }
 
 // Handler for when user goes directly to the Available Channels URL.

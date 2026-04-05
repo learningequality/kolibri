@@ -1,43 +1,38 @@
-import { mount } from '@vue/test-utils';
-import { coreStoreFactory as makeStore } from 'kolibri/store';
+import { render, screen } from '@testing-library/vue';
+import { error } from 'kolibri/utils/appError';
 import AppError from '../AppError';
-import coreModule from '../../../../../kolibri/core/frontend/state/modules/core';
 
-function makeWrapper() {
-  const store = makeStore();
-  store.registerModule('core', coreModule);
-  const wrapper = mount(AppError, {
-    store,
-  });
-  return { wrapper, store };
-}
+jest.mock('kolibri/utils/appError');
 
 describe('AppError component', () => {
+  beforeEach(() => {
+    error.value = null;
+  });
+
   it('shows page not found errors and buttons if the error has status code 404', async () => {
-    const { wrapper, store } = makeWrapper();
-    const error = {
+    const errorObj = {
       status: 404,
       config: {
         method: 'get',
       },
     };
-    store.state.core.error = JSON.stringify(error);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Back to home');
-    expect(wrapper.find('h1').text()).toEqual('Resource not found');
+    error.value = JSON.stringify(errorObj);
+    render(AppError);
+    expect(screen.getByText('Resource not found')).toBeInTheDocument();
+    expect(screen.getByText('Back to home')).toBeInTheDocument();
   });
 
   it('shows default errors and buttons if the error does not have status code 404', async () => {
-    const { wrapper, store } = makeWrapper();
-    const error = {
+    const errorObj = {
       status: 400,
       config: {
         method: 'get',
       },
     };
-    store.state.core.error = JSON.stringify(error);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'KButton' }).props().text).toEqual('Refresh');
-    expect(wrapper.find('h1').text()).toEqual('Sorry! Something went wrong!');
+    error.value = JSON.stringify(errorObj);
+    render(AppError);
+    expect(screen.getByText('Sorry! Something went wrong!')).toBeInTheDocument();
+    // First button should be Refresh
+    expect(screen.getByText('Refresh')).toBeInTheDocument();
   });
 });

@@ -1,4 +1,3 @@
-import store from 'kolibri/store';
 import { interpret } from 'xstate';
 import findLast from 'lodash/findLast';
 import { useRoute, useRouter } from 'vue-router/composables';
@@ -7,6 +6,7 @@ import { ref, watch, computed, provide, inject, onBeforeMount, onUnmounted } fro
 import { UserKinds } from 'kolibri/constants';
 import UserType from 'kolibri-common/utils/userType';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import { handleApiError } from 'kolibri/utils/appError';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
 import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -36,7 +36,6 @@ export default function useLodDeviceUsers() {
   const router = useRouter();
   const { tasks } = useTaskPolling(SOUD_QUEUE);
   const { createSnackbar } = useSnackbar();
-
   const importLodMachineState = ref(null);
   const users = ref([]);
   const loading = ref(true);
@@ -102,7 +101,7 @@ export default function useLodDeviceUsers() {
       });
       users.value = response;
     } catch (error) {
-      store.dispatch('handleApiError', { error });
+      handleApiError({ error });
     }
 
     loading.value = false;

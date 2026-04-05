@@ -6,8 +6,8 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import CatchErrors from 'kolibri/utils/CatchErrors';
 import Lockr from 'lockr';
 import urls from 'kolibri/urls';
-import store from 'kolibri/store';
 import { LoginErrors, ERROR_CONSTANTS, UPDATE_MODAL_DISMISSED, UserKinds } from 'kolibri/constants';
+import { handleApiError } from 'kolibri/utils/appError';
 import pick from 'lodash/pick';
 
 // Base session state (migrated from session module)
@@ -105,7 +105,7 @@ export default function useUser() {
           return LoginErrors.USER_NOT_FOUND;
         }
       } else {
-        store.dispatch('handleApiError', { error });
+        handleApiError({ error });
       }
     }
   }

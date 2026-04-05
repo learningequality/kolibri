@@ -1,3 +1,4 @@
+import { handleApiError } from 'kolibri/utils/appError';
 import useLearnerResources from '../../composables/useLearnerResources';
 import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
@@ -14,6 +15,6 @@ export function showClassAssignmentsPage(store, classId) {
     })
     .catch(error => {
       pageLoading.value = false;
-      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      handleApiError({ error, reloadOnReconnect: true });
     });
 }

@@ -68,6 +68,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from '../composables/usePageLoading';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
@@ -91,10 +92,10 @@
       useContentTasks();
       const { canManageContent } = useUser();
       const { createSnackbar } = useSnackbar();
-
       return {
         canManageContent,
         createSnackbar,
+        handleApiError,
         pageLoading,
       };
     },
@@ -126,7 +127,7 @@
           this.loading = false;
         })
         .catch(error => {
-          this.$store.dispatch('CORE_SET_ERROR', error);
+          this.handleApiError({ error });
         });
     },
     methods: {

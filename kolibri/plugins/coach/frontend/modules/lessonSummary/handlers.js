@@ -1,5 +1,6 @@
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from '../../constants';
@@ -45,7 +46,7 @@ export async function setLessonSummaryState(store, params) {
     })
     .catch(error => {
       pageLoading.value = false;
-      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+      return handleApiError({ error, reloadOnReconnect: true });
     });
 }
 

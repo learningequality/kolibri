@@ -28,6 +28,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { handleApiError } from 'kolibri/utils/appError';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -48,6 +49,7 @@
       const { fetchFacilities, facilities } = useFacilities();
       return {
         createSnackbar,
+        handleApiError,
         isSuperuser,
         fetchFacilities,
         facilities,
@@ -107,7 +109,7 @@
       },
       // @public
       setError(error) {
-        this.$store.dispatch('handleApiError', { error });
+        this.handleApiError({ error });
         this.loading = false;
         pageLoading.value = false;
       },

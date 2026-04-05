@@ -1,6 +1,7 @@
 import uniq from 'lodash/uniq';
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
+import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from '../../composables/usePageLoading';
 
 function _groupState(group) {
@@ -34,7 +35,7 @@ export function createGroup(store, { groupName, classId }) {
       // to get that back up to date!
       return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     },
-    error => store.dispatch('handleApiError', { error }, { root: true }),
+    error => handleApiError({ error }),
   );
 }
 
@@ -55,7 +56,7 @@ export function renameGroup(store, { groupId, newGroupName }) {
     },
     error => {
       pageLoading.value = false;
-      store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     },
   );
 }
@@ -67,7 +68,7 @@ export function deleteGroup(store, groupId) {
       const updatedGroups = groups.filter(group => group.id !== groupId);
       store.commit('SET_GROUPS', updatedGroups);
     },
-    error => store.dispatch('handleApiError', { error }, { root: true }),
+    error => handleApiError({ error }),
   );
 }
 
@@ -133,7 +134,9 @@ export function addUsersToGroup(store, { groupId, userIds }) {
     store.commit('SET_GROUP_MODAL', '');
   };
   return _addMultipleUsersToGroup(store, groupId, userIds)
-    .catch(error => store.dispatch('handleApiError', { error }, { root: true }))
+    .catch(error => {
+      handleApiError({ error });
+    })
     .then(final, final);
 }
 
@@ -144,6 +147,8 @@ export function removeUsersFromGroup(store, { groupId, userIds }) {
     store.commit('SET_GROUP_MODAL', '');
   };
   return _removeMultipleUsersFromGroup(store, groupId, userIds)
-    .catch(error => store.dispatch('handleApiError', { error }, { root: true }))
+    .catch(error => {
+      handleApiError({ error });
+    })
     .then(final, final);
 }

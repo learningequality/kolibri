@@ -43,12 +43,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import get from 'lodash/get';
   import AuthMessage from 'kolibri/components/AuthMessage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AppError from 'kolibri/components/error/AppError';
   import GlobalSnackbar from 'kolibri/components/GlobalSnackbar';
+  import { error } from 'kolibri/utils/appError';
   import { ComponentMap } from '../constants';
   import CoreBanner from './CoreBanner';
 
@@ -77,10 +77,10 @@
       GlobalSnackbar,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      return { error };
+    },
     computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
       isAuthorized() {
         return !(
           this.error &&

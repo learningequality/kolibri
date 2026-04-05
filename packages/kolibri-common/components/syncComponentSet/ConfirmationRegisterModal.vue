@@ -25,12 +25,16 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri/constants';
+  import { handleApiError } from 'kolibri/utils/appError';
   import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
   import PortalResource from 'kolibri-common/apiResources/PortalResource';
 
   export default {
     name: 'ConfirmationRegisterModal',
     mixins: [commonCoreStrings],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       projectName: {
         type: String,
@@ -95,7 +99,7 @@
               this.submitting = false;
               this.alreadyRegistered = true;
             } else {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             }
           });
       },

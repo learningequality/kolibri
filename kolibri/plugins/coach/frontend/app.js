@@ -4,6 +4,7 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import router from 'kolibri/router';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import KolibriApp from 'kolibri-app';
+import { handleApiError } from 'kolibri/utils/appError';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { PageNames } from './constants';
@@ -35,7 +36,7 @@ export function setChannelInfo(store) {
       return channelsData;
     },
     error => {
-      store.dispatch('handleApiError', { error });
+      handleApiError({ error });
       return error;
     },
   );
@@ -188,7 +189,7 @@ class CoachToolsModule extends KolibriApp {
       if (promises.length > 0) {
         Promise.all(promises)
           .catch(error => {
-            this.store.dispatch('handleApiError', { error });
+            handleApiError({ error });
           })
           .catch(() => {
             // We catch here because `handleApiError` throws the error back again, in this case,

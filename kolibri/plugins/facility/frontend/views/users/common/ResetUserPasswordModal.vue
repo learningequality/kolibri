@@ -30,6 +30,7 @@
 
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
 
   export default {
     name: 'ResetUserPasswordModal',
@@ -37,6 +38,9 @@
       PasswordTextbox,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      return { handleApiError };
+    },
     props: {
       id: {
         type: String,
@@ -74,7 +78,7 @@
             this.$emit('close');
             this.showSnackbarNotification('passwordReset');
           })
-          .catch(error => this.$store.dispatch('handleApiError', { error }));
+          .catch(error => this.handleApiError({ error }));
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {

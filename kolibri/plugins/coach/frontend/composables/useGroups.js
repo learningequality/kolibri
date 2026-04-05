@@ -3,6 +3,7 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError, clearError } from 'kolibri/utils/appError';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { pageLoading } from './usePageLoading';
 
@@ -61,20 +62,15 @@ export function useGroups() {
                   groupModalShown: false,
                 });
                 setGroupsLoading(false);
-                store.dispatch('clearError');
+                clearError();
               }
             },
-            error =>
-              shouldResolve()
-                ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-                : null,
+            error => (shouldResolve() ? handleApiError({ error, reloadOnReconnect: true }) : null),
           );
         }
       },
       error => {
-        shouldResolve()
-          ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
-          : null;
+        shouldResolve() ? handleApiError({ error, reloadOnReconnect: true }) : null;
       },
     );
   }

@@ -88,6 +88,7 @@
   import get from 'lodash/get';
   import last from 'lodash/last';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { handleApiError } from 'kolibri/utils/appError';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useContentTasks from '../../../composables/useContentTasks';
@@ -129,7 +130,7 @@
     mixins: [commonCoreStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
-      return { pageLoading };
+      return { handleApiError, pageLoading };
     },
     data() {
       return {
@@ -204,7 +205,7 @@
           this.setUpPage(pageData);
         })
         .catch(error => {
-          this.$store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          this.handleApiError({ error, reloadOnReconnect: true });
         });
     },
     methods: {
@@ -242,7 +243,7 @@
               }
             })
             .catch(error => {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             });
         }
       },
@@ -332,7 +333,7 @@
             if (error.response.status === 404) {
               this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
             } else {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             }
           });
       },

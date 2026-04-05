@@ -1,6 +1,7 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
+import { handleApiError, clearError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
 import { pageLoading } from '../composables/usePageLoading';
 import { PageNames, pageNameToModuleMap } from '../constants';
@@ -93,7 +94,7 @@ export default {
           store.commit('SET_DATA_LOADING', false);
         })
         .catch(error => {
-          store.dispatch('handleApiError', { error });
+          handleApiError({ error });
           store.commit('SET_DATA_LOADING', false);
         });
     },
@@ -106,9 +107,9 @@ export default {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);
       if (errorObject.response.status && authErrorCodes.includes(errorObject.response.status)) {
-        store.dispatch('handleApiError', { error: '' });
+        handleApiError({ error: '' });
       } else {
-        store.dispatch('handleApiError', { error: errorObject, reloadOnReconnect: true });
+        handleApiError({ error: errorObject, reloadOnReconnect: true });
       }
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -126,7 +127,7 @@ export default {
       }
     },
     initClassInfo(store, classId) {
-      store.dispatch('clearError');
+      clearError();
       // only wait around for the results if the class is switching
       if (store.state.classSummary.id !== classId) {
         pageLoading.value = true;
@@ -141,13 +142,13 @@ export default {
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           pageLoading.value = false;
-          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          handleApiError({ error, reloadOnReconnect: true });
         });
       } else {
         // otherwise refresh but don't block
         return store
           .dispatch('classSummary/loadClassSummary', classId)
-          .catch(error => store.dispatch('handleApiError', { error }));
+          .catch(error => handleApiError({ error }));
       }
     },
   },

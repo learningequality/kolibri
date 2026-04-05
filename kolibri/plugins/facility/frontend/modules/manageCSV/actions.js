@@ -5,6 +5,7 @@ import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+import { handleApiError } from 'kolibri/utils/appError';
 
 const logging = logger.getLogger(__filename);
 
@@ -29,7 +30,7 @@ function getCSVLogRequest(store, logType, facility) {
       }
     })
     .catch(error => {
-      return store.dispatch('handleApiError', { error }, { root: true });
+      handleApiError({ error });
     });
 }
 

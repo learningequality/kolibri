@@ -2,6 +2,7 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
 import store from 'kolibri/store';
+import { handleApiError } from 'kolibri/utils/appError';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import classSummaryModule from '../../../../modules/classSummary';
 // eslint-disable-next-line import-x/named
@@ -9,6 +10,7 @@ import { useAttendance, useAttendanceMock } from '../../../../composables/useAtt
 import AttendanceBlock from '../AttendanceBlock.vue';
 
 jest.mock('../../../../composables/useAttendance');
+jest.mock('kolibri/utils/appError');
 jest.mock('../../../../composables/useCoreCoach', () => {
   const { computed } = require('vue');
   return () => ({
@@ -194,10 +196,12 @@ describe('AttendanceBlock', () => {
     expect(wrapper.findAll('.visuallyhidden').length).toBe(0);
   });
 
-  it('dispatches handleApiError when fetchRecentSessions fails', async () => {
+  it('calls handleApiError when fetchRecentSessions fails', async () => {
+    // Override handleApiError to not re-throw, avoiding unhandled rejection in test
+    handleApiError.mockImplementation(() => {});
     const error = new Error('API error');
     makeWrapper({ rejectWith: error });
     await global.flushPromises();
-    expect(store.dispatch).toHaveBeenCalledWith('handleApiError', { error });
+    expect(handleApiError).toHaveBeenCalledWith({ error });
   });
 });

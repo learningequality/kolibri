@@ -86,6 +86,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from '../composables/usePageLoading';
   import { RoutesMap } from '../constants';
 
@@ -107,7 +108,14 @@
     setup() {
       const { isLearnerOnlyImport, isLearner, currentUserId } = useUser();
       const { facilityConfig } = useFacility();
-      return { pageLoading, isLearnerOnlyImport, isLearner, currentUserId, facilityConfig };
+      return {
+        pageLoading,
+        isLearnerOnlyImport,
+        isLearner,
+        currentUserId,
+        facilityConfig,
+        handleApiError,
+      };
     },
     data() {
       return {
@@ -204,7 +212,7 @@
               if (this.caughtErrors.length > 0) {
                 this.focusOnInvalidField();
               } else {
-                this.$store.dispatch('handleApiError', { error });
+                this.handleApiError({ error });
               }
             });
         } else {

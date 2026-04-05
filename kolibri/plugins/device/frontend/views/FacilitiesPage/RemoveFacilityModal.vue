@@ -45,13 +45,14 @@
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useUser from 'kolibri/composables/useUser';
+  import { handleApiError } from 'kolibri/utils/appError';
 
   export default {
     name: 'RemoveFacilityModal',
     mixins: [commonCoreStrings, commonSyncElements],
     setup() {
       const { session } = useUser();
-      return { session };
+      return { session, handleApiError };
     },
     props: {
       facility: {
@@ -94,7 +95,7 @@
               this.$emit('success', data.id);
             })
             .catch(error => {
-              this.$store.dispatch('handleApiError', { error });
+              this.handleApiError({ error });
             });
         } else {
           this.$emit('cancel');
