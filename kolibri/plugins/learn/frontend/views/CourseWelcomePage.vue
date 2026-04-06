@@ -337,10 +337,14 @@
         if (courseProgress.value?.resume_position != null) {
           return true;
         }
-        // No resume_position but started — if the active test is for a unit
-        // beyond the first, the learner has completed previous units.
+        // No resume_position but started — check the active test to infer progress.
         const activeTest = courseProgress.value?.active_test;
         if (activeTest && units.value?.length > 0) {
+          // A post-test means the learner completed resources in that unit
+          if (activeTest.test_type === 'post') {
+            return true;
+          }
+          // A pre-test beyond the first unit means previous units were completed
           return activeTest.unit_id !== units.value[0].id;
         }
         return false;
