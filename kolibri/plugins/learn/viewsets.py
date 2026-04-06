@@ -603,15 +603,10 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
             ).exists()
 
             if post_test_closed:
-                current_unit_lft = (
-                    ContentNode.objects.filter(id=unit_contentnode_id)
-                    .values_list("lft", flat=True)
-                    .first()
-                )
                 next_unit = (
                     ContentNode.objects.filter(
                         parent_id=course_session.course,
-                        lft__gt=current_unit_lft,
+                        lft__gt=most_recent_pre_test_completed.unit_sort_order,
                     )
                     .order_by("lft")
                     .values_list("id", flat=True)
