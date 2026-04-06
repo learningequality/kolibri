@@ -923,7 +923,10 @@ def parse_attemptslog(attemptlog):
     if not lessons:
         return
 
-    needs_help = _get_user_needs_help(attemptlog)
+    summarylog = attemptlog.masterylog.summarylog
+    needs_help = _is_summary_log_incompleted(summarylog) and _get_user_needs_help(
+        attemptlog
+    )
     notifications = []
     for lesson, contentnode_id in lessons:
         if needs_help:

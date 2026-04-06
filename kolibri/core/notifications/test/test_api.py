@@ -1194,6 +1194,28 @@ class NotificationsAPITestCase(APITestCase):
         # Keeps the timestamp of the first failed attempt
         assert notification.timestamp == attemptlog1.end_timestamp
 
+    def test_parse_attemptslog_no_needs_help_when_exercise_already_completed(self):
+        # Mark the exercise as completed before any attempts
+        self.summarylog1.progress = 1.0
+        self.summarylog1.completion_timestamp = local_now()
+        self.summarylog1.save()
+
+        attemptlog = self._create_mock_attemptlog()
+        attemptlog.interaction_history = [
+            {"type": "answer", "correct": 0}
+            for _ in range(NEEDS_HELP_NOTIFICATION_THRESHOLD)
+        ]
+        attemptlog.save()
+
+        parse_attemptslog(attemptlog)
+
+        assert not LearnerProgressNotification.objects.filter(
+            notification_event=NotificationEventType.Help,
+            user_id=attemptlog.user_id,
+            lesson_id=self.lesson_id,
+            contentnode_id=self.node_1.id,
+        ).exists()
+
 
 class BulkNotificationsAPITestCase(APITestCase):
     databases = "__all__"
