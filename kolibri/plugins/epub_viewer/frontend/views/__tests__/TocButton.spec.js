@@ -1,18 +1,20 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import TocButton from '../TocButton';
 
-function createWrapper() {
-  return mount(TocButton);
+function renderComponent() {
+  return render(TocButton);
 }
 
 describe('Table of contents button', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper();
-    expect(wrapper.exists()).toBe(true);
+  it('renders the table of contents button', () => {
+    renderComponent();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
-  it('should emit an event when the button is clicked', () => {
-    const wrapper = createWrapper();
-    wrapper.find('button').trigger('click');
-    expect(wrapper.emitted().click).toBeTruthy();
+
+  it('emits a click event when the button is interacted with', async () => {
+    const { emitted } = renderComponent();
+    await fireEvent.click(screen.getByRole('button'));
+    expect(emitted()).toHaveProperty('click');
   });
 });
