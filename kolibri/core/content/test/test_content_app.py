@@ -732,6 +732,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "modality": None,
                 "is_leaf": False,
                 "available": False,
                 "total_resources": 2,
@@ -748,6 +749,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "modality": None,
                         "is_leaf": True,
                         "available": False,
                         "total_resources": 1,
@@ -763,6 +765,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "modality": None,
                         "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
@@ -812,6 +815,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "modality": None,
                 "is_leaf": False,
                 "available": False,
                 "total_resources": 1,
@@ -828,6 +832,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "modality": None,
                         "is_leaf": True,
                         "available": False,
                         "total_resources": 0,
@@ -843,6 +848,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "modality": None,
                         "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
@@ -891,6 +897,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "id": c1_id,
                 "title": "root",
                 "kind": "topic",
+                "modality": None,
                 "is_leaf": False,
                 "available": False,
                 "total_resources": 1,
@@ -907,6 +914,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c2_id,
                         "title": "c1",
                         "kind": "video",
+                        "modality": None,
                         "is_leaf": True,
                         "available": False,
                         "total_resources": 0,
@@ -922,6 +930,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                         "id": c3_id,
                         "title": "c2",
                         "kind": "topic",
+                        "modality": None,
                         "is_leaf": False,
                         "available": False,
                         "total_resources": 1,
@@ -951,6 +960,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
+                "modality": None,
                 "is_leaf": True,
                 "available": True,
                 "total_resources": 1,
@@ -980,6 +990,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "id": c1_id,
                 "title": "c1",
                 "kind": "video",
+                "modality": None,
                 "is_leaf": True,
                 "available": False,
                 "total_resources": 0,
@@ -994,6 +1005,15 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
                 "ancestors": list(c1.get_ancestors().values("id", "title")),
             },
         )
+
+    def test_contentnode_granular_includes_modality(self):
+        c1 = content.ContentNode.objects.get(title="c1")
+        content.ContentNode.objects.filter(pk=c1.pk).update(modality="COURSE")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode_granular-detail", kwargs={"pk": c1.id}),
+            data={"for_export": True},
+        )
+        self.assertEqual(response.data["modality"], "COURSE")
 
     def test_contentnode_retrieve(self):
         c1_id = content.ContentNode.objects.get(title="c1").id

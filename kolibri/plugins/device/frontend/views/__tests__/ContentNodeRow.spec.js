@@ -114,4 +114,48 @@ describe('contentNodeRow component', () => {
     const { KCheckbox } = getElements(wrapper);
     expect(KCheckbox().props().indeterminate).toEqual(true);
   });
+
+  describe('course modality nodes', () => {
+    it('does not render a link for course nodes even though they are topics', () => {
+      const wrapper = makeWrapper({
+        node: {
+          title: 'My Course',
+          kind: 'topic',
+          modality: 'COURSE',
+          id: 'course_1',
+        },
+      });
+      const { goToTopicButton } = getElements(wrapper);
+      expect(goToTopicButton().exists()).toEqual(false);
+    });
+
+    it('uses the course icon instead of topic icon for course nodes', () => {
+      const wrapper = makeWrapper({
+        node: {
+          title: 'My Course',
+          kind: 'topic',
+          modality: 'COURSE',
+          id: 'course_1',
+        },
+      });
+      const kIcons = wrapper.findAllComponents({ name: 'KIcon' });
+      const courseIcon = kIcons.wrappers.find(w => w.props('icon') === 'course');
+      expect(courseIcon).toBeTruthy();
+      expect(wrapper.findComponent({ name: 'ContentIcon' }).exists()).toBe(false);
+    });
+
+    it('prepends "Course: " to the title for course nodes', () => {
+      const wrapper = makeWrapper({
+        node: {
+          title: 'My Course',
+          kind: 'topic',
+          modality: 'COURSE',
+          id: 'course_1',
+        },
+      });
+      const { titleText } = getElements(wrapper);
+      expect(titleText()).toContain('Course:');
+      expect(titleText()).toContain('My Course');
+    });
+  });
 });
