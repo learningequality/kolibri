@@ -893,6 +893,8 @@
         postTestNotOpenYetDescription$,
         postTestCompleted$,
         postTestCompletedDescription$,
+        unitComplete$,
+        unitCompleteDescription$,
       } = coursesStrings;
 
       const gatingState = computed(() => {
@@ -904,6 +906,14 @@
           return active_test.test_type === 'pre' ? 'PRE_TEST_CLOSE' : 'POST_TEST_CLOSE';
         }
         if (!active_test && resume_position && !resume_position.lesson_id) {
+          if (resume_position.unit_id !== props.unitId) {
+            // Resume position is on a later unit — this unit is fully complete
+            return 'UNIT_COMPLETE';
+          }
+          if (!nextUnit.value) {
+            // Last unit and all resources done — course is complete
+            return 'UNIT_COMPLETE';
+          }
           return 'POST_TEST_ACTIVATION';
         }
         return null;
@@ -916,6 +926,7 @@
           description: postTestNotOpenYetDescription$,
         },
         POST_TEST_CLOSE: { title: postTestCompleted$, description: postTestCompletedDescription$ },
+        UNIT_COMPLETE: { title: unitComplete$, description: unitCompleteDescription$ },
       };
 
       const interstitialTitle = computed(() =>

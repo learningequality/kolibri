@@ -395,12 +395,12 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   },
   unitComplete: {
     message: 'Unit complete',
-    context: 'Title shown when a learner has completed all resources and the post-test for a unit',
+    context: 'Title shown when a learner has completed all resources and tests for a unit',
   },
   unitCompleteDescription: {
     message: 'You may review previous resources while waiting for the next unit to begin.',
     context:
-      'Description shown when a learner has completed a unit and the next unit has not been activated',
+      'Description shown when a learner has completed a unit and is waiting for the next unit',
   },
   submitTestAction: {
     message: 'Submit test',
