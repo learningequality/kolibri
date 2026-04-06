@@ -68,6 +68,7 @@
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ref } from 'vue';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -76,7 +77,6 @@
   import ReportsControls from '../common/ReportsControls';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';
-  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'LearnersRootPage',

@@ -388,11 +388,11 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';

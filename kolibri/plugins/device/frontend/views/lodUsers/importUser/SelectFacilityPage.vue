@@ -64,7 +64,7 @@
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import { pageLoading } from '../../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';
 

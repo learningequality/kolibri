@@ -90,12 +90,12 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { computed, getCurrentInstance, watch } from 'vue';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../../constants/tabsConstants';
   import { PageNames } from '../../../constants';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import { showLessonSummaryPage } from '../../../modules/lessonSummary/handlers';
   import LessonResourcesTable from './tables/LessonResourcesTable';
   import LessonLearnersTable from './tables/LessonLearnersTable';

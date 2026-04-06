@@ -206,9 +206,9 @@
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import UsersTableToolbar from '../common/UsersTableToolbar/index.vue';
   import useUserManagement from '../../../composables/useUserManagement';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import FacilityAppBarPage from '../../FacilityAppBarPage';
   import { PageNames } from '../../../constants';
   import UsersTable from '../common/UsersTable.vue';

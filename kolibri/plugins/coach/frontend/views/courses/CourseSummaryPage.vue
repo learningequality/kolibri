@@ -284,6 +284,7 @@
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -293,7 +294,6 @@
   import useClassSummary from '../../composables/useClassSummary.js';
   import { UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
 

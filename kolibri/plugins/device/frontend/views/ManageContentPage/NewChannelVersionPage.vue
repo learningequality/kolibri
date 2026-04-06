@@ -132,9 +132,9 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import CoreInfoIcon from 'kolibri-common/components/labels/CoreInfoIcon';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import useContentTasks from '../../composables/useContentTasks';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { fetchOrTriggerChannelDiffStatsTask, fetchChannelAtSource } from './api';
 
   export default {

@@ -1,5 +1,5 @@
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 import CreateExamPage from '../views/quizzes/CreateExamPage';
 import SectionEditor from '../views/quizzes/CreateExamPage/sidePanels/SectionSidePanel/SectionEditor.vue';
 import ExamsRootPage from '../views/quizzes/ExamsRootPage';

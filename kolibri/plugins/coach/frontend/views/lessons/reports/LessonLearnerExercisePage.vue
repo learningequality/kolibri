@@ -16,10 +16,10 @@
 <script>
 
   import { mapState } from 'vuex';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import LearnerExerciseReport from '../../common/LearnerExerciseReport';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import { PageNames } from '../../../constants';
 
   export default {

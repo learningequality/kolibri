@@ -5,7 +5,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import useUser from 'kolibri/composables/useUser';
 import { handleApiError, clearError } from 'kolibri/utils/appError';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { pageLoading } from './usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 // Place outside the function to keep the state
 const groupsAreLoading = ref(false);

@@ -1,5 +1,5 @@
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { pageLoading } from '../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
   if (!toRoute.params.classId) {

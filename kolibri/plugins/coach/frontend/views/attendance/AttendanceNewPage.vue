@@ -33,10 +33,10 @@
   import { now } from 'kolibri/utils/serverClock';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useCoreCoach from '../../composables/useCoreCoach';
   import { useAttendance } from '../../composables/useAttendance';
   import useAttendanceForm from '../../composables/useAttendanceForm';
-  import { pageLoading } from '../../composables/usePageLoading';
   import CoachImmersivePage from '../CoachImmersivePage';
   import AttendanceFormTable from './AttendanceFormTable';
 

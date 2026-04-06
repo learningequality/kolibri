@@ -215,6 +215,7 @@
   import useChannels from 'kolibri-common/composables/useChannels';
   import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
   import useTour from 'kolibri/composables/useTour';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -226,7 +227,6 @@
     StudioNotAllowedError,
   } from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import commonLearnStrings from '../commonLearnStrings';

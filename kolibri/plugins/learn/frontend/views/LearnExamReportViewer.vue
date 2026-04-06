@@ -57,8 +57,8 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../constants';
-  import { pageLoading } from '../composables/usePageLoading';
   import useLearnerResources from '../composables/useLearnerResources';
 
   export default {

@@ -94,8 +94,8 @@
   import useChannels from 'kolibri-common/composables/useChannels';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources, {
     setClasses,

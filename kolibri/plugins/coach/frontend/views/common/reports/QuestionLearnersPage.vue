@@ -84,9 +84,9 @@
   import MultiPaneLayout from 'kolibri-common/components/MultiPaneLayout';
   import CoachContentLabel from 'kolibri-common/components/labels/CoachContentLabel';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import QuestionDetailLearnerList from '../QuestionDetailLearnerList';
   import { PageNames } from '../../../constants';
 

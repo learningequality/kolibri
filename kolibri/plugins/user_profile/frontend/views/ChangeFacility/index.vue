@@ -25,7 +25,7 @@
   import { interpret } from 'xstate';
   import useUser from 'kolibri/composables/useUser';
   import { handleError } from 'kolibri/utils/appError';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {

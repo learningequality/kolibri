@@ -30,7 +30,7 @@
 
   import { mapState, mapActions } from 'vuex';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { CSVImportStatuses } from '../../constants';
   import Init from './Init';
   import Preview from './Preview';

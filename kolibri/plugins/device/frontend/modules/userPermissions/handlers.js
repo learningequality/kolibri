@@ -5,7 +5,7 @@ import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import { handleApiError } from 'kolibri/utils/appError';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 /**
  * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,

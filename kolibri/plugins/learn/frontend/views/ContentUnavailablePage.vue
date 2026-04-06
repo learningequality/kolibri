@@ -12,7 +12,7 @@
 
 <script>
 
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import LearnAppBarPage from './LearnAppBarPage';
   import NoResourcePage from './LibraryPage/NoResourcePage.vue';
 

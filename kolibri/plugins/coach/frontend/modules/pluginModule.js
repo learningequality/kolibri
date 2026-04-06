@@ -3,7 +3,7 @@ import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
 import { handleApiError, clearError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
-import { pageLoading } from '../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames, pageNameToModuleMap } from '../constants';
 import examReportDetail from './examReportDetail';
 import exerciseDetail from './exerciseDetail';

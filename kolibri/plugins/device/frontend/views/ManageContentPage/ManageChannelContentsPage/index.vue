@@ -91,8 +91,8 @@
   import { handleApiError } from 'kolibri/utils/appError';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useContentTasks from '../../../composables/useContentTasks';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import ChannelContentsSummary from '../../SelectContentPage/ChannelContentsSummary';
   import ContentTreeViewer from '../../SelectContentPage/ContentTreeViewer';
   import DeleteResourcesModal from '../../SelectContentPage/DeleteResourcesModal';

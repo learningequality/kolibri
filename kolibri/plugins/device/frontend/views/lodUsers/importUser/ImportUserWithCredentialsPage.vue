@@ -122,7 +122,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import { pageLoading } from '../../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   import commonProfileStrings from '../../../../../user_profile/frontend/views/commonProfileStrings';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';

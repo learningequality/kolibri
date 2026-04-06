@@ -79,11 +79,11 @@
   import { ref, watch } from 'vue';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonLearnStrings from '../commonLearnStrings';
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import LibraryItem from './LibraryItem';

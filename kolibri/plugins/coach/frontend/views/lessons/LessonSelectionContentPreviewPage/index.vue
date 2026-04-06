@@ -29,9 +29,9 @@
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../../views/CoachImmersivePage';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import LessonContentPreview from './LessonContentPreview';
 
   export default {

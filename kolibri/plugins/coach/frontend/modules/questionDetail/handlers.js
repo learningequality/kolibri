@@ -1,8 +1,8 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import store from 'kolibri/store';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { coachStrings } from '../../views/common/commonCoachStrings';
-import { pageLoading } from '../../composables/usePageLoading';
 
 export function questionRootRedirectHandler(params, name, next) {
   return showQuestionDetailView(params).then(learnerId => {

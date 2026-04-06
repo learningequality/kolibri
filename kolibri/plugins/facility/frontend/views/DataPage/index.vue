@@ -204,7 +204,7 @@
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import GeneratedElapsedTime from './GeneratedElapsedTime';

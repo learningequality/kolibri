@@ -88,7 +88,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';

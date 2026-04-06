@@ -2,7 +2,7 @@ import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacility from 'kolibri-common/composables/useFacility';
-import { pageLoading } from './composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import ProfilePage from './views/ProfilePage';
 import ProfileEditPage from './views/ProfileEditPage';
 import ChangeFacility from './views/ChangeFacility';

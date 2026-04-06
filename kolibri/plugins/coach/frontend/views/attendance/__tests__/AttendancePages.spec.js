@@ -14,7 +14,7 @@ import AttendanceEditPage from '../AttendanceEditPage.vue';
 
 jest.mock('../../../composables/useAttendance');
 jest.mock('kolibri/composables/useSnackbar');
-jest.mock('../../../composables/usePageLoading');
+jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('../../../composables/useCoreCoach', () => {
   const { ref, computed } = require('vue');
   return {

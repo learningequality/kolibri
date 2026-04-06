@@ -5,7 +5,7 @@ import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants'
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { pageLoading } from './composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';

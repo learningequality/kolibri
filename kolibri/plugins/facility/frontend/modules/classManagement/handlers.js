@@ -1,6 +1,6 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { handleApiError } from 'kolibri/utils/appError';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 export function showClassesPage(store, toRoute) {
   store.dispatch('preparePage');

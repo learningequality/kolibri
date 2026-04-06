@@ -88,7 +88,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import plugin_data from 'kolibri-plugin-data';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
   import useContentTasks from '../../composables/useContentTasks';

@@ -190,13 +190,13 @@
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import { mapState, mapGetters } from 'vuex';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import { PageNames } from '../../constants';
   import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage';
   import Recipients from '../common/Recipients';
   import useCoreCoach from '../../composables/useCoreCoach';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useQuizzes from '../../composables/useQuizzes';
   import AverageScoreTooltip from '../common/AverageScoreTooltip';
   import ReportsControls from '../common/ReportsControls';

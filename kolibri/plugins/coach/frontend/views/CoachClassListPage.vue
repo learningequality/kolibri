@@ -74,8 +74,8 @@
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../constants';
-  import { pageLoading } from '../composables/usePageLoading';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
 

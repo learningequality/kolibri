@@ -2,8 +2,8 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { localeCompare } from 'kolibri/utils/i18n';
 import { handleApiError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { _userState } from '../mappers';
-import { pageLoading } from '../../composables/usePageLoading';
 
 export function sortUsersByFullName(users) {
   return users.sort((a, b) => {

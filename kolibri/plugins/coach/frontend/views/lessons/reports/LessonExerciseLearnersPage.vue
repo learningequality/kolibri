@@ -90,6 +90,7 @@
   import sortBy from 'lodash/sortBy';
   import fromPairs from 'lodash/fromPairs';
   import { mapState } from 'vuex';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { PageNames } from '../../../constants';
@@ -99,7 +100,6 @@
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
   import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
   import ReportsControls from '../../common/ReportsControls';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LessonExerciseLearnersPage',

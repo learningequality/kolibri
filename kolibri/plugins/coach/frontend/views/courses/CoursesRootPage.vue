@@ -195,6 +195,7 @@
   import { computed, getCurrentInstance, onMounted, ref, watch, nextTick } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { CoursesModals, PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import CoachHeader from '../common/CoachHeader.vue';
@@ -202,7 +203,6 @@
   import { useCourses } from '../../composables/useCourses';
   import { coachStrings } from '../common/commonCoachStrings';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
-  import { pageLoading } from '../../composables/usePageLoading';
   import AssignCourseSuccessModal from './modals/AssignCourseSuccess.vue';
   import DeleteCourseConfirmationModal from './modals/DeleteCourseConfirmation.vue';
   import useAssignCourse from './composables/useAssignCourse';

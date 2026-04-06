@@ -44,7 +44,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from './common';
   import CoachAppBarPage from './CoachAppBarPage';
 

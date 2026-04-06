@@ -186,6 +186,7 @@
   import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useUserManagement from '../../../composables/useUserManagement';
   import { PageNames } from '../../../constants';
   import { overrideRoute } from '../../../utils';
@@ -194,7 +195,6 @@
   import emptyTrashCloudSvg from '../../../images/empty_trash_cloud.svg';
   import useUsersTableSearch from '../../../composables/useUsersTableSearch';
   import usePagination from '../../../composables/usePagination';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import PermanentDeleteModal from './PermanentDeleteModal.vue';
 
   export default {

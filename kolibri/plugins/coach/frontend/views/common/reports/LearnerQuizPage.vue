@@ -31,9 +31,9 @@
 
   import { mapState } from 'vuex';
   import ExamReport from 'kolibri-common/components/quizzes/QuizReport';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import { PageNames } from '../../../constants';
 
   export default {

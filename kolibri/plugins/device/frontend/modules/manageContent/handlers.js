@@ -1,6 +1,6 @@
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 export function showManageContentPage(store) {
   store.commit('manageContent/RESET_STATE');

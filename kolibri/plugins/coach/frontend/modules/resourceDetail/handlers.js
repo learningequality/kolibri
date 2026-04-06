@@ -1,6 +1,6 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import store from 'kolibri/store';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 export function generateResourceHandler(paramsToCheck) {
   return function resourceHandler(to, from) {

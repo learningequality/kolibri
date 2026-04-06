@@ -11,8 +11,8 @@ import urls from 'kolibri/urls';
 import client from 'kolibri/client';
 import useUser from 'kolibri/composables/useUser';
 import useSnackbar from 'kolibri/composables/useSnackbar';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { currentDeviceData } from '../composables/useDevices';
-import { pageLoading } from './usePageLoading';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {

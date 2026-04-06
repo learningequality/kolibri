@@ -46,7 +46,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   export default {
     name: 'AllFacilitiesPage',

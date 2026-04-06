@@ -1,7 +1,7 @@
 import store from 'kolibri/store';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { showLessonResourceContentPreview } from '../modules/lessonResources/handlers';
 import { PageNames } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 
 import { useLessons } from '../composables/useLessons';
 

@@ -61,10 +61,10 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import DeviceChannelResource from '../../apiResources/deviceChannel';
   import useContentTasks from '../../composables/useContentTasks';
-  import { pageLoading } from '../../composables/usePageLoading';
   import taskNotificationMixin from '../taskNotificationMixin';
   import SelectionBottomBar from './SelectionBottomBar';
   import DeleteChannelModal from './DeleteChannelModal';

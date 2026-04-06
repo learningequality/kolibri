@@ -35,9 +35,9 @@
   import fromPairs from 'lodash/fromPairs';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
   import { fetchQuizSummaryPageData } from '../QuizSummaryPage/api';
 

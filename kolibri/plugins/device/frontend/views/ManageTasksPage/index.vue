@@ -80,9 +80,9 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
   import useContentTasks from '../../composables/useContentTasks';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames } from '../../constants';
 
   import TaskPanel from './TaskPanel';

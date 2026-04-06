@@ -28,7 +28,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import ClassEnrollForm from './ClassEnrollForm';
 
   export default {

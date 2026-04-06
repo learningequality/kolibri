@@ -69,7 +69,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { handleApiError } from 'kolibri/utils/appError';
-  import { pageLoading } from '../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceChannelResource from '../apiResources/deviceChannel';
   import useContentTasks from '../composables/useContentTasks';
   import { PageNames } from '../constants';

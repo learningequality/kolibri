@@ -101,9 +101,9 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { handleApiError } from 'kolibri/utils/appError';
   import { convertExamQuestionSources } from 'kolibri-common/quizzes/utils';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../../constants/tabsConstants';
   import { useCoachTabs } from '../../../composables/useCoachTabs';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';

@@ -2,8 +2,8 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import useUser from 'kolibri/composables/useUser';
 import { handleApiError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import useContentNodeProgress from '../../composables/useContentNodeProgress';
-import { pageLoading } from '../../composables/usePageLoading';
 import { LearnerLessonResource } from '../../apiResources';
 import { ClassesPageNames } from '../../constants';
 
