@@ -1,5 +1,5 @@
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';

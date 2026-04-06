@@ -94,7 +94,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useUser from 'kolibri/composables/useUser';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import taskNotificationMixin from '../taskNotificationMixin';
   import useContentTasks from '../../composables/useContentTasks';

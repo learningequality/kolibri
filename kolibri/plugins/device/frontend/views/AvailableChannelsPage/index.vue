@@ -144,12 +144,12 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { TransferTypes, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import plugin_data from 'kolibri-plugin-data';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonDeviceStrings from '../commonDeviceStrings';
   import ChannelPanel from '../ManageContentPage/ChannelPanel/WithImportDetails';
   import ContentWizardUiAlert from '../SelectContentPage/ContentWizardUiAlert';
   import { selectContentPageLink } from '../ManageContentPage/manageContentLinks';
   import useContentTasks from '../../composables/useContentTasks';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames } from '../../constants';
   import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';

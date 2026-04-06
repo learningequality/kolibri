@@ -30,11 +30,11 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { handleApiError } from 'kolibri/utils/appError';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { coachStringsMixin } from '../../common/commonCoachStrings';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import AssignmentDetailsModal from '../../common/assignments/AssignmentDetailsModal';
   import { PageNames } from '../../../constants';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LessonEditDetailsPage',

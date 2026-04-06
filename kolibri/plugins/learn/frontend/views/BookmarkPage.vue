@@ -98,9 +98,9 @@
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
-  import { pageLoading } from '../composables/usePageLoading';
   import useCoreLearn from '../composables/useCoreLearn';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';

@@ -127,6 +127,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { STATUSES } from '../../../modules/classSummary/constants';
@@ -134,7 +135,6 @@
   import ReportsControls from '../../common/ReportsControls';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import LearnerHeader from './LearnerHeader';
 
   export default {

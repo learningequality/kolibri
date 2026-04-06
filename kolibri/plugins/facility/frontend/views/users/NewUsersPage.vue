@@ -221,9 +221,9 @@
 
   import { UserKinds } from 'kolibri/constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useUsersTableSearch from '../../composables/useUsersTableSearch';
   import usePagination from '../../composables/usePagination';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useUserManagement from '../../composables/useUserManagement';
   import emptyPlusCloudSvg from '../../images/empty_plus_cloud.svg';
   import { PageNames } from '../../constants';

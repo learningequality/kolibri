@@ -55,7 +55,7 @@
   import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import plugin_data from 'kolibri-plugin-data';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';

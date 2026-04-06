@@ -6,9 +6,9 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import DeletedFacilityUserResource from 'kolibri-common/apiResources/DeletedFacilityUserResource';
 import { handleApiError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { _userState } from '../modules/mappers';
 import useUsersFilters from './useUsersFilters';
-import { pageLoading } from './usePageLoading';
 
 export default function useUserManagement({
   activeFacilityId,

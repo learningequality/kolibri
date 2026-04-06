@@ -1,6 +1,6 @@
 import store from 'kolibri/store';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { showResourceView } from '../resourceDetail/handlers';
-import { pageLoading } from '../../composables/usePageLoading';
 
 export function generateQuestionListHandler(paramsToCheck) {
   return function questionListHandler(to, from) {

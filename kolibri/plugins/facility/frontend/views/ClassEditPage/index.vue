@@ -149,13 +149,13 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserTable from 'kolibri-common/components/UserTable';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { Modals } from '../../constants.js';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
   import ClassRenameModal from '../common/ClassRenameModal';
   import useDeleteClass from '../../composables/useDeleteClass';
-  import { pageLoading } from '../../composables/usePageLoading';
   import UserRemoveConfirmationModal from './UserRemoveConfirmationModal';
 
   export default {

@@ -64,7 +64,7 @@
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri/constants';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';

@@ -78,7 +78,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import SelectDeviceModalGroup from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   import { injectLodDeviceUsers } from './composables/useLodDeviceUsers';
   import UsersList from './UsersList.vue';

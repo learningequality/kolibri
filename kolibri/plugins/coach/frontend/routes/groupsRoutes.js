@@ -1,6 +1,6 @@
 import store from 'kolibri/store';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 import { useGroups } from '../composables/useGroups';
 import GroupsRootPage from '../views/groups/GroupsRootPage';
 import GroupEnrollPage from '../views/groups/GroupEnrollPage';

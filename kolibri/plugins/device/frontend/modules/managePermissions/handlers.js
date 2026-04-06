@@ -5,7 +5,7 @@ import groupBy from 'lodash/groupBy';
 import mapValues from 'lodash/mapValues';
 import head from 'lodash/head';
 import { handleApiError } from 'kolibri/utils/appError';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 function fetchDevicePermissions() {
   return DevicePermissionsResource.fetchCollection({ force: true }).then(

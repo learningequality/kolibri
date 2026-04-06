@@ -30,6 +30,7 @@
   import sortBy from 'lodash/sortBy';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { PageNames } from '../../../constants';
@@ -38,7 +39,6 @@
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
   import ReportsControls from '../../common/ReportsControls';
   import ReportsLearnersTable from '../../common/tables/ReportsLearnersTable';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'GroupLessonExerciseLearnersPage',

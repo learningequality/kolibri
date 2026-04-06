@@ -125,12 +125,12 @@
   import { mapState, mapActions } from 'vuex';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import { GroupModals } from '../../../constants';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import RenameGroupModal from '../GroupsRootPage/RenameGroupModal';
   import DeleteGroupModal from '../GroupsRootPage/DeleteGroupModal';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import RemoveFromGroupModal from './RemoveFromGroupModal';
 
   export default {

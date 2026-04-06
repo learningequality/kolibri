@@ -207,7 +207,7 @@
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import some from 'lodash/some';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';

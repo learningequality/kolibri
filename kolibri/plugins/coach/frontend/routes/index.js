@@ -6,7 +6,7 @@ import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import useFacility from 'kolibri-common/composables/useFacility';
 import plugin_data from 'kolibri-plugin-data';
-import { pageLoading } from '../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';

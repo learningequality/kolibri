@@ -1,6 +1,6 @@
 import { handleApiError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { LearnerClassroomResource } from '../../apiResources';
-import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 
 // Shows a list of all the Classrooms a Learner is enrolled in

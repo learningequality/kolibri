@@ -96,11 +96,11 @@
   import orderBy from 'lodash/orderBy';
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { GroupModals, PageNames } from '../../../constants';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import CoachHeader from '../../common/CoachHeader.vue';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';

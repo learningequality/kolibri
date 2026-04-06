@@ -202,9 +202,9 @@
   import useTotalProgress from 'kolibri/composables/useTotalProgress';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
-  import { pageLoading } from '../../composables/usePageLoading';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
 

@@ -26,7 +26,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');
-jest.mock('../../../composables/usePageLoading');
+jest.mock('kolibri-common/composables/usePageLoading');
 // Needed to test anything using mount() where children use this composable
 jest.mock('kolibri-common/composables/useLearningActivities');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');

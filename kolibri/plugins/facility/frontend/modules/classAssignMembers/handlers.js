@@ -3,8 +3,8 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { handleApiError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { _userState } from '../mappers';
-import { pageLoading } from '../../composables/usePageLoading';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;

@@ -101,12 +101,12 @@
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import { now } from 'kolibri/utils/serverClock';
   import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import BackLink from '../common/BackLink';
   import ReportsControls from '../common/ReportsControls';
   import useCoreCoach from '../../composables/useCoreCoach';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { useAttendance } from '../../composables/useAttendance';
   import CSVExporter from '../../csv/exporter';
 

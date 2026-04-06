@@ -128,12 +128,12 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { Modals } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassRenameModal from '../common/ClassRenameModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
   import useDeleteClass from '../../composables/useDeleteClass';
-  import { pageLoading } from '../../composables/usePageLoading';
   import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassCreateModal from './ClassCreateModal';
 

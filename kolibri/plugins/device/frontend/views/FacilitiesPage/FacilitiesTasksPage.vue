@@ -45,7 +45,7 @@
   import commonTaskStrings from 'kolibri-common/uiText/tasks';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import HeaderWithOptions from '../HeaderWithOptions';
   import commonDeviceStrings from '../commonDeviceStrings';
   import { PageNames } from '../../constants';

@@ -1,7 +1,7 @@
 import { getExamReport } from 'kolibri-common/quizzes/utils';
 import router from 'kolibri/router';
 import { clearError } from 'kolibri/utils/appError';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 
 function getExamReportFromState(state, params) {

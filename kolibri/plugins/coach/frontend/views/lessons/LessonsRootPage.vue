@@ -194,13 +194,13 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import bytesForHumans from 'kolibri/uiText/bytesForHumans';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
   import CoachAppBarPage from '../CoachAppBarPage';
   import commonCoach from '../common';
   import { coachStrings } from '../common/commonCoachStrings';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import { useLessons } from '../../composables/useLessons';
-  import { pageLoading } from '../../composables/usePageLoading';
   import ReportsControls from '../common/ReportsControls';
   import * as csvFields from '../../csv/fields';
   import CSVExporter from '../../csv/exporter';

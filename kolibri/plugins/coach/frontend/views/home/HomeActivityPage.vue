@@ -19,11 +19,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import { nStringsMixin } from '../common/notifications/notificationStrings';
   import ActivityList from '../common/notifications/ActivityList';
-  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'HomeActivityPage',

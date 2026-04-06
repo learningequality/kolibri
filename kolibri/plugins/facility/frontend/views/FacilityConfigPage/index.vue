@@ -197,8 +197,8 @@
   import { handleApiError } from 'kolibri/utils/appError';
   import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
   import { useRoute } from 'vue-router/composables';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import useFacilityEditor from '../../composables/useFacilityEditor';
-  import { pageLoading } from '../../composables/usePageLoading';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import RemovePinModal from './RemovePinModal';
   import ChangePinModal from './ChangePinModal';

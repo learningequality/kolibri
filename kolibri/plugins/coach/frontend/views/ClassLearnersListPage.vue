@@ -94,9 +94,9 @@
   import { SyncStatus } from 'kolibri/constants';
   import { mapState } from 'vuex';
   import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../composables/fetchClassSyncStatus';
   import CoachImmersivePage from '../views/CoachImmersivePage';
-  import { pageLoading } from '../composables/usePageLoading';
   import { PageNames } from '../constants';
   import SyncStatusDescription from './common/SyncStatusDescription';
   import StorageNotificationBanner from './StorageNotificationBanner';

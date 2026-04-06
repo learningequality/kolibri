@@ -11,7 +11,7 @@ import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
 jest.mock('../../../composables/usePlugins');
-jest.mock('../../../composables/usePageLoading');
+jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/urls');
 
 jest.mock('kolibri-plugin-data', () => {

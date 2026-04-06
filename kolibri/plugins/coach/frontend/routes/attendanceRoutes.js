@@ -1,5 +1,5 @@
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 import AttendanceNewPage from '../views/attendance/AttendanceNewPage';
 import AttendanceHistoryPage from '../views/attendance/AttendanceHistoryPage';
 import AttendanceEditPage from '../views/attendance/AttendanceEditPage';

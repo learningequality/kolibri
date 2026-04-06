@@ -99,12 +99,12 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CSVExporter from '../../../csv/exporter';
   import * as csvFields from '../../../csv/fields';
   import ReportsControls from '../../common/ReportsControls';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'LearnerLessonPage',

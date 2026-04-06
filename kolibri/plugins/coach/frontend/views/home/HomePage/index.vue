@@ -31,9 +31,9 @@
 
   import { currentLanguage } from 'kolibri/utils/i18n';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import commonCoach from '../../common';
-  import { pageLoading } from '../../../composables/usePageLoading';
   import AttendanceBlock from './AttendanceBlock';
   import OverviewBlock from './OverviewBlock';
   import ActivityBlock from './ActivityBlock';

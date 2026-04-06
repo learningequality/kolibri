@@ -5,7 +5,7 @@ import shuffled from 'kolibri-common/utils/shuffled';
 import useUser from 'kolibri/composables/useUser';
 import { handleApiError, handleError, clearError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
-import { pageLoading } from '../../composables/usePageLoading';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 

@@ -45,7 +45,7 @@ jest.mock('../../composables/useLearnerResources');
 jest.mock('kolibri-common/composables/useLearningActivities');
 jest.mock('../../composables/useContentLink');
 jest.mock('../../composables/usePinnedDevices');
-jest.mock('../../composables/usePageLoading');
+jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/utils/samePageCheckGenerator', () => jest.fn(() => () => true));

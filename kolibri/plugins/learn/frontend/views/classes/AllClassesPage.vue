@@ -29,7 +29,7 @@
   import AuthMessage from 'kolibri/components/AuthMessage';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';

@@ -54,6 +54,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import LearnerProgressRatio from '../../common/status/LearnerProgressRatio';
@@ -62,7 +63,6 @@
   import ReportsResourceHeader from '../../common/ReportsResourceHeader';
   import ReportsControls from '../../common/ReportsControls';
   import { PageNames } from '../../../constants';
-  import { pageLoading } from '../../../composables/usePageLoading';
 
   export default {
     name: 'ExerciseQuestionListPage',

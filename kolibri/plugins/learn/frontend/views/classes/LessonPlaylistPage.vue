@@ -73,10 +73,10 @@
   import ProgressIcon from 'kolibri-common/components/labels/ProgressIcon';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';

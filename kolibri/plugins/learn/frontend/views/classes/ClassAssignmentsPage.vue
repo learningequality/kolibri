@@ -41,10 +41,10 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
 
   import useLearnerResources from '../../composables/useLearnerResources';
-  import { pageLoading } from '../../composables/usePageLoading';
   import commonLearnStrings from './../commonLearnStrings';
   import LearnAppBarPage from './../LearnAppBarPage';
   import AssignedCoursesCards from './AssignedCoursesCards';

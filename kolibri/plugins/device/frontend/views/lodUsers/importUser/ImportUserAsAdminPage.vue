@@ -36,7 +36,7 @@
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import { lodUsersManagementStrings } from 'kolibri-common/strings/lodUsersManagementStrings';
-  import { pageLoading } from '../../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
   import UsersList from '../UsersList.vue';
   import { injectLodDeviceUsers } from '../composables/useLodDeviceUsers';

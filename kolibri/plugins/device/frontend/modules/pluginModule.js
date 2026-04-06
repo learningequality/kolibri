@@ -1,6 +1,6 @@
 import { clearError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { pageNameToModuleMap, PageNames, ContentWizardPages } from '../constants';
-import { pageLoading } from '../composables/usePageLoading';
 import deviceInfo from './deviceInfo';
 import manageContent from './manageContent';
 import managePermissions from './managePermissions';

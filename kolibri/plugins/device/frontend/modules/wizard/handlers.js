@@ -6,8 +6,8 @@ import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator'
 import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
 import ContentNodeGranularResource from 'kolibri-common/apiResources/ContentNodeGranularResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { ContentWizardPages, ContentWizardErrors } from '../../constants';
-import { pageLoading } from '../../composables/usePageLoading';
 import { manageContentPageLink } from '../../views/ManageContentPage/manageContentLinks';
 import { getAvailableSpaceOnDrive, loadChannelMetadata } from './actions/selectContentActions';
 import {

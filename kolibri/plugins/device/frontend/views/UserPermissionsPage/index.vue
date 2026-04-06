@@ -124,7 +124,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import useUser from 'kolibri/composables/useUser';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import { pageLoading } from '../../composables/usePageLoading';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
 
   export default {

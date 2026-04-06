@@ -7,7 +7,7 @@ import CourseWelcomePage from '../CourseWelcomePage.vue';
 import useLearnerResources from '../../composables/useLearnerResources';
 
 jest.mock('../../composables/useLearnerResources');
-jest.mock('../../composables/usePageLoading');
+jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
   __esModule: true,
   default: () => ({ windowIsLarge: true }),

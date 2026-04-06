@@ -2,8 +2,8 @@ import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelReso
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import coreStore from 'kolibri/store';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { ErrorTypes } from '../../constants';
-import { pageLoading } from '../../composables/usePageLoading';
 import { waitForTaskToComplete } from '../manageContent/utils';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
 

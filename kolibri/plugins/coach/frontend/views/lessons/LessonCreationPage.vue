@@ -32,10 +32,10 @@
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import AssignmentDetailsModal from '../common/assignments/AssignmentDetailsModal';
   import commonCoach from '../common';
   import CoachImmersivePage from '../CoachImmersivePage';
-  import { pageLoading } from '../../composables/usePageLoading';
 
   export default {
     name: 'LessonCreationPage',

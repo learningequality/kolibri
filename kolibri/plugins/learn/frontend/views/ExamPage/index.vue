@@ -325,9 +325,9 @@
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { annotateSections } from 'kolibri-common/quizzes/utils';
   import useUser from 'kolibri/composables/useUser';
+  import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
-  import { pageLoading } from '../../composables/usePageLoading';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';

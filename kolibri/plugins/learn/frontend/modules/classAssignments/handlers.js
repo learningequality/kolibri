@@ -1,6 +1,6 @@
 import { handleApiError } from 'kolibri/utils/appError';
+import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import useLearnerResources from '../../composables/useLearnerResources';
-import { pageLoading } from '../../composables/usePageLoading';
 import { ClassesPageNames } from '../../constants';
 
 const { fetchClass } = useLearnerResources();
