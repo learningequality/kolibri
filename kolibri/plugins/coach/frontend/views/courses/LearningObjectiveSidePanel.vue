@@ -65,6 +65,7 @@
       >
         <KIcon
           icon="error"
+          class="warning-icon"
           :color="$themePalette.red.v_600"
         />
         <span>{{ learnersStrugglingLabel$({ count: strugglingCount }) }}</span>
@@ -313,6 +314,10 @@
     padding: 12px 24px;
     margin-bottom: 16px;
     font-size: 14px;
+  }
+
+  .warning-icon {
+    top: 0;
   }
 
   .learner-section {
