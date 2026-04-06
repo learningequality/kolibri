@@ -779,6 +779,23 @@
         }
         if (showInterstitial.value) {
           showInterstitial.value = false;
+          // Navigate to the last resource so the content viewer renders.
+          // When the interstitial was shown after a test, the route may not
+          // have a resourceId, so just hiding the interstitial would leave
+          // nothing rendered.
+          const lastResource = unitResources.value[unitResources.value.length - 1];
+          if (lastResource) {
+            router.replace({
+              name: PageNames.COURSE_CONTENT__RESOURCE,
+              params: {
+                courseId: props.courseId,
+                unitId: props.unitId,
+                lessonId: lastResource.parent,
+                resourceId: lastResource.id,
+              },
+            });
+            onSidePanelNavigation();
+          }
           return;
         }
         const newResourceIndex = currentResourceIndexInUnit.value - 1;
