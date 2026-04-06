@@ -249,10 +249,11 @@
     name: 'PerseusRendererIndex',
     setup(props, context) {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const { defaultFile } = useContentViewer(props, context);
+      const { defaultFile, contentDirection } = useContentViewer(props, context);
       return {
         windowBreakpoint,
         defaultFile,
+        contentDirection,
       };
     },
     props: contentViewerProps,

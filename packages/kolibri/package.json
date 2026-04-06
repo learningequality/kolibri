@@ -51,6 +51,7 @@
     "./constants": "./constants",
     "./heartbeat": "./heartbeat",
     "./router": "./router",
+    "./rtlcss": "./rtlcss",
     "./store": "./store",
     "./styles/themeConfig": "./styles/themeConfig",
     "./uiText/bytesForHumans": "./uiText/bytesForHumans",
