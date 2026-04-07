@@ -83,72 +83,88 @@
           </template>
           <template #content>
             <ul class="resource-list">
-              <TreeItem
-                v-for="resource in getResources(lesson)"
-                :key="resource.id"
-                :title="resource.title"
-                class="resource-item"
-                :selected="resource.id === currentResourceId"
-                :disabled="!maxResourceLft || resource.lft > maxResourceLft"
-                @click="onResourceClick(resource)"
-              >
-                <template
-                  v-if="resource.duration"
-                  #description
+              <template v-for="resource in getResources(lesson)">
+                <li
+                  v-if="resource.available === false"
+                  :key="resource.id"
+                  class="missing-resource"
                 >
-                  <TimeDuration
-                    :seconds="resource.duration"
-                    class="duration"
-                  />
-                </template>
-                <template #leading-actions>
-                  <LearningActivityIcon
-                    :kind="resource.learning_activities"
+                  <KIcon
+                    icon="warning"
                     class="item-icon"
+                    :color="$themePalette.yellow.v_600"
                   />
-                </template>
-                <template #trailing-actions>
-                  <div class="selected-trailing-icons">
-                    <template v-if="resource.id === currentResourceId">
-                      <KIconButton
-                        :icon="bookmarksMap[resource.id] ? 'bookmark' : 'bookmarkEmpty'"
-                        :disabled="loadingBookmarksMap[resource.id]"
+                  <span class="missing-resource-text">
+                    {{ resourceNotFoundOnDevice$() }}
+                  </span>
+                </li>
+                <TreeItem
+                  v-else
+                  :key="resource.id + '-resource'"
+                  :title="resource.title"
+                  class="resource-item"
+                  :selected="resource.id === currentResourceId"
+                  :disabled="!maxResourceLft || resource.lft > maxResourceLft"
+                  @click="onResourceClick(resource)"
+                >
+                  <template
+                    v-if="resource.duration"
+                    #description
+                  >
+                    <TimeDuration
+                      :seconds="resource.duration"
+                      class="duration"
+                    />
+                  </template>
+                  <template #leading-actions>
+                    <LearningActivityIcon
+                      :kind="resource.learning_activities"
+                      class="item-icon"
+                    />
+                  </template>
+                  <template #trailing-actions>
+                    <div class="selected-trailing-icons">
+                      <template v-if="resource.id === currentResourceId">
+                        <KIconButton
+                          :icon="bookmarksMap[resource.id] ? 'bookmark' : 'bookmarkEmpty'"
+                          :disabled="loadingBookmarksMap[resource.id]"
+                          :color="$themePalette.grey.v_400"
+                          :tooltip="
+                            bookmarksMap[resource.id] ? removeFromBookmarks$() : saveToBookmarks$()
+                          "
+                          @click.stop="toggleBookmark(resource)"
+                        />
+                        <KIconButton
+                          v-if="
+                            currentResourceProgressSessionReady &&
+                              (contentNodeProgressMap[resource.content_id] || 0) < 1
+                          "
+                          icon="check"
+                          :color="$themePalette.grey.v_400"
+                          :tooltip="markAsCompleteAction$()"
+                          @click.stop="onCompleteClick()"
+                        />
+                      </template>
+                      <KIcon
+                        v-if="contentNodeProgressMap[resource.content_id] === 1"
+                        class="item-icon"
+                        icon="mastered"
                         :color="$themePalette.grey.v_400"
-                        :tooltip="
-                          bookmarksMap[resource.id] ? removeFromBookmarks$() : saveToBookmarks$()
-                        "
-                        @click.stop="toggleBookmark(resource)"
                       />
-                      <KIconButton
-                        v-if="
-                          currentResourceProgressSessionReady &&
-                            (contentNodeProgressMap[resource.content_id] || 0) < 1
-                        "
-                        icon="check"
-                        :color="$themePalette.grey.v_400"
-                        :tooltip="markAsCompleteAction$()"
-                        @click.stop="onCompleteClick()"
+                      <KIcon
+                        v-else-if="contentNodeProgressMap[resource.content_id] > 0"
+                        class="item-icon"
+                        icon="inProgress"
                       />
-                    </template>
-                    <KIcon
-                      v-if="contentNodeProgressMap[resource.content_id] === 1"
-                      class="item-icon"
-                      icon="mastered"
-                      :color="$themePalette.grey.v_400"
-                    />
-                    <KIcon
-                      v-else-if="contentNodeProgressMap[resource.content_id] > 0"
-                      class="item-icon"
-                      icon="inProgress"
-                    />
-                    <KIcon
-                      v-else
-                      class="item-icon"
-                      icon="notStarted"
-                    />
-                  </div>
-                </template>
-              </TreeItem>
+                      <KIcon
+                        v-else
+                        class="item-icon"
+                        icon="notStarted"
+                      />
+                    </div>
+                  </template>
+                </TreeItem>
+              </template>
             </ul>
           </template>
         </AccordionItem>
@@ -227,7 +243,13 @@
 
       const { preTestLabel$, postTestLabel$, currentLabel$, markAsCompleteAction$ } =
         coursesStrings;
-      const { completedLabel$, ratioLabel$, saveToBookmarks$, removeFromBookmarks$ } = coreStrings;
+      const {
+        completedLabel$,
+        ratioLabel$,
+        saveToBookmarks$,
+        removeFromBookmarks$,
+        resourceNotFoundOnDevice$,
+      } = coreStrings;
 
       const isPostTestCompleted = computed(() => {
         if (props.isUnitComplete) {
@@ -305,6 +327,7 @@
         saveToBookmarks$,
         removeFromBookmarks$,
         markAsCompleteAction$,
+        resourceNotFoundOnDevice$,
       };
     },
     props: {
@@ -393,6 +416,18 @@
   .current-label {
     padding: 2px 5px;
     border-radius: 10px;
+  }
+
+  .missing-resource {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    height: 52px;
+    padding: 12px 16px;
+  }
+
+  .missing-resource-text {
+    font-size: 14px;
   }
 
   .resource-list {

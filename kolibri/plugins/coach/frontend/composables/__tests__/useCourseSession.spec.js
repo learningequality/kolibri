@@ -156,6 +156,21 @@ describe('useCourseSession', () => {
 
       expect(course.value).toEqual(mockCourse);
     });
+
+    it('should set contentMissing when fetchTree fails', async () => {
+      ContentNodeResource.fetchTree.mockRejectedValue(new Error('Content not found'));
+
+      const { contentMissing, courseSession, course, pageLoading } = useCourseSession(
+        ref(mockCourseSessionId),
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(contentMissing.value).toBe(true);
+      expect(course.value).toBe(null);
+      expect(courseSession.value).toEqual(mockCourseSession);
+      expect(pageLoading.value).toBe(false);
+    });
   });
 
   describe('units computed', () => {

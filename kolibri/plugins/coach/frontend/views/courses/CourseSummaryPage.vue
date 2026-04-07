@@ -16,7 +16,7 @@
         />
         <CoachHeader
           hideClassName
-          :title="course?.title || ''"
+          :title="course?.title || courseSession?.title || ''"
         >
           <template #actions>
             <KButton :text="optionsLabel$()">
@@ -31,6 +31,7 @@
           </template>
         </CoachHeader>
       </div>
+      <MissingResourceAlert v-if="contentMissing" />
       <div
         v-if="courseSession"
         class="content"
@@ -48,6 +49,7 @@
             />
             <KSwitch
               :value="courseSession.active"
+              :disabled="contentMissing"
               @change="toggleCourseActive"
             />
           </div>
@@ -299,6 +301,7 @@
   import { computed, getCurrentInstance, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
@@ -332,6 +335,7 @@
       LearningObjectivesReport,
       LearnersReport,
       LearningObjectiveSidePanel,
+      MissingResourceAlert,
       Recipients,
     },
     setup() {
@@ -391,6 +395,7 @@
 
       // Use the composable for all course session state
       const {
+        contentMissing,
         dataLoading,
         pageLoading,
         course,
@@ -747,6 +752,7 @@
 
       return {
         backRoute,
+        contentMissing,
         dataLoading,
         pageLoading,
         course,
