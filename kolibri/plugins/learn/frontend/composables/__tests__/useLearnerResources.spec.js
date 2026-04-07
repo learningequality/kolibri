@@ -726,6 +726,7 @@ const COURSE_CONTENT_TREE = {
 
 function setupCourseData(progressOverrides = {}) {
   const progress = {
+    gating_state: 'NOT_STARTED',
     started: false,
     active_test: null,
     resume_position: null,
@@ -744,30 +745,53 @@ function setupCourseData(progressOverrides = {}) {
 
 describe('isUnitTestAvailable', () => {
   it('returns false when there is no active test', async () => {
-    await setupCourseData({ started: false });
+    await setupCourseData({ gating_state: 'NOT_STARTED', started: false });
     expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
   });
 
-  it('returns true when active test matches unit and type', async () => {
+  it('returns true when pre-test is active and learner has not completed it', async () => {
     await setupCourseData({
+      gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
       started: true,
       active_test: { unit_id: 'unit-1', test_type: 'pre' },
     });
     expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(true);
   });
 
-  it('returns false when active test is for a different unit', async () => {
+  it('returns false when pre-test is active but learner has completed it', async () => {
     await setupCourseData({
+      gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
       started: true,
-      active_test: { unit_id: 'unit-2', test_type: 'pre' },
+      active_test: { unit_id: 'unit-1', test_type: 'pre' },
+      resume_position: { unit_id: 'unit-1' },
     });
     expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
   });
 
-  it('returns false when active test is a different type', async () => {
+  it('returns true when post-test is active and learner has not completed it', async () => {
     await setupCourseData({
+      gating_state: 'POST_TEST_ACTIVE_INCOMPLETE',
       started: true,
       active_test: { unit_id: 'unit-1', test_type: 'post' },
+    });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'post')).toBe(true);
+  });
+
+  it('returns false when post-test is active but learner has completed it', async () => {
+    await setupCourseData({
+      gating_state: 'POST_TEST_ACTIVE_COMPLETE',
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'post' },
+      resume_position: { unit_id: 'unit-1' },
+    });
+    expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'post')).toBe(false);
+  });
+
+  it('returns false when active test is for a different unit', async () => {
+    await setupCourseData({
+      gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
+      started: true,
+      active_test: { unit_id: 'unit-2', test_type: 'pre' },
     });
     expect(isUnitTestAvailable(COURSE_ID, 'unit-1', 'pre')).toBe(false);
   });
@@ -775,20 +799,22 @@ describe('isUnitTestAvailable', () => {
 
 describe('isCourseLessonAvailable', () => {
   it('returns false when course has not started', async () => {
-    await setupCourseData({ started: false });
+    await setupCourseData({ gating_state: 'NOT_STARTED', started: false });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
   });
 
-  it('returns false when learner is taking the pre-test (started, no resume position yet)', async () => {
+  it('returns false when learner is taking the pre-test', async () => {
     await setupCourseData({
+      gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
       started: true,
       active_test: { unit_id: 'unit-1', test_type: 'pre' },
     });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
   });
 
-  it('returns true for a lesson at or before the resume position in the current unit', async () => {
+  it('returns true for a lesson at or before resume position', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1b', resource_id: 'r1' },
     });
@@ -796,8 +822,9 @@ describe('isCourseLessonAvailable', () => {
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
   });
 
-  it('returns false for a lesson ahead of the resume position in the current unit', async () => {
+  it('returns false for a lesson ahead of resume position', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
     });
@@ -806,6 +833,7 @@ describe('isCourseLessonAvailable', () => {
 
   it('returns true for all lessons in a previous unit', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-2', lesson_id: 'lesson-2a', resource_id: 'r1' },
     });
@@ -815,23 +843,78 @@ describe('isCourseLessonAvailable', () => {
 
   it('returns false for lessons in a future unit', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
     });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
   });
 
-  it('returns true for all lessons when the current unit is complete (no lesson_id in resume)', async () => {
+  it('returns true for all lessons when resources are complete in current unit', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
       started: true,
-      resume_position: { unit_id: 'unit-1', lesson_id: null, resource_id: null },
+      resume_position: { unit_id: 'unit-1' },
     });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
   });
 
+  it('returns false when pre-test completed but not closed (current unit)', async () => {
+    await setupCourseData({
+      gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
+      started: true,
+      active_test: { unit_id: 'unit-2', test_type: 'pre' },
+      resume_position: { unit_id: 'unit-2' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+    // Previous units remain navigable
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+  });
+
+  it('returns false for ALL lessons when post-test is active (any unit)', async () => {
+    await setupCourseData({
+      gating_state: 'POST_TEST_ACTIVE_INCOMPLETE',
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'post' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+  });
+
+  it('returns false for ALL lessons when post-test is completed but not closed', async () => {
+    await setupCourseData({
+      gating_state: 'POST_TEST_ACTIVE_COMPLETE',
+      started: true,
+      active_test: { unit_id: 'unit-1', test_type: 'post' },
+      resume_position: { unit_id: 'unit-1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
+  });
+
+  it('returns true for completed unit lessons during UNIT_COMPLETE', async () => {
+    await setupCourseData({
+      gating_state: 'UNIT_COMPLETE',
+      started: true,
+      resume_position: { unit_id: 'unit-1' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+  });
+
+  it('returns true for all lessons during COURSE_COMPLETE', async () => {
+    await setupCourseData({
+      gating_state: 'COURSE_COMPLETE',
+      started: true,
+      resume_position: { unit_id: 'unit-2' },
+    });
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
+    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(true);
+  });
+
   it('returns false for a nonexistent unit', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1a', resource_id: 'r1' },
     });
@@ -840,45 +923,10 @@ describe('isCourseLessonAvailable', () => {
 
   it('returns false for a nonexistent lesson in the current unit', async () => {
     await setupCourseData({
+      gating_state: 'RESOURCE_PROGRESSION',
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1b', resource_id: 'r1' },
     });
     expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'nonexistent')).toBe(false);
-  });
-
-  it('returns false when pre-test is completed (active pre-test + resume_position with only unit_id)', async () => {
-    await setupCourseData({
-      started: true,
-      active_test: { unit_id: 'unit-2', test_type: 'pre' },
-      resume_position: { unit_id: 'unit-2' },
-    });
-    // PRE_TEST_CLOSE state — lessons in gated unit are locked
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2b')).toBe(false);
-    // But previous units remain navigable
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(true);
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(true);
-  });
-
-  it('returns false for all lessons when post-test is active', async () => {
-    await setupCourseData({
-      started: true,
-      active_test: { unit_id: 'unit-1', test_type: 'post' },
-      resume_position: { unit_id: 'unit-1' },
-    });
-    // POST_TEST_CLOSE state — all resources locked during post-test
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1b')).toBe(false);
-  });
-
-  it('returns false for lessons in any unit when post-test is active', async () => {
-    await setupCourseData({
-      started: true,
-      active_test: { unit_id: 'unit-2', test_type: 'post' },
-      resume_position: { unit_id: 'unit-2' },
-    });
-    // Post-test locks ALL lessons, even in previous units
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-1', 'lesson-1a')).toBe(false);
-    expect(isCourseLessonAvailable(COURSE_ID, 'unit-2', 'lesson-2a')).toBe(false);
   });
 });

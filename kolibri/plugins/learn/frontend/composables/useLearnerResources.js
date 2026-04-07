@@ -17,7 +17,7 @@ import {
   LearnerLessonResource,
   LearnerCourseResource,
 } from '../apiResources';
-import { ClassesPageNames, PageNames } from '../constants';
+import { ClassesPageNames, GatingState, PageNames } from '../constants';
 import useContentNodeProgress, { setContentNodeProgress } from './useContentNodeProgress';
 
 // The refs are defined in the outer scope so they can be used as a shared store
@@ -454,13 +454,15 @@ export default function useLearnerResources() {
    */
   function isUnitTestAvailable(courseId, unitId, testType) {
     const progress = getCourseProgress(courseId);
-    const activeTest = progress?.active_test;
+    const { gating_state, active_test } = progress || {};
 
-    if (!activeTest) {
-      return false;
-    }
+    // Only available when the test is active AND the learner hasn't completed it
+    const activeStates =
+      testType === 'pre'
+        ? GatingState.PRE_TEST_ACTIVE_INCOMPLETE
+        : GatingState.POST_TEST_ACTIVE_INCOMPLETE;
 
-    return activeTest.unit_id === unitId && activeTest.test_type === testType;
+    return gating_state === activeStates && active_test?.unit_id === unitId;
   }
 
   /**
@@ -473,72 +475,84 @@ export default function useLearnerResources() {
   function isCourseLessonAvailable(courseId, unitId, lessonId) {
     const progress = getCourseProgress(courseId);
     const units = getCourseUnits(courseId);
+    const { gating_state, resume_position } = progress || {};
 
-    if (!progress?.started || !progress.resume_position?.unit_id) {
+    // States where ALL resources are locked (including previous units)
+    if (
+      gating_state === GatingState.POST_TEST_ACTIVE_INCOMPLETE ||
+      gating_state === GatingState.POST_TEST_ACTIVE_COMPLETE
+    ) {
       return false;
     }
 
-    // When the post-test is active, all resources are locked
-    if (progress.active_test?.test_type === 'post') {
+    // States where nothing is accessible
+    if (
+      gating_state === GatingState.NOT_STARTED ||
+      gating_state === GatingState.PRE_TEST_ACTIVE_INCOMPLETE ||
+      !gating_state
+    ) {
       return false;
     }
 
-    // When the pre-test is completed (active + resume_position exists),
-    // no resources have been started yet — lock lessons in the gated unit.
-    // Previous units remain navigable.
-    if (progress.active_test?.test_type === 'pre') {
-      const resumeUnitId = progress.resume_position.unit_id;
-      const currentUnit = units.find(unit => unit.id === resumeUnitId);
+    // PRE_TEST_ACTIVE_COMPLETE — only previous units viewable
+    if (gating_state === GatingState.PRE_TEST_ACTIVE_COMPLETE) {
+      if (!resume_position?.unit_id) {
+        return false;
+      }
+      const currentUnit = units.find(unit => unit.id === resume_position.unit_id);
       const targetUnit = units.find(unit => unit.id === unitId);
       if (!currentUnit || !targetUnit) {
         return false;
       }
-      // Previous units are still navigable
       return targetUnit.lft < currentUnit.lft;
     }
 
-    const resumeUnitId = progress.resume_position.unit_id;
-    const resumeLessonId = progress.resume_position.lesson_id;
-
-    // Find the current unit to get its lft
-    const currentUnit = units.find(unit => unit.id === resumeUnitId);
-
-    if (!currentUnit) {
-      return false;
-    }
-
-    const targetUnit = units.find(unit => unit.id === unitId);
-
-    if (!targetUnit || !targetUnit.children?.results) {
-      return false;
-    }
-
-    // If this unit comes before the current unit, all lessons are available
-    if (targetUnit.lft < currentUnit.lft) {
-      return true;
-    }
-
-    // If this is the current unit
-    if (unitId === resumeUnitId) {
-      // If a unitId is provided without a current lesson, the unit is complete
-      // and the lesson should be available
-      if (!resumeLessonId) {
+    // RESOURCE_PROGRESSION — up to resume position in current unit, all in previous
+    if (gating_state === GatingState.RESOURCE_PROGRESSION) {
+      if (!resume_position?.unit_id) {
+        return false;
+      }
+      const currentUnit = units.find(unit => unit.id === resume_position.unit_id);
+      const targetUnit = units.find(unit => unit.id === unitId);
+      if (!currentUnit || !targetUnit || !targetUnit.children?.results) {
+        return false;
+      }
+      if (targetUnit.lft < currentUnit.lft) {
         return true;
       }
-
+      if (unitId !== resume_position.unit_id) {
+        return false;
+      }
+      if (!resume_position.lesson_id) {
+        return true;
+      }
       const lessons = targetUnit.children.results;
-      const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
+      const resumeLesson = lessons.find(lesson => lesson.id === resume_position.lesson_id);
       const targetLesson = lessons.find(lesson => lesson.id === lessonId);
-
       if (!resumeLesson || !targetLesson) {
         return false;
       }
-
-      // Check if target lesson's lft <= resume lesson's lft
       return targetLesson.lft <= resumeLesson.lft;
     }
 
-    return false;
+    // RESOURCES_COMPLETE_POST_TEST_INACTIVE, UNIT_COMPLETE, COURSE_COMPLETE
+    // — completed and current unit resources are all viewable
+    if (!resume_position?.unit_id) {
+      return false;
+    }
+    const currentUnit = units.find(unit => unit.id === resume_position.unit_id);
+    const targetUnit = units.find(unit => unit.id === unitId);
+    if (!currentUnit || !targetUnit) {
+      return false;
+    }
+
+    // COURSE_COMPLETE — everything is viewable
+    if (gating_state === GatingState.COURSE_COMPLETE) {
+      return true;
+    }
+
+    // Current and previous units are viewable
+    return targetUnit.lft <= currentUnit.lft;
   }
 
   /**
