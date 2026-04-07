@@ -46,6 +46,18 @@ class TestType(ChoicesEnum):
     Post = "post"
 
 
+class GatingState(ChoicesEnum):
+    NotStarted = "NOT_STARTED"
+    PreTestActiveIncomplete = "PRE_TEST_ACTIVE_INCOMPLETE"
+    PreTestActiveComplete = "PRE_TEST_ACTIVE_COMPLETE"
+    ResourceProgression = "RESOURCE_PROGRESSION"
+    ResourcesCompletePostTestInactive = "RESOURCES_COMPLETE_POST_TEST_INACTIVE"
+    PostTestActiveIncomplete = "POST_TEST_ACTIVE_INCOMPLETE"
+    PostTestActiveComplete = "POST_TEST_ACTIVE_COMPLETE"
+    UnitComplete = "UNIT_COMPLETE"
+    CourseComplete = "COURSE_COMPLETE"
+
+
 class UnitPhase(ChoicesEnum):
     PreTestPending = "pre_test_pending"
     PreTestActive = "pre_test_active"
