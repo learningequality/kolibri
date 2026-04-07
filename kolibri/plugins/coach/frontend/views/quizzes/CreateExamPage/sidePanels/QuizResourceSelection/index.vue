@@ -173,7 +173,8 @@
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
-  import { computed, ref, getCurrentInstance, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
@@ -201,8 +202,8 @@
       const previousRoute = usePreviousRoute();
       const isLandingRoute = computed(() => previousRoute.value === null);
 
-      const { $store, $router } = getCurrentInstance().proxy;
-      const route = computed(() => $store.state.route);
+      const $router = useRouter();
+      const route = useRoute();
       const {
         activeSection,
         activeSectionIndex,
@@ -219,7 +220,7 @@
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
-      const { selectPracticeQuiz } = route.value.query;
+      const { selectPracticeQuiz } = route.query;
 
       /**
        * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
@@ -471,11 +472,11 @@
         $router.push({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            classId: route.value.params.classId,
-            quizId: route.value.params.quizId,
-            sectionIndex: route.value.params.sectionIndex,
+            classId: route.params.classId,
+            quizId: route.params.quizId,
+            sectionIndex: route.params.sectionIndex,
           },
-          query: { ...route.value.query },
+          query: { ...route.query },
         });
       }
 
@@ -492,7 +493,7 @@
       });
       const subpageLoading = computed(() => {
         const skipLoading = PageNames.QUIZ_SELECT_RESOURCES_SEARCH;
-        return loading.value && route.value.name !== skipLoading;
+        return loading.value && route.name !== skipLoading;
       });
 
       const workingPoolQuestionsCount = computed(() => {
@@ -528,9 +529,7 @@
 
       const disableSave = computed(() => {
         if (selectPracticeQuiz) {
-          return (
-            !workingPoolHasChanged.value && route.value.name !== PageNames.QUIZ_PREVIEW_RESOURCE
-          );
+          return !workingPoolHasChanged.value && route.name !== PageNames.QUIZ_PREVIEW_RESOURCE;
         }
         const disabledConditions = [
           !workingPoolHasChanged.value,

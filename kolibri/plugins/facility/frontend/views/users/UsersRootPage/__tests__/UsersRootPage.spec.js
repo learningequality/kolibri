@@ -32,7 +32,6 @@ const router = new VueRouter({
 
 async function renderPage({ routeQuery = {}, userManagement = {} } = {}) {
   const store = makeStore();
-  store.state.route = { params: {} };
   useUserManagement.mockImplementation(() =>
     useUserManagementMock({
       ...userManagement,

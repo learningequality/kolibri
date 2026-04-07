@@ -91,6 +91,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { computed, getCurrentInstance, watch } from 'vue';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import { useRoute } from 'vue-router/composables';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import ReportsControls from '../../common/ReportsControls';
@@ -122,12 +123,12 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const store = getCurrentInstance().proxy.$store;
-      const routeParams = computed(() => store.state.route.params);
-      const lessonId = computed(() => routeParams.value.lessonId);
+      const route = useRoute();
+      const lessonId = computed(() => route.params.lessonId);
 
-      showLessonSummaryPage(store, routeParams.value);
+      showLessonSummaryPage(store, route.params);
 
-      watch(lessonId, () => showLessonSummaryPage(store, routeParams.value));
+      watch(lessonId, () => showLessonSummaryPage(store, route.params));
 
       const { createSnackbar, clearSnackbar } = useSnackbar();
       return { lessonId, pageLoading, createSnackbar, clearSnackbar };

@@ -2,6 +2,7 @@ import find from 'lodash/find';
 import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'vue';
+import { useRoute } from 'vue-router/composables';
 import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import useFacilities from 'kolibri-common/composables/useFacilities';
@@ -12,11 +13,11 @@ const logging = logger.getLogger(__filename);
 
 export default function useCoreCoach(store) {
   store = store || getCurrentInstance().proxy.$store;
-  const route = computed(() => store.state.route);
+  const route = useRoute();
   const pageTitle = computed(() => formatPageTitle());
   const appBarTitle = computed(() => getAppBarTitle());
   const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
-  const classId = computed(() => get(route).params.classId);
+  const classId = computed(() => route.params.classId);
   const className = computed(() => store.state.classSummary.name);
   const groups = computed(() => store.getters['classSummary/groups']);
   const { isSuperuser } = useUser();
@@ -44,9 +45,9 @@ export default function useCoreCoach(store) {
     // To get a page title, each coach route should have
     // meta.titleParts defined, which is an array of coachStrings tr keys
     // or special all-caps strings that get mapped to names.
-    const parts = get(route).meta.titleParts || [];
+    const parts = route.meta.titleParts || [];
     const classSummary = store.state.classSummary;
-    const { params } = get(route);
+    const { params } = route;
 
     let strings = parts.map(part => {
       try {
