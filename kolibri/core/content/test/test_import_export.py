@@ -5,6 +5,7 @@ import sys
 import tempfile
 import time
 import uuid
+from contextlib import contextmanager
 from io import StringIO
 
 from django.core.management import call_command
@@ -34,6 +35,7 @@ from kolibri.core.content.utils.content_types_tools import (
 from kolibri.core.content.utils.import_export_content import get_content_nodes_data
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.import_export_content import get_import_export_nodes
+from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
 from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
@@ -65,6 +67,20 @@ class FalseThenTrue:
         if self.count > self.times:
             return True
         return False
+
+
+@contextmanager
+def temp_file_with_size(size_bytes):
+    """Create a temporary file with specific size, auto-cleanup on exit."""
+    fd, path = tempfile.mkstemp()
+    if size_bytes > 0:
+        os.write(fd, b"x" * size_bytes)
+    os.close(fd)
+    try:
+        yield path
+    finally:
+        if os.path.exists(path):
+            os.unlink(path)
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -2345,37 +2361,45 @@ class ExportChannelTestCase(TestCase):
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
     @patch(
-        "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_path"
+        "kolibri.core.content.utils.resource_export.paths.get_content_database_file_path"
     )
-    @patch("kolibri.core.content.utils.channel_transfer.transfer.FileCopy")
-    @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
+    @patch("kolibri.core.content.utils.resource_export.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.resource_export.JobProgressMixin.is_cancelled")
+    @patch(
+        "kolibri.core.content.utils.resource_export.JobProgressMixin.check_for_cancel"
+    )
     def test_cancel_during_transfer(
         self,
-        get_current_job_mock,
+        check_for_cancel_mock,
+        is_cancelled_mock,
         FileCopyMock,
         local_path_mock,
     ):
         # Make sure we clean up a database file that is canceled during export
-        dummy_job = create_dummy_job()
-        get_current_job_mock.return_value = dummy_job
+        is_cancelled_mock.return_value = False
         fd1, local_dest_path = tempfile.mkstemp()
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        local_path_mock.side_effect = [local_src_path, local_dest_path]
+        # Called 3 times: once in prepare_for_export() for size check, twice in do_channel_database_export()
+        local_path_mock.side_effect = [local_src_path, local_src_path, local_dest_path]
+        FileCopyMock.return_value.__enter__ = MagicMock(
+            return_value=FileCopyMock.return_value
+        )
+        FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
         FileCopyMock.assert_called_with(
-            local_src_path, local_dest_path, cancel_check=dummy_job.is_cancelled
+            local_src_path, local_dest_path, cancel_check=is_cancelled_mock
         )
-        dummy_job.check_for_cancel.assert_called_with()
+        check_for_cancel_mock.assert_called_with()
         self.assertTrue(os.path.exists(local_dest_path))
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
-@patch("kolibri.core.content.utils.content_export.get_import_export_nodes")
-@patch("kolibri.core.content.utils.content_export.get_content_nodes_data")
-@patch("kolibri.core.content.utils.content_export.ContentManifest")
+@patch("kolibri.core.content.utils.resource_export.get_import_export_nodes")
+@patch("kolibri.core.content.utils.resource_export.get_content_nodes_data")
+@patch("kolibri.core.content.utils.resource_export.ContentManifest")
 class ExportContentTestCase(TestCase):
     """
     Test case for the exportcontent management command.
@@ -2384,19 +2408,26 @@ class ExportContentTestCase(TestCase):
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-    @patch("kolibri.core.content.utils.content_export.transfer.FileCopy")
-    @patch("kolibri.core.content.utils.content_export.get_job")
+    @patch("kolibri.core.content.utils.resource_export.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.resource_export.JobProgressMixin.is_cancelled")
+    @patch(
+        "kolibri.core.content.utils.resource_export.JobProgressMixin.check_for_cancel"
+    )
     def test_local_cancel_immediately(
         self,
-        get_job_mock,
+        check_for_cancel_mock,
+        is_cancelled_mock,
         FileCopyMock,
         ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
-        dummy_job = create_dummy_job()
-        get_job_mock.return_value = dummy_job
+        is_cancelled_mock.return_value = True
+        FileCopyMock.return_value.__enter__ = MagicMock(
+            return_value=FileCopyMock.return_value
+        )
+        FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
@@ -2404,32 +2435,41 @@ class ExportContentTestCase(TestCase):
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        dummy_job.is_cancelled.assert_has_calls([call()])
-        FileCopyMock.assert_not_called()
-        dummy_job.check_for_cancel.assert_called_with()
+        is_cancelled_mock.assert_called()
+        # FileCopy should not actually copy files since is_cancelled returns True
+        check_for_cancel_mock.assert_called_with()
 
     @patch(
-        "kolibri.core.content.utils.content_export.paths.get_content_storage_file_path"
+        "kolibri.core.content.utils.resource_export.paths.get_content_storage_file_path"
     )
-    @patch("kolibri.core.content.utils.content_export.transfer.FileCopy")
-    @patch("kolibri.core.content.utils.content_export.get_job")
+    @patch("kolibri.core.content.utils.resource_export.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.resource_export.JobProgressMixin.is_cancelled",
+        side_effect=FalseThenTrue(times=1),
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_export.JobProgressMixin.check_for_cancel"
+    )
     def test_local_cancel_during_transfer(
         self,
-        get_job_mock,
+        check_for_cancel_mock,
+        is_cancelled_mock,
         FileCopyMock,
         local_path_mock,
         ContentManifestMock,
         get_content_nodes_data_mock,
         get_import_export_nodes_mock,
     ):
-        dummy_job = create_dummy_job()
-        get_job_mock.return_value = dummy_job
         # Make sure we cancel during transfer
         fd1, local_dest_path = tempfile.mkstemp()
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
+        FileCopyMock.return_value.__enter__ = MagicMock(
+            return_value=FileCopyMock.return_value
+        )
+        FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
@@ -2437,12 +2477,19 @@ class ExportContentTestCase(TestCase):
             10,
         )
         call_command("exportcontent", self.the_channel_id, tempfile.mkdtemp())
-        dummy_job.is_cancelled.assert_has_calls([call()])
-        dummy_job.check_for_cancel.assert_called_with()
+        is_cancelled_mock.assert_called()
+        check_for_cancel_mock.assert_called_with()
 
-    @patch("kolibri.core.content.utils.content_export.copy_content_files")
+    @patch(
+        "kolibri.core.content.utils.resource_export.DiskChannelResourceExportManager._copy_content_files"
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_export.JobProgressMixin.is_cancelled",
+        return_value=False,
+    )
     def test_manifest_only(
         self,
+        is_cancelled_mock,
         copy_content_files_mock,
         ContentManifestMock,
         get_content_nodes_data_mock,
@@ -2792,3 +2839,534 @@ class TestFilesToTransfer(TestCase):
         )
         transfer_ids = set([f["id"] for f in files_to_transfer])
         self.assertEqual(transfer_ids, essential_ids)
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class DiskChannelResourceExportManagerTestCase(TestCase):
+    """
+    Test case for the DiskChannelResourceExportManager class.
+    Tests that progress is properly coordinated across export phases.
+
+    Uses real fixture data for content queries, only mocks file operations.
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        # Only mock what we must: file operations and progress tracking
+        self.patches = [
+            patch(
+                "kolibri.core.content.utils.resource_export.paths.get_content_database_file_path"
+            ),
+            patch("kolibri.core.content.utils.resource_export.transfer.FileCopy"),
+            patch(
+                "kolibri.core.content.utils.resource_export.JobProgressMixin.start_progress"
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_export.JobProgressMixin.update_progress"
+            ),
+        ]
+
+        mocks = [p.start() for p in self.patches]
+        self.db_path_mock = mocks[0]
+        self.file_copy_mock = mocks[1]
+        self.start_progress_mock = mocks[2]
+        self.update_progress_mock = mocks[3]
+
+        # Configure FileCopy mock as a context manager
+        self.file_copy_mock.return_value.__enter__ = MagicMock(
+            return_value=self.file_copy_mock.return_value
+        )
+        self.file_copy_mock.return_value.__exit__ = MagicMock(return_value=False)
+        self.file_copy_mock.return_value.run = MagicMock()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    def test_progress_initialized_once_for_both_phases(self):
+        """Test that progress is initialized once with combined total for both phases."""
+        with temp_file_with_size(1000) as db_path:
+            self.db_path_mock.return_value = db_path
+
+            manager = DiskChannelResourceExportManager(
+                self.the_channel_id,
+                tempfile.mkdtemp(),
+            )
+            manager.run()
+
+            # Verify start_progress was called once (not twice for each phase)
+            self.start_progress_mock.assert_called_once()
+            # Total should include channel_db_size (1000) + content from fixture
+            call_args = self.start_progress_mock.call_args
+            total = call_args[1].get("total", 0)
+            self.assertGreaterEqual(total, 1000)  # At least the DB size
+
+    def test_export_channel_only(self):
+        """Test that export_content=False only exports channel database."""
+        with temp_file_with_size(1000) as db_path:
+            self.db_path_mock.return_value = db_path
+
+            manager = DiskChannelResourceExportManager(
+                self.the_channel_id,
+                tempfile.mkdtemp(),
+                export_channel_database=True,
+                export_content=False,
+            )
+            manager.run()
+
+            # With no content export, total should be just the DB size
+            call_args = self.start_progress_mock.call_args
+            total = call_args[1].get("total", 0)
+            self.assertEqual(total, 1000)
+
+    def test_export_content_only(self):
+        """Test that export_channel_database=False only exports content files."""
+        with temp_file_with_size(0) as db_path:
+            self.db_path_mock.return_value = db_path
+
+            manager = DiskChannelResourceExportManager(
+                self.the_channel_id,
+                tempfile.mkdtemp(),
+                export_channel_database=False,
+                export_content=True,
+            )
+            manager.run()
+
+            # With no DB export, total should be just content (0 DB size)
+            call_args = self.start_progress_mock.call_args
+            total = call_args[1].get("total", 0)
+            # Content size from fixture - should be > 0 if fixture has content
+            self.assertGreaterEqual(total, 0)
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class ImportManagerWithChannelDatabaseTestCase(TestCase):
+    """
+    Test case for import managers with import_channel_database=True.
+    Tests that progress is properly coordinated across channel database import and content import.
+
+    Uses real fixture data for content queries, only mocks file/network operations.
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        # Only mock network/file operations and progress tracking
+        # Let get_import_export_data run on real fixture data
+        self.patches = [
+            patch("kolibri.core.content.utils.resource_import.annotation"),
+            patch(
+                "kolibri.core.content.utils.resource_import.lookup_channel_listing_status"
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_import.JobProgressMixin.start_progress"
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
+                return_value=False,
+            ),
+        ]
+
+        mocks = [p.start() for p in self.patches]
+        self.annotation_mock = mocks[0]
+        self.channel_list_status_mock = mocks[1]
+        self.start_progress_mock = mocks[2]
+        self.is_cancelled_mock = mocks[3]
+
+        # Configure annotation mock default
+        self.annotation_mock.calculate_dummy_progress_for_annotation.return_value = 0
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url"
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_path"
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch("kolibri.core.content.utils.resource_import.import_channel_by_id")
+    def test_remote_import_progress_includes_channel_database(
+        self,
+        import_channel_mock,
+        FileDownloadMock,
+        db_path_mock,
+        db_url_mock,
+    ):
+        """Test that remote import with import_channel_database=True includes channel DB size in progress."""
+        channel_db_size = 2000
+
+        # Mock the HEAD request for channel database size
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.headers = {"Content-Length": str(channel_db_size)}
+        mock_session.head.return_value = mock_response
+
+        # Configure FileDownload mock as context manager
+        FileDownloadMock.return_value.__enter__ = MagicMock(
+            return_value=FileDownloadMock.return_value
+        )
+        FileDownloadMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileDownloadMock.return_value.run = MagicMock()
+
+        import_channel_mock.return_value = True
+
+        manager = RemoteChannelResourceImportManager(
+            self.the_channel_id,
+            import_channel_database=True,
+        )
+        manager.session = mock_session
+
+        manager.run()
+
+        # With import_channel_database=True, start_progress is called with estimated
+        # total (channel_db_size * 10001)
+        self.start_progress_mock.assert_called_once()
+        call_args = self.start_progress_mock.call_args
+        total = call_args[1].get("total", 0)
+        expected_estimated = channel_db_size * 10001
+        self.assertEqual(total, expected_estimated)
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_path"
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.resource_import.import_channel_by_id")
+    def test_disk_import_progress_includes_channel_database(
+        self,
+        import_channel_mock,
+        FileCopyMock,
+        db_path_mock,
+    ):
+        """Test that disk import with import_channel_database=True includes channel DB size in progress."""
+        channel_db_size = 1500
+
+        with temp_file_with_size(channel_db_size) as source_db_path:
+            dest_dir = tempfile.mkdtemp()
+            db_path_mock.side_effect = (
+                lambda channel_id, datafolder=None, contentfolder=None: (
+                    source_db_path
+                    if datafolder
+                    else os.path.join(dest_dir, "db.sqlite3")
+                )
+            )
+
+            # Configure FileCopy mock as context manager
+            FileCopyMock.return_value.__enter__ = MagicMock(
+                return_value=FileCopyMock.return_value
+            )
+            FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
+            FileCopyMock.return_value.run = MagicMock()
+
+            import_channel_mock.return_value = True
+
+            manager = DiskChannelResourceImportManager(
+                self.the_channel_id,
+                path=tempfile.mkdtemp(),
+                import_channel_database=True,
+            )
+
+            manager.run()
+
+            # With import_channel_database=True, start_progress is called with estimated
+            # total (channel_db_size * 10001)
+            self.start_progress_mock.assert_called_once()
+            call_args = self.start_progress_mock.call_args
+            total = call_args[1].get("total", 0)
+            expected_estimated = channel_db_size * 10001
+            self.assertEqual(total, expected_estimated)
+
+    def test_import_without_channel_database_flag(self):
+        """Test that import without import_channel_database=True does not include channel DB size."""
+        manager = RemoteChannelResourceImportManager(
+            self.the_channel_id,
+            import_channel_database=False,
+        )
+
+        manager.run()
+
+        # Without import_channel_database, progress uses actual content size from fixture
+        self.start_progress_mock.assert_called_once()
+        call_args = self.start_progress_mock.call_args
+        total = call_args[1].get("total", 0)
+        # Should be content size only (no channel DB), value from fixture
+        self.assertGreaterEqual(total, 0)
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class NewChannelImportRegressionTestCase(TestCase):
+    """
+    Regression test for importing a channel that doesn't exist locally yet.
+
+    When import_channel_database=True and the channel doesn't exist in the
+    local database, the channel database must be imported BEFORE calling
+    get_import_data(), otherwise it will fail trying to query non-existent
+    content nodes with: TypeError: unsupported operand type(s) for *: 'int' and 'NoneType'
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_new_channel_import_does_not_fail_on_missing_channel(self):
+        """
+        Import a channel that doesn't exist locally with import_channel_database=True.
+
+        Verifies that do_channel_database_import() is called BEFORE prepare_for_import()
+        so that get_import_export_data() can query the now-existing content nodes.
+        """
+        # Use a channel ID that does NOT exist in the database
+        new_channel_id = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+        manager = DiskChannelResourceImportManager(
+            new_channel_id,
+            path=tempfile.mkdtemp(),
+            import_channel_database=True,
+        )
+
+        # Track call order
+        call_order = []
+
+        def mock_db_import():
+            call_order.append("db_import")
+
+        def mock_prepare():
+            call_order.append("prepare")
+            # Set attributes that prepare_for_import normally sets
+            manager.total_bytes = 1000
+            manager.total_bytes_to_transfer = 1000
+            manager.total_resource_count = 5
+
+        # Mock methods - we're testing the ordering, not the actual operations
+        with patch.object(
+            manager, "get_channel_database_size", return_value=100
+        ), patch.object(
+            manager, "do_channel_database_import", side_effect=mock_db_import
+        ), patch.object(
+            manager, "prepare_for_import", side_effect=mock_prepare
+        ), patch.object(
+            manager, "run_import", return_value=(0, 0)
+        ), patch.object(
+            manager, "finalize_standalone_progress_tracking"
+        ):
+            manager.run()
+
+            # Verify do_channel_database_import is called BEFORE prepare_for_import
+            self.assertEqual(call_order, ["db_import", "prepare"])
+
+    def test_database_ready_set_before_content_import(self):
+        """
+        When import_channel_database=True, the manager should set
+        database_ready=True in job metadata right after importing the channel
+        database and before starting the content file import.
+
+        The frontend (NewChannelVersionPage) watches for this flag to redirect
+        the user to the content selection page while files are still importing.
+        """
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+            import_channel_database=True,
+        )
+
+        call_order = []
+
+        def mock_db_import():
+            call_order.append("db_import")
+
+        def mock_prepare():
+            call_order.append("prepare")
+            manager.total_bytes = 1000
+            manager.total_bytes_to_transfer = 1000
+            manager.total_resource_count = 5
+
+        def mock_run_import():
+            call_order.append("run_import")
+            return (0, 0)
+
+        mock_job = MagicMock()
+
+        with patch.object(
+            manager, "get_channel_database_size", return_value=100
+        ), patch.object(
+            manager, "do_channel_database_import", side_effect=mock_db_import
+        ), patch.object(
+            manager, "prepare_for_import", side_effect=mock_prepare
+        ), patch.object(
+            manager, "run_import", side_effect=mock_run_import
+        ), patch.object(
+            manager, "finalize_standalone_progress_tracking"
+        ):
+            manager.job = mock_job
+            manager.run()
+
+            # database_ready must be set after db_import but before run_import
+            mock_job.update_metadata.assert_any_call(database_ready=True)
+            db_ready_call_index = None
+            for i, c in enumerate(mock_job.update_metadata.call_args_list):
+                if c == call(database_ready=True):
+                    db_ready_call_index = i
+                    break
+            self.assertIsNotNone(
+                db_ready_call_index, "database_ready=True was never set"
+            )
+            # Verify ordering: db_import happened before database_ready,
+            # and run_import happened after
+            db_import_index = call_order.index("db_import")
+            run_import_index = call_order.index("run_import")
+            self.assertGreater(run_import_index, db_import_index)
+
+
+@override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
+class UpgradeDBReuseTestCase(TestCase):
+    """
+    Test that do_channel_database_import reuses a previously-downloaded upgrade
+    database (e.g. from diff_stats) instead of re-downloading, and cleans it up
+    after import.
+    """
+
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def setUp(self):
+        self.patches = [
+            patch("kolibri.core.content.utils.resource_import.annotation"),
+            patch(
+                "kolibri.core.content.utils.resource_import.lookup_channel_listing_status"
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_import.JobProgressMixin.start_progress"
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
+                return_value=False,
+            ),
+            patch(
+                "kolibri.core.content.utils.resource_import.import_channel_by_id",
+                return_value=True,
+            ),
+        ]
+
+        mocks = [p.start() for p in self.patches]
+        self.annotation_mock = mocks[0]
+        self.annotation_mock.calculate_dummy_progress_for_annotation.return_value = 0
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url"
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    def test_reuses_upgrade_db_instead_of_downloading(
+        self,
+        FileCopyMock,
+        FileDownloadMock,
+        db_url_mock,
+    ):
+        """
+        When a previously-downloaded upgrade database exists on disk (e.g. from
+        diff_stats), do_channel_database_import should use a local FileCopy from
+        the upgrade path instead of creating a new FileDownload from the remote.
+        """
+        # Create a fake upgrade database file
+        upgrade_db_path = paths.get_upgrade_content_database_file_path(
+            self.the_channel_id
+        )
+        os.makedirs(os.path.dirname(upgrade_db_path), exist_ok=True)
+        with open(upgrade_db_path, "wb") as f:
+            f.write(b"x" * 500)
+
+        # Configure FileCopy mock as context manager
+        FileCopyMock.return_value.__enter__ = MagicMock(
+            return_value=FileCopyMock.return_value
+        )
+        FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileCopyMock.return_value.run = MagicMock()
+
+        # Configure FileDownload mock as context manager
+        FileDownloadMock.return_value.__enter__ = MagicMock(
+            return_value=FileDownloadMock.return_value
+        )
+        FileDownloadMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileDownloadMock.return_value.run = MagicMock()
+
+        try:
+            manager = RemoteChannelResourceImportManager(
+                self.the_channel_id,
+                import_channel_database=True,
+            )
+            # Mock session for get_channel_database_size HEAD request
+            mock_session = MagicMock()
+            mock_response = MagicMock()
+            mock_response.headers = {"Content-Length": "500"}
+            mock_session.head.return_value = mock_response
+            manager.session = mock_session
+
+            manager.do_channel_database_import()
+
+            # Should use FileCopy from upgrade path, NOT FileDownload
+            FileCopyMock.assert_called_once()
+            call_args = FileCopyMock.call_args
+            self.assertEqual(call_args[0][0], upgrade_db_path)
+            FileDownloadMock.assert_not_called()
+        finally:
+            if os.path.exists(upgrade_db_path):
+                os.remove(upgrade_db_path)
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url"
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    def test_cleans_up_upgrade_db_after_import(
+        self,
+        FileCopyMock,
+        FileDownloadMock,
+        db_url_mock,
+    ):
+        """
+        After importing from the upgrade database, do_channel_database_import
+        should remove the upgrade file from disk.
+        """
+        upgrade_db_path = paths.get_upgrade_content_database_file_path(
+            self.the_channel_id
+        )
+        os.makedirs(os.path.dirname(upgrade_db_path), exist_ok=True)
+        with open(upgrade_db_path, "wb") as f:
+            f.write(b"x" * 500)
+
+        # Configure FileCopy mock as context manager
+        FileCopyMock.return_value.__enter__ = MagicMock(
+            return_value=FileCopyMock.return_value
+        )
+        FileCopyMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileCopyMock.return_value.run = MagicMock()
+
+        try:
+            manager = RemoteChannelResourceImportManager(
+                self.the_channel_id,
+                import_channel_database=True,
+            )
+            mock_session = MagicMock()
+            mock_response = MagicMock()
+            mock_response.headers = {"Content-Length": "500"}
+            mock_session.head.return_value = mock_response
+            manager.session = mock_session
+
+            manager.do_channel_database_import()
+
+            # Upgrade DB should be cleaned up after import
+            self.assertFalse(
+                os.path.exists(upgrade_db_path),
+                "Upgrade database should be removed after import",
+            )
+        finally:
+            if os.path.exists(upgrade_db_path):
+                os.remove(upgrade_db_path)

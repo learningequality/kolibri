@@ -1,6 +1,6 @@
 import logging
 
-from kolibri.core.content.utils.channel_transfer import export_channel
+from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
@@ -14,4 +14,10 @@ class Command(AsyncCommand):
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         destination = options["destination"]
-        export_channel(channel_id, destination)
+        manager = DiskChannelResourceExportManager(
+            channel_id,
+            destination,
+            export_channel_database=True,
+            export_content=False,
+        )
+        manager.run()
