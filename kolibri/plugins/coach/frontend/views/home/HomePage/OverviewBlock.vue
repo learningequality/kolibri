@@ -1,18 +1,46 @@
 <template>
 
   <KPageContainer>
-    <p>
-      <BackLink
-        v-if="classListPageEnabled"
-        :to="classListLink"
-        :text="$tr('allClassesLabel')"
-      />
-      <BackLink
-        v-else-if="userIsMultiFacilityAdmin && !classListPageEnabled"
-        :to="{ name: 'AllFacilitiesPage' }"
-        :text="coreString('changeLearningFacility')"
-      />
-    </p>
+    <KGrid>
+      <KGridItem
+        :layout12="{ span: 6, alignment: 'left' }"
+        :layout8="{ span: 4, alignment: 'left' }"
+        :layout4="{ span: 2, alignment: 'left' }"
+      >
+        <p>
+          <BackLink
+            v-if="classListPageEnabled"
+            :to="classListLink"
+            :text="$tr('allClassesLabel')"
+          />
+          <BackLink
+            v-else-if="userIsMultiFacilityAdmin && !classListPageEnabled"
+            :to="{ name: 'AllFacilitiesPage' }"
+            :text="coreString('changeLearningFacility')"
+          />
+        </p>
+      </KGridItem>
+      <KGridItem
+        :layout12="{ span: 6, alignment: 'right' }"
+        :layout8="{ span: 4, alignment: 'right' }"
+        :layout4="{ span: 2, alignment: 'right' }"
+      >
+        <KRouterLink
+          v-if="
+            facilityConfig.picture_password_settings !== null &&
+              facilityConfig.picture_password_settings !== undefined
+          "
+          :text="viewPasswordsAction$()"
+          appearance="raised-button"
+          :to="{
+            name: PageNames.LEARNER_PASSWORDS,
+            params: { classId },
+            query: { last: LastPages.HOME_PAGE },
+          }"
+          class="view-passwords-link"
+        />
+      </KGridItem>
+    </KGrid>
 
     <h1>
       <KLabeledIcon
@@ -63,19 +91,31 @@
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
+  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../learn/frontend/constants';
   import commonCoach from '../../common';
   import { fetchClassSyncStatus } from '../../../composables/fetchClassSyncStatus';
   import { LastPages } from '../../../constants/lastPagesConstants';
+  import { PageNames } from '../../../constants';
 
   export default {
     name: 'OverviewBlock',
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
+      const { facilityConfig } = useFacility();
+      const { viewPasswordsAction$ } = picturePasswords;
       const userList = ref([]);
-      return { userIsMultiFacilityAdmin, userList };
+      return {
+        userIsMultiFacilityAdmin,
+        facilityConfig,
+        viewPasswordsAction$,
+        userList,
+        PageNames,
+        LastPages,
+      };
     },
     computed: {
       ...mapGetters(['classListPageEnabled']),
@@ -149,6 +189,10 @@
 
   .view-learners-link {
     margin-left: 24px;
+  }
+
+  .view-passwords-link {
+    margin-top: 16px;
   }
 
 </style>

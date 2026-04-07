@@ -1,52 +1,91 @@
 <template>
 
-  <KPageContainer>
-    <KButton
-      :text="printAction$()"
-      appearance="raised"
-      class="print-button"
-      @click="$emit('print')"
-    />
-
-    <KCircularLoader v-if="loading" />
-
-    <CoreTable v-else>
-      <template #headers>
-        <th>{{ coreString('fullNameLabel') }}</th>
-        <th>{{ coreString('usernameLabel') }}</th>
-        <th>{{ picturePasswordLabel$() }}</th>
-      </template>
-      <template #tbody>
-        <tbody>
-          <tr
-            v-for="learner in learners"
-            :key="learner.id"
+  <ImmersivePage
+    :appBarTitle="allPasswordsHeader$()"
+    :route="route"
+    :primary="false"
+  >
+    <KPageContainer>
+      <KCircularLoader v-if="loading" />
+      <div v-else>
+        <KGrid>
+          <KGridItem
+            :layout12="{ span: 6, alignment: 'left' }"
+            :layout8="{ span: 4, alignment: 'left' }"
+            :layout4="{ span: 2, alignment: 'left' }"
+            class="header-row"
           >
-            <td>
-              <KLabeledIcon
-                icon="person"
-                :label="learner.full_name"
-              />
-            </td>
-            <td>
-              <span dir="auto">{{ learner.username }}</span>
-            </td>
-            <td>
-              <template v-if="learner.picture_password">
-                {{ resolvePicturePassword(learner.picture_password) }}
-              </template>
-              <span
-                v-else
-                class="no-password-text"
+            <h1>{{ allPasswordsHeader$() }}</h1>
+          </KGridItem>
+          <KGridItem
+            :layout12="{ span: 6, alignment: 'right' }"
+            :layout8="{ span: 4, alignment: 'right' }"
+            :layout4="{ span: 2, alignment: 'right' }"
+            class="header-row print-button"
+          >
+            <KButton :text="printAction$()" />
+          </KGridItem>
+        </KGrid>
+        <CoreTable>
+          <template #headers>
+            <th
+              class="table-header"
+              :style="{ color: $themeTokens.text }"
+            >
+              {{ nameLabel$() }}
+            </th>
+          </template>
+          <template #tbody>
+            <tbody>
+              <tr
+                v-for="learner in learners"
+                :key="learner.id"
               >
-                {{ noPicturePasswordDescription$() }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </template>
-    </CoreTable>
-  </KPageContainer>
+                <td :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }">
+                  <div class="learner-row">
+                    <div class="learner-info">
+                      <span
+                        dir="auto"
+                        class="learner-name"
+                        :style="{ color: $themeTokens.text }"
+                      >{{ learner.full_name }}</span>
+                      <span
+                        dir="auto"
+                        class="learner-username"
+                        :style="{ color: $themeTokens.annotation }"
+                      >{{ learner.username }}</span>
+                    </div>
+                    <div class="learner-password">
+                      <template v-if="learner.picture_password">
+                        {{ resolvePicturePassword(learner.picture_password) }}
+                      </template>
+                      <div
+                        v-else
+                        class="no-password-info"
+                      >
+                        <span
+                          class="no-password-title"
+                          :style="{ color: $themeTokens.text }"
+                        >
+                          {{ noPicturePasswordDescription$() }}
+                        </span>
+                        <span
+                          class="no-password-subtitle"
+                          :style="{ color: $themeTokens.annotation }"
+                        >
+                          {{ noPasswordSignInDescription$() }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </CoreTable>
+      </div>
+    </KPageContainer>
+  </ImmersivePage>
 
 </template>
 
@@ -58,18 +97,24 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
-  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswordStrings';
+  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
+  import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
   export default {
     name: 'AllPasswordsPage',
-    components: { CoreTable },
+    components: { CoreTable, ImmersivePage },
     mixins: [commonCoreStrings],
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
 
-      const { noPicturePasswordDescription$, printAction$, picturePasswordLabel$ } =
-        picturePasswordStrings;
+      const {
+        nameLabel$,
+        noPicturePasswordDescription$,
+        noPasswordSignInDescription$,
+        printAction$,
+        allPasswordsHeader$,
+      } = picturePasswords;
 
       onMounted(() => {
         FacilityUserResource.fetchCollection({
@@ -94,9 +139,11 @@
         learners,
         loading,
         resolvePicturePassword,
+        nameLabel$,
         noPicturePasswordDescription$,
+        noPasswordSignInDescription$,
         printAction$,
-        picturePasswordLabel$,
+        allPasswordsHeader$,
       };
     },
     props: {
@@ -104,8 +151,11 @@
         type: String,
         required: true,
       },
+      route: {
+        type: Object,
+        default: null,
+      },
     },
-    emits: ['print'],
   };
 
 </script>
@@ -113,12 +163,59 @@
 
 <style lang="scss" scoped>
 
-  .print-button {
+  .header-row {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
     margin-bottom: 16px;
+
+    h1 {
+      padding: 8px;
+      margin: 0;
+    }
   }
 
-  .no-password-text {
-    font-style: italic;
+  .print-button {
+    justify-content: flex-end;
+  }
+
+  .table-header {
+    font-size: 14px;
+  }
+
+  .learner-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 8px 0;
+  }
+
+  .learner-info,
+  .no-password-info {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+  }
+
+  .learner-name {
+    font-size: 16px;
+  }
+
+  .learner-username {
+    font-size: 14px;
+  }
+
+  .learner-password {
+    text-align: right;
+  }
+
+  .no-password-title {
+    font-size: 14px;
+  }
+
+  .no-password-subtitle {
+    font-size: 12px;
   }
 
 </style>

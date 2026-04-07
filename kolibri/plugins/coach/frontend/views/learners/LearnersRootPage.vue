@@ -4,7 +4,23 @@
     <KPageContainer>
       <CoachHeader
         :title="$isPrint ? $tr('printLabel', { className }) : coachString('learnersLabel')"
-      />
+      >
+        <template #actions>
+          <KRouterLink
+            v-if="
+              facilityConfig.picture_password_settings !== null &&
+                facilityConfig.picture_password_settings !== undefined
+            "
+            :text="viewPasswordsAction$()"
+            appearance="raised-button"
+            :to="{
+              name: PageNames.LEARNER_PASSWORDS,
+              params: { classId: $route.params.classId },
+              query: { last: LastPages.LEARNERS_ROOT },
+            }"
+          />
+        </template>
+      </CoachHeader>
       <div class="filter">
         <KSelect
           v-model="recipientSelected"
@@ -67,6 +83,8 @@
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useFacility from 'kolibri-common/composables/useFacility';
+  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
@@ -76,6 +94,7 @@
   import CoachHeader from '../common/CoachHeader';
   import ReportsControls from '../common/ReportsControls';
   import { PageNames } from '../../constants';
+  import { LastPages } from '../../constants/lastPagesConstants';
   import { coachStrings } from '../common/commonCoachStrings';
 
   export default {
@@ -89,6 +108,8 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { entireClassLabel$ } = coachStrings;
+      const { facilityConfig } = useFacility();
+      const { viewPasswordsAction$ } = picturePasswords;
 
       const recipientSelected = ref({
         label: entireClassLabel$(),
@@ -98,8 +119,11 @@
       return {
         pageLoading,
         entireClassLabel$,
+        facilityConfig,
+        viewPasswordsAction$,
         recipientSelected,
         PageNames,
+        LastPages,
       };
     },
     computed: {

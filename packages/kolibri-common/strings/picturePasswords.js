@@ -62,4 +62,29 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Icon style',
     context: 'Label for icon style radio group',
   },
+  viewPasswordsAction: {
+    message: 'View Passwords',
+    context: 'Button label that navigates to the page listing all learner picture passwords',
+  },
+  noPicturePasswordDescription: {
+    message: 'No picture password assigned',
+    context: 'Shown in the learner password list when a learner has no picture password set',
+  },
+  printAction: {
+    message: 'Print',
+    context: 'Button label to print the learner picture password list',
+  },
+  nameLabel: {
+    message: 'Name',
+    context: 'Column header label for the name column in the picture password list',
+  },
+  allPasswordsHeader: {
+    message: 'All passwords',
+    context: 'App bar title for the page listing all learner passwords',
+  },
+  noPasswordSignInDescription: {
+    message: 'Learners can sign in with their username',
+    context:
+      'Shown below the no picture password text to inform that learners without a picture password can still sign in using their username',
+  },
 });
