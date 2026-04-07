@@ -7,7 +7,7 @@
       >
         <template #actions>
           <KRouterLink
-            v-if="facilityConfig.picture_password_settings"
+            v-if="facilityConfig.picture_password_settings && learners.length"
             :text="viewPasswordsAction$()"
             appearance="raised-button"
             :to="{
