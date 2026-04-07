@@ -23,7 +23,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   learnerCreationDisabled: {
     message: 'Learner creation is currently disabled due to reaching limit of 1300 learners.',
     context:
-    'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
+      'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
   },
   howLearnersSignIn: {
     message: 'How learners sign in',
