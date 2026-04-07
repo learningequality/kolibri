@@ -279,7 +279,7 @@
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute';
   import useLearnerResources from '../composables/useLearnerResources';
-  import { PageNames } from '../constants';
+  import { GatingState, PageNames } from '../constants';
   import ChannelThumbnail from './ChannelThumbnail.vue';
 
   export default {
@@ -331,37 +331,20 @@
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
       const courseStarted = computed(() => {
-        if (!courseProgress.value?.started) {
-          return false;
-        }
-        if (courseProgress.value?.resume_position != null) {
-          return true;
-        }
-        // No resume_position but started — check the active test to infer progress.
-        const activeTest = courseProgress.value?.active_test;
-        if (activeTest && units.value?.length > 0) {
-          // A post-test means the learner completed resources in that unit
-          if (activeTest.test_type === 'post') {
-            return true;
-          }
-          // A pre-test beyond the first unit means previous units were completed
-          return activeTest.unit_id !== units.value[0].id;
-        }
-        return false;
+        return courseProgress.value?.gating_state !== GatingState.NOT_STARTED;
       });
 
-      const hasActiveTest = computed(() => !!courseProgress.value?.active_test);
-
       const buttonDisabled = computed(() => {
-        if (!courseStarted.value && !hasActiveTest.value) {
-          return true;
-        }
-        // Disabled when the learner has completed the active test and is
-        // waiting for the coach to close it (active test + resume_position).
-        if (hasActiveTest.value && courseProgress.value?.resume_position != null) {
-          return true;
-        }
-        return false;
+        const state = courseProgress.value?.gating_state;
+        const disabledStates = [
+          GatingState.NOT_STARTED,
+          GatingState.PRE_TEST_ACTIVE_COMPLETE,
+          GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE,
+          GatingState.POST_TEST_ACTIVE_COMPLETE,
+          GatingState.UNIT_COMPLETE,
+          GatingState.COURSE_COMPLETE,
+        ];
+        return disabledStates.includes(state);
       });
 
       const courseContent = computed(() =>

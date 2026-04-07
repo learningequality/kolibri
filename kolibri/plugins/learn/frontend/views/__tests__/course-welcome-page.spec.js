@@ -94,6 +94,7 @@ describe('CourseWelcomePage', () => {
   };
 
   const makeLearnerResourcesMock = ({
+    gating_state = 'NOT_STARTED',
     started = false,
     resume_position = null,
     active_test = null,
@@ -103,6 +104,7 @@ describe('CourseWelcomePage', () => {
         course: mockCourse,
         content: mockCourseContent,
         progress: {
+          gating_state,
           started,
           resume_position,
           active_test,
@@ -110,16 +112,30 @@ describe('CourseWelcomePage', () => {
       }),
       getCourseContent: jest.fn().mockReturnValue(mockCourseContent),
       getCourseProgress: jest.fn().mockReturnValue({
+        gating_state,
         started,
         resume_position,
         active_test,
       }),
       getCourseUnits: jest.fn().mockReturnValue(mockUnits),
-      isUnitTestAvailable: jest.fn((courseId, unitId, testType) => {
-        if (!active_test) return false;
-        return active_test.unit_id === unitId && active_test.test_type === testType;
+      isUnitTestAvailable: jest.fn((courseId, unitId) => {
+        // Only available when active and incomplete
+        if (gating_state === 'PRE_TEST_ACTIVE_INCOMPLETE' && active_test?.test_type === 'pre') {
+          return active_test.unit_id === unitId;
+        }
+        if (gating_state === 'POST_TEST_ACTIVE_INCOMPLETE' && active_test?.test_type === 'post') {
+          return active_test.unit_id === unitId;
+        }
+        return false;
       }),
-      isCourseLessonAvailable: jest.fn(() => started),
+      isCourseLessonAvailable: jest.fn(() => {
+        return (
+          gating_state === 'RESOURCE_PROGRESSION' ||
+          gating_state === 'RESOURCES_COMPLETE_POST_TEST_INACTIVE' ||
+          gating_state === 'UNIT_COMPLETE' ||
+          gating_state === 'COURSE_COMPLETE'
+        );
+      }),
       isCurrentCourseLesson: jest.fn(() => false),
     };
   };
@@ -275,8 +291,8 @@ describe('CourseWelcomePage', () => {
   });
 
   describe('course action button state', () => {
-    it('is disabled when course not started and no active pre-test', async () => {
-      learnerResources = makeLearnerResourcesMock({ started: false });
+    it('is disabled when NOT_STARTED', async () => {
+      learnerResources = makeLearnerResourcesMock({ gating_state: 'NOT_STARTED' });
       useLearnerResources.mockReturnValue(learnerResources);
       const wrapper = renderComponent();
 
@@ -285,8 +301,9 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is enabled when first unit pre-test is active', async () => {
+    it('is enabled when PRE_TEST_ACTIVE_INCOMPLETE', async () => {
       learnerResources = makeLearnerResourcesMock({
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
         started: true,
         active_test: { unit_id: 'unit-1', test_type: 'pre' },
       });
@@ -298,8 +315,24 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is enabled when course started with resume position', async () => {
+    it('is disabled when PRE_TEST_ACTIVE_COMPLETE', async () => {
       learnerResources = makeLearnerResourcesMock({
+        gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'pre' },
+        resume_position: { unit_id: 'unit-1' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
+      });
+    });
+
+    it('is enabled when RESOURCE_PROGRESSION', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: {
           unit_id: 'unit-1',
@@ -315,15 +348,11 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is disabled when learner completed active pre-test (waiting for coach)', async () => {
+    it('is disabled when RESOURCES_COMPLETE_POST_TEST_INACTIVE', async () => {
       learnerResources = makeLearnerResourcesMock({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
-        active_test: { unit_id: 'unit-1', test_type: 'pre' },
-        resume_position: {
-          unit_id: 'unit-1',
-          lesson_id: 'lesson-1',
-          resource_id: 'resource-1',
-        },
+        resume_position: { unit_id: 'unit-1' },
       });
       useLearnerResources.mockReturnValue(learnerResources);
       const wrapper = renderComponent();
@@ -333,46 +362,11 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is disabled when post-test is active', async () => {
+    it('is enabled when POST_TEST_ACTIVE_INCOMPLETE', async () => {
       learnerResources = makeLearnerResourcesMock({
+        gating_state: 'POST_TEST_ACTIVE_INCOMPLETE',
         started: true,
         active_test: { unit_id: 'unit-1', test_type: 'post' },
-        resume_position: {
-          unit_id: 'unit-1',
-          lesson_id: 'lesson-1',
-          resource_id: 'resource-1',
-        },
-      });
-      useLearnerResources.mockReturnValue(learnerResources);
-      const wrapper = renderComponent();
-
-      await waitFor(() => {
-        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
-      });
-    });
-
-    it('is disabled when a later unit pre-test is active and learner completed it', async () => {
-      learnerResources = makeLearnerResourcesMock({
-        started: true,
-        active_test: { unit_id: 'unit-2', test_type: 'pre' },
-        resume_position: {
-          unit_id: 'unit-1',
-          lesson_id: 'lesson-1',
-          resource_id: 'resource-1',
-        },
-      });
-      useLearnerResources.mockReturnValue(learnerResources);
-      const wrapper = renderComponent();
-
-      await waitFor(() => {
-        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
-      });
-    });
-
-    it('shows "Resume Course" and is enabled when later unit pre-test is active but not yet taken', async () => {
-      learnerResources = makeLearnerResourcesMock({
-        started: true,
-        active_test: { unit_id: 'unit-2', test_type: 'pre' },
       });
       useLearnerResources.mockReturnValue(learnerResources);
       const wrapper = renderComponent();
@@ -384,22 +378,46 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('shows "Resume Course" when post-test is active but learner has not taken it yet', async () => {
-      // Unit 1's post-test is active, but no resume_position (learner hasn't
-      // taken the test yet). courseStarted should return true because
-      // activeTest.test_type === 'post' means the learner completed unit resources.
+    it('is disabled when POST_TEST_ACTIVE_COMPLETE', async () => {
       learnerResources = makeLearnerResourcesMock({
+        gating_state: 'POST_TEST_ACTIVE_COMPLETE',
         started: true,
         active_test: { unit_id: 'unit-1', test_type: 'post' },
-        // no resume_position — learner hasn't taken the post-test yet
+        resume_position: { unit_id: 'unit-1' },
       });
       useLearnerResources.mockReturnValue(learnerResources);
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        const button = wrapper.getByTestId('course-action-button');
-        expect(button).toBeEnabled();
-        expect(button).toHaveTextContent('Resume Course');
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
+      });
+    });
+
+    it('is disabled when UNIT_COMPLETE', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        gating_state: 'UNIT_COMPLETE',
+        started: true,
+        resume_position: { unit_id: 'unit-1' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
+      });
+    });
+
+    it('is disabled when COURSE_COMPLETE', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        gating_state: 'COURSE_COMPLETE',
+        started: true,
+        resume_position: { unit_id: 'unit-2' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('course-action-button')).toBeDisabled();
       });
     });
   });
