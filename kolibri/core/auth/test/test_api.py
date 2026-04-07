@@ -1779,6 +1779,125 @@ class LoginLogoutTestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
 
 
+class PicturePasswordLoginTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.other_facility = FacilityFactory.create()
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner.picture_password = "1.2.3"
+        cls.learner.save(update_fields=["picture_password"])
+
+    def test_valid_picture_password_creates_session(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "1.2.3",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], self.learner.id)
+
+    def test_picture_password_wrong_facility_returns_not_found(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "1.2.3",
+                "facility": self.other_facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_picture_password_no_match_returns_not_found(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "9.9.9",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_coach_not_authenticated_via_picture_password(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        coach.picture_password = "4.5.6"
+        coach.save(update_fields=["picture_password"])
+        self.facility.add_coach(coach)
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "4.5.6",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_admin_not_authenticated_via_picture_password(self):
+        admin = FacilityUserFactory.create(facility=self.facility)
+        admin.picture_password = "7.8.9"
+        admin.save(update_fields=["picture_password"])
+        self.facility.add_admin(admin)
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "7.8.9",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_picture_password_none_falls_through_to_username_path(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": self.learner.username,
+                "password": DUMMY_PASSWORD,
+                "picture_password": None,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], self.learner.id)
+
+
+class PicturePasswordPasswordlessLoginTestCase(APITestCase):
+    """Passwordless login must still work when picture-password feature is enabled."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.facility.dataset.learner_can_login_with_no_password = True
+        cls.facility.dataset.learner_can_edit_password = False
+        cls.facility.dataset.save()
+
+    def test_passwordless_login_unaffected_by_picture_password_feature(self):
+        learner = FacilityUserFactory.create(facility=self.facility)
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={"username": learner.username, "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], learner.id)
+
+
 class SignUpBase:
     @classmethod
     def setUpTestData(cls):
