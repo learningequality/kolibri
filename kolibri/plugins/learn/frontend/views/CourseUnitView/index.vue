@@ -878,14 +878,21 @@
         },
       };
 
-      const interstitialTitle = computed(() => {
+      // Fall back to RESOURCES_COMPLETE_POST_TEST_INACTIVE when the server
+      // gating_state hasn't caught up yet (the progress write from the last
+      // resource may still be in flight when the re-fetch returns).
+      const effectiveGatingStrings = computed(() => {
         const state = resumeData.value?.gating_state;
-        return state && GATING_STRINGS[state] ? GATING_STRINGS[state].title() : '';
+        return (
+          GATING_STRINGS[state] || GATING_STRINGS[GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE]
+        );
       });
-      const interstitialDescription = computed(() => {
-        const state = resumeData.value?.gating_state;
-        return state && GATING_STRINGS[state] ? GATING_STRINGS[state].description() : '';
-      });
+      const interstitialTitle = computed(() =>
+        effectiveGatingStrings.value ? effectiveGatingStrings.value.title() : '',
+      );
+      const interstitialDescription = computed(() =>
+        effectiveGatingStrings.value ? effectiveGatingStrings.value.description() : '',
+      );
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
