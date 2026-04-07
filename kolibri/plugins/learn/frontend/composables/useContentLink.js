@@ -1,22 +1,18 @@
-import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
-import { computed, getCurrentInstance } from 'vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router/composables';
 import { ExternalPagePaths, PageNames } from '../constants';
 
 function _decodeBackLinkQuery(query) {
   return query && query.prevQuery ? JSON.parse(decodeURI(query.prevQuery)) : {};
 }
 
-export default function useContentLink(store) {
-  // Get store reference from the curent instance
-  // but allow it to be passed in to allow for dependency
-  // injection, primarily for tests.
-  store = store || getCurrentInstance().proxy.$store;
-  const route = computed(() => store.state.route);
+export default function useContentLink() {
+  const route = useRoute();
 
   function _makeNodeLink(id, isResource, query, deviceId) {
-    const params = get(route).params;
+    const params = route.params;
     return {
       name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
       params: pick({ id, deviceId: deviceId || params.deviceId }, ['id', 'deviceId']),
@@ -25,14 +21,14 @@ export default function useContentLink(store) {
   }
 
   function _getBackLinkQuery() {
-    const oldQuery = get(route).query || {};
+    const oldQuery = route.query;
     const query = {
-      prevName: get(route).name,
+      prevName: route.name,
     };
     if (!isEmpty(oldQuery)) {
       query.prevQuery = encodeURI(JSON.stringify(oldQuery));
     }
-    const params = get(route).params;
+    const params = route.params;
     if (!isEmpty(params)) {
       query.prevParams = encodeURI(JSON.stringify(params));
     }
@@ -49,10 +45,6 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
-    if (!route.value) {
-      return null;
-    }
-
     const query = _getBackLinkQuery();
 
     return _makeNodeLink(id, isResource, query, deviceId);
@@ -62,10 +54,6 @@ export default function useContentLink(store) {
     const pathname = window.location.pathname;
     const learnIndex = pathname.indexOf('/learn');
     const base = pathname.slice(0, learnIndex) + '/learn/#';
-    if (!route.value) {
-      return base;
-    }
-
     const query = _getBackLinkQuery();
 
     const path = `/topics/c/${id}`;
@@ -86,10 +74,7 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkKeepCurrentBackLink(id, isResource = false, deviceId) {
-    if (!route.value) {
-      return null;
-    }
-    const oldQuery = get(route).query || {};
+    const oldQuery = route.query;
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
 
     return _makeNodeLink(id, isResource, query, deviceId);
@@ -107,26 +92,16 @@ export default function useContentLink(store) {
    * @return {Object} VueRouter link object
    */
   function genContentLinkKeepPreviousBackLink(id, deviceId) {
-    if (!route.value) {
-      return null;
-    }
-    const oldQuery = _decodeBackLinkQuery(get(route).query);
+    const oldQuery = _decodeBackLinkQuery(route.query);
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
 
     return _makeNodeLink(id, false, query, deviceId);
   }
 
   const back = computed(() => {
-    const routeValue = get(route);
-    if (!routeValue) {
-      return null;
-    }
-    const query = _decodeBackLinkQuery(routeValue.query);
-    const name = (routeValue.query || {}).prevName || PageNames.HOME;
-    const params =
-      routeValue.query && routeValue.query.prevParams
-        ? JSON.parse(decodeURI(routeValue.query.prevParams))
-        : {};
+    const query = _decodeBackLinkQuery(route.query);
+    const name = route.query.prevName || PageNames.HOME;
+    const params = route.query.prevParams ? JSON.parse(decodeURI(route.query.prevParams)) : {};
     return {
       name,
       params,
@@ -138,20 +113,13 @@ export default function useContentLink(store) {
     const pathname = window.location.pathname;
     const learnIndex = pathname.indexOf('/learn');
     const base = pathname.slice(0, learnIndex) + '/learn';
-    const backValue = get(back);
-    if (!backValue) {
-      return base;
-    }
+    const backValue = back.value;
     const query = backValue.query ? `#/?${new URLSearchParams(backValue.query)}` : '';
     const path = ExternalPagePaths[backValue.name];
     return `${base}${path}${query}`;
   }
 
   function genLibraryPageBackLink(deviceId) {
-    if (!route.value) {
-      return null;
-    }
-
     const query = _getBackLinkQuery();
     return {
       name: PageNames.LIBRARY,
@@ -161,10 +129,6 @@ export default function useContentLink(store) {
   }
 
   function genExploreLibrariesPageBackLink() {
-    if (!route.value) {
-      return null;
-    }
-
     const query = _getBackLinkQuery();
 
     return {
