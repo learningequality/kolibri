@@ -5,6 +5,9 @@ import AppBar from '../AppBar';
 jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri/composables/useUser');
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(() => ({ params: {}, query: {} })),
+}));
 
 function createWrapper({ propsData } = {}) {
   const node = document.createElement('div');

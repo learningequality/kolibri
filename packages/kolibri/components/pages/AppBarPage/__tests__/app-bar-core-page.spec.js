@@ -4,6 +4,9 @@ import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResp
 import AppBarPage from '../index';
 
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(() => ({ params: {}, query: {} })),
+}));
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
