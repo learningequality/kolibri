@@ -126,7 +126,7 @@
                 v-if="!complete"
                 class="btn-flex"
                 :text="$tr('check')"
-                :primary="!hasNextResource"
+                :primary="false"
                 :class="{ shaking: shake }"
                 :disabled="checkingAnswer"
                 @click="checkAnswer"
@@ -135,24 +135,24 @@
                 v-else
                 ref="nextButton"
                 class="btn-flex"
-                :text="hasNextResource ? practiceAction$() : $tr('next')"
-                :primary="!hasNextResource"
+                :text="practiceAction$()"
+                :primary="false"
                 @click="nextQuestion"
               />
             </transition>
           </div>
           <KButton
-            v-if="hasNextResource"
             class="btn-flex"
             primary
             :text="nextLabel$()"
+            :disabled="!hasNextResource"
             @click="$emit('nextResource')"
           >
             <template #iconAfter>
               <KIcon
                 class="btn-icon hotfixed"
                 icon="forward"
-                :color="$themeTokens.textInverted"
+                :color="hasNextResource ? $themeTokens.textInverted : $themeTokens.textDisabled"
               />
             </template>
           </KButton>
@@ -500,10 +500,6 @@
         message: 'Check',
         context:
           "Learners use the 'CHECK' button when doing an exercise to check if they have answered a question correctly or not.",
-      },
-      next: {
-        message: 'Next',
-        context: 'Button that takes user to next question.',
       },
       itemError: {
         message: 'There was an error showing this question',

@@ -123,9 +123,10 @@ describe('AssessmentWrapper', () => {
       expect(screen.getByText('Check')).toBeInTheDocument();
     });
 
-    it('does not render the Next button initially', () => {
+    it('renders disabled course navigation Next button initially', () => {
       renderComponent();
-      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+      const nextButton = screen.getByText('Next').closest('button');
+      expect(nextButton).toBeDisabled();
     });
 
     it('renders the content viewer with the first item id', () => {
@@ -343,18 +344,17 @@ describe('AssessmentWrapper', () => {
   });
 
   describe('nextQuestion', () => {
-    it('resets state and shows Check button after clicking Next', async () => {
+    it('resets state and shows Check button after clicking Practice', async () => {
       const stub = makeContentViewerStub({
         checkAnswerFn: () => ({ correct: true, answerState: {}, simpleAnswer: '' }),
       });
       renderComponent({}, { stubs: { ContentViewer: stub } });
 
       await fireEvent.click(screen.getByText('Check'));
-      expect(screen.getByText('Next')).toBeInTheDocument();
+      expect(screen.getByText('Practice')).toBeInTheDocument();
 
-      await fireEvent.click(screen.getByText('Next'));
+      await fireEvent.click(screen.getByText('Practice'));
       expect(screen.getByText('Check')).toBeInTheDocument();
-      expect(screen.queryByText('Next')).not.toBeInTheDocument();
     });
   });
 
