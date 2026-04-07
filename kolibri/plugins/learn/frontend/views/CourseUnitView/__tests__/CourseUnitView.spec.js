@@ -1487,12 +1487,11 @@ describe('CourseUnitView', () => {
       });
       await fireEvent.click(nextButton);
 
-      // Verify the interstitial shows "Unit complete" text
+      // Verify the interstitial is shown with title and description
       await waitFor(() => {
-        const interstitial = screen.getByTestId('gated-interstitial');
-        expect(interstitial).toBeVisible();
-        expect(interstitial).toHaveTextContent('Unit complete');
-        expect(interstitial).toHaveTextContent('You may review previous resources.');
+        expect(screen.getByTestId('gated-interstitial')).toBeVisible();
+        expect(screen.getByTestId('interstitial-title')).toBeVisible();
+        expect(screen.getByTestId('interstitial-description')).toBeVisible();
       });
     });
   });

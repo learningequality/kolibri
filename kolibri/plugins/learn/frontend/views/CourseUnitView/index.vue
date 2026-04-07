@@ -33,8 +33,8 @@
             class="interstitial-icon"
           />
         </div>
-        <strong>{{ interstitialTitle }}</strong>
-        <p>{{ interstitialDescription }}</p>
+        <strong data-testid="interstitial-title">{{ interstitialTitle }}</strong>
+        <p data-testid="interstitial-description">{{ interstitialDescription }}</p>
       </div>
       <CourseContentViewer
         v-else-if="contentNodeToRender"
@@ -744,11 +744,11 @@
         if (!nextEnabled.value) {
           return;
         }
-        // Last resource — state boundary, re-fetch from server
+        // Last resource — state boundary, re-fetch from server.
+        // fetchResumeData sets resumeDataLoading which propagates through
+        // the loading computed, so no manual loading assignment needed.
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
-          loading.value = true;
           await fetchResumeData();
-          loading.value = false;
           showInterstitial.value = true;
           return;
         }
@@ -781,9 +781,7 @@
       };
 
       const onTestCompleted = async () => {
-        loading.value = true;
         await fetchResumeData();
-        loading.value = false;
         showInterstitial.value = true;
       };
 
