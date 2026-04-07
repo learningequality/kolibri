@@ -12,6 +12,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import GatingState
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
@@ -324,8 +325,8 @@ class CourseSessionGetResumeDataAdvancedTestCase(TestCase):
     def test_active_test_completed_returns_resume_position(self):
         """
         When the learner has completed the active pre-test but the coach
-        hasn't closed it, resume should return both active_test AND
-        resume_position pointing to the first resource of the test's unit.
+        hasn't closed it, resume should return active_test and a unit-only
+        resume_position (no lesson/resource) with PRE_TEST_ACTIVE_COMPLETE.
         """
         UnitTestAssignment.objects.create(
             course_session=self.course_session,
@@ -344,7 +345,9 @@ class CourseSessionGetResumeDataAdvancedTestCase(TestCase):
         self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
         self.assertIsNotNone(result["resume_position"])
         self.assertEqual(result["resume_position"]["unit_id"], self.unit1.id)
-        self.assertEqual(result["resume_position"]["resource_id"], self.resource1.id)
+        self.assertIsNone(result["resume_position"]["lesson_id"])
+        self.assertIsNone(result["resume_position"]["resource_id"])
+        self.assertEqual(result["gating_state"], GatingState.PreTestActiveComplete)
 
     def test_active_test_not_completed_returns_no_resume_position(self):
         """
@@ -370,8 +373,8 @@ class CourseSessionGetResumeDataAdvancedTestCase(TestCase):
     def test_advances_past_completed_unit(self):
         """
         When a unit's pre-test is closed, all resources are complete, and the
-        post-test is also closed, resume_position should advance to the next
-        unit rather than staying on the completed one.
+        post-test is also closed, resume_position stays on the completed unit
+        and gating_state signals UNIT_COMPLETE.
         """
         # Unit 1: pre-test and post-test both closed
         UnitTestAssignment.objects.create(
@@ -404,8 +407,9 @@ class CourseSessionGetResumeDataAdvancedTestCase(TestCase):
 
         self.assertTrue(result["started"])
         self.assertIsNone(result["active_test"])
-        # Should advance to unit 2, not stay on completed unit 1
-        self.assertEqual(result["resume_position"]["unit_id"], self.unit2.id)
+        # Stays on completed unit; gating_state signals advancement
+        self.assertEqual(result["resume_position"]["unit_id"], self.unit1.id)
+        self.assertEqual(result["gating_state"], GatingState.UnitComplete)
         self.assertIsNone(result["resume_position"]["lesson_id"])
         self.assertIsNone(result["resume_position"]["resource_id"])
 

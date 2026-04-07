@@ -301,7 +301,7 @@ describe('CourseWelcomePage', () => {
       });
     });
 
-    it('is enabled when PRE_TEST_ACTIVE_INCOMPLETE', async () => {
+    it('is enabled with Start Course label when PRE_TEST_ACTIVE_INCOMPLETE on first unit', async () => {
       learnerResources = makeLearnerResourcesMock({
         gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
         started: true,
@@ -311,7 +311,9 @@ describe('CourseWelcomePage', () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByTestId('course-action-button')).toBeEnabled();
+        const button = wrapper.getByTestId('course-action-button');
+        expect(button).toBeEnabled();
+        expect(button).toHaveTextContent('Start Course');
       });
     });
 

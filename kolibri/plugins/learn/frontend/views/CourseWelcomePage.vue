@@ -331,7 +331,13 @@
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
       const courseStarted = computed(() => {
-        return courseProgress.value?.gating_state !== GatingState.NOT_STARTED;
+        const state = courseProgress.value?.gating_state;
+        if (state === GatingState.NOT_STARTED) return false;
+        // First unit's pre-test = learner hasn't started course content yet
+        if (state === GatingState.PRE_TEST_ACTIVE_INCOMPLETE) {
+          return courseProgress.value?.active_test?.unit_id !== units.value?.[0]?.id;
+        }
+        return true;
       });
 
       const buttonDisabled = computed(() => {
