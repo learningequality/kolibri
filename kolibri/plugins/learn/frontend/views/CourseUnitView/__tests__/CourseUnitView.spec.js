@@ -110,7 +110,9 @@ describe('CourseUnitView', () => {
     };
     useRouter.mockReturnValue(router);
     useRoute.mockReturnValue({ params: { courseId: 'course-1' } });
-    LearnerCourseResource.getResumeData.mockResolvedValue({});
+    LearnerCourseResource.getResumeData.mockResolvedValue({
+      gating_state: 'NOT_STARTED',
+    });
     LearnerCourseResource.fetchModel.mockResolvedValue({
       title: 'Test Course',
       course_id: COURSE_CONTENT_ID,
@@ -187,7 +189,10 @@ describe('CourseUnitView', () => {
 
   describe('redirection logic', () => {
     it('redirects to COURSE_WELCOME if resume data indicates not started', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'NOT_STARTED',
+        started: false,
+      });
 
       renderComponent();
 
@@ -200,7 +205,10 @@ describe('CourseUnitView', () => {
     });
 
     it('redirects to COURSE_WELCOME if not started even when unitId is provided', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'NOT_STARTED',
+        started: false,
+      });
 
       renderComponent({ unitId: UNIT_1 });
 
@@ -213,13 +221,10 @@ describe('CourseUnitView', () => {
     });
 
     it('redirects to active test even when course not yet started', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
       LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: false,
-        active_test: activeTest,
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
       });
 
       renderComponent({ unitId: UNIT_1, testType: 'post' });
@@ -237,13 +242,10 @@ describe('CourseUnitView', () => {
     });
 
     it('does not redirect when already on the active test page and course not started', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
       LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: false,
-        active_test: activeTest,
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
+        started: true,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
       });
 
       renderComponent({ unitId: UNIT_1, testType: 'pre' });
@@ -255,13 +257,10 @@ describe('CourseUnitView', () => {
     });
 
     it('redirects to active test if resume data has active_test', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
         started: true,
-        active_test: activeTest,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
       });
 
       renderComponent({
@@ -281,13 +280,10 @@ describe('CourseUnitView', () => {
     });
 
     it('does not redirect if already on the active test page', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
         started: true,
-        active_test: activeTest,
+        active_test: { unit_id: UNIT_1, test_type: 'pre' },
       });
 
       renderComponent({
@@ -308,6 +304,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -337,6 +334,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -357,6 +355,7 @@ describe('CourseUnitView', () => {
 
     it('does not redirect if all params are present and valid', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: {
           unit_id: 'unit-1',
@@ -383,6 +382,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -418,6 +418,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -451,6 +452,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -490,6 +492,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -523,6 +526,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_2,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -556,6 +560,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_2,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -584,6 +589,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_2,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -610,6 +616,7 @@ describe('CourseUnitView', () => {
         resource_id: RESOURCE_2,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -634,10 +641,11 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('does not redirect for completed course with no resume_position or active_test', async () => {
+    it('does not redirect for completed course', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'COURSE_COMPLETE',
         started: true,
-        // no resume_position, no active_test → completed course
+        resume_position: { unit_id: UNIT_2 },
       });
 
       setupUnitTree();
@@ -660,6 +668,7 @@ describe('CourseUnitView', () => {
         // No lesson_id or resource_id — unit is gated
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: resumePosition,
       });
@@ -689,6 +698,7 @@ describe('CourseUnitView', () => {
         unit_id: UNIT_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: resumePosition,
       });
@@ -718,6 +728,7 @@ describe('CourseUnitView', () => {
         unit_id: UNIT_1,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: resumePosition,
       });
@@ -751,6 +762,7 @@ describe('CourseUnitView', () => {
       };
 
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: resumePosition,
       });
@@ -782,6 +794,7 @@ describe('CourseUnitView', () => {
         unit_id: UNIT_2,
       };
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: resumePosition,
       });
@@ -811,6 +824,7 @@ describe('CourseUnitView', () => {
   describe('data loading', () => {
     it('fetches course and unit tree data on mount', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: {
           unit_id: UNIT_1,
@@ -839,6 +853,7 @@ describe('CourseUnitView', () => {
         course_id: COURSE_CONTENT_ID,
       });
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         resume_position: {
           unit_id: UNIT_1,
@@ -865,10 +880,11 @@ describe('CourseUnitView', () => {
     beforeEach(() => {
       // Set up resume data so that checkRedirect doesn't redirect
       // and the component renders normally for interaction tests.
-      // We simulate a completed unit (no resume_position) to allow full navigation.
+      // We simulate a completed course to allow full navigation.
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'COURSE_COMPLETE',
         started: true,
-        // No resume_position implies completed unit/course -> free navigation
+        resume_position: { unit_id: 'unit-2' },
       });
     });
 
@@ -1139,6 +1155,7 @@ describe('CourseUnitView', () => {
   describe('gated learner redirects to last resource', () => {
     it('redirects to last resource when on unit URL with all resources complete', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         active_test: null,
         resume_position: {
@@ -1163,8 +1180,9 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to last resource when active test completed', async () => {
+    it('shows interstitial when active test completed (no unit URL redirect)', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'POST_TEST_ACTIVE_COMPLETE',
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'post' },
         resume_position: {
@@ -1173,23 +1191,20 @@ describe('CourseUnitView', () => {
       });
 
       setupUnitTree();
-      renderComponent({ unitId: UNIT_1 });
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
 
+      // Wait for data to load and checkRedirect to complete
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_3,
-            resourceId: RESOURCE_3,
-          },
-        });
+        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
       });
+
+      // Viewing a specific resource — no redirect, no interstitial
+      expect(router.replace).not.toHaveBeenCalled();
     });
 
     it('does not redirect when viewing a specific resource with full resume position', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
         active_test: null,
         resume_position: {
@@ -1212,6 +1227,7 @@ describe('CourseUnitView', () => {
       // has only unit_id). The resource should render with Next enabled, not
       // the interstitial.
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         active_test: null,
         resume_position: {
@@ -1228,10 +1244,9 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('does not show interstitial when viewing a specific resource during PRE_TEST_CLOSE', async () => {
-      // PRE_TEST_CLOSE: active pre-test + resume_position with only unit_id
-      // Learner explicitly navigated to a resource (e.g. from a previous unit)
+    it('does not show interstitial when viewing a specific resource during PRE_TEST_ACTIVE_COMPLETE', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'pre' },
         resume_position: { unit_id: UNIT_1 },
@@ -1252,9 +1267,9 @@ describe('CourseUnitView', () => {
       expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('does not show interstitial when viewing a specific resource during POST_TEST_CLOSE', async () => {
-      // POST_TEST_CLOSE: active post-test + resume_position with only unit_id
+    it('does not show interstitial when viewing a specific resource during POST_TEST_ACTIVE_COMPLETE', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'POST_TEST_ACTIVE_COMPLETE',
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'post' },
         resume_position: { unit_id: UNIT_1 },
@@ -1275,8 +1290,9 @@ describe('CourseUnitView', () => {
       expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('redirects to last resource when on unit URL during PRE_TEST_CLOSE', async () => {
+    it('shows interstitial on unit URL during PRE_TEST_ACTIVE_COMPLETE', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
         started: true,
         active_test: { unit_id: UNIT_1, test_type: 'pre' },
         resume_position: { unit_id: UNIT_1 },
@@ -1286,22 +1302,13 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: UNIT_1 });
 
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_3,
-            resourceId: RESOURCE_3,
-          },
-        });
+        expect(screen.getByTestId('gated-interstitial')).toBeVisible();
       });
     });
 
-    it('redirects to first resource when navigating to lesson during POST_TEST_ACTIVATION', async () => {
-      // POST_TEST_ACTIVATION: all resources complete, no active test
-      // Learner clicks a lesson link on CourseWelcomePage (lessonId but no resourceId)
+    it('redirects to first resource when navigating to lesson during RESOURCES_COMPLETE_POST_TEST_INACTIVE', async () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: { unit_id: UNIT_1 },
       });
@@ -1327,6 +1334,7 @@ describe('CourseUnitView', () => {
     it('navigates to the last resource when clicking Previous while the interstitial is showing', async () => {
       // All resources complete (resume_position has only unit_id)
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: { unit_id: UNIT_1 },
       });
@@ -1381,22 +1389,20 @@ describe('CourseUnitView', () => {
       useContentNodeProgress.mockImplementation(() => useContentNodeProgressMock());
     });
 
-    it('shows interstitial when resume position is on a later unit and last resource is locally complete', async () => {
-      // Resume position is on unit-2, but viewing unit-1 (completed unit).
-      // The lastResourceLocallyComplete flag triggers Next to show the
-      // interstitial. handleNext overrides resume_position to props.unitId,
-      // so the gatingState becomes POST_TEST_ACTIVATION (because nextUnit
-      // exists). The key behavior verified here: the interstitial IS shown
-      // for a completed unit when the last resource has local progress.
+    it('shows interstitial when last resource is locally complete and handleNext re-fetches', async () => {
+      // Last resource is locally complete. handleNext re-fetches from server,
+      // which returns UNIT_COMPLETE, then shows the interstitial.
       useContentNodeProgress.mockImplementation(() =>
         useContentNodeProgressMock({
           contentNodeProgressMap: { r3: 1 },
         }),
       );
 
+      // Initial state: RESOURCE_PROGRESSION (but last resource is complete locally)
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCE_PROGRESSION',
         started: true,
-        resume_position: { unit_id: UNIT_2 },
+        resume_position: { unit_id: UNIT_1, lesson_id: 'l2', resource_id: 'r3' },
       });
 
       // Render on the last resource of unit-1
@@ -1411,7 +1417,14 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('content-viewer')).toBeVisible();
       });
 
-      // Click Next to trigger the interstitial (lastResourceLocallyComplete is true)
+      // Set up re-fetch to return RESOURCES_COMPLETE state
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
+        started: true,
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      // Click Next to trigger re-fetch + interstitial
       const nextButton = await screen.findByRole('button', { name: /next/i });
       await waitFor(() => {
         expect(nextButton).toBeEnabled();
@@ -1432,7 +1445,9 @@ describe('CourseUnitView', () => {
       const unit2Lesson = 'l2-u2';
       const unit2Resource = 'r1-u2';
 
+      // Initial fetch returns RESOURCES_COMPLETE
       LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'RESOURCES_COMPLETE_POST_TEST_INACTIVE',
         started: true,
         resume_position: { unit_id: UNIT_2 },
       });
@@ -1458,16 +1473,21 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('content-viewer')).toBeVisible();
       });
 
-      // Click Next to trigger the interstitial (allResourcesComplete is true
-      // because resume_position.unit_id === props.unitId)
+      // Set up re-fetch to return UNIT_COMPLETE
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        gating_state: 'UNIT_COMPLETE',
+        started: true,
+        resume_position: { unit_id: UNIT_2 },
+      });
+
+      // Click Next to trigger re-fetch + interstitial
       const nextButton = await screen.findByRole('button', { name: /next/i });
       await waitFor(() => {
         expect(nextButton).toBeEnabled();
       });
       await fireEvent.click(nextButton);
 
-      // Verify the interstitial shows "Unit complete" text (not POST_TEST_ACTIVATION,
-      // because this is the last unit and nextUnit is null)
+      // Verify the interstitial shows "Unit complete" text
       await waitFor(() => {
         const interstitial = screen.getByTestId('gated-interstitial');
         expect(interstitial).toBeVisible();

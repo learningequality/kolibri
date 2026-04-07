@@ -119,7 +119,7 @@
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
-  import { PageNames } from '../../constants.js';
+  import { GatingState, PageNames } from '../../constants.js';
   import useContentNodeProgress from '../../composables/useContentNodeProgress.js';
   import useBookmarks from '../../composables/useBookmarks.js';
   import CourseContentViewer from './CourseContentViewer.vue';
@@ -228,26 +228,38 @@
       });
 
       const isUnitComplete = computed(() => {
-        if (!resumeData.value || !resumeData.value.started) {
-          // no data to make a decision
+        const state = resumeData.value?.gating_state;
+        if (!state) {
           return false;
         }
-        // If current unit is different, it means that it is a previoius unit,
-        if (resumeData.value.active_test) {
-          return resumeData.value.active_test.unit_id !== props.unitId;
+        // The current unit is complete if viewing a previous unit (resume is ahead)
+        // or if gating_state indicates completion
+        if (state === GatingState.COURSE_COMPLETE) {
+          return true;
         }
-        if (resumeData.value.resume_position) {
+        if (state === GatingState.UNIT_COMPLETE) {
+          return resumeData.value?.resume_position?.unit_id === props.unitId;
+        }
+        // If resume is on a later unit, current unit is a completed previous unit
+        if (resumeData.value?.resume_position?.unit_id) {
           return resumeData.value.resume_position.unit_id !== props.unitId;
         }
-        // If no resume_position, it means the course is complete,
-        return true;
+        if (resumeData.value?.active_test) {
+          return resumeData.value.active_test.unit_id !== props.unitId;
+        }
+        return false;
       });
 
       const canGoToNextUnit = computed(() => {
         if (!nextUnit.value || activeTest.value) {
           return false;
         }
-        return props.unitId !== resumeData.value?.resume_position?.unit_id;
+        const state = resumeData.value?.gating_state;
+        // Can go to next unit only if current unit is complete and course isn't done
+        return (
+          state === GatingState.UNIT_COMPLETE &&
+          resumeData.value?.resume_position?.unit_id === props.unitId
+        );
       });
 
       const currentLessons = computed(() => {
@@ -279,71 +291,53 @@
 
       const maxResourceLft = computed(() => {
         if (!unitResources.value || !resumeData.value) {
-          // No data, can't make a decision
           return null;
         }
-        if (resumeData.value.active_test) {
-          if (resumeData.value.active_test.test_type === 'post') {
-            // Post-test active — all resources locked
-            return null;
-          }
-          // Pre-test active — if completed (resume_position exists but no resource_id),
-          // no resources have been started yet, so lock all.
-          if (resumeData.value.resume_position && !resumeData.value.resume_position.resource_id) {
-            return null;
-          }
+        const state = resumeData.value.gating_state;
+
+        // States where all resources are locked
+        if (
+          state === GatingState.NOT_STARTED ||
+          state === GatingState.PRE_TEST_ACTIVE_INCOMPLETE ||
+          state === GatingState.PRE_TEST_ACTIVE_COMPLETE ||
+          state === GatingState.POST_TEST_ACTIVE_INCOMPLETE ||
+          state === GatingState.POST_TEST_ACTIVE_COMPLETE
+        ) {
+          return null;
         }
-        if (resumeData.value.resume_position) {
-          const { unit_id: resumeUnitId, resource_id: resumeResourceId } =
-            resumeData.value.resume_position;
-          if (!resumeResourceId || props.unitId !== resumeUnitId) {
-            // If the unit is different, it must be a previous unit, so we allow
-            // navigation to any resource. If not resumeResourceId, it means that
-            // the learner has completed all their resources in the unit.
+
+        // RESOURCE_PROGRESSION — allow up to resume resource
+        if (state === GatingState.RESOURCE_PROGRESSION && resumeData.value.resume_position) {
+          const resumeResourceId = resumeData.value.resume_position.resource_id;
+          if (!resumeResourceId || props.unitId !== resumeData.value.resume_position.unit_id) {
             return Number.MAX_SAFE_INTEGER;
           }
           const resumeResource = unitResources.value.find(
             resource => resource.id === resumeResourceId,
           );
-          if (resumeResource) {
-            return resumeResource.lft;
-          } else {
-            // If the resume resource is not found, let's allow navigation to any resource
-            return Number.MAX_SAFE_INTEGER;
-          }
+          return resumeResource ? resumeResource.lft : Number.MAX_SAFE_INTEGER;
         }
-        // completed courses can navigate to any resource
+
+        // All other states — resources are freely navigable
         return Number.MAX_SAFE_INTEGER;
       });
 
       const prevEnabled = computed(() => {
         if (showInterstitial.value) {
+          const state = resumeData.value?.gating_state;
+          // Post-test and pre-test completion states lock ALL resources — no Previous
+          if (
+            state === GatingState.POST_TEST_ACTIVE_COMPLETE ||
+            state === GatingState.PRE_TEST_ACTIVE_COMPLETE
+          ) {
+            return false;
+          }
           return true;
         }
         if (activeTest.value) {
           return false;
         }
         return currentResourceIndexInUnit.value > 0;
-      });
-
-      const allResourcesComplete = computed(() => {
-        const rp = resumeData.value?.resume_position;
-        return rp && !rp.lesson_id && !rp.resource_id && rp.unit_id === props.unitId;
-      });
-
-      // Whether the current resource (last in unit) is locally complete,
-      // checked via the progress map so it works regardless of whether
-      // the "finished" event has fired or resumeData has been updated.
-      const lastResourceLocallyComplete = computed(() => {
-        if (
-          currentResourceIndexInUnit.value === null ||
-          !unitResources.value?.length ||
-          currentResourceIndexInUnit.value < unitResources.value.length - 1
-        ) {
-          return false;
-        }
-        const res = unitResources.value[currentResourceIndexInUnit.value];
-        return (contentNodeProgressMap[res.content_id] || 0) >= 1;
       });
 
       const nextEnabled = computed(() => {
@@ -354,12 +348,16 @@
           return false;
         }
         if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
-          // On the last resource — enable Next when the resource is complete
-          // (via local progress map or backend resume data).
-          // This takes priority over maxResourceLft so that "Next" works
-          // even during gated states (e.g. PRE_TEST_CLOSE) where maxResourceLft
-          // may be null but the learner needs "Next" to reach the interstitial.
-          return lastResourceLocallyComplete.value || allResourcesComplete.value;
+          // Last resource — Next enabled when resource is locally complete
+          // or when backend state indicates all resources are done.
+          const res = unitResources.value[currentResourceIndexInUnit.value];
+          const locallyComplete = (contentNodeProgressMap[res.content_id] || 0) >= 1;
+          const state = resumeData.value?.gating_state;
+          const backendComplete =
+            state === GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE ||
+            state === GatingState.UNIT_COMPLETE ||
+            state === GatingState.COURSE_COMPLETE;
+          return locallyComplete || backendComplete;
         }
         if (maxResourceLft.value === null) {
           return false;
@@ -409,59 +407,12 @@
         );
       });
 
-      const getNextIncompleteResource = () => {
-        for (
-          let idx = currentResourceIndexInUnit.value + 1;
-          idx < unitResources.value.length;
-          idx++
-        ) {
-          const resource = unitResources.value[idx];
-          const resourceProgress = contentNodeProgressMap[resource.content_id] || 0;
-          if (resourceProgress < 1) {
-            return resource;
-          }
-        }
-        return null;
-      };
-
       const onResourceFinished = () => {
         if (activeTest.value) {
-          // when active test, we do nothing when the learner finishes its pre/post test.
           return;
         }
-        if (
-          !resumeData.value?.resume_position ||
-          // If finished resource is not the current resource in resume position
-          // it means, this event is from a previous resource, so no need to update
-          resumeData.value.resume_position.resource_id !== props.resourceId ||
-          !unitResources.value
-        ) {
-          return;
-        }
-
-        const nextResource = getNextIncompleteResource();
-        if (!nextResource) {
-          // No more resources in the unit, no need to update, null
-          // lesson_id and resource_id to represent that there is no resource to resume within the
-          // unit, so all resources appear as completed
-          resumeData.value = {
-            ...resumeData.value,
-            resume_position: {
-              unit_id: props.unitId,
-            },
-          };
-          return;
-        }
-
-        // Update resume position to allow navigation to the next resource
-        resumeData.value = {
-          ...resumeData.value,
-          resume_position: {
-            unit_id: props.unitId,
-            lesson_id: nextResource.parent,
-            resource_id: nextResource.id,
-          },
-        };
+        // Local progress map is updated by the content viewer's progress tracking.
+        // No need to mutate resumeData — re-fetch handles state transitions.
       };
 
       const checkValidPosition = (current, expected, data) => {
@@ -483,69 +434,38 @@
        * or if resume position doesn't have where to resume within the unit
        */
       const checkRedirectToUnitTree = () => {
-        // If resume_position has unit_id only (no lesson/resource), the learner
-        // has completed all resources in the unit (or completed a test).
-        // Redirect to the last resource — "Next" from there shows the interstitial.
-        const rp = resumeData.value?.resume_position;
-        if (rp && !rp.lesson_id && !rp.resource_id) {
-          // If viewing a specific resource, let them view it.
-          if (props.resourceId) {
+        if (!unitTree.value) {
+          return false;
+        }
+        if (props.lessonId && props.resourceId) {
+          // Already on a specific resource
+          if (
+            props.unitId === resumeData.value?.resume_position?.unit_id &&
+            props.lessonId === resumeData.value?.resume_position?.lesson_id &&
+            props.resourceId === resumeData.value?.resume_position?.resource_id
+          ) {
             return false;
           }
-          // Only redirect to the gated unit when no specific lesson/resource was
-          // requested. If the learner is browsing a previous unit, let them.
-          if (props.unitId !== rp.unit_id && !props.lessonId) {
-            router.replace({
-              name: PageNames.COURSE_CONTENT__UNIT,
-              params: { courseId: props.courseId, unitId: rp.unit_id },
-            });
-            return true;
-          }
-          // Fall through — the redirect logic below picks the last resource
-          // when all are complete, or the first of a specific lesson.
         }
-        if (
-          props.unitId === resumeData.value?.resume_position?.unit_id &&
-          resumeData.value?.resume_position?.lesson_id &&
-          props.lessonId === resumeData.value?.resume_position?.lesson_id &&
-          resumeData.value?.resume_position?.resource_id &&
-          props.resourceId === resumeData.value?.resume_position?.resource_id
-        ) {
-          // already on the right unit, no need to redirect
-          return false;
-        }
-
-        if (!unitTree.value) {
-          // no data to make a decision
-          return false;
-        }
-
         if (!props.lessonId || !props.resourceId) {
-          // Missing props, look for a resource to redirect to
           let resourceToRedirect = null;
           if (props.lessonId) {
-            // lesson is specified, redirect to the first resource of the lesson
             resourceToRedirect = currentLessonResources.value?.[0];
           }
-
           if (!resourceToRedirect) {
-            // When all resources are complete (resume_position has only unit_id),
-            // redirect to the last resource so "Next" shows the interstitial.
-            // Otherwise redirect to the first resource of the unit.
-            const allComplete =
-              rp && !rp.lesson_id && !rp.resource_id && rp.unit_id === props.unitId;
-            if (allComplete && unitResources.value?.length) {
+            const state = resumeData.value?.gating_state;
+            if (
+              state === GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE &&
+              unitResources.value?.length
+            ) {
               resourceToRedirect = unitResources.value[unitResources.value.length - 1];
             } else {
-              [resourceToRedirect] = unitResources.value;
+              [resourceToRedirect] = unitResources.value || [];
             }
           }
-
           if (!resourceToRedirect) {
-            // should not get here
-            throw new Error('No resource found to redirect to');
+            return false;
           }
-
           router.replace({
             name: PageNames.COURSE_CONTENT__RESOURCE,
             params: {
@@ -557,7 +477,6 @@
           });
           return true;
         }
-
         return false;
       };
 
@@ -703,53 +622,12 @@
         }
         await nextTick();
         if (!resumeData.value) {
-          // no data to make a decision
           return false;
         }
-        if (resumeData.value.active_test) {
-          if (resumeData.value.resume_position) {
-            // Learner completed the active test — they are gated.
-            // If they're viewing a specific resource, let them view it.
-            if (props.resourceId) {
-              return false;
-            }
-            // No specific resource — navigate to the gated unit so the unit tree
-            // loads, then redirect to the last resource. The interstitial is only
-            // shown when the learner clicks "Next".
-            const gatedUnitId = resumeData.value.resume_position.unit_id;
-            if (props.unitId !== gatedUnitId) {
-              router.replace({
-                name: PageNames.COURSE_CONTENT__UNIT,
-                params: { courseId: props.courseId, unitId: gatedUnitId },
-              });
-              return true;
-            }
-            // On the right unit — use checkRedirectToUnitTree to redirect to
-            // the last resource (skipping the "redirect to active test" below).
-            return checkRedirectToUnitTree();
-          }
+        const state = resumeData.value.gating_state;
 
-          if (
-            resumeData.value.active_test.unit_id === props.unitId &&
-            resumeData.value.active_test.test_type === props.testType
-          ) {
-            // already on the right page, no need to redirect
-            return false;
-          }
-
-          router.replace({
-            name: PageNames.COURSE_CONTENT_TEST,
-            params: {
-              courseId: props.courseId,
-              unitId: resumeData.value.active_test.unit_id,
-              testType: resumeData.value.active_test.test_type,
-            },
-          });
-          return true;
-        }
-
-        if (!resumeData.value.started) {
-          // Course not started and no active test — redirect to the welcome page.
+        // NOT_STARTED — go to welcome page
+        if (state === GatingState.NOT_STARTED) {
           router.replace({
             name: PageNames.COURSE_WELCOME,
             params: { courseSessionId: props.courseId },
@@ -757,7 +635,57 @@
           return true;
         }
 
-        if (resumeData.value.resume_position) {
+        // Active test, learner hasn't completed → redirect to test
+        if (
+          state === GatingState.PRE_TEST_ACTIVE_INCOMPLETE ||
+          state === GatingState.POST_TEST_ACTIVE_INCOMPLETE
+        ) {
+          const { unit_id, test_type } = resumeData.value.active_test;
+          if (props.unitId === unit_id && props.testType === test_type) {
+            return false;
+          }
+          router.replace({
+            name: PageNames.COURSE_CONTENT_TEST,
+            params: { courseId: props.courseId, unitId: unit_id, testType: test_type },
+          });
+          return true;
+        }
+
+        // Gated states — show interstitial (unless viewing a specific resource)
+        if (
+          state === GatingState.PRE_TEST_ACTIVE_COMPLETE ||
+          state === GatingState.POST_TEST_ACTIVE_COMPLETE ||
+          state === GatingState.UNIT_COMPLETE ||
+          state === GatingState.COURSE_COMPLETE
+        ) {
+          // Viewing a specific resource from a previous unit — let them
+          if (props.resourceId) {
+            return false;
+          }
+          showInterstitial.value = true;
+          return false;
+        }
+
+        // RESOURCES_COMPLETE_POST_TEST_INACTIVE — redirect to last resource,
+        // interstitial shows on "Next"
+        if (state === GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE) {
+          if (props.resourceId) {
+            return false;
+          }
+          // If on a different unit than the resume unit, redirect to the resume unit
+          const resumeUnitId = resumeData.value.resume_position?.unit_id;
+          if (resumeUnitId && props.unitId !== resumeUnitId && !props.lessonId) {
+            router.replace({
+              name: PageNames.COURSE_CONTENT__UNIT,
+              params: { courseId: props.courseId, unitId: resumeUnitId },
+            });
+            return true;
+          }
+          return checkRedirectToUnitTree();
+        }
+
+        // RESOURCE_PROGRESSION — validate position and redirect if needed
+        if (state === GatingState.RESOURCE_PROGRESSION) {
           if (shouldRedirectToResumePosition()) {
             return redirectToResumePosition();
           }
@@ -812,19 +740,15 @@
         onSidePanelNavigation();
       };
 
-      const handleNext = () => {
+      const handleNext = async () => {
         if (!nextEnabled.value) {
           return;
         }
-        // On the last resource with it complete — show interstitial
-        if (lastResourceLocallyComplete.value || allResourcesComplete.value) {
-          // Ensure resumeData reflects all-complete state
-          if (!allResourcesComplete.value) {
-            resumeData.value = {
-              ...resumeData.value,
-              resume_position: { unit_id: props.unitId },
-            };
-          }
+        // Last resource — state boundary, re-fetch from server
+        if (currentResourceIndexInUnit.value >= unitResources.value.length - 1) {
+          loading.value = true;
+          await fetchResumeData();
+          loading.value = false;
           showInterstitial.value = true;
           return;
         }
@@ -856,15 +780,10 @@
         onSidePanelNavigation();
       };
 
-      const onTestCompleted = () => {
-        // Update local resume data so gatingState detects the completed test
-        // (active_test + resume_position → PRE_TEST_CLOSE or POST_TEST_CLOSE)
-        resumeData.value = {
-          ...resumeData.value,
-          resume_position: {
-            unit_id: props.unitId,
-          },
-        };
+      const onTestCompleted = async () => {
+        loading.value = true;
+        await fetchResumeData();
+        loading.value = false;
         showInterstitial.value = true;
       };
 
@@ -897,44 +816,33 @@
         unitCompleteDescription$,
       } = coursesStrings;
 
-      const gatingState = computed(() => {
-        if (!resumeData.value) {
-          return null;
-        }
-        const { active_test, resume_position } = resumeData.value;
-        if (active_test && resume_position) {
-          return active_test.test_type === 'pre' ? 'PRE_TEST_CLOSE' : 'POST_TEST_CLOSE';
-        }
-        if (!active_test && resume_position && !resume_position.lesson_id) {
-          if (resume_position.unit_id !== props.unitId) {
-            // Resume position is on a later unit — this unit is fully complete
-            return 'UNIT_COMPLETE';
-          }
-          if (!nextUnit.value) {
-            // Last unit and all resources done — course is complete
-            return 'UNIT_COMPLETE';
-          }
-          return 'POST_TEST_ACTIVATION';
-        }
-        return null;
-      });
-
       const GATING_STRINGS = {
-        PRE_TEST_CLOSE: { title: preTestCompleted$, description: preTestCompletedDescription$ },
-        POST_TEST_ACTIVATION: {
+        [GatingState.PRE_TEST_ACTIVE_COMPLETE]: {
+          title: preTestCompleted$,
+          description: preTestCompletedDescription$,
+        },
+        [GatingState.RESOURCES_COMPLETE_POST_TEST_INACTIVE]: {
           title: postTestNotOpenYet$,
           description: postTestNotOpenYetDescription$,
         },
-        POST_TEST_CLOSE: { title: postTestCompleted$, description: postTestCompletedDescription$ },
-        UNIT_COMPLETE: { title: unitComplete$, description: unitCompleteDescription$ },
+        [GatingState.POST_TEST_ACTIVE_COMPLETE]: {
+          title: postTestCompleted$,
+          description: postTestCompletedDescription$,
+        },
+        [GatingState.UNIT_COMPLETE]: {
+          title: unitComplete$,
+          description: unitCompleteDescription$,
+        },
       };
 
-      const interstitialTitle = computed(() =>
-        gatingState.value ? GATING_STRINGS[gatingState.value].title() : '',
-      );
-      const interstitialDescription = computed(() =>
-        gatingState.value ? GATING_STRINGS[gatingState.value].description() : '',
-      );
+      const interstitialTitle = computed(() => {
+        const state = resumeData.value?.gating_state;
+        return state && GATING_STRINGS[state] ? GATING_STRINGS[state].title() : '';
+      });
+      const interstitialDescription = computed(() => {
+        const state = resumeData.value?.gating_state;
+        return state && GATING_STRINGS[state] ? GATING_STRINGS[state].description() : '';
+      });
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
