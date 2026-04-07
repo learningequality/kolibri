@@ -15,6 +15,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
+from kolibri.core.courses.models import GatingState
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
@@ -769,9 +770,11 @@ class LearnerCourseTestCase(APITestCase):
         self.assertEqual(response["started"], True)
         self.assertEqual(response["active_test"]["unit_id"], unit_3.id)
         self.assertEqual(response["active_test"]["test_type"], TestType.Pre)
-        # resume_position should point to first resource of unit 3
+        # resume_position is unit-only (no lesson/resource)
         self.assertIsNotNone(response["resume_position"])
         self.assertEqual(response["resume_position"]["unit_id"], unit_3.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+        self.assertIsNone(response["resume_position"]["resource_id"])
 
     def test_learner_course_resume__pre_test_active_not_completed_by_learner(self):
         """
@@ -852,7 +855,258 @@ class LearnerCourseTestCase(APITestCase):
         response = get_request.data
         self.assertEqual(response["started"], True)
         self.assertEqual(response["active_test"], None)
-        # Should advance to unit 2, not stay on completed unit 1
-        self.assertEqual(response["resume_position"]["unit_id"], unit_2.id)
+        # Should stay on the completed unit (behavior change)
+        self.assertEqual(response["resume_position"]["unit_id"], unit_1.id)
         self.assertIsNone(response["resume_position"]["lesson_id"])
         self.assertIsNone(response["resume_position"]["resource_id"])
+
+    def test_gating_state__not_started(self):
+        """No tests activated — gating_state is NOT_STARTED."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.NotStarted)
+
+    def test_gating_state__pre_test_active_incomplete(self):
+        """Pre-test active, learner hasn't completed it."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, _ = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.PreTestActiveIncomplete)
+        self.assertIsNone(response["resume_position"])
+
+    def test_gating_state__pre_test_active_complete(self):
+        """Pre-test active, learner completed it, coach hasn't closed."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, _ = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        self._mark_test_completed(course_session, unit_1, TestType.Pre)
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.PreTestActiveComplete)
+        # resume_position is unit-only (no lesson/resource)
+        self.assertEqual(response["resume_position"]["unit_id"], unit_1.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+        self.assertIsNone(response["resume_position"]["resource_id"])
+
+    def test_gating_state__resource_progression(self):
+        """Pre-test closed, learner working through resources."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, lessons_1 = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.ResourceProgression)
+        self.assertIsNotNone(response["resume_position"]["lesson_id"])
+        self.assertIsNotNone(response["resume_position"]["resource_id"])
+
+    def test_gating_state__resources_complete_post_test_inactive(self):
+        """All resources complete, post-test not activated."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, lessons_1 = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        # Mark all unit 1 resources as complete
+        for lesson, lesson_resources in lessons_1:
+            for resource in lesson_resources:
+                log = ContentSummaryLog.objects.get(
+                    user=self.learner, content_id=resource.content_id
+                )
+                log.progress = 1.0
+                log.completion_timestamp = now()
+                log.save()
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(
+            response["gating_state"], GatingState.ResourcesCompletePostTestInactive
+        )
+        self.assertEqual(response["resume_position"]["unit_id"], unit_1.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+
+    def test_gating_state__post_test_active_incomplete(self):
+        """Post-test active, learner hasn't completed it."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, _ = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=False,
+            activated_by=self.coach,
+        )
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.PostTestActiveIncomplete)
+        self.assertIsNone(response["resume_position"])
+
+    def test_gating_state__post_test_active_complete(self):
+        """Post-test active, learner completed it, coach hasn't closed."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, _ = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=False,
+            activated_by=self.coach,
+        )
+        self._mark_test_completed(course_session, unit_1, TestType.Post)
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.PostTestActiveComplete)
+        self.assertEqual(response["resume_position"]["unit_id"], unit_1.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+
+    def test_gating_state__unit_complete(self):
+        """Unit fully done, next unit exists but pre-test not activated."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        unit_1, lessons_1 = units[0]
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=course_session,
+            unit_contentnode_id=unit_1.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=True,
+            activated_by=self.coach,
+        )
+        for lesson, lesson_resources in lessons_1:
+            for resource in lesson_resources:
+                log = ContentSummaryLog.objects.get(
+                    user=self.learner, content_id=resource.content_id
+                )
+                log.progress = 1.0
+                log.completion_timestamp = now()
+                log.save()
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.UnitComplete)
+        # resume_position stays on COMPLETED unit, NOT the next one
+        self.assertEqual(response["resume_position"]["unit_id"], unit_1.id)
+        self.assertIsNone(response["resume_position"]["lesson_id"])
+
+    def test_gating_state__course_complete(self):
+        """All units done — course complete."""
+        course, course_session, units = self._create_course(
+            units=2, lessons=2, resources=2
+        )
+        # Complete both units: pre-test closed, all resources done, post-test closed
+        for unit, lessons in units:
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Pre,
+                closed=True,
+                activated_by=self.coach,
+            )
+            UnitTestAssignment.objects.create(
+                course_session=course_session,
+                unit_contentnode_id=unit.id,
+                collection=self.classroom,
+                test_type=TestType.Post,
+                closed=True,
+                activated_by=self.coach,
+            )
+            for lesson, lesson_resources in lessons:
+                for resource in lesson_resources:
+                    log = ContentSummaryLog.objects.get(
+                        user=self.learner, content_id=resource.content_id
+                    )
+                    log.progress = 1.0
+                    log.completion_timestamp = now()
+                    log.save()
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-resume", kwargs={"pk": course_session.id})
+        ).data
+        self.assertEqual(response["gating_state"], GatingState.CourseComplete)
+        # resume_position points to last unit
+        last_unit = units[-1][0]
+        self.assertEqual(response["resume_position"]["unit_id"], last_unit.id)

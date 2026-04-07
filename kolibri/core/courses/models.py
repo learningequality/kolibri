@@ -128,11 +128,13 @@ class CourseSession(AbstractFacilityDataModel):
 
         :param user: A FacilityUser instance
         :return: dict with keys:
+            - gating_state (GatingState enum value)
             - started (bool)
             - active_test (dict with unit_id and test_type, or None)
             - resume_position (dict with unit_id, lesson_id, resource_id, or None)
         """
         result = {
+            "gating_state": GatingState.NotStarted,
             "started": False,
             "active_test": None,
             "resume_position": None,
@@ -163,27 +165,22 @@ class CourseSession(AbstractFacilityDataModel):
             ).exists()
 
             if not learner_completed_test:
+                if unit_test_active.test_type == TestType.Pre:
+                    result["gating_state"] = GatingState.PreTestActiveIncomplete
+                else:
+                    result["gating_state"] = GatingState.PostTestActiveIncomplete
                 return result
 
-            # Learner completed the active test — compute resume_position
-            unit_contentnode_id = unit_test_active.unit_contentnode_id
-            first_incomplete_resource = self._get_first_incomplete_resource(
-                user, unit_contentnode_id
-            )
-
-            if first_incomplete_resource:
-                result["resume_position"] = {
-                    "unit_id": unit_contentnode_id,
-                    "lesson_id": first_incomplete_resource.parent_id,
-                    "resource_id": first_incomplete_resource.id,
-                }
+            # Learner completed the active test — gated, unit-only resume_position
+            result["resume_position"] = {
+                "unit_id": unit_test_active.unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
+            }
+            if unit_test_active.test_type == TestType.Pre:
+                result["gating_state"] = GatingState.PreTestActiveComplete
             else:
-                result["resume_position"] = {
-                    "unit_id": unit_contentnode_id,
-                    "lesson_id": None,
-                    "resource_id": None,
-                }
-
+                result["gating_state"] = GatingState.PostTestActiveComplete
             return result
 
         most_recent_pre_test_completed = (
@@ -203,6 +200,7 @@ class CourseSession(AbstractFacilityDataModel):
         )
 
         if not most_recent_pre_test_completed:
+            result["gating_state"] = GatingState.NotStarted
             return result
 
         result["started"] = True
@@ -213,38 +211,52 @@ class CourseSession(AbstractFacilityDataModel):
         )
 
         if first_incomplete_resource:
+            result["gating_state"] = GatingState.ResourceProgression
             result["resume_position"] = {
                 "unit_id": unit_contentnode_id,
                 "lesson_id": first_incomplete_resource.parent_id,
                 "resource_id": first_incomplete_resource.id,
             }
-        else:
-            # All resources complete — check if the post-test is also closed,
-            # meaning the unit is fully done and we should advance.
-            post_test_closed = unit_test_assignments_qs.filter(
-                unit_contentnode_id=unit_contentnode_id,
-                test_type=TestType.Post,
-                closed=True,
-            ).exists()
+            return result
 
-            if post_test_closed:
-                next_unit = (
-                    ContentNode.objects.filter(
-                        parent_id=self.course,
-                        lft__gt=most_recent_pre_test_completed.unit_sort_order,
-                    )
-                    .order_by("lft")
-                    .values_list("id", flat=True)
-                    .first()
-                )
-                if next_unit:
-                    unit_contentnode_id = next_unit
+        # All resources complete — check post-test status
+        post_test_closed = unit_test_assignments_qs.filter(
+            unit_contentnode_id=unit_contentnode_id,
+            test_type=TestType.Post,
+            closed=True,
+        ).exists()
 
+        if not post_test_closed:
+            result["gating_state"] = GatingState.ResourcesCompletePostTestInactive
             result["resume_position"] = {
                 "unit_id": unit_contentnode_id,
                 "lesson_id": None,
                 "resource_id": None,
             }
+            return result
+
+        # Post-test closed — unit is fully done. Check for next unit.
+        next_unit = (
+            ContentNode.objects.filter(
+                parent_id=self.course,
+                lft__gt=most_recent_pre_test_completed.unit_sort_order,
+            )
+            .order_by("lft")
+            .values_list("id", flat=True)
+            .first()
+        )
+
+        # resume_position stays on the COMPLETED unit (not next)
+        result["resume_position"] = {
+            "unit_id": unit_contentnode_id,
+            "lesson_id": None,
+            "resource_id": None,
+        }
+
+        if next_unit:
+            result["gating_state"] = GatingState.UnitComplete
+        else:
+            result["gating_state"] = GatingState.CourseComplete
 
         return result
 
