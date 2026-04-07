@@ -85,6 +85,7 @@ from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
@@ -104,6 +105,7 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
@@ -285,6 +287,71 @@ class FacilityDatasetViewSet(ValuesViewset):
             return Response(FacilityDatasetSerializer(dataset).data)
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility not found")
+
+    MAX_LEARNERS_FOR_PICTURE_LOGIN = 1300
+
+    @decorators.action(
+        methods=["post"],
+        detail=True,
+        url_path="enable-picture-login",
+        permission_classes=[IsAuthenticated],
+    )
+    def enable_picture_login(self, request, pk):
+        try:
+            dataset = FacilityDataset.objects.get(pk=pk)
+        except FacilityDataset.DoesNotExist:
+            raise Http404("Facility not found")
+
+        if not request.user.can_update(dataset):
+            raise PermissionDenied("You do not have permission to update this facility")
+
+        facility = Facility.objects.get(dataset_id=pk)
+        picture_password_settings = request.data.get("picture_password_settings")
+        if not picture_password_settings:
+            return Response(
+                {"detail": "picture_password_settings is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        learner_count = (
+            FacilityUser.objects.filter(facility=facility, roles__isnull=True)
+            .exclude(devicepermissions__is_superuser=True)
+            .count()
+        )
+        if learner_count > self.MAX_LEARNERS_FOR_PICTURE_LOGIN:
+            return Response(
+                {
+                    "detail": "Facility has too many learners ({count}) for picture login. Maximum is {max}.".format(
+                        count=learner_count,
+                        max=self.MAX_LEARNERS_FOR_PICTURE_LOGIN,
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        dataset.picture_password_settings = picture_password_settings
+        dataset.learner_can_edit_password = False
+        dataset.save()
+
+        job, _ = assign_picture_passwords_to_facility.validate_job_data(
+            request.user,
+            data={
+                "facility_id": facility.id,
+            },
+        )
+        job_id = assign_picture_passwords_to_facility.enqueue(job=job)
+        enqueued_job = job_storage.get_job(job_id)
+        return Response(
+            {
+                "id": enqueued_job.job_id,
+                "status": enqueued_job.state,
+                "percentage": enqueued_job.percentage_progress,
+                "cancellable": enqueued_job.cancellable,
+                "facility_id": enqueued_job.facility_id,
+                "extra_metadata": enqueued_job.extra_metadata,
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class IsPINValidView(views.APIView):
