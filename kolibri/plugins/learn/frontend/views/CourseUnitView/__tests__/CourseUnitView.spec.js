@@ -4,6 +4,11 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Modalities from 'kolibri-constants/Modalities';
 import { LearnerCourseResource } from '../../../apiResources';
+/* eslint-disable import/named */
+import useContentNodeProgress, {
+  useContentNodeProgressMock,
+} from '../../../composables/useContentNodeProgress';
+/* eslint-enable import/named */
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
@@ -42,11 +47,12 @@ const ContentViewerMock = {
 };
 
 // Data helpers
-const createResource = (id, title, parent, lft = 1) => ({
+const createResource = (id, title, parent, lft = 1, content_id = id) => ({
   id,
   title,
   parent,
   lft,
+  content_id,
   kind: 'video',
   files: [],
   options: { title },
@@ -1313,6 +1319,160 @@ describe('CourseUnitView', () => {
             resourceId: RESOURCE_1,
           },
         });
+      });
+    });
+  });
+
+  describe('handlePrev during interstitial', () => {
+    it('navigates to the last resource when clicking Previous while the interstitial is showing', async () => {
+      // All resources complete (resume_position has only unit_id)
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: { unit_id: UNIT_1 },
+      });
+
+      // Render on the last resource (r3 in l2)
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l2',
+        resourceId: 'r3',
+      });
+
+      // Wait for content to render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      // Click Next to trigger the interstitial (allResourcesComplete is true)
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      await waitFor(() => {
+        expect(nextButton).toBeEnabled();
+      });
+      await fireEvent.click(nextButton);
+
+      // Verify the interstitial is showing
+      await waitFor(() => {
+        expect(screen.getByTestId('gated-interstitial')).toBeVisible();
+      });
+
+      // Click Previous while interstitial is showing
+      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      expect(prevButton).toBeEnabled();
+      await fireEvent.click(prevButton);
+
+      // Should navigate to the last resource in the unit
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: {
+            courseId: COURSE_ID,
+            unitId: 'unit-1',
+            lessonId: 'l2',
+            resourceId: 'r3',
+          },
+        });
+      });
+    });
+  });
+
+  describe('UNIT_COMPLETE gating state', () => {
+    afterEach(() => {
+      // Reset the progress map mock so it doesn't leak between tests
+      useContentNodeProgress.mockImplementation(() => useContentNodeProgressMock());
+    });
+
+    it('shows interstitial when resume position is on a later unit and last resource is locally complete', async () => {
+      // Resume position is on unit-2, but viewing unit-1 (completed unit).
+      // The lastResourceLocallyComplete flag triggers Next to show the
+      // interstitial. handleNext overrides resume_position to props.unitId,
+      // so the gatingState becomes POST_TEST_ACTIVATION (because nextUnit
+      // exists). The key behavior verified here: the interstitial IS shown
+      // for a completed unit when the last resource has local progress.
+      useContentNodeProgress.mockImplementation(() =>
+        useContentNodeProgressMock({
+          contentNodeProgressMap: { r3: 1 },
+        }),
+      );
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: { unit_id: UNIT_2 },
+      });
+
+      // Render on the last resource of unit-1
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l2',
+        resourceId: 'r3',
+      });
+
+      // Wait for content to render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      // Click Next to trigger the interstitial (lastResourceLocallyComplete is true)
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      await waitFor(() => {
+        expect(nextButton).toBeEnabled();
+      });
+      await fireEvent.click(nextButton);
+
+      // Verify the interstitial is shown
+      await waitFor(() => {
+        expect(screen.getByTestId('gated-interstitial')).toBeVisible();
+      });
+    });
+
+    it('shows "Unit complete" interstitial on the last unit when all resources are done', async () => {
+      // Reset the contentNodeProgressMap mock to default (empty map)
+      useContentNodeProgress.mockImplementation(() => useContentNodeProgressMock());
+
+      // Last unit (unit-2) with all resources complete
+      const unit2Lesson = 'l2-u2';
+      const unit2Resource = 'r1-u2';
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: { unit_id: UNIT_2 },
+      });
+
+      // Set up unit tree for unit-2 (last unit)
+      ContentNodeResource.fetchTree.mockResolvedValue(
+        createUnit(UNIT_2, 'Unit 2', [
+          createLesson(unit2Lesson, 'Lesson in Unit 2', true, [
+            createResource(unit2Resource, 'Resource in Unit 2', unit2Lesson, 10),
+          ]),
+        ]),
+      );
+
+      // Render on the last resource of unit-2
+      renderComponent({
+        unitId: UNIT_2,
+        lessonId: unit2Lesson,
+        resourceId: unit2Resource,
+      });
+
+      // Wait for content to render
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
+      });
+
+      // Click Next to trigger the interstitial (allResourcesComplete is true
+      // because resume_position.unit_id === props.unitId)
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      await waitFor(() => {
+        expect(nextButton).toBeEnabled();
+      });
+      await fireEvent.click(nextButton);
+
+      // Verify the interstitial shows "Unit complete" text (not POST_TEST_ACTIVATION,
+      // because this is the last unit and nextUnit is null)
+      await waitFor(() => {
+        const interstitial = screen.getByTestId('gated-interstitial');
+        expect(interstitial).toBeVisible();
+        expect(interstitial).toHaveTextContent('Unit complete');
+        expect(interstitial).toHaveTextContent('You may review previous resources.');
       });
     });
   });

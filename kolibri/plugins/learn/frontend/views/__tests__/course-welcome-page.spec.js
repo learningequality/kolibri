@@ -383,5 +383,24 @@ describe('CourseWelcomePage', () => {
         expect(button).toHaveTextContent('Resume Course');
       });
     });
+
+    it('shows "Resume Course" when post-test is active but learner has not taken it yet', async () => {
+      // Unit 1's post-test is active, but no resume_position (learner hasn't
+      // taken the test yet). courseStarted should return true because
+      // activeTest.test_type === 'post' means the learner completed unit resources.
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'post' },
+        // no resume_position — learner hasn't taken the post-test yet
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        const button = wrapper.getByTestId('course-action-button');
+        expect(button).toBeEnabled();
+        expect(button).toHaveTextContent('Resume Course');
+      });
+    });
   });
 });
