@@ -7,10 +7,7 @@
       >
         <template #actions>
           <KRouterLink
-            v-if="
-              facilityConfig.picture_password_settings !== null &&
-                facilityConfig.picture_password_settings !== undefined
-            "
+            v-if="facilityConfig.picture_password_settings"
             :text="viewPasswordsAction$()"
             appearance="raised-button"
             :to="{

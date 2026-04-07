@@ -26,10 +26,7 @@
         :layout4="{ span: 2, alignment: 'right' }"
       >
         <KRouterLink
-          v-if="
-            facilityConfig.picture_password_settings !== null &&
-              facilityConfig.picture_password_settings !== undefined
-          "
+          v-if="facilityConfig.picture_password_settings"
           :text="viewPasswordsAction$()"
           appearance="raised-button"
           :to="{

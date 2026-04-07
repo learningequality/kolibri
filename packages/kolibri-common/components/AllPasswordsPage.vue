@@ -94,7 +94,6 @@
 
   import { ref, onMounted } from 'vue';
   import CoreTable from 'kolibri/components/CoreTable';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
   import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
@@ -103,7 +102,6 @@
   export default {
     name: 'AllPasswordsPage',
     components: { CoreTable, ImmersivePage },
-    mixins: [commonCoreStrings],
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
