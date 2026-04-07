@@ -690,16 +690,22 @@
           return true;
         }
 
-        // Gated states — show interstitial (unless viewing a specific resource)
+        // Gated states — show interstitial (unless browsing content)
         if (
           state === GatingState.PRE_TEST_ACTIVE_COMPLETE ||
           state === GatingState.POST_TEST_ACTIVE_COMPLETE ||
           state === GatingState.UNIT_COMPLETE ||
           state === GatingState.COURSE_COMPLETE
         ) {
-          // Viewing a specific resource from a previous unit — let them
+          // Viewing a specific resource — let them browse
           if (props.resourceId) {
             return false;
+          }
+          // Navigated to a specific lesson (e.g., from welcome page accordion)
+          // — redirect to the first resource of that lesson instead of
+          // showing the interstitial
+          if (props.lessonId) {
+            return checkRedirectToUnitTree();
           }
           showInterstitial.value = true;
           return false;
