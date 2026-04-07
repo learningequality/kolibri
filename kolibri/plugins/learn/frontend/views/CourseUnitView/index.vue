@@ -359,10 +359,17 @@
             state === GatingState.COURSE_COMPLETE;
           return locallyComplete || backendComplete;
         }
+        const currentResource = unitResources.value[currentResourceIndexInUnit.value];
+        // Current resource is locally complete — learner can advance.
+        // This is needed because resumeData.resume_position isn't mutated
+        // locally on completion, so maxResourceLft may still point at
+        // the current resource (lft < lft would be false).
+        if ((contentNodeProgressMap[currentResource.content_id] || 0) >= 1) {
+          return true;
+        }
         if (maxResourceLft.value === null) {
           return false;
         }
-        const currentResource = unitResources.value[currentResourceIndexInUnit.value];
         return currentResource.lft < maxResourceLft.value;
       });
 
@@ -411,8 +418,40 @@
         if (activeTest.value) {
           return;
         }
-        // Local progress map is updated by the content viewer's progress tracking.
-        // No need to mutate resumeData — re-fetch handles state transitions.
+        if (
+          !resumeData.value?.resume_position ||
+          resumeData.value.resume_position.resource_id !== props.resourceId ||
+          !unitResources.value
+        ) {
+          return;
+        }
+
+        // Advance the local resume position so maxResourceLft updates and
+        // nextEnabled becomes true. This is a navigation position update
+        // within RESOURCE_PROGRESSION, not a gating state change.
+        const currentIndex = currentResourceIndexInUnit.value;
+        if (currentIndex === null) {
+          return;
+        }
+        const nextResource = unitResources.value[currentIndex + 1];
+        if (!nextResource) {
+          // Last resource — mark unit resources as complete
+          resumeData.value = {
+            ...resumeData.value,
+            resume_position: {
+              unit_id: props.unitId,
+            },
+          };
+          return;
+        }
+        resumeData.value = {
+          ...resumeData.value,
+          resume_position: {
+            unit_id: props.unitId,
+            lesson_id: nextResource.parent,
+            resource_id: nextResource.id,
+          },
+        };
       };
 
       const checkValidPosition = (current, expected, data) => {
