@@ -19,6 +19,8 @@ from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.utils.cache import process_cache
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -135,6 +137,41 @@ class CourseSession(AbstractFacilityDataModel):
                 "test_type": unit_test_active.test_type,
             }
             result["started"] = True
+
+            # Check if the learner has already completed this test
+            synthetic_content_id = get_synthetic_content_id(
+                str(self.id),
+                str(unit_test_active.unit_contentnode_id),
+                unit_test_active.test_type,
+            )
+            learner_completed_test = MasteryLog.objects.filter(
+                user=user,
+                summarylog__content_id=synthetic_content_id,
+                complete=True,
+            ).exists()
+
+            if not learner_completed_test:
+                return result
+
+            # Learner completed the active test — compute resume_position
+            unit_contentnode_id = unit_test_active.unit_contentnode_id
+            first_incomplete_resource = self._get_first_incomplete_resource(
+                user, unit_contentnode_id
+            )
+
+            if first_incomplete_resource:
+                result["resume_position"] = {
+                    "unit_id": unit_contentnode_id,
+                    "lesson_id": first_incomplete_resource.parent_id,
+                    "resource_id": first_incomplete_resource.id,
+                }
+            else:
+                result["resume_position"] = {
+                    "unit_id": unit_contentnode_id,
+                    "lesson_id": None,
+                    "resource_id": None,
+                }
+
             return result
 
         most_recent_pre_test_completed = (
@@ -159,7 +196,48 @@ class CourseSession(AbstractFacilityDataModel):
         result["started"] = True
         unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
 
-        first_incomplete_resource = (
+        first_incomplete_resource = self._get_first_incomplete_resource(
+            user, unit_contentnode_id
+        )
+
+        if first_incomplete_resource:
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": first_incomplete_resource.parent_id,
+                "resource_id": first_incomplete_resource.id,
+            }
+        else:
+            # All resources complete — check if the post-test is also closed,
+            # meaning the unit is fully done and we should advance.
+            post_test_closed = unit_test_assignments_qs.filter(
+                unit_contentnode_id=unit_contentnode_id,
+                test_type=TestType.Post,
+                closed=True,
+            ).exists()
+
+            if post_test_closed:
+                next_unit = (
+                    ContentNode.objects.filter(
+                        parent_id=self.course,
+                        lft__gt=most_recent_pre_test_completed.unit_sort_order,
+                    )
+                    .order_by("lft")
+                    .values_list("id", flat=True)
+                    .first()
+                )
+                if next_unit:
+                    unit_contentnode_id = next_unit
+
+            result["resume_position"] = {
+                "unit_id": unit_contentnode_id,
+                "lesson_id": None,
+                "resource_id": None,
+            }
+
+        return result
+
+    def _get_first_incomplete_resource(self, user, unit_contentnode_id):
+        return (
             ContentNode.objects.filter(
                 parent__parent=unit_contentnode_id,
                 available=True,
@@ -176,21 +254,6 @@ class CourseSession(AbstractFacilityDataModel):
             .order_by("lft")
             .first()
         )
-
-        if first_incomplete_resource:
-            result["resume_position"] = {
-                "unit_id": unit_contentnode_id,
-                "lesson_id": first_incomplete_resource.parent_id,
-                "resource_id": first_incomplete_resource.id,
-            }
-        else:
-            result["resume_position"] = {
-                "unit_id": unit_contentnode_id,
-                "lesson_id": None,
-                "resource_id": None,
-            }
-
-        return result
 
     def _get_assigned_user(self):
         """

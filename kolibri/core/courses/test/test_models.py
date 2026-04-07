@@ -15,6 +15,8 @@ from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
 DUMMY_PASSWORD = "password"
 
@@ -190,6 +192,222 @@ class CourseSessionGetResumeDataTestCase(TestCase):
 
         self.assertFalse(result["started"])
         self.assertIsNone(result["active_test"])
+
+
+class CourseSessionGetResumeDataAdvancedTestCase(TestCase):
+    """
+    Tests for get_resume_data behaviors that require multi-unit setups:
+    completed-test detection and advance-past-completed-unit.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+
+        cls.facility = Facility.objects.create(name="AdvancedTestFacility")
+        cls.classroom = Classroom.objects.create(
+            name="AdvancedTestClassroom", parent=cls.facility
+        )
+        cls.coach = FacilityUser.objects.create(
+            username="adv_coach", facility=cls.facility
+        )
+        cls.coach.set_password(DUMMY_PASSWORD)
+        cls.coach.save()
+        cls.classroom.add_coach(cls.coach)
+
+        cls.learner = FacilityUser.objects.create(
+            username="adv_learner", facility=cls.facility
+        )
+        cls.learner.set_password(DUMMY_PASSWORD)
+        cls.learner.save()
+        cls.classroom.add_member(cls.learner)
+
+        channel_id = uuid.uuid4().hex
+
+        cls.course_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Advanced Test Course",
+            modality=modalities.COURSE,
+        )
+
+        # Unit 1 with one lesson and one resource
+        cls.unit1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.course_node,
+            available=True,
+            title="Unit 1",
+            modality=modalities.UNIT,
+        )
+        cls.lesson1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.unit1,
+            available=True,
+            title="Lesson 1",
+            modality=modalities.LESSON,
+        )
+        cls.resource1 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.lesson1,
+            available=True,
+            title="Resource 1",
+        )
+
+        # Unit 2 with one lesson and one resource
+        cls.unit2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.course_node,
+            available=True,
+            title="Unit 2",
+            modality=modalities.UNIT,
+        )
+        cls.lesson2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.unit2,
+            available=True,
+            title="Lesson 2",
+            modality=modalities.LESSON,
+        )
+        cls.resource2 = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.lesson2,
+            available=True,
+            title="Resource 2",
+        )
+
+        cls.course_session = CourseSession.objects.create(
+            course=cls.course_node.id,
+            title="Advanced Test Session",
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.coach,
+        )
+
+    def _mark_test_completed(self, unit, test_type):
+        synthetic_content_id = get_synthetic_content_id(
+            str(self.course_session.id), str(unit.id), test_type
+        )
+        summary_log = ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=synthetic_content_id,
+            channel_id=self.course_node.channel_id,
+            kind="quiz",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+        MasteryLog.objects.create(
+            summarylog=summary_log,
+            user=self.learner,
+            mastery_criterion={"type": "pre_post_test", "test_type": test_type},
+            start_timestamp=timezone.now(),
+            end_timestamp=timezone.now(),
+            complete=True,
+            mastery_level=-1,
+        )
+
+    def test_active_test_completed_returns_resume_position(self):
+        """
+        When the learner has completed the active pre-test but the coach
+        hasn't closed it, resume should return both active_test AND
+        resume_position pointing to the first resource of the test's unit.
+        """
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        self._mark_test_completed(self.unit1, TestType.Pre)
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertTrue(result["started"])
+        self.assertEqual(result["active_test"]["unit_id"], self.unit1.id)
+        self.assertEqual(result["active_test"]["test_type"], TestType.Pre)
+        self.assertIsNotNone(result["resume_position"])
+        self.assertEqual(result["resume_position"]["unit_id"], self.unit1.id)
+        self.assertEqual(result["resume_position"]["resource_id"], self.resource1.id)
+
+    def test_active_test_not_completed_returns_no_resume_position(self):
+        """
+        When the test is active but the learner hasn't completed it,
+        resume_position should be None (learner still needs to take the test).
+        """
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=False,
+            activated_by=self.coach,
+        )
+        # No _mark_test_completed call
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertTrue(result["started"])
+        self.assertEqual(result["active_test"]["unit_id"], self.unit1.id)
+        self.assertIsNone(result["resume_position"])
+
+    def test_advances_past_completed_unit(self):
+        """
+        When a unit's pre-test is closed, all resources are complete, and the
+        post-test is also closed, resume_position should advance to the next
+        unit rather than staying on the completed one.
+        """
+        # Unit 1: pre-test and post-test both closed
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit1.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit1.id,
+            collection=self.classroom,
+            test_type=TestType.Post,
+            closed=True,
+            activated_by=self.coach,
+        )
+        # Mark unit 1's resource as complete
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=self.resource1.content_id,
+            channel_id=self.resource1.channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertTrue(result["started"])
+        self.assertIsNone(result["active_test"])
+        # Should advance to unit 2, not stay on completed unit 1
+        self.assertEqual(result["resume_position"]["unit_id"], self.unit2.id)
+        self.assertIsNone(result["resume_position"]["lesson_id"])
+        self.assertIsNone(result["resume_position"]["resource_id"])
 
 
 class CourseSessionGetContentDownloadPriorityTestCase(TestCase):

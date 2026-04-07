@@ -19,14 +19,12 @@ from kolibri.core.content.api import ContentNodeViewset
 from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
-from kolibri.core.courses.models import TestType
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import exam_assignment_lookup
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
-from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
 
 contentnode_progress_viewset = ContentNodeProgressViewset()
@@ -471,154 +469,5 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
 
     @action(detail=True, methods=["get"])
     def resume(self, request, pk=None):
-        response_data = {
-            "started": False,
-            "active_test": None,
-            "resume_position": None,
-        }
-
         course_session = self.get_object()
-        unit_test_assignments_qs = course_session.unit_test_assignments.filter(
-            collection__membership__user=request.user
-        )
-        unit_test_active = unit_test_assignments_qs.filter(
-            closed=False,
-        ).first()
-
-        if unit_test_active:
-            response_data["active_test"] = {
-                "unit_id": unit_test_active.unit_contentnode_id,
-                "test_type": unit_test_active.test_type,
-            }
-            response_data["started"] = True
-
-            # Check if the learner has already completed this test.
-            synthetic_content_id = get_synthetic_content_id(
-                str(course_session.id),
-                str(unit_test_active.unit_contentnode_id),
-                unit_test_active.test_type,
-            )
-
-            learner_completed_test = MasteryLog.objects.filter(
-                user=request.user,
-                summarylog__content_id=synthetic_content_id,
-                complete=True,
-            ).exists()
-
-            if not learner_completed_test:
-                return Response(response_data)
-
-            # Learner completed the active test — compute resume_position
-            # using the active test's unit
-            unit_contentnode_id = unit_test_active.unit_contentnode_id
-            first_incomplete_resource = (
-                ContentNode.objects.filter(
-                    parent__parent=unit_contentnode_id,
-                    available=True,
-                )
-                .annotate(
-                    learner_progress=Subquery(
-                        ContentSummaryLog.objects.filter(
-                            user=request.user,
-                            content_id=OuterRef("content_id"),
-                        ).values("progress")[:1]
-                    ),
-                )
-                .filter(Q(learner_progress__lt=1) | Q(learner_progress__isnull=True))
-                .order_by("lft")
-                .first()
-            )
-
-            if first_incomplete_resource:
-                response_data["resume_position"] = {
-                    "unit_id": unit_contentnode_id,
-                    "lesson_id": first_incomplete_resource.parent_id,
-                    "resource_id": first_incomplete_resource.id,
-                }
-            else:
-                response_data["resume_position"] = {
-                    "unit_id": unit_contentnode_id,
-                    "lesson_id": None,
-                    "resource_id": None,
-                }
-
-            return Response(response_data)
-
-        most_recent_pre_test_completed = (
-            unit_test_assignments_qs.filter(
-                closed=True,
-                test_type=TestType.Pre,
-            )
-            .annotate(
-                unit_sort_order=Subquery(
-                    ContentNode.objects.filter(
-                        id=OuterRef("unit_contentnode_id")
-                    ).values("lft")[:1]
-                ),
-            )
-            .order_by("-unit_sort_order")
-            .first()
-        )
-
-        if not most_recent_pre_test_completed:
-            # Course not started yet
-            return Response(response_data)
-
-        # it has at least one pre-test completed, so mark as started
-        response_data["started"] = True
-
-        unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
-        first_incomplete_resource = (
-            ContentNode.objects.filter(
-                parent__parent=unit_contentnode_id,
-                available=True,
-            )
-            .annotate(
-                learner_progress=Subquery(
-                    ContentSummaryLog.objects.filter(
-                        user=request.user,
-                        content_id=OuterRef("content_id"),
-                    ).values("progress")[:1]
-                ),
-            )
-            .filter(Q(learner_progress__lt=1) | Q(learner_progress__isnull=True))
-            .order_by("lft")
-            .first()
-        )
-
-        if first_incomplete_resource:
-            response_data["resume_position"] = {
-                "unit_id": unit_contentnode_id,
-                "lesson_id": first_incomplete_resource.parent_id,
-                "resource_id": first_incomplete_resource.id,
-            }
-        else:
-            # All resources in the unit are complete.
-            # If the post-test is also closed, the unit is fully done —
-            # advance resume_position to the next unit in the course.
-            post_test_closed = unit_test_assignments_qs.filter(
-                unit_contentnode_id=unit_contentnode_id,
-                test_type=TestType.Post,
-                closed=True,
-            ).exists()
-
-            if post_test_closed:
-                next_unit = (
-                    ContentNode.objects.filter(
-                        parent_id=course_session.course,
-                        lft__gt=most_recent_pre_test_completed.unit_sort_order,
-                    )
-                    .order_by("lft")
-                    .values_list("id", flat=True)
-                    .first()
-                )
-                if next_unit:
-                    unit_contentnode_id = next_unit
-
-            response_data["resume_position"] = {
-                "unit_id": unit_contentnode_id,
-                "lesson_id": None,
-                "resource_id": None,
-            }
-
-        return Response(response_data)
+        return Response(course_session.get_resume_data(request.user))
