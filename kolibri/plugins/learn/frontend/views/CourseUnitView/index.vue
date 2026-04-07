@@ -814,6 +814,8 @@
         postTestCompletedDescription$,
         unitComplete$,
         unitCompleteDescription$,
+        courseComplete$,
+        courseCompleteDescription$,
       } = coursesStrings;
 
       const GATING_STRINGS = {
@@ -832,6 +834,10 @@
         [GatingState.UNIT_COMPLETE]: {
           title: unitComplete$,
           description: unitCompleteDescription$,
+        },
+        [GatingState.COURSE_COMPLETE]: {
+          title: courseComplete$,
+          description: courseCompleteDescription$,
         },
       };
 

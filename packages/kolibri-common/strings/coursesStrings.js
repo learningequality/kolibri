@@ -401,6 +401,14 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'You may review previous resources.',
     context: 'Description shown when a learner has completed all resources and tests for a unit',
   },
+  courseComplete: {
+    message: 'Course complete',
+    context: 'Title shown when a learner has completed all units and tests in a course',
+  },
+  courseCompleteDescription: {
+    message: 'Congratulations! You have completed this course. You may review any resources.',
+    context: 'Description shown when a learner has completed all units and tests in a course',
+  },
   submitTestAction: {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',
