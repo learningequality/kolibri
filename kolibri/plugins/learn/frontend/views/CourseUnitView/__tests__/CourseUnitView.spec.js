@@ -1351,7 +1351,7 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('content-viewer')).toBeVisible();
       });
 
-      // Click Next to trigger the interstitial (allResourcesComplete is true)
+      // Click Next to trigger re-fetch + interstitial (backend state is complete)
       const nextButton = await screen.findByRole('button', { name: /next/i });
       await waitFor(() => {
         expect(nextButton).toBeEnabled();
