@@ -317,6 +317,22 @@ describe('CourseWelcomePage', () => {
       });
     });
 
+    it('shows Resume Course when PRE_TEST_ACTIVE_INCOMPLETE on later unit', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        gating_state: 'PRE_TEST_ACTIVE_INCOMPLETE',
+        started: true,
+        active_test: { unit_id: 'unit-2', test_type: 'pre' },
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        const button = wrapper.getByTestId('course-action-button');
+        expect(button).toBeEnabled();
+        expect(button).toHaveTextContent('Resume Course');
+      });
+    });
+
     it('is disabled when PRE_TEST_ACTIVE_COMPLETE', async () => {
       learnerResources = makeLearnerResourcesMock({
         gating_state: 'PRE_TEST_ACTIVE_COMPLETE',
