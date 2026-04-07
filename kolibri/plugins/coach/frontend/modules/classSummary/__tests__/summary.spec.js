@@ -1,4 +1,5 @@
 import store, { _itemMap, _statusMap } from '../index';
+import { STATUSES } from '../constants';
 import sampleServerResponse from './sampleServerResponse';
 import expectedState from './sampleState';
 
@@ -71,5 +72,76 @@ describe('coach summary module', () => {
       },
     };
     expect(_statusMap(statuses, 'content_id')).toEqual(output);
+  });
+
+  describe('APPLY_NOTIFICATION_UPDATES', () => {
+    it('does not overwrite a completed content status with a lesser status', () => {
+      const state = {
+        contentLearnerStatusMap: {
+          content_1: {
+            learner_1: {
+              content_id: 'content_1',
+              learner_id: 'learner_1',
+              status: STATUSES.completed,
+              last_activity: new Date('2023-10-05T10:00:00Z'),
+              time_spent: 100,
+            },
+          },
+        },
+        examLearnerStatusMap: {},
+        examMap: {},
+      };
+
+      store.mutations.APPLY_NOTIFICATION_UPDATES(state, {
+        contentLearnerStatusMapUpdates: [
+          {
+            content_id: 'content_1',
+            learner_id: 'learner_1',
+            status: 'Answered',
+            last_activity: new Date('2023-10-05T11:00:00Z'),
+          },
+        ],
+        examLearnerStatusMapUpdates: [],
+      });
+
+      // Status should remain Completed
+      expect(state.contentLearnerStatusMap.content_1.learner_1.status).toBe(STATUSES.completed);
+      // But last_activity should be updated
+      expect(state.contentLearnerStatusMap.content_1.learner_1.last_activity).toEqual(
+        new Date('2023-10-05T11:00:00Z'),
+      );
+    });
+
+    it('allows updating a non-completed content status', () => {
+      const state = {
+        contentLearnerStatusMap: {
+          content_1: {
+            learner_1: {
+              content_id: 'content_1',
+              learner_id: 'learner_1',
+              status: STATUSES.started,
+              last_activity: new Date('2023-10-05T10:00:00Z'),
+              time_spent: 50,
+            },
+          },
+        },
+        examLearnerStatusMap: {},
+        examMap: {},
+      };
+
+      store.mutations.APPLY_NOTIFICATION_UPDATES(state, {
+        contentLearnerStatusMapUpdates: [
+          {
+            content_id: 'content_1',
+            learner_id: 'learner_1',
+            status: STATUSES.completed,
+            last_activity: new Date('2023-10-05T11:00:00Z'),
+          },
+        ],
+        examLearnerStatusMapUpdates: [],
+      });
+
+      expect(state.contentLearnerStatusMap.content_1.learner_1.status).toBe(STATUSES.completed);
+    });
   });
 });
