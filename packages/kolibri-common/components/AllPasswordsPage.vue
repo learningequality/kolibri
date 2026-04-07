@@ -96,7 +96,7 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
-  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
   export default {
@@ -112,7 +112,7 @@
         noPasswordSignInDescription$,
         printAction$,
         allPasswordsHeader$,
-      } = picturePasswords;
+      } = picturePasswordStrings;
 
       onMounted(() => {
         FacilityUserResource.fetchCollection({

@@ -81,7 +81,7 @@
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
-  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../common';
@@ -106,7 +106,7 @@
     setup() {
       const { entireClassLabel$ } = coachStrings;
       const { facilityConfig } = useFacility();
-      const { viewPasswordsAction$ } = picturePasswords;
+      const { viewPasswordsAction$ } = picturePasswordStrings;
 
       const recipientSelected = ref({
         label: entireClassLabel$(),

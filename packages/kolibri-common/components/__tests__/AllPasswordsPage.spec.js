@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
+import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
 jest.mock('kolibri-common/apiResources/FacilityUserResource', () => ({
@@ -104,7 +104,7 @@ describe('AllPasswordsPage', () => {
       renderComponent();
       await global.flushPromises();
       expect(
-        screen.getByText(picturePasswords.noPicturePasswordDescription$()),
+        screen.getByText(picturePasswordStrings.noPicturePasswordDescription$()),
       ).toBeInTheDocument();
     });
 
@@ -122,7 +122,9 @@ describe('AllPasswordsPage', () => {
     it('renders a Print button', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: picturePasswordStrings.printAction$() }),
+      ).toBeInTheDocument();
     });
   });
 

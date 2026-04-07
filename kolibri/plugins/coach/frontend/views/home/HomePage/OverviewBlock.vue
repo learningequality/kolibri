@@ -89,7 +89,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
-  import { picturePasswords } from 'kolibri-common/strings/picturePasswords';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../learn/frontend/constants';
   import commonCoach from '../../common';
@@ -103,7 +103,7 @@
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { facilityConfig } = useFacility();
-      const { viewPasswordsAction$ } = picturePasswords;
+      const { viewPasswordsAction$ } = picturePasswordStrings;
       const userList = ref([]);
       return {
         userIsMultiFacilityAdmin,
