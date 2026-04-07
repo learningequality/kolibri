@@ -71,8 +71,4 @@
     min-width: 0;
   }
 
-  .view-passwords-link {
-    margin-top: 16px;
-  }
-
 </style>

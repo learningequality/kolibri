@@ -9,23 +9,12 @@
   >
     <KPageContainer>
       <h1>{{ $tr('pageHeader', { className: className }) }}</h1>
-      <div class="page-actions">
-        <KButton
-          :text="$tr('howToTroubleshootModalHeader')"
-          appearance="basic-link"
-          class="troubleshooting-modal-link"
-          @click="displayTroubleshootModal = true"
-        />
-        <KRouterLink
-          v-if="
-            facilityConfig.picture_password_settings !== null &&
-              facilityConfig.picture_password_settings !== undefined
-          "
-          :text="viewPasswordsAction$()"
-          appearance="raised-button"
-          :to="{ name: PageNames.LEARNER_PASSWORDS, params: { classId: $route.params.classId } }"
-        />
-      </div>
+      <KButton
+        :text="$tr('howToTroubleshootModalHeader')"
+        appearance="basic-link"
+        class="troubleshooting-modal-link"
+        @click="displayTroubleshootModal = true"
+      />
       <template>
         <div aria-live="polite">
           <StorageNotificationBanner v-if="learnerHasInsufficientStorage" />
@@ -107,8 +96,6 @@
   import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../composables/fetchClassSyncStatus';
-  import useFacility from 'kolibri-common/composables/useFacility';
-  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswordStrings';
   import CoachImmersivePage from '../views/CoachImmersivePage';
   import { PageNames } from '../constants';
   import SyncStatusDescription from './common/SyncStatusDescription';
@@ -126,14 +113,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { facilityConfig } = useFacility();
-      const { viewPasswordsAction$ } = picturePasswordStrings;
-      return {
-        facilityConfig,
-        viewPasswordsAction$,
-        PageNames,
-        pageLoading,
-      };
+      return { pageLoading };
     },
     data: function () {
       return {
@@ -248,15 +228,8 @@
 
 <style lang="scss" scoped>
 
-  .page-actions {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    margin-bottom: 25px;
-  }
-
   .troubleshooting-modal-link {
-    margin-bottom: 0;
+    margin-bottom: 25px;
   }
 
   /deep/ .title {

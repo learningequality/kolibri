@@ -15,6 +15,20 @@ function defaultHandler() {
 
 export default [
   {
+    name: PageNames.LEARNERS_ROOT,
+    path: OPTIONAL_CLASS + ALL_LEARNERS,
+    component: LearnersRootPage,
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LEARNERS_ROOT, next)) {
+        return;
+      }
+      defaultHandler();
+    },
+    meta: {
+      titleParts: ['learnersLabel', 'CLASS_NAME'],
+    },
+  },
+  {
     name: PageNames.LEARNER_PASSWORDS,
     path: OPTIONAL_CLASS + '/passwords',
     component: AllPasswordsPage,
@@ -34,20 +48,6 @@ export default [
     },
     meta: {
       titleParts: ['CLASS_NAME'],
-    },
-  },
-  {
-    name: PageNames.LEARNERS_ROOT,
-    path: OPTIONAL_CLASS + ALL_LEARNERS,
-    component: LearnersRootPage,
-    handler(toRoute, fromRoute, next) {
-      if (classIdParamRequiredGuard(toRoute, PageNames.LEARNERS_ROOT, next)) {
-        return;
-      }
-      defaultHandler();
-    },
-    meta: {
-      titleParts: ['learnersLabel', 'CLASS_NAME'],
     },
   },
   {
