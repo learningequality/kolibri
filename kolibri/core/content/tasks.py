@@ -637,10 +637,8 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
         if job_data["kwargs"]["peer_id"]:
             client = NetworkClient.build_for_address(job_data["kwargs"]["baseurl"])
         else:
-            client = NetworkClient("/")
-        url = get_channel_lookup_url(
-            baseurl=job_data["kwargs"]["baseurl"], identifier=data["channel_id"]
-        )
+            client = NetworkClient(conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"])
+        url = get_channel_lookup_url(identifier=data["channel_id"])
         try:
             resp = client.get(url)
         except NetworkLocationResponseFailure as e:

@@ -154,35 +154,33 @@ class PublicAPITestCase(APITestCase):
         )
 
     def test_public_channel_list(self):
-        response = self.client.get(get_channel_lookup_url(baseurl="/"))
+        response = self.client.get(get_channel_lookup_url())
         data = response.json()
         self.assertEqual(len(data), 2)
 
     def test_public_channel_list_filter_keyword(self):
-        response = self.client.get(get_channel_lookup_url(baseurl="/", keyword="zzz"))
+        response = self.client.get(get_channel_lookup_url(keyword="zzz"))
         self.assertEqual(len(response.json()), 0)
-        response = self.client.get(get_channel_lookup_url(baseurl="/", keyword="math"))
+        response = self.client.get(get_channel_lookup_url(keyword="math"))
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]["id"], self.channel_id1)
 
     def test_public_channel_list_filter_language(self):
-        response = self.client.get(get_channel_lookup_url(baseurl="/", language="zu"))
+        response = self.client.get(get_channel_lookup_url(language="zu"))
         self.assertEqual(len(response.json()), 0)
         # filter based on contentnode languages
-        response = self.client.get(get_channel_lookup_url(baseurl="/", language="en"))
+        response = self.client.get(get_channel_lookup_url(language="en"))
         self.assertEqual(len(response.json()), 2)
         # filter based on root contentnode language
-        response = self.client.get(get_channel_lookup_url(baseurl="/", language="es"))
+        response = self.client.get(get_channel_lookup_url(language="es"))
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]["id"], self.channel_id2)
 
     def test_public_channel_list_filter_keyword_language(self):
-        response = self.client.get(
-            get_channel_lookup_url(baseurl="/", keyword="zzz", language="es")
-        )
+        response = self.client.get(get_channel_lookup_url(keyword="zzz", language="es"))
         self.assertEqual(len(response.json()), 0)
         response = self.client.get(
-            get_channel_lookup_url(baseurl="/", keyword="science", language="es")
+            get_channel_lookup_url(keyword="science", language="es")
         )
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]["id"], self.channel_id2)
@@ -275,7 +273,7 @@ class PublicAPITestCase(APITestCase):
         create_mini_channel(channel_name="math 2", channel_id=unlisted_channel_id)
         set_channel_metadata_fields(unlisted_channel_id, public=False)
 
-        response = self.client.get(get_channel_lookup_url(baseurl="/"))
+        response = self.client.get(get_channel_lookup_url())
         data = response.json()
         self.assertEqual(len(data), 2)
 

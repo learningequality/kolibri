@@ -47,9 +47,7 @@ def lookup_channel_listing_status(channel_id, baseurl=None):
     try:
         # prevent trying to fetch a channel from a remote that it is not
         # available from.
-        resp = client.get(
-            get_channel_lookup_url(identifier=channel_id, baseurl=baseurl)
-        )
+        resp = client.get(get_channel_lookup_url(identifier=channel_id))
 
     except NetworkLocationResponseFailure as e:
         if e.response.status_code == 404:
