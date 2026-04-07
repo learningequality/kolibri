@@ -97,6 +97,7 @@
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
 
   export default {
@@ -106,8 +107,8 @@
       const learners = ref([]);
       const loading = ref(true);
 
+      const { nameLabel$ } = coreStrings;
       const {
-        nameLabel$,
         noPicturePasswordDescription$,
         noPasswordSignInDescription$,
         printAction$,

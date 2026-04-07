@@ -74,10 +74,6 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Print',
     context: 'Button label to print the learner picture password list',
   },
-  nameLabel: {
-    message: 'Name',
-    context: 'Column header label for the name column in the picture password list',
-  },
   allPasswordsHeader: {
     message: 'All passwords',
     context: 'App bar title for the page listing all learner passwords',
