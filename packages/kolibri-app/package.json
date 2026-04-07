@@ -13,7 +13,6 @@
   "dependencies": {
     "kolibri": "workspace:*",
     "kolibri-module": "workspace:*",
-    "vue": "catalog:",
-    "vuex-router-sync": "^5.0.0"
+    "vue": "catalog:"
   }
 }

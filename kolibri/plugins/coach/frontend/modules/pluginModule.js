@@ -3,6 +3,7 @@ import logger from 'kolibri-logging';
 import useUser from 'kolibri/composables/useUser';
 import { handleApiError, clearError } from 'kolibri/utils/appError';
 import { get } from '@vueuse/core';
+import { getReactiveRoute } from 'kolibri/router';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames, pageNameToModuleMap } from '../constants';
 import examReportDetail from './examReportDetail';
@@ -58,15 +59,13 @@ export default {
       // otherwise show the whole class list
       return state.classList.length !== 1;
     },
-    userIsAuthorizedForCoach(state, getters, rootState) {
+    userIsAuthorizedForCoach() {
       const { isAdmin, isSuperuser, isCoach, userFacilityId } = useUser();
       if (get(isSuperuser)) {
         return true;
       } else if (get(isCoach) || get(isAdmin)) {
-        return (
-          rootState.route.params.facilityId === get(userFacilityId) ||
-          !rootState.route.params.facilityId
-        );
+        const routeParams = getReactiveRoute().params || {};
+        return routeParams.facilityId === get(userFacilityId) || !routeParams.facilityId;
       }
       return false;
     },

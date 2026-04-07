@@ -1,4 +1,3 @@
-import { sync } from 'vuex-router-sync';
 import router from 'kolibri/router';
 import logger from 'kolibri-logging';
 import Vue from 'vue';
@@ -58,11 +57,9 @@ export default class KolibriApp extends KolibriModule {
   }
 
   setupVue() {
-    // VueRouter instance needs to be defined to use vuex-router-sync
     if (!router._vueRouter) {
       router.initRouter();
     }
-    sync(store, router);
 
     // Add the plugin-level mutations, getters, actions, but leave core module alone
     this.store.hotUpdate({

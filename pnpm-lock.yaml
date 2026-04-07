@@ -1048,9 +1048,6 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
-      vuex-router-sync:
-        specifier: ^5.0.0
-        version: 5.0.0(vue-router@3.6.5(vue@2.7.16))(vuex@3.6.2(vue@2.7.16))
 
   packages/kolibri-build:
     dependencies:
@@ -8838,12 +8835,6 @@ packages:
   vue@2.7.16:
     resolution: {integrity: sha512-4gCtFXaAA3zYZdTp5s4Hl2sozuySsgz4jy1EnpBHNfpMa9dK1ZCG7viqBPCwXtmgc8nHqUsAu3G4gtmXkkY3Sw==}
     deprecated: Vue 2 has reached EOL and is no longer actively maintained. See https://v2.vuejs.org/eol/ for more details.
-
-  vuex-router-sync@5.0.0:
-    resolution: {integrity: sha512-Mry2sO4kiAG64714X1CFpTA/shUH1DmkZ26DFDtwoM/yyx6OtMrc+MxrU+7vvbNLO9LSpgwkiJ8W+rlmRtsM+w==}
-    peerDependencies:
-      vue-router: ^3.0.0
-      vuex: ^3.0.0
 
   vuex@3.6.2:
     resolution: {integrity: sha512-ETW44IqCgBpVomy520DT5jf8n0zoCac+sxWnn+hMe/CzaSejb/eVw2YToiXYX+Ex/AuHHia28vWTq4goAexFbw==}
@@ -17724,11 +17715,6 @@ snapshots:
     dependencies:
       '@vue/compiler-sfc': 2.7.16
       csstype: 3.2.3
-
-  vuex-router-sync@5.0.0(vue-router@3.6.5(vue@2.7.16))(vuex@3.6.2(vue@2.7.16)):
-    dependencies:
-      vue-router: 3.6.5(vue@2.7.16)
-      vuex: 3.6.2(vue@2.7.16)
 
   vuex@3.6.2(vue@2.7.16):
     dependencies:
