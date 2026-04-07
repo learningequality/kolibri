@@ -1813,6 +1813,7 @@ class PicturePasswordLoginTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.data, list)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
 
     def test_picture_password_no_match_returns_not_found(self):
@@ -1825,6 +1826,7 @@ class PicturePasswordLoginTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.data, list)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
 
     def test_coach_not_authenticated_via_picture_password(self):
@@ -1841,6 +1843,7 @@ class PicturePasswordLoginTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.data, list)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
 
     def test_admin_not_authenticated_via_picture_password(self):
@@ -1857,6 +1860,7 @@ class PicturePasswordLoginTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.data, list)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
 
     def test_picture_password_none_falls_through_to_username_path(self):
@@ -1866,6 +1870,63 @@ class PicturePasswordLoginTestCase(APITestCase):
                 "username": self.learner.username,
                 "password": DUMMY_PASSWORD,
                 "picture_password": None,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], self.learner.id)
+
+    def test_picture_password_omitted_falls_through_to_username_path(self):
+        # Omitting the field entirely should behave identically to sending null,
+        # confirming the serializer default=None wiring.
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": self.learner.username,
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["user_id"], self.learner.id)
+
+    def test_picture_password_empty_string_rejected_by_serializer(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={"picture_password": "", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_picture_password_too_long_rejected_by_serializer(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={"picture_password": "1.2.3.4.5", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_picture_password_invalid_format_rejected_by_serializer(self):
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={"picture_password": "abc", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_picture_password_and_username_password_picture_password_takes_precedence(
+        self,
+    ):
+        # When both picture_password and username/password are supplied,
+        # the picture-password path is used; username/password is ignored.
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "1.2.3",
+                "username": self.learner.username,
+                "password": DUMMY_PASSWORD,
                 "facility": self.facility.id,
             },
             format="json",
