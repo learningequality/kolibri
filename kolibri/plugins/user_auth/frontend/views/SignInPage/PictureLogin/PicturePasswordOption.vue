@@ -30,6 +30,9 @@
 
       <div
         class="icon-container"
+        :class="{
+          'show-icon-text': showIconText,
+        }"
         :style="iconContainerStyle"
       >
         <span
@@ -42,13 +45,18 @@
           {{ sequencePosition }}
         </span>
 
-        <KIcon
-          class="option-icon"
-          :icon="icon"
-          :color="iconColor"
-        />
+        <div class="icon-wrapper">
+          <KIcon
+            class="option-icon"
+            :icon="icon"
+            :color="iconColor"
+          />
+        </div>
 
-        <span class="icon-label">
+        <span
+          class="icon-label"
+          :class="{ visuallyhidden: !showIconText }"
+        >
           {{ labelText }}
         </span>
       </div>
@@ -62,7 +70,7 @@
 
   import { computed } from 'vue';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
-  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswordStrings';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
   export default {
     name: 'PicturePasswordOption',
@@ -83,6 +91,8 @@
         if (isSelected.value) {
           return {
             border: `4px solid ${$themeTokens.primary}`,
+            // reduce padding to keep overall option size consistent when border width increases
+            padding: '10px',
             backgroundColor: $themePalette.blue.v_100,
             cursor: 'pointer',
             color: $themeTokens.text,
@@ -90,6 +100,7 @@
           };
         }
         const unSelectedStyles = {
+          padding: '12px',
           border: `2px solid ${$themeTokens.fineLine}`,
           backgroundColor: $themePalette.grey.v_100,
           color: $themeTokens.annotation,
@@ -175,6 +186,13 @@
         type: Boolean,
         default: false,
       },
+      /**
+       * Whether to display the translated icon name below the icon.
+       */
+      showIconText: {
+        type: Boolean,
+        default: true,
+      },
     },
   };
 
@@ -201,7 +219,6 @@
     flex: 1;
     align-items: center;
     justify-content: center;
-    padding: 12px;
     border-radius: 8px;
     transition:
       border-color $core-time,
@@ -214,6 +231,22 @@
     gap: 4px;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100%;
+
+    .icon-wrapper {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    // Add horizontal padding to the icon when the label text is shown to make the icon smaller,
+    // so that the overall option is a square when we have a one-line label (most of the cases).
+    // Given that the icon element is always going to be a square, by setting some horizontal
+    // padding, we make its width smaller, making its height smaller
+    &.show-icon-text .icon-wrapper {
+      padding: 0 12px;
+    }
   }
 
   .badge {
@@ -232,13 +265,16 @@
   }
 
   .option-icon {
-    width: 52px;
-    height: 52px;
+    top: 0;
+    // Ensure responsiveness by setting icon size based on parent grid cell size
+    width: 100%;
+    height: 100%;
   }
 
   .icon-label {
     font-size: 14px;
     text-align: center;
+    word-break: break-all;
   }
 
 </style>

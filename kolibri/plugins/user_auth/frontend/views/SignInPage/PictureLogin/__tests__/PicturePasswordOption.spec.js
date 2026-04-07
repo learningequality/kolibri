@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswordStrings';
+import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import PicturePasswordOption from '../PicturePasswordOption.vue';
 
 function renderComponent(props = {}) {

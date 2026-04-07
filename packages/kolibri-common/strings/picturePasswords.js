@@ -1,6 +1,97 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 
 export const picturePasswordStrings = createTranslator('PicturePasswordStrings', {
+  // Icon labels used in picture password selection
+  tree: {
+    message: 'tree',
+    context: 'Label for the tree icon used in picture password selection.',
+  },
+  moon: {
+    message: 'moon',
+    context: 'Label for the moon icon used in picture password selection.',
+  },
+  bee: {
+    message: 'bee',
+    context: 'Label for the bee icon used in picture password selection.',
+  },
+  star: {
+    message: 'star',
+    context: 'Label for the star icon used in picture password selection.',
+  },
+  leaf: {
+    message: 'leaf',
+    context: 'Label for the leaf icon used in picture password selection.',
+  },
+  mouse: {
+    message: 'mouse',
+    context: 'Label for the mouse icon used in picture password selection.',
+  },
+  water: {
+    message: 'water',
+    context: 'Label for the water icon used in picture password selection.',
+  },
+  fish: {
+    message: 'fish',
+    context: 'Label for the fish icon used in picture password selection.',
+  },
+  dog: {
+    message: 'dog',
+    context: 'Label for the dog icon used in picture password selection.',
+  },
+  smile: {
+    message: 'smile',
+    context: 'Label for the smile icon used in picture password selection.',
+  },
+  flower: {
+    message: 'flower',
+    context: 'Label for the flower icon used in picture password selection.',
+  },
+  bird: {
+    message: 'bird',
+    context: 'Label for the bird icon used in picture password selection.',
+  },
+
+  // Live-region ordinal guidance after each icon selection
+  iconSelectedAsFirst: {
+    message: '{icon} selected as first, select the second',
+    context:
+      'Screen reader announcement after the first icon is chosen in the picture password sequence.',
+  },
+  iconSelectedAsSecond: {
+    message: '{icon} selected as second, select the third',
+    context:
+      'Screen reader announcement after the second icon is chosen in the picture password sequence.',
+  },
+  iconSelectedAsThird: {
+    message: '{icon} selected as third, confirm all 3 below',
+    context:
+      'Screen reader announcement after the third icon is chosen in the picture password sequence.',
+  },
+  allIconsSelected: {
+    message: '3 icons already selected. To change an icon, uncheck it and select another.',
+    context:
+      'Screen reader announcement when the learner taps a disabled icon after 3 have already been chosen.',
+  },
+
+  // Submit button aria-label states
+  selectThreeIconsToSignIn: {
+    message: 'Select 3 icons to sign in',
+    context: 'Submit button label when no icons have been selected yet.',
+  },
+  selectTwoMoreIcons: {
+    message: 'Select 2 more icons',
+    context: 'Submit button label when exactly 1 icon has been selected.',
+  },
+  selectOneMoreIcon: {
+    message: 'Select 1 more icon',
+    context: 'Submit button label when exactly 2 icons have been selected.',
+  },
+  signInWithSequence: {
+    message: 'Sign in with this sequence: {icon1}, {icon2}, {icon3}',
+    context:
+      'Submit button label when all 3 icons have been selected; lists them in order for screen readers.',
+  },
+
   learnerLimitReachedHeading: {
     message: 'Learner limit reached',
     context:
