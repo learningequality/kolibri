@@ -176,11 +176,12 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
 
     def get_status(log):
         """
-        Read the dict from a content summary log values query and return the status
-        In the case that we have found a needs help notification for the user and content node
-        in question, return that they need help, otherwise return status based on their
-        current progress.
+        Read the dict from a content summary log values query and return the status.
+        Progress is the source of truth: if progress == 1, the learner has completed
+        regardless of notification state. Otherwise, check for needs help notifications.
         """
+        if log["progress"] == 1:
+            return COMPLETED
         content_id = log["content_id"]
         if content_id in content_map.values():
             # Don't try to lookup anything if we don't know the content_id
@@ -195,8 +196,6 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
                     # or if we have and the timestamp is earlier than that on the needs_help event
                     if key not in completed or completed[key] < needs_help[key]:
                         return HELP_NEEDED
-        if log["progress"] == 1:
-            return COMPLETED
         if log["kind"] == content_kinds.EXERCISE:
             # if there are no attempt logs for this exercise, status is NOT_STARTED
             if not log["attempts_exist"]:

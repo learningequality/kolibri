@@ -571,63 +571,6 @@ def _get_help_needed_notification(attemptlog, contentnode_id, lesson):
         return help_needed_notification
 
 
-def _create_needs_help_notification(attemptlog, contentnode_id, lesson):
-    needs_help = _get_user_needs_help(attemptlog)
-    if not needs_help:
-        return
-
-    return _get_help_needed_notification(attemptlog, contentnode_id, lesson)
-
-
-def start_lesson_assessment(
-    attemptlog, contentnode_id, lesson_id=None, course_session_id=None
-):
-    lesson = _get_lesson_dict(
-        lesson_id,
-        course_session_id=course_session_id,
-        user=attemptlog.user,
-        node_id=contentnode_id,
-    )
-    if lesson:
-        notifications = [
-            _create_needs_help_notification(attemptlog, contentnode_id, lesson),
-        ]
-        notifications += check_and_created_started(
-            lesson, attemptlog.user_id, contentnode_id, attemptlog.start_timestamp
-        )
-        if attemptlog.answer:
-            notifications.append(
-                check_and_created_answered_lesson(
-                    lesson,
-                    attemptlog.user_id,
-                    contentnode_id,
-                    attemptlog.end_timestamp,
-                )
-            )
-
-        save_notifications(notifications)
-
-
-def update_lesson_assessment(
-    attemptlog, contentnode_id, lesson_id=None, course_session_id=None
-):
-    lesson = _get_lesson_dict(
-        lesson_id,
-        course_session_id=course_session_id,
-        user=attemptlog.user,
-        node_id=contentnode_id,
-    )
-    if lesson:
-        notifications = [
-            _create_needs_help_notification(attemptlog, contentnode_id, lesson),
-            check_and_created_answered_lesson(
-                lesson, attemptlog.user_id, contentnode_id, attemptlog.end_timestamp
-            ),
-        ]
-
-        save_notifications(notifications)
-
-
 def parse_summarylog(summarylog):
     """
     Method called by the ContentSummaryLogSerializer everytime the
@@ -906,7 +849,7 @@ def create_examattemptslog(examlog, timestamp):
     created_quiz_notification(examlog, event_type, timestamp)
 
 
-def parse_attemptslog(attemptlog):
+def parse_attemptslog(attemptlog, contentnode_id=None, course_session_id=None):
     """
     Method called by the AttemptLogSerializer everytime the
     attemptlog is updated.
@@ -916,14 +859,27 @@ def parse_attemptslog(attemptlog):
     # This event should not be triggered when an anonymous Learner is interacting with an Exercise:
     if not attemptlog.masterylog:
         return
-    # This event should not be triggered when a Learner is interacting with an Exercise outside of a Lesson:
-    lessons = get_assignments(
-        attemptlog.user, attemptlog.masterylog.summarylog, attempt=True
-    )
+
+    if course_session_id and contentnode_id:
+        lesson = _get_lesson_dict(
+            course_session_id=course_session_id,
+            user=attemptlog.user,
+            node_id=contentnode_id,
+        )
+        lessons = [(lesson, contentnode_id)] if lesson else []
+    else:
+        # This event should not be triggered when a Learner is interacting
+        # with an Exercise outside of a Lesson:
+        lessons = get_assignments(
+            attemptlog.user, attemptlog.masterylog.summarylog, attempt=True
+        )
     if not lessons:
         return
 
-    needs_help = _get_user_needs_help(attemptlog)
+    summarylog = attemptlog.masterylog.summarylog
+    needs_help = _is_summary_log_incompleted(summarylog) and _get_user_needs_help(
+        attemptlog
+    )
     notifications = []
     for lesson, contentnode_id in lessons:
         if needs_help:

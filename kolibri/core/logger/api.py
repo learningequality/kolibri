@@ -61,7 +61,6 @@ from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_answered_notification
 from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.notifications.api import quiz_started_notification
-from kolibri.core.notifications.api import start_lesson_assessment
 from kolibri.core.notifications.api import start_lesson_resource
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.utils.time_utils import local_now
@@ -900,22 +899,19 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
     ):
         if user is None:
             return
-        if "lesson_id" in context:
-            wrap_to_save_queue(parse_attemptslog, attemptlog)
+        if "lesson_id" in context or "course_session_id" in context:
+            wrap_to_save_queue(
+                parse_attemptslog,
+                attemptlog,
+                getattr(context, "node_id", None),
+                course_session_id=getattr(context, "course_session_id", None),
+            )
         if created and "quiz_id" in context:
             wrap_to_save_queue(
                 quiz_answered_notification, attemptlog, context["quiz_id"]
             )
         if "course_session_id" in context and "lesson_id" not in context:
-            if "node_id" in context:
-                if attemptlog.masterylog:
-                    wrap_to_save_queue(
-                        start_lesson_assessment,
-                        attemptlog,
-                        context["node_id"],
-                        course_session_id=context["course_session_id"],
-                    )
-            elif created and "unit_id" in context:
+            if created and "unit_id" in context:
                 wrap_to_save_queue(
                     quiz_answered_notification,
                     attemptlog,
