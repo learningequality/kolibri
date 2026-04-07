@@ -21,8 +21,10 @@ from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
 from kolibri.core.auth.utils.sync import validate_and_create_sync_credentials
 from kolibri.core.auth.utils.users import get_remote_user_info
@@ -775,3 +777,54 @@ def cleanup_expired_deleted_users():
         job = get_current_job()
         # Re-enqueue to run again in 24 hours
         job.retry_in(datetime.timedelta(days=1))
+
+
+class AssignPicturePasswordsValidator(JobValidator):
+    facility_id = serializers.PrimaryKeyRelatedField(
+        queryset=Facility.objects.all(), source="facility"
+    )
+
+    def validate(self, data):
+        facility = data["facility"]
+        return {
+            "kwargs": {"facility_id": facility.id},
+            "facility_id": facility.id,
+            "extra_metadata": dict(facility_id=facility.id),
+        }
+
+
+@register_task(
+    validator=AssignPicturePasswordsValidator,
+    track_progress=True,
+    cancellable=False,
+    permission_classes=[IsAdminForJob],
+    queue=facility_task_queue,
+)
+def assign_picture_passwords_to_facility(facility_id):
+    """
+    Bulk-assign picture passwords to all learners in a facility
+    that do not already have one.
+    """
+    facility = Facility.objects.get(id=facility_id)
+    learners = FacilityUser.objects.filter(
+        facility=facility,
+        roles__isnull=True,
+        picture_password__isnull=True,
+    ).exclude(devicepermissions__is_superuser=True)
+
+    total = learners.count()
+    job = get_current_job()
+    if job:
+        job.update_progress(0, total)
+
+    for i, learner in enumerate(learners.iterator(), start=1):
+        try:
+            assign_picture_password(learner, facility)
+        except NoAvailableSequences:
+            if job:
+                job.update_metadata(
+                    error="No available picture password sequences remaining."
+                )
+            raise
+        if job:
+            job.update_progress(i, total)
