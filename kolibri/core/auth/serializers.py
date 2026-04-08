@@ -12,7 +12,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
-from .constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
 from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
@@ -27,6 +26,7 @@ from .models import Membership
 from .models import Role
 from .models import validate_username_allowed_chars
 from .models import validate_username_max_length
+from .utils.picture_passwords import are_picture_passwords_exhausted
 from .utils.picture_passwords import assign_picture_password
 from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
@@ -183,15 +183,14 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             instance = super().create(validated_data)
             facility = instance.facility
-            if facility.dataset.picture_password_settings is not None:
-                learner_count = FacilityUser.objects.filter(
-                    facility=facility, roles__isnull=True
-                ).count()
-                if learner_count < LEARNER_PICTURE_PASSWORD_LIMIT:
-                    try:
-                        assign_picture_password(instance, facility)
-                    except NoAvailableSequences:
-                        pass
+            if (
+                facility.dataset.picture_password_settings is not None
+                and not are_picture_passwords_exhausted(instance.dataset_id)
+            ):
+                try:
+                    assign_picture_password(instance, instance.facility)
+                except NoAvailableSequences:
+                    pass
         return instance
 
     def _validate_extra_demographics(self, attrs, facility):
