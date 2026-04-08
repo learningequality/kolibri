@@ -125,6 +125,14 @@ class PicturePasswordBackendTestCase(TestCase):
         )
         self.assertEqual(user, self.learner)
 
+    def test_valid_picture_password_with_facility_pk_returns_learner(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="1.2.3",
+            facility=self.facility.pk,
+        )
+        self.assertEqual(user, self.learner)
+
     def test_picture_password_wrong_facility_returns_none(self):
         user = FacilityUserBackend().authenticate(
             self.request,

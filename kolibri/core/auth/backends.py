@@ -6,6 +6,7 @@ backends are checked in the order they're listed.
 from django.contrib.sessions.backends.db import SessionStore as DBStore
 from django.db.models import Q
 
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Session
 
@@ -26,8 +27,7 @@ class FacilityUserBackend:
         :param username: a string
         :param password: a string
         :param kwargs: a dict of additional credentials (see `keyword`s)
-        :keyword facility: a Facility object (required as an object when picture_password
-            is used, because _authenticate_picture_password accesses facility.dataset_id)
+        :keyword facility: a Facility object or facility pk
         :keyword picture_password: a dot-separated picture sequence string
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
@@ -52,15 +52,24 @@ class FacilityUserBackend:
     def _authenticate_picture_password(self, picture_password, facility):
         if not facility:
             return None
+        # Resolve dataset_id to leverage the (dataset, picture_password) unique
+        # index. facility may be a Facility object or a raw pk/UUID.
+        if hasattr(facility, "dataset_id"):
+            dataset_id = facility.dataset_id
+        else:
+            try:
+                dataset_id = Facility.objects.values_list("dataset_id", flat=True).get(
+                    pk=facility
+                )
+            except Facility.DoesNotExist:
+                return None
         # Two separate .filter() calls are intentional: chaining role and
         # devicepermissions conditions in one call would produce a cross-product
         # JOIN that returns false positives for users with multiple related rows.
         return (
             FacilityUser.objects.filter(
                 picture_password=picture_password,
-                # Filter by dataset_id (not facility) to leverage the
-                # (dataset, picture_password) unique index on FacilityUser.
-                dataset_id=facility.dataset_id,
+                dataset_id=dataset_id,
                 # Restrict to learners only (no facility roles).
                 roles__isnull=True,
             )
