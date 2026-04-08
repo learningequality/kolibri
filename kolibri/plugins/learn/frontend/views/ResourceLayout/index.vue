@@ -380,4 +380,9 @@
     height: 100%;
   }
 
+  // stylelint-disable-next-line selector-pseudo-element-no-unknown
+  ::v-deep .k-toolbar-left {
+    min-width: 0;
+  }
+
 </style>

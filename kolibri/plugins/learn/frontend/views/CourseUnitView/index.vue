@@ -7,10 +7,12 @@
           icon="back"
           @click="$router.back()"
         />
-        <KTextTruncator
-          :maxLines="1"
-          :text="courseNameLabel$({ name: course ? course.title : '' })"
-        />
+        <h1>
+          <KTextTruncator
+            :maxLines="1"
+            :text="pageTitle"
+          />
+        </h1>
       </div>
     </template>
     <template #default>
@@ -344,6 +346,29 @@
         return currentLesson.value?.children.results.find(
           resource => resource.id === props.resourceId,
         );
+      });
+
+      const pageTitle = computed(() => {
+        if (activeTest.value) {
+          const testStringsMap = {
+            pre: preTestTitle$,
+            post: postTestTitle$,
+          };
+          if (unitTree.value) {
+            return testStringsMap[props.testType]?.({
+              unitNumber: currentUnitIndex.value + 1,
+              unitTitle: unitTree.value.title,
+            });
+          }
+        }
+        if (currentResource.value?.title) {
+          return currentResource.value.title;
+        }
+        // Resource not loaded, or something happened
+        if (course.value) {
+          return courseNameLabel$({ name: course.value.title });
+        }
+        return '';
       });
 
       const getNextIncompleteResource = () => {
@@ -726,8 +751,14 @@
         onSidePanelNavigation();
       };
 
-      const { courseNameLabel$, resourcesProgressLabel$, unitNumberLabel$, upNextLabel$ } =
-        coursesStrings;
+      const {
+        courseNameLabel$,
+        resourcesProgressLabel$,
+        unitNumberLabel$,
+        upNextLabel$,
+        preTestTitle$,
+        postTestTitle$,
+      } = coursesStrings;
 
       const unitNumberLabel = computed(() => {
         if (loading.value) {
@@ -809,10 +840,10 @@
       });
 
       return {
-        course,
         loading,
         unitTree,
         nextUnit,
+        pageTitle,
         canGoToNextUnit,
         currentLesson,
         currentResource,
@@ -834,7 +865,6 @@
         handleNavigateToResource,
 
         upNextLabel$,
-        courseNameLabel$,
       };
     },
     props: {
@@ -872,6 +902,12 @@
     align-items: center;
     min-width: 0;
     line-height: 1.2;
+
+    h1 {
+      min-width: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
   }
 
   .side-panel-top-bar {
