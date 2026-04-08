@@ -300,6 +300,37 @@ describe('AttendanceNewPage', () => {
     expect(buttons.length).toBe(2);
   });
 
+  it('re-opens modal on a single click after "Go back" was clicked in the mark-all modal', async () => {
+    // Regression: after cancelling the modal, the KSwitch stayed visually "on" even though
+    // allPresent was false. The next click fired @change(false) instead of @change(true),
+    // so the modal never re-opened — requiring a second click to trigger it again.
+    renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    // First click — opens modal
+    await fireEvent.click(getMarkAllSwitch());
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click "Go back" inside the modal
+    await fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    // Switch should be visually unchecked after cancellation
+    expect(getMarkAllSwitch().checked).toBe(false);
+
+    // Second click — should open the modal again in a single click
+    await fireEvent.click(getMarkAllSwitch());
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+  });
+
   it('marks all learners present after confirming modal', async () => {
     renderNewPage();
     await waitFor(() => {

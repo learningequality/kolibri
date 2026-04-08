@@ -26,6 +26,7 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
   const previouslyEnrolledMap = ref({});
   const enrolledLearnerIds = ref(null);
   const showMarkAllModal = ref(false);
+  const pendingMarkAll = ref(false);
   const pendingRoute = ref(null);
 
   const backRoute = computed(() => ({
@@ -95,6 +96,12 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
       sortedLearners.value.length > 0 && currentPresentCount.value === sortedLearners.value.length,
   );
 
+  // The switch should appear checked if all learners are genuinely present, OR if the
+  // user has clicked "mark all present" and is seeing the confirmation modal (pendingMarkAll).
+  // When the modal is canceled, pendingMarkAll resets to false, which changes this computed
+  // from true → false and gives Vue a real prop change to re-render the KSwitch correctly.
+  const markAllPresent = computed(() => allPresent.value || pendingMarkAll.value);
+
   function setAllLearners(value) {
     const newMap = {};
     sortedLearners.value.forEach(l => {
@@ -106,6 +113,7 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
 
   function handleMarkAllChange(checked) {
     if (checked) {
+      pendingMarkAll.value = true;
       showMarkAllModal.value = true;
     } else {
       setAllLearners(false);
@@ -114,10 +122,12 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
 
   function confirmMarkAll() {
     setAllLearners(true);
+    pendingMarkAll.value = false;
     showMarkAllModal.value = false;
   }
 
   function cancelMarkAll() {
+    pendingMarkAll.value = false;
     showMarkAllModal.value = false;
   }
 
@@ -167,6 +177,7 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     absentCount,
     currentAbsentCount,
     allPresent,
+    markAllPresent,
     showMarkAllModal,
     pendingRoute,
     isPresent,
