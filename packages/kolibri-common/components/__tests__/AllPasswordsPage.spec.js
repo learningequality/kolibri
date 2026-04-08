@@ -137,5 +137,12 @@ describe('AllPasswordsPage', () => {
       const rows = screen.getAllByRole('row');
       expect(rows).toHaveLength(1);
     });
+
+    it('renders the empty class message', async () => {
+      FacilityUserResource.fetchCollection.mockResolvedValue([]);
+      renderComponent();
+      await global.flushPromises();
+      expect(screen.getByText(picturePasswordStrings.noLearnersInClass$())).toBeInTheDocument();
+    });
   });
 });
