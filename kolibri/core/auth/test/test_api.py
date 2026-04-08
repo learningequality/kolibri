@@ -13,6 +13,7 @@ from django.db.models.signals import pre_delete
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from mock import MagicMock
 from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
@@ -32,8 +33,10 @@ from rest_framework.test import APITransactionTestCase
 from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
+from ..constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
 from ..models import Facility
 from ..serializers import _prepare_for_bulk_create
+from ..serializers import FacilityUserSerializer
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -3455,6 +3458,82 @@ class RoleAPITestCase(APITestCase):
         max_per_item_overhead = 10
         self.assertLessEqual(actual_diff, max_per_item_overhead * extra_items)
 
+    def test_single_role_model_creation_clears_picture_password(self):
+        """Role.objects.create() (which calls Role.save()) clears picture_password."""
+        user = models.FacilityUser.objects.create_user(
+            username="picmodeluser",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        user.picture_password = "1.2.3"
+        user.save(update_fields=["picture_password"])
+        models.Role.objects.create(
+            user=user,
+            collection=self.facility,
+            kind=role_kinds.ADMIN,
+        )
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_single_role_api_creation_clears_picture_password(self):
+        """Single-role POST to role-list API clears picture_password."""
+        self.user1.picture_password = "7.8.9"
+        self.user1.save(update_fields=["picture_password"])
+        url = reverse("kolibri:core:role-list")
+        response = self.client.post(
+            url,
+            {
+                "user": self.user1.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.user1.refresh_from_db()
+        self.assertIsNone(self.user1.picture_password)
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+
+    def test_bulk_role_creation_clears_picture_password(self):
+        """Bulk role POST (bulk_create path) clears picture_password for all affected users."""
+        self.user1.picture_password = "1.2.3"
+        self.user1.save(update_fields=["picture_password"])
+        self.user2.picture_password = "4.5.6"
+        self.user2.save(update_fields=["picture_password"])
+        url = reverse("kolibri:core:role-list")
+        data = [
+            {
+                "user": self.user1.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+            {
+                "user": self.user2.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+        ]
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.user1.refresh_from_db()
+        self.user2.refresh_from_db()
+        self.assertIsNone(self.user1.picture_password)
+        self.assertIsNone(self.user2.picture_password)
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user2, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+
     def test_prepare_for_bulk_create_sets_morango_fields(self):
         role = models.Role(
             user=self.user1, collection=self.classroom, kind=role_kinds.COACH
@@ -3475,3 +3554,84 @@ class RoleAPITestCase(APITestCase):
         _prepare_for_bulk_create(role1)
         _prepare_for_bulk_create(role2)
         self.assertEqual(role1.id, role2.id)
+
+
+class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = models.Facility.objects.create(name="PicPwdTestFacility")
+        cls.superuser = create_superuser(cls.facility)
+        # FacilityDataset.ensure_compatibility() raises IncompatibleDeviceSettingError
+        # if picture_password_settings is set while learner_can_edit_password is True.
+        # Both must be set on the object before calling save().
+        cls.facility.dataset.learner_can_edit_password = False
+        cls.facility.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": False,
+        }
+        cls.facility.dataset.save()
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _create_user_via_api(self, username="newlearner"):
+        url = reverse("kolibri:core:facilityuser-list")
+        return self.client.post(
+            url,
+            {
+                "username": username,
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+    def test_new_learner_gets_picture_password_when_feature_enabled(self):
+        """Learner created in a picture-login facility below the limit gets a picture_password."""
+        response = self._create_user_via_api()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = models.FacilityUser.objects.get(id=response.data["id"])
+        self.assertIsNotNone(user.picture_password)
+        parts = user.picture_password.split(".")
+        self.assertEqual(len(parts), 3)
+        self.assertTrue(all(p.isdigit() for p in parts))
+
+    def test_new_learner_no_picture_password_when_settings_null(self):
+        """Learner created in a facility where picture_password_settings=None gets no picture_password."""
+        self.facility.dataset.picture_password_settings = None
+        self.facility.dataset.learner_can_edit_password = True
+        self.facility.dataset.save()
+        response = self._create_user_via_api()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = models.FacilityUser.objects.get(id=response.data["id"])
+        self.assertIsNone(user.picture_password)
+
+    def test_new_learner_no_picture_password_when_learner_count_at_limit(self):
+        """Learner creation succeeds without picture_password when facility is at or above the limit.
+
+        Tests the serializer directly to avoid patching Django ORM methods globally
+        during a live HTTP request (where filter() is called in many other places).
+        The patch scopes only to FacilityUser.objects.filter; is_valid() uses
+        FacilityUser.objects.get() (not filter()) so validation is unaffected.
+        """
+        mock_qs = MagicMock()
+        mock_qs.count.return_value = LEARNER_PICTURE_PASSWORD_LIMIT
+
+        with patch.object(models.FacilityUser.objects, "filter", return_value=mock_qs):
+            serializer = FacilityUserSerializer(
+                data={
+                    "username": "limituser",
+                    "password": DUMMY_PASSWORD,
+                    "facility": str(self.facility.id),
+                }
+            )
+            self.assertTrue(serializer.is_valid(), serializer.errors)
+            instance = serializer.save()
+        self.assertIsNone(instance.picture_password)

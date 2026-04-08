@@ -14,6 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -800,6 +801,19 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     serializer_class = RoleSerializer
     filterset_class = RoleFilter
     filterset_fields = ["user", "collection", "kind", "user_ids"]
+
+    def perform_create(self, serializer):
+        with transaction.atomic():
+            super().perform_create(serializer)
+            instances = serializer.instance
+            if not isinstance(instances, list):
+                instances = [instances]
+            user_ids = [role.user_id for role in instances]
+            for user in FacilityUser.objects.filter(
+                id__in=user_ids, picture_password__isnull=False
+            ):
+                user.picture_password = None
+                user.save(update_fields=["picture_password"])
 
 
 dataset_keys = [
