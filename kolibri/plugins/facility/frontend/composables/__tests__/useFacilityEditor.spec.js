@@ -1,12 +1,11 @@
-import { computed } from 'vue';
-import { useRoute } from 'vue-router/composables';
+import { computed, ref } from 'vue';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import { useFacilityConfig, useFacilityConfigMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
-import store from 'kolibri/store';
+import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacilityEditor from '../useFacilityEditor';
 
 jest.mock('kolibri-common/apiResources/FacilityResource');
@@ -15,25 +14,21 @@ jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
-jest.mock('vue-router/composables', () => ({
-  useRoute: jest.fn(),
-}));
 
-const defaultGetters = {
-  activeFacilityId: 'default-facility-id',
-};
-
-jest.mock('kolibri/store', () => ({
-  __esModule: true,
-  default: {
-    get getters() {
-      return this._getters || defaultGetters;
-    },
-    set getters(value) {
-      this._getters = value;
-    },
-  },
-}));
+function mockSignInOptions(facilityConfig) {
+  return computed(() => {
+    const options = [];
+    if (facilityConfig.value.picture_password_settings) {
+      options.push(OptionsForSignIn.PICTURE_PASSWORD);
+    }
+    if (facilityConfig.value.learner_can_login_with_no_password) {
+      options.push(OptionsForSignIn.USERNAME_ONLY);
+    } else {
+      options.push(OptionsForSignIn.USERNAME_PASSWORD);
+    }
+    return options;
+  });
+}
 
 describe('useFacilityEditor', () => {
   const mockFacilityId = 'test-facility-id';
@@ -52,23 +47,10 @@ describe('useFacilityEditor', () => {
     learner_can_sign_up: false,
     learner_can_login_with_no_password: false,
     show_download_button_in_learn: true,
-    extra_fields: { pin_code: '1234' },
+    extra_fields: { pin_code: '5678' },
   };
 
-  let mockRoute;
-
   beforeEach(() => {
-    mockRoute = {
-      params: {},
-    };
-
-    useRoute.mockReturnValue(mockRoute);
-
-    // Mock store getters with restoration via spy
-    jest.spyOn(store, 'getters', 'get').mockImplementation(() => ({
-      activeFacilityId: mockFacilityId,
-    }));
-
     // Mock useFacilities
     useFacilities.mockReturnValue(
       useFacilitiesMock({
@@ -81,7 +63,8 @@ describe('useFacilityEditor', () => {
     useFacilityConfig.mockReturnValue(
       useFacilityConfigMock({
         fetchFacilityConfig: jest.fn().mockResolvedValue(mockFacilityConfig),
-        facilityConfig: computed(() => mockFacilityConfig),
+        facilityConfig: ref(mockFacilityConfig),
+        signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
       }),
     );
 
@@ -94,7 +77,6 @@ describe('useFacilityEditor', () => {
   describe('initialization', () => {
     it('returns reactive state with correct initial values', () => {
       const {
-        facilityId,
         facilityDatasetId,
         facilityName,
         settings,
@@ -103,13 +85,43 @@ describe('useFacilityEditor', () => {
         facilityDataLoading,
       } = useFacilityEditor(mockFacilityId);
 
-      expect(facilityId).toBe(mockFacilityId);
       expect(facilityDatasetId.value).toBe('');
       expect(facilityName.value).toBe('');
-      expect(settings.value).toEqual({});
+      expect(settings.value).toEqual(mockFacilityConfig);
       expect(settingsCopy.value).toEqual({});
       expect(isFacilityPinValid.value).toBe(false);
       expect(facilityDataLoading.value).toBe(false);
+    });
+
+    it('returns computed properties with correct initial values', () => {
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig: ref({}),
+          signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
+        }),
+      );
+
+      const {
+        settingsHaveChanged,
+        isPinSet,
+        isAttendanceFeatureEnabled,
+        isPictureLoginFeatureEnabled,
+        signInOption,
+        signInOptions,
+        picturePasswordSettings,
+        picturePasswordStyle,
+        picturePasswordShowIconText,
+      } = useFacilityEditor(mockFacilityId);
+
+      expect(settingsHaveChanged.value).toBe(false);
+      expect(isPinSet.value).toBeNull();
+      expect(isAttendanceFeatureEnabled.value).toBeDefined();
+      expect(isPictureLoginFeatureEnabled.value).toBeDefined();
+      expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
+      expect(signInOptions.value).toEqual([OptionsForSignIn.USERNAME_PASSWORD]);
+      expect(picturePasswordSettings.value).toBeNull();
+      expect(picturePasswordStyle.value).toBeUndefined();
+      expect(picturePasswordShowIconText.value).toBeUndefined();
     });
   });
 
@@ -179,7 +191,7 @@ describe('useFacilityEditor', () => {
       const mockError = new Error('Failed to fetch');
       useFacilityConfig.mockReturnValue({
         fetchFacilityConfig: jest.fn().mockRejectedValue(mockError),
-        facilityConfig: computed(() => ({})),
+        facilityConfig: ref({}),
       });
 
       const { fetchFacility, facilityName, settings, settingsCopy } =
@@ -225,22 +237,258 @@ describe('useFacilityEditor', () => {
     });
   });
 
-  describe('modifyAllSettings', () => {
-    it('updates multiple settings at once', () => {
-      const { settings, modifyAllSettings } = useFacilityEditor(mockFacilityId);
-      settings.value = { learner_can_edit_username: false, learner_can_edit_name: false };
+  describe('signInOption computed', () => {
+    it('returns PICTURE_PASSWORD when in signInOptions', () => {
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig: ref({
+            ...mockFacilityConfig,
+            picture_password_settings: { icon_style: 'colorful' },
+          }),
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+        }),
+      );
 
-      modifyAllSettings({
-        learner_can_edit_username: true,
-        learner_can_edit_name: true,
-        learner_can_sign_up: true,
+      const { signInOption } = useFacilityEditor(mockFacilityId);
+      expect(signInOption.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+    });
+
+    it('returns first signInOption when PICTURE_PASSWORD is not available', () => {
+      const { signInOption } = useFacilityEditor(mockFacilityId);
+      expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
+    });
+
+    it('sets signInOption via modifySignInOption', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        learner_can_login_with_no_password: false,
+        picture_password_settings: null,
+      });
+      const signInOptions = mockSignInOptions(facilityConfig);
+      const picturePasswordSettings = computed(() => {
+        if (signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)) {
+          return facilityConfig.value.picture_password_settings;
+        }
+        return null;
       });
 
-      expect(settings.value).toEqual({
-        learner_can_edit_username: true,
-        learner_can_edit_name: true,
-        learner_can_sign_up: true,
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions,
+          picturePasswordSettings,
+        }),
+      );
+
+      const { signInOption, modifySignInOption, settings } = useFacilityEditor(mockFacilityId);
+      expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
+      modifySignInOption(OptionsForSignIn.PICTURE_PASSWORD);
+      // modifySignInOption updates settings.value which is the same ref as facilityConfig
+      expect(settings.value.learner_can_login_with_no_password).toBe(true);
+      expect(settings.value.picture_password_settings).toBeDefined();
+      expect(signInOption.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
+    });
+  });
+
+  describe('picturePasswordStyle computed', () => {
+    it('returns icon_style from picture_password_settings', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: PicturePasswordIconStyle.STANDARD },
+        learner_can_login_with_no_password: true,
       });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { picturePasswordStyle } = useFacilityEditor(mockFacilityId);
+      expect(picturePasswordStyle.value).toBe(PicturePasswordIconStyle.STANDARD);
+    });
+
+    it('sets picturePasswordStyle via modifyPicturePasswordSetting', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: PicturePasswordIconStyle.COLORFUL },
+        learner_can_login_with_no_password: true,
+      });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { picturePasswordStyle, modifyPicturePasswordSetting } =
+        useFacilityEditor(mockFacilityId);
+      modifyPicturePasswordSetting('icon_style', PicturePasswordIconStyle.STANDARD);
+      expect(picturePasswordStyle.value).toBe(PicturePasswordIconStyle.STANDARD);
+    });
+  });
+
+  describe('picturePasswordShowIconText computed', () => {
+    it('returns show_icon_text from picture_password_settings', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        picture_password_settings: { show_icon_text: true },
+        learner_can_login_with_no_password: true,
+      });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { picturePasswordShowIconText } = useFacilityEditor(mockFacilityId);
+      expect(picturePasswordShowIconText.value).toBe(true);
+    });
+
+    it('sets picturePasswordShowIconText via modifyPicturePasswordSetting', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        picture_password_settings: { show_icon_text: false },
+        learner_can_login_with_no_password: true,
+      });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { picturePasswordShowIconText, modifyPicturePasswordSetting } =
+        useFacilityEditor(mockFacilityId);
+      modifyPicturePasswordSetting('show_icon_text', true);
+      expect(picturePasswordShowIconText.value).toBe(true);
+    });
+  });
+
+  describe('modifySignInOption', () => {
+    it('sets PICTURE_PASSWORD and default picture_password_settings', () => {
+      const facilityConfig = ref({
+        learner_can_login_with_no_password: false,
+        picture_password_settings: null,
+      });
+      const signInOptions = mockSignInOptions(facilityConfig);
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions,
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+
+      modifySignInOption(OptionsForSignIn.PICTURE_PASSWORD);
+
+      expect(settings.value.learner_can_login_with_no_password).toBe(true);
+      expect(settings.value.picture_password_settings).toEqual({
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: false,
+      });
+    });
+
+    it('sets USERNAME_ONLY and clears picture_password_settings', () => {
+      const facilityConfig = ref({
+        learner_can_login_with_no_password: false,
+        picture_password_settings: { icon_style: 'colorful' },
+      });
+      const signInOptions = mockSignInOptions(facilityConfig);
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions,
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+
+      modifySignInOption(OptionsForSignIn.USERNAME_ONLY);
+
+      expect(settings.value.learner_can_login_with_no_password).toBe(true);
+      expect(settings.value.picture_password_settings).toBeNull();
+    });
+
+    it('sets USERNAME_PASSWORD and clears picture_password_settings', () => {
+      const facilityConfig = ref({
+        learner_can_login_with_no_password: true,
+        picture_password_settings: { icon_style: 'colorful' },
+      });
+      const signInOptions = mockSignInOptions(facilityConfig);
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions,
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+
+      modifySignInOption(OptionsForSignIn.USERNAME_PASSWORD);
+
+      expect(settings.value.learner_can_login_with_no_password).toBe(false);
+      expect(settings.value.picture_password_settings).toBeNull();
+    });
+  });
+
+  describe('modifyPicturePasswordSetting', () => {
+    it('updates picture_password_settings when PICTURE_PASSWORD is enabled', () => {
+      const facilityConfig = ref({
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'colorful' },
+        learner_can_login_with_no_password: true,
+      });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+          signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
+          picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
+        }),
+      );
+
+      const { settings, modifyPicturePasswordSetting } = useFacilityEditor(mockFacilityId);
+
+      modifyPicturePasswordSetting('icon_style', PicturePasswordIconStyle.STANDARD);
+
+      expect(settings.value.picture_password_settings.icon_style).toBe(
+        PicturePasswordIconStyle.STANDARD,
+      );
+    });
+  });
+
+  describe('modifyExtraFields', () => {
+    it('updates extra_fields in settings', () => {
+      const facilityConfig = ref({ extra_fields: { pin_code: '1234' } });
+
+      useFacilityConfig.mockReturnValue(
+        useFacilityConfigMock({
+          facilityConfig,
+        }),
+      );
+
+      const { settings, modifyExtraFields } = useFacilityEditor(mockFacilityId);
+
+      modifyExtraFields({ pin_code: '5678' });
+
+      expect(settings.value.extra_fields).toEqual({ pin_code: '5678' });
     });
   });
 
@@ -292,7 +540,6 @@ describe('useFacilityEditor', () => {
 
       expect(facilityDatasetId.value).toBe('');
       expect(facilityName.value).toBe('');
-      expect(settings.value).toEqual({});
       expect(settingsCopy.value).toEqual({});
       expect(isFacilityPinValid.value).toBe(false);
       expect(facilityDataLoading.value).toBe(false);

@@ -4,11 +4,15 @@ import useUser from 'kolibri/composables/useUser';
 import Lockr from 'lockr';
 import useFacilities from '../useFacilities';
 import useFacility, { useFacilityConfig } from '../useFacility';
+import { OptionsForSignIn } from '../../constants/Auth';
 
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
 jest.mock('kolibri/composables/useUser');
 jest.mock('lockr');
 jest.mock('../useFacilities');
+jest.mock('kolibri/utils/i18n', () => ({
+  currentLanguage: 'en',
+}));
 
 // Reset module-level state between tests
 jest.mock('../useFacility', () => {
@@ -72,7 +76,7 @@ describe('useFacility', () => {
       expect(currentFacilityName.value).toBeUndefined();
     });
 
-    it('returns undefined facilityId initially', () => {
+    it('returns undefined for facilityId initially', () => {
       useFacilities.mockReturnValue({
         fetchFacilities: jest.fn(),
         getFacility: jest.fn().mockReturnValue(null),
@@ -95,6 +99,21 @@ describe('useFacility', () => {
       });
 
       const { selectedFacility } = useFacility();
+      expect(selectedFacility.value).toEqual(mockFacilities[0]);
+    });
+
+    it('uses userFacilityId when no Lockr facility is saved', () => {
+      useUser.mockReturnValue({
+        userFacilityId: ref('facility-1'),
+      });
+
+      useFacilities.mockReturnValue({
+        fetchFacilities: jest.fn(),
+        getFacility: jest.fn().mockImplementation(id => mockFacilities.find(f => f.id === id)),
+      });
+
+      const { selectedFacility, facilityId } = useFacility();
+      expect(facilityId.value).toBe('facility-1');
       expect(selectedFacility.value).toEqual(mockFacilities[0]);
     });
 
@@ -267,6 +286,100 @@ describe('useFacilityConfig', () => {
     it('returns empty facilityConfig initially', () => {
       const { facilityConfig } = useFacilityConfig('facility-1');
       expect(facilityConfig.value).toEqual({});
+    });
+
+    it('returns isAttendanceFeatureEnabled as true when currentLanguage is en', () => {
+      const { isAttendanceFeatureEnabled } = useFacilityConfig('facility-1');
+      expect(isAttendanceFeatureEnabled.value).toBe(true);
+    });
+
+    it('returns isPictureLoginFeatureEnabled as true when currentLanguage is en', () => {
+      const { isPictureLoginFeatureEnabled } = useFacilityConfig('facility-1');
+      expect(isPictureLoginFeatureEnabled.value).toBe(true);
+    });
+
+    it('returns signInOptions with USERNAME_PASSWORD by default', () => {
+      const { signInOptions } = useFacilityConfig('facility-1');
+      // Default config has learner_can_login_with_no_password: false, so USERNAME_PASSWORD
+      expect(signInOptions.value).toEqual([OptionsForSignIn.USERNAME_PASSWORD]);
+    });
+
+    it('returns null for picturePasswordSettings initially', () => {
+      const { picturePasswordSettings } = useFacilityConfig('facility-1');
+      expect(picturePasswordSettings.value).toBeNull();
+    });
+  });
+
+  describe('signInOptions computed', () => {
+    it('includes PICTURE_PASSWORD when picture_password_settings is set', () => {
+      const configWithPicturePassword = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'colorful' },
+      };
+
+      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithPicturePassword]);
+
+      const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
+
+      return fetchFacilityConfig().then(() => {
+        expect(signInOptions.value).toContain(OptionsForSignIn.PICTURE_PASSWORD);
+      });
+    });
+
+    it('includes USERNAME_ONLY when learner_can_login_with_no_password is true', () => {
+      const configWithUsernameOnly = {
+        ...mockFacilityConfig,
+        learner_can_login_with_no_password: true,
+      };
+
+      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithUsernameOnly]);
+
+      const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
+
+      return fetchFacilityConfig().then(() => {
+        expect(signInOptions.value).toContain(OptionsForSignIn.USERNAME_ONLY);
+      });
+    });
+
+    it('includes USERNAME_PASSWORD when learner_can_login_with_no_password is false', () => {
+      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+
+      const { fetchFacilityConfig, signInOptions } = useFacilityConfig('facility-1');
+
+      return fetchFacilityConfig().then(() => {
+        expect(signInOptions.value).toContain(OptionsForSignIn.USERNAME_PASSWORD);
+      });
+    });
+  });
+
+  describe('picturePasswordSettings computed', () => {
+    it('returns picture_password_settings when PICTURE_PASSWORD is in signInOptions', () => {
+      const configWithPicturePassword = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'colorful', show_icon_names: false },
+        learner_can_login_with_no_password: true,
+      };
+
+      FacilityDatasetResource.fetchCollection.mockResolvedValue([configWithPicturePassword]);
+
+      const { fetchFacilityConfig, picturePasswordSettings } = useFacilityConfig('facility-1');
+
+      return fetchFacilityConfig().then(() => {
+        expect(picturePasswordSettings.value).toEqual({
+          icon_style: 'colorful',
+          show_icon_names: false,
+        });
+      });
+    });
+
+    it('returns null when PICTURE_PASSWORD is not in signInOptions', () => {
+      FacilityDatasetResource.fetchCollection.mockResolvedValue([mockFacilityConfig]);
+
+      const { fetchFacilityConfig, picturePasswordSettings } = useFacilityConfig('facility-1');
+
+      return fetchFacilityConfig().then(() => {
+        expect(picturePasswordSettings.value).toBeNull();
+      });
     });
   });
 

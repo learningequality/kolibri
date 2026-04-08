@@ -1,8 +1,10 @@
 import { ref, computed } from 'vue';
 import isPlainObject from 'lodash/isPlainObject';
+import { currentLanguage } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import Lockr from 'lockr';
+import { OptionsForSignIn } from '../constants/Auth';
 import useFacilities from './useFacilities';
 
 const selectedFacilityId = ref(Lockr.get('facilityId') || null);
@@ -86,6 +88,34 @@ export function useFacilityConfig(facilityId) {
   const _facilityId = facilityId;
   const facilityConfig = ref({});
 
+  // computed feature flags
+  const _isEnglish = () => currentLanguage === 'en';
+  const isAttendanceFeatureEnabled = computed(_isEnglish);
+  const isPictureLoginFeatureEnabled = computed(_isEnglish);
+
+  // computed
+  const signInOptions = computed(() => {
+    const options = [];
+    // If not null, then we have picture password settings
+    if (facilityConfig.value.picture_password_settings) {
+      options.push(OptionsForSignIn.PICTURE_PASSWORD);
+    }
+    // This can be enabled still, even with picture password enabled
+    if (facilityConfig.value.learner_can_login_with_no_password) {
+      options.push(OptionsForSignIn.USERNAME_ONLY);
+    } else {
+      options.push(OptionsForSignIn.USERNAME_PASSWORD);
+    }
+    return options;
+  });
+  const picturePasswordSettings = computed(() => {
+    // should always be null when not enabled, but this keeps it in sync regardless
+    if (signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)) {
+      return facilityConfig.value.picture_password_settings;
+    }
+    return null;
+  });
+
   /**
    * Get the current selected facility's config
    * @param {string|null} [facilityId]
@@ -116,6 +146,10 @@ export function useFacilityConfig(facilityId) {
 
   return {
     facilityConfig,
+    isAttendanceFeatureEnabled,
+    isPictureLoginFeatureEnabled,
+    signInOptions,
+    picturePasswordSettings,
     fetchFacilityConfig,
   };
 }

@@ -34,7 +34,7 @@
         class="facility-loader"
       />
       <template v-else-if="settings !== null">
-        <div class="mb">
+        <section class="facility-name facility-settings">
           <h2>{{ coreString('facilityLabel') }}</h2>
           <p class="current-facility-name">
             {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
@@ -46,47 +46,116 @@
               @click="showEditFacilityModal = true"
             />
           </p>
-        </div>
+        </section>
 
-        <div class="mb">
+        <!-- Users Section -->
+        <section class="facility-settings users">
+          <h3>{{ coreString('usersLabel') }}</h3>
           <div class="settings">
-            <template v-for="setting in settingsList">
-              <template
-                v-if="
-                  setting.key !== 'learner_can_edit_password' &&
-                    setting.key !== 'learner_can_login_with_no_password'
-                "
-              >
-                <KCheckbox
-                  :key="setting.key"
-                  :label="setting.label$()"
-                  :checked="settings[setting.key]"
-                  @change="toggleSetting(setting.key)"
-                />
-              </template>
-              <template v-else-if="setting.key === 'learner_can_login_with_no_password'">
-                <KCheckbox
-                  :key="setting.key"
-                  :label="learnerNeedPasswordToLogin$()"
-                  :checked="!settings['learner_can_login_with_no_password']"
-                  @change="toggleSetting('learner_can_login_with_no_password')"
-                />
-                <KCheckbox
-                  :key="setting.key + 'learner_can_edit_password'"
-                  :disabled="settings['learner_can_login_with_no_password']"
-                  :label="learnerCanEditPassword$()"
-                  :checked="settings['learner_can_edit_password']"
-                  class="checkbox-password"
-                  @change="toggleSetting('learner_can_edit_password')"
-                />
-              </template>
-            </template>
+            <KCheckbox
+              v-model="settings.learner_can_edit_username"
+              :label="learnerCanEditUsername$()"
+              data-testid="learner_can_edit_username"
+            />
+            <KCheckbox
+              v-model="settings.learner_can_edit_name"
+              :label="learnerCanEditName$()"
+              data-testid="learner_can_edit_name"
+            />
+            <KCheckbox
+              v-model="settings.learner_can_sign_up"
+              :label="learnerCanSignUp$()"
+              data-testid="learner_can_sign_up"
+            />
+            <KCheckbox
+              v-if="isAttendanceFeatureEnabled"
+              v-model="settings.enable_mark_attendance"
+              :label="enableMarkAttendance$()"
+              data-testid="enable_mark_attendance"
+            />
           </div>
+        </section>
 
-          <div></div>
-        </div>
+        <!-- Resources Section -->
+        <section class="facility-settings resources">
+          <h3>{{ coreString('resourcesLabel') }}</h3>
+          <div class="settings">
+            <KCheckbox
+              v-model="settings.show_download_button_in_learn"
+              :label="showDownloadButtonInLearn$()"
+              data-testid="show_download_button_in_learn"
+            />
+          </div>
+        </section>
 
-        <div class="">
+        <!-- How learners sign in Section -->
+        <section class="facility-settings learner-signin">
+          <h3>{{ howLearnersSignIn$() }}</h3>
+          <div class="settings">
+            <KRadioButtonGroup>
+              <KRadioButton
+                v-model="signInOption"
+                :label="enterUsernameAndPassword$()"
+                :buttonValue="OptionsForSignIn.USERNAME_PASSWORD"
+                :data-testid="OptionsForSignIn.USERNAME_PASSWORD"
+              />
+              <KCheckbox
+                v-if="signInOption === OptionsForSignIn.USERNAME_PASSWORD"
+                v-model="settings.learner_can_edit_password"
+                :label="learnerCanEditPassword$()"
+                class="nested-settings"
+                data-testid="learner_can_edit_password"
+              />
+
+              <KRadioButton
+                v-model="signInOption"
+                :label="enterUsernameOnly$()"
+                :buttonValue="OptionsForSignIn.USERNAME_ONLY"
+                :data-testid="OptionsForSignIn.USERNAME_ONLY"
+              />
+
+              <KRadioButton
+                v-if="isPictureLoginFeatureEnabled"
+                v-model="signInOption"
+                :label="picturePassword$()"
+                :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
+                :description="picturePasswordDescription$()"
+                :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
+              />
+              <KRadioButtonGroup
+                v-if="
+                  isPictureLoginFeatureEnabled && signInOption === OptionsForSignIn.PICTURE_PASSWORD
+                "
+                class="nested-settings picture-password-settings"
+                :aria-label="iconStyle$()"
+              >
+                <KRadioButton
+                  v-model="picturePasswordStyle"
+                  :label="childFriendlyIcons$()"
+                  :buttonValue="PicturePasswordIconStyle.COLORFUL"
+                  data-testid="child_friendly_icons"
+                />
+                <KRadioButton
+                  v-model="picturePasswordStyle"
+                  :label="standardIcons$()"
+                  :buttonValue="PicturePasswordIconStyle.STANDARD"
+                  data-testid="standard_icons"
+                />
+                <hr
+                  class="divider"
+                  :style="dividerStyle"
+                >
+                <KCheckbox
+                  v-model="picturePasswordShowIconText"
+                  :label="showIconNames$()"
+                  data-testid="show_icon_text"
+                />
+              </KRadioButtonGroup>
+            </KRadioButtonGroup>
+          </div>
+        </section>
+
+        <section>
           <h2>{{ deviceManagementPin$() }}</h2>
 
           <p>{{ deviceManagementDescription$() }}</p>
@@ -111,7 +180,7 @@
               />
             </template>
           </KButton>
-        </div>
+        </section>
 
         <div
           v-if="isAppContext"
@@ -187,7 +256,7 @@
 
   import { mapGetters } from 'vuex';
   import { ref, onMounted, computed } from 'vue';
-  import camelCase from 'lodash/camelCase';
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
@@ -195,9 +264,11 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import { handleApiError } from 'kolibri/utils/appError';
-  import { createTranslator, currentLanguage } from 'kolibri/utils/i18n';
-  import { useRoute } from 'vue-router/composables';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+
+  import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
   import useFacilityEditor from '../../composables/useFacilityEditor';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import RemovePinModal from './RemovePinModal';
@@ -223,27 +294,20 @@
     },
   });
   const facilityConfigPageStrings = createTranslator('FacilityConfigPage', {
-    // These are not going to be picked up by the linter because snake cased versions
-    // are used to get the keys to these strings.
-    /* eslint-disable kolibri/vue-no-unused-translations */
-    learnerCanEditName: {
-      message: 'Allow learners to edit their full name',
-      context: "Option on 'Facility settings' page.",
-    },
-    learnerCanEditPassword: {
-      message: 'Allow learners to edit their password when signed in',
-      context: "Option on 'Facility settings' page.",
-    },
     learnerCanEditUsername: {
       message: 'Allow learners to edit their username',
+      context: "Option on 'Facility settings' page.",
+    },
+    learnerCanEditName: {
+      message: 'Allow learners to edit their full name',
       context: "Option on 'Facility settings' page.",
     },
     learnerCanSignUp: {
       message: 'Allow learners to create accounts',
       context: "Option on 'Facility settings' page.",
     },
-    learnerNeedPasswordToLogin: {
-      message: 'Require password for learners',
+    learnerCanEditPassword: {
+      message: 'Allow learners to edit their password when signed in',
       context: "Option on 'Facility settings' page.",
     },
     showDownloadButtonInLearn: {
@@ -254,7 +318,6 @@
       message: 'Allow coaches to take attendance (English only)',
       context: "Option on 'Facility settings' page.",
     },
-    /* eslint-enable kolibri/vue-no-unused-translations */
     saveFailure: {
       message: 'There was a problem saving your settings',
       context: 'Status report after the facility change operation.',
@@ -294,16 +357,6 @@
     },
   });
 
-  // See FacilityDataset in core.auth.models for details
-  const settingKeys = [
-    'learner_can_edit_username',
-    'learner_can_edit_password',
-    'learner_can_edit_name',
-    'learner_can_sign_up',
-    'learner_can_login_with_no_password',
-    'show_download_button_in_learn',
-  ];
-
   export default {
     name: 'FacilityConfigPage',
     metaInfo() {
@@ -334,8 +387,12 @@
         facilityDataLoading,
         settingsHaveChanged,
         isPinSet,
+        isAttendanceFeatureEnabled,
+        isPictureLoginFeatureEnabled,
+        signInOption,
+        picturePasswordStyle,
+        picturePasswordShowIconText,
         fetchFacility,
-        modifySetting,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
@@ -347,7 +404,11 @@
         pageHeader$,
         pageDescription$,
         deviceSettings$,
-        learnerNeedPasswordToLogin$,
+        learnerCanEditUsername$,
+        learnerCanEditName$,
+        learnerCanSignUp$,
+        showDownloadButtonInLearn$,
+        enableMarkAttendance$,
         learnerCanEditPassword$,
         deviceManagementPin$,
         deviceManagementDescription$,
@@ -355,7 +416,17 @@
         saveSuccess$,
         saveFailure$,
       } = facilityConfigPageStrings;
-
+      const {
+        howLearnersSignIn$,
+        enterUsernameAndPassword$,
+        enterUsernameOnly$,
+        picturePassword$,
+        picturePasswordDescription$,
+        childFriendlyIcons$,
+        standardIcons$,
+        showIconNames$,
+        iconStyle$,
+      } = picturePasswordStrings;
       const { pinPlaceholder$ } = pinAuthenticationModalStrings;
       const { changeLocation$ } = deviceSettingsPageStrings;
 
@@ -365,19 +436,6 @@
       const handleViewModal = ref(false);
       const handleChangePinModal = ref(false);
       const handleRemovePinModal = ref(false);
-
-      // This dynamic templating for these settings will be refactored later
-      const _settingKeys = computed(() => {
-        return currentLanguage === 'en'
-          ? settingKeys.concat('enable_mark_attendance')
-          : settingKeys;
-      });
-      const settingsList = computed(() => {
-        return _settingKeys.value.map(key => ({
-          key,
-          label$: () => facilityConfigPageStrings.$tr(camelCase(key)),
-        }));
-      });
 
       // computed
       const deviceSettingsUrl = computed(() => {
@@ -391,9 +449,7 @@
         return facilityId ? facilityId.slice(0, 4) : '';
       });
       const changePINLabel = computed(() => {
-        /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return `${changeLocation$()} ${pinPlaceholder$()}`;
-        /* eslint-enable */
       });
       const viewPINLabel = computed(() => {
         return `${coreString('viewAction')} ${pinPlaceholder$()}`;
@@ -417,10 +473,6 @@
             createSnackbar(coreString('changesNotSavedNotification'));
           }
         }
-      }
-
-      function toggleSetting(settingName) {
-        modifySetting(settingName, !settings.value[settingName]);
       }
 
       async function saveConfig() {
@@ -486,8 +538,13 @@
       });
 
       return {
-        pageLoading,
+        // Constants
+        OptionsForSignIn,
+        PicturePasswordIconStyle,
+
+        // State
         isAppContext,
+        pageLoading,
         isSuperuser,
         userIsMultiFacilityAdmin,
         facilityName,
@@ -497,7 +554,6 @@
         settingsHaveChanged,
         isPinSet,
         showEditFacilityModal,
-        settingsList,
         createPinShow,
         handleViewModal,
         handleChangePinModal,
@@ -505,10 +561,14 @@
         deviceSettingsUrl,
         lastPartId,
         dropdownOptions,
+        isAttendanceFeatureEnabled,
+        isPictureLoginFeatureEnabled,
+        signInOption,
+        picturePasswordStyle,
+        picturePasswordShowIconText,
 
         // Functions
         submitFacilityName,
-        toggleSetting,
         saveConfig,
         handleCreatePinSubmit,
         handleChangePinSubmit,
@@ -520,15 +580,31 @@
         pageHeader$,
         pageDescription$,
         deviceSettings$,
-        learnerNeedPasswordToLogin$,
+        learnerCanEditUsername$,
+        learnerCanEditName$,
+        learnerCanSignUp$,
+        enableMarkAttendance$,
         learnerCanEditPassword$,
+        showDownloadButtonInLearn$,
         deviceManagementPin$,
         deviceManagementDescription$,
         createPinBtn$,
+        howLearnersSignIn$,
+        enterUsernameAndPassword$,
+        enterUsernameOnly$,
+        picturePassword$,
+        picturePasswordDescription$,
+        childFriendlyIcons$,
+        standardIcons$,
+        showIconNames$,
+        iconStyle$,
       };
     },
     computed: {
       ...mapGetters(['facilityPageLinks']),
+      dividerStyle() {
+        return `color : ${this.$themeTokens.fineLine}`;
+      },
     },
   };
 
@@ -537,18 +613,18 @@
 
 <style lang="scss" scoped>
 
-  .mb {
-    margin-bottom: 2rem;
+  .facility-settings {
+    margin-bottom: 20px;
+  }
+
+  .facility-settings > h3 {
+    margin: 8px 0;
   }
 
   .settings > label {
     margin-bottom: 2rem;
     font-weight: bold;
     cursor: pointer;
-  }
-
-  .checkbox-password {
-    margin-left: 24px;
   }
 
   .save-button {
@@ -564,6 +640,21 @@
   .save-changes-button {
     margin-top: 24px;
     margin-left: -8px;
+  }
+
+  .nested-settings {
+    // radio button width: 24px,
+    // label left padding: 8px,
+    // adjustment: -1px (slight left padding on checkbox)
+    margin-left: #{24px + 8px - 1px};
+  }
+
+  .picture-password-settings {
+    margin-top: 12px;
+  }
+
+  .divider {
+    border-style: solid;
   }
 
 </style>
