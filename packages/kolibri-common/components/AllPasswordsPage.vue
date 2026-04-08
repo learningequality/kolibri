@@ -13,7 +13,7 @@
           :layout4="{ span: 2, alignment: 'left' }"
           class="header-row"
         >
-          <h1>{{ allPasswordsHeader$() }}</h1>
+          <h1 class="header-title">{{ allPasswordsHeader$() }}</h1>
         </KGridItem>
         <KGridItem
           :layout12="{ span: 6, alignment: 'right' }"
@@ -170,11 +170,11 @@
     align-items: center;
     margin-top: 16px;
     margin-bottom: 16px;
+  }
 
-    h1 {
-      padding: 8px;
-      margin: 0;
-    }
+  .header-title {
+    padding: 8px;
+    margin: 0;
   }
 
   .print-button {
