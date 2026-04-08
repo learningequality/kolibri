@@ -122,7 +122,7 @@ async function generateAssetComment(github, context) {
 }
 
 
-async function findComment(github, context, issue_number) {
+async function findComment(github, context, issue_number, header) {
   let comment;
   let page = 1
   while (!comment) {
@@ -136,11 +136,30 @@ async function findComment(github, context, issue_number) {
     if (!comments.length) {
       return;
     }
-    comment = comments.find(c => c.body && c.body.includes(buildArtifactsHeader))
+    comment = comments.find(c => c.body && c.body.includes(header))
     if (comment) {
       return comment.id.toString()
     }
     page += 1;
+  }
+}
+
+async function upsertComment(github, context, issue_number, header, body) {
+  const commentId = await findComment(github, context, issue_number, header);
+  if (commentId) {
+    await github.rest.issues.updateComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      comment_id: commentId,
+      body,
+    });
+  } else {
+    await github.rest.issues.createComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number,
+      body,
+    });
   }
 }
 
@@ -162,4 +181,5 @@ module.exports = {
   findComment,
   generateAssetComment,
   uploadReleaseAsset,
+  upsertComment,
 }
