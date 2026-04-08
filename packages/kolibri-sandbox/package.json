@@ -1,5 +1,6 @@
 {
   "name": "kolibri-sandbox",
+  "private": true,
   "version": "0.1.0",
   "description": "A library for providing a secure sandbox environment for Kolibri.",
   "main": "src/mainClient.js",
