@@ -14,7 +14,14 @@
       role="region"
       :aria-label="$tr('articleContent')"
     >
-      <SafeHTML :html="html" />
+      <SafeHTML
+        :html="html"
+        @startTracking="handleViewerStartTracking"
+        @stopTracking="handleViewerStopTracking"
+        @updateProgress="handleViewerUpdateProgress"
+        @addProgress="handleViewerAddProgress"
+        @finished="handleViewerFinished"
+      />
     </div>
   </div>
 
@@ -52,11 +59,49 @@
         html: null,
         scrollBasedProgress: 0,
         debouncedHandleScroll: null,
+        // Track embedded viewers for progress aggregation
+        // Using object instead of Map for Vue 2.7 reactivity
+        // Structure: { viewerId: { progress: number, complete: boolean } }
+        embeddedViewers: {},
+        // Guard to prevent emitting 'finished' multiple times
+        hasEmittedFinished: false,
       };
     },
     computed: {
       entry() {
         return (this.options && this.options.entry) || 'index.html';
+      },
+      // Count of registered embedded viewers
+      viewerCount() {
+        return Object.keys(this.embeddedViewers).length;
+      },
+      // Aggregated progress using dynamic weighting
+      // If no embedded viewers: progress = scrollBasedProgress
+      // If viewers exist: progress = (scrollBasedProgress + avgViewerProgress) / 2
+      aggregatedProgress() {
+        if (this.viewerCount === 0) {
+          return this.scrollBasedProgress;
+        }
+
+        let totalViewerProgress = 0;
+        for (const viewer of Object.values(this.embeddedViewers)) {
+          totalViewerProgress += viewer.progress;
+        }
+        const avgViewerProgress = totalViewerProgress / this.viewerCount;
+
+        // Dynamic weighting: 50% scroll, 50% viewers
+        return (this.scrollBasedProgress + avgViewerProgress) / 2;
+      },
+      // Whether all sources are complete
+      allSourcesComplete() {
+        // All viewers must be complete
+        for (const viewer of Object.values(this.embeddedViewers)) {
+          if (!viewer.complete) {
+            return false;
+          }
+        }
+
+        return true;
       },
     },
     async created() {
@@ -100,18 +145,67 @@
           }
         });
       },
+
+      // Handle startTracking from embedded viewers
+      handleViewerStartTracking(viewerId) {
+        if (viewerId && !this.embeddedViewers[viewerId]) {
+          this.$set(this.embeddedViewers, viewerId, { progress: 0, complete: false });
+        }
+      },
+
+      // Handle stopTracking from embedded viewers
+      handleViewerStopTracking(viewerId) {
+        if (viewerId) {
+          this.$delete(this.embeddedViewers, viewerId);
+        }
+      },
+
+      // Handle updateProgress from embedded viewers
+      handleViewerUpdateProgress(progress, viewerId) {
+        if (viewerId && this.embeddedViewers[viewerId]) {
+          this.$set(this.embeddedViewers, viewerId, {
+            ...this.embeddedViewers[viewerId],
+            progress: Math.min(1, Math.max(0, progress)),
+          });
+        }
+      },
+
+      // Handle addProgress from embedded viewers
+      handleViewerAddProgress(delta, viewerId) {
+        if (viewerId) {
+          const viewer = this.embeddedViewers[viewerId];
+          if (viewer) {
+            const newProgress = Math.min(1, Math.max(0, viewer.progress + delta));
+            this.$set(this.embeddedViewers, viewerId, {
+              ...viewer,
+              progress: newProgress,
+            });
+          }
+        }
+      },
+
+      // Handle finished from embedded viewers
+      handleViewerFinished(viewerId) {
+        if (viewerId && this.embeddedViewers[viewerId]) {
+          this.$set(this.embeddedViewers, viewerId, {
+            progress: 1,
+            complete: true,
+          });
+        }
+      },
+
       recordProgress() {
         let progress;
         if (this.forceDurationBasedProgress) {
           progress = this.durationBasedProgress;
         } else {
-          // Use scroll events to track progress
-          progress = this.scrollBasedProgress;
+          // Use aggregated progress from scroll + embedded viewers
+          progress = this.aggregatedProgress;
         }
         this.$emit('updateProgress', progress);
-
-        if (progress >= 1) {
+        if (progress >= 1 && this.allSourcesComplete && !this.hasEmittedFinished) {
           this.$emit('finished');
+          this.hasEmittedFinished = true;
         }
         this.pollProgress();
       },

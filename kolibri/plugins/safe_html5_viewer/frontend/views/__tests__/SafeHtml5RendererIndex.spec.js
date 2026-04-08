@@ -1,6 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import { createTranslator } from 'kolibri/utils/i18n';
+// eslint-disable-next-line import-x/named
+import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
 import SafeHtml5RendererIndex from '../SafeHtml5RendererIndex.vue';
+
+// Mock kolibri to prevent initialization side effects
+jest.mock('kolibri', () => ({
+  canHandleElement: jest.fn(() => false),
+}));
+
+jest.mock('kolibri/composables/useContentViewer');
 
 const { articleContent$ } = createTranslator(
   SafeHtml5RendererIndex.name,
@@ -31,13 +40,9 @@ jest.mock('kolibri-zip', () => {
   }));
 });
 
-const DUMMY_HTML5_URL = 'mock://test.html';
 const renderComponent = (dataOverrides = {}) => {
   return render(SafeHtml5RendererIndex, {
-    data: () => ({
-      defaultFile: { storage_url: DUMMY_HTML5_URL },
-      ...dataOverrides,
-    }),
+    data: () => dataOverrides,
   });
 };
 
@@ -57,6 +62,12 @@ async function setupTableContainer(scrollWidth, clientWidth) {
 }
 
 describe('SafeHtml5RendererIndex', () => {
+  beforeEach(() => {
+    useContentViewer.mockImplementation(() =>
+      useContentViewerMock({ defaultFile: { storage_url: 'mock://test.html' } }),
+    );
+  });
+
   describe('first render', () => {
     it('smoke test', async () => {
       renderComponent();
@@ -79,9 +90,11 @@ describe('SafeHtml5RendererIndex', () => {
       renderComponent();
       await waitFor(() => {
         expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
-        expect(screen.getByText(HEADING)).toBeInTheDocument();
-        expect(screen.getByText(TABLE_CAPTION)).toBeInTheDocument();
-        CELLS.forEach(cell => expect(screen.getByText(cell)).toBeInTheDocument());
+        expect(screen.getByRole('heading', { name: HEADING, level: 1 })).toBeInTheDocument();
+        expect(screen.getByText(TABLE_CAPTION).tagName).toBe('CAPTION');
+        CELLS.forEach(cell => {
+          expect(screen.getByRole('cell', { name: cell })).toBeInTheDocument();
+        });
       });
     });
   });
