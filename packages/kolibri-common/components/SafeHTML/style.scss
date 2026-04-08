@@ -88,9 +88,7 @@ b.safe-html {
 }
 
 .table-container {
-  width: calc(100% + 32px);
-  padding: 0 16px;
-  margin-left: -16px;
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -170,6 +168,12 @@ img.safe-html {
 .img-wrapper:hover .expand-btn,
 .expand-btn:focus {
   opacity: 1;
+}
+
+.embedded-content-viewer {
+  max-width: 960px;
+  margin: 40px auto;
+  overflow: hidden;
 }
 
 math.safe-html {

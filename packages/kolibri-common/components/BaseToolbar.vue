@@ -33,15 +33,16 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+
   .base-toolbar {
     position: relative;
-    min-height: 3.5rem;
-    padding-right: 24px;
-    padding-left: 24px;
+    z-index: 1;
+    min-height: 48px;
+    padding: 0 16px;
     font-size: 1.125rem;
-    box-shadow:
-      0 0 2px rgba(0, 0, 0, 0.12),
-      0 2px 2px rgba(0, 0, 0, 0.2);
+
+    @extend %dropshadow-2dp;
   }
 
 </style>

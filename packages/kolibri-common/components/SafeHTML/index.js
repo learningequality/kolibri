@@ -93,15 +93,24 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
               childProps.element = node;
               childProps.embedded = true;
             }
+            // Extract class from attrs so Vue merges it with the component's
+            // template class instead of overriding it. In Vue 2, class
+            // inside attrs overrides a component's root element class.
+            const { class: className, ...componentAttrs } = attrs;
             const childVNode = h(
               component,
               {
+                class: className,
                 props: childProps,
-                attrs,
+                attrs: componentAttrs,
                 on: context.listeners,
               },
               mapChildren(node.childNodes),
             );
+            // Wrap embedded ContentViewers in a layout container
+            if (component === 'ContentViewer') {
+              return h('div', { class: 'embedded-content-viewer' }, [childVNode]);
+            }
             return childVNode;
           }
 

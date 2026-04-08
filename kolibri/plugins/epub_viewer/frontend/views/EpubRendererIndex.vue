@@ -1,30 +1,29 @@
 <template>
 
-  <CoreFullscreen
-    ref="epubViewer"
-    class="epub-viewer"
-    :class="{ small: windowIsSmall, scrolled: scrolled }"
-    :style="epubViewerStyle"
-    @changeFullscreen="isInFullscreen = $event"
+  <EmbeddedReadCard
+    :active="mobileEmbedded"
+    @read="$refs.epubViewer.toggleFullscreen()"
   >
-    <LoadingError
-      v-if="errorLoading"
-      :loaded="loaded"
-    />
-
-    <LoadingScreen v-else-if="!loaded" />
-
-    <div
-      class="epub-viewer-content"
-      :style="{ 'border-color': $themeTokens.fineLine }"
-      :dir="contentDirection"
-      @mousedown.stop="handleMouseDown"
-      @keyup.esc="closeSideBar"
+    <CoreFullscreen
+      ref="epubViewer"
+      class="epub-viewer"
+      :class="{ small: windowIsSmall, scrolled: scrolled }"
+      :style="epubViewerStyle"
+      @changeFullscreen="isInFullscreen = $event"
     >
+      <LoadingError
+        v-if="errorLoading"
+        :loaded="loaded"
+      />
+
+      <LoadingScreen v-else-if="!loaded" />
+
       <TopBar
+        v-if="!mobileEmbedded"
         ref="topBar"
         class="top-bar-component"
         :isInFullscreen="isInFullscreen"
+        :embedded="embedded"
         :hideSearchButton="searchSideBarIsOpen"
         @tableOfContentsButtonClicked="handleTocToggle"
         @settingsButtonClicked="handleSettingToggle"
@@ -32,130 +31,145 @@
         @fullscreenButtonClicked="$refs.epubViewer.toggleFullscreen()"
       />
 
-      <FocusLock
-        :disabled="!tocSideBarIsOpen"
-        :returnFocus="true"
-      >
-        <TocButton
-          v-if="tocSideBarIsOpen"
-          class="toc-button"
-          @click="handleTocToggle"
-        />
-
-        <TableOfContentsSideBar
-          v-show="tocSideBarIsOpen"
-          ref="tocSideBar"
-          :toc="toc"
-          :currentSection="currentSection"
-          class="side-bar side-bar-left"
-          @tocNavigation="handleTocNavigation"
-        />
-      </FocusLock>
-
-      <FocusLock
-        :disabled="!settingsSideBarIsOpen"
-        :returnFocus="false"
-      >
-        <SettingsButton
-          v-if="settingsSideBarIsOpen"
-          class="settings-button"
-          @click="handleSettingToggle"
-        />
-
-        <SettingsSideBar
-          v-show="settingsSideBarIsOpen"
-          ref="settingsSideBar"
-          class="side-bar side-bar-right"
-          :theme="theme"
-          :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
-          :increaseFontSizeDisabled="increaseFontSizeDisabled"
-          @decreaseFontSize="handleChangeFontSize(-1)"
-          @increaseFontSize="handleChangeFontSize(+1)"
-          @setTheme="setTheme"
-        />
-      </FocusLock>
-
-      <FocusLock
-        :disabled="!searchSideBarIsOpen"
-        :returnFocus="false"
-      >
-        <SearchButton
-          v-if="searchSideBarIsOpen"
-          class="search-button"
-          @click="handleSearchToggle"
-        />
-
-        <SearchSideBar
-          v-show="searchSideBarIsOpen"
-          ref="searchSideBar"
-          class="side-bar side-bar-right"
-          :book="book"
-          @newSearchQuery="handleNewSearchQuery"
-          @navigateToSearchResult="handleNavigateToSearchResult"
-        />
-      </FocusLock>
-
       <div
-        class="navigation-and-epubjs"
-        :style="{ backgroundColor }"
+        class="epub-viewer-content"
+        :style="{ 'border-color': $themeTokens.fineLine }"
+        :dir="contentDirection"
+        @mousedown.stop="handleMouseDown"
+        @keyup.esc="closeSideBar"
       >
-        <div class="column epubjs-navigation">
-          <NextButton
-            v-if="contentIsRtl"
-            v-show="!isAtEnd"
-            :disabled="!locationsAreReady"
-            :color="navigationButtonColor"
-            :isRtl="contentIsRtl"
-            :style="{ backgroundColor }"
-            @goToNextPage="goToNextPage"
+        <FocusLock
+          :disabled="!tocSideBarIsOpen"
+          :returnFocus="true"
+        >
+          <TocButton
+            v-if="tocSideBarIsOpen"
+            class="toc-button"
+            @click="handleTocToggle"
           />
-          <PreviousButton
-            v-else
-            v-show="!isAtStart"
-            :disabled="!locationsAreReady"
-            :color="navigationButtonColor"
-            :isRtl="contentIsRtl"
-            :style="{ backgroundColor }"
-            @goToPreviousPage="goToPreviousPage"
-          />
-        </div>
-        <div
-          ref="epubjsContainer"
-          class="column epubjs-parent"
-          :style="{ backgroundColor }"
-        ></div>
-        <div class="column epubjs-navigation">
-          <PreviousButton
-            v-if="contentIsRtl"
-            v-show="!isAtStart"
-            :disabled="!locationsAreReady"
-            :color="navigationButtonColor"
-            :isRtl="contentIsRtl"
-            :style="{ backgroundColor }"
-            @goToPreviousPage="goToPreviousPage"
-          />
-          <NextButton
-            v-else
-            v-show="!isAtEnd"
-            :disabled="!locationsAreReady"
-            :color="navigationButtonColor"
-            :isRtl="contentIsRtl"
-            :style="{ backgroundColor }"
-            @goToNextPage="goToNextPage"
-          />
-        </div>
-      </div>
 
-      <BottomBar
-        class="bottom-bar"
-        :locationsAreReady="locationsAreReady"
-        :heading="bottomBarHeading"
-        :sliderValue="sliderValue"
-        :sliderStep="sliderStep"
-        @sliderChanged="handleSliderChanged"
-      />
-    </div>
-  </CoreFullscreen>
+          <TableOfContentsSideBar
+            v-show="tocSideBarIsOpen"
+            ref="tocSideBar"
+            :toc="toc"
+            :currentSection="currentSection"
+            class="side-bar side-bar-left"
+            @tocNavigation="handleTocNavigation"
+          />
+        </FocusLock>
+
+        <FocusLock
+          :disabled="!settingsSideBarIsOpen"
+          :returnFocus="false"
+        >
+          <SettingsButton
+            v-if="settingsSideBarIsOpen"
+            class="settings-button"
+            @click="handleSettingToggle"
+          />
+
+          <SettingsSideBar
+            v-show="settingsSideBarIsOpen"
+            ref="settingsSideBar"
+            class="side-bar side-bar-right"
+            :theme="theme"
+            :decreaseFontSizeDisabled="decreaseFontSizeDisabled"
+            :increaseFontSizeDisabled="increaseFontSizeDisabled"
+            @decreaseFontSize="handleChangeFontSize(-1)"
+            @increaseFontSize="handleChangeFontSize(+1)"
+            @setTheme="setTheme"
+          />
+        </FocusLock>
+
+        <FocusLock
+          :disabled="!searchSideBarIsOpen"
+          :returnFocus="false"
+        >
+          <SearchButton
+            v-if="searchSideBarIsOpen"
+            class="search-button"
+            @click="handleSearchToggle"
+          />
+
+          <SearchSideBar
+            v-show="searchSideBarIsOpen"
+            ref="searchSideBar"
+            class="side-bar side-bar-right"
+            :book="book"
+            @newSearchQuery="handleNewSearchQuery"
+            @navigateToSearchResult="handleNavigateToSearchResult"
+          />
+        </FocusLock>
+
+        <div
+          class="navigation-and-epubjs"
+          :style="{ backgroundColor }"
+        >
+          <div
+            v-show="!mobileEmbedded"
+            class="column epubjs-navigation"
+          >
+            <NextButton
+              v-if="contentIsRtl"
+              v-show="!isAtEnd"
+              :disabled="!locationsAreReady"
+              :color="navigationButtonColor"
+              :isRtl="contentIsRtl"
+              :style="{ backgroundColor }"
+              @goToNextPage="goToNextPage"
+            />
+            <PreviousButton
+              v-else
+              v-show="!isAtStart"
+              :disabled="!locationsAreReady"
+              :color="navigationButtonColor"
+              :isRtl="contentIsRtl"
+              :style="{ backgroundColor }"
+              @goToPreviousPage="goToPreviousPage"
+            />
+          </div>
+          <div
+            ref="epubjsContainer"
+            class="column epubjs-parent"
+            :style="{ backgroundColor }"
+          ></div>
+          <div
+            v-show="!mobileEmbedded"
+            class="column epubjs-navigation"
+          >
+            <PreviousButton
+              v-if="contentIsRtl"
+              v-show="!isAtStart"
+              :disabled="!locationsAreReady"
+              :color="navigationButtonColor"
+              :isRtl="contentIsRtl"
+              :style="{ backgroundColor }"
+              @goToPreviousPage="goToPreviousPage"
+            />
+            <NextButton
+              v-else
+              v-show="!isAtEnd"
+              :disabled="!locationsAreReady"
+              :color="navigationButtonColor"
+              :isRtl="contentIsRtl"
+              :style="{ backgroundColor }"
+              @goToNextPage="goToNextPage"
+            />
+          </div>
+        </div>
+
+        <BottomBar
+          v-show="!mobileEmbedded"
+          class="bottom-bar"
+          :locationsAreReady="locationsAreReady"
+          :heading="bottomBarHeading"
+          :sliderValue="sliderValue"
+          :sliderStep="sliderStep"
+          @sliderChanged="handleSliderChanged"
+        />
+      </div>
+    </CoreFullscreen>
+  </EmbeddedReadCard>
 
 </template>
 
@@ -171,6 +185,9 @@
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import EmbeddedReadCard from 'kolibri-common/components/EmbeddedReadCard';
+  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import { ref, computed } from 'vue';
@@ -208,6 +225,8 @@
     name: 'EpubRendererIndex',
     components: {
       CoreFullscreen,
+      EmbeddedReadCard,
+
       TopBar,
       TableOfContentsSideBar,
       SettingsSideBar,
@@ -222,6 +241,7 @@
       SearchButton,
       LoadingError,
     },
+    mixins: [commonCoreStrings],
     setup(props, context) {
       const { windowIsSmall } = useKResponsiveWindow();
       const locations = ref([]);
@@ -244,6 +264,7 @@
         contentDirection,
         contentIsRtl,
         reportLoadingError,
+        embedded,
       } = useContentViewer(context, { defaultDuration });
       return {
         windowIsSmall,
@@ -255,6 +276,7 @@
         contentDirection,
         contentIsRtl,
         reportLoadingError,
+        embedded,
       };
     },
     data() {
@@ -360,10 +382,24 @@
       searchSideBarIsOpen() {
         return this.sideBarOpen === SIDE_BARS.SEARCH;
       },
+      mobileEmbedded() {
+        return this.embedded && this.windowIsSmall && !this.isInFullscreen;
+      },
       epubViewerStyle() {
-        return {
+        const style = {
           backgroundColor: this.$themeTokens.surface,
         };
+        if (this.embedded) {
+          style.height = '25vh';
+          if (!this.mobileEmbedded) {
+            // The mobile-embedded preview gets its card border from EmbeddedReadCard.
+            style.border = `1px solid ${this.$themeTokens.fineLine}`;
+          }
+          if (!this.windowIsSmall) {
+            style.minHeight = '400px';
+          }
+        }
+        return style;
       },
       navigationButtonColor() {
         return darkThemeNames.some(themeName => isEqual(this.theme.name, themeName))
@@ -428,8 +464,7 @@
       this.visitedPages = this.savedVisitedPages || {};
     },
     beforeMount() {
-      global.ePub = Epub;
-      this.book = new Epub(this.epubURL);
+      this.book = new Epub(this.epubURL, { openAs: 'epub' });
       this.book.on(EVENTS.BOOK.OPEN_FAILED, err => {
         this.errorLoading = true;
         this.reportLoadingError(err);
@@ -517,9 +552,6 @@
       this.$emit('stopTracking');
       window.removeEventListener('mousedown', this.handleMouseDown, { passive: true });
       clearInterval(this.updateContentStateInterval);
-    },
-    destroyed() {
-      delete global.ePub;
     },
     methods: {
       updateProgress() {
@@ -811,16 +843,14 @@
   @import '~kolibri-design-system/lib/styles/definitions';
   @import './EpubStyles';
 
-  $top-bar-height: 36px;
+  $top-bar-height: 48px;
   $bottom-bar-height: 54px;
   $navigation-button-small: 36px;
   $navigation-button-normal: 52px;
 
   .epub-viewer {
     position: relative;
-    // Counter-balance the padding to avoid unnecessary scroll
     height: calc(100vh - 64px);
-    padding: 32px 24px;
     overflow: hidden;
     font-size: smaller;
     border-radius: $radius;
@@ -831,27 +861,23 @@
     padding: 0;
   }
 
+  .top-bar-component {
+    flex-shrink: 0;
+  }
+
   .epub-viewer-content {
     position: relative;
-    height: 100%;
+    height: calc(100% - #{$top-bar-height});
     overflow: hidden;
     border: solid 1px;
     border-radius: $radius;
-  }
-
-  .top-bar-component {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: $top-bar-height;
   }
 
   .side-bar {
     @extend %momentum-scroll;
 
     position: absolute;
-    top: $top-bar-height;
+    top: 0;
     bottom: $bottom-bar-height;
   }
 
@@ -909,7 +935,7 @@
     @extend %momentum-scroll;
 
     position: absolute;
-    top: $top-bar-height;
+    top: 0;
     right: 0;
     bottom: $bottom-bar-height;
     left: 0;

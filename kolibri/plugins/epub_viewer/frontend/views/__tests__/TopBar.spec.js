@@ -1,14 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { createTranslator } from 'kolibri/utils/i18n';
+import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
 import TopBar from '../TopBar';
-import TocButton from '../TocButton';
-import SettingsButton from '../SettingsButton';
-import SearchButton from '../SearchButton';
 
-const { toggleTocSideBar$ } = createTranslator(TocButton.name, TocButton.$trs);
-const { toggleSettingsSideBar$ } = createTranslator(SettingsButton.name, SettingsButton.$trs);
-const { toggleSearchSideBar$ } = createTranslator(SearchButton.name, SearchButton.$trs);
-const { toggleFullscreen$ } = createTranslator(TopBar.name, TopBar.$trs);
+const { enterFullscreen$ } = createTranslator(ViewerToolbar.name, ViewerToolbar.$trs);
 
 function renderTopBar(props = {}) {
   return render(TopBar, {
@@ -35,7 +30,7 @@ describe('Top bar', () => {
 
   it('allows parent to focus on table of contents button', () => {
     renderTopBar();
-    const tocButton = screen.getByRole('button', { name: toggleTocSideBar$() });
+    const tocButton = screen.getByTestId('toc button');
     tocButton.focus();
     expect(tocButton).toHaveFocus();
   });
@@ -43,7 +38,7 @@ describe('Top bar', () => {
   it('allows parent to focus on settings button', () => {
     renderTopBar();
 
-    const settingsButton = screen.getByRole('button', { name: toggleSettingsSideBar$() });
+    const settingsButton = screen.getByTestId('settings button');
     settingsButton.focus();
 
     expect(settingsButton).toHaveFocus();
@@ -52,7 +47,7 @@ describe('Top bar', () => {
   it('allows parent to focus on search button', () => {
     renderTopBar();
 
-    const searchButton = screen.getByRole('button', { name: toggleSearchSideBar$() });
+    const searchButton = screen.getByTestId('search button');
     searchButton.focus();
 
     expect(searchButton).toHaveFocus();
@@ -61,7 +56,7 @@ describe('Top bar', () => {
   it('emits event when table of contents button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getByRole('button', { name: toggleTocSideBar$() }));
+    await fireEvent.click(screen.getByTestId('toc button'));
 
     expect(emitted().tableOfContentsButtonClicked).toBeTruthy();
   });
@@ -69,7 +64,7 @@ describe('Top bar', () => {
   it('emits event when settings button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getByRole('button', { name: toggleSettingsSideBar$() }));
+    await fireEvent.click(screen.getByTestId('settings button'));
 
     expect(emitted().settingsButtonClicked).toBeTruthy();
   });
@@ -77,7 +72,7 @@ describe('Top bar', () => {
   it('emits event when search button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getByRole('button', { name: toggleSearchSideBar$() }));
+    await fireEvent.click(screen.getByTestId('search button'));
 
     expect(emitted().searchButtonClicked).toBeTruthy();
   });
@@ -85,7 +80,7 @@ describe('Top bar', () => {
   it('emits event when fullscreen button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getByRole('button', { name: toggleFullscreen$() }));
+    await fireEvent.click(screen.getByRole('button', { name: enterFullscreen$() }));
 
     expect(emitted().fullscreenButtonClicked).toBeTruthy();
   });

@@ -6,28 +6,11 @@
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <div
-      class="fullscreen-header"
-      :style="{ backgroundColor: $themePalette.grey.v_200 }"
-    >
-      <KButton
-        :primary="false"
-        appearance="flat-button"
-        @click="$refs.bloompubViewer.toggleFullscreen()"
-      >
-        <KIcon
-          v-if="isInFullscreen"
-          icon="fullscreen_exit"
-          class="fs-icon"
-        />
-        <KIcon
-          v-else
-          icon="fullscreen"
-          class="fs-icon"
-        />
-        {{ fullscreenText }}
-      </KButton>
-    </div>
+    <ViewerToolbar
+      :isInFullscreen="isInFullscreen"
+      :embedded="embedded"
+      @toggleFullscreen="$refs.bloompubViewer.toggleFullscreen()"
+    />
     <div
       class="iframe-container"
       :style="containerStyle"
@@ -58,26 +41,45 @@
   import urls from 'kolibri/urls';
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
   import Sandbox from 'kolibri-sandbox';
+
   import useContentViewer from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
-  const frameTopbarHeight = '37px';
+  const frameTopbarHeight = '48px';
   export default {
     name: 'BloomPubRendererIndex',
     components: {
       CoreFullscreen,
+      ViewerToolbar,
     },
     setup(props, context) {
-      const { defaultFile, options, forceDurationBasedProgress, reportError } = useContentViewer(
-        context,
-        { defaultDuration: 300 },
-      );
+      const {
+        defaultFile,
+        options,
+        lang,
+        forceDurationBasedProgress,
+        reportError,
+        embedded,
+        extraFields,
+        timeSpent,
+        userId,
+        userFullName,
+        progress,
+      } = useContentViewer(context, { defaultDuration: 300 });
       return {
         defaultFile,
         options,
+        lang,
         forceDurationBasedProgress,
         reportError,
+        embedded,
+        extraFields,
+        timeSpent,
+        userId,
+        userFullName,
+        progress,
       };
     },
     data() {
@@ -93,9 +95,6 @@
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
-      },
-      fullscreenText() {
-        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
       userData() {
         return {
@@ -161,18 +160,6 @@
       }
       this.$emit('stopTracking');
     },
-    $trs: {
-      exitFullscreen: {
-        message: 'Exit fullscreen',
-        context:
-          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
-      },
-      enterFullscreen: {
-        message: 'Enter fullscreen',
-        context:
-          'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
-      },
-    },
   };
 
 </script>
@@ -181,18 +168,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  $frame-topbar-height: 37px;
-
-  .fullscreen-header {
-    text-align: right;
-  }
-
-  .fs-icon {
-    position: relative;
-    top: 8px;
-    width: 24px;
-    height: 24px;
-  }
+  $frame-topbar-height: 48px;
 
   .bloompub-viewer {
     position: relative;
