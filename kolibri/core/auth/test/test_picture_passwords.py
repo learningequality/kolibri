@@ -1,4 +1,6 @@
+import factory
 import mock
+from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from mock import patch
@@ -195,13 +197,12 @@ class AssignPicturePasswordTestCase(TestCase):
 
 
 class PicturePasswordsExhaustionTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create(name="Test Facility")
         cls.learner_sequence = 0
-
-    def setUp(self):
-        get_learner_count.clear(self.facility.dataset_id)
 
     def _create_user(self):
         """
@@ -232,7 +233,18 @@ class PicturePasswordsExhaustionTestCase(TestCase):
         self.facility.add_role(admin, ADMIN)
         self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
 
+    def test_get_learner_count__signals(self):
+        self._create_user()
+        self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+        user_x = self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 3)
+        user_x.delete()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+
+    @factory.django.mute_signals(post_save)
     def test_get_learner_count__cache_and_clear(self):
+        get_learner_count.clear(self.facility.dataset_id)
         self._create_user()
         self._create_user()
         self.assertEqual(get_learner_count(self.facility.dataset_id), 2)

@@ -19,6 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class LearnerCounterCache(object):
+    """
+    Learner calculation specifically for picture password login since only learners who have no role
+    and are not superusers should be included
+    """
+
     key = "learner_count_{dataset_id}"
     timeout = 300
 
