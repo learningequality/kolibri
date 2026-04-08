@@ -1,5 +1,7 @@
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
 import { PageNames } from '../constants';
+import { LastPages } from '../constants/lastPagesConstants';
 import LearnersRootPage from '../views/learners/LearnersRootPage';
 import LearnerSummaryPage from '../views/learners/LearnerSummaryPage';
 import LearnerLessonPage from '../views/learners/reports/LearnerLessonPage.vue';
@@ -24,6 +26,28 @@ export default [
     },
     meta: {
       titleParts: ['learnersLabel', 'CLASS_NAME'],
+    },
+  },
+  {
+    name: PageNames.LEARNER_PASSWORDS,
+    path: OPTIONAL_CLASS + '/passwords',
+    component: AllPasswordsPage,
+    props: route => {
+      const classId = route.params.classId;
+      const backRoute =
+        route.query.last === LastPages.HOME_PAGE
+          ? { name: PageNames.HOME_PAGE, params: { classId } }
+          : { name: PageNames.LEARNERS_ROOT, params: { classId } };
+      return { classId, route: backRoute };
+    },
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.LEARNER_PASSWORDS, next)) {
+        return;
+      }
+      defaultHandler();
+    },
+    meta: {
+      titleParts: ['CLASS_NAME'],
     },
   },
   {
