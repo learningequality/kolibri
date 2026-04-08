@@ -768,6 +768,66 @@ class FacilityAPITestCase(APITestCase):
         assert dataset.learner_can_login_with_no_password is False
         assert dataset.show_download_button_in_learn is True
 
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_false_when_learner_count_below_limit(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["picture_passwords_exhausted"])
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_true_when_learner_count_reaches_limit(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        FacilityUserFactory.create(facility=self.facility1)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["picture_passwords_exhausted"])
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_ignores_non_learner_users(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        coach = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_coach(coach)
+        admin = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_admin(admin)
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["picture_passwords_exhausted"])
+
 
 def _add_demographic_schema_to_facility(facility):
     facility.dataset.extra_fields.update(
