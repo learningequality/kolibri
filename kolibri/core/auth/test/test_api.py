@@ -45,6 +45,7 @@ from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.signals import cascade_delete_user
+from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
@@ -2482,6 +2483,166 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["extra_fields"]["pin_code"], None)
+
+
+class EnablePictureLoginAPITestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.coach = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_coach(cls.coach)
+
+    def _enable_picture_login_url(self):
+        return reverse(
+            "kolibri:core:facilitydataset-enable-picture-login",
+            kwargs={"pk": self.facility.dataset_id},
+        )
+
+    def _picture_password_settings(self):
+        return {"icon_style": "standard", "show_icon_text": True}
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch(
+        "kolibri.core.auth.api.FacilityDatasetViewSet.MAX_LEARNERS_FOR_PICTURE_LOGIN",
+        0,
+    )
+    def test_enable_rejected_for_too_many_learners(self, mock_task):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._enable_picture_login_url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        mock_task.validate_job_data.assert_not_called()
+
+    def _setup_task_mocks(self, mock_storage, mock_task):
+        from kolibri.core.tasks.job import Job
+
+        mock_job = Job(func="test_func", facility_id=self.facility.id)
+        mock_task.validate_job_data.return_value = (mock_job, {})
+        mock_task.enqueue.return_value = "test-job-id"
+        mock_enqueued_job = Job(func="test_func", facility_id=self.facility.id)
+        mock_enqueued_job.job_id = "test-job-id"
+        mock_storage.get_job.return_value = mock_enqueued_job
+        mock_storage.get_orm_job.return_value = type(
+            "OrmJob",
+            (),
+            {
+                "scheduled_time": timezone.now(),
+                "repeat": 0,
+                "interval": 0,
+                "retry_interval": None,
+                "max_retries": None,
+            },
+        )()
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch("kolibri.core.auth.api.job_storage")
+    def test_enable_enqueues_task_and_returns_task_object(
+        self, mock_storage, mock_task
+    ):
+        self._setup_task_mocks(mock_storage, mock_task)
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._enable_picture_login_url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.data["id"], "test-job-id")
+        mock_task.validate_job_data.assert_called_once()
+        mock_task.enqueue.assert_called_once()
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch("kolibri.core.auth.api.job_storage")
+    def test_enable_does_not_assign_inline(self, mock_storage, mock_task):
+        self._setup_task_mocks(mock_storage, mock_task)
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        self.client.post(
+            self._enable_picture_login_url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        mock_task.assert_not_called()
+
+    def test_enable_requires_picture_password_settings(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._enable_picture_login_url(),
+            {},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+@patch("kolibri.core.auth.tasks.get_current_job", return_value=None)
+@patch("kolibri.core.auth.tasks.assign_picture_password")
+class AssignPicturePasswordsTaskTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+
+    def _create_learner(self, username, picture_password=None):
+        user = FacilityUserFactory.create(facility=self.facility, username=username)
+        if picture_password:
+            user.picture_password = picture_password
+            user.save(update_fields=["picture_password"])
+        return user
+
+    def test_assigns_to_learners_without_picture_password(
+        self, mock_assign, mock_get_job
+    ):
+        learner1 = self._create_learner("learner1")
+        learner2 = self._create_learner("learner2")
+        assign_picture_passwords_to_facility(self.facility.id)
+        called_user_ids = {c[0][0].id for c in mock_assign.call_args_list}
+        self.assertIn(learner1.id, called_user_ids)
+        self.assertIn(learner2.id, called_user_ids)
+
+    def test_skips_learners_with_existing_picture_password(
+        self, mock_assign, mock_get_job
+    ):
+        self._create_learner("already_has", picture_password="1.2.3")
+        learner_without = self._create_learner("needs_one")
+        assign_picture_passwords_to_facility(self.facility.id)
+        called_user_ids = {c[0][0].id for c in mock_assign.call_args_list}
+        self.assertNotIn(
+            FacilityUser.objects.get(username="already_has").id, called_user_ids
+        )
+        self.assertIn(learner_without.id, called_user_ids)
+
+    def test_skips_coaches_and_admins(self, mock_assign, mock_get_job):
+        admin = FacilityUserFactory.create(
+            facility=self.facility, username="admin_user"
+        )
+        self.facility.add_admin(admin)
+        coach = FacilityUserFactory.create(
+            facility=self.facility, username="coach_user"
+        )
+        self.facility.add_coach(coach)
+        learner = self._create_learner("just_a_learner")
+        assign_picture_passwords_to_facility(self.facility.id)
+        called_user_ids = {c[0][0].id for c in mock_assign.call_args_list}
+        self.assertNotIn(admin.id, called_user_ids)
+        self.assertNotIn(coach.id, called_user_ids)
+        self.assertIn(learner.id, called_user_ids)
+
+    def test_raises_on_no_available_sequences(self, mock_assign, mock_get_job):
+        mock_assign.side_effect = NoAvailableSequences("No sequences left")
+        self._create_learner("victim")
+        with self.assertRaises(NoAvailableSequences):
+            assign_picture_passwords_to_facility(self.facility.id)
 
 
 class IsPINValidAPITestCase(APITestCase):
