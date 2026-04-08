@@ -3458,6 +3458,82 @@ class RoleAPITestCase(APITestCase):
         max_per_item_overhead = 10
         self.assertLessEqual(actual_diff, max_per_item_overhead * extra_items)
 
+    def test_single_role_model_creation_clears_picture_password(self):
+        """Role.objects.create() (which calls Role.save()) clears picture_password."""
+        user = models.FacilityUser.objects.create_user(
+            username="picmodeluser",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        user.picture_password = "1.2.3"
+        user.save(update_fields=["picture_password"])
+        models.Role.objects.create(
+            user=user,
+            collection=self.facility,
+            kind=role_kinds.ADMIN,
+        )
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_single_role_api_creation_clears_picture_password(self):
+        """Single-role POST to role-list API clears picture_password."""
+        self.user1.picture_password = "7.8.9"
+        self.user1.save(update_fields=["picture_password"])
+        url = reverse("kolibri:core:role-list")
+        response = self.client.post(
+            url,
+            {
+                "user": self.user1.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.user1.refresh_from_db()
+        self.assertIsNone(self.user1.picture_password)
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+
+    def test_bulk_role_creation_clears_picture_password(self):
+        """Bulk role POST (bulk_create path) clears picture_password for all affected users."""
+        self.user1.picture_password = "1.2.3"
+        self.user1.save(update_fields=["picture_password"])
+        self.user2.picture_password = "4.5.6"
+        self.user2.save(update_fields=["picture_password"])
+        url = reverse("kolibri:core:role-list")
+        data = [
+            {
+                "user": self.user1.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+            {
+                "user": self.user2.id,
+                "collection": self.facility.id,
+                "kind": role_kinds.ADMIN,
+            },
+        ]
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.user1.refresh_from_db()
+        self.user2.refresh_from_db()
+        self.assertIsNone(self.user1.picture_password)
+        self.assertIsNone(self.user2.picture_password)
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user1, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+        self.assertTrue(
+            models.Role.objects.filter(
+                user=self.user2, collection=self.facility, kind=role_kinds.ADMIN
+            ).exists()
+        )
+
     def test_prepare_for_bulk_create_sets_morango_fields(self):
         role = models.Role(
             user=self.user1, collection=self.classroom, kind=role_kinds.COACH

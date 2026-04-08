@@ -1587,7 +1587,11 @@ class Role(AbstractFacilityDataModel):
         self.validate_role()
         with transaction.atomic():
             self.ensure_coach_role_at_facility()
-            return super().save(*args, **kwargs)
+            result = super().save(*args, **kwargs)
+            if self.user.picture_password is not None:
+                self.user.picture_password = None
+                self.user.save(update_fields=["picture_password"])
+        return result
 
     def delete(self, **kwargs):
         with transaction.atomic():
