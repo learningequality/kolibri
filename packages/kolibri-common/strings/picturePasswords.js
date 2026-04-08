@@ -83,4 +83,8 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Shown below the no picture password text to inform that learners without a picture password can still sign in using their username',
   },
+  noLearnersInClass: {
+    message: 'There are no learners in this class',
+    context: 'Shown on the all passwords page when the class has no enrolled learners',
+  },
 });

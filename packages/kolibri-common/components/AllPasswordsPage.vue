@@ -6,84 +6,85 @@
     :primary="false"
   >
     <KPageContainer>
-      <KCircularLoader v-if="loading" />
-      <div v-else>
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 6, alignment: 'left' }"
-            :layout8="{ span: 4, alignment: 'left' }"
-            :layout4="{ span: 2, alignment: 'left' }"
-            class="header-row"
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 6, alignment: 'left' }"
+          :layout8="{ span: 4, alignment: 'left' }"
+          :layout4="{ span: 2, alignment: 'left' }"
+          class="header-row"
+        >
+          <h1>{{ allPasswordsHeader$() }}</h1>
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span: 6, alignment: 'right' }"
+          :layout8="{ span: 4, alignment: 'right' }"
+          :layout4="{ span: 2, alignment: 'right' }"
+          class="header-row print-button"
+        >
+          <KButton :text="printAction$()" />
+        </KGridItem>
+      </KGrid>
+      <CoreTable
+        :dataLoading="loading"
+        :emptyMessage="noLearnersInClass$()"
+        :selectable="true"
+      >
+        <template #headers>
+          <th
+            class="table-header"
+            :style="{ color: $themeTokens.text }"
           >
-            <h1>{{ allPasswordsHeader$() }}</h1>
-          </KGridItem>
-          <KGridItem
-            :layout12="{ span: 6, alignment: 'right' }"
-            :layout8="{ span: 4, alignment: 'right' }"
-            :layout4="{ span: 2, alignment: 'right' }"
-            class="header-row print-button"
-          >
-            <KButton :text="printAction$()" />
-          </KGridItem>
-        </KGrid>
-        <CoreTable>
-          <template #headers>
-            <th
-              class="table-header"
-              :style="{ color: $themeTokens.text }"
+            {{ nameLabel$() }}
+          </th>
+        </template>
+        <template #tbody>
+          <tbody>
+            <tr
+              v-for="learner in learners"
+              :key="learner.id"
             >
-              {{ nameLabel$() }}
-            </th>
-          </template>
-          <template #tbody>
-            <tbody>
-              <tr
-                v-for="learner in learners"
-                :key="learner.id"
-              >
-                <td :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }">
-                  <div class="learner-row">
-                    <div class="learner-info">
+              <td :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }">
+                <div class="learner-row">
+                  <div class="learner-info">
+                    <span
+                      dir="auto"
+                      class="learner-name"
+                      :style="{ color: $themeTokens.text }"
+                    >{{ learner.full_name }}</span>
+                    <span
+                      dir="auto"
+                      class="learner-username"
+                      :style="{ color: $themeTokens.annotation }"
+                    >{{ learner.username }}</span>
+                  </div>
+                  <div class="learner-password">
+                    <template v-if="learner.picture_password">
+                      {{ resolvePicturePassword(learner.picture_password) }}
+                    </template>
+                    <div
+                      v-else
+                      class="no-password-info"
+                    >
                       <span
-                        dir="auto"
-                        class="learner-name"
+                        class="no-password-title"
                         :style="{ color: $themeTokens.text }"
-                      >{{ learner.full_name }}</span>
-                      <span
-                        dir="auto"
-                        class="learner-username"
-                        :style="{ color: $themeTokens.annotation }"
-                      >{{ learner.username }}</span>
-                    </div>
-                    <div class="learner-password">
-                      <template v-if="learner.picture_password">
-                        {{ resolvePicturePassword(learner.picture_password) }}
-                      </template>
-                      <div
-                        v-else
-                        class="no-password-info"
                       >
-                        <span
-                          class="no-password-title"
-                          :style="{ color: $themeTokens.text }"
-                        >
-                          {{ noPicturePasswordDescription$() }}
-                        </span>
-                        <span
-                          class="no-password-subtitle"
-                          :style="{ color: $themeTokens.annotation }"
-                        >
-                          {{ noPasswordSignInDescription$() }}
-                        </span>
-                      </div>
+                        {{ noPicturePasswordDescription$() }}
+                      </span>
+                      <span
+                        class="no-password-subtitle"
+                        :style="{ color: $themeTokens.annotation }"
+                      >
+                        {{ noPasswordSignInDescription$() }}
+                      </span>
                     </div>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </template>
-        </CoreTable>
-      </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
     </KPageContainer>
   </ImmersivePage>
 
@@ -111,6 +112,7 @@
       const {
         noPicturePasswordDescription$,
         noPasswordSignInDescription$,
+        noLearnersInClass$,
         printAction$,
         allPasswordsHeader$,
       } = picturePasswordStrings;
@@ -141,6 +143,7 @@
         nameLabel$,
         noPicturePasswordDescription$,
         noPasswordSignInDescription$,
+        noLearnersInClass$,
         printAction$,
         allPasswordsHeader$,
       };
