@@ -58,13 +58,15 @@ describe('Table of Contents Section', () => {
   });
 
   it('applies the appropriate top-level styling class for root level sections', () => {
-    const { container } = renderComponent({ section, depth: 0 });
-    expect(container.firstElementChild).toHaveClass('toc-list-item-top-level');
+    renderComponent({ section, depth: 0 });
+    const listItem = screen.getByText('Top level section').closest('li');
+    expect(listItem).toHaveClass('toc-list-item-top-level');
   });
 
   it('does not apply the top-level styling class for nested sections', () => {
-    const { container } = renderComponent({ section, depth: 1 });
-    expect(container.firstElementChild).not.toHaveClass('toc-list-item-top-level');
+    renderComponent({ section, depth: 1 });
+    const listItem = screen.getByText('Top level section').closest('li');
+    expect(listItem).not.toHaveClass('toc-list-item-top-level');
   });
 
   it('visually highlights the section if it is the current section', () => {

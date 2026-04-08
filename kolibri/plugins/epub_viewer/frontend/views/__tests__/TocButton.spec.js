@@ -9,12 +9,12 @@ function renderComponent() {
 describe('Table of contents button', () => {
   it('renders the table of contents button', () => {
     renderComponent();
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /toggle table of contents/i })).toBeInTheDocument();
   });
 
   it('emits a click event when the button is interacted with', async () => {
     const { emitted } = renderComponent();
-    await fireEvent.click(screen.getByRole('button'));
+    await fireEvent.click(screen.getByRole('button', { name: /toggle table of contents/i }));
     expect(emitted()).toHaveProperty('click');
   });
 });
