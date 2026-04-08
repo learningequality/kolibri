@@ -233,7 +233,7 @@ class PicturePasswordsExhaustionTestCase(TestCase):
         self.facility.add_role(admin, ADMIN)
         self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
 
-    def test_get_learner_count__signals(self):
+    def test_get_learner_count__user_signals(self):
         self._create_user()
         self._create_user()
         self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
@@ -241,6 +241,13 @@ class PicturePasswordsExhaustionTestCase(TestCase):
         self.assertEqual(get_learner_count(self.facility.dataset_id), 3)
         user_x.delete()
         self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+
+    def test_get_learner_count__role_signals(self):
+        self._create_user()
+        admin = self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+        self.facility.add_role(admin, ADMIN)
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
 
     @factory.django.mute_signals(post_save)
     def test_get_learner_count__cache_and_clear(self):
