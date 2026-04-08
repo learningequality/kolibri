@@ -63,9 +63,6 @@ class FacilityUserBackend:
                 )
             except Facility.DoesNotExist:
                 return None
-        # Two separate .filter() calls are intentional: chaining role and
-        # devicepermissions conditions in one call would produce a cross-product
-        # JOIN that returns false positives for users with multiple related rows.
         return (
             FacilityUser.objects.filter(
                 picture_password=picture_password,
