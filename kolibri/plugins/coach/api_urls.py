@@ -8,6 +8,7 @@ from .api import LessonReportViewset
 from .api import PracticeQuizDifficultQuestionsViewset
 from .api import QuizDifficultQuestionsViewset
 from .class_summary_api import ClassSummaryViewSet
+from .unit_lesson_progress_api import UnitLessonProgressViewSet
 from .unit_report_api import UnitReportViewSet
 
 router = routers.DefaultRouter()
@@ -37,5 +38,10 @@ urlpatterns = [
         r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unit/(?P<unit_contentnode_id>[0-9a-fA-F]{32})/report/$",
         UnitReportViewSet.as_view({"get": "retrieve"}),
         name="unitreport",
+    ),
+    re_path(
+        r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unit/(?P<unit_contentnode_id>[0-9a-fA-F]{32})/lessonprogress/$",
+        UnitLessonProgressViewSet.as_view({"get": "retrieve"}),
+        name="unit-lesson-progress",
     ),
 ]
