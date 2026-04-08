@@ -1,16 +1,22 @@
 import mock
 from django.db.utils import IntegrityError
 from django.test import TestCase
+from mock import patch
 
 from ..models import Facility
 from ..models import FacilityUser
+from .helpers import create_superuser
+from .helpers import DUMMY_PASSWORD
+from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
+from kolibri.core.auth.constants.picture_passwords import SEQUENCE_LENGTH
+from kolibri.core.auth.constants.role_kinds import ADMIN
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.errors import SequenceAlreadyAssigned
+from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
-from kolibri.core.auth.utils.picture_passwords import PICTURE_PASSWORD_SET
-from kolibri.core.auth.utils.picture_passwords import SEQUENCE_LENGTH
+from kolibri.core.auth.utils.picture_passwords import get_learner_count
 
 
 class GetAllValidSequencesTestCase(TestCase):
@@ -186,3 +192,66 @@ class AssignPicturePasswordTestCase(TestCase):
         )
         self.assertIsNotNone(db_value)
         self.assertEqual(learner.picture_password, db_value)
+
+
+class PicturePasswordsExhaustionTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Test Facility")
+        cls.learner_sequence = 0
+
+    def setUp(self):
+        get_learner_count.clear(self.facility.dataset_id)
+
+    def _create_user(self):
+        """
+        :return: FacilityUser object
+        :rtype: FacilityUser
+        """
+        self.learner_sequence += 1
+        return FacilityUser.objects.create(
+            username=f"user_{self.learner_sequence}",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_get_learner_count__basic(self):
+        self._create_user()
+        self._create_user()
+        self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 3)
+
+    def test_get_learner_count__no_superusers(self):
+        create_superuser(self.facility)
+        self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
+
+    def test_get_learner_count__no_roles(self):
+        self._create_user()
+        admin = self._create_user()
+        self.facility.add_role(admin, ADMIN)
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
+
+    def test_get_learner_count__cache_and_clear(self):
+        self._create_user()
+        self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+        self._create_user()
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 2)
+        get_learner_count.clear(self.facility.dataset_id)
+        self.assertEqual(get_learner_count(self.facility.dataset_id), 3)
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_are_picture_passwords_exhausted__false(self):
+        self._create_user()
+        self.assertFalse(are_picture_passwords_exhausted(self.facility.dataset_id))
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_are_picture_passwords_exhausted__true(self):
+        self._create_user()
+        self._create_user()
+        self.assertTrue(are_picture_passwords_exhausted(self.facility.dataset_id))
