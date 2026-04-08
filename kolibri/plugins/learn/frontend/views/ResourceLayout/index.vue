@@ -1,6 +1,6 @@
 <script>
 
-  import { computed, h, ref } from 'vue';
+  import { computed, h, ref, watch } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
@@ -173,6 +173,17 @@
       }
 
       const isSidePanelModalMode = computed(() => windowBreakpoint.value <= 2);
+
+      watch(
+        isSidePanelModalMode,
+        newIsModal => {
+          if (!newIsModal) {
+            // Have side panel open by default on larger screens
+            sidePanelOpen.value = true;
+          }
+        },
+        { immediate: true },
+      );
 
       /**
        * Public method to close the side panel if open and in modal mode.

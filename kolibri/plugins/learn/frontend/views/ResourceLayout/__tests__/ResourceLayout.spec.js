@@ -63,13 +63,12 @@ describe('ResourceLayout', () => {
       expect(screen.getByTestId('main-content')).toHaveTextContent('Main Content');
     });
 
-    it('renders the sidePanel slot content when panel is open', async () => {
+    it('renders the sidePanel slot content when panel is open', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       expect(screen.getByTestId('side-panel-data')).toBeInTheDocument();
     });
 
@@ -80,32 +79,30 @@ describe('ResourceLayout', () => {
       expect(screen.getByTestId('bottom-bar-content')).toHaveTextContent('Bottom Bar');
     });
 
-    it('renders the sidePanelFooter slot content when panel is open', async () => {
+    it('renders the sidePanelFooter slot content when panel is open', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         sidePanelFooter: '<div data-testid="side-panel-footer-content">Footer</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       expect(screen.getByTestId('side-panel-footer-content')).toBeInTheDocument();
     });
 
-    it('renders the sidePanelTopBar slot content in side panel header', async () => {
+    it('renders the sidePanelTopBar slot content in side panel header', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         sidePanelTopBar: '<div data-testid="side-panel-title-content">Panel Title</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       expect(screen.getByTestId('side-panel-title-content')).toBeInTheDocument();
       expect(screen.getByTestId('side-panel-header')).toContainElement(
         screen.getByTestId('side-panel-title-content'),
       );
     });
 
-    it('renders all six slots together', async () => {
+    it('renders all six slots together', () => {
       renderResourceLayout({
         topBar: '<div data-testid="top-bar-content">Top</div>',
         default: '<div data-testid="main-content">Main</div>',
@@ -115,8 +112,7 @@ describe('ResourceLayout', () => {
         sidePanelTopBar: '<div data-testid="side-panel-title-content">Title</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       expect(screen.getByTestId('top-bar-content')).toBeInTheDocument();
       expect(screen.getByTestId('main-content')).toBeInTheDocument();
       expect(screen.getByTestId('side-panel-data')).toBeInTheDocument();
@@ -176,52 +172,57 @@ describe('ResourceLayout', () => {
       expect(screen.getByTestId('side-panel-toggle')).toBeInTheDocument();
     });
 
-    it('side panel is closed by default', () => {
+    it('side panel is open by default on large screens (push mode)', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
       });
+      expect(screen.getByTestId('side-panel')).toBeInTheDocument();
+    });
+
+    it('clicking toggle closes the open side panel', async () => {
+      renderResourceLayout({
+        sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
+      });
+
+      // Panel starts open in push mode
+      expect(screen.getByTestId('side-panel')).toBeInTheDocument();
+
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+
       expect(screen.queryByTestId('side-panel')).not.toBeInTheDocument();
     });
 
-    it('clicking toggle opens the side panel', async () => {
+    it('clicking toggle again reopens the side panel', async () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
+      await fireEvent.click(screen.getByTestId('side-panel-toggle')); // Close
+      await fireEvent.click(screen.getByTestId('side-panel-toggle')); // Reopen
 
       expect(screen.getByTestId('side-panel')).toBeInTheDocument();
       expect(screen.getByTestId('side-panel-data')).toBeInTheDocument();
     });
 
-    it('clicking toggle again closes the side panel', async () => {
+    it('toggle button is in KToolbar when panel is closed', async () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle')); // Open
-      await fireEvent.click(screen.getByTestId('side-panel-toggle')); // Close
-
-      expect(screen.queryByTestId('side-panel')).not.toBeInTheDocument();
-    });
-
-    it('toggle button is in KToolbar when panel is closed', () => {
-      renderResourceLayout({
-        sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
-      });
+      // Close the panel first (it starts open in push mode)
+      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
       const topBar = screen.getByTestId('top-bar');
       const toggle = screen.getByTestId('side-panel-toggle');
       expect(topBar).toContainElement(toggle);
     });
 
-    it('toggle button moves to side panel header when panel is open', async () => {
+    it('toggle button is in side panel header when panel is open', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open in push mode
       const sidePanelHeader = screen.getByTestId('side-panel-header');
       const toggle = screen.getByTestId('side-panel-toggle');
       expect(sidePanelHeader).toContainElement(toggle);
@@ -284,8 +285,7 @@ describe('ResourceLayout', () => {
 
       render(ParentWithNestedChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Parent's sidePanelTopBar should remain (non-claimable)
       expect(screen.getByTestId('parent-panel-title')).toBeInTheDocument();
     });
@@ -341,10 +341,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithNestedChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // The child's side panel content should be rendered (deepest wins)
-      expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      });
       // The parent's side panel should NOT be rendered since child took over
       expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
     });
@@ -370,10 +371,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithNestedChildNoSidePanel);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Parent's side panel should still be rendered since child has no sidePanel slot
-      expect(screen.getByTestId('parent-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('parent-side-panel')).toBeInTheDocument();
+      });
     });
 
     it('nested ResourceLayout with bottomBar slot takes over parent bottom bar', async () => {
@@ -460,10 +462,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithNestedChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Child's sidePanelFooter takes over (deepest wins)
-      expect(screen.getByTestId('child-footer')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-footer')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('parent-footer')).not.toBeInTheDocument();
     });
 
@@ -491,10 +494,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithNestedChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Parent's footer should still be rendered since child has no sidePanelFooter slot
-      expect(screen.getByTestId('parent-footer')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('parent-footer')).toBeInTheDocument();
+      });
     });
   });
 
@@ -526,10 +530,11 @@ describe('ResourceLayout', () => {
 
       render(Component);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Child's side panel takes over
-      expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
       // Parent's bottom bar remains
       expect(screen.getByTestId('parent-bottom-bar')).toBeInTheDocument();
@@ -562,13 +567,16 @@ describe('ResourceLayout', () => {
 
       render(Component);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
-      // Parent's side panel remains
-      expect(screen.getByTestId('parent-side-panel')).toBeInTheDocument();
+      // Panel starts open by default in push mode
       // Child's bottom bar takes over
-      expect(screen.getByTestId('child-bottom-bar')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-bottom-bar')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('parent-bottom-bar')).not.toBeInTheDocument();
+      // Parent's side panel remains
+      await waitFor(() => {
+        expect(screen.getByTestId('parent-side-panel')).toBeInTheDocument();
+      });
     });
   });
 
@@ -604,10 +612,11 @@ describe('ResourceLayout', () => {
 
       render(ThreeLevelNesting);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Only the deepest (level 3) side panel should be rendered
-      expect(screen.getByTestId('level-3-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('level-3-side-panel')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('level-2-side-panel')).not.toBeInTheDocument();
       expect(screen.queryByTestId('level-1-side-panel')).not.toBeInTheDocument();
     });
@@ -684,10 +693,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithConditionalChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Initially, child's side panel should be shown
-      expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
 
       // Unmount the child
@@ -779,8 +789,7 @@ describe('ResourceLayout', () => {
 
       render(ParentWithConditionalChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Initially, child's footer should be shown
       await waitFor(() => {
         expect(screen.getByTestId('child-footer')).toBeInTheDocument();
@@ -837,10 +846,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Initially, child's side panel should be shown (child claims it)
-      expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('child-side-panel')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
 
       // Make the child's slot disappear (but child component stays mounted)
@@ -898,10 +908,11 @@ describe('ResourceLayout', () => {
 
       render(ParentWithChild);
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       // Initially shows Version 1
-      expect(screen.getByTestId('child-side-panel')).toHaveTextContent('Version 1');
+      await waitFor(() => {
+        expect(screen.getByTestId('child-side-panel')).toHaveTextContent('Version 1');
+      });
 
       // Change the label
       await fireEvent.click(screen.getByTestId('change-label'));
@@ -965,37 +976,34 @@ describe('ResourceLayout', () => {
         setBreakpoint(4);
       });
 
-      it('side panel pushes content when open', async () => {
+      it('side panel pushes content when open', () => {
         renderResourceLayout({
           sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
           default: '<div data-testid="main-content">Main</div>',
         });
 
-        await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+        // Panel starts open by default in push mode
         // In push mode, side panel is rendered inline as aside (not in modal)
         expect(screen.queryByTestId('side-panel-modal-wrapper')).not.toBeInTheDocument();
         expect(screen.getByTestId('side-panel')).toBeInTheDocument();
       });
 
-      it('side panel uses aside element', async () => {
+      it('side panel uses aside element', () => {
         renderResourceLayout({
           sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         });
 
-        await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+        // Panel starts open by default in push mode
         const sidePanel = screen.getByTestId('side-panel');
         expect(sidePanel.tagName).toBe('ASIDE');
       });
 
-      it('push mode uses menu icon for close button', async () => {
+      it('push mode uses menu icon for close button', () => {
         renderResourceLayout({
           sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         });
 
-        await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+        // Panel starts open by default in push mode
         const sidePanel = screen.getByTestId('side-panel');
         const toggle = sidePanel.querySelector('[data-testid="side-panel-toggle"]');
         expect(toggle).toBeInTheDocument();
@@ -1010,8 +1018,7 @@ describe('ResourceLayout', () => {
           default: '<div data-testid="main-content">Main</div>',
         });
 
-        await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+        // Panel starts open by default in push mode
         // Verify push mode: inline aside, no modal
         expect(screen.getByTestId('side-panel')).toBeInTheDocument();
         expect(screen.queryByTestId('side-panel-modal-wrapper')).not.toBeInTheDocument();
@@ -1051,14 +1058,13 @@ describe('ResourceLayout', () => {
   });
 
   describe('layout structure', () => {
-    it('renders side panel on the RIGHT side of main content', async () => {
+    it('renders side panel on the RIGHT side of main content', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         default: '<div data-testid="main-content">Main</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       const mainContentArea = screen.getByTestId('main-content-area');
       const sidePanel = screen.getByTestId('side-panel');
 
@@ -1100,15 +1106,14 @@ describe('ResourceLayout', () => {
       expect(bottomBarArea.parentElement).toBe(mainContentArea.parentElement);
     });
 
-    it('side panel header, content, and footer are all inside the aside', async () => {
+    it('side panel header, content, and footer are all inside the aside', () => {
       renderResourceLayout({
         sidePanel: '<div data-testid="side-panel-data">Side Panel</div>',
         sidePanelFooter: '<div data-testid="side-panel-footer-content">Footer</div>',
         sidePanelTopBar: '<div data-testid="side-panel-title-content">Title</div>',
       });
 
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       const aside = screen.getByTestId('side-panel');
       expect(aside).toContainElement(screen.getByTestId('side-panel-header'));
       expect(aside).toContainElement(screen.getByTestId('side-panel-content'));
@@ -1154,10 +1159,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Parent);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Sibling2 rendered last, so it should own the side panel
-      expect(screen.getByTestId('sibling2-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('sibling2-side-panel')).toBeInTheDocument();
+      });
 
       // Unmount sibling1 — sibling2's content should remain
       await fireEvent.click(screen.getByTestId('toggle-sibling1'));
@@ -1202,10 +1209,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Parent);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Sibling2 rendered last, so it owns the side panel
-      expect(screen.getByTestId('sibling2-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('sibling2-side-panel')).toBeInTheDocument();
+      });
 
       // Unmount sibling2 — sibling1 should take over
       await fireEvent.click(screen.getByTestId('toggle-sibling2'));
@@ -1304,10 +1313,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Parent);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // A sibling owns the side panel
-      expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent-side-panel')).not.toBeInTheDocument();
+      });
 
       // Unmount all children — parent should fall back to own content
       await fireEvent.click(screen.getByTestId('toggle-children'));
@@ -1354,10 +1365,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Grandchild is deeper (depth 2) vs uncle (depth 1), grandchild wins
-      expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      });
       expect(screen.queryByTestId('uncle-side-panel')).not.toBeInTheDocument();
     });
 
@@ -1482,10 +1495,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Grandchild wins by default (deepest)
-      expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('grandchild-side-panel')).toBeInTheDocument();
+      });
 
       // Focus on uncle's content
       await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
@@ -1532,8 +1547,8 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Switch to uncle via focus
       await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
       await waitFor(() => {
@@ -1589,10 +1604,12 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Both cousins at equal depth — last registered wins by default
-      expect(screen.getByTestId('cousin2-side-panel')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('cousin2-side-panel')).toBeInTheDocument();
+      });
 
       // Focus on cousin1
       await fireEvent.focusIn(screen.getByTestId('cousin1-btn'));
@@ -1649,8 +1666,8 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Focus on cousin1 so it becomes the active claimant
       await fireEvent.focusIn(screen.getByTestId('cousin1-btn'));
       await waitFor(() => {
@@ -1707,8 +1724,8 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Focus on uncle so it becomes the active claimant (overriding deeper grandchild)
       await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
       await waitFor(() => {
@@ -1762,8 +1779,8 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Only uncle exists, focus on it
       await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
       await waitFor(() => {
@@ -1826,8 +1843,8 @@ describe('ResourceLayout', () => {
       });
 
       render(Component);
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
 
+      // Panel starts open by default in push mode
       // Focus on uncle so it becomes active
       await fireEvent.focusIn(screen.getByTestId('uncle-btn'));
       await waitFor(() => {
@@ -2035,9 +2052,7 @@ describe('ResourceLayout', () => {
 
       render(Wrapper);
 
-      // Open side panel in push mode
-      await fireEvent.click(screen.getByTestId('side-panel-toggle'));
-
+      // Panel starts open by default in push mode
       mountCount.mockClear();
       unmountCount.mockClear();
 
