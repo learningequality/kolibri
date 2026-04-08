@@ -13,6 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -1157,7 +1158,8 @@ class SetNonSpecifiedPasswordView(views.APIView):
 
 
 class CreateSessionSerializer(serializers.Serializer):
-    username = serializers.CharField(required=False, default=None)
+    # allow_blank so that picture-password requests can omit username entirely
+    username = serializers.CharField(required=False, default=None, allow_blank=True)
     user_id = HexOnlyUUIDField(required=False, default=None)
     password = serializers.CharField(
         default="",
@@ -1171,6 +1173,23 @@ class CreateSessionSerializer(serializers.Serializer):
         required=False,
     )
     auth_token = serializers.CharField(required=False, default=None)
+    picture_password = serializers.CharField(
+        required=False,
+        default=None,
+        allow_null=True,
+        allow_blank=False,
+        # Format is exactly three dot-separated integers, each 1–2 digits
+        # (icon indices 0–99), e.g. "3.7.12". min/max_length are a fast
+        # pre-check; the regex is the authoritative format constraint.
+        min_length=5,
+        max_length=8,
+        validators=[
+            RegexValidator(
+                r"^\d{1,2}\.\d{1,2}\.\d{1,2}$",
+                message="picture_password must be three dot-separated integers.",
+            )
+        ],
+    )
 
     def validate(self, attrs):
         username = attrs.get("username")
@@ -1178,6 +1197,7 @@ class CreateSessionSerializer(serializers.Serializer):
         facility = attrs.get("facility")
         user_id = attrs.get("user_id")
         auth_token = attrs.get("auth_token")
+        picture_password = attrs.get("picture_password")
 
         request = self.context.get("request")
 
@@ -1196,17 +1216,27 @@ class CreateSessionSerializer(serializers.Serializer):
                     id=user_id, facility=facility
                 ).first()
 
-        # username/password authentication
-        if user is None:
-            # Otherwise attempt full authentication
-            user = authenticate(username=username, password=password, facility=facility)
+        # picture password authentication
+        if user is None and picture_password is not None:
+            user = authenticate(
+                request, picture_password=picture_password, facility=facility
+            )
+
+        # username/password authentication — intentionally skipped when
+        # picture_password was supplied (even if picture-password auth failed),
+        # so a failed picture-password attempt cannot fall through to a
+        # username/password login with whatever credentials were also sent.
+        if user is None and picture_password is None:
+            user = authenticate(
+                request, username=username, password=password, facility=facility
+            )
 
         if user is not None and user.is_active:
             attrs["user"] = user
             return attrs
 
         # Otherwise, throw a meaningful validation error
-        self._throw_validation_error(username, password, facility)
+        self._throw_validation_error(username, password, facility, picture_password)
 
     def _check_os_user(self, request, username):
         app_auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
@@ -1218,11 +1248,27 @@ class CreateSessionSerializer(serializers.Serializer):
             except ValidationError as e:
                 logger.error(e)
 
-    def _throw_validation_error(self, username, password, facility):
+    def _throw_validation_error(
+        self, username, password, facility, picture_password=None
+    ):
         """
         Throw a RestValidationError with a helpful error message
         depending on what went wrong with authentication.
         """
+        if picture_password is not None:
+            raise RestValidationError(
+                detail={
+                    "picture_password": [
+                        {
+                            "id": error_constants.NOT_FOUND,
+                            "metadata": {
+                                "field": "picture_password",
+                                "message": "No learner found with that picture password.",
+                            },
+                        }
+                    ]
+                }
+            )
         # Find the FacilityUser we're looking for
         try:
             unauthenticated_user = FacilityUser.objects.get(
@@ -1338,7 +1384,10 @@ class SessionViewSet(viewsets.ViewSet):
         for field, field_errors in errors.items():
             for error in field_errors:
                 error_list.append(error)
-                if error.get("id") == error_constants.INVALID_CREDENTIALS:
+                if (
+                    isinstance(error, dict)
+                    and error.get("id") == error_constants.INVALID_CREDENTIALS
+                ):
                     response_status = status.HTTP_401_UNAUTHORIZED
 
         return Response(error_list, status=response_status)

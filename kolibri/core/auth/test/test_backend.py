@@ -4,6 +4,7 @@ from django.test import TestCase
 from ..backends import FacilityUserBackend
 from ..models import Facility
 from ..models import FacilityUser
+from .helpers import create_superuser
 
 
 class FacilityUserBackendTestCase(TestCase):
@@ -102,3 +103,106 @@ class FacilityUserBackendTestCase(TestCase):
         self.assertIsNone(
             FacilityUserBackend().authenticate(self.request, "Mike", "goo")
         )
+
+
+class PicturePasswordBackendTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Pic Facility")
+        cls.other_facility = Facility.objects.create(name="Other Facility")
+        cls.learner = FacilityUser.objects.create(
+            username="learner",
+            facility=cls.facility,
+            picture_password="1.2.3",
+        )
+        cls.request = mock.Mock()
+
+    def test_valid_picture_password_returns_learner(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="1.2.3",
+            facility=self.facility,
+        )
+        self.assertEqual(user, self.learner)
+
+    def test_valid_picture_password_with_facility_pk_returns_learner(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="1.2.3",
+            facility=self.facility.pk,
+        )
+        self.assertEqual(user, self.learner)
+
+    def test_picture_password_wrong_facility_returns_none(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="1.2.3",
+            facility=self.other_facility,
+        )
+        self.assertIsNone(user)
+
+    def test_picture_password_no_match_returns_none(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="9.9.9",
+            facility=self.facility,
+        )
+        self.assertIsNone(user)
+
+    def test_picture_password_no_facility_returns_none(self):
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="1.2.3",
+        )
+        self.assertIsNone(user)
+
+    def test_coach_not_returned_by_picture_password(self):
+        coach = FacilityUser.objects.create(
+            username="coach",
+            facility=self.facility,
+            picture_password="4.5.6",
+        )
+        self.facility.add_coach(coach)
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="4.5.6",
+            facility=self.facility,
+        )
+        self.assertIsNone(user)
+
+    def test_admin_not_returned_by_picture_password(self):
+        admin = FacilityUser.objects.create(
+            username="admin",
+            facility=self.facility,
+            picture_password="7.8.9",
+        )
+        self.facility.add_admin(admin)
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="7.8.9",
+            facility=self.facility,
+        )
+        self.assertIsNone(user)
+
+    def test_device_superuser_not_returned_by_picture_password(self):
+        superuser = create_superuser(self.facility, username="superuser")
+        superuser.picture_password = "2.4.6"
+        superuser.save(update_fields=["picture_password"])
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            picture_password="2.4.6",
+            facility=self.facility,
+        )
+        self.assertIsNone(user)
+
+    def test_picture_password_none_does_not_use_picture_path(self):
+        # When picture_password is None, falls through to username/password path
+        # (which returns None for non-existent username)
+        user = FacilityUserBackend().authenticate(
+            self.request,
+            username="nobody",
+            password="wrong",
+            picture_password=None,
+            facility=self.facility,
+        )
+        self.assertIsNone(user)
