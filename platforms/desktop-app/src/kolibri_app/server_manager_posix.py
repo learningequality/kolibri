@@ -1,15 +1,11 @@
 from threading import Thread
 
 from kolibri.main import initialize
-from kolibri.plugins.app.utils import interface
-from kolibri.plugins.app.utils import SHARE_FILE
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from magicbus.plugins import SimplePlugin
 
 from kolibri_app.logger import logging
-
-share_file = None
 
 
 class AppPlugin(SimplePlugin):
@@ -45,8 +41,6 @@ class PosixServerManager:
     def _run_kolibri_server(self):
         initialize()
 
-        if callable(share_file):
-            interface.register_capabilities(**{SHARE_FILE: share_file})
         self.kolibri_server = KolibriProcessBus(
             port=OPTIONS["Deployment"]["HTTP_PORT"],
             zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],

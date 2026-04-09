@@ -36,14 +36,11 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc"))
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc", "kolibri", "dist"))
 
-from kolibri.main import initialize, enable_plugin
-from kolibri.plugins.app.utils import interface, SHARE_FILE
+from kolibri.main import initialize
+from kolibri.core.device.utils import app_initialize_url
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from kolibri_app.logger import logging
-
-# File sharing disabled to mirror original implementation
-share_file = None
 
 # Named pipe for IPC between UI process and server subprocess
 # Uses Windows named pipe format: \\.<hostname>\pipe\<pipename>
@@ -88,7 +85,7 @@ class WindowsIpcPlugin(SimplePlugin):
         Construct the server URLs based on the port.
         """
         kolibri_origin = f"http://localhost:{port}"
-        root_url = kolibri_origin + interface.get_initialize_url()
+        root_url = kolibri_origin + app_initialize_url()
         return kolibri_origin, root_url
 
     def on_server_start(self, port):
@@ -288,13 +285,7 @@ class ServerProcess:
         Initialize Kolibri with required plugins and configuration.
         """
         logging.info("Server process: Initializing Kolibri...")
-        enable_plugin("kolibri.plugins.app")
         initialize()
-
-        # File sharing integration - intentionally disabled to mirror original implementation
-        # This check will always be False since share_file is None
-        if callable(share_file):
-            interface.register_capabilities(**{SHARE_FILE: share_file})
 
     def _create_kolibri_server(self):
         """
