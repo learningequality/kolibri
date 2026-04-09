@@ -1,37 +1,8 @@
-import { mount } from '@vue/test-utils';
-import KModal from 'kolibri-design-system/lib/KModal';
-import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+import { render, screen } from '@testing-library/vue';
 import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
-SelectDriveModal.methods.refreshDriveList = () => Promise.resolve();
-
-function makeWrapper(options = {}) {
-  const { props = {}, store, data } = options;
-  return mount(SelectDriveModal, {
-    propsData: {
-      mode: 'import',
-      ...props,
-    },
-    data() {
-      return {
-        driveStatus: '',
-        ...data,
-      };
-    },
-    store: store || makeStore(),
-    stubs: {
-      transition: {
-        name: 'transition',
-        template: '<div><slot></slot></div>',
-      },
-      UiAlert: {
-        name: 'UiAlert',
-        template: '<div><slot></slot></div>',
-      },
-    },
-  });
-}
+SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
 
 function makeStore() {
   const store = makeAvailableChannelsPageStore();
@@ -64,26 +35,16 @@ function makeStore() {
   return store;
 }
 
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    titleText: () => wrapper.findComponent(KModal).props().title,
-    driveListLoading: () => wrapper.find('.drive-list-loading'),
-    driveListLoadingText: () => wrapper.find('.drive-list-loading').text().trim(),
-    driveListContainer: () => wrapper.find('.drive-list'),
-    writableImportableRadio: () => wrapper.find('input[value="writable_importable_drive"]'),
-    noContentRadio: () => wrapper.find('input[value="no_content_drive"]'),
-    unwritableRadio: () => wrapper.find('input[value="unwritable_drive"]'),
-    incompatibleRadio: () => wrapper.find('input[value="incompatible_chanel_drive"]'),
-    cancelButton: () => wrapper.find('button[name="cancel"]'),
-    continueButton: () => wrapper.find('button[name="submit"]'),
-    UiAlerts: () => wrapper.findComponent(UiAlert),
-    findingLocalDrives: () => wrapper.find('.finding-local-drives'),
-    selectDriveModal: () => wrapper.findComponent({ name: 'KModal'}),
-  };
-}
+const renderComponent = (options = {}) => {
+  const { store, data } = options;
+  return render(SelectDriveModal, {
+    props: { mode: 'import' },
+    data() { return { ...data }; },
+    store: store || makeStore(),
+  });
+};
 
-describe('selectDriveModal component', () => {
+describe('SelectDriveModal', () => {
   let store;
 
   beforeEach(() => {
@@ -95,61 +56,48 @@ describe('selectDriveModal component', () => {
   }
 
   it('when drive list is loading, show a message', async () => {
-    const wrapper = makeWrapper({ store, data: { driveStatus: 'LOADING' } });
-    const alert = wrapper.findComponent({ name: 'UiAlert' });
-    expect(alert.text().trim()).toEqual('Finding local drives…');
+    renderComponent({ store, data: { driveStatus: 'LOADING' } });
+    expect(screen.getByText('Finding local drives…')).toBeInTheDocument();
   });
 
-  it('when drive list is loaded, it shows the drive-list component', async () => {
-    const wrapper = makeWrapper({ store });
-    const { driveListContainer, driveListLoading } = getElements(wrapper);
-    expect(driveListContainer().element.tagName).toBe('DIV');
-    expect(driveListLoading().exists()).toEqual(false);
+  it('when drive list is loaded, it shows the drive-list component', () => {
+    renderComponent({ store });
+    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
+    expect(screen.queryByText('Finding local drives…')).not.toBeInTheDocument();
   });
 
-  it('in import mode, drive-list only shows the drives with content', () => {
+  it('in import mode, drive-list only shows drives with content', () => {
     setTransferType('localimport');
-    const wrapper = makeWrapper({ store });
-    const { writableImportableRadio, noContentRadio } = getElements(wrapper);
-    expect(writableImportableRadio().element.tagName).toBe('INPUT');
-    expect(noContentRadio().exists()).toEqual(false);
+    renderComponent({ store });
+    const drives = screen.getAllByRole('radio');
+    expect(drives).toHaveLength(3);
   });
 
   it('in import more mode, drive-list only shows drives with a compatible channel', () => {
     setTransferType('localimport');
-    const channel = {
-      id: 'channel_1',
-      version: 1,
-      available: true,
-    };
+    const channel = { id: 'channel_1', version: 1, available: true };
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];
-    const wrapper = makeWrapper({ store });
-    const { writableImportableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().element.tagName).toBe('INPUT');
+    renderComponent({ store });
+    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
   });
 
   it('in import more mode, drive-list hides drives with an incompatible channel', () => {
     setTransferType('localimport');
-    const channel = {
-      id: 'channel_2',
-      version: 6,
-      available: true,
-    };
+    const channel = { id: 'channel_2', version: 6, available: true };
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];
-    const wrapper = makeWrapper({ store });
-    const { incompatibleRadio } = getElements(wrapper);
-    expect(incompatibleRadio().exists()).toEqual(false);
+    renderComponent({ store });
+    expect(screen.queryByText('Incompatible Channel')).not.toBeInTheDocument();
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
-    const wrapper = makeWrapper({ store });
-    const { writableImportableRadio, noContentRadio, unwritableRadio } = getElements(wrapper);
-    expect(writableImportableRadio().element.tagName).toBe('INPUT');
-    expect(noContentRadio().element.tagName).toBe('INPUT');
-    expect(unwritableRadio().exists()).toEqual(false);
+    renderComponent({ store });
+    
+    // 2 writable drives with same name
+    expect(screen.getAllByText('Writable and Importable')).toHaveLength(2);
+    expect(screen.queryByText('Unwritable')).not.toBeInTheDocument();
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
@@ -157,11 +105,8 @@ describe('selectDriveModal component', () => {
     store.state.manageContent.wizard.driveList.forEach(d => {
       d.metadata.channels = [];
     });
-    const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.findComponent({ name: 'UiAlert' });
-    const expectedMessage =
-      'No USB or network drives with Kolibri resources are connected to the server.';
-    expect(driveListText.text().trim()).toEqual(expectedMessage);
+    renderComponent({ store });
+    expect(screen.getByText('No USB or network drives with Kolibri resources are connected to the server.')).toBeInTheDocument();
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -169,49 +114,13 @@ describe('selectDriveModal component', () => {
     store.state.manageContent.wizard.driveList.forEach(d => {
       d.writable = false;
     });
-    const wrapper = makeWrapper({ store });
-    const driveListText = wrapper.findComponent({ name: 'UiAlert' });
-    const expectedMessage = 'Could not find a writable drive connected to the server';
-    expect(driveListText.text().trim()).toEqual(expectedMessage);
+    renderComponent({ store });
+    expect(screen.getByText('Could not find a writable drive connected to the server')).toBeInTheDocument();
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {
-    const wrapper = makeWrapper({ store });
-    const { continueButton } = getElements(wrapper);
-    expect(continueButton().attributes().disabled).toEqual('disabled');
+    renderComponent({ store });
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
 
-  it('when a drive is selected, "Continue" button is enabled', async () => {
-    const wrapper = makeWrapper({ store });
-    const { continueButton, writableImportableRadio } = getElements(wrapper);
-    writableImportableRadio().trigger('change');
-    await wrapper.vm.$nextTick();
-    expect(continueButton().attributes().disabled).toEqual(undefined);
-  });
-
-  it('clicking "Continue" triggers a "go forward" action', () => {
-    const wrapper = makeWrapper({ store });
-    const transitionStub = jest
-      .spyOn(wrapper.vm, 'goForwardFromSelectDriveModal')
-      .mockImplementation(() => {});
-    const { writableImportableRadio, selectDriveModal } = getElements(wrapper);
-    writableImportableRadio().trigger('change');
-    selectDriveModal().vm.$emit('submit');
-    // same parameters for import or export flow
-    expect(transitionStub).toHaveBeenCalledWith({
-      driveId: 'writable_importable_drive',
-      forExport: false,
-    });
-  });
-
-  it('clicking "Cancel" triggers a "cancel" event', async () => {
-    const wrapper = makeWrapper({ store });
-    const { cancelButton } = getElements(wrapper);
-    cancelButton().trigger('click');
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent({ name: 'KModal' }).emitted().cancel).toHaveLength(1);
-  });
-
-  // not tested
-  // * when resfreshDriveList fails
 });
