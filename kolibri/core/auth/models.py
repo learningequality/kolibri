@@ -49,6 +49,7 @@ from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
+from .errors import NoAvailableSequences
 from .errors import UserDoesNotHaveRoleError
 from .errors import UserIsNotFacilityUser
 from .errors import UserIsNotMemberError
@@ -1607,7 +1608,24 @@ class Role(AbstractFacilityDataModel):
                     collection__in=self.collection.children.all(),
                     kind=role_kinds.COACH,
                 ).delete()
-            return super().delete(**kwargs)
+            result = super().delete(**kwargs)
+            user = self.user
+            user.refresh_from_db(fields=["picture_password"])
+            if (
+                user.picture_password is None
+                and not user.roles.exists()
+                and user.dataset.picture_password_settings is not None
+            ):
+                # Deferred to avoid circular import: picture_passwords.py imports from models.py
+                from .utils.picture_passwords import are_picture_passwords_exhausted
+                from .utils.picture_passwords import assign_picture_password
+
+                if not are_picture_passwords_exhausted(user.dataset_id):
+                    try:
+                        assign_picture_password(user, user.facility)
+                    except NoAvailableSequences:
+                        pass
+            return result
 
 
 class CollectionProxyManager(SyncableModelManager):

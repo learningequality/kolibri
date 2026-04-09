@@ -42,6 +42,7 @@ from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.device.models import OSUser
@@ -3601,6 +3602,138 @@ class RoleAPITestCase(APITestCase):
         _prepare_for_bulk_create(role1)
         _prepare_for_bulk_create(role2)
         self.assertEqual(role1.id, role2.id)
+
+
+class RoleDeletePicturePasswordTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = models.Facility.objects.create(name="RoleDeletePicPwdFacility")
+        cls.superuser = create_superuser(cls.facility)
+        # Both fields must be set together before save() to avoid IncompatibleDeviceSettingError
+        cls.facility.dataset.learner_can_edit_password = False
+        cls.facility.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": False,
+        }
+        cls.facility.dataset.save()
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _make_user_with_role(self, username, kind=role_kinds.ADMIN):
+        user = models.FacilityUser.objects.create_user(
+            username=username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        role = models.Role.objects.create(
+            user=user,
+            collection=self.facility,
+            kind=kind,
+        )
+        return user, role
+
+    def test_last_role_deleted_assigns_picture_password(self):
+        """After deleting a user's only role, a picture_password is assigned when
+        picture_password_settings is enabled and no password exists yet."""
+        user, role = self._make_user_with_role("lastroledeleted")
+        self.assertIsNone(user.picture_password)
+
+        role.delete()
+
+        user.refresh_from_db()
+        self.assertIsNotNone(user.picture_password)
+        parts = user.picture_password.split(".")
+        self.assertEqual(len(parts), 3)
+        self.assertTrue(all(p.isdigit() for p in parts))
+
+    def test_remaining_role_prevents_picture_password_assignment(self):
+        """Deleting one role when a user still has another role does NOT assign
+        a picture_password."""
+        user, role1 = self._make_user_with_role("tworoles1", kind=role_kinds.ADMIN)
+        classroom = models.Classroom.objects.create(
+            name="TestClassroom", parent=self.facility
+        )
+        role2 = models.Role.objects.create(
+            user=user,
+            collection=classroom,
+            kind=role_kinds.COACH,
+        )
+
+        role1.delete()
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+        self.assertTrue(models.Role.objects.filter(pk=role2.pk).exists())
+
+    def test_existing_picture_password_not_overwritten(self):
+        """If the user already has a picture_password when their last role is
+        deleted, it is not reassigned."""
+        user, role = self._make_user_with_role("alreadyhaspic")
+        # Bypass Role.save() clearing by directly setting on DB
+        models.FacilityUser.objects.filter(pk=user.pk).update(picture_password="1.2.3")
+
+        role.delete()
+
+        user.refresh_from_db()
+        self.assertEqual(user.picture_password, "1.2.3")
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 0
+    )
+    def test_at_learner_limit_no_assignment_no_exception(self):
+        """At or above the learner limit, no picture_password is assigned and
+        no exception is raised."""
+        user, role = self._make_user_with_role("atlimit")
+
+        role.delete()  # must not raise
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.assign_picture_password",
+        side_effect=NoAvailableSequences,
+    )
+    def test_no_available_sequences_caught_silently(self, mock_assign):
+        """If assign_picture_password raises NoAvailableSequences, the exception
+        is caught and picture_password remains None."""
+        user, role = self._make_user_with_role("nosequences")
+
+        role.delete()  # must not raise
+
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
+
+    def test_last_role_deleted_no_assignment_when_picture_password_settings_null(self):
+        """When picture_password_settings is None, deleting a user's last role does
+        not assign a picture_password."""
+        user, role = self._make_user_with_role("nopicsettings")
+        # Temporarily disable picture password settings for this test
+        self.facility.dataset.picture_password_settings = None
+        self.facility.dataset.learner_can_edit_password = True
+        self.facility.dataset.save()
+
+        try:
+            role.delete()
+
+            user.refresh_from_db()
+            self.assertIsNone(user.picture_password)
+        finally:
+            # Restore settings so other tests are not affected
+            self.facility.dataset.learner_can_edit_password = False
+            self.facility.dataset.picture_password_settings = {
+                "icon_style": "standard",
+                "show_icon_text": False,
+            }
+            self.facility.dataset.save()
 
 
 class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
