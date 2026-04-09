@@ -35,11 +35,9 @@ const CLASS_ID = 'class-abc';
 function renderComponent(props = {}) {
   return render(AllPasswordsPage, {
     props: { classId: CLASS_ID, ...props },
-    global: {
-      stubs: {
-        ImmersivePage: {
-          template: '<div><slot /></div>',
-        },
+    stubs: {
+      ImmersivePage: {
+        template: '<div><slot /></div>',
       },
     },
   });
