@@ -150,6 +150,13 @@
                   data-testid="show_icon_text"
                 />
               </KRadioButtonGroup>
+              <div
+                v-if="pictureLoginTaskLoading"
+                class="nested-settings picture-password-assignment-status"
+                data-testid="picture_password_assignment_status"
+              >
+                <KCircularLoader :size="24" />
+              </div>
             </KRadioButtonGroup>
           </div>
         </section>
@@ -195,7 +202,7 @@
             class="save-changes-button"
             :text="coreString('saveChangesAction')"
             name="save-settings"
-            :disabled="!settingsHaveChanged"
+            :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
             @click="saveConfig()"
           />
         </div>
@@ -242,7 +249,7 @@
         appearance="raised-button"
         :text="coreString('saveChangesAction')"
         name="save-settings"
-        :disabled="!settingsHaveChanged"
+        :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
         @click="saveConfig()"
       />
     </BottomAppBar>
@@ -254,14 +261,16 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { ref, onMounted, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
+  import { ref, onMounted, computed, watch } from 'vue';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { createTranslator } from 'kolibri/utils/i18n';
@@ -391,12 +400,14 @@
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        pictureLoginTaskId,
         fetchFacility,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
         setPin,
         unsetPin,
+        enablePictureLogin,
       } = useFacilityEditor(facilityId);
 
       const {
@@ -476,8 +487,13 @@
 
       async function saveConfig() {
         try {
+          const hadPicturePasswordSettings = Boolean(settings.value.picture_password_settings);
           await saveFacilityConfig();
           createSnackbar(saveSuccess$());
+          const hasPicturePasswordSettings = Boolean(settings.value.picture_password_settings);
+          if (!hadPicturePasswordSettings && hasPicturePasswordSettings) {
+            await handleEnablePictureLogin(settings.value.picture_password_settings);
+          }
         } catch (error) {
           createSnackbar(saveFailure$());
           undoSettingsChange();
@@ -536,6 +552,37 @@
         }
       });
 
+      const { tasks: facilityTasks } = useTaskPolling('facility_task');
+      const pictureLoginTaskLoading = ref(false);
+
+      const pictureLoginTask = computed(() => {
+        if (!pictureLoginTaskId.value) return null;
+        return facilityTasks.value.find(t => t.id === pictureLoginTaskId.value) || null;
+      });
+
+      watch(pictureLoginTask, task => {
+        if (!task) return;
+        if (task.status === TaskStatuses.FAILED) {
+          pictureLoginTaskLoading.value = false;
+          pictureLoginTaskId.value = null;
+          createSnackbar(saveFailure$());
+        } else if (task.status === TaskStatuses.COMPLETED) {
+          pictureLoginTaskLoading.value = false;
+          pictureLoginTaskId.value = null;
+          createSnackbar(saveSuccess$());
+        }
+      });
+
+      async function handleEnablePictureLogin(picturePasswordSettings) {
+        try {
+          pictureLoginTaskLoading.value = true;
+          await enablePictureLogin(picturePasswordSettings);
+        } catch (error) {
+          pictureLoginTaskLoading.value = false;
+          createSnackbar(saveFailure$());
+        }
+      }
+
       return {
         // Constants
         OptionsForSignIn,
@@ -565,6 +612,7 @@
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        pictureLoginTaskLoading, // eslint-disable-line
 
         // Functions
         submitFacilityName,
@@ -574,6 +622,7 @@
         handleRemovePinSubmit,
         handleCreatePin,
         handleSelect,
+        handleEnablePictureLogin, // eslint-disable-line
 
         // Strings
         pageHeader$,
@@ -649,6 +698,13 @@
   }
 
   .picture-password-settings {
+    margin-top: 12px;
+  }
+
+  .picture-password-assignment-status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
     margin-top: 12px;
   }
 

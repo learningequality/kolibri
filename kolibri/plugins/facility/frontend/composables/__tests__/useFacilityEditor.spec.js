@@ -632,4 +632,68 @@ describe('useFacilityEditor', () => {
       expect(facilityDataLoading.value).toBe(false);
     });
   });
+
+  describe('enablePictureLogin', () => {
+    const mockPicturePasswordSettings = { icon_style: 'standard', show_icon_text: true };
+
+    beforeEach(() => {
+      urls['kolibri:core:facilitydataset_enable_picture_login'] = jest
+        .fn()
+        .mockReturnValue('/api/facility_dataset/enable_picture_login/');
+    });
+
+    it('calls the enable-picture-login endpoint via POST', async () => {
+      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
+      client.mockResolvedValue(mockTaskResponse);
+
+      const { enablePictureLogin, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      facilityDatasetId.value = mockDatasetId;
+
+      await enablePictureLogin(mockPicturePasswordSettings);
+
+      expect(client).toHaveBeenCalledWith({
+        url: '/api/facility_dataset/enable_picture_login/',
+        method: 'POST',
+        data: { picture_password_settings: mockPicturePasswordSettings },
+      });
+    });
+
+    it('stores the returned task id', async () => {
+      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
+      client.mockResolvedValue(mockTaskResponse);
+
+      const { enablePictureLogin, pictureLoginTaskId, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      facilityDatasetId.value = mockDatasetId;
+
+      await enablePictureLogin(mockPicturePasswordSettings);
+
+      expect(pictureLoginTaskId.value).toBe('task-123');
+    });
+
+    it('does not modify facility settings', async () => {
+      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
+      client.mockResolvedValue(mockTaskResponse);
+
+      const { enablePictureLogin, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      settings.value = { ...mockFacilityConfig };
+      facilityDatasetId.value = mockDatasetId;
+
+      await enablePictureLogin(mockPicturePasswordSettings);
+
+      expect(settings.value).toEqual(mockFacilityConfig);
+    });
+
+    it('returns the task data from the response', async () => {
+      const mockTaskData = { id: 'task-123', status: 'QUEUED', percentage: 0 };
+      client.mockResolvedValue({ data: mockTaskData });
+
+      const { enablePictureLogin, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      facilityDatasetId.value = mockDatasetId;
+
+      const result = await enablePictureLogin(mockPicturePasswordSettings);
+
+      expect(result).toEqual(mockTaskData);
+    });
+  });
 });

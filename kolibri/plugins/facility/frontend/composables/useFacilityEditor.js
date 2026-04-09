@@ -201,6 +201,18 @@ export default function useFacilityEditor(facilityId) {
     await saveFacilityConfig();
   }
 
+  const pictureLoginTaskId = ref(null);
+
+  async function enablePictureLogin(picturePasswordSettings) {
+    const response = await client({
+      url: urls['kolibri:core:facilitydataset_enable_picture_login'](facilityDatasetId.value),
+      method: 'POST',
+      data: { picture_password_settings: picturePasswordSettings },
+    });
+    pictureLoginTaskId.value = response.data.id;
+    return response.data;
+  }
+
   return {
     // State
     facilityId,
@@ -210,6 +222,7 @@ export default function useFacilityEditor(facilityId) {
     settingsCopy,
     isFacilityPinValid,
     facilityDataLoading,
+    pictureLoginTaskId,
     // Computed
     settingsHaveChanged,
     isPinSet,
@@ -234,5 +247,6 @@ export default function useFacilityEditor(facilityId) {
     setPin,
     unsetPin,
     setLoading,
+    enablePictureLogin,
   };
 }

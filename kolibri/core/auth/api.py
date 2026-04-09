@@ -331,6 +331,7 @@ class FacilityDatasetViewSet(ValuesViewset):
 
         dataset.picture_password_settings = picture_password_settings
         dataset.learner_can_edit_password = False
+        dataset.learner_can_login_with_no_password = True
         dataset.save()
 
         job, _ = assign_picture_passwords_to_facility.validate_job_data(
