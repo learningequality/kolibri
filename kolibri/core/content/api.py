@@ -1903,9 +1903,9 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             except ValidationError:
                 baseurl = None
         if baseurl is None:
-            client = NetworkClient("/")
+            client = NetworkClient(CENTRAL_CONTENT_BASE_URL)
         url = get_channel_lookup_url(
-            identifier=identifier, baseurl=baseurl, keyword=keyword, language=language
+            identifier=identifier, keyword=keyword, language=language
         )
         try:
             resp = client.get(url)

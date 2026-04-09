@@ -430,6 +430,14 @@ class ChannelMetadata(base_models.ChannelMetadata):
         ContentCacheKey.update_cache_key()
 
 
+class ContentRequestPriority(ChoicesEnum):
+    CRITICAL = 5
+    URGENT = 10
+    HIGH = 15
+    REGULAR = 20
+    LOW = 25
+
+
 class ContentRequestType(ChoicesEnum):
     Download = "DOWNLOAD"
     Removal = "REMOVAL"
@@ -495,6 +503,12 @@ class ContentRequest(models.Model):
 
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
+    priority = models.IntegerField(
+        default=ContentRequestPriority.REGULAR,
+        choices=ContentRequestPriority.choices(),
+        null=True,
+        blank=True,
+    )
 
     objects = ContentRequestManager()
 

@@ -44,6 +44,7 @@ export default {
   'kolibri/constants': require('kolibri/constants'),
   'kolibri/heartbeat': require('kolibri/heartbeat'),
   'kolibri/router': require('kolibri/router'),
+  'kolibri/rtlcss': require('kolibri/rtlcss'),
   'kolibri/store': require('kolibri/store'),
   'kolibri/styles/themeConfig': require('kolibri/styles/themeConfig'),
   'kolibri/uiText/bytesForHumans': require('kolibri/uiText/bytesForHumans'),

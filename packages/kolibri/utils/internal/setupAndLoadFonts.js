@@ -6,7 +6,8 @@ import plugin_data from 'kolibri-plugin-data';
 
 const logging = logger.getLogger(__filename);
 
-// These browsers fully support font-display: swap
+// These browsers support font-display: swap and receive the modern CSS files.
+// Progressive loading is used for all browsers to prevent FOUT.
 // https://caniuse.com/?search=swap
 const fontSwapSupportingBrowsers = {
   Edge: {
@@ -46,11 +47,11 @@ function loadFullFontsProgressively() {
   /*
    * This function eagerly loads the full fonts for the current language asynchronously, but
    * avoids referencing them until they've been fully loaded. This is done by adding a
-   * class to the HTML root which has the effect of switching fonts from system defaults
-   * to Noto.
+   * class to the HTML root which has the effect of switching fonts from subset fonts
+   * (noto-subset, noto-common) to full fonts (noto-full).
    *
    * This prevents the text from being invisible while the fonts are loading ("FOIT")
-   * and instead falls back on system fonts while they're loading ("FOUT").
+   * and ensures a smooth transition from subset to full fonts.
    */
   const htmlEl = document.documentElement;
   htmlEl.classList.add(PARTIAL_FONTS);
@@ -71,11 +72,6 @@ function loadFullFontsProgressively() {
     });
 }
 
-function loadFullFontsImmediately() {
-  const htmlEl = document.documentElement;
-  htmlEl.classList.add(FULL_FONTS);
-}
-
 function addFontStylesheetLink(href) {
   const fonts = document.createElement('link');
   fonts.rel = 'stylesheet';
@@ -87,9 +83,12 @@ function addFontStylesheetLink(href) {
 export default function setupAndLoadFonts() {
   if (passesRequirements(browser, fontSwapSupportingBrowsers)) {
     addFontStylesheetLink(plugin_data.fullCSSFileModern);
-    loadFullFontsImmediately();
   } else {
     addFontStylesheetLink(plugin_data.fullCSSFileBasic);
-    loadFullFontsProgressively();
   }
+  // Always use progressive loading to prevent FOUT. This works in combination with
+  // font-display: fallback on subset/common fonts (prevents initial flash) and
+  // font-display: swap on full fonts (allows graceful background loading).
+  // We explicitly control when to switch from subset to full fonts.
+  loadFullFontsProgressively();
 }

@@ -11,6 +11,12 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons import models
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.test.helpers import EvaluationMixin
+from kolibri.core.notifications.models import HelpReason
+from kolibri.core.notifications.models import LearnerProgressNotification
+from kolibri.core.notifications.models import NotificationEventType
+from kolibri.core.notifications.models import NotificationObjectType
+from kolibri.plugins.coach.class_summary_api import content_status_serializer
+from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
 
@@ -202,6 +208,63 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
                 if previous_try
                 else 0,
             )
+
+    def test_completed_exercise_with_help_notification_shows_completed(self):
+        """Regression test for #14515: progress=1.0 should override help status."""
+        learner = self.users[0]
+        node = self.content_nodes[0]
+        summarylog = self.summary_logs[0][0]
+        summarylog.progress = 1.0
+        summarylog.save()
+
+        LearnerProgressNotification.objects.create(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=learner.id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson.id,
+            contentnode_id=node.id,
+            reason=HelpReason.Multiple,
+            timestamp=local_now(),
+        )
+
+        lesson_data = [{"id": self.lesson.id, "node_ids": [node.id]}]
+        learners_data = [{"id": learner.id}]
+        result = content_status_serializer(lesson_data, learners_data, self.classroom)
+        status = next(
+            r["status"]
+            for r in result
+            if r["learner_id"] == learner.id and r["content_id"] == node.content_id
+        )
+        self.assertEqual(status, "Completed")
+
+    def test_incomplete_exercise_with_help_notification_shows_help_needed(self):
+        learner = self.users[0]
+        node = self.content_nodes[0]
+        summarylog = self.summary_logs[0][0]
+        summarylog.progress = 0.3
+        summarylog.save()
+
+        LearnerProgressNotification.objects.create(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=learner.id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson.id,
+            contentnode_id=node.id,
+            reason=HelpReason.Multiple,
+            timestamp=local_now(),
+        )
+
+        lesson_data = [{"id": self.lesson.id, "node_ids": [node.id]}]
+        learners_data = [{"id": learner.id}]
+        result = content_status_serializer(lesson_data, learners_data, self.classroom)
+        status = next(
+            r["status"]
+            for r in result
+            if r["learner_id"] == learner.id and r["content_id"] == node.content_id
+        )
+        self.assertEqual(status, "HelpNeeded")
 
 
 class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):

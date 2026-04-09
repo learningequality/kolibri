@@ -154,6 +154,9 @@
         fetchMethod: () =>
           ContentNodeResource.fetchTree({
             id: props.unitId,
+            // Include unavailable nodes so missing resources show a
+            // warning in the navigation panel instead of disappearing.
+            params: { no_available_filtering: true },
           }),
       });
 

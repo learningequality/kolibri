@@ -15,21 +15,21 @@
           <template #header="{ header }">
             {{ header.label }}
           </template>
-          <template #cell="{ content, rowIndex, colIndex }">
+          <template #cell="{ content, colIndex, row }">
             <template v-if="colIndex === 0">
-              <!-- TODO: Replace :to with real route once detail route is available -->
-              <KRouterLink
+              <KButton
                 class="lo-link"
+                appearance="basic-link"
                 :text="content"
-                :to="{}"
+                @click="onObjectiveClick(row)"
               />
             </template>
             <template v-else-if="colIndex === 1">
               <SparklineBar
                 class="lo-sparkline"
-                :lowCount="objectiveAt(rowIndex).lowCount"
-                :midCount="objectiveAt(rowIndex).midCount"
-                :highCount="objectiveAt(rowIndex).highCount"
+                :lowCount="objectiveAt(row).lowCount"
+                :midCount="objectiveAt(row).midCount"
+                :highCount="objectiveAt(row).highCount"
               />
             </template>
           </template>
@@ -52,7 +52,7 @@
     components: {
       SparklineBar,
     },
-    setup(props) {
+    setup(props, { emit }) {
       const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
       const data = toRef(props, 'prefetchedData');
@@ -68,8 +68,16 @@
 
       const rows = computed(() => bucketedObjectives.value.map(obj => [obj.text, obj.id]));
 
-      function objectiveAt(rowIndex) {
-        return bucketedObjectives.value[rowIndex];
+      function objectiveAt(row) {
+        // row is [text, id] — look up by ID to handle KTable sorting
+        return bucketedObjectives.value.find(obj => obj.id === row[1]);
+      }
+
+      function onObjectiveClick(row) {
+        emit('select-objective', {
+          objective: objectiveAt(row),
+          reportData: data.value?.reportData,
+        });
       }
 
       return {
@@ -78,6 +86,7 @@
         headers,
         rows,
         objectiveAt,
+        onObjectiveClick,
         learningObjectivesLabel$,
         noTestDataLabel$,
       };
@@ -100,18 +109,29 @@
   }
 
   .lo-link {
-    padding: 12px 0 12px 16px;
+    padding: 8px 0;
+    padding-inline-start: 8px;
   }
 
   .lo-sparkline {
-    padding: 12px 16px 12px 0;
+    padding-right: 8px;
   }
 
-  /* Visually hide KTable headers while keeping them in the accessibility tree. */
+  /*
+   * Visually hide KTable headers while keeping them accessible to screen readers.
+   * KTable does not expose a prop to hide column headers, so this targets its
+   * internal <thead> element directly. If KTable's markup changes, revisit this.
+   */
   .lo-report-table /deep/ thead {
-    /* Hiding this altogether, but the caption for the table is sufficient
-      for screen readers to understand the context of the table. */
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
 </style>

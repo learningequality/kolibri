@@ -189,6 +189,7 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
             "importable",
             "is_leaf",
             "kind",
+            "modality",
             "num_coach_contents",
             "on_device_resources",
             "title",

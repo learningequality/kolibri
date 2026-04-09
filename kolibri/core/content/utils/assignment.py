@@ -7,6 +7,11 @@ from django.dispatch import receiver
 from morango.models.core import Store
 
 from kolibri.core.auth.models import AbstractFacilityDataModel
+from kolibri.core.content.models import ContentRequestPriority
+from kolibri.core.utils.cache import process_cache
+
+
+_CONTENT_ASSIGNMENT_INSTANCE_CACHE_TIMEOUT = 300
 
 ContentAssignment = namedtuple(
     "ContentAssignment", ["contentnode_id", "source_model", "source_id", "metadata"]
@@ -33,10 +38,16 @@ class ContentAssignmentManager:
         "filters",
         "lookup_field",
         "lookup_func",
+        "content_download_priority_func",
     )
 
     def __init__(
-        self, one_to_many=False, filters=None, lookup_field=None, lookup_func=None
+        self,
+        one_to_many=False,
+        filters=None,
+        lookup_field=None,
+        lookup_func=None,
+        content_download_priority_func=None,
     ):
         """
         :param one_to_many: indicating that the associated model maps to multiple content nodes
@@ -48,6 +59,9 @@ class ContentAssignmentManager:
         :param lookup_func: a function which receives the value of `lookup_field` to return nodes
             and metadata
         :type lookup_func: callable<tuple[contentnode_id: str, metadata: None|dict]>
+        :param content_download_priority_func: a function which receives the model instance and contentnode_id and returns a ,
+                                this will represent the priority for downloading the content associated with that contentnode
+        :type content_download_priority_func: callable<int>
         """
         self.model = None
         self.name = None
@@ -55,6 +69,7 @@ class ContentAssignmentManager:
         self.filters = filters
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
+        self.content_download_priority_func = content_download_priority_func
 
     def contribute_to_class(self, model, attribute_name):
         """
@@ -145,6 +160,35 @@ class ContentAssignmentManager:
                 dataset_id, transfer_session_id
             ):
                 yield assignment
+
+    @classmethod
+    def _get_cached_model_instance(cls, manager, source_id):
+        cache_key = "CONTENT_ASSIGNMENT_INSTANCE_{}_{}".format(
+            manager.model.morango_model_name, source_id
+        )
+        if cache_key not in process_cache:
+            instance = manager.model.objects.filter(pk=source_id).first()
+            process_cache.set(
+                cache_key, instance, _CONTENT_ASSIGNMENT_INSTANCE_CACHE_TIMEOUT
+            )
+        else:
+            instance = process_cache.get(cache_key)
+        return instance
+
+    @classmethod
+    def get_content_download_priority(cls, assignment):
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            if manager.model.morango_model_name == assignment.source_model:
+                if manager.content_download_priority_func:
+                    instance = cls._get_cached_model_instance(
+                        manager, assignment.source_id
+                    )
+                    if instance:
+                        return manager.content_download_priority_func(
+                            instance, assignment.contentnode_id
+                        )
+
+        return ContentRequestPriority.REGULAR
 
     def _get_modified_store(self, transfer_session_id):
         """

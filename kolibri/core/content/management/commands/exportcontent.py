@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import CommandError
 
 from ...utils import paths
-from kolibri.core.content.utils.content_export import export_content
+from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
 logger = logging.getLogger(__name__)
@@ -68,10 +68,13 @@ class Command(AsyncCommand):
         exclude_node_ids = options["exclude_node_ids"]
         manifest_only = options["manifest_only"]
 
-        export_content(
+        manager = DiskChannelResourceExportManager(
             channel_id,
             destination,
-            manifest_only=manifest_only,
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
+            export_channel_database=False,
+            export_content=True,
+            manifest_only=manifest_only,
         )
+        manager.run()

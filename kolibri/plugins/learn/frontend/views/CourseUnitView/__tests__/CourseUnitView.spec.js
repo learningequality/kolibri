@@ -788,7 +788,10 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         expect(LearnerCourseResource.fetchModel).toHaveBeenCalledWith({ id: COURSE_ID });
-        expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({ id: UNIT_1 });
+        expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({
+          id: UNIT_1,
+          params: { no_available_filtering: true },
+        });
       });
     });
 
