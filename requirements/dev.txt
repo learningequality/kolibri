@@ -1,4 +1,4 @@
-setuptools
+setuptools<82
 -r base.txt
 ipdb
 pre-commit
