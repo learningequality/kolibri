@@ -47,10 +47,18 @@ export default {
         );
       }
 
+      const safeAttrs = {};
+      for (const [key, value] of Object.entries(context.data.attrs || {})) {
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+          safeAttrs[key] = value;
+        }
+      }
+
       return createElement(
         defaultItemPreset + VIEWER_SUFFIX,
         {
           ...context.data,
+          attrs: safeAttrs,
           props: context.props,
           on: combinedListeners,
         },

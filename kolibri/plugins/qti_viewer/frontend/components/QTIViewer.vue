@@ -27,6 +27,7 @@
     components: {
       AssessmentItem,
     },
+    inheritAttrs: false,
     setup(props, context) {
       const { defaultFile, reportLoadingError } = useContentViewer(props, context);
       const packageLoading = ref(true);
