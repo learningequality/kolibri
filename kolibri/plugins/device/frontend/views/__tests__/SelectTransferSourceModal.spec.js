@@ -1,28 +1,13 @@
-import { shallowMount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
 import SelectTransferSourceModal from '../ManageContentPage/SelectTransferSourceModal';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
-function makeWrapper(options) {
-  const wrapper = shallowMount(SelectTransferSourceModal, {
-    ...options,
-    stubs: {
-      SelectImportSourceModal: {
-        template: '<div data-testid="select-import-source"></div>',
-      },
-      SelectDriveModal: {
-        template: '<div data-testid="select-drive"></div>',
-      },
-    },
-  });
-  const els = {
-    titleText: () => wrapper.find({ name: 'KModal' }).props().title,
-    selectImportSource: () => wrapper.find('[data-testid="select-import-source"]'),
-    selectDrive: () => wrapper.find('[data-testid="select-drive"]'),
-  };
-  return { wrapper, els };
-}
+const stubs = {
+  SelectImportSourceModal: { template: '<div data-testid="select-import-source"></div>' },
+  SelectDriveModal: { template: '<div data-testid="select-drive"></div>' },
+};
 
-describe('selectImportSourceModal component', () => {
+describe('SelectTransferSourceModal', () => {
   let store;
 
   beforeEach(() => {
@@ -30,17 +15,22 @@ describe('selectImportSourceModal component', () => {
   });
 
   it('when at select source stage, shows correct modal', () => {
-    const { els } = makeWrapper({ store, propsData: { pageName: 'SELECT_IMPORT_SOURCE' } });
-    expect(els.selectImportSource().exists()).toEqual(true);
-    expect(els.selectDrive().exists()).toEqual(false);
+    render(SelectTransferSourceModal, {
+      props: { pageName: 'SELECT_IMPORT_SOURCE' },
+      store,
+      stubs,
+    });
+    expect(screen.getByTestId('select-import-source')).toBeInTheDocument();
+    expect(screen.queryByTestId('select-drive')).not.toBeInTheDocument();
   });
 
   it('when exporting or local importing, shows the correct modal', () => {
-    const { els } = makeWrapper({ store, propsData: { pageName: 'SELECT_DRIVE' } });
-    expect(els.selectDrive().exists()).toEqual(true);
-    expect(els.selectImportSource().exists()).toEqual(false);
+    render(SelectTransferSourceModal, {
+      props: { pageName: 'SELECT_DRIVE' },
+      store,
+      stubs,
+    });
+    expect(screen.getByTestId('select-drive')).toBeInTheDocument();
+    expect(screen.queryByTestId('select-import-source')).not.toBeInTheDocument();
   });
-
-  // not tested:
-  // whether correct form is showing
 });
