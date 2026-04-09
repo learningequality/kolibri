@@ -28,7 +28,6 @@ from kolibri.core.query import SQCount
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
-
 # Intended to match  NotificationEventType
 NOT_STARTED = "NotStarted"
 STARTED = "Started"
@@ -84,30 +83,8 @@ def _get_quiz_status(queryset):
     return items
 
 
-def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
-
-    # First generate a unique set of content node ids from all the lessons
-    lesson_node_ids = set()
-    for lesson in lesson_data:
-        lesson_node_ids |= set(lesson.get("node_ids"))
-
-    # Now create a map of content_id to node_id so that we can map between lessons, and notifications
-    # which use the node id, and summary logs, which use content_id. Note that many node_ids may map
-    # to the same content_id.
-    content_map = {
-        n[0]: n[1]
-        for n in ContentNode.objects.filter_by_uuids(lesson_node_ids).values_list(
-            "id", "content_id"
-        )
-    }
-
-    learner_ids = {learner["id"] for learner in learners_data}
-
-    content_ids = set(content_map.values())
-
-    # Get all the values we need from the summary logs to be able to summarize current status on the
-    # relevant content items.
-    content_log_values = (
+def get_content_log_values(content_ids, learner_ids):
+    return (
         logger_models.ContentSummaryLog.objects.filter(
             content_id__in=content_ids,
             user__in=learner_ids,
@@ -135,6 +112,80 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
         )
     )
 
+
+def get_log_status(log, content_id_to_node_ids, needs_help, completed):
+    if log["progress"] == 1:
+        return COMPLETED
+    matching_node_ids = content_id_to_node_ids.get(log["content_id"], [])
+    for node_id in matching_node_ids:
+        key = (log["user_id"], node_id)
+        if key in needs_help:
+            # Check if we have not already registered completion of the content node
+            # or if we have and the timestamp is earlier than that on the needs_help event
+            if key not in completed or completed[key] < needs_help[key]:
+                return HELP_NEEDED
+    if log["kind"] == content_kinds.EXERCISE:
+        if not log["attempts_exist"]:
+            return NOT_STARTED
+    return STARTED
+
+
+def fetch_notification_maps(**scope_filter):
+    """
+    Fetch completion and help-needed notification timestamps, keyed by
+    (user_id, node_id) tuples.
+
+    :param scope_filter: Keyword arguments passed to the notification queryset
+        filter to scope results (e.g. lesson_id__in, course_session_id, etc.)
+    :returns: Tuple of (needs_help, completed) dicts mapping keys to timestamps.
+    """
+    needs_help = {}
+    completed = {}
+    try:
+        notifications = (
+            LearnerProgressNotification.objects.filter(
+                Q(notification_event=NotificationEventType.Completed)
+                | Q(notification_event=NotificationEventType.Help),
+                **scope_filter,
+            )
+            .order_by("timestamp")
+            .values_list("user_id", "contentnode_id", "timestamp", "notification_event")
+        )
+
+        for user_id, node_id, timestamp, event in notifications:
+            key = (user_id, node_id)
+            if event == NotificationEventType.Help:
+                needs_help[key] = timestamp
+            elif event == NotificationEventType.Completed:
+                completed[key] = timestamp
+    except OperationalError:
+        repair_sqlite_db(connections[NOTIFICATIONS])
+    return needs_help, completed
+
+
+def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
+
+    # First generate a unique set of content node ids from all the lessons
+    lesson_node_ids = set()
+    for lesson in lesson_data:
+        lesson_node_ids |= set(lesson.get("node_ids"))
+
+    # Now create a map of content_id to node_id so that we can map between lessons, and notifications
+    # which use the node id, and summary logs, which use content_id. Note that many node_ids may map
+    # to the same content_id.
+    content_map = {
+        n[0]: n[1]
+        for n in ContentNode.objects.filter_by_uuids(lesson_node_ids).values_list(
+            "id", "content_id"
+        )
+    }
+
+    learner_ids = {learner["id"] for learner in learners_data}
+
+    content_ids = set(content_map.values())
+
+    content_log_values = get_content_log_values(content_ids, learner_ids)
+
     masterylog_queryset = logger_models.MasteryLog.objects.filter(
         summarylog__content_id__in=content_ids, user__in=learner_ids
     )
@@ -144,72 +195,22 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
         for s in _get_quiz_status(masterylog_queryset)
     }
 
-    # In order to make the lookup speedy, generate a unique key for each user/node that we find
-    # listed in the needs help notifications that are relevant. We can then just check
-    # existence of this key in the set in order to see whether this user has been flagged as needing
-    # help.
-    lookup_key = "{user_id}-{node_id}"
-    try:
-        notifications = LearnerProgressNotification.objects.filter(
-            Q(notification_event=NotificationEventType.Completed)
-            | Q(notification_event=NotificationEventType.Help),
-            classroom_id=classroom.id,
-            lesson_id__in=[lesson["id"] for lesson in lesson_data],
-        ).values_list("user_id", "contentnode_id", "timestamp", "notification_event")
+    content_id_to_node_ids = {}
+    for node_id, content_id in content_map.items():
+        content_id_to_node_ids.setdefault(content_id, []).append(node_id)
 
-        needs_help = {
-            lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
-            for n in notifications
-            if n[3] == NotificationEventType.Help
-        }
-    except OperationalError:
-        notifications = []
-        repair_sqlite_db(connections[NOTIFICATIONS])
-
-    # In case a previously flagged learner has since completed an exercise, check all the completed
-    # notifications also
-    completed = {
-        lookup_key.format(user_id=n[0], node_id=n[1]): n[2]
-        for n in notifications
-        if n[3] == NotificationEventType.Completed
-    }
-
-    def get_status(log):
-        """
-        Read the dict from a content summary log values query and return the status.
-        Progress is the source of truth: if progress == 1, the learner has completed
-        regardless of notification state. Otherwise, check for needs help notifications.
-        """
-        if log["progress"] == 1:
-            return COMPLETED
-        content_id = log["content_id"]
-        if content_id in content_map.values():
-            # Don't try to lookup anything if we don't know the content_id
-            # node_id mapping - might happen if a channel has since been deleted
-            content_ids = [
-                key for key, value in content_map.items() if value == content_id
-            ]
-            for c_id in content_ids:
-                key = lookup_key.format(user_id=log["user_id"], node_id=c_id)
-                if key in needs_help:
-                    # Now check if we have not already registered completion of the content node
-                    # or if we have and the timestamp is earlier than that on the needs_help event
-                    if key not in completed or completed[key] < needs_help[key]:
-                        return HELP_NEEDED
-        if log["kind"] == content_kinds.EXERCISE:
-            # if there are no attempt logs for this exercise, status is NOT_STARTED
-            if not log["attempts_exist"]:
-                return NOT_STARTED
-        return STARTED
+    needs_help, completed = fetch_notification_maps(
+        classroom_id=classroom.id,
+        lesson_id__in=[lesson["id"] for lesson in lesson_data],
+    )
 
     def map_content_logs(log):
-        """
-        Parse the content logs to return objects in the expected format.
-        """
         output = {
             "learner_id": log["user_id"],
             "content_id": log["content_id"],
-            "status": get_status(log),
+            "status": get_log_status(
+                log, content_id_to_node_ids, needs_help, completed
+            ),
             "last_activity": log["end_timestamp"],
             "time_spent": log["time_spent"],
             "tries": log["tries"],
