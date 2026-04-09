@@ -129,6 +129,7 @@
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
   import { getCurrentInstance, computed, ref } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
@@ -153,7 +154,7 @@
     setup(_, context) {
       const router = getCurrentInstance().proxy.$router;
       const store = getCurrentInstance().proxy.$store;
-      const route = computed(() => store.state.route);
+      const route = useRoute();
       const { createSnackbar } = useSnackbar();
       const { fetchChannels } = useChannels();
 
@@ -213,8 +214,8 @@
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            classId: route.value.params.classId,
-            quizId: route.value.params.quizId,
+            classId: route.params.classId,
+            quizId: route.params.quizId,
             sectionIndex: newIndex,
           },
         });

@@ -1,7 +1,11 @@
-import { Store } from 'vuex';
+import { useRoute } from 'vue-router/composables'; // eslint-disable-line
 import { validateLinkObject } from 'kolibri/utils/validators';
 import { PageNames } from '../../constants';
 import useContentLink from '../useContentLink';
+
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(),
+}));
 
 const name = 'test';
 const query = {
@@ -12,18 +16,9 @@ const query = {
 };
 const params = { lesson: 'that' };
 
-const store = new Store({
-  state: {
-    route: {
-      name,
-      params,
-      query,
-    },
-  },
-});
+useRoute.mockReturnValue({ name, params, query });
 
-const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } =
-  useContentLink(store);
+const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } = useContentLink();
 
 describe('genContentLinkBackLinkCurrentPage', () => {
   const topicLink = genContentLinkBackLinkCurrentPage(19, false);

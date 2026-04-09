@@ -4,7 +4,7 @@ import useContentNodeProgress from './useContentNodeProgress';
 
 const { fetchContentNodeProgress } = useContentNodeProgress();
 
-export default function (descendant, store, router) {
-  const { baseurl } = currentDeviceData(store);
-  return useBaseSearch({ descendant, store, router, baseurl, fetchContentNodeProgress });
+export default function (descendant) {
+  const { baseurl } = currentDeviceData();
+  return useBaseSearch({ descendant, baseurl, fetchContentNodeProgress });
 }

@@ -1,27 +1,22 @@
-import { get } from '@vueuse/core';
-import { computed, getCurrentInstance } from 'vue';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router/composables';
 
 const cardViewStyleQueryParam = 'cardViewStyle';
 
-export default function useCardViewStyle(store, router) {
-  // Get store and router references from the curent instance
-  // but allow them to be passed in to allow for dependency
-  // injection, primarily for tests.
-  store = store || getCurrentInstance().proxy.$store;
-  router = router || getCurrentInstance().proxy.$router;
-  const route = computed(() => store.state.route || {});
+export default function useCardViewStyle() {
+  const route = useRoute();
+  const router = useRouter();
 
   const currentCardViewStyle = computed({
     get() {
-      const query = get(route).query || {};
-      return query[cardViewStyleQueryParam] || 'card';
+      return route.query[cardViewStyleQueryParam] || 'card';
     },
     set(value) {
-      const query = { ...(get(route).query || {}) };
+      const query = { ...route.query };
       query[cardViewStyleQueryParam] = value;
       // Just catch an error from making a redundant navigation rather
       // than try to precalculate this.
-      router.push({ ...get(route), query }).catch(() => {});
+      router.push({ ...route, query }).catch(() => {});
     },
   });
 

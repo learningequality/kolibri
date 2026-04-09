@@ -1,5 +1,6 @@
 import uniqBy from 'lodash/uniqBy';
-import { ref, computed, getCurrentInstance, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import useBaseSearch from 'kolibri-common/composables/useBaseSearch';
@@ -65,9 +66,8 @@ export default function useResourceSelection({
   topicTree,
   search,
 } = {}) {
-  const store = getCurrentInstance().proxy.$store;
-  const route = computed(() => store.state.route);
-  const topicId = computed(() => route.value.query.topicId);
+  const route = useRoute();
+  const topicId = computed(() => route.query.topicId);
 
   const selectionRules = ref([]);
   const selectedResources = ref([]);
@@ -115,7 +115,7 @@ export default function useResourceSelection({
   // We need to wait for the proper topic to load so the `topic` ref which is a
   // dependency of the useBaseSearch composable is correctly set before searching.
   const waitForTopicLoad = () => {
-    const { searchTopicId, searchResultTopicId } = route.value.query;
+    const { searchTopicId, searchResultTopicId } = route.query;
 
     // If we are browsing a topic from the search results (searchResultTopicId is set)
     // then the topic to wait for is `searchTopicId`. `searchTopicId` is the topic

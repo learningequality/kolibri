@@ -141,7 +141,8 @@
 <script>
 
   import { get } from '@vueuse/core';
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import KToolbar from 'kolibri-design-system/lib/KToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
@@ -165,8 +166,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const store = getCurrentInstance().proxy.$store;
-      const $route = computed(() => store.state.route);
+      const $route = useRoute();
       const { windowIsSmall } = useKResponsiveWindow();
       const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
@@ -178,7 +178,7 @@
         }
         return currentItem.routes.map(route => ({
           title: route.label,
-          link: { name: route.name, params: get($route).params, query: get($route).query },
+          link: { name: route.name, params: $route.params, query: $route.query },
           icon: route.icon,
           condition: route.condition,
         }));

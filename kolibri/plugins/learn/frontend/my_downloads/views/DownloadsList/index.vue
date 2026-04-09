@@ -154,8 +154,8 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import { computed, getCurrentInstance } from 'vue';
-  import { get } from '@vueuse/core';
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import { createTranslator } from 'kolibri/utils/i18n';
   import useLearningActivities from 'kolibri-common/composables/useLearningActivities';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -187,10 +187,8 @@
       const { downloadRequestMap } = useDownloadRequests();
       const { networkDevices } = useDevices();
       const { windowIsLarge } = useKResponsiveWindow();
-      const store = getCurrentInstance().proxy.$store;
-      const query = computed(() => get(route).query);
-      const route = computed(() => store.state.route);
-      const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
+      const route = useRoute();
+      const pageSizeNumber = computed(() => Number(route.query.page_size || 25));
       return {
         downloadRequestMap,
         pageSizeNumber,

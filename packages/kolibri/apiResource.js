@@ -1030,7 +1030,7 @@ export class Resource {
   }
 
   logError(err) {
-    const store = require('kolibri/store').default;
+    const router = require('kolibri/router').default;
     if (!err.config) {
       return;
     }
@@ -1043,13 +1043,14 @@ export class Resource {
       'color: red',
     );
     console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
-    if (store?.state?.route) {
+    const currentRoute = router.currentRoute;
+    if (currentRoute) {
       console.group('Vue Router');
-      console.log(`fullPath: ${store.state.route.fullPath}`);
-      console.log(`Route name: ${store.state.route.name}`);
-      if (Object.keys(store.state.route.params).length) {
+      console.log(`fullPath: ${currentRoute.fullPath}`);
+      console.log(`Route name: ${currentRoute.name}`);
+      if (Object.keys(currentRoute.params).length) {
         console.group('Vue router params');
-        for (const [k, v] of Object.entries(store.state.route.params)) {
+        for (const [k, v] of Object.entries(currentRoute.params)) {
           console.log(`${k}: ${v}`);
         }
         console.groupEnd();

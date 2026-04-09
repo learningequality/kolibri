@@ -1,41 +1,34 @@
 import { get, set } from '@vueuse/core';
-import VueRouter from 'vue-router';
 import Vue, { nextTick, ref } from 'vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { coreStoreFactory } from 'kolibri/store';
 import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
+import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
 import useBaseSearch from '../useBaseSearch';
 import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
-Vue.use(VueRouter);
-
 jest.mock('kolibri/composables/useUser');
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(),
+  useRouter: jest.fn(),
+}));
 
 const name = 'not important';
 
 function prep(query = {}, descendant = null, filters = null) {
-  const store = coreStoreFactory({
-    state: () => ({
-      route: {
-        query,
-        name,
-      },
-    }),
-    mutations: {
-      SET_QUERY(state, query) {
-        state.route.query = query;
-      },
-    },
-  });
-  const router = new VueRouter();
-  router.push = jest.fn().mockReturnValue(Promise.resolve());
+  const mockRoute = Vue.observable({ query, name });
+  const mockRouter = { push: jest.fn().mockReturnValue(Promise.resolve()) };
+  useRoute.mockReturnValue(mockRoute);
+  useRouter.mockReturnValue(mockRouter);
+  const store = coreStoreFactory({});
   store.registerModule('core', coreModule);
   return {
-    ...useBaseSearch({ descendant, store, router, filters }),
-    router,
+    ...useBaseSearch({ descendant, filters }),
+    router: mockRouter,
     store,
+    mockRoute,
   };
 }
 
@@ -196,9 +189,9 @@ describe(`useBaseSearch`, () => {
   });
   describe('search method', () => {
     it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
-      const { store } = prep();
+      const { mockRoute } = prep();
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      store.commit('SET_QUERY', { categories: 'test1,test2' });
+      mockRoute.query = { categories: 'test1,test2' };
       await nextTick();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {

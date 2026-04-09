@@ -39,7 +39,8 @@
 <script>
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import { ref, watch, computed, getCurrentInstance } from 'vue';
+  import { ref, watch, computed } from 'vue';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../../../constants';
@@ -50,12 +51,11 @@
       SidePanelModal,
     },
     setup() {
-      const store = getCurrentInstance().proxy.$store;
-      const router = getCurrentInstance().proxy.$router;
-      const route = computed(() => store.state.route);
+      const route = useRoute();
+      const router = useRouter();
 
       const canGoBack = ref(false);
-      const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
+      const showSidePanel = computed(() => route.name !== PageNames.EXAM_CREATION_ROOT);
       const { editSectionLabel$, sectionOrderLabel$ } = enhancedQuizManagementStrings;
       const { editAction$ } = coreStrings;
 
@@ -63,11 +63,11 @@
         router.push({
           name: PageNames.EXAM_CREATION_ROOT,
           params: {
-            classId: route.value.params.classId,
-            quizId: route.value.params.quizId,
-            sectionIndex: route.value.params.sectionIndex,
+            classId: route.params.classId,
+            quizId: route.params.quizId,
+            sectionIndex: route.params.sectionIndex,
           },
-          query: { ...route.value.query },
+          query: { ...route.query },
         });
       }
 

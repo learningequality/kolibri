@@ -1,4 +1,5 @@
 import VueRouter from 'vue-router';
+import { shallowReactive } from 'vue';
 import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
@@ -136,10 +137,34 @@ class Router {
   }
 
   get currentRoute() {
-    return this._vueRouter.currentRoute;
+    return this._vueRouter?.currentRoute || null;
   }
 }
 
 const router = new Router();
+
+// Reactive route state for Vuex getters that run outside Vue component setup().
+// Mirrors the internal pattern of vue-router/composables useRoute():
+// a reactive object updated via afterEach so Vuex getters track route changes.
+let _reactiveRoute = null;
+export function getReactiveRoute() {
+  if (!_reactiveRoute) {
+    _reactiveRoute = shallowReactive({
+      params: {},
+      query: {},
+      name: null,
+      path: '',
+      fullPath: '',
+      hash: '',
+      meta: {},
+      matched: [],
+      ...router.currentRoute,
+    });
+    router.afterEach(to => {
+      Object.assign(_reactiveRoute, to);
+    });
+  }
+  return _reactiveRoute;
+}
 
 export { router as default };

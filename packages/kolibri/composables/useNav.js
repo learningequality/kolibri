@@ -1,10 +1,11 @@
-import { ref, watch, computed, getCurrentInstance } from 'vue';
+import { ref, watch, computed } from 'vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { KolibriIcons } from 'kolibri-design-system/lib/KIcon/iconDefinitions';
 import { i18nReady } from 'kolibri/utils/i18n';
 import { get } from '@vueuse/core';
 import { UserKinds, NavComponentSections } from 'kolibri/constants';
 import logger from 'kolibri-logging';
+import { useRoute } from 'vue-router/composables';
 import { generateNavRoute } from './internal/generateNavRoutes';
 
 const logging = logger.getLogger(__filename);
@@ -92,9 +93,8 @@ const _watcher = watch(i18nReady, newValue => {
   }
 });
 
-export default function useNav(store) {
-  store = store || getCurrentInstance().proxy.$store;
-  const route = computed(() => store.state.route);
+export default function useNav() {
+  const route = useRoute();
   const { windowIsSmall } = useKResponsiveWindow();
   const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
   const exportedItems = computed(() =>
@@ -106,7 +106,7 @@ export default function useNav(store) {
       if (item.routes) {
         output.routes = item.routes.map(routeItem => ({
           ...routeItem,
-          href: generateNavRoute(item.url, routeItem.route, get(route).params),
+          href: generateNavRoute(item.url, routeItem.route, route.params),
         }));
       }
       return output;

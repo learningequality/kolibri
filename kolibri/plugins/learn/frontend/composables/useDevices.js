@@ -2,7 +2,8 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, ref, onBeforeUnmount, watch } from 'vue';
+import { computed, ref, onBeforeUnmount, watch } from 'vue';
+import { useRoute } from 'vue-router/composables';
 import { NetworkLocationResource } from 'kolibri-common/apiResources/NetworkLocationResource';
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import { get, set, useTimeoutPoll } from '@vueuse/core';
@@ -91,13 +92,9 @@ function computedDevice(routingDeviceId, callback) {
   });
 }
 
-export function currentDeviceData(store) {
-  store = store || getCurrentInstance().proxy.$store;
-  const route = computed(() => store && store.state.route);
-  const routingDeviceId = computed(() => {
-    const params = get(route) && get(route).params;
-    return params && params.deviceId;
-  });
+export function currentDeviceData() {
+  const route = useRoute();
+  const routingDeviceId = computed(() => route.params.deviceId);
 
   const instanceId = computedDevice(routingDeviceId, device => device.instance_id);
   const baseurl = computedDevice(routingDeviceId, device => device.base_url);
@@ -110,11 +107,11 @@ export function currentDeviceData(store) {
   };
 }
 
-export default function useDevices(store) {
+export default function useDevices() {
   const { fetchChannels } = useChannels();
   const networkDevices = ref({});
   const isLoading = ref(false);
-  const { instanceId, baseurl, deviceName } = currentDeviceData(store);
+  const { instanceId, baseurl, deviceName } = currentDeviceData();
 
   const deviceChannelsMap = ref({});
   const isLoadingChannels = ref(true);
