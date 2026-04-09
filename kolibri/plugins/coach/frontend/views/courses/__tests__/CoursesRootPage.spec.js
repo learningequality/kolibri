@@ -95,7 +95,6 @@ function makeStore() {
     actions: {
       initClassInfo: jest.fn(),
       notLoading: jest.fn(),
-      handleApiError: jest.fn(),
     },
     modules: {
       classSummary: {
@@ -137,6 +136,11 @@ const STUBS = {
   RouterView: {
     name: 'RouterView',
     template: '<div />',
+  },
+  KRouterLink: {
+    name: 'KRouterLink',
+    props: ['to', 'text'],
+    template: '<a>{{ text }}</a>',
   },
   MissingResourceAlert: {
     name: 'MissingResourceAlert',

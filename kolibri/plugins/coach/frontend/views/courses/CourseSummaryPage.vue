@@ -307,6 +307,7 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { handleApiError } from 'kolibri/utils/appError';
   import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
@@ -459,7 +460,7 @@
               };
             })
             .catch(error => {
-              store.dispatch('handleApiError', { error });
+              handleApiError({ error });
               unitReportInfo.value = {
                 ...unitReportInfo.value,
                 [unit.id]: {
