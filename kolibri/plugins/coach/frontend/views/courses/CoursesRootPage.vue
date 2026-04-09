@@ -5,6 +5,10 @@
     showSubNav
   >
     <KPageContainer>
+      <MissingResourceAlert
+        v-if="anyContentMissing"
+        data-testid="missing-resource-alert"
+      />
       <CoachHeader :title="coursesLabel$()">
         <template #actions>
           <KButton
@@ -122,7 +126,7 @@
                   <KIconButton icon="optionsVertical">
                     <template #menu>
                       <KDropdownMenu
-                        :options="courseMenuOptions"
+                        :options="courseMenuOptions(course)"
                         @select="selection => handleCourseMenuSelect(selection, course)"
                       />
                     </template>
@@ -184,6 +188,7 @@
 <script>
 
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
+  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import CoreTable from 'kolibri/components/CoreTable';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreString as translateCoreString } from 'kolibri/uiText/commonCoreStrings';
@@ -216,6 +221,7 @@
       DeleteCourseConfirmationModal,
       CoreTable,
       FilterTextbox,
+      MissingResourceAlert,
     },
     setup() {
       const route = useRoute();
@@ -405,6 +411,10 @@
         }
       };
 
+      const anyContentMissing = computed(() =>
+        (classCourses.value || []).some(c => c.contentMissing),
+      );
+
       const coreString = (key, args) => translateCoreString(key, args);
       const coachString = (key, args) => coachStrings.$tr(key, args);
       const loadClassData = async classId => {
@@ -451,6 +461,7 @@
         entireClassLabel$,
         show,
         windowIsSmall,
+        anyContentMissing,
         classCourses,
         coursesAreLoading,
         emptyPlusCloudSvg,
@@ -503,11 +514,16 @@
         ];
       },
       courseMenuOptions() {
-        return [
-          this.courseDetailsAction$(),
-          this.editRecipientsAction$(),
-          this.coreString('deleteAction'),
-        ];
+        return course => {
+          if (course.contentMissing) {
+            return [this.coreString('deleteAction')];
+          }
+          return [
+            this.courseDetailsAction$(),
+            this.editRecipientsAction$(),
+            this.coreString('deleteAction'),
+          ];
+        };
       },
       recipientOptions() {
         const groupOptions = (this.learnerGroups || []).map(group => ({

@@ -19,6 +19,7 @@ from kolibri.core.content.constants.kind_to_learningactivity import kind_activit
 from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.tasks import backfill_content_request_priority
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_ordered_categories
@@ -368,3 +369,13 @@ def contentnode_modality_annotation_update():
     annotate modality for all ContentNodes based on options.modality
     """
     annotate_modality(ContentNode.objects.all())
+
+
+@version_upgrade(old_version="<0.19.4")
+def backfill_content_request_priority_upgrade():
+    """
+    Enqueues a background task to set priority=ContentRequestPriority.REGULAR on any ContentRequest rows that
+    pre-date the priority column.  Running this asynchronously avoids a long-running
+    UPDATE that would stall the upgrade on large tables.
+    """
+    backfill_content_request_priority.enqueue_if_not_active()

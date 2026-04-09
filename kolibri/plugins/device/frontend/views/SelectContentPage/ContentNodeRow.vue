@@ -15,10 +15,18 @@
     <td class="title">
       <KLabeledIcon>
         <template #icon>
-          <ContentIcon :kind="node.kind" />
+          <KIcon
+            v-if="isCourse"
+            icon="course"
+            style="top: 4px"
+          />
+          <ContentIcon
+            v-else
+            :kind="node.kind"
+          />
         </template>
         <KRouterLink
-          v-if="isTopic"
+          v-if="isTopic && !isCourse"
           name="select-node"
           :text="node.title"
           :to="getLinkObject(node)"
@@ -27,7 +35,7 @@
           v-else
           dir="auto"
         >
-          {{ node.title }}
+          {{ displayTitle }}
         </span>
         <CoachContentLabel
           class="coach-content-label"
@@ -98,8 +106,23 @@
       isTopic() {
         return this.node.kind === ContentNodeKinds.TOPIC;
       },
+      isCourse() {
+        return this.node.modality === 'COURSE';
+      },
       importing() {
         return this.node.updated_resource && !this.node.available;
+      },
+      displayTitle() {
+        if (this.isCourse) {
+          return this.$tr('coursePrefixedTitle', { title: this.node.title });
+        }
+        return this.node.title;
+      },
+    },
+    $trs: {
+      coursePrefixedTitle: {
+        message: 'Course: {title}',
+        context: 'Displayed in the content import list to indicate the item is a course',
       },
     },
   };

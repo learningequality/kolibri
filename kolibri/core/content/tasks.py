@@ -7,22 +7,22 @@ from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
-from kolibri.core.content.utils.channel_transfer import export_channel
 from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_delete import delete_content
-from kolibri.core.content.utils.content_export import export_content
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
 from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
 from kolibri.core.content.utils.resource_import import DiskChannelUpdateManager
 from kolibri.core.content.utils.resource_import import (
@@ -352,6 +352,20 @@ def remoteresourceimport(
     import_manager.run()
 
 
+@register_task(
+    queue=QUEUE,
+    long_running=False,
+)
+def backfill_content_request_priority():
+    """
+    Backfills priority=ContentRequestPriority.REGULAR on ContentRequest rows where priority is NULL
+    (i.e. rows that pre-date the priority column).
+    """
+    ContentRequest.objects.filter(priority__isnull=True).update(
+        priority=ContentRequestPriority.REGULAR
+    )
+
+
 def enqueue_automatic_resource_import_if_needed(instance_id=None):
     """
     Enqueues automatic_resource_import if there are any pending content requests, and optionally
@@ -461,18 +475,15 @@ def diskexport(
     """
     Export a channel to a local drive, and copy content to the drive.
     """
-    from kolibri.core.content.utils.channels import get_mounted_drive_by_id
-
     drive = get_mounted_drive_by_id(drive_id)
 
-    export_channel(channel_id, drive.datafolder)
-
-    export_content(
+    manager = DiskChannelResourceExportManager(
         channel_id,
         drive.datafolder,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
     )
+    manager.run()
 
 
 class DeleteChannelValidator(ChannelResourcesValidator):
@@ -528,12 +539,6 @@ def remoteimport(
     fail_on_error=False,
     all_thumbnails=False,
 ):
-
-    transfer_channel(channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
-    if update:
-        current_job = get_current_job()
-        current_job.update_metadata(database_ready=True)
-
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
     )
@@ -546,6 +551,7 @@ def remoteimport(
         renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
+        import_channel_database=True,
     )
     manager.run()
 
@@ -570,13 +576,6 @@ def diskimport(
     all_thumbnails=False,
 ):
     drive = get_mounted_drive_by_id(drive_id)
-    directory = drive.datafolder
-
-    transfer_channel(channel_id, COPY_METHOD, source_path=directory)
-
-    if update:
-        current_job = get_current_job()
-        current_job.update_metadata(database_ready=True)
 
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager
@@ -590,6 +589,7 @@ def diskimport(
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
+        import_channel_database=True,
     )
     manager.run()
 
@@ -622,10 +622,8 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
         if job_data["kwargs"]["peer_id"]:
             client = NetworkClient.build_for_address(job_data["kwargs"]["baseurl"])
         else:
-            client = NetworkClient("/")
-        url = get_channel_lookup_url(
-            baseurl=job_data["kwargs"]["baseurl"], identifier=data["channel_id"]
-        )
+            client = NetworkClient(conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"])
+        url = get_channel_lookup_url(identifier=data["channel_id"])
         try:
             resp = client.get(url)
         except NetworkLocationResponseFailure as e:

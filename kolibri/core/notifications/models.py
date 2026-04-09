@@ -57,6 +57,7 @@ class LearnerProgressNotification(models.Model):
     quiz_num_correct = models.IntegerField(null=True)
     quiz_num_answered = models.IntegerField(null=True)
     reason = models.CharField(max_length=200, choices=HelpReason.choices(), blank=True)
+    course_session_id = UUIDField(null=True, blank=True)
     timestamp = DateTimeTzField(default=local_now)
 
     def __str__(self):

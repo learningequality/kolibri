@@ -89,14 +89,14 @@ Shared helpers
 """
 
 
-_FONT_FACE = """
+_FONT_FACE_TEMPLATE = """
 @font-face {{
   font-family: '{family}';
   src: url('{url}') format('woff');
   font-style: normal;
   font-weight: {weight};
   unicode-range: {unicodes};
-  font-display: swap;
+  font-display: {display};
 }}
 """
 
@@ -113,9 +113,18 @@ FONT_WEIGHT_MAP = {
 }
 
 
-def _gen_font_face(family, url, weight, unicodes):
+def _gen_font_face(family, url, weight, unicodes, display="swap"):
+    """
+    Generate a @font-face CSS rule.
+
+    Args:
+        display: font-display value. Use 'fallback' for subset/common fonts (prevents FOUT),
+                 'swap' for full fonts (allows graceful loading).
+    """
     weight = FONT_WEIGHT_NAME_MAP[weight]
-    return _FONT_FACE.format(family=family, url=url, weight=weight, unicodes=unicodes)
+    return _FONT_FACE_TEMPLATE.format(
+        family=family, url=url, weight=weight, unicodes=unicodes, display=display
+    )
 
 
 def _scoped(scope, name):
@@ -505,6 +514,7 @@ def _write_inline_font(file_object, font_path, font_family, weight):
             url=data_uri,
             weight=weight,
             unicodes=_fmt_range(glyphs),
+            display="fallback",  # Use fallback for subset/common fonts to prevent FOUT
         )
     )
 

@@ -406,7 +406,14 @@ export default {
         const path = [update.content_id, update.learner_id];
         const currentStatus = get(contentLearnerStatusMap, path);
         if (currentStatus) {
-          Object.assign(currentStatus, update);
+          // Don't allow a completed status to be overwritten by a lesser status
+          // e.g. when a learner continues answering after completing an exercise
+          if (currentStatus.status === STATUSES.completed && update.status !== STATUSES.completed) {
+            // Update metadata like last_activity but preserve the completed status
+            Object.assign(currentStatus, update, { status: STATUSES.completed });
+          } else {
+            Object.assign(currentStatus, update);
+          }
         } else {
           set(state.contentLearnerStatusMap, path, {
             ...update,

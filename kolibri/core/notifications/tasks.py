@@ -91,9 +91,9 @@ def add_to_save_queue(fn):
     log_queue.append(fn)
 
 
-def wrap_to_save_queue(fn, *args):
+def wrap_to_save_queue(fn, *args, **kwargs):
     def wrapper():
-        fn(*args)
+        fn(*args, **kwargs)
 
     log_queue.append(wrapper)
 

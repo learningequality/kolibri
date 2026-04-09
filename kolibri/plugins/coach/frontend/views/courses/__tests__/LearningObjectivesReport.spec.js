@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearningObjectivesReport from '../LearningObjectivesReport.vue';
+
+const { noTestDataLabel$ } = coursesStrings;
 
 const MOCK_OBJECTIVES = [
   {
@@ -49,6 +52,11 @@ const STUBS = {
     props: ['text', 'to'],
     template: '<a data-testid="router-link">{{ text }}</a>',
   },
+  KButton: {
+    name: 'KButton',
+    props: ['text', 'appearance'],
+    template: '<button data-testid="k-button" @click="$emit(\'click\')">{{ text }}</button>',
+  },
   SparklineBar: {
     name: 'SparklineBar',
     props: ['lowCount', 'midCount', 'highCount'],
@@ -82,7 +90,7 @@ describe('LearningObjectivesReport', () => {
     });
     expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
     expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-    expect(screen.getByText(/no test has been activated/i)).toBeInTheDocument();
+    expect(screen.getByText(noTestDataLabel$())).toBeInTheDocument();
   });
 
   it('renders LO rows when data is available', () => {
@@ -103,5 +111,30 @@ describe('LearningObjectivesReport', () => {
     expect(sparklines[0]).toHaveAttribute('data-low', '8');
     expect(sparklines[0]).toHaveAttribute('data-mid', '4');
     expect(sparklines[0]).toHaveAttribute('data-high', '3');
+  });
+
+  it('emits select-objective with objective and reportData when LO row is clicked', async () => {
+    const mockReportData = {
+      unit_title: 'Unit 1: Numbers',
+      learners: [],
+      pre_test: { status: 'closed', scores: {} },
+      post_test: { status: 'not_activated', scores: {} },
+    };
+    const { emitted } = renderComponent({
+      prefetchedData: {
+        activeTestStatus: 'closed',
+        bucketedObjectives: MOCK_OBJECTIVES,
+        reportData: mockReportData,
+      },
+    });
+
+    const buttons = screen.getAllByTestId('k-button');
+    await buttons[0].click();
+
+    expect(emitted()['select-objective']).toBeTruthy();
+    expect(emitted()['select-objective'][0][0]).toEqual({
+      objective: MOCK_OBJECTIVES[0],
+      reportData: mockReportData,
+    });
   });
 });

@@ -46,11 +46,18 @@ export default function useCourseSession(courseSessionId) {
   // Informative loading state (ie, we're re-fetching the last unit test, activating/closing)
   const dataLoading = ref(false);
 
+  // Whether the course content is missing (deleted from device).
+  // The courses list page detects this via a backend `missing_resource` annotation on the
+  // session queryset. This composable detects it at fetch time via a failed fetchTree call,
+  // which is needed because the detail page fetches the content tree independently.
+  const contentMissing = ref(false);
+
   // -----------
   // Data fetching
   // -----------
   function fetchCourseSession() {
     pageLoading.value = true;
+    contentMissing.value = false;
     if (!courseSessionId.value) {
       // Reset to avoid stale data
       courseSession.value = null;
@@ -62,10 +69,14 @@ export default function useCourseSession(courseSessionId) {
     CourseSessionResource.fetchModel({ id: courseSessionId.value })
       .then(session => {
         courseSession.value = session;
-        return ContentNodeResource.fetchTree({ id: session.course });
+        return ContentNodeResource.fetchTree({ id: session.course }).catch(() => {
+          contentMissing.value = true;
+          return null;
+        });
       })
       .then(courseData => {
         course.value = courseData;
+        if (!courseData) return null;
         return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });
       })
       .then(testData => {
@@ -271,6 +282,7 @@ export default function useCourseSession(courseSessionId) {
     dataLoading,
 
     // Raw data
+    contentMissing,
     courseSession,
     course,
     activeTest,

@@ -84,7 +84,10 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
         related_removals.delete()
 
         logger.debug("Creating content download request for {}".format(assignment))
-        ContentDownloadRequest.objects.get_or_create(
+        obj, created = ContentDownloadRequest.objects.get_or_create(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
             defaults=dict(
                 facility_id=facility.id,
                 reason=ContentRequestReason.SyncInitiated,
@@ -92,10 +95,14 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
                 source_instance_id=source_instance_id,
                 metadata=assignment.metadata,
             ),
-            source_model=assignment.source_model,
-            source_id=assignment.source_id,
-            contentnode_id=assignment.contentnode_id,
         )
+        if created:
+            # compute the priority here to prevent having to compute this if we don't end up creating a request,
+            # since this can be expensive to compute
+            obj.priority = ContentAssignmentManager.get_content_download_priority(
+                assignment
+            )
+            obj.save(update_fields=["priority"])
 
 
 def _get_related_contentnode_ids_for_removal(assignment):
@@ -437,7 +444,7 @@ def incomplete_downloads_queryset():
     """
     qs = (
         ContentDownloadRequest.objects.filter(status__in=INCOMPLETE_STATUSES)
-        .order_by("requested_at")
+        .order_by("priority", "requested_at")
         .annotate(
             has_metadata=Exists(
                 ContentNode.objects.filter(pk=OuterRef("contentnode_id"))

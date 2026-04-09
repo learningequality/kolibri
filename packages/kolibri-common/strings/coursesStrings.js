@@ -347,14 +347,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Visually hidden accessibility label for the sparkline bar, summarising the distribution of learners across low, medium, and high performance bands.',
   },
-  lowMasteryLabel: {
-    message: 'Low mastery ({count, number})',
-    context: 'Label shown on a unit accordion header when the unit has low average mastery',
-  },
-  strongMasteryLabel: {
-    message: 'Strong mastery',
-    context: 'Label shown on a unit accordion header when the unit has strong average mastery',
-  },
   learnersByMasteryLabel: {
     message: 'Learners by mastery',
     context: 'Tooltip title for the sparkline bar showing learner distribution by mastery level',
@@ -395,6 +387,11 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',
   },
+  unitTitleWithStatus: {
+    message: '{title} ({status})',
+    context:
+      'Accordion header for a unit that shows the unit title with its test status in parentheses, e.g. "Unit 1: Letters (Pre-test results)"',
+  },
   noTestDataLabel: {
     message: 'No test has been activated for this unit yet',
     context:
@@ -419,5 +416,134 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Post-test results',
     context:
       'Label shown in the accordion header when the post-test is closed and results are available',
+  },
+  supportNeededLabel: {
+    message: 'Support needed',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is ≤45%',
+  },
+  gainingMomentumLabel: {
+    message: 'Gaining momentum',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is 46–60%',
+  },
+  onTrackLabel: {
+    message: 'On track',
+    context:
+      'Risk level badge shown in the Learners report for learners whose aggregate score is above 60%',
+  },
+  riskLevelLabel: {
+    message: 'Risk level',
+    context: 'Column header for the risk level indicator in the Learners report table',
+  },
+  noLearnersAttemptedLabel: {
+    message: 'No learners have attempted this test yet',
+    context:
+      'Empty state message in the Learners report when a test is active but no learner has submitted answers',
+  },
+  learnerReportLabel: {
+    message: 'Learner report',
+    context: 'Subtitle in the learner side panel header, below the learner name',
+  },
+  noProgressLabel: {
+    message: 'No progress yet',
+    context: 'Heading in the learner side panel when the learner has not attempted any test',
+  },
+  hasntStartedUnitsLabel: {
+    message: "{name} hasn't started any units",
+    context:
+      'Description in the learner side panel when the learner has not attempted any test. {name} is the learner name.',
+  },
+  strugglingWithObjectivesPrefixLabel: {
+    message: 'Learner is struggling with',
+    context:
+      'Prefix of the warning banner in the learner side panel. Followed by a bold count and plural noun, e.g. "Learner is struggling with 3 learning objectives".',
+  },
+  strugglingWithObjectivesSuffixLabel: {
+    message:
+      '{count, number} {count, plural, one {learning objective} other {learning objectives}}',
+    context:
+      'Bold suffix of the warning banner showing the count and noun, e.g. "3 learning objectives". {count} is formatted as a locale-aware number.',
+  },
+  onTrackWithObjectivesPrefixLabel: {
+    message: 'Learner on track with',
+    context:
+      'Prefix of the success banner in the learner side panel. Followed by a bold count and plural noun, e.g. "Learner on track with 2 learning objectives".',
+  },
+  onTrackWithObjectivesSuffixLabel: {
+    message:
+      '{count, number} {count, plural, one {learning objective} other {learning objectives}}',
+    context:
+      'Bold suffix of the success banner showing the count and noun, e.g. "2 learning objectives". {count} is formatted as a locale-aware number.',
+  },
+  xOfYCorrectLabel: {
+    message: '{correct, number} of {total, number} correct',
+    context:
+      'Score label for each learning objective row in the learner side panel, e.g. "3 of 4 correct"',
+  },
+  progressLabel: {
+    message: 'Progress',
+    context: 'Label for the progress section in the learner side panel, displayed in uppercase',
+  },
+  losCompletedLabel: {
+    message: '{completed, number} of {total, number} LOs completed',
+    context:
+      'Progress row in the learner side panel showing how many learning objectives the learner has attempted, e.g. "3 of 8 LOs completed"',
+  },
+  individualLoPerformanceLabel: {
+    message: 'Individual learning objective performance',
+    context: 'Section heading in the learner side panel for the LO performance list',
+  },
+  sortedByScoreLowestFirstLabel: {
+    message: 'Sorted by score (lowest first)',
+    context: 'Sub-heading under the Individual learning objective performance section',
+  },
+  learningObjectiveLabel: {
+    message: 'Learning objective',
+    context: 'Column header in the learner side panel LO table',
+  },
+  questionsCorrectLabel: {
+    message: 'Questions correct',
+    context: 'Column header in the learner side panel LO table showing score for each LO',
+  },
+  ofNQuestionsLabel: {
+    message: 'of {total, number}',
+    context:
+      'Part of the LO score display in the learner side panel, showing e.g. "of 5", preceded by a bold count number',
+  },
+  preTestAverageLabel: {
+    message: 'Pre: {correct, number} of {total, number} questions',
+    context:
+      'Shows average pre-test score for a learning objective in the side panel, e.g. "Pre: 2 of 5 questions"',
+  },
+  postTestAverageLabel: {
+    message: 'Post: {correct, number} of {total, number} questions',
+    context:
+      'Shows average post-test score for a learning objective in the side panel, e.g. "Post: 4 of 5 questions"',
+  },
+  learnersStrugglingLabel: {
+    message:
+      '{count, number} {count, plural, one {learner} other {learners}} struggling with this objective',
+    context:
+      'Warning banner in the learning objective side panel showing how many learners scored low',
+  },
+  correctOfTotalLabel: {
+    message: '{correct, number} of {total, number}',
+    context:
+      'Score display for a learner on a specific objective, e.g. "3 of 5" meaning 3 correct out of 5',
+  },
+  testAveragesLabel: {
+    message: 'Test averages',
+    context: 'Label for the test averages row in the learning objective side panel summary',
+  },
+  individualPerformanceLabel: {
+    message: 'Individual learning objective performance',
+    context:
+      'Section heading in the learning objective side panel above the per-learner score list',
+  },
+  sortedByScoreLabel: {
+    message: 'Sorted by score (lowest first)',
+    context:
+      'Subtitle below the individual performance heading explaining the sort order of learner scores',
   },
 });

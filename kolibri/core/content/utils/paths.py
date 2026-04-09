@@ -228,21 +228,19 @@ def get_info_url(baseurl=None):
     return get_content_server_url("api/public/info", baseurl=baseurl)
 
 
-def get_channel_lookup_url(
-    version="1", identifier=None, baseurl=None, keyword=None, language=None
-):
-    content_server_path = "api/public/v{}/channels".format(version)
+def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=None):
+    content_server_path = "/api/public/v{}/channels".format(version)
     if identifier:
         content_server_path += "/lookup/{}".format(identifier)
-    content_server_path += "?"
     query_params = {}
     if keyword:
         query_params["keyword"] = keyword
     if language:
         query_params["language"] = language
-    content_server_path += urlencode(query_params)
+    if query_params:
+        content_server_path += "?" + urlencode(query_params)
 
-    return get_content_server_url(content_server_path, baseurl=baseurl)
+    return content_server_path
 
 
 def get_file_checksums_url(channel_id, baseurl, version="1"):
