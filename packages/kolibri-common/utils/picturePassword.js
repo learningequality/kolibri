@@ -1,4 +1,5 @@
 import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
+import { PicturePasswordIconStyle } from '../constants/Auth';
 
 /**
  * Resolves a `picture_password` string into an ordered array of icon descriptor objects.
@@ -20,9 +21,9 @@ export function getPicturePasswordIcons(picturePassword, iconStyle = null) {
         return null;
       }
       const result = { label: entry.name };
-      if (iconStyle === 'colorful') {
+      if (iconStyle === PicturePasswordIconStyle.COLORFUL) {
         result.iconColorful = entry.iconColorful;
-      } else if (iconStyle === 'standard') {
+      } else if (iconStyle === PicturePasswordIconStyle.STANDARD) {
         result.iconStandard = entry.iconStandard;
       }
       return result;
