@@ -98,7 +98,7 @@
                   :user="content"
                 >
                   <KDropdownMenu
-                    :options="getManageUserOptions(content.id)"
+                    :options="getManageUserOptions(content)"
                     @select="handleManageUserAction($event, content)"
                     @close="activeRowId = null"
                   />
@@ -144,6 +144,7 @@
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { UserKinds } from 'kolibri/constants';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
@@ -454,16 +455,21 @@
         userToChange.value = null;
       };
 
-      const getManageUserOptions = userId => {
-        return [
-          { label: coreStrings.editDetailsAction$(), value: Modals.EDIT_USER },
-          { label: resetPassword$(), value: Modals.RESET_USER_PASSWORD },
-          {
-            label: coreStrings.deleteAction$(),
-            value: Modals.DELETE_USER,
-            disabled: userId === currentUserId.value,
-          },
-        ];
+      const getManageUserOptions = user => {
+        const options = [{ label: coreStrings.editDetailsAction$(), value: Modals.EDIT_USER }];
+        const hideResetPassword = props.pictureLoginEnabled && user.kind === UserKinds.LEARNER;
+
+        if (!hideResetPassword) {
+          options.push({ label: resetPassword$(), value: Modals.RESET_USER_PASSWORD });
+        }
+
+        options.push({
+          label: coreStrings.deleteAction$(),
+          value: Modals.DELETE_USER,
+          disabled: user.id === currentUserId.value,
+        });
+
+        return options;
       };
       const handleSelectedButtonState = id => {
         activeRowId.value = id;
@@ -534,6 +540,10 @@
       numAppliedFilters: {
         type: Number,
         required: true,
+      },
+      pictureLoginEnabled: {
+        type: Boolean,
+        default: false,
       },
     },
   };
