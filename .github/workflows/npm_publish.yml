@@ -1,35 +1,40 @@
-name: Publish package to npm
+name: Publish packages to npm
 
 on:
-    workflow_dispatch:
-      # Inputs the workflow accepts.
-      inputs:
-        npm_package:
-          description: 'Package to publish to NPM'
-          required: true
-          type: choice
-          options:
-            - 'browserslist-config-kolibri'
-            - 'eslint-plugin-kolibri'
-            - 'kolibri'
-            - 'kolibri-app'
-            - 'kolibri-build'
-            - 'kolibri-format'
-            - 'kolibri-glob'
-            - 'kolibri-i18n'
-            - 'kolibri-jest-config'
-            - 'kolibri-logging'
-            - 'kolibri-module'
-            - 'kolibri-plugin-data'
-            - 'kolibri-tools'
-            - 'kolibri-viewer'
+  push:
+    branches:
+      - develop
+    paths:
+      - 'packages/**'
+  workflow_dispatch:
+    inputs:
+      npm_package:
+        description: 'Package to publish (or "all" to auto-detect)'
+        required: true
+        type: choice
+        default: 'all'
+        options:
+          - 'all'
+          - 'browserslist-config-kolibri'
+          - 'eslint-plugin-kolibri'
+          - 'kolibri'
+          - 'kolibri-app'
+          - 'kolibri-build'
+          - 'kolibri-format'
+          - 'kolibri-glob'
+          - 'kolibri-i18n'
+          - 'kolibri-jest-config'
+          - 'kolibri-logging'
+          - 'kolibri-module'
+          - 'kolibri-plugin-data'
+          - 'kolibri-tools'
+          - 'kolibri-viewer'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      id-token: write  # Required for npm provenance
+      id-token: write  # Required for npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -40,23 +45,10 @@ jobs:
         uses: pnpm/action-setup@v5
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Create tag
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const packageJson = require(`./packages/${{ github.event.inputs.npm_package }}/package.json`)
-            const version = packageJson.version
-            const tagname = `npm/${{ github.event.inputs.npm_package }}/${version}`
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${tagname}`,
-              sha: context.sha
-            })
-      - name: Build package
-        run: pnpm --filter ${{ github.event.inputs.npm_package }} run build || true
       - name: Publish to npm
-        run: pnpm --filter ${{ github.event.inputs.npm_package }} publish --provenance --access public --no-git-checks
-        env:
-          # NPM_API_TOKEN is an organization-level secret
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.npm_package }}" != "all" ]; then
+            ./scripts/npm_publish.sh "${{ github.event.inputs.npm_package }}"
+          else
+            ./scripts/npm_publish.sh
+          fi
