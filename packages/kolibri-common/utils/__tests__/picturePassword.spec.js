@@ -26,13 +26,21 @@ describe('getPicturePasswordIcons', () => {
 
     it('includes iconColorful when iconStyle is "colorful"', () => {
       const result = getPicturePasswordIcons('1', 'colorful');
-      expect(result[0]).toMatchObject({ label: 'alpha', iconColorful: 'alphaColorful' });
+      expect(result[0]).toMatchObject({
+        label: 'alpha',
+        iconColorful: 'alphaColorful',
+        iconName: 'alphaColorful',
+      });
       expect(result[0]).not.toHaveProperty('iconStandard');
     });
 
     it('includes iconStandard when iconStyle is "standard"', () => {
       const result = getPicturePasswordIcons('2', 'standard');
-      expect(result[0]).toMatchObject({ label: 'bravo', iconStandard: 'bravoStandard' });
+      expect(result[0]).toMatchObject({
+        label: 'bravo',
+        iconStandard: 'bravoStandard',
+        iconName: 'bravoStandard',
+      });
       expect(result[0]).not.toHaveProperty('iconColorful');
     });
 

@@ -6,7 +6,7 @@ import { PicturePasswordIconStyle } from '../constants/Auth';
  *
  * @param {string|null} picturePassword - Dot-separated string of icon IDs, e.g. "3.7.12"
  * @param {string|null} [iconStyle] - Optional display style: "colorful" or "standard"
- * @returns {Array<{label: string, iconColorful?: string, iconStandard?: string}>}
+ * @returns {Array<{label: string, iconName: string, iconColorful?: string, iconStandard?: string}>}
  */
 export function getPicturePasswordIcons(picturePassword, iconStyle = null) {
   if (!picturePassword) {
@@ -22,9 +22,9 @@ export function getPicturePasswordIcons(picturePassword, iconStyle = null) {
       }
       const result = { label: entry.name };
       if (iconStyle === PicturePasswordIconStyle.COLORFUL) {
-        result.iconColorful = entry.iconColorful;
+        result.iconName = result.iconColorful = entry.iconColorful;
       } else if (iconStyle === PicturePasswordIconStyle.STANDARD) {
-        result.iconStandard = entry.iconStandard;
+        result.iconName = result.iconStandard = entry.iconStandard;
       }
       return result;
     })
