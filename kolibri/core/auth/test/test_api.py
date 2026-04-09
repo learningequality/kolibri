@@ -13,7 +13,6 @@ from django.db.models.signals import pre_delete
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
-from mock import MagicMock
 from mock import patch
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
@@ -33,10 +32,8 @@ from rest_framework.test import APITransactionTestCase
 from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
-from ..constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
 from ..models import Facility
 from ..serializers import _prepare_for_bulk_create
-from ..serializers import FacilityUserSerializer
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -767,6 +764,66 @@ class FacilityAPITestCase(APITestCase):
         assert dataset.learner_can_delete_account is True
         assert dataset.learner_can_login_with_no_password is False
         assert dataset.show_download_button_in_learn is True
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_false_when_learner_count_below_limit(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["picture_passwords_exhausted"])
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_true_when_learner_count_reaches_limit(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        FacilityUserFactory.create(facility=self.facility1)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["picture_passwords_exhausted"])
+
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
+    def test_picture_passwords_exhausted_ignores_non_learner_users(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        coach = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_coach(coach)
+        admin = FacilityUserFactory.create(facility=self.facility1)
+        self.facility1.add_admin(admin)
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data["picture_passwords_exhausted"])
 
 
 def _add_demographic_schema_to_facility(facility):
@@ -3613,25 +3670,15 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
         user = models.FacilityUser.objects.get(id=response.data["id"])
         self.assertIsNone(user.picture_password)
 
+    @patch(
+        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
+    )
     def test_new_learner_no_picture_password_when_learner_count_at_limit(self):
-        """Learner creation succeeds without picture_password when facility is at or above the limit.
+        """Learner creation succeeds without picture_password when facility is at or above the limit."""
+        FacilityUserFactory.create(facility=self.facility)
+        FacilityUserFactory.create(facility=self.facility)
 
-        Tests the serializer directly to avoid patching Django ORM methods globally
-        during a live HTTP request (where filter() is called in many other places).
-        The patch scopes only to FacilityUser.objects.filter; is_valid() uses
-        FacilityUser.objects.get() (not filter()) so validation is unaffected.
-        """
-        mock_qs = MagicMock()
-        mock_qs.count.return_value = LEARNER_PICTURE_PASSWORD_LIMIT
-
-        with patch.object(models.FacilityUser.objects, "filter", return_value=mock_qs):
-            serializer = FacilityUserSerializer(
-                data={
-                    "username": "limituser",
-                    "password": DUMMY_PASSWORD,
-                    "facility": str(self.facility.id),
-                }
-            )
-            self.assertTrue(serializer.is_valid(), serializer.errors)
-            instance = serializer.save()
-        self.assertIsNone(instance.picture_password)
+        response = self._create_user_via_api()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = models.FacilityUser.objects.get(id=response.data["id"])
+        self.assertIsNone(user.picture_password)

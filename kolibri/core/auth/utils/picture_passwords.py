@@ -1,36 +1,103 @@
-import json
 import logging
 import random
 from itertools import permutations
-from pathlib import Path
 
+from django.db.models.functions import Coalesce
 from django.db.utils import IntegrityError
 
+from kolibri.core.auth.constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
+from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
+from kolibri.core.auth.constants.picture_passwords import SEQUENCE_LENGTH
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.errors import SequenceAlreadyAssigned
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.utils.cache import process_cache as cache
 
-# mapping of integer IDs to KDS icon names for picture-based login.
-#
-# IMPORTANT — treat this mapping as an append-only registry:
-#   IDs are immutable once assigned.
-#   Pictures can be added but NEVER removed or reassigned.
-#   Changing or removing an ID would invalidate stored sequences
-#   or point them to the wrong picture.
-PICTURE_PASSWORD_SET = {
-    int(key): value
-    for key, value in json.loads(
-        (
-            Path(__file__).resolve().parent.parent
-            / "constants"
-            / "picture_passwords_set.json"
-        ).read_text()
-    ).items()
-}
-
-SEQUENCE_LENGTH = 3
 
 logger = logging.getLogger(__name__)
+
+
+class LearnerCounterCache(object):
+    """
+    Learner calculation specifically for picture password login since only learners who have no role
+    and are not superusers should be included
+    """
+
+    key = "learner_count_{dataset_id}"
+    timeout = 300
+
+    def count(self, dataset_id):
+        """
+        Queries for the quantity of learners in a particular facility given its dataset ID
+
+        :param dataset_id: The ID of the facility dataset
+        :type dataset_id: str
+        :return: The number of learners in the facility (associated with the dataset)
+        :rtype: int
+        """
+        return (
+            FacilityUser.objects.annotate(
+                is_superuser=Coalesce("devicepermissions__is_superuser", False),
+            )
+            .filter(
+                dataset_id=dataset_id,
+                roles__isnull=True,
+                is_superuser=False,
+            )
+            .count()
+        )
+
+    def clear(self, dataset_id=None):
+        """
+        Clears the cache entry for the specified dataset, or all datasets if none specified.
+
+        :param dataset_id: The ID of the dataset to clear from the cache.
+        :type dataset_id: str|None
+        """
+        dataset_ids = []
+        if dataset_id is not None:
+            dataset_ids.append(dataset_id)
+        else:
+            dataset_ids = Facility.objects.values_list(
+                "dataset_id", flat=True
+            ).distinct()
+
+        for dataset_id in dataset_ids:
+            key = self.key.format(dataset_id=dataset_id)
+            cache.delete(key)
+
+    def __call__(self, dataset_id):
+        """
+        Queries for the quantity of learners in a particular facility given its dataset ID
+
+        :param dataset_id: The ID of the dataset whose count needs to be retrieved.
+        :type dataset_id: str
+        :return: The number of learners in the facility (associated with the dataset)
+        :rtype: int
+        """
+        key = self.key.format(dataset_id=dataset_id)
+        count = cache.get(key)
+        if count is None:
+            count = self.count(dataset_id)
+            cache.set(key, count, self.timeout)
+        return count
+
+
+get_learner_count = LearnerCounterCache()
+
+
+def are_picture_passwords_exhausted(dataset_id):
+    """
+    Determines whether the maximum number of picture passwords have been granted for a
+    given facility dataset.
+
+    :param dataset_id: The ID of the facility dataset to check
+    :type dataset_id: str
+    :return: `True` if the number of picture passwords has reached the defined limit
+    :rtype: bool
+    """
+    return get_learner_count(dataset_id) >= LEARNER_PICTURE_PASSWORD_LIMIT
 
 
 def get_all_valid_sequences(picture_set):

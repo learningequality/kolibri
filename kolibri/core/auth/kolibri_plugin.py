@@ -10,6 +10,7 @@ from kolibri.core.auth.sync_operations import KolibriNetworkInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.auth.tasks import cleanupsync
+from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.plugins.hooks import register_hook
 
 
@@ -104,3 +105,4 @@ class AuthSyncHook(FacilityDataSyncHook):
                 FacilityUser
             )
             cleanup_sessions(user_ids)
+            get_learner_count.clear(dataset_id)

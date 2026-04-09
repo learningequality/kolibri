@@ -1,8 +1,11 @@
+from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from .models import FacilityUser
 from .models import Membership
+from .models import Role
+from .utils.picture_passwords import get_learner_count
 from kolibri.core.notifications.models import LearnerProgressNotification
 
 
@@ -24,3 +27,13 @@ def cascade_delete_user(sender, instance=None, *args, **kwargs):
     objects whose user is the instance's user.
     """
     LearnerProgressNotification.objects.filter(user_id=instance.id).delete()
+
+
+@receiver([post_save, pre_delete], sender=FacilityUser)
+def facility_user_clear_learner_count(sender, instance=None, *args, **kwargs):
+    get_learner_count.clear(instance.dataset_id)
+
+
+@receiver([post_save, pre_delete], sender=Role)
+def role_clear_learner_count(sender, instance=None, *args, **kwargs):
+    get_learner_count.clear(instance.dataset_id)
