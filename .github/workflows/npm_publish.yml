@@ -34,6 +34,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
+      contents: read   # Required for npm provenance attestation
       id-token: write  # Required for npm OIDC trusted publishing
     steps:
       - uses: actions/checkout@v6
