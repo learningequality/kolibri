@@ -3712,28 +3712,34 @@ class RoleDeletePicturePasswordTestCase(APITestCase):
         user.refresh_from_db()
         self.assertIsNone(user.picture_password)
 
+
+class RoleDeleteNoPicSettingsTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = models.Facility.objects.create(name="RoleDeleteNoPicFacility")
+        cls.superuser = create_superuser(cls.facility)
+
     def test_last_role_deleted_no_assignment_when_picture_password_settings_null(self):
         """When picture_password_settings is None, deleting a user's last role does
         not assign a picture_password."""
-        user, role = self._make_user_with_role("nopicsettings")
-        # Temporarily disable picture password settings for this test
-        self.facility.dataset.picture_password_settings = None
-        self.facility.dataset.learner_can_edit_password = True
-        self.facility.dataset.save()
+        user = models.FacilityUser.objects.create_user(
+            username="nopicsettings",
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        role = models.Role.objects.create(
+            user=user,
+            collection=self.facility,
+            kind=role_kinds.ADMIN,
+        )
 
-        try:
-            role.delete()
+        role.delete()
 
-            user.refresh_from_db()
-            self.assertIsNone(user.picture_password)
-        finally:
-            # Restore settings so other tests are not affected
-            self.facility.dataset.learner_can_edit_password = False
-            self.facility.dataset.picture_password_settings = {
-                "icon_style": "standard",
-                "show_icon_text": False,
-            }
-            self.facility.dataset.save()
+        user.refresh_from_db()
+        self.assertIsNone(user.picture_password)
 
 
 class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
