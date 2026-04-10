@@ -155,6 +155,60 @@ Avoid long and complex unit tests
 
 A unit test should be kept simple and test a single execution flow, so that it is easy for someone else to read the test and understand the functionality of the component. You can always group related execution flows together using a ``describe`` block so that the test suite is organized.
 
+Reference translation keys, not hardcoded strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When querying the DOM in tests, never use hardcoded string literals or regex patterns to match translated text. Hardcoded strings duplicate the translation and are hard to maintain. Instead, reference the translation keys directly. This way, if the translation changes, the test will still be valid and will not require updates.
+
+.. code-block:: javascript
+
+  // ❌
+  getByRole('button', { name: /toggle/i });
+  findAllByText('This field is required')
+  getByText('You have reached the learner limit');
+
+  // ✅
+  // in-component $trs
+  getByRole('button', { name: ToggleButton.$trs.label.message });
+
+  // core strings
+  findAllByText(coreString('requiredFieldError'));
+
+  // destructured translator function
+  getByText(picturePasswordStrings.learnerLimitReachedHeading$());
+
+For strings that appear in the test itself (e.g. prop values, fixture names, or labels on inline helper components), assign the value to a named constant and reference it in both the setup and the assertion. This makes the relationship between input and expected output explicit and avoids the risk of typos or mismatches between the two.
+
+.. code-block:: javascript
+
+  // ❌
+  renderTopBar({ title: 'Test book title' });
+  expect(screen.getByRole('heading', { name: 'Test book title' })).toBeInTheDocument();
+
+  // ✅
+  const BOOK_TITLE = 'Test book title';
+  renderTopBar({ title: BOOK_TITLE });
+  expect(screen.getByRole('heading', { name: BOOK_TITLE })).toBeInTheDocument();
+
+Avoid stubs
+~~~~~~~~~~~
+
+Avoid passing a ``stubs`` option to the ``render()`` call. Stubs replace real child components with simplified stand-ins, which means the test no longer exercises real rendering, slot wiring, event propagation, or accessibility attributes. Tests that rely on stubs can pass while hiding bugs that only surface in production, and their frequent use undermines the purpose of Testing Library: tests should interact with the UI the way a real user would, and stubs make that impossible by removing the very elements users interact with.
+
+.. code-block:: javascript
+
+  // ❌
+  render(LearningObjectivesReport, {
+    stubs: {
+      KTable: { template: '<div />' },
+    },
+  });
+
+  // ✅
+  render(LearningObjectivesReport);
+
+In the rare case where stubbing is unavoidable (e.g. async complex logic that would otherwise complicate the test), suppress the lint rule with ``eslint-disable-next-line kolibri/tests-no-stubs`` and add a comment that explains the reason for stubbing.
+
 Use default props
 ~~~~~~~~~~~~~~~~~
 

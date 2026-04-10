@@ -352,6 +352,10 @@ export default [
         ...globals.jest,
       },
     },
+    rules: {
+      'kolibri/tests-no-hardcoded-strings': ERROR,
+      'kolibri/tests-no-stubs': ERROR,
+    },
   },
   // Override: __mocks__ files get jest globals
   {
