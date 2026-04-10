@@ -177,9 +177,105 @@ async function uploadReleaseAsset(github, context, filePath, release_id) {
   });
 }
 
+const npmVersionsHeader = '**npm Package Versions**';
+
+/**
+ * Generate the npm version check report body. Runs in pull_request context
+ * (no write permissions needed). Returns { body, hasContent } where body
+ * is the markdown comment text (or null if no packages were affected).
+ */
+function generateNpmVersionReport(baseSha) {
+  const { execSync } = require('child_process');
+
+  // Find all changed files under packages/
+  const allChanged = execSync(`git diff --name-only ${baseSha} -- packages/`)
+    .toString().trim().split('\n').filter(Boolean);
+
+  // Group changed files by package directory
+  const changedByPkg = {};
+  for (const file of allChanged) {
+    const parts = file.split('/');
+    if (parts.length < 2) continue;
+    const pkgDir = parts.slice(0, 2).join('/');
+    if (!changedByPkg[pkgDir]) changedByPkg[pkgDir] = [];
+    changedByPkg[pkgDir].push(file);
+  }
+
+  const publishRows = [];
+  const warningRows = [];
+
+  for (const [pkgDir, files] of Object.entries(changedByPkg)) {
+    const pkgJsonPath = path.join(pkgDir, 'package.json');
+    if (!fs.existsSync(pkgJsonPath)) continue;
+
+    const newPkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+    if (newPkg.private === true || newPkg.private === 'true') continue;
+
+    let oldPkg;
+    try {
+      oldPkg = JSON.parse(execSync(`git show ${baseSha}:${pkgJsonPath}`, { encoding: 'utf8' }));
+    } catch {
+      // New package — will be published
+      publishRows.push(`| ${newPkg.name} | _new_ | ${newPkg.version} |`);
+      continue;
+    }
+
+    const versionBumped = oldPkg.version !== newPkg.version;
+    if (versionBumped) {
+      publishRows.push(`| ${newPkg.name} | ${oldPkg.version} | ${newPkg.version} |`);
+    } else {
+      const count = files.length;
+      warningRows.push(`| ${newPkg.name} | ${newPkg.version} | ${count} |`);
+    }
+  }
+
+  const sections = [];
+  if (publishRows.length) {
+    sections.push(
+      `Merging this PR will publish the following packages to npm:\n\n` +
+      `| Package | Current | New |\n|-|-|-|\n${publishRows.join('\n')}`
+    );
+  }
+  if (warningRows.length) {
+    sections.push(
+      `> [!WARNING]\n` +
+      `> The following packages have changed files but no version bump:\n\n` +
+      `| Package | Version | Changed files |\n|-|-|-|\n${warningRows.join('\n')}\n\n` +
+      `If these changes affect published code, consider bumping the version.`
+    );
+  }
+
+  if (sections.length) {
+    return `### ${npmVersionsHeader}\n\n${sections.join('\n\n')}`;
+  }
+  return null;
+}
+
+/**
+ * Post or update the npm version check comment on a PR. Runs in
+ * workflow_run context (with write permissions). Pass body from
+ * generateNpmVersionReport, or null to delete any existing comment.
+ */
+async function postNpmVersionComment(github, context, prNumber, body) {
+  if (body) {
+    await upsertComment(github, context, prNumber, npmVersionsHeader, body);
+  } else {
+    const commentId = await findComment(github, context, prNumber, npmVersionsHeader);
+    if (commentId) {
+      await github.rest.issues.deleteComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        comment_id: commentId,
+      });
+    }
+  }
+}
+
 module.exports = {
   findComment,
   generateAssetComment,
+  generateNpmVersionReport,
+  postNpmVersionComment,
   uploadReleaseAsset,
   upsertComment,
 }
