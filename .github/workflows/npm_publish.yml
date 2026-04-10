@@ -44,6 +44,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - name: Install pnpm
         uses: pnpm/action-setup@v5
+      - name: Link workspace packages
+        run: pnpm install --ignore-scripts --no-optional
       - name: Publish to npm
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.npm_package }}" != "all" ]; then
