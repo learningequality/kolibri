@@ -7,11 +7,11 @@ set -euo pipefail
 #   ./scripts/npm_publish.sh              # auto-detect and publish all changed packages
 #   ./scripts/npm_publish.sh kolibri-format  # publish a specific package
 
-FILTER=""
+PACKAGES=()
 
 if [ $# -ge 1 ]; then
   # Specific package requested
-  FILTER="--filter $1"
+  PACKAGES+=("$1")
   echo "Publishing $1"
 else
   # Auto-detect packages with newer versions than npm
@@ -33,7 +33,7 @@ else
         continue
       else
         echo "Will publish $name: first publish ($repo_version)"
-        FILTER="$FILTER --filter $name"
+        PACKAGES+=("$name")
         continue
       fi
     }
@@ -48,19 +48,25 @@ else
 
     if [ "$is_newer" = "true" ]; then
       echo "Will publish $name: $npm_version → $repo_version"
-      FILTER="$FILTER --filter $name"
+      PACKAGES+=("$name")
     else
       echo "Skipping $name ($repo_version is not newer than $npm_version)"
     fi
   done
 fi
 
-if [ -z "$FILTER" ]; then
+if [ ${#PACKAGES[@]} -eq 0 ]; then
   echo "No packages need publishing"
   exit 0
 fi
 
-echo "Filter: $FILTER"
-
-# shellcheck disable=SC2086
-pnpm $FILTER -r publish --no-git-checks
+# Use pnpm pack to resolve workspace:* references, then npm publish the tarball.
+# pnpm publish doesn't support OIDC trusted publishing, so we pack with pnpm
+# (to rewrite workspace:* deps) and publish with npm (which handles OIDC).
+for name in "${PACKAGES[@]}"; do
+  echo "Publishing $name..."
+  pack_dir=$(mktemp -d)
+  pnpm --filter "$name" pack --pack-destination "$pack_dir"
+  npm publish "$pack_dir"/*.tgz
+  rm -rf "$pack_dir"
+done
