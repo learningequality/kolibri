@@ -3,8 +3,10 @@ import VueRouter from 'vue-router';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
 import store from 'kolibri/store';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 // eslint-disable-next-line import/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
+import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 import classSummaryModule from '../../../modules/classSummary';
 /* eslint-disable import/named */
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
@@ -250,15 +252,15 @@ describe('AttendanceNewPage', () => {
   it('updates present/absent counts when toggling a learner', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('0 present')).toBeInTheDocument();
-      expect(screen.getByText('3 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 0 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 3 }))).toBeInTheDocument();
     });
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
 
     await waitFor(() => {
-      expect(screen.getByText('1 present')).toBeInTheDocument();
-      expect(screen.getByText('2 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 1 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 2 }))).toBeInTheDocument();
     });
   });
 
@@ -316,7 +318,7 @@ describe('AttendanceNewPage', () => {
     });
 
     // Click "Go back" inside the modal
-    await fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
+    await fireEvent.click(screen.getByRole('button', { name: coreString('goBackAction') }));
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -342,11 +344,11 @@ describe('AttendanceNewPage', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    await fireEvent.click(screen.getByText('Mark all present'));
+    await fireEvent.click(screen.getByText(attendanceStrings.markAllPresentAction$()));
 
     await waitFor(() => {
-      expect(screen.getByText('3 present')).toBeInTheDocument();
-      expect(screen.getByText('0 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
     });
   });
 
@@ -357,7 +359,9 @@ describe('AttendanceNewPage', () => {
     });
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Submit attendance' }));
+    await fireEvent.click(
+      screen.getByRole('button', { name: attendanceStrings.submitAttendanceAction$() }),
+    );
     await global.flushPromises();
 
     expect(createSession).toHaveBeenCalledWith(
@@ -382,7 +386,9 @@ describe('AttendanceNewPage', () => {
     const initialRoute = router.currentRoute.name;
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
-    await fireEvent.click(screen.getByRole('button', { name: 'Submit attendance' }));
+    await fireEvent.click(
+      screen.getByRole('button', { name: attendanceStrings.submitAttendanceAction$() }),
+    );
     await global.flushPromises();
 
     expect(createSnackbar).toHaveBeenCalled();
@@ -447,16 +453,16 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('2 present')).toBeInTheDocument();
-      expect(screen.getByText('1 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 2 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 1 }))).toBeInTheDocument();
     });
 
     // Toggle Bob from absent to present — 1 change
     await fireEvent.click(getLearnerSwitch('learner-b'));
 
     await waitFor(() => {
-      expect(screen.getByText('3 present')).toBeInTheDocument();
-      expect(screen.getByText('0 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
     });
   });
 
@@ -465,7 +471,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: coreString('saveAction') })).toBeDisabled();
     });
   });
 
@@ -481,14 +487,14 @@ describe('AttendanceEditPage', () => {
     await fireEvent.click(getLearnerSwitch('learner-b'));
 
     // Click save
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
 
     await waitFor(() => {
       const modal = screen.getByRole('dialog');
       expect(modal).toBeInTheDocument();
       expect(modal).toHaveTextContent('1');
-      expect(modal).toHaveTextContent('3 present');
-      expect(modal).toHaveTextContent('0 absent');
+      expect(modal).toHaveTextContent(attendanceStrings.presentCount$({ count: 3 }));
+      expect(modal).toHaveTextContent(attendanceStrings.absentCount$({ count: 0 }));
     });
   });
 
@@ -504,7 +510,7 @@ describe('AttendanceEditPage', () => {
     await fireEvent.click(getLearnerSwitch('learner-b'));
 
     // Click save to open modal
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
@@ -538,7 +544,7 @@ describe('AttendanceEditPage', () => {
     await fireEvent.click(getLearnerSwitch('learner-b'));
 
     // Click save
-    await fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await fireEvent.click(screen.getByRole('button', { name: coreString('saveAction') }));
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
@@ -558,10 +564,12 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('There are no learners in this class')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.noLearnersInClassMessage$())).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: coreString('saveAction') }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows previously enrolled section (no save button) when all learners are removed but records exist', async () => {
@@ -572,11 +580,17 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice (Previously enrolled)')).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Alice' })),
+      ).toBeInTheDocument();
     });
 
-    expect(screen.queryByText('There are no learners in this class')).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(attendanceStrings.noLearnersInClassMessage$()),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: coreString('saveAction') }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not show learners added after the session was created', async () => {
@@ -601,7 +615,9 @@ describe('AttendanceEditPage', () => {
 
     // Bob joined after this session — should not appear at all
     expect(screen.queryByText('Bob')).not.toBeInTheDocument();
-    expect(screen.queryByText('Bob (Previously enrolled)')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+    ).not.toBeInTheDocument();
   });
 
   it('shows searchable list for previously enrolled when no current learners exist', async () => {
@@ -615,12 +631,16 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice (Previously enrolled)')).toBeInTheDocument();
-      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Alice' })),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+      ).toBeInTheDocument();
     });
 
     // Search box should be present for filtering previously enrolled learners
-    expect(screen.getByPlaceholderText('Search for a learner')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(attendanceStrings.searchPlaceholder$())).toBeInTheDocument();
 
     // Both previously enrolled toggles should be disabled
     const aliceSwitch = document.querySelector('input[name="attendance-removed-learner-a"]');
@@ -644,8 +664,12 @@ describe('AttendanceEditPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
-      expect(screen.getByText('Charlie (Previously enrolled)')).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Charlie' })),
+      ).toBeInTheDocument();
     });
   });
 
@@ -661,7 +685,9 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Bob (Previously enrolled)')).toBeInTheDocument();
+      expect(
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+      ).toBeInTheDocument();
     });
 
     const removedSwitch = document.querySelector('input[name="attendance-removed-learner-b"]');
@@ -683,8 +709,8 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('2 present')).toBeInTheDocument();
-      expect(screen.getByText('1 absent')).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.presentCount$({ count: 2 }))).toBeInTheDocument();
+      expect(screen.getByText(attendanceStrings.absentCount$({ count: 1 }))).toBeInTheDocument();
     });
   });
 
@@ -704,7 +730,7 @@ describe('AttendanceEditPage', () => {
     });
 
     // 3 total present (Alice current + Bob and Charlie previously enrolled), 0 absent.
-    expect(screen.getByText('3 present')).toBeInTheDocument();
-    expect(screen.getByText('0 absent')).toBeInTheDocument();
+    expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
+    expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
   });
 });
