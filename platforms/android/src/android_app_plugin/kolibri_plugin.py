@@ -5,10 +5,10 @@ from android_utils import os_user
 from android_utils import share_by_intent
 from django.utils import timezone
 from jnius import autoclass
+from kolibri.core.content.hooks import ShareFileHook
 from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.hooks import GetOSUserHook
-from kolibri.core.device.hooks import ShareFileHook
-from kolibri.core.tasks.hooks import StorageHook
+from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Priority
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
@@ -43,12 +43,12 @@ class AndroidCheckIsMeteredHook(CheckIsMeteredHook):
 
 @register_hook
 class AndroidShareFileHook(ShareFileHook):
-    def share_file(self, *args, **kwargs):
-        return share_by_intent(*args, **kwargs)
+    def share_file(self, filename, message):
+        return share_by_intent(filename, message)
 
 
 @register_hook
-class StorageHook(StorageHook):
+class AndroidJobHook(JobHook):
     def schedule(
         self,
         job,
