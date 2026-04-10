@@ -1,0 +1,48 @@
+name: npm Package Version Comment
+
+on:
+  workflow_run:
+    workflows: [npm Package Version Check]
+    types:
+      - completed
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download report artifact
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            const match = artifacts.data.artifacts.find(a => a.name === 'npm_version_report');
+            if (!match) {
+              core.setFailed('No npm_version_report artifact found');
+              return;
+            }
+            const download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: match.id,
+              archive_format: 'zip',
+            });
+            require('fs').writeFileSync('npm_version_report.zip', Buffer.from(download.data));
+      - name: Unzip report
+        run: unzip npm_version_report.zip
+      - name: Post or update comment
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const utils = require('./.github/githubUtils.js');
+            const prNumber = Number(fs.readFileSync('pr_number', 'utf8').trim());
+            const body = fs.readFileSync('body', 'utf8').trim();
+            await utils.postNpmVersionComment(github, context, prNumber, body || null);

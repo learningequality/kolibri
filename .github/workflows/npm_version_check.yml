@@ -3,13 +3,11 @@ name: npm Package Version Check
 on:
   pull_request:
     paths:
-      - 'packages/*/package.json'
+      - 'packages/**'
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -17,49 +15,18 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: 'package.json'
-      - name: Check for version changes and comment
+      - name: Generate version report
         uses: actions/github-script@v8
         with:
           script: |
-            const { execSync } = require('child_process');
             const fs = require('fs');
             const utils = require('./.github/githubUtils.js');
-
             const base = context.payload.pull_request.base.sha;
-
-            const changed = execSync(`git diff --name-only ${base} -- 'packages/*/package.json'`)
-              .toString().trim().split('\n').filter(Boolean);
-
-            const rows = [];
-            for (const file of changed) {
-              let oldPkg;
-              try {
-                oldPkg = JSON.parse(execSync(`git show ${base}:${file}`, { encoding: 'utf8' }));
-              } catch {
-                continue; // new package
-              }
-
-              const newPkg = JSON.parse(fs.readFileSync(file, 'utf8'));
-              if (newPkg.private) continue;
-
-              if (oldPkg.version !== newPkg.version) {
-                rows.push(`| ${newPkg.name} | ${oldPkg.version} | ${newPkg.version} |`);
-              }
-            }
-
-            const header = '**npm Package Versions**';
-            const prNumber = context.payload.pull_request.number;
-
-            if (rows.length) {
-              const body = `### ${header}\n\nMerging this PR will publish the following packages to npm:\n\n| Package | Current | New |\n|-|-|-|\n${rows.join('\n')}`;
-              await utils.upsertComment(github, context, prNumber, header, body);
-            } else {
-              const commentId = await utils.findComment(github, context, prNumber, header);
-              if (commentId) {
-                await github.rest.issues.deleteComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: commentId,
-                });
-              }
-            }
+            const body = utils.generateNpmVersionReport(base);
+            fs.mkdirSync('npm_version_report', { recursive: true });
+            fs.writeFileSync('npm_version_report/pr_number', String(context.payload.pull_request.number));
+            fs.writeFileSync('npm_version_report/body', body || '');
+      - uses: actions/upload-artifact@v7
+        with:
+          name: npm_version_report
+          path: npm_version_report/
