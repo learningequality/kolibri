@@ -103,10 +103,10 @@ Each folder is expected to have a ``__tests__`` folder, which would contain all 
 Use of ``renderComponent`` function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To avoid repeating boilerplate code while testing Vue components, define a ``renderComponent`` function to set up all the necessary mocks, stubs, and default props values to render the component to test. It can also revieve an optional argument ``props``, which can be used to overwrite:
+To avoid repeating boilerplate code while testing Vue components, define a ``renderComponent`` function to set up all the necessary mocks and default props values to render the component to test. It can also revieve an optional argument ``props``, which can be used to overwrite:
 
 -  The default props passed to the component being rendered
--  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc.) according to the test case. This is especially useful when you have a lot of tests that need to render the same component with the same configuration. Here is an example of how you can define a ``renderComponent`` function:
+-  Configuration passed to other mocks (like the values the getters for store mock should return, arguments to Vue Router etc.) according to the test case. This is especially useful when you have a lot of tests that need to render the same component with the same configuration. Here is an example of how you can define a ``renderComponent`` function:
 
 .. code:: javascript
 
@@ -154,6 +154,82 @@ Avoid long and complex unit tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A unit test should be kept simple and test a single execution flow, so that it is easy for someone else to read the test and understand the functionality of the component. You can always group related execution flows together using a ``describe`` block so that the test suite is organized.
+
+Reference translation keys, not hardcoded strings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When querying the DOM in tests, never use hardcoded strings or regex patterns to match translated text. Such strings duplicate the translation and are hard to maintain. Instead, reference the translation keys directly. This way, if the translation changes, the test will still be valid and will not require updates.
+
+.. code-block:: javascript
+
+  // ❌
+  getByRole('button', { name: /toggle/i });
+  findAllByText('This field is required')
+  getByText('You have reached the learner limit');
+
+  // ✅
+  // core strings
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  const { deleteAction$ } = coreStrings;
+
+  getByRole('button', { name: deleteAction$() });
+
+  // feature strings
+  import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
+  const { noTestDataLabel$, sparklineDistributionLabel$ } = coursesStrings;
+
+  getByText(noTestDataLabel$());
+  getByText(sparklineDistributionLabel$({ lowCount: 1, midCount: 0, highCount: 4 }));
+
+  // when strings defined as in-component `$trs` (obsolete pattern),
+  // have to use `createTranslator` in the test
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import TimeDuration from 'kolibri-common/components/TimeDuration';
+
+  const { minutes$ } = createTranslator(TimeDuration.name, TimeDuration.$trs);
+
+  getByText(minutes$({ value: 2 }));
+
+For strings that appear in the test itself (e.g. test data), assign the value to a named constant and reference it in both the setup and the assertion. This makes the relationship between input and expected output explicit and avoids the risk of typos or mismatches between the two.
+
+.. code-block:: javascript
+
+  // ❌
+  renderTopBar({ title: 'Test book title' });
+  expect(screen.getByRole('heading', { name: 'Test book title' })).toBeInTheDocument();
+
+  // ✅
+  const BOOK_TITLE = 'Test book title';
+  renderTopBar({ title: BOOK_TITLE });
+  expect(screen.getByRole('heading', { name: BOOK_TITLE })).toBeInTheDocument();
+
+The only exceptions are hardcoded strings used as ``data-testid`` values for ``*ByTestId`` queries, and standalone characters that are not typically translated, such as dashes, digits, or percentages:
+
+.. code-block:: javascript
+
+  // ✅
+  screen.getByTestId('summary-table');
+
+  screen.getAllByText('—');
+  screen.getByText('52');
+  screen.findByText('90%');
+
+Avoid using stubs
+~~~~~~~~~~~~~~~~~
+
+Except in very rare cases where stubbing is absolutely unavoidable (e.g. content renderers), avoid using stubs. Stubs replace real child components with simplified stand-ins, which means the test no longer exercises real rendering, slot wiring, event propagation, or accessibility attributes. Tests that rely on stubs can pass while hiding bugs that only surface in production, and their frequent use undermines the purpose of Testing Library: tests should interact with the UI the way a real user would, and stubs make that impossible by removing the very elements users interact with.
+
+.. code-block:: javascript
+
+  // ❌
+  render(LearningObjectivesReport, {
+    stubs: {
+      KTable: { template: '<div />' },
+    },
+  });
+
+  // ✅
+  render(LearningObjectivesReport);
 
 Use default props
 ~~~~~~~~~~~~~~~~~
