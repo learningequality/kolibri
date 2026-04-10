@@ -62,10 +62,5 @@ fi
 
 echo "Filter: $FILTER"
 
-PUBLISH_ARGS="--access public --no-git-checks"
-if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
-  PUBLISH_ARGS="$PUBLISH_ARGS --provenance"
-fi
-
 # shellcheck disable=SC2086
-pnpm $FILTER -r publish $PUBLISH_ARGS
+pnpm $FILTER -r publish --no-git-checks
