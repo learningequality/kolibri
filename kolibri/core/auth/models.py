@@ -74,6 +74,7 @@ from kolibri.core.auth.constants.demographics import LabelTranslationValidator
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_full_facility_import
@@ -84,7 +85,6 @@ from kolibri.core.fields import JSONField
 from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SESSIONS
-from kolibri.plugins.app.utils import interface
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
@@ -778,7 +778,7 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         If the user does not exist in the database, it is created.
         """
         try:
-            os_username, is_superuser = interface.get_os_user(auth_token)
+            os_username, is_superuser = GetOSUserHook.retrieve_os_user(auth_token)
         except NotImplementedError:
             return None
         if not os_username:

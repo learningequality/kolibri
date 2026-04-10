@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 from django.test import TestCase
 from rest_framework.exceptions import ParseError
@@ -14,12 +16,9 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.tasks import DeviceProvisionValidator
 from kolibri.core.device.tasks import provisiondevice
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
+from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
-from kolibri.plugins.app.test.helpers import register_capabilities
-from kolibri.plugins.app.utils import GET_OS_USER
-from kolibri.plugins.app.utils import interface
 from kolibri.plugins.utils.test.helpers import plugin_disabled
-from kolibri.plugins.utils.test.helpers import plugin_enabled
 
 
 class DeviceProvisionTestCase(TestCase):
@@ -185,10 +184,14 @@ class DeviceProvisionTestCase(TestCase):
                 self._post_deviceprovision(data)
 
     def test_osuser_superuser_created(self):
-        with plugin_enabled("kolibri.plugins.app"), register_capabilities(
-            **{GET_OS_USER: lambda x: ("test_user", True)}
-        ):
-            initialize_url = interface.get_initialize_url(auth_token="test")
+        with mock.patch(
+            "kolibri.core.device.tasks.GetOSUserHook", autospec=True
+        ) as mock_hook1, mock.patch(
+            "kolibri.core.auth.models.GetOSUserHook"
+        ) as mock_hook2:
+            mock_hook1.is_registered = mock_hook2.is_registered = True
+            mock_hook2.retrieve_os_user.return_value = ("test_os_user", True)
+            initialize_url = app_initialize_url(auth_token="test")
             self.client.get(initialize_url)
             data = self._default_provision_data()
             del data["superuser"]
@@ -199,6 +202,9 @@ class DeviceProvisionTestCase(TestCase):
                 FacilityUser.objects.get().devicepermissions,
             )
             self.assertTrue(FacilityUser.objects.get().os_user)
+            self.assertFalse(
+                DeviceSettings.objects.get().allow_other_browsers_to_connect
+            )
 
     def test_imported_facility_no_update(self):
         facility = Facility.objects.create(name="This is a test")

@@ -61,7 +61,6 @@
     "./uiText/notificationStrings": "./uiText/notificationStrings",
     "./urls": "./urls",
     "./utils/CatchErrors": "./utils/CatchErrors",
-    "./utils/appCapabilities": "./utils/appCapabilities",
     "./utils/appError": "./utils/appError",
     "./utils/baseClient": "./utils/baseClient",
     "./utils/browserInfo": "./utils/browserInfo",

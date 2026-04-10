@@ -54,7 +54,6 @@ export default {
   'kolibri/uiText/notificationStrings': require('kolibri/uiText/notificationStrings'),
   'kolibri/urls': require('kolibri/urls'),
   'kolibri/utils/CatchErrors': require('kolibri/utils/CatchErrors'),
-  'kolibri/utils/appCapabilities': require('kolibri/utils/appCapabilities'),
   'kolibri/utils/appError': require('kolibri/utils/appError'),
   'kolibri/utils/baseClient': require('kolibri/utils/baseClient'),
   'kolibri/utils/browserInfo': require('kolibri/utils/browserInfo'),

@@ -40,9 +40,9 @@
   import get from 'lodash/get';
   import useUser from 'kolibri/composables/useUser';
   import { error as coreError, handleApiError, clearError } from 'kolibri/utils/appError';
+  import pluginData from 'kolibri-plugin-data';
   import AppError from 'kolibri/components/error/AppError';
   import { currentLanguage } from 'kolibri/utils/i18n';
-  import { checkCapability } from 'kolibri/utils/appCapabilities';
   import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import TaskResource from 'kolibri/apiResources/TaskResource';
@@ -60,8 +60,8 @@
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
     setup() {
-      const { login } = useUser();
-      return { login, coreError, handleApiError, clearError };
+      const { isAppContext, login } = useUser();
+      return { isAppContext, login, coreError, handleApiError, clearError };
     },
     computed: {
       facilityData() {
@@ -107,7 +107,7 @@
       userBasedOnOs() {
         // On my own setup with OS user means that the user will be created
         // at login time, based on the OS user.
-        return this.isOnMyOwnSetup && checkCapability('get_os_user');
+        return this.isOnMyOwnSetup && this.isAppContext && pluginData.canGetOSUser;
       },
       learnerCanEditPassword() {
         // Note that we don't ask this question of a user during onboarding -- however,

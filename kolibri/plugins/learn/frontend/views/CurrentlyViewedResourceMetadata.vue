@@ -136,6 +136,12 @@
       class="download-button"
       data-test="download-button"
     />
+    <KButton
+      v-if="canShareFile"
+      :text="learnString('shareFile')"
+      class="share-button"
+      @click="shareFile()"
+    />
   </section>
 
 </template>
@@ -143,9 +149,12 @@
 
 <script>
 
-  import { ContentLevels } from 'kolibri/constants';
+  import { ContentNodeKinds, ContentLevels } from 'kolibri/constants';
   import camelCase from 'lodash/camelCase';
-
+  import client from 'kolibri/client';
+  import useUser from 'kolibri/composables/useUser';
+  import urls from 'kolibri/urls';
+  import pluginData from 'kolibri-plugin-data';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import DownloadButton from 'kolibri/components/DownloadButton';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
@@ -167,6 +176,10 @@
       TimeDuration,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { isAppContext } = useUser();
+      return { isAppContext };
+    },
     props: {
       canDownloadExternally: {
         type: Boolean,
@@ -187,6 +200,13 @@
       };
     },
     computed: {
+      canShareFile() {
+        return (
+          this.isAppContext &&
+          this.content.kind !== ContentNodeKinds.EXERCISE &&
+          pluginData.canShareFile
+        );
+      },
       forBeginners() {
         return get(this.content, 'learner_needs', []).includes(LearnerNeeds.FOR_BEGINNERS);
       },
@@ -260,6 +280,21 @@
           return '-';
         }
       },
+      shareFile() {
+        const urlFunction = urls['kolibri:core:sharefile'];
+        return client({
+          url: urlFunction(),
+          method: 'POST',
+          data: {
+            content_node: this.content.id,
+            message: this.learnString('shareFileMessage', {
+              title: this.content.title,
+              topic: this.content.ancestors.slice(-1)[0].title,
+              copyrightHolder: this.content.license_owner,
+            }),
+          },
+        });
+      },
     },
   };
 
@@ -309,7 +344,8 @@
     padding-top: 8px;
   }
 
-  .download-button {
+  .download-button,
+  .share-button {
     margin-top: 16px;
   }
 
