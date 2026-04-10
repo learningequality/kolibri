@@ -9,6 +9,7 @@
       <form
         v-if="!loading"
         class="form"
+        data-testid="form"
         @submit.prevent="submitForm"
       >
         <section>
@@ -38,6 +39,7 @@
           <section
             v-if="showPicturePasswordSection"
             class="picture-password-section"
+            data-testid="picture-password-section"
           >
             <h3>
               {{ picturePassword$() }}
@@ -70,10 +72,12 @@
               :disabled="formDisabled"
               :label="coreString('userTypeLabel')"
               :options="userTypeOptions"
+              data-testid="user-type"
             />
             <div
               v-if="disableLearnerRoleOption"
               class="learner-limit-message"
+              data-testid="learner-limit-message"
             >
               <KIcon
                 class="icon"
@@ -84,6 +88,7 @@
                 <KButton
                   appearance="basic-link"
                   :text="coreString('learnMoreAction')"
+                  data-testid="learner-limit-modal-trigger"
                   @click="isLearnerLimitModalOpen = true"
                 />
               </p>
@@ -157,6 +162,7 @@
       </form>
       <LearnerLimitReachedModal
         v-if="isLearnerLimitModalOpen"
+        data-testid="learner-limit-modal"
         @close="isLearnerLimitModalOpen = false"
       />
     </KPageContainer>
