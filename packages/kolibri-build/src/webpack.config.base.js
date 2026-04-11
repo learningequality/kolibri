@@ -115,9 +115,10 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
     optimization: {
       minimizer: [
         new TerserPlugin({
-          parallel: true,
+          minify: TerserPlugin.swcMinify,
           terserOptions: {
-            // Don't specify mangle, as it is true by default.
+            compress: true,
+            mangle: true,
             output: {
               comments: false,
             },
