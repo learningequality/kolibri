@@ -64,3 +64,22 @@ echo "Filter: $FILTER"
 
 # shellcheck disable=SC2086
 pnpm $FILTER -r publish --no-git-checks
+
+# Write a markdown summary of published packages to a file
+SUMMARY_FILE="${PUBLISH_SUMMARY:-publish_summary.md}"
+{
+  echo "### Published npm packages"
+  echo ""
+  echo "| Package | Version |"
+  echo "|-|-|"
+  for filter_arg in $FILTER; do
+    [ "$filter_arg" = "--filter" ] && continue
+    pkg_dir=$(find packages -maxdepth 1 -name "$filter_arg" -type d | head -1)
+    if [ -n "$pkg_dir" ] && [ -f "$pkg_dir/package.json" ]; then
+      name=$(node -e "console.log(require('./$pkg_dir/package.json').name)")
+      version=$(node -e "console.log(require('./$pkg_dir/package.json').version)")
+      echo "| [$name](https://www.npmjs.com/package/$name) | $version |"
+    fi
+  done
+} > "$SUMMARY_FILE"
+cat "$SUMMARY_FILE"

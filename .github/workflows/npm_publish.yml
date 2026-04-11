@@ -53,3 +53,4 @@ jobs:
           else
             ./scripts/npm_publish.sh
           fi
+          cat publish_summary.md >> "$GITHUB_STEP_SUMMARY"
