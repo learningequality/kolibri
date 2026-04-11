@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
@@ -69,8 +70,9 @@ describe('SelectDriveModal', () => {
   it('in import mode, drive-list only shows drives with content', () => {
     setTransferType('localimport');
     renderComponent({ store });
-    const drives = screen.getAllByRole('radio');
-    expect(drives).toHaveLength(3);
+
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
   });
 
   it('in import more mode, drive-list only shows drives with a compatible channel', () => {
@@ -118,7 +120,14 @@ describe('SelectDriveModal', () => {
     expect(screen.getByText('Could not find a writable drive connected to the server')).toBeInTheDocument();
   });
 
-  it('when no drive is selected, "Continue" button is disabled', () => {
+  it('when a drive is selected, "Continue" button is enabled', async () => {
+    renderComponent({ store });
+    const radio = screen.getAllByRole('radio')[0];
+    await userEvent.click(radio);
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
+  });
+
+  it('when no drive is selected, "Continue" button is disabled', async () => {
     renderComponent({ store });
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
