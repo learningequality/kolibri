@@ -75,7 +75,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
   if (transpile) {
     rules.push({
       test: /\.(js|mjs)$/,
-      loader: require.resolve('babel-loader'),
+      loader: require.resolve('swc-loader'),
       exclude: [
         // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
         // \\ for Windows, / for macOS and Linux
@@ -83,8 +83,15 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
         /node_modules[\\/]webpack[\\/]buildin/,
       ],
       options: {
-        cacheDirectory: cache,
-        cacheCompression: false,
+        env: {
+          targets: require('browserslist-config-kolibri'),
+        },
+        jsc: {
+          parser: {
+            syntax: 'ecmascript',
+            importAssertions: true,
+          },
+        },
       },
     });
   }

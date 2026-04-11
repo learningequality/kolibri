@@ -1,6 +1,6 @@
 {
   "name": "kolibri-build",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Build tools and webpack configuration for Kolibri",
   "repository": {
     "type": "git",
@@ -15,15 +15,11 @@
     "kolibri-build": "./src/cli.js"
   },
   "dependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/plugin-syntax-import-assertions": "^7.27.1",
-    "@babel/plugin-transform-runtime": "^7.29.0",
-    "@babel/preset-env": "^7.29.2",
+    "@swc/core": "^1.11.29",
+    "swc-loader": "^0.2.6",
     "autoprefixer": "10.4.23",
-    "babel-loader": "^10.1.1",
     "browserslist-config-kolibri": "0.18.0",
     "commander": "^14.0.3",
-    "core-js": "^3",
     "css-loader": "7.1.2",
     "css-minimizer-webpack-plugin": "7.0.4",
     "enhanced-resolve": "^5.20.1",

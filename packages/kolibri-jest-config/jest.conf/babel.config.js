@@ -1,5 +1,13 @@
-const babelConfig = require('kolibri-build/babel.config');
-
-babelConfig.plugins.push('@babel/plugin-transform-runtime');
-
-module.exports = babelConfig;
+module.exports = {
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        useBuiltIns: 'entry',
+        corejs: '3.31',
+      },
+    ],
+  ],
+  plugins: ['@babel/plugin-syntax-import-assertions', '@babel/plugin-transform-runtime'],
+  sourceType: 'unambiguous',
+};
