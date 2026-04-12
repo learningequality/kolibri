@@ -272,6 +272,9 @@ export default [
 
       'import-x/first': ERROR,
       'import-x/no-duplicates': ERROR,
+      'import-x/no-extraneous-dependencies': ERROR,
+      'import-x/no-self-import': ERROR,
+      'import-x/no-useless-path-segments': ERROR,
       'import-x/newline-after-import': ERROR,
       'import-x/order': [
         ERROR,
