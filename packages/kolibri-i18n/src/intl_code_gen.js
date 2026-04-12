@@ -1,5 +1,5 @@
-const path = require('path');
-const fs = require('fs');
+const path = require('node:path');
+const fs = require('node:fs');
 const { writeSourceToFile } = require('kolibri-format');
 const logger = require('kolibri-logging');
 const uniqBy = require('lodash/uniqBy');

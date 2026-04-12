@@ -4,6 +4,7 @@ import pluginImportX from 'eslint-plugin-import-x';
 import pluginJest from 'eslint-plugin-jest';
 import pluginJestDom from 'eslint-plugin-jest-dom';
 import pluginKolibri from 'eslint-plugin-kolibri';
+import pluginN from 'eslint-plugin-n';
 import pluginSmallImport from 'eslint-plugin-small-import';
 import pluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
@@ -22,6 +23,7 @@ export default [
     plugins: {
       kolibri: pluginKolibri,
       jest: pluginJest,
+      n: pluginN,
       'small-import': pluginSmallImport,
     },
     linterOptions: {
@@ -295,6 +297,12 @@ export default [
       'import-x/default': OFF,
 
       'small-import/no-full-import': ERROR,
+
+      // Node.js rules
+      'n/prefer-node-protocol': ERROR,
+      'n/no-deprecated-api': ERROR,
+      'n/no-exports-assign': ERROR,
+      'n/no-path-concat': ERROR,
 
       // Custom vue rules
       'kolibri/vue-no-unused-vuex-properties': ERROR,

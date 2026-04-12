@@ -1,6 +1,6 @@
 const path = require('node:path');
-const fs = require('fs');
-const os = require('os');
+const fs = require('node:fs');
+const os = require('node:os');
 const { resolve, addAliases, resetAliases } = require('../moduleResolver');
 
 // Helper function to create project structure

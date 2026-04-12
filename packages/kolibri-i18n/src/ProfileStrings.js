@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const traverse = require('ast-traverse');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const reduce = require('lodash/reduce');

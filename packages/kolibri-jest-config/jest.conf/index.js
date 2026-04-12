@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const babelConfig = require('./babel.config');
 
 const moduleNameMapper = {

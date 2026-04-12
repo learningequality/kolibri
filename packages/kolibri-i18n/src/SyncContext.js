@@ -1,6 +1,6 @@
 // Import packages
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const vueCompiler = require('vue-template-compiler');

@@ -8,6 +8,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
+var path = require('node:path');
 var requireIndex = require('requireindex');
 
 //------------------------------------------------------------------------------
@@ -15,4 +16,4 @@ var requireIndex = require('requireindex');
 //------------------------------------------------------------------------------
 
 // import all rules in lib/rules
-module.exports.rules = requireIndex(__dirname + '/rules');
+module.exports.rules = requireIndex(path.join(__dirname, 'rules'));

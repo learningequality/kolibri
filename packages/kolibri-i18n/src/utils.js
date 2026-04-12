@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const intersection = require('lodash/intersection');
 const { parse } = require('csv-parse/sync');
 const glob = require('kolibri-glob');
