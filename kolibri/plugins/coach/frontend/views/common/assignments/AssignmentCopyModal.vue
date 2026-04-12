@@ -52,7 +52,7 @@
   import LearnerGroupResource from 'kolibri-common/apiResources/LearnerGroupResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
 
   const logger = logging.getLogger(__filename);

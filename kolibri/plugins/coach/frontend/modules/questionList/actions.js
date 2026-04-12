@@ -5,9 +5,9 @@ import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import { coachStrings } from '../../views/common/commonCoachStrings';
-import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
-import QuizDifficulties from './../../apiResources/quizDifficulties';
-import PracticeQuizDifficulties from './../../apiResources/practiceQuizDifficulties';
+import ExerciseDifficulties from '../../apiResources/exerciseDifficulties';
+import QuizDifficulties from '../../apiResources/quizDifficulties';
+import PracticeQuizDifficulties from '../../apiResources/practiceQuizDifficulties';
 
 export function setItemStats(store, { classId, exerciseId, quizId, lessonId, groupId }) {
   let itemPromise;

@@ -80,7 +80,7 @@
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';
-  import commonLearnStrings from './../commonLearnStrings';
+  import commonLearnStrings from '../commonLearnStrings';
 
   export default {
     name: 'TopicsHeader',

@@ -31,7 +31,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import commonCoach from '../../common';
-  import CoachImmersivePage from '../../../views/CoachImmersivePage';
+  import CoachImmersivePage from '../../CoachImmersivePage';
   import LessonContentPreview from './LessonContentPreview';
 
   export default {

@@ -78,9 +78,9 @@
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
   import { PageNames, ClassesPageNames } from '../../constants';
-  import commonLearnStrings from './../commonLearnStrings';
-  import LearnAppBarPage from './../LearnAppBarPage';
-  import HybridLearningLessonCard from './../HybridLearningLessonCard';
+  import commonLearnStrings from '../commonLearnStrings';
+  import LearnAppBarPage from '../LearnAppBarPage';
+  import HybridLearningLessonCard from '../HybridLearningLessonCard';
 
   export default {
     name: 'LessonPlaylistPage',

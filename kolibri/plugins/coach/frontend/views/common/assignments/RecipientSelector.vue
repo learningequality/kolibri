@@ -46,7 +46,7 @@
 <script>
 
   import every from 'lodash/every';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../commonCoachStrings';
   import IndividualLearnerSelector from './IndividualLearnerSelector';
 
   export default {

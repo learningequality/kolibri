@@ -1,5 +1,5 @@
 import { render, fireEvent, screen } from '@testing-library/vue';
-import InteractionList from '../';
+import InteractionList from '..';
 
 const renderComponent = props => {
   const defaultProps = {

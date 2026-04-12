@@ -121,8 +121,8 @@
 <script>
 
   import commonCoach from '../../common';
-  import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
-  import StatusSummary from '../../common/status/StatusSummary';
+  import ProgressSummaryBar from './ProgressSummaryBar';
+  import StatusSummary from './StatusSummary';
 
   export default {
     name: 'StatusTestPage',

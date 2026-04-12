@@ -68,7 +68,7 @@
   import every from 'lodash/every';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
-  import { coachStringsMixin, getTruncatedItemsString } from '../../../common/commonCoachStrings';
+  import { coachStringsMixin, getTruncatedItemsString } from '../../commonCoachStrings';
   import LearnersSelectorSidePanel from './LearnersSelectorSidePanel';
 
   const ClassRecipients = {

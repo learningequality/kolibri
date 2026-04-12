@@ -288,12 +288,12 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import SearchResultsGrid from '../SearchResultsGrid';
   import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
+  import commonLearnStrings from '../commonLearnStrings';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
   import TopicsPanelModal from './TopicsPanelModal';
-  import commonLearnStrings from './../commonLearnStrings';
 
   function _handleRootTopic(topic, currentChannel) {
     const isRoot = !topic.parent;

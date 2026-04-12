@@ -110,7 +110,7 @@
   import YourClasses from '../YourClasses';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../device/frontend/views/PostSetupModalGroup.vue';
-  import commonLearnStrings from './../commonLearnStrings';
+  import commonLearnStrings from '../commonLearnStrings';
   import ContinueLearning from './ContinueLearning';
   import ExploreChannels from './ExploreChannels';
 

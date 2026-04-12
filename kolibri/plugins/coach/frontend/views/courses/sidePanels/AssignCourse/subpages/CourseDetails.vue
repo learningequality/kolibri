@@ -177,7 +177,7 @@
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { overrideRoute } from '../../../../../utils';
   import { PageNames } from '../../../../../constants';
-  import { coachStrings } from '../../../../../views/common/commonCoachStrings';
+  import { coachStrings } from '../../../../common/commonCoachStrings';
   import { injectAssignCourse } from '../../../composables/useAssignCourse';
 
   export default {

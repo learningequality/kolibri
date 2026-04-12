@@ -96,8 +96,8 @@
   import SyncStatusDisplay from 'kolibri/components/SyncStatusDisplay';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { fetchClassSyncStatus } from '../composables/fetchClassSyncStatus';
-  import CoachImmersivePage from '../views/CoachImmersivePage';
   import { PageNames } from '../constants';
+  import CoachImmersivePage from './CoachImmersivePage';
   import SyncStatusDescription from './common/SyncStatusDescription';
   import StorageNotificationBanner from './StorageNotificationBanner';
 

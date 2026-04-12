@@ -145,8 +145,8 @@
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import { licenseLongName, licenseDescriptionForConsumer } from 'kolibri/uiText/licenses';
   import markdownIt from 'markdown-it';
-  import HeaderWithOptions from '../common/HeaderWithOptions';
   import commonCoach from '../common';
+  import HeaderWithOptions from './HeaderWithOptions';
 
   export default {
     name: 'ReportsResourceHeader',
