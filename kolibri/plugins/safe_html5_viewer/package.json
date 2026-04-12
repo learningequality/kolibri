@@ -11,5 +11,8 @@
         "kolibri-zip": "workspace:*",
         "lodash": "catalog:",
         "vue": "catalog:"
+    },
+    "devDependencies": {
+        "@testing-library/vue": "catalog:"
     }
 }

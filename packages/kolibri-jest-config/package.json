@@ -25,6 +25,9 @@
     "vue-router": "catalog:",
     "vuex": "catalog:"
   },
+  "devDependencies": {
+    "jest-fail-on-console": "^3.3.4"
+  },
   "peerDependencies": {
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/user-event": "^14.6.1",

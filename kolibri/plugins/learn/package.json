@@ -12,6 +12,7 @@
     "kolibri-common": "workspace:*",
     "kolibri-constants": "catalog:",
     "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
     "kolibri-sandbox": "workspace:*",
     "kolibri-viewer": "workspace:*",
@@ -22,6 +23,8 @@
     "vuex": "catalog:"
   },
   "devDependencies": {
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:",
     "flush-promises": "^1.0.2"
   }
 }

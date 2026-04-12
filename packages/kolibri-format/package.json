@@ -28,6 +28,7 @@
     "eslint-plugin-vue": "^9.33.0",
     "fast-glob": "3.3.3",
     "globals": "^16.0.0",
+    "kolibri-glob": "workspace:*",
     "kolibri-logging": "workspace:*",
     "postcss-html": "^1.8.0",
     "postcss-less": "^6.0.0",

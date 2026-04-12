@@ -40,6 +40,7 @@
     "webpack": "^5.102.0"
   },
   "devDependencies": {
+    "kolibri": "workspace:*",
     "rewire": "^6.0.0"
   },
   "engines": {

@@ -9,10 +9,18 @@
         "kolibri-app": "workspace:*",
         "kolibri-common": "workspace:*",
         "kolibri-design-system": "catalog:",
+        "kolibri-logging": "workspace:*",
         "lockr": "0.8.5",
         "lodash": "catalog:",
         "vue": "catalog:",
         "vuex": "catalog:",
+        "kolibri-plugin-data": "workspace:*",
         "xstate": "catalog:"
+    },
+    "devDependencies": {
+        "@testing-library/jest-dom": "catalog:",
+        "@testing-library/user-event": "catalog:",
+        "@testing-library/vue": "catalog:",
+        "@vue/test-utils": "catalog:"
     }
 }

@@ -16,7 +16,8 @@
     "requireindex": "^1.1.0"
   },
   "devDependencies": {
-    "eslint": "^9.39.0"
+    "eslint": "^9.39.0",
+    "kolibri": "workspace:*"
   },
   "engines": {
     "node": ">=20.19.0"
