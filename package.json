@@ -91,6 +91,7 @@
       "vue-demi"
     ],
     "onlyBuiltDependencies": [
+      "@swc/core",
       "core-js",
       "deasync",
       "es5-ext",

@@ -1,1 +1,1 @@
-module.exports = require('kolibri-build/babel.config');
+module.exports = require('kolibri-jest-config/jest.conf/babel.config');
