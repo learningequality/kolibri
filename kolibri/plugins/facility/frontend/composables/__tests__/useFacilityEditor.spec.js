@@ -564,17 +564,22 @@ describe('useFacilityEditor', () => {
   });
 
   describe('saveFacilityConfig', () => {
-    it('saves facility config and copies settings', async () => {
+    it('saves facility config excluding login settings fields', async () => {
       const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
-      settings.value = mockFacilityConfig;
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+      };
       facilityDatasetId.value = mockDatasetId;
 
       await saveFacilityConfig();
 
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalledWith({
-        id: mockDatasetId,
-        data: mockFacilityConfig,
-      });
+      const savedData = FacilityDatasetResource.saveModel.mock.calls[0][0].data;
+      expect(savedData).not.toHaveProperty('picture_password_settings');
+      expect(savedData).not.toHaveProperty('learner_can_login_with_no_password');
+      expect(savedData).not.toHaveProperty('learner_can_edit_password');
+      expect(savedData).toHaveProperty('learner_can_edit_username');
+      expect(savedData).toHaveProperty('id');
     });
   });
 
@@ -633,65 +638,85 @@ describe('useFacilityEditor', () => {
     });
   });
 
-  describe('enablePictureLogin', () => {
-    const mockPicturePasswordSettings = { icon_style: 'standard', show_icon_text: true };
-
+  describe('saveFacilityLoginSettings', () => {
     beforeEach(() => {
-      urls['kolibri:core:facilitydataset_enable_picture_login'] = jest
+      urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
         .fn()
-        .mockReturnValue('/api/facility_dataset/enable_picture_login/');
+        .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
     });
 
-    it('calls the enable-picture-login endpoint via POST', async () => {
-      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
-      client.mockResolvedValue(mockTaskResponse);
+    it('calls the save-facility-login-settings endpoint via POST with login fields', async () => {
+      client.mockResolvedValue({ data: {} });
 
-      const { enablePictureLogin, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
       facilityDatasetId.value = mockDatasetId;
 
-      await enablePictureLogin(mockPicturePasswordSettings);
+      await saveFacilityLoginSettings();
 
       expect(client).toHaveBeenCalledWith({
-        url: '/api/facility_dataset/enable_picture_login/',
+        url: '/api/facility_dataset/save_facility_login_settings/',
         method: 'POST',
-        data: { picture_password_settings: mockPicturePasswordSettings },
+        data: {
+          picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+          learner_can_login_with_no_password: true,
+          learner_can_edit_password: false,
+        },
       });
     });
 
-    it('stores the returned task id', async () => {
-      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
-      client.mockResolvedValue(mockTaskResponse);
+    it('stores the returned task id when a task is enqueued', async () => {
+      client.mockResolvedValue({ data: { id: 'task-123', status: 'QUEUED' } });
 
-      const { enablePictureLogin, pictureLoginTaskId, facilityDatasetId } =
+      const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
         useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
       facilityDatasetId.value = mockDatasetId;
 
-      await enablePictureLogin(mockPicturePasswordSettings);
+      await saveFacilityLoginSettings();
 
       expect(pictureLoginTaskId.value).toBe('task-123');
     });
 
-    it('does not modify facility settings', async () => {
-      const mockTaskResponse = { data: { id: 'task-123', status: 'QUEUED' } };
-      client.mockResolvedValue(mockTaskResponse);
+    it('does not set task id when no task is enqueued', async () => {
+      client.mockResolvedValue({ data: { id: 'dataset-id' } });
 
-      const { enablePictureLogin, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
       settings.value = { ...mockFacilityConfig };
       facilityDatasetId.value = mockDatasetId;
 
-      await enablePictureLogin(mockPicturePasswordSettings);
+      await saveFacilityLoginSettings();
 
-      expect(settings.value).toEqual(mockFacilityConfig);
+      expect(pictureLoginTaskId.value).toBeNull();
     });
 
-    it('returns the task data from the response', async () => {
+    it('returns the response data', async () => {
       const mockTaskData = { id: 'task-123', status: 'QUEUED', percentage: 0 };
       client.mockResolvedValue({ data: mockTaskData });
 
-      const { enablePictureLogin, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
       facilityDatasetId.value = mockDatasetId;
 
-      const result = await enablePictureLogin(mockPicturePasswordSettings);
+      const result = await saveFacilityLoginSettings();
 
       expect(result).toEqual(mockTaskData);
     });

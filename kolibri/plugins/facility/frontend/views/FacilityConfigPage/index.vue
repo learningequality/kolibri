@@ -405,9 +405,9 @@
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
+        saveFacilityLoginSettings,
         setPin,
         unsetPin,
-        enablePictureLogin,
       } = useFacilityEditor(facilityId);
 
       const {
@@ -487,16 +487,18 @@
 
       async function saveConfig() {
         try {
-          const hadPicturePasswordSettings = Boolean(settings.value.picture_password_settings);
-          await saveFacilityConfig();
-          createSnackbar(saveSuccess$());
-          const hasPicturePasswordSettings = Boolean(settings.value.picture_password_settings);
-          if (!hadPicturePasswordSettings && hasPicturePasswordSettings) {
-            await handleEnablePictureLogin(settings.value.picture_password_settings);
+          pictureLoginTaskLoading.value = true;
+          await Promise.all([saveFacilityConfig(), saveFacilityLoginSettings()]);
+          if (!pictureLoginTaskId.value) {
+            createSnackbar(saveSuccess$());
           }
         } catch (error) {
           createSnackbar(saveFailure$());
           undoSettingsChange();
+        } finally {
+          if (!pictureLoginTaskId.value) {
+            pictureLoginTaskLoading.value = false;
+          }
         }
       }
 
@@ -573,16 +575,6 @@
         }
       });
 
-      async function handleEnablePictureLogin(picturePasswordSettings) {
-        try {
-          pictureLoginTaskLoading.value = true;
-          await enablePictureLogin(picturePasswordSettings);
-        } catch (error) {
-          pictureLoginTaskLoading.value = false;
-          createSnackbar(saveFailure$());
-        }
-      }
-
       return {
         // Constants
         OptionsForSignIn,
@@ -612,7 +604,7 @@
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
-        pictureLoginTaskLoading, // eslint-disable-line
+        pictureLoginTaskLoading,
 
         // Functions
         submitFacilityName,
@@ -622,7 +614,6 @@
         handleRemovePinSubmit,
         handleCreatePin,
         handleSelect,
-        handleEnablePictureLogin, // eslint-disable-line
 
         // Strings
         pageHeader$,

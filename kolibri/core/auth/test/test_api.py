@@ -43,6 +43,7 @@ from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.errors import NoAvailableSequences
+from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
@@ -2485,7 +2486,7 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.assertEqual(response.data["extra_fields"]["pin_code"], None)
 
 
-class EnablePictureLoginAPITestCase(APITestCase):
+class SaveFacilityLoginSettingsAPITestCase(APITestCase):
     databases = "__all__"
 
     @classmethod
@@ -2499,29 +2500,14 @@ class EnablePictureLoginAPITestCase(APITestCase):
         cls.coach = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_coach(cls.coach)
 
-    def _enable_picture_login_url(self):
+    def _url(self):
         return reverse(
-            "kolibri:core:facilitydataset-enable-picture-login",
+            "kolibri:core:facilitydataset-save-facility-login-settings",
             kwargs={"pk": self.facility.dataset_id},
         )
 
     def _picture_password_settings(self):
         return {"icon_style": "standard", "show_icon_text": True}
-
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch(
-        "kolibri.core.auth.api.FacilityDatasetViewSet.MAX_LEARNERS_FOR_PICTURE_LOGIN",
-        0,
-    )
-    def test_enable_rejected_for_too_many_learners(self, mock_task):
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
-            self._enable_picture_login_url(),
-            {"picture_password_settings": self._picture_password_settings()},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 400)
-        mock_task.validate_job_data.assert_not_called()
 
     def _setup_task_mocks(self, mock_storage, mock_task):
         from kolibri.core.tasks.job import Job
@@ -2532,27 +2518,31 @@ class EnablePictureLoginAPITestCase(APITestCase):
         mock_enqueued_job = Job(func="test_func", facility_id=self.facility.id)
         mock_enqueued_job.job_id = "test-job-id"
         mock_storage.get_job.return_value = mock_enqueued_job
-        mock_storage.get_orm_job.return_value = type(
-            "OrmJob",
-            (),
-            {
-                "scheduled_time": timezone.now(),
-                "repeat": 0,
-                "interval": 0,
-                "retry_interval": None,
-                "max_retries": None,
-            },
-        )()
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
+    @patch("kolibri.core.auth.api.PICTURE_PASSWORD_SEQUENCE_COUNT", new=1)
+    def test_enable_rejected_when_exhausted(self, mock_assigned, mock_task):
+        mock_assigned.return_value = {"1.2.3"}
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        mock_task.validate_job_data.assert_not_called()
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
     @patch("kolibri.core.auth.api.job_storage")
+    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
     def test_enable_enqueues_task_and_returns_task_object(
-        self, mock_storage, mock_task
+        self, mock_assigned, mock_storage, mock_task
     ):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.post(
-            self._enable_picture_login_url(),
+            self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
         )
@@ -2560,27 +2550,93 @@ class EnablePictureLoginAPITestCase(APITestCase):
         self.assertEqual(response.data["id"], "test-job-id")
         mock_task.validate_job_data.assert_called_once()
         mock_task.enqueue.assert_called_once()
+        dataset = FacilityDataset.objects.get(pk=self.facility.dataset_id)
+        self.assertEqual(
+            dataset.picture_password_settings, self._picture_password_settings()
+        )
+        self.assertTrue(dataset.learner_can_login_with_no_password)
+        self.assertFalse(dataset.learner_can_edit_password)
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    def test_update_settings_does_not_enqueue_task(self, mock_task):
+        dataset = self.facility.dataset
+        dataset.picture_password_settings = self._picture_password_settings()
+        dataset.learner_can_login_with_no_password = True
+        dataset.learner_can_edit_password = False
+        dataset.save()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        new_settings = {"icon_style": "colorful", "show_icon_text": False}
+        response = self.client.post(
+            self._url(),
+            {"picture_password_settings": new_settings},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        mock_task.validate_job_data.assert_not_called()
+        dataset.refresh_from_db()
+        self.assertEqual(dataset.picture_password_settings, new_settings)
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    def test_disable_to_username_only(self, mock_task):
+        dataset = self.facility.dataset
+        dataset.picture_password_settings = self._picture_password_settings()
+        dataset.learner_can_login_with_no_password = True
+        dataset.learner_can_edit_password = False
+        dataset.save()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._url(),
+            {
+                "picture_password_settings": None,
+                "learner_can_login_with_no_password": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        mock_task.validate_job_data.assert_not_called()
+        dataset.refresh_from_db()
+        self.assertIsNone(dataset.picture_password_settings)
+        self.assertTrue(dataset.learner_can_login_with_no_password)
+        self.assertFalse(dataset.learner_can_edit_password)
+
+    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    def test_disable_to_username_and_password(self, mock_task):
+        dataset = self.facility.dataset
+        dataset.picture_password_settings = self._picture_password_settings()
+        dataset.learner_can_login_with_no_password = True
+        dataset.learner_can_edit_password = False
+        dataset.save()
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._url(),
+            {
+                "picture_password_settings": None,
+                "learner_can_login_with_no_password": False,
+                "learner_can_edit_password": True,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        mock_task.validate_job_data.assert_not_called()
+        dataset.refresh_from_db()
+        self.assertIsNone(dataset.picture_password_settings)
+        self.assertFalse(dataset.learner_can_login_with_no_password)
+        self.assertTrue(dataset.learner_can_edit_password)
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
     @patch("kolibri.core.auth.api.job_storage")
-    def test_enable_does_not_assign_inline(self, mock_storage, mock_task):
+    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
+    def test_enable_does_not_assign_inline(
+        self, mock_assigned, mock_storage, mock_task
+    ):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         self.client.post(
-            self._enable_picture_login_url(),
+            self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
         )
         mock_task.assert_not_called()
-
-    def test_enable_requires_picture_password_settings(self):
-        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
-            self._enable_picture_login_url(),
-            {},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 400)
 
 
 @patch("kolibri.core.auth.tasks.get_current_job", return_value=None)

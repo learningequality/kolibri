@@ -174,10 +174,20 @@ export default function useFacilityEditor(facilityId) {
     return facility;
   }
 
+  const LOGIN_SETTINGS_FIELDS = [
+    'picture_password_settings',
+    'learner_can_login_with_no_password',
+    'learner_can_edit_password',
+  ];
+
   async function saveFacilityConfig() {
+    const data = { ...settings.value };
+    for (const field of LOGIN_SETTINGS_FIELDS) {
+      delete data[field];
+    }
     await FacilityDatasetResource.saveModel({
       id: facilityDatasetId.value,
-      data: settings.value,
+      data,
     });
     copySettings();
   }
@@ -203,13 +213,23 @@ export default function useFacilityEditor(facilityId) {
 
   const pictureLoginTaskId = ref(null);
 
-  async function enablePictureLogin(picturePasswordSettings) {
+  async function saveFacilityLoginSettings() {
+    const data = {
+      picture_password_settings: settings.value.picture_password_settings,
+      learner_can_login_with_no_password: settings.value.learner_can_login_with_no_password,
+      learner_can_edit_password: settings.value.learner_can_edit_password,
+    };
     const response = await client({
-      url: urls['kolibri:core:facilitydataset_enable_picture_login'](facilityDatasetId.value),
+      url: urls['kolibri:core:facilitydataset_save_facility_login_settings'](
+        facilityDatasetId.value,
+      ),
       method: 'POST',
-      data: { picture_password_settings: picturePasswordSettings },
+      data,
     });
-    pictureLoginTaskId.value = response.data.id;
+    if (response.data.id && response.data.status) {
+      pictureLoginTaskId.value = response.data.id;
+    }
+    copySettings();
     return response.data;
   }
 
@@ -247,6 +267,6 @@ export default function useFacilityEditor(facilityId) {
     setPin,
     unsetPin,
     setLoading,
-    enablePictureLogin,
+    saveFacilityLoginSettings,
   };
 }

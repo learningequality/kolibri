@@ -16,12 +16,15 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import transaction
+from django.db.models import BooleanField
+from django.db.models import Case
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models import Value
+from django.db.models import When
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.http import HttpResponseBadRequest
@@ -89,6 +92,8 @@ from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
+from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
+from kolibri.core.auth.utils.picture_passwords import PICTURE_PASSWORD_SEQUENCE_COUNT
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -288,15 +293,13 @@ class FacilityDatasetViewSet(ValuesViewset):
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility not found")
 
-    MAX_LEARNERS_FOR_PICTURE_LOGIN = 1300
-
     @decorators.action(
         methods=["post"],
         detail=True,
-        url_path="enable-picture-login",
+        url_path="save-facility-login-settings",
         permission_classes=[IsAuthenticated],
     )
-    def enable_picture_login(self, request, pk):
+    def save_facility_login_settings(self, request, pk):
         try:
             dataset = FacilityDataset.objects.get(pk=pk)
         except FacilityDataset.DoesNotExist:
@@ -306,52 +309,69 @@ class FacilityDatasetViewSet(ValuesViewset):
             raise PermissionDenied("You do not have permission to update this facility")
 
         facility = Facility.objects.get(dataset_id=pk)
-        picture_password_settings = request.data.get("picture_password_settings")
-        if not picture_password_settings:
-            return Response(
-                {"detail": "picture_password_settings is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
-        learner_count = (
-            FacilityUser.objects.filter(facility=facility, roles__isnull=True)
-            .exclude(devicepermissions__is_superuser=True)
-            .count()
+        new_pps = request.data.get("picture_password_settings")
+        learner_can_login_with_no_password = request.data.get(
+            "learner_can_login_with_no_password"
         )
-        if learner_count > self.MAX_LEARNERS_FOR_PICTURE_LOGIN:
+        learner_can_edit_password = request.data.get("learner_can_edit_password")
+
+        currently_enabled = dataset.picture_password_settings is not None
+        enabling = not currently_enabled and new_pps is not None
+
+        if enabling:
+            assigned = get_assigned_sequences(facility)
+            if len(assigned) >= PICTURE_PASSWORD_SEQUENCE_COUNT:
+                return Response(
+                    {"detail": "Picture passwords exhausted for this facility."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            dataset.picture_password_settings = new_pps
+            dataset.learner_can_login_with_no_password = True
+            dataset.learner_can_edit_password = False
+            dataset.save()
+
+            job, _ = assign_picture_passwords_to_facility.validate_job_data(
+                request.user,
+                data={"facility_id": facility.id},
+            )
+            job_id = assign_picture_passwords_to_facility.enqueue(job=job)
+            enqueued_job = job_storage.get_job(job_id)
             return Response(
                 {
-                    "detail": "Facility has too many learners ({count}) for picture login. Maximum is {max}.".format(
-                        count=learner_count,
-                        max=self.MAX_LEARNERS_FOR_PICTURE_LOGIN,
-                    )
+                    "id": enqueued_job.job_id,
+                    "status": enqueued_job.state,
+                    "percentage": enqueued_job.percentage_progress,
+                    "cancellable": enqueued_job.cancellable,
+                    "facility_id": enqueued_job.facility_id,
+                    "extra_metadata": enqueued_job.extra_metadata,
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_202_ACCEPTED,
             )
 
-        dataset.picture_password_settings = picture_password_settings
-        dataset.learner_can_edit_password = False
-        dataset.learner_can_login_with_no_password = True
-        dataset.save()
+        if currently_enabled and new_pps is not None:
+            dataset.picture_password_settings = new_pps
+            dataset.save()
+            return Response(
+                FacilityDatasetSerializer(dataset).data, status=status.HTTP_200_OK
+            )
 
-        job, _ = assign_picture_passwords_to_facility.validate_job_data(
-            request.user,
-            data={
-                "facility_id": facility.id,
-            },
-        )
-        job_id = assign_picture_passwords_to_facility.enqueue(job=job)
-        enqueued_job = job_storage.get_job(job_id)
+        if new_pps is None:
+            dataset.picture_password_settings = None
+            if learner_can_login_with_no_password:
+                dataset.learner_can_login_with_no_password = True
+                dataset.learner_can_edit_password = False
+            else:
+                dataset.learner_can_login_with_no_password = False
+                if learner_can_edit_password is not None:
+                    dataset.learner_can_edit_password = learner_can_edit_password
+            dataset.save()
+            return Response(
+                FacilityDatasetSerializer(dataset).data, status=status.HTTP_200_OK
+            )
+
         return Response(
-            {
-                "id": enqueued_job.job_id,
-                "status": enqueued_job.state,
-                "percentage": enqueued_job.percentage_progress,
-                "cancellable": enqueued_job.cancellable,
-                "facility_id": enqueued_job.facility_id,
-                "extra_metadata": enqueued_job.extra_metadata,
-            },
-            status=status.HTTP_202_ACCEPTED,
+            {"detail": "Invalid request."}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -930,6 +950,7 @@ class FacilityViewSet(ValuesViewset):
         "num_users",
         "last_successful_sync",
         "last_failed_sync",
+        "picture_passwords_exhausted",
     ]
 
     values = tuple(facility_values + dataset_keys)
@@ -988,6 +1009,26 @@ class FacilityViewSet(ValuesViewset):
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")[:1]
+                )
+            )
+            .annotate(
+                _assigned_picture_passwords=SQCount(
+                    FacilityUser.objects.filter(
+                        facility=OuterRef("id"),
+                        roles__isnull=True,
+                        picture_password__isnull=False,
+                    ),
+                    field="id",
+                ),
+            )
+            .annotate(
+                picture_passwords_exhausted=Case(
+                    When(
+                        _assigned_picture_passwords__gte=PICTURE_PASSWORD_SEQUENCE_COUNT,
+                        then=Value(True),
+                    ),
+                    default=Value(False),
+                    output_field=BooleanField(),
                 )
             )
         )
