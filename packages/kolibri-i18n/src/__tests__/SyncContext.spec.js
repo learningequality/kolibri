@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const vueCompiler = require('vue-template-compiler');
 const traverse = require('ast-traverse');
 const recast = require('recast');

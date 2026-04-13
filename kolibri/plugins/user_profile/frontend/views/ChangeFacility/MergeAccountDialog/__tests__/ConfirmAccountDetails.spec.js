@@ -22,9 +22,9 @@ function makeWrapper({ targetFacility, targetAccount, username } = {}) {
   });
 }
 
-const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
+const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"]');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
-const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
+const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
@@ -52,11 +52,11 @@ describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
     expect(wrapper.text()).toContain(
       "Your account will be merged into this account in 'Test Facility'",
     );
-    expect(wrapper.find('[data-test="fullname"]').text()).toEqual('Test Full Name');
-    expect(wrapper.find('[data-test="username"]').text()).toEqual('remote_username');
-    expect(wrapper.find('[data-test="gender"]').text()).toEqual('Female');
-    expect(wrapper.find('[data-test="idnumber"]').text()).toEqual('test id');
-    expect(wrapper.find('[data-test="birthyear"]').text()).toEqual('1989');
+    expect(wrapper.find('[data-testid="fullname"]').text()).toEqual('Test Full Name');
+    expect(wrapper.find('[data-testid="username"]').text()).toEqual('remote_username');
+    expect(wrapper.find('[data-testid="gender"]').text()).toEqual('Female');
+    expect(wrapper.find('[data-testid="idnumber"]').text()).toEqual('test id');
+    expect(wrapper.find('[data-testid="birthyear"]').text()).toEqual('1989');
   });
 
   it(`clicking the continue button sends the continue event to the state machine`, () => {

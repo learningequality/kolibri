@@ -42,7 +42,7 @@ const renderComponent = props => {
 
 describe('TriesOverview', () => {
   describe('Test the progress icon and label', () => {
-    test('renders progress icon and completed label when there is a completed try', () => {
+    it('renders progress icon and completed label when there is a completed try', () => {
       renderComponent({
         pastTries: [
           {
@@ -58,7 +58,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('completedLabel')).toBeInTheDocument();
     });
 
-    test('renders progress icon and in-progress label when there is an in-progress try', () => {
+    it('renders progress icon and in-progress label when there is an in-progress try', () => {
       renderComponent({
         pastTries: [
           {
@@ -73,7 +73,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('inProgressLabel')).toBeInTheDocument();
     });
 
-    test('renders progress icon and not started label when there are no past tries', () => {
+    it('renders progress icon and not started label when there are no past tries', () => {
       renderComponent({
         pastTries: [],
         totalQuestions: 20,
@@ -85,7 +85,7 @@ describe('TriesOverview', () => {
   });
 
   describe("Test the 'Best Score' table row", () => {
-    test('renders the best score when there are past tries', () => {
+    it('renders the best score when there are past tries', () => {
       renderComponent({
         pastTries: [
           {
@@ -109,7 +109,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('questionsCorrectValue correct=9, total=10')).toBeInTheDocument();
     });
 
-    test('renders the best score as 0 when there are no past tries', () => {
+    it('renders the best score as 0 when there are no past tries', () => {
       renderComponent();
 
       expect(screen.getByText('Best score')).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('TriesOverview', () => {
   });
 
   describe("Test the 'Time Spent' table row", () => {
-    test('shows the time spent when there are past tries [Faster Quiz Report]', () => {
+    it('shows the time spent when there are past tries [Faster Quiz Report]', () => {
       renderComponent({
         pastTries: [
           {
@@ -143,7 +143,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('2 minutes faster than the suggested time')).toBeInTheDocument();
     });
 
-    test('shows the time spent when there are past tries [Slower Quiz Report]', () => {
+    it('shows the time spent when there are past tries [Slower Quiz Report]', () => {
       renderComponent({
         pastTries: [
           {
@@ -165,7 +165,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('1 minute slower than the suggested time')).toBeInTheDocument();
     });
 
-    test('shows the time spent when there are past tries but no suggested time [No Quiz Report]', () => {
+    it('shows the time spent when there are past tries but no suggested time [No Quiz Report]', () => {
       renderComponent({
         pastTries: [
           {
@@ -185,7 +185,7 @@ describe('TriesOverview', () => {
       expect(screen.getByText('20 seconds')).toBeInTheDocument();
     });
 
-    test('does not render the row if there are no past tries', () => {
+    it('does not render the row if there are no past tries', () => {
       renderComponent({ pastTries: [] });
       expect(screen.queryByText('Best score time')).not.toBeInTheDocument();
     });

@@ -2,13 +2,13 @@
 
   <KGrid
     class="mobile-header"
-    data-test="mobile-header"
+    data-testid="mobile-header"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
     <KGridItem :layout4="{ span: 3 }">
       <h1
         class="mobile-title"
-        data-test="mobile-title"
+        data-testid="mobile-title"
       >
         <KTextTruncator
           :text="topic.title"

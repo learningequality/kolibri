@@ -15,8 +15,8 @@ function makeWrapper() {
   });
 }
 
-const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
-const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
+const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
+const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 
@@ -33,7 +33,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   it('continue is disabled until merging is accepted', async () => {
     const wrapper = makeWrapper();
     const checkbox = wrapper.find('input[class="k-checkbox-input"]');
-    const continueButton = wrapper.find('[data-test="continueButton"]');
+    const continueButton = wrapper.find('[data-testid="continueButton"]');
     expect(continueButton.vm.disabled).toBeTruthy();
     checkbox.trigger('click');
     await wrapper.vm.$nextTick();

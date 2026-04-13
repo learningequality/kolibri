@@ -41,9 +41,9 @@ const TEST_FACILITY_USERS = [
   },
 ];
 
-const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
-const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
-const getUserTable = wrapper => wrapper.find('[data-test="userTable"]');
+const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
+const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"]');
+const getUserTable = wrapper => wrapper.find('[data-testid="userTable"]');
 
 describe(`ChangeFacility/ChooseAdmin`, () => {
   beforeEach(() => {

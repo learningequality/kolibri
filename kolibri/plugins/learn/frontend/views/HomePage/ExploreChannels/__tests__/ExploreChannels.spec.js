@@ -31,11 +31,11 @@ const TEST_CHANNELS = [
 ];
 
 function getViewAllLink(wrapper) {
-  return wrapper.find('[data-test="viewAllLink"]');
+  return wrapper.find('[data-testid="viewAllLink"]');
 }
 
 function getChannelsLinks(wrapper) {
-  return wrapper.findAll('[data-test="channelLink"]');
+  return wrapper.findAll('[data-testid="channelLink"]');
 }
 
 function makeWrapper(propsData) {

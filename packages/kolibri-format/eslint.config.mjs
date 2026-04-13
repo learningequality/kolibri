@@ -4,6 +4,7 @@ import pluginImportX from 'eslint-plugin-import-x';
 import pluginJest from 'eslint-plugin-jest';
 import pluginJestDom from 'eslint-plugin-jest-dom';
 import pluginKolibri from 'eslint-plugin-kolibri';
+import pluginN from 'eslint-plugin-n';
 import pluginSmallImport from 'eslint-plugin-small-import';
 import pluginVue from 'eslint-plugin-vue';
 import globals from 'globals';
@@ -22,6 +23,7 @@ export default [
     plugins: {
       kolibri: pluginKolibri,
       jest: pluginJest,
+      n: pluginN,
       'small-import': pluginSmallImport,
     },
     linterOptions: {
@@ -272,6 +274,9 @@ export default [
 
       'import-x/first': ERROR,
       'import-x/no-duplicates': ERROR,
+      'import-x/no-extraneous-dependencies': ERROR,
+      'import-x/no-self-import': ERROR,
+      'import-x/no-useless-path-segments': ERROR,
       'import-x/newline-after-import': ERROR,
       'import-x/order': [
         ERROR,
@@ -292,6 +297,12 @@ export default [
       'import-x/default': OFF,
 
       'small-import/no-full-import': ERROR,
+
+      // Node.js rules
+      'n/prefer-node-protocol': ERROR,
+      'n/no-deprecated-api': ERROR,
+      'n/no-exports-assign': ERROR,
+      'n/no-path-concat': ERROR,
 
       // Custom vue rules
       'kolibri/vue-no-unused-vuex-properties': ERROR,
@@ -318,7 +329,16 @@ export default [
         },
       ],
 
+      // Enforce data-testid over data-test in templates
+      'vue/no-restricted-static-attribute': [
+        ERROR,
+        { key: 'data-test', message: 'Use data-testid instead of data-test.' },
+        { key: 'data-cy', message: 'Use data-testid instead of data-cy.' },
+      ],
+
       // jest rules
+      'jest/consistent-test-it': [ERROR, { fn: 'it', withinDescribe: 'it' }],
+      'jest/require-top-level-describe': ERROR,
       'jest/no-deprecated-functions': ERROR,
       'jest/no-identical-title': ERROR,
       'jest/valid-expect': ERROR,

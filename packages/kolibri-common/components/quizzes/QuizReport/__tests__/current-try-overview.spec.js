@@ -86,7 +86,7 @@ describe('ExamReport/CurrentTryOverview', () => {
       const wrapper = shallowMount(CurrentTryOverview, {
         propsData: defaultPropsWith({ hideStatus: true }),
       });
-      expect(wrapper.find('[data-test="try-status"]').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="try-status"]').element).toBeFalsy();
     });
   });
 
@@ -133,14 +133,16 @@ describe('ExamReport/CurrentTryOverview', () => {
       // We know it is null due to the test suite describing 'is null when ... is "quiz"' - which
       // is what wrapperWithoutMasteryModel has it's currentTry.mastery_criterion set to
       expect(
-        wrapperWithoutMasteryModel.find('[data-test="try-mastery-model"]').element,
+        wrapperWithoutMasteryModel.find('[data-testid="try-mastery-model"]').element,
       ).toBeFalsy();
     });
 
     it('shows nothing when isSurvey', async () => {
       // setProps is async
       await wrapperToShowMasteryModel.setProps({ isSurvey: true });
-      expect(wrapperToShowMasteryModel.find('[data-test="try-mastery-model"]').element).toBeFalsy();
+      expect(
+        wrapperToShowMasteryModel.find('[data-testid="try-mastery-model"]').element,
+      ).toBeFalsy();
     });
   });
 
@@ -175,7 +177,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
         });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-score"]').element).toBeFalsy();
       });
 
       it('is not shown if currentTry.correct is `undefined`', () => {
@@ -183,7 +185,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { correct: undefined }),
         });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-score"]').element).toBeFalsy();
       });
 
       it('is not shown when the prop isSurvey is true', () => {
@@ -191,7 +193,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({ isSurvey: true }),
         });
-        expect(wrapper.find('[data-test="try-score"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-score"]').element).toBeFalsy();
       });
     });
 
@@ -204,7 +206,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         'displays %i as a percentage when currentTry.correct = %i',
         async n => {
           await wrapper.setProps({ currentTry: { ...defaultTry, correct: n } });
-          expect(wrapper.find('[data-test="try-score"]')).toHaveTextContent(`${n}%`);
+          expect(wrapper.find('[data-testid="try-score"]')).toHaveTextContent(`${n}%`);
         },
       );
     });
@@ -216,7 +218,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { mastery_criterion: nonQuizValidMasteryCriterion }),
         });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-questions-correct"]').element).toBeFalsy();
       });
 
       it('is not shown if currentTry.correct is `undefined`', () => {
@@ -224,7 +226,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({}, { correct: undefined }),
         });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-questions-correct"]').element).toBeFalsy();
       });
 
       it('is not shown when the prop isSurvey is true', () => {
@@ -232,7 +234,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultPropsWith({ isSurvey: true }),
         });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="try-questions-correct"]').element).toBeFalsy();
       });
     });
 
@@ -280,7 +282,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         const wrapper = shallowMount(CurrentTryOverview, {
           propsData: defaultProps,
         });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toBeTruthy();
+        expect(wrapper.find('[data-testid="try-questions-correct"]').element).toBeTruthy();
       });
 
       it('displays annotation string when diff.correct is set and viewed by owning user', () => {
@@ -289,7 +291,7 @@ describe('ExamReport/CurrentTryOverview', () => {
           propsData: defaultPropsWith({}, { diff: betterDiff }),
           localVue,
         });
-        expect(wrapper.find('[data-test="try-questions-correct"]').element).toHaveTextContent(
+        expect(wrapper.find('[data-testid="try-questions-correct"]').element).toHaveTextContent(
           translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
             value: betterDiff.correct,
           }),
@@ -303,14 +305,14 @@ describe('ExamReport/CurrentTryOverview', () => {
       const wrapper = shallowMount(CurrentTryOverview, {
         propsData: defaultPropsWith({ isSurvey: true }),
       });
-      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="try-time-spent"]').element).toBeFalsy();
     });
 
     it('is not shown when currentTry.time_spent is falsy', () => {
       const wrapper = shallowMount(CurrentTryOverview, {
         propsData: defaultPropsWith({}, { time_spent: 0 }),
       });
-      expect(wrapper.find('[data-test="try-time-spent"]').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="try-time-spent"]').element).toBeFalsy();
     });
 
     it('displays a TimeDuration component', () => {
@@ -368,7 +370,7 @@ describe('ExamReport/CurrentTryOverview', () => {
             localVue,
             propsData: defaultPropsWith({}, { diff: betterDiff }),
           });
-          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
+          expect(wrapper.find('[data-testid="try-time-spent"]').element).toHaveTextContent(
             translator.$tr('practiceQuizReportFasterTimeLabel', {
               value: Math.abs(wrapper.vm.diffTimeSpent),
             }),
@@ -383,7 +385,7 @@ describe('ExamReport/CurrentTryOverview', () => {
             localVue,
             propsData: defaultPropsWith({}, { diff: worseDiff }),
           });
-          expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
+          expect(wrapper.find('[data-testid="try-time-spent"]').element).toHaveTextContent(
             translator.$tr('practiceQuizReportSlowerTimeLabel', {
               value: wrapper.vm.diffTimeSpent,
             }),

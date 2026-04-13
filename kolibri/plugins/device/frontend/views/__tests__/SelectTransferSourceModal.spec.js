@@ -7,17 +7,17 @@ function makeWrapper(options) {
     ...options,
     stubs: {
       SelectImportSourceModal: {
-        template: '<div data-test="select-import-source"></div>',
+        template: '<div data-testid="select-import-source"></div>',
       },
       SelectDriveModal: {
-        template: '<div data-test="select-drive"></div>',
+        template: '<div data-testid="select-drive"></div>',
       },
     },
   });
   const els = {
     titleText: () => wrapper.find({ name: 'KModal' }).props().title,
-    selectImportSource: () => wrapper.find('[data-test="select-import-source"]'),
-    selectDrive: () => wrapper.find('[data-test="select-drive"]'),
+    selectImportSource: () => wrapper.find('[data-testid="select-import-source"]'),
+    selectDrive: () => wrapper.find('[data-testid="select-drive"]'),
   };
   return { wrapper, els };
 }

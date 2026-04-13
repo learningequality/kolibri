@@ -62,13 +62,13 @@ describe('AttemptTextDiff', () => {
   });
 
   testCases.forEach(({ caseName, correct, diff, userId, expectedMessage }) => {
-    test(caseName, () => {
+    it(caseName, () => {
       renderComponent({ correct, diff, userId });
       expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
   });
 
-  test('No text is shown when the props are invalid', () => {
+  it('No text is shown when the props are invalid', () => {
     renderComponent({ correct: 1, diff: 0, userId: 'mockUser1' });
     expect(screen.queryByTestId('attempt-text-diff')).not.toBeInTheDocument();
   });

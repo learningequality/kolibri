@@ -72,8 +72,8 @@
     NotificationObjects,
   } from '../../../constants/notificationsConstants';
   import { CollectionTypes } from '../../../constants/lessonsConstants';
+  import { notificationLink } from '../../../modules/coachNotifications/gettersUtils';
   import { cardTextForNotification } from './notificationStrings';
-  import { notificationLink } from './../../../modules/coachNotifications/gettersUtils';
 
   const EventToIconMap = {
     [NotificationEvents.COMPLETED]: 'star',

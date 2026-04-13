@@ -17,7 +17,7 @@ const renderComponent = props => {
 };
 
 describe('AttemptIconDiff', () => {
-  test('renders KIcon with correct styles when correct and diff conditions are met', () => {
+  it('renders KIcon with correct styles when correct and diff conditions are met', () => {
     renderComponent();
 
     const kIcon = screen.getByTestId('correct-icon');
@@ -25,12 +25,12 @@ describe('AttemptIconDiff', () => {
     expect(kIcon).toHaveStyle({ fill: successThemeColor });
   });
 
-  test('does not render KIcon when correct condition is not met', () => {
+  it('does not render KIcon when correct condition is not met', () => {
     renderComponent({ correct: 0 });
     expect(screen.queryByTestId('correct-icon')).not.toBeInTheDocument();
   });
 
-  test('does not render KIcon when diff condition is not met', () => {
+  it('does not render KIcon when diff condition is not met', () => {
     renderComponent({ diff: 0 });
     expect(screen.queryByTestId('k-icon')).not.toBeInTheDocument();
   });

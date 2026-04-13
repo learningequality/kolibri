@@ -14,7 +14,7 @@ function makeWrapper({ targetFacility } = {}) {
   });
 }
 
-const getCreateNewAccountButton = wrapper => wrapper.find('[data-test="createNewAccountButton"]');
+const getCreateNewAccountButton = wrapper => wrapper.find('[data-testid="createNewAccountButton"]');
 const clickCreateNewAccountButton = wrapper => getCreateNewAccountButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/ConfirmAccountUsername`, () => {

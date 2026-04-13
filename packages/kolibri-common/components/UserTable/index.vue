@@ -15,7 +15,7 @@
       :disabled="disabled || !users || users.length === 0"
       class="select-all"
       :style="{ color: $themeTokens.annotation }"
-      data-test="selectAllCheckbox"
+      data-testid="selectAllCheckbox"
       @change="selectAll($event)"
     />
     <CoreTable
@@ -24,7 +24,7 @@
     >
       <template #headers>
         <th
-          data-test="fullNameHeader"
+          data-testid="fullNameHeader"
           :style="{ minWidth: '32px' }"
         >
           <span
@@ -40,12 +40,12 @@
         <th>
           <span
             class="visuallyhidden"
-            data-test="roleHeader"
+            data-testid="roleHeader"
           >
             {{ $tr('role') }}
           </span>
         </th>
-        <th data-test="usernameHeader">
+        <th data-testid="usernameHeader">
           {{ coreString('usernameLabel') }}
         </th>
         <th v-if="$scopedSlots.info">
@@ -92,20 +92,20 @@
                     :disabled="disabled"
                     :checked="userIsSelected(user.id)"
                     class="user-checkbox"
-                    data-test="userCheckbox"
+                    data-testid="userCheckbox"
                     @change="selectUser(user.id, $event)"
                   >
                     <KLabeledIcon
                       :icon="isCoach ? 'coach' : 'person'"
                       :label="user.full_name"
-                      data-test="fullName"
+                      data-testid="fullName"
                     />
                     <UserTypeDisplay
                       aria-hidden="true"
                       :userType="user.kind"
                       :omitLearner="true"
                       class="role-badge"
-                      data-test="userRoleBadge"
+                      data-testid="userRoleBadge"
                       :class="$computedClass(userRoleBadgeStyle)"
                     />
                   </KCheckbox>
@@ -125,7 +125,7 @@
                     :buttonValue="user.id"
                     :currentValue="firstSelectedUser"
                     :label="''"
-                    data-test="userRadioButton"
+                    data-testid="userRadioButton"
                     @change="selectSingleUser(user.id)"
                   >
                     <!--
@@ -136,7 +136,7 @@
                     <KLabeledIcon
                       :icon="isCoach ? 'coach' : 'person'"
                       :label="user.full_name"
-                      data-test="fullName"
+                      data-testid="fullName"
                       :style="{ color: $themeTokens.text }"
                     />
                     <UserTypeDisplay
@@ -144,7 +144,7 @@
                       :userType="user.kind"
                       :omitLearner="true"
                       class="role-badge"
-                      data-test="userRoleBadge"
+                      data-testid="userRoleBadge"
                       :class="$computedClass(userRoleBadgeStyle)"
                     />
                   </KRadioButton>
@@ -153,26 +153,26 @@
                       :icon="isCoach ? 'coach' : 'person'"
                       :label="user.full_name"
                       :style="{ color: $themeTokens.text }"
-                      data-test="fullName"
+                      data-testid="fullName"
                     />
                     <UserTypeDisplay
                       aria-hidden="true"
                       :userType="user.kind"
                       :omitLearner="true"
                       class="role-badge"
-                      data-test="userRoleBadge"
+                      data-testid="userRoleBadge"
                       :class="$computedClass(userRoleBadgeStyle)"
                     />
                   </template>
                 </td>
                 <td
                   class="visuallyhidden"
-                  data-test="userRoleLabel"
+                  data-testid="userRoleLabel"
                 >
                   {{ typeDisplayMap[user.kind] }}
                 </td>
                 <td
-                  data-test="username"
+                  data-testid="username"
                   :style="{ color: $themeTokens.text }"
                 >
                   <span dir="auto">
@@ -220,20 +220,20 @@
                   :disabled="disabled"
                   :checked="userIsSelected(user.id)"
                   class="user-checkbox"
-                  data-test="userCheckbox"
+                  data-testid="userCheckbox"
                   @change="selectUser(user.id, $event)"
                 >
                   <KLabeledIcon
                     :icon="isCoach ? 'coach' : 'person'"
                     :label="user.full_name"
-                    data-test="fullName"
+                    data-testid="fullName"
                   />
                   <UserTypeDisplay
                     aria-hidden="true"
                     :userType="user.kind"
                     :omitLearner="true"
                     class="role-badge"
-                    data-test="userRoleBadge"
+                    data-testid="userRoleBadge"
                     :class="$computedClass(userRoleBadgeStyle)"
                   />
                 </KCheckbox>
@@ -253,7 +253,7 @@
                   :buttonValue="user.id"
                   :currentValue="firstSelectedUser"
                   :label="''"
-                  data-test="userRadioButton"
+                  data-testid="userRadioButton"
                   @change="selectSingleUser(user.id)"
                 >
                   <!--
@@ -264,7 +264,7 @@
                   <KLabeledIcon
                     :icon="isCoach ? 'coach' : 'person'"
                     :label="user.full_name"
-                    data-test="fullName"
+                    data-testid="fullName"
                     :style="{ color: $themeTokens.text }"
                   />
                   <UserTypeDisplay
@@ -272,7 +272,7 @@
                     :userType="user.kind"
                     :omitLearner="true"
                     class="role-badge"
-                    data-test="userRoleBadge"
+                    data-testid="userRoleBadge"
                     :class="$computedClass(userRoleBadgeStyle)"
                   />
                 </KRadioButton>
@@ -281,26 +281,26 @@
                     :icon="isCoach ? 'coach' : 'person'"
                     :label="user.full_name"
                     :style="{ color: $themeTokens.text }"
-                    data-test="fullName"
+                    data-testid="fullName"
                   />
                   <UserTypeDisplay
                     aria-hidden="true"
                     :userType="user.kind"
                     :omitLearner="true"
                     class="role-badge"
-                    data-test="userRoleBadge"
+                    data-testid="userRoleBadge"
                     :class="$computedClass(userRoleBadgeStyle)"
                   />
                 </template>
               </td>
               <td
                 class="visuallyhidden"
-                data-test="userRoleLabel"
+                data-testid="userRoleLabel"
               >
                 {{ typeDisplayMap[user.kind] }}
               </td>
               <td
-                data-test="username"
+                data-testid="username"
                 :style="{ color: $themeTokens.text }"
               >
                 <span dir="auto">

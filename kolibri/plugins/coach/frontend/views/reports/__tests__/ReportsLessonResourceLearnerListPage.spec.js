@@ -103,31 +103,31 @@ const getViewByGroupsCheckbox = wrapper => {
 };
 
 const getGroupTitles = wrapper => {
-  return wrapper.findAll('[data-test="group-title"]');
+  return wrapper.findAll('[data-testid="group-title"]');
 };
 
 const getSummaryTally = wrapper => {
-  return wrapper.find('[data-test="summary-tally"]');
+  return wrapper.find('[data-testid="summary-tally"]');
 };
 
 const getSummaryResourcesStats = wrapper => {
-  return wrapper.find('[data-test="summary-resources-stats"]');
+  return wrapper.find('[data-testid="summary-resources-stats"]');
 };
 
 const getGroup = (wrapper, groupId) => {
-  return wrapper.find(`[data-test="group-${groupId}"]`);
+  return wrapper.find(`[data-testid="group-${groupId}"]`);
 };
 
 const getGroupTally = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find(`[data-test="group-tally"]`);
+  return getGroup(wrapper, groupId).find(`[data-testid="group-tally"]`);
 };
 
 const getGroupResourcesStats = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find(`[data-test="group-resources-stats"]`);
+  return getGroup(wrapper, groupId).find(`[data-testid="group-resources-stats"]`);
 };
 
 const containsGroupResourcesStats = (wrapper, groupId) => {
-  return Boolean(getGroup(wrapper, groupId).find(`[data-test="group-resources-stats"]`).element);
+  return Boolean(getGroup(wrapper, groupId).find(`[data-testid="group-resources-stats"]`).element);
 };
 
 const initWrapper = lessonMap => {

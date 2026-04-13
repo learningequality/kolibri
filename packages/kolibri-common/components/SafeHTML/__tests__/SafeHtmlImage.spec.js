@@ -14,16 +14,15 @@ const renderComponent = () => {
   });
 };
 
-beforeAll(() => {
-  if (!window.HTMLDialogElement.prototype.showModal) {
-    window.HTMLDialogElement.prototype.showModal = jest.fn();
-  }
-  if (!window.HTMLDialogElement.prototype.close) {
-    window.HTMLDialogElement.prototype.close = jest.fn();
-  }
-});
-
 describe('SafeHtmlImage', () => {
+  beforeAll(() => {
+    if (!window.HTMLDialogElement.prototype.showModal) {
+      window.HTMLDialogElement.prototype.showModal = jest.fn();
+    }
+    if (!window.HTMLDialogElement.prototype.close) {
+      window.HTMLDialogElement.prototype.close = jest.fn();
+    }
+  });
   let user, img, expandButton;
   beforeEach(async () => {
     user = userEvent.setup();
@@ -33,35 +32,35 @@ describe('SafeHtmlImage', () => {
   });
 
   describe('first render', () => {
-    test('smoke test', () => {
+    it('smoke test', () => {
       expect(screen.getByTestId('image-container')).toBeInTheDocument();
     });
 
-    test('renders the image', () => {
+    it('renders the image', () => {
       expect(img).toBeInTheDocument();
     });
 
-    test("renders the 'Expand' button", () => {
+    it("renders the 'Expand' button", () => {
       expect(expandButton).toBeInTheDocument();
     });
 
-    test('the Lightbox dialog is not present initially', () => {
+    it('the Lightbox dialog is not present initially', () => {
       expect(screen.queryByTestId('lightbox-dialog')).not.toBeInTheDocument();
     });
   });
 
   describe('expanding the image', () => {
-    test('opens the Lightbox if the image is clicked by a mouse', async () => {
+    it('opens the Lightbox if the image is clicked by a mouse', async () => {
       await user.click(img);
       expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
     });
 
-    test("opens the Lightbox if the 'Expand' button is clicked by a mouse", async () => {
+    it("opens the Lightbox if the 'Expand' button is clicked by a mouse", async () => {
       await user.click(expandButton);
       expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
     });
 
-    test("opens the Lightbox if the 'Expand' button is clicked by a keyboard", async () => {
+    it("opens the Lightbox if the 'Expand' button is clicked by a keyboard", async () => {
       expandButton.focus();
       await user.keyboard('{enter}');
       expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
@@ -75,7 +74,7 @@ describe('SafeHtmlImage', () => {
     });
   });
 
-  test("closes the Lightbox when the 'Close' button is clicked", async () => {
+  it("closes the Lightbox when the 'Close' button is clicked", async () => {
     await user.click(expandButton); // Open Lightbox first
     expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
 

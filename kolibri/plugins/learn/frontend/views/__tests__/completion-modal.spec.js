@@ -206,7 +206,7 @@ describe('CompletionModal', () => {
     });
 
     it('displays all recommended resources as links', () => {
-      const recommendedResources = wrapper.findAll("[data-test='recommended-resource']");
+      const recommendedResources = wrapper.findAll("[data-testid='recommended-resource']");
 
       expect(recommendedResources.length).toBe(2);
       expect(recommendedResources.at(0).text()).toContain('The first recommended resource');

@@ -65,7 +65,7 @@
   import MetadataChips from 'kolibri-common/components/MetadataChips';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { useCoachMetadataTags } from 'kolibri-common/composables/useCoachMetadataTags';
-  import LearningActivityIcon from './../ResourceDisplayAndSearch/LearningActivityIcon.vue';
+  import LearningActivityIcon from '../ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
   export default {
     name: 'AccessibleResourceCard',

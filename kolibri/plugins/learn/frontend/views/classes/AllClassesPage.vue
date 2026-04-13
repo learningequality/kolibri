@@ -32,8 +32,8 @@
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import YourClasses from '../YourClasses';
   import { PageNames } from '../../constants';
-  import commonLearnStrings from './../commonLearnStrings';
-  import LearnAppBarPage from './../LearnAppBarPage';
+  import commonLearnStrings from '../commonLearnStrings';
+  import LearnAppBarPage from '../LearnAppBarPage';
 
   export default {
     name: 'AllClassesPage',

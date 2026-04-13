@@ -8,7 +8,7 @@
   >
     <div
       class="page-header"
-      data-test="page-header"
+      data-testid="page-header"
       :style="pageHeaderStyle"
     >
       <h1>
@@ -37,12 +37,12 @@
       >
         <div
           v-if="pinnedDevicesExist"
-          data-test="more-libraries"
+          data-testid="more-libraries"
         >
           <h2>{{ learnString('moreLibraries') }}</h2>
           <KButton
             v-if="displayShowButton"
-            data-test="show-button"
+            data-testid="show-button"
             :text="coreString('showAction')"
             :primary="false"
             @click="loadMoreDevices"
@@ -61,7 +61,7 @@
         </FadeInTransitionGroup>
         <KButton
           v-if="displayShowMoreButton"
-          data-test="show-more-button"
+          data-testid="show-more-button"
           :text="coreString('showMoreAction')"
           :primary="false"
           @click="loadMoreDevices"

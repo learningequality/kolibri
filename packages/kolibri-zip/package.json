@@ -14,6 +14,7 @@
     "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
-    "fflate": "^0.8.2"
+    "fflate": "^0.8.2",
+    "xhr-mock": "catalog:"
   }
 }

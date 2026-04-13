@@ -38,26 +38,26 @@ describe('when there are nodes with progress that can be resumed', () => {
   afterEach(() => jest.clearAllMocks());
   it('displays resumable content nodes string', () => {
     const wrapper = shallowMount(ResumableContentGrid, {});
-    expect(wrapper.find('[data-test="recent-content-nodes-title"').element).toBeTruthy();
+    expect(wrapper.find('[data-testid="recent-content-nodes-title"').element).toBeTruthy();
   });
 
   it('displays grid / list toggle buttons when on medium or larger screens', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
       data: () => ({ windowIsSmall: false }),
     });
-    expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeTruthy();
+    expect(wrapper.find('[data-testid="toggle-view-buttons"]').element).toBeTruthy();
   });
 
   it('does not show the grid / list toggle buttons when on extra small screens', async () => {
     const wrapper = shallowMount(ResumableContentGrid, {
       data: () => ({ windowIsSmall: true }),
     });
-    expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeFalsy();
+    expect(wrapper.find('[data-testid="toggle-view-buttons"]').element).toBeFalsy();
   });
 
   it('displays ResumableContentGrid', () => {
     const wrapper = shallowMount(ResumableContentGrid, {});
-    expect(wrapper.find('[data-test="resumable-content-card-grid"').element).toBeTruthy();
+    expect(wrapper.find('[data-testid="resumable-content-card-grid"').element).toBeTruthy();
   });
 
   it('displays button to "show more" when more items exist than currently shown', () => {
@@ -67,7 +67,7 @@ describe('when there are nodes with progress that can be resumed', () => {
       },
       computed: { moreContentCards: () => true },
     });
-    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeTruthy();
+    expect(wrapper.find('[data-testid="show-more-resumable-nodes-button"').element).toBeTruthy();
   });
 
   it('does not show a button to "show more" if button already pressed', () => {
@@ -77,7 +77,7 @@ describe('when there are nodes with progress that can be resumed', () => {
       },
       computed: { moreContentCards: () => false },
     });
-    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeFalsy();
+    expect(wrapper.find('[data-testid="show-more-resumable-nodes-button"').element).toBeFalsy();
   });
 
   it('does not show a button to "show more" if number of items does not exceed that displayed', () => {
@@ -87,7 +87,7 @@ describe('when there are nodes with progress that can be resumed', () => {
       },
       computed: { moreContentCards: () => false },
     });
-    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeFalsy();
+    expect(wrapper.find('[data-testid="show-more-resumable-nodes-button"').element).toBeFalsy();
   });
 
   it('displays button to view more resumableContentNodes when there are 13+ recent items & 12 are currently displayed', () => {
@@ -97,7 +97,7 @@ describe('when there are nodes with progress that can be resumed', () => {
       },
       computed: { moreContentCards: () => true },
     });
-    expect(wrapper.find('[data-test="view-more-resumable-nodes-button"').element).toBeTruthy();
+    expect(wrapper.find('[data-testid="view-more-resumable-nodes-button"').element).toBeTruthy();
   });
 
   it('does not show a button to view more resumableContentNodes if "show more" has not been exhausted', () => {
@@ -107,6 +107,6 @@ describe('when there are nodes with progress that can be resumed', () => {
       },
       computed: { moreContentCards: () => true },
     });
-    expect(wrapper.find('[data-test="view-more-resumable-nodes-button"').element).toBeFalsy();
+    expect(wrapper.find('[data-testid="view-more-resumable-nodes-button"').element).toBeFalsy();
   });
 });

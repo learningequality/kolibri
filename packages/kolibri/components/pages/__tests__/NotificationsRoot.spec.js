@@ -50,7 +50,7 @@ describe('NotificationsRoot', function () {
 
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.find('[data-test="base-page"]').exists()).toBeTruthy();
+      expect(wrapper.find('[data-testid="base-page"]').exists()).toBeTruthy();
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
     });
@@ -63,7 +63,7 @@ describe('NotificationsRoot', function () {
 
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeTruthy();
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="main"]').exists()).toBeFalsy();
+      expect(wrapper.find('[data-testid="main"]').exists()).toBeFalsy();
     });
 
     it('if there is an error, the error component in the base page should be rendered', async () => {
@@ -74,7 +74,7 @@ describe('NotificationsRoot', function () {
 
       expect(wrapper.findComponent({ name: 'AppError' }).exists()).toBeTruthy();
       expect(wrapper.findComponent({ name: 'AuthMessage' }).exists()).toBeFalsy();
-      expect(wrapper.find('[data-test="base-page"]').exists()).toBeFalsy();
+      expect(wrapper.find('[data-testid="base-page"]').exists()).toBeFalsy();
     });
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {

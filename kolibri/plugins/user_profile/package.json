@@ -14,5 +14,8 @@
         "vue-router": "catalog:",
         "vuex": "catalog:",
         "xstate": "catalog:"
+    },
+    "devDependencies": {
+        "@vue/test-utils": "catalog:"
     }
 }

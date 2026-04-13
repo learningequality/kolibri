@@ -23,7 +23,7 @@
       :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
-      data-test="learningActivityBar"
+      data-testid="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
       @download="handleRemoteDownloadRequest"
@@ -58,7 +58,7 @@
       <ContentPage
         ref="contentPage"
         class="content"
-        data-test="contentPage"
+        data-testid="contentPage"
         :content="content"
         :lessonId="lessonId"
         :style="{

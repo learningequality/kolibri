@@ -45,8 +45,8 @@
   import { PageNames, ClassesPageNames } from '../../constants';
 
   import useLearnerResources from '../../composables/useLearnerResources';
-  import commonLearnStrings from './../commonLearnStrings';
-  import LearnAppBarPage from './../LearnAppBarPage';
+  import commonLearnStrings from '../commonLearnStrings';
+  import LearnAppBarPage from '../LearnAppBarPage';
   import AssignedCoursesCards from './AssignedCoursesCards';
   import AssignedQuizzesCards from './AssignedQuizzesCards';
   import AssignedLessonsCards from './AssignedLessonsCards';

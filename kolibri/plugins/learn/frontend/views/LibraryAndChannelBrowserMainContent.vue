@@ -3,7 +3,7 @@
   <div>
     <component
       :is="!windowIsSmall && currentCardViewStyle === 'list' ? 'div' : 'CardGrid'"
-      :data-test="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
+      :data-testid="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
       :style="{ maxWidth: '1700px' }"
       :gridType="gridType"
     >
@@ -11,7 +11,7 @@
         :is="componentType"
         v-for="(contentNode, idx) in contents"
         :key="`resource-${idx}`"
-        :data-test="componentType + '-' + idx"
+        :data-testid="componentType + '-' + idx"
         :contentNode="contentNode"
         :to="contentLink(contentNode.id, contentNode.is_leaf)"
         @openCopiesModal="$emit('openCopiesModal', contentNode.copies)"

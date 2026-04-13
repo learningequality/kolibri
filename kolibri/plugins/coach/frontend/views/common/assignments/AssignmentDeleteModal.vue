@@ -22,7 +22,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { coachStringsMixin } from '../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../commonCoachStrings';
 
   export default {
     name: 'AssignmentDeleteModal',

@@ -18,7 +18,7 @@
           v-if="displayAllClassesLink"
           :text="coreString('viewAll')"
           :to="allClassesLink"
-          data-test="viewAllLink"
+          data-testid="viewAllLink"
         />
       </KFixedGridItem>
     </KFixedGrid>
@@ -30,7 +30,7 @@
       <CardLink
         v-for="c in visibleClasses"
         :key="c.id"
-        data-test="classLink"
+        data-testid="classLink"
         :to="classAssignmentsLink(c.id)"
       >
         <h3

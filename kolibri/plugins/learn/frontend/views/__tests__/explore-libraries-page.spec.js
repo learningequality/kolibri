@@ -61,7 +61,7 @@ describe('ExploreLibrariesPage', () => {
   });
 
   it('renders the page header correctly', () => {
-    const pageHeader = wrapper.find('[data-test="page-header"]');
+    const pageHeader = wrapper.find('[data-testid="page-header"]');
     expect(pageHeader.exists()).toBe(true);
     expect(pageHeader.text()).toContain(translations.allLibraries);
     expect(pageHeader.text()).toContain(translations.showingLibraries);
@@ -78,15 +78,15 @@ describe('ExploreLibrariesPage', () => {
     wrapper = makeWrapper({
       options,
     });
-    const moreLibraries = wrapper.find('[data-test="more-libraries"]');
+    const moreLibraries = wrapper.find('[data-testid="more-libraries"]');
     expect(moreLibraries.element).toBeTruthy();
     expect(moreLibraries.text()).toContain('More');
-    const showButton = wrapper.find('[data-test="show-button"]');
+    const showButton = wrapper.find('[data-testid="show-button"]');
     expect(showButton.element).toBeTruthy();
   });
 
   it('loads more devices when show more button is clicked', async () => {
-    const showMoreButton = wrapper.find('[data-test="show-more-button"]');
+    const showMoreButton = wrapper.find('[data-testid="show-more-button"]');
     showMoreButton.trigger('click');
     await wrapper.vm.$nextTick();
     const libraryItems = wrapper.findAllComponents({ name: 'LibraryItem' });

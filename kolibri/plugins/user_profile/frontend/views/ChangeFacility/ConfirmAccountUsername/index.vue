@@ -11,7 +11,7 @@
             :primary="false"
             :text="profileString('createAccount')"
             :disabled="isCreateAccountButtonDisabled"
-            data-test="createNewAccountButton"
+            data-testid="createNewAccountButton"
             appearance="flat-button"
             @click="to_create"
           />

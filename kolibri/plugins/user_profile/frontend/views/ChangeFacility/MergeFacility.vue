@@ -15,7 +15,7 @@
             v-if="taskCompleted"
             icon="check"
             :style="{ fill: $themeTokens.success }"
-            data-test="syncStatusIcon"
+            data-testid="syncStatusIcon"
           />
           <KCircularLoader
             v-else
@@ -35,13 +35,13 @@
 
         <div
           v-if="taskCompleted"
-          data-test="completedMessage"
+          data-testid="completedMessage"
         >
           {{ successfullyJoined }}
         </div>
         <div
           v-if="taskError"
-          data-test="errorMessage"
+          data-testid="errorMessage"
         >
           {{ errorMessage }}
         </div>
@@ -70,14 +70,14 @@
             v-if="taskCompleted"
             :primary="true"
             :text="coreString('finishAction')"
-            data-test="finishButton"
+            data-testid="finishButton"
             @click="to_finish"
           />
           <KButton
             v-if="taskError"
             :primary="true"
             :text="coreString('retryAction')"
-            data-test="retryButton"
+            data-testid="retryButton"
             @click="to_retry"
           />
         </KButtonGroup>

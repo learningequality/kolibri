@@ -102,7 +102,7 @@ describe('BrowseResourceMetadata', () => {
     beforeAll(() => (wrapper = makeWrapper()));
 
     it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='beginners-chip']").exists()).toBeTruthy();
     });
 
     it('shows the view resource button-link', () => {
@@ -115,27 +115,27 @@ describe('BrowseResourceMetadata', () => {
     });
 
     it('shows the title', () => {
-      expect(wrapper.find("[data-test='content-title']").text()).toEqual(baseContentNode.title);
+      expect(wrapper.find("[data-testid='content-title']").text()).toEqual(baseContentNode.title);
     });
 
     it('shows the estimated time when duration is present', () => {
-      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='estimated-time']").exists()).toBeTruthy();
     });
 
     it('shows the grade levels when there are some', () => {
-      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='grade-levels']").exists()).toBeTruthy();
     });
 
     it("shows author's name", () => {
-      expect(wrapper.find("[data-test='author']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='author']").exists()).toBeTruthy();
     });
 
     it('shows license owner', () => {
-      expect(wrapper.find("[data-test='license-owner']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='license-owner']").exists()).toBeTruthy();
     });
 
     it('shows license description', () => {
-      expect(wrapper.find("[data-test='license-desc']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='license-desc']").exists()).toBeTruthy();
     });
   });
 
@@ -163,7 +163,7 @@ describe('BrowseResourceMetadata', () => {
     );
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='beginners-chip']").exists()).toBeFalsy();
     });
 
     it('displays a ContentNodeThumbnail - which handles showing the placeholder', () => {
@@ -171,37 +171,37 @@ describe('BrowseResourceMetadata', () => {
     });
 
     it('does not show the title', () => {
-      expect(wrapper.find("[data-test='content-title']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='content-title']").exists()).toBeFalsy();
     });
 
     it('does not show the estimated time when duration is not present', () => {
-      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='estimated-time']").exists()).toBeFalsy();
     });
 
     it('does not show the grade levels when there are none', () => {
-      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='grade-levels']").exists()).toBeFalsy();
     });
 
     it("does not show author's name section without the data", () => {
-      expect(wrapper.find("[data-test='author']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='author']").exists()).toBeFalsy();
     });
 
     it('does not show license owner section without the data', () => {
-      expect(wrapper.find("[data-test='license-owner']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='license-owner']").exists()).toBeFalsy();
     });
 
     it('does not show license description section without the data', () => {
-      expect(wrapper.find("[data-test='license-desc']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='license-desc']").exists()).toBeFalsy();
     });
   });
   describe('download button gets toggled by prop', () => {
     it('should display the button when canDownloadExternally is true', () => {
       const wrapper = makeWrapper({}, {}, true);
-      expect(wrapper.find("[data-test='download']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='download']").exists()).toBeTruthy();
     });
     it('should not display the button when canDownloadExternally is false', () => {
       const wrapper = makeWrapper({}, {}, false);
-      expect(wrapper.find("[data-test='download']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='download']").exists()).toBeFalsy();
     });
   });
 });

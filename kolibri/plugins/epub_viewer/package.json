@@ -21,5 +21,10 @@
     "vue-focus-lock": "^1.4.1",
     "web-streams-polyfill": "^4.2.0",
     "xmldom": "^0.6.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:"
   }
 }

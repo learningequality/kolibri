@@ -123,7 +123,7 @@
                     :style="{ marginBottom: '24px' }"
                   >
                     <ResourceItem
-                      data-test="recommended-resource"
+                      data-testid="recommended-resource"
                       :contentNode="node"
                       :contentNodeRoute="genContentLinkKeepCurrentBackLink(node.id, node.is_leaf)"
                       :size="recommendedResourceItemSize"

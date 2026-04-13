@@ -89,6 +89,7 @@
     "kolibri-constants": "catalog:",
     "kolibri-design-system": "catalog:",
     "kolibri-logging": "workspace:*",
+    "kolibri-plugin-data": "workspace:*",
     "lockr": "0.8.5",
     "lodash": "catalog:",
     "path-to-regexp": "1.9.0",
@@ -100,5 +101,12 @@
     "vue-meta": "catalog:",
     "vue-router": "catalog:",
     "vuex": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "xhr-mock": "catalog:"
   }
 }

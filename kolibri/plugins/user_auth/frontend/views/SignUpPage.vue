@@ -43,7 +43,7 @@
             <h2>
               {{ coreString('facilityLabel') }}
             </h2>
-            <p data-test="facilityLabel">
+            <p data-testid="facilityLabel">
               {{ selectedFacility.name }}
             </p>
           </template>

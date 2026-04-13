@@ -4,13 +4,13 @@
     <h1>{{ profileString('mergeAccounts') }}</h1>
     <p
       class="fullname"
-      data-test="fullName"
+      data-testid="fullName"
     >
       {{ fullName }}
     </p>
     <p
       class="username"
-      data-test="username"
+      data-testid="username"
       :style="{ color: $themeTokens.annotation }"
     >
       {{ username }}
@@ -20,7 +20,7 @@
 
       <KTextbox
         v-model="formData.username"
-        data-test="usernameTextbox"
+        data-testid="usernameTextbox"
         :autofocus="true"
         :label="coreString('usernameLabel')"
       />
@@ -32,7 +32,7 @@
       v-if="showPasswordTextbox"
       ref="passwordTextbox"
       v-model="formData.password"
-      data-test="passwordTextbox"
+      data-testid="passwordTextbox"
       type="password"
       :label="coreString('passwordLabel')"
       :autofocus="true"
@@ -44,7 +44,7 @@
     <div v-if="!usingAdminPasswordState">
       {{ $tr('doNotKnowPassword') }}
       <KButton
-        data-test="useAdminAccount"
+        data-testid="useAdminAccount"
         :text="profileString('useAdminAccount')"
         appearance="basic-link"
         @click="useAdminAccount"
@@ -57,13 +57,13 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
-            data-test="continueButton"
+            data-testid="continueButton"
             @click="handleContinue"
           />
         </KButtonGroup>

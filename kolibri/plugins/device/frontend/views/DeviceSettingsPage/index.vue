@@ -71,14 +71,14 @@
           <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
           <KRadioButtonGroup>
             <KRadioButton
-              data-test="landingPageButton"
+              data-testid="landingPageButton"
               :label="$tr('learnerAppPageChoice')"
               :buttonValue="landingPageChoices.LEARN"
               :currentValue="landingPage"
               @input="handleLandingPageChange"
             />
             <KRadioButton
-              data-test="signInPageButton"
+              data-testid="signInPageButton"
               :label="$tr('signInPageChoice')"
               :buttonValue="landingPageChoices.SIGN_IN"
               :currentValue="landingPage"
@@ -87,7 +87,7 @@
 
             <div class="fieldset left-margin">
               <KRadioButton
-                data-test="allowGuestAccessButton"
+                data-testid="allowGuestAccessButton"
                 :label="$tr('allowGuestAccess')"
                 :buttonValue="SignInPageOptions.ALLOW_GUEST_ACCESS"
                 :currentValue="signInPageOption"
@@ -95,7 +95,7 @@
                 @input="handleSignInPageChange"
               />
               <KRadioButton
-                data-test="disallowGuestAccessButton"
+                data-testid="disallowGuestAccessButton"
                 :label="$tr('disallowGuestAccess')"
                 :buttonValue="SignInPageOptions.DISALLOW_GUEST_ACCESS"
                 :currentValue="signInPageOption"
@@ -103,7 +103,7 @@
                 @input="handleSignInPageChange"
               />
               <KRadioButton
-                data-test="lockedContentButton"
+                data-testid="lockedContentButton"
                 :label="$tr('lockedContent')"
                 :buttonValue="SignInPageOptions.LOCKED_CONTENT"
                 :currentValue="signInPageOption"
@@ -316,7 +316,7 @@
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
           primary
-          data-test="saveButtonAndroid"
+          data-testid="saveButtonAndroid"
           @click="handleClickSave"
         />
       </section>
@@ -326,7 +326,7 @@
             :text="coreString('saveChangesAction')"
             appearance="raised-button"
             primary
-            data-test="saveButton"
+            data-testid="saveButton"
             @click="handleClickSave"
           />
         </KButtonGroup>

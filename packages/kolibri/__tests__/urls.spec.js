@@ -36,15 +36,15 @@ describe('UrlResolver', () => {
   });
 
   describe('URL pattern handling', () => {
-    test('handles simple patterns with no parameters', () => {
+    it('handles simple patterns with no parameters', () => {
       expect(Urls.simple_list()).toBe('/test/api/simple/');
     });
 
-    test('handles patterns with single variations', () => {
+    it('handles patterns with single variations', () => {
       expect(Urls.user_profile_detail(123)).toBe('/test/api/users/123/');
     });
 
-    test('handles patterns with multiple variations', () => {
+    it('handles patterns with multiple variations', () => {
       // Full format
       expect(Urls['membership_detail']({ pk: '123', format: 'json' })).toBe(
         '/test/api/auth/membership/123.json',
@@ -56,29 +56,29 @@ describe('UrlResolver', () => {
   });
 
   describe('Parameter handling', () => {
-    test('handles named parameters', () => {
+    it('handles named parameters', () => {
       expect(Urls['download_file']({ type: 'document', id: '123' })).toBe(
         '/test/api/download/document/123/',
       );
     });
 
-    test('handles positional parameters', () => {
+    it('handles positional parameters', () => {
       expect(Urls['download_file']('document', '123')).toBe('/test/api/download/document/123/');
     });
 
-    test('handles URL encoding in parameters', () => {
+    it('handles URL encoding in parameters', () => {
       expect(Urls['download_file']('file type', 'test/id')).toBe(
         '/test/api/download/file%20type/test%2Fid/',
       );
     });
 
-    test('throws error for missing required parameters', () => {
+    it('throws error for missing required parameters', () => {
       expect(() => Urls['download_file']({ type: 'document' })).toThrow(
         'Could not find matching URL pattern',
       );
     });
 
-    test('throws error for wrong number of positional parameters', () => {
+    it('throws error for wrong number of positional parameters', () => {
       expect(() => Urls['download_file']('single')).toThrow('Could not find matching URL pattern');
     });
   });
@@ -95,19 +95,19 @@ describe('UrlResolver', () => {
       window.location = originalLocation;
     });
 
-    test('generates static URLs', () => {
+    it('generates static URLs', () => {
       expect(Urls.static('js/bundle.js')).toBe('http://kolibri.time/static/js/bundle.js');
     });
 
-    test('generates media URLs', () => {
+    it('generates media URLs', () => {
       expect(Urls.media('images/logo.png')).toBe('http://kolibri.time/media/images/logo.png');
     });
 
-    test('generates sandbox URLs', () => {
+    it('generates sandbox URLs', () => {
       expect(Urls.sandbox()).toBe('http://localhost:8000/sandbox/');
     });
 
-    test('generates zip content URLs', () => {
+    it('generates zip content URLs', () => {
       expect(
         Urls.zipContentUrl({
           checksum: 'abcdef0123456789abcdef0123456789',
@@ -144,7 +144,7 @@ describe('UrlResolver', () => {
       );
     });
 
-    test('URL-encodes embedded file path segments in zip content URLs', () => {
+    it('URL-encodes embedded file path segments in zip content URLs', () => {
       expect(
         Urls.zipContentUrl(
           {
@@ -159,11 +159,11 @@ describe('UrlResolver', () => {
       );
     });
 
-    test('generates storage URLs', () => {
+    it('generates storage URLs', () => {
       expect(Urls.storageUrl('abc123', 'mp4')).toBe('http://kolibri.time/content/a/b/abc123.mp4');
     });
 
-    test('throws error when special URLs are not defined', () => {
+    it('throws error when special URLs are not defined', () => {
       plugin_data.urls.__staticUrl = undefined;
       jest.resetModules();
       const UrlsNoStatic = createUrlResolver();
@@ -173,18 +173,18 @@ describe('UrlResolver', () => {
   });
 
   describe('Error handling', () => {
-    test('throws error for non-existent patterns', () => {
+    it('throws error for non-existent patterns', () => {
       expect(Urls.nonExistentPattern).toBeUndefined();
     });
 
-    test('handles initialization with no plugin data', () => {
+    it('handles initialization with no plugin data', () => {
       jest.resetModules();
       plugin_data.urls = undefined;
       const UrlsNoData = createUrlResolver();
 
       expect(UrlsNoData['user_profile_detail']).toBeUndefined();
     });
-    test('throws error if URL pattern contains a dash', () => {
+    it('throws error if URL pattern contains a dash', () => {
       jest.resetModules();
       plugin_data.urls = {
         urls: {
@@ -204,13 +204,13 @@ describe('UrlResolver', () => {
   });
 
   describe('Proxy and fallback behavior', () => {
-    test('returns same function for repeated calls', () => {
+    it('returns same function for repeated calls', () => {
       const func1 = Urls._getUrlFunction('user_profile_detail');
       const func2 = Urls._getUrlFunction('user_profile_detail');
       expect(func1).toBe(func2);
     });
 
-    test('proxy fallback works when Proxy is not available', () => {
+    it('proxy fallback works when Proxy is not available', () => {
       const originalProxy = global.Proxy;
       global.Proxy = undefined;
 

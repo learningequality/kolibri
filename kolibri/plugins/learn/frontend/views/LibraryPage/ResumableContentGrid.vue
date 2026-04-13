@@ -4,7 +4,7 @@
     <div
       v-if="!windowIsSmall"
       class="toggle-view-buttons"
-      data-test="toggle-view-buttons"
+      data-testid="toggle-view-buttons"
     >
       <KIconButton
         icon="menu"
@@ -23,13 +23,13 @@
         @click="toggleCardView('card')"
       />
     </div>
-    <div data-test="recent-content-nodes-title">
+    <div data-testid="recent-content-nodes-title">
       <h2>
         {{ $tr('recent') }}
       </h2>
       <LibraryAndChannelBrowserMainContent
         :contents="contentCardsToDisplay"
-        data-test="resumable-content-card-grid"
+        data-testid="resumable-content-card-grid"
         class="resumable-content-card-grid"
         :currentCardViewStyle="currentCardViewStyle"
         :gridType="gridType"
@@ -41,7 +41,7 @@
     <!-- if all items in initial backend response are not already being shown -->
     <KButton
       v-if="moreContentCards && !showMoreContentCards"
-      data-test="show-more-resumable-nodes-button"
+      data-testid="show-more-resumable-nodes-button"
       appearance="basic-link"
       @click="handleShowMoreContentCards"
     >
@@ -51,7 +51,7 @@
     <!-- if there are 13+ recent items & the first 12 are currently visible -->
     <KButton
       v-if="moreResumableContentNodes && showMoreContentCards"
-      data-test="view-more-resumable-nodes-button"
+      data-testid="view-more-resumable-nodes-button"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
     >

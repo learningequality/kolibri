@@ -26,7 +26,7 @@
         <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
           <KButton
             icon="filter"
-            data-test="filter-button"
+            data-testid="filter-button"
             class="filter-button"
             :text="coreString('filter')"
             :primary="false"
@@ -47,7 +47,7 @@
         />
         <div
           v-else-if="!displayingSearchResults && !rootNodesLoading"
-          data-test="channels"
+          data-testid="channels"
         >
           <div>
             <h1
@@ -65,7 +65,7 @@
                 {{ channelsLabel }}
               </h1>
               <p
-                data-test="nothing-in-lib-label"
+                data-testid="nothing-in-lib-label"
                 class="nothing-in-lib-label"
               >
                 {{ coreString('nothingInLibraryLearner') }}
@@ -76,7 +76,7 @@
 
           <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
-            data-test="channel-cards"
+            data-testid="channel-cards"
             class="grid"
             :contents="rootNodes"
             :deviceId="deviceId"
@@ -85,7 +85,7 @@
           <!-- but we conditionalize it based on whether we are on another device's library page!-->
           <ResumableContentGrid
             v-if="!deviceId"
-            data-test="resumable-content"
+            data-testid="resumable-content"
             :currentCardViewStyle="currentCardViewStyle"
             @setCardStyle="style => (currentCardViewStyle = style)"
             @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
@@ -93,7 +93,7 @@
           <!-- Other Libraries -->
           <OtherLibraries
             v-if="showOtherLibraries"
-            data-test="other-libraries"
+            data-testid="other-libraries"
             :injectedtr="injecttr"
             @availableNetworkDevices="availableNetworkDevices"
             @isLoadingLibraries="isLoadingLibraries"
@@ -102,7 +102,7 @@
 
         <SearchResultsGrid
           v-else-if="displayingSearchResults"
-          data-test="search-results"
+          data-testid="search-results"
           :allowDownloads="allowDownloads"
           :results="results"
           :removeFilterTag="removeFilterTag"
@@ -124,7 +124,7 @@
           ref="sidePanel"
           v-model="searchTerms"
           :class="windowIsLarge ? 'side-panel' : ''"
-          data-test="side-panel-local"
+          data-testid="side-panel-local"
           :width="`${sidePanelWidth}px`"
         />
       </div>
@@ -137,7 +137,7 @@
         <SearchFiltersPanel
           ref="sidePanel"
           v-model="searchTerms"
-          data-test="side-panel"
+          data-testid="side-panel"
           :width="`${sidePanelWidth}px`"
         />
       </SidePanelModal>
@@ -145,7 +145,7 @@
       <!-- Side Panel for metadata -->
       <SidePanelModal
         v-if="metadataSidePanelContent && !rootNodesLoading"
-        data-test="side-panel-modal"
+        data-testid="side-panel-modal"
         alignment="right"
         @closePanel="metadataSidePanelContent = null"
         @shouldFocusFirstEl="findFirstEl()"

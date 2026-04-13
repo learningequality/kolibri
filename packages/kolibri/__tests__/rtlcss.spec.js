@@ -16,19 +16,18 @@ jest.mock('kolibri/utils/i18n', () => {
 // Re-import after mock setup so each test gets a fresh RTLManager
 let rtlManager;
 
-beforeEach(() => {
-  // Reset mock direction to LTR
-  mockLanguageDirection = languageDirections.LTR;
-  // Clear any link elements from previous tests
-  document.querySelectorAll('link[data-webpack-bundle]').forEach(el => el.remove());
-  // Fresh RTLManager for each test
-  jest.resetModules();
-  return import('../rtlcss.js').then(mod => {
-    rtlManager = mod.rtlManager;
-  });
-});
-
 describe('RTLManager', () => {
+  beforeEach(() => {
+    // Reset mock direction to LTR
+    mockLanguageDirection = languageDirections.LTR;
+    // Clear any link elements from previous tests
+    document.querySelectorAll('link[data-webpack-bundle]').forEach(el => el.remove());
+    // Fresh RTLManager for each test
+    jest.resetModules();
+    return import('../rtlcss.js').then(mod => {
+      rtlManager = mod.rtlManager;
+    });
+  });
   describe('registerBundleCSS and loadRegisteredBundleCSS', () => {
     it('creates tagged link elements for LTR CSS when direction is LTR', () => {
       mockLanguageDirection = languageDirections.LTR;

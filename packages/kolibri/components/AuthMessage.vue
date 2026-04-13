@@ -14,7 +14,7 @@
         :text="linkText"
         :href="signInLink"
         appearance="basic-link"
-        data-test="signinlink"
+        data-testid="signinlink"
       />
     </p>
     <p v-else>
@@ -22,7 +22,7 @@
         :text="$tr('goBackToHomeAction')"
         :href="rootUrl"
         appearance="basic-link"
-        data-test="gohomelink"
+        data-testid="gohomelink"
       />
     </p>
   </div>

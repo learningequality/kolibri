@@ -29,12 +29,12 @@ function makeWrapper({ targetFacility, targetAccount, fullname, username } = {})
   });
 }
 
-const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
+const getUsernameTextbox = wrapper => wrapper.find('[data-testid="usernameTextbox"]');
 const setUsernameTextboxValue = (wrapper, value) => {
   getUsernameTextbox(wrapper).find('input').setValue(value);
 };
-const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
-const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
+const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
+const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 
@@ -55,9 +55,9 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
       username: 'test1',
       targetAccount: { username: 'test2' },
     });
-    const fullname_paragraph = wrapper.find('[data-test="fullName"]');
+    const fullname_paragraph = wrapper.find('[data-testid="fullName"]');
     expect(fullname_paragraph.text()).toEqual('Test User 1');
-    const username_paragraph = wrapper.find('[data-test="username"]');
+    const username_paragraph = wrapper.find('[data-testid="username"]');
     expect(username_paragraph.text()).toEqual('test1');
   });
 

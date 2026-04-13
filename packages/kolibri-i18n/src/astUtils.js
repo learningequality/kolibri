@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const recast = require('recast');
 const babylonParser = require('recast/parsers/babylon');
 const traverse = require('ast-traverse');

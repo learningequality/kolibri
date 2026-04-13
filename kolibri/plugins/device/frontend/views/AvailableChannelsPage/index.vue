@@ -20,7 +20,7 @@
         <template #header>
           <h1
             v-if="status === ''"
-            data-test="title"
+            data-testid="title"
           >
             {{ multipleMode ? $tr('importChannelsHeader') : $tr('importResourcesHeader') }}
           </h1>
@@ -37,7 +37,7 @@
           </p>
           <KButton
             v-if="showUnlistedChannels"
-            data-test="token-button"
+            data-testid="token-button"
             :text="$tr('channelTokenButtonLabel')"
             appearance="raised-button"
             name="showtokenmodal"

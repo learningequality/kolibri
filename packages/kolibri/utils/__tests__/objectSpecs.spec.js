@@ -69,47 +69,47 @@ const simpleSpec = {
 };
 
 describe('validateObject basic operation', () => {
-  test('validateObject should succeed with only required property', () => {
+  it('validateObject should succeed with only required property', () => {
     const obj = {
       str1: 'A',
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
-  test('validateObject should succeed with optional properties', () => {
+  it('validateObject should succeed with optional properties', () => {
     const obj = {
       str1: 'A',
       str2: 'B',
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
-  test('validateObject should fail without required properties', () => {
+  it('validateObject should fail without required properties', () => {
     const obj = {
       str2: 'B',
     };
     expect(validateObject(obj, simpleSpec)).toBe(false);
   });
-  test('validateObject should fail incorrect type', () => {
+  it('validateObject should fail incorrect type', () => {
     const obj = {
       str1: 'A',
       num: '1',
     };
     expect(validateObject(obj, simpleSpec)).toBe(false);
   });
-  test('validateObject should fail incorrect validation', () => {
+  it('validateObject should fail incorrect validation', () => {
     const obj = {
       str1: 'A',
       num: 1,
     };
     expect(validateObject(obj, simpleSpec)).toBe(false);
   });
-  test('validateObject should succeed with correct validation', () => {
+  it('validateObject should succeed with correct validation', () => {
     const obj = {
       str1: 'A',
       num: 15,
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
-  test('validateObject should succeed with sub-spec validation', () => {
+  it('validateObject should succeed with sub-spec validation', () => {
     const obj = {
       str1: 'A',
       nestedObject: {
@@ -119,7 +119,7 @@ describe('validateObject basic operation', () => {
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
-  test('validateObject should test all children of an Array that has a spec', () => {
+  it('validateObject should test all children of an Array that has a spec', () => {
     const obj = {
       str1: 'A',
       arrayOfNum: [1, 2, 3, 4, 5],
@@ -130,7 +130,7 @@ describe('validateObject basic operation', () => {
 });
 
 describe('validateObject rejects bad specs', () => {
-  test('spec can not have both default and required', () => {
+  it('spec can not have both default and required', () => {
     const badSpec = {
       str1: {
         type: String,
@@ -143,7 +143,7 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  test('spec must have either default or required', () => {
+  it('spec must have either default or required', () => {
     const badSpec = {
       str1: {
         type: String,
@@ -154,7 +154,7 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  test('non-object/array cannot have sub-spec', () => {
+  it('non-object/array cannot have sub-spec', () => {
     const badSpec = {
       str1: {
         type: String,
@@ -170,7 +170,7 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  test('Objects must use function for defaults', () => {
+  it('Objects must use function for defaults', () => {
     const badSpec = {
       obj: {
         type: Object,
@@ -184,7 +184,7 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  test('A specced array rejects an array even if any value is bad', () => {
+  it('A specced array rejects an array even if any value is bad', () => {
     const badNumArrayObj = {
       arrayOfNum: [1, 2, 3, 4, 5, 'A'],
     };
@@ -197,7 +197,7 @@ describe('validateObject rejects bad specs', () => {
 });
 
 describe('objectWithDefaults fills defaults', () => {
-  test('defaults are filled in as expected', () => {
+  it('defaults are filled in as expected', () => {
     const obj = {
       str1: 'A',
     };
@@ -213,7 +213,7 @@ describe('objectWithDefaults fills defaults', () => {
       },
     });
   });
-  test('input takes precedence over defaults', () => {
+  it('input takes precedence over defaults', () => {
     const obj = {
       str1: 'A',
       str2: 'B',

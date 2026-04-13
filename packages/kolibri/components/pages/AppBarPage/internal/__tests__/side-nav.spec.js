@@ -151,7 +151,7 @@ describe('side nav component', () => {
       );
       setUserKind(UserKinds.SUPERUSER);
       const wrapper = createWrapper();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-item']");
+      const sideNavComponents = wrapper.findAll("[data-testid='side-nav-item']");
       expect(sideNavComponents.exists()).toBeTruthy();
       expect(sideNavComponents.at(0).html()).toContain(label);
       expect(sideNavComponents.at(1).html()).toContain(label2);

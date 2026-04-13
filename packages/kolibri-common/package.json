@@ -19,6 +19,8 @@
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri": "workspace:*",
     "kolibri-constants": "catalog:",
+    "kolibri-logging": "workspace:*",
+    "dialog-polyfill": "^0.5.6",
     "kolibri-design-system": "catalog:",
     "lockr": "0.8.5",
     "lodash": "catalog:",
@@ -27,6 +29,12 @@
     "vue-router": "catalog:",
     "vuex": "catalog:",
     "xstate": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:"
   },
   "peerDependencies": {
     "vue": "catalog:",

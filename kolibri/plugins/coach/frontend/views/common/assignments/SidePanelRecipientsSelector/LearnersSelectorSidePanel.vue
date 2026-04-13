@@ -39,7 +39,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { coachStringsMixin } from '../../../common/commonCoachStrings';
+  import { coachStringsMixin } from '../../commonCoachStrings';
   import LearnersAndGroupsSelector from '../LearnersAndGroupsSelector.vue';
 
   export default {

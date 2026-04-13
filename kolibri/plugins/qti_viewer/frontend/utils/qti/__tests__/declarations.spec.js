@@ -15,7 +15,7 @@ function createDeclaration(xmlString) {
 }
 
 describe('QTIVariable', () => {
-  test('should parse basic response declaration', () => {
+  it('should parse basic response declaration', () => {
     const xmlString =
       '<qti-response-declaration identifier="SCORE" base-type="integer" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -25,7 +25,7 @@ describe('QTIVariable', () => {
     expect(declaration.cardinality).toBe('single');
   });
 
-  test('should parse declaration with default value', () => {
+  it('should parse declaration with default value', () => {
     const xmlString = `
       <qti-response-declaration identifier="SCORE" base-type="integer" cardinality="single">
         <qti-default-value>
@@ -38,7 +38,7 @@ describe('QTIVariable', () => {
     expect(declaration.defaultValue).toBe(50);
   });
 
-  test('should parse declaration with correct response', () => {
+  it('should parse declaration with correct response', () => {
     const xmlString = `
       <qti-response-declaration identifier="CHOICE" base-type="identifier" cardinality="single">
         <qti-correct-response>
@@ -51,7 +51,7 @@ describe('QTIVariable', () => {
     expect(declaration.correctResponse).toBe('A');
   });
 
-  test('should parse multiple values for multiple cardinality', () => {
+  it('should parse multiple values for multiple cardinality', () => {
     const xmlString = `
       <qti-response-declaration identifier="MULTI" base-type="identifier" cardinality="multiple">
         <qti-correct-response>
@@ -66,7 +66,7 @@ describe('QTIVariable', () => {
     expect(declaration.correctResponse).toEqual(['A', 'B', 'C']);
   });
 
-  test('should validate compatible types', () => {
+  it('should validate compatible types', () => {
     // Numeric types should be compatible
     expect(areTypesCompatible('integer', 'float')).toBe(true);
     expect(areTypesCompatible('float', 'integer')).toBe(true);
@@ -78,7 +78,7 @@ describe('QTIVariable', () => {
     expect(areTypesCompatible('string', 'boolean')).toBe(false);
   });
 
-  test('should throw TypeError for incompatible values', () => {
+  it('should throw TypeError for incompatible values', () => {
     const xmlString =
       '<qti-response-declaration identifier="SCORE" base-type="integer" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -100,7 +100,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError); // Array for single cardinality
   });
 
-  test('should parse boolean values correctly', () => {
+  it('should parse boolean values correctly', () => {
     const xmlString = `
       <qti-response-declaration identifier="FLAG" base-type="boolean" cardinality="single">
         <qti-default-value>
@@ -114,7 +114,7 @@ describe('QTIVariable', () => {
     expect(typeof declaration.defaultValue).toBe('boolean');
   });
 
-  test('should parse ordered cardinality values', () => {
+  it('should parse ordered cardinality values', () => {
     const xmlString = `
       <qti-response-declaration identifier="ORDERED_LIST" base-type="identifier" cardinality="ordered">
         <qti-correct-response>
@@ -130,7 +130,7 @@ describe('QTIVariable', () => {
     expect(declaration.cardinality).toBe('ordered');
   });
 
-  test('should parse mapping with map entries', () => {
+  it('should parse mapping with map entries', () => {
     const xmlString = `
       <qti-response-declaration identifier="MAPPED" base-type="identifier" cardinality="single">
         <qti-mapping default-value="0">
@@ -149,7 +149,7 @@ describe('QTIVariable', () => {
     expect(declaration.mapping.entries.get('CHOICE_C').mappedValue).toBe(3);
   });
 
-  test('should parse area mapping', () => {
+  it('should parse area mapping', () => {
     const xmlString = `
       <qti-response-declaration identifier="HOTSPOT" base-type="point" cardinality="single">
         <qti-area-mapping default-value="0" />
@@ -161,7 +161,7 @@ describe('QTIVariable', () => {
     expect(declaration.areaMapping.defaultValue).toBe(0);
   });
 
-  test('should throw TypeError for invalid point values', () => {
+  it('should throw TypeError for invalid point values', () => {
     const xmlString =
       '<qti-response-declaration identifier="POINT" base-type="point" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -180,7 +180,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid pair values', () => {
+  it('should throw TypeError for invalid pair values', () => {
     const xmlString =
       '<qti-response-declaration identifier="PAIR" base-type="pair" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -199,7 +199,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid directed pair values', () => {
+  it('should throw TypeError for invalid directed pair values', () => {
     const xmlString =
       '<qti-response-declaration identifier="DIRECTED" base-type="directedPair" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -218,7 +218,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid duration values', () => {
+  it('should throw TypeError for invalid duration values', () => {
     const xmlString =
       '<qti-response-declaration identifier="TIME" base-type="duration" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -237,7 +237,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid file values', () => {
+  it('should throw TypeError for invalid file values', () => {
     const xmlString =
       '<qti-response-declaration identifier="UPLOAD" base-type="file" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -258,7 +258,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid float values', () => {
+  it('should throw TypeError for invalid float values', () => {
     const xmlString =
       '<qti-response-declaration identifier="DECIMAL" base-type="float" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -277,7 +277,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid URI values', () => {
+  it('should throw TypeError for invalid URI values', () => {
     const xmlString =
       '<qti-response-declaration identifier="LINK" base-type="uri" cardinality="single" />';
     const declaration = createDeclaration(xmlString);
@@ -296,7 +296,7 @@ describe('QTIVariable', () => {
     }).toThrow(TypeError);
   });
 
-  test('should throw TypeError for invalid record cardinality with no field declarations', () => {
+  it('should throw TypeError for invalid record cardinality with no field declarations', () => {
     const xmlString =
       '<qti-response-declaration identifier="RECORD" base-type="string" cardinality="record" />';
     const declaration = createDeclaration(xmlString);
@@ -322,7 +322,7 @@ describe('QTIVariable', () => {
     }).not.toThrow(); // Null is always compatible
   });
 
-  test('should check declaration compatibility', () => {
+  it('should check declaration compatibility', () => {
     const intDecl = createDeclaration(
       '<qti-response-declaration identifier="INT" base-type="integer" cardinality="single" />',
     );
@@ -354,7 +354,7 @@ describe('QTIVariable', () => {
 });
 
 describe('Value coercion methods', () => {
-  test('should coerce boolean values from multiple input types', () => {
+  it('should coerce boolean values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="BOOL" base-type="boolean" cardinality="single" />',
     );
@@ -376,7 +376,7 @@ describe('Value coercion methods', () => {
     expect(() => declaration.coerceValue('anything')).toThrow(TypeError);
   });
 
-  test('should coerce integer values from multiple input types', () => {
+  it('should coerce integer values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="INT" base-type="integer" cardinality="single" />',
     );
@@ -396,7 +396,7 @@ describe('Value coercion methods', () => {
     expect(declaration.coerceValue(false)).toBeNaN();
   });
 
-  test('should coerce float values from multiple input types', () => {
+  it('should coerce float values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="FLOAT" base-type="float" cardinality="single" />',
     );
@@ -415,7 +415,7 @@ describe('Value coercion methods', () => {
     expect(declaration.coerceValue(false)).toBeNaN();
   });
 
-  test('should coerce string values from multiple input types', () => {
+  it('should coerce string values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="STR" base-type="string" cardinality="single" />',
     );
@@ -431,7 +431,7 @@ describe('Value coercion methods', () => {
     expect(declaration.coerceValue(null)).toBe(null);
   });
 
-  test('should coerce point values from multiple input types', () => {
+  it('should coerce point values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="POINT" base-type="point" cardinality="single" />',
     );
@@ -452,7 +452,7 @@ describe('Value coercion methods', () => {
     );
   });
 
-  test('should coerce pair values from multiple input types', () => {
+  it('should coerce pair values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="PAIR" base-type="pair" cardinality="single" />',
     );
@@ -472,7 +472,7 @@ describe('Value coercion methods', () => {
     );
   });
 
-  test('should coerce duration values from multiple input types', () => {
+  it('should coerce duration values from multiple input types', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="TIME" base-type="duration" cardinality="single" />',
     );
@@ -491,7 +491,7 @@ describe('Value coercion methods', () => {
     expect(() => declaration.coerceValue('invalid')).toThrow('Cannot coerce invalid to duration');
   });
 
-  test('should handle file values without coercion', () => {
+  it('should handle file values without coercion', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="FILE" base-type="file" cardinality="single" />',
     );
@@ -506,7 +506,7 @@ describe('Value coercion methods', () => {
     expect(() => declaration.coerceValue('not a file')).toThrow(TypeError);
   });
 
-  test('should handle null and undefined values in coercion', () => {
+  it('should handle null and undefined values in coercion', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="STR" base-type="string" cardinality="single" />',
     );
@@ -517,7 +517,7 @@ describe('Value coercion methods', () => {
     expect(declaration.coerceValue('')).toBe(null); // Empty string is NULL per QTI spec
   });
 
-  test('should coerce arrays of values correctly', () => {
+  it('should coerce arrays of values correctly', () => {
     const declaration = createDeclaration(
       '<qti-response-declaration identifier="MULTI" base-type="string" cardinality="multiple" />',
     );
@@ -530,7 +530,7 @@ describe('Value coercion methods', () => {
     expect(() => declaration.coerceValue(['hello', 42, true, null])).toThrow(TypeError);
   });
 
-  test('should coerce single values to arrays for single cardinality', () => {
+  it('should coerce single values to arrays for single cardinality', () => {
     const singleDecl = createDeclaration(
       '<qti-response-declaration identifier="SINGLE" base-type="string" cardinality="single" />',
     );
@@ -543,7 +543,7 @@ describe('Value coercion methods', () => {
     expect(multipleDecl.coerceValue(['a', 'b', 'c'])).toEqual(['a', 'b', 'c']);
   });
 
-  test('should coerce record cardinality values with no field declarations', () => {
+  it('should coerce record cardinality values with no field declarations', () => {
     const recordDecl = createDeclaration(
       '<qti-response-declaration identifier="RECORD" base-type="string" cardinality="record" />',
     );
@@ -565,7 +565,7 @@ describe('Value coercion methods', () => {
     );
   });
 
-  test('should reject record cardinality with different base types when no fields defined', () => {
+  it('should reject record cardinality with different base types when no fields defined', () => {
     const intRecordDecl = createDeclaration(
       '<qti-response-declaration identifier="INT_RECORD" base-type="integer" cardinality="record" />',
     );
@@ -582,7 +582,7 @@ describe('Value coercion methods', () => {
     );
   });
 
-  test('should parse record with field-specific base types', () => {
+  it('should parse record with field-specific base types', () => {
     const xmlString = `
       <qti-context-declaration cardinality="record" identifier="QTI_CONTEXT">
         <qti-default-value>
@@ -610,7 +610,7 @@ describe('Value coercion methods', () => {
     });
   });
 
-  test('should strictly validate record with defined field declarations', () => {
+  it('should strictly validate record with defined field declarations', () => {
     const xmlString = `
       <qti-context-declaration cardinality="record" identifier="QTI_CONTEXT">
         <qti-default-value>
@@ -684,7 +684,7 @@ describe('Value coercion methods', () => {
     }).not.toThrow();
   });
 
-  test('should coerce values strictly using defined field declarations', () => {
+  it('should coerce values strictly using defined field declarations', () => {
     const xmlString = `
       <qti-context-declaration cardinality="record" identifier="QTI_CONTEXT">
         <qti-default-value>
@@ -737,7 +737,7 @@ describe('Value coercion methods', () => {
     ).toThrow("Field 'undefinedField' is not defined in record declaration");
   });
 
-  test('should handle complex record with multiple cardinality fields', () => {
+  it('should handle complex record with multiple cardinality fields', () => {
     const xmlString = `
       <qti-context-declaration cardinality="record" identifier="COMPLEX_RECORD">
         <qti-default-value>
@@ -793,7 +793,7 @@ describe('Value coercion methods', () => {
 });
 
 describe('Pure compatibility functions', () => {
-  test('areTypesCompatible should work with all type combinations', () => {
+  it('areTypesCompatible should work with all type combinations', () => {
     // Same types
     expect(areTypesCompatible(BASE_TYPE.STRING, BASE_TYPE.STRING)).toBe(true);
     expect(areTypesCompatible(BASE_TYPE.BOOLEAN, BASE_TYPE.BOOLEAN)).toBe(true);
@@ -811,7 +811,7 @@ describe('Pure compatibility functions', () => {
     expect(areTypesCompatible(BASE_TYPE.POINT, BASE_TYPE.PAIR)).toBe(false);
   });
 
-  test('areDeclarationsCompatible should check both cardinality and base types', () => {
+  it('areDeclarationsCompatible should check both cardinality and base types', () => {
     const singleInt = createDeclaration(
       '<qti-response-declaration identifier="A" base-type="integer" cardinality="single" />',
     );

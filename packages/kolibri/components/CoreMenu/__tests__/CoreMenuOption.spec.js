@@ -22,7 +22,7 @@ const renderComponent = props => {
 };
 
 describe('CoreMenuOption', () => {
-  test('smoke test', () => {
+  it('smoke test', () => {
     renderComponent();
     expect(screen.getByRole('menuitem')).toBeInTheDocument();
   });
@@ -171,7 +171,7 @@ describe('CoreMenuOption', () => {
           },
         ];
 
-        test.each(testcases)('%s [Mouse Click]', async ({ disabled, link, expected }) => {
+        it.each(testcases)('%s [Mouse Click]', async ({ disabled, link, expected }) => {
           // Clicking a link triggers jsdom's "Not implemented: navigation"
           // console.error. Suppress it since this is an expected jsdom limitation.
           const spy = jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
@@ -187,7 +187,7 @@ describe('CoreMenuOption', () => {
           }
         });
 
-        test.each(testcases)('%s [Enter Key]', async ({ disabled, link, expected }) => {
+        it.each(testcases)('%s [Enter Key]', async ({ disabled, link, expected }) => {
           const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
 
           await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter' });

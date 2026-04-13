@@ -34,7 +34,7 @@ describe('DeviceConnectionStatus', () => {
       },
     });
 
-    expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-testid="disconnected-icon"]').exists()).toBeFalsy();
   });
 
   it('shows the disconnected icon', () => {
@@ -44,6 +44,6 @@ describe('DeviceConnectionStatus', () => {
         deviceId: '1',
       },
     });
-    expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="disconnected-icon"]').exists()).toBeTruthy();
   });
 });

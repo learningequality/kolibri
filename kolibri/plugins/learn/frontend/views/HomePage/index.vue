@@ -24,14 +24,14 @@
           v-if="displayClasses"
           class="section"
           :classes="classes"
-          data-test="classes"
+          data-testid="classes"
           short
         />
         <ContinueLearning
           v-if="continueLearning"
           class="section"
           :fromClasses="continueLearningFromClasses"
-          :data-test="
+          :data-testid="
             continueLearningFromClasses
               ? 'continueLearningFromClasses'
               : 'continueLearningOnYourOwn'
@@ -43,7 +43,7 @@
           :courses="activeClassesCourses"
           displayClassName
           recent
-          data-test="recentCourses"
+          data-testid="recentCourses"
         />
         <AssignedLessonsCards
           v-if="hasActiveClassesLessons"
@@ -51,7 +51,7 @@
           :lessons="activeClassesLessons"
           displayClassName
           recent
-          data-test="recentLessons"
+          data-testid="recentLessons"
         />
         <AssignedQuizzesCards
           v-if="hasActiveClassesQuizzes"
@@ -59,13 +59,13 @@
           :quizzes="activeClassesQuizzes"
           displayClassName
           recent
-          data-test="recentQuizzes"
+          data-testid="recentQuizzes"
         />
         <ExploreChannels
           v-if="displayExploreChannels"
           :channels="channels"
           class="section"
-          data-test="exploreChannels"
+          data-testid="exploreChannels"
           :short="
             Boolean(
               displayClasses ||
@@ -110,7 +110,7 @@
   import YourClasses from '../YourClasses';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../device/frontend/views/PostSetupModalGroup.vue';
-  import commonLearnStrings from './../commonLearnStrings';
+  import commonLearnStrings from '../commonLearnStrings';
   import ContinueLearning from './ContinueLearning';
   import ExploreChannels from './ExploreChannels';
 

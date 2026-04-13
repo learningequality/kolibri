@@ -26,11 +26,11 @@ function makeWrapper({ targetFacility, targetAccount, fullname, username } = {})
   });
 }
 
-const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
+const getUsernameTextbox = wrapper => wrapper.find('[data-testid="usernameTextbox"]');
 const setUsernameTextboxValue = (wrapper, value) => {
   getUsernameTextbox(wrapper).find('input').setValue(value);
 };
-const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"]');
+const getPasswordTextbox = wrapper => wrapper.find('[data-testid="passwordTextbox"]');
 const setPasswordTextboxValue = (wrapper, value) => {
   getPasswordTextbox(wrapper).find('input').setValue(value);
 };
@@ -52,12 +52,12 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
       username: 'test1',
       targetAccount: { username: 'test2' },
     });
-    const fullname_paragraph = wrapper.find('[data-test="fullName"]');
+    const fullname_paragraph = wrapper.find('[data-testid="fullName"]');
     expect(fullname_paragraph.text()).toEqual('Test User 1');
-    const username_paragraph = wrapper.find('[data-test="username"]');
+    const username_paragraph = wrapper.find('[data-testid="username"]');
     expect(username_paragraph.text()).toEqual('test1');
-    expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(false);
-    expect(wrapper.find('[data-test="passwordTextbox"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="usernameTextbox"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="passwordTextbox"]').exists()).toBe(true);
     expect(wrapper.text()).toContain(
       "Enter the password of the account 'test2' in 'Test Facility' learning facility that you want to merge your account with",
     );
@@ -65,7 +65,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
 
   it('Change to useAdminPassword state when clicking link', () => {
     const wrapper = makeWrapper();
-    const useAdminButton = wrapper.find('[data-test="useAdminAccount"]');
+    const useAdminButton = wrapper.find('[data-testid="useAdminAccount"]');
     useAdminButton.trigger('click');
     expect(sendMachineEvent).toHaveBeenCalledWith({
       type: 'USEADMIN',
@@ -76,7 +76,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     const wrapper = makeWrapper();
     wrapper.setData({ usingAdminPasswordState: true });
     await wrapper.vm.$nextTick();
-    expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="usernameTextbox"]').exists()).toBe(true);
   });
 
   it('Check remoteFacilityUserData is called with the user credentials', async () => {
@@ -89,7 +89,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     jest.spyOn(useRemoteFacility, 'default').mockReturnValue(Promise.resolve({}));
     setPasswordTextboxValue(wrapper, 'my password');
 
-    const continueButton = wrapper.find('[data-test="continueButton"]');
+    const continueButton = wrapper.find('[data-testid="continueButton"]');
     continueButton.trigger('click');
     await wrapper.vm.$nextTick();
 
@@ -116,7 +116,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     setUsernameTextboxValue(wrapper, 'testadmin');
     setPasswordTextboxValue(wrapper, 'admin password');
 
-    const continueButton = wrapper.find('[data-test="continueButton"]');
+    const continueButton = wrapper.find('[data-testid="continueButton"]');
     continueButton.trigger('click');
     await wrapper.vm.$nextTick();
     expect(remoteFacilityUserData).toHaveBeenCalledWith(

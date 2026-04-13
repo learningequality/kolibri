@@ -313,7 +313,7 @@
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
   import CoachHeader from '../common/CoachHeader.vue';
-  import { coachStrings } from '../../views/common/commonCoachStrings';
+  import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import useCourseSession from '../../composables/useCourseSession';
   import useClassSummary from '../../composables/useClassSummary.js';

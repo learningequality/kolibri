@@ -34,7 +34,7 @@
           v-if="!windowIsSmall"
           ref="header"
           role="complementary"
-          data-test="header-breadcrumbs"
+          data-testid="header-breadcrumbs"
           :title="(topic && topic.title) || ''"
           :description="topic && topic.description"
           :thumbnail="topic && topic.thumbnail"
@@ -82,7 +82,7 @@
         >
           <KBreadcrumbs
             v-if="breadcrumbs.length && windowIsSmall"
-            data-test="mobile-breadcrumbs"
+            data-testid="mobile-breadcrumbs"
             :items="breadcrumbs"
             :ariaLabel="learnString('channelAndFoldersLabel')"
           />
@@ -91,12 +91,12 @@
             <!-- Filter buttons - shown when not sidebar not visible -->
             <div
               v-if="!windowIsLarge"
-              data-test="tab-buttons"
+              data-testid="tab-buttons"
             >
               <KButton
                 v-if="topics.length"
                 icon="topic"
-                data-test="folders-button"
+                data-testid="folders-button"
                 class="overlay-toggle-button"
                 :text="coreString('folders')"
                 :primary="false"
@@ -105,7 +105,7 @@
               <KButton
                 icon="filter"
                 class="overlay-toggle-button"
-                data-test="filter-button"
+                data-testid="filter-button"
                 :text="coreString('filter')"
                 :primary="false"
                 @click="handleSearchButton"
@@ -115,7 +115,7 @@
             <!-- default/preview display of nested folder structure, not search -->
             <div
               v-if="!displayingSearchResults"
-              data-test="topics"
+              data-testid="topics"
             >
               <!-- Rows of cards and links / show more for each Topic -->
               <template v-for="(c, i) in contentsForDisplay">
@@ -139,7 +139,7 @@
                   v-else
                   :key="'grid_' + i"
                   :allowDownloads="allowDownloads"
-                  data-test="search-results"
+                  data-testid="search-results"
                   :contents="c"
                   :gridType="gridType"
                   currentCardViewStyle="card"
@@ -168,7 +168,7 @@
                 search results? -->
             <SearchResultsGrid
               v-else
-              data-test="search-results"
+              data-testid="search-results"
               :allowDownloads="allowDownloads"
               :currentCardViewStyle="currentSearchCardViewStyle"
               :hideCardViewToggle="true"
@@ -288,12 +288,12 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import SearchResultsGrid from '../SearchResultsGrid';
   import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
+  import commonLearnStrings from '../commonLearnStrings';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
   import TopicsPanelModal from './TopicsPanelModal';
-  import commonLearnStrings from './../commonLearnStrings';
 
   function _handleRootTopic(topic, currentChannel) {
     const isRoot = !topic.parent;

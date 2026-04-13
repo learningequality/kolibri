@@ -13,7 +13,7 @@
       <KLabeledIcon :style="{ 'margin-top': '8px' }">
         <template #icon>
           <LearningActivityIcon
-            data-test="learningActivityIcon"
+            data-testid="learningActivityIcon"
             :kind="learningActivities"
             :shaded="true"
           />
@@ -36,7 +36,7 @@
       <template #icon>
         <KIconButton
           icon="back"
-          data-test="backButton"
+          data-testid="backButton"
           :tooltip="coreString('goBackAction')"
           :ariaLabel="coreString('goBackAction')"
           @click="onBackButtonClick"
@@ -54,7 +54,7 @@
             <KCircularLoader
               :shouldShow="isDownloading"
               :minVisibleTime="3000"
-              data-test="downloadingLoader"
+              data-testid="downloadingLoader"
               :size="24"
               :style="{ margin: '10px 4px 0px 4px' }"
             />
@@ -70,7 +70,7 @@
         <KIconButton
           v-if="isQuiz && !showingReportState"
           ref="timerButton"
-          data-test="timerButton"
+          data-testid="timerButton"
           icon="timer"
           :tooltip="coreString('timeSpentLabel')"
           :ariaLabel="coreString('timeSpentLabel')"
@@ -115,7 +115,7 @@
           <KIconButton
             v-for="action in barActions"
             :key="action.id"
-            :data-test="`bar_${action.dataTest}`"
+            :data-testid="`bar_${action.dataTest}`"
             :icon="action.icon"
             :color="action.iconColor"
             :tooltip="action.label"
@@ -131,7 +131,7 @@
           <KIconButton
             v-if="menuActions.length"
             ref="moreOptionsButton"
-            data-test="moreOptionsButton"
+            data-testid="moreOptionsButton"
             icon="optionsHorizontal"
             :tooltip="$tr('moreOptions')"
             :ariaLabel="$tr('moreOptions')"
@@ -151,7 +151,7 @@
               <CoreMenuOption
                 v-for="action in menuActions"
                 :key="action.id"
-                :data-test="`menu_${action.dataTest}`"
+                :data-testid="`menu_${action.dataTest}`"
                 :disabled="action.disabled"
                 :style="{ cursor: 'pointer' }"
                 :icon="action.icon"

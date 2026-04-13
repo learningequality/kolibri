@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@vueuse/core": "catalog:",
+    "browserslist-config-kolibri": "workspace:*",
     "core-js": "catalog:",
     "kolibri": "workspace:*",
     "kolibri-common": "workspace:*",

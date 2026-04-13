@@ -165,7 +165,7 @@
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { coachStrings } from '../../common/commonCoachStrings';
+  import { coachStrings } from '../commonCoachStrings';
   import RecipientSelector from './RecipientSelector';
   import SidePanelRecipientsSelector from './SidePanelRecipientsSelector';
 

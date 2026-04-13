@@ -120,7 +120,7 @@
   import ResourceSelectionBreadcrumbs from '../../ResourceSelectionBreadcrumbs.vue';
   import useFetchContentNode from '../../../../../composables/useFetchContentNode';
   import QuestionsAccordion from '../../../QuestionsAccordion.vue';
-  import autofocusFirstEl from '../../../../common/directives/autofocusFirstEl.js';
+  import autofocusFirstEl from '../../../directives/autofocusFirstEl.js';
   import PreviewContent from './PreviewContent';
   import PreviewMetadata from './PreviewMetadata';
   import ResourceActionButton from './ResourceActionButton.vue';

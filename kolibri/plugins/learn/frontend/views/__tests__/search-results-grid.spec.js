@@ -31,7 +31,7 @@ describe('when search results are loaded', () => {
           more: [{ result: 2 }],
         },
       });
-      expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
+      expect(wrapper.find('[data-testid="search-results-title"]').element).toHaveTextContent(
         coreStrings('uncountedAdditionalResults', { num: 1 }),
       );
     });
@@ -45,7 +45,7 @@ describe('when search results are loaded', () => {
           results: [{ result: 1 }],
         },
       });
-      expect(wrapper.find('[data-test="search-results-title"]').element).toHaveTextContent(
+      expect(wrapper.find('[data-testid="search-results-title"]').element).toHaveTextContent(
         SearchStrings.$tr('results', { results: 1 }),
       );
     });
@@ -59,7 +59,7 @@ describe('when search results are loaded', () => {
           windowIsLarge: false,
         }));
         const wrapper = shallowMount(SearchResultsGrid);
-        expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeFalsy();
+        expect(wrapper.find('[data-testid="toggle-view-buttons"]').exists()).toBeFalsy();
       });
     });
 
@@ -71,13 +71,13 @@ describe('when search results are loaded', () => {
             searchLoading: false,
           },
         });
-        expect(wrapper.find('[data-test="toggle-view-buttons"]').exists()).toBeTruthy();
+        expect(wrapper.find('[data-testid="toggle-view-buttons"]').exists()).toBeTruthy();
       });
     });
 
     it('displays a list of cards showing the results', () => {
       const wrapper = shallowMount(SearchResultsGrid, {});
-      expect(wrapper.find('[data-test="search-results-card-grid"]').exists()).toBeTruthy();
+      expect(wrapper.find('[data-testid="search-results-card-grid"]').exists()).toBeTruthy();
     });
 
     it('displays a button to view more when there are more to be displayed', () => {
@@ -91,7 +91,7 @@ describe('when search results are loaded', () => {
         stubs: ['LibraryAndChannelBrowserMainContent', 'SearchChips'],
       });
 
-      const moreButton = wrapper.find('[data-test="more-results-button"]');
+      const moreButton = wrapper.find('[data-testid="more-results-button"]');
       expect(moreButton.exists()).toBeTruthy();
     });
   });

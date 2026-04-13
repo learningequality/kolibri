@@ -30,7 +30,7 @@
       <KGridItem :layout12="{ span: 3 }">
         <p
           class="count-msg"
-          data-test="available"
+          data-testid="available"
         >
           {{ channelsCountMsg }}
         </p>

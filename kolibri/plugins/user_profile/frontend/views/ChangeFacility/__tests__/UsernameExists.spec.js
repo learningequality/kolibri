@@ -21,8 +21,8 @@ function makeWrapper({ targetFacility, username } = {}) {
   });
 }
 
-const getMergeButton = wrapper => wrapper.find('[data-test="mergeButton"]');
-const getCreateButton = wrapper => wrapper.find('[data-test="createButton"]');
+const getMergeButton = wrapper => wrapper.find('[data-testid="mergeButton"]');
+const getCreateButton = wrapper => wrapper.find('[data-testid="createButton"]');
 const clickMergeButton = wrapper => getMergeButton(wrapper).trigger('click');
 const clickCreateButton = wrapper => getCreateButton(wrapper).trigger('click');
 
@@ -40,11 +40,11 @@ describe(`ChangeFacility/UsernameExists`, () => {
       targetFacility: { name: 'Test Facility' },
       username: 'test1',
     });
-    const line1Paragraph = wrapper.find('[data-test="line1"]');
+    const line1Paragraph = wrapper.find('[data-testid="line1"]');
     expect(line1Paragraph.text()).toEqual(
       "An account with the username 'test1' already exists in the 'Test Facility' learning facility. You can merge your account and its progress data with this account.",
     );
-    const line2Paragraph = wrapper.find('[data-test="line2"]');
+    const line2Paragraph = wrapper.find('[data-testid="line2"]');
     expect(line2Paragraph.text()).toEqual(
       'Alternatively, you can create a new account and all your progress data will be moved to this new account.',
     );

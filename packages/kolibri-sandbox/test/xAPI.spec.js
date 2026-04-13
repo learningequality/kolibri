@@ -249,12 +249,12 @@ describe('xAPI data validation', () => {
       });
       const interactionOptions = ['choices', 'scale', 'source', 'target', 'steps'];
       describe('true-false interaction', () => {
-        test.each(interactionOptions)('should throw an error if %s is specified', option => {
+        it.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'true-false', [option]: [{ id: 'test' }] });
           }).toThrow(xAPIValidationError);
         });
-        test.each(['true', 'false'])(
+        it.each(['true', 'false'])(
           'should not throw an error if %s is a correct response',
           resp => {
             ActivityDefinition.clean({
@@ -264,7 +264,7 @@ describe('xAPI data validation', () => {
             expect(warnMock).not.toHaveBeenCalled();
           },
         );
-        test('should give a warning if middle is a correct response', () => {
+        it('should give a warning if middle is a correct response', () => {
           ActivityDefinition.clean({
             interactionType: 'true-false',
             correctResponsesPattern: ['middle'],
@@ -273,7 +273,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('choice interaction', () => {
-        test.each(interactionOptions.filter(o => o !== 'choices'))(
+        it.each(interactionOptions.filter(o => o !== 'choices'))(
           'should throw an error if %s is specified',
           option => {
             expect(() => {
@@ -281,7 +281,7 @@ describe('xAPI data validation', () => {
             }).toThrow(xAPIValidationError);
           },
         );
-        test('should give a warning if correct response is not in choices', () => {
+        it('should give a warning if correct response is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'choice',
             choices: [{ id: 'test' }],
@@ -289,7 +289,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses is not in choices', () => {
+        it('should give a warning if one of the correct responses is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'choice',
             choices: [{ id: 'test' }],
@@ -297,7 +297,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses in a list is not in choices', () => {
+        it('should give a warning if one of the correct responses in a list is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'choice',
             choices: [{ id: 'test' }],
@@ -307,7 +307,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('sequencing interaction', () => {
-        test.each(interactionOptions.filter(o => o !== 'choices'))(
+        it.each(interactionOptions.filter(o => o !== 'choices'))(
           'should throw an error if %s is specified',
           option => {
             expect(() => {
@@ -318,7 +318,7 @@ describe('xAPI data validation', () => {
             }).toThrow(xAPIValidationError);
           },
         );
-        test('should give a warning if correct response is not in choices', () => {
+        it('should give a warning if correct response is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'sequencing',
             choices: [{ id: 'test' }],
@@ -326,7 +326,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses is not in choices', () => {
+        it('should give a warning if one of the correct responses is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'sequencing',
             choices: [{ id: 'test' }],
@@ -334,7 +334,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses in a list is not in choices', () => {
+        it('should give a warning if one of the correct responses in a list is not in choices', () => {
           ActivityDefinition.clean({
             interactionType: 'sequencing',
             choices: [{ id: 'test' }],
@@ -344,7 +344,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('matching interaction', () => {
-        test.each(interactionOptions.filter(o => o !== 'source' || o !== 'target'))(
+        it.each(interactionOptions.filter(o => o !== 'source' || o !== 'target'))(
           'should throw an error if %s is specified',
           option => {
             expect(() => {
@@ -352,7 +352,7 @@ describe('xAPI data validation', () => {
             }).toThrow(xAPIValidationError);
           },
         );
-        test('should give a warning if correct response is not in source', () => {
+        it('should give a warning if correct response is not in source', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -361,7 +361,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses is not in source', () => {
+        it('should give a warning if one of the correct responses is not in source', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -370,7 +370,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses in a list is not in source', () => {
+        it('should give a warning if one of the correct responses in a list is not in source', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -379,7 +379,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if correct response is not in target', () => {
+        it('should give a warning if correct response is not in target', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -388,7 +388,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses is not in target', () => {
+        it('should give a warning if one of the correct responses is not in target', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -397,7 +397,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses in a list is not in target', () => {
+        it('should give a warning if one of the correct responses in a list is not in target', () => {
           ActivityDefinition.clean({
             interactionType: 'matching',
             source: [{ id: 'source' }],
@@ -408,7 +408,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('performance interaction', () => {
-        test.each(interactionOptions.filter(o => o !== 'steps'))(
+        it.each(interactionOptions.filter(o => o !== 'steps'))(
           'should throw an error if %s is specified',
           option => {
             expect(() => {
@@ -419,7 +419,7 @@ describe('xAPI data validation', () => {
             }).toThrow(xAPIValidationError);
           },
         );
-        test('should give a warning if correct response is not in steps', () => {
+        it('should give a warning if correct response is not in steps', () => {
           ActivityDefinition.clean({
             interactionType: 'performance',
             steps: [{ id: 'test' }],
@@ -427,7 +427,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning if correct response is in steps', () => {
+        it('should not give a warning if correct response is in steps', () => {
           ActivityDefinition.clean({
             interactionType: 'performance',
             steps: [{ id: 'test' }],
@@ -437,7 +437,7 @@ describe('xAPI data validation', () => {
         });
         // The spec says that the response can also be a numeric type, but as this is always
         // encoded as a string we cannot apply additional validation in this case
-        test('should give a warning if one of the correct responses is not in steps', () => {
+        it('should give a warning if one of the correct responses is not in steps', () => {
           ActivityDefinition.clean({
             interactionType: 'performance',
             steps: [{ id: 'test' }],
@@ -445,7 +445,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if one of the correct responses in a list is not in steps', () => {
+        it('should give a warning if one of the correct responses in a list is not in steps', () => {
           ActivityDefinition.clean({
             interactionType: 'performance',
             steps: [{ id: 'test' }],
@@ -455,7 +455,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('likert interaction', () => {
-        test.each(interactionOptions.filter(o => o !== 'scale'))(
+        it.each(interactionOptions.filter(o => o !== 'scale'))(
           'should throw an error if %s is specified',
           option => {
             expect(() => {
@@ -463,7 +463,7 @@ describe('xAPI data validation', () => {
             }).toThrow(xAPIValidationError);
           },
         );
-        test('should give a warning if one of the correct responses is not in scale', () => {
+        it('should give a warning if one of the correct responses is not in scale', () => {
           ActivityDefinition.clean({
             interactionType: 'likert',
             scale: [{ id: 'scale' }],
@@ -471,7 +471,7 @@ describe('xAPI data validation', () => {
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning the correct responses are in scale', () => {
+        it('should not give a warning the correct responses are in scale', () => {
           ActivityDefinition.clean({
             interactionType: 'likert',
             scale: [{ id: 'scale' }, { id: 'test' }],
@@ -481,14 +481,14 @@ describe('xAPI data validation', () => {
         });
       });
       describe('fill-in interaction', () => {
-        test.each(interactionOptions)('should throw an error if %s is specified', option => {
+        it.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'fill-in', [option]: [{ id: 'test' }] });
           }).toThrow(xAPIValidationError);
         });
       });
       describe('long-fill-in interaction', () => {
-        test.each(interactionOptions)('should throw an error if %s is specified', option => {
+        it.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({
               interactionType: 'long-fill-in',
@@ -498,82 +498,82 @@ describe('xAPI data validation', () => {
         });
       });
       describe('numeric interaction', () => {
-        test.each(interactionOptions)('should throw an error if %s is specified', option => {
+        it.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'numeric', [option]: [{ id: 'test' }] });
           }).toThrow(xAPIValidationError);
         });
-        test('should give a warning if correct response is not a valid number', () => {
+        it('should give a warning if correct response is not a valid number', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['invalid'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning if correct response is a valid number', () => {
+        it('should not give a warning if correct response is a valid number', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['7'],
           });
           expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should give a warning if correct response is not a valid lower bounded range', () => {
+        it('should give a warning if correct response is not a valid lower bounded range', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['invalid[:]'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning if correct response is a valid lower bounded range', () => {
+        it('should not give a warning if correct response is a valid lower bounded range', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['7[:]'],
           });
           expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should give a warning if correct response is not a valid upper bounded range', () => {
+        it('should give a warning if correct response is not a valid upper bounded range', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['[:]invalid'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning if correct response is a valid upper bounded range', () => {
+        it('should not give a warning if correct response is a valid upper bounded range', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['[:]7'],
           });
           expect(warnMock).not.toHaveBeenCalled();
         });
-        test('should give a warning if correct response is a bounded range with invalid lower bound', () => {
+        it('should give a warning if correct response is a bounded range with invalid lower bound', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['invalid[:]7'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if correct response is a bounded range with invalid upper bound', () => {
+        it('should give a warning if correct response is a bounded range with invalid upper bound', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['7[:]invalid'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if correct response is a bounded range with invalid bounds', () => {
+        it('should give a warning if correct response is a bounded range with invalid bounds', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['invalid[:]invalid'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should give a warning if correct response is a bounded range with out of order bounds', () => {
+        it('should give a warning if correct response is a bounded range with out of order bounds', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['7[:]4'],
           });
           expect(warnMock).toHaveBeenCalled();
         });
-        test('should not give a warning if correct response is a bounded range with valid bounds', () => {
+        it('should not give a warning if correct response is a bounded range with valid bounds', () => {
           ActivityDefinition.clean({
             interactionType: 'numeric',
             correctResponsesPattern: ['4[:]7'],
@@ -582,7 +582,7 @@ describe('xAPI data validation', () => {
         });
       });
       describe('other interaction', () => {
-        test.each(interactionOptions)('should throw an error if %s is specified', option => {
+        it.each(interactionOptions)('should throw an error if %s is specified', option => {
           expect(() => {
             ActivityDefinition.clean({ interactionType: 'other', [option]: [{ id: 'test' }] });
           }).toThrow(xAPIValidationError);

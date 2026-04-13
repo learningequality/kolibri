@@ -99,19 +99,19 @@ const getViewByGroupsCheckbox = wrapper => {
 };
 
 const getGroupTitles = wrapper => {
-  return wrapper.findAll('[data-test="group-title"]');
+  return wrapper.findAll('[data-testid="group-title"]');
 };
 
 const getSummaryTally = wrapper => {
-  return wrapper.find('[data-test="summary-tally"]');
+  return wrapper.find('[data-testid="summary-tally"]');
 };
 
 const getGroup = (wrapper, groupId) => {
-  return wrapper.find(`[data-test="group-${groupId}"]`);
+  return wrapper.find(`[data-testid="group-${groupId}"]`);
 };
 
 const getGroupTally = (wrapper, groupId) => {
-  return getGroup(wrapper, groupId).find(`[data-test="group-tally"]`);
+  return getGroup(wrapper, groupId).find(`[data-testid="group-tally"]`);
 };
 
 const initWrapper = lessonMap => {

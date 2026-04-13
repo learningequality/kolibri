@@ -10,16 +10,16 @@ function makeWrapper({ propsData } = {}) {
     propsData,
   });
 }
-const getSelectAllCheckbox = wrapper => wrapper.find('[data-test="selectAllCheckbox"]');
-const getFullNameHeader = wrapper => wrapper.find('[data-test="fullNameHeader"]');
-const getUsernameHeader = wrapper => wrapper.find('[data-test="usernameHeader"]');
-const getRoleHeader = wrapper => wrapper.find('[data-test="roleHeader"]');
-const getFullNames = wrapper => wrapper.findAll('[data-test="fullName"]');
-const getUserRoleBadges = wrapper => wrapper.findAll('[data-test="userRoleBadge"]');
-const getUserRoleLabels = wrapper => wrapper.findAll('[data-test="userRoleLabel"]');
-const getUsernames = wrapper => wrapper.findAll('[data-test="username"]');
-const getUserCheckboxes = wrapper => wrapper.findAll('[data-test="userCheckbox"]');
-const getUserRadioButtons = wrapper => wrapper.findAll('[data-test="userRadioButton"]');
+const getSelectAllCheckbox = wrapper => wrapper.find('[data-testid="selectAllCheckbox"]');
+const getFullNameHeader = wrapper => wrapper.find('[data-testid="fullNameHeader"]');
+const getUsernameHeader = wrapper => wrapper.find('[data-testid="usernameHeader"]');
+const getRoleHeader = wrapper => wrapper.find('[data-testid="roleHeader"]');
+const getFullNames = wrapper => wrapper.findAll('[data-testid="fullName"]');
+const getUserRoleBadges = wrapper => wrapper.findAll('[data-testid="userRoleBadge"]');
+const getUserRoleLabels = wrapper => wrapper.findAll('[data-testid="userRoleLabel"]');
+const getUsernames = wrapper => wrapper.findAll('[data-testid="username"]');
+const getUserCheckboxes = wrapper => wrapper.findAll('[data-testid="userCheckbox"]');
+const getUserRadioButtons = wrapper => wrapper.findAll('[data-testid="userRadioButton"]');
 
 const TEST_USERS = [
   {

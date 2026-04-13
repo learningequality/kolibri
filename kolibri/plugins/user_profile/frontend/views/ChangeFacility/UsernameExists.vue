@@ -2,10 +2,10 @@
 
   <div>
     <h1>{{ coreString('changeLearningFacility') }}</h1>
-    <p data-test="line1">
+    <p data-testid="line1">
       {{ mergeAccountInfoLine1 }}
     </p>
-    <p data-test="line2">
+    <p data-testid="line2">
       {{ mergeAccountInfoLine2 }}
     </p>
     <BottomAppBar>
@@ -16,13 +16,13 @@
             :text="profileString('createAccount')"
             :disabled="isCreateAccountButtonDisabled"
             appearance="flat-button"
-            data-test="createButton"
+            data-testid="createButton"
             @click="to_create"
           />
           <KButton
             :primary="true"
             :text="profileString('mergeAccounts')"
-            data-test="mergeButton"
+            data-testid="mergeButton"
             @click="to_merge"
           />
         </KButtonGroup>

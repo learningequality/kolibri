@@ -25,14 +25,14 @@ function getElements(wrapper) {
   return {
     noChannels: () => wrapper.find('.no-channels'),
     channelsList: () => wrapper.find('.channels-list'),
-    channelsAvailableText: () => wrapper.find('[data-test="available"]').text().trim(),
+    channelsAvailableText: () => wrapper.find('[data-testid="available"]').text().trim(),
     channelListItems: () => wrapper.findAllComponents({ name: 'WithImportDetails' }),
     ChannelTokenModal: () => wrapper.findComponent({ name: 'ChannelTokenModal' }),
     filters: () => wrapper.find('.filters'),
     languageFilter: () => wrapper.findComponent({ name: 'KSelect' }),
-    titleText: () => wrapper.find('[data-test="title"]').text().trim(),
+    titleText: () => wrapper.find('[data-testid="title"]').text().trim(),
     titleFilter: () => wrapper.findComponent({ name: 'FilterTextbox' }),
-    unlistedChannelsButton: () => wrapper.find('[data-test="token-button"]'),
+    unlistedChannelsButton: () => wrapper.find('[data-testid="token-button"]'),
     filterComponent: () => wrapper.findComponent({name: 'FilteredChannelListContainer'}),
   }
 }

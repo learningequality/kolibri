@@ -24,7 +24,7 @@
   import tippy from 'tippy.js';
   import { onboardingSteps } from 'kolibri/utils/onboardingSteps';
   import useTour from 'kolibri/composables/useTour';
-  import useUser from '../../../kolibri/composables/useUser';
+  import useUser from '../../composables/useUser';
   import TooltipContent from './TooltipContent.vue';
 
   export default {

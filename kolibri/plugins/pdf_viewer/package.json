@@ -20,5 +20,8 @@
     "vue-resize": "^0.4.5",
     "vue-virtual-scroller": "1.1.2",
     "web-streams-polyfill": "^4.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "catalog:"
   }
 }

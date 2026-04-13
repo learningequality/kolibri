@@ -25,7 +25,7 @@
               {{ logoText }}
             </h1>
             <template v-if="!allowAccess">
-              <p data-test="restrictedAccess">
+              <p data-testid="restrictedAccess">
                 {{ $tr('restrictedAccess') }}
               </p>
               <p>{{ $tr('restrictedAccessDescription') }}</p>
@@ -89,7 +89,7 @@
                 appearance="raised-button"
                 :disabled="busy"
                 style="width: 100%"
-                data-test="createUser"
+                data-testid="createUser"
               />
             </p>
 
@@ -198,7 +198,7 @@
   import useFacility from 'kolibri-common/composables/useFacility';
   import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../constants';
-  import LanguageSwitcherFooter from '../views/LanguageSwitcherFooter';
+  import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
   import getUrlParameter from './getUrlParameter';
   import DeviceUnusableMessage from './DeviceUnusableMessage.vue';

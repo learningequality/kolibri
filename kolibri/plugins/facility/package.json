@@ -17,5 +17,9 @@
         "vue": "catalog:",
         "vue-router": "catalog:",
         "vuex": "catalog:"
+    },
+    "devDependencies": {
+        "@testing-library/jest-dom": "catalog:",
+        "@testing-library/vue": "catalog:"
     }
 }

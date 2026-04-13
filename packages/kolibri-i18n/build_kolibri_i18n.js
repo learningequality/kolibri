@@ -1,6 +1,6 @@
 /* Build file for kolibri-i18n */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // Copy the kolibri language_info.json into the kolibri-i18n package for use externally
 

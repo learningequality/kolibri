@@ -26,17 +26,17 @@ const renderComponent = props => {
 };
 
 describe('UserTypeDisplay', () => {
-  test('smoke test (renders the translated user type correctly)', () => {
+  it('smoke test (renders the translated user type correctly)', () => {
     renderComponent({ userType: sampleUserType });
     expect(screen.getByText(expectedSampleUserType)).toBeInTheDocument();
   });
 
-  test('does not render the untranslated user type', () => {
+  it('does not render the untranslated user type', () => {
     renderComponent({ userType: sampleUserType });
     expect(screen.queryByText(sampleUserType)).not.toBeInTheDocument();
   });
 
-  test('does not render anything if the userType prop is not provided', () => {
+  it('does not render anything if the userType prop is not provided', () => {
     const { container } = renderComponent({ userType: undefined });
     expect(container).toBeEmptyDOMElement();
   });

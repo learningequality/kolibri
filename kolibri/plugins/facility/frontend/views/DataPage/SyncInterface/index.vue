@@ -38,7 +38,7 @@
                 />
                 <KIconButton
                   ref="moreOptionsButton"
-                  data-test="moreOptionsButton"
+                  data-testid="moreOptionsButton"
                   icon="optionsHorizontal"
                   :tooltip="coreString('optionsLabel')"
                   :ariaLabel="coreString('optionsLabel')"

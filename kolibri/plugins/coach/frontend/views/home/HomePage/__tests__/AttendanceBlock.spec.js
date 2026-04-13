@@ -59,7 +59,7 @@ const MOCK_SESSIONS = [
 const STUBS = {
   KCircularLoader: {
     name: 'KCircularLoader',
-    template: '<div data-test="loader">Loading...</div>',
+    template: '<div data-testid="loader">Loading...</div>',
   },
   KRouterLink: {
     name: 'KRouterLink',
@@ -145,7 +145,7 @@ describe('AttendanceBlock', () => {
 
   it('shows loading state while fetchRecentSessions is in flight', () => {
     const { wrapper } = makeWrapper({ pendingFetch: true });
-    expect(wrapper.find('[data-test="loader"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="loader"]').exists()).toBe(true);
   });
 
   it('renders empty state when no sessions exist but learners are enrolled', async () => {
