@@ -137,7 +137,7 @@
             @click="cancelMarkAll"
           />
           <KButton
-            data-test="mark-all-confirm"
+            data-testid="mark-all-confirm"
             :text="markAllPresentAction$()"
             :appearanceOverrides="confirmButtonStyles"
             @click="confirmMarkAll"

@@ -44,7 +44,7 @@ const testCases = [
 describe('InteractionItem', () => {
   // Test cases to ensure that only the correct icons are rendered
   testCases.forEach(({ name, interaction, expectedIcon, expectedFill }) => {
-    test(name, () => {
+    it(name, () => {
       renderComponent({ interaction });
 
       const icon = screen.getByTestId(expectedIcon);
@@ -57,7 +57,7 @@ describe('InteractionItem', () => {
     });
   });
 
-  test('renders the attempt box correctly when it is selected', () => {
+  it('renders the attempt box correctly when it is selected', () => {
     renderComponent({ selected: true });
 
     expect(screen.getByTestId('attemptBox')).toHaveStyle({
@@ -66,7 +66,7 @@ describe('InteractionItem', () => {
     });
   });
 
-  test('renders the attempt box correctly when it is not selected', () => {
+  it('renders the attempt box correctly when it is not selected', () => {
     renderComponent({ selected: false });
 
     expect(screen.getByTestId('attemptBox')).toHaveStyle({

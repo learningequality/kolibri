@@ -93,7 +93,7 @@ describe('LibraryPage', () => {
         windowIsLarge: false,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="filter-button"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="filter-button"').element).toBeTruthy();
     });
     it('is hidden when the page is not large and channels not are available', async () => {
       useKResponsiveWindow.mockImplementation(() => ({
@@ -101,21 +101,21 @@ describe('LibraryPage', () => {
       }));
       const wrapper = await makeWrapper({ rootNodes: [] });
       await wrapper.setData({ isLocalLibraryEmpty: true });
-      expect(wrapper.find('[data-test="filter-button"').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="filter-button"').element).toBeFalsy();
     });
     it('is hidden when the page is large and channels not are available', async () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: true,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="filter-button"').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="filter-button"').element).toBeFalsy();
     });
     it('is hidden when the page is large and channels are available', async () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: true,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="filter-button"').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="filter-button"').element).toBeFalsy();
     });
   });
 
@@ -130,8 +130,8 @@ describe('LibraryPage', () => {
         options: { stubs: ['SidePanelModal'] },
       });
       // not displayed by default
-      expect(wrapper.find('[data-test="side-panel"]').element).toBeUndefined();
-      wrapper.find('[data-test="filter-button"]').trigger('click');
+      expect(wrapper.find('[data-testid="side-panel"]').element).toBeUndefined();
+      wrapper.find('[data-testid="filter-button"]').trigger('click');
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeTruthy();
     });
@@ -144,12 +144,12 @@ describe('LibraryPage', () => {
     /** useBaseSearch#displayingSearchResults is falsy and there are rootNodes */
     it('displays a grid of channel cards', async () => {
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find("[data-test='channel-cards']").exists()).toBe(true);
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
+      expect(wrapper.find("[data-testid='channel-cards']").exists()).toBe(true);
     });
     it('displays a ResumableContentGrid', async () => {
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
       expect(wrapper.findComponent({ name: 'ResumableContentGrid' }).exists()).toBe(true);
     });
   });
@@ -171,13 +171,13 @@ describe('LibraryPage', () => {
       await wrapper.setData({ isLocalLibraryEmpty: true });
       await wrapper.setData({ isNetworkLibraryAvailable: true });
       await wrapper.setData({ isLoadingNetworkLibraries: false });
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="nothing-in-lib-label"').element).toBeTruthy();
     });
     it('hide when channels are available', async () => {
       const wrapper = await makeWrapper({ rootNodes: [] });
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="nothing-in-lib-label"').element).toBeFalsy();
     });
   });
 
@@ -187,8 +187,8 @@ describe('LibraryPage', () => {
     });
     it('show content', async () => {
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find('[data-test="resumable-content"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="resumable-content"').element).toBeTruthy();
     });
     it('hide content', async () => {
       const wrapper = await makeWrapper({
@@ -198,8 +198,8 @@ describe('LibraryPage', () => {
           },
         },
       });
-      expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
-      expect(wrapper.find('[data-test="resumable-content"').element).toBeFalsy();
+      expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="resumable-content"').element).toBeFalsy();
     });
   });
 
@@ -232,7 +232,7 @@ describe('LibraryPage', () => {
 
     it('show other libraries', async () => {
       wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="other-libraries"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="other-libraries"').element).toBeTruthy();
     });
 
     describe('Loading status', () => {
@@ -243,8 +243,8 @@ describe('LibraryPage', () => {
           }),
         );
         wrapper = await makeOtherLibrariesWrapper();
-        expect(wrapper.find('[data-test="searching"').isVisible()).toBe(true);
-        expect(wrapper.find('[data-test="searching-label"').text()).toEqual(
+        expect(wrapper.find('[data-testid="searching"').isVisible()).toBe(true);
+        expect(wrapper.find('[data-testid="searching-label"').text()).toEqual(
           translations.searchingOtherLibrary,
         );
       });
@@ -261,8 +261,8 @@ describe('LibraryPage', () => {
           }),
         );
         wrapper = await makeOtherLibrariesWrapper();
-        expect(wrapper.find('[data-test="showing-all"').isVisible()).toBe(true);
-        expect(wrapper.find('[data-test="showing-all-label"').text()).toEqual(
+        expect(wrapper.find('[data-testid="showing-all"').isVisible()).toBe(true);
+        expect(wrapper.find('[data-testid="showing-all-label"').text()).toEqual(
           translations.showingAllLibraries,
         );
       });
@@ -273,8 +273,8 @@ describe('LibraryPage', () => {
           }),
         );
         wrapper = await makeOtherLibrariesWrapper();
-        expect(wrapper.find('[data-test="no-other"').isVisible()).toBe(true);
-        expect(wrapper.find('[data-test="no-other-label"').text()).toEqual(
+        expect(wrapper.find('[data-testid="no-other"').isVisible()).toBe(true);
+        expect(wrapper.find('[data-testid="no-other-label"').text()).toEqual(
           translations.noOtherLibraries,
         );
       });
@@ -304,10 +304,10 @@ describe('LibraryPage', () => {
           }),
         );
         wrapper = await makeOtherLibrariesWrapper();
-        const pinnedLabel = wrapper.find('[data-test="pinned-label"');
+        const pinnedLabel = wrapper.find('[data-testid="pinned-label"');
         expect(pinnedLabel.element).toBeTruthy();
         expect(pinnedLabel.text()).toEqual(translations.pinned);
-        expect(wrapper.find('[data-test="pinned-resources"').element).toBeTruthy();
+        expect(wrapper.find('[data-testid="pinned-resources"').element).toBeTruthy();
       });
       it('display "more" label', async () => {
         usePinnedDevices.mockImplementation(() =>
@@ -335,10 +335,10 @@ describe('LibraryPage', () => {
           }),
         );
         wrapper = await makeOtherLibrariesWrapper();
-        const moreLabel = wrapper.find('[data-test="more-label"');
+        const moreLabel = wrapper.find('[data-testid="more-label"');
         expect(moreLabel.element).toBeTruthy();
         expect(moreLabel.text()).toEqual(translations.moreLibraries);
-        expect(wrapper.find('[data-test="more-devices"').element).toBeTruthy();
+        expect(wrapper.find('[data-testid="more-devices"').element).toBeTruthy();
       });
     });
   });
@@ -349,7 +349,7 @@ describe('LibraryPage', () => {
     });
     it('display search results grid', async () => {
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="search-results"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="search-results"').element).toBeTruthy();
     });
   });
 
@@ -359,7 +359,7 @@ describe('LibraryPage', () => {
         windowIsLarge: true,
       }));
       const wrapper = await makeWrapper();
-      expect(wrapper.find('[data-test="side-panel-local"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="side-panel-local"').element).toBeTruthy();
     });
   });
 
@@ -367,7 +367,7 @@ describe('LibraryPage', () => {
     it('display side panel modal if local libraries are available', async () => {
       const wrapper = await makeWrapper();
       await wrapper.setData({ metadataSidePanelContent: { learning_activities: [] } });
-      expect(wrapper.find('[data-test="side-panel-modal"').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="side-panel-modal"').element).toBeTruthy();
     });
   });
 });

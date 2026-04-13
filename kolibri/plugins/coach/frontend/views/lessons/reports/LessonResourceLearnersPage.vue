@@ -19,12 +19,12 @@
         <div
           v-for="group in lessonGroups"
           :key="group.id"
-          :data-test="`group-${group.id}`"
+          :data-testid="`group-${group.id}`"
           class="group"
         >
           <h2
             class="group-title"
-            data-test="group-title"
+            data-testid="group-title"
           >
             <KLabeledIcon
               icon="group"
@@ -36,7 +36,7 @@
             :avgTime="getGroupRecipientsAvgTime(group.id)"
             :className="className"
             :lessonName="lesson.title"
-            data-test="group-resources-stats"
+            data-testid="group-resources-stats"
           />
 
           <p>
@@ -44,7 +44,7 @@
               :tally="getGroupTally(group.id)"
               :showNeedsHelp="false"
               :verbose="false"
-              data-test="group-tally"
+              data-testid="group-tally"
             />
           </p>
 
@@ -60,7 +60,7 @@
         >
           <h2
             class="group-title"
-            data-test="group-title"
+            data-testid="group-title"
           >
             {{ coachString('ungroupedLearnersLabel') }}
           </h2>
@@ -77,13 +77,13 @@
           :avgTime="allRecipientsAvgTime"
           :className="className"
           :lessonName="lesson.title"
-          data-test="summary-resources-stats"
+          data-testid="summary-resources-stats"
         />
 
         <p>
           <StatusSummary
             :tally="summaryTally"
-            data-test="summary-tally"
+            data-testid="summary-tally"
           />
         </p>
 

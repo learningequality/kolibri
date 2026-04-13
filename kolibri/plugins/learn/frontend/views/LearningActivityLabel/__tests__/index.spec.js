@@ -28,7 +28,7 @@ function makeWrapper(propsData) {
 }
 
 function getLabel(wrapper) {
-  return wrapper.find('[data-test="label"]');
+  return wrapper.find('[data-testid="label"]');
 }
 
 describe(`LearningActivityLabel`, () => {

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, configure } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import useUser from 'kolibri/composables/useUser';
@@ -6,7 +6,6 @@ import { coreStoreFactory } from 'kolibri/store';
 import { setUnspecifiedPassword } from '../../../api';
 import NewPasswordPage from '../NewPasswordPage.vue';
 
-configure({ testIdAttribute: 'data-test' });
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../api');
 const mockLogin = jest.fn();

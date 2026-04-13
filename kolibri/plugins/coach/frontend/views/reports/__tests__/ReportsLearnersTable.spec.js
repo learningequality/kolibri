@@ -97,11 +97,11 @@ describe('ReportsLearnersTable', () => {
         ],
       });
 
-      row = wrapper.find('[data-test="entry"]');
+      row = wrapper.find('[data-testid="entry"]');
     });
 
     it("renders learner's name as a link to an exercise", () => {
-      const link = getCol(row, 0).find('[data-test="learner-link"]');
+      const link = getCol(row, 0).find('[data-testid="learner-link"]');
 
       expect(link.element).toBeTruthy();
       expect(link.props().to).toEqual('#/2e3/reports/lessons/79b/exercises/a97/learners/d4b');
@@ -135,11 +135,11 @@ describe('ReportsLearnersTable', () => {
         ],
       });
 
-      row = wrapper.find('[data-test="entry"]');
+      row = wrapper.find('[data-testid="entry"]');
     });
 
     it("doesn't render learner's as a link", () => {
-      expect(getCol(row, 0).find('[data-test="learner-link"]').element).toBeFalsy();
+      expect(getCol(row, 0).find('[data-testid="learner-link"]').element).toBeFalsy();
     });
 
     it("doesn't render time spent", () => {

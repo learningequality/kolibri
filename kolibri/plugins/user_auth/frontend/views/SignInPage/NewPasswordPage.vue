@@ -5,7 +5,7 @@
       <KButton
         class="go-back-btn"
         appearance="basic-link"
-        data-test="goback"
+        data-testid="goback"
         @click="goBack"
       >
         <template #icon>
@@ -36,7 +36,7 @@
         :text="coreString('continueAction')"
         style="display: block; width: 100%; margin: 24px auto 0"
         :disabled="busy"
-        data-test="submit"
+        data-testid="submit"
         @click="updatePassword"
       />
     </div>

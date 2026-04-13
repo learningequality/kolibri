@@ -24,9 +24,9 @@
         <div class="sync-status">
           <span
             v-show="searchingOtherLibraries"
-            data-test="searching"
+            data-testid="searching"
           >
-            <span data-test="searching-label">{{ injectedtr('searchingOtherLibrary') }}</span>
+            <span data-testid="searching-label">{{ injectedtr('searchingOtherLibrary') }}</span>
             &nbsp;&nbsp;
             <span>
               <KCircularLoader
@@ -37,7 +37,7 @@
           </span>
           <span
             v-show="!searchingOtherLibraries && devicesWithChannelsExist"
-            data-test="showing-all"
+            data-testid="showing-all"
           >
             <span>
               <KIcon
@@ -47,7 +47,7 @@
               />
             </span>
             &nbsp;&nbsp;
-            <span data-test="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
+            <span data-testid="showing-all-label">{{ injectedtr('showingAllLibraries') }}</span>
             &nbsp;&nbsp;
             <span>
               <KIcon
@@ -59,13 +59,13 @@
           </span>
           <span
             v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
-            data-test="no-other"
+            data-testid="no-other"
           >
             <span>
               <KIcon icon="disconnected" />
             </span>
             &nbsp;&nbsp;
-            <span data-test="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
+            <span data-testid="no-other-label">{{ injectedtr('noOtherLibraries') }}</span>
           </span>
         </div>
       </KGridItem>
@@ -73,7 +73,7 @@
 
     <h2
       v-if="!threeLibrariesOrFewer && pinnedDevicesExist && unpinnedDevicesExist"
-      data-test="pinned-label"
+      data-testid="pinned-label"
       class="section-heading"
     >
       {{ injectedtr('pinned') }}
@@ -82,7 +82,7 @@
       <LibraryItem
         v-for="device in fullLibrariesToDisplay"
         :key="device['instance_id']"
-        data-test="pinned-resources"
+        data-testid="pinned-resources"
         :device="device"
         :channels="deviceChannelsMap[device['instance_id']]"
         :channelsToDisplay="cardsToDisplay"
@@ -104,7 +104,7 @@
       >
         <h2
           v-if="pinnedDevicesExist"
-          data-test="more-label"
+          data-testid="more-label"
           class="more-heading section-heading"
         >
           {{ injectedtr('moreLibraries') }}
@@ -127,7 +127,7 @@
         :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
-          data-test="more-devices"
+          data-testid="more-devices"
           :device="device"
           :channelCount="deviceChannelsMap[device.instance_id].length"
           :routeTo="genLibraryPageBackLink(device.id)"

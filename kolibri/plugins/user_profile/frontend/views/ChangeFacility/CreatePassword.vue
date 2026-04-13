@@ -6,7 +6,7 @@
     <p>{{ $tr('hint') }}</p>
     <PasswordTextbox
       ref="passwordTextbox"
-      data-test="passwordTextbox"
+      data-testid="passwordTextbox"
       :value.sync="formData.password"
       :isValid.sync="isPasswordValid"
       :shouldValidate="isFormSubmitted"
@@ -23,13 +23,13 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
-            data-test="continueButton"
+            data-testid="continueButton"
             :disabled="!isPasswordValid"
             @click="handleContinue"
           />

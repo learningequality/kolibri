@@ -49,7 +49,7 @@ describe('DownloadButton', () => {
     Vue.options.components = {};
   });
 
-  test('does not render if isAppContext is true', () => {
+  it('does not render if isAppContext is true', () => {
     renderComponent({
       useUserMock: {
         isAppContext: true,
@@ -59,7 +59,7 @@ describe('DownloadButton', () => {
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
-  test('should not render if there are no downloadable files even if isAppContext is false', () => {
+  it('should not render if there are no downloadable files even if isAppContext is false', () => {
     renderComponent({
       files: [],
       useUserMock: {
@@ -70,7 +70,7 @@ describe('DownloadButton', () => {
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
-  test('should not render if isAppContext is false and there are only renderable exercise files', () => {
+  it('should not render if isAppContext is false and there are only renderable exercise files', () => {
     renderComponent({
       files: [getDownloadableFile(true)],
       useUserMock: {
@@ -81,7 +81,7 @@ describe('DownloadButton', () => {
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
-  test('should render if isAppContext is false and there are renderable document files', async () => {
+  it('should render if isAppContext is false and there are renderable document files', async () => {
     renderComponent({
       files: [getDownloadableFile()],
       useUserMock: {

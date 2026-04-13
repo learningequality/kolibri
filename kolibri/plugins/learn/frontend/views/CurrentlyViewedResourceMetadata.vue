@@ -9,7 +9,7 @@
         v-if="forBeginners"
         class="beginners-chip"
         :class="$computedClass(chipStyle)"
-        data-test="beginners-chip"
+        data-testid="beginners-chip"
       >
         {{ coreString('forBeginners') }}
       </span>
@@ -22,7 +22,7 @@
     <div
       v-if="content.title"
       class="section title"
-      data-test="content-title"
+      data-testid="content-title"
     >
       {{ content.title }}
     </div>
@@ -32,7 +32,7 @@
       ref="description"
       class="content"
       :class="truncate"
-      data-test="content-description"
+      data-testid="content-description"
     >
       {{ content.description }}
     </div>
@@ -49,7 +49,7 @@
     <div
       v-if="content.duration"
       class="section"
-      data-test="estimated-time"
+      data-testid="estimated-time"
     >
       <span class="label"> {{ learnString('estimatedTime') }}: </span>
       <span>
@@ -60,7 +60,7 @@
     <div
       v-if="content.grade_levels && content.grade_levels.length"
       class="section"
-      data-test="grade-levels"
+      data-testid="grade-levels"
     >
       <span class="label"> {{ coreString('levelLabel') }}: </span>
       <span>
@@ -71,7 +71,7 @@
     <div
       v-if="content.lang"
       class="section"
-      data-test="lang"
+      data-testid="lang"
     >
       <span class="label"> {{ coreString('languageLabel') }}: </span>
       <span>
@@ -82,7 +82,7 @@
     <div
       v-if="content.author"
       class="section"
-      data-test="author"
+      data-testid="author"
     >
       <span class="label"> {{ learnString('author') }}: </span>
       <span>
@@ -93,7 +93,7 @@
     <div
       v-if="content.license_owner"
       class="section"
-      data-test="license-owner"
+      data-testid="license-owner"
     >
       <span class="label"> {{ learnString('copyrightHolder') }}: </span>
       <span>
@@ -104,7 +104,7 @@
     <div
       v-if="licenseDescription"
       class="section"
-      data-test="license-desc"
+      data-testid="license-desc"
     >
       <span class="label"> {{ learnString('license') }}: </span>
       <span>
@@ -134,7 +134,7 @@
       :files="content.files"
       :nodeTitle="content.title"
       class="download-button"
-      data-test="download-button"
+      data-testid="download-button"
     />
     <KButton
       v-if="canShareFile"

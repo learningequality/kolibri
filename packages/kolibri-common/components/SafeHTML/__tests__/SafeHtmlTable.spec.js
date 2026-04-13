@@ -69,29 +69,29 @@ describe('SafeHtmlTable', () => {
       renderComponent(3, 3);
     });
 
-    test('smoke test', () => {
+    it('smoke test', () => {
       expect(screen.getByTestId('table-container')).toBeInTheDocument();
     });
 
-    test('renders the table', () => {
+    it('renders the table', () => {
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
-    test('renders caption element', () => {
+    it('renders caption element', () => {
       const table = screen.getByRole('table');
       const caption = table.querySelector('caption');
       expect(caption).toBeDefined();
       expect(caption).toHaveTextContent('Sample Caption');
     });
 
-    test('renders thead, tbody, tfoot', () => {
+    it('renders thead, tbody, tfoot', () => {
       const table = screen.getByRole('table');
       expect(table.querySelector('thead')).toBeInTheDocument();
       expect(table.querySelector('tbody')).toBeInTheDocument();
       expect(table.querySelector('tfoot')).toBeInTheDocument();
     });
 
-    test('tbody and tfoot have correct content', () => {
+    it('tbody and tfoot have correct content', () => {
       const table = screen.getByRole('table');
       const tbodyCells = table.querySelectorAll('tbody tr td');
       if (tbodyCells.length > 0) {
@@ -103,12 +103,12 @@ describe('SafeHtmlTable', () => {
   });
 
   describe('table is set to the correct width', () => {
-    test('table with <= 3 columns has a 640px width', () => {
+    it('table with <= 3 columns has a 640px width', () => {
       renderComponent(4, 3);
       expect(screen.getByRole('table')).toHaveStyle('width: 640px;');
     });
 
-    test("table with > 3 columns has a 'n * 200px' width", () => {
+    it("table with > 3 columns has a 'n * 200px' width", () => {
       renderComponent(5, 4);
       expect(screen.getByRole('table')).toHaveStyle('width: 800px;');
     });

@@ -3,7 +3,7 @@
   <KIconButton
     icon="tune"
     :ariaLabel="$tr('toggleSettingsSideBar')"
-    data-test="settings button"
+    data-testid="settings button"
     size="small"
     @click="$emit('click')"
   />

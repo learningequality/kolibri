@@ -329,7 +329,16 @@ export default [
         },
       ],
 
+      // Enforce data-testid over data-test in templates
+      'vue/no-restricted-static-attribute': [
+        ERROR,
+        { key: 'data-test', message: 'Use data-testid instead of data-test.' },
+        { key: 'data-cy', message: 'Use data-testid instead of data-cy.' },
+      ],
+
       // jest rules
+      'jest/consistent-test-it': [ERROR, { fn: 'it', withinDescribe: 'it' }],
+      'jest/require-top-level-describe': ERROR,
       'jest/no-deprecated-functions': ERROR,
       'jest/no-identical-title': ERROR,
       'jest/valid-expect': ERROR,

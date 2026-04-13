@@ -7,7 +7,7 @@
     >
       <span
         class="label"
-        data-test="label"
+        data-testid="label"
       >
         {{ label }}
       </span>

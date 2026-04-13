@@ -134,7 +134,7 @@
 
           <div
             v-if="!isSurvey"
-            data-test="diff-business"
+            data-testid="diff-business"
           >
             <KCheckbox
               :label="coreString('showCorrectAnswerLabel')"

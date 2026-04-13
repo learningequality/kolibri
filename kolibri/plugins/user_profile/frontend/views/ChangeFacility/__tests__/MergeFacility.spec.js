@@ -49,9 +49,9 @@ const task = {
 const incompleteTask = { ...task, status: TaskStatuses.PENDING };
 const completedTask = { ...task, status: TaskStatuses.COMPLETED };
 
-const getFinishButton = wrapper => wrapper.find('[data-test="finishButton"]');
+const getFinishButton = wrapper => wrapper.find('[data-testid="finishButton"]');
 const clickFinishButton = wrapper => getFinishButton(wrapper).trigger('click');
-const getRetryButton = wrapper => wrapper.find('[data-test="retryButton"]');
+const getRetryButton = wrapper => wrapper.find('[data-testid="retryButton"]');
 const clickRetryButton = wrapper => getRetryButton(wrapper).trigger('click');
 
 describe(`ChangeFacility/ConfirmMerge`, () => {
@@ -84,7 +84,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     expect(getFinishButton(wrapper).exists()).toBeTruthy();
     expect(wrapper.vm.taskCompleted).toBe(true);
     await wrapper.vm.$nextTick();
-    const messageDiv = wrapper.find('[data-test="completedMessage"]');
+    const messageDiv = wrapper.find('[data-testid="completedMessage"]');
     expect(messageDiv.text()).toEqual("Successfully joined 'Test Facility' learning facility.");
   });
 

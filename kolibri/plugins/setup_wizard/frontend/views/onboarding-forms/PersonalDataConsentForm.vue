@@ -11,7 +11,7 @@
   >
     <KButton
       ref="modalButton"
-      data-test="modal-open-button"
+      data-testid="modal-open-button"
       :text="coreString('usageAndPrivacyLabel')"
       appearance="basic-link"
       @click="showModal = true"

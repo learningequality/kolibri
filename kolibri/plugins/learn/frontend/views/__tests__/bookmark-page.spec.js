@@ -43,13 +43,13 @@ describe('Bookmark Page', () => {
 
   describe('When there are more bookmarks than in the default display', () => {
     it('displays a load more button', () => {
-      expect(wrapper.find("[data-test='load-more-button']")).toBeTruthy();
+      expect(wrapper.find("[data-testid='load-more-button']")).toBeTruthy();
     });
     it('clicking the load more button calls the load more function', async () => {
       const mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue({
         results: fakeBookmarks,
       });
-      await wrapper.find("[data-test='load-more-button']").vm.$emit('click');
+      await wrapper.find("[data-testid='load-more-button']").vm.$emit('click');
       expect(mockFetchBookmarks).toHaveBeenCalledWith({
         params: { available: true, limit: 25 },
       });

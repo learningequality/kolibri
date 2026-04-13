@@ -16,21 +16,21 @@ describe('SyncStatusDisplay', () => {
     const wrapper = makeWrapper({
       propsData: { syncStatus: 'SYNCING' },
     });
-    expect(wrapper.find('[data-test="syncStatusSpinner"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="syncStatusSpinner"]').exists()).toBeTruthy();
   });
 
   it('shows an icon when this sync is a different status', () => {
     const wrapper = makeWrapper({
       propsData: { syncStatus: 'NOT_CONNECTED' },
     });
-    expect(wrapper.find('[data-test="syncStatusIcon"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="syncStatusIcon"]').exists()).toBeTruthy();
   });
 
   it('shows text describing the syncing status', () => {
     const wrapper = makeWrapper({
       propsData: { syncStatus: 'SYNCING' },
     });
-    expect(wrapper.find('[data-test="syncStatusText"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="syncStatusText"]').exists()).toBeTruthy();
     expect(wrapper.text()).toContain('Syncing');
   });
 });

@@ -139,12 +139,12 @@ describe('TopicsContentPage', () => {
 
   it('shows the Learning Activity Bar', async () => {
     const wrapper = await makeWrapper();
-    expect(wrapper.find('[data-test="learningActivityBar"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="learningActivityBar"]').exists()).toBeTruthy();
   });
 
   it('shows the Content Page', async () => {
     const wrapper = await makeWrapper();
-    expect(wrapper.find('[data-test="contentPage"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-testid="contentPage"]').exists()).toBeTruthy();
   });
 
   describe(`remote download and bookmark`, () => {

@@ -3,7 +3,7 @@
   <KIconButton
     icon="search"
     :ariaLabel="$tr('toggleSearchSideBar')"
-    data-test="search button"
+    data-testid="search button"
     size="small"
     @click="$emit('click')"
   />

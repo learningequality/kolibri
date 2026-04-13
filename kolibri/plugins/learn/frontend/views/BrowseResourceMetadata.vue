@@ -7,7 +7,7 @@
           v-if="forBeginners"
           class="beginners-chip"
           :class="$computedClass(chipStyle)"
-          data-test="beginners-chip"
+          data-testid="beginners-chip"
         >
           {{ coreString('forBeginners') }}
         </span>
@@ -20,7 +20,7 @@
           appearance="raised-button"
           :primary="false"
           :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
-          data-test="view-resource-link"
+          data-testid="view-resource-link"
         />
       </div>
     </div>
@@ -32,7 +32,7 @@
     <div
       v-if="content.title"
       class="section title"
-      data-test="content-title"
+      data-testid="content-title"
     >
       {{ content.title }}
     </div>
@@ -40,7 +40,7 @@
     <div
       v-if="content.description"
       ref="description"
-      data-test="content-description"
+      data-testid="content-description"
       class="content"
       :class="truncate"
     >
@@ -52,7 +52,7 @@
       :text="showMoreOrLess"
       appearance="basic-link"
       class="show-more-button"
-      data-test="show-more-or-less"
+      data-testid="show-more-or-less"
       :primary="true"
       @click="toggleShowMoreOrLess"
     />
@@ -65,7 +65,7 @@
     <div
       v-if="content.duration"
       class="section"
-      data-test="estimated-time"
+      data-testid="estimated-time"
     >
       <span class="label"> {{ learnString('estimatedTime') }}: </span>
       <span>
@@ -76,7 +76,7 @@
     <div
       v-if="content.grade_levels && content.grade_levels.length"
       class="section"
-      data-test="grade-levels"
+      data-testid="grade-levels"
     >
       <span class="label"> {{ coreString('levelLabel') }}: </span>
       <span>
@@ -87,7 +87,7 @@
     <div
       v-if="content.lang"
       class="section"
-      data-test="lang"
+      data-testid="lang"
     >
       <span class="label"> {{ coreString('languageLabel') }}: </span>
       <span>
@@ -98,7 +98,7 @@
     <div
       v-if="accessibilityLabels"
       class="section"
-      data-test="accessibility-labels"
+      data-testid="accessibility-labels"
     >
       <span class="label"> {{ coreString('accessibility') }}: </span>
       <span>
@@ -109,7 +109,7 @@
     <div
       v-if="learnerNeedsLabels"
       class="section"
-      data-test="learner-needs"
+      data-testid="learner-needs"
     >
       <span class="label"> {{ learnString('whatYouWillNeed') }}: </span>
       <span>
@@ -120,7 +120,7 @@
     <div
       v-if="content.author"
       class="section"
-      data-test="author"
+      data-testid="author"
     >
       <span class="label"> {{ learnString('author') }}: </span>
       <span>
@@ -131,7 +131,7 @@
     <div
       v-if="content.license_owner"
       class="section"
-      data-test="license-owner"
+      data-testid="license-owner"
     >
       <span class="label"> {{ learnString('copyrightHolder') }}: </span>
       <span>
@@ -142,7 +142,7 @@
     <div
       v-if="licenseDescription"
       class="section"
-      data-test="license-desc"
+      data-testid="license-desc"
     >
       <span class="label"> {{ learnString('license') }}: </span>
       <span>
@@ -170,7 +170,7 @@
     <div
       v-if="recommendations"
       class="related section"
-      data-test="recommendations"
+      data-testid="recommendations"
     >
       <div class="label">{{ coreString('related') }}:</div>
       <div class="list">
@@ -194,7 +194,7 @@
     <div
       v-if="showLocationsInChannel && locationsInChannel"
       class="section"
-      data-test="locations"
+      data-testid="locations"
     >
       <div class="label">
         {{
@@ -216,7 +216,7 @@
     <div
       v-if="canDownloadExternally"
       class="section"
-      data-test="download"
+      data-testid="download"
     >
       <DownloadButton
         :files="content.files"

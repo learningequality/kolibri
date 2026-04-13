@@ -17,11 +17,11 @@ const TEST_CLASSES = [
 ];
 
 function getViewAllLink(wrapper) {
-  return wrapper.find('[data-test="viewAllLink"]');
+  return wrapper.find('[data-testid="viewAllLink"]');
 }
 
 function getClassesLinks(wrapper) {
-  return wrapper.findAll('[data-test="classLink"]');
+  return wrapper.findAll('[data-testid="classLink"]');
 }
 
 function makeWrapper(propsData) {

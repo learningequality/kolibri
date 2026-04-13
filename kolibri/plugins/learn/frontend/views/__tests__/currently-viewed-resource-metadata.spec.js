@@ -75,35 +75,35 @@ describe('CurrentlyViewedResourceMetadata', () => {
     beforeAll(() => (wrapper = makeWrapper()));
 
     it('shows the download button when told to', () => {
-      expect(wrapper.find("[data-test='download-button']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='download-button']").exists()).toBeTruthy();
     });
 
     it('shows the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='beginners-chip']").exists()).toBeTruthy();
     });
 
     it('shows the title', () => {
-      expect(wrapper.find("[data-test='content-title']").text()).toEqual(baseContentNode.title);
+      expect(wrapper.find("[data-testid='content-title']").text()).toEqual(baseContentNode.title);
     });
 
     it('shows the estimated time when duration is present', () => {
-      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='estimated-time']").exists()).toBeTruthy();
     });
 
     it('shows the grade levels when there are some', () => {
-      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='grade-levels']").exists()).toBeTruthy();
     });
 
     it("shows author's name", () => {
-      expect(wrapper.find("[data-test='author']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='author']").exists()).toBeTruthy();
     });
 
     it('shows license owner', () => {
-      expect(wrapper.find("[data-test='license-owner']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='license-owner']").exists()).toBeTruthy();
     });
 
     it('shows license description', () => {
-      expect(wrapper.find("[data-test='license-desc']").exists()).toBeTruthy();
+      expect(wrapper.find("[data-testid='license-desc']").exists()).toBeTruthy();
     });
   });
 
@@ -134,35 +134,35 @@ describe('CurrentlyViewedResourceMetadata', () => {
     );
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {
-      expect(wrapper.find("[data-test='beginners-chip']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='beginners-chip']").exists()).toBeFalsy();
     });
 
     it('does not show the title', () => {
-      expect(wrapper.find("[data-test='content-title']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='content-title']").exists()).toBeFalsy();
     });
 
     it('does not show the estimated time when duration is not present', () => {
-      expect(wrapper.find("[data-test='estimated-time']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='estimated-time']").exists()).toBeFalsy();
     });
 
     it('does not show the grade levels when there are none', () => {
-      expect(wrapper.find("[data-test='grade-levels']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='grade-levels']").exists()).toBeFalsy();
     });
 
     it("does not show author's name section without the data", () => {
-      expect(wrapper.find("[data-test='author']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='author']").exists()).toBeFalsy();
     });
 
     it('does not show license owner section without the data', () => {
-      expect(wrapper.find("[data-test='license-owner']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='license-owner']").exists()).toBeFalsy();
     });
 
     it('does not show license description section without the data', () => {
-      expect(wrapper.find("[data-test='license-desc']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='license-desc']").exists()).toBeFalsy();
     });
 
     it('does not show the download button when canDownloadExternally is not true', () => {
-      expect(wrapper.find("[data-test='download-button']").exists()).toBeFalsy();
+      expect(wrapper.find("[data-testid='download-button']").exists()).toBeFalsy();
     });
   });
 });

@@ -50,7 +50,7 @@
       <KIconButton
         v-if="downloadedByLearner"
         ref="moreOptionsButton"
-        data-test="moreOptionsButton"
+        data-testid="moreOptionsButton"
         icon="optionsHorizontal"
         :tooltip="coreString('moreOptions')"
         :ariaLabel="coreString('moreOptions')"

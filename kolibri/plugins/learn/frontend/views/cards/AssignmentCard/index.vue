@@ -34,7 +34,7 @@
         <span class="quiz-label">
           <span
             class="label"
-            data-test="label"
+            data-testid="label"
           >
             {{ quizLabel$() }}
           </span>

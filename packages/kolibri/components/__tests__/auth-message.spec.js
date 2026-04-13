@@ -94,7 +94,7 @@ describe('auth message component', () => {
     it('shows correct link text if there is a user plugin', () => {
       window.location.href = 'http://kolibri.time/#/';
       const wrapper = makeWrapper();
-      const link = wrapper.find('[data-test=signinlink]');
+      const link = wrapper.find('[data-testid=signinlink]');
       expect(link.attributes()).toMatchObject({
         href: 'http://localhost:8000/en/auth/#/signin?next=http%3A%2F%2Fkolibri.time%2F%23%2F',
         text: 'Sign in to Kolibri',
@@ -113,7 +113,7 @@ describe('auth message component', () => {
         },
       },
     });
-    const link = wrapper.find('[data-test=signinlink]');
+    const link = wrapper.find('[data-testid=signinlink]');
     expect(link.attributes()).toMatchObject({
       href: '/',
       text: 'Go to home page',
@@ -123,6 +123,6 @@ describe('auth message component', () => {
   it('does not show a link if the user is logged in', () => {
     useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
     const wrapper = makeWrapper();
-    expect(wrapper.find('[data-test=signinlink]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid=signinlink]').exists()).toBe(false);
   });
 });

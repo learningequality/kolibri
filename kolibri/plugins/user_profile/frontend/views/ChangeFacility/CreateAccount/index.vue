@@ -6,7 +6,7 @@
 
     <UsernameTextbox
       ref="usernameTextbox"
-      data-test="usernameTextbox"
+      data-testid="usernameTextbox"
       :autofocus="true"
       :value.sync="formData.username"
       :isValid.sync="isUsernameValid"
@@ -15,7 +15,7 @@
     <PasswordTextbox
       v-if="showPasswordTextbox"
       ref="passwordTextbox"
-      data-test="passwordTextbox"
+      data-testid="passwordTextbox"
       :value.sync="formData.password"
       :isValid.sync="isPasswordValid"
       :shouldValidate="isFormSubmitted"
@@ -34,13 +34,13 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
-            data-test="continueButton"
+            data-testid="continueButton"
             @click="handleContinue"
           />
         </KButtonGroup>

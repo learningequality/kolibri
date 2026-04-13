@@ -9,7 +9,7 @@
     </span>
     <KIconButton
       icon="disconnected"
-      data-test="disconnected-icon"
+      data-testid="disconnected-icon"
       :color="color"
       :tooltip="coreString('disconnected')"
       :ariaLabel="coreString('disconnected')"

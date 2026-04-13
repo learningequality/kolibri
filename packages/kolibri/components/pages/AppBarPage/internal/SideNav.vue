@@ -101,7 +101,7 @@
                   :link="item.url"
                   :icon="item.icon"
                   :linkActive="item.active"
-                  data-test="side-nav-item"
+                  data-testid="side-nav-item"
                   :data-onboarding-id="item.label === 'Device' ? 'deviceMenuOption' : null"
                   @toggleMenu="toggleNav"
                 />
@@ -115,7 +115,7 @@
                   :icon="item.icon"
                   :linkActive="item.active"
                   style="cursor: pointer"
-                  data-test="side-nav-item"
+                  data-testid="side-nav-item"
                   @toggleMenu="toggleNav"
                 />
                 <CoreMenuOption

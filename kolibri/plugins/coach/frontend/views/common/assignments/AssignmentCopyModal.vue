@@ -19,7 +19,7 @@
           v-model="selectedClassroomId"
           :label="classroomLabel(classroom)"
           :buttonValue="classroom.id"
-          data-test="radio-button"
+          data-testid="radio-button"
         />
       </KRadioButtonGroup>
     </div>
@@ -35,7 +35,7 @@
         :groups="availableGroups"
         :classId="selectedClassroomId"
         :initialAdHocLearners="[]"
-        data-test="recipient-selector"
+        data-testid="recipient-selector"
         @updateLearners="learners => (adHocLearners = learners)"
       />
     </div>

@@ -11,7 +11,7 @@
       <template #default="{ items }">
         <UserTable
           v-model="selectedUsers"
-          data-test="userTable"
+          data-testid="userTable"
           :users="items"
           selectable
           :enableMultipleSelection="false"
@@ -26,14 +26,14 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
             :disabled="isContinueDisabled"
-            data-test="continueButton"
+            data-testid="continueButton"
             @click="sendContinue"
           />
         </KButtonGroup>

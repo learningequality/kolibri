@@ -10,7 +10,7 @@
     <KGrid gutter="0">
       <KGridItem
         class="breadcrumbs"
-        data-test="header-breadcrumbs"
+        data-testid="header-breadcrumbs"
         :layout4="{ span: 4 }"
         :layout8="{ span: 8 }"
         :layout12="{ span: 12 }"
@@ -28,7 +28,7 @@
       >
         <h1
           class="title"
-          data-test="header-title"
+          data-testid="header-title"
         >
           <KTextTruncator
             :text="title"

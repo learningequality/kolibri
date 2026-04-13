@@ -79,27 +79,27 @@ function makeWrapper() {
 }
 
 function getClassesSection(wrapper) {
-  return wrapper.find('[data-test="classes"]');
+  return wrapper.find('[data-testid="classes"]');
 }
 
 function getContinueLearningFromClassesSection(wrapper) {
-  return wrapper.find('[data-test="continueLearningFromClasses"]');
+  return wrapper.find('[data-testid="continueLearningFromClasses"]');
 }
 
 function getRecentLessonsSection(wrapper) {
-  return wrapper.find('[data-test="recentLessons"]');
+  return wrapper.find('[data-testid="recentLessons"]');
 }
 
 function getRecentQuizzesSection(wrapper) {
-  return wrapper.find('[data-test="recentQuizzes"]');
+  return wrapper.find('[data-testid="recentQuizzes"]');
 }
 
 function getContinueLearningOnYourOwnSection(wrapper) {
-  return wrapper.find('[data-test="continueLearningOnYourOwn"]');
+  return wrapper.find('[data-testid="continueLearningOnYourOwn"]');
 }
 
 function getExploreChannelsSection(wrapper) {
-  return wrapper.find('[data-test="exploreChannels"]');
+  return wrapper.find('[data-testid="exploreChannels"]');
 }
 
 describe(`HomePage`, () => {
@@ -173,7 +173,7 @@ describe(`HomePage`, () => {
         }),
       );
       const wrapper = makeWrapper();
-      const links = getClassesSection(wrapper).findAll('[data-test="classLink"]');
+      const links = getClassesSection(wrapper).findAll('[data-testid="classLink"]');
       expect(links.length).toBe(2);
       expect(links.at(0).text()).toBe('Class 1');
       expect(links.at(1).text()).toBe('Class 2');

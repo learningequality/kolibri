@@ -33,7 +33,7 @@
     <div
       class="col-2"
       dir="auto"
-      data-test="resources-size"
+      data-testid="resources-size"
     >
       {{ resourcesSizeText }}
     </div>

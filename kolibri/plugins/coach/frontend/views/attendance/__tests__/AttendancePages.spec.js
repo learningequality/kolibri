@@ -285,7 +285,7 @@ describe('AttendanceNewPage', () => {
     expect(buttonGroup).not.toBeNull();
 
     // Verify both buttons are inside the KButtonGroup wrapper
-    const confirmBtn = buttonGroup.querySelector('[data-test="mark-all-confirm"]');
+    const confirmBtn = buttonGroup.querySelector('[data-testid="mark-all-confirm"]');
     expect(confirmBtn).not.toBeNull();
     const buttons = buttonGroup.querySelectorAll('button');
     expect(buttons.length).toBe(2);

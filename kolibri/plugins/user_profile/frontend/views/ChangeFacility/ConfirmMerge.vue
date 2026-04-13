@@ -20,14 +20,14 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :disabled="!isConfirmed"
             :text="coreString('continueAction')"
-            data-test="continueButton"
+            data-testid="continueButton"
             @click="handleContinue"
           />
         </KButtonGroup>

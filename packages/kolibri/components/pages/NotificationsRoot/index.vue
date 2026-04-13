@@ -20,7 +20,7 @@
     <div
       v-else
       tabindex="-1"
-      data-test="base-page"
+      data-testid="base-page"
     >
       <slot :loading="loading"></slot>
     </div>

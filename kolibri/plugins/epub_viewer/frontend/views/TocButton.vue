@@ -3,7 +3,7 @@
   <KIconButton
     icon="list"
     :ariaLabel="$tr('toggleTocSideBar')"
-    data-test="toc button"
+    data-testid="toc button"
     size="small"
     @click="$emit('click')"
   />

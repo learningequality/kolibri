@@ -58,7 +58,7 @@ describe('Module Resolver', () => {
     resetAliases();
   });
 
-  test('resolves paths without aliases', () => {
+  it('resolves paths without aliases', () => {
     const currentFile = path.join(tempDir, 'src', 'index.js');
 
     // Relative path
@@ -66,7 +66,7 @@ describe('Module Resolver', () => {
     expect(resolvedRelative).toBe(path.join(tempDir, 'src', 'components', 'Button.js'));
   });
 
-  test('adds and uses aliases', () => {
+  it('adds and uses aliases', () => {
     const currentFile = path.join(tempDir, 'src', 'index.js');
 
     // Add aliases
@@ -87,7 +87,7 @@ describe('Module Resolver', () => {
     expect(resolvedStyle).toBe(path.join(tempDir, 'src', 'assets', 'styles', 'main.js'));
   });
 
-  test('removes aliases when reset', () => {
+  it('removes aliases when reset', () => {
     const currentFile = path.join(tempDir, 'src', 'index.js');
 
     // Add aliases
@@ -108,7 +108,7 @@ describe('Module Resolver', () => {
     }).toThrow();
   });
 
-  test('overrides existing aliases', () => {
+  it('overrides existing aliases', () => {
     const currentFile = path.join(tempDir, 'src', 'index.js');
 
     // Add initial alias

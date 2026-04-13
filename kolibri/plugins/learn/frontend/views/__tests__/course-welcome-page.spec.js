@@ -202,11 +202,11 @@ describe('CourseWelcomePage', () => {
       global: {
         stubs: {
           ImmersivePage: {
-            template: '<div data-test="immersive-page"><slot /></div>',
+            template: '<div data-testid="immersive-page"><slot /></div>',
           },
           AccordionContainer: {
             template: `
-              <div data-test="accordion-container">
+              <div data-testid="accordion-container">
                 <slot name="header" v-bind="{
                   expandAll: () => {},
                   collapseAll: () => {},

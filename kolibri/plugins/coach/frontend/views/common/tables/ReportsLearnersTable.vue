@@ -28,7 +28,7 @@
         <tr
           v-for="tableRow in entries"
           :key="tableRow.id"
-          data-test="entry"
+          data-testid="entry"
         >
           <td>
             <KLabeledIcon icon="person">
@@ -36,7 +36,7 @@
                 v-if="showLink(tableRow)"
                 :text="tableRow.name"
                 :to="tableRow.link"
-                data-test="learner-link"
+                data-testid="learner-link"
               />
               <template v-else>
                 {{ tableRow.name }}

@@ -44,27 +44,27 @@ describe('Lightbox', () => {
   });
 
   describe('first render', () => {
-    test('smoke test', () => {
+    it('smoke test', () => {
       expect(lightboxDialog).toBeInTheDocument();
     });
 
-    test('renders all the buttons', () => {
+    it('renders all the buttons', () => {
       expect(zoomOut).toBeInTheDocument();
       expect(zoomIn).toBeInTheDocument();
       expect(close).toBeInTheDocument();
     });
 
-    test('renders the image', () => {
+    it('renders the image', () => {
       expect(img).toBeInTheDocument();
     });
 
-    test("the 'Zoom out' icon button is initially disabled", () => {
+    it("the 'Zoom out' icon button is initially disabled", () => {
       expect(zoomOut).toBeDisabled();
     });
   });
 
   describe('zooming out on the image', () => {
-    test("decreases the scale when the 'Zoom out' button is clicked by a mouse", async () => {
+    it("decreases the scale when the 'Zoom out' button is clicked by a mouse", async () => {
       // Zoom in first so we can zoom out later
       await user.click(zoomIn);
       const prevWidth = parseInt(img.style.width);
@@ -75,7 +75,7 @@ describe('Lightbox', () => {
       expect(parseInt(img.style.height)).toBeLessThan(prevHeight);
     });
 
-    test("decreases the scale when the 'Zoom out' button is clicked by a keyboard", async () => {
+    it("decreases the scale when the 'Zoom out' button is clicked by a keyboard", async () => {
       await clickBtnNTimes(user, zoomIn, 2);
       let prevWidth = parseInt(img.style.width);
       let prevHeight = parseInt(img.style.height);
@@ -92,7 +92,7 @@ describe('Lightbox', () => {
       expect(parseInt(img.style.height)).toBeLessThan(prevHeight);
     });
 
-    test('decreases the scale when scrolling the mouse wheel down on the image', async () => {
+    it('decreases the scale when scrolling the mouse wheel down on the image', async () => {
       await user.click(zoomIn);
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
@@ -106,7 +106,7 @@ describe('Lightbox', () => {
   });
 
   describe('zooming in on the image', () => {
-    test("increases the scale when the 'Zoom in' button is clicked by a mouse", async () => {
+    it("increases the scale when the 'Zoom in' button is clicked by a mouse", async () => {
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
@@ -115,7 +115,7 @@ describe('Lightbox', () => {
       expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
     });
 
-    test("increases the scale when the 'Zoom in' button is clicked by a keyboard", async () => {
+    it("increases the scale when the 'Zoom in' button is clicked by a keyboard", async () => {
       let prevWidth = parseInt(img.style.width);
       let prevHeight = parseInt(img.style.height);
 
@@ -131,7 +131,7 @@ describe('Lightbox', () => {
       expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
     });
 
-    test('increases the scale when scrolling the mouse wheel up on the image', async () => {
+    it('increases the scale when scrolling the mouse wheel up on the image', async () => {
       const prevWidth = parseInt(img.style.width);
       const prevHeight = parseInt(img.style.height);
 
@@ -142,14 +142,14 @@ describe('Lightbox', () => {
       expect(parseInt(img.style.height)).toBeGreaterThan(prevHeight);
     });
 
-    test("disables the 'Zoom in' button after it's clicked for 12 times", async () => {
+    it("disables the 'Zoom in' button after it's clicked for 12 times", async () => {
       await clickBtnNTimes(user, zoomIn, 12);
       expect(zoomIn).toBeDisabled();
     });
   });
 
   describe('panning the image', () => {
-    test("moves the image when it's dragged by a mouse", async () => {
+    it("moves the image when it's dragged by a mouse", async () => {
       await clickBtnNTimes(user, zoomIn, 12); // Zoom image to maximum scale
 
       const prevTransform = img.style.transform;
@@ -159,7 +159,7 @@ describe('Lightbox', () => {
       expect(img.style.transform).not.toEqual(prevTransform);
     });
 
-    test('moves the image when an arrow key on a keyboard is pressed', async () => {
+    it('moves the image when an arrow key on a keyboard is pressed', async () => {
       await clickBtnNTimes(user, zoomIn, 12);
 
       let prevTransform = img.style.transform;
@@ -181,13 +181,13 @@ describe('Lightbox', () => {
   });
 
   describe('closing the Lightbox', () => {
-    test("emits the 'closeLightbox' event when the 'Close' button is clicked by a mouse", async () => {
+    it("emits the 'closeLightbox' event when the 'Close' button is clicked by a mouse", async () => {
       await user.click(close);
       expect(emitted()).toHaveProperty('closeLightbox');
       expect(emitted().closeLightbox).toHaveLength(1);
     });
 
-    test("emits the 'closeLightbox' event when the 'Close' button is clicked by a keyboard", async () => {
+    it("emits the 'closeLightbox' event when the 'Close' button is clicked by a keyboard", async () => {
       close.focus();
       await user.keyboard('{enter}');
       expect(emitted()).toHaveProperty('closeLightbox');
@@ -196,7 +196,7 @@ describe('Lightbox', () => {
       expect(emitted().closeLightbox).toHaveLength(2);
     });
 
-    test("emits the 'closeLightbox' event when triggering the native dialog.close() method", async () => {
+    it("emits the 'closeLightbox' event when triggering the native dialog.close() method", async () => {
       await lightboxDialog.dispatchEvent(new Event('close'));
       expect(emitted()).toHaveProperty('closeLightbox');
       expect(emitted().closeLightbox).toHaveLength(1);

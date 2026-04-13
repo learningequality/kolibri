@@ -6,7 +6,7 @@
   >
     <tr
       v-if="!hideStatus"
-      data-test="try-status"
+      data-testid="try-status"
     >
       <th>
         {{ coreString('statusLabel') }}
@@ -21,7 +21,7 @@
     </tr>
     <tr
       v-if="masteryModel && !isSurvey"
-      data-test="try-mastery-model"
+      data-testid="try-mastery-model"
     >
       <th>
         {{ coreString('masteryModelLabel') }}
@@ -32,7 +32,7 @@
     </tr>
     <tr
       v-if="!isSurvey && correctDefined && !masteryModel"
-      data-test="try-score"
+      data-testid="try-score"
     >
       <th>
         {{ coreString('scoreLabel') }}
@@ -43,7 +43,7 @@
     </tr>
     <tr
       v-if="!isSurvey && correctDefined && !masteryModel"
-      data-test="try-questions-correct"
+      data-testid="try-questions-correct"
     >
       <th>
         {{ coreString('questionsCorrectLabel') }}
@@ -65,7 +65,7 @@
     </tr>
     <tr
       v-if="!isSurvey && currentTry.time_spent"
-      data-test="try-time-spent"
+      data-testid="try-time-spent"
     >
       <th>
         {{ coreString('timeSpentLabel') }}
@@ -80,7 +80,7 @@
         >{{ timeSpentAnnotation }}</span>
       </td>
     </tr>
-    <tr data-test="try-attempted-ago">
+    <tr data-testid="try-attempted-ago">
       <th>
         {{ $tr('attemptedLabel') }}
       </th>

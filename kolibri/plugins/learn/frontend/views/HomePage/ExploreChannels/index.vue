@@ -18,7 +18,7 @@
           v-if="displayAllChannelsLink"
           :text="coreString('viewAll')"
           :to="allChannelsLink"
-          data-test="viewAllLink"
+          data-testid="viewAllLink"
         />
       </KFixedGridItem>
     </KFixedGrid>
@@ -27,7 +27,7 @@
       <BaseChannelCard
         v-for="(channel, idx) in visibleChannels"
         :key="idx"
-        data-test="channelLink"
+        data-testid="channelLink"
         :channel="channel"
         :to="getChannelLink(channel)"
       />

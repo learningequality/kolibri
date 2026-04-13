@@ -14,7 +14,7 @@ describe('Coach Notification Strings', () => {
     ['coachesAssignedNoCount', 'Coaches assigned', 'Coach assigned'],
     ['coachesRemovedNoCount', 'Coaches removed', 'Coach removed'],
   ];
-  test.each(pluralTestCases)(
+  it.each(pluralTestCases)(
     'Plural and singular versions of %s are displayed correctly',
     (key, expectedPlural, expectedSingular) => {
       expect(NotificationStrings.$tr(key, { count: 10 })).toEqual(expectedPlural);

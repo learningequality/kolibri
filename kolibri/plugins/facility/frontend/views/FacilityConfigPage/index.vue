@@ -2,7 +2,6 @@
 
   <FacilityAppBarPage :loading="pageLoading">
     <KPageContainer
-      data-test="page-container"
       data-testid="page-container"
       :style="{ marginBottom: '42px' }"
     >

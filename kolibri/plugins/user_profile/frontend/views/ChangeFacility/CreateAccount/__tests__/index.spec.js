@@ -24,10 +24,10 @@ function makeWrapper({ targetFacility } = {}) {
   });
 }
 
-const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
-const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
-const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
-const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"]');
+const getBackButton = wrapper => wrapper.find('[data-testid="backButton"]');
+const getContinueButton = wrapper => wrapper.find('[data-testid="continueButton"]');
+const getUsernameTextbox = wrapper => wrapper.find('[data-testid="usernameTextbox"]');
+const getPasswordTextbox = wrapper => wrapper.find('[data-testid="passwordTextbox"]');
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 const setUsernameTextboxValue = (wrapper, value) => {

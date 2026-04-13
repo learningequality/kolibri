@@ -61,7 +61,7 @@ describe('Table of Contents Section', () => {
       depth: 0,
     });
     expect(
-      wrapper.find('ul.toc-list').findAll('[data-test="table-of-contents-section"]').length,
+      wrapper.find('ul.toc-list').findAll('[data-testid="table-of-contents-section"]').length,
     ).toBe(2);
   });
 

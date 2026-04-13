@@ -192,7 +192,7 @@ describe('TopicsPage', () => {
         router,
       });
       await flushPromises();
-      expect(wrapper.find("[data-test='header-breadcrumbs']").exists()).toBe(true);
+      expect(wrapper.find("[data-testid='header-breadcrumbs']").exists()).toBe(true);
     });
   });
 
@@ -221,7 +221,7 @@ describe('TopicsPage', () => {
       router,
     });
     await flushPromises();
-    expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent(
+    expect(wrapper.find("[data-testid='header-title']").element).toHaveTextContent(
       DEFAULT_TOPIC.title,
     );
   });
@@ -237,7 +237,7 @@ describe('TopicsPage', () => {
       router,
     });
     await flushPromises();
-    expect(smallScreenWrapper.find("[data-test='mobile-title']").element).toHaveTextContent(
+    expect(smallScreenWrapper.find("[data-testid='mobile-title']").element).toHaveTextContent(
       DEFAULT_TOPIC.title,
     );
   });
@@ -261,13 +261,13 @@ describe('TopicsPage', () => {
     });
 
     it('shows breadcrumbs when screen is small', () => {
-      expect(wrapper.find("[data-test='mobile-breadcrumbs']").exists()).toBe(true);
+      expect(wrapper.find("[data-testid='mobile-breadcrumbs']").exists()).toBe(true);
     });
     it('displays filter buttons when screen is not large', () => {
-      expect(wrapper.find("[data-test='filter-button']").exists()).toBe(true);
+      expect(wrapper.find("[data-testid='filter-button']").exists()).toBe(true);
     });
     it('displays folders button when there are topics and the screen is not large', () => {
-      expect(wrapper.find("[data-test='folders-button']").exists()).toBe(true);
+      expect(wrapper.find("[data-testid='folders-button']").exists()).toBe(true);
     });
 
     describe('when showing search results', () => {
@@ -359,7 +359,7 @@ describe('TopicsPage', () => {
       });
 
       it('shows the search results', () => {
-        searchResults = wrapper.find("[data-test='search-results']");
+        searchResults = wrapper.find("[data-testid='search-results']");
         expect(searchResults.exists()).toBe(true);
       });
     });
@@ -418,9 +418,9 @@ describe('TopicsPage', () => {
           },
         });
         await flushPromises();
-        expect(wrapper.find('[data-test="topics"]').element).toHaveTextContent('test-title-1');
-        expect(wrapper.find('[data-test="topics"]').element).toHaveTextContent('test-title-2');
-        expect(wrapper.find('[data-test="children-cards-grid"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="topics"]').element).toHaveTextContent('test-title-1');
+        expect(wrapper.find('[data-testid="topics"]').element).toHaveTextContent('test-title-2');
+        expect(wrapper.find('[data-testid="children-cards-grid"]').exists()).toBe(true);
       });
     });
   });

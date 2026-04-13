@@ -34,7 +34,7 @@
     <!-- card grid of items in folder -->
     <LibraryAndChannelBrowserMainContent
       v-if="topic.children && topic.children.length"
-      data-test="children-cards-grid"
+      data-testid="children-cards-grid"
       :contents="topic.children"
       :gridType="gridType"
       :allowDownloads="allowDownloads"
@@ -45,7 +45,7 @@
     <KButton
       v-if="topic.showMore"
       class="more-after-grid"
-      data-test="more-button"
+      data-testid="more-button"
       appearance="basic-link"
       @click="$emit('showMore', topic.id)"
     >

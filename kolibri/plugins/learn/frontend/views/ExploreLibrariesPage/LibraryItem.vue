@@ -53,7 +53,7 @@
       </KGridItem>
     </div>
     <ChannelCardGroupGrid
-      data-test="channel-cards"
+      data-testid="channel-cards"
       :deviceId="device.id"
       :contents="(channels || []).slice(0, channelsToDisplay)"
       :isRemote="true"

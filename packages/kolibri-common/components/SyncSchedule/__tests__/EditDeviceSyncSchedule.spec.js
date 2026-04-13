@@ -53,7 +53,7 @@ describe('EditDeviceSyncSchedule', () => {
         }
       }
     }
-    test.each(testCases)(
+    it.each(testCases)(
       'should compute next sync date correctly given now=%s, selectedTime={hours:%i, minutes:%i}, selectedDay={value:%i}',
       async (now, hours, minutes, selectedDay, expected) => {
         // set up

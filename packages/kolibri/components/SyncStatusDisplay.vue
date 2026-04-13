@@ -5,17 +5,17 @@
       v-if="syncInProgress"
       :size="20"
       class="inline-loader"
-      data-test="syncStatusSpinner"
+      data-testid="syncStatusSpinner"
     />
     <KIcon
       v-else-if="syncIconDisplayMap"
       :icon="syncIconDisplayMap"
       class="inline-icon"
-      data-test="syncStatusIcon"
+      data-testid="syncStatusIcon"
     />
     <p
       :class="displaySize"
-      data-test="syncStatusText"
+      data-testid="syncStatusText"
     >
       {{ syncTextDisplayMap }}
     </p>

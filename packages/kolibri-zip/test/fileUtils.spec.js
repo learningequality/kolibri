@@ -83,7 +83,7 @@ describe('File Path replacement', () => {
     it('should handle plus signs in CSS urls', () => {
       expect(getCSSPathsFn('url("./my%2Bfile.woff")')).toEqual(['./my+file.woff']);
     });
-    test('handles URLs with parentheses in filename when quoted', () => {
+    it('handles URLs with parentheses in filename when quoted', () => {
       const css = `
         background: url('image(1).png');
         background-image: url("file(with)brackets.jpg");
@@ -91,7 +91,7 @@ describe('File Path replacement', () => {
       const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg']);
     });
-    test('does not handle URLs with parentheses in filename when not quoted', () => {
+    it('does not handle URLs with parentheses in filename when not quoted', () => {
       const css = `
         border-image: url(filename(final).gif);
       `;
@@ -99,7 +99,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['filename(final']);
     });
 
-    test('handles query parameters correctly with parentheses in filename', () => {
+    it('handles query parameters correctly with parentheses in filename', () => {
       const css = `
         background: url('image(1).png?v=123');
         background-image: url("file(with)brackets.jpg?version=2");
@@ -108,7 +108,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['image(1).png', 'file(with)brackets.jpg']);
     });
 
-    test('handles complex filenames with multiple parentheses', () => {
+    it('handles complex filenames with multiple parentheses', () => {
       const css = `
         background: url('path/to/image(1)(2).png');
         background-image: url("file(with)(more)brackets.jpg");
@@ -116,7 +116,7 @@ describe('File Path replacement', () => {
       const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['path/to/image(1)(2).png', 'file(with)(more)brackets.jpg']);
     });
-    test('handles multiple filenames with no quotation marks', () => {
+    it('handles multiple filenames with no quotation marks', () => {
       const css = `
       .h5p-question-plus-one {
         background-image: url(../images/plus-one.svg);
@@ -132,7 +132,7 @@ describe('File Path replacement', () => {
       const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['../images/plus-one.svg', '../images/minus-one.svg']);
     });
-    test('handles mixed quotes and no quotes correctly', () => {
+    it('handles mixed quotes and no quotes correctly', () => {
       const css = `
         background: url(plain.png);
         background-image: url('single.jpg');
@@ -141,7 +141,7 @@ describe('File Path replacement', () => {
       const paths = getCSSPathsFn(css);
       expect(paths).toEqual(['plain.png', 'single.jpg', 'double.gif']);
     });
-    test('handles empty url() values', () => {
+    it('handles empty url() values', () => {
       const css = `
         background: url();
         background: url('');
@@ -151,7 +151,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['', '', '']);
     });
 
-    test('handles escaped quotes in filenames', () => {
+    it('handles escaped quotes in filenames', () => {
       const css = `
         background: url('file\\'s.png');
         background: url("file\\".png");
@@ -162,7 +162,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(["file's.png", 'file".png', 'file").png', "file').png"]);
     });
 
-    test('handles escaped spaces', () => {
+    it('handles escaped spaces', () => {
       const css = `
         background: url('file\\ with\\ spaces.png');
         background: url("path\\ to\\ file.jpg");
@@ -172,7 +172,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['file with spaces.png', 'path to file.jpg', 'multiple  spaces.png']);
     });
 
-    test('handles multiple escaped backslashes', () => {
+    it('handles multiple escaped backslashes', () => {
       const css = `
         background: url('path\\\\.png');
         background: url("file\\\\\\\\.jpg");
@@ -182,7 +182,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['path\\.png', 'file\\\\.jpg', 'test\\\\\\.gif']);
     });
 
-    test('handles complex combinations of parentheses and query params', () => {
+    it('handles complex combinations of parentheses and query params', () => {
       const css = `
         background: url('img(v1)(final).png?v=(1)&x=(2)');
       `;
@@ -190,7 +190,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['img(v1)(final).png']);
     });
 
-    test('handles URLs with spaces and special characters', () => {
+    it('handles URLs with spaces and special characters', () => {
       const css = `
         background: url('my image (1).png');
         background: url("path/to/image (v2).jpg");
@@ -199,7 +199,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['my image (1).png', 'path/to/image (v2).jpg']);
     });
 
-    test('handles malformed but recoverable URLs', () => {
+    it('handles malformed but recoverable URLs', () => {
       const css = `
         background: url('broken(but(fixable.png');
         background: url("missing(paren.jpg?v=1");
@@ -208,7 +208,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['broken(but(fixable.png', 'missing(paren.jpg']);
     });
 
-    test('handles query parameters with special characters', () => {
+    it('handles query parameters with special characters', () => {
       const css = `
         background: url('image.jpg?param=(test)&other=(value)');
         background: url("image.png?base64=abc()123");
@@ -218,7 +218,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['image.jpg', 'image.png', 'image.gif']);
     });
 
-    test('handles multiple consecutive parentheses', () => {
+    it('handles multiple consecutive parentheses', () => {
       const css = `
         background: url('image((((1)))).jpg');
         background: url("file(()()).png");
@@ -227,7 +227,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['image((((1)))).jpg', 'file(()()).png']);
     });
 
-    test('finds paths in @import statements with url()', () => {
+    it('finds paths in @import statements with url()', () => {
       const css = `
         @import url('components/buttons.css');
         @import url("styles/main.css");
@@ -237,7 +237,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['components/buttons.css', 'styles/main.css', 'base.css']);
     });
 
-    test('finds paths in @import statements without url()', () => {
+    it('finds paths in @import statements without url()', () => {
       const css = `
         @import 'components/buttons.css';
         @import "styles/main.css";
@@ -246,7 +246,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['components/buttons.css', 'styles/main.css']);
     });
 
-    test('finds paths in mixed @import and url() usage', () => {
+    it('finds paths in mixed @import and url() usage', () => {
       const css = `
         @import url('reset.css');
         @import 'theme.css';
@@ -257,7 +257,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['reset.css', 'theme.css', '../icons/play.png', 'utilities.css']);
     });
 
-    test('finds paths in @import with query parameters', () => {
+    it('finds paths in @import with query parameters', () => {
       const css = `
         @import 'styles.css?v=123';
         @import "theme.css?version=2";
@@ -266,7 +266,7 @@ describe('File Path replacement', () => {
       expect(paths).toEqual(['styles.css', 'theme.css']);
     });
 
-    test('finds paths in @import with escaped quotes', () => {
+    it('finds paths in @import with escaped quotes', () => {
       const css = `
         @import 'file\\'s.css';
         @import "path\\".css";
@@ -356,7 +356,7 @@ describe('File Path replacement', () => {
         'url("new-file.woff")',
       );
     });
-    test('handles multiple filenames with no quotation marks in replacements', () => {
+    it('handles multiple filenames with no quotation marks in replacements', () => {
       const css = `
       .h5p-question-plus-one {
         background-image: url(../images/plus-one.svg);
@@ -387,7 +387,7 @@ describe('File Path replacement', () => {
       }
       `);
     });
-    test('replaces paths containing parentheses correctly', () => {
+    it('replaces paths containing parentheses correctly', () => {
       const css = `
         background: url('image(1).png');
         background-image: url("file(with)brackets.jpg?v=123");
@@ -403,7 +403,7 @@ describe('File Path replacement', () => {
         background-image: url("new/path/file(with)brackets.jpg");
       `);
     });
-    test('preserves original url() format', () => {
+    it('preserves original url() format', () => {
       const css = `
         background: url(plain.png);
         background-image: url('single.jpg');
@@ -423,7 +423,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('handles escaped quotes in filename replacements', () => {
+    it('handles escaped quotes in filename replacements', () => {
       const css = `
         background: url('file\\'s.png');
         background: url("file\\".png");
@@ -446,7 +446,7 @@ describe('File Path replacement', () => {
       `);
       /* eslint-enable */
     });
-    test('handles escaped spaces in replacements', () => {
+    it('handles escaped spaces in replacements', () => {
       const css = `
         background: url('file\\ with\\ spaces.png');
         background: url("path\\ to\\ file.jpg");
@@ -465,7 +465,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('handles multiple escaped backslashes in replacements', () => {
+    it('handles multiple escaped backslashes in replacements', () => {
       const css = `
         background: url('path\\\\.png');
         background: url("file\\\\\\\\.jpg");
@@ -484,7 +484,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces @import url() paths', () => {
+    it('replaces @import url() paths', () => {
       const css = `
         @import url('components/buttons.css');
         @import url("styles/main.css");
@@ -500,7 +500,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces @import paths without url()', () => {
+    it('replaces @import paths without url()', () => {
       const css = `
         @import 'components/buttons.css';
         @import "styles/main.css";
@@ -516,7 +516,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces mixed @import and url() paths', () => {
+    it('replaces mixed @import and url() paths', () => {
       const css = `
         @import url('reset.css');
         @import 'theme.css';
@@ -535,7 +535,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces @import paths with query parameters', () => {
+    it('replaces @import paths with query parameters', () => {
       const css = `
         @import 'styles.css?v=123';
         @import "theme.css?version=2";
@@ -551,7 +551,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('replaces @import paths with escaped quotes', () => {
+    it('replaces @import paths with escaped quotes', () => {
       const css = `
         @import 'file\\'s.css';
         @import "path\\".css";
@@ -567,7 +567,7 @@ describe('File Path replacement', () => {
       `);
     });
 
-    test('does not replace unregistered @import paths', () => {
+    it('does not replace unregistered @import paths', () => {
       const css = `
         @import 'registered.css';
         @import 'unregistered.css';

@@ -90,7 +90,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     ['CANCELING', 'Canceling'],
     ['FAILED', 'Failed'],
   ];
-  test.each(simpleStatusesMsgTests)('statusMsg is correct with %s status', (status, msg) => {
+  it.each(simpleStatusesMsgTests)('statusMsg is correct with %s status', (status, msg) => {
     const task = makeTask(status);
     expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
       statusMsg: msg,
@@ -107,7 +107,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     ['REMOTE_DEQUEUING', '7 of 7: Remotely integrating data'],
   ];
 
-  test.each(orderedStatusesMsgTests)(
+  it.each(orderedStatusesMsgTests)(
     'messages are correct with sync-specific status %s',
     (status, msg) => {
       const task = makeTask(status);
@@ -145,7 +145,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     ['COMPLETED', true, false, false],
   ];
 
-  test.each(controlAndStatusTests)(
+  it.each(controlAndStatusTests)(
     'flags for showing clear/cancel/retry buttons are correct for status %s',
     (status, canClear, isRunning, canCancel) => {
       const task = makeTask(status);
@@ -195,7 +195,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     ['RUNNING', 'Removing facility'],
   ];
 
-  test.each(simpleStatusesMsgTests)('statusMsg is correct with %s status', (status, msg) => {
+  it.each(simpleStatusesMsgTests)('statusMsg is correct with %s status', (status, msg) => {
     const task = makeTask(status);
     expect(removeFacilityTaskDisplayInfo(task)).toMatchObject({
       statusMsg: msg,
@@ -212,7 +212,7 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
     ['COMPLETED', false, true, false],
   ];
 
-  test.each(controlAndStatusTests)(
+  it.each(controlAndStatusTests)(
     'flags for showing clear/cancel/retry buttons are correct for status %s',
     (status, canCancel, canClear, canRetry) => {
       const task = makeTask(status);

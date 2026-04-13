@@ -14,7 +14,7 @@ describe('AttemptLogItem', () => {
         const wrapper = mount(AttemptLogItem, {
           propsData: { isSurvey: true, attemptLog },
         });
-        expect(wrapper.find('[data-test="question-attempt-icons"]').element).toBeFalsy();
+        expect(wrapper.find('[data-testid="question-attempt-icons"]').element).toBeFalsy();
       },
     );
   });
@@ -27,7 +27,7 @@ describe('AttemptLogItem', () => {
       const wrapper = mount(AttemptLogItem, {
         propsData: { attemptLog: sampleAttemptLogs[0] },
       });
-      expect(wrapper.find('[data-test="question-attempt-icons"]').element).toBeTruthy();
+      expect(wrapper.find('[data-testid="question-attempt-icons"]').element).toBeTruthy();
     });
   });
 });

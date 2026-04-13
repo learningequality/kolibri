@@ -9,7 +9,7 @@
         <th>
           {{ coreString('fullNameLabel') }}
         </th>
-        <td data-test="fullname">
+        <td data-testid="fullname">
           {{ targetAccount.full_name }}
         </td>
       </tr>
@@ -18,7 +18,7 @@
         <th>
           {{ coreString('usernameLabel') }}
         </th>
-        <td data-test="username">
+        <td data-testid="username">
           {{ targetAccount.username }}
         </td>
       </tr>
@@ -29,7 +29,7 @@
         </th>
         <td
           dir="auto"
-          data-test="idnumber"
+          data-testid="idnumber"
         >
           {{ cleanValue(targetAccount.id_number) }}
         </td>
@@ -40,7 +40,7 @@
         </th>
         <td
           dir="auto"
-          data-test="gender"
+          data-testid="gender"
         >
           <GenderDisplayText :gender="targetAccount.gender" />
         </td>
@@ -51,7 +51,7 @@
         </th>
         <td
           dir="auto"
-          data-test="birthyear"
+          data-testid="birthyear"
         >
           <BirthYearDisplayText :birthYear="targetAccount.birth_year" />
         </td>
@@ -65,13 +65,13 @@
             :primary="false"
             :text="coreString('backAction')"
             appearance="flat-button"
-            data-test="backButton"
+            data-testid="backButton"
             @click="sendBack"
           />
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
-            data-test="continueButton"
+            data-testid="continueButton"
             @click="handleContinue"
           />
         </KButtonGroup>

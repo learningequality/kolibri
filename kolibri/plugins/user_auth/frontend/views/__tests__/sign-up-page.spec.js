@@ -1,11 +1,9 @@
-import { render, screen, configure } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { ref, computed } from 'vue';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import SignUpPage from '../SignUpPage';
 import makeStore from '../../__tests__/utils/makeStore';
-
-configure({ testIdAttribute: 'data-test' });
 
 jest.mock('kolibri-common/composables/useFacility');
 

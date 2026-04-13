@@ -47,24 +47,24 @@ async function setupTableContainer(scrollWidth, clientWidth) {
 
 describe('SafeHtml5RendererIndex', () => {
   describe('first render', () => {
-    test('smoke test', async () => {
+    it('smoke test', async () => {
       renderComponent();
       expect(screen.getByTestId('safe-html-renderer-container')).toBeInTheDocument();
     });
 
-    test('shows KCircularLoader initially', async () => {
+    it('shows KCircularLoader initially', async () => {
       renderComponent();
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
-    test('hides KCircularLoader after loading', async () => {
+    it('hides KCircularLoader after loading', async () => {
       renderComponent();
       await waitFor(() => {
         expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
       });
     });
 
-    test('renders safe-html-wrapper div and HTML content after loading finishes', async () => {
+    it('renders safe-html-wrapper div and HTML content after loading finishes', async () => {
       renderComponent();
       await waitFor(() => {
         expect(screen.getByLabelText('Article content')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('SafeHtml5RendererIndex', () => {
   });
 
   describe("table's tabindex", () => {
-    test("a table has tabindex='0' when scrollable", async () => {
+    it("a table has tabindex='0' when scrollable", async () => {
       renderComponent();
       const tableContainer = await setupTableContainer(600, 500); // scrollWidth > clientWidth
       window.dispatchEvent(new Event('resize')); // Resize to trigger `applyTabIndexes`
@@ -84,7 +84,7 @@ describe('SafeHtml5RendererIndex', () => {
       expect(tableContainer).toHaveAttribute('tabindex', '0');
     });
 
-    test("a table doesn't have tabindex='0' when non-scrollable", async () => {
+    it("a table doesn't have tabindex='0' when non-scrollable", async () => {
       renderComponent();
       const tableContainer = await setupTableContainer(600, 800); // scrollWidth < clientWidth
       window.dispatchEvent(new Event('resize'));
@@ -94,7 +94,7 @@ describe('SafeHtml5RendererIndex', () => {
   });
 
   describe('progress tracking', () => {
-    test('emits startTracking on created', async () => {
+    it('emits startTracking on created', async () => {
       const { emitted } = renderComponent();
       await waitFor(() => {
         expect(emitted()).toHaveProperty('startTracking');
@@ -102,7 +102,7 @@ describe('SafeHtml5RendererIndex', () => {
       });
     });
 
-    test('emits stopTracking on destroy', async () => {
+    it('emits stopTracking on destroy', async () => {
       const { emitted, unmount } = renderComponent();
       await waitFor(() => {
         expect(screen.getByLabelText('Article content')).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('SafeHtml5RendererIndex', () => {
   });
 
   describe('scroll-based progress tracking', () => {
-    test('emits `updateProgress` event with scroll-based progress when user scrolls', async () => {
+    it('emits `updateProgress` event with scroll-based progress when user scrolls', async () => {
       jest.useFakeTimers();
       const { emitted } = renderComponent({
         scrollBasedProgress: 0.5,
@@ -131,7 +131,7 @@ describe('SafeHtml5RendererIndex', () => {
       jest.useRealTimers();
     });
 
-    test('emits `finished` event when progress reaches 1', async () => {
+    it('emits `finished` event when progress reaches 1', async () => {
       jest.useFakeTimers();
       const { emitted } = renderComponent({
         scrollBasedProgress: 1,
@@ -147,7 +147,7 @@ describe('SafeHtml5RendererIndex', () => {
       jest.useRealTimers();
     });
 
-    test('removes scroll listener on component destroy', async () => {
+    it('removes scroll listener on component destroy', async () => {
       const { container, unmount } = renderComponent({
         debouncedHandleScroll: jest.fn(),
       });

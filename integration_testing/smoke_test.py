@@ -104,7 +104,7 @@ def run_smoke_test():
                 # Wait for the Library page to finish loading.
                 # The "nothing in library" label only renders after loading
                 # completes on a fresh install with no imported channels.
-                page.locator('[data-test="nothing-in-lib-label"]').wait_for(
+                page.get_by_text("There is nothing in your library yet").wait_for(
                     state="visible", timeout=30000
                 )
                 logger.info(f"Setup complete, landed on: {page.url}")

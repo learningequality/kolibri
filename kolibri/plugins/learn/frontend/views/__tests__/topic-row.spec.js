@@ -30,6 +30,6 @@ describe('TopicSubsection', () => {
       router,
       localVue,
     });
-    expect(wrapper.find('[data-test="more-button"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="more-button"]').exists()).toBe(true);
   });
 });

@@ -61,7 +61,7 @@
               :userType="row[0].kind"
               :omitLearner="true"
               class="role-badge"
-              data-test="userRoleBadge"
+              data-testid="userRoleBadge"
               :class="$computedClass(userRoleBadgeStyle)"
             />
           </span>
