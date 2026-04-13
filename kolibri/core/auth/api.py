@@ -16,15 +16,12 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import transaction
-from django.db.models import BooleanField
-from django.db.models import Case
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models import Value
-from django.db.models import When
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.http import HttpResponseBadRequest
@@ -92,8 +89,6 @@ from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
-from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
-from kolibri.core.auth.utils.picture_passwords import PICTURE_PASSWORD_SEQUENCE_COUNT
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -320,8 +315,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         enabling = not currently_enabled and new_pps is not None
 
         if enabling:
-            assigned = get_assigned_sequences(facility)
-            if len(assigned) >= PICTURE_PASSWORD_SEQUENCE_COUNT:
+            if are_picture_passwords_exhausted(pk):
                 return Response(
                     {"detail": "Picture passwords exhausted for this facility."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -950,7 +944,6 @@ class FacilityViewSet(ValuesViewset):
         "num_users",
         "last_successful_sync",
         "last_failed_sync",
-        "picture_passwords_exhausted",
     ]
 
     values = tuple(facility_values + dataset_keys)
@@ -1009,26 +1002,6 @@ class FacilityViewSet(ValuesViewset):
                     )
                     .order_by("-last_activity_timestamp")
                     .values("last_activity_timestamp")[:1]
-                )
-            )
-            .annotate(
-                _assigned_picture_passwords=SQCount(
-                    FacilityUser.objects.filter(
-                        facility=OuterRef("id"),
-                        roles__isnull=True,
-                        picture_password__isnull=False,
-                    ),
-                    field="id",
-                ),
-            )
-            .annotate(
-                picture_passwords_exhausted=Case(
-                    When(
-                        _assigned_picture_passwords__gte=PICTURE_PASSWORD_SEQUENCE_COUNT,
-                        then=Value(True),
-                    ),
-                    default=Value(False),
-                    output_field=BooleanField(),
                 )
             )
         )

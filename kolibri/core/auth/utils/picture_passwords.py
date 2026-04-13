@@ -112,10 +112,6 @@ def get_all_valid_sequences(picture_set):
     }
 
 
-# This is not same as LEARNER_PICTURE_PASSWORD_LIMIT
-PICTURE_PASSWORD_SEQUENCE_COUNT = len(get_all_valid_sequences(PICTURE_PASSWORD_SET))
-
-
 def get_assigned_sequences(facility):
     """
     Return the set of picture_password values already assigned to

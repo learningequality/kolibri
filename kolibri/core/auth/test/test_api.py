@@ -2520,10 +2520,8 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         mock_storage.get_job.return_value = mock_enqueued_job
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
-    @patch("kolibri.core.auth.api.PICTURE_PASSWORD_SEQUENCE_COUNT", new=1)
-    def test_enable_rejected_when_exhausted(self, mock_assigned, mock_task):
-        mock_assigned.return_value = {"1.2.3"}
+    @patch("kolibri.core.auth.api.are_picture_passwords_exhausted", return_value=True)
+    def test_enable_rejected_when_exhausted(self, mock_exhausted, mock_task):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.post(
             self._url(),
@@ -2535,9 +2533,8 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
     @patch("kolibri.core.auth.api.job_storage")
-    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
     def test_enable_enqueues_task_and_returns_task_object(
-        self, mock_assigned, mock_storage, mock_task
+        self, mock_storage, mock_task
     ):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
@@ -2625,10 +2622,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
     @patch("kolibri.core.auth.api.job_storage")
-    @patch("kolibri.core.auth.api.get_assigned_sequences", return_value=set())
-    def test_enable_does_not_assign_inline(
-        self, mock_assigned, mock_storage, mock_task
-    ):
+    def test_enable_does_not_assign_inline(self, mock_storage, mock_task):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         self.client.post(
