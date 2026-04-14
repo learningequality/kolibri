@@ -29,6 +29,7 @@ from kolibri.core.content.utils.content_request import _process_content_requests
 from kolibri.core.content.utils.content_request import _process_download
 from kolibri.core.content.utils.content_request import _total_size
 from kolibri.core.content.utils.content_request import completed_downloads_queryset
+from kolibri.core.content.utils.content_request import create_content_download_requests
 from kolibri.core.content.utils.content_request import create_content_removal_requests
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
@@ -1941,3 +1942,88 @@ class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         create_content_removal_requests(self.facility, [assignment])
 
         self.assertFalse(ContentDownloadRequest.objects.filter(id=download.id).exists())
+
+
+class CreateContentDownloadRequestsTestCase(BaseQuerysetTestCase):
+    """
+    Tests for create_content_download_requests().
+
+    Verifies that channel_version is stored on the request and that a new
+    request is created when the version changes, allowing re-download after
+    a channel update.
+    """
+
+    def _make_assignment(
+        self, contentnode_id=None, source_id=None, channel_version=None
+    ):
+        return ContentAssignment(
+            contentnode_id=contentnode_id or uuid.uuid4().hex,
+            source_model="test_model",
+            source_id=source_id or uuid.uuid4().hex,
+            metadata=None,
+            channel_version=channel_version,
+        )
+
+    def test_creates_download_request_with_channel_version(self):
+        """channel_version is stored on the created ContentDownloadRequest."""
+        assignment = self._make_assignment(channel_version=3)
+
+        create_content_download_requests(self.facility, [assignment])
+
+        req = ContentDownloadRequest.objects.get(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        )
+        self.assertEqual(req.channel_version, 3)
+
+    def test_creates_download_request_with_null_channel_version(self):
+        """channel_version=None (default) is stored correctly."""
+        assignment = self._make_assignment(channel_version=None)
+
+        create_content_download_requests(self.facility, [assignment])
+
+        req = ContentDownloadRequest.objects.get(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        )
+        self.assertIsNone(req.channel_version)
+
+    def test_idempotent_for_same_version(self):
+        """Calling twice with the same version does not create duplicate requests."""
+        assignment = self._make_assignment(channel_version=1)
+
+        create_content_download_requests(self.facility, [assignment])
+        create_content_download_requests(self.facility, [assignment])
+
+        count = ContentDownloadRequest.objects.filter(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        ).count()
+        self.assertEqual(count, 1)
+
+    def test_new_request_created_when_version_changes(self):
+        """When channel_version changes, a new pending download request is created."""
+        source_id = uuid.uuid4().hex
+        contentnode_id = uuid.uuid4().hex
+
+        assignment_v1 = self._make_assignment(
+            contentnode_id=contentnode_id, source_id=source_id, channel_version=1
+        )
+        assignment_v2 = self._make_assignment(
+            contentnode_id=contentnode_id, source_id=source_id, channel_version=2
+        )
+
+        create_content_download_requests(self.facility, [assignment_v1])
+        create_content_download_requests(self.facility, [assignment_v2])
+
+        requests = ContentDownloadRequest.objects.filter(
+            source_model=assignment_v1.source_model,
+            source_id=source_id,
+            contentnode_id=contentnode_id,
+        )
+        self.assertEqual(requests.count(), 2)
+        versions = set(requests.values_list("channel_version", flat=True))
+        self.assertEqual(versions, {1, 2})

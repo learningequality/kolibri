@@ -88,6 +88,7 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
             source_model=assignment.source_model,
             source_id=assignment.source_id,
             contentnode_id=assignment.contentnode_id,
+            channel_version=assignment.channel_version,
             defaults=dict(
                 facility_id=facility.id,
                 reason=ContentRequestReason.SyncInitiated,
