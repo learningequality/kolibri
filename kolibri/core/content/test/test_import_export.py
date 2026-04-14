@@ -32,15 +32,19 @@ from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import get_content_nodes_data
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.import_export_content import get_import_export_nodes
+from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
+from kolibri.core.content.utils.resource_import import lookup_channel_listing_status
 from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
 )
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.utils.file_transfer import Transfer
 from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.file_transfer import TransferFailed
@@ -3370,3 +3374,134 @@ class UpgradeDBReuseTestCase(TestCase):
         finally:
             if os.path.exists(upgrade_db_path):
                 os.remove(upgrade_db_path)
+
+
+class TestGetChannelLookupUrl(TestCase):
+    def test_channel_versions_parameter_included(self):
+        url = get_channel_lookup_url(identifier="abc123", channel_versions=True)
+        self.assertIn("channel_versions=true", url)
+
+    def test_channel_versions_parameter_excluded_by_default(self):
+        url = get_channel_lookup_url(identifier="abc123")
+        self.assertNotIn("channel_versions", url)
+
+
+class LookupChannelListingStatusTest(TestCase):
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def _mock_client(self, response_data):
+        mock_response = MagicMock()
+        mock_response.json.return_value = response_data
+        mock_client = MagicMock()
+        mock_client.get.return_value = mock_response
+        return mock_client
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_returns_dict_with_all_fields(self, mock_build):
+        mock_build.return_value = self._mock_client(
+            [
+                {
+                    "id": self.the_channel_id,
+                    "public": True,
+                    "version": 5,
+                    "library": "KOLIBRI",
+                }
+            ]
+        )
+        result = lookup_channel_listing_status(channel_id=self.the_channel_id)
+        self.assertEqual(result["id"], self.the_channel_id)
+        self.assertTrue(result["public"])
+        self.assertEqual(result["version"], 5)
+        self.assertEqual(result["library"], "KOLIBRI")
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_token_lookup_uses_channel_versions_param(self, mock_build):
+        mock_client = self._mock_client(
+            [
+                {
+                    "id": self.the_channel_id,
+                    "public": True,
+                    "version": 3,
+                    "library": "KOLIBRI",
+                }
+            ]
+        )
+        mock_build.return_value = mock_client
+        lookup_channel_listing_status(token="test-token-abc")
+        call_url = mock_client.get.call_args[0][0]
+        self.assertIn("channel_versions=true", call_url)
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_channel_id_lookup_omits_channel_versions_param(self, mock_build):
+        mock_client = self._mock_client(
+            [
+                {
+                    "id": self.the_channel_id,
+                    "public": True,
+                    "version": 3,
+                    "library": "KOLIBRI",
+                }
+            ]
+        )
+        mock_build.return_value = mock_client
+        lookup_channel_listing_status(channel_id=self.the_channel_id)
+        call_url = mock_client.get.call_args[0][0]
+        self.assertNotIn("channel_versions", call_url)
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_token_with_channel_id_validates_match(self, mock_build):
+        other_channel_id = "aa480b60a7f4526f886e7df9f4e9b8ca"
+        mock_build.return_value = self._mock_client(
+            [
+                {
+                    "id": other_channel_id,
+                    "public": True,
+                    "version": 1,
+                    "library": "KOLIBRI",
+                }
+            ]
+        )
+        with self.assertRaises(LocationError):
+            lookup_channel_listing_status(
+                channel_id=self.the_channel_id, token="test-token-abc"
+            )
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_404_returns_none(self, mock_build):
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_client = MagicMock()
+        mock_client.get.side_effect = NetworkLocationResponseFailure(
+            response=mock_response
+        )
+        mock_build.return_value = mock_client
+        result = lookup_channel_listing_status(channel_id=self.the_channel_id)
+        self.assertIsNone(result)
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_draft_channel_version_null_returns_none_in_dict(self, mock_build):
+        mock_build.return_value = self._mock_client(
+            [
+                {
+                    "id": self.the_channel_id,
+                    "public": False,
+                    "version": None,
+                    "library": None,
+                }
+            ]
+        )
+        result = lookup_channel_listing_status(token="draft-token")
+        self.assertIsNone(result["version"])
+
+    @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
+    def test_token_only_multiple_channels_raises_location_error(self, mock_build):
+        mock_build.return_value = self._mock_client(
+            [
+                {"id": "aa480b60a7f4526f886e7df9f4e9b8ca", "name": "Channel A"},
+                {"id": "bb480b60a7f4526f886e7df9f4e9b8cb", "name": "Channel B"},
+            ]
+        )
+        with self.assertRaises(LocationError) as context:
+            lookup_channel_listing_status(token="multi-token")
+
+        self.assertIn("multiple channels", str(context.exception).lower())

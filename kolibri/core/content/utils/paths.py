@@ -228,7 +228,9 @@ def get_info_url(baseurl=None):
     return get_content_server_url("api/public/info", baseurl=baseurl)
 
 
-def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=None):
+def get_channel_lookup_url(
+    version="1", identifier=None, keyword=None, language=None, channel_versions=False
+):
     content_server_path = "/api/public/v{}/channels".format(version)
     if identifier:
         content_server_path += "/lookup/{}".format(identifier)
@@ -237,6 +239,8 @@ def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=
         query_params["keyword"] = keyword
     if language:
         query_params["language"] = language
+    if channel_versions:
+        query_params["channel_versions"] = "true"
     if query_params:
         content_server_path += "?" + urlencode(query_params)
 

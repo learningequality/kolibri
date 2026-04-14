@@ -42,25 +42,66 @@ from kolibri.utils.system import get_free_space
 logger = logging.getLogger(__name__)
 
 
-def lookup_channel_listing_status(channel_id, baseurl=None):
+def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
     """
-    Look up the listing status of the channel from the remote, this is surfaced as a
-    `public` boolean field.
+    Look up the listing status of a channel from the remote.
+
+    Accepts a token, a channel_id, or both. When both are provided, validates that
+    the token resolves to the given channel_id. Returns a dict with 'id', 'public',
+    'version', and 'library' keys, or None if the channel is not found (HTTP 404).
+
+    When a token is provided, the request includes channel_versions=true so Studio
+    returns version and library metadata.
     """
+    if token is None and channel_id is None:
+        raise ValueError("Either token or channel_id must be provided")
+
+    identifier = token if token is not None else channel_id
     client = NetworkClient.build_for_address(baseurl)
     try:
-        # prevent trying to fetch a channel from a remote that it is not
-        # available from.
-        resp = client.get(get_channel_lookup_url(identifier=channel_id))
-
+        resp = client.get(
+            get_channel_lookup_url(
+                identifier=identifier, channel_versions=(token is not None)
+            )
+        )
     except NetworkLocationResponseFailure as e:
         if e.response.status_code == 404:
             return None
         raise LocationError(
-            "Channel {} not found on remote {}".format(channel_id, baseurl)
+            "Failed to look up channel {} on remote {}: HTTP {}".format(
+                identifier, baseurl, e.response.status_code
+            )
         )
-    (channel_info,) = resp.json()
-    return channel_info.get("public", None)
+
+    channels = resp.json()
+    if not channels:
+        return None
+
+    if token is not None and channel_id is not None:
+        matching = [c for c in channels if c.get("id") == channel_id]
+        if not matching:
+            raise LocationError(
+                "Token '{}' does not resolve to channel {}".format(token, channel_id)
+            )
+        channel_info = matching[0]
+    else:
+        if token is not None and len(channels) > 1:
+            channel_list = ", ".join(
+                "{} ({})".format(c.get("name", "Unnamed"), c.get("id", "unknown"))
+                for c in channels
+            )
+            raise LocationError(
+                "Token '{}' matches multiple channels: {}. "
+                "Use a channel ID instead.".format(token, channel_list)
+            )
+        channel_info = channels[0]
+
+    return {
+        "id": channel_info.get("id"),
+        "public": channel_info.get("public"),
+        "version": channel_info.get("version"),
+        "library": channel_info.get("library"),
+    }
 
 
 class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
