@@ -24,8 +24,8 @@ from requests.exceptions import HTTPError
 from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
 
+import kolibri.core.content.management.commands.importchannel as importchannel_module
 from kolibri.core.content.errors import InsufficientStorageSpaceError
-from kolibri.core.content.management.commands.importchannel import resolve_channel_token
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -705,6 +705,9 @@ class ImportChannelTestCase(TestCase):
         self.assertTrue(channel_stats_clear_mock.called)
 
     @patch(
+        "kolibri.core.content.management.commands.importchannel.set_channel_metadata_fields"
+    )
+    @patch(
         "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_url"
     )
     @patch(
@@ -712,29 +715,27 @@ class ImportChannelTestCase(TestCase):
     )
     @patch("kolibri.core.content.utils.channel_transfer.transfer.FileDownload")
     @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status"
+    )
     def test_network_import_with_token(
         self,
-        mock_network_client_class,
+        mock_lookup,
         get_current_job_mock,
         FileDownloadMock,
         local_path_mock,
         remote_path_mock,
+        mock_set_fields,
         start_progress_mock,
         import_channel_mock,
     ):
         """Test that network import resolves tokens to channel IDs"""
-        # Setup mock for token resolution
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = [
-            {
-                "id": self.the_channel_id,
-                "name": "Test Channel",
-            }
-        ]
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
+        mock_lookup.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 5,
+            "library": "KOLIBRI",
+        }
 
         # Setup mock for the actual import
         dummy_job = create_dummy_job()
@@ -748,56 +749,30 @@ class ImportChannelTestCase(TestCase):
         # Call with a token instead of channel ID
         call_command("importchannel", "network", "test-token")
 
-        # Verify token was resolved (NetworkClient was called)
-        mock_network_client_class.build_for_address.assert_called()
+        # Verify token was resolved via lookup_channel_listing_status
+        mock_lookup.assert_called_once()
         # Verify the import proceeded
         import_channel_mock.assert_called_once()
+        # Verify library and version from token resolution are persisted
+        mock_set_fields.assert_called_once_with(
+            self.the_channel_id, library="KOLIBRI", version=5
+        )
 
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status",
+        return_value=None,
+    )
     def test_network_import_token_not_found(
         self,
-        mock_network_client_class,
+        mock_lookup,
         start_progress_mock,
         import_channel_mock,
     ):
         """Test that network import fails gracefully when token is not found"""
-        # Setup mock for token resolution failure
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = []  # Empty list = token not found
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        # Call with an invalid token - should raise CommandError
         with self.assertRaises(CommandError) as context:
             call_command("importchannel", "network", "invalid-token")
 
         self.assertIn("not found", str(context.exception).lower())
-
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_network_import_token_multiple_channels(
-        self,
-        mock_network_client_class,
-        start_progress_mock,
-        import_channel_mock,
-    ):
-        """Test that token resolving to multiple channels raises an error"""
-        # Setup mock for multiple channel response
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = [
-            {"id": "aa480b60a7f4526f886e7df9f4e9b8ca", "name": "Channel A"},
-            {"id": "bb480b60a7f4526f886e7df9f4e9b8cb", "name": "Channel B"},
-        ]
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        # Should raise CommandError with info about multiple channels
-        with self.assertRaises(CommandError) as context:
-            call_command("importchannel", "network", "multi-token")
-
-        error_msg = str(context.exception)
-        self.assertIn("multiple channels", error_msg.lower())
 
     def test_disk_import_rejects_token(
         self,
@@ -813,95 +788,85 @@ class ImportChannelTestCase(TestCase):
         self.assertIn("invalid channel id", error_msg.lower())
         self.assertIn("disk", error_msg.lower())
 
-
-class ResolveChannelTokenTest(TestCase):
-    """Test the resolve_channel_token utility function"""
-
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_resolve_valid_token(self, mock_network_client_class):
-        """Test successful token resolution"""
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = [
-            {
-                "id": "aa480b60a7f4526f886e7df9f4e9b8ca",
-                "name": "Test Channel",
-            }
-        ]
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        channel_id, all_channels = resolve_channel_token(
-            "test-token", baseurl="https://studio.example.com"
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.set_channel_metadata_fields"
+    )
+    @patch("kolibri.core.content.management.commands.importchannel.transfer_channel")
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status"
+    )
+    def test_token_resolution_uses_lookup_channel_listing_status(
+        self,
+        mock_lookup,
+        mock_transfer,
+        mock_set_fields,
+        start_progress_mock,
+        import_channel_mock,
+    ):
+        """importchannel network uses lookup_channel_listing_status, not resolve_channel_token."""
+        the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        mock_lookup.return_value = {
+            "id": the_channel_id,
+            "public": True,
+            "version": 5,
+            "library": "KOLIBRI",
+        }
+        call_command("importchannel", "network", "my-channel-token")
+        mock_lookup.assert_called_once()
+        call_kwargs = mock_lookup.call_args[1]
+        self.assertEqual(call_kwargs["token"], "my-channel-token")
+        mock_set_fields.assert_called_once_with(
+            the_channel_id, library="KOLIBRI", version=5
         )
 
-        self.assertEqual(channel_id, "aa480b60a7f4526f886e7df9f4e9b8ca")
-        self.assertEqual(len(all_channels), 1)
-        mock_client.get.assert_called_once()
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status",
+        return_value=None,
+    )
+    def test_token_not_found_raises_command_error(
+        self, mock_lookup, start_progress_mock, import_channel_mock
+    ):
+        with self.assertRaises(CommandError):
+            call_command("importchannel", "network", "bad-token")
 
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_resolve_token_not_found(self, mock_network_client_class):
-        """Test token that doesn't exist on the server"""
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = []
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        with self.assertRaises(ValueError):
-            resolve_channel_token("invalid-token", baseurl="https://studio.example.com")
-
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_resolve_token_missing_id(self, mock_network_client_class):
-        """Test response with missing channel ID"""
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = [{"name": "Test Channel"}]
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        with self.assertRaises(ValueError) as context:
-            resolve_channel_token("test-token", baseurl="https://studio.example.com")
-
-        self.assertIn("channel missing ID", str(context.exception))
-
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_resolve_token_multiple_channels(self, mock_network_client_class):
-        """Test token that resolves to multiple channels"""
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.return_value = [
-            {"id": "aa480b60a7f4526f886e7df9f4e9b8ca", "name": "Channel A"},
-            {"id": "bb480b60a7f4526f886e7df9f4e9b8cb", "name": "Channel B"},
-        ]
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
-
-        channel_id, all_channels = resolve_channel_token(
-            "test-token", baseurl="https://studio.example.com"
+    def test_resolve_channel_token_no_longer_imported(
+        self, start_progress_mock, import_channel_mock
+    ):
+        """The old resolve_channel_token function should not be importable from importchannel."""
+        self.assertFalse(
+            hasattr(importchannel_module, "resolve_channel_token"),
+            "resolve_channel_token should be removed",
         )
 
-        self.assertEqual(channel_id, "aa480b60a7f4526f886e7df9f4e9b8ca")
-        self.assertEqual(len(all_channels), 2)
+    @patch(
+        "kolibri.core.content.management.commands.importchannel.lookup_channel_listing_status"
+    )
+    def test_network_import_token_multiple_channels(
+        self,
+        mock_lookup,
+        start_progress_mock,
+        import_channel_mock,
+    ):
+        """Token resolving to multiple channels raises a CommandError."""
+        mock_lookup.side_effect = LocationError(
+            "Token 'multi-token' matches multiple channels: Channel A (aa480b60a7f4526f886e7df9f4e9b8ca), "
+            "Channel B (bb480b60a7f4526f886e7df9f4e9b8cb). Use a channel ID instead."
+        )
 
-    @patch("kolibri.core.content.management.commands.importchannel.NetworkClient")
-    def test_resolve_token_invalid_json(self, mock_network_client_class):
-        """Test server returning invalid JSON"""
-        mock_client = MagicMock()
-        mock_response = MagicMock()
-        mock_response.json.side_effect = ValueError("Invalid JSON")
-        mock_client.get.return_value = mock_response
-        mock_network_client_class.build_for_address.return_value = mock_client
+        with self.assertRaises(CommandError) as context:
+            call_command("importchannel", "network", "multi-token")
 
-        with self.assertRaises(ValueError) as context:
-            resolve_channel_token("test-token", baseurl="https://studio.example.com")
-
-        self.assertIn("Invalid JSON", str(context.exception))
+        self.assertIn("multiple channels", str(context.exception).lower())
 
 
 @patch(
     "kolibri.core.content.utils.resource_import.lookup_channel_listing_status",
-    return_value=False,
+    return_value={
+        "id": "6199dde695db4ee4ab392222d5af1e5c",
+        "public": False,
+        "version": None,
+        "library": None,
+    },
 )
 @patch("kolibri.core.content.utils.resource_import.get_import_export_data")
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
