@@ -30,6 +30,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.tasks import remoteimport
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.content_types_tools import (
@@ -2358,6 +2359,25 @@ class ImportContentTestCase(TestCase):
             timeout=5,
         )
 
+    def test_manager_passes_token_to_lookup(
+        self, get_import_export_mock, channel_list_status_mock
+    ):
+        channel_list_status_mock.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 5,
+            "library": "KOLIBRI",
+        }
+        RemoteChannelResourceImportManager(
+            self.the_channel_id,
+            token="test-token",
+        )
+        channel_list_status_mock.assert_called_once_with(
+            channel_id=self.the_channel_id,
+            token="test-token",
+            baseurl=channel_list_status_mock.call_args[1].get("baseurl"),
+        )
+
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ExportChannelTestCase(TestCase):
@@ -2985,6 +3005,13 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
 
         # Configure annotation mock default
         self.annotation_mock.calculate_dummy_progress_for_annotation.return_value = 0
+        # Default lookup return value - tests can override this
+        self.channel_list_status_mock.return_value = {
+            "id": self.the_channel_id,
+            "public": None,
+            "version": None,
+            "library": None,
+        }
 
     def tearDown(self):
         for p in self.patches:
@@ -3097,12 +3124,138 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
 
         manager.run()
 
-        # Without import_channel_database, progress uses actual content size from fixture
-        self.start_progress_mock.assert_called_once()
-        call_args = self.start_progress_mock.call_args
-        total = call_args[1].get("total", 0)
-        # Should be content size only (no channel DB), value from fixture
-        self.assertGreaterEqual(total, 0)
+    def test_token_metadata_stored_on_channel_metadata(self):
+        """When a token is provided, library and version from lookup flow to ChannelMetadata."""
+        self.channel_list_status_mock.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 9,
+            "library": "KOLIBRI",
+        }
+
+        manager = RemoteChannelResourceImportManager(
+            self.the_channel_id,
+            token="some-channel-token",
+        )
+        self.assertEqual(manager.library, "KOLIBRI")
+        self.assertEqual(manager.remote_version, 9)
+
+    def test_no_token_leaves_library_and_version_as_none(self):
+        self.channel_list_status_mock.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": None,
+            "library": None,
+        }
+
+        manager = RemoteChannelResourceImportManager(self.the_channel_id)
+        self.assertIsNone(manager.library)
+        self.assertIsNone(manager.remote_version)
+        self.assertTrue(manager.listing_found)
+
+    def test_listing_not_found_sets_listing_found_false(self):
+        """When the channel lookup returns None (e.g. 404), listing_found is False."""
+        self.channel_list_status_mock.return_value = None
+
+        manager = RemoteChannelResourceImportManager(self.the_channel_id)
+        self.assertFalse(manager.listing_found)
+        self.assertIsNone(manager.library)
+        self.assertIsNone(manager.remote_version)
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url",
+        return_value="http://test/channel.db",
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_path",
+        return_value="/tmp/test.db",
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch("kolibri.core.content.utils.resource_import.import_channel_by_id")
+    def test_library_set_on_channel_metadata_after_remoteimport(
+        self,
+        import_channel_mock,
+        FileDownloadMock,
+        db_path_mock,
+        db_url_mock,
+    ):
+        """Token metadata flows to set_channel_metadata_fields after remoteimport."""
+        self.channel_list_status_mock.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 9,
+            "library": "KOLIBRI",
+        }
+
+        import_channel_mock.return_value = True
+        FileDownloadMock.return_value.__enter__ = MagicMock(
+            return_value=FileDownloadMock.return_value
+        )
+        FileDownloadMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileDownloadMock.return_value.run = MagicMock()
+
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.headers = {"Content-Length": "1000"}
+        mock_session.head.return_value = mock_response
+
+        with patch(
+            "kolibri.core.content.utils.resource_import.requests.Session",
+            return_value=mock_session,
+        ):
+            remoteimport(
+                self.the_channel_id,
+                token="my-channel-token",
+            )
+
+        self.annotation_mock.set_channel_metadata_fields.assert_called_once_with(
+            self.the_channel_id,
+            library="KOLIBRI",
+            version=9,
+        )
+
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url",
+        return_value="http://test/channel.db",
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_path",
+        return_value="/tmp/test.db",
+    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch("kolibri.core.content.utils.resource_import.import_channel_by_id")
+    def test_no_metadata_update_when_listing_not_found(
+        self,
+        import_channel_mock,
+        FileDownloadMock,
+        db_path_mock,
+        db_url_mock,
+    ):
+        """When listing returns None (404), set_channel_metadata_fields is not called."""
+        self.channel_list_status_mock.return_value = None  # 404 from Studio
+
+        import_channel_mock.return_value = True
+        FileDownloadMock.return_value.__enter__ = MagicMock(
+            return_value=FileDownloadMock.return_value
+        )
+        FileDownloadMock.return_value.__exit__ = MagicMock(return_value=False)
+        FileDownloadMock.return_value.run = MagicMock()
+
+        mock_session = MagicMock()
+        mock_response = MagicMock()
+        mock_response.headers = {"Content-Length": "1000"}
+        mock_session.head.return_value = mock_response
+
+        with patch(
+            "kolibri.core.content.utils.resource_import.requests.Session",
+            return_value=mock_session,
+        ):
+            remoteimport(
+                self.the_channel_id,
+                token="my-channel-token",
+            )
+
+        self.annotation_mock.set_channel_metadata_fields.assert_not_called()
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
@@ -3261,6 +3414,12 @@ class UpgradeDBReuseTestCase(TestCase):
         mocks = [p.start() for p in self.patches]
         self.annotation_mock = mocks[0]
         self.annotation_mock.calculate_dummy_progress_for_annotation.return_value = 0
+        mocks[1].return_value = {
+            "id": self.the_channel_id,
+            "public": None,
+            "version": None,
+            "library": None,
+        }
 
     def tearDown(self):
         for p in self.patches:

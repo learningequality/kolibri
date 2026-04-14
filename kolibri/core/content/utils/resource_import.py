@@ -622,6 +622,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
         import_channel_database=False,
+        token=None,
     ):
         self.timeout = timeout
         self.peer_id = peer_id
@@ -640,9 +641,17 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                 )
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        self.public = lookup_channel_listing_status(
-            channel_id=channel_id, baseurl=baseurl
+        self.token = token
+        _listing = lookup_channel_listing_status(
+            channel_id=channel_id, token=token, baseurl=baseurl
         )
+        self.listing_found = _listing is not None
+        if _listing:
+            self.public = _listing.get("public")
+            self.library = _listing.get("library")
+            self.remote_version = _listing.get("version")
+        else:
+            self.public = self.library = self.remote_version = None
 
         self.session = requests.Session()
 
@@ -657,6 +666,16 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             admin_imported=admin_imported,
             import_channel_database=import_channel_database,
         )
+
+    def run(self):
+        result = super().run()
+        if self.token and self.listing_found:
+            annotation.set_channel_metadata_fields(
+                self.channel_id,
+                library=self.library,
+                version=0 if self.remote_version is None else self.remote_version,
+            )
+        return result
 
     def get_channel_database_size(self):
         """
@@ -817,6 +836,25 @@ class RemoteChannelUpdateManager(RemoteResourceImportManagerBase):
         )
 
 
+class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
+    """
+    Downloads only the channel database without importing any content files.
+    Used by the remotechannelimport task.
+    """
+
+    def __init__(self, channel_id, baseurl=None, peer_id=None, token=None):
+        super().__init__(
+            channel_id,
+            baseurl=baseurl,
+            peer_id=peer_id,
+            import_channel_database=True,
+            token=token,
+        )
+
+    def get_import_data(self):
+        return 0, [], 0
+
+
 class DiskChannelResourceImportManager(DiskResourceImportManagerBase):
     def get_import_data(self):
         return get_import_export_data(
@@ -852,6 +890,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         # As this is primarily used for importing non-admin imported content
         # we reverse the default here.
         admin_imported=False,
+        token=None,
     ):
         """
         :param channel_id: A hex UUID string
@@ -868,6 +907,8 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         :type content_dir: str
         :param timeout: The timeout for the download request
         :type timeout: int
+        :param token: An optional channel token for token-based resolution
+        :type token: str or None
         """
         super().__init__(
             channel_id,
@@ -880,6 +921,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             content_dir=content_dir,
             admin_imported=admin_imported,
             timeout=timeout,
+            token=token,
         )
         self.peer = peer
         self.download_request = download_request
