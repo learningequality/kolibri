@@ -768,7 +768,7 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids, clear_admin_im
     get_all_contentnode_label_metadata()
 
 
-def set_channel_metadata_fields(channel_id, public=None):
+def set_channel_metadata_fields(channel_id, public=None, library=None, version=None):
     with db_lock():
         channel = ChannelMetadata.objects.get(id=channel_id)
         calculate_published_size(channel)
@@ -780,6 +780,11 @@ def set_channel_metadata_fields(channel_id, public=None):
 
         if public is not None:
             channel.public = public
+        if library is not None:
+            channel.library = library
+        if version is not None:
+            channel.version = version
+        if any(v is not None for v in (public, library, version)):
             channel.save()
 
 

@@ -42,25 +42,66 @@ from kolibri.utils.system import get_free_space
 logger = logging.getLogger(__name__)
 
 
-def lookup_channel_listing_status(channel_id, baseurl=None):
+def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
     """
-    Look up the listing status of the channel from the remote, this is surfaced as a
-    `public` boolean field.
+    Look up the listing status of a channel from the remote.
+
+    Accepts a token, a channel_id, or both. When both are provided, validates that
+    the token resolves to the given channel_id. Returns a dict with 'id', 'public',
+    'version', and 'library' keys, or None if the channel is not found (HTTP 404).
+
+    When a token is provided, the request includes channel_versions=true so Studio
+    returns version and library metadata.
     """
+    if token is None and channel_id is None:
+        raise ValueError("Either token or channel_id must be provided")
+
+    identifier = token if token is not None else channel_id
     client = NetworkClient.build_for_address(baseurl)
     try:
-        # prevent trying to fetch a channel from a remote that it is not
-        # available from.
-        resp = client.get(get_channel_lookup_url(identifier=channel_id))
-
+        resp = client.get(
+            get_channel_lookup_url(
+                identifier=identifier, channel_versions=(token is not None)
+            )
+        )
     except NetworkLocationResponseFailure as e:
         if e.response.status_code == 404:
             return None
         raise LocationError(
-            "Channel {} not found on remote {}".format(channel_id, baseurl)
+            "Failed to look up channel {} on remote {}: HTTP {}".format(
+                identifier, baseurl, e.response.status_code
+            )
         )
-    (channel_info,) = resp.json()
-    return channel_info.get("public", None)
+
+    channels = resp.json()
+    if not channels:
+        return None
+
+    if token is not None and channel_id is not None:
+        matching = [c for c in channels if c.get("id") == channel_id]
+        if not matching:
+            raise LocationError(
+                "Token '{}' does not resolve to channel {}".format(token, channel_id)
+            )
+        channel_info = matching[0]
+    else:
+        if token is not None and len(channels) > 1:
+            channel_list = ", ".join(
+                "{} ({})".format(c.get("name", "Unnamed"), c.get("id", "unknown"))
+                for c in channels
+            )
+            raise LocationError(
+                "Token '{}' matches multiple channels: {}. "
+                "Use a channel ID instead.".format(token, channel_list)
+            )
+        channel_info = channels[0]
+
+    return {
+        "id": channel_info.get("id"),
+        "public": channel_info.get("public"),
+        "version": channel_info.get("version"),
+        "library": channel_info.get("library"),
+    }
 
 
 class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
@@ -581,6 +622,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
         import_channel_database=False,
+        token=None,
     ):
         self.timeout = timeout
         self.peer_id = peer_id
@@ -599,9 +641,17 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                 )
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        self.public = lookup_channel_listing_status(
-            channel_id=channel_id, baseurl=baseurl
+        self.token = token
+        _listing = lookup_channel_listing_status(
+            channel_id=channel_id, token=token, baseurl=baseurl
         )
+        self.listing_found = _listing is not None
+        if _listing:
+            self.public = _listing.get("public")
+            self.library = _listing.get("library")
+            self.remote_version = _listing.get("version")
+        else:
+            self.public = self.library = self.remote_version = None
 
         self.session = requests.Session()
 
@@ -616,6 +666,16 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             admin_imported=admin_imported,
             import_channel_database=import_channel_database,
         )
+
+    def run(self):
+        result = super().run()
+        if self.token and self.listing_found:
+            annotation.set_channel_metadata_fields(
+                self.channel_id,
+                library=self.library,
+                version=0 if self.remote_version is None else self.remote_version,
+            )
+        return result
 
     def get_channel_database_size(self):
         """
@@ -776,6 +836,25 @@ class RemoteChannelUpdateManager(RemoteResourceImportManagerBase):
         )
 
 
+class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
+    """
+    Downloads only the channel database without importing any content files.
+    Used by the remotechannelimport task.
+    """
+
+    def __init__(self, channel_id, baseurl=None, peer_id=None, token=None):
+        super().__init__(
+            channel_id,
+            baseurl=baseurl,
+            peer_id=peer_id,
+            import_channel_database=True,
+            token=token,
+        )
+
+    def get_import_data(self):
+        return 0, [], 0
+
+
 class DiskChannelResourceImportManager(DiskResourceImportManagerBase):
     def get_import_data(self):
         return get_import_export_data(
@@ -811,6 +890,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         # As this is primarily used for importing non-admin imported content
         # we reverse the default here.
         admin_imported=False,
+        token=None,
     ):
         """
         :param channel_id: A hex UUID string
@@ -827,6 +907,8 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         :type content_dir: str
         :param timeout: The timeout for the download request
         :type timeout: int
+        :param token: An optional channel token for token-based resolution
+        :type token: str or None
         """
         super().__init__(
             channel_id,
@@ -839,6 +921,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             content_dir=content_dir,
             admin_imported=admin_imported,
             timeout=timeout,
+            token=token,
         )
         self.peer = peer
         self.download_request = download_request
