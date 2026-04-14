@@ -5,7 +5,6 @@ from django.contrib.auth import logout
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 from django.urls import is_valid_path
 from django.urls import reverse
 from django.urls import translate_url
@@ -15,6 +14,7 @@ from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.views.decorators.http import require_POST
+from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 from django.views.i18n import LANGUAGE_QUERY_PARAMETER
@@ -118,74 +118,80 @@ def get_url_by_role(role, full_facility_import=False, on_my_own_device=False):
         return obj.url
 
 
-class GuestRedirectView(View):
-    def get(self, request):
-        """
-        Redirects a guest user to a learner accessible page.
-        """
-        if allow_guest_access():
-            return HttpResponseRedirect(get_url_by_role(user_kinds.LEARNER))
-        return RootURLRedirectView.as_view()(request)
+class RootURLRedirectView(RedirectView):
+    permanent = False
 
-
-class RootURLRedirectView(View):
-    def get(self, request):
+    def get_redirect_url(self, *args, **kwargs):
         """
-        Redirects user based on the highest role they have for which a redirect is defined.
+        Returns the URL to redirect to based on the highest role the user has
+        for which a redirect is defined.
         """
         # If it has not been provisioned and we have something that can handle setup, redirect there.
         if not device_provisioned() and SetupHook.provision_url:
-            return redirect(SetupHook.provision_url())
+            return SetupHook.provision_url()
 
-        if request.user.is_authenticated:
+        if self.request.user.is_authenticated:
             url = None
-            if request.user.is_superuser:
+            if self.request.user.is_superuser:
                 url = url or get_url_by_role(
                     user_kinds.SUPERUSER,
-                    full_facility_import=request.user.full_facility_import,
-                    on_my_own_device=request.user.full_facility_on_my_own_setup,
+                    full_facility_import=self.request.user.full_facility_import,
+                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
                 )
             roles = set(
-                Role.objects.filter(user_id=request.user.id)
+                Role.objects.filter(user_id=self.request.user.id)
                 .values_list("kind", flat=True)
                 .distinct()
             )
             if user_kinds.ADMIN in roles:
                 url = url or get_url_by_role(
                     user_kinds.ADMIN,
-                    full_facility_import=request.user.full_facility_import,
-                    on_my_own_device=request.user.full_facility_on_my_own_setup,
+                    full_facility_import=self.request.user.full_facility_import,
+                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
                 )
             if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
                 url = url or get_url_by_role(
                     user_kinds.COACH,
-                    full_facility_import=request.user.full_facility_import,
-                    on_my_own_device=request.user.full_facility_on_my_own_setup,
+                    full_facility_import=self.request.user.full_facility_import,
+                    on_my_own_device=self.request.user.full_facility_on_my_own_setup,
                 )
             url = url or get_url_by_role(
                 user_kinds.LEARNER,
-                full_facility_import=request.user.full_facility_import,
-                on_my_own_device=request.user.full_facility_on_my_own_setup,
+                full_facility_import=self.request.user.full_facility_import,
+                on_my_own_device=self.request.user.full_facility_on_my_own_setup,
             )
         else:
             url = get_url_by_role(user_kinds.ANONYMOUS)
         if url:
-            next_url = request.GET.get("next")
+            next_url = self.request.GET.get("next")
             if next_url:
                 # Step 2: Validate the next_url
                 if url_has_allowed_host_and_scheme(
                     next_url,
-                    allowed_hosts={request.get_host()},
-                    require_https=request.is_secure(),
+                    allowed_hosts={self.request.get_host()},
+                    require_https=self.request.is_secure(),
                 ):
                     # Step 3: Append next_url to the base url if it's valid
                     url = f"{url}?next={next_url}"
-            return HttpResponseRedirect(url)
+            return url
+
         raise Http404(
             _(
                 "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
             )
         )
+
+
+class GuestRedirectView(RootURLRedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        """
+        Redirects a guest user to a learner accessible page.
+        """
+        if allow_guest_access():
+            return get_url_by_role(user_kinds.LEARNER)
+        return super().get_redirect_url(*args, **kwargs)
 
 
 @method_decorator(cache_no_user_data, name="dispatch")
