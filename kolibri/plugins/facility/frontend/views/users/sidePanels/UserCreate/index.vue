@@ -242,20 +242,6 @@
       CloseConfirmationGuard,
       LearnerLimitReachedModal,
     },
-    props: {
-      backRoute: {
-        type: Object,
-        default: null,
-      },
-      classes: {
-        type: Array,
-        default: () => [],
-      },
-      onChange: {
-        type: Function,
-        default: () => {},
-      },
-    },
     setup(props) {
       const formId = 'create-user-form';
       const route = useRoute();
@@ -291,7 +277,8 @@
       // facility and whether the server reports the cap is hit. Intentionally independent of the
       // locale feature flag so non-English admins cannot bypass the learner cap.
       const learnerLimitReached = computed(
-        () => picturePasswordSettings.value != null && facilityConfig.value.picture_passwords_exhausted,
+        () =>
+          picturePasswordSettings.value != null && facilityConfig.value.picture_passwords_exhausted,
       );
 
       const userTypeOptions = computed(() => [
@@ -645,6 +632,20 @@
         learnMoreAction$,
       };
     },
+    props: {
+      backRoute: {
+        type: Object,
+        default: null,
+      },
+      classes: {
+        type: Array,
+        default: () => [],
+      },
+      onChange: {
+        type: Function,
+        default: () => {},
+      },
+    },
   };
 
 </script>
@@ -673,7 +674,7 @@
     width: 100%;
   }
 
-  ::v-deep .textbox {
+  /deep/ .textbox {
     max-width: 100% !important;
   }
 
@@ -698,9 +699,9 @@
   }
 
   .picture-password-info-heading {
-    font-weight: bold;
-    font-size: 1em;
     margin-bottom: 6px;
+    font-size: 1em;
+    font-weight: bold;
   }
 
 </style>

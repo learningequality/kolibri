@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { ref, computed } from 'vue';
-import useFacility, {
-  useFacilityConfig,
+import useFacility, { useFacilityConfig } from 'kolibri-common/composables/useFacility';
+import {
   useFacilityMock,
   useFacilityConfigMock,
-} from 'kolibri-common/composables/useFacility';
+} from 'kolibri-common/composables/__mocks__/useFacility';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import UserCreateSidePanel from '../index.vue';
 
