@@ -13,6 +13,7 @@ from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
 from le_utils.constants import content_kinds
+from le_utils.constants import library as library_constants
 from mock import call
 from mock import MagicMock
 from mock import patch
@@ -25,10 +26,12 @@ from requests.exceptions import SSLError
 
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.management.commands.importchannel import resolve_channel_token
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils import paths
+from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -3505,3 +3508,41 @@ class LookupChannelListingStatusTest(TestCase):
             lookup_channel_listing_status(token="multi-token")
 
         self.assertIn("multiple channels", str(context.exception).lower())
+
+
+class ChannelMetadataLibraryFieldTest(TestCase):
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_library_field_exists_and_defaults_to_null(self):
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertIsNone(channel.library)
+
+    def test_library_field_accepts_kolibri_value(self):
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            library=library_constants.KOLIBRI
+        )
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.library, "KOLIBRI")
+
+
+class SetChannelMetadataFieldsTest(TestCase):
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_sets_library_field(self):
+        set_channel_metadata_fields(self.the_channel_id, library="KOLIBRI")
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.library, "KOLIBRI")
+
+    def test_sets_version_field(self):
+        set_channel_metadata_fields(self.the_channel_id, version=7)
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.version, 7)
+
+    def test_zero_version_stored_as_zero(self):
+        # Pre-set to non-zero so the update is observable (default is already 0)
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(version=3)
+        set_channel_metadata_fields(self.the_channel_id, version=0)
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.version, 0)
