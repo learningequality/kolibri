@@ -31,6 +31,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.tasks import remoteimport
+from kolibri.core.content.upgrade import populate_channel_library_field
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.content_types_tools import (
@@ -3670,3 +3671,32 @@ class SetChannelMetadataFieldsTest(TestCase):
         set_channel_metadata_fields(self.the_channel_id, version=0)
         channel = ChannelMetadata.objects.get(id=self.the_channel_id)
         self.assertEqual(channel.version, 0)
+
+
+class PopulateChannelLibraryUpgradeTest(TestCase):
+    fixtures = ["content_test.json"]
+    the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_public_channel_gets_kolibri_library(self):
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            public=True, library=None
+        )
+        populate_channel_library_field()
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.library, "KOLIBRI")
+
+    def test_non_public_channel_unchanged(self):
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            public=False, library=None
+        )
+        populate_channel_library_field()
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertIsNone(channel.library)
+
+    def test_channel_with_library_already_set_not_overwritten(self):
+        ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            public=True, library="COMMUNITY"
+        )
+        populate_channel_library_field()
+        channel = ChannelMetadata.objects.get(id=self.the_channel_id)
+        self.assertEqual(channel.library, "COMMUNITY")

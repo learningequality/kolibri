@@ -5,6 +5,7 @@ import logging
 import os
 
 from le_utils.constants import content_kinds
+from le_utils.constants import library as library_constants
 from sqlalchemy import and_
 from sqlalchemy import cast
 from sqlalchemy import exists
@@ -379,3 +380,14 @@ def backfill_content_request_priority_upgrade():
     UPDATE that would stall the upgrade on large tables.
     """
     backfill_content_request_priority.enqueue_if_not_active()
+
+
+@version_upgrade(old_version="<0.19.4")
+def populate_channel_library_field():
+    """
+    Populate library="KOLIBRI" for existing public channels that have no library set.
+    Channels imported from Kolibri Studio's public catalogue are part of the KOLIBRI library.
+    """
+    ChannelMetadata.objects.filter(public=True, library__isnull=True).update(
+        library=library_constants.KOLIBRI
+    )
