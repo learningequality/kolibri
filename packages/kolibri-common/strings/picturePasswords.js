@@ -193,4 +193,20 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'There are no learners in this class',
     context: 'Shown on the all passwords page when the class has no enrolled learners',
   },
+  printWithImages: {
+    message: 'Print with images',
+    context: 'Radio option label for printing the picture password list with icon images',
+  },
+  printWithTextOnly: {
+    message: 'Print with text only',
+    context: 'Radio option label for printing the picture password list using text labels only',
+  },
+  printFormatDialogHeader: {
+    message: 'Print format',
+    context: 'Title for the dialog where coaches choose how to print the picture password list',
+  },
+  printFormatPreviewLabel: {
+    message: 'Preview',
+    context: 'Label for the live preview section in the print format dialog',
+  },
 });
