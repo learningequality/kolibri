@@ -133,6 +133,25 @@
             :disabled="busy"
           />
 
+          <div
+            v-if="showPicturePasswordInfo"
+            role="region"
+            :aria-labelledby="infoHeadingId"
+            class="picture-password-info"
+          >
+            <p
+              :id="infoHeadingId"
+              class="picture-password-info-heading"
+            >
+              {{ signingInHeading$() }}
+            </p>
+            <p class="picture-password-info-text">
+              {{ learnersPictureSignInInfo$() }}
+            </p>
+            <p class="picture-password-info-text">
+              {{ picturePasswordWillBeAssigned$() }}
+            </p>
+          </div>
         </section>
       </form>
       <CloseConfirmationGuard
@@ -172,7 +191,7 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
-  import useFacility from 'kolibri-common/composables/useFacility';
+  import useFacility, { useFacilityConfig } from 'kolibri-common/composables/useFacility';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -244,13 +263,30 @@
       const instance = getCurrentInstance();
       const $refs = instance.proxy.$refs;
       const { setFacilityId, facilityConfig } = useFacility();
+      // isPictureLoginFeatureEnabled only checks currentLanguage so any useFacilityConfig
+      // instance works. picturePasswordSettings is derived from the facilityConfig that
+      // useFacility() keeps in sync (either from the embedded dataset or FacilityDatasetResource),
+      // so we compute it here rather than calling useFacilityConfig() for it (which would
+      // create a separate, never-populated ref).
+      const { isPictureLoginFeatureEnabled } = useFacilityConfig();
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
       const { createSnackbar } = useSnackbar();
 
+      // Both picturePasswordSettings and picture_passwords_exhausted are derived from the same
+      // facilityConfig, hydrated together in onBeforeMount, so they are always in sync.
+      //
+      // Unique ID for aria-labelledby so the element is safe if multiple instances share a page.
+      const infoHeadingId = `picture-password-info-heading-${instance.uid}`;
+
       const showLearnerLimitModal = ref(false);
 
+      // isPictureLoginActive: full conjunction — settings enabled AND English locale feature flag.
+      // Used only for the informational message (UX-only gate).
+      const isPictureLoginActive = computed(
+        () => isPictureLoginFeatureEnabled.value && picturePasswordSettings.value != null,
+      );
       // learnerLimitReached: depends only on whether picture passwords are configured for this
       // facility and whether the server reports the cap is hit. Intentionally independent of the
       // locale feature flag so non-English admins cannot bypass the learner cap.
@@ -543,8 +579,18 @@
       const {
         learnerCreationDisabled$,
         learnMoreAboutLearnerLimit$,
+        picturePasswordWillBeAssigned$,
+        signingInHeading$,
+        learnersPictureSignInInfo$,
       } = picturePasswordStrings;
       const { createNewUserHeader$ } = strings;
+
+      const showPicturePasswordInfo = computed(
+        () =>
+          isPictureLoginActive.value &&
+          !learnerLimitReached.value &&
+          kind.value?.value === UserKinds.LEARNER,
+      );
 
       return {
         classesAction,
@@ -588,9 +634,14 @@
         facilityCoachDescription$,
         // picture password
         learnerLimitReached,
+        showPicturePasswordInfo,
         showLearnerLimitModal,
+        infoHeadingId,
         learnerCreationDisabled$,
         learnMoreAboutLearnerLimit$,
+        picturePasswordWillBeAssigned$,
+        signingInHeading$,
+        learnersPictureSignInInfo$,
         learnMoreAction$,
       };
     },
