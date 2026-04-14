@@ -106,6 +106,7 @@ class CourseSession(AbstractFacilityDataModel):
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,
+        channel_version_field="channel_version",
     )
 
     def __str__(self):

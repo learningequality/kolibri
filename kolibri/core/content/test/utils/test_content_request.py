@@ -195,10 +195,13 @@ class ProcessMetadataImportTestCase(BaseTestCase):
 
         incomplete_downloads = incomplete_downloads_queryset()
 
-        # first, process the metadata import for any incomplete downloads without metadata
-        self.incomplete_downloads_qs = incomplete_downloads.filter(has_metadata=False)
+        # Build the queryset of downloads needing metadata import (only missing metadata
+        # here, as the existing tests focus on that path).
+        self.downloads_needing_metadata_import = incomplete_downloads.filter(
+            has_metadata=False
+        )
         self.count_patcher = mock.patch.object(
-            self.incomplete_downloads_qs, "count", return_value=0
+            self.downloads_needing_metadata_import, "count", return_value=0
         )
         self.mock_count = self.count_patcher.start()
         self.addCleanup(self.count_patcher.stop)
@@ -218,7 +221,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         )
         return (request, peer)
 
-    def _mock_import_metadata(self, client, incomplete_downloads):
+    def _mock_import_metadata(self, client, incomplete_downloads, force_upgrade=False):
         # manually track the calls to import_metadata, resolving the queryset to a list of IDs
         contentnode_ids = list(
             incomplete_downloads.values_list("contentnode_id", flat=True)
@@ -250,7 +253,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
             (peer2, self.mock_client),
         ]
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.assertEqual(
             self.mock_import_metadata_calls,
             [
@@ -270,7 +273,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = True
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_not_called()
         self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
         self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
@@ -288,7 +291,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = False
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_called()
         self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
         self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
@@ -310,7 +313,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = True
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.assertEqual(
             self.mock_import_metadata_calls,
             [
@@ -340,7 +343,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = False
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         for mock_call in self.mock_import_metadata_calls:
             self.assertEqual(mock_call[0], self.mock_client)
         self.assertEqual(
@@ -1641,7 +1644,8 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def test_metadata_import_skipped_when_contentnode_already_present(
         self, _mock_setting
     ):
-        """process_metadata_import is NOT called when all downloads already have a ContentNode."""
+        """process_metadata_import is NOT called when all downloads already have a ContentNode
+        and no channel_version is set."""
         node_id = uuid.uuid4().hex
         ContentNode.objects.create(
             id=node_id,
@@ -1655,6 +1659,34 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         process_content_requests()
 
         self.mock_process_metadata_import.assert_not_called()
+
+    def test_metadata_import_triggered_for_versioned_download_with_existing_node(
+        self, _mock_setting
+    ):
+        """process_metadata_import IS called when channel_version exceeds the currently
+        imported channel version, even if the ContentNode already exists (channel was
+        updated and metadata must be re-imported)."""
+        channel_id = uuid.uuid4().hex
+        node_id = uuid.uuid4().hex
+        root = ContentNode.objects.create(
+            id=node_id,
+            title="pre-existing",
+            kind="topic",
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        # Simulate a channel that was previously imported at version 1
+        ChannelMetadata.objects.create(
+            id=channel_id, name="test channel", root=root, version=1
+        )
+        download = self._create_download(contentnode_id=node_id)
+        # channel_version=2 > currently-imported version 1, so metadata must be re-imported
+        download.channel_version = 2
+        download.save()
+
+        process_content_requests()
+
+        self.mock_process_metadata_import.assert_called_once()
 
     # ------------------------------------------------------------------ #
     # Phase 2: descendant request creation                                 #

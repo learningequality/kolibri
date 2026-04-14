@@ -7,6 +7,7 @@ from django.db.models import BigIntegerField
 from django.db.models import BooleanField
 from django.db.models import Case
 from django.db.models import Exists
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -19,6 +20,7 @@ from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
@@ -472,6 +474,32 @@ def incomplete_downloads_queryset():
     return qs
 
 
+def _downloads_needing_metadata_import_queryset(incomplete_downloads):
+    """
+    Returns a queryset of incomplete downloads that need metadata import, either because they don't have metadata
+    or because their channel version is greater than the currently imported channel version
+    """
+
+    channel_version_in_db = Subquery(
+        ChannelMetadata.objects.filter(
+            id=Subquery(
+                ContentNode.objects.filter(pk=OuterRef("contentnode_id")).values(
+                    "channel_id"
+                )[:1]
+            )
+        ).values("version")[:1],
+        output_field=IntegerField(),
+    )
+
+    return incomplete_downloads.filter(
+        Q(has_metadata=False)
+        | Q(
+            channel_version__isnull=False,
+            channel_version__gt=channel_version_in_db,
+        )
+    )
+
+
 def completed_downloads_queryset():
     """
     Returns a queryset used to determine the completed downloads, with and without metadata, as
@@ -574,13 +602,13 @@ def process_content_requests():
     logger.debug("Processing content requests")
     incomplete_downloads = incomplete_downloads_queryset()
 
-    # first, process the metadata import for any incomplete downloads without metadata
-    incomplete_downloads_without_metadata = incomplete_downloads.filter(
-        has_metadata=False
+    downloads_needing_metadata_import = _downloads_needing_metadata_import_queryset(
+        incomplete_downloads
     )
-    if incomplete_downloads_without_metadata.exists():
+
+    if downloads_needing_metadata_import.exists():
         logger.debug("Attempting to import missing metadata before content import")
-        process_metadata_import(incomplete_downloads_without_metadata)
+        process_metadata_import(downloads_needing_metadata_import)
 
     _create_related_download_requests_if_needed(incomplete_downloads)
 
@@ -691,14 +719,16 @@ def _get_import_metadata(client, download):
     return _merge_import_metadata(metadata_list) or None
 
 
-def _import_metadata(client, incomplete_downloads_without_metadata):
+def _import_metadata(client, downloads_needing_metadata_import, force_upgrade=False):
     """
     :type client: NetworkClient
-    :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
-    :type incomplete_downloads_without_metadata: django.db.models.QuerySet
+    :param downloads_needing_metadata_import: a ContentDownloadRequest queryset
+    :type downloads_needing_metadata_import: django.db.models.QuerySet
+    :param force_upgrade: Whether to force upgrade the metadata import
+    :type force_upgrade: bool
     :return: A boolean indicating whether all metadata was imported successfully
     """
-    total_count = incomplete_downloads_without_metadata.count()
+    total_count = downloads_needing_metadata_import.count()
 
     # quick exit, without log noise, if nothing to do
     if not total_count:
@@ -706,12 +736,17 @@ def _import_metadata(client, incomplete_downloads_without_metadata):
         return
     processed_count = 0
     logger.info("Importing content metadata for {} nodes".format(total_count))
-    for download in incomplete_downloads_without_metadata:
+    for download in downloads_needing_metadata_import:
         import_metadata = _get_import_metadata(client, download)
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:
             processed_count += 1
-            import_channel_from_data(import_metadata, cancel_check=False, partial=True)
+            import_channel_from_data(
+                import_metadata,
+                cancel_check=False,
+                partial=True,
+                force_upgrade=force_upgrade,
+            )
             if processed_count % 10 == 0:
                 logger.info(
                     "Imported content metadata for {} out of {} nodes".format(
@@ -728,16 +763,18 @@ def _import_metadata(client, incomplete_downloads_without_metadata):
     return total_count == processed_count
 
 
-def process_metadata_import(incomplete_downloads_without_metadata):
+def process_metadata_import(downloads_needing_metadata_import):
     """
-    Processes metadata import for a queryset already filtered to those without metadata
-    :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
-    :type incomplete_downloads_without_metadata: django.db.models.QuerySet
+    Processes metadata import for a queryset of downloads that need metadata imported.
+    This includes downloads without a ContentNode (has_metadata=False) as well as
+    downloads with a channel_version set, which require re-importing metadata because
+    the channel was updated since the last import.
+
+    :param downloads_needing_metadata_import: a ContentDownloadRequest queryset
+    :type downloads_needing_metadata_import: django.db.models.QuerySet
     """
     preferred_instance_ids = list(
-        incomplete_downloads_without_metadata.values_list(
-            "source_instance_id", flat=True
-        )
+        downloads_needing_metadata_import.values_list("source_instance_id", flat=True)
         # Remove any ordering to ensure the distinct makes the list properly unique.
         .order_by().distinct()
     )
@@ -751,13 +788,14 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     for peer, client in preferred_peers:
         _import_metadata(
             client,
-            incomplete_downloads_without_metadata.filter(
+            downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
+            force_upgrade=True,
         )
 
-    # if we've completed the import, then we can stop
-    if not incomplete_downloads_without_metadata.exists():
+    # if all downloads that need (re-)importing have been satisfied, stop early.
+    if not downloads_needing_metadata_import.exists():
         return
 
     # otherwise, try to import metadata without filtering the requests by matching instance_id,
@@ -768,7 +806,7 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     for peer, client in chain(preferred_peers, fallback_peers):
         is_complete = _import_metadata(
             client,
-            incomplete_downloads_without_metadata.exclude(
+            downloads_needing_metadata_import.exclude(
                 source_instance_id=_uuid_to_hex(peer.instance_id)
             ),
         )
@@ -777,7 +815,7 @@ def process_metadata_import(incomplete_downloads_without_metadata):
             break
     else:
         # if we haven't completed the import by this point, then we can log a warning
-        unprocessed_count = incomplete_downloads_without_metadata.count()
+        unprocessed_count = downloads_needing_metadata_import.count()
         logger.info(
             "No acceptable peer device for importing content metadata for {} nodes".format(
                 unprocessed_count
