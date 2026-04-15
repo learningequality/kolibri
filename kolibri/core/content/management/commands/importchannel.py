@@ -133,6 +133,7 @@ class Command(AsyncCommand):
             channel_id, baseurl
         )
 
+        raw_version = None
         version = None
         if metadata is not None:
             raw_version = metadata.get("version")
