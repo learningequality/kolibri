@@ -364,8 +364,11 @@ describe('CourseWelcomePage', () => {
         active_test: { unit_id: 'unit-1', test_type: 'pre' },
         resume_position: null,
       });
-      // The default mock returns `started` (true here), but the real implementation
-      // returns false when there's an active pre-test with no resume_position.
+      // isCourseLessonAvailable in the mock returns the `started` flag (see
+      // makeLearnerResourcesMock above). The real helper additionally requires
+      // resume_position.unit_id, which the backend wipes during an active test
+      // — so in this scenario it actually returns false. Override the mock
+      // explicitly to match.
       learnerResources.isCourseLessonAvailable = jest.fn(() => false);
       useLearnerResources.mockReturnValue(learnerResources);
 
