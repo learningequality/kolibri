@@ -3346,7 +3346,7 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
 
         manager = RemoteChannelResourceImportManager(self.the_channel_id)
         self.assertIsNone(manager.library)
-        self.assertIsNone(manager.remote_version)
+        self.assertEqual(manager.remote_version, 0)
         self.assertTrue(manager.listing_found)
 
     def test_listing_not_found_sets_listing_found_false(self):
