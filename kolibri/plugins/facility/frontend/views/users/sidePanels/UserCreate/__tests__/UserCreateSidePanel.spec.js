@@ -6,6 +6,7 @@ import useFacility, {
   useFacilityMock,
   useFacilityConfigMock,
 } from 'kolibri-common/composables/useFacility';
+import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import UserCreateSidePanel from '../index.vue';
 
 jest.mock('kolibri-common/composables/useFacility');
@@ -38,11 +39,12 @@ const PICTURE_PASSWORD_SETTINGS = { icon_style: 'colorful', show_icon_text: fals
 function makeFacilityConfig({
   picturePasswordSettings = null,
   picturePasswordsExhausted = false,
+  learnerCanLoginWithNoPassword = false,
 } = {}) {
   return ref({
     picture_password_settings: picturePasswordSettings,
     picture_passwords_exhausted: picturePasswordsExhausted,
-    learner_can_login_with_no_password: false,
+    learner_can_login_with_no_password: learnerCanLoginWithNoPassword,
     extra_fields: null,
   });
 }
@@ -51,10 +53,15 @@ function renderComponent({
   picturePasswordSettings = null,
   isPictureLoginFeatureEnabled = true,
   picturePasswordsExhausted = false,
+  learnerCanLoginWithNoPassword = false,
 } = {}) {
   useFacility.mockImplementation(() =>
     useFacilityMock({
-      facilityConfig: makeFacilityConfig({ picturePasswordSettings, picturePasswordsExhausted }),
+      facilityConfig: makeFacilityConfig({
+        picturePasswordSettings,
+        picturePasswordsExhausted,
+        learnerCanLoginWithNoPassword,
+      }),
       setFacilityId: jest.fn().mockResolvedValue(undefined),
     }),
   );
@@ -120,7 +127,7 @@ function renderComponent({
       },
       PasswordTextbox: {
         name: 'PasswordTextbox',
-        template: '<div />',
+        template: '<div data-testid="password-textbox" />',
         methods: { reset: jest.fn(), focus: jest.fn() },
       },
       LearnerLimitReachedModal: {
@@ -292,6 +299,107 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       await waitFor(() => {
         expect(screen.getByTestId('learner-limit-modal')).toBeInTheDocument();
       });
+    });
+  });
+});
+
+describe('UserCreateSidePanel — user creation form behavior', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('password field visibility', () => {
+    it('is shown when the facility requires a password', async () => {
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('password-textbox')).toBeInTheDocument();
+      });
+    });
+
+    it('is hidden for learners when the facility allows no-password login', async () => {
+      renderComponent({ learnerCanLoginWithNoPassword: true });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('password-textbox')).not.toBeInTheDocument();
+    });
+
+    it('is shown for coaches even when the facility allows no-password login', async () => {
+      renderComponent({ learnerCanLoginWithNoPassword: true });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user-type-coach')).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByTestId('user-type-coach'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('password-textbox')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('coach type selection', () => {
+    it('shows the class/facility coach radio group when Coach is selected', async () => {
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user-type-coach')).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByTestId('user-type-coach'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('group')).toBeInTheDocument();
+      });
+    });
+
+    it('does not show the coach radio group when Learner is selected', async () => {
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
+      });
+      expect(screen.queryByRole('group')).not.toBeInTheDocument();
+    });
+
+    it('does not show the coach radio group when Admin is selected', async () => {
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('user-type-admin')).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByTestId('user-type-admin'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('group')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('form submission', () => {
+    it('does not call FacilityUserResource when the form is submitted with empty fields', async () => {
+      FacilityUserResource.saveModel.mockResolvedValue({ id: 'new-user-id', facility: 'fac-1' });
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save and close/i })).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByRole('button', { name: /save and close/i }));
+
+      expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
+    });
+
+    it('does not call FacilityUserResource when "Save and add another" is clicked with empty fields', async () => {
+      FacilityUserResource.saveModel.mockResolvedValue({ id: 'new-user-id', facility: 'fac-1' });
+      renderComponent();
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save and add another/i })).toBeInTheDocument();
+      });
+      await fireEvent.click(screen.getByRole('button', { name: /save and add another/i }));
+
+      expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
     });
   });
 });
