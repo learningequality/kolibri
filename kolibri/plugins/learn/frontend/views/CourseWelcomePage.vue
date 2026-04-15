@@ -147,7 +147,9 @@
                       <span>
                         <KIcon
                           icon="quiz"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.PRE) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ preTestLabel$() }}
@@ -158,7 +160,9 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.PRE) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.PRE) ? $themeTokens.text : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>
@@ -186,7 +190,9 @@
                       <span>
                         <KIcon
                           icon="lesson"
-                          :color="lockedColor"
+                          :color="
+                            lessonAvailable(unit.id, lesson.id) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ lesson.title }}
@@ -205,7 +211,13 @@
                                 ? 'mastered'
                                 : 'permissions'
                           "
-                          :color="lockedColor"
+                          :color="
+                            isCurrentLesson(unit.id, lesson.id)
+                              ? $themeTokens.text
+                              : lessonAvailable(unit.id, lesson.id)
+                                ? $themeTokens.mastered
+                                : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>
@@ -230,7 +242,9 @@
                       <span>
                         <KIcon
                           icon="quiz"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.POST) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ postTestLabel$() }}
@@ -241,7 +255,9 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.POST) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.POST) ? $themeTokens.text : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>

@@ -42,6 +42,7 @@
           :headerAppearanceOverrides="{
             padding: '0px 8px 0px 16px',
             height: '52px',
+            color: $themeTokens.text,
             backgroundColor: $themePalette.grey.v_100,
             outlineOffset: '-3px !important',
             borderBottom: '1px solid ' + $themeTokens.fineLine,
