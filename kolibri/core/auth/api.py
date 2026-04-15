@@ -247,9 +247,6 @@ class FacilityDatasetViewSet(ValuesViewset):
     field_map = {
         "allow_guest_access": lambda x: allow_guest_access(),
         "is_full_facility_import": _is_full_facility_import,
-        "picture_passwords_exhausted": lambda x: are_picture_passwords_exhausted(
-            x["id"]
-        ),
     }
 
     def get_queryset(self):
@@ -846,11 +843,6 @@ def _map_dataset(facility):
     for dataset_key in dataset_keys:
         stripped_key = dataset_key.replace("dataset__", "")
         dataset[stripped_key] = facility.pop(dataset_key)
-    # picture_passwords_exhausted is computed at the facility root level by field_map
-    # (it must run first to access dataset__id before _map_dataset pops it). We also
-    # include it inside the dataset dict so that clients reading facilityConfig.dataset
-    # see it alongside the other dataset fields.
-    dataset["picture_passwords_exhausted"] = facility.get("picture_passwords_exhausted")
     return dataset
 
 

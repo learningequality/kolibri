@@ -2482,43 +2482,6 @@ class FacilityDatasetAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["extra_fields"]["pin_code"], None)
 
-    def test_picture_passwords_exhausted_in_dataset_response(self):
-        self.client.login(
-            username=self.superuser.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        response = self.client.get(
-            reverse(
-                "kolibri:core:facilitydataset-detail",
-                kwargs={"pk": self.facility.dataset_id},
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("picture_passwords_exhausted", response.data)
-        self.assertFalse(response.data["picture_passwords_exhausted"])
-
-    @patch(
-        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
-    )
-    def test_picture_passwords_exhausted_true_in_dataset_response(self):
-        self.client.login(
-            username=self.superuser.username,
-            password=DUMMY_PASSWORD,
-            facility=self.facility,
-        )
-        # cls.user (from setUpTestData) is already one learner; adding a second reaches the
-        # patched limit of 2.
-        FacilityUserFactory.create(facility=self.facility)
-        response = self.client.get(
-            reverse(
-                "kolibri:core:facilitydataset-detail",
-                kwargs={"pk": self.facility.dataset_id},
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data["picture_passwords_exhausted"])
-
 
 class IsPINValidAPITestCase(APITestCase):
     databases = "__all__"

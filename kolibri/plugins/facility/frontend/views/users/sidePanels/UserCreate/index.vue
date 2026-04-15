@@ -12,7 +12,7 @@
   >
     <template #header>
       <h1 class="side-panel-title">
-        {{ createNewUserLabel$() }}
+        {{ $tr('createNewUserHeader') }}
       </h1>
     </template>
     <template #default>
@@ -76,7 +76,6 @@
             <KButton
               appearance="basic-link"
               :text="learnMoreAction$()"
-              :aria-label="learnMoreAboutLearnerLimit$()"
               @click="showLearnerLimitModal = true"
             />
           </p>
@@ -213,7 +212,7 @@
     name: 'UserCreateSidePanel',
     metaInfo() {
       return {
-        title: bulkUserManagementStrings.createNewUserLabel$(),
+        title: this.$tr('createNewUserHeader'),
       };
     },
     components: {
@@ -236,8 +235,6 @@
       const instance = getCurrentInstance();
       const $refs = instance.proxy.$refs;
       const { setFacilityId, facilityConfig, selectedFacility } = useFacility();
-      // picturePasswordSettings is derived from the facilityConfig that useFacility() keeps in
-      // sync (either from the embedded dataset or FacilityDatasetResource).
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
@@ -245,17 +242,15 @@
 
       const showLearnerLimitModal = ref(false);
 
-      // isPictureLoginActive: picture passwords are configured for this facility.
-      // Used only for the informational message (UX-only gate).
       const isPictureLoginActive = computed(() => picturePasswordSettings.value != null);
-      // learnerLimitReached: depends only on whether picture passwords are configured for this
-      // facility and whether the server reports the cap is hit (on the facility object itself).
-      // Intentionally independent of the locale feature flag so non-English admins cannot bypass
-      // the learner cap.
       const learnerLimitReached = computed(
+        () => isPictureLoginActive.value && selectedFacility.value?.picture_passwords_exhausted,
+      );
+      const showPicturePasswordInfo = computed(
         () =>
-          picturePasswordSettings.value != null &&
-          selectedFacility.value?.picture_passwords_exhausted,
+          isPictureLoginActive.value &&
+          !learnerLimitReached.value &&
+          kind.value?.value === UserKinds.LEARNER,
       );
 
       const userTypeOptions = computed(() => [
@@ -276,8 +271,6 @@
 
       const closeConfirmationGuardRef = ref(null);
 
-      // Form data — initialized to their reset-state defaults.
-      // onBeforeMount calls resetForm() after facilityConfig loads to set kind correctly.
       const fullName = ref('');
       const fullNameValid = ref(false);
       const username = ref('');
@@ -297,8 +290,7 @@
       const caughtErrors = ref([]);
       const showErrorWarning = ref(false);
       // Tracks the role that resetForm() last set so hasUnsavedChanges has the correct baseline.
-      // When learner creation is disabled, the default is Coach (ASSIGNABLE_COACH since class-coach
-      // radio defaults to true), so the form should not appear dirty when freshly opened.
+      // When learner creation is disabled, the default radio option is ASSIGNABLE_COACH
       const defaultRole = ref(UserKinds.LEARNER);
 
       const resetForm = () => {
@@ -310,7 +302,6 @@
         extraDemographics.value = {};
         idNumber.value = '';
         classCoachIsSelected.value = true;
-        // Default to Coach when learner creation is disabled, otherwise Learner
         if (learnerLimitReached.value) {
           kind.value = userTypeOptions.value.find(opt => opt.value === UserKinds.COACH);
           defaultRole.value = UserKinds.ASSIGNABLE_COACH;
@@ -539,22 +530,13 @@
         facilityCoachLabel$,
         facilityCoachDescription$,
       } = coreStrings;
-      const { saveAndAddAnother$, defaultErrorMessage$, createNewUserLabel$ } =
-        bulkUserManagementStrings;
+      const { saveAndAddAnother$, defaultErrorMessage$ } = bulkUserManagementStrings;
       const {
         learnerCreationDisabled$,
-        learnMoreAboutLearnerLimit$,
         picturePasswordWillBeAssigned$,
         signingInHeading$,
         learnersPictureSignInInfo$,
       } = picturePasswordStrings;
-
-      const showPicturePasswordInfo = computed(
-        () =>
-          isPictureLoginActive.value &&
-          !learnerLimitReached.value &&
-          kind.value?.value === UserKinds.LEARNER,
-      );
 
       return {
         classesAction,
@@ -590,7 +572,6 @@
         saveAndAddAnother$,
         defaultErrorMessage$,
         showErrorWarning,
-        createNewUserLabel$,
         userTypeLabel$,
         classCoachLabel$,
         classCoachDescription$,
@@ -602,7 +583,6 @@
         showLearnerLimitModal,
 
         learnerCreationDisabled$,
-        learnMoreAboutLearnerLimit$,
         picturePasswordWillBeAssigned$,
         signingInHeading$,
         learnersPictureSignInInfo$,
@@ -621,6 +601,13 @@
       onChange: {
         type: Function,
         default: () => {},
+      },
+    },
+    $trs: {
+      createNewUserHeader: {
+        message: 'Create new user',
+        context:
+          "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
       },
     },
   };

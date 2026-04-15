@@ -30,11 +30,6 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Informational message shown in the new user creation form when picture login is enabled and the facility is under the 1300 learner limit, explaining that new learners will receive a picture password automatically.',
   },
-  learnMoreAboutLearnerLimit: {
-    message: 'Learn more about the learner creation limit',
-    context:
-      'Accessible label for the "Learn more" button shown when the picture password learner limit is reached, providing full context for screen reader users.',
-  },
   signingInHeading: {
     message: 'Signing in',
     context:

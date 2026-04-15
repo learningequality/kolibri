@@ -196,11 +196,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       });
 
       await waitFor(() => {
-        // Verify the button is present and carries the full accessible label (aria-label),
-        // not just the visible text, so screen reader users get context.
-        expect(
-          screen.getByRole('button', { name: 'Learn more about the learner creation limit' }),
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Learn more' })).toBeInTheDocument();
       });
     });
 
