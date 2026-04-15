@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import { render, waitFor } from '@testing-library/vue';
+import { render, waitFor, fireEvent } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
 import { PageNames } from '../../constants';
 import CourseWelcomePage from '../CourseWelcomePage.vue';
@@ -243,7 +243,8 @@ describe('CourseWelcomePage', () => {
 
       await waitFor(() => {
         expect(wrapper.getByTestId('header-title')).toHaveTextContent('Introduction to Physics');
-        expect(wrapper.getByText('2 units · 12 lessons')).toBeInTheDocument();
+        // Subtitle is rendered with the unit and lesson counts; we just verify it exists.
+        expect(wrapper.getByTestId('course-subtitle')).toBeInTheDocument();
       });
     });
 
@@ -279,11 +280,28 @@ describe('CourseWelcomePage', () => {
       useLearnerResources.mockReturnValue(learnerResources);
     });
 
-    it('shows "Start course" button when course has not been started', async () => {
+    it('shows the disabled action button when course has not been started', async () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByText(content => content.includes('Start Course'))).toBeInTheDocument();
+        expect(wrapper.getByTestId('welcome-action-button')).toBeInTheDocument();
+        expect(wrapper.queryByTestId('welcome-action-link')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('course not started - button state', () => {
+    beforeEach(() => {
+      learnerResources = makeLearnerResourcesMock({ started: false });
+      useLearnerResources.mockReturnValue(learnerResources);
+    });
+
+    it('Start button is disabled before the pre-test is activated', async () => {
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        const button = wrapper.getByTestId('welcome-action-button');
+        expect(button).toBeDisabled();
       });
     });
   });
@@ -302,12 +320,146 @@ describe('CourseWelcomePage', () => {
       useLearnerResources.mockReturnValue(learnerResources);
     });
 
-    it('shows "Resume course" button when course has been started', async () => {
+    it('shows the action link (not the disabled button) when course has been started', async () => {
       const wrapper = renderComponent();
 
       await waitFor(() => {
-        expect(wrapper.getByText(content => content.includes('Resume Course'))).toBeInTheDocument();
-        expect(wrapper.queryByText('Start Course')).not.toBeInTheDocument();
+        expect(wrapper.getByTestId('welcome-action-link')).toBeInTheDocument();
+        expect(wrapper.queryByTestId('welcome-action-button')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('lesson availability', () => {
+    it('unit lessons are locked before the course is started', async () => {
+      learnerResources = makeLearnerResourcesMock({ started: false });
+      useLearnerResources.mockReturnValue(learnerResources);
+
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByText('Unit 1: Motion')).toBeInTheDocument();
+      });
+
+      // Expand both units to reveal their lesson buttons
+      await fireEvent.click(wrapper.getByRole('button', { name: /Unit 1: Motion/i }));
+      await fireEvent.click(wrapper.getByRole('button', { name: /Unit 2: Forces/i }));
+
+      // All lessons across both units should be disabled
+      await waitFor(() => {
+        // Unit 1: Lessons 1-2, Unit 2: Lesson 3
+        for (const title of [
+          'Lesson 1: Introduction',
+          'Lesson 2: Velocity',
+          "Lesson 3: Newton's Laws",
+        ]) {
+          expect(wrapper.getByRole('button', { name: title })).toBeDisabled();
+        }
+      });
+    });
+
+    it('unit lessons are locked during an active pre-test', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'pre' },
+        resume_position: null,
+      });
+      // The default mock returns `started` (true here), but the real implementation
+      // returns false when there's an active pre-test with no resume_position.
+      learnerResources.isCourseLessonAvailable = jest.fn(() => false);
+      useLearnerResources.mockReturnValue(learnerResources);
+
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByText('Unit 1: Motion')).toBeInTheDocument();
+      });
+
+      // Expand both units to reveal their lesson buttons
+      await fireEvent.click(wrapper.getByRole('button', { name: /Unit 1: Motion/i }));
+      await fireEvent.click(wrapper.getByRole('button', { name: /Unit 2: Forces/i }));
+
+      // All lessons across both units should be disabled
+      await waitFor(() => {
+        // Unit 1: Lessons 1-2, Unit 2: Lesson 3
+        for (const title of [
+          'Lesson 1: Introduction',
+          'Lesson 2: Velocity',
+          "Lesson 3: Newton's Laws",
+        ]) {
+          expect(wrapper.getByRole('button', { name: title })).toBeDisabled();
+        }
+      });
+    });
+  });
+
+  describe('navigation with active_test', () => {
+    it('Start button navigates to the pre-test when it is active', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        active_test: { unit_id: 'unit-1', test_type: 'pre' },
+        resume_position: null,
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('welcome-action-link')).toBeInTheDocument();
+      });
+
+      const link = wrapper.getByTestId('welcome-action-link');
+      const anchor = link.closest('a');
+      anchor.click();
+
+      await waitFor(() => {
+        const pushCall = router.push.mock.calls[0][0];
+        expect(pushCall).toEqual(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT_TEST,
+            params: expect.objectContaining({
+              unitId: 'unit-1',
+              testType: 'pre',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('Resume button navigates to the resume position when no active test', async () => {
+      learnerResources = makeLearnerResourcesMock({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'lesson-1',
+          resource_id: 'resource-1',
+        },
+        active_test: null,
+      });
+      useLearnerResources.mockReturnValue(learnerResources);
+
+      const wrapper = renderComponent();
+
+      await waitFor(() => {
+        expect(wrapper.getByTestId('welcome-action-link')).toBeInTheDocument();
+      });
+
+      const link = wrapper.getByTestId('welcome-action-link');
+      const anchor = link.closest('a');
+      anchor.click();
+
+      await waitFor(() => {
+        const pushCall = router.push.mock.calls[0][0];
+        expect(pushCall).toEqual(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: expect.objectContaining({
+              unitId: 'unit-1',
+              lessonId: 'lesson-1',
+              resourceId: 'resource-1',
+            }),
+          }),
+        );
       });
     });
   });

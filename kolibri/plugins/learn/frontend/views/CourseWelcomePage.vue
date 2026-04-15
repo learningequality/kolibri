@@ -33,12 +33,23 @@
             class="course-thumbnail"
             :thumbnail="(courseContent && courseContent.thumbnail) || ''"
           />
-          <KRouterLink
+          <KButton
+            v-if="!actionEnabled"
             :primary="true"
             appearance="raised-button"
             style="margin-top: 20px"
-            :text="courseStarted ? resumeCourseAction$() : startCourseAction$()"
+            :text="actionLabel"
+            :disabled="true"
+            data-testid="welcome-action-button"
+          />
+          <KRouterLink
+            v-else
+            :primary="true"
+            appearance="raised-button"
+            style="margin-top: 20px"
+            :text="actionLabel"
             :to="openCourseContentPage()"
+            data-testid="welcome-action-link"
           />
         </div>
         <div>
@@ -51,7 +62,7 @@
               :maxLines="2"
             />
           </h1>
-          <p>{{ courseSubtitle }}</p>
+          <p data-testid="course-subtitle">{{ courseSubtitle }}</p>
           <SlotTruncator
             v-if="course && course.description"
             :maxHeight="90"
@@ -322,7 +333,16 @@
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
-      const courseStarted = computed(() => courseProgress.value?.started);
+      const actionEnabled = computed(() => {
+        return Boolean(courseProgress.value?.active_test || courseProgress.value?.resume_position);
+      });
+
+      const actionLabel = computed(() => {
+        if (courseProgress.value?.resume_position) {
+          return resumeCourseAction$();
+        }
+        return startCourseAction$();
+      });
 
       const courseContent = computed(() =>
         course.value ? getCourseContent(course.value.course_id) : null,
@@ -397,6 +417,14 @@
       }
 
       function openCourseContentPage() {
+        const activeTest = courseProgress.value?.active_test;
+        if (activeTest) {
+          return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
+            unitId: activeTest.unit_id,
+            testType: activeTest.test_type,
+          });
+        }
+
         const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
 
         if (unit_id) {
@@ -412,13 +440,12 @@
           });
         }
 
-        // Course not yet started — navigate to the first unit.
-        // checkRedirectToUnitTree will then find the first lesson and resource.
-        // TO DO: update with proper conditional checks after course activation
-        // and pre and post test assessments are merged in
-        return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
-          unitId: units.value?.[0]?.id,
-        });
+        // Should be unreachable: actionEnabled gates the link to the
+        // active_test or resume_position cases above. If we get here,
+        // the gate is broken.
+        throw new ReferenceError(
+          'openCourseContentPage called without active_test or resume_position',
+        );
       }
 
       function openCourseContentUnitTest(unitId, testType) {
@@ -483,7 +510,8 @@
         TestType,
 
         // Computed
-        courseStarted,
+        actionEnabled,
+        actionLabel,
         courseSubtitle,
         windowIsLarge,
         goBack,
@@ -509,8 +537,6 @@
         numResources$,
         preTestLabel$,
         postTestLabel$,
-        startCourseAction$,
-        resumeCourseAction$,
       };
     },
     props: {
