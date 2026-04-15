@@ -55,10 +55,10 @@ jobs:
   apk:
     name: Build APK file
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.9
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.10
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.1.9
+      ref: v0.1.10
   zip:
     name: Build Raspberry Pi Image
     needs: deb
