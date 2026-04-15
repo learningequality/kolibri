@@ -196,7 +196,11 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Learn more' })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', {
+            name: 'Learner creation is currently disabled due to reaching limit of 1300 learners. Learn more',
+          }),
+        ).toBeInTheDocument();
       });
     });
 

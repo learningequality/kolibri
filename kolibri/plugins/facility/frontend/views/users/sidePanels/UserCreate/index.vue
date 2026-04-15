@@ -76,6 +76,7 @@
             <KButton
               appearance="basic-link"
               :text="learnMoreAction$()"
+              :aria-label="learnerCreationDisabled$() + ' ' + learnMoreAction$()"
               @click="showLearnerLimitModal = true"
             />
           </p>
