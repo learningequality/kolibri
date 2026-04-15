@@ -289,19 +289,12 @@ class FacilityDatasetViewSet(ValuesViewset):
             raise Http404("Facility not found")
 
     @decorators.action(
-        methods=["post"],
+        methods=["patch"],
         detail=True,
         url_path="save-facility-login-settings",
-        permission_classes=[IsAuthenticated],
     )
     def save_facility_login_settings(self, request, pk):
-
         dataset = self.get_object()
-        if not request.user.can_update(dataset):
-            raise PermissionDenied(
-                "You do not have permission to update this facility's login settings"
-            )
-
         facility = Facility.objects.get(dataset_id=dataset.id)
 
         new_pps = request.data.get("picture_password_settings")

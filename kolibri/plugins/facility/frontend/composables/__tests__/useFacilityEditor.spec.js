@@ -645,7 +645,7 @@ describe('useFacilityEditor', () => {
         .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
     });
 
-    it('calls the save-facility-login-settings endpoint via POST with login fields', async () => {
+    it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
       client.mockResolvedValue({ data: {} });
 
       const { saveFacilityLoginSettings, settings, facilityDatasetId } =
@@ -662,7 +662,7 @@ describe('useFacilityEditor', () => {
 
       expect(client).toHaveBeenCalledWith({
         url: '/api/facility_dataset/save_facility_login_settings/',
-        method: 'POST',
+        method: 'PATCH',
         data: {
           picture_password_settings: { icon_style: 'standard', show_icon_text: true },
           learner_can_login_with_no_password: true,

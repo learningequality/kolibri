@@ -220,7 +220,7 @@ export default function useFacilityEditor(facilityId) {
       url: urls['kolibri:core:facilitydataset_save_facility_login_settings'](
         facilityDatasetId.value,
       ),
-      method: 'POST',
+      method: 'PATCH',
       data,
     });
     if (response.status === 202 && response.data.task?.id) {

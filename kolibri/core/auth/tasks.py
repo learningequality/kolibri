@@ -54,7 +54,6 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.retry import retry
 from kolibri.utils.translation import gettext as _
 
-
 logger = logging.getLogger(__name__)
 SOUD_SYNC_PROCESSING_JOB_ID = "50"
 

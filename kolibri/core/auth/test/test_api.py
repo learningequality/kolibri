@@ -2511,7 +2511,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         return {"icon_style": "standard", "show_icon_text": True}
 
     def test_requires_authenticated_user(self):
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
@@ -2520,7 +2520,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
 
     def test_forbidden_for_non_admin_user(self):
         self.client.login(username=self.non_admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
@@ -2541,7 +2541,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
     @patch("kolibri.core.auth.api.are_picture_passwords_exhausted", return_value=True)
     def test_enable_rejected_when_exhausted(self, mock_exhausted, mock_task):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
@@ -2556,7 +2556,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
     ):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
@@ -2585,7 +2585,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         dataset.save()
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         new_settings = {"icon_style": "colorful", "show_icon_text": False}
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {"picture_password_settings": new_settings},
             format="json",
@@ -2603,7 +2603,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         dataset.learner_can_edit_password = False
         dataset.save()
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {
                 "picture_password_settings": None,
@@ -2626,7 +2626,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         dataset.learner_can_edit_password = False
         dataset.save()
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        response = self.client.post(
+        response = self.client.patch(
             self._url(),
             {
                 "picture_password_settings": None,
@@ -2647,7 +2647,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
     def test_enable_does_not_assign_inline(self, mock_storage, mock_task):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
-        self.client.post(
+        self.client.patch(
             self._url(),
             {"picture_password_settings": self._picture_password_settings()},
             format="json",
