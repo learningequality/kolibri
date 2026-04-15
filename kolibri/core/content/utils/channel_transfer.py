@@ -145,6 +145,8 @@ def transfer_channel(
     :param content_dir: The content directory.
     :param baseurl: The base URL from which to download (if applicable).
     :param source_path: The source path (if copying).
+    :param version: The channel version string (e.g. 5 or "next") to use when constructing
+        the download URL. None means the standard (unversioned) URL is used.
     :return: The destination path of the transferred channel database.
     """
     job = get_job()

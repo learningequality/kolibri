@@ -1069,6 +1069,26 @@ class ChannelDbVersionTestCase(TestCase):
             self.the_channel_id, baseurl=manager.baseurl, version=7
         )
 
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
+    @patch(
+        "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url",
+        return_value="http://test/channel.db",
+    )
+    def test_token_with_listing_not_found_uses_standard_db_url(
+        self, db_url_mock, FileDownloadMock, mock_lookup
+    ):
+        """When a token is set but the listing lookup returns None, the standard URL is used."""
+        mock_lookup.return_value = None
+        manager = RemoteChannelDatabaseImportManager(
+            self.the_channel_id,
+            token="some-token",
+        )
+        manager.create_channel_database_transfer("/tmp/test.db")
+
+        db_url_mock.assert_called_with(
+            self.the_channel_id, baseurl=manager.baseurl, version=None
+        )
+
 
 @patch(
     "kolibri.core.content.utils.resource_import.lookup_channel_listing_status",
