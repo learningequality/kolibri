@@ -135,6 +135,7 @@
 
           <div
             v-if="showPicturePasswordInfo"
+            data-testid="picture-password-info"
             class="picture-password-info"
           >
             <p class="picture-password-info-heading">

@@ -141,7 +141,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
   describe('picture password informational message', () => {
     it('is not shown when picture login is disabled', () => {
       renderComponent({ picturePasswordSettings: null });
-      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
     });
 
     it('is shown when picture login is enabled and limit is not reached', async () => {
@@ -151,7 +151,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByRole('region')).toBeInTheDocument();
+        expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
     });
 
@@ -165,7 +165,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /learn more/i })).toBeInTheDocument();
       });
-      expect(screen.queryByRole('region')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
     });
 
     it('is not shown when a non-Learner role is selected', async () => {
@@ -176,14 +176,14 @@ describe('UserCreateSidePanel — picture password behavior', () => {
 
       // Starts with Learner selected — info is visible
       await waitFor(() => {
-        expect(screen.getByRole('region')).toBeInTheDocument();
+        expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
 
       // Select Coach via the KSelect stub's button
       await fireEvent.click(screen.getByTestId('user-type-coach'));
 
       await waitFor(() => {
-        expect(screen.queryByRole('region')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
       });
     });
   });
