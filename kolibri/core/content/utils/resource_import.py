@@ -649,7 +649,8 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         if _listing:
             self.public = _listing.get("public")
             self.library = _listing.get("library")
-            self.remote_version = _listing.get("version")
+            raw_version = _listing.get("version")
+            self.remote_version = 0 if raw_version is None else raw_version
         else:
             self.public = self.library = self.remote_version = None
 
@@ -673,15 +674,30 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             annotation.set_channel_metadata_fields(
                 self.channel_id,
                 library=self.library,
-                version=0 if self.remote_version is None else self.remote_version,
+                version=self.remote_version,
             )
         return result
+
+    @property
+    def _channel_db_version(self):
+        """
+        Returns the version string to use when constructing the channel DB URL.
+        Only applies when a token was used (Studio import) and a listing was
+        found. Peer imports and failed lookups always use the standard URL.
+        remote_version of 0 encodes a draft channel (null version) which uses
+        "next" as the URL suffix.
+        """
+        if not self.token or self.remote_version is None:
+            return None
+        return "next" if self.remote_version == 0 else self.remote_version
 
     def get_channel_database_size(self):
         """
         Get the size of the remote channel database by making a HEAD request.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         response = self.session.head(url, timeout=self.timeout)
         response.raise_for_status()
         return int(response.headers.get("Content-Length", 0))
@@ -690,7 +706,9 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         """
         Create a FileDownload transfer for the channel database.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         return transfer.FileDownload(
             url,
             dest,

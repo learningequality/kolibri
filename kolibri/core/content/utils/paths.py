@@ -204,8 +204,12 @@ def get_content_database_url(baseurl=None):
     return join_url(get_content_url(baseurl), "databases/")
 
 
-def get_content_database_file_url(channel_id, baseurl=None):
-    return join_url(get_content_database_url(baseurl), "{}.sqlite3".format(channel_id))
+def get_content_database_file_url(channel_id, baseurl=None, version=None):
+    if version is not None:
+        filename = "{}-{}.sqlite3".format(channel_id, version)
+    else:
+        filename = "{}.sqlite3".format(channel_id)
+    return join_url(get_content_database_url(baseurl), filename)
 
 
 def get_content_storage_url(baseurl=None):
