@@ -2,9 +2,12 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { render, waitFor, fireEvent } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../../constants';
 import CourseWelcomePage from '../CourseWelcomePage.vue';
 import useLearnerResources from '../../composables/useLearnerResources';
+
+const { startCourseAction$, resumeCourseAction$ } = coursesStrings;
 
 jest.mock('../../composables/useLearnerResources');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow', () => ({
@@ -193,16 +196,29 @@ describe('CourseWelcomePage', () => {
     });
   });
 
-  it('shows an enabled action link once the course has started', async () => {
+  it('navigates to the resume position when the Resume link is clicked', async () => {
     useResources({
       started: true,
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1', resource_id: 'resource-1' },
     });
     const wrapper = renderComponent();
 
+    const link = await wrapper.findByRole('link', { name: resumeCourseAction$() });
+    expect(wrapper.queryByTestId('welcome-action-button')).not.toBeInTheDocument();
+
+    link.click();
+
     await waitFor(() => {
-      expect(wrapper.getByTestId('welcome-action-link')).toBeInTheDocument();
-      expect(wrapper.queryByTestId('welcome-action-button')).not.toBeInTheDocument();
+      expect(router.push.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: expect.objectContaining({
+            unitId: 'unit-1',
+            lessonId: 'lesson-1',
+            resourceId: 'resource-1',
+          }),
+        }),
+      );
     });
   });
 
@@ -234,8 +250,8 @@ describe('CourseWelcomePage', () => {
     });
     const wrapper = renderComponent();
 
-    const link = await wrapper.findByTestId('welcome-action-link');
-    link.closest('a').click();
+    const link = await wrapper.findByRole('link', { name: startCourseAction$() });
+    link.click();
 
     await waitFor(() => {
       expect(router.push.mock.calls[0][0]).toEqual(
