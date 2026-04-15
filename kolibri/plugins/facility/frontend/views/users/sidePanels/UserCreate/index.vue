@@ -138,9 +138,9 @@
             data-testid="picture-password-info"
             class="picture-password-info"
           >
-            <p class="picture-password-info-heading">
+            <h5 class="picture-password-info-heading">
               {{ signingInHeading$() }}
-            </p>
+            </h5>
             <p class="picture-password-info-text">
               {{ learnersPictureSignInInfo$() }}
             </p>
@@ -632,7 +632,7 @@
   }
 
   .select {
-    margin: 18px 0 36px;
+    margin: 18px 0 20px;
   }
 
   .form {
@@ -649,7 +649,6 @@
   }
 
   .learner-limit-message {
-    margin-top: -16px;
     margin-bottom: 16px;
     font-size: 0.875em;
   }
@@ -666,8 +665,6 @@
 
   .picture-password-info-heading {
     margin-bottom: 6px;
-    font-size: 1em;
-    font-weight: bold;
   }
 
 </style>
