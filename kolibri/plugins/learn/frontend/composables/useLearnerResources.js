@@ -540,6 +540,58 @@ export default function useLearnerResources() {
     return resumePosition.unit_id === unitId && resumePosition.lesson_id === lessonId;
   }
 
+  /**
+   * Classifies a lesson's display state on the course welcome page as
+   * 'mastered', 'open' (accessible, not yet complete), or 'locked'.
+   *
+   * @param {String} courseId
+   * @param {String} unitId
+   * @param {String} lessonId
+   * @returns {'mastered' | 'open' | 'locked'}
+   * @public
+   */
+  function getCourseLessonStatus(courseId, unitId, lessonId) {
+    if (!isCourseLessonAvailable(courseId, unitId, lessonId)) {
+      return 'locked';
+    }
+
+    const progress = getCourseProgress(courseId);
+    const units = getCourseUnits(courseId);
+    const resumeUnitId = progress?.resume_position?.unit_id;
+    const resumeLessonId = progress?.resume_position?.lesson_id;
+    const resumeUnit = units.find(unit => unit.id === resumeUnitId);
+    const targetUnit = units.find(unit => unit.id === unitId);
+
+    if (!resumeUnit || !targetUnit) {
+      return 'open';
+    }
+
+    // Strictly earlier unit: learner moved past it, so it must be done.
+    if (targetUnit.lft < resumeUnit.lft) {
+      return 'mastered';
+    }
+
+    // Same unit as resume position AND resume has no lesson_id: the unit is
+    // complete and the learner is waiting for the next unit's pre-test.
+    if (targetUnit.id === resumeUnitId && !resumeLessonId) {
+      return 'mastered';
+    }
+
+    // Same unit as resume position AND target lesson is strictly before the
+    // resume lesson. Since resume_position is the earliest incomplete resource
+    // in the unit (by lft), every lesson before it must be fully done.
+    if (targetUnit.id === resumeUnitId && resumeLessonId) {
+      const lessons = targetUnit.children?.results || [];
+      const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
+      const targetLesson = lessons.find(lesson => lesson.id === lessonId);
+      if (resumeLesson && targetLesson && targetLesson.lft < resumeLesson.lft) {
+        return 'mastered';
+      }
+    }
+
+    return 'open';
+  }
+
   return {
     classes,
     activeClassesLessons,
@@ -571,5 +623,6 @@ export default function useLearnerResources() {
     isUnitTestAvailable,
     isCourseLessonAvailable,
     isCurrentCourseLesson,
+    getCourseLessonStatus,
   };
 }

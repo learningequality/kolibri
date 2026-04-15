@@ -102,6 +102,7 @@ describe('CourseWelcomePage', () => {
     }),
     isCourseLessonAvailable: jest.fn(() => started),
     isCurrentCourseLesson: jest.fn(() => false),
+    getCourseLessonStatus: jest.fn(() => (started ? 'open' : 'locked')),
   });
 
   beforeEach(() => {

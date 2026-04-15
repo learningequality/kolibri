@@ -204,19 +204,13 @@
                           })
                         }}</span>
                         <KIcon
-                          :icon="
-                            isCurrentLesson(unit.id, lesson.id)
-                              ? 'view'
-                              : lessonAvailable(unit.id, lesson.id)
-                                ? 'mastered'
-                                : 'permissions'
-                          "
+                          :icon="LESSON_STATUS_ICONS[lessonStatusMap[lesson.id]]"
                           :color="
-                            isCurrentLesson(unit.id, lesson.id)
-                              ? $themeTokens.text
-                              : lessonAvailable(unit.id, lesson.id)
-                                ? $themeTokens.mastered
-                                : lockedColor
+                            lessonStatusMap[lesson.id] === 'mastered'
+                              ? $themeTokens.mastered
+                              : lessonStatusMap[lesson.id] === 'locked'
+                                ? lockedColor
+                                : $themeTokens.text
                           "
                           class="unit-icons"
                         />
@@ -323,7 +317,7 @@
         getCourseUnits,
         isUnitTestAvailable,
         isCourseLessonAvailable,
-        isCurrentCourseLesson,
+        getCourseLessonStatus,
       } = useLearnerResources();
       const goBack = useGoBack({ fallbackRoute: { name: PageNames.HOME } });
 
@@ -522,11 +516,24 @@
           : false;
       }
 
-      function isCurrentLesson(unitId, lessonId) {
-        return course.value
-          ? isCurrentCourseLesson(course.value.course_id, unitId, lessonId)
-          : false;
-      }
+      const LESSON_STATUS_ICONS = {
+        mastered: 'mastered',
+        open: 'chevronRight',
+        locked: 'permissions',
+      };
+
+      // Precomputed lesson id → status map so each template render does N
+      // lookups instead of N × (2 lft-compares × 4 Array.finds).
+      const lessonStatusMap = computed(() => {
+        if (!course.value) return {};
+        const map = {};
+        for (const unit of units.value) {
+          for (const lesson of unit.children?.results ?? []) {
+            map[lesson.id] = getCourseLessonStatus(course.value.course_id, unit.id, lesson.id);
+          }
+        }
+        return map;
+      });
 
       onMounted(async () => {
         loadCourse();
@@ -553,7 +560,8 @@
         // Methods & functions
         testAvailable,
         lessonAvailable,
-        isCurrentLesson,
+        lessonStatusMap,
+        LESSON_STATUS_ICONS,
         getUnitTestQuestionCount,
         openCourseContentPage,
         openCourseContentUnitTest,
