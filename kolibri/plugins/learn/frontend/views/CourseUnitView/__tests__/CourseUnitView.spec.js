@@ -41,6 +41,14 @@ const ContentViewerMock = {
   props: ['options'],
 };
 
+const CourseContentViewerStub = {
+  name: 'CourseContentViewer',
+  template:
+    '<div data-testid="course-content-viewer"><button data-testid="finish-btn" @click="$emit(\'finished\')">Finish</button><div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div></div>',
+  props: ['contentNode', 'nextResource', 'previousResource'],
+  emits: ['finished', 'next', 'prev'],
+};
+
 // Data helpers
 const createResource = (id, title, parent, lft = 1) => ({
   id,
@@ -134,16 +142,20 @@ describe('CourseUnitView', () => {
     jest.clearAllMocks();
   });
 
-  function renderComponent(props = {}) {
+  function renderComponent(props = {}, { stubCourseContentViewer = false } = {}) {
+    const stubs = {
+      ContentViewer: ContentViewerMock,
+      AccordionItem: AccordionItemStub,
+    };
+    if (stubCourseContentViewer) {
+      stubs.CourseContentViewer = CourseContentViewerStub;
+    }
     return render(CourseUnitView, {
       props: {
         courseId: COURSE_ID,
         ...props,
       },
-      stubs: {
-        ContentViewer: ContentViewerMock,
-        AccordionItem: AccordionItemStub,
-      },
+      stubs,
     });
   }
 
@@ -184,6 +196,25 @@ describe('CourseUnitView', () => {
       LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
 
       renderComponent();
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith({
+          name: PageNames.COURSE_WELCOME,
+          params: { courseSessionId: COURSE_ID },
+        });
+      });
+    });
+
+    it('redirects to COURSE_WELCOME when not started even with deep-linked unit URL', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+
+      setupUnitTree();
+
+      renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
@@ -818,8 +849,406 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(wrapper.getByText('Course: Physics 101')).toBeVisible();
+        expect(wrapper.getByTestId('course-title')).toHaveTextContent('Physics 101');
       });
+    });
+  });
+
+  describe('back navigation', () => {
+    it('back arrow replaces the route with COURSE_WELCOME for the current course session', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: UNIT_1,
+          lesson_id: LESSON_1,
+          resource_id: RESOURCE_1,
+        },
+      });
+
+      setupUnitTree();
+
+      const wrapper = renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
+
+      const backButton = await wrapper.findByTestId('course-back-button');
+      await fireEvent.click(backButton);
+
+      expect(router.replace).toHaveBeenCalledWith({
+        name: PageNames.COURSE_WELCOME,
+        params: { courseSessionId: COURSE_ID },
+      });
+    });
+  });
+
+  describe('interstitial state', () => {
+    /**
+     * Helper: wait for the stubbed CourseContentViewer to render.
+     * The component needs time to resolve multiple async data fetches
+     * (course, unit tree, resume data) before loading becomes false.
+     */
+    async function waitForContentViewer() {
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('course-content-viewer')).toBeVisible();
+        },
+        { timeout: 5000 },
+      );
+    }
+
+    it('shows interstitial after finishing a pre-test', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: {
+          unit_id: UNIT_1,
+          test_type: 'pre',
+        },
+      });
+
+      setupUnitTree();
+
+      renderComponent(
+        {
+          unitId: UNIT_1,
+          testType: 'pre',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      // Click the finish button to trigger @finished event
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      // The interstitial should show with pre-test completed text
+      await waitFor(() => {
+        expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+      });
+    });
+
+    it('shows interstitial after finishing a post-test', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: {
+          unit_id: UNIT_1,
+          test_type: 'post',
+        },
+      });
+
+      setupUnitTree();
+
+      renderComponent(
+        {
+          unitId: UNIT_1,
+          testType: 'post',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+      });
+    });
+
+    it('shows interstitial after completing all resources in the unit', async () => {
+      // Use the sample unit tree: l1 has r1, r2; l2 has r3
+      // Place learner at the last resource (r3) with resume_position pointing to it
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l2',
+          resource_id: 'r3',
+        },
+      });
+
+      // r3 is the last resource in the unit, so getNextIncompleteResource
+      // starts its loop past the end of unitResources and returns null.
+      const useContentNodeProgress = require('../../../composables/useContentNodeProgress').default;
+      useContentNodeProgress.mockImplementation(() => ({
+        contentNodeProgressMap: {},
+        fetchContentNodeProgress: jest.fn(),
+        fetchContentNodeTreeProgress: jest.fn(),
+      }));
+
+      renderComponent(
+        {
+          unitId: 'unit-1',
+          lessonId: 'l2',
+          resourceId: 'r3',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      // Click the finish button to trigger @finished event
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      // Since r3 is the last resource and there are no more incomplete resources after it,
+      // the unit completed interstitial should show
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+    });
+
+    it('disables previous button during test completion interstitial', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: {
+          unit_id: UNIT_1,
+          test_type: 'pre',
+        },
+      });
+
+      setupUnitTree();
+
+      renderComponent(
+        {
+          unitId: UNIT_1,
+          testType: 'pre',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+      });
+
+      // During an active test, only the test is accessible — nothing to go back to
+      const prevButton = screen.getByRole('button', { name: /previous/i });
+      expect(prevButton).toBeDisabled();
+    });
+
+    it('handlePrev skips unavailable resources when navigating back from unit completion interstitial', async () => {
+      // Build a unit tree where the last resource (r3) is unavailable.
+      // Place the learner at r3 so getNextIncompleteResource starts past the
+      // end of the list and UNIT_COMPLETED fires on @finished.
+      const r1 = { ...createResource('r1', 'Resource 1', 'l1', 10), available: true };
+      const r2 = { ...createResource('r2', 'Resource 2', 'l1', 20), available: true };
+      const r3 = { ...createResource('r3', 'Resource 3', 'l2', 30), available: false };
+      const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
+      const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', 'Unit 1', [l1, l2]));
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l2',
+          resource_id: 'r3',
+        },
+      });
+
+      const useContentNodeProgress = require('../../../composables/useContentNodeProgress').default;
+      useContentNodeProgress.mockImplementation(() => ({
+        contentNodeProgressMap: {},
+        fetchContentNodeProgress: jest.fn(),
+        fetchContentNodeTreeProgress: jest.fn(),
+      }));
+
+      renderComponent(
+        {
+          unitId: 'unit-1',
+          lessonId: 'l2',
+          resourceId: 'r3',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+
+      const prevButton = screen.getByRole('button', { name: /previous/i });
+      await fireEvent.click(prevButton);
+
+      // Should navigate to r2 (last AVAILABLE resource), NOT r3 (unavailable).
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: expect.objectContaining({
+              unitId: 'unit-1',
+              resourceId: 'r2',
+              lessonId: 'l1',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('enables previous button during unit completion interstitial and navigates back', async () => {
+      // Place learner at the last resource (r3) with resume_position pointing to it
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l2',
+          resource_id: 'r3',
+        },
+      });
+
+      // r3 is the last resource in the unit, so getNextIncompleteResource
+      // starts its loop past the end and returns null.
+      const useContentNodeProgress = require('../../../composables/useContentNodeProgress').default;
+      useContentNodeProgress.mockImplementation(() => ({
+        contentNodeProgressMap: {},
+        fetchContentNodeProgress: jest.fn(),
+        fetchContentNodeTreeProgress: jest.fn(),
+      }));
+
+      renderComponent(
+        {
+          unitId: 'unit-1',
+          lessonId: 'l2',
+          resourceId: 'r3',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      // Finish the last resource to trigger unit completion interstitial
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+
+      // Previous button should be enabled — learner can go back to review resources
+      const prevButton = screen.getByRole('button', { name: /previous/i });
+      expect(prevButton).toBeEnabled();
+
+      // Clicking previous should navigate to the last resource in the unit
+      await fireEvent.click(prevButton);
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: expect.objectContaining({
+              unitId: 'unit-1',
+              resourceId: 'r3',
+              lessonId: 'l2',
+            }),
+          }),
+        );
+      });
+    });
+
+    it('disables next button during interstitial', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        active_test: {
+          unit_id: UNIT_1,
+          test_type: 'pre',
+        },
+      });
+
+      setupUnitTree();
+
+      renderComponent(
+        {
+          unitId: UNIT_1,
+          testType: 'pre',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+      });
+
+      const nextButton = screen.getByRole('button', { name: /next/i });
+      expect(nextButton).toBeDisabled();
+    });
+
+    // TODO: Test "interstitial clears on next resume data fetch showing new position"
+    // This test would verify that when the interstitial is showing after pre-test
+    // completion and resume data is re-fetched with a new resume_position containing
+    // lesson_id and resource_id, the interstitial is hidden and the content viewer
+    // is shown. The watcher on resumeData (line ~820 in index.vue) handles this.
+    // However, resumeData comes from useFetch and there is no external trigger to
+    // re-fetch it from the test. The watcher fires when resumeData.value changes,
+    // but onResourceFinished for test completion does not mutate resumeData — it only
+    // sets the interstitial flag. A proper test would require either:
+    //   1. Mocking useFetch to expose a controllable ref, or
+    //   2. Adding a polling mechanism that can be triggered from outside.
+    // Skipping to avoid a fragile test that relies on implementation details.
+
+    it('clears interstitial when handlePrev navigates back from unit completion', async () => {
+      // Place learner at the last resource (r3)
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l2',
+          resource_id: 'r3',
+        },
+      });
+
+      const useContentNodeProgress = require('../../../composables/useContentNodeProgress').default;
+      useContentNodeProgress.mockImplementation(() => ({
+        contentNodeProgressMap: {},
+        fetchContentNodeProgress: jest.fn(),
+        fetchContentNodeTreeProgress: jest.fn(),
+      }));
+
+      renderComponent(
+        {
+          unitId: 'unit-1',
+          lessonId: 'l2',
+          resourceId: 'r3',
+        },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+
+      // Trigger finished to show unit completion interstitial
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+
+      // Clicking previous should clear the interstitial and navigate to last resource
+      const prevButton = screen.getByRole('button', { name: /previous/i });
+      await fireEvent.click(prevButton);
+
+      await waitFor(() => {
+        // The interstitial text should be gone
+        expect(screen.queryByTestId('unit-completed-interstitial')).not.toBeInTheDocument();
+      });
+
+      // Verify it navigated to the last resource
+      expect(router.replace).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: expect.objectContaining({
+            unitId: 'unit-1',
+          }),
+        }),
+      );
     });
   });
 
@@ -1061,6 +1490,104 @@ describe('CourseUnitView', () => {
         unitId: 'unit-1',
         lessonId: 'l2',
         resourceId: 'r3',
+      });
+
+      const nextButton = await screen.findByRole('button', { name: /next/i });
+      expect(nextButton).toBeDisabled();
+    });
+
+    it('resources beyond resume position are not clickable in side panel', async () => {
+      // Set up a unit with 5 resources across 2 lessons.
+      // Resume position is at resource r3 (lft=30) — resources r1, r2, r3 should be enabled;
+      // resources r4, r5 should be disabled because their lft > maxResourceLft.
+      const r1 = createResource('r1', 'Resource 1', 'l1', 10);
+      const r2 = createResource('r2', 'Resource 2', 'l1', 20);
+      const r3 = createResource('r3', 'Resource 3', 'l1', 30);
+      const r4 = createResource('r4', 'Resource 4', 'l2', 40);
+      const r5 = createResource('r5', 'Resource 5', 'l2', 50);
+
+      const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2, r3]);
+      const l2 = createLesson('l2', 'Lesson 2', false, [r4, r5]);
+
+      const unitWithManyResources = createUnit('unit-1', 'Unit 1', [l1, l2]);
+      ContentNodeResource.fetchTree.mockResolvedValue(unitWithManyResources);
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l1',
+          resource_id: 'r3',
+        },
+      });
+
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r1',
+      });
+
+      // Open the side panel
+      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
+      await fireEvent.click(sidePanelToggle);
+
+      // Wait for side panel resources to be rendered and resume data to propagate
+      await waitFor(() => {
+        // Resource 2 only appears in the side panel
+        expect(screen.getByText('Resource 2')).toBeVisible();
+
+        // Resources within resume position (r1, r2, r3) should be enabled.
+        // "Resource 1" appears in both the content viewer (as a div) and side panel
+        // (inside a tree-item button). Find the tree-item button.
+        const r1Elements = screen.getAllByText('Resource 1');
+        const r1SidePanelButton = r1Elements
+          .map(el => el.closest('button'))
+          .find(b => b !== null && b.classList.contains('tree-item'));
+        expect(r1SidePanelButton).toBeTruthy();
+        expect(r1SidePanelButton).toBeEnabled();
+
+        const r2Button = screen.getByText('Resource 2').closest('button');
+        const r3Button = screen.getByText('Resource 3').closest('button');
+        expect(r2Button).toBeEnabled();
+        expect(r3Button).toBeEnabled();
+
+        // Resources beyond resume position (r4, r5) should be disabled
+        const r4Button = screen.getByText('Resource 4').closest('button');
+        const r5Button = screen.getByText('Resource 5').closest('button');
+        expect(r4Button).toBeDisabled();
+        expect(r5Button).toBeDisabled();
+      });
+    });
+
+    it('cannot navigate ahead of resume position with Next button', async () => {
+      // Set up a unit with 3 resources. Resume position is at r2.
+      // When viewing r2 (the resume position), Next button should be disabled because
+      // currentResource.lft === maxResourceLft.
+      const r1 = createResource('r1', 'Resource 1', 'l1', 10);
+      const r2 = createResource('r2', 'Resource 2', 'l1', 20);
+      const r3 = createResource('r3', 'Resource 3', 'l1', 30);
+
+      const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2, r3]);
+      const unitTree = createUnit('unit-1', 'Unit 1', [l1]);
+      ContentNodeResource.fetchTree.mockResolvedValue(unitTree);
+
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: 'unit-1',
+          lesson_id: 'l1',
+          resource_id: 'r2',
+        },
+      });
+
+      renderComponent({
+        unitId: 'unit-1',
+        lessonId: 'l1',
+        resourceId: 'r2',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('content-viewer')).toBeVisible();
       });
 
       const nextButton = await screen.findByRole('button', { name: /next/i });

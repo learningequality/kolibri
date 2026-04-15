@@ -2,10 +2,14 @@
 
   <ResourceLayout ref="resourceLayoutRef">
     <template #topBar>
-      <div class="course-title">
+      <div
+        class="course-title"
+        data-testid="course-title"
+      >
         <KIconButton
           icon="back"
-          @click="$router.back()"
+          data-testid="course-back-button"
+          @click="goBack"
         />
         <h1>
           <KTextTruncator
@@ -20,6 +24,12 @@
         v-if="loading"
         disableDefaultTransition
       />
+      <CourseInterstitial
+        v-else-if="showInterstitial"
+        :title="interstitialTitle"
+        :description="interstitialDescription"
+        :data-testid="interstitialTestId"
+      />
       <CourseContentViewer
         v-else-if="contentNodeToRender"
         :contentNode="contentNodeToRender"
@@ -31,7 +41,7 @@
       />
     </template>
     <template
-      v-if="currentResource"
+      v-if="currentResource || showInterstitial"
       #bottomBar
     >
       <PrevNextBar
@@ -105,9 +115,15 @@
   import useContentNodeProgress from '../../composables/useContentNodeProgress.js';
   import useBookmarks from '../../composables/useBookmarks.js';
   import CourseContentViewer from './CourseContentViewer.vue';
+  import CourseInterstitial from './CourseInterstitial.vue';
   import UnitTreeAccordion from './UnitTreeAccordion/index.vue';
   import useCourseContentProgress from './useCourseContentProgressTracking';
   import UpNextNavigationFooter from './UpNextNavigationFooter.vue';
+
+  const InterstitialContext = Object.freeze({
+    TEST_COMPLETED: 'test_completed',
+    UNIT_COMPLETED: 'unit_completed',
+  });
 
   export default {
     name: 'CourseUnitView',
@@ -115,12 +131,15 @@
       ResourceLayout,
       PrevNextBar,
       CourseContentViewer,
+      CourseInterstitial,
       UnitTreeAccordion,
       UpNextNavigationFooter,
     },
     setup(props) {
       const router = useRouter();
       const resourceLayoutRef = ref(null);
+      const showInterstitial = ref(false);
+      const interstitialContext = ref(null);
 
       const fetchCourseWithUnits = async () => {
         const courseData = await LearnerCourseResource.fetchModel({
@@ -265,6 +284,13 @@
           // No data, can't make a decision
           return null;
         }
+        if (!resumeData.value.started) {
+          // Course not started — all resources blocked. Defense-in-depth:
+          // checkRedirect normally redirects to COURSE_WELCOME before this
+          // is reached, but the guard prevents the side panel from briefly
+          // showing all resources as accessible during the redirect tick.
+          return null;
+        }
         if (resumeData.value.active_test) {
           // when active test, can't navigate to other resources
           return null;
@@ -293,6 +319,14 @@
       });
 
       const prevEnabled = computed(() => {
+        if (showInterstitial.value) {
+          // During an active test, only the test is accessible — nothing to go back to.
+          // After unit completion, the learner can go back to review the last resource.
+          return (
+            interstitialContext.value === InterstitialContext.UNIT_COMPLETED &&
+            unitResources.value?.length > 0
+          );
+        }
         if (activeTest.value) {
           return false;
         }
@@ -300,6 +334,9 @@
       });
 
       const nextEnabled = computed(() => {
+        if (showInterstitial.value) {
+          return false;
+        }
         if (
           activeTest.value ||
           currentResourceIndexInUnit.value === null ||
@@ -388,7 +425,8 @@
 
       const onResourceFinished = () => {
         if (activeTest.value) {
-          // when active test, we do nothing when the learner finishes its pre/post test.
+          showInterstitial.value = true;
+          interstitialContext.value = InterstitialContext.TEST_COMPLETED;
           return;
         }
         if (
@@ -412,6 +450,8 @@
               unit_id: props.unitId,
             },
           };
+          showInterstitial.value = true;
+          interstitialContext.value = InterstitialContext.UNIT_COMPLETED;
           return;
         }
 
@@ -640,16 +680,14 @@
           return false;
         }
         if (!resumeData.value.started) {
-          if (!props.unitId) {
-            // Course root — redirect to the welcome page to begin the course.
-            router.replace({
-              name: PageNames.COURSE_WELCOME,
-              params: { courseSessionId: props.courseId },
-            });
-            return true;
-          }
-          // Has a unitId — navigate to the appropriate resource within the unit.
-          return checkRedirectToUnitTree();
+          // Course not started — always redirect to the welcome page,
+          // even when a unitId is present (deep links / bookmarks must
+          // not bypass the pre-test gate).
+          router.replace({
+            name: PageNames.COURSE_WELCOME,
+            params: { courseSessionId: props.courseId },
+          });
+          return true;
         }
 
         if (resumeData.value.active_test) {
@@ -690,6 +728,29 @@
 
       const handlePrev = () => {
         if (!prevEnabled.value) {
+          return;
+        }
+        if (showInterstitial.value) {
+          // Navigate to the last AVAILABLE resource in the unit. The tree is
+          // fetched with no_available_filtering=true so unitResources may
+          // include unavailable nodes that cannot be displayed.
+          const availableResources = unitResources.value.filter(r => r.available !== false);
+          const lastResource = availableResources[availableResources.length - 1];
+          if (!lastResource) {
+            return;
+          }
+          showInterstitial.value = false;
+          interstitialContext.value = null;
+          router.replace({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: {
+              courseId: props.courseId,
+              unitId: props.unitId,
+              lessonId: lastResource.parent,
+              resourceId: lastResource.id,
+            },
+          });
+          onSidePanelNavigation();
           return;
         }
         const newResourceIndex = currentResourceIndexInUnit.value - 1;
@@ -737,6 +798,17 @@
         onSidePanelNavigation();
       };
 
+      // Back arrow always replaces the current route with the course welcome
+      // page. Using replace (not push) so that browser-back from welcome lands
+      // at the page the learner came from (e.g. home) rather than the resource
+      // they were just viewing.
+      const goBack = () => {
+        router.replace({
+          name: PageNames.COURSE_WELCOME,
+          params: { courseSessionId: props.courseId },
+        });
+      };
+
       const goToNextUnit = () => {
         if (!canGoToNextUnit.value) {
           return;
@@ -758,6 +830,12 @@
         upNextLabel$,
         preTestTitle$,
         postTestTitle$,
+        preTestCompleted$,
+        postTestCompleted$,
+        preTestCompletedDescription$,
+        postTestCompletedDescription$,
+        unitCompleted$,
+        unitCompletedDescription$,
       } = coursesStrings;
 
       const unitNumberLabel = computed(() => {
@@ -767,12 +845,60 @@
         return unitNumberLabel$({ number: currentUnitIndex.value + 1 });
       });
 
-      const prevNextLabel = computed(() =>
-        resourcesProgressLabel$({
+      const prevNextLabel = computed(() => {
+        if (showInterstitial.value) {
+          return '';
+        }
+        return resourcesProgressLabel$({
           current: currentResourceIndexInLesson.value + 1,
           total: currentLessonResources.value.length,
-        }),
-      );
+        });
+      });
+
+      const interstitialTitle = computed(() => {
+        if (interstitialContext.value === InterstitialContext.TEST_COMPLETED) {
+          return activeTest.value?.testType === 'post' ? postTestCompleted$() : preTestCompleted$();
+        }
+        if (interstitialContext.value === InterstitialContext.UNIT_COMPLETED) {
+          return unitCompleted$();
+        }
+        return '';
+      });
+
+      const interstitialDescription = computed(() => {
+        if (interstitialContext.value === InterstitialContext.TEST_COMPLETED) {
+          return activeTest.value?.testType === 'post'
+            ? postTestCompletedDescription$()
+            : preTestCompletedDescription$();
+        }
+        if (interstitialContext.value === InterstitialContext.UNIT_COMPLETED) {
+          return unitCompletedDescription$();
+        }
+        return '';
+      });
+
+      const interstitialTestId = computed(() => {
+        if (interstitialContext.value === InterstitialContext.TEST_COMPLETED) {
+          return 'test-completed-interstitial';
+        }
+        if (interstitialContext.value === InterstitialContext.UNIT_COMPLETED) {
+          return 'unit-completed-interstitial';
+        }
+        return null;
+      });
+
+      // Clear interstitial when resume data updates with a navigable position
+      // (e.g. coach closes the test and learner can proceed)
+      watch(resumeData, newData => {
+        if (
+          showInterstitial.value &&
+          newData?.resume_position?.lesson_id &&
+          newData?.resume_position?.resource_id
+        ) {
+          showInterstitial.value = false;
+          interstitialContext.value = null;
+        }
+      });
 
       const activeTest = computed(() => {
         if (!props.testType || !props.unitId) {
@@ -858,11 +984,16 @@
         resourceLayoutRef,
         isUnitComplete,
         activeTest,
+        showInterstitial,
+        interstitialTitle,
+        interstitialDescription,
+        interstitialTestId,
         handlePrev,
         handleNext,
         onResourceFinished,
         goToNextUnit,
         handleNavigateToResource,
+        goBack,
 
         upNextLabel$,
       };
