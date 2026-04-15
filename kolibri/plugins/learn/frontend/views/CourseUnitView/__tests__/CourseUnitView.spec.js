@@ -7,8 +7,13 @@ import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
+const mockPreviousRouteRef = { value: null };
+
 jest.mock('vue-router/composables');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
+jest.mock('kolibri-common/composables/usePreviousRoute', () => ({
+  injectPreviousRoute: () => mockPreviousRouteRef,
+}));
 jest.mock('../../../apiResources', () => ({
   LearnerCourseResource: {
     getResumeData: jest.fn(),
@@ -140,6 +145,7 @@ describe('CourseUnitView', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    mockPreviousRouteRef.value = null;
   });
 
   function renderComponent(props = {}, { stubCourseContentViewer = false } = {}) {
@@ -855,7 +861,36 @@ describe('CourseUnitView', () => {
   });
 
   describe('back navigation', () => {
-    it('back arrow replaces the route with COURSE_WELCOME for the current course session', async () => {
+    it('back arrow pops the welcome entry when the learner came from the welcome page', async () => {
+      mockPreviousRouteRef.value = { name: PageNames.COURSE_WELCOME };
+      LearnerCourseResource.getResumeData.mockResolvedValue({
+        started: true,
+        resume_position: {
+          unit_id: UNIT_1,
+          lesson_id: LESSON_1,
+          resource_id: RESOURCE_1,
+        },
+      });
+
+      setupUnitTree();
+
+      const wrapper = renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
+
+      const backButton = await wrapper.findByTestId('course-back-button');
+      await fireEvent.click(backButton);
+
+      expect(router.back).toHaveBeenCalled();
+      expect(router.replace).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: PageNames.COURSE_WELCOME }),
+      );
+    });
+
+    it('back arrow replaces the route with COURSE_WELCOME for deep-link entries', async () => {
+      mockPreviousRouteRef.value = null;
       LearnerCourseResource.getResumeData.mockResolvedValue({
         started: true,
         resume_position: {
@@ -880,6 +915,7 @@ describe('CourseUnitView', () => {
         name: PageNames.COURSE_WELCOME,
         params: { courseSessionId: COURSE_ID },
       });
+      expect(router.back).not.toHaveBeenCalled();
     });
   });
 

@@ -108,6 +108,7 @@
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
   import useFetch from 'kolibri-common/composables/useFetch.js';
+  import { injectPreviousRoute } from 'kolibri-common/composables/usePreviousRoute';
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
   import PrevNextBar from '../PrevNextBar/index.vue';
@@ -140,6 +141,15 @@
       const resourceLayoutRef = ref(null);
       const showInterstitial = ref(false);
       const interstitialContext = ref(null);
+
+      // Captured once on mount: true when the learner landed here from the
+      // course welcome page this session. Internal unit-view navigation uses
+      // router.replace (see handleNext/Prev/NavigateToResource) so the
+      // welcome entry stays exactly one step back in history for the entire
+      // unit-view session. Used by goBack to decide whether to pop that
+      // entry (back) or synthesize a welcome entry (replace) for deep links.
+      const previousRoute = injectPreviousRoute();
+      const cameFromWelcome = ref(previousRoute?.value?.name === PageNames.COURSE_WELCOME);
 
       const fetchCourseWithUnits = async () => {
         const courseData = await LearnerCourseResource.fetchModel({
@@ -798,11 +808,20 @@
         onSidePanelNavigation();
       };
 
-      // Back arrow always replaces the current route with the course welcome
-      // page. Using replace (not push) so that browser-back from welcome lands
-      // at the page the learner came from (e.g. home) rather than the resource
-      // they were just viewing.
+      // When the learner arrived from the welcome page, pop that history
+      // entry so subsequent browser-back presses exit the course cleanly.
+      // Replacing with welcome in that case would duplicate the entry and
+      // force the learner to click back multiple times to escape the course.
+      //
+      // For deep-link entries (bookmarks, tab reopen) welcome isn't on the
+      // stack yet, so replace the current route — matches the prior
+      // behavior where browser-back from welcome lands wherever the learner
+      // came from rather than on the resource they were just viewing.
       const goBack = () => {
+        if (cameFromWelcome.value) {
+          router.back();
+          return;
+        }
         router.replace({
           name: PageNames.COURSE_WELCOME,
           params: { courseSessionId: props.courseId },
