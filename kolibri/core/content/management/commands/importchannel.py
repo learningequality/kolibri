@@ -133,6 +133,11 @@ class Command(AsyncCommand):
             channel_id, baseurl
         )
 
+        version = None
+        if metadata is not None:
+            raw_version = metadata.get("version")
+            version = "next" if raw_version is None else raw_version
+
         logger.info("Downloading data for channel id {}".format(resolved_channel_id))
         transfer_channel(
             channel_id=resolved_channel_id,
@@ -140,6 +145,7 @@ class Command(AsyncCommand):
             no_upgrade=no_upgrade,
             content_dir=content_dir,
             baseurl=baseurl,
+            version=version,
         )
 
         # Persist token-resolved metadata when available
@@ -147,9 +153,7 @@ class Command(AsyncCommand):
             set_channel_metadata_fields(
                 resolved_channel_id,
                 library=metadata.get("library"),
-                version=(
-                    0 if metadata.get("version") is None else metadata.get("version")
-                ),
+                version=0 if raw_version is None else raw_version,
             )
 
     def copy_channel(self, channel_id, source_path, no_upgrade, content_dir):

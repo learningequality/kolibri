@@ -134,6 +134,7 @@ def transfer_channel(
     content_dir=None,
     baseurl=None,
     source_path=None,
+    version=None,
 ):
     """
     Transfers a channel database either by downloading or copying
@@ -163,7 +164,9 @@ def transfer_channel(
 
     # Determine where we're downloading/copying from, and create the appropriate transfer object.
     if method == DOWNLOAD_METHOD:
-        url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
+        url = paths.get_content_database_file_url(
+            channel_id, baseurl=baseurl, version=version
+        )
         logger.debug("URL to fetch: {}".format(url))
         filetransfer = transfer.FileDownload(url, dest, cancel_check=job.is_cancelled)
     elif method == COPY_METHOD:

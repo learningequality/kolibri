@@ -677,11 +677,24 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             )
         return result
 
+    @property
+    def _channel_db_version(self):
+        """
+        Returns the version string to use when constructing the channel DB URL.
+        Only applies when a token was used (Studio import). Peer imports always
+        use the standard URL regardless of any version info in the listing.
+        """
+        if not self.token:
+            return None
+        return "next" if self.remote_version is None else self.remote_version
+
     def get_channel_database_size(self):
         """
         Get the size of the remote channel database by making a HEAD request.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         response = self.session.head(url, timeout=self.timeout)
         response.raise_for_status()
         return int(response.headers.get("Content-Length", 0))
@@ -690,7 +703,9 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         """
         Create a FileDownload transfer for the channel database.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         return transfer.FileDownload(
             url,
             dest,
