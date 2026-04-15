@@ -376,7 +376,6 @@
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-  import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import store from 'kolibri/store';
   import { PageNames } from '../../constants';
@@ -495,7 +494,7 @@
       const allUnits = computed(() => units.value || []);
 
       const { getRecipientNamesForCourseSession, className } = useClassSummary();
-      const { removeCourse } = useCourses();
+      const { deleteCourse } = useCourses();
 
       const coachPageTitle = computed(() =>
         [course.value?.title, className.value].filter(Boolean).join(' - '),
@@ -531,9 +530,7 @@
         if (!courseSession.value) return;
         const courseId = courseSession.value.id;
         try {
-          await CourseSessionResource.deleteModel({ id: courseId });
-          // Remove from module-level state so the list page shows correct data immediately
-          removeCourse(courseId);
+          await deleteCourse(courseId);
           router.push(backRoute.value, async () => {
             await nextTick();
             createSnackbar(courseDeleted$());
