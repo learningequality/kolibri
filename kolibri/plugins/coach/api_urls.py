@@ -42,6 +42,6 @@ urlpatterns = [
     re_path(
         r"^coursesession/(?P<course_session_id>[0-9a-fA-F]{32})/unit/(?P<unit_contentnode_id>[0-9a-fA-F]{32})/lessonprogress/$",
         UnitLessonProgressViewSet.as_view({"get": "retrieve"}),
-        name="unit-lesson-progress",
+        name="unit_lesson_progress",
     ),
 ]

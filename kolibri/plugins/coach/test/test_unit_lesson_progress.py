@@ -32,7 +32,7 @@ DUMMY_PASSWORD = "password"
 
 def _url(course_session_id, unit_contentnode_id):
     return reverse(
-        "kolibri:kolibri.plugins.coach:unit-lesson-progress",
+        "kolibri:kolibri.plugins.coach:unit_lesson_progress",
         kwargs={
             "course_session_id": course_session_id,
             "unit_contentnode_id": unit_contentnode_id,
