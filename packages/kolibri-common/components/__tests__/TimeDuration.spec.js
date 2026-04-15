@@ -48,6 +48,8 @@ describe('TimeDuration', () => {
 
   it('should render empty string if seconds are not provided as props', () => {
     renderComponent();
+    // KOptionalText renders an em-dash internally; no exported string available
+    // eslint-disable-next-line kolibri/tests-no-hardcoded-strings
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 });

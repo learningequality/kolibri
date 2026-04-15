@@ -31,7 +31,7 @@
   import { createTranslator } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
-  const strings = createTranslator('PinAuthenticationModal', {
+  export const strings = createTranslator('PinAuthenticationModal', {
     incorrectPin: {
       message: 'Incorrect PIN, please try again',
       context: 'Error message displayed when an incorrect PIN is input',

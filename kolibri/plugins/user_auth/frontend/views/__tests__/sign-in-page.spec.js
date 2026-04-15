@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import SignInPage from '../SignInPage';
 import makeStore from '../../__tests__/utils/makeStore';
 
@@ -31,10 +32,9 @@ function renderComponent() {
     {
       store,
       routes: [{ name: 'SIGN_IN', path: '/signin' }],
-      stubs: {
-        // inorder to bypass the loading wrapper
-        AuthBase: { template: '<div><slot></slot></div>' },
-      },
+      // AuthBase wraps the page in a loading/connectivity check that requires full network setup
+      // eslint-disable-next-line kolibri/tests-no-stubs
+      stubs: { AuthBase: { template: '<div><slot></slot></div>' } },
     },
     (_vue, _store, router) => {
       router.getRoute = () => {
@@ -47,19 +47,21 @@ function renderComponent() {
 describe('signInPage component', () => {
   it('smoke test', async () => {
     renderComponent();
-    expect(await screen.findByRole('textbox', { name: /username/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('textbox', { name: coreString('usernameLabel') }),
+    ).toBeInTheDocument();
   });
 
   it('will set the username as invalid if it contains punctuation', async () => {
     renderComponent();
     const user = userEvent.setup();
 
-    const usernameInput = await screen.findByRole('textbox', { name: /username/i });
+    const usernameInput = await screen.findByRole('textbox', { name: coreString('usernameLabel') });
 
     await user.type(usernameInput, '?');
 
     await waitFor(() => {
-      expect(screen.getByText(/Username can only contain/i)).toBeInTheDocument();
+      expect(screen.getByText(coreString('usernameNotAlphaNumError'))).toBeInTheDocument();
     });
   });
 
@@ -67,20 +69,20 @@ describe('signInPage component', () => {
     renderComponent();
     const user = userEvent.setup();
 
-    const usernameInput = await screen.findByRole('textbox', { name: /username/i });
+    const usernameInput = await screen.findByRole('textbox', { name: coreString('usernameLabel') });
 
     await user.click(usernameInput);
     await user.type(usernameInput, 'a');
     await user.clear(usernameInput);
 
     await waitFor(() => {
-      expect(screen.getByText(/required/i)).toBeInTheDocument();
+      expect(screen.getByText(coreString('requiredFieldError'))).toBeInTheDocument();
     });
   });
 
   it('will not show validation text if username is empty and not blurred', async () => {
     renderComponent();
-    expect(screen.queryByText(/required/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/alpha/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(coreString('requiredFieldError'))).not.toBeInTheDocument();
+    expect(screen.queryByText(coreString('usernameNotAlphaNumError'))).not.toBeInTheDocument();
   });
 });

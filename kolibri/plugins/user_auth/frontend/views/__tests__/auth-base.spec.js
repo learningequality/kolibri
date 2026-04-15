@@ -4,7 +4,8 @@ import { ref } from 'vue';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
-import AuthBase from '../AuthBase';
+import AuthBase from '../AuthBase.vue';
+import { userString } from '../commonUserStrings';
 import makeStore from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/composables/useUser');
@@ -49,28 +50,22 @@ function renderComponent({ allowRemoteAccess = true, isAppContext = false } = {}
 describe('auth base component', () => {
   it('shows restricted access message when remote access is disallowed and not app context', () => {
     renderComponent({ allowRemoteAccess: false, isAppContext: false });
-    expect(
-      screen.getByText('Access to Kolibri has been restricted for external devices'),
-    ).toBeInTheDocument();
+    expect(screen.getByText(AuthBase.$trs.restrictedAccess.message)).toBeInTheDocument();
   });
 
   it('does not show restricted access message when remote access is allowed', () => {
     renderComponent({ allowRemoteAccess: true, isAppContext: false });
-    expect(
-      screen.queryByText('Access to Kolibri has been restricted for external devices'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(AuthBase.$trs.restrictedAccess.message)).not.toBeInTheDocument();
   });
 
   it('does not show restricted access message in app context even when remote access is disallowed', () => {
     renderComponent({ allowRemoteAccess: false, isAppContext: true });
-    expect(
-      screen.queryByText('Access to Kolibri has been restricted for external devices'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(AuthBase.$trs.restrictedAccess.message)).not.toBeInTheDocument();
   });
 
   it('shows a create account link', () => {
     renderComponent();
-    const link = screen.getByRole('link', { name: 'Create an account' });
+    const link = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(link).toHaveAttribute('href', '#/signup');
   });
 });

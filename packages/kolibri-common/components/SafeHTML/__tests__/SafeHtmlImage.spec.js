@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import SafeHtmlImage from '../SafeHtmlImage.vue';
 
 const sampleSrc = 'test_img.jpg';
@@ -28,7 +29,7 @@ describe('SafeHtmlImage', () => {
     user = userEvent.setup();
     renderComponent();
     img = screen.getByAltText(sampleAlt);
-    expandButton = screen.getByLabelText('Expand image');
+    expandButton = screen.getByLabelText(SafeHtmlImage.$trs.expandImage);
   });
 
   describe('first render', () => {
@@ -65,7 +66,7 @@ describe('SafeHtmlImage', () => {
       await user.keyboard('{enter}');
       expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
 
-      await user.click(screen.getByLabelText('Close'));
+      await user.click(screen.getByLabelText(coreString('closeAction')));
       expect(screen.queryByTestId('lightbox-dialog')).not.toBeInTheDocument();
 
       expandButton.focus();
@@ -78,7 +79,7 @@ describe('SafeHtmlImage', () => {
     await user.click(expandButton); // Open Lightbox first
     expect(screen.getByTestId('lightbox-dialog')).toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('Close'));
+    await user.click(screen.getByLabelText(coreString('closeAction')));
     expect(screen.queryByTestId('lightbox-dialog')).not.toBeInTheDocument();
   });
 });

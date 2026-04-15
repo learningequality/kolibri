@@ -56,6 +56,9 @@ function renderComponent({ picturePasswordSettings, learners = [] } = {}) {
     learnerMap[l.id] = l;
   });
   store.state.classSummary.learnerMap = learnerMap;
+  // CoachAppBarPage, ReportsControls, and CoreTable require full router and store setup
+  // that is not feasible in unit tests; stubs isolate the component under test
+  // eslint-disable-next-line kolibri/tests-no-stubs
   return render(LearnersRootPage, { store, routes, stubs });
 }
 

@@ -11,11 +11,15 @@ const renderComponent = () => {
 describe('Previous button', () => {
   it('renders a button accessible as go to previous page', () => {
     renderComponent();
-    expect(screen.getByRole('button', { name: 'Go to previous page' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: PreviousButton.$trs.goToPreviousPage.message }),
+    ).toBeInTheDocument();
   });
   it('emits goToPreviousPage when clicked', async () => {
     const { emitted } = renderComponent();
-    await fireEvent.click(screen.getByRole('button', { name: 'Go to previous page' }));
+    await fireEvent.click(
+      screen.getByRole('button', { name: PreviousButton.$trs.goToPreviousPage.message }),
+    );
     expect(emitted()).toHaveProperty('goToPreviousPage');
   });
 });

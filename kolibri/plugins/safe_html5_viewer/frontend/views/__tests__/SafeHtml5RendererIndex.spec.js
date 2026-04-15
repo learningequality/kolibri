@@ -20,6 +20,9 @@ jest.mock('kolibri-zip', () => {
   }));
 });
 
+const MOCK_HEADING_TEXT = 'Mocked HTML content';
+const MOCK_TABLE_TEXT = 'Mocked 3-column Table';
+const MOCK_CELL_TEXT = 'Cell 1';
 const DUMMY_HTML5_URL = 'mock://test.html';
 const renderComponent = (dataOverrides = {}) => {
   return render(SafeHtml5RendererIndex, {
@@ -67,10 +70,12 @@ describe('SafeHtml5RendererIndex', () => {
     it('renders safe-html-wrapper div and HTML content after loading finishes', async () => {
       renderComponent();
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
-        expect(screen.getByText('Mocked HTML content')).toBeInTheDocument();
-        expect(screen.getByText('Mocked 3-column Table')).toBeInTheDocument();
-        expect(screen.getByText('Cell 1')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText(SafeHtml5RendererIndex.$trs.articleContent),
+        ).toBeInTheDocument();
+        expect(screen.getByText(MOCK_HEADING_TEXT)).toBeInTheDocument();
+        expect(screen.getByText(MOCK_TABLE_TEXT)).toBeInTheDocument();
+        expect(screen.getByText(MOCK_CELL_TEXT)).toBeInTheDocument();
       });
     });
   });
@@ -105,7 +110,9 @@ describe('SafeHtml5RendererIndex', () => {
     it('emits stopTracking on destroy', async () => {
       const { emitted, unmount } = renderComponent();
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText(SafeHtml5RendererIndex.$trs.articleContent),
+        ).toBeInTheDocument();
       });
       unmount();
 
@@ -121,7 +128,9 @@ describe('SafeHtml5RendererIndex', () => {
         scrollBasedProgress: 0.5,
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText(SafeHtml5RendererIndex.$trs.articleContent),
+        ).toBeInTheDocument();
       });
 
       jest.advanceTimersByTime(5000);
@@ -137,7 +146,9 @@ describe('SafeHtml5RendererIndex', () => {
         scrollBasedProgress: 1,
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText(SafeHtml5RendererIndex.$trs.articleContent),
+        ).toBeInTheDocument();
       });
 
       jest.advanceTimersByTime(5000);
@@ -152,7 +163,9 @@ describe('SafeHtml5RendererIndex', () => {
         debouncedHandleScroll: jest.fn(),
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(
+          screen.getByLabelText(SafeHtml5RendererIndex.$trs.articleContent),
+        ).toBeInTheDocument();
       });
 
       const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');

@@ -11,6 +11,9 @@ const {
   onTrackLabel$,
 } = coursesStrings;
 
+// U+2014 em dash, matching the &mdash; rendered by the component for unattempted learners
+const EM_DASH = '\u2014';
+
 const LEARNERS = [
   { id: 'user-1', name: 'Alice', username: 'alice', groups: ['Group A'] },
   { id: 'user-2', name: 'Bob', username: 'bob', groups: ['Group B'] },
@@ -84,6 +87,8 @@ const defaultLearnerRoute = learner => ({ name: 'TestRoute', params: { learnerId
 function renderComponent(props = {}) {
   return render(LearnersReport, {
     props: { learnerRoute: defaultLearnerRoute, ...props },
+    // KTable requires complex slot setup; stub allows testing data display without table rendering
+    // eslint-disable-next-line kolibri/tests-no-stubs
     stubs: STUBS,
   });
 }
@@ -121,24 +126,28 @@ describe('LearnersReport', () => {
       };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByTestId('k-table')).toBeInTheDocument();
-      expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText('Bob')).toBeInTheDocument();
-      expect(screen.getByText('Carol')).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[0].name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[1].name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[2].name)).toBeInTheDocument();
     });
 
     it('shows group name in each row', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText('Group A')).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[0].groups[0])).toBeInTheDocument();
     });
 
     it('joins multiple group names with a comma', () => {
       const prefetchedData = makePrefetchedData({ scores: { 'user-1': { 'lo-1': 1 } } });
-      prefetchedData.learnersWithGroups = [
-        { id: 'user-1', name: 'Alice', username: 'alice', groups: ['Group A', 'Group B'] },
-      ];
+      const multiGroupLearner = {
+        id: 'user-1',
+        name: 'Alice',
+        username: 'alice',
+        groups: ['Group A', 'Group B'],
+      };
+      prefetchedData.learnersWithGroups = [multiGroupLearner];
       renderComponent({ prefetchedData });
-      expect(screen.getByText('Group A, Group B')).toBeInTheDocument();
+      expect(screen.getByText(multiGroupLearner.groups.join(', '))).toBeInTheDocument();
     });
   });
 
@@ -196,8 +205,7 @@ describe('LearnersReport', () => {
       // user-2 and user-3 have no scores entry → no attempt
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      // Intentional Unicode U+2014 (em dash), matching the &mdash; rendered by Vue
-      expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+      expect(screen.getAllByText(EM_DASH).length).toBeGreaterThan(0);
     });
   });
 
@@ -270,7 +278,7 @@ describe('LearnersReport', () => {
     it('renders learner names as links with person icon', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByRole('link', { name: 'Alice' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: LEARNERS[0].name })).toBeInTheDocument();
     });
 
     it('calls learnerRoute with the learner object for each name link', () => {
@@ -281,7 +289,7 @@ describe('LearnersReport', () => {
       }));
       renderComponent({ prefetchedData: makePrefetchedData({ scores }), learnerRoute });
       expect(learnerRoute).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'user-1', name: 'Alice' }),
+        expect.objectContaining({ id: LEARNERS[0].id, name: LEARNERS[0].name }),
       );
     });
   });

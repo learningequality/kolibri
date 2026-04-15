@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
+import { deviceString } from '../../commonDeviceStrings';
 import TaskPanel from '../TaskPanel';
 
 function renderComponent(task) {
@@ -23,32 +25,42 @@ describe('TaskPanel', () => {
     },
   };
 
+  const CHANNEL_NAME = exportTask.extra_metadata.channel_name;
+  const USERNAME = exportTask.extra_metadata.started_by_username;
+  const TOTAL_RESOURCES = exportTask.extra_metadata.total_resources;
+
+  const startedByPattern = new RegExp(`started by '${USERNAME}'`, 'i');
+  const resourcesPattern = new RegExp(`${TOTAL_RESOURCES} resources`, 'i');
+  const fileSizePattern = /\(5 KB\)/i;
+
   it('shows canceled partial export details including resource totals for a canceled disk content export task', () => {
+    const partialExportPattern = new RegExp(`export resources from '${CHANNEL_NAME}'`, 'i');
+
     renderComponent(exportTask);
 
-    expect(screen.getByText('Canceled')).toBeInTheDocument();
-    expect(
-      screen.getByText(/export resources from 'canceled disk export channel test'/i),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/started by 'tester'/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+    expect(screen.getByText(deviceString('statusCanceled'))).toBeInTheDocument();
+    expect(screen.getByText(partialExportPattern)).toBeInTheDocument();
+    expect(screen.getByText(startedByPattern)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: coreString('clearAction') })).toBeInTheDocument();
 
-    expect(screen.getByText(/500 resources/i)).toBeInTheDocument();
-    expect(screen.getByText(/\(5 KB\)/i)).toBeInTheDocument();
+    expect(screen.getByText(resourcesPattern)).toBeInTheDocument();
+    expect(screen.getByText(fileSizePattern)).toBeInTheDocument();
   });
 
   it('shows canceled bulk export details including resource totals for a canceled disk export task', () => {
+    const bulkExportPattern = new RegExp(`export '${CHANNEL_NAME}'`, 'i');
+
     renderComponent({
       ...exportTask,
       type: TaskTypes.DISKEXPORT,
     });
 
-    expect(screen.getByText('Canceled')).toBeInTheDocument();
-    expect(screen.getByText(/export 'canceled disk export channel test'/i)).toBeInTheDocument();
-    expect(screen.getByText(/started by 'tester'/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+    expect(screen.getByText(deviceString('statusCanceled'))).toBeInTheDocument();
+    expect(screen.getByText(bulkExportPattern)).toBeInTheDocument();
+    expect(screen.getByText(startedByPattern)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: coreString('clearAction') })).toBeInTheDocument();
 
-    expect(screen.getByText(/500 resources/i)).toBeInTheDocument();
-    expect(screen.getByText(/\(5 KB\)/i)).toBeInTheDocument();
+    expect(screen.getByText(resourcesPattern)).toBeInTheDocument();
+    expect(screen.getByText(fileSizePattern)).toBeInTheDocument();
   });
 });

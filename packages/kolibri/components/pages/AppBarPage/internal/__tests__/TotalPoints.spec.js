@@ -49,8 +49,10 @@ describe('TotalPoints', () => {
     render(TotalPoints);
 
     await fireEvent.mouseOver(screen.getByRole('presentation'));
-    expect(
-      screen.getByText(`You earned ${get(totalPointsMock.totalPoints)} points`),
-    ).toBeInTheDocument();
+    const expectedText = TotalPoints.$trs.pointsTooltip.message.replace(
+      '{ points, number }',
+      get(totalPointsMock.totalPoints),
+    );
+    expect(screen.getByText(expectedText)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import Lightbox from '../Lightbox.vue';
 
 const sampleOpen = true;
@@ -35,9 +36,9 @@ describe('Lightbox', () => {
 
     lightboxDialog = screen.getByTestId('lightbox-dialog');
     img = screen.getByAltText(sampleAlt);
-    zoomOut = screen.getByLabelText('Zoom out');
-    zoomIn = screen.getByLabelText('Zoom in');
-    close = screen.getByLabelText('Close');
+    zoomOut = screen.getByLabelText(coreString('zoomOut'));
+    zoomIn = screen.getByLabelText(coreString('zoomIn'));
+    close = screen.getByLabelText(coreString('closeAction'));
 
     mockNaturalDimensions(img);
     img.dispatchEvent(new Event('load')); // Trigger load event so calculateSize is called

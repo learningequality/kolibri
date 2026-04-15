@@ -50,6 +50,8 @@ function renderComponent({ picturePasswordSettings, learners = [] } = {}) {
     learnerMap[l.id] = l;
   });
   store.state.classSummary.learnerMap = learnerMap;
+  // BackLink uses VueRouter navigation which causes console warnings in unit test environment
+  // eslint-disable-next-line kolibri/tests-no-stubs
   return render(OverviewBlock, { store, routes, stubs });
 }
 

@@ -69,6 +69,8 @@ function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
 function renderComponent(props = {}) {
   return render(LearnerSidePanel, {
     props: { learner: LEARNER, ...props },
+    // SidePanelLayout provides structural slots; data-testid="close-btn" is needed for assertions
+    // eslint-disable-next-line kolibri/tests-no-stubs
     stubs: STUBS,
   });
 }
@@ -92,7 +94,7 @@ describe('LearnerSidePanel', () => {
 
     it('does not show LO rows in empty state', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.queryByText('Objective 1')).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNING_OBJECTIVES[0].text)).not.toBeInTheDocument();
     });
 
     it('does not show PROGRESS row in empty state', () => {
@@ -241,10 +243,12 @@ describe('LearnerSidePanel', () => {
       // lo-1: 4/4 = 100%, lo-2: 1/4 = 25% → lo-2 appears first
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 1 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const loTexts = screen.getAllByText(/Objective [12]/);
       // lo-2 (25%) should appear before lo-1 (100%)
-      expect(loTexts[0]).toHaveTextContent('Objective 2');
-      expect(loTexts[1]).toHaveTextContent('Objective 1');
+      const loSection = document.querySelector('.lo-section');
+      const allRows = within(loSection).getAllByRole('row');
+      // First data row contains lo-2, second contains lo-1
+      expect(within(allRows[1]).getByText(LEARNING_OBJECTIVES[1].text)).toBeInTheDocument();
+      expect(within(allRows[2]).getByText(LEARNING_OBJECTIVES[0].text)).toBeInTheDocument();
     });
 
     it('shows 0 correct for LOs the learner did not answer', () => {
