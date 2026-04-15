@@ -159,10 +159,14 @@ class CourseSession(AbstractFacilityDataModel):
         result["started"] = True
         unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
 
+        # No available=True filter. An incomplete resource that is
+        # unavailable is the learner's resume position — the frontend's
+        # "resource unavailable" state gates forward navigation there.
+        # Completed-but-missing resources don't apply: the progress filter
+        # below drops them before availability matters.
         first_incomplete_resource = (
             ContentNode.objects.filter(
                 parent__parent=unit_contentnode_id,
-                available=True,
             )
             .annotate(
                 learner_progress=Subquery(
