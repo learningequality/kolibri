@@ -87,6 +87,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
             source_path,
             cancel_check=False,
             destination=destination_path,
+            version_requested=True,
         )
 
         # import channel data from source db path
