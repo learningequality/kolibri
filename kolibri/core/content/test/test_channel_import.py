@@ -1068,3 +1068,79 @@ class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
         self.channel_import.channel_version = self.channel_version
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
+
+    def test_downgrade_blocked_without_version_requested(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Regression: the existing downgrade block must be preserved when
+        # version_requested is False (the default).
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version - 1
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertFalse(result)
+
+    def test_downgrade_allowed_with_version_requested(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Downgrade is allowed when version_requested=True.
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import.channel_version = self.channel_version - 1
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertTrue(result)
+
+    def test_upgrade_allowed_with_version_requested(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Upgrade still works when version_requested=True.
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import.channel_version = self.channel_version + 1
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertTrue(result)
+
+    def test_same_version_blocked_even_with_version_requested(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Same version is still blocked even when version_requested=True.
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import.channel_version = self.channel_version
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertFalse(result)
+
+    def test_downgrade_with_version_requested_cleans_up_tree(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # When downgrading with version_requested=True, old tree data is cleaned up.
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import.channel_version = self.channel_version - 1
+
+        # Make the destination Bridge's execute().fetchone() return a root node.
+        # self.destination == BridgeMock.return_value (Bridge is patched at class level).
+        BridgeMock.return_value.execute.return_value.fetchone.return_value = {
+            "tree_id": 1
+        }
+
+        with patch.object(
+            self.channel_import, "delete_old_channel_many_to_many_fields"
+        ) as delete_m2m_mock, patch.object(
+            self.channel_import, "delete_old_channel_tree_data"
+        ) as delete_tree_mock:
+            result = self.channel_import.check_and_delete_existing_channel()
+
+        self.assertTrue(result)
+        delete_m2m_mock.assert_called_once_with(self.channel_id)
+        delete_tree_mock.assert_called_once_with(1)
