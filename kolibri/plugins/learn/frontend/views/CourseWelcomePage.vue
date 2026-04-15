@@ -316,8 +316,6 @@
         getCourseProgress,
         getCourseUnits,
         isUnitTestAvailable,
-        isCourseLessonAvailable,
-        getCourseLessonStatus,
       } = useLearnerResources();
       const goBack = useGoBack({ fallbackRoute: { name: PageNames.HOME } });
 
@@ -510,17 +508,44 @@
         return course.value ? isUnitTestAvailable(course.value.course_id, unitId, testType) : false;
       }
 
-      function lessonAvailable(unitId, lessonId) {
-        return course.value
-          ? isCourseLessonAvailable(course.value.course_id, unitId, lessonId)
-          : false;
-      }
-
       const LESSON_STATUS_ICONS = {
         mastered: 'mastered',
         open: 'chevronRight',
         locked: 'permissions',
       };
+
+      // Classifies a lesson's display state as 'mastered', 'open'
+      // (accessible, not yet complete), or 'locked'.
+      function getLessonStatus(unitId, lessonId) {
+        const progress = courseProgress.value;
+        const unitsList = units.value;
+        if (!progress?.started || !progress.resume_position?.unit_id) return 'locked';
+
+        const resumeUnitId = progress.resume_position.unit_id;
+        const resumeLessonId = progress.resume_position.lesson_id;
+        const resumeUnit = unitsList.find(unit => unit.id === resumeUnitId);
+        const targetUnit = unitsList.find(unit => unit.id === unitId);
+        if (!resumeUnit || !targetUnit || !targetUnit.children?.results) return 'locked';
+
+        // Target unit is strictly earlier than the resume unit.
+        if (targetUnit.lft < resumeUnit.lft) return 'mastered';
+
+        if (targetUnit.id === resumeUnitId) {
+          // Unit is complete (no remaining resource).
+          if (!resumeLessonId) return 'mastered';
+          const lessons = targetUnit.children.results;
+          const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
+          const targetLesson = lessons.find(lesson => lesson.id === lessonId);
+          if (!resumeLesson || !targetLesson) return 'locked';
+          // Lessons before the resume lesson are fully done (F3 invariant:
+          // resume_position is the earliest incomplete resource in the unit).
+          if (targetLesson.lft < resumeLesson.lft) return 'mastered';
+          // The resume lesson itself — learner is here.
+          if (targetLesson.lft === resumeLesson.lft) return 'open';
+        }
+
+        return 'locked';
+      }
 
       // Precomputed lesson id → status map so each template render does N
       // lookups instead of N × (2 lft-compares × 4 Array.finds).
@@ -529,11 +554,16 @@
         const map = {};
         for (const unit of units.value) {
           for (const lesson of unit.children?.results ?? []) {
-            map[lesson.id] = getCourseLessonStatus(course.value.course_id, unit.id, lesson.id);
+            map[lesson.id] = getLessonStatus(unit.id, lesson.id);
           }
         }
         return map;
       });
+
+      function lessonAvailable(unitId, lessonId) {
+        const status = lessonStatusMap.value[lessonId];
+        return status === 'mastered' || status === 'open';
+      }
 
       onMounted(async () => {
         loadCourse();
