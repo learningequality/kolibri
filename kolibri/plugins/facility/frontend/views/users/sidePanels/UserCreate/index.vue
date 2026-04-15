@@ -12,7 +12,7 @@
   >
     <template #header>
       <h1 class="side-panel-title">
-        {{ createNewUserHeader$() }}
+        {{ createNewUserLabel$() }}
       </h1>
     </template>
     <template #default>
@@ -135,14 +135,9 @@
 
           <div
             v-if="showPicturePasswordInfo"
-            role="region"
-            :aria-labelledby="infoHeadingId"
             class="picture-password-info"
           >
-            <p
-              :id="infoHeadingId"
-              class="picture-password-info-heading"
-            >
+            <p class="picture-password-info-heading">
               {{ signingInHeading$() }}
             </p>
             <p class="picture-password-info-text">
@@ -186,12 +181,11 @@
   import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
   import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router/composables';
-  import { createTranslator } from 'kolibri/utils/i18n';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
   import RoleResource from 'kolibri-common/apiResources/RoleResource';
-  import useFacility, { useFacilityConfig } from 'kolibri-common/composables/useFacility';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -214,19 +208,11 @@
 
   const { NOT_SPECIFIED } = DemographicConstants;
 
-  const strings = createTranslator('UserCreateSidePanelStrings', {
-    createNewUserHeader: {
-      message: 'Create new user',
-      context:
-        "Refers to the window accessed via the 'New user' button in the Facility > Users section.",
-    },
-  });
-
   export default {
     name: 'UserCreateSidePanel',
     metaInfo() {
       return {
-        title: strings.createNewUserHeader$(),
+        title: bulkUserManagementStrings.createNewUserLabel$(),
       };
     },
     components: {
@@ -248,37 +234,27 @@
       const router = useRouter();
       const instance = getCurrentInstance();
       const $refs = instance.proxy.$refs;
-      const { setFacilityId, facilityConfig } = useFacility();
-      // isPictureLoginFeatureEnabled only checks currentLanguage so any useFacilityConfig
-      // instance works. picturePasswordSettings is derived from the facilityConfig that
-      // useFacility() keeps in sync (either from the embedded dataset or FacilityDatasetResource),
-      // so we compute it here rather than calling useFacilityConfig() for it (which would
-      // create a separate, never-populated ref).
-      const { isPictureLoginFeatureEnabled } = useFacilityConfig();
+      const { setFacilityId, facilityConfig, selectedFacility } = useFacility();
+      // picturePasswordSettings is derived from the facilityConfig that useFacility() keeps in
+      // sync (either from the embedded dataset or FacilityDatasetResource).
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
       const { createSnackbar } = useSnackbar();
 
-      // Both picturePasswordSettings and picture_passwords_exhausted are derived from the same
-      // facilityConfig, hydrated together in onBeforeMount, so they are always in sync.
-      //
-      // Unique ID for aria-labelledby so the element is safe if multiple instances share a page.
-      const infoHeadingId = `picture-password-info-heading-${instance.uid}`;
-
       const showLearnerLimitModal = ref(false);
 
-      // isPictureLoginActive: full conjunction — settings enabled AND English locale feature flag.
+      // isPictureLoginActive: picture passwords are configured for this facility.
       // Used only for the informational message (UX-only gate).
-      const isPictureLoginActive = computed(
-        () => isPictureLoginFeatureEnabled.value && picturePasswordSettings.value != null,
-      );
+      const isPictureLoginActive = computed(() => picturePasswordSettings.value != null);
       // learnerLimitReached: depends only on whether picture passwords are configured for this
-      // facility and whether the server reports the cap is hit. Intentionally independent of the
-      // locale feature flag so non-English admins cannot bypass the learner cap.
+      // facility and whether the server reports the cap is hit (on the facility object itself).
+      // Intentionally independent of the locale feature flag so non-English admins cannot bypass
+      // the learner cap.
       const learnerLimitReached = computed(
         () =>
-          picturePasswordSettings.value != null && facilityConfig.value.picture_passwords_exhausted,
+          picturePasswordSettings.value != null &&
+          selectedFacility.value?.picture_passwords_exhausted,
       );
 
       const userTypeOptions = computed(() => [
@@ -562,7 +538,8 @@
         facilityCoachLabel$,
         facilityCoachDescription$,
       } = coreStrings;
-      const { saveAndAddAnother$, defaultErrorMessage$ } = bulkUserManagementStrings;
+      const { saveAndAddAnother$, defaultErrorMessage$, createNewUserLabel$ } =
+        bulkUserManagementStrings;
       const {
         learnerCreationDisabled$,
         learnMoreAboutLearnerLimit$,
@@ -570,7 +547,6 @@
         signingInHeading$,
         learnersPictureSignInInfo$,
       } = picturePasswordStrings;
-      const { createNewUserHeader$ } = strings;
 
       const showPicturePasswordInfo = computed(
         () =>
@@ -613,7 +589,7 @@
         saveAndAddAnother$,
         defaultErrorMessage$,
         showErrorWarning,
-        createNewUserHeader$,
+        createNewUserLabel$,
         userTypeLabel$,
         classCoachLabel$,
         classCoachDescription$,
@@ -623,7 +599,7 @@
         learnerLimitReached,
         showPicturePasswordInfo,
         showLearnerLimitModal,
-        infoHeadingId,
+
         learnerCreationDisabled$,
         learnMoreAboutLearnerLimit$,
         picturePasswordWillBeAssigned$,
@@ -690,7 +666,8 @@
   }
 
   .picture-password-info {
-    margin-top: 8px;
+    margin-top: 24px;
+    margin-bottom: 24px;
   }
 
   .picture-password-info-text {

@@ -1,11 +1,8 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import { ref, computed } from 'vue';
-import useFacility, { useFacilityConfig } from 'kolibri-common/composables/useFacility';
-import {
-  useFacilityMock,
-  useFacilityConfigMock,
-} from 'kolibri-common/composables/__mocks__/useFacility';
+import { ref } from 'vue';
+import useFacility from 'kolibri-common/composables/useFacility';
+import { useFacilityMock } from 'kolibri-common/composables/__mocks__/useFacility';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import UserCreateSidePanel from '../index.vue';
 
@@ -38,12 +35,10 @@ const PICTURE_PASSWORD_SETTINGS = { icon_style: 'colorful', show_icon_text: fals
 
 function makeFacilityConfig({
   picturePasswordSettings = null,
-  picturePasswordsExhausted = false,
   learnerCanLoginWithNoPassword = false,
 } = {}) {
   return ref({
     picture_password_settings: picturePasswordSettings,
-    picture_passwords_exhausted: picturePasswordsExhausted,
     learner_can_login_with_no_password: learnerCanLoginWithNoPassword,
     extra_fields: null,
   });
@@ -51,7 +46,6 @@ function makeFacilityConfig({
 
 function renderComponent({
   picturePasswordSettings = null,
-  isPictureLoginFeatureEnabled = true,
   picturePasswordsExhausted = false,
   learnerCanLoginWithNoPassword = false,
 } = {}) {
@@ -59,17 +53,12 @@ function renderComponent({
     useFacilityMock({
       facilityConfig: makeFacilityConfig({
         picturePasswordSettings,
-        picturePasswordsExhausted,
         learnerCanLoginWithNoPassword,
       }),
+      selectedFacility: ref({
+        picture_passwords_exhausted: picturePasswordsExhausted,
+      }),
       setFacilityId: jest.fn().mockResolvedValue(undefined),
-    }),
-  );
-  // picturePasswordSettings is read from facilityConfig (useFacility), not useFacilityConfig,
-  // so only isPictureLoginFeatureEnabled needs to be mocked here.
-  useFacilityConfig.mockImplementation(() =>
-    useFacilityConfigMock({
-      isPictureLoginFeatureEnabled: computed(() => isPictureLoginFeatureEnabled),
     }),
   );
 
@@ -155,19 +144,9 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       expect(screen.queryByRole('region')).not.toBeInTheDocument();
     });
 
-    it('is not shown when picture password feature flag is off', () => {
-      renderComponent({
-        picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: false,
-        picturePasswordsExhausted: false,
-      });
-      expect(screen.queryByRole('region')).not.toBeInTheDocument();
-    });
-
     it('is shown when picture login is enabled and limit is not reached', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: false,
       });
 
@@ -179,7 +158,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('is not shown when learner limit is reached', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: true,
       });
 
@@ -193,7 +171,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('is not shown when a non-Learner role is selected', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: false,
       });
 
@@ -215,7 +192,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('shows the learner limit message with a "Learn more" button when limit is reached', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: true,
       });
 
@@ -231,7 +207,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('does not show the learner limit message when under the limit', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: false,
       });
 
@@ -245,7 +220,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('defaults kind to Coach when learner limit is reached', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: true,
       });
 
@@ -258,7 +232,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('Learner option is disabled and Coach/Admin are not when limit is reached', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: true,
       });
 
@@ -272,10 +245,9 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       expect(screen.getByTestId('user-type-admin')).toHaveAttribute('aria-disabled', 'false');
     });
 
-    it('disables Learner even when the locale feature flag is off (non-English admins cannot bypass the cap)', async () => {
+    it('disables Learner when picture passwords are configured and the cap is hit', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: false,
         picturePasswordsExhausted: true,
       });
 
@@ -289,7 +261,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
     it('opens the learner limit modal when the "Learn more" button is clicked', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        isPictureLoginFeatureEnabled: true,
         picturePasswordsExhausted: true,
       });
 
