@@ -37,6 +37,7 @@ describe('CourseWelcomePage', () => {
       id: 'unit-1',
       title: 'Unit 1: Motion',
       sort_order: 0,
+      lft: 2,
       options: {
         completion_criteria: {
           threshold: { pre_post_test: { version_a_item_ids: ['q1', 'q2', 'q3'] } },
@@ -50,6 +51,7 @@ describe('CourseWelcomePage', () => {
             parent: 'lesson-1',
             on_device_resources: 5,
             sort_order: 0,
+            lft: 3,
           },
           {
             id: 'lesson-2',
@@ -57,6 +59,7 @@ describe('CourseWelcomePage', () => {
             parent: 'lesson-2',
             on_device_resources: 3,
             sort_order: 1,
+            lft: 6,
           },
         ],
       },
@@ -65,6 +68,7 @@ describe('CourseWelcomePage', () => {
       id: 'unit-2',
       title: 'Unit 2: Forces',
       sort_order: 1,
+      lft: 10,
       options: {
         completion_criteria: {
           threshold: { pre_post_test: { version_a_item_ids: ['q4', 'q5'] } },
@@ -78,6 +82,7 @@ describe('CourseWelcomePage', () => {
             parent: 'lesson-3',
             on_device_resources: 4,
             sort_order: 0,
+            lft: 11,
           },
         ],
       },
@@ -259,6 +264,23 @@ describe('CourseWelcomePage', () => {
           name: PageNames.COURSE_CONTENT_TEST,
           params: expect.objectContaining({ unitId: 'unit-1', testType: 'pre' }),
         }),
+      );
+    });
+  });
+
+  it('locks lessons past the resume position within the resume unit', async () => {
+    useResources({
+      started: true,
+      resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1', resource_id: 'r1' },
+    });
+    const wrapper = renderComponent();
+    await waitFor(() => expect(wrapper.getByText('Unit 1: Motion')).toBeInTheDocument());
+    await fireEvent.click(wrapper.getByRole('button', { name: /Unit 1: Motion/i }));
+
+    await waitFor(() => {
+      expect(wrapper.getByRole('button', { name: 'Lesson 2: Velocity' })).toHaveAttribute(
+        'data-lesson-status',
+        'locked',
       );
     });
   });

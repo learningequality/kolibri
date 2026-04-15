@@ -183,6 +183,7 @@
                     "
                     style="background-color: unset"
                     :aria-label="lesson.title"
+                    :data-lesson-status="lessonStatusMap[lesson.id]"
                     :disabled="!lessonAvailable(unit.id, lesson.id)"
                     @click.stop="openCourseContentUnitLesson(unit.id, lesson.id)"
                   >
