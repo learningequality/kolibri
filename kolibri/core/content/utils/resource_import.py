@@ -135,6 +135,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
         self.admin_imported = admin_imported
         self.import_channel_database = import_channel_database
+        self.version_requested = False
         self.channel_database_transferred_bytes = 0
         super().__init__()
 
@@ -319,7 +320,10 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
                 # Import the channel and update metadata
                 try:
                     import_ran = import_channel_by_id(
-                        self.channel_id, self.is_cancelled, self.content_dir
+                        self.channel_id,
+                        self.is_cancelled,
+                        self.content_dir,
+                        version_requested=self.version_requested,
                     )
                     if import_ran:
                         self._restore_node_metadata(
@@ -667,6 +671,8 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             admin_imported=admin_imported,
             import_channel_database=import_channel_database,
         )
+        # A token indicates the caller explicitly requested a specific channel version.
+        self.version_requested = token is not None
 
     def run(self):
         result = super().run()

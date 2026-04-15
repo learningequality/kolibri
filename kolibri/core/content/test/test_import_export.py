@@ -25,6 +25,7 @@ from requests.exceptions import ReadTimeout
 from requests.exceptions import SSLError
 
 import kolibri.core.content.management.commands.importchannel as importchannel_module
+from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -34,6 +35,7 @@ from kolibri.core.content.tasks import remoteimport
 from kolibri.core.content.upgrade import populate_channel_library_field
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
+from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -677,6 +679,7 @@ class ImportChannelTestCase(TestCase):
             "197934f144305350b5820c7c4dd8e194",
             cancel_check=dummy_job.is_cancelled,
             contentfolder=paths.get_content_dir_path(),
+            version_requested=False,
         )
 
         # Check that the content cache key was updated.
@@ -821,6 +824,37 @@ class ImportChannelTestCase(TestCase):
         self.assertEqual(call_kwargs["token"], "my-channel-token")
         mock_set_fields.assert_called_once_with(
             the_channel_id, library="KOLIBRI", version=5
+        )
+
+    @patch("kolibri.core.content.utils.channel_transfer.transfer.FileCopy")
+    @patch("kolibri.core.content.utils.channel_transfer.get_current_job")
+    def test_disk_channel_import(
+        self,
+        get_current_job_mock,
+        FileCopyMock,
+        start_progress_mock,
+        import_channel_mock,
+    ):
+        dummy_job = create_dummy_job(is_cancelled=False)
+        get_current_job_mock.return_value = dummy_job
+        fd, local_path = tempfile.mkstemp()
+        os.close(fd)
+
+        with patch(
+            "kolibri.core.content.utils.channel_transfer.paths.get_content_database_file_path",
+            return_value=local_path,
+        ):
+            transfer_channel(
+                self.the_channel_id,
+                COPY_METHOD,
+                source_path=tempfile.mkdtemp(),
+            )
+
+        import_channel_mock.assert_called_once_with(
+            self.the_channel_id,
+            cancel_check=dummy_job.is_cancelled,
+            contentfolder=None,
+            version_requested=False,
         )
 
     @patch(
@@ -1088,6 +1122,31 @@ class ChannelDbVersionTestCase(TestCase):
         db_url_mock.assert_called_with(
             self.the_channel_id, baseurl=manager.baseurl, version=None
         )
+
+    def test_token_sets_version_requested_true(self, mock_lookup):
+        """A token indicates the caller explicitly requested a specific version — downgrade allowed."""
+        mock_lookup.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 3,
+            "library": None,
+        }
+        manager = RemoteChannelDatabaseImportManager(
+            self.the_channel_id,
+            token="some-token",
+        )
+        self.assertTrue(manager.version_requested)
+
+    def test_no_token_sets_version_requested_false(self, mock_lookup):
+        """Without a token, version_requested is False — downgrades remain blocked."""
+        mock_lookup.return_value = {
+            "id": self.the_channel_id,
+            "public": True,
+            "version": 9,
+            "library": None,
+        }
+        manager = RemoteChannelDatabaseImportManager(self.the_channel_id)
+        self.assertFalse(manager.version_requested)
 
 
 @patch(
