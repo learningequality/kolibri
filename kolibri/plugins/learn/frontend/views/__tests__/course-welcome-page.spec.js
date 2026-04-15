@@ -108,9 +108,6 @@ describe('CourseWelcomePage', () => {
       if (!active_test) return false;
       return active_test.unit_id === unitId && active_test.test_type === testType;
     }),
-    isCourseLessonAvailable: jest.fn(() => started),
-    isCurrentCourseLesson: jest.fn(() => false),
-    getCourseLessonStatus: jest.fn(() => (started ? 'open' : 'locked')),
   });
 
   beforeEach(() => {

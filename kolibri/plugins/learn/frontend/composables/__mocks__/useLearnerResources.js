@@ -48,8 +48,6 @@ const MOCK_DEFAULTS = {
   fetchCourse: jest.fn(),
   fetchCourses: jest.fn(),
   isUnitTestAvailable: jest.fn(),
-  isCourseLessonAvailable: jest.fn(),
-  isCurrentCourseLesson: jest.fn(),
   getClass: jest.fn(),
   getClassActiveLessons: jest.fn(),
   getClassActiveCourses: jest.fn(),
