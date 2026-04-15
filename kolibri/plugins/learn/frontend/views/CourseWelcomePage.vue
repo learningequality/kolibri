@@ -365,7 +365,10 @@
         // is an active test belonging to a non-first unit.
         const firstUnitId = units.value?.[0]?.id;
         const onFirstPreTest =
-          progress.active_test?.unit_id === firstUnitId && !progress.resume_position;
+          progress.active_test?.test_type === TestType.PRE &&
+          progress.active_test?.unit_id === firstUnitId &&
+          !progress.resume_position;
+
         if (onFirstPreTest) {
           return startCourseAction$();
         }
