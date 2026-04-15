@@ -15,6 +15,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from le_utils.constants import library as library_constants
 from le_utils.constants import modalities
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -26,6 +27,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -2541,6 +2543,12 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         super().tearDown()
 
 
+class V2ChannelLookupUrlTestCase(TestCase):
+    def test_returns_v2_channel_url_with_identifier(self):
+        url = get_v2_channel_lookup_url("abc123")
+        self.assertEqual(url, "/api/public/v2/channel/abc123?public=false")
+
+
 def mock_patch_decorator(func):
     def wrapper(*args, **kwargs):
         mock_object = mock.Mock()
@@ -2549,6 +2557,25 @@ def mock_patch_decorator(func):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+class ChannelMetadataLibraryFieldTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+
+    def test_library_field_defaults_to_null(self):
+        channel = content.ChannelMetadata.objects.first()
+        self.assertIsNone(channel.library)
+
+    def test_library_field_accepts_community(self):
+        channel = content.ChannelMetadata.objects.first()
+        channel.library = library_constants.COMMUNITY
+        channel.save()
+        channel.refresh_from_db()
+        self.assertEqual(channel.library, library_constants.COMMUNITY)
 
 
 class KolibriStudioAPITestCase(APITestCase):
@@ -2628,6 +2655,173 @@ class KolibriStudioAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.json()["status"], "offline")
+
+    def test_community_channel_retrieve_uses_v2_api(self):
+        """retrieve() queries v2 API when the installed channel is COMMUNITY."""
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        channel = content.ChannelMetadata.objects.get(id=builder.channel["id"])
+        channel.library = library_constants.COMMUNITY
+        channel.save()
+        channel_id = channel.id
+
+        v2_response = {
+            "id": str(channel_id),
+            "name": "community channel",
+            "version": 7,
+            "description": "",
+            "language": None,
+            "included_languages": [],
+            "icon_encoding": None,
+            "public": False,
+            "total_resource_count": 0,
+            "published_size": 0,
+            "last_published": None,
+            "version_notes": "",
+            "tagline": None,
+        }
+        mock_response = mock.Mock()
+        mock_response.json.return_value = v2_response
+        with mock.patch.object(
+            NetworkClient, "get", return_value=mock_response
+        ) as mock_get:
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": str(channel_id)},
+                ),
+                format="json",
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["version"], 7)
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("/v2/channel/", called_url)
+        self.assertIn("public=false", called_url)
+        self.assertNotIn("/v1/channels/", called_url)
+
+    def test_non_community_channel_retrieve_uses_v1_api(self):
+        """retrieve() queries v1 API for channels without COMMUNITY library."""
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        channel = content.ChannelMetadata.objects.get(id=builder.channel["id"])
+        # library is NULL (default) — should fall through to v1
+        channel_id = channel.id
+
+        v1_response = [
+            {
+                "id": str(channel_id),
+                "name": "regular channel",
+                "version": 3,
+                "description": "",
+                "language": None,
+                "included_languages": [],
+                "icon_encoding": None,
+                "public": True,
+                "total_resource_count": 0,
+                "published_size": 0,
+                "last_published": None,
+                "version_notes": "",
+                "tagline": None,
+            }
+        ]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = v1_response
+        with mock.patch.object(
+            NetworkClient, "get", return_value=mock_response
+        ) as mock_get:
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": str(channel_id)},
+                ),
+                format="json",
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["version"], 3)
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("/v1/channels/", called_url)
+
+    def test_uninstalled_channel_retrieve_uses_v1_api(self):
+        """retrieve() falls back to v1 API when channel is not installed."""
+        uninstalled_id = uuid.uuid4().hex
+        v1_response = [
+            {
+                "id": uninstalled_id,
+                "name": "uninstalled channel",
+                "version": 1,
+                "description": "",
+                "language": None,
+                "included_languages": [],
+                "icon_encoding": None,
+                "public": True,
+                "total_resource_count": 0,
+                "published_size": 0,
+                "last_published": None,
+                "version_notes": "",
+                "tagline": None,
+            }
+        ]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = v1_response
+        with mock.patch.object(
+            NetworkClient, "get", return_value=mock_response
+        ) as mock_get:
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": uninstalled_id},
+                ),
+                format="json",
+            )
+        self.assertEqual(response.status_code, 200)
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("/v1/channels/", called_url)
+
+    def test_community_channel_with_baseurl_uses_v1_api(self):
+        """retrieve() uses v1 API for COMMUNITY channels when a custom baseurl is provided."""
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        channel = content.ChannelMetadata.objects.get(id=builder.channel["id"])
+        channel.library = library_constants.COMMUNITY
+        channel.save()
+        channel_id = channel.id
+
+        v1_response = [
+            {
+                "id": str(channel_id),
+                "name": "community channel",
+                "version": 5,
+                "description": "",
+                "language": None,
+                "included_languages": [],
+                "icon_encoding": None,
+                "public": True,
+                "total_resource_count": 0,
+                "published_size": 0,
+                "last_published": None,
+                "version_notes": "",
+                "tagline": None,
+            }
+        ]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = v1_response
+        with mock.patch.object(
+            NetworkClient,
+            "build_for_address",
+            return_value=mock.Mock(get=mock.Mock(return_value=mock_response)),
+        ) as mock_build:
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": str(channel_id)},
+                ),
+                data={"baseurl": "http://otherstudio.example.com"},
+                format="json",
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["version"], 5)
+        # baseurl was provided — should have used build_for_address (v1 path), not v2
+        mock_build.assert_called_once()
 
     def tearDown(self):
         cache.clear()

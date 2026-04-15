@@ -9,7 +9,6 @@ from kolibri.core.utils.urls import join_url
 from kolibri.utils import conf
 from kolibri.utils.server import get_zip_port
 
-
 # valid storage filenames consist of 32-char hex plus a file extension
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
@@ -245,6 +244,10 @@ def get_channel_lookup_url(
         content_server_path += "?" + urlencode(query_params)
 
     return content_server_path
+
+
+def get_v2_channel_lookup_url(identifier):
+    return "/api/public/v2/channel/{}?public=false".format(identifier)
 
 
 def get_file_checksums_url(channel_id, baseurl, version="1"):
