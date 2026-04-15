@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
@@ -214,11 +215,7 @@ export default function useFacilityEditor(facilityId) {
   const pictureLoginTaskId = ref(null);
 
   async function saveFacilityLoginSettings() {
-    const data = {
-      picture_password_settings: settings.value.picture_password_settings,
-      learner_can_login_with_no_password: settings.value.learner_can_login_with_no_password,
-      learner_can_edit_password: settings.value.learner_can_edit_password,
-    };
+    const data = pick(settings.value, LOGIN_SETTINGS_FIELDS);
     const response = await client({
       url: urls['kolibri:core:facilitydataset_save_facility_login_settings'](
         facilityDatasetId.value,
@@ -226,8 +223,8 @@ export default function useFacilityEditor(facilityId) {
       method: 'POST',
       data,
     });
-    if (response.data.id && response.data.status) {
-      pictureLoginTaskId.value = response.data.id;
+    if (response.status === 202 && response.data.task?.id) {
+      pictureLoginTaskId.value = response.data.task.id;
     }
     copySettings();
     return response.data;

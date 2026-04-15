@@ -295,15 +295,14 @@ class FacilityDatasetViewSet(ValuesViewset):
         permission_classes=[IsAuthenticated],
     )
     def save_facility_login_settings(self, request, pk):
-        try:
-            dataset = FacilityDataset.objects.get(pk=pk)
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility not found")
 
+        dataset = self.get_object()
         if not request.user.can_update(dataset):
-            raise PermissionDenied("You do not have permission to update this facility")
+            raise PermissionDenied(
+                "You do not have permission to update this facility's login settings"
+            )
 
-        facility = Facility.objects.get(dataset_id=pk)
+        facility = Facility.objects.get(dataset_id=dataset.id)
 
         new_pps = request.data.get("picture_password_settings")
         learner_can_login_with_no_password = request.data.get(
@@ -315,7 +314,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         enabling = not currently_enabled and new_pps is not None
 
         if enabling:
-            if are_picture_passwords_exhausted(pk):
+            if are_picture_passwords_exhausted(dataset.id):
                 return Response(
                     {"detail": "Picture passwords exhausted for this facility."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -333,12 +332,15 @@ class FacilityDatasetViewSet(ValuesViewset):
             enqueued_job = job_storage.get_job(job_id)
             return Response(
                 {
-                    "id": enqueued_job.job_id,
-                    "status": enqueued_job.state,
-                    "percentage": enqueued_job.percentage_progress,
-                    "cancellable": enqueued_job.cancellable,
-                    "facility_id": enqueued_job.facility_id,
-                    "extra_metadata": enqueued_job.extra_metadata,
+                    "dataset": FacilityDatasetSerializer(dataset).data,
+                    "task": {
+                        "id": enqueued_job.job_id,
+                        "status": enqueued_job.state,
+                        "percentage": enqueued_job.percentage_progress,
+                        "cancellable": enqueued_job.cancellable,
+                        "facility_id": enqueued_job.facility_id,
+                        "extra_metadata": enqueued_job.extra_metadata,
+                    },
                 },
                 status=status.HTTP_202_ACCEPTED,
             )
@@ -347,7 +349,8 @@ class FacilityDatasetViewSet(ValuesViewset):
             dataset.picture_password_settings = new_pps
             dataset.save()
             return Response(
-                FacilityDatasetSerializer(dataset).data, status=status.HTTP_200_OK
+                {"dataset": FacilityDatasetSerializer(dataset).data},
+                status=status.HTTP_200_OK,
             )
 
         if new_pps is None:
@@ -361,7 +364,8 @@ class FacilityDatasetViewSet(ValuesViewset):
                     dataset.learner_can_edit_password = learner_can_edit_password
             dataset.save()
             return Response(
-                FacilityDatasetSerializer(dataset).data, status=status.HTTP_200_OK
+                {"dataset": FacilityDatasetSerializer(dataset).data},
+                status=status.HTTP_200_OK,
             )
 
         return Response(

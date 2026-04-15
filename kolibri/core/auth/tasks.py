@@ -25,6 +25,7 @@ from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
+from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
 from kolibri.core.auth.utils.sync import validate_and_create_sync_credentials
 from kolibri.core.auth.utils.users import get_remote_user_info
@@ -812,7 +813,7 @@ def assign_picture_passwords_to_facility(facility_id):
         picture_password__isnull=True,
     ).exclude(devicepermissions__is_superuser=True)
 
-    total = learners.count()
+    total = get_learner_count.count(facility.dataset_id)
     job = get_current_job()
     if job:
         job.update_progress(0, total)

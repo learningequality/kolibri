@@ -150,13 +150,6 @@
                   data-testid="show_icon_text"
                 />
               </KRadioButtonGroup>
-              <div
-                v-if="pictureLoginTaskLoading"
-                class="nested-settings picture-password-assignment-status"
-                data-testid="picture_password_assignment_status"
-              >
-                <KCircularLoader :size="24" />
-              </div>
             </KRadioButtonGroup>
           </div>
         </section>
@@ -190,21 +183,29 @@
 
         <div
           v-if="isAppContext"
+          class="save-changes-row"
           :style="{
             marginTop: '32px',
             borderTop: '1px solid',
             borderTopColor: $themeTokens.fineLine,
           }"
         >
-          <KButton
-            :primary="true"
-            appearance="raised-button"
-            class="save-changes-button"
-            :text="coreString('saveChangesAction')"
-            name="save-settings"
-            :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
-            @click="saveConfig()"
-          />
+          <div class="save-changes-inline-group">
+            <KButton
+              :primary="true"
+              appearance="raised-button"
+              class="save-changes-button"
+              :text="coreString('saveChangesAction')"
+              name="save-settings"
+              :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+              @click="saveConfig()"
+            />
+            <KCircularLoader
+              v-if="pictureLoginTaskLoading"
+              :size="24"
+              data-testid="picture_password_assignment_status"
+            />
+          </div>
         </div>
       </template>
 
@@ -242,16 +243,25 @@
     </KPageContainer>
 
     <BottomAppBar data-testid="bottom-bar">
-      <KButton
+      <div
         v-if="!isAppContext"
-        :primary="true"
-        class="save-button"
-        appearance="raised-button"
-        :text="coreString('saveChangesAction')"
-        name="save-settings"
-        :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
-        @click="saveConfig()"
-      />
+        class="bottom-bar-save-group"
+      >
+        <KButton
+          :primary="true"
+          class="save-button"
+          appearance="raised-button"
+          :text="coreString('saveChangesAction')"
+          name="save-settings"
+          :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+          @click="saveConfig()"
+        />
+        <KCircularLoader
+          v-if="pictureLoginTaskLoading"
+          :size="24"
+          data-testid="picture_password_assignment_status"
+        />
+      </div>
     </BottomAppBar>
   </FacilityAppBarPage>
 
@@ -488,7 +498,8 @@
       async function saveConfig() {
         try {
           pictureLoginTaskLoading.value = true;
-          await Promise.all([saveFacilityConfig(), saveFacilityLoginSettings()]);
+          await saveFacilityConfig();
+          await saveFacilityLoginSettings();
           if (!pictureLoginTaskId.value) {
             createSnackbar(saveSuccess$());
           }
@@ -667,8 +678,7 @@
   }
 
   .save-button {
-    position: absolute;
-    right: 25px;
+    flex: 0 0 auto;
   }
 
   .facility-loader {
@@ -676,9 +686,32 @@
     margin-bottom: -0.5em; // To align with the text
   }
 
-  .save-changes-button {
+  .save-changes-row {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .save-changes-inline-group {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
     margin-top: 24px;
     margin-left: -8px;
+  }
+
+  .save-changes-button {
+    flex: 0 0 auto;
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .bottom-bar-save-group {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
   }
 
   .nested-settings {
@@ -689,13 +722,6 @@
   }
 
   .picture-password-settings {
-    margin-top: 12px;
-  }
-
-  .picture-password-assignment-status {
-    display: flex;
-    gap: 8px;
-    align-items: center;
     margin-top: 12px;
   }
 

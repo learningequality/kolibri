@@ -2495,6 +2495,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
         cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.non_admin = FacilityUserFactory.create(facility=cls.facility)
         cls.facility.add_admin(cls.admin)
         cls.learner = FacilityUserFactory.create(facility=cls.facility)
         cls.coach = FacilityUserFactory.create(facility=cls.facility)
@@ -2508,6 +2509,23 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
 
     def _picture_password_settings(self):
         return {"icon_style": "standard", "show_icon_text": True}
+
+    def test_requires_authenticated_user(self):
+        response = self.client.post(
+            self._url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_forbidden_for_non_admin_user(self):
+        self.client.login(username=self.non_admin.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            self._url(),
+            {"picture_password_settings": self._picture_password_settings()},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def _setup_task_mocks(self, mock_storage, mock_task):
         from kolibri.core.tasks.job import Job
@@ -2544,7 +2562,11 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(response.data["id"], "test-job-id")
+        self.assertEqual(response.data["task"]["id"], "test-job-id")
+        self.assertEqual(
+            response.data["dataset"]["picture_password_settings"],
+            self._picture_password_settings(),
+        )
         mock_task.validate_job_data.assert_called_once()
         mock_task.enqueue.assert_called_once()
         dataset = FacilityDataset.objects.get(pk=self.facility.dataset_id)

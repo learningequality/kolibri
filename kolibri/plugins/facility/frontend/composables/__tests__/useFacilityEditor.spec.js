@@ -672,7 +672,10 @@ describe('useFacilityEditor', () => {
     });
 
     it('stores the returned task id when a task is enqueued', async () => {
-      client.mockResolvedValue({ data: { id: 'task-123', status: 'QUEUED' } });
+      client.mockResolvedValue({
+        status: 202,
+        data: { dataset: {}, task: { id: 'task-123', status: 'QUEUED' } },
+      });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
         useFacilityEditor(mockFacilityId);
@@ -690,7 +693,7 @@ describe('useFacilityEditor', () => {
     });
 
     it('does not set task id when no task is enqueued', async () => {
-      client.mockResolvedValue({ data: { id: 'dataset-id' } });
+      client.mockResolvedValue({ status: 200, data: { dataset: { id: 'dataset-id' } } });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
         useFacilityEditor(mockFacilityId);
@@ -703,8 +706,11 @@ describe('useFacilityEditor', () => {
     });
 
     it('returns the response data', async () => {
-      const mockTaskData = { id: 'task-123', status: 'QUEUED', percentage: 0 };
-      client.mockResolvedValue({ data: mockTaskData });
+      const mockTaskData = {
+        dataset: { id: 'dataset-id' },
+        task: { id: 'task-123', status: 'QUEUED', percentage: 0 },
+      };
+      client.mockResolvedValue({ status: 202, data: mockTaskData });
 
       const { saveFacilityLoginSettings, settings, facilityDatasetId } =
         useFacilityEditor(mockFacilityId);
