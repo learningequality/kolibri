@@ -168,6 +168,7 @@
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
           :numAppliedFilters="numAppliedFilters"
+          :pictureLoginEnabled="pictureLoginEnabled"
           @clearSelectedUsers="clearSelectedUsers"
           @change="onChange"
         />
@@ -202,6 +203,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import useUser from 'kolibri/composables/useUser';
   import { UserKinds } from 'kolibri/constants';
@@ -239,6 +241,7 @@
       const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin, isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
+      const { setFacilityId, facilityConfig } = useFacility();
       const isMoveToTrashModalOpen = ref(false);
 
       const {
@@ -275,7 +278,11 @@
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
       const { currentPage, itemsPerPage } = usePagination({ usersCount, totalPages });
       const { windowIsSmall, windowIsShort } = useKResponsiveWindow();
+      const pictureLoginEnabled = computed(() =>
+        Boolean(facilityConfig.value.picture_password_settings),
+      );
       onMounted(() => {
+        setFacilityId(activeFacilityId);
         fetchClasses();
       });
 
@@ -344,6 +351,7 @@
         pageLoading,
         windowIsSmall,
         usersTableStyles,
+        pictureLoginEnabled,
         // Route utilities
         overrideRoute,
         PageNames,

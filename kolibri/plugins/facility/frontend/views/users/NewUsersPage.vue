@@ -152,6 +152,7 @@
           :dataLoading="dataLoading"
           :selectedUsers.sync="selectedUsers"
           :numAppliedFilters="numAppliedFilters"
+          :pictureLoginEnabled="pictureLoginEnabled"
           @clearSelectedUsers="clearSelectedUsers"
           @change="onChange"
         />
@@ -217,6 +218,7 @@
 
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import usePreviousRoute from 'kolibri-common/composables/usePreviousRoute';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 
   import { UserKinds } from 'kolibri/constants';
@@ -251,6 +253,7 @@
       const route = useRoute();
       const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin } = useUser();
+      const { setFacilityId, facilityConfig } = useFacility();
       const isMoveToTrashModalOpen = ref(false);
 
       const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
@@ -300,6 +303,9 @@
       // Use our new composables
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
       const { currentPage, itemsPerPage } = usePagination({ usersCount, totalPages });
+      const pictureLoginEnabled = computed(() =>
+        Boolean(facilityConfig.value.picture_password_settings),
+      );
 
       const {
         newUser$,
@@ -354,12 +360,14 @@
       }
 
       onMounted(() => {
+        setFacilityId(activeFacilityId);
         fetchClasses();
       });
 
       return {
         pageLoading,
         usersTableStyles,
+        pictureLoginEnabled,
         // Route utilities
         overrideRoute,
         PageNames,
