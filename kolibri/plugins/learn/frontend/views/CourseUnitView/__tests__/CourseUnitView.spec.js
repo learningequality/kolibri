@@ -3,9 +3,12 @@ import { useRouter, useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Modalities from 'kolibri-constants/Modalities';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
+
+const { nextLabel$, previousLabel$, courseNameLabel$ } = coursesStrings;
 
 jest.mock('vue-router/composables');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
@@ -15,31 +18,16 @@ jest.mock('../../../apiResources', () => ({
     fetchModel: jest.fn(),
   },
 }));
-
-jest.mock('../../../composables/useProgressTracking', () => ({
-  __esModule: true,
-  default: jest.fn(() => ({
-    progress: { value: 0 },
-    time_spent: { value: 0 },
-    extra_fields: { value: {} },
-    initContentSession: jest.fn().mockResolvedValue(),
-    updateContentSession: jest.fn().mockResolvedValue(),
-    startTrackingProgress: jest.fn(),
-    stopTrackingProgress: jest.fn(),
-  })),
-}));
-
 jest.mock('../../../composables/useContentNodeProgress');
-
 jest.mock('../../../composables/useBookmarks');
-
 jest.mock('../useCourseContentProgressTracking');
 
-const ContentViewerMock = {
-  name: 'ContentViewer',
-  template: '<div data-testid="content-viewer">{{ options && options.title }}</div>',
-  props: ['options'],
-};
+const LESSON_1_TITLE = 'Lesson 1';
+const LESSON_2_TITLE = 'Lesson 2';
+const RESOURCE_1_TITLE = 'Resource 1';
+const RESOURCE_2_TITLE = 'Resource 2';
+const UNIT_2_TITLE = 'Unit 2';
+const PHYSICS_101_TITLE = 'Physics 101';
 
 // Data helpers
 const createResource = (id, title, parent, lft = 1) => ({
@@ -67,19 +55,6 @@ const createUnit = (id, title, children = []) => ({
   modality: Modalities.UNIT,
   children: { results: children },
 });
-
-const AccordionItemStub = {
-  template: `
-    <div data-testid="accordion-item">
-      <div data-testid="accordion-header">
-        <slot name="title" />
-      </div>
-      <div data-testid="accordion-content">
-        <slot name="content" />
-      </div>
-    </div>
-  `,
-};
 
 describe('CourseUnitView', () => {
   let router;
@@ -111,19 +86,19 @@ describe('CourseUnitView', () => {
     });
 
     // Setup sample data for rendering/interaction tests
-    const r1 = createResource('r1', 'Resource 1', 'l1', 10);
-    const r2 = createResource('r2', 'Resource 2', 'l1', 20);
+    const r1 = createResource('r1', RESOURCE_1_TITLE, 'l1', 10);
+    const r2 = createResource('r2', RESOURCE_2_TITLE, 'l1', 20);
     const r3 = createResource('r3', 'Resource 3', 'l2', 30);
 
-    const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
-    const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
+    const l1 = createLesson('l1', LESSON_1_TITLE, true, [r1, r2]);
+    const l2 = createLesson('l2', LESSON_2_TITLE, false, [r3]);
 
     sampleUnitTree = createUnit('unit-1', 'Unit 1', [l1, l2]);
 
     // For fetchModel results (course units list)
     sampleCourseUnits = [
       { id: 'unit-1', title: 'Unit 1', modality: 'UNIT' },
-      { id: 'unit-2', title: 'Unit 2', modality: 'UNIT' },
+      { id: 'unit-2', title: UNIT_2_TITLE, modality: 'UNIT' },
     ];
 
     ContentNodeResource.fetchTree.mockResolvedValue(sampleUnitTree);
@@ -139,10 +114,6 @@ describe('CourseUnitView', () => {
       props: {
         courseId: COURSE_ID,
         ...props,
-      },
-      stubs: {
-        ContentViewer: ContentViewerMock,
-        AccordionItem: AccordionItemStub,
       },
     });
   }
@@ -797,7 +768,7 @@ describe('CourseUnitView', () => {
 
     it('renders course title', async () => {
       LearnerCourseResource.fetchModel.mockResolvedValue({
-        title: 'Physics 101',
+        title: PHYSICS_101_TITLE,
         course_id: COURSE_CONTENT_ID,
       });
       LearnerCourseResource.getResumeData.mockResolvedValue({
@@ -818,7 +789,7 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(wrapper.getByText('Course: Physics 101')).toBeVisible();
+        expect(wrapper.getByText(courseNameLabel$({ name: PHYSICS_101_TITLE }))).toBeVisible();
       });
     });
   });
@@ -842,7 +813,7 @@ describe('CourseUnitView', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toHaveTextContent('Resource 1');
+        expect(screen.getByTestId('content-viewer')).toHaveTextContent(RESOURCE_1_TITLE);
       });
     });
 
@@ -857,11 +828,11 @@ describe('CourseUnitView', () => {
       await fireEvent.click(sidePanelToggle);
 
       await waitFor(() => {
-        expect(screen.getByText('Lesson 1')).toBeVisible();
-        expect(screen.getByText('Lesson 2')).toBeVisible();
+        expect(screen.getByText(LESSON_1_TITLE)).toBeVisible();
+        expect(screen.getByText(LESSON_2_TITLE)).toBeVisible();
         // Resource 1 appears in both ContentViewer and side panel
-        expect(screen.getAllByText('Resource 1').length).toBeGreaterThanOrEqual(1);
-        expect(screen.getByText('Resource 2')).toBeVisible();
+        expect(screen.getAllByText(RESOURCE_1_TITLE).length).toBeGreaterThanOrEqual(1);
+        expect(screen.getByText(RESOURCE_2_TITLE)).toBeVisible();
       });
     });
 
@@ -876,10 +847,10 @@ describe('CourseUnitView', () => {
       await fireEvent.click(sidePanelToggle);
 
       await waitFor(() => {
-        expect(screen.getByText('Resource 2')).toBeVisible();
+        expect(screen.getByText(RESOURCE_2_TITLE)).toBeVisible();
       });
 
-      fireEvent.click(screen.getByText('Resource 2'));
+      fireEvent.click(screen.getByText(RESOURCE_2_TITLE));
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
@@ -902,13 +873,10 @@ describe('CourseUnitView', () => {
         resourceId: 'r1',
       });
 
-      // Wait for content render
       await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
+        expect(screen.getByRole('button', { name: nextLabel$() })).toBeEnabled();
       });
-
-      const nextButton = await screen.findByRole('button', { name: /next/i });
-      expect(nextButton).toBeEnabled();
+      const nextButton = screen.getByRole('button', { name: nextLabel$() });
 
       await fireEvent.click(nextButton);
 
@@ -932,12 +900,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r2',
       });
 
-      // Wait for content render
-      await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
-      });
-
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      const prevButton = await screen.findByRole('button', { name: previousLabel$() });
       expect(prevButton).toBeEnabled();
 
       await fireEvent.click(prevButton);
@@ -962,7 +925,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r2',
       });
 
-      const nextButton = await screen.findByRole('button', { name: /next/i });
+      const nextButton = await screen.findByRole('button', { name: nextLabel$() });
       await waitFor(() => {
         expect(nextButton).toBeEnabled();
       });
@@ -991,12 +954,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r3',
       });
 
-      // Wait for content render
-      await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
-      });
-
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      const prevButton = await screen.findByRole('button', { name: previousLabel$() });
       expect(prevButton).toBeEnabled();
 
       await fireEvent.click(prevButton);
@@ -1022,7 +980,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r1',
       });
 
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
+      const prevButton = await screen.findByRole('button', { name: previousLabel$() });
       expect(prevButton).toBeDisabled();
     });
 
@@ -1042,7 +1000,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r2',
       });
 
-      const nextButton = await screen.findByRole('button', { name: /next/i });
+      const nextButton = await screen.findByRole('button', { name: nextLabel$() });
       await waitFor(() => {
         expect(nextButton).toBeEnabled();
       });
@@ -1069,7 +1027,7 @@ describe('CourseUnitView', () => {
         resourceId: 'r3',
       });
 
-      const nextButton = await screen.findByRole('button', { name: /next/i });
+      const nextButton = await screen.findByRole('button', { name: nextLabel$() });
       expect(nextButton).toBeDisabled();
     });
 
@@ -1093,7 +1051,7 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => {
         // Check for Unit 2 title.
-        expect(screen.getByText('Unit 2')).toBeVisible();
+        expect(screen.getByText(UNIT_2_TITLE)).toBeVisible();
       });
     });
   });

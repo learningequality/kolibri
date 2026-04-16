@@ -179,7 +179,7 @@
   import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
 
-  const hintTranslator = createTranslator('PerseusRendererIndex', {
+  export const hintTranslator = createTranslator('PerseusRendererIndex', {
     hint: {
       message: 'Use a hint ({hintsLeft, number} left)',
       context:

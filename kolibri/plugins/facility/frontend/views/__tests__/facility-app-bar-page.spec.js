@@ -4,7 +4,13 @@ import { ref } from 'vue';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import FacilityAppBarPage from '../FacilityAppBarPage';
+
+const { facilityLabel$ } = coreStrings;
+
+const APP_BAR_TITLE = 'Facility settings';
+const FACILITY_NAME = 'Sunrise School';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
@@ -40,16 +46,17 @@ describe('FacilityAppBarPage', function () {
   it('shows the page title passed by the parent page', () => {
     useFacilities.mockReturnValue(useFacilitiesMock({ userIsMultiFacilityAdmin: ref(false) }));
     useFacility.mockReturnValue(useFacilityMock({ currentFacilityName: ref('') }));
-    renderPage({ appBarTitle: 'Facility settings' });
-    expect(screen.getByRole('heading', { name: 'Facility settings' })).toBeInTheDocument();
+    renderPage({ appBarTitle: APP_BAR_TITLE });
+    expect(screen.getByRole('heading', { name: APP_BAR_TITLE })).toBeInTheDocument();
   });
 
   it('shows the current facility name for multi-facility admins', () => {
     useFacilities.mockReturnValue(useFacilitiesMock({ userIsMultiFacilityAdmin: ref(true) }));
-    useFacility.mockReturnValue(useFacilityMock({ currentFacilityName: ref('Sunrise School') }));
+    useFacility.mockReturnValue(useFacilityMock({ currentFacilityName: ref(FACILITY_NAME) }));
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Facility – Sunrise School' })).toBeInTheDocument();
+    const expectedHeading = `${facilityLabel$()} – ${FACILITY_NAME}`;
+    expect(screen.getByRole('heading', { name: expectedHeading })).toBeInTheDocument();
   });
 
   it('shows the default facility title for single-facility admins', () => {
@@ -57,6 +64,6 @@ describe('FacilityAppBarPage', function () {
     useFacility.mockReturnValue(useFacilityMock({ currentFacilityName: ref('') }));
     renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Facility' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: facilityLabel$() })).toBeInTheDocument();
   });
 });

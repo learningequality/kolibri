@@ -46,7 +46,7 @@ describe('TimeDuration', () => {
     expect(screen.getByText(expected)).toBeInTheDocument();
   });
 
-  it('should render empty string if seconds are not provided as props', () => {
+  it('should render dash if seconds are not provided as props', () => {
     renderComponent();
     expect(screen.getByText('—')).toBeInTheDocument();
   });

@@ -2,7 +2,16 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import PortalResource from 'kolibri-common/apiResources/PortalResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import { ERROR_CONSTANTS } from 'kolibri/constants';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import ConfirmationRegisterModal from '../ConfirmationRegisterModal.vue';
+
+const { registerAction$, cancelAction$, closeAction$ } = coreStrings;
+
+const { registerWith$, dataSaved$, alreadyRegistered$ } = createTranslator(
+  ConfirmationRegisterModal.name,
+  ConfirmationRegisterModal.$trs,
+);
 
 const sampleProjectName = 'Test Project';
 const sampleFacility = {
@@ -23,7 +32,6 @@ const renderComponent = props => {
   });
 };
 
-// Mock necessary resources and modules
 jest.mock('kolibri-common/apiResources/PortalResource', () => ({
   registerFacility: jest.fn(() => Promise.resolve()),
 }));
@@ -37,19 +45,18 @@ describe('ConfirmationRegisterModal', () => {
     renderComponent({ projectName: sampleProjectName });
 
     // Checking the text content of the modal
-    expect(screen.getByText(`Register with '${sampleProjectName}'?`)).toBeInTheDocument();
-    expect(screen.getByText('Data will be saved to the cloud')).toBeInTheDocument();
+    expect(screen.getByText(registerWith$({ name: sampleProjectName }))).toBeInTheDocument();
+    expect(screen.getByText(dataSaved$())).toBeInTheDocument();
 
     // Checking the content on the buttons
-    expect(screen.getByRole('button', { name: 'Register' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: registerAction$() })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: cancelAction$() })).toBeInTheDocument();
   });
 
   it("emits the cancel event when 'Cancel' button is clicked without registering", async () => {
     const { emitted } = renderComponent();
 
-    // Clicking the 'Cancel' button
-    await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await fireEvent.click(screen.getByRole('button', { name: cancelAction$() }));
     expect(emitted()).toHaveProperty('cancel');
     expect(emitted().cancel).toHaveLength(1);
   });
@@ -60,7 +67,7 @@ describe('ConfirmationRegisterModal', () => {
         projectName: sampleProjectName,
         targetFacility: sampleFacility,
       });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       expect(emitted()).toHaveProperty('success');
       expect(emitted().success).toHaveLength(1);
@@ -73,7 +80,7 @@ describe('ConfirmationRegisterModal', () => {
         targetFacility: sampleFacility,
         token: sampleToken,
       });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       expect(PortalResource.registerFacility).toHaveBeenCalledWith({
         facility_id: sampleFacility.id,
@@ -101,22 +108,22 @@ describe('ConfirmationRegisterModal', () => {
 
     it('renders with correct text in the body of the modal', async () => {
       renderComponent({ projectName: sampleProjectName });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       await waitFor(() =>
         expect(
-          screen.getByText(`Already registered with '${sampleProjectName}'`),
+          screen.getByText(alreadyRegistered$({ name: sampleProjectName })),
         ).toBeInTheDocument(),
       );
     });
 
     it('the buttons show the appropiate texts', async () => {
       renderComponent({ projectName: sampleProjectName });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
-        expect(screen.queryByRole('button', { name: 'Register' })).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: closeAction$() })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: registerAction$() })).not.toBeInTheDocument();
       });
     });
 
@@ -125,10 +132,10 @@ describe('ConfirmationRegisterModal', () => {
         successOnAlreadyRegistered: true,
         targetFacility: sampleFacility,
       });
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       await waitFor(async () => {
-        await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+        await fireEvent.click(screen.getByRole('button', { name: closeAction$() }));
 
         expect(emitted()).toHaveProperty('success');
         expect(emitted().success).toHaveLength(1);
@@ -138,10 +145,10 @@ describe('ConfirmationRegisterModal', () => {
 
     it("does not emit success event when 'Close' button is clicked if successOnAlreadyRegistered is not set", async () => {
       const { emitted } = renderComponent();
-      await fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+      await fireEvent.click(screen.getByRole('button', { name: registerAction$() }));
 
       await waitFor(async () => {
-        await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+        await fireEvent.click(screen.getByRole('button', { name: closeAction$() }));
 
         expect(emitted()).not.toHaveProperty('success');
       });

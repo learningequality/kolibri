@@ -1,6 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import { Store } from 'vuex';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import DeviceSettingsPage from '../index.vue';
 import usePlugins, {
   // eslint-disable-next-line import-x/named
@@ -10,10 +12,18 @@ import usePlugins, {
 import * as api from '../api';
 import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 
-jest.mock('../../../composables/usePlugins');
-jest.mock('kolibri-common/composables/usePageLoading');
-jest.mock('kolibri/urls');
+const { saveChangesAction$ } = coreStrings;
 
+const {
+  allowGuestAccess$,
+  disallowGuestAccess$,
+  lockedContent$,
+  signInPageChoice$,
+  learnerAppPageChoice$,
+  unlistedChannels$,
+} = createTranslator(DeviceSettingsPage.name, DeviceSettingsPage.$trs);
+
+jest.mock('../../../composables/usePlugins');
 jest.mock('kolibri-plugin-data', () => {
   return {
     __esModule: true,
@@ -74,7 +84,6 @@ async function makeWrapper() {
   render(DeviceSettingsPage, {
     store,
     routes,
-    stubs: ['AppBarPage'],
   });
 
   // Need to wait for beforeMount to finish
@@ -82,22 +91,13 @@ async function makeWrapper() {
 }
 
 function getButtons() {
-  const saveButton = screen.getByRole('button', { name: /save changes/i });
-  const learnPage = screen.getByRole('radio', { name: /Learn page/i });
-  const signInPage = screen.getByRole('radio', { name: /Sign-in page/i });
-  const allowGuestAccess = screen.getByRole('radio', {
-    name: /Allow users to explore resources without signing in/i,
-  });
-  const disallowGuestAccess = screen.getByRole('radio', {
-    name: /Learners must sign in to explore resources/i,
-  });
-  const unlistedChannels = screen.getByRole('checkbox', {
-    name: /Allow other devices on this network to view and import my unlisted channels/i,
-  });
-
-  const lockedContent = screen.getByRole('radio', {
-    name: /Signed in learners should only see resources assigned to them in classes/i,
-  });
+  const saveButton = screen.getByRole('button', { name: saveChangesAction$() });
+  const learnPage = screen.getByRole('radio', { name: learnerAppPageChoice$() });
+  const signInPage = screen.getByRole('radio', { name: signInPageChoice$() });
+  const allowGuestAccess = screen.getByRole('radio', { name: allowGuestAccess$() });
+  const disallowGuestAccess = screen.getByRole('radio', { name: disallowGuestAccess$() });
+  const unlistedChannels = screen.getByRole('checkbox', { name: unlistedChannels$() });
+  const lockedContent = screen.getByRole('radio', { name: lockedContent$() });
 
   return {
     learnPage,

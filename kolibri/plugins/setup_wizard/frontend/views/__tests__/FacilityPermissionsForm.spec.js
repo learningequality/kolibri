@@ -1,7 +1,14 @@
-import { render, screen, waitFor } from '@testing-library/vue';
+import { render, screen, waitFor, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { createTranslator } from 'kolibri/utils/i18n';
 import makeStore from '../../__tests__/utils/makeStore';
 import FacilityPermissionsForm from '../onboarding-forms/FacilityPermissionsForm';
+import FacilityNameTextbox from '../onboarding-forms/FacilityNameTextbox';
+
+const { facilityNameFieldLabel$ } = createTranslator(
+  FacilityNameTextbox.name,
+  FacilityNameTextbox.$trs,
+);
 
 describe('FacilityPermissionsForm', () => {
   let focusSpy;
@@ -39,10 +46,10 @@ describe('FacilityPermissionsForm', () => {
 
     await global.flushPromises();
 
-    const nonFormalRadio = screen.getByRole('radio', { name: /non-formal/i });
+    const nonFormalRadio = within(screen.getByTestId('nonformal-radio')).getByRole('radio');
     expect(nonFormalRadio).toBeChecked();
 
-    const facilityInput = screen.getByRole('textbox', { name: /facility name/i });
+    const facilityInput = screen.getByRole('textbox', { name: facilityNameFieldLabel$() });
 
     await waitFor(() => {
       // 3. Assert that the component's internal logic successfully fired the focus command

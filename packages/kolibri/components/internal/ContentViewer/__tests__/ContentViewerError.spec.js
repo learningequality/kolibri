@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import ContentViewerError from '../ContentViewerError.vue';
+
+const { closeAction$ } = coreStrings;
 
 // Helper function to render the component with given props and a router
 const renderComponent = props => {
@@ -41,7 +44,7 @@ describe('ContentViewerError', () => {
     await userEvent.click(reportErrorButton);
 
     // Close the Report Error Modal
-    const closeButton = screen.getByRole('button', { name: /close/i });
+    const closeButton = screen.getByRole('button', { name: closeAction$() });
     await userEvent.click(closeButton);
     expect(screen.queryByText(sampleError.message)).not.toBeInTheDocument();
   });

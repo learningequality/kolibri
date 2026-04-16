@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearnerSidePanel from '../LearnerSidePanel.vue';
 
@@ -18,34 +19,14 @@ const {
   questionsCorrectLabel$,
 } = coursesStrings;
 
-const LEARNING_OBJECTIVES = [
-  { id: 'lo-1', text: 'Objective 1', num_questions: 4 },
-  { id: 'lo-2', text: 'Objective 2', num_questions: 4 },
-];
+const { closeAction$ } = coreStrings;
+
+const LEARNING_OBJECTIVES = {
+  'lo-1': { id: 'lo-1', text: 'Objective 1', num_questions: 4 },
+  'lo-2': { id: 'lo-2', text: 'Objective 2', num_questions: 4 },
+};
 
 const LEARNER = { id: 'user-1', name: 'Alice', username: 'alice', groups: [] };
-
-const STUBS = {
-  SidePanelModal: {
-    name: 'SidePanelModal',
-    template: '<div data-testid="side-panel"><slot /></div>',
-  },
-  SidePanelLayout: {
-    name: 'SidePanelLayout',
-    props: ['title', 'subtitle', 'closePanel'],
-    template: `
-      <div>
-        <slot name="title" />
-        <button data-testid="close-btn" @click="closePanel">close</button>
-        <slot />
-      </div>
-    `,
-  },
-  KIcon: {
-    name: 'KIcon',
-    template: '<span />',
-  },
-};
 
 function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
   return {
@@ -53,7 +34,7 @@ function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
     activeTestStatus: 'closed',
     learnersWithGroups: [],
     reportData: {
-      learning_objectives: LEARNING_OBJECTIVES,
+      learning_objectives: Object.values(LEARNING_OBJECTIVES),
       pre_test: {
         status: activeTestType === 'pre' ? 'closed' : 'not_activated',
         scores: activeTestType === 'pre' ? scores : {},
@@ -69,7 +50,6 @@ function makePrefetchedData({ scores = {}, activeTestType = 'pre' } = {}) {
 function renderComponent(props = {}) {
   return render(LearnerSidePanel, {
     props: { learner: LEARNER, ...props },
-    stubs: STUBS,
   });
 }
 
@@ -92,7 +72,7 @@ describe('LearnerSidePanel', () => {
 
     it('does not show LO rows in empty state', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.queryByText('Objective 1')).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNING_OBJECTIVES['lo-1'].text)).not.toBeInTheDocument();
     });
 
     it('does not show PROGRESS row in empty state', () => {
@@ -212,7 +192,7 @@ describe('LearnerSidePanel', () => {
     it('shows section heading', () => {
       const scores = { 'user-1': { 'lo-1': 3, 'lo-2': 2 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const loSection = document.querySelector('.lo-section');
+      const loSection = screen.getByTestId('lo-section');
       expect(within(loSection).getByText(individualLoPerformanceLabel$())).toBeInTheDocument();
     });
 
@@ -241,10 +221,13 @@ describe('LearnerSidePanel', () => {
       // lo-1: 4/4 = 100%, lo-2: 1/4 = 25% → lo-2 appears first
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 1 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const loTexts = screen.getAllByText(/Objective [12]/);
+
+      const loSection = screen.getByTestId('lo-section');
+      const allRows = within(loSection).getAllByRole('row');
+
       // lo-2 (25%) should appear before lo-1 (100%)
-      expect(loTexts[0]).toHaveTextContent('Objective 2');
-      expect(loTexts[1]).toHaveTextContent('Objective 1');
+      expect(within(allRows[1]).getByText(LEARNING_OBJECTIVES['lo-2'].text)).toBeInTheDocument();
+      expect(within(allRows[2]).getByText(LEARNING_OBJECTIVES['lo-1'].text)).toBeInTheDocument();
     });
 
     it('shows 0 correct for LOs the learner did not answer', () => {
@@ -263,7 +246,7 @@ describe('LearnerSidePanel', () => {
       const { emitted } = renderComponent({
         prefetchedData: makePrefetchedData({ scores }),
       });
-      await fireEvent.click(screen.getByTestId('close-btn'));
+      await fireEvent.click(screen.getByRole('button', { name: closeAction$() }));
       expect(emitted().close).toBeTruthy();
     });
   });

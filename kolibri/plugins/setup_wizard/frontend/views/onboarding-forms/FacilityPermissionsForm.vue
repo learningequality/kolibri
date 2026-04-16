@@ -12,6 +12,7 @@
         ref="first-button"
         v-model="selected"
         class="permission-preset-radio-button"
+        data-testid="nonformal-radio"
         :buttonValue="Presets.NONFORMAL"
         :label="$tr('nonFormalLabel')"
         :description="$tr('nonFormalDescription')"
