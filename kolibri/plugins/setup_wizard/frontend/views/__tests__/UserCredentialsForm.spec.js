@@ -24,7 +24,7 @@ function renderComponent() {
 }
 
 describe('UserCredentialsForm', () => {
-  it('saves the entered super admin details when the user continues', async () => {
+  it('saves the entered admin details when the user continues', async () => {
     const { send, store } = renderComponent();
 
     await userEvent.type(screen.getByLabelText(/full name/i), 'Schoolhouse Rock');

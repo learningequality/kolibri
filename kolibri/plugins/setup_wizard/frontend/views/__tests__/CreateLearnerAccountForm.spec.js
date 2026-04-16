@@ -5,9 +5,6 @@ import CreateLearnerAccountForm from '../onboarding-forms/CreateLearnerAccountFo
 
 function renderComponent(options) {
   const store = makeStore();
-  if (options.previousChoice !== undefined) {
-    store.commit('SET_LEARNER_CAN_SIGN_UP', options.previousChoice);
-  }
 
   render(CreateLearnerAccountForm, {
     store,
