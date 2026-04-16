@@ -17,15 +17,18 @@ export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
   }
 }
 
+/** Matches a compact (no-dash) UUID: exactly 32 lowercase hex characters. */
+export const COMPACT_UUID_PATTERN = '[0-9a-f]{32}';
+
 export const RouteSegments = {
   OPTIONAL_CLASS: '/:classId?',
-  CLASS: '/:classId',
+  CLASS: `/:classId(${COMPACT_UUID_PATTERN})`,
   LESSON: '/lessons/:lessonId',
   ALL_LESSONS: '/lessons',
   PREVIEW: '/preview/:contentId',
   RESOURCE: '/resources/:resourceId',
   ALL_LEARNERS: '/learners',
-  LEARNER: '/learners/:learnerId',
+  LEARNER: `/learners/:learnerId(${COMPACT_UUID_PATTERN})`,
   EXERCISE: '/exercises/:exerciseId',
   QUESTIONS: '/questions',
   QUESTION: '/questions/:questionId',
@@ -37,5 +40,5 @@ export const RouteSegments = {
   QUIZ: '/quizzes/:quizId',
   ALL_QUIZZES: '/quizzes',
   ALL_COURSES: '/courses',
-  COURSE_SESSION: '/courses/:courseSessionId',
+  COURSE_SESSION: `/courses/:courseSessionId(${COMPACT_UUID_PATTERN})`,
 };

@@ -1,7 +1,10 @@
 import { render, screen } from '@testing-library/vue';
-import '@testing-library/jest-dom';
+import VueRouter from 'vue-router';
+import { i18nSetup } from 'kolibri/utils/i18n';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearningObjectivesReport from '../LearningObjectivesReport.vue';
+
+beforeAll(() => i18nSetup(true));
 
 const { noTestDataLabel$ } = coursesStrings;
 
@@ -47,11 +50,6 @@ const STUBS = {
       </div>
     `,
   },
-  KRouterLink: {
-    name: 'KRouterLink',
-    props: ['text', 'to'],
-    template: '<a data-testid="router-link">{{ text }}</a>',
-  },
   KButton: {
     name: 'KButton',
     props: ['text', 'appearance'],
@@ -65,11 +63,32 @@ const STUBS = {
   },
 };
 
+const mockObjectiveRoute = jest.fn(id => ({
+  name: 'COURSE_SUMMARY_OBJECTIVE',
+  params: { objectiveId: id },
+}));
+
+// Minimal routes so KRouterLink can resolve named routes without warnings
+const routes = [
+  {
+    name: 'COURSE_SUMMARY_OBJECTIVE',
+    path: '/objective/:objectiveId',
+    component: { template: '<div />' },
+  },
+];
+
+beforeEach(() => {
+  mockObjectiveRoute.mockClear();
+});
+
 function renderComponent(props = {}) {
+  const router = new VueRouter({ routes });
   return render(LearningObjectivesReport, {
     props: {
+      objectiveRoute: mockObjectiveRoute,
       ...props,
     },
+    router,
     stubs: STUBS,
   });
 }
@@ -113,28 +132,19 @@ describe('LearningObjectivesReport', () => {
     expect(sparklines[0]).toHaveAttribute('data-high', '3');
   });
 
-  it('emits select-objective with objective and reportData when LO row is clicked', async () => {
-    const mockReportData = {
-      unit_title: 'Unit 1: Numbers',
-      learners: [],
-      pre_test: { status: 'closed', scores: {} },
-      post_test: { status: 'not_activated', scores: {} },
-    };
-    const { emitted } = renderComponent({
+  it('renders objective rows as router links with correct routes', () => {
+    renderComponent({
       prefetchedData: {
         activeTestStatus: 'closed',
         bucketedObjectives: MOCK_OBJECTIVES,
-        reportData: mockReportData,
+        reportData: {},
       },
     });
 
-    const buttons = screen.getAllByTestId('k-button');
-    await buttons[0].click();
+    expect(mockObjectiveRoute).toHaveBeenCalledWith('obj-1');
+    expect(mockObjectiveRoute).toHaveBeenCalledWith('obj-2');
 
-    expect(emitted()['select-objective']).toBeTruthy();
-    expect(emitted()['select-objective'][0][0]).toEqual({
-      objective: MOCK_OBJECTIVES[0],
-      reportData: mockReportData,
-    });
+    expect(screen.getByRole('link', { name: 'Understand fractions' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Apply division' })).toBeInTheDocument();
   });
 });

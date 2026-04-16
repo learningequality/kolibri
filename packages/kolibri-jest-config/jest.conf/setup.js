@@ -75,6 +75,6 @@ global.flushPromises = function flushPromises() {
 };
 /* eslint-enable vue/one-component-per-file */
 
-module.exports = async function () {
+module.exports = async () => {
   await i18nSetup(true);
 };

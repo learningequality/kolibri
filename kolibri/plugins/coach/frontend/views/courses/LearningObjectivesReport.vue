@@ -17,11 +17,10 @@
           </template>
           <template #cell="{ content, colIndex, row }">
             <template v-if="colIndex === 0">
-              <KButton
+              <KRouterLink
                 class="lo-link"
-                appearance="basic-link"
                 :text="content"
-                @click="onObjectiveClick(row)"
+                :to="objectiveRoute(row[1])"
               />
             </template>
             <template v-else-if="colIndex === 1">
@@ -52,7 +51,7 @@
     components: {
       SparklineBar,
     },
-    setup(props, { emit }) {
+    setup(props) {
       const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
       const data = toRef(props, 'prefetchedData');
@@ -73,20 +72,12 @@
         return bucketedObjectives.value.find(obj => obj.id === row[1]);
       }
 
-      function onObjectiveClick(row) {
-        emit('select-objective', {
-          objective: objectiveAt(row),
-          reportData: data.value?.reportData,
-        });
-      }
-
       return {
         loading,
         activeTestStatus,
         headers,
         rows,
         objectiveAt,
-        onObjectiveClick,
         learningObjectivesLabel$,
         noTestDataLabel$,
       };
@@ -95,6 +86,10 @@
       prefetchedData: {
         type: Object,
         default: null,
+      },
+      objectiveRoute: {
+        type: Function,
+        required: true,
       },
     },
   };

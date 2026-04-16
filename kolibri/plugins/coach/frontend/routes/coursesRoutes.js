@@ -1,3 +1,4 @@
+import store from 'kolibri/store';
 import { PageNames } from '../constants';
 import CoursesRootPage from '../views/courses/CoursesRootPage.vue';
 import CourseSummaryPage from '../views/courses/CourseSummaryPage.vue';
@@ -6,19 +7,69 @@ import CourseDetailsSubpage from '../views/courses/sidePanels/AssignCourse/subpa
 import PreviewLearnersSubpage from '../views/courses/sidePanels/AssignCourse/subpages/PreviewLearners.vue';
 import SelectRecipientsSubpage from '../views/courses/sidePanels/AssignCourse/subpages/SelectRecipients.vue';
 import AssignCourseIndexSubpage from '../views/courses/sidePanels/AssignCourse/subpages/AssignCourseIndex.vue';
-import { classIdParamRequiredGuard, RouteSegments } from './utils';
+import { classIdParamRequiredGuard, RouteSegments, COMPACT_UUID_PATTERN } from './utils';
 
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE_SESSION } = RouteSegments;
+
+const COURSE_META = { titleParts: ['COURSE_NAME', 'CLASS_NAME'] };
+
+// CourseSummaryPage has a <router-view> for the assign-course side panel. Tab and panel child
+// routes must not render CourseSummaryPage again, so they use this no-op component instead.
+// $route still updates (giving CourseSummaryPage the route name/params it needs to react).
+const NoRender = { render: () => null };
 
 export default [
   {
     name: PageNames.COURSE_SUMMARY,
     path: CLASS + COURSE_SESSION,
     component: CourseSummaryPage,
-    meta: {
-      titleParts: ['CLASS_NAME'],
+    handler() {
+      store.dispatch('notLoading');
     },
+    redirect: to => ({
+      name: PageNames.COURSE_SUMMARY_UNITS,
+      params: to.params,
+    }),
+    meta: COURSE_META,
     children: [
+      // Tab/panel child routes use NoRender (not CourseSummaryPage) because CourseSummaryPage
+      // has a <router-view> for the assign-course side panel — using CourseSummaryPage here
+      // would cause a second full copy of the page to mount inside itself. NoRender renders
+      // nothing, while $route still updates (giving the parent all the name/params it needs).
+      {
+        name: PageNames.COURSE_SUMMARY_UNITS,
+        path: 'units',
+        component: NoRender,
+        meta: COURSE_META,
+      },
+      {
+        name: PageNames.COURSE_SUMMARY_LEARNERS,
+        path: 'learners',
+        component: NoRender,
+        meta: COURSE_META,
+        children: [
+          {
+            name: PageNames.COURSE_SUMMARY_LEARNER,
+            path: `:learnerId(${COMPACT_UUID_PATTERN})`,
+            component: NoRender,
+            meta: COURSE_META,
+          },
+        ],
+      },
+      {
+        name: PageNames.COURSE_SUMMARY_OBJECTIVES,
+        path: 'objectives',
+        component: NoRender,
+        meta: COURSE_META,
+        children: [
+          {
+            name: PageNames.COURSE_SUMMARY_OBJECTIVE,
+            path: `:objectiveId(${COMPACT_UUID_PATTERN})`,
+            component: NoRender,
+            meta: COURSE_META,
+          },
+        ],
+      },
       {
         name: PageNames.COURSE_SUMMARY_ASSIGN,
         path: 'assign-course/',
