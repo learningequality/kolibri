@@ -20,8 +20,8 @@
           {{ icon.label }}
         </figcaption>
         <span
-          v-if="showCounts"
-          class="icon-count"
+          v-if="showSequenceNumbers"
+          class="icon-sequence-number"
           :style="{ color: $themeTokens.annotation }"
         >{{ index + 1 }}</span>
       </figure>
@@ -90,7 +90,7 @@
         type: String,
         default: '46px',
       },
-      showCounts: {
+      showSequenceNumbers: {
         type: Boolean,
         default: false,
       },
@@ -126,7 +126,7 @@
       font-size: 12px;
     }
 
-    .icon-count {
+    .icon-sequence-number {
       margin-top: 2px;
       font-size: 12px;
     }

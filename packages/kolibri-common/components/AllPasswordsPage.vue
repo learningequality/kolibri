@@ -167,7 +167,7 @@
               <UserPicturePassword
                 v-else
                 :picturePassword="previewLearner.picture_password"
-                :showCounts="true"
+                :showSequenceNumbers="true"
               />
             </div>
           </div>

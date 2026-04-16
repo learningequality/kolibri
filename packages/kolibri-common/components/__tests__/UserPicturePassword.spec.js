@@ -102,7 +102,7 @@ describe('UserPicturePassword', () => {
     ]);
   });
 
-  describe('showCounts prop', () => {
+  describe('showSequenceNumbers prop', () => {
     it('does not render count numbers by default', () => {
       render(UserPicturePassword, {
         props: { picturePassword: '3.7.12' },
@@ -113,9 +113,9 @@ describe('UserPicturePassword', () => {
       expect(screen.queryByText('3')).not.toBeInTheDocument();
     });
 
-    it('renders count numbers when showCounts is true', () => {
+    it('renders count numbers when showSequenceNumbers is true', () => {
       render(UserPicturePassword, {
-        props: { picturePassword: '3.7.12', showCounts: true },
+        props: { picturePassword: '3.7.12', showSequenceNumbers: true },
       });
 
       expect(screen.getByText('1')).toBeInTheDocument();
