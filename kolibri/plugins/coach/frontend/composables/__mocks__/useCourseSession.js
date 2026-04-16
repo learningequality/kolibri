@@ -45,6 +45,7 @@ function createDefaults() {
     activateTest: jest.fn(),
     closeTest: jest.fn(),
     toggleCourseActive: jest.fn(),
+    refreshCourseSessionData: jest.fn(),
   };
 }
 

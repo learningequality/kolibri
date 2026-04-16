@@ -32,7 +32,7 @@
                   <KDropdownMenu
                     :options="courseMenuOptions"
                     :constrainToScrollParent="false"
-                    @select="handleMenuSelect"
+                    @select="handleMenuSelect($event.value)"
                   />
                 </template>
               </KButton>
@@ -396,6 +396,11 @@
   import LearningObjectiveSidePanel from './LearningObjectiveSidePanel.vue';
 
   const TABS = { UNITS: 'units', LEARNERS: 'learners', OBJECTIVES: 'objectives' };
+  const MENU_ACTIONS = {
+    COURSE_DETAILS: 'COURSE_DETAILS',
+    EDIT_RECIPIENTS: 'EDIT_RECIPIENTS',
+    DELETE: 'DELETE',
+  };
   const TAB_ROUTE_NAMES = {
     [TABS.UNITS]: PageNames.COURSE_SUMMARY_UNITS,
     [TABS.LEARNERS]: PageNames.COURSE_SUMMARY_LEARNERS,
@@ -545,9 +550,9 @@
 
       // Options dropdown menu
       const courseMenuOptions = computed(() => [
-        courseDetailsAction$(),
-        editRecipientsAction$(),
-        deleteAction$(),
+        { label: courseDetailsAction$(), value: MENU_ACTIONS.COURSE_DETAILS },
+        { label: editRecipientsAction$(), value: MENU_ACTIONS.EDIT_RECIPIENTS },
+        { label: deleteAction$(), value: MENU_ACTIONS.DELETE },
       ]);
 
       const showDeleteModal = ref(false);
@@ -567,13 +572,13 @@
         showDeleteModal.value = false;
       };
 
-      const handleMenuSelect = async selection => {
-        if (selection === deleteAction$()) {
+      const handleMenuSelect = async action => {
+        if (action === MENU_ACTIONS.DELETE) {
           showDeleteModal.value = true;
           return;
         }
 
-        if (selection === courseDetailsAction$()) {
+        if (action === MENU_ACTIONS.COURSE_DETAILS) {
           assignCourse.resetAssignment();
           assignCourse.setExistingAssignment(courseSession.value);
           await nextTick();
@@ -586,7 +591,7 @@
           return;
         }
 
-        if (selection === editRecipientsAction$()) {
+        if (action === MENU_ACTIONS.EDIT_RECIPIENTS) {
           try {
             const courseContent = await ContentNodeResource.fetchModel({
               id: courseSession.value.course,

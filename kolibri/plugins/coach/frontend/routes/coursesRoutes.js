@@ -32,10 +32,6 @@ export default [
     }),
     meta: COURSE_META,
     children: [
-      // Tab/panel child routes use NoRender (not CourseSummaryPage) because CourseSummaryPage
-      // has a <router-view> for the assign-course side panel — using CourseSummaryPage here
-      // would cause a second full copy of the page to mount inside itself. NoRender renders
-      // nothing, while $route still updates (giving the parent all the name/params it needs).
       {
         name: PageNames.COURSE_SUMMARY_UNITS,
         path: 'units',
