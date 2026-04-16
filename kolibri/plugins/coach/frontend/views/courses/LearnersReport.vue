@@ -2,17 +2,13 @@
 
   <div>
     <KCircularLoader v-if="loading" />
-    <template v-else-if="activeTestStatus === 'not_activated'">
-      <p class="empty-state">{{ noTestDataLabel$() }}</p>
-    </template>
-    <template v-else-if="noLearnersAttempted">
-      <p class="empty-state">{{ noLearnersAttemptedLabel$() }}</p>
-    </template>
-    <template v-else>
+    <template>
       <KTable
         :headers="headers"
         :rows="rows"
+        :sortable="true"
         :caption="learnersLabel$()"
+        class="learners-report-table"
       >
         <template #cell="{ content, colIndex, rowIndex }">
           <template v-if="colIndex === 0">
@@ -20,12 +16,10 @@
               :text="content"
               :to="learnerRoute(sortedLearners[rowIndex])"
               icon="person"
+              class="learner-link"
             />
           </template>
           <template v-else-if="colIndex === 1">
-            <span>{{ content }}</span>
-          </template>
-          <template v-else-if="colIndex === 2">
             <span
               v-if="content === 'support_needed'"
               class="risk-badge risk-badge-wide"
@@ -69,6 +63,9 @@
               &mdash;
             </span>
           </template>
+          <template v-else-if="colIndex === 2">
+            <span>{{ content }}</span>
+          </template>
         </template>
       </KTable>
     </template>
@@ -89,20 +86,13 @@
   export default {
     name: 'LearnersReport',
     setup(props) {
-      const {
-        noTestDataLabel$,
-        supportNeededLabel$,
-        gainingMomentumLabel$,
-        onTrackLabel$,
-        riskLevelLabel$,
-        noLearnersAttemptedLabel$,
-      } = coursesStrings;
+      const { supportNeededLabel$, gainingMomentumLabel$, onTrackLabel$, unitProgressLabel$ } =
+        coursesStrings;
       const { groupsLabel$ } = coachStrings;
       const { learnersLabel$, learnerLabel$ } = coreStrings;
 
       const data = toRef(props, 'prefetchedData');
 
-      const activeTestStatus = computed(() => data.value?.activeTestStatus || 'not_activated');
       const loading = computed(() => !data.value);
 
       const activeTestScores = computed(() => {
@@ -155,25 +145,22 @@
           });
       });
 
-      const noLearnersAttempted = computed(() => {
-        return (
-          activeTestStatus.value !== 'not_activated' &&
-          data.value?.activeTestType !== null &&
-          Object.keys(activeTestScores.value).length === 0
-        );
-      });
-
       const headers = computed(() => [
-        { label: learnerLabel$(), dataType: 'string', columnId: 'learner' },
-        { label: groupsLabel$(), dataType: 'string', columnId: 'groups', width: '180px' },
-        { label: riskLevelLabel$(), dataType: 'string', columnId: 'riskLevel', width: '180px' },
+        { label: learnerLabel$(), dataType: 'string', columnId: 'learner', minWidth: '160px' },
+        {
+          label: unitProgressLabel$(),
+          dataType: 'string',
+          columnId: 'riskLevel',
+          minWidth: '180px',
+        },
+        { label: groupsLabel$(), dataType: 'string', columnId: 'groups', minWidth: '160px' },
       ]);
 
       const rows = computed(() =>
         sortedLearners.value.map(learner => [
           learner.name,
-          (learner.groups || []).join(', '),
           learner.riskLevel ?? '',
+          (learner.groups || []).join(', '),
         ]),
       );
 
@@ -209,14 +196,10 @@
 
       return {
         loading,
-        activeTestStatus,
-        noLearnersAttempted,
         headers,
         rows,
         sortedLearners,
         learnersLabel$,
-        noTestDataLabel$,
-        noLearnersAttemptedLabel$,
         supportNeededLabel$,
         gainingMomentumLabel$,
         onTrackLabel$,
@@ -246,6 +229,16 @@
 
   .empty-state {
     padding: 16px;
+  }
+
+  .learners-report-table {
+    font-size: 14px;
+  }
+
+  .learner-link {
+    display: inline-flex;
+    align-items: flex-start;
+    padding: 4px 12px 5px 8px;
   }
 
   .risk-badge {

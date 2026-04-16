@@ -1,100 +1,119 @@
 <template>
 
-  <CoachAppBarPage>
-    <KPageContainer class="container">
-      <KCircularLoader v-if="pageLoading" />
-      <div
-        v-else
-        class="header"
-      >
-        <KRouterLink
-          class="go-back"
-          icon="back"
-          :text="goBackAction$()"
-          appearance="basic-link"
-          :to="backRoute"
-        />
-        <CoachHeader
-          hideClassName
-          :title="course?.title || courseSession?.title || ''"
+  <CoachAppBarPage :pageTitle="coachPageTitle">
+    <KCircularLoader v-if="pageLoading" />
+    <KGrid v-else>
+      <!-- Header row (full width) -->
+      <KGridItem>
+        <KPageContainer style="padding-top: 24px">
+          <KRouterLink
+            class="go-back"
+            icon="back"
+            :text="goBackAction$()"
+            appearance="basic-link"
+            :to="backRoute"
+          />
+          <div
+            class="header"
+            :style="headerStyles"
+          >
+            <h1 class="course-title">
+              {{ (course && course.title) || (courseSession && courseSession.title) || '' }}
+            </h1>
+            <div
+              v-if="!$isPrint"
+              :style="optionsButtonStyles"
+            >
+              <KButton
+                :text="optionsLabel$()"
+                hasDropdown
+              >
+                <template #menu>
+                  <KDropdownMenu
+                    :options="courseMenuOptions"
+                    :constrainToScrollParent="false"
+                    @select="handleMenuSelect"
+                  />
+                </template>
+              </KButton>
+            </div>
+            <MissingResourceAlert v-if="contentMissing" />
+          </div>
+        </KPageContainer>
+      </KGridItem>
+
+      <!-- Sidebar (4-span) -->
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 4 }">
+        <KPageContainer
+          v-if="courseSession"
+          :topMargin="24"
         >
-          <template #actions>
-            <KButton :text="optionsLabel$()">
-              <template #menu>
-                <KDropdownMenu
-                  :options="[]"
-                  maxWidth="none"
-                  @select="() => null"
-                />
-              </template>
-            </KButton>
+          <KCircularLoader v-if="dataLoading" />
+          <template v-else>
+            <div class="course-active status-item">
+              <KLabeledIcon
+                class="status-icon"
+                icon="unlistedchannel"
+                :label="visibleToLearnersLabel$()"
+              />
+              <KSwitch
+                :value="courseSession.active"
+                :disabled="contentMissing"
+                @change="toggleCourseActive"
+              />
+            </div>
+            <div class="status-item">
+              <KLabeledIcon
+                class="status-icon"
+                icon="classes"
+                :label="classLabel$()"
+              />
+              <div class="icon-aligned-text">
+                {{ courseSession && courseSession.classroom && courseSession.classroom.name }}
+              </div>
+            </div>
+            <div class="status-item">
+              <KLabeledIcon
+                class="status-icon"
+                icon="group"
+                :label="recipientsLabel$()"
+              />
+              <Recipients
+                class="icon-aligned-text"
+                :groupNames="getRecipientNamesForCourseSession(courseSession)"
+                :hasAssignments="courseSession.assignments.length > 0"
+              />
+            </div>
+            <div class="status-item">
+              <KLabeledIcon
+                class="status-icon"
+                icon="data"
+                :label="sizeLabel$()"
+              />
+              <div class="icon-aligned-text">
+                {{ numberOfResources$({ value: course && course.on_device_resources }) }}
+              </div>
+            </div>
+            <div class="status-item">
+              <KLabeledIcon
+                class="status-icon"
+                icon="schedule"
+                :label="dateAssigned$()"
+              />
+              <div class="icon-aligned-text">
+                <ElapsedTime :date="new Date(courseSession.date_created)" />
+              </div>
+            </div>
           </template>
-        </CoachHeader>
-      </div>
-      <MissingResourceAlert v-if="contentMissing" />
-      <div
-        v-if="courseSession"
-        class="content"
-      >
-        <KCircularLoader v-if="dataLoading" />
-        <section
-          v-else
-          class="course-status"
+        </KPageContainer>
+      </KGridItem>
+
+      <KGridItem :layout12="{ span: $isPrint ? 12 : 8 }">
+        <KPageContainer
+          v-if="courseSession"
+          :topMargin="24"
+          class="tabs-list"
         >
-          <div class="course-active">
-            <KLabeledIcon
-              class="status-icon"
-              icon="previewUnavailable"
-              :label="visibleToLearnersLabel$()"
-            />
-            <KSwitch
-              :value="courseSession.active"
-              :disabled="contentMissing"
-              @change="toggleCourseActive"
-            />
-          </div>
-          <div class="course-class">
-            <KLabeledIcon
-              class="status-icon"
-              icon="classes"
-              :label="classLabel$()"
-            />
-            <div class="icon-aligned-text">{{ courseSession?.classroom?.name }}</div>
-          </div>
-          <div class="course-recipients">
-            <KLabeledIcon
-              class="status-icon"
-              icon="group"
-              :label="recipientsLabel$()"
-            />
-            <Recipients
-              class="icon-aligned-text"
-              :groupNames="getRecipientNamesForCourseSession(courseSession)"
-              :hasAssignments="courseSession.assignments.length > 0"
-            />
-          </div>
-          <div>
-            <KLabeledIcon
-              class="status-icon"
-              icon="data"
-              :label="sizeLabel$()"
-            />
-            <div class="icon-aligned-text">
-              {{ numberOfResources$({ value: course?.on_device_resources }) }}
-            </div>
-          </div>
-          <div>
-            <KLabeledIcon
-              class="status-icon"
-              icon="unchecked"
-              :label="dateAssigned$()"
-            />
-            <div class="icon-aligned-text">
-              <ElapsedTime :date="new Date(courseSession.date_created)" />
-            </div>
-          </div>
-        </section>
-        <section class="course-details">
           <KTabsList
             ref="tabList"
             tabsId="courseTabs"
@@ -113,7 +132,10 @@
                 class="active-unit"
                 :style="activeUnitStyles"
               >
-                <div class="active-unit-title">
+                <div
+                  class="active-unit-title"
+                  :style="activeUnitTitleStyles"
+                >
                   <!-- TODO: Replace :to with real route once unit detail route is available -->
                   <KRouterLink
                     :text="activeUnit.numberedTitle"
@@ -124,17 +146,13 @@
                       class="pill"
                       :style="statusPillStyles"
                     >
-                      <KIcon
-                        icon="info"
-                        :color="$themeTokens.textInverted"
-                      />
                       {{ activeUnit$() }}
                     </span>
-                    <span class="status-message">
-                      <b> {{ unitStatusMessages.boldMessage }} </b>
-                      <span class="status-plain-message">{{
-                        unitStatusMessages.plainMessage
-                      }}</span>
+                    <span
+                      v-if="unitStatusMessages.statusMessage"
+                      class="status-message"
+                    >
+                      {{ unitStatusMessages.statusMessage }}
                     </span>
                   </div>
                 </div>
@@ -142,6 +160,7 @@
                   primary
                   :text="unitStatusMessages.buttonLabel"
                   :class="$computedClass(testButtonStyles)"
+                  :style="activeUnitButtonStyles"
                   @click="onUnitButtonClick"
                 />
               </div>
@@ -175,9 +194,6 @@
                         :text="unit.numberedTitle"
                         :to="{}"
                       />
-                      <span>
-                        <!-- put end items here -->
-                      </span>
                     </div>
                   </template>
                 </AccordionItem>
@@ -215,6 +231,36 @@
               </AccordionContainer>
             </template>
             <template #[TABS.LEARNERS]>
+              <div
+                v-if="activeUnit"
+                class="active-unit"
+                :style="activeUnitStyles"
+              >
+                <div
+                  class="active-unit-title"
+                  :style="activeUnitTitleStyles"
+                >
+                  <!-- TODO: Replace :to with real route once unit detail route is available -->
+                  <KRouterLink
+                    :text="activeUnit.numberedTitle"
+                    :to="{}"
+                  />
+                  <div class="unit-status">
+                    <span
+                      class="pill"
+                      :style="statusPillStyles"
+                    >
+                      {{ activeUnit$() }}
+                    </span>
+                    <span
+                      v-if="unitStatusMessages.statusMessage"
+                      class="status-message"
+                    >
+                      {{ unitStatusMessages.statusMessage }}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <LearnersReport
                 :prefetchedData="learnersReportData"
                 :learnerRoute="learnerRoute"
@@ -222,12 +268,13 @@
             </template>
             <template #[TABS.OBJECTIVES]>
               <div class="learning-objectives-tab">
-                <AccordionContainer :key="activeUnit ? activeUnit.id : 'complete'">
+                <AccordionContainer>
                   <AccordionItem
                     v-for="unit in allUnits"
                     :key="unit.id"
                     :title="unitObjectiveTitle(unit)"
                     :headerAppearanceOverrides="courseObjectiveheaderstyle"
+                    class="objective-accordion-item"
                     :contentAppearanceOverrides="{
                       padding: '0',
                     }"
@@ -244,9 +291,27 @@
               </div>
             </template>
           </KTabsPanel>
-        </section>
-      </div>
-    </KPageContainer>
+        </KPageContainer>
+      </KGridItem>
+    </KGrid>
+
+    <!--
+      Router allow us access to the course side panels (CourseDetails, SelectRecipients)
+      defined as children of COURSE_SUMMARY (in addition to assign courses) in coursesRoutes.js
+    -->
+    <router-view @refreshData="refreshCourseSessionData" />
+
+    <KModal
+      v-if="showDeleteModal"
+      :title="deleteCourseFromSummaryTitle$()"
+      :submitText="deleteAction$()"
+      :cancelText="cancelAction$()"
+      @cancel="showDeleteModal = false"
+      @submit="confirmDeleteCourse"
+    >
+      <p>{{ deleteCourseFromSummaryConfirmation$() }}</p>
+    </KModal>
+
     <KModal
       v-if="activeModal"
       :title="activeModal.title"
@@ -257,7 +322,7 @@
     >
       <div>{{ activeModal.text }}</div>
       <div
-        v-if="activeTest?.status === 'active'"
+        v-if="activeTest && activeTest.status === 'active'"
         class="post-modal-panel"
         :style="{ backgroundColor: $themePalette.grey.v_100 }"
       >
@@ -266,7 +331,9 @@
             {{ completedLabel$() }}
           </div>
           <div class="panel-message">
-            {{ nOfMLearners$({ n: activeModalCompletedCount, m: activeUnitTotalLearners }) }}
+            {{
+              nOfMLearnersCompleted$({ n: activeModalCompletedCount, m: activeUnitTotalLearners })
+            }}
           </div>
         </div>
         <div class="panel-item">
@@ -298,7 +365,7 @@
 
 <script>
 
-  import { computed, getCurrentInstance, ref, watch } from 'vue';
+  import { computed, ref, watch, nextTick } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
@@ -307,10 +374,12 @@
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
-  import { isRtl, currentLanguage } from 'kolibri/utils/i18n';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import store from 'kolibri/store';
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
-  import CoachHeader from '../common/CoachHeader.vue';
   import { coachStrings } from '../../views/common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import useCourseSession from '../../composables/useCourseSession';
@@ -318,6 +387,9 @@
   import { UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
+  import { overrideRoute } from '../../utils';
+  import { useCourses } from '../../composables/useCourses';
+  import useAssignCourse from './composables/useAssignCourse';
   import LearningObjectivesReport from './LearningObjectivesReport.vue';
   import LearnersReport from './LearnersReport.vue';
   import LearnerSidePanel from './LearnerSidePanel.vue';
@@ -329,7 +401,6 @@
       AccordionContainer,
       AccordionItem,
       CoachAppBarPage,
-      CoachHeader,
       ElapsedTime,
       LearnerSidePanel,
       LearningObjectivesReport,
@@ -340,8 +411,8 @@
     },
     setup() {
       const {
-        workingOnLessons$,
-        numLearners$,
+        nOfMLearnersWorkingOnLessons$,
+        nOfMLearnersCompleted$,
         startPreTest$,
         startPostTest$,
         dateAssigned$,
@@ -354,15 +425,12 @@
         endPreTestForUnitConfirmation$,
         endPostTestForUnitConfirmation$,
         keepRunning$,
-        preTestLabel$,
         lockedLabel$,
         numUnits$,
         unitsLabel$,
         learningObjectivesLabel$,
-        readyToStartLabel$,
         completedUnitsLabel$,
         upcomingUnitsLabel$,
-        nOfMLearners$,
         activeUnit$,
         visibleToLearnersLabel$,
         preTestInProgress$,
@@ -370,6 +438,12 @@
         postTestInProgress$,
         postTestResults$,
         unitTitleWithStatus$,
+        courseDetailsAction$,
+        editRecipientsAction$,
+        courseDeleted$,
+        courseDeleteError$,
+        deleteCourseFromSummaryTitle$,
+        deleteCourseFromSummaryConfirmation$,
       } = coursesStrings;
 
       const { recipientsLabel$, sizeLabel$, numberOfResources$ } = coachStrings;
@@ -382,14 +456,19 @@
         goBackAction$,
         optionsLabel$,
         cancelAction$,
+        deleteAction$,
+        defaultErrorMessage$,
       } = coreStrings;
+
+      const { windowIsSmall } = useKResponsiveWindow();
 
       const route = useRoute();
       const router = useRouter();
-      const backRoute = computed(() => {
-        // include existing route params/query for classId and such if present
-        return { ...route, name: PageNames.COURSES_ROOT };
-      });
+      const { createSnackbar } = useSnackbar();
+      const backRoute = computed(() => ({
+        name: PageNames.COURSES_ROOT,
+        params: { classId: route.params.classId },
+      }));
 
       const courseSessionId = computed(() => route.params.courseSessionId);
 
@@ -410,10 +489,96 @@
         courseSession,
         toggleCourseActive,
         units,
+        refreshCourseSessionData,
       } = useCourseSession(courseSessionId);
       const allUnits = computed(() => units.value || []);
 
-      const { getRecipientNamesForCourseSession } = useClassSummary();
+      const { getRecipientNamesForCourseSession, className } = useClassSummary();
+      const { deleteCourse } = useCourses();
+
+      const coachPageTitle = computed(() =>
+        [course.value?.title, className.value].filter(Boolean).join(' - '),
+      );
+
+      // Learner counts derived from the active unit's report
+      // (activeUnitReport is defined below after unitReportInfo is set up)
+      const activeUnitLearnerStats = computed(() => {
+        const reportData = unitReportInfo.value[activeUnit.value?.id]?.reportData;
+        if (!reportData) return { total: 0, preTestCompleted: 0, postTestCompleted: 0 };
+        return {
+          total: reportData.learners?.length || 0,
+          preTestCompleted: Object.keys(reportData.pre_test?.scores || {}).length,
+          postTestCompleted: Object.keys(reportData.post_test?.scores || {}).length,
+        };
+      });
+
+      // Set up provide/inject for the assign-course side panel
+      const assignCourse = useAssignCourse({
+        classId: computed(() => route.params.classId),
+      });
+
+      // Options dropdown menu
+      const courseMenuOptions = computed(() => [
+        courseDetailsAction$(),
+        editRecipientsAction$(),
+        deleteAction$(),
+      ]);
+
+      const showDeleteModal = ref(false);
+
+      const confirmDeleteCourse = async () => {
+        if (!courseSession.value) return;
+        const courseId = courseSession.value.id;
+        try {
+          await deleteCourse(courseId);
+          router.push(backRoute.value, async () => {
+            await nextTick();
+            createSnackbar(courseDeleted$());
+          });
+        } catch {
+          createSnackbar(courseDeleteError$());
+        }
+        showDeleteModal.value = false;
+      };
+
+      const handleMenuSelect = async selection => {
+        if (selection === deleteAction$()) {
+          showDeleteModal.value = true;
+          return;
+        }
+
+        if (selection === courseDetailsAction$()) {
+          assignCourse.resetAssignment();
+          assignCourse.setExistingAssignment(courseSession.value);
+          await nextTick();
+          router.push(
+            overrideRoute(route, {
+              name: PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
+              params: { courseId: course.value.id },
+            }),
+          );
+          return;
+        }
+
+        if (selection === editRecipientsAction$()) {
+          try {
+            const courseContent = await ContentNodeResource.fetchModel({
+              id: courseSession.value.course,
+            });
+            assignCourse.selectCourse(courseContent);
+            assignCourse.setCourseVisibility(courseSession.value.active);
+            assignCourse.setExistingAssignment(courseSession.value);
+            await nextTick();
+            router.push(
+              overrideRoute(route, {
+                name: PageNames.COURSE_SUMMARY_ASSIGN_SELECT_RECIPIENTS,
+              }),
+            );
+          } catch (e) {
+            createSnackbar(defaultErrorMessage$());
+          }
+        }
+      };
 
       // UI-only state
       const activeModal = ref(null);
@@ -428,9 +593,6 @@
         selectedObjective.value = null;
       }
 
-      // Capture store synchronously while instance context is available
-      const store = getCurrentInstance().proxy.$store;
-
       // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});
 
@@ -439,15 +601,15 @@
         const unitList = allUnits.value;
         if (!sessionId || !unitList.length) return;
         const getGroupNames = store.getters['classSummary/getGroupNamesForLearner'];
-        for (const unit of unitList) {
-          UnitReportResource.fetchReport({
-            courseSessionId: sessionId,
-            unitContentnodeId: unit.id,
-          })
-            .then(data => {
-              unitReportInfo.value = {
-                ...unitReportInfo.value,
-                [unit.id]: {
+        Promise.all(
+          unitList.map(unit =>
+            UnitReportResource.fetchReport({
+              courseSessionId: sessionId,
+              unitContentnodeId: unit.id,
+            })
+              .then(data => ({
+                unitId: unit.id,
+                result: {
                   ...deriveUnitReportInfo(data),
                   reportData: { ...data, unit_title: unit.numberedTitle },
                   learnersWithGroups: data.learners.map(learner => ({
@@ -455,22 +617,28 @@
                     groups: getGroupNames(learner.id),
                   })),
                 },
-              };
-            })
-            .catch(error => {
-              store.dispatch('handleApiError', { error });
-              unitReportInfo.value = {
-                ...unitReportInfo.value,
-                [unit.id]: {
-                  activeTestType: null,
-                  activeTestStatus: 'not_activated',
-                  bucketedObjectives: [],
-                  reportData: null,
-                  learnersWithGroups: [],
-                },
-              };
-            });
-        }
+              }))
+              .catch(error => {
+                store.dispatch('handleApiError', { error });
+                return {
+                  unitId: unit.id,
+                  result: {
+                    activeTestType: null,
+                    activeTestStatus: 'not_activated',
+                    bucketedObjectives: [],
+                    reportData: null,
+                    learnersWithGroups: [],
+                  },
+                };
+              }),
+          ),
+        ).then(entries => {
+          const newInfo = {};
+          for (const { unitId, result } of entries) {
+            newInfo[unitId] = result;
+          }
+          unitReportInfo.value = newInfo;
+        });
       }
 
       // Fetch reports when units become available
@@ -524,9 +692,9 @@
       const courseObjectiveheaderstyle = computed(() => {
         return {
           backgroundColor: themePalette().grey.v_100,
-          padding: '12px 16px',
+          padding: '0px 16px',
           fontWeight: 'bold',
-          textAlign: isRtl(currentLanguage) ? 'right' : 'left',
+          fontSize: '16px',
         };
       });
 
@@ -557,44 +725,29 @@
 
       // Phase-based status messages
       const unitStatusMessages = computed(() => {
+        const { preTestCompleted, postTestCompleted, total } = activeUnitLearnerStats.value;
         switch (unitPhase.value) {
           case UnitPhase.PRE_TEST_PENDING:
-            return {
-              boldMessage: preTestLabel$(),
-              plainMessage: readyToStartLabel$(),
-              buttonLabel: startPreTest$(),
-            };
+            // No status message for the initial pre-test pending state
+            return { buttonLabel: startPreTest$() };
           case UnitPhase.PRE_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({
-                n: activeUnitScoreCount('pre_test'),
-                m: activeUnitTotalLearners.value,
-              }),
-              plainMessage: completedLabel$(),
+              statusMessage: nOfMLearnersCompleted$({ n: preTestCompleted, m: total }),
               buttonLabel: endPreTest$(),
             };
           case UnitPhase.POST_TEST_PENDING:
             return {
-              boldMessage: nOfMLearners$({
-                n: activeUnitScoreCount('pre_test'),
-                m: activeUnitTotalLearners.value,
-              }),
-              plainMessage: workingOnLessons$(),
+              statusMessage: nOfMLearnersWorkingOnLessons$({ n: preTestCompleted, m: total }),
               buttonLabel: startPostTest$(),
             };
           case UnitPhase.POST_TEST_ACTIVE:
             return {
-              boldMessage: nOfMLearners$({
-                n: activeUnitScoreCount('post_test'),
-                m: activeUnitTotalLearners.value,
-              }),
-              plainMessage: completedLabel$(),
+              statusMessage: nOfMLearnersCompleted$({ n: postTestCompleted, m: total }),
               buttonLabel: endPostTest$(),
             };
           case UnitPhase.COMPLETE:
             return {
-              boldMessage: '',
-              plainMessage: completedLabel$(),
+              statusMessage: completedLabel$(),
               buttonLabel: '',
             };
           default:
@@ -609,8 +762,18 @@
           unitPhase.value === UnitPhase.POST_TEST_ACTIVE;
         return {
           backgroundColor: isTestActive ? themePalette().yellow.v_100 : themePalette().blue.v_100,
+          flexDirection: windowIsSmall.value ? 'column' : 'row',
+          alignItems: windowIsSmall.value ? 'flex-start' : 'center',
+          gap: windowIsSmall.value ? '12px' : '0',
         };
       });
+
+      // On small screens the title should stretch to full width; on larger screens
+      // the CSS width: 75% rule in .active-unit-title takes effect.
+      const activeUnitTitleStyles = computed(() => (windowIsSmall.value ? { width: '100%' } : {}));
+
+      // On small screens the action button should be full-width.
+      const activeUnitButtonStyles = computed(() => (windowIsSmall.value ? { width: '100%' } : {}));
 
       const statusPillStyles = computed(() => {
         const isTestActive =
@@ -634,6 +797,15 @@
           fontWeight: 'bold',
         };
       });
+
+      const headerStyles = computed(() => ({
+        flexDirection: windowIsSmall.value ? 'column' : 'row',
+        alignItems: windowIsSmall.value ? 'flex-start' : 'center',
+      }));
+
+      const optionsButtonStyles = computed(() =>
+        windowIsSmall.value ? { alignSelf: 'flex-end' } : {},
+      );
 
       // Phase-based button click handler
       function onUnitButtonClick() {
@@ -751,6 +923,7 @@
       }
 
       return {
+        coachPageTitle,
         backRoute,
         contentMissing,
         dataLoading,
@@ -772,16 +945,18 @@
         upcomingUnits,
         testButtonStyles,
         activeUnitStyles,
+        activeUnitTitleStyles,
+        activeUnitButtonStyles,
         recipientsLabel$,
         sizeLabel$,
         classLabel$,
         visibleToLearnersLabel$,
         unitStatusMessages,
         upcomingUnitsAccordionHeaderStyles,
-        numLearners$,
         goBackAction$,
         dateAssigned$,
         optionsLabel$,
+        cancelAction$,
         activeUnit$,
         numberOfResources$,
         completedUnitsLabel$,
@@ -791,9 +966,10 @@
         lockedLabel$,
         completedLabel$,
         inProgressLabel$,
-        nOfMLearners$,
         getRecipientNamesForCourseSession,
 
+        headerStyles,
+        optionsButtonStyles,
         unitsPillStyles,
         statusPillStyles,
         onUnitButtonClick,
@@ -810,6 +986,15 @@
         selectedObjective,
         onSelectObjective,
         onClosePanel,
+
+        courseMenuOptions,
+        showDeleteModal,
+        confirmDeleteCourse,
+        handleMenuSelect,
+        deleteCourseFromSummaryTitle$,
+        deleteCourseFromSummaryConfirmation$,
+        deleteAction$,
+        refreshCourseSessionData,
       };
     },
   };
@@ -828,21 +1013,36 @@
   }
 
   .go-back {
+    margin-top: 8px;
+  }
+
+  .header {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
     margin-top: 16px;
   }
 
-  .content {
-    display: flex;
-    width: 100%;
+  .tabs-list {
+    padding: 0;
+    padding-top: 12px;
   }
 
-  .course-status {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 190px;
-    padding: 24px 16px 24px 24px;
+  .course-title {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .status-item {
+    margin-bottom: 16px;
     line-height: 140%;
+  }
+
+  .course-active {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding-top: 12px;
   }
 
   .icon-aligned-text {
@@ -850,8 +1050,9 @@
     padding-left: 32px;
   }
 
-  .course-details {
-    width: calc(100% - 190px);
+  .status-icon {
+    width: auto;
+    font-weight: bold;
   }
 
   .active-unit {
@@ -860,10 +1061,32 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
+    font-size: 14px;
   }
 
   .active-unit a {
     font-weight: bold;
+  }
+
+  .pill {
+    flex-shrink: 0;
+    padding: 4px 12px;
+    padding-bottom: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 16px;
+  }
+
+  .unit-status {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .status-message {
+    flex: 1 1 0;
+    min-width: 0;
   }
 
   .active-unit-title {
@@ -872,27 +1095,17 @@
     flex-grow: 2;
     gap: 8px;
     width: 75%;
-  }
-
-  .pill {
-    display: inline-flex;
-    gap: 3px;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 16px;
-  }
-
-  .unit-status {
-    display: flex;
-    gap: 16px;
-    align-items: center;
+    font-size: 16px;
   }
 
   .upcoming-unit {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 12px 18px;
+    font-size: 14px;
+    border-right: unset !important;
+    border-left: unset !important;
   }
 
   .post-modal-panel {
@@ -917,18 +1130,14 @@
     text-transform: lowercase;
   }
 
-  .course-active {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .status-icon {
-    font-weight: bold;
-  }
-
   .learning-objectives-tab {
-    padding: 0;
+    td {
+      padding: 0;
+    }
+  }
+
+  .objective-accordion-item {
+    font-size: 14px;
   }
 
 </style>

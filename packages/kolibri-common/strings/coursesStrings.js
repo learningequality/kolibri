@@ -106,13 +106,13 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Error message shown when assigning a course fails because one or more selected individual learners have been deleted from the facility.',
   },
-  courseDeleteError: {
-    message: 'There was an error deleting the course assignment',
-    context: 'Error message shown when a course assignment could not be removed',
-  },
   courseDeleted: {
-    message: 'Course assignment deleted',
+    message: 'Course deleted',
     context: 'Snackbar message when a course has been deleted',
+  },
+  courseDeleteError: {
+    message: 'There was an error deleting the course',
+    context: 'Error message shown when a course could not be removed',
   },
   deleteCourseConfirmation: {
     message: 'Delete course assignment "{title}"?',
@@ -121,6 +121,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   deleteCourseTitle: {
     message: 'Delete course assignment',
     context: 'Title for the modal that confirms course assignment deletion',
+  },
+  deleteCourseFromSummaryTitle: {
+    message: 'Delete course',
+    context: 'Title for the confirmation modal when deleting a course from the course detail page',
+  },
+  deleteCourseFromSummaryConfirmation: {
+    message:
+      'Are you sure you want to delete this course? Learners will no longer be able to access the course and their progress, including your access to coach reports, will be deleted.',
+    context: 'Confirmation message when deleting a course from the course detail page',
   },
   filterCourseStatus: {
     message: 'status',
@@ -278,13 +287,15 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Keep test running',
     context: 'Label for button that cancels modal for ending test',
   },
-  nOfMLearners: {
-    message: '{n, number} of {m, number} learners',
-    context: 'First part of label to be followed by a label "completed"',
+  nOfMLearnersWorkingOnLessons: {
+    message: '{n, number} of {m, number} learners working on lessons',
+    context:
+      'Indicates how many learners are currently working on lessons in a unit out of the total number of learners assigned',
   },
-  workingOnLessons: {
-    message: 'working on lessons',
-    context: 'Placed after message "n of m learners" - separated like this for styling',
+  nOfMLearnersCompleted: {
+    message: '{n, number} of {m, number} learners completed',
+    context:
+      'indicates how many learners have completed a unit or course out of the total number of learners assigned',
   },
   activeUnit: {
     message: 'Active unit',
@@ -339,7 +350,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context: 'Action label to view course details',
   },
   editRecipientsAction: {
-    message: 'Edit Recipients',
+    message: 'Edit recipients',
     context: 'Action label for editing which learners are assigned to a course.',
   },
   sparklineDistributionLabel: {
@@ -432,9 +443,9 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Risk level badge shown in the Learners report for learners whose aggregate score is above 60%',
   },
-  riskLevelLabel: {
-    message: 'Risk level',
-    context: 'Column header for the risk level indicator in the Learners report table',
+  unitProgressLabel: {
+    message: 'Unit progress',
+    context: 'Column header for the unit progress indicator in the Learners report table',
   },
   noLearnersAttemptedLabel: {
     message: 'No learners have attempted this test yet',
@@ -484,11 +495,6 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   progressLabel: {
     message: 'Progress',
     context: 'Label for the progress section in the learner side panel, displayed in uppercase',
-  },
-  losCompletedLabel: {
-    message: '{completed, number} of {total, number} LOs completed',
-    context:
-      'Progress row in the learner side panel showing how many learning objectives the learner has attempted, e.g. "3 of 8 LOs completed"',
   },
   individualLoPerformanceLabel: {
     message: 'Individual learning objective performance',

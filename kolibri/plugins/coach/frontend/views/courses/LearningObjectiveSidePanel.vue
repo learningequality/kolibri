@@ -14,17 +14,6 @@
       >
         <div class="summary-row">
           <span class="summary-label">
-            {{ completedLabel$() }}
-          </span>
-          <span
-            class="summary-value summary-value-bold"
-            data-testid="completion-count"
-          >
-            {{ nOfMLearners$({ n: completionCount, m: totalLearners }) }}
-          </span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">
             {{ testAveragesLabel$() }}
           </span>
           <span
@@ -123,7 +112,6 @@
   import SidePanelModal from 'kolibri-common/components/courses/sidePanel/SidePanelModal';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
-  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { classifyLearnerMastery } from '../../utils/scoreBucketing';
   import { ScoreBucket } from '../../constants/courseConstants';
@@ -136,7 +124,6 @@
     },
     setup(props) {
       const {
-        nOfMLearners$,
         preTestAverageLabel$,
         postTestAverageLabel$,
         learnersStrugglingLabel$,
@@ -145,8 +132,6 @@
         individualPerformanceLabel$,
         sortedByScoreLabel$,
       } = coursesStrings;
-
-      const { completedLabel$ } = coreStrings;
 
       const palette = themePalette();
       const tokens = themeTokens();
@@ -166,15 +151,6 @@
         }
         return null;
       });
-
-      const completionCount = computed(() => {
-        if (!activeTest.value) {
-          return 0;
-        }
-        return Object.keys(activeTest.value.scores).length;
-      });
-
-      const totalLearners = computed(() => props.reportData.learners.length);
 
       function computeAverage(testData) {
         if (!testData || testData.status === 'not_activated') {
@@ -244,8 +220,6 @@
 
       return {
         unitTitle,
-        completionCount,
-        totalLearners,
         preTestAverage,
         postTestAverage,
         sortedLearners,
@@ -253,12 +227,10 @@
         learnerRowStyle,
         scoreStyle,
         warningBannerStyle,
-        nOfMLearners$,
         preTestAverageLabel$,
         postTestAverageLabel$,
         learnersStrugglingLabel$,
         correctOfTotalLabel$,
-        completedLabel$,
         testAveragesLabel$,
         individualPerformanceLabel$,
         sortedByScoreLabel$,
