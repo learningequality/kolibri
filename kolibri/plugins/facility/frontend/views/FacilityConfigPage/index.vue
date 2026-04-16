@@ -247,6 +247,11 @@
         v-if="!isAppContext"
         class="bottom-bar-save-group"
       >
+        <KCircularLoader
+          v-if="pictureLoginTaskLoading"
+          :size="24"
+          data-testid="picture_password_assignment_status"
+        />
         <KButton
           :primary="true"
           class="save-button"
@@ -255,11 +260,6 @@
           name="save-settings"
           :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
           @click="saveConfig()"
-        />
-        <KCircularLoader
-          v-if="pictureLoginTaskLoading"
-          :size="24"
-          data-testid="picture_password_assignment_status"
         />
       </div>
     </BottomAppBar>
@@ -688,30 +688,23 @@
 
   .save-changes-row {
     display: flex;
-    justify-content: flex-start;
   }
 
-  .save-changes-inline-group {
+  .save-changes-inline-group,
+  .bottom-bar-save-group {
     display: inline-flex;
     gap: 8px;
     align-items: center;
+  }
+
+  .save-changes-inline-group {
     margin-top: 24px;
-    margin-left: -8px;
   }
 
   .save-changes-button {
     flex: 0 0 auto;
     margin-top: 0;
     margin-left: 0;
-  }
-
-  .bottom-bar-save-group {
-    position: absolute;
-    top: 20px;
-    right: 25px;
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
   }
 
   .nested-settings {

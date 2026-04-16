@@ -49,6 +49,7 @@ from kolibri.core.auth.signals import cascade_delete_user
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
+from kolibri.core.tasks.job import Job
 
 
 class FacilityFactory(factory.DjangoModelFactory):
@@ -2528,8 +2529,6 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def _setup_task_mocks(self, mock_storage, mock_task):
-        from kolibri.core.tasks.job import Job
-
         mock_job = Job(func="test_func", facility_id=self.facility.id)
         mock_task.validate_job_data.return_value = (mock_job, {})
         mock_task.enqueue.return_value = "test-job-id"
