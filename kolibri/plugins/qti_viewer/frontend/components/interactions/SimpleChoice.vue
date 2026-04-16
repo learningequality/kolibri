@@ -3,15 +3,17 @@
   <li
     class="qti-simple-choice"
     role="option"
-    :class="
+    tabindex="0"
+    :class="[
       $computedClass({
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
         },
-      })
-    "
+        ':focus': coreOutline,
+      }),
+    ]"
     :aria-selected="selected"
-    :style="extraStyles"
+    :style="[extraStyles]"
     @click="handleClick"
     @keydown.enter="handleClick"
     @keydown.space.prevent="handleClick"
@@ -25,10 +27,11 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
+  const coreOutline = themeOutlineStyle();
 
   export default {
     name: 'SimpleChoice',
@@ -56,6 +59,8 @@
       });
 
       return {
+        $themeTokens,
+        coreOutline,
         selected,
         handleClick,
         extraStyles,

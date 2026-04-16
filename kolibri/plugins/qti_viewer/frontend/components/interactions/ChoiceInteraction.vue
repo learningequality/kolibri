@@ -3,11 +3,35 @@
   import get from 'lodash/get';
   import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, provide } from 'vue';
+  import { createTranslator } from 'kolibri/utils/i18n';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
 
+  const strings = createTranslator('ChoiceInteractionStrings', {
+    choiceListLabel: {
+      message: 'Answer choices',
+      context: 'Accessible label for the list of answer choices in an assessment question',
+    },
+  });
+
+  const { choiceListLabel$ } = strings;
+
   function getComponentTag(vnode) {
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
+  }
+
+  /**
+   * Safely normalizes a response value to an array.
+   * Handles null, undefined, scalars, and arrays uniformly.
+   */
+  function getSelectionsArray(value) {
+    if (value === null || value === undefined) {
+      return [];
+    }
+    if (Array.isArray(value)) {
+      return value;
+    }
+    return [value];
   }
 
   export default {
@@ -29,13 +53,10 @@
 
       const isSelected = identifier => {
         const variable = responses[typedProps.responseIdentifier.value];
-        if (!variable.value) {
+        if (!variable) {
           return false;
         }
-        if (multiSelectable.value) {
-          return variable.value.includes(identifier);
-        }
-        return variable.value === identifier;
+        return getSelectionsArray(variable.value).includes(identifier);
       };
 
       const toggleSelection = identifier => {
@@ -44,15 +65,27 @@
         }
         const currentlySelected = isSelected(identifier);
         const variable = responses[typedProps.responseIdentifier.value];
+        if (!variable) {
+          return false;
+        }
 
         if (currentlySelected) {
-          variable.value = multiSelectable.value
-            ? variable.value.filter(v => v !== identifier)
-            : null;
+          if (multiSelectable.value) {
+            variable.value = getSelectionsArray(variable.value).filter(v => v !== identifier);
+          } else {
+            variable.value = null;
+          }
         } else {
-          variable.value = multiSelectable.value
-            ? [...(variable.value || []), identifier]
-            : identifier;
+          if (multiSelectable.value) {
+            const maxChoices = typedProps.maxChoices.value;
+            const currentSelections = getSelectionsArray(variable.value);
+            if (maxChoices > 0 && currentSelections.length >= maxChoices) {
+              return false;
+            }
+            variable.value = [...currentSelections, identifier];
+          } else {
+            variable.value = identifier;
+          }
         }
 
         return true;
@@ -63,7 +96,7 @@
       provide('toggleSelection', toggleSelection);
 
       const getShuffledOrder = choices => {
-        if (!typedProps.shuffle) {
+        if (!typedProps.shuffle.value) {
           return choices;
         }
 
@@ -113,9 +146,11 @@
           'ul',
           {
             attrs: {
+              role: 'listbox',
+              'aria-label': choiceListLabel$(),
               'aria-multiselectable': multiSelectable.value,
-              class: (attrs.class || '') + ' qti-choice-interaction',
             },
+            class: [attrs.class || '', 'qti-choice-interaction'],
           },
           orderedChoices.map(choice => choice.vnode),
         );
