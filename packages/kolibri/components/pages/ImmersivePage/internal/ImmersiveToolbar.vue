@@ -3,9 +3,6 @@
   <header>
     <KToolbar
       :title="appBarTitle"
-      :textColor="isFullscreen ? 'black' : 'white'"
-      type="clear"
-      :showIcon="showIcon"
       :style="{
         height: topBarHeight + 'px',
         backgroundColor: appBarBgColor
@@ -13,8 +10,8 @@
           : isFullscreen
             ? $themeTokens.appBar
             : $themePalette.black,
+        color: isFullscreen ? $themeTokens.text : $themeTokens.textInverted,
       }"
-      @nav-icon-click="$emit('navIconClick')"
     >
       <template #icon>
         <router-link
@@ -97,11 +94,6 @@
         validator(val) {
           return ['close', 'back'].includes(val);
         },
-      },
-      showIcon: {
-        type: Boolean,
-        required: false,
-        default: true,
       },
       route: {
         type: Object,

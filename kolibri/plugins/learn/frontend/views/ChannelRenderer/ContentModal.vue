@@ -12,7 +12,6 @@
       <nav>
         <KToolbar
           ref="toolbar"
-          :showIcon="true"
           :style="toolbarStyle"
         >
           <template #icon>

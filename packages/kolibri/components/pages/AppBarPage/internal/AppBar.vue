@@ -12,15 +12,13 @@
       <SkipNavigationLink />
 
       <KToolbar
-        :removeNavIcon="showAppNavView"
-        type="clear"
         class="app-bar"
         :style="{
           height: topBarHeight + 'px',
           color: themeConfig.appBar.textColor,
+          backgroundColor: 'transparent',
         }"
         :raised="false"
-        :removeBrandDivider="true"
       >
         <KTextTruncator
           :text="truncatedTitle"
