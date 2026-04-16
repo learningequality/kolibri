@@ -32,7 +32,7 @@
                   <KDropdownMenu
                     :options="courseMenuOptions"
                     :constrainToScrollParent="false"
-                    @select="handleMenuSelect"
+                    @select="handleMenuSelect($event.value)"
                   />
                 </template>
               </KButton>
@@ -120,7 +120,7 @@
             :ariaLabel="unitsLabel$()"
             :activeTabId="activeTabId"
             :tabs="tabs"
-            @click="id => (activeTabId = id)"
+            @click="onTabClick"
           />
           <KTabsPanel
             tabsId="courseTabs"
@@ -283,7 +283,7 @@
                     <template #content>
                       <LearningObjectivesReport
                         :prefetchedData="unitReportInfo[unit.id]"
-                        @select-objective="onSelectObjective"
+                        :objectiveRoute="objectiveRoute"
                       />
                     </template>
                   </AccordionItem>
@@ -394,6 +394,37 @@
   import LearnersReport from './LearnersReport.vue';
   import LearnerSidePanel from './LearnerSidePanel.vue';
   import LearningObjectiveSidePanel from './LearningObjectiveSidePanel.vue';
+
+  const TABS = { UNITS: 'units', LEARNERS: 'learners', OBJECTIVES: 'objectives' };
+  const MENU_ACTIONS = {
+    COURSE_DETAILS: 'COURSE_DETAILS',
+    EDIT_RECIPIENTS: 'EDIT_RECIPIENTS',
+    DELETE: 'DELETE',
+  };
+  const TAB_ROUTE_NAMES = {
+    [TABS.UNITS]: PageNames.COURSE_SUMMARY_UNITS,
+    [TABS.LEARNERS]: PageNames.COURSE_SUMMARY_LEARNERS,
+    [TABS.OBJECTIVES]: PageNames.COURSE_SUMMARY_OBJECTIVES,
+  };
+
+  const ROUTE_NAME_TO_TAB = {
+    [PageNames.COURSE_SUMMARY_UNITS]: TABS.UNITS,
+    [PageNames.COURSE_SUMMARY_LEARNERS]: TABS.LEARNERS,
+    [PageNames.COURSE_SUMMARY_LEARNER]: TABS.LEARNERS,
+    [PageNames.COURSE_SUMMARY_OBJECTIVES]: TABS.OBJECTIVES,
+    [PageNames.COURSE_SUMMARY_OBJECTIVE]: TABS.OBJECTIVES,
+  };
+
+  const unitsPillStyles = {
+    backgroundColor: themeTokens().surface,
+    fontWeight: 'normal',
+  };
+
+  const upcomingUnitsAccordionHeaderStyles = {
+    backgroundColor: themePalette().grey.v_100,
+    padding: '0px 16px',
+    fontWeight: 'bold',
+  };
 
   export default {
     name: 'CourseSummaryPage',
@@ -519,9 +550,9 @@
 
       // Options dropdown menu
       const courseMenuOptions = computed(() => [
-        courseDetailsAction$(),
-        editRecipientsAction$(),
-        deleteAction$(),
+        { label: courseDetailsAction$(), value: MENU_ACTIONS.COURSE_DETAILS },
+        { label: editRecipientsAction$(), value: MENU_ACTIONS.EDIT_RECIPIENTS },
+        { label: deleteAction$(), value: MENU_ACTIONS.DELETE },
       ]);
 
       const showDeleteModal = ref(false);
@@ -541,13 +572,13 @@
         showDeleteModal.value = false;
       };
 
-      const handleMenuSelect = async selection => {
-        if (selection === deleteAction$()) {
+      const handleMenuSelect = async action => {
+        if (action === MENU_ACTIONS.DELETE) {
           showDeleteModal.value = true;
           return;
         }
 
-        if (selection === courseDetailsAction$()) {
+        if (action === MENU_ACTIONS.COURSE_DETAILS) {
           assignCourse.resetAssignment();
           assignCourse.setExistingAssignment(courseSession.value);
           await nextTick();
@@ -560,7 +591,7 @@
           return;
         }
 
-        if (selection === editRecipientsAction$()) {
+        if (action === MENU_ACTIONS.EDIT_RECIPIENTS) {
           try {
             const courseContent = await ContentNodeResource.fetchModel({
               id: courseSession.value.course,
@@ -582,16 +613,6 @@
 
       // UI-only state
       const activeModal = ref(null);
-      const selectedLearner = ref(null);
-      const selectedObjective = ref(null);
-
-      function onSelectObjective(data) {
-        selectedObjective.value = data;
-      }
-
-      function onClosePanel() {
-        selectedObjective.value = null;
-      }
 
       // Per-unit report data fetched eagerly for LO report and titles
       const unitReportInfo = ref({});
@@ -698,8 +719,15 @@
         };
       });
 
-      const TABS = { UNITS: 'units', LEARNERS: 'learners', OBJECTIVES: 'objectives' };
-      const activeTabId = ref(TABS.UNITS);
+      const activeTabId = computed(() => ROUTE_NAME_TO_TAB[route.name] ?? TABS.UNITS);
+
+      function courseParams() {
+        return { classId: route.params.classId, courseSessionId: route.params.courseSessionId };
+      }
+
+      function onTabClick(tabId) {
+        router.push({ name: TAB_ROUTE_NAMES[tabId], params: courseParams() });
+      }
       const tabs = computed(() => [
         {
           id: TABS.UNITS,
@@ -782,19 +810,6 @@
         return {
           backgroundColor: isTestActive ? themePalette().orange.v_600 : themePalette().blue.v_600,
           color: themeTokens().textInverted,
-        };
-      });
-
-      const unitsPillStyles = {
-        backgroundColor: themeTokens().surface,
-        fontWeight: 'normal',
-      };
-
-      const upcomingUnitsAccordionHeaderStyles = computed(() => {
-        return {
-          backgroundColor: themePalette().grey.v_100,
-          padding: '0px 16px',
-          fontWeight: 'bold',
         };
       });
 
@@ -894,33 +909,47 @@
         return null;
       });
 
-      // Sync selectedLearner with route query — supports deep-linking to a learner panel
-      watch([() => route.query.learnerId, learnersReportData], ([learnerId]) => {
-        if (!learnerId) {
-          selectedLearner.value = null;
-          return;
-        }
-        const learner = learnersReportData.value?.learnersWithGroups?.find(l => l.id === learnerId);
-        selectedLearner.value = learner || null;
+      // Derived from route params — supports deep-linking to a learner panel
+      const selectedLearner = computed(() => {
+        const learnerId = route.params.learnerId;
+        if (!learnerId) return null;
+        return learnersReportData.value?.learnersWithGroups?.find(l => l.id === learnerId) ?? null;
       });
 
       function learnerRoute(learner) {
         return {
-          name: route.name,
-          params: { ...route.params },
-          query: { ...route.query, learnerId: learner.id },
+          name: PageNames.COURSE_SUMMARY_LEARNER,
+          params: { ...courseParams(), learnerId: learner.id },
         };
       }
 
       function closeLearnerPanel() {
-        const restQuery = { ...route.query };
-        delete restQuery.learnerId;
-        router.replace({
-          name: route.name,
-          params: { ...route.params },
-          query: restQuery,
-        });
+        router.push({ name: PageNames.COURSE_SUMMARY_LEARNERS, params: courseParams() });
       }
+
+      function objectiveRoute(objectiveId) {
+        return {
+          name: PageNames.COURSE_SUMMARY_OBJECTIVE,
+          params: { ...courseParams(), objectiveId },
+        };
+      }
+
+      function onClosePanel() {
+        router.push({ name: PageNames.COURSE_SUMMARY_OBJECTIVES, params: courseParams() });
+      }
+
+      // Derived: find objective data for the objectiveId in the route
+      const selectedObjective = computed(() => {
+        const objectiveId = route.params.objectiveId;
+        if (!objectiveId) return null;
+        for (const info of Object.values(unitReportInfo.value)) {
+          const obj = (info.bucketedObjectives || []).find(o => o.id === objectiveId);
+          if (obj) {
+            return { objective: obj, reportData: info.reportData };
+          }
+        }
+        return null;
+      });
 
       return {
         coachPageTitle,
@@ -935,6 +964,7 @@
         TABS,
 
         activeTabId,
+        onTabClick,
         activeTest,
         activeUnit,
         activeModal,
@@ -984,7 +1014,7 @@
         activeModalCompletedCount,
         activeModalInProgressCount,
         selectedObjective,
-        onSelectObjective,
+        objectiveRoute,
         onClosePanel,
 
         courseMenuOptions,
