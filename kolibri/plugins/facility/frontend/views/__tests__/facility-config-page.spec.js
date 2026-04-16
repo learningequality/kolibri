@@ -14,6 +14,13 @@ jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => (
 }));
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('../../composables/useFacilityEditor');
+jest.mock('kolibri-common/composables/useTaskPolling', () => {
+  const { ref } = require('vue');
+  return {
+    __esModule: true,
+    default: jest.fn(() => ({ tasks: ref([]) })),
+  };
+});
 jest.mock('../FacilityAppBarPage', () => ({
   name: 'FacilityAppBarPage',
   render(h) {
@@ -109,6 +116,8 @@ function createMockFacilityConfig(overrides = {}) {
     signInOption,
     picturePasswordStyle,
     picturePasswordShowIconText,
+    pictureLoginTaskId: ref(null),
+    saveFacilityLoginSettings: jest.fn().mockResolvedValue({}),
   };
 }
 
@@ -125,6 +134,7 @@ describe('facility config page view', () => {
   beforeEach(() => {
     useSnackbar.mockImplementation(() => useSnackbarMock({ createSnackbar }));
     useUser.mockImplementation(() => useUserMock({ isAppContext: false }));
+    useFacilityEditor.mockImplementation(() => createMockFacilityConfig());
     createSnackbar.mockReset();
   });
 
