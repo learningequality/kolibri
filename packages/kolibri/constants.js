@@ -41,6 +41,8 @@ export const ContentNodeKinds = {
   EXERCISE: 'exercise',
   TOPIC: 'topic',
   HTML5: 'html5',
+  H5P: 'h5p',
+  ZIM: 'zim',
   CHANNEL: 'channel', // e.g. a root topic
   EXAM: 'exam',
   LESSON: 'lesson',
