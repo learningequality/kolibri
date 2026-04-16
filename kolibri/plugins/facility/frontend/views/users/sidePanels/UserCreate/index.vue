@@ -241,7 +241,7 @@
       const router = useRouter();
       const instance = getCurrentInstance();
       const $refs = instance.proxy.$refs;
-      const { setFacilityId, facilityConfig, selectedFacility } = useFacility();
+      const { setFacilityId, facilityConfig, selectedFacility, fetchFacilities } = useFacility();
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
@@ -256,8 +256,7 @@
       const showPicturePasswordInfo = computed(
         () =>
           isPictureLoginActive.value &&
-          !learnerLimitReached.value &&
-          kind.value?.value === UserKinds.LEARNER,
+          (kind.value === null || kind.value?.value === UserKinds.LEARNER),
       );
 
       const userTypeOptions = computed(() => [
@@ -289,7 +288,7 @@
       const extraDemographics = ref({});
       const idNumber = ref('');
       const loading = ref(true);
-      const kind = ref(userTypeOptions.value[0]);
+      const kind = ref(null);
       const selectedClasses = ref([]);
       const classCoachIsSelected = ref(true);
       const busy = ref(false);
@@ -297,8 +296,7 @@
       const caughtErrors = ref([]);
       const showErrorWarning = ref(false);
       // Tracks the role that resetForm() last set so hasUnsavedChanges has the correct baseline.
-      // When learner creation is disabled, the default radio option is ASSIGNABLE_COACH
-      const defaultRole = ref(UserKinds.LEARNER);
+      const defaultRole = ref(null);
 
       const resetForm = () => {
         fullName.value = '';
@@ -309,13 +307,8 @@
         extraDemographics.value = {};
         idNumber.value = '';
         classCoachIsSelected.value = true;
-        if (learnerLimitReached.value) {
-          kind.value = userTypeOptions.value.find(opt => opt.value === UserKinds.COACH);
-          defaultRole.value = UserKinds.ASSIGNABLE_COACH;
-        } else {
-          kind.value = userTypeOptions.value[0];
-          defaultRole.value = UserKinds.LEARNER;
-        }
+        kind.value = null;
+        defaultRole.value = null;
         formSubmitted.value = false;
         caughtErrors.value = [];
         busy.value = false;
@@ -344,7 +337,7 @@
           return classCoachIsSelected.value ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
         }
         // Admin or Learner
-        return kind.value?.value;
+        return kind.value?.value ?? null;
       });
 
       const formIsValid = computed(() => {
@@ -394,7 +387,8 @@
         }
       };
 
-      const handleSubmitSuccess = () => {
+      const handleSubmitSuccess = async () => {
+        await fetchFacilities();
         createSnackbar(notificationStrings.userCreated$());
         props.onChange();
       };
@@ -485,7 +479,7 @@
           return false;
         }
 
-        handleSubmitSuccess();
+        await handleSubmitSuccess();
         return true;
       };
 
@@ -657,7 +651,7 @@
   .learner-limit-message {
     display: flex;
     gap: 8px;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 16px;
     font-size: 0.875em;
   }
