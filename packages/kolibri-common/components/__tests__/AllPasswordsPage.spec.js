@@ -1,13 +1,11 @@
+import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
 const { noPicturePasswordDescription$, printAction$, noLearnersInClass$ } = picturePasswordStrings;
-
-jest.mock('kolibri-common/apiResources/FacilityUserResource', () => ({
-  fetchCollection: jest.fn(),
-}));
 
 const CLASS_ID = 'class-abc';
 const LEARNERS = {
@@ -15,6 +13,23 @@ const LEARNERS = {
   bob: { id: 'u2', full_name: 'Bob Jones', username: 'bob', picture_password: null },
 };
 const ICON_LABELS = ['testIcon1', 'testIcon2', 'testIcon3'];
+
+jest.mock('kolibri-common/apiResources/FacilityUserResource', () => ({
+  fetchCollection: jest.fn(),
+}));
+
+jest.mock('kolibri-common/apiResources/ClassroomResource', () => ({
+  fetchModel: jest.fn(),
+}));
+
+jest.mock('kolibri-common/composables/useFacility', () => ({
+  default: jest.fn(() => ({
+    currentFacilityName: ref('Test Facility'),
+    facilityConfig: ref({
+      picture_password_settings: { icon_style: 'colorful' },
+    }),
+  })),
+}));
 
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(pw => {
@@ -32,6 +47,7 @@ function renderComponent(props = {}) {
 describe('AllPasswordsPage', () => {
   beforeEach(() => {
     FacilityUserResource.fetchCollection.mockResolvedValue(Object.values(LEARNERS));
+    ClassroomResource.fetchModel.mockResolvedValue({ name: 'Test Class' });
   });
 
   afterEach(() => {

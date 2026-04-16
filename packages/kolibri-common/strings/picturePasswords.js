@@ -173,7 +173,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context: 'Button label that navigates to the page listing all learner picture passwords',
   },
   noPicturePasswordDescription: {
-    message: 'No picture password assigned',
+    message: 'No picture password',
     context: 'Shown in the learner password list when a learner has no picture password set',
   },
   printAction: {
