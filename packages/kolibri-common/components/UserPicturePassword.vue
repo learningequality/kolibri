@@ -19,6 +19,11 @@
         >
           {{ icon.label }}
         </figcaption>
+        <span
+          v-if="showCounts"
+          class="icon-count"
+          :style="{ color: $themeTokens.annotation }"
+        >{{ index + 1 }}</span>
       </figure>
     </li>
   </ol>
@@ -85,6 +90,10 @@
         type: String,
         default: '46px',
       },
+      showCounts: {
+        type: Boolean,
+        default: false,
+      },
     },
   };
 
@@ -114,6 +123,11 @@
 
     figcaption {
       margin-top: 4px;
+      font-size: 12px;
+    }
+
+    .icon-count {
+      margin-top: 2px;
       font-size: 12px;
     }
   }

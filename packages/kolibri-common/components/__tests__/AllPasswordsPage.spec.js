@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
@@ -22,14 +23,7 @@ jest.mock('kolibri-common/apiResources/ClassroomResource', () => ({
   fetchModel: jest.fn(),
 }));
 
-jest.mock('kolibri-common/composables/useFacility', () => ({
-  default: jest.fn(() => ({
-    currentFacilityName: ref('Test Facility'),
-    facilityConfig: ref({
-      picture_password_settings: { icon_style: 'colorful' },
-    }),
-  })),
-}));
+jest.mock('kolibri-common/composables/useFacility');
 
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(pw => {
@@ -48,6 +42,9 @@ describe('AllPasswordsPage', () => {
   beforeEach(() => {
     FacilityUserResource.fetchCollection.mockResolvedValue(Object.values(LEARNERS));
     ClassroomResource.fetchModel.mockResolvedValue({ name: 'Test Class' });
+    useFacility.mockImplementation(() =>
+      useFacilityMock({ currentFacilityName: ref('Test Facility') }),
+    );
   });
 
   afterEach(() => {
@@ -56,7 +53,6 @@ describe('AllPasswordsPage', () => {
 
   describe('loading state', () => {
     it('shows a loading indicator before the fetch resolves', () => {
-      // Do not resolve the promise so we can inspect the loading state
       FacilityUserResource.fetchCollection.mockImplementation(() => new Promise(() => {}));
       renderComponent();
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -109,7 +105,6 @@ describe('AllPasswordsPage', () => {
     it('renders one row per learner', async () => {
       renderComponent();
       await global.flushPromises();
-      // One row per learner in tbody
       const rows = screen.getAllByRole('row');
       // 1 header row + 2 learner rows
       expect(rows).toHaveLength(3);
@@ -129,7 +124,6 @@ describe('AllPasswordsPage', () => {
       FacilityUserResource.fetchCollection.mockResolvedValue([]);
       renderComponent();
       await global.flushPromises();
-      // Only the header row
       const rows = screen.getAllByRole('row');
       expect(rows).toHaveLength(1);
     });

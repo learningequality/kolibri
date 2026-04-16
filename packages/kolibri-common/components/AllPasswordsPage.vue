@@ -167,6 +167,7 @@
               <UserPicturePassword
                 v-else
                 :picturePassword="previewLearner.picture_password"
+                :showCounts="true"
               />
             </div>
           </div>
@@ -378,7 +379,7 @@
   .no-password-info {
     display: flex;
     flex-direction: column;
-    max-width: 196px;
+    max-width: 165px;
     padding-left: 8px;
   }
 

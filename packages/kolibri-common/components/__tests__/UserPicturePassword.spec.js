@@ -1,4 +1,4 @@
-import { render } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import { ref } from 'vue';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
@@ -18,14 +18,30 @@ function mockFacilityConfig(iconStyle, showIconText = false) {
   );
 }
 
-describe('UserPicturePassword', () => {
-  it('renders expected captions for picturePassword 3.7.12', () => {
-    mockFacilityConfig(PicturePasswordIconStyle.COLORFUL);
+const COLORFUL_FACILITY_CONFIG = ref({
+  picture_password_settings: {
+    icon_style: PicturePasswordIconStyle.COLORFUL,
+  },
+});
 
+function setupFacilityMock() {
+  useFacility.mockImplementation(() =>
+    useFacilityMock({ facilityConfig: COLORFUL_FACILITY_CONFIG }),
+  );
+}
+
+describe('UserPicturePassword', () => {
+  beforeEach(() => {
+    setupFacilityMock();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders expected captions for picturePassword 3.7.12', () => {
     const { container } = render(UserPicturePassword, {
-      props: {
-        picturePassword: '3.7.12',
-      },
+      props: { picturePassword: '3.7.12' },
     });
 
     const captions = Array.from(container.querySelectorAll('figcaption')).map(node =>
@@ -84,5 +100,27 @@ describe('UserPicturePassword', () => {
       'picture-password-icon-waterStandard',
       'picture-password-icon-birdStandard',
     ]);
+  });
+
+  describe('showCounts prop', () => {
+    it('does not render count numbers by default', () => {
+      render(UserPicturePassword, {
+        props: { picturePassword: '3.7.12' },
+      });
+
+      expect(screen.queryByText('1')).not.toBeInTheDocument();
+      expect(screen.queryByText('2')).not.toBeInTheDocument();
+      expect(screen.queryByText('3')).not.toBeInTheDocument();
+    });
+
+    it('renders count numbers when showCounts is true', () => {
+      render(UserPicturePassword, {
+        props: { picturePassword: '3.7.12', showCounts: true },
+      });
+
+      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getByText('3')).toBeInTheDocument();
+    });
   });
 });
