@@ -85,26 +85,10 @@
                         {{ getPasswordTextLabels(learner.picture_password) }}
                       </div>
                       <!-- Images: icon sequence with labels -->
-                      <div
+                      <UserPicturePassword
                         v-else
-                        class="password-icon-sequence"
-                      >
-                        <div
-                          v-for="(icon, index) in getPasswordIcons(learner.picture_password)"
-                          :key="index"
-                          class="password-icon-item"
-                        >
-                          <KIcon
-                            :icon="icon.iconName"
-                            :aria-label="icon.label"
-                            class="password-icon"
-                          />
-                          <span
-                            class="password-icon-label"
-                            :style="{ color: $themeTokens.annotation }"
-                          >{{ icon.label }}</span>
-                        </div>
-                      </div>
+                        :picturePassword="learner.picture_password"
+                      />
                     </template>
                     <div
                       v-else
@@ -180,30 +164,10 @@
               >
                 {{ getPasswordTextLabels(previewLearner.picture_password) }}
               </div>
-              <div
+              <UserPicturePassword
                 v-else
-                class="password-icon-sequence"
-              >
-                <div
-                  v-for="(icon, index) in getPasswordIcons(previewLearner.picture_password)"
-                  :key="index"
-                  class="password-icon-item"
-                >
-                  <KIcon
-                    :icon="icon.iconName"
-                    :aria-label="icon.label"
-                    class="password-icon"
-                  />
-                  <span
-                    class="password-icon-label"
-                    :style="{ color: $themeTokens.annotation }"
-                  >{{ icon.label }}</span>
-                  <span
-                    class="password-icon-number"
-                    :style="{ color: $themeTokens.annotation }"
-                  >{{ index + 1 }}</span>
-                </div>
-              </div>
+                :picturePassword="previewLearner.picture_password"
+              />
             </div>
           </div>
         </div>
@@ -224,12 +188,13 @@
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import useUser from 'kolibri/composables/useUser';
   import useFacility from 'kolibri-common/composables/useFacility';
 
   export default {
     name: 'AllPasswordsPage',
-    components: { CoreTable, ImmersivePage },
+    components: { CoreTable, ImmersivePage, UserPicturePassword },
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
@@ -238,7 +203,7 @@
       const className = ref('');
 
       const { isAppContext } = useUser();
-      const { currentFacilityName, facilityConfig } = useFacility();
+      const { currentFacilityName } = useFacility();
 
       const { nameLabel$, cancelAction$, continueAction$ } = coreStrings;
       const {
@@ -252,8 +217,6 @@
         printFormatDialogHeader$,
         printFormatPreviewLabel$,
       } = picturePasswordStrings;
-
-      const iconStyle = computed(() => facilityConfig.value.picture_password_settings.icon_style);
 
       const previewLearner = computed(() => {
         return learners.value.find(learner => learner.picture_password) || null;
@@ -280,14 +243,6 @@
           });
       });
 
-      function getPasswordIcons(picturePassword) {
-        const style = iconStyle.value;
-        return getPicturePasswordIcons(picturePassword, style).map(icon => ({
-          label: icon.label,
-          iconName: style === 'colorful' ? icon.iconColorful : icon.iconStandard,
-        }));
-      }
-
       function getPasswordTextLabels(picturePassword) {
         return getPicturePasswordIcons(picturePassword)
           .map(icon => icon.label)
@@ -312,7 +267,6 @@
         currentFacilityName,
         previewLearner,
         hasPicturePasswords,
-        getPasswordIcons,
         getPasswordTextLabels,
         openPrintDialog,
         closePrintDialog,
@@ -436,34 +390,8 @@
     font-size: 12px;
   }
 
-  .password-icon-sequence {
-    display: flex;
-    gap: 16px;
-  }
-
   .password-text-sequence {
     font-size: 16px;
-  }
-
-  .password-icon-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .password-icon {
-    font-size: 48px;
-  }
-
-  .password-icon-label {
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .password-icon-number {
-    font-size: 11px;
-    text-align: center;
   }
 
   .preview-section {
