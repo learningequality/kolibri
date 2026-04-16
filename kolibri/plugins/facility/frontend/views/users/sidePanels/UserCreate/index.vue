@@ -67,19 +67,25 @@
             :label="userTypeLabel$()"
             :options="userTypeOptions"
           />
-          <p
+          <div
             v-if="learnerLimitReached"
             class="learner-limit-message"
             :style="{ color: $themeTokens.annotation }"
           >
-            {{ learnerCreationDisabled$() }}
-            <KButton
-              appearance="basic-link"
-              :text="learnMoreAction$()"
-              :aria-label="learnerCreationDisabled$() + ' ' + learnMoreAction$()"
-              @click="showLearnerLimitModal = true"
+            <KIcon
+              icon="warning"
+              :style="{ fill: $themePalette.yellow.v_600 }"
             />
-          </p>
+            <span>
+              {{ learnerCreationDisabled$() }}
+              <KButton
+                appearance="basic-link"
+                :text="learnMoreAction$()"
+                :aria-label="learnerCreationDisabled$() + ' ' + learnMoreAction$()"
+                @click="showLearnerLimitModal = true"
+              />
+            </span>
+          </div>
 
           <fieldset
             v-if="coachIsSelected"
@@ -649,6 +655,9 @@
   }
 
   .learner-limit-message {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
     margin-bottom: 16px;
     font-size: 0.875em;
   }
