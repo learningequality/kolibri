@@ -28,7 +28,7 @@ catalogs:
       specifier: 0.2.16
       version: 0.2.16
     kolibri-design-system:
-      specifier: 5.6.1
+      specifier: github:nucleogenesis/kolibri-design-system-1#1183--ktoolbar-cleanup
       version: 5.6.1
     lodash:
       specifier: ^4.17.23
@@ -183,7 +183,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -219,7 +219,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -295,7 +295,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -350,7 +350,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -417,7 +417,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -454,7 +454,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -493,7 +493,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -557,7 +557,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -599,7 +599,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -744,7 +744,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -817,7 +817,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -844,7 +844,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -871,7 +871,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -905,7 +905,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -954,7 +954,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -984,7 +984,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -1030,7 +1030,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
@@ -1100,7 +1100,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1299,7 +1299,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1559,7 +1559,7 @@ importers:
         version: link:../kolibri
       kolibri-design-system:
         specifier: 'catalog:'
-        version: 5.6.1
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -6743,8 +6743,9 @@ packages:
   kolibri-constants@0.2.16:
     resolution: {integrity: sha512-z2tH+Sl8vBX1Y7O3BYTfwQs33Ozp6QRKZIHhl66A8sZkxUVBFFKOR+SgGOt0U0Q7pT/PH4yfCZ5mu6u8J641zQ==}
 
-  kolibri-design-system@5.6.1:
-    resolution: {integrity: sha512-Uxnhq5maQWO76IrVktrzGOwuyI5NU3GyzpcNith9vKq5bM70f8PLEbV48T23vmeJsQqApac/oOWP2u7wxNZ6Kw==}
+  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a:
+    resolution: {tarball: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a}
+    version: 5.6.1
 
   launch-editor-middleware@2.12.0:
     resolution: {integrity: sha512-SgU5QWoR+Grq1sQedvS/RlfoyO6bdvrztpP+2RRg8UzE7Jz2Yup5J4jiFfm2J9dYBCQYD26AbJVbjnvgwdL6Pw==}
@@ -15381,7 +15382,7 @@ snapshots:
 
   kolibri-constants@0.2.16: {}
 
-  kolibri-design-system@5.6.1:
+  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a:
     dependencies:
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       autosize: 3.0.21
