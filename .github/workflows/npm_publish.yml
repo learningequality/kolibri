@@ -58,6 +58,7 @@ jobs:
       - name: Link workspace packages
         run: pnpm install --ignore-scripts --no-optional
       - name: Publish to npm
+        id: publish
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.npm_package }}" != "all" ]; then
             ./scripts/npm_publish.sh "${{ github.event.inputs.npm_package }}"
@@ -66,6 +67,28 @@ jobs:
           fi
           if [ -f publish_summary.md ]; then
             cat publish_summary.md >> "$GITHUB_STEP_SUMMARY"
+            echo "published=true" >> "$GITHUB_OUTPUT"
           else
             echo "No packages needed publishing — all versions match npm." >> "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Build Slack message
+        if: steps.publish.outputs.published == 'true'
+        id: slack_message
+        run: |
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          {
+            echo "text<<SLACKEOF"
+            echo ":package: *npm packages published* (<${run_url}|workflow run>)"
+            sed -n 's#^| *\[\([^]]*\)\](\([^)]*\)) *| *\([^ |]*\) *|$#• <\2|\1> v\3#p' publish_summary.md
+            echo "SLACKEOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Notify Slack
+        if: steps.publish.outputs.published == 'true'
+        uses: slackapi/slack-github-action@v3
+        with:
+          webhook: ${{ secrets.SLACK_NPM_PACKAGES_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ${{ toJSON(steps.slack_message.outputs.text) }}
+            }
