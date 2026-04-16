@@ -5,7 +5,19 @@ on:
     branches:
       - develop
     paths:
-      - 'packages/**'
+      - 'packages/browserslist-config-kolibri/package.json'
+      - 'packages/eslint-plugin-kolibri/package.json'
+      - 'packages/kolibri/package.json'
+      - 'packages/kolibri-app/package.json'
+      - 'packages/kolibri-build/package.json'
+      - 'packages/kolibri-format/package.json'
+      - 'packages/kolibri-glob/package.json'
+      - 'packages/kolibri-i18n/package.json'
+      - 'packages/kolibri-jest-config/package.json'
+      - 'packages/kolibri-logging/package.json'
+      - 'packages/kolibri-module/package.json'
+      - 'packages/kolibri-plugin-data/package.json'
+      - 'packages/kolibri-viewer/package.json'
   workflow_dispatch:
     inputs:
       npm_package:
@@ -27,7 +39,6 @@ on:
           - 'kolibri-logging'
           - 'kolibri-module'
           - 'kolibri-plugin-data'
-          - 'kolibri-tools'
           - 'kolibri-viewer'
 
 jobs:
@@ -53,4 +64,8 @@ jobs:
           else
             ./scripts/npm_publish.sh
           fi
-          cat publish_summary.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f publish_summary.md ]; then
+            cat publish_summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No packages needed publishing — all versions match npm." >> "$GITHUB_STEP_SUMMARY"
+          fi
