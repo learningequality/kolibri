@@ -17,7 +17,6 @@
           <h1 class="header-title">{{ allPasswordsHeader$() }}</h1>
         </KGridItem>
         <KGridItem
-          v-if="!isAppContext"
           :layout12="{ span: 6, alignment: 'right' }"
           :layout8="{ span: 4, alignment: 'right' }"
           :layout4="{ span: 2, alignment: 'right' }"
@@ -181,7 +180,6 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
-  import useUser from 'kolibri/composables/useUser';
   import useFacility from 'kolibri-common/composables/useFacility';
 
   export default {
@@ -194,7 +192,6 @@
       const printFormat = ref('images');
       const className = ref('');
 
-      const { isAppContext } = useUser();
       const { currentFacilityName } = useFacility();
 
       const { nameLabel$, cancelAction$, continueAction$ } = coreStrings;
@@ -271,7 +268,6 @@
         showPrintDialog,
         printFormat,
         className,
-        isAppContext,
         currentFacilityName,
         previewLearner,
         hasPicturePasswords,
