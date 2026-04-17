@@ -82,6 +82,7 @@
                 appearance="basic-link"
                 :text="learnMoreAction$()"
                 :aria-label="learnerCreationDisabled$() + ' ' + learnMoreAction$()"
+                data-testid="learn-more-button"
                 @click="showLearnerLimitModal = true"
               />
             </span>
@@ -90,6 +91,7 @@
           <fieldset
             v-if="coachIsSelected"
             class="coach-selector"
+            data-testid="coach-type-selector"
           >
             <KRadioButtonGroup>
               <KRadioButton
