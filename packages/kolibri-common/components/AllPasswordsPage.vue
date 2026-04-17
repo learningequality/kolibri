@@ -45,6 +45,10 @@
         :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
         :sortable="!$isPrint"
+        :class="{
+          'passwords-table-print-images': $isPrint && printFormat === 'images',
+          'passwords-table-print': $isPrint,
+        }"
         disableBuiltinSorting
         @changeSort="handleSortChange"
       >
@@ -308,8 +312,6 @@
           border: `3px solid ${this.$themeTokens.fineLine}`,
           borderRadius: '8px',
           padding: '8px',
-          WebkitPrintColorAdjust: 'exact',
-          printColorAdjust: 'exact',
         };
       },
       previewContentStyle() {
@@ -417,7 +419,12 @@
 
   .print-header {
     display: none;
-    padding: 2px;
+    padding: 2px 8px;
+  }
+
+  .passwords-table-print /deep/ th,
+  .passwords-table-print-images /deep/ td {
+    border-bottom-width: 0 !important;
   }
 
   @media print {
@@ -428,6 +435,11 @@
     .print-facility-class {
       margin: 0 0 16px;
       font-size: 20px;
+    }
+
+    .learner-row {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 
