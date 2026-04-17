@@ -373,7 +373,9 @@
   .no-password-info {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     width: 165px;
+    min-height: 64px;
     padding-left: 8px;
   }
 
@@ -435,11 +437,6 @@
     .print-facility-class {
       margin: 0 0 16px;
       font-size: 20px;
-    }
-
-    .learner-row {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
     }
   }
 
