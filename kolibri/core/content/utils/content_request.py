@@ -794,11 +794,27 @@ def _import_metadata(client, downloads_needing_metadata_import):
 
             if channel_upgraded and potential_removed_downloads:
                 queued_ids = {d.id for d in downloads_to_process}
-                removed_downloads_qs = ContentDownloadRequest.objects.filter(
-                    ~Exists(ContentNode.objects.filter(pk=OuterRef("contentnode_id"))),
-                    id__in=potential_removed_downloads,
-                ).exclude(id__in=queued_ids)
+                removed_downloads_qs = (
+                    ContentDownloadRequest.objects.filter(
+                        # Even if contentnode exists, consider it as a removed download if it's not available,
+                        # so that we can then re-process it and update availability based on content on disk
+                        ~Exists(
+                            ContentNode.objects.filter(
+                                pk=OuterRef("contentnode_id"), available=True
+                            )
+                        ),
+                        id__in=potential_removed_downloads,
+                    )
+                    .exclude(id__in=queued_ids)
+                    .annotate(
+                        # has_metadata is used to determine whether we need to re-import metadata for this download
+                        has_metadata=Exists(
+                            ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
+                        )
+                    )
+                )
 
+                # Re-queue any downloads that would be removed by the channel upgrade
                 removed_downloads_qs.update(
                     status=ContentRequestStatus.Pending,
                     priority=ContentRequestPriority.CRITICAL,
@@ -806,10 +822,17 @@ def _import_metadata(client, downloads_needing_metadata_import):
                 removed_downloads = list(removed_downloads_qs)
                 if removed_downloads:
                     logger.info(
-                        f"""Queued {len(removed_downloads)} downloads for re-import due to channel upgrade"""
+                        f"Queued {len(removed_downloads)} downloads for re-import due to channel upgrade"
                     )
-                    downloads_to_process.extend(removed_downloads)
-                    total_count += len(removed_downloads)
+                    for d in removed_downloads:
+                        logger.debug(
+                            f"Re-queuing download {d.id} for contentnode {d.contentnode_id} due to channel upgrade"
+                        )
+                    new_downloads_to_process = [
+                        d for d in removed_downloads if not d.has_metadata
+                    ]
+                    downloads_to_process.extend(new_downloads_to_process)
+                    total_count += len(new_downloads_to_process)
 
             if not import_ran:
                 logger.warning(
