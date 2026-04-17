@@ -1,5 +1,6 @@
 import logging
 import uuid
+from collections import deque
 from itertools import chain
 from urllib.parse import urlencode
 
@@ -25,6 +26,7 @@ from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
@@ -391,7 +393,7 @@ def _node_total_size(contentnode_id, thumbnail=False, available=False):
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
-                **filters
+                **filters,
             )
             .values(
                 _no_group_by=Value(0)
@@ -483,9 +485,9 @@ def _downloads_needing_metadata_import_queryset(incomplete_downloads):
     channel_version_in_db = Subquery(
         ChannelMetadata.objects.filter(
             id=Subquery(
-                ContentNode.objects.filter(pk=OuterRef("contentnode_id")).values(
-                    "channel_id"
-                )[:1]
+                ContentNode.objects.filter(
+                    pk=OuterRef(OuterRef("contentnode_id"))
+                ).values("channel_id")[:1]
             )
         ).values("version")[:1],
         output_field=IntegerField(),
@@ -719,34 +721,103 @@ def _get_import_metadata(client, download):
     return _merge_import_metadata(metadata_list) or None
 
 
-def _import_metadata(client, downloads_needing_metadata_import, force_upgrade=False):
+def _get_downloads_for_potential_removed_contentnodes(import_metadata):
+    channel_metadata = import_metadata.get(ChannelMetadata._meta.db_table, [{}])[0]
+    channel_id = channel_metadata.get("id", None)
+    expected_channel_version = channel_metadata.get("version", None)
+    if not channel_id or not expected_channel_version:
+        return None
+
+    currently_imported_channel_version = (
+        ChannelMetadata.objects.filter(id=channel_id)
+        .values_list("version", flat=True)
+        .first()
+    )
+
+    if (
+        currently_imported_channel_version is None
+        or currently_imported_channel_version >= expected_channel_version
+    ):
+        return None
+
+    return list(
+        ContentDownloadRequest.objects.filter(
+            contentnode_id__in=ContentNode.objects.filter(
+                channel_id=channel_id
+            ).values_list("id", flat=True)
+        ).values_list("id", flat=True)
+    )
+
+
+def _import_metadata(client, downloads_needing_metadata_import):
     """
+    Imports metadata for a queryset of downloads that need metadata imported, using a given network client.
+    If the metadata import upgrades a channel (i.e. the current channel version is removed), then any downloads
+    for contentnodes in that channel will be re-queued for metadata import, since the contentnodes may have changed.
+
     :type client: NetworkClient
     :param downloads_needing_metadata_import: a ContentDownloadRequest queryset
     :type downloads_needing_metadata_import: django.db.models.QuerySet
-    :param force_upgrade: Whether to force upgrade the metadata import
-    :type force_upgrade: bool
     :return: A boolean indicating whether all metadata was imported successfully
     """
-    total_count = downloads_needing_metadata_import.count()
+    downloads_to_process = deque(downloads_needing_metadata_import)
+    total_count = len(downloads_to_process)
 
     # quick exit, without log noise, if nothing to do
     if not total_count:
         logging.debug("No content metadata to import")
-        return
+        return True
+
     processed_count = 0
     logger.info("Importing content metadata for {} nodes".format(total_count))
-    for download in downloads_needing_metadata_import:
+    while downloads_to_process:
+        download = downloads_to_process.popleft()
+
         import_metadata = _get_import_metadata(client, download)
+
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:
             processed_count += 1
-            import_channel_from_data(
+
+            potential_removed_downloads = None
+            # In case of an upgrade, what downloads would be potentially removed?
+            potential_removed_downloads = (
+                _get_downloads_for_potential_removed_contentnodes(import_metadata)
+            )
+
+            import_ran, channel_upgraded = import_channel_from_data(
                 import_metadata,
                 cancel_check=False,
                 partial=True,
-                force_upgrade=force_upgrade,
+                force_upgrade=True,
             )
+
+            if channel_upgraded and potential_removed_downloads:
+                queued_ids = {d.id for d in downloads_to_process}
+                removed_downloads_qs = ContentDownloadRequest.objects.filter(
+                    ~Exists(ContentNode.objects.filter(pk=OuterRef("contentnode_id"))),
+                    id__in=potential_removed_downloads,
+                ).exclude(id__in=queued_ids)
+
+                removed_downloads_qs.update(
+                    status=ContentRequestStatus.Pending,
+                    priority=ContentRequestPriority.CRITICAL,
+                )
+                removed_downloads = list(removed_downloads_qs)
+                if removed_downloads:
+                    logger.info(
+                        f"""Queued {len(removed_downloads)} downloads for re-import due to channel upgrade"""
+                    )
+                    downloads_to_process.extend(removed_downloads)
+                    total_count += len(removed_downloads)
+
+            if not import_ran:
+                logger.warning(
+                    "Import of content metadata for {} did not run".format(
+                        download.contentnode_id
+                    )
+                )
+
             if processed_count % 10 == 0:
                 logger.info(
                     "Imported content metadata for {} out of {} nodes".format(
@@ -791,7 +862,6 @@ def process_metadata_import(downloads_needing_metadata_import):
             downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
-            force_upgrade=True,
         )
 
     # if all downloads that need (re-)importing have been satisfied, stop early.
