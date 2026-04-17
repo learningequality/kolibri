@@ -227,7 +227,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         )
         return (request, peer)
 
-    def _mock_import_metadata(self, client, incomplete_downloads, force_upgrade=False):
+    def _mock_import_metadata(self, client, incomplete_downloads):
         # manually track the calls to import_metadata, resolving the queryset to a list of IDs
         contentnode_ids = list(
             incomplete_downloads.values_list("contentnode_id", flat=True)
@@ -1598,9 +1598,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         learner_status_patcher.start()
         self.addCleanup(learner_status_patcher.stop)
 
-    def _mock_process_metadata_import(
-        self, incomplete_downloads_without_metadata, force_upgrade=False
-    ):
+    def _mock_process_metadata_import(self, incomplete_downloads_without_metadata):
         """
         Simulates what ``import_channel_from_data`` would do after a real network
         fetch: writes ContentNode rows for every requested node.  When a download

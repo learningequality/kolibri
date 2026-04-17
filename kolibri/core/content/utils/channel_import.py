@@ -768,7 +768,8 @@ class ChannelImport:
                     return False
 
             if current_version is not None and (
-                current_version < self.channel_version or current_partial
+                current_version < self.channel_version
+                or current_partial
                 or (self.version_requested and current_version > self.channel_version)
             ):
                 # We have a different version of this channel (upgrade, downgrade, or partial),
@@ -1027,7 +1028,7 @@ class ChannelImport:
             annotate_label_bitmasks(channel_contentnodes)
             annotate_modality(channel_contentnodes)
             set_channel_ancestors(self.channel_id)
-            if not self.partial:
+            if not self.partial and self.channel_upgraded:
                 update_channel_version_to_assignments(channel)
 
             channel.save()

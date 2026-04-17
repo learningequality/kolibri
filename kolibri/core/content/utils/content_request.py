@@ -779,7 +779,6 @@ def _import_metadata(client, downloads_needing_metadata_import):
         if import_metadata:
             processed_count += 1
 
-            potential_removed_downloads = None
             # In case of an upgrade, what downloads would be potentially removed?
             potential_removed_downloads = (
                 _get_downloads_for_potential_removed_contentnodes(import_metadata)
