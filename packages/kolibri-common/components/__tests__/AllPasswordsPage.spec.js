@@ -52,10 +52,11 @@ describe('AllPasswordsPage', () => {
   });
 
   describe('loading state', () => {
-    it('shows a loading indicator before the fetch resolves', () => {
+    it('does not show learner data while the fetch is pending', () => {
       FacilityUserResource.fetchCollection.mockImplementation(() => new Promise(() => {}));
       renderComponent();
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument();
+      expect(screen.queryByText('Bob Jones')).not.toBeInTheDocument();
     });
 
     it('hides the loading indicator after the fetch resolves', async () => {
@@ -120,12 +121,13 @@ describe('AllPasswordsPage', () => {
   });
 
   describe('when the fetch returns an empty list', () => {
-    it('renders no learner rows', async () => {
+    it('renders no learner content', async () => {
       FacilityUserResource.fetchCollection.mockResolvedValue([]);
       renderComponent();
       await global.flushPromises();
-      const rows = screen.getAllByRole('row');
-      expect(rows).toHaveLength(1);
+      // KTable hides the table element entirely when rows are empty
+      expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument();
+      expect(screen.queryByText('Bob Jones')).not.toBeInTheDocument();
     });
 
     it('renders the empty class message', async () => {

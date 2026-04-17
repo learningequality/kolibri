@@ -39,77 +39,68 @@
         <h4 class="print-facility-class">{{ currentFacilityName }} - {{ className }}</h4>
       </div>
 
-      <CoreTable
+      <KTable
+        :headers="tableHeaders"
+        :rows="tableRows"
+        :caption="allPasswordsHeader$()"
         :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
+        :sortable="!$isPrint"
+        disableBuiltinSorting
+        @changeSort="handleSortChange"
       >
-        <template #headers>
-          <th
-            v-show="!$isPrint"
-            class="table-header"
-            :style="{ color: $themeTokens.text }"
+        <template #header="{ header }">
+          <span v-show="!$isPrint">{{ header.label }}</span>
+        </template>
+        <template #cell="{ content }">
+          <div
+            class="learner-row"
+            :style="learnerRowStyle"
           >
-            {{ nameLabel$() }}
-          </th>
-        </template>
-        <template #tbody>
-          <tbody>
-            <tr
-              v-for="learner in learners"
-              :key="learner.id"
-            >
-              <td :style="tdStyle">
+            <div class="learner-info">
+              <span
+                dir="auto"
+                class="learner-name"
+                :style="{ color: $themeTokens.text }"
+              >{{ content.full_name }}</span>
+              <span
+                dir="auto"
+                class="learner-username"
+                :style="{ color: $themeTokens.annotation }"
+              >{{ content.username }}</span>
+            </div>
+            <div class="learner-password">
+              <template v-if="content.picture_password">
+                <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
                 <div
-                  class="learner-row"
-                  :style="learnerRowStyle"
+                  v-if="$isPrint && printFormat === 'text'"
+                  class="password-text-sequence"
                 >
-                  <div class="learner-info">
-                    <span
-                      dir="auto"
-                      class="learner-name"
-                      :style="{ color: $themeTokens.text }"
-                    >{{ learner.full_name }}</span>
-                    <span
-                      dir="auto"
-                      class="learner-username"
-                      :style="{ color: $themeTokens.annotation }"
-                    >{{ learner.username }}</span>
-                  </div>
-                  <div class="learner-password">
-                    <template v-if="learner.picture_password">
-                      <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
-                      <div
-                        v-if="$isPrint && printFormat === 'text'"
-                        class="password-text-sequence"
-                      >
-                        {{ getPasswordTextLabels(learner.picture_password) }}
-                      </div>
-                      <!-- Images: icon sequence with labels -->
-                      <UserPicturePassword
-                        v-else
-                        :picturePassword="learner.picture_password"
-                      />
-                    </template>
-                    <div
-                      v-else
-                      class="no-password-info"
-                    >
-                      <span
-                        class="no-password-title"
-                        :style="{ color: $themeTokens.text }"
-                      >{{ noPicturePasswordDescription$() }}</span>
-                      <span
-                        class="no-password-subtitle"
-                        :style="{ color: $themeTokens.annotation }"
-                      >{{ noPasswordSignInDescription$() }}</span>
-                    </div>
-                  </div>
+                  {{ getPasswordTextLabels(content.picture_password) }}
                 </div>
-              </td>
-            </tr>
-          </tbody>
+                <!-- Images: icon sequence with labels -->
+                <UserPicturePassword
+                  v-else
+                  :picturePassword="content.picture_password"
+                />
+              </template>
+              <div
+                v-else
+                class="no-password-info"
+              >
+                <span
+                  class="no-password-title"
+                  :style="{ color: $themeTokens.text }"
+                >{{ noPicturePasswordDescription$() }}</span>
+                <span
+                  class="no-password-subtitle"
+                  :style="{ color: $themeTokens.annotation }"
+                >{{ noPasswordSignInDescription$() }}</span>
+              </div>
+            </div>
+          </div>
         </template>
-      </CoreTable>
+      </KTable>
     </KPageContainer>
 
     <!-- Print format selection dialog -->
@@ -182,7 +173,7 @@
 <script>
 
   import { ref, computed, onMounted } from 'vue';
-  import CoreTable from 'kolibri/components/CoreTable';
+  import orderBy from 'lodash/orderBy';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
@@ -195,7 +186,7 @@
 
   export default {
     name: 'AllPasswordsPage',
-    components: { CoreTable, ImmersivePage, UserPicturePassword },
+    components: { ImmersivePage, UserPicturePassword },
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
@@ -226,6 +217,23 @@
       const hasPicturePasswords = computed(() => {
         return Boolean(previewLearner.value);
       });
+
+      const sortOrder = ref(null);
+
+      const sortedLearners = computed(() => {
+        if (!sortOrder.value) return learners.value;
+        return orderBy(learners.value, ['full_name'], [sortOrder.value]);
+      });
+
+      const tableHeaders = computed(() => [
+        { label: nameLabel$(), dataType: 'string', columnId: 'full_name' },
+      ]);
+
+      const tableRows = computed(() => sortedLearners.value.map(learner => [learner]));
+
+      function handleSortChange({ sortOrder: order }) {
+        sortOrder.value = order;
+      }
 
       onMounted(() => {
         Promise.all([
@@ -259,7 +267,6 @@
       }
 
       return {
-        learners,
         loading,
         showPrintDialog,
         printFormat,
@@ -268,10 +275,12 @@
         currentFacilityName,
         previewLearner,
         hasPicturePasswords,
+        tableHeaders,
+        tableRows,
+        handleSortChange,
         getPasswordTextLabels,
         openPrintDialog,
         closePrintDialog,
-        nameLabel$,
         cancelAction$,
         continueAction$,
         noLearnersInClass$,
@@ -296,11 +305,6 @@
       },
     },
     computed: {
-      tdStyle() {
-        if (this.$isPrint && this.printFormat === 'images') return {};
-        if (this.$isPrint) return { borderBottom: `2px solid ${this.$themeTokens.fineLine}` };
-        return { borderTop: `2px solid ${this.$themeTokens.fineLine}` };
-      },
       learnerRowStyle() {
         if (!(this.$isPrint && this.printFormat === 'images')) return {};
         return {
@@ -348,10 +352,6 @@
     justify-content: flex-end;
   }
 
-  .table-header {
-    font-size: 14px;
-  }
-
   .learner-row {
     display: flex;
     align-items: center;
@@ -372,14 +372,10 @@
     font-size: 14px;
   }
 
-  .learner-password {
-    text-align: left;
-  }
-
   .no-password-info {
     display: flex;
     flex-direction: column;
-    max-width: 165px;
+    width: 165px;
     padding-left: 8px;
   }
 
@@ -393,6 +389,12 @@
 
   .password-text-sequence {
     font-size: 16px;
+  }
+
+  .learner-row .password-text-sequence {
+    width: 165px;
+    padding-left: 8px;
+    text-align: start;
   }
 
   .preview-section {
@@ -430,29 +432,6 @@
     .print-facility-class {
       margin: 0 0 16px;
       font-size: 20px;
-    }
-
-    table {
-      width: 100%;
-
-      thead th:first-child,
-      tr td:first-child {
-        padding-left: 0;
-      }
-
-      thead th:last-child,
-      tr td:last-child {
-        padding-right: 0;
-      }
-
-      tr td {
-        padding-top: 4px;
-        padding-bottom: 4px;
-      }
-
-      tr {
-        page-break-inside: avoid;
-      }
     }
   }
 
