@@ -1,10 +1,14 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import PersonalDataConsentForm from '../onboarding-forms/PersonalDataConsentForm';
+import { FooterMessageTypes } from '../../constants';
 
 function renderComponent() {
   render(PersonalDataConsentForm, {
     baseElement: document.body,
+    props: {
+      footerMessageType: FooterMessageTypes.NEW_FACILITY,
+    },
     provide: {
       wizardService: {
         state: {
@@ -16,15 +20,6 @@ function renderComponent() {
 }
 
 describe('PersonalDataConsentForm', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
   it('does not show the privacy statement modal on initial render', () => {
     renderComponent();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -32,7 +27,7 @@ describe('PersonalDataConsentForm', () => {
 
   it('opens the privacy statement modal when the user clicks "Usage and privacy"', async () => {
     renderComponent();
-    fireEvent.click(screen.getByTestId('modal-open-button'));
+    fireEvent.click(screen.getByText(/usage and privacy/i));
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
@@ -40,13 +35,12 @@ describe('PersonalDataConsentForm', () => {
 
   it('closes the privacy statement modal when the user clicks "Close"', async () => {
     renderComponent();
-    fireEvent.click(screen.getByTestId('modal-open-button'));
+    fireEvent.click(screen.getByText(/usage and privacy/i));
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole('button', { name: /close/i }));
-    jest.runAllTimers();
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
