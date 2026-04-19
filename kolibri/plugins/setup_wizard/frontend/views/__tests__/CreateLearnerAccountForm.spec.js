@@ -1,13 +1,12 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import makeStore from '../../__tests__/utils/makeStore';
 import CreateLearnerAccountForm from '../onboarding-forms/CreateLearnerAccountForm';
 
-function makeWrapper(options) {
+function renderComponent(options) {
   const store = makeStore();
-  if (options.previousChoice !== undefined) {
-    store.commit('SET_LEARNER_CAN_SIGN_UP', options.previousChoice);
-  }
-  const wrapper = mount(CreateLearnerAccountForm, {
+
+  render(CreateLearnerAccountForm, {
     store,
     provide: {
       wizardService: {
@@ -20,19 +19,28 @@ function makeWrapper(options) {
       },
     },
   });
-  jest.spyOn(wrapper.vm, '$emit');
-
-  return { wrapper, store };
 }
 
 describe('CreateLearnerAccountForm', () => {
-  it('has the correct default with "nonformal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'nonformal' });
-    expect(wrapper.vm.setting).toEqual(true);
+  it('defaults to allowing learners to join for a nonformal facility', () => {
+    renderComponent({ preset: 'nonformal' });
+
+    expect(screen.getByRole('radio', { name: /yes/i })).toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: /no\. admins must create an account for them to join this facility/i,
+      }),
+    ).not.toBeChecked();
   });
 
-  it('has the correct default with "formal" preset', () => {
-    const { wrapper } = makeWrapper({ preset: 'formal' });
-    expect(wrapper.vm.setting).toEqual(false);
+  it('defaults to requiring admins to create learner accounts for a formal facility', () => {
+    renderComponent({ preset: 'formal' });
+
+    expect(screen.getByRole('radio', { name: /yes/i })).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', {
+        name: /no\. admins must create an account for them to join this facility/i,
+      }),
+    ).toBeChecked();
   });
 });
