@@ -2,7 +2,8 @@ import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
-import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
@@ -24,6 +25,12 @@ jest.mock('kolibri-common/apiResources/ClassroomResource', () => ({
 }));
 
 jest.mock('kolibri-common/composables/useFacility');
+jest.mock('kolibri/composables/useUser');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('vue-router/composables', () => ({
+  useRoute: jest.fn(() => ({ params: {}, query: {}, name: null })),
+  useRouter: jest.fn(() => ({ push: jest.fn(), currentRoute: {} })),
+}));
 
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(pw => {
@@ -45,6 +52,10 @@ describe('AllPasswordsPage', () => {
     useFacility.mockImplementation(() =>
       useFacilityMock({ currentFacilityName: ref('Test Facility') }),
     );
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowHeight: ref(768),
+      windowIsSmall: ref(false),
+    }));
   });
 
   afterEach(() => {
@@ -55,8 +66,8 @@ describe('AllPasswordsPage', () => {
     it('does not show learner data while the fetch is pending', () => {
       FacilityUserResource.fetchCollection.mockImplementation(() => new Promise(() => {}));
       renderComponent();
-      expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument();
-      expect(screen.queryByText('Bob Jones')).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS[1].full_name)).not.toBeInTheDocument();
     });
 
     it('hides the loading indicator after the fetch resolves', async () => {
@@ -80,15 +91,15 @@ describe('AllPasswordsPage', () => {
     it('renders the full name of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(LEARNERS['alice'].full_name)).toBeInTheDocument();
-      expect(screen.getByText(LEARNERS['bob'].full_name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[1].full_name)).toBeInTheDocument();
     });
 
     it('renders the username of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(LEARNERS['alice'].username)).toBeInTheDocument();
-      expect(screen.getByText(LEARNERS['bob'].username)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[0].username)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS[1].username)).toBeInTheDocument();
     });
 
     it('renders resolved icon labels for a learner with a picture_password', async () => {
@@ -126,8 +137,8 @@ describe('AllPasswordsPage', () => {
       renderComponent();
       await global.flushPromises();
       // KTable hides the table element entirely when rows are empty
-      expect(screen.queryByText('Alice Smith')).not.toBeInTheDocument();
-      expect(screen.queryByText('Bob Jones')).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS[1].full_name)).not.toBeInTheDocument();
     });
 
     it('renders the empty class message', async () => {
