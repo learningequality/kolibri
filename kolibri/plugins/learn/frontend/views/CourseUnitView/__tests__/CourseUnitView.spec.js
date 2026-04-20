@@ -3,9 +3,12 @@ import { useRouter, useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Modalities from 'kolibri-constants/Modalities';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
+
+const { previousLabel$, nextLabel$ } = coursesStrings;
 
 const mockPreviousRouteRef = { value: null };
 
@@ -104,6 +107,15 @@ describe('CourseUnitView', () => {
   const RESOURCE_1 = 'resource-1';
   const RESOURCE_2 = 'resource-2';
   const RESOURCE_3 = 'resource-3';
+  const UNIT_1_TITLE = 'Unit 1';
+  const UNIT_2_TITLE = 'Unit 2';
+  const L1_TITLE = 'Lesson 1';
+  const L2_TITLE = 'Lesson 2';
+  const R1_TITLE = 'Resource 1';
+  const R2_TITLE = 'Resource 2';
+  const R3_TITLE = 'Resource 3';
+  const R4_TITLE = 'Resource 4';
+  const R5_TITLE = 'Resource 5';
 
   beforeEach(() => {
     router = { replace: jest.fn(), back: jest.fn() };
@@ -117,16 +129,16 @@ describe('CourseUnitView', () => {
 
     // Default unit tree for rendering/navigation tests:
     // Unit 1 → Lesson 1 [r1, r2], Lesson 2 [r3]
-    const r1 = createResource('r1', 'Resource 1', 'l1', 10);
-    const r2 = createResource('r2', 'Resource 2', 'l1', 20);
-    const r3 = createResource('r3', 'Resource 3', 'l2', 30);
-    const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
-    const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
+    const r1 = createResource('r1', R1_TITLE, 'l1', 10);
+    const r2 = createResource('r2', R2_TITLE, 'l1', 20);
+    const r3 = createResource('r3', R3_TITLE, 'l2', 30);
+    const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
+    const l2 = createLesson('l2', L2_TITLE, false, [r3]);
 
-    ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', 'Unit 1', [l1, l2]));
+    ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
     ContentNodeResource.fetchCollection.mockResolvedValue([
-      { id: UNIT_1, title: 'Unit 1', modality: 'UNIT' },
-      { id: UNIT_2, title: 'Unit 2', modality: 'UNIT' },
+      { id: UNIT_1, title: UNIT_1_TITLE, modality: 'UNIT' },
+      { id: UNIT_2, title: UNIT_2_TITLE, modality: 'UNIT' },
     ]);
   });
 
@@ -466,8 +478,8 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
       });
 
-      expect(screen.getByRole('button', { name: /previous/i })).toBeDisabled();
-      expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: previousLabel$() })).toBeDisabled();
+      expect(screen.getByRole('button', { name: nextLabel$() })).toBeDisabled();
     });
 
     it('enables Prev during the unit-completion interstitial, navigates back to the last resource, and clears the interstitial', async () => {
@@ -488,7 +500,7 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
       });
 
-      await fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      await fireEvent.click(screen.getByRole('button', { name: previousLabel$() }));
 
       await waitFor(() => {
         expect(screen.queryByTestId('unit-completed-interstitial')).not.toBeInTheDocument();
@@ -506,12 +518,12 @@ describe('CourseUnitView', () => {
     });
 
     it('handlePrev skips unavailable resources when navigating back from the unit-completed interstitial', async () => {
-      const r1 = { ...createResource('r1', 'Resource 1', 'l1', 10), available: true };
-      const r2 = { ...createResource('r2', 'Resource 2', 'l1', 20), available: true };
-      const r3 = { ...createResource('r3', 'Resource 3', 'l2', 30), available: false };
-      const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
-      const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
-      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', 'Unit 1', [l1, l2]));
+      const r1 = { ...createResource('r1', R1_TITLE, 'l1', 10), available: true };
+      const r2 = { ...createResource('r2', R2_TITLE, 'l1', 20), available: true };
+      const r3 = { ...createResource('r3', R3_TITLE, 'l2', 30), available: false };
+      const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
+      const l2 = createLesson('l2', L2_TITLE, false, [r3]);
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
 
       mockResumeData({
         resume_position: { unit_id: 'unit-1', lesson_id: 'l2', resource_id: 'r3' },
@@ -530,7 +542,7 @@ describe('CourseUnitView', () => {
         expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
       });
 
-      await fireEvent.click(screen.getByRole('button', { name: /previous/i }));
+      await fireEvent.click(screen.getByRole('button', { name: previousLabel$() }));
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
@@ -557,12 +569,12 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
 
       await waitFor(() => {
-        expect(screen.getByText('Lesson 1')).toBeVisible();
-        expect(screen.getByText('Lesson 2')).toBeVisible();
-        expect(screen.getByText('Resource 2')).toBeVisible();
+        expect(screen.getByText(L1_TITLE)).toBeVisible();
+        expect(screen.getByText(L2_TITLE)).toBeVisible();
+        expect(screen.getByText(R2_TITLE)).toBeVisible();
       });
 
-      fireEvent.click(screen.getByText('Resource 2'));
+      fireEvent.click(screen.getByText(R2_TITLE));
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
@@ -578,31 +590,31 @@ describe('CourseUnitView', () => {
       {
         when: 'Next within a lesson',
         start: { lessonId: 'l1', resourceId: 'r1' },
-        button: /next/i,
+        button: () => nextLabel$(),
         expected: { lessonId: 'l1', resourceId: 'r2' },
       },
       {
         when: 'Next across a lesson boundary',
         start: { lessonId: 'l1', resourceId: 'r2' },
-        button: /next/i,
+        button: () => nextLabel$(),
         expected: { lessonId: 'l2', resourceId: 'r3' },
       },
       {
         when: 'Previous within a lesson',
         start: { lessonId: 'l1', resourceId: 'r2' },
-        button: /previous/i,
+        button: () => previousLabel$(),
         expected: { lessonId: 'l1', resourceId: 'r1' },
       },
       {
         when: 'Previous across a lesson boundary',
         start: { lessonId: 'l2', resourceId: 'r3' },
-        button: /previous/i,
+        button: () => previousLabel$(),
         expected: { lessonId: 'l1', resourceId: 'r2' },
       },
     ])('navigates correctly: $when', async ({ start, button, expected }) => {
       renderComponent({ unitId: 'unit-1', ...start });
 
-      const btn = await screen.findByRole('button', { name: button });
+      const btn = await screen.findByRole('button', { name: button() });
       await waitFor(() => expect(btn).toBeEnabled());
       await fireEvent.click(btn);
 
@@ -620,29 +632,29 @@ describe('CourseUnitView', () => {
       {
         when: 'Previous on first resource of unit',
         start: { lessonId: 'l1', resourceId: 'r1' },
-        button: /previous/i,
+        button: () => previousLabel$(),
       },
       {
         when: 'Next on last resource of unit',
         start: { lessonId: 'l2', resourceId: 'r3' },
-        button: /next/i,
+        button: () => nextLabel$(),
       },
     ])('disables $when', async ({ start, button }) => {
       renderComponent({ unitId: 'unit-1', ...start });
 
-      const btn = await screen.findByRole('button', { name: button });
+      const btn = await screen.findByRole('button', { name: button() });
       expect(btn).toBeDisabled();
     });
 
     it('gates navigation past the resume position in the side panel and the Next button', async () => {
-      const r1 = createResource('r1', 'Resource 1', 'l1', 10);
-      const r2 = createResource('r2', 'Resource 2', 'l1', 20);
-      const r3 = createResource('r3', 'Resource 3', 'l1', 30);
-      const r4 = createResource('r4', 'Resource 4', 'l2', 40);
-      const r5 = createResource('r5', 'Resource 5', 'l2', 50);
-      const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2, r3]);
-      const l2 = createLesson('l2', 'Lesson 2', false, [r4, r5]);
-      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', 'Unit 1', [l1, l2]));
+      const r1 = createResource('r1', R1_TITLE, 'l1', 10);
+      const r2 = createResource('r2', R2_TITLE, 'l1', 20);
+      const r3 = createResource('r3', R3_TITLE, 'l1', 30);
+      const r4 = createResource('r4', R4_TITLE, 'l2', 40);
+      const r5 = createResource('r5', R5_TITLE, 'l2', 50);
+      const l1 = createLesson('l1', L1_TITLE, true, [r1, r2, r3]);
+      const l2 = createLesson('l2', L2_TITLE, false, [r4, r5]);
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
 
       mockResumeData({
         resume_position: { unit_id: 'unit-1', lesson_id: 'l1', resource_id: 'r3' },
@@ -653,13 +665,13 @@ describe('CourseUnitView', () => {
 
       await waitFor(() => expect(screen.getByTestId('content-viewer')).toBeVisible());
 
-      expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
+      expect(screen.getByRole('button', { name: nextLabel$() })).toBeDisabled();
 
       await waitFor(() => {
         // Resources at or before the resume position are enabled; those beyond are disabled.
-        expect(screen.getByText('Resource 2').closest('button')).toBeEnabled();
-        expect(screen.getByText('Resource 4').closest('button')).toBeDisabled();
-        expect(screen.getByText('Resource 5').closest('button')).toBeDisabled();
+        expect(screen.getByText(R2_TITLE).closest('button')).toBeEnabled();
+        expect(screen.getByText(R4_TITLE).closest('button')).toBeDisabled();
+        expect(screen.getByText(R5_TITLE).closest('button')).toBeDisabled();
       });
     });
 
@@ -667,7 +679,7 @@ describe('CourseUnitView', () => {
       renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
 
       await waitFor(() => {
-        expect(screen.getByText('Unit 2')).toBeVisible();
+        expect(screen.getByText(UNIT_2_TITLE)).toBeVisible();
       });
     });
   });

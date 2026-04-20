@@ -24,6 +24,12 @@ describe('CourseWelcomePage', () => {
   let router;
   let store;
 
+  const UNIT_1_TITLE = 'Unit 1: Motion';
+  const UNIT_2_TITLE = 'Unit 2: Forces';
+  const LESSON_1_TITLE = 'Lesson 1: Introduction';
+  const LESSON_2_TITLE = 'Lesson 2: Velocity';
+  const LESSON_3_TITLE = "Lesson 3: Newton's Laws";
+
   const mockCourse = {
     id: 'course-session-1',
     course_id: 'course-1',
@@ -35,7 +41,7 @@ describe('CourseWelcomePage', () => {
   const mockUnits = [
     {
       id: 'unit-1',
-      title: 'Unit 1: Motion',
+      title: UNIT_1_TITLE,
       sort_order: 0,
       lft: 2,
       options: {
@@ -47,7 +53,7 @@ describe('CourseWelcomePage', () => {
         results: [
           {
             id: 'lesson-1',
-            title: 'Lesson 1: Introduction',
+            title: LESSON_1_TITLE,
             parent: 'lesson-1',
             on_device_resources: 5,
             sort_order: 0,
@@ -55,7 +61,7 @@ describe('CourseWelcomePage', () => {
           },
           {
             id: 'lesson-2',
-            title: 'Lesson 2: Velocity',
+            title: LESSON_2_TITLE,
             parent: 'lesson-2',
             on_device_resources: 3,
             sort_order: 1,
@@ -66,7 +72,7 @@ describe('CourseWelcomePage', () => {
     },
     {
       id: 'unit-2',
-      title: 'Unit 2: Forces',
+      title: UNIT_2_TITLE,
       sort_order: 1,
       lft: 10,
       options: {
@@ -78,7 +84,7 @@ describe('CourseWelcomePage', () => {
         results: [
           {
             id: 'lesson-3',
-            title: "Lesson 3: Newton's Laws",
+            title: LESSON_3_TITLE,
             parent: 'lesson-3',
             on_device_resources: 4,
             sort_order: 0,
@@ -228,17 +234,14 @@ describe('CourseWelcomePage', () => {
     useResources({ started: false });
     const wrapper = renderComponent();
 
-    await waitFor(() => expect(wrapper.getByText('Unit 1: Motion')).toBeInTheDocument());
+    await waitFor(() => expect(wrapper.getByText(UNIT_1_TITLE)).toBeInTheDocument());
 
-    await fireEvent.click(wrapper.getByRole('button', { name: /Unit 1: Motion/i }));
-    await fireEvent.click(wrapper.getByRole('button', { name: /Unit 2: Forces/i }));
+    // Accordion button names are "{title} N lessons"; match by title substring.
+    await fireEvent.click(wrapper.getByRole('button', { name: new RegExp(UNIT_1_TITLE) }));
+    await fireEvent.click(wrapper.getByRole('button', { name: new RegExp(UNIT_2_TITLE) }));
 
     await waitFor(() => {
-      for (const title of [
-        'Lesson 1: Introduction',
-        'Lesson 2: Velocity',
-        "Lesson 3: Newton's Laws",
-      ]) {
+      for (const title of [LESSON_1_TITLE, LESSON_2_TITLE, LESSON_3_TITLE]) {
         expect(wrapper.getByRole('button', { name: title })).toBeDisabled();
       }
     });
@@ -271,11 +274,11 @@ describe('CourseWelcomePage', () => {
       resume_position: { unit_id: 'unit-1', lesson_id: 'lesson-1', resource_id: 'r1' },
     });
     const wrapper = renderComponent();
-    await waitFor(() => expect(wrapper.getByText('Unit 1: Motion')).toBeInTheDocument());
-    await fireEvent.click(wrapper.getByRole('button', { name: /Unit 1: Motion/i }));
+    await waitFor(() => expect(wrapper.getByText(UNIT_1_TITLE)).toBeInTheDocument());
+    await fireEvent.click(wrapper.getByRole('button', { name: new RegExp(UNIT_1_TITLE) }));
 
     await waitFor(() => {
-      expect(wrapper.getByRole('button', { name: 'Lesson 2: Velocity' })).toHaveAttribute(
+      expect(wrapper.getByRole('button', { name: LESSON_2_TITLE })).toHaveAttribute(
         'data-lesson-status',
         'locked',
       );
