@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/vue';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
 import { ref } from 'vue';
 import useFacility from 'kolibri-common/composables/useFacility';
 import { useFacilityMock } from 'kolibri-common/composables/__mocks__/useFacility';
@@ -76,19 +75,13 @@ function renderComponent({
 const waitForFormReady = () =>
   waitFor(() => expect(screen.getByText(coreStrings.userTypeLabel$())).toBeInTheDocument());
 
-async function selectUserType(user, optionText) {
+async function selectUserType(optionText) {
   const trigger = screen.getByText(coreStrings.userTypeLabel$()).closest('.ui-select-label');
-  await user.click(trigger);
-  await user.click(await screen.findByText(optionText));
+  await fireEvent.click(trigger);
+  await fireEvent.click(await screen.findByText(optionText));
 }
 
 describe('UserCreateSidePanel — picture password behavior', () => {
-  let user;
-
-  beforeEach(() => {
-    user = userEvent.setup();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -120,7 +113,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       });
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.learnerLabel$());
+      await selectUserType(coreStrings.learnerLabel$());
 
       await waitFor(() => {
         expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
@@ -134,14 +127,14 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       });
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.learnerLabel$());
+      await selectUserType(coreStrings.learnerLabel$());
 
       // Learner selected — info is visible
       await waitFor(() => {
         expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
 
-      await selectUserType(user, coreStrings.coachLabel$());
+      await selectUserType(coreStrings.coachLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
@@ -191,7 +184,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       await waitForFormReady();
 
       const trigger = screen.getByText(coreStrings.userTypeLabel$()).closest('.ui-select-label');
-      await user.click(trigger);
+      await fireEvent.click(trigger);
 
       const learnerOption = (await screen.findByText(coreStrings.learnerLabel$())).closest('li');
       const coachOption = screen.getByText(coreStrings.coachLabel$()).closest('li');
@@ -211,7 +204,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       await waitFor(() => {
         expect(screen.getByTestId('learn-more-button')).toBeInTheDocument();
       });
-      await user.click(screen.getByTestId('learn-more-button'));
+      await fireEvent.click(screen.getByTestId('learn-more-button'));
 
       await waitFor(() => {
         expect(screen.getByTestId('context-paragraph')).toBeInTheDocument();
@@ -221,12 +214,6 @@ describe('UserCreateSidePanel — picture password behavior', () => {
 });
 
 describe('UserCreateSidePanel — user creation form behavior', () => {
-  let user;
-
-  beforeEach(() => {
-    user = userEvent.setup();
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -248,7 +235,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent({ learnerCanLoginWithNoPassword: true });
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.learnerLabel$());
+      await selectUserType(coreStrings.learnerLabel$());
 
       await waitFor(() => {
         expect(screen.queryByLabelText(coreStrings.passwordLabel$())).not.toBeInTheDocument();
@@ -259,7 +246,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent({ learnerCanLoginWithNoPassword: true });
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.coachLabel$());
+      await selectUserType(coreStrings.coachLabel$());
 
       await waitFor(() => {
         expect(screen.getByLabelText(coreStrings.passwordLabel$())).toBeInTheDocument();
@@ -272,7 +259,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.coachLabel$());
+      await selectUserType(coreStrings.coachLabel$());
 
       await waitFor(() => {
         expect(screen.getByTestId('coach-type-selector')).toBeInTheDocument();
@@ -283,7 +270,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.learnerLabel$());
+      await selectUserType(coreStrings.learnerLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('coach-type-selector')).not.toBeInTheDocument();
@@ -294,7 +281,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitForFormReady();
-      await selectUserType(user, coreStrings.adminLabel$());
+      await selectUserType(coreStrings.adminLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('coach-type-selector')).not.toBeInTheDocument();
@@ -312,7 +299,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
           screen.getByRole('button', { name: coreStrings.saveAndClose$() }),
         ).toBeInTheDocument();
       });
-      await user.click(screen.getByRole('button', { name: coreStrings.saveAndClose$() }));
+      await fireEvent.click(screen.getByRole('button', { name: coreStrings.saveAndClose$() }));
 
       expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
     });
@@ -326,7 +313,7 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
           screen.getByRole('button', { name: bulkUserManagementStrings.saveAndAddAnother$() }),
         ).toBeInTheDocument();
       });
-      await user.click(
+      await fireEvent.click(
         screen.getByRole('button', { name: bulkUserManagementStrings.saveAndAddAnother$() }),
       );
 
