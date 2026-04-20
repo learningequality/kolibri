@@ -193,4 +193,57 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'There are no learners in this class',
     context: 'Shown on the all passwords page when the class has no enrolled learners',
   },
+
+  // Info modal for picture password radio option
+  picturePasswordInfoLabel: {
+    message: 'About picture passwords',
+    context:
+      'Accessible label for the information icon button next to the picture password sign-in option.',
+  },
+  picturePasswordInfoBody: {
+    message:
+      'Learners sign in by selecting a unique sequence of 3 pictures. They can also sign in with their username as an alternative.',
+    context: 'Main content in the information modal about the picture password sign-in method.',
+  },
+
+  // Info modal for child-friendly icons radio option
+  childFriendlyIconsInfoLabel: {
+    message: 'About icon styles',
+    context:
+      'Accessible label for the information icon button next to the child-friendly icons option.',
+  },
+  childFriendlyIconsInfoTitle: {
+    message: 'Icon styles',
+    context: 'Title for the modal showing available picture password icon styles.',
+  },
+  childFriendlyIconsInfoDescription: {
+    message: 'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
+    context: 'Description shown in the icon styles information modal.',
+  },
+
+  // Exhausted state — inline explanation and info modal
+  picturePasswordUnavailableInfoLabel: {
+    message: 'Why picture password is unavailable',
+    context:
+      'Accessible label for the information icon button next to the picture password unavailability explanation.',
+  },
+  picturePasswordUnavailableExplanation: {
+    message: 'Picture password is unavailable for this facility.',
+    context:
+      'Short explanation shown below the disabled picture password option when the learner limit is reached.',
+  },
+  picturePasswordUnavailableTitle: {
+    message: 'Picture password not available',
+    context:
+      'Title for the modal explaining why picture password is unavailable when the learner limit is reached.',
+  },
+  picturePasswordUnavailableBody: {
+    message: 'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
+    context: 'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
+  },
+  picturePasswordUnavailableLearnerCount: {
+    message: 'Current number of learners in {facilityName}: {learnerCount}',
+    context:
+      'Shows the current learner count for the facility in the picture password unavailable modal. {facilityName} is the name of the facility and {learnerCount} is the number of learners.',
+  },
 });
