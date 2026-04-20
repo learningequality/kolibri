@@ -1,7 +1,10 @@
 <template>
 
   <div class="main">
-    <ScrollingHeader :scrollPosition="0">
+    <ScrollingHeader
+      v-if="showHeader"
+      :scrollPosition="0"
+    >
       <ImmersiveToolbar
         ref="appBar"
         :appBarTitle="!loading ? appBarTitle : ''"
@@ -90,6 +93,11 @@
         type: String,
         required: false,
         default: '',
+      },
+      showHeader: {
+        type: Boolean,
+        required: false,
+        default: true,
       },
     },
     data() {
