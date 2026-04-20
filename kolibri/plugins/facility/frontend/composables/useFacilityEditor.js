@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
@@ -174,10 +175,20 @@ export default function useFacilityEditor(facilityId) {
     return facility;
   }
 
+  const LOGIN_SETTINGS_FIELDS = [
+    'picture_password_settings',
+    'learner_can_login_with_no_password',
+    'learner_can_edit_password',
+  ];
+
   async function saveFacilityConfig() {
+    const data = { ...settings.value };
+    for (const field of LOGIN_SETTINGS_FIELDS) {
+      delete data[field];
+    }
     await FacilityDatasetResource.saveModel({
       id: facilityDatasetId.value,
-      data: settings.value,
+      data,
     });
     copySettings();
   }
@@ -201,6 +212,24 @@ export default function useFacilityEditor(facilityId) {
     await saveFacilityConfig();
   }
 
+  const pictureLoginTaskId = ref(null);
+
+  async function saveFacilityLoginSettings() {
+    const data = pick(settings.value, LOGIN_SETTINGS_FIELDS);
+    const response = await client({
+      url: urls['kolibri:core:facilitydataset_save_facility_login_settings'](
+        facilityDatasetId.value,
+      ),
+      method: 'PATCH',
+      data,
+    });
+    if (response.status === 202 && response.data.task?.id) {
+      pictureLoginTaskId.value = response.data.task.id;
+    }
+    copySettings();
+    return response.data;
+  }
+
   return {
     // State
     facilityId,
@@ -210,6 +239,7 @@ export default function useFacilityEditor(facilityId) {
     settingsCopy,
     isFacilityPinValid,
     facilityDataLoading,
+    pictureLoginTaskId,
     // Computed
     settingsHaveChanged,
     isPinSet,
@@ -234,5 +264,6 @@ export default function useFacilityEditor(facilityId) {
     setPin,
     unsetPin,
     setLoading,
+    saveFacilityLoginSettings,
   };
 }

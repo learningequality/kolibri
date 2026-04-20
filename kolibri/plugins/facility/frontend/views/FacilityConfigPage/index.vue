@@ -183,21 +183,29 @@
 
         <div
           v-if="isAppContext"
+          class="save-changes-row"
           :style="{
             marginTop: '32px',
             borderTop: '1px solid',
             borderTopColor: $themeTokens.fineLine,
           }"
         >
-          <KButton
-            :primary="true"
-            appearance="raised-button"
-            class="save-changes-button"
-            :text="coreString('saveChangesAction')"
-            name="save-settings"
-            :disabled="!settingsHaveChanged"
-            @click="saveConfig()"
-          />
+          <div class="save-changes-inline-group">
+            <KButton
+              :primary="true"
+              appearance="raised-button"
+              class="save-changes-button"
+              :text="coreString('saveChangesAction')"
+              name="save-settings"
+              :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+              @click="saveConfig()"
+            />
+            <KCircularLoader
+              v-if="pictureLoginTaskLoading"
+              :size="24"
+              data-testid="picture_password_assignment_status"
+            />
+          </div>
         </div>
       </template>
 
@@ -235,16 +243,25 @@
     </KPageContainer>
 
     <BottomAppBar data-testid="bottom-bar">
-      <KButton
+      <div
         v-if="!isAppContext"
-        :primary="true"
-        class="save-button"
-        appearance="raised-button"
-        :text="coreString('saveChangesAction')"
-        name="save-settings"
-        :disabled="!settingsHaveChanged"
-        @click="saveConfig()"
-      />
+        class="bottom-bar-save-group"
+      >
+        <KCircularLoader
+          v-if="pictureLoginTaskLoading"
+          :size="24"
+          data-testid="picture_password_assignment_status"
+        />
+        <KButton
+          :primary="true"
+          class="save-button"
+          appearance="raised-button"
+          :text="coreString('saveChangesAction')"
+          name="save-settings"
+          :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+          @click="saveConfig()"
+        />
+      </div>
     </BottomAppBar>
   </FacilityAppBarPage>
 
@@ -254,14 +271,16 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { ref, onMounted, computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
+  import { ref, onMounted, computed, watch } from 'vue';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import useUser from 'kolibri/composables/useUser';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { createTranslator } from 'kolibri/utils/i18n';
@@ -391,10 +410,12 @@
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        pictureLoginTaskId,
         fetchFacility,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
+        saveFacilityLoginSettings,
         setPin,
         unsetPin,
       } = useFacilityEditor(facilityId);
@@ -476,11 +497,19 @@
 
       async function saveConfig() {
         try {
+          pictureLoginTaskLoading.value = true;
           await saveFacilityConfig();
-          createSnackbar(saveSuccess$());
+          await saveFacilityLoginSettings();
+          if (!pictureLoginTaskId.value) {
+            createSnackbar(saveSuccess$());
+          }
         } catch (error) {
           createSnackbar(saveFailure$());
           undoSettingsChange();
+        } finally {
+          if (!pictureLoginTaskId.value) {
+            pictureLoginTaskLoading.value = false;
+          }
         }
       }
 
@@ -536,6 +565,27 @@
         }
       });
 
+      const { tasks: facilityTasks } = useTaskPolling('facility_task');
+      const pictureLoginTaskLoading = ref(false);
+
+      const pictureLoginTask = computed(() => {
+        if (!pictureLoginTaskId.value) return null;
+        return facilityTasks.value.find(t => t.id === pictureLoginTaskId.value) || null;
+      });
+
+      watch(pictureLoginTask, task => {
+        if (!task) return;
+        if (task.status === TaskStatuses.FAILED) {
+          pictureLoginTaskLoading.value = false;
+          pictureLoginTaskId.value = null;
+          createSnackbar(saveFailure$());
+        } else if (task.status === TaskStatuses.COMPLETED) {
+          pictureLoginTaskLoading.value = false;
+          pictureLoginTaskId.value = null;
+          createSnackbar(saveSuccess$());
+        }
+      });
+
       return {
         // Constants
         OptionsForSignIn,
@@ -565,6 +615,7 @@
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
+        pictureLoginTaskLoading,
 
         // Functions
         submitFacilityName,
@@ -627,8 +678,7 @@
   }
 
   .save-button {
-    position: absolute;
-    right: 25px;
+    flex: 0 0 auto;
   }
 
   .facility-loader {
@@ -636,9 +686,25 @@
     margin-bottom: -0.5em; // To align with the text
   }
 
-  .save-changes-button {
+  .save-changes-row {
+    display: flex;
+  }
+
+  .save-changes-inline-group,
+  .bottom-bar-save-group {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .save-changes-inline-group {
     margin-top: 24px;
-    margin-left: -8px;
+  }
+
+  .save-changes-button {
+    flex: 0 0 auto;
+    margin-top: 0;
+    margin-left: 0;
   }
 
   .nested-settings {

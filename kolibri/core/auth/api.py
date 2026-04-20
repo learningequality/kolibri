@@ -85,6 +85,7 @@ from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
@@ -104,6 +105,7 @@ from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
@@ -285,6 +287,83 @@ class FacilityDatasetViewSet(ValuesViewset):
             return Response(FacilityDatasetSerializer(dataset).data)
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility not found")
+
+    @decorators.action(
+        methods=["patch"],
+        detail=True,
+        url_path="save-facility-login-settings",
+    )
+    def save_facility_login_settings(self, request, pk):
+        dataset = self.get_object()
+        facility = Facility.objects.get(dataset_id=dataset.id)
+
+        new_pps = request.data.get("picture_password_settings")
+        learner_can_login_with_no_password = request.data.get(
+            "learner_can_login_with_no_password"
+        )
+        learner_can_edit_password = request.data.get("learner_can_edit_password")
+
+        currently_enabled = dataset.picture_password_settings is not None
+        enabling = not currently_enabled and new_pps is not None
+
+        if enabling:
+            if are_picture_passwords_exhausted(dataset.id):
+                return Response(
+                    {"detail": "Picture passwords exhausted for this facility."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            dataset.picture_password_settings = new_pps
+            dataset.learner_can_login_with_no_password = True
+            dataset.learner_can_edit_password = False
+            dataset.save()
+
+            job, _ = assign_picture_passwords_to_facility.validate_job_data(
+                request.user,
+                data={"facility_id": facility.id},
+            )
+            job_id = assign_picture_passwords_to_facility.enqueue(job=job)
+            enqueued_job = job_storage.get_job(job_id)
+            return Response(
+                {
+                    "dataset": FacilityDatasetSerializer(dataset).data,
+                    "task": {
+                        "id": enqueued_job.job_id,
+                        "status": enqueued_job.state,
+                        "percentage": enqueued_job.percentage_progress,
+                        "cancellable": enqueued_job.cancellable,
+                        "facility_id": enqueued_job.facility_id,
+                        "extra_metadata": enqueued_job.extra_metadata,
+                    },
+                },
+                status=status.HTTP_202_ACCEPTED,
+            )
+
+        if currently_enabled and new_pps is not None:
+            dataset.picture_password_settings = new_pps
+            dataset.save()
+            return Response(
+                {"dataset": FacilityDatasetSerializer(dataset).data},
+                status=status.HTTP_200_OK,
+            )
+
+        if new_pps is None:
+            dataset.picture_password_settings = None
+            if learner_can_login_with_no_password:
+                dataset.learner_can_login_with_no_password = True
+                dataset.learner_can_edit_password = False
+            else:
+                dataset.learner_can_login_with_no_password = False
+                if learner_can_edit_password is not None:
+                    dataset.learner_can_edit_password = learner_can_edit_password
+            dataset.save()
+            return Response(
+                {"dataset": FacilityDatasetSerializer(dataset).data},
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {"detail": "Invalid request."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class IsPINValidView(views.APIView):

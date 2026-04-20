@@ -564,17 +564,22 @@ describe('useFacilityEditor', () => {
   });
 
   describe('saveFacilityConfig', () => {
-    it('saves facility config and copies settings', async () => {
+    it('saves facility config excluding login settings fields', async () => {
       const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
-      settings.value = mockFacilityConfig;
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+      };
       facilityDatasetId.value = mockDatasetId;
 
       await saveFacilityConfig();
 
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalledWith({
-        id: mockDatasetId,
-        data: mockFacilityConfig,
-      });
+      const savedData = FacilityDatasetResource.saveModel.mock.calls[0][0].data;
+      expect(savedData).not.toHaveProperty('picture_password_settings');
+      expect(savedData).not.toHaveProperty('learner_can_login_with_no_password');
+      expect(savedData).not.toHaveProperty('learner_can_edit_password');
+      expect(savedData).toHaveProperty('learner_can_edit_username');
+      expect(savedData).toHaveProperty('id');
     });
   });
 
@@ -630,6 +635,96 @@ describe('useFacilityEditor', () => {
       setLoading(true);
       setLoading(false);
       expect(facilityDataLoading.value).toBe(false);
+    });
+  });
+
+  describe('saveFacilityLoginSettings', () => {
+    beforeEach(() => {
+      urls['kolibri:core:facilitydataset_save_facility_login_settings'] = jest
+        .fn()
+        .mockReturnValue('/api/facility_dataset/save_facility_login_settings/');
+    });
+
+    it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
+      client.mockResolvedValue({ data: {} });
+
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
+      facilityDatasetId.value = mockDatasetId;
+
+      await saveFacilityLoginSettings();
+
+      expect(client).toHaveBeenCalledWith({
+        url: '/api/facility_dataset/save_facility_login_settings/',
+        method: 'PATCH',
+        data: {
+          picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+          learner_can_login_with_no_password: true,
+          learner_can_edit_password: false,
+        },
+      });
+    });
+
+    it('stores the returned task id when a task is enqueued', async () => {
+      client.mockResolvedValue({
+        status: 202,
+        data: { dataset: {}, task: { id: 'task-123', status: 'QUEUED' } },
+      });
+
+      const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
+      facilityDatasetId.value = mockDatasetId;
+
+      await saveFacilityLoginSettings();
+
+      expect(pictureLoginTaskId.value).toBe('task-123');
+    });
+
+    it('does not set task id when no task is enqueued', async () => {
+      client.mockResolvedValue({ status: 200, data: { dataset: { id: 'dataset-id' } } });
+
+      const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = { ...mockFacilityConfig };
+      facilityDatasetId.value = mockDatasetId;
+
+      await saveFacilityLoginSettings();
+
+      expect(pictureLoginTaskId.value).toBeNull();
+    });
+
+    it('returns the response data', async () => {
+      const mockTaskData = {
+        dataset: { id: 'dataset-id' },
+        task: { id: 'task-123', status: 'QUEUED', percentage: 0 },
+      };
+      client.mockResolvedValue({ status: 202, data: mockTaskData });
+
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
+        useFacilityEditor(mockFacilityId);
+      settings.value = {
+        ...mockFacilityConfig,
+        picture_password_settings: { icon_style: 'standard', show_icon_text: true },
+        learner_can_login_with_no_password: true,
+        learner_can_edit_password: false,
+      };
+      facilityDatasetId.value = mockDatasetId;
+
+      const result = await saveFacilityLoginSettings();
+
+      expect(result).toEqual(mockTaskData);
     });
   });
 });
