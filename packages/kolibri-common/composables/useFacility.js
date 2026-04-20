@@ -1,13 +1,23 @@
 import { ref, computed } from 'vue';
+import { useStorage } from '@vueuse/core';
 import isPlainObject from 'lodash/isPlainObject';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import Lockr from 'lockr';
 import { OptionsForSignIn } from '../constants/Auth';
 import useFacilities from './useFacilities';
 
-const selectedFacilityId = ref(Lockr.get('facilityId') || null);
+const selectedFacilityId = useStorage('facilityId', null);
+
+/**
+ * Composable for accessing the selected facility
+ */
+export function useFacilitySelect() {
+  return {
+    selectedFacilityId,
+    setSelectedFacilityId: facilityId => (selectedFacilityId.value = facilityId),
+  };
+}
 
 /**
  * Composable for the context of a single facility, defaulting to the user's facility, but can be
@@ -16,6 +26,7 @@ const selectedFacilityId = ref(Lockr.get('facilityId') || null);
 export default function useFacility() {
   const { userFacilityId } = useUser();
   const { fetchFacilities, getFacility } = useFacilities();
+  const { setSelectedFacilityId } = useFacilitySelect();
   const { facilityConfig: _facilityConfig, fetchFacilityConfig } = useFacilityConfig(
     selectedFacilityId.value,
   );
@@ -52,8 +63,7 @@ export default function useFacility() {
    * @return {Promise<void>}
    */
   async function setFacilityId(facilityId) {
-    selectedFacilityId.value = facilityId;
-
+    setSelectedFacilityId(facilityId);
     await updateFacilityConfig();
   }
 
