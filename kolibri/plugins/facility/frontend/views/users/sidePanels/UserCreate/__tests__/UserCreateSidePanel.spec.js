@@ -1,9 +1,12 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import useFacility from 'kolibri-common/composables/useFacility';
 import { useFacilityMock } from 'kolibri-common/composables/__mocks__/useFacility';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 import UserCreateSidePanel from '../index.vue';
 
 jest.mock('kolibri-common/composables/useFacility');
@@ -62,87 +65,37 @@ function renderComponent({
     }),
   );
 
-  return render(UserCreateSidePanel, {
+  const onChange = jest.fn();
+  const result = render(UserCreateSidePanel, {
     props: {
       classes: [],
-      onChange: jest.fn(),
-    },
-    stubs: {
-      SidePanelModal: {
-        name: 'SidePanelModal',
-        template: `<div>
-          <slot name="header" />
-          <slot name="default" />
-          <slot name="bottomNavigation" />
-        </div>`,
-      },
-      // KButton stub renders as a <button> so tests can query by role and fire click events
-      // without coupling to design-system internals. appearance="basic-link" renders <a>
-      // without href in the real component, giving it no ARIA role, so we stub here instead.
-      // aria-label is intentionally not declared as a prop: Vue's inheritAttrs passes it
-      // through to the root <button> element automatically, so the accessible name from
-      // the component's :aria-label binding is verifiable in tests.
-      // KButton stub passes $attrs through so data-testid bindings from the component
-      // are forwarded to the root <button> element and queryable in tests.
-      KButton: {
-        name: 'KButton',
-        props: ['text', 'appearance', 'primary', 'form', 'disabled'],
-        inheritAttrs: false,
-        template:
-          '<button type="button" v-bind="$attrs" @click="$emit(\'click\', $event)">{{ text }}</button>',
-      },
-      // KSelect stub renders a native <select> so that option.disabled is reflected through
-      // the HTML disabled attribute. Tests can assert toBeDisabled() on the <option> element
-      // directly — testing what the component passes as props, not stub-implemented logic.
-      KSelect: {
-        name: 'KSelect',
-        props: ['options', 'value', 'disabled', 'label'],
-        template: `<select
-          :aria-label="label"
-          :disabled="disabled"
-          @change="$emit('input', options.find(o => o.value === $event.target.value))"
-        >
-          <option
-            v-for="opt in options"
-            :key="opt.value"
-            :value="opt.value"
-            :disabled="opt.disabled"
-            :data-testid="'user-type-' + opt.value"
-          >{{ opt.label }}</option>
-        </select>`,
-      },
-      FullNameTextbox: {
-        name: 'FullNameTextbox',
-        template: '<div />',
-        methods: { reset: jest.fn(), focus: jest.fn() },
-      },
-      UsernameTextbox: {
-        name: 'UsernameTextbox',
-        template: '<div />',
-        methods: { reset: jest.fn(), focus: jest.fn() },
-      },
-      PasswordTextbox: {
-        name: 'PasswordTextbox',
-        template: '<div data-testid="password-textbox" />',
-        methods: { reset: jest.fn(), focus: jest.fn() },
-      },
-      LearnerLimitReachedModal: {
-        name: 'LearnerLimitReachedModal',
-        template: '<div data-testid="learner-limit-modal" />',
-      },
-      IdentifierTextbox: true,
-      BirthYearSelect: true,
-      GenderSelect: true,
-      ClassesSelect: true,
-      ExtraDemographics: true,
-      CloseConfirmationGuard: true,
+      onChange,
     },
   });
+  return { ...result, onChange };
+}
+const waitForFormReady = () =>
+  waitFor(() => expect(screen.getByText(coreStrings.userTypeLabel$())).toBeInTheDocument());
+
+async function selectUserType(user, optionText) {
+  const trigger = screen.getByText(coreStrings.userTypeLabel$()).closest('.ui-select-label');
+  await user.click(trigger);
+  await user.click(await screen.findByText(optionText));
 }
 
 describe('UserCreateSidePanel — picture password behavior', () => {
+  let user;
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('renders without throwing', () => {
+    expect(() => renderComponent()).not.toThrow();
   });
 
   describe('picture password informational message', () => {
@@ -186,7 +139,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
         expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
 
-      await fireEvent.update(screen.getByRole('combobox'), 'coach');
+      await selectUserType(user, coreStrings.coachLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
@@ -212,10 +165,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
         picturePasswordsExhausted: false,
       });
 
-      // Wait for loading to finish, then confirm the limit link is absent
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
-      });
+      await waitForFormReady();
       expect(screen.queryByTestId('learn-more-button')).not.toBeInTheDocument();
     });
 
@@ -225,10 +175,7 @@ describe('UserCreateSidePanel — picture password behavior', () => {
         picturePasswordsExhausted: true,
       });
 
-      // Wait for loading to finish
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
-      });
+      await waitForFormReady();
       // No type pre-selected, so the coach radio group should not be visible
       expect(screen.queryByTestId('coach-type-selector')).not.toBeInTheDocument();
     });
@@ -239,13 +186,18 @@ describe('UserCreateSidePanel — picture password behavior', () => {
         picturePasswordsExhausted: true,
       });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
-      });
+      await waitForFormReady();
 
-      expect(screen.getByTestId('user-type-learner')).toBeDisabled();
-      expect(screen.getByTestId('user-type-coach')).toBeEnabled();
-      expect(screen.getByTestId('user-type-admin')).toBeEnabled();
+      const trigger = screen.getByText(coreStrings.userTypeLabel$()).closest('.ui-select-label');
+      await user.click(trigger);
+
+      const learnerOption = (await screen.findByText(coreStrings.learnerLabel$())).closest('li');
+      const coachOption = screen.getByText(coreStrings.coachLabel$()).closest('li');
+      const adminOption = screen.getByText(coreStrings.adminLabel$()).closest('li');
+
+      expect(learnerOption).toHaveClass('is-disabled');
+      expect(coachOption).not.toHaveClass('is-disabled');
+      expect(adminOption).not.toHaveClass('is-disabled');
     });
 
     it('opens the learner limit modal when the "Learn more" button is clicked', async () => {
@@ -257,18 +209,28 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       await waitFor(() => {
         expect(screen.getByTestId('learn-more-button')).toBeInTheDocument();
       });
-      await fireEvent.click(screen.getByTestId('learn-more-button'));
+      await user.click(screen.getByTestId('learn-more-button'));
 
       await waitFor(() => {
-        expect(screen.getByTestId('learner-limit-modal')).toBeInTheDocument();
+        expect(screen.getByTestId('context-paragraph')).toBeInTheDocument();
       });
     });
   });
 });
 
 describe('UserCreateSidePanel — user creation form behavior', () => {
+  let user;
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('renders without throwing', () => {
+    expect(() => renderComponent()).not.toThrow();
   });
 
   describe('password field visibility', () => {
@@ -276,33 +238,29 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitFor(() => {
-        expect(screen.getByTestId('password-textbox')).toBeInTheDocument();
+        expect(screen.getByLabelText(coreStrings.passwordLabel$())).toBeInTheDocument();
       });
     });
 
     it('is hidden for learners when the facility allows no-password login', async () => {
       renderComponent({ learnerCanLoginWithNoPassword: true });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
-      });
-      await fireEvent.update(screen.getByRole('combobox'), 'learner');
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.learnerLabel$());
 
       await waitFor(() => {
-        expect(screen.queryByTestId('password-textbox')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(coreStrings.passwordLabel$())).not.toBeInTheDocument();
       });
     });
 
     it('is shown for coaches even when the facility allows no-password login', async () => {
       renderComponent({ learnerCanLoginWithNoPassword: true });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-coach')).toBeInTheDocument();
-      });
-      await fireEvent.update(screen.getByRole('combobox'), 'coach');
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.coachLabel$());
 
       await waitFor(() => {
-        expect(screen.getByTestId('password-textbox')).toBeInTheDocument();
+        expect(screen.getByLabelText(coreStrings.passwordLabel$())).toBeInTheDocument();
       });
     });
   });
@@ -311,10 +269,8 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
     it('shows the class/facility coach radio group when Coach is selected', async () => {
       renderComponent();
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-coach')).toBeInTheDocument();
-      });
-      await fireEvent.update(screen.getByRole('combobox'), 'coach');
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.coachLabel$());
 
       await waitFor(() => {
         expect(screen.getByTestId('coach-type-selector')).toBeInTheDocument();
@@ -324,10 +280,8 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
     it('does not show the coach radio group when Learner is selected', async () => {
       renderComponent();
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-learner')).toBeInTheDocument();
-      });
-      await fireEvent.update(screen.getByRole('combobox'), 'learner');
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.learnerLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('coach-type-selector')).not.toBeInTheDocument();
@@ -337,10 +291,8 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
     it('does not show the coach radio group when Admin is selected', async () => {
       renderComponent();
 
-      await waitFor(() => {
-        expect(screen.getByTestId('user-type-admin')).toBeInTheDocument();
-      });
-      await fireEvent.update(screen.getByRole('combobox'), 'admin');
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.adminLabel$());
 
       await waitFor(() => {
         expect(screen.queryByTestId('coach-type-selector')).not.toBeInTheDocument();
@@ -354,9 +306,11 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /save and close/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: coreStrings.saveAndClose$() }),
+        ).toBeInTheDocument();
       });
-      await fireEvent.click(screen.getByRole('button', { name: /save and close/i }));
+      await user.click(screen.getByRole('button', { name: coreStrings.saveAndClose$() }));
 
       expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
     });
@@ -366,9 +320,13 @@ describe('UserCreateSidePanel — user creation form behavior', () => {
       renderComponent();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: /save and add another/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: bulkUserManagementStrings.saveAndAddAnother$() }),
+        ).toBeInTheDocument();
       });
-      await fireEvent.click(screen.getByRole('button', { name: /save and add another/i }));
+      await user.click(
+        screen.getByRole('button', { name: bulkUserManagementStrings.saveAndAddAnother$() }),
+      );
 
       expect(FacilityUserResource.saveModel).not.toHaveBeenCalled();
     });
