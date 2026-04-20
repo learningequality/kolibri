@@ -853,9 +853,6 @@ describe('CourseUnitView', () => {
         resourceId: 'r1',
       });
 
-      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
-      await fireEvent.click(sidePanelToggle);
-
       await waitFor(() => {
         expect(screen.getByText('Lesson 1')).toBeVisible();
         expect(screen.getByText('Lesson 2')).toBeVisible();
@@ -871,9 +868,6 @@ describe('CourseUnitView', () => {
         lessonId: 'l1',
         resourceId: 'r1',
       });
-
-      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
-      await fireEvent.click(sidePanelToggle);
 
       await waitFor(() => {
         expect(screen.getByText('Resource 2')).toBeVisible();
@@ -1086,10 +1080,6 @@ describe('CourseUnitView', () => {
         lessonId: 'l1',
         resourceId: 'r1',
       });
-
-      // Click on side panel toggle
-      const sidePanelToggle = await screen.findByTestId('side-panel-toggle');
-      await fireEvent.click(sidePanelToggle);
 
       await waitFor(() => {
         // Check for Unit 2 title.
