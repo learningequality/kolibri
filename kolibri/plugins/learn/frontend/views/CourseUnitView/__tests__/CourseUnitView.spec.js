@@ -556,8 +556,6 @@ describe('CourseUnitView', () => {
     it('shows lessons/resources in the side panel and navigates on click', async () => {
       renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
 
-      await fireEvent.click(await screen.findByTestId('side-panel-toggle'));
-
       await waitFor(() => {
         expect(screen.getByText('Lesson 1')).toBeVisible();
         expect(screen.getByText('Lesson 2')).toBeVisible();
@@ -657,8 +655,6 @@ describe('CourseUnitView', () => {
 
       expect(screen.getByRole('button', { name: /next/i })).toBeDisabled();
 
-      await fireEvent.click(await screen.findByTestId('side-panel-toggle'));
-
       await waitFor(() => {
         // Resources at or before the resume position are enabled; those beyond are disabled.
         expect(screen.getByText('Resource 2').closest('button')).toBeEnabled();
@@ -669,8 +665,6 @@ describe('CourseUnitView', () => {
 
     it('displays the Up Next unit in the side panel footer', async () => {
       renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
-
-      await fireEvent.click(await screen.findByTestId('side-panel-toggle'));
 
       await waitFor(() => {
         expect(screen.getByText('Unit 2')).toBeVisible();
