@@ -110,7 +110,7 @@ class _registry(dict):
 
     def update(self, other):
         # Coerce args to a dict and then set each key in that dict
-        other = {}.update(other)
+        other = dict(other)
         for key, value in other.items():
             self[key] = value
 
