@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/vue';
 import { ref } from 'vue';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
+import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import UserPicturePassword from '../UserPicturePassword.vue';
 
 jest.mock('kolibri-common/composables/useFacility');
@@ -37,6 +38,17 @@ describe('UserPicturePassword', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('sets an aria-label on the list describing the icon sequence', () => {
+    render(UserPicturePassword, {
+      props: { picturePassword: '3.7.12' },
+    });
+
+    const expectedLabel = picturePasswordStrings.picturePasswordSequence$({
+      sequence: 'moon, water, bird',
+    });
+    expect(screen.getByRole('list', { name: expectedLabel })).toBeInTheDocument();
   });
 
   it('renders expected captions for picturePassword 3.7.12', () => {
@@ -103,24 +115,20 @@ describe('UserPicturePassword', () => {
   });
 
   describe('showSequenceNumbers prop', () => {
-    it('does not render count numbers by default', () => {
-      render(UserPicturePassword, {
+    it('does not add show-sequence-numbers class by default', () => {
+      const { container } = render(UserPicturePassword, {
         props: { picturePassword: '3.7.12' },
       });
 
-      expect(screen.queryByText('1')).not.toBeInTheDocument();
-      expect(screen.queryByText('2')).not.toBeInTheDocument();
-      expect(screen.queryByText('3')).not.toBeInTheDocument();
+      expect(container.querySelector('.show-sequence-numbers')).not.toBeInTheDocument();
     });
 
-    it('renders count numbers when showSequenceNumbers is true', () => {
-      render(UserPicturePassword, {
+    it('adds show-sequence-numbers class when showSequenceNumbers is true', () => {
+      const { container } = render(UserPicturePassword, {
         props: { picturePassword: '3.7.12', showSequenceNumbers: true },
       });
 
-      expect(screen.getByText('1')).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(container.querySelector('.show-sequence-numbers')).toBeInTheDocument();
     });
   });
 });

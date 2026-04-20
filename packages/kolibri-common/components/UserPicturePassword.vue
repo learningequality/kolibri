@@ -2,28 +2,24 @@
 
   <ol
     class="picture-password-icons"
-    :aria-label="picturePassword$()"
+    :class="{ 'show-sequence-numbers': showSequenceNumbers }"
+    :aria-label="ariaLabel"
   >
     <li
       v-for="(icon, index) in picturePasswordIcons"
       :key="`${icon.label}-${index}`"
     >
-      <figure :data-testid="`picture-password-icon-${icon.iconName}`">
+      <figure
+        :data-testid="`picture-password-icon-${icon.iconName}`"
+        :class="$computedClass({ color: $themeTokens.annotation })"
+      >
         <KIcon
           :icon="icon.iconName"
           :style="iconStyles"
         />
-        <figcaption
-          :style="{ color: $themeTokens.annotation }"
-          :class="{ visuallyhidden: !effectiveShowIconText }"
-        >
+        <figcaption :class="{ visuallyhidden: !effectiveShowIconText }">
           {{ icon.label }}
         </figcaption>
-        <span
-          v-if="showSequenceNumbers"
-          class="icon-sequence-number"
-          :style="{ color: $themeTokens.annotation }"
-        >{{ index + 1 }}</span>
       </figure>
     </li>
   </ol>
@@ -42,7 +38,7 @@
     name: 'UserPicturePassword',
     setup(props) {
       const { facilityConfig } = useFacility();
-      const { picturePassword$ } = picturePasswordStrings;
+      const { picturePasswordSequence$ } = picturePasswordStrings;
 
       const picturePasswordIcons = computed(() =>
         getPicturePasswordIcons(
@@ -62,12 +58,17 @@
           : (facilityConfig.value.picture_password_settings?.show_icon_text ?? false),
       );
 
+      const ariaLabel = computed(() =>
+        picturePasswordSequence$({
+          sequence: picturePasswordIcons.value.map(icon => icon.label).join(', '),
+        }),
+      );
+
       return {
-        // state
         picturePasswordIcons,
         iconStyles,
         effectiveShowIconText,
-        picturePassword$,
+        ariaLabel,
       };
     },
     props: {
@@ -125,11 +126,14 @@
     figcaption {
       margin-top: 4px;
       font-size: 12px;
+      color: inherit;
     }
 
-    .icon-sequence-number {
+    &.show-sequence-numbers figure::after {
       margin-top: 2px;
       font-size: 12px;
+      color: inherit;
+      content: counter(list-item);
     }
   }
 

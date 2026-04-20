@@ -209,4 +209,9 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Preview',
     context: 'Label for the live preview section in the print format dialog',
   },
+  picturePasswordSequence: {
+    message: 'Picture password: {sequence}',
+    context:
+      'Accessible label for a learner\'s picture password icon sequence, e.g. "Picture password: moon, water, bird". Read aloud by screen readers in place of the generic "list" announcement.',
+  },
 });
