@@ -256,9 +256,7 @@
         () => isPictureLoginActive.value && selectedFacility.value?.picture_passwords_exhausted,
       );
       const showPicturePasswordInfo = computed(
-        () =>
-          isPictureLoginActive.value &&
-          (kind.value === null || kind.value?.value === UserKinds.LEARNER),
+        () => isPictureLoginActive.value && kind.value?.value === UserKinds.LEARNER,
       );
 
       const userTypeOptions = computed(() => [

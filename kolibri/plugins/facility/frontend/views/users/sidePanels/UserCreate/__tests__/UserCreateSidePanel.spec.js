@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import useFacility from 'kolibri-common/composables/useFacility';
 import { useFacilityMock } from 'kolibri-common/composables/__mocks__/useFacility';
@@ -104,28 +103,28 @@ describe('UserCreateSidePanel — picture password behavior', () => {
       expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
     });
 
-    it('is shown when picture login is enabled and limit is not reached', async () => {
+    it('is not shown when no user type is selected, even with picture login enabled', async () => {
       renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
         picturePasswordsExhausted: false,
       });
 
+      await waitForFormReady();
+      expect(screen.queryByTestId('picture-password-info')).not.toBeInTheDocument();
+    });
+
+    it('is shown when picture login is enabled and the Learner type is selected', async () => {
+      renderComponent({
+        picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
+        picturePasswordsExhausted: false,
+      });
+
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.learnerLabel$());
+
       await waitFor(() => {
         expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
-    });
-
-    it('is shown when learner limit is reached and no user type is selected', async () => {
-      renderComponent({
-        picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
-        picturePasswordsExhausted: true,
-      });
-
-      // Wait for loading to finish — the "Learn more" button confirms the limit state is rendered
-      await waitFor(() => {
-        expect(screen.getByTestId('learn-more-button')).toBeInTheDocument();
-      });
-      expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
     });
 
     it('is not shown when a non-Learner role is selected', async () => {
@@ -134,7 +133,10 @@ describe('UserCreateSidePanel — picture password behavior', () => {
         picturePasswordsExhausted: false,
       });
 
-      // No user type selected by default — info is visible
+      await waitForFormReady();
+      await selectUserType(user, coreStrings.learnerLabel$());
+
+      // Learner selected — info is visible
       await waitFor(() => {
         expect(screen.getByTestId('picture-password-info')).toBeInTheDocument();
       });
