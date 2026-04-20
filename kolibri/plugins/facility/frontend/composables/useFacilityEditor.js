@@ -241,6 +241,7 @@ export default function useFacilityEditor(facilityId) {
     facilityDataLoading,
     pictureLoginTaskId,
     // Computed
+    facility,
     settingsHaveChanged,
     isPinSet,
     isAttendanceFeatureEnabled,
