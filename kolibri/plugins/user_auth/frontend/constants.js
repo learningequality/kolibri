@@ -1,5 +1,6 @@
 export const ComponentMap = {
-  SIGN_IN: 'SignInPage',
+  USERNAME_SIGN_IN: 'SignInPage',
+  PICTURE_SIGN_IN: 'PictureSignInPage',
   SIGN_UP: 'SignUpPage',
   AUTH_SELECT: 'AuthSelect',
   FACILITY_SELECT: 'FacilitySelect',
@@ -7,7 +8,7 @@ export const ComponentMap = {
 };
 
 export const pageNameToModuleMap = {
-  [ComponentMap.SIGN_IN]: 'signIn',
+  [ComponentMap.USERNAME_SIGN_IN]: 'signIn',
 };
 
 export const DeviceUnusableReason = {

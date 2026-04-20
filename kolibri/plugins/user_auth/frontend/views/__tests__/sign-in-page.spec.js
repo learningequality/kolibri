@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import SignInPage from '../SignInPage';
+import { ComponentMap } from '../../constants';
 import makeStore from '../../__tests__/utils/makeStore';
 
 const { usernameLabel$, usernameNotAlphaNumError$, requiredFieldError$ } = coreStrings;
@@ -34,11 +35,11 @@ function renderComponent() {
     SignInPage,
     {
       store,
-      routes: [{ name: 'SIGN_IN', path: '/signin' }],
+      routes: [{ name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' }],
     },
     (_vue, _store, router) => {
       router.getRoute = () => {
-        return { name: 'SIGN_IN', path: '/signin' };
+        return { name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' };
       };
     },
   );

@@ -91,7 +91,7 @@
         type: Object,
         required: true,
         validate(obj) {
-          return [ComponentMap.SIGN_IN, ComponentMap.SIGN_UP].includes(obj.name);
+          return [ComponentMap.USERNAME_SIGN_IN, ComponentMap.SIGN_UP].includes(obj.name);
         },
       },
     },

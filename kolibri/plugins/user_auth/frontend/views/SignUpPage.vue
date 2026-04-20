@@ -90,7 +90,7 @@
         </p>
         <KRouterLink
           :text="userString('signInPrompt')"
-          :to="$router.getRoute(ComponentMap.SIGN_IN)"
+          :to="$router.getRoute(ComponentMap.USERNAME_SIGN_IN)"
           appearance="basic-link"
         />
       </form>

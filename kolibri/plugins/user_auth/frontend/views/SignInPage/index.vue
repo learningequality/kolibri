@@ -218,7 +218,7 @@
       ...mapState('signIn', ['hasMultipleFacilities']),
       backToFacilitySelectionRoute() {
         const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
+        const whereToNext = this.$router.getRoute(ComponentMap.USERNAME_SIGN_IN);
         let query = {};
         if (this.nextParam) {
           query = { next: this.nextParam };

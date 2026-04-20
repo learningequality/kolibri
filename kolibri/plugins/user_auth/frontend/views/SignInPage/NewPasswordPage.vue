@@ -121,7 +121,7 @@
       },
       goBack() {
         this.$router.push({
-          name: ComponentMap.SIGN_IN,
+          name: ComponentMap.USERNAME_SIGN_IN,
         });
       },
     },

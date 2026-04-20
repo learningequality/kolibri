@@ -49,7 +49,7 @@
         return { ...this.facilitySelectRoute, params: { whereToNext } };
       },
       signInRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
+        const whereToNext = this.$router.getRoute(ComponentMap.USERNAME_SIGN_IN);
         return { ...this.facilitySelectRoute, params: { whereToNext } };
       },
       facilitySelectRoute() {

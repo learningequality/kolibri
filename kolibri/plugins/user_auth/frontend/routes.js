@@ -24,7 +24,7 @@ export default [
       if (facilities.value.length > 1 && !store.state.facilityId) {
         next(router.getRoute(ComponentMap.AUTH_SELECT));
       } else {
-        next(router.getRoute(ComponentMap.SIGN_IN));
+        next(router.getRoute(ComponentMap.USERNAME_SIGN_IN));
       }
     },
   },
@@ -36,7 +36,7 @@ export default [
       // there is no facilityId
       if (facilities.value.length > 1 && !store.state.facilityId) {
         // Go to FacilitySelect with whereToNext => SignUpPage
-        const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
+        const whereToNext = router.getRoute(ComponentMap.USERNAME_SIGN_IN);
         let query = {};
         if (to.query.next) {
           query = { next: to.query.next };

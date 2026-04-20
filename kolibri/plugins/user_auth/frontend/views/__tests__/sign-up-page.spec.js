@@ -4,6 +4,7 @@ import { ref, computed } from 'vue';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import SignUpPage from '../SignUpPage';
 import makeStore from '../../__tests__/utils/makeStore';
+import { ComponentMap } from '../../constants';
 
 jest.mock('kolibri-common/composables/useFacility');
 
@@ -31,11 +32,11 @@ function renderComponent() {
     SignUpPage,
     {
       store,
-      routes: [{ name: 'SIGN_IN', path: '/signin' }],
+      routes: [{ name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' }],
     },
     (_vue, _store, router) => {
       router.getRoute = () => {
-        return { name: 'SIGN_IN', path: '/signin' };
+        return { name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' };
       };
     },
   );
