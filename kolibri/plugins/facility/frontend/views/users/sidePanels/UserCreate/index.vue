@@ -288,7 +288,7 @@
       const extraDemographics = ref({});
       const idNumber = ref('');
       const loading = ref(true);
-      const kind = ref(null);
+      const kind = ref({});
       const selectedClasses = ref([]);
       const classCoachIsSelected = ref(true);
       const busy = ref(false);
@@ -307,7 +307,7 @@
         extraDemographics.value = {};
         idNumber.value = '';
         classCoachIsSelected.value = true;
-        kind.value = null;
+        kind.value = {};
         defaultRole.value = null;
         formSubmitted.value = false;
         caughtErrors.value = [];
