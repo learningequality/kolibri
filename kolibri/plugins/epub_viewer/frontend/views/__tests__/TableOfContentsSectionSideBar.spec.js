@@ -1,4 +1,5 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import TableOfContentsSideBar from '../TableOfContentsSideBar';
 
 const toc = [
@@ -24,9 +25,10 @@ const currentSection = {
   label: 'Third level section',
   href: 'href3',
 };
-function createWrapper({ toc, currentSection } = {}) {
-  return mount(TableOfContentsSideBar, {
-    propsData: {
+
+function renderComponent({ toc, currentSection } = {}) {
+  return render(TableOfContentsSideBar, {
+    props: {
       toc,
       currentSection,
     },
@@ -34,47 +36,31 @@ function createWrapper({ toc, currentSection } = {}) {
 }
 
 describe('Table of Contents Side Bar', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper({
-      toc,
-    });
-    expect(wrapper.exists()).toBe(true);
-  });
-  it('should create a button for each section', () => {
-    const wrapper = createWrapper({
-      toc,
-    });
-    expect(wrapper.findAllComponents({ name: 'KButton' }).length).toBe(3);
+  it('renders the sidebar with all sections', () => {
+    renderComponent({ toc });
+    expect(screen.getByText('Top level section')).toBeInTheDocument();
+    expect(screen.getByText('Second level section')).toBeInTheDocument();
+    expect(screen.getByText('Third level section')).toBeInTheDocument();
   });
 
-  it('should create a ul for each section', () => {
-    const wrapper = createWrapper({
-      toc,
-    });
-    expect(wrapper.findAll('ul').length).toBe(3);
+  it('renders the correct nested list structure for the given toc', () => {
+    renderComponent({ toc });
+    expect(screen.getAllByRole('list')).toHaveLength(3);
   });
 
-  it('should emit an event if section is clicked', () => {
-    const wrapper = createWrapper({
-      toc,
-    });
-    const allSectionButtons = wrapper.findAllComponents({ name: 'KButton' });
-    allSectionButtons.wrappers[allSectionButtons.length - 1].trigger('click');
-    expect(wrapper.emitted().tocNavigation[0][0]).toEqual({
+  it('emits a tocNavigation event when a specific section is clicked', async () => {
+    const { emitted } = renderComponent({ toc });
+    await fireEvent.click(screen.getByText('Third level section'));
+    expect(emitted()).toHaveProperty('tocNavigation');
+    expect(emitted().tocNavigation[0][0]).toEqual({
       label: 'Third level section',
       href: 'href3',
     });
   });
 
-  it('should add a class to current section if provided', () => {
-    const wrapper = createWrapper({
-      toc,
-      currentSection,
-    });
-    const allSectionButtons = wrapper.findAllComponents({ name: 'KButton' });
-    const allSectionButtonsWithCustomClass = allSectionButtons.filter(button =>
-      button.classes().includes('toc-list-item-button-current'),
-    );
-    expect(allSectionButtonsWithCustomClass.length).toEqual(1);
+  it('visually highlights the currently active section', () => {
+    renderComponent({ toc, currentSection });
+    const activeButton = screen.getByText('Third level section').closest('.toc-list-item-button');
+    expect(activeButton).toHaveClass('toc-list-item-button-current');
   });
 });

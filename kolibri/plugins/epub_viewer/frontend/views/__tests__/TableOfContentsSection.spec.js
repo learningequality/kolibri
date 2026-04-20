@@ -1,4 +1,5 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import '@testing-library/jest-dom';
 import TableOfContentsSection from '../TableOfContentsSection';
 
 const section = {
@@ -27,9 +28,10 @@ const sectionWithSubItems = {
     },
   ],
 };
-function createWrapper({ section, depth, currentSection } = {}) {
-  return mount(TableOfContentsSection, {
-    propsData: {
+
+function renderComponent({ section, depth, currentSection } = {}) {
+  return render(TableOfContentsSection, {
+    props: {
       section,
       depth,
       currentSection,
@@ -38,85 +40,55 @@ function createWrapper({ section, depth, currentSection } = {}) {
 }
 
 describe('Table of Contents Section', () => {
-  it('should mount', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 0,
-    });
-    expect(wrapper.exists()).toBe(true);
+  it('renders a section label correctly', () => {
+    renderComponent({ section, depth: 0 });
+    expect(screen.getByText('Top level section')).toBeInTheDocument();
   });
 
-  it('should handle section with no sub items', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 0,
-    });
-
-    expect(wrapper.find('ul.toc-list').exists()).toBe(false);
+  it('renders nested sub-items when a section has subitems', () => {
+    renderComponent({ section: sectionWithSubItems, depth: 0 });
+    expect(screen.getByText('Top level section')).toBeInTheDocument();
+    expect(screen.getByText('Second level section')).toBeInTheDocument();
+    expect(screen.getByText('Third level section')).toBeInTheDocument();
   });
 
-  it('should handle section with sub items', () => {
-    const wrapper = createWrapper({
-      section: sectionWithSubItems,
-      depth: 0,
-    });
-    expect(
-      wrapper.find('ul.toc-list').findAll('[data-testid="table-of-contents-section"]').length,
-    ).toBe(2);
+  it('displays the href as fallback text if the label is empty', () => {
+    renderComponent({ section: sectionWithEmptyLabel, depth: 0 });
+    expect(screen.getByText('href1')).toBeInTheDocument();
   });
 
-  it('should display href if label is empty', () => {
-    const wrapper = createWrapper({
-      section: sectionWithEmptyLabel,
-      depth: 0,
-    });
-    expect(wrapper.findComponent({ name: 'KButton' }).text()).toBe(sectionWithEmptyLabel.href);
+  it('applies the appropriate top-level styling class for root level sections', () => {
+    renderComponent({ section, depth: 0 });
+    const listItem = screen.getByText('Top level section').closest('li');
+    expect(listItem).toHaveClass('toc-list-item-top-level');
   });
 
-  it('should not have a custom class if not top level section', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 1,
-    });
-    expect(wrapper.classes()).not.toContain('toc-list-item-top-level');
+  it('does not apply the top-level styling class for nested sections', () => {
+    renderComponent({ section, depth: 1 });
+    const listItem = screen.getByText('Top level section').closest('li');
+    expect(listItem).not.toHaveClass('toc-list-item-top-level');
   });
 
-  it('should have a custom class if top level section', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 0,
-    });
-    expect(wrapper.classes()).toContain('toc-list-item-top-level');
+  it('visually highlights the section if it is the current section', () => {
+    renderComponent({ section, depth: 0, currentSection: section });
+    const button = screen.getByText('Top level section').closest('.toc-list-item-button');
+    expect(button).toHaveClass('toc-list-item-button-current');
   });
 
-  it('should add a custom class if a current section is provided and matches section', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 0,
-      currentSection: section,
-    });
-    expect(wrapper.findComponent({ name: 'KButton' }).classes()).toContain(
-      'toc-list-item-button-current',
-    );
-  });
-
-  it('should not add a custom class if a current section is provided but does not match section', () => {
-    const wrapper = createWrapper({
+  it('does not highlight the section if it is not the current section', () => {
+    renderComponent({
       section,
       depth: 0,
       currentSection: { label: 'Random section', href: 'href' },
     });
-    expect(wrapper.findComponent({ name: 'KButton' }).classes()).not.toContain(
-      'toc-list-item-button-current',
-    );
+    const button = screen.getByText('Top level section').closest('.toc-list-item-button');
+    expect(button).not.toHaveClass('toc-list-item-button-current');
   });
 
-  it('should emit an event if section is clicked', () => {
-    const wrapper = createWrapper({
-      section,
-      depth: 0,
-    });
-    wrapper.findComponent({ name: 'KButton' }).trigger('click');
-    expect(wrapper.emitted().tocNavigation[0][0]).toBe(section);
+  it('emits a navigation event when the section is clicked', async () => {
+    const { emitted } = renderComponent({ section, depth: 0 });
+    await fireEvent.click(screen.getByText('Top level section'));
+    expect(emitted()).toHaveProperty('tocNavigation');
+    expect(emitted().tocNavigation[0][0]).toEqual(section);
   });
 });
