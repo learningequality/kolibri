@@ -511,7 +511,7 @@
 
       const LESSON_STATUS_ICONS = {
         mastered: 'mastered',
-        open: 'chevronRight',
+        open: 'view',
         locked: 'permissions',
       };
 
