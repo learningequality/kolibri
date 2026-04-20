@@ -538,8 +538,8 @@
           const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
           const targetLesson = lessons.find(lesson => lesson.id === lessonId);
           if (!resumeLesson || !targetLesson) return 'locked';
-          // Lessons before the resume lesson are fully done
-          // resume_position is the earliest incomplete resource in the unit).
+          // Lessons before the resume lesson are fully done (resume_position is the earliest
+          // incomplete resource in the unit).
           if (targetLesson.lft < resumeLesson.lft) return 'mastered';
           // The resume lesson itself — learner is here.
           if (targetLesson.lft === resumeLesson.lft) return 'open';
