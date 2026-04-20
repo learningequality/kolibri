@@ -1,11 +1,12 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="!$isPrint ? allPasswordsHeader$() : ''"
+    :appBarTitle="allPasswordsHeader$()"
     :route="route"
     :primary="false"
+    :showHeader="!$isPrint"
   >
-    <KPageContainer>
+    <KPageContainer :class="{ 'passwords-page-container': !$isPrint }">
       <!-- Screen-only header with Print button -->
       <KGrid v-show="!$isPrint">
         <KGridItem
@@ -85,6 +86,7 @@
                 <UserPicturePassword
                   v-else
                   :picturePassword="content.picture_password"
+                  :showSequenceNumbers="$isPrint"
                 />
               </template>
               <div
@@ -311,7 +313,7 @@
           backgroundColor: this.$themePalette.grey.v_100,
           border: `3px solid ${this.$themeTokens.fineLine}`,
           borderRadius: '8px',
-          padding: '8px',
+          padding: '8px 16px',
         };
       },
       previewContentStyle() {
@@ -333,6 +335,10 @@
 
 
 <style lang="scss" scoped>
+
+  .passwords-page-container {
+    margin: 80px 175px 72px;
+  }
 
   .header-row {
     display: flex;
