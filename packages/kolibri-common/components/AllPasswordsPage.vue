@@ -439,6 +439,11 @@
   }
 
   @media print {
+    .learner-row {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
     .print-header {
       display: block;
     }
