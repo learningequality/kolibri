@@ -129,11 +129,13 @@
       color: inherit;
     }
 
-    &.show-sequence-numbers figure::after {
-      margin-top: 2px;
-      font-size: 12px;
-      color: inherit;
-      content: counter(list-item);
+    &.show-sequence-numbers {
+      li::after {
+        margin-top: 2px;
+        font-size: 12px;
+        color: inherit;
+        content: counter(list-item);
+      }
     }
   }
 
