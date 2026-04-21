@@ -131,44 +131,42 @@
       </KRadioButtonGroup>
 
       <!-- Live preview for example learner -->
-      <div
+      <section
         v-if="previewLearner"
         class="preview-section"
       >
-        <div class="preview-label">{{ printFormatPreviewLabel$() }}</div>
+        <h6 class="preview-label">{{ printFormatPreviewLabel$() }}</h6>
         <div
           class="preview-content"
           :style="previewContentStyle"
         >
-          <div class="preview-row">
-            <div class="learner-info">
-              <span
-                dir="auto"
-                class="learner-name"
-                :style="{ color: $themeTokens.text }"
-              >{{ previewLearner.full_name }}</span>
-              <span
-                dir="auto"
-                class="learner-username"
-                :style="{ color: $themeTokens.annotation }"
-              >{{ previewLearner.username }}</span>
+          <div class="learner-info">
+            <span
+              dir="auto"
+              class="learner-name"
+              :style="{ color: $themeTokens.text }"
+            >{{ previewLearner.full_name }}</span>
+            <span
+              dir="auto"
+              class="learner-username"
+              :style="{ color: $themeTokens.annotation }"
+            >{{ previewLearner.username }}</span>
+          </div>
+          <div class="learner-password">
+            <div
+              v-if="printFormat === 'text'"
+              class="password-text-sequence"
+            >
+              {{ getPasswordTextLabels(previewLearner.picture_password) }}
             </div>
-            <div class="learner-password">
-              <div
-                v-if="printFormat === 'text'"
-                class="password-text-sequence"
-              >
-                {{ getPasswordTextLabels(previewLearner.picture_password) }}
-              </div>
-              <UserPicturePassword
-                v-else
-                :picturePassword="previewLearner.picture_password"
-                :showSequenceNumbers="true"
-              />
-            </div>
+            <UserPicturePassword
+              v-else
+              :picturePassword="previewLearner.picture_password"
+              :showSequenceNumbers="true"
+            />
           </div>
         </div>
-      </div>
+      </section>
     </KModal>
   </ImmersivePage>
 
@@ -418,15 +416,12 @@
   }
 
   .preview-content {
-    padding: 12px;
-    border: 2px solid;
-    border-radius: 8px;
-  }
-
-  .preview-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 12px;
+    border: 2px solid;
+    border-radius: 8px;
   }
 
   .print-header {
