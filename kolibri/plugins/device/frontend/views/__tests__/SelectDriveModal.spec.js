@@ -127,7 +127,7 @@ describe('SelectDriveModal', () => {
     expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
   });
 
-  it('when no drive is selected, "Continue" button is disabled', async () => {
+  it('when no drive is selected, "Continue" button is disabled', () => {
     renderComponent({ store });
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
