@@ -16,6 +16,10 @@
       </h1>
     </template>
     <template #default>
+      <LearnerLimitReachedModal
+        v-if="showLearnerLimitModal"
+        @close="showLearnerLimitModal = false"
+      />
       <div
         v-if="showErrorWarning"
         :style="{ color: $themeTokens.error }"
@@ -60,27 +64,48 @@
             v-model="kind"
             class="select"
             :disabled="busy"
-            :label="coreString('userTypeLabel')"
+            :label="userTypeLabel$()"
             :options="userTypeOptions"
           />
+          <div
+            v-if="learnerLimitReached"
+            class="learner-limit-message"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            <KIcon
+              icon="warning"
+              :style="{ fill: $themePalette.yellow.v_600 }"
+            />
+            <span>
+              {{ learnerCreationDisabled$() }}
+              <KButton
+                appearance="basic-link"
+                :text="learnMoreAction$()"
+                :aria-label="learnerCreationDisabled$() + ' ' + learnMoreAction$()"
+                data-testid="learn-more-button"
+                @click="showLearnerLimitModal = true"
+              />
+            </span>
+          </div>
 
           <fieldset
             v-if="coachIsSelected"
             class="coach-selector"
+            data-testid="coach-type-selector"
           >
             <KRadioButtonGroup>
               <KRadioButton
                 v-model="classCoachIsSelected"
                 :disabled="busy"
-                :label="coreString('classCoachLabel')"
-                :description="coreString('classCoachDescription')"
+                :label="classCoachLabel$()"
+                :description="classCoachDescription$()"
                 :buttonValue="true"
               />
               <KRadioButton
                 v-model="classCoachIsSelected"
                 :disabled="busy"
-                :label="coreString('facilityCoachLabel')"
-                :description="coreString('facilityCoachDescription')"
+                :label="facilityCoachLabel$()"
+                :description="facilityCoachDescription$()"
                 :buttonValue="false"
               />
             </KRadioButtonGroup>
@@ -115,6 +140,22 @@
             :facilityDatasetExtraFields="facilityConfig.extra_fields"
             :disabled="busy"
           />
+
+          <div
+            v-if="showPicturePasswordInfo"
+            data-testid="picture-password-info"
+            class="picture-password-info"
+          >
+            <h5 class="picture-password-info-heading">
+              {{ signingInHeading$() }}
+            </h5>
+            <p class="picture-password-info-text">
+              {{ learnersPictureSignInInfo$() }}
+            </p>
+            <p class="picture-password-info-text">
+              {{ picturePasswordWillBeAssigned$() }}
+            </p>
+          </div>
         </section>
       </form>
       <CloseConfirmationGuard
@@ -148,7 +189,7 @@
 
   import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
-  import { useRoute, useRouter } from 'vue-router/composables';
+  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
@@ -158,7 +199,7 @@
   import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
   import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
-  import commonCoreStrings, { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { UserKinds, ERROR_CONSTANTS, DemographicConstants } from 'kolibri/constants';
   import BirthYearSelect from 'kolibri-common/components/userAccounts/BirthYearSelect';
@@ -166,8 +207,10 @@
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
   import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
+  import LearnerLimitReachedModal from '../../../LearnerLimitReachedModal.vue';
   import { ClassesActions } from '../../../../constants';
   import IdentifierTextbox from './IdentifierTextbox.vue';
   import ClassesSelect from './ClassesSelect.vue';
@@ -192,19 +235,35 @@
       SidePanelModal,
       ExtraDemographics,
       CloseConfirmationGuard,
+      LearnerLimitReachedModal,
     },
-    mixins: [commonCoreStrings],
     setup(props) {
       const formId = 'create-user-form';
       const route = useRoute();
       const router = useRouter();
-      const $refs = getCurrentInstance().proxy.$refs;
-      const { setFacilityId, facilityConfig } = useFacility();
+      const instance = getCurrentInstance();
+      const $refs = instance.proxy.$refs;
+      const { setFacilityId, facilityConfig, selectedFacility, fetchFacilities } = useFacility();
+      const picturePasswordSettings = computed(
+        () => facilityConfig.value?.picture_password_settings || null,
+      );
       const { createSnackbar } = useSnackbar();
-      const userTypeOptions = [
+
+      const showLearnerLimitModal = ref(false);
+
+      const isPictureLoginActive = computed(() => picturePasswordSettings.value != null);
+      const learnerLimitReached = computed(
+        () => isPictureLoginActive.value && selectedFacility.value?.picture_passwords_exhausted,
+      );
+      const showPicturePasswordInfo = computed(
+        () => isPictureLoginActive.value && kind.value?.value === UserKinds.LEARNER,
+      );
+
+      const userTypeOptions = computed(() => [
         {
           label: coreStrings.learnerLabel$(),
           value: UserKinds.LEARNER,
+          disabled: learnerLimitReached.value,
         },
         {
           label: coreStrings.coachLabel$(),
@@ -214,11 +273,10 @@
           label: coreStrings.adminLabel$(),
           value: UserKinds.ADMIN,
         },
-      ];
+      ]);
 
       const closeConfirmationGuardRef = ref(null);
 
-      // Form data properties
       const fullName = ref('');
       const fullNameValid = ref(false);
       const username = ref('');
@@ -230,14 +288,15 @@
       const extraDemographics = ref({});
       const idNumber = ref('');
       const loading = ref(true);
-      const kind = ref(null);
+      const kind = ref({});
       const selectedClasses = ref([]);
       const classCoachIsSelected = ref(true);
       const busy = ref(false);
       const formSubmitted = ref(false);
       const caughtErrors = ref([]);
-
       const showErrorWarning = ref(false);
+      // Tracks the role that resetForm() last set so hasUnsavedChanges has the correct baseline.
+      const defaultRole = ref(null);
 
       const resetForm = () => {
         fullName.value = '';
@@ -247,8 +306,9 @@
         birthYear.value = NOT_SPECIFIED;
         extraDemographics.value = {};
         idNumber.value = '';
-        kind.value = userTypeOptions[0]; // Reset to Learner
         classCoachIsSelected.value = true;
+        kind.value = {};
+        defaultRole.value = null;
         formSubmitted.value = false;
         caughtErrors.value = [];
         busy.value = false;
@@ -258,20 +318,18 @@
         $refs.passwordTextbox?.reset();
       };
 
-      resetForm();
-
       const activeFacilityId = computed(() => route.params.facility_id);
       const facilityUsers = computed(() => store.state.userManagement.facilityUsers);
 
       const showPasswordInput = computed(() => {
         if (facilityConfig.value.learner_can_login_with_no_password) {
-          return kind.value.value !== UserKinds.LEARNER;
+          return kind.value?.value !== UserKinds.LEARNER;
         }
         return true;
       });
 
       const coachIsSelected = computed(() => {
-        return kind.value.value === UserKinds.COACH;
+        return kind.value?.value === UserKinds.COACH;
       });
 
       const newUserRole = computed(() => {
@@ -279,7 +337,7 @@
           return classCoachIsSelected.value ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
         }
         // Admin or Learner
-        return kind.value.value;
+        return kind.value?.value ?? null;
       });
 
       const formIsValid = computed(() => {
@@ -294,7 +352,7 @@
           idNumber.value,
           gender.value !== NOT_SPECIFIED,
           birthYear.value !== NOT_SPECIFIED,
-          newUserRole.value !== UserKinds.LEARNER,
+          newUserRole.value !== defaultRole.value,
           Object.values(extraDemographics.value).some(value => {
             if (Array.isArray(value)) {
               return value.length > 0;
@@ -307,7 +365,7 @@
       });
 
       const classesAction = computed(() =>
-        kind.value.value === UserKinds.LEARNER
+        kind.value?.value === UserKinds.LEARNER
           ? ClassesActions.ENROLL_LEARNER
           : ClassesActions.ASSIGN_COACH,
       );
@@ -329,7 +387,8 @@
         }
       };
 
-      const handleSubmitSuccess = () => {
+      const handleSubmitSuccess = async () => {
+        await fetchFacilities();
         createSnackbar(notificationStrings.userCreated$());
         props.onChange();
       };
@@ -420,7 +479,7 @@
           return false;
         }
 
-        handleSubmitSuccess();
+        await handleSubmitSuccess();
         return true;
       };
 
@@ -454,11 +513,32 @@
 
       onBeforeMount(async () => {
         await setFacilityId(activeFacilityId.value);
+        // facilityConfig is now loaded; reset form so kind reflects picture_passwords_exhausted.
+        resetForm();
         loading.value = false;
       });
 
-      const { saveAndClose$ } = coreStrings;
+      onBeforeRouteLeave((to, from, next) => {
+        closeConfirmationGuardRef.value?.beforeRouteLeave(to, from, next);
+      });
+
+      const {
+        saveAndClose$,
+        learnMoreAction$,
+        userTypeLabel$,
+        classCoachLabel$,
+        classCoachDescription$,
+        facilityCoachLabel$,
+        facilityCoachDescription$,
+      } = coreStrings;
       const { saveAndAddAnother$, defaultErrorMessage$ } = bulkUserManagementStrings;
+      const {
+        learnerCreationDisabled$,
+        picturePasswordWillBeAssigned$,
+        signingInHeading$,
+        learnersPictureSignInInfo$,
+      } = picturePasswordStrings;
+
       return {
         classesAction,
         fullName,
@@ -493,6 +573,21 @@
         saveAndAddAnother$,
         defaultErrorMessage$,
         showErrorWarning,
+        userTypeLabel$,
+        classCoachLabel$,
+        classCoachDescription$,
+        facilityCoachLabel$,
+        facilityCoachDescription$,
+        // picture password
+        learnerLimitReached,
+        showPicturePasswordInfo,
+        showLearnerLimitModal,
+
+        learnerCreationDisabled$,
+        picturePasswordWillBeAssigned$,
+        signingInHeading$,
+        learnersPictureSignInInfo$,
+        learnMoreAction$,
       };
     },
     props: {
@@ -508,9 +603,6 @@
         type: Function,
         default: () => {},
       },
-    },
-    beforeRouteLeave(to, from, next) {
-      this.$refs.closeConfirmationGuardRef?.beforeRouteLeave(to, from, next);
     },
     $trs: {
       createNewUserHeader: {
@@ -540,7 +632,7 @@
   }
 
   .select {
-    margin: 18px 0 36px;
+    margin: 18px 0 20px;
   }
 
   .form {
@@ -554,6 +646,28 @@
   .warning-text {
     margin-bottom: 10px;
     margin-left: 5px;
+  }
+
+  .learner-limit-message {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.875em;
+  }
+
+  .picture-password-info {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+
+  .picture-password-info-text {
+    margin: 0 0 4px;
+    font-size: 0.875em;
+  }
+
+  .picture-password-info-heading {
+    margin-bottom: 6px;
   }
 
 </style>
