@@ -53,8 +53,7 @@ describe('AllPasswordsPage', () => {
       useFacilityMock({ currentFacilityName: ref('Test Facility') }),
     );
     useKResponsiveWindow.mockImplementation(() => ({
-      windowHeight: ref(768),
-      windowIsSmall: ref(false),
+      windowBreakpoint: ref(4),
     }));
   });
 

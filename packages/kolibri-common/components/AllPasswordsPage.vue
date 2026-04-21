@@ -6,7 +6,7 @@
     :primary="false"
     :showHeader="!$isPrint"
   >
-    <KPageContainer :class="{ 'passwords-page-container': !$isPrint }">
+    <KPageContainer :class="{ 'passwords-page-container': !$isPrint && windowBreakpoint > 4 }">
       <!-- Screen-only header with Print button -->
       <KGrid v-show="!$isPrint">
         <KGridItem
@@ -187,6 +187,7 @@
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'AllPasswordsPage',
@@ -199,6 +200,7 @@
       const className = ref('');
 
       const { currentFacilityName } = useFacility();
+      const { windowBreakpoint } = useKResponsiveWindow();
 
       const { nameLabel$, cancelAction$, continueAction$ } = coreStrings;
       const {
@@ -275,6 +277,7 @@
         printFormat,
         className,
         currentFacilityName,
+        windowBreakpoint,
         previewLearner,
         hasPicturePasswords,
         tableHeaders,
