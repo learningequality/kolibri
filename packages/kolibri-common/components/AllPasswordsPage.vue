@@ -78,6 +78,7 @@
                 <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
                 <div
                   v-if="$isPrint && printFormat === 'text'"
+                  dir="ltr"
                   class="password-text-sequence"
                 >
                   {{ getPasswordTextLabels(content.picture_password) }}
@@ -155,6 +156,7 @@
           <div class="learner-password">
             <div
               v-if="printFormat === 'text'"
+              dir="ltr"
               class="password-text-sequence"
             >
               {{ getPasswordTextLabels(previewLearner.picture_password) }}
