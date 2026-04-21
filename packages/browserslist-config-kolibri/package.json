@@ -1,6 +1,6 @@
 {
   "name": "browserslist-config-kolibri",
-  "version": "0.18.0",
+  "version": "0.20.0",
   "description": "Browsers list configuration for Kolibri",
   "main": "index.js",
   "repository": {

@@ -1181,8 +1181,8 @@ importers:
         specifier: 10.4.23
         version: 10.4.23(postcss@8.5.6)
       browserslist-config-kolibri:
-        specifier: 0.18.0
-        version: 0.18.0
+        specifier: workspace:*
+        version: link:../browserslist-config-kolibri
       commander:
         specifier: ^14.0.3
         version: 14.0.3
@@ -4310,9 +4310,6 @@ packages:
 
   browserify-zlib@0.2.0:
     resolution: {integrity: sha512-Z942RysHXmJrhqk88FmKBVq/v5tqmSkDz7p54G/MGyjMnCFFnC79XWNbg+Vta8W6Wb2qtSZTSxIGkJrRpCFEiA==}
-
-  browserslist-config-kolibri@0.18.0:
-    resolution: {integrity: sha512-d8JCoLUG8XlgfaE/wB7P58ok6ddiGGjChm6dVsL3W2702ibgFjOx+NtFHrLKCpkSuiaR2/gevvaQsIFwkVNNiA==}
 
   browserslist@4.28.1:
     resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
@@ -12687,8 +12684,6 @@ snapshots:
   browserify-zlib@0.2.0:
     dependencies:
       pako: 1.0.11
-
-  browserslist-config-kolibri@0.18.0: {}
 
   browserslist@4.28.1:
     dependencies:
