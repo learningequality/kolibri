@@ -226,8 +226,7 @@
       const sortOrder = ref(null);
 
       const sortedLearners = computed(() => {
-        if (!sortOrder.value) return learners.value;
-        return orderBy(learners.value, ['full_name'], [sortOrder.value]);
+        return orderBy(learners.value, ['full_name'], [sortOrder.value || 'asc']);
       });
 
       const tableHeaders = computed(() => [
