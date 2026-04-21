@@ -329,7 +329,7 @@
     methods: {
       handlePrintSubmit() {
         this.closePrintDialog();
-        this.$print();
+        this.$nextTick(() => this.$print());
       },
     },
   };
