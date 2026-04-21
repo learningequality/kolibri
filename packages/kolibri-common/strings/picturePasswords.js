@@ -201,8 +201,8 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Print with text only',
     context: 'Radio option label for printing the picture password list using text labels only',
   },
-  printFormatDialogHeader: {
-    message: 'Print format',
+  printPasswordsDialogHeader: {
+    message: 'Print passwords',
     context: 'Title for the dialog where coaches choose how to print the picture password list',
   },
   printFormatPreviewLabel: {

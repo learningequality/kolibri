@@ -137,7 +137,7 @@ describe('AllPasswordsPage', () => {
       fireEvent.click(screen.getByRole('button', { name: picturePasswordStrings.printAction$() }));
       await global.flushPromises();
       expect(
-        screen.getByText(picturePasswordStrings.printFormatDialogHeader$()),
+        screen.getByText(picturePasswordStrings.printPasswordsDialogHeader$()),
       ).toBeInTheDocument();
     });
 

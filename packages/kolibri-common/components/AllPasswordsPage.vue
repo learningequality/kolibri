@@ -111,7 +111,7 @@
     <!-- Print format selection dialog -->
     <KModal
       v-if="showPrintDialog"
-      :title="printFormatDialogHeader$()"
+      :title="printPasswordsDialogHeader$()"
       :submitText="continueAction$()"
       :cancelText="cancelAction$()"
       @submit="handlePrintSubmit"
@@ -211,7 +211,7 @@
         allPasswordsHeader$,
         printWithImages$,
         printWithTextOnly$,
-        printFormatDialogHeader$,
+        printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
       } = picturePasswordStrings;
 
@@ -295,7 +295,7 @@
         allPasswordsHeader$,
         printWithImages$,
         printWithTextOnly$,
-        printFormatDialogHeader$,
+        printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
       };
     },
@@ -372,6 +372,7 @@
   }
 
   .learner-name {
+    padding-bottom: 4px;
     font-size: 16px;
   }
 
