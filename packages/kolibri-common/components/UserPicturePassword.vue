@@ -115,6 +115,7 @@
       align-items: center;
       margin: 0;
       list-style: none;
+      counter-increment: list-item;
     }
 
     figure {
