@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { render, screen } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
@@ -127,6 +127,30 @@ describe('AllPasswordsPage', () => {
       renderComponent();
       await global.flushPromises();
       expect(screen.getByRole('button', { name: printAction$() })).toBeInTheDocument();
+    });
+  });
+
+  describe('print dialog', () => {
+    it('opens the print format dialog when the Print button is clicked', async () => {
+      renderComponent();
+      await global.flushPromises();
+      fireEvent.click(screen.getByRole('button', { name: picturePasswordStrings.printAction$() }));
+      await global.flushPromises();
+      expect(
+        screen.getByText(picturePasswordStrings.printFormatDialogHeader$()),
+      ).toBeInTheDocument();
+    });
+
+    it('shows hyphenated icon labels in the preview when text format is selected', async () => {
+      renderComponent();
+      await global.flushPromises();
+      fireEvent.click(screen.getByRole('button', { name: picturePasswordStrings.printAction$() }));
+      await global.flushPromises();
+      fireEvent.click(
+        screen.getByRole('radio', { name: picturePasswordStrings.printWithTextOnly$() }),
+      );
+      await global.flushPromises();
+      expect(screen.getByText('testIcon1 - testIcon2 - testIcon3')).toBeInTheDocument();
     });
   });
 
