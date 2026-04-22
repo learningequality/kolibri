@@ -38,7 +38,6 @@ from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
 from kolibri.utils.system import get_free_space
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -132,12 +131,16 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         self.renderable_only = renderable_only
         self.all_thumbnails = all_thumbnails
         self.fail_on_error = fail_on_error
-        self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
+        self.content_dir = content_dir
         self.admin_imported = admin_imported
         self.import_channel_database = import_channel_database
         self.version_requested = False
         self.channel_database_transferred_bytes = 0
         super().__init__()
+
+    @property
+    def _effective_content_dir(self):
+        return self.content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
     @classmethod
     def from_manifest(cls, channel_id, manifest_file, **kwargs):
@@ -165,9 +168,15 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             filename, contentfolder=self.content_dir
         )
 
-        # if the file already exists add its size to our overall progress, and skip
-        if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
-            return
+        # if the file already exists, skip if size matches; if size mismatches, dest
+        # may be a fallback path — redirect the download to the primary content dir
+        if os.path.isfile(dest):
+            if os.path.getsize(dest) == f["file_size"]:
+                return
+            dest = paths.get_content_storage_file_path(
+                filename,
+                contentfolder=self._effective_content_dir,
+            )
 
         filetransfer = self.create_file_transfer(f, filename, dest)
         if filetransfer:
@@ -355,7 +364,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             self.update_progress(data_transferred)
             self.transferred_file_size += data_transferred
             self.remaining_bytes_to_transfer -= data_transferred
-            remaining_free_space = get_free_space(self.content_dir)
+            remaining_free_space = get_free_space(self._effective_content_dir)
             # Check for errors from the download
             future.result()
             # If not errors, mark this file to be annotated
@@ -395,7 +404,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
     def _check_free_space(self, total_bytes_to_transfer):
         if not paths.using_remote_storage():
-            free_space = get_free_space(self.content_dir)
+            free_space = get_free_space(self._effective_content_dir)
 
             if free_space <= total_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(

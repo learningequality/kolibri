@@ -346,7 +346,7 @@ class GetContentNodesDataTestCase(TestCase):
     c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
 
     def test_default_arguments(self):
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [], available=True
         )
 
@@ -402,7 +402,7 @@ class GetContentNodesDataTestCase(TestCase):
             channel_id=self.the_channel_id, pk__in=include_node_ids
         ).exclude(kind=content_kinds.TOPIC)
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [selected_content_nodes], available=True
         )
 
@@ -453,7 +453,7 @@ class GetContentNodesDataTestCase(TestCase):
             channel_id=self.the_channel_id, pk=self.c2c1_node_id
         ).exclude(kind=content_kinds.TOPIC)
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id,
             [selected_content_nodes],
             available=True,
@@ -493,7 +493,7 @@ class GetContentNodesDataTestCase(TestCase):
             },
         ]
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id,
             [],
             available=True,
@@ -505,7 +505,7 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_bytes_to_transfer, 5)
 
     def test_empty_query(self):
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [ContentNode.objects.none()], available=True
         )
 
@@ -1306,7 +1306,7 @@ class ImportContentTestCase(TestCase):
         os.close(fd2)
         with open(local_path_1, "w") as f:
             f.write("a")
-        local_path_mock.side_effect = [local_path_1, local_path_2]
+        local_path_mock.side_effect = [local_path_1, local_path_2, local_path_2]
         remote_path_mock.return_value = "notest"
         FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path_1
@@ -1385,7 +1385,11 @@ class ImportContentTestCase(TestCase):
         fd2, local_src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        local_path_mock.side_effect = [local_dest_path, local_src_path] * 10
+        local_path_mock.side_effect = [
+            local_dest_path,
+            local_dest_path,
+            local_src_path,
+        ] * 10
         FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (
             1,
@@ -1474,8 +1478,12 @@ class ImportContentTestCase(TestCase):
         os.close(fd4)
         path_mock.side_effect = [
             local_dest_path_1,
+            local_dest_path_1,
+            local_dest_path_2,
             local_dest_path_2,
             local_dest_path_3,
+            local_dest_path_3,
+            local_dest_path_4,
             local_dest_path_4,
         ]
         ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
@@ -1718,7 +1726,7 @@ class ImportContentTestCase(TestCase):
     ):
         fd, dest_path = tempfile.mkstemp()
         os.close(fd)
-        path_mock.side_effect = [dest_path, "/test/dne"]
+        path_mock.side_effect = [dest_path, dest_path, "/test/dne"]
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
@@ -1749,7 +1757,7 @@ class ImportContentTestCase(TestCase):
     ):
         fd, dest_path = tempfile.mkstemp()
         os.close(fd)
-        path_mock.side_effect = [dest_path, "/test/dne"]
+        path_mock.side_effect = [dest_path, dest_path, "/test/dne"]
         getsize_mock.side_effect = ["1", OSError("Permission denied")]
         get_import_export_mock.return_value = (
             1,
@@ -1896,7 +1904,12 @@ class ImportContentTestCase(TestCase):
         fd2, dest_path_2 = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        path_mock.side_effect = [dest_path_1, dest_path_2]
+        path_mock.side_effect = [
+            dest_path_1,
+            dest_path_1,
+            dest_path_2,
+            dest_path_2,
+        ]
         LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
             file_size=2201062
         )
@@ -1949,7 +1962,12 @@ class ImportContentTestCase(TestCase):
         fd2, dest_path_2 = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        path_mock.side_effect = [dest_path_1, dest_path_2]
+        path_mock.side_effect = [
+            dest_path_1,
+            dest_path_1,
+            dest_path_2,
+            dest_path_2,
+        ]
         LocalFile.objects.filter(pk="6bdfea4a01830fdd4a585181c0b8068c").update(
             file_size=2201062
         )
@@ -2421,7 +2439,7 @@ class ImportContentTestCase(TestCase):
     ):
         fd, dest_path = tempfile.mkstemp()
         os.close(fd)
-        path_mock.side_effect = [dest_path, "/test/dne"]
+        path_mock.side_effect = [dest_path, dest_path, "/test/dne"]
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
@@ -2462,8 +2480,12 @@ class ImportContentTestCase(TestCase):
         os.close(fd4)
         path_mock.side_effect = [
             local_dest_path_1,
+            local_dest_path_1,
+            local_dest_path_2,
             local_dest_path_2,
             local_dest_path_3,
+            local_dest_path_3,
+            local_dest_path_4,
             local_dest_path_4,
         ]
         ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
@@ -2515,7 +2537,7 @@ class ImportContentTestCase(TestCase):
         fd2, src_path = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
-        path_mock.side_effect = [dest_path, src_path]
+        path_mock.side_effect = [dest_path, dest_path, src_path]
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
@@ -2549,7 +2571,7 @@ class ImportContentTestCase(TestCase):
     ):
         fd, dest_path = tempfile.mkstemp()
         os.close(fd)
-        path_mock.side_effect = [dest_path]
+        path_mock.side_effect = [dest_path, dest_path]
         finalize_dest_mock.side_effect = TransferFailed
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
@@ -2591,7 +2613,7 @@ class ImportContentTestCase(TestCase):
         fd, local_path = tempfile.mkstemp()
         os.close(fd)
         LocalFile.objects.update(file_size=1)
-        local_path_mock.side_effect = [local_path]
+        local_path_mock.side_effect = [local_path, local_path]
         remote_path_mock.return_value = "notest"
         FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path
@@ -2632,6 +2654,196 @@ class ImportContentTestCase(TestCase):
             token="test-token",
             baseurl=channel_list_status_mock.call_args[1].get("baseurl"),
         )
+
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.getsize",
+        return_value=1,
+    )
+    @patch(
+        "kolibri.core.content.utils.paths.existing_file_path_in_content_fallback_dirs",
+        return_value="/fallback/storage/a/b/abc123.mp4",
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.isfile",
+        return_value=True,
+    )
+    def test_start_file_transfer_fallback_matching_size_skips(
+        self,
+        isfile_mock,
+        fallback_mock,
+        getsize_mock,
+        FileCopy_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__channel_id=self.the_channel_id
+                ).values("id", "file_size", "extension")[:1]
+            ),
+            1,
+        )
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+        )
+        manager.run()
+        FileCopy_mock.assert_not_called()
+
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.getsize",
+        return_value=99,  # wrong size — expected is 1
+    )
+    @patch(
+        "kolibri.core.content.utils.paths.existing_file_path_in_content_fallback_dirs",
+        return_value="/fallback/storage/a/b/abc123.mp4",
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.isfile",
+        return_value=True,
+    )
+    def test_start_file_transfer_fallback_wrong_size_downloads(
+        self,
+        isfile_mock,
+        fallback_mock,
+        getsize_mock,
+        FileCopy_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__channel_id=self.the_channel_id
+                ).values("id", "file_size", "extension")[:1]
+            ),
+            1,
+        )
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+        )
+        manager.run()
+        FileCopy_mock.assert_called_once()
+
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.paths.existing_file_path_in_content_fallback_dirs",
+        return_value=None,
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.isfile",
+        return_value=False,
+    )
+    def test_start_file_transfer_no_fallback_downloads(
+        self,
+        isfile_mock,
+        fallback_mock,
+        FileCopy_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__channel_id=self.the_channel_id
+                ).values("id", "file_size", "extension")[:1]
+            ),
+            1,
+        )
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+        )
+        manager.run()
+        FileCopy_mock.assert_called_once()
+
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.getsize",
+        return_value=1,
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.isfile",
+        return_value=True,
+    )
+    def test_start_file_transfer_primary_matching_size_skips(
+        self,
+        isfile_mock,
+        getsize_mock,
+        FileCopy_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__channel_id=self.the_channel_id
+                ).values("id", "file_size", "extension")[:1]
+            ),
+            1,
+        )
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+        )
+        manager.run()
+        FileCopy_mock.assert_not_called()
+
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.getsize",
+        return_value=99,  # wrong size — expected is 1
+    )
+    @patch(
+        "kolibri.core.content.utils.resource_import.os.path.isfile",
+        return_value=True,
+    )
+    def test_start_file_transfer_primary_wrong_size_downloads(
+        self,
+        isfile_mock,
+        getsize_mock,
+        FileCopy_mock,
+        get_import_export_mock,
+        channel_list_status_mock,
+    ):
+        LocalFile.objects.filter(
+            files__contentnode__channel_id=self.the_channel_id
+        ).update(file_size=1)
+        get_import_export_mock.return_value = (
+            1,
+            list(
+                LocalFile.objects.filter(
+                    files__contentnode__channel_id=self.the_channel_id
+                ).values("id", "file_size", "extension")[:1]
+            ),
+            1,
+        )
+        manager = DiskChannelResourceImportManager(
+            self.the_channel_id,
+            path=tempfile.mkdtemp(),
+        )
+        manager.run()
+        FileCopy_mock.assert_called_once()
 
 
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
