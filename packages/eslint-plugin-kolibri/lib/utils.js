@@ -6,6 +6,24 @@ const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = require('./constants');
 
 module.exports = {
   /**
+   * Extract the called method name from a CallExpression node, such as:
+   *   screen.getByText(...) => 'getByText'
+   *   getByText(...) => 'getByText'
+   *
+   * @param {ASTNode} node - A CallExpression node
+   * @returns {string|null}
+   */
+  getCallMethodName(node) {
+    if (node.callee.type === 'MemberExpression') {
+      return node.callee.property.name || null;
+    }
+    if (node.callee.type === 'Identifier') {
+      return node.callee.name || null;
+    }
+    return null;
+  },
+
+  /**
    * Safely access parserServices from the ESLint rule context.
    * In ESLint 9 flat config, parserServices moved to context.sourceCode.parserServices.
    */

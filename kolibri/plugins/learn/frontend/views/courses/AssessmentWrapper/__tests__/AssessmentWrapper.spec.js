@@ -1,8 +1,24 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 
-import AssessmentWrapper from '../index.vue';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import AssessmentWrapper, { hintTranslator } from '../index.vue';
+
+const { completedLabel$ } = coreStrings;
 
 jest.mock('kolibri/composables/useUser');
+
+const {
+  goal$,
+  check$,
+  next$,
+  inputAnswer$,
+  correct$,
+  tryAgain$,
+  greatKeepGoing$,
+  itemError$,
+  tryDifferentQuestion$,
+} = createTranslator(AssessmentWrapper.name, AssessmentWrapper.$trs);
 
 const ASSESSMENT_IDS = ['item-1', 'item-2', 'item-3', 'item-4', 'item-5'];
 const DEFAULT_MASTERY_MODEL = { type: 'm_of_n', m: 3, n: 5 };
@@ -79,6 +95,10 @@ function renderComponent(props = {}, { stubs, ...restOptions } = {}) {
   const mergedProps = buildProps(props);
   return render(AssessmentWrapper, {
     props: mergedProps,
+    // ContentViewer is a complex renderer intentionally implemented as a stub
+    // to allow for testing AssessmentWrapper behavior in response to events
+    // emitted by ContentViewer
+    // eslint-disable-next-line kolibri/tests-no-stubs
     stubs: {
       ContentViewer: DefaultStub,
       ...stubs,
@@ -114,18 +134,18 @@ describe('AssessmentWrapper', () => {
     it('renders the mastery goal text', () => {
       renderComponent();
       // "Get 3 correct" appears in both the mastery bar and the bottom status bar
-      const elements = screen.getAllByText(/Get 3 correct/);
+      const elements = screen.getAllByText(goal$({ count: 3 }));
       expect(elements.length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders the Check button initially', () => {
       renderComponent();
-      expect(screen.getByText('Check')).toBeInTheDocument();
+      expect(screen.getByText(check$())).toBeInTheDocument();
     });
 
     it('does not render the Next button initially', () => {
       renderComponent();
-      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+      expect(screen.queryByText(next$())).not.toBeInTheDocument();
     });
 
     it('renders the content viewer with the first item id', () => {
@@ -136,12 +156,12 @@ describe('AssessmentWrapper', () => {
 
     it('renders the completed label when mastered', () => {
       renderComponent({ mastered: true });
-      expect(screen.getByText('Completed')).toBeInTheDocument();
+      expect(screen.getByText(completedLabel$())).toBeInTheDocument();
     });
 
     it('does not render the completed label when not mastered', () => {
       renderComponent({ mastered: false });
-      expect(screen.queryByText('Completed')).not.toBeInTheDocument();
+      expect(screen.queryByText(completedLabel$())).not.toBeInTheDocument();
     });
 
     it('shows additional button when hasNextResource is true', () => {
@@ -179,14 +199,14 @@ describe('AssessmentWrapper', () => {
   describe('checkAnswer with no answer', () => {
     it('shows "Please enter an answer above" when check is clicked but content viewer returns null', async () => {
       renderComponent();
-      await fireEvent.click(screen.getByText('Check'));
-      expect(getStatusText()).toBe('Please enter an answer above');
+      await fireEvent.click(screen.getByText(check$()));
+      expect(getStatusText()).toBe(inputAnswer$());
     });
 
     it('keeps the Check button visible when no answer is returned', async () => {
       renderComponent();
-      await fireEvent.click(screen.getByText('Check'));
-      expect(screen.getByText('Check')).toBeInTheDocument();
+      await fireEvent.click(screen.getByText(check$()));
+      expect(screen.getByText(check$())).toBeInTheDocument();
     });
   });
 
@@ -204,22 +224,22 @@ describe('AssessmentWrapper', () => {
 
     it('shows the Next button after a correct answer', async () => {
       renderWithCorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
-      expect(screen.getByText('Next')).toBeInTheDocument();
-      expect(screen.queryByText('Check')).not.toBeInTheDocument();
+      await fireEvent.click(screen.getByText(check$()));
+      expect(screen.getByText(next$())).toBeInTheDocument();
+      expect(screen.queryByText(check$())).not.toBeInTheDocument();
     });
 
     it('shows "Correct!" status when pastattempts contain a correct attempt', async () => {
       // currentStatus shows "Correct!" only when correct===1 AND
       // recentAttempts[last] === 'right'. The parent updates pastattempts.
       renderWithCorrectViewer({ pastattempts: [{ correct: 1 }] });
-      await fireEvent.click(screen.getByText('Check'));
-      expect(getStatusText()).toBe('Correct!');
+      await fireEvent.click(screen.getByText(check$()));
+      expect(getStatusText()).toBe(correct$());
     });
 
     it('emits updateInteraction with progress > 0 and correct=1 on the first attempt', async () => {
       const { emitted } = renderWithCorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const interactions = emitted().updateInteraction;
       expect(interactions).toHaveLength(1);
       const [{ progress, interaction }] = interactions[0];
@@ -230,7 +250,7 @@ describe('AssessmentWrapper', () => {
 
     it('includes answerState and simpleAnswer in the emitted interaction', async () => {
       const { emitted } = renderWithCorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ interaction }] = emitted().updateInteraction[0];
       expect(interaction.answer).toEqual({ answer: 42 });
       expect(interaction.simple_answer).toBe('42');
@@ -238,7 +258,7 @@ describe('AssessmentWrapper', () => {
 
     it('includes item id and time_spent in the emitted interaction', async () => {
       const { emitted } = renderWithCorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ interaction }] = emitted().updateInteraction[0];
       expect(interaction.item).toBe('item-1');
       expect(typeof interaction.time_spent).toBe('number');
@@ -259,26 +279,26 @@ describe('AssessmentWrapper', () => {
 
     it('shows "Try again" after an incorrect answer', async () => {
       renderWithIncorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
-      expect(getStatusText()).toBe('Try again');
+      await fireEvent.click(screen.getByText(check$()));
+      expect(getStatusText()).toBe(tryAgain$());
     });
 
     it('keeps the Check button after an incorrect answer', async () => {
       renderWithIncorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
-      expect(screen.getByText('Check')).toBeInTheDocument();
+      await fireEvent.click(screen.getByText(check$()));
+      expect(screen.getByText(check$())).toBeInTheDocument();
     });
 
     it('adds the shaking class on the Check button', async () => {
       renderWithIncorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
-      const checkButton = screen.getByText('Check').closest('button');
+      await fireEvent.click(screen.getByText(check$()));
+      const checkButton = screen.getByText(check$()).closest('button');
       expect(checkButton.className).toContain('shaking');
     });
 
     it('emits updateInteraction with correct=0 on first attempt', async () => {
       const { emitted } = renderWithIncorrectViewer();
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ interaction, progress }] = emitted().updateInteraction[0];
       expect(interaction.correct).toBe(0);
       expect(interaction.complete).toBe(false);
@@ -308,12 +328,12 @@ describe('AssessmentWrapper', () => {
       );
 
       // First click: incorrect
-      await fireEvent.click(screen.getByText('Check'));
-      expect(getStatusText()).toBe('Try again');
+      await fireEvent.click(screen.getByText(check$()));
+      expect(getStatusText()).toBe(tryAgain$());
 
       // Second click: correct (rectified)
-      await fireEvent.click(screen.getByText('Check'));
-      expect(getStatusText()).toBe('Great! Keep going');
+      await fireEvent.click(screen.getByText(check$()));
+      expect(getStatusText()).toBe(greatKeepGoing$());
     });
 
     it('does not send progress on the second attempt', async () => {
@@ -333,8 +353,8 @@ describe('AssessmentWrapper', () => {
         { stubs: { ContentViewer: stub } },
       );
 
-      await fireEvent.click(screen.getByText('Check')); // first attempt
-      await fireEvent.click(screen.getByText('Check')); // second attempt
+      await fireEvent.click(screen.getByText(check$())); // first attempt
+      await fireEvent.click(screen.getByText(check$())); // second attempt
 
       const secondInteraction = emitted().updateInteraction[1][0];
       expect(secondInteraction.progress).toBeUndefined();
@@ -349,12 +369,12 @@ describe('AssessmentWrapper', () => {
       });
       renderComponent({}, { stubs: { ContentViewer: stub } });
 
-      await fireEvent.click(screen.getByText('Check'));
-      expect(screen.getByText('Next')).toBeInTheDocument();
+      await fireEvent.click(screen.getByText(check$()));
+      expect(screen.getByText(next$())).toBeInTheDocument();
 
-      await fireEvent.click(screen.getByText('Next'));
-      expect(screen.getByText('Check')).toBeInTheDocument();
-      expect(screen.queryByText('Next')).not.toBeInTheDocument();
+      await fireEvent.click(screen.getByText(next$()));
+      expect(screen.getByText(check$())).toBeInTheDocument();
+      expect(screen.queryByText(next$())).not.toBeInTheDocument();
     });
   });
 
@@ -364,8 +384,8 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-item-error'));
 
       await waitFor(() => {
-        expect(screen.getByText('There was an error showing this question')).toBeInTheDocument();
-        expect(screen.getByText('Try a different question')).toBeInTheDocument();
+        expect(screen.getByText(itemError$())).toBeInTheDocument();
+        expect(screen.getByText(tryDifferentQuestion$())).toBeInTheDocument();
       });
     });
 
@@ -383,7 +403,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-item-error'));
 
       await waitFor(() => {
-        expect(screen.getByText('Next')).toBeInTheDocument();
+        expect(screen.getByText(next$())).toBeInTheDocument();
       });
     });
 
@@ -402,16 +422,14 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-item-error'));
 
       await waitFor(() => {
-        expect(screen.getByText('Try a different question')).toBeInTheDocument();
+        expect(screen.getByText(tryDifferentQuestion$())).toBeInTheDocument();
       });
 
-      await fireEvent.click(screen.getByText('Try a different question'));
+      await fireEvent.click(screen.getByText(tryDifferentQuestion$()));
 
       await waitFor(() => {
-        expect(
-          screen.queryByText('There was an error showing this question'),
-        ).not.toBeInTheDocument();
-        expect(screen.getByText('Check')).toBeInTheDocument();
+        expect(screen.queryByText(itemError$())).not.toBeInTheDocument();
+        expect(screen.getByText(check$())).toBeInTheDocument();
       });
     });
   });
@@ -428,7 +446,7 @@ describe('AssessmentWrapper', () => {
       );
 
       // First click: wrong → consumes first attempt at question
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
 
       // Now trigger hint taken via the stub button
       await fireEvent.click(screen.getByTestId('trigger-hint-taken'));
@@ -500,8 +518,10 @@ describe('AssessmentWrapper', () => {
   describe('hints UI', () => {
     it('does not show hint buttons when totalHints is 0', () => {
       renderComponent();
-      expect(screen.queryByText(/Use a hint/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(/No more hints/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(hintTranslator.hint$({ hintsLeft: 1 }), { exact: false }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText(hintTranslator.noMoreHint$())).not.toBeInTheDocument();
     });
 
     it('shows hint button with count after startTracking', async () => {
@@ -511,7 +531,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText(/3 left/)).toBeInTheDocument();
+        expect(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 }))).toBeInTheDocument();
       });
     });
 
@@ -522,7 +542,7 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText('No more hints')).toBeInTheDocument();
+        expect(screen.getByText(hintTranslator.noMoreHint$())).toBeInTheDocument();
       });
     });
 
@@ -533,10 +553,10 @@ describe('AssessmentWrapper', () => {
       await fireEvent.click(screen.getByTestId('trigger-start-tracking'));
 
       await waitFor(() => {
-        expect(screen.getByText(/3 left/)).toBeInTheDocument();
+        expect(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 }))).toBeInTheDocument();
       });
 
-      await fireEvent.click(screen.getByText(/3 left/));
+      await fireEvent.click(screen.getByText(hintTranslator.hint$({ hintsLeft: 3 })));
 
       await waitFor(() => {
         expect(emitted().updateInteraction).toBeTruthy();
@@ -552,26 +572,22 @@ describe('AssessmentWrapper', () => {
         assessmentIds: ['a', 'b'],
         masteryModel: { type: 'do_all' },
       });
-      const elements = screen.getAllByText(/Get 2 correct/);
-      expect(elements.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(goal$({ count: 2 })).length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_2', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_2' } });
-      const elements = screen.getAllByText(/Get 2 correct/);
-      expect(elements.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(goal$({ count: 2 })).length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_3', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_3' } });
-      const elements = screen.getAllByText(/Get 3 correct/);
-      expect(elements.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(goal$({ count: 3 })).length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows correct goal for num_correct_in_a_row_10', () => {
       renderComponent({ masteryModel: { type: 'num_correct_in_a_row_10' } });
-      const elements = screen.getAllByText(/Get 10 correct/);
-      expect(elements.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(goal$({ count: 10 })).length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders the correct number of attempt placeholder slots for do_all', () => {
@@ -611,14 +627,14 @@ describe('AssessmentWrapper', () => {
 
     it('emits progress > 0 with no past attempts and a correct answer', async () => {
       const { emitted } = renderAndCheck({});
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       expect(progress).toBeGreaterThan(0);
     });
 
     it('emits progress=1 when already mastered', async () => {
       const { emitted } = renderAndCheck({ mastered: true });
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       expect(progress).toBe(1);
     });
@@ -629,7 +645,7 @@ describe('AssessmentWrapper', () => {
         pastattempts: [{ correct: 1 }, { correct: 1 }],
         masteryModel: { type: 'm_of_n', m: 3, n: 5 },
       });
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       expect(progress).toBe(1);
     });
@@ -639,7 +655,7 @@ describe('AssessmentWrapper', () => {
         pastattempts: [{ correct: 1 }, { correct: 1 }, { correct: 1 }, { correct: 1 }],
         masteryModel: { type: 'm_of_n', m: 3, n: 5 },
       });
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       expect(progress).toBe(1);
     });
@@ -648,7 +664,7 @@ describe('AssessmentWrapper', () => {
       const { emitted } = renderAndCheckIncorrect({
         masteryModel: { type: 'm_of_n', m: 3, n: 5 },
       });
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       // exerciseProgress([{correct:0}]) → 0/3=0 → max(0, 0.001)=0.001
       expect(progress).toBe(0.001);
@@ -668,7 +684,7 @@ describe('AssessmentWrapper', () => {
         ],
         masteryModel: { type: 'm_of_n', m: 3, n: 5 },
       });
-      await fireEvent.click(screen.getByText('Check'));
+      await fireEvent.click(screen.getByText(check$()));
       const [{ progress }] = emitted().updateInteraction[0];
       expect(progress).toBe(1);
     });

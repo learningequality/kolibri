@@ -3,49 +3,35 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import AllPasswordsPage from '../AllPasswordsPage.vue';
 
+const { noPicturePasswordDescription$, printAction$, noLearnersInClass$ } = picturePasswordStrings;
+
 jest.mock('kolibri-common/apiResources/FacilityUserResource', () => ({
   fetchCollection: jest.fn(),
 }));
 
+const CLASS_ID = 'class-abc';
+const LEARNERS = {
+  alice: { id: 'u1', full_name: 'Alice Smith', username: 'alice', picture_password: '3.7.12' },
+  bob: { id: 'u2', full_name: 'Bob Jones', username: 'bob', picture_password: null },
+};
+const ICON_LABELS = ['testIcon1', 'testIcon2', 'testIcon3'];
+
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(pw => {
-    if (pw === '3.7.12')
-      return [{ label: 'testIcon1' }, { label: 'testIcon2' }, { label: 'testIcon3' }];
+    if (pw === '3.7.12') return ICON_LABELS.map(label => ({ label }));
     return [];
   }),
 }));
-
-const LEARNERS = [
-  {
-    id: 'u1',
-    full_name: 'Alice Smith',
-    username: 'alice',
-    picture_password: '3.7.12',
-  },
-  {
-    id: 'u2',
-    full_name: 'Bob Jones',
-    username: 'bob',
-    picture_password: null,
-  },
-];
-
-const CLASS_ID = 'class-abc';
-
 function renderComponent(props = {}) {
   return render(AllPasswordsPage, {
     props: { classId: CLASS_ID, ...props },
-    stubs: {
-      ImmersivePage: {
-        template: '<div><slot /></div>',
-      },
-    },
+    routes: [],
   });
 }
 
 describe('AllPasswordsPage', () => {
   beforeEach(() => {
-    FacilityUserResource.fetchCollection.mockResolvedValue(LEARNERS);
+    FacilityUserResource.fetchCollection.mockResolvedValue(Object.values(LEARNERS));
   });
 
   afterEach(() => {
@@ -81,29 +67,27 @@ describe('AllPasswordsPage', () => {
     it('renders the full name of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText('Alice Smith')).toBeInTheDocument();
-      expect(screen.getByText('Bob Jones')).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['alice'].full_name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['bob'].full_name)).toBeInTheDocument();
     });
 
     it('renders the username of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText('alice')).toBeInTheDocument();
-      expect(screen.getByText('bob')).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['alice'].username)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['bob'].username)).toBeInTheDocument();
     });
 
     it('renders resolved icon labels for a learner with a picture_password', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText('testIcon1, testIcon2, testIcon3')).toBeInTheDocument();
+      expect(screen.getByText(ICON_LABELS.join(', '))).toBeInTheDocument();
     });
 
     it('renders the "no password" description for a learner with picture_password=null', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(
-        screen.getByText(picturePasswordStrings.noPicturePasswordDescription$()),
-      ).toBeInTheDocument();
+      expect(screen.getByText(noPicturePasswordDescription$())).toBeInTheDocument();
     });
 
     it('renders one row per learner', async () => {
@@ -120,9 +104,7 @@ describe('AllPasswordsPage', () => {
     it('renders a Print button', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(
-        screen.getByRole('button', { name: picturePasswordStrings.printAction$() }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: printAction$() })).toBeInTheDocument();
     });
   });
 
@@ -140,7 +122,7 @@ describe('AllPasswordsPage', () => {
       FacilityUserResource.fetchCollection.mockResolvedValue([]);
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(picturePasswordStrings.noLearnersInClass$())).toBeInTheDocument();
+      expect(screen.getByText(noLearnersInClass$())).toBeInTheDocument();
     });
   });
 });

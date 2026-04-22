@@ -4,7 +4,10 @@ import useTotalProgress, { useTotalProgressMock } from 'kolibri/composables/useT
 import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import { get, set } from '@vueuse/core';
+import { createTranslator } from 'kolibri/utils/i18n';
 import TotalPoints from '../TotalPoints.vue';
+
+const { pointsTooltip$ } = createTranslator(TotalPoints.name, TotalPoints.$trs);
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useTotalProgress');
@@ -50,7 +53,7 @@ describe('TotalPoints', () => {
 
     await fireEvent.mouseOver(screen.getByRole('presentation'));
     expect(
-      screen.getByText(`You earned ${get(totalPointsMock.totalPoints)} points`),
+      screen.getByText(pointsTooltip$({ points: get(totalPointsMock.totalPoints) })),
     ).toBeInTheDocument();
   });
 });

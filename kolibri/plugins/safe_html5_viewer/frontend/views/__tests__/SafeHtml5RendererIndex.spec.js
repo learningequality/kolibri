@@ -1,18 +1,29 @@
 import { render, screen, waitFor } from '@testing-library/vue';
+import { createTranslator } from 'kolibri/utils/i18n';
 import SafeHtml5RendererIndex from '../SafeHtml5RendererIndex.vue';
 
+const { articleContent$ } = createTranslator(
+  SafeHtml5RendererIndex.name,
+  SafeHtml5RendererIndex.$trs,
+);
+
 jest.mock('kolibri-common/components/SafeHTML/style.scss', () => ({}));
+
+const HEADING = 'Mocked HTML content';
+const TABLE_CAPTION = 'Mocked 3-column Table';
+const CELLS = ['Cell 1', 'Cell 2', 'Cell 3'];
+
 jest.mock('kolibri-zip', () => {
   return jest.fn().mockImplementation(() => ({
     file: jest.fn().mockResolvedValue({
       toString: () => `
-        <h1>Mocked HTML content</h1>
+        <h1>${HEADING}</h1>
         <table>
-          <caption>Mocked 3-column Table</caption>
+          <caption>${TABLE_CAPTION}</caption>
           <tr>
-            <td>Cell 1</td>
-            <td>Cell 2</td>
-            <td>Cell 3</td>
+            <td>${CELLS[0]}</td>
+            <td>${CELLS[1]}</td>
+            <td>${CELLS[2]}</td>
           </tr>
         </table>
         `,
@@ -67,10 +78,10 @@ describe('SafeHtml5RendererIndex', () => {
     it('renders safe-html-wrapper div and HTML content after loading finishes', async () => {
       renderComponent();
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
-        expect(screen.getByText('Mocked HTML content')).toBeInTheDocument();
-        expect(screen.getByText('Mocked 3-column Table')).toBeInTheDocument();
-        expect(screen.getByText('Cell 1')).toBeInTheDocument();
+        expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
+        expect(screen.getByText(HEADING)).toBeInTheDocument();
+        expect(screen.getByText(TABLE_CAPTION)).toBeInTheDocument();
+        CELLS.forEach(cell => expect(screen.getByText(cell)).toBeInTheDocument());
       });
     });
   });
@@ -105,7 +116,7 @@ describe('SafeHtml5RendererIndex', () => {
     it('emits stopTracking on destroy', async () => {
       const { emitted, unmount } = renderComponent();
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
       });
       unmount();
 
@@ -121,7 +132,7 @@ describe('SafeHtml5RendererIndex', () => {
         scrollBasedProgress: 0.5,
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
       });
 
       jest.advanceTimersByTime(5000);
@@ -137,7 +148,7 @@ describe('SafeHtml5RendererIndex', () => {
         scrollBasedProgress: 1,
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
       });
 
       jest.advanceTimersByTime(5000);
@@ -152,7 +163,7 @@ describe('SafeHtml5RendererIndex', () => {
         debouncedHandleScroll: jest.fn(),
       });
       await waitFor(() => {
-        expect(screen.getByLabelText('Article content')).toBeInTheDocument();
+        expect(screen.getByLabelText(articleContent$())).toBeInTheDocument();
       });
 
       const wrapper = container.querySelector('[data-testid="safe-html-wrapper"]');

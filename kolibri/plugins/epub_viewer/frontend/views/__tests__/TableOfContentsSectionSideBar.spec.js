@@ -38,9 +38,9 @@ function renderComponent({ toc, currentSection } = {}) {
 describe('Table of Contents Side Bar', () => {
   it('renders the sidebar with all sections', () => {
     renderComponent({ toc });
-    expect(screen.getByText('Top level section')).toBeInTheDocument();
-    expect(screen.getByText('Second level section')).toBeInTheDocument();
-    expect(screen.getByText('Third level section')).toBeInTheDocument();
+    expect(screen.getByText(toc[0].label)).toBeInTheDocument();
+    expect(screen.getByText(toc[0].subitems[0].label)).toBeInTheDocument();
+    expect(screen.getByText(toc[0].subitems[0].subitems[0].label)).toBeInTheDocument();
   });
 
   it('renders the correct nested list structure for the given toc', () => {
@@ -50,17 +50,17 @@ describe('Table of Contents Side Bar', () => {
 
   it('emits a tocNavigation event when a specific section is clicked', async () => {
     const { emitted } = renderComponent({ toc });
-    await fireEvent.click(screen.getByText('Third level section'));
+    await fireEvent.click(screen.getByText(currentSection.label));
     expect(emitted()).toHaveProperty('tocNavigation');
     expect(emitted().tocNavigation[0][0]).toEqual({
-      label: 'Third level section',
-      href: 'href3',
+      label: currentSection.label,
+      href: currentSection.href,
     });
   });
 
   it('visually highlights the currently active section', () => {
     renderComponent({ toc, currentSection });
-    const activeButton = screen.getByText('Third level section').closest('.toc-list-item-button');
+    const activeButton = screen.getByText(currentSection.label).closest('.toc-list-item-button');
     expect(activeButton).toHaveClass('toc-list-item-button-current');
   });
 });

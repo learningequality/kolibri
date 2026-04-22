@@ -1,9 +1,16 @@
-import { render, screen, waitFor } from '@testing-library/vue';
+import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { syncStrings } from 'kolibri-common/mixins/commonSyncElements';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import LoadingTaskPage from '../LoadingTaskPage';
 import makeStore from '../../__tests__/utils/makeStore';
+
+const { continueAction$, retryAction$, startOverAction$, cancelAction$ } = coreStrings;
+
+const { importFacilityAction$ } = syncStrings;
 
 jest.mock('kolibri/apiResources/TaskResource', () => ({
   cancel: jest.fn().mockResolvedValue({}),
@@ -22,11 +29,11 @@ const facilityMock = {
 const makeTask = status => ({
   id: 'task_1',
   status,
-  type: 'facility_import',
-  started_by: 'username',
+  type: TaskTypes.SYNCPEERPULL,
+  facility_id: 'facility_1',
   clearable: false,
   cancellable: true,
-  extra_metadata: { started_by: 'tester' },
+  extra_metadata: {},
 });
 
 const renderComponent = () => {
@@ -50,13 +57,6 @@ const renderComponent = () => {
     },
     props: {
       footerMessageType: 'IMPORT_FACILITY',
-    },
-    stubs: {
-      FacilityTaskPanel: {
-        name: 'FacilityTaskPanel',
-        template:
-          '<div data-testid="task-panel"><button data-testid="stub-cancel" @click="$emit(\'cancel\')">Cancel Task</button></div>',
-      },
     },
   });
 
@@ -105,7 +105,7 @@ describe('LoadingTaskPage', () => {
     await global.flushPromises();
     await global.flushPromises();
 
-    expect(screen.getByRole('heading', { name: /import learning facility/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: importFacilityAction$() })).toBeInTheDocument();
 
     const panel = screen.getByTestId('task-panel');
     expect(panel).toBeInTheDocument();
@@ -126,7 +126,9 @@ describe('LoadingTaskPage', () => {
 
     await global.flushPromises();
 
-    const continueButton = await screen.findByRole('button', { name: /continue/i });
+    const continueButton = await screen.findByRole('button', {
+      name: continueAction$(),
+    });
     expect(continueButton).toBeInTheDocument();
 
     await userEvent.click(continueButton);
@@ -141,7 +143,7 @@ describe('LoadingTaskPage', () => {
 
     await global.flushPromises();
 
-    const retryButton = await screen.findByRole('button', { name: /retry/i });
+    const retryButton = await screen.findByRole('button', { name: retryAction$() });
     expect(retryButton).toBeInTheDocument();
 
     await userEvent.click(retryButton);
@@ -155,7 +157,9 @@ describe('LoadingTaskPage', () => {
 
     await global.flushPromises();
 
-    const startOverButton = await screen.findByRole('button', { name: /start over/i });
+    const startOverButton = await screen.findByRole('button', {
+      name: startOverAction$(),
+    });
     expect(startOverButton).toBeInTheDocument();
 
     await userEvent.click(startOverButton);
@@ -169,8 +173,8 @@ describe('LoadingTaskPage', () => {
 
     await global.flushPromises();
 
-    const cancelButton = await screen.findByTestId('stub-cancel');
-    await userEvent.click(cancelButton);
+    const cancelButton = await screen.findByRole('button', { name: cancelAction$() });
+    await fireEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(TaskResource.cancel).toHaveBeenCalledTimes(1);

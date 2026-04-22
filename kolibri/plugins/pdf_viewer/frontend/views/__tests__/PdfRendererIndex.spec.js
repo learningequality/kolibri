@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import PdfRendererIndex from '../PdfRendererIndex';
 import * as mockPDFJS from '../__mocks__/pdfjsMock';
+
+const { zoomIn$, zoomOut$ } = coreStrings;
 
 jest.mock('kolibri/urls');
 jest.mock('pdfjs-dist/legacy/build/pdf', () => require('../__mocks__/pdfjsMock'));
@@ -28,16 +31,6 @@ function makeWrapper(options = {}) {
         },
       },
     ],
-    stubs: {
-      KIconButton: {
-        props: ['ariaLabel'],
-        template:
-          '<button class="k-icon-button" :aria-label="ariaLabel" @click="$emit(\'click\')"></button>',
-      },
-      // We removed the RecycleList stub. The real component renders perfectly in the test
-      // environment, allowing us to test its real event wiring and behavior directly!
-      ...(options.stubs || {}),
-    },
   });
 }
 
@@ -237,7 +230,7 @@ describe('PdfRendererIndex', () => {
       vm.scale = 1;
       const initialScale = vm.scale;
 
-      const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i });
+      const zoomInBtn = screen.getByRole('button', { name: zoomIn$() });
       await fireEvent.click(zoomInBtn);
       await global.flushPromises();
 
@@ -251,13 +244,13 @@ describe('PdfRendererIndex', () => {
       vm.scale = 1;
 
       // Click zoom in first to ensure we have room to zoom back out
-      const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i });
+      const zoomInBtn = screen.getByRole('button', { name: zoomIn$() });
       await fireEvent.click(zoomInBtn);
       await global.flushPromises();
 
       const zoomedScale = vm.scale;
 
-      const zoomOutBtn = screen.getByRole('button', { name: /Zoom out/i });
+      const zoomOutBtn = screen.getByRole('button', { name: zoomOut$() });
       await fireEvent.click(zoomOutBtn);
       await global.flushPromises();
 

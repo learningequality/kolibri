@@ -1,10 +1,20 @@
 import { render, screen, waitFor } from '@testing-library/vue';
+import { ref } from 'vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import useUser from 'kolibri/composables/useUser';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coreStoreFactory } from 'kolibri/store';
+import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
 import { setUnspecifiedPassword } from '../../../api';
 import NewPasswordPage from '../NewPasswordPage.vue';
+
+const { passwordLabel$ } = coreStrings;
+
+const { confirmPasswordLabel$ } = createTranslator(PasswordTextbox.name, PasswordTextbox.$trs);
+
+jest.mock('kolibri-plugin-data', () => ({ allowRemoteAccess: true }));
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../api');
@@ -15,6 +25,7 @@ function renderComponent() {
   const store = coreStoreFactory();
   useUser.mockImplementation(() => ({
     login: mockLogin,
+    userFacilityId: ref(null),
   }));
 
   return render(
@@ -26,10 +37,6 @@ function renderComponent() {
         facilityId: 'facility_1',
       },
       routes: [{ name: 'SignInPage', path: '/signin' }],
-      stubs: {
-        // inorder to bypass the loading wrapper
-        AuthBase: { template: '<div><slot></slot></div>' },
-      },
     },
     (_vue, _store, router) => {
       router.push = mockRouterPush;
@@ -49,7 +56,10 @@ describe('NewPasswordPage', () => {
     renderComponent();
     const user = userEvent.setup();
     const password = 'validpassword';
-    const passwordInputs = screen.getAllByLabelText(/password/i);
+    const passwordInputs = [
+      screen.getByLabelText(passwordLabel$()),
+      screen.getByLabelText(confirmPasswordLabel$()),
+    ];
     const submitButton = screen.getByTestId('submit');
     await user.type(passwordInputs[0], password);
     await user.type(passwordInputs[1], password);
@@ -84,7 +94,10 @@ describe('NewPasswordPage', () => {
     renderComponent();
     const user = userEvent.setup();
     const password = 'password';
-    const passwordInputs = screen.getAllByLabelText(/password/i);
+    const passwordInputs = [
+      screen.getByLabelText(passwordLabel$()),
+      screen.getByLabelText(confirmPasswordLabel$()),
+    ];
     const submitButton = screen.getByTestId('submit');
     await user.type(passwordInputs[0], password);
     await user.type(passwordInputs[1], password);
@@ -100,7 +113,10 @@ describe('NewPasswordPage', () => {
     renderComponent();
     const user = userEvent.setup();
     const password = 'validpassword';
-    const passwordInputs = screen.getAllByLabelText(/password/i);
+    const passwordInputs = [
+      screen.getByLabelText(passwordLabel$()),
+      screen.getByLabelText(confirmPasswordLabel$()),
+    ];
     const submitButton = screen.getByTestId('submit');
     await user.type(passwordInputs[0], password);
     await user.type(passwordInputs[1], password);

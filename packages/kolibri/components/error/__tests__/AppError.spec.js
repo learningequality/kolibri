@@ -1,6 +1,15 @@
 import { render, screen } from '@testing-library/vue';
 import { error } from 'kolibri/utils/appError';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import AppError from '../AppError';
+
+const { refresh$ } = coreStrings;
+
+const { resourceNotFoundHeader$, defaultErrorExitPrompt$, defaultErrorHeader$ } = createTranslator(
+  AppError.name,
+  AppError.$trs,
+);
 
 jest.mock('kolibri/utils/appError');
 
@@ -18,8 +27,8 @@ describe('AppError component', () => {
     };
     error.value = JSON.stringify(errorObj);
     render(AppError);
-    expect(screen.getByText('Resource not found')).toBeInTheDocument();
-    expect(screen.getByText('Back to home')).toBeInTheDocument();
+    expect(screen.getByText(resourceNotFoundHeader$())).toBeInTheDocument();
+    expect(screen.getByText(defaultErrorExitPrompt$())).toBeInTheDocument();
   });
 
   it('shows default errors and buttons if the error does not have status code 404', async () => {
@@ -31,8 +40,8 @@ describe('AppError component', () => {
     };
     error.value = JSON.stringify(errorObj);
     render(AppError);
-    expect(screen.getByText('Sorry! Something went wrong!')).toBeInTheDocument();
+    expect(screen.getByText(defaultErrorHeader$())).toBeInTheDocument();
     // First button should be Refresh
-    expect(screen.getByText('Refresh')).toBeInTheDocument();
+    expect(screen.getByText(refresh$())).toBeInTheDocument();
   });
 });

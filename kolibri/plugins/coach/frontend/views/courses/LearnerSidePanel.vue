@@ -98,7 +98,10 @@
         </div>
 
         <!-- LO section -->
-        <div class="lo-section">
+        <div
+          class="lo-section"
+          data-testid="lo-section"
+        >
           <div class="lo-section-heading">
             {{ individualLoPerformanceLabel$() }}
           </div>

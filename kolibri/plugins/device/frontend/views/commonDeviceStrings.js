@@ -1,6 +1,6 @@
 import { createTranslator } from 'kolibri/utils/i18n';
 
-const deviceStrings = createTranslator('CommonDeviceStrings', {
+export const deviceStrings = createTranslator('CommonDeviceStrings', {
   deviceManagementTitle: {
     message: 'Device',
     context:

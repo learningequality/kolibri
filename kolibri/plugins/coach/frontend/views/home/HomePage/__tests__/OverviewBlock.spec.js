@@ -28,13 +28,8 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
 const routes = [
   { path: '/test', name: 'test' },
   { path: '/passwords', name: 'LEARNER_PASSWORDS' },
+  { path: '/class-list', name: 'CoachClassListPage' },
 ];
-
-// Stub BackLink to avoid VueRouter warnings about unregistered named routes
-// used by the back-navigation links (CoachClassListPage, AllFacilitiesPage).
-const stubs = {
-  BackLink: { template: '<div />' },
-};
 
 const MOCK_LEARNER = { id: 'learner-1', name: 'Learner One', username: 'learner1' };
 
@@ -50,7 +45,7 @@ function renderComponent({ picturePasswordSettings, learners = [] } = {}) {
     learnerMap[l.id] = l;
   });
   store.state.classSummary.learnerMap = learnerMap;
-  return render(OverviewBlock, { store, routes, stubs });
+  return render(OverviewBlock, { store, routes });
 }
 
 describe('OverviewBlock', () => {

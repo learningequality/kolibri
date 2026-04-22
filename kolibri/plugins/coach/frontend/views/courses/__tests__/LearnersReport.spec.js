@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import LearnersReport from '../LearnersReport.vue';
 
+const { learnersLabel$ } = coreStrings;
 const {
   noTestDataLabel$,
   noLearnersAttemptedLabel$,
@@ -11,49 +13,15 @@ const {
   onTrackLabel$,
 } = coursesStrings;
 
-const LEARNERS = [
-  { id: 'user-1', name: 'Alice', username: 'alice', groups: ['Group A'] },
-  { id: 'user-2', name: 'Bob', username: 'bob', groups: ['Group B'] },
-  { id: 'user-3', name: 'Carol', username: 'carol', groups: [] },
-];
+const LEARNERS = {
+  alice: { id: 'user-1', name: 'Alice', username: 'alice', groups: ['Group A'] },
+  bob: { id: 'user-2', name: 'Bob', username: 'bob', groups: ['Group B'] },
+  carol: { id: 'user-3', name: 'Carol', username: 'carol', groups: [] },
+};
 
-const LEARNING_OBJECTIVES = [
-  { id: 'lo-1', text: 'Objective 1', num_questions: 4 },
-  { id: 'lo-2', text: 'Objective 2', num_questions: 4 },
-];
-
-const STUBS = {
-  KCircularLoader: {
-    name: 'KCircularLoader',
-    template: '<div data-testid="loader">Loading...</div>',
-  },
-  KTable: {
-    name: 'KTable',
-    props: ['headers', 'rows', 'caption'],
-    template: `
-      <div data-testid="k-table">
-        <template v-for="(row, rowIndex) in rows">
-          <div :key="rowIndex" :data-testid="'row-' + rowIndex">
-            <slot
-              v-for="(content, colIndex) in row"
-              name="cell"
-              v-bind="{ content, rowIndex, colIndex, row }"
-            />
-          </div>
-        </template>
-      </div>
-    `,
-  },
-  KIcon: {
-    name: 'KIcon',
-    props: ['icon', 'color'],
-    template: '<span />',
-  },
-  KRouterLink: {
-    name: 'KRouterLink',
-    props: ['text', 'to', 'icon'],
-    template: '<a role="link">{{ text }}</a>',
-  },
+const LEARNING_OBJECTIVES = {
+  'lo-1': { id: 'lo-1', text: 'Objective 1', num_questions: 4 },
+  'lo-2': { id: 'lo-2', text: 'Objective 2', num_questions: 4 },
 };
 
 function makePrefetchedData({
@@ -64,9 +32,9 @@ function makePrefetchedData({
   return {
     activeTestType,
     activeTestStatus,
-    learnersWithGroups: LEARNERS,
+    learnersWithGroups: Object.values(LEARNERS),
     reportData: {
-      learning_objectives: LEARNING_OBJECTIVES,
+      learning_objectives: Object.values(LEARNING_OBJECTIVES),
       pre_test: {
         status: activeTestType === 'pre' ? activeTestStatus : 'not_activated',
         scores: activeTestType === 'pre' ? scores : {},
@@ -84,23 +52,23 @@ const defaultLearnerRoute = learner => ({ name: 'TestRoute', params: { learnerId
 function renderComponent(props = {}) {
   return render(LearnersReport, {
     props: { learnerRoute: defaultLearnerRoute, ...props },
-    stubs: STUBS,
+    routes: [{ name: 'TestRoute', path: '/' }],
   });
 }
 
 describe('LearnersReport', () => {
   describe('loading and empty states', () => {
-    it('shows KCircularLoader when prefetchedData is null', () => {
+    it('shows loader when prefetchedData is null', () => {
       renderComponent({ prefetchedData: null });
-      expect(screen.getByTestId('loader')).toBeInTheDocument();
-      expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByRole('grid', { name: learnersLabel$() })).not.toBeInTheDocument();
     });
 
     it('shows no-test empty state when activeTestStatus is not_activated', () => {
       renderComponent({
         prefetchedData: makePrefetchedData({ activeTestStatus: 'not_activated' }),
       });
-      expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
+      expect(screen.queryByRole('grid', { name: learnersLabel$() })).not.toBeInTheDocument();
       expect(screen.getByText(noTestDataLabel$())).toBeInTheDocument();
     });
 
@@ -108,7 +76,7 @@ describe('LearnersReport', () => {
       renderComponent({
         prefetchedData: makePrefetchedData({ activeTestStatus: 'closed', scores: {} }),
       });
-      expect(screen.queryByTestId('k-table')).not.toBeInTheDocument();
+      expect(screen.queryByRole('grid', { name: learnersLabel$() })).not.toBeInTheDocument();
       expect(screen.getByText(noLearnersAttemptedLabel$())).toBeInTheDocument();
     });
   });
@@ -120,25 +88,24 @@ describe('LearnersReport', () => {
         'user-2': { 'lo-1': 1, 'lo-2': 1 }, // 2/8 = 25% → support_needed
       };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByTestId('k-table')).toBeInTheDocument();
-      expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText('Bob')).toBeInTheDocument();
-      expect(screen.getByText('Carol')).toBeInTheDocument();
+      expect(screen.getByRole('grid', { name: learnersLabel$() })).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['alice'].name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['bob'].name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['carol'].name)).toBeInTheDocument();
     });
 
     it('shows group name in each row', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByText('Group A')).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS['alice'].groups[0])).toBeInTheDocument();
     });
 
     it('joins multiple group names with a comma', () => {
       const prefetchedData = makePrefetchedData({ scores: { 'user-1': { 'lo-1': 1 } } });
-      prefetchedData.learnersWithGroups = [
-        { id: 'user-1', name: 'Alice', username: 'alice', groups: ['Group A', 'Group B'] },
-      ];
+      const multiGroupLearner = { ...LEARNERS['alice'], groups: ['Group A', 'Group B'] };
+      prefetchedData.learnersWithGroups = [multiGroupLearner];
       renderComponent({ prefetchedData });
-      expect(screen.getByText('Group A, Group B')).toBeInTheDocument();
+      expect(screen.getByText(multiGroupLearner.groups.join(', '))).toBeInTheDocument();
     });
   });
 
@@ -196,7 +163,6 @@ describe('LearnersReport', () => {
       // user-2 and user-3 have no scores entry → no attempt
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      // Intentional Unicode U+2014 (em dash), matching the &mdash; rendered by Vue
       expect(screen.getAllByText('—').length).toBeGreaterThan(0);
     });
   });
@@ -209,7 +175,7 @@ describe('LearnersReport', () => {
         'user-3': { 'lo-1': 2, 'lo-2': 2 }, // 50% → middle
       };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const rows = screen.getAllByTestId(/^row-/);
+      const rows = screen.getAllByRole('row').slice(1); // skip header row
       // row-0 should be the lowest scorer (Bob = 12.5%)
       expect(rows[0]).toHaveTextContent('Bob');
       // row-1 should be Carol (50%)
@@ -226,7 +192,7 @@ describe('LearnersReport', () => {
         // user-3 absent
       };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const rows = screen.getAllByTestId(/^row-/);
+      const rows = screen.getAllByRole('row').slice(1); // skip header row
       expect(rows[rows.length - 1]).toHaveTextContent('Carol');
     });
   });
@@ -270,7 +236,7 @@ describe('LearnersReport', () => {
     it('renders learner names as links with person icon', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      expect(screen.getByRole('link', { name: 'Alice' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: LEARNERS['alice'].name })).toBeInTheDocument();
     });
 
     it('calls learnerRoute with the learner object for each name link', () => {
@@ -281,7 +247,7 @@ describe('LearnersReport', () => {
       }));
       renderComponent({ prefetchedData: makePrefetchedData({ scores }), learnerRoute });
       expect(learnerRoute).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'user-1', name: 'Alice' }),
+        expect.objectContaining({ id: LEARNERS['alice'].id, name: LEARNERS['alice'].name }),
       );
     });
   });

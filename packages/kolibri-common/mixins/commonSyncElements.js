@@ -5,7 +5,7 @@ import { createTranslator } from 'kolibri/utils/i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
 // See taskStrings mixin for strings relating to the Facility-Syncing Async Task.
-const syncStrings = createTranslator('CommonSyncStrings', {
+export const syncStrings = createTranslator('CommonSyncStrings', {
   selectSourceTitle: {
     message: 'Select a source',
     context: 'Title of menu where the user selects the source from where to import a facility',
