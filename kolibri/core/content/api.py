@@ -2014,10 +2014,12 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
+        token = request.GET.get("token", None)
 
         # Use v2 only for installed community library channels queried through
-        # the default Studio base URL (v2 is Studio-specific).
-        if baseurl is None:
+        # the default Studio base URL (v2 is Studio-specific). Skip when a token
+        # is provided — token lookups are for draft channels, not community library.
+        if baseurl is None and token is None:
             try:
                 library = (
                     models.ChannelMetadata.objects.filter(id=pk)
@@ -2031,7 +2033,10 @@ class RemoteChannelViewSet(viewsets.ViewSet):
 
         try:
             channels = self._make_channel_endpoint_request(
-                identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+                identifier=token or pk,
+                baseurl=baseurl,
+                keyword=keyword,
+                language=language,
             )
         except NetworkLocationConnectionFailure:
             return Response(

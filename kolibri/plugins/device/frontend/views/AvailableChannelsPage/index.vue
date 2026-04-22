@@ -340,7 +340,7 @@
             });
           }
         } else {
-          this.goToSelectContentPageForChannel(channels[0]);
+          this.goToSelectContentPageForChannel(channels[0], token);
         }
       },
       clearToken() {
@@ -355,12 +355,13 @@
           });
         }
       },
-      goToSelectContentPageForChannel(channel) {
+      goToSelectContentPageForChannel(channel, token) {
         this.$router.push(
           selectContentPageLink({
             addressId: this.$route.query.address_id,
             channelId: channel.id,
             driveId: this.$route.query.drive_id,
+            token,
           }),
         );
       },

@@ -346,7 +346,7 @@ class GetContentNodesDataTestCase(TestCase):
     c2c1_node_id = "2b6926ed22025518a8b9da91745b51d3"
 
     def test_default_arguments(self):
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [], available=True
         )
 
@@ -402,7 +402,7 @@ class GetContentNodesDataTestCase(TestCase):
             channel_id=self.the_channel_id, pk__in=include_node_ids
         ).exclude(kind=content_kinds.TOPIC)
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [selected_content_nodes], available=True
         )
 
@@ -453,7 +453,7 @@ class GetContentNodesDataTestCase(TestCase):
             channel_id=self.the_channel_id, pk=self.c2c1_node_id
         ).exclude(kind=content_kinds.TOPIC)
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id,
             [selected_content_nodes],
             available=True,
@@ -493,7 +493,7 @@ class GetContentNodesDataTestCase(TestCase):
             },
         ]
 
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id,
             [],
             available=True,
@@ -505,7 +505,7 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_bytes_to_transfer, 5)
 
     def test_empty_query(self):
-        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+        total_resource_count, files, total_bytes_to_transfer = get_content_nodes_data(
             self.the_channel_id, [ContentNode.objects.none()], available=True
         )
 
@@ -3794,13 +3794,13 @@ class UpgradeDBReuseTestCase(TestCase):
 
 
 class TestGetChannelLookupUrl(TestCase):
-    def test_channel_versions_parameter_included(self):
-        url = get_channel_lookup_url(identifier="abc123", channel_versions=True)
+    def test_channel_versions_parameter_always_included(self):
+        url = get_channel_lookup_url(identifier="abc123")
         self.assertIn("channel_versions=true", url)
 
-    def test_channel_versions_parameter_excluded_by_default(self):
-        url = get_channel_lookup_url(identifier="abc123")
-        self.assertNotIn("channel_versions", url)
+    def test_channel_versions_parameter_included_without_identifier(self):
+        url = get_channel_lookup_url()
+        self.assertIn("channel_versions=true", url)
 
 
 class LookupChannelListingStatusTest(TestCase):
@@ -3849,7 +3849,7 @@ class LookupChannelListingStatusTest(TestCase):
         self.assertIn("channel_versions=true", call_url)
 
     @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
-    def test_channel_id_lookup_omits_channel_versions_param(self, mock_build):
+    def test_channel_id_lookup_includes_channel_versions_param(self, mock_build):
         mock_client = self._mock_client(
             [
                 {
@@ -3863,7 +3863,7 @@ class LookupChannelListingStatusTest(TestCase):
         mock_build.return_value = mock_client
         lookup_channel_listing_status(channel_id=self.the_channel_id)
         call_url = mock_client.get.call_args[0][0]
-        self.assertNotIn("channel_versions", call_url)
+        self.assertIn("channel_versions=true", call_url)
 
     @patch("kolibri.core.content.utils.resource_import.NetworkClient.build_for_address")
     def test_token_with_channel_id_validates_match(self, mock_build):
