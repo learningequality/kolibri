@@ -402,6 +402,16 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'You will be able to continue once your coach closes this post-test.',
     context: 'Description text shown when a post-test is completed',
   },
+  unitCompleted: {
+    message: 'Unit completed!',
+    context: 'Interstitial heading shown when a learner finishes all resources in a course unit',
+  },
+  unitCompletedDescription: {
+    message:
+      'You have completed all resources in this unit. You may review resources until the next unit is opened.',
+    context:
+      'Interstitial description shown when a learner finishes all resources in a course unit',
+  },
   submitTestAction: {
     message: 'Submit test',
     context: 'Action label for button to submit a pre-test or post-test.',

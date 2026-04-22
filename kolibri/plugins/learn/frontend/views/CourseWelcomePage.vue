@@ -33,12 +33,23 @@
             class="course-thumbnail"
             :thumbnail="(courseContent && courseContent.thumbnail) || ''"
           />
-          <KRouterLink
+          <KButton
+            v-if="!actionEnabled"
             :primary="true"
             appearance="raised-button"
             style="margin-top: 20px"
-            :text="courseStarted ? resumeCourseAction$() : startCourseAction$()"
+            :text="actionLabel"
+            :disabled="true"
+            data-testid="welcome-action-button"
+          />
+          <KRouterLink
+            v-else
+            :primary="true"
+            appearance="raised-button"
+            style="margin-top: 20px"
+            :text="actionLabel"
             :to="openCourseContentPage()"
+            data-testid="welcome-action-link"
           />
         </div>
         <div>
@@ -51,7 +62,7 @@
               :maxLines="2"
             />
           </h1>
-          <p>{{ courseSubtitle }}</p>
+          <p data-testid="course-subtitle">{{ courseSubtitle }}</p>
           <SlotTruncator
             v-if="course && course.description"
             :maxHeight="90"
@@ -136,7 +147,9 @@
                       <span>
                         <KIcon
                           icon="quiz"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.PRE) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ preTestLabel$() }}
@@ -147,7 +160,9 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.PRE) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.PRE) ? $themeTokens.text : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>
@@ -168,6 +183,7 @@
                     "
                     style="background-color: unset"
                     :aria-label="lesson.title"
+                    :data-lesson-status="lessonStatusMap[lesson.id]"
                     :disabled="!lessonAvailable(unit.id, lesson.id)"
                     @click.stop="openCourseContentUnitLesson(unit.id, lesson.id)"
                   >
@@ -175,7 +191,9 @@
                       <span>
                         <KIcon
                           icon="lesson"
-                          :color="lockedColor"
+                          :color="
+                            lessonAvailable(unit.id, lesson.id) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ lesson.title }}
@@ -187,14 +205,14 @@
                           })
                         }}</span>
                         <KIcon
-                          :icon="
-                            isCurrentLesson(unit.id, lesson.id)
-                              ? 'view'
-                              : lessonAvailable(unit.id, lesson.id)
-                                ? 'mastered'
-                                : 'permissions'
+                          :icon="LESSON_STATUS_ICONS[lessonStatusMap[lesson.id]]"
+                          :color="
+                            lessonStatusMap[lesson.id] === 'mastered'
+                              ? $themeTokens.mastered
+                              : lessonStatusMap[lesson.id] === 'locked'
+                                ? lockedColor
+                                : $themeTokens.text
                           "
-                          :color="lockedColor"
                           class="unit-icons"
                         />
                       </span>
@@ -219,7 +237,9 @@
                       <span>
                         <KIcon
                           icon="quiz"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.POST) ? $themeTokens.text : lockedColor
+                          "
                           class="lesson-icon unit-icons"
                         />
                         {{ postTestLabel$() }}
@@ -230,7 +250,9 @@
                         }}</span>
                         <KIcon
                           :icon="testAvailable(unit.id, TestType.POST) ? 'view' : 'permissions'"
-                          :color="lockedColor"
+                          :color="
+                            testAvailable(unit.id, TestType.POST) ? $themeTokens.text : lockedColor
+                          "
                           class="unit-icons"
                         />
                       </span>
@@ -295,8 +317,6 @@
         getCourseProgress,
         getCourseUnits,
         isUnitTestAvailable,
-        isCourseLessonAvailable,
-        isCurrentCourseLesson,
       } = useLearnerResources();
       const goBack = useGoBack({ fallbackRoute: { name: PageNames.HOME } });
 
@@ -322,7 +342,31 @@
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
 
-      const courseStarted = computed(() => courseProgress.value?.started);
+      const actionEnabled = computed(() => {
+        return Boolean(courseProgress.value?.active_test || courseProgress.value?.resume_position);
+      });
+
+      const actionLabel = computed(() => {
+        const progress = courseProgress.value;
+        if (!progress?.started) {
+          return startCourseAction$();
+        }
+        // `started` flips true as soon as the first pre-test becomes active,
+        // so it alone mislabels the very first pre-test as "Resume". When a
+        // later-unit pre-test is active, the backend wipes resume_position —
+        // so the only remaining signal that an earlier pre-test was submitted
+        // is an active test belonging to a non-first unit.
+        const firstUnitId = units.value?.[0]?.id;
+        const onFirstPreTest =
+          progress.active_test?.test_type === TestType.PRE &&
+          progress.active_test?.unit_id === firstUnitId &&
+          !progress.resume_position;
+
+        if (onFirstPreTest) {
+          return startCourseAction$();
+        }
+        return resumeCourseAction$();
+      });
 
       const courseContent = computed(() =>
         course.value ? getCourseContent(course.value.course_id) : null,
@@ -397,6 +441,14 @@
       }
 
       function openCourseContentPage() {
+        const activeTest = courseProgress.value?.active_test;
+        if (activeTest) {
+          return createCourseContentRoute(PageNames.COURSE_CONTENT_TEST, {
+            unitId: activeTest.unit_id,
+            testType: activeTest.test_type,
+          });
+        }
+
         const { unit_id, lesson_id, resource_id } = courseProgress.value?.resume_position ?? {};
 
         if (unit_id) {
@@ -412,13 +464,12 @@
           });
         }
 
-        // Course not yet started — navigate to the first unit.
-        // checkRedirectToUnitTree will then find the first lesson and resource.
-        // TO DO: update with proper conditional checks after course activation
-        // and pre and post test assessments are merged in
-        return createCourseContentRoute(PageNames.COURSE_CONTENT__UNIT, {
-          unitId: units.value?.[0]?.id,
-        });
+        // Should be unreachable: actionEnabled gates the link to the
+        // active_test or resume_position cases above. If we get here,
+        // the gate is broken.
+        throw new ReferenceError(
+          'openCourseContentPage called without active_test or resume_position',
+        );
       }
 
       function openCourseContentUnitTest(unitId, testType) {
@@ -458,16 +509,61 @@
         return course.value ? isUnitTestAvailable(course.value.course_id, unitId, testType) : false;
       }
 
-      function lessonAvailable(unitId, lessonId) {
-        return course.value
-          ? isCourseLessonAvailable(course.value.course_id, unitId, lessonId)
-          : false;
+      const LESSON_STATUS_ICONS = {
+        mastered: 'mastered',
+        open: 'view',
+        locked: 'permissions',
+      };
+
+      // Classifies a lesson's display state as 'mastered', 'open'
+      // (accessible, not yet complete), or 'locked'.
+      function getLessonStatus(unitId, lessonId) {
+        const progress = courseProgress.value;
+        const unitsList = units.value;
+        if (!progress?.started || !progress.resume_position?.unit_id) return 'locked';
+
+        const resumeUnitId = progress.resume_position.unit_id;
+        const resumeLessonId = progress.resume_position.lesson_id;
+        const resumeUnit = unitsList.find(unit => unit.id === resumeUnitId);
+        const targetUnit = unitsList.find(unit => unit.id === unitId);
+        if (!resumeUnit || !targetUnit || !targetUnit.children?.results) return 'locked';
+
+        // Target unit is strictly earlier than the resume unit.
+        if (targetUnit.lft < resumeUnit.lft) return 'mastered';
+
+        if (targetUnit.id === resumeUnitId) {
+          // Unit is complete (no remaining resource).
+          if (!resumeLessonId) return 'mastered';
+          const lessons = targetUnit.children.results;
+          const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
+          const targetLesson = lessons.find(lesson => lesson.id === lessonId);
+          if (!resumeLesson || !targetLesson) return 'locked';
+          // Lessons before the resume lesson are fully done (resume_position is the earliest
+          // incomplete resource in the unit).
+          if (targetLesson.lft < resumeLesson.lft) return 'mastered';
+          // The resume lesson itself — learner is here.
+          if (targetLesson.lft === resumeLesson.lft) return 'open';
+        }
+
+        return 'locked';
       }
 
-      function isCurrentLesson(unitId, lessonId) {
-        return course.value
-          ? isCurrentCourseLesson(course.value.course_id, unitId, lessonId)
-          : false;
+      // Precomputed lesson id → status map so each template render does N
+      // lookups instead of N × (2 lft-compares × 4 Array.finds).
+      const lessonStatusMap = computed(() => {
+        if (!course.value) return {};
+        const map = {};
+        for (const unit of units.value) {
+          for (const lesson of unit.children?.results ?? []) {
+            map[lesson.id] = getLessonStatus(unit.id, lesson.id);
+          }
+        }
+        return map;
+      });
+
+      function lessonAvailable(unitId, lessonId) {
+        const status = lessonStatusMap.value[lessonId];
+        return status === 'mastered' || status === 'open';
       }
 
       onMounted(async () => {
@@ -483,7 +579,8 @@
         TestType,
 
         // Computed
-        courseStarted,
+        actionEnabled,
+        actionLabel,
         courseSubtitle,
         windowIsLarge,
         goBack,
@@ -494,7 +591,8 @@
         // Methods & functions
         testAvailable,
         lessonAvailable,
-        isCurrentLesson,
+        lessonStatusMap,
+        LESSON_STATUS_ICONS,
         getUnitTestQuestionCount,
         openCourseContentPage,
         openCourseContentUnitTest,
@@ -509,8 +607,6 @@
         numResources$,
         preTestLabel$,
         postTestLabel$,
-        startCourseAction$,
-        resumeCourseAction$,
       };
     },
     props: {

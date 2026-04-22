@@ -3,12 +3,20 @@ import { useRouter, useRoute } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import LearningActivities from 'kolibri-constants/labels/LearningActivities';
 import Modalities from 'kolibri-constants/Modalities';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { LearnerCourseResource } from '../../../apiResources';
 import CourseUnitView from '../index.vue';
 import { PageNames } from '../../../constants';
 
+const { previousLabel$, nextLabel$ } = coursesStrings;
+
+const mockPreviousRouteRef = { value: null };
+
 jest.mock('vue-router/composables');
 jest.mock('kolibri-common/apiResources/ContentNodeResource');
+jest.mock('kolibri-common/composables/usePreviousRoute', () => ({
+  injectPreviousRoute: () => mockPreviousRouteRef,
+}));
 jest.mock('../../../apiResources', () => ({
   LearnerCourseResource: {
     getResumeData: jest.fn(),
@@ -30,9 +38,7 @@ jest.mock('../../../composables/useProgressTracking', () => ({
 }));
 
 jest.mock('../../../composables/useContentNodeProgress');
-
 jest.mock('../../../composables/useBookmarks');
-
 jest.mock('../useCourseContentProgressTracking');
 
 const ContentViewerMock = {
@@ -41,7 +47,14 @@ const ContentViewerMock = {
   props: ['options'],
 };
 
-// Data helpers
+const CourseContentViewerStub = {
+  name: 'CourseContentViewer',
+  template:
+    '<div data-testid="course-content-viewer"><button data-testid="finish-btn" @click="$emit(\'finished\')">Finish</button><div data-testid="content-viewer">{{ contentNode && contentNode.title }}</div></div>',
+  props: ['contentNode', 'nextResource', 'previousResource'],
+  emits: ['finished', 'next', 'prev'],
+};
+
 const createResource = (id, title, parent, lft = 1) => ({
   id,
   title,
@@ -83,8 +96,6 @@ const AccordionItemStub = {
 
 describe('CourseUnitView', () => {
   let router;
-  let sampleUnitTree;
-  let sampleCourseUnits;
 
   const COURSE_ID = 'course-1';
   const COURSE_CONTENT_ID = 'course-content-1';
@@ -96,12 +107,18 @@ describe('CourseUnitView', () => {
   const RESOURCE_1 = 'resource-1';
   const RESOURCE_2 = 'resource-2';
   const RESOURCE_3 = 'resource-3';
+  const UNIT_1_TITLE = 'Unit 1';
+  const UNIT_2_TITLE = 'Unit 2';
+  const L1_TITLE = 'Lesson 1';
+  const L2_TITLE = 'Lesson 2';
+  const R1_TITLE = 'Resource 1';
+  const R2_TITLE = 'Resource 2';
+  const R3_TITLE = 'Resource 3';
+  const R4_TITLE = 'Resource 4';
+  const R5_TITLE = 'Resource 5';
 
   beforeEach(() => {
-    router = {
-      replace: jest.fn(),
-      back: jest.fn(),
-    };
+    router = { replace: jest.fn(), back: jest.fn() };
     useRouter.mockReturnValue(router);
     useRoute.mockReturnValue({ params: { courseId: 'course-1' } });
     LearnerCourseResource.getResumeData.mockResolvedValue({});
@@ -110,47 +127,35 @@ describe('CourseUnitView', () => {
       course_id: COURSE_CONTENT_ID,
     });
 
-    // Setup sample data for rendering/interaction tests
-    const r1 = createResource('r1', 'Resource 1', 'l1', 10);
-    const r2 = createResource('r2', 'Resource 2', 'l1', 20);
-    const r3 = createResource('r3', 'Resource 3', 'l2', 30);
+    // Default unit tree for rendering/navigation tests:
+    // Unit 1 → Lesson 1 [r1, r2], Lesson 2 [r3]
+    const r1 = createResource('r1', R1_TITLE, 'l1', 10);
+    const r2 = createResource('r2', R2_TITLE, 'l1', 20);
+    const r3 = createResource('r3', R3_TITLE, 'l2', 30);
+    const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
+    const l2 = createLesson('l2', L2_TITLE, false, [r3]);
 
-    const l1 = createLesson('l1', 'Lesson 1', true, [r1, r2]);
-    const l2 = createLesson('l2', 'Lesson 2', false, [r3]);
-
-    sampleUnitTree = createUnit('unit-1', 'Unit 1', [l1, l2]);
-
-    // For fetchModel results (course units list)
-    sampleCourseUnits = [
-      { id: 'unit-1', title: 'Unit 1', modality: 'UNIT' },
-      { id: 'unit-2', title: 'Unit 2', modality: 'UNIT' },
-    ];
-
-    ContentNodeResource.fetchTree.mockResolvedValue(sampleUnitTree);
-    ContentNodeResource.fetchCollection.mockResolvedValue(sampleCourseUnits);
+    ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
+    ContentNodeResource.fetchCollection.mockResolvedValue([
+      { id: UNIT_1, title: UNIT_1_TITLE, modality: 'UNIT' },
+      { id: UNIT_2, title: UNIT_2_TITLE, modality: 'UNIT' },
+    ]);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    mockPreviousRouteRef.value = null;
   });
 
-  function renderComponent(props = {}) {
-    return render(CourseUnitView, {
-      props: {
-        courseId: COURSE_ID,
-        ...props,
-      },
-      stubs: {
-        ContentViewer: ContentViewerMock,
-        AccordionItem: AccordionItemStub,
-      },
-    });
+  function renderComponent(props = {}, { stubCourseContentViewer = false } = {}) {
+    const stubs = { ContentViewer: ContentViewerMock, AccordionItem: AccordionItemStub };
+    if (stubCourseContentViewer) stubs.CourseContentViewer = CourseContentViewerStub;
+    return render(CourseUnitView, { props: { courseId: COURSE_ID, ...props }, stubs });
   }
 
   /**
-   * Sets up a full unit tree mock with lessons and resources so that
-   * the `shouldRedirectToResumePosition` checks can find the resource
-   * in the tree structure.
+   * Mocks the unit tree returned by ContentNodeResource.fetchTree for the
+   * redirect-guard tests that need a specific parent/child shape.
    */
   function setupUnitTree({
     unitId = UNIT_1,
@@ -171,7 +176,7 @@ describe('CourseUnitView', () => {
             results: (resourceIdsByLesson[lessonId] || []).map((rId, index) => ({
               id: rId,
               parent: lessonId,
-              lft: index + 1, // Provide a valid lft for logic checks
+              lft: index + 1,
             })),
           },
         })),
@@ -179,11 +184,16 @@ describe('CourseUnitView', () => {
     });
   }
 
-  describe('redirection logic', () => {
-    it('redirects to COURSE_WELCOME if resume data indicates not started', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+  function mockResumeData(overrides) {
+    LearnerCourseResource.getResumeData.mockResolvedValue({ started: true, ...overrides });
+  }
 
-      renderComponent();
+  describe('redirect guard', () => {
+    it('redirects to the welcome page when the course has not started, even with a deep-linked URL', async () => {
+      LearnerCourseResource.getResumeData.mockResolvedValue({ started: false });
+      setupUnitTree();
+
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
@@ -193,623 +203,177 @@ describe('CourseUnitView', () => {
       });
     });
 
-    it('redirects to active test if resume data has active_test', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        active_test: activeTest,
-      });
+    it('redirects to the active test when resume data has one', async () => {
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
 
-      renderComponent({
-        unitId: UNIT_2,
-      });
+      renderComponent({ unitId: UNIT_2 });
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
           name: PageNames.COURSE_CONTENT_TEST,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            testType: 'pre',
-          },
+          params: { courseId: COURSE_ID, unitId: UNIT_1, testType: 'pre' },
         });
       });
     });
 
-    it('does not redirect if already on the active test page', async () => {
-      const activeTest = {
-        unit_id: UNIT_1,
-        test_type: 'pre',
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        active_test: activeTest,
-      });
+    it('does not redirect when already on the active test page', async () => {
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
 
-      renderComponent({
-        unitId: UNIT_1,
-        testType: 'pre',
-      });
+      renderComponent({ unitId: UNIT_1, testType: 'pre' });
 
       await waitFor(() => {
         expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
       });
+      expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('redirects to resume position when props have missing IDs', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      renderComponent({
-        unitId: UNIT_1,
-        // Missing lessonId and resourceId
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
-      });
-    });
-
-    it('does not redirect when already at the resume position', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
-      });
-    });
-
-    it('does not redirect if all params are present and valid', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: {
-          unit_id: 'unit-1',
-          lesson_id: 'l1',
-          resource_id: 'r1',
+    // All these cases land at the same resume position — the common behavior is
+    // "if the URL doesn't point at a valid non-advanced spot, send the learner
+    // back to where they left off."
+    it.each([
+      {
+        when: 'props are missing lesson/resource IDs',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_1 },
+      },
+      {
+        when: 'unit is ahead of resume',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_2, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'lesson is ahead of resume',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_1, lessonId: LESSON_2, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'resource is ahead of resume',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_2 },
+        tree: {
+          lessonIds: [LESSON_1],
+          resourceIdsByLesson: { [LESSON_1]: [RESOURCE_1, RESOURCE_2] },
         },
-      });
+      },
+      {
+        when: 'lesson does not belong to the unit',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_1, lessonId: 'lesson-unknown', resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'resource does not belong to the lesson',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_2, resource_id: RESOURCE_2 },
+        props: { unitId: UNIT_1, lessonId: LESSON_2, resourceId: RESOURCE_1 },
+      },
+    ])('redirects to the resume position when $when', async ({ resume, props, tree }) => {
+      mockResumeData({ resume_position: resume });
+      setupUnitTree(tree);
 
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
-
-      await waitFor(() => {
-        expect(router.replace).not.toHaveBeenCalled();
-      });
-    });
-
-    it('redirects when unit is ahead of the resume position', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      ContentNodeResource.fetchCollection.mockResolvedValue([{ id: UNIT_1 }, { id: UNIT_2 }]);
-
-      setupUnitTree();
-
-      // User is on UNIT_2, but resume is at UNIT_1 (unit_2 is ahead)
-      renderComponent({
-        unitId: UNIT_2,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
+      renderComponent(props);
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith({
           name: PageNames.COURSE_CONTENT__RESOURCE,
           params: {
             courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
+            unitId: resume.unit_id,
+            lessonId: resume.lesson_id,
+            resourceId: resume.resource_id,
           },
         });
       });
     });
 
-    it('redirects when lesson is ahead of the resume position', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      // User is on LESSON_2, but resume is at LESSON_1 (lesson_2 is ahead)
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_2,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
-      });
-    });
-
-    it('redirects when resource is ahead of the resume position', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree({
-        lessonIds: [LESSON_1],
-        resourceIdsByLesson: {
-          [LESSON_1]: [RESOURCE_1, RESOURCE_2],
+    it.each([
+      {
+        when: 'all params match the resume position',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
+        props: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'unit is before the resume position',
+        resume: { unit_id: UNIT_2, lesson_id: LESSON_2, resource_id: RESOURCE_2 },
+        props: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'lesson is before the resume position',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_2, resource_id: RESOURCE_2 },
+        props: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'resource is before the resume position',
+        resume: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_2 },
+        props: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+        tree: {
+          lessonIds: [LESSON_1],
+          resourceIdsByLesson: { [LESSON_1]: [RESOURCE_1, RESOURCE_2] },
         },
-      });
+      },
+    ])('stays on the current URL when $when', async ({ resume, props, tree }) => {
+      mockResumeData({ resume_position: resume });
+      setupUnitTree(tree);
 
-      // User is on RESOURCE_2, but resume is at RESOURCE_1 (resource_2 is ahead)
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_2,
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
-      });
-    });
-
-    it('redirects when lesson does not belong to the unit', async () => {
-      const unknownLesson = 'lesson-unknown';
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      // unknownLesson is not in the unit tree
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: unknownLesson,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
-      });
-    });
-
-    it('redirects when resource does not belong to the lesson', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_2,
-        resource_id: RESOURCE_2,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      // Resource 1 does not belong to lesson 2
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_2,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            resourceId: RESOURCE_2,
-          },
-        });
-      });
-    });
-
-    it('does not redirect when at a valid earlier position than resume', async () => {
-      const resumePosition = {
-        unit_id: UNIT_2,
-        lesson_id: LESSON_2,
-        resource_id: RESOURCE_2,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      ContentNodeResource.fetchCollection.mockResolvedValue([{ id: UNIT_1 }, { id: UNIT_2 }]);
-
-      setupUnitTree();
-
-      // User is on UNIT_1, which is before UNIT_2 resume — allowed
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
+      renderComponent(props);
 
       await waitFor(() => {
         expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
       });
+      expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('does not redirect if lesson is in an earlier position than resume', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_2,
-        resource_id: RESOURCE_2,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
+    it('does not redirect for a completed course (no resume_position or active_test)', async () => {
+      mockResumeData({});
       setupUnitTree();
 
-      // User is on LESSON_1, which is before LESSON_2 resume — allowed
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
+      renderComponent({ unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 });
 
       await waitFor(() => {
         expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
       });
+      expect(router.replace).not.toHaveBeenCalled();
     });
 
-    it('does not redirect if resource is in an earlier position than resume', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_1,
-        resource_id: RESOURCE_2,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
+    it.each([
+      {
+        when: 'props have only a unit, so fill from the first lesson',
+        resume: { unit_id: UNIT_1 },
+        props: { unitId: UNIT_1 },
+        expected: { unitId: UNIT_1, lessonId: LESSON_1, resourceId: RESOURCE_1 },
+      },
+      {
+        when: 'props have unit and lesson but no resource',
+        resume: { unit_id: UNIT_1 },
+        props: { unitId: UNIT_1, lessonId: LESSON_2 },
+        expected: { unitId: UNIT_1, lessonId: LESSON_2, resourceId: RESOURCE_2 },
+      },
+    ])(
+      'redirects to the first resource of the expected lesson when $when',
+      async ({ resume, props, expected }) => {
+        mockResumeData({ resume_position: resume });
+        setupUnitTree();
 
-      setupUnitTree({
-        lessonIds: [LESSON_1],
-        resourceIdsByLesson: {
-          [LESSON_1]: [RESOURCE_1, RESOURCE_2],
-        },
-      });
+        renderComponent(props);
 
-      // User is on RESOURCE_1, which is before RESOURCE_2 resume — allowed
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
-      });
-    });
-
-    it('does not redirect for completed course with no resume_position or active_test', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        // no resume_position, no active_test → completed course
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(LearnerCourseResource.getResumeData).toHaveBeenCalled();
-        expect(router.replace).not.toHaveBeenCalled();
-      });
-    });
-
-    it('redirects to the first resource of the unit when resume_position only has unit_id, and props have invalid unit', async () => {
-      const resumePosition = {
-        unit_id: UNIT_1,
-        // No lesson_id or resource_id
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      // User is on UNIT_2, but this is ahead of the resume UNIT_1, so should redirect to the first
-      // resource of UNIT_1
-      renderComponent({
-        unitId: UNIT_2,
-      });
-
-      // mock implementation of router.replace to renderComponent with the new params when called
-      router.replace.mockImplementation(({ name, params }) => {
-        if (name.startsWith('COURSE_CONTENT')) {
-          renderComponent({
-            unitId: params.unitId,
-            lessonId: params.lessonId,
-            resourceId: params.resourceId,
+        await waitFor(() => {
+          expect(router.replace).toHaveBeenCalledWith({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: { courseId: COURSE_ID, ...expected },
           });
-        }
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            // Should be first resource of UNIT_1
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
         });
-      });
-    });
-
-    it('redirects to the first resource of the unit when props only have unitId, and resume_position only have the same unit_id', async () => {
-      // already on the right unit (matches resume), but missing lesson/resource params
-      const resumePosition = {
-        unit_id: UNIT_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        // missing lessonId and resourceId
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            // Should default to first resource
-            lessonId: LESSON_1,
-            resourceId: RESOURCE_1,
-          },
-        });
-      });
-    });
-
-    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with same unit_id, completed', async () => {
-      // already on the right unit
-      const resumePosition = {
-        unit_id: UNIT_1,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_2,
-        // missing resourceId
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            // Should default to first resource of the lesson
-            resourceId: RESOURCE_2,
-          },
-        });
-      });
-    });
-
-    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with same unit_id, next lesson', async () => {
-      // already on the right unit
-      const resumePosition = {
-        unit_id: UNIT_1,
-        lesson_id: LESSON_3,
-        resource_id: RESOURCE_3,
-      };
-
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_2,
-        // missing resourceId
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            // Should default to first resource of the lesson
-            resourceId: RESOURCE_2,
-          },
-        });
-      });
-    });
-
-    it('redirects to the first resource of the lesson when props only have unitId and lessonId - resume position with next unit_id, completed', async () => {
-      // already on the right unit
-      const resumePosition = {
-        unit_id: UNIT_2,
-      };
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: resumePosition,
-      });
-
-      setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_2,
-        // missing resourceId
-      });
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith({
-          name: PageNames.COURSE_CONTENT__RESOURCE,
-          params: {
-            courseId: COURSE_ID,
-            unitId: UNIT_1,
-            lessonId: LESSON_2,
-            // Should default to first resource of the lesson
-            resourceId: RESOURCE_2,
-          },
-        });
-      });
-    });
+      },
+    );
   });
 
-  describe('data loading', () => {
-    it('fetches course and unit tree data on mount', async () => {
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: {
-          unit_id: UNIT_1,
-          lesson_id: LESSON_1,
-          resource_id: RESOURCE_1,
-        },
+  describe('back navigation', () => {
+    beforeEach(() => {
+      mockResumeData({
+        resume_position: { unit_id: UNIT_1, lesson_id: LESSON_1, resource_id: RESOURCE_1 },
       });
-
       setupUnitTree();
-
-      renderComponent({
-        unitId: UNIT_1,
-        lessonId: LESSON_1,
-        resourceId: RESOURCE_1,
-      });
-
-      await waitFor(() => {
-        expect(LearnerCourseResource.fetchModel).toHaveBeenCalledWith({ id: COURSE_ID });
-        expect(ContentNodeResource.fetchTree).toHaveBeenCalledWith({
-          id: UNIT_1,
-          params: { no_available_filtering: true },
-        });
-      });
     });
 
-    it('renders course title', async () => {
-      LearnerCourseResource.fetchModel.mockResolvedValue({
-        title: 'Physics 101',
-        course_id: COURSE_CONTENT_ID,
-      });
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        resume_position: {
-          unit_id: UNIT_1,
-          lesson_id: LESSON_1,
-          resource_id: RESOURCE_1,
-        },
-      });
-
-      setupUnitTree();
+    it('returns to the existing welcome page when the learner came from it', async () => {
+      mockPreviousRouteRef.value = { name: PageNames.COURSE_WELCOME };
 
       const wrapper = renderComponent({
         unitId: UNIT_1,
@@ -817,273 +381,305 @@ describe('CourseUnitView', () => {
         resourceId: RESOURCE_1,
       });
 
+      const backButton = await wrapper.findByTestId('course-back-button');
+      await fireEvent.click(backButton);
+
+      expect(router.back).toHaveBeenCalled();
+      expect(router.replace).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: PageNames.COURSE_WELCOME }),
+      );
+    });
+
+    it('navigates forward to the welcome page for deep-link entries', async () => {
+      mockPreviousRouteRef.value = null;
+
+      const wrapper = renderComponent({
+        unitId: UNIT_1,
+        lessonId: LESSON_1,
+        resourceId: RESOURCE_1,
+      });
+
+      const backButton = await wrapper.findByTestId('course-back-button');
+      await fireEvent.click(backButton);
+
+      expect(router.replace).toHaveBeenCalledWith({
+        name: PageNames.COURSE_WELCOME,
+        params: { courseSessionId: COURSE_ID },
+      });
+      expect(router.back).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('interstitial state', () => {
+    async function waitForContentViewer() {
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('course-content-viewer')).toBeVisible();
+        },
+        { timeout: 2000 },
+      );
+    }
+
+    function mockEmptyProgress() {
+      const useContentNodeProgress = require('../../../composables/useContentNodeProgress').default;
+      useContentNodeProgress.mockImplementation(() => ({
+        contentNodeProgressMap: {},
+        fetchContentNodeProgress: jest.fn(),
+        fetchContentNodeTreeProgress: jest.fn(),
+      }));
+    }
+
+    it.each([{ testType: 'pre' }, { testType: 'post' }])(
+      'shows the test-completed interstitial after finishing a $testType-test',
+      async ({ testType }) => {
+        mockResumeData({ active_test: { unit_id: UNIT_1, test_type: testType } });
+        setupUnitTree();
+
+        renderComponent({ unitId: UNIT_1, testType }, { stubCourseContentViewer: true });
+
+        await waitForContentViewer();
+        await fireEvent.click(screen.getByTestId('finish-btn'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+        });
+      },
+    );
+
+    it('shows the unit-completed interstitial after finishing the last resource in the unit', async () => {
+      mockResumeData({
+        resume_position: { unit_id: 'unit-1', lesson_id: 'l2', resource_id: 'r3' },
+      });
+      mockEmptyProgress();
+
+      renderComponent(
+        { unitId: 'unit-1', lessonId: 'l2', resourceId: 'r3' },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
       await waitFor(() => {
-        expect(wrapper.getByText('Course: Physics 101')).toBeVisible();
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+    });
+
+    it('disables both Prev and Next during the test-completion interstitial', async () => {
+      mockResumeData({ active_test: { unit_id: UNIT_1, test_type: 'pre' } });
+      setupUnitTree();
+
+      renderComponent({ unitId: UNIT_1, testType: 'pre' }, { stubCourseContentViewer: true });
+
+      await waitForContentViewer();
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('test-completed-interstitial')).toBeVisible();
+      });
+
+      expect(screen.getByRole('button', { name: previousLabel$() })).toBeDisabled();
+      expect(screen.getByRole('button', { name: nextLabel$() })).toBeDisabled();
+    });
+
+    it('enables Prev during the unit-completion interstitial, navigates back to the last resource, and clears the interstitial', async () => {
+      mockResumeData({
+        resume_position: { unit_id: 'unit-1', lesson_id: 'l2', resource_id: 'r3' },
+      });
+      mockEmptyProgress();
+
+      renderComponent(
+        { unitId: 'unit-1', lessonId: 'l2', resourceId: 'r3' },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+
+      await fireEvent.click(screen.getByRole('button', { name: previousLabel$() }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('unit-completed-interstitial')).not.toBeInTheDocument();
+      });
+      expect(router.replace).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: PageNames.COURSE_CONTENT__RESOURCE,
+          params: expect.objectContaining({
+            unitId: 'unit-1',
+            lessonId: 'l2',
+            resourceId: 'r3',
+          }),
+        }),
+      );
+    });
+
+    it('handlePrev skips unavailable resources when navigating back from the unit-completed interstitial', async () => {
+      const r1 = { ...createResource('r1', R1_TITLE, 'l1', 10), available: true };
+      const r2 = { ...createResource('r2', R2_TITLE, 'l1', 20), available: true };
+      const r3 = { ...createResource('r3', R3_TITLE, 'l2', 30), available: false };
+      const l1 = createLesson('l1', L1_TITLE, true, [r1, r2]);
+      const l2 = createLesson('l2', L2_TITLE, false, [r3]);
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
+
+      mockResumeData({
+        resume_position: { unit_id: 'unit-1', lesson_id: 'l2', resource_id: 'r3' },
+      });
+      mockEmptyProgress();
+
+      renderComponent(
+        { unitId: 'unit-1', lessonId: 'l2', resourceId: 'r3' },
+        { stubCourseContentViewer: true },
+      );
+
+      await waitForContentViewer();
+      await fireEvent.click(screen.getByTestId('finish-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('unit-completed-interstitial')).toBeVisible();
+      });
+
+      await fireEvent.click(screen.getByRole('button', { name: previousLabel$() }));
+
+      await waitFor(() => {
+        expect(router.replace).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: PageNames.COURSE_CONTENT__RESOURCE,
+            params: expect.objectContaining({
+              unitId: 'unit-1',
+              lessonId: 'l1',
+              resourceId: 'r2',
+            }),
+          }),
+        );
       });
     });
   });
 
-  describe('rendering and interaction', () => {
+  describe('rendering and navigation', () => {
     beforeEach(() => {
-      // Set up resume data so that checkRedirect doesn't redirect
-      // and the component renders normally for interaction tests.
-      // We simulate a completed unit (no resume_position) to allow full navigation.
-      LearnerCourseResource.getResumeData.mockResolvedValue({
-        started: true,
-        // No resume_position implies completed unit/course -> free navigation
-      });
+      // No resume_position → completed unit → free navigation through all resources.
+      mockResumeData({});
     });
 
-    it('renders the correct content in ContentViewer', async () => {
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
+    it('shows lessons/resources in the side panel and navigates on click', async () => {
+      renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
 
       await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toHaveTextContent('Resource 1');
-      });
-    });
-
-    it('renders the side panel with lessons and resources', async () => {
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
+        expect(screen.getByText(L1_TITLE)).toBeVisible();
+        expect(screen.getByText(L2_TITLE)).toBeVisible();
+        expect(screen.getByText(R2_TITLE)).toBeVisible();
       });
 
-      await waitFor(() => {
-        expect(screen.getByText('Lesson 1')).toBeVisible();
-        expect(screen.getByText('Lesson 2')).toBeVisible();
-        // Resource 1 appears in both ContentViewer and side panel
-        expect(screen.getAllByText('Resource 1').length).toBeGreaterThanOrEqual(1);
-        expect(screen.getByText('Resource 2')).toBeVisible();
-      });
-    });
-
-    it('navigates to a resource when clicked in side panel', async () => {
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Resource 2')).toBeVisible();
-      });
-
-      fireEvent.click(screen.getByText('Resource 2'));
+      fireEvent.click(screen.getByText(R2_TITLE));
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
             name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              resourceId: 'r2',
-              lessonId: 'l1',
-            }),
+            params: expect.objectContaining({ resourceId: 'r2', lessonId: 'l1' }),
           }),
         );
       });
     });
 
-    it('handles "Next" button navigation correctly', async () => {
-      // Start at r1 (1st of 2 in Lesson 1)
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
+    it.each([
+      {
+        when: 'Next within a lesson',
+        start: { lessonId: 'l1', resourceId: 'r1' },
+        button: () => nextLabel$(),
+        expected: { lessonId: 'l1', resourceId: 'r2' },
+      },
+      {
+        when: 'Next across a lesson boundary',
+        start: { lessonId: 'l1', resourceId: 'r2' },
+        button: () => nextLabel$(),
+        expected: { lessonId: 'l2', resourceId: 'r3' },
+      },
+      {
+        when: 'Previous within a lesson',
+        start: { lessonId: 'l1', resourceId: 'r2' },
+        button: () => previousLabel$(),
+        expected: { lessonId: 'l1', resourceId: 'r1' },
+      },
+      {
+        when: 'Previous across a lesson boundary',
+        start: { lessonId: 'l2', resourceId: 'r3' },
+        button: () => previousLabel$(),
+        expected: { lessonId: 'l1', resourceId: 'r2' },
+      },
+    ])('navigates correctly: $when', async ({ start, button, expected }) => {
+      renderComponent({ unitId: 'unit-1', ...start });
 
-      // Wait for content render
-      await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
-      });
-
-      const nextButton = await screen.findByRole('button', { name: /next/i });
-      expect(nextButton).toBeEnabled();
-
-      await fireEvent.click(nextButton);
+      const btn = await screen.findByRole('button', { name: button() });
+      await waitFor(() => expect(btn).toBeEnabled());
+      await fireEvent.click(btn);
 
       await waitFor(() => {
         expect(router.replace).toHaveBeenCalledWith(
           expect.objectContaining({
             name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              resourceId: 'r2',
-            }),
+            params: expect.objectContaining(expected),
           }),
         );
       });
     });
 
-    it('handles "Previous" button navigation correctly', async () => {
-      // Start at r2 (2nd of 2 in Lesson 1)
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r2',
+    it.each([
+      {
+        when: 'Previous on first resource of unit',
+        start: { lessonId: 'l1', resourceId: 'r1' },
+        button: () => previousLabel$(),
+      },
+      {
+        when: 'Next on last resource of unit',
+        start: { lessonId: 'l2', resourceId: 'r3' },
+        button: () => nextLabel$(),
+      },
+    ])('disables $when', async ({ start, button }) => {
+      renderComponent({ unitId: 'unit-1', ...start });
+
+      const btn = await screen.findByRole('button', { name: button() });
+      expect(btn).toBeDisabled();
+    });
+
+    it('gates navigation past the resume position in the side panel and the Next button', async () => {
+      const r1 = createResource('r1', R1_TITLE, 'l1', 10);
+      const r2 = createResource('r2', R2_TITLE, 'l1', 20);
+      const r3 = createResource('r3', R3_TITLE, 'l1', 30);
+      const r4 = createResource('r4', R4_TITLE, 'l2', 40);
+      const r5 = createResource('r5', R5_TITLE, 'l2', 50);
+      const l1 = createLesson('l1', L1_TITLE, true, [r1, r2, r3]);
+      const l2 = createLesson('l2', L2_TITLE, false, [r4, r5]);
+      ContentNodeResource.fetchTree.mockResolvedValue(createUnit('unit-1', UNIT_1_TITLE, [l1, l2]));
+
+      mockResumeData({
+        resume_position: { unit_id: 'unit-1', lesson_id: 'l1', resource_id: 'r3' },
       });
 
-      // Wait for content render
-      await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
-      });
+      // Render at the resume position — Next should be disabled here.
+      renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r3' });
 
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
-      expect(prevButton).toBeEnabled();
+      await waitFor(() => expect(screen.getByTestId('content-viewer')).toBeVisible());
 
-      await fireEvent.click(prevButton);
+      expect(screen.getByRole('button', { name: nextLabel$() })).toBeDisabled();
 
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              resourceId: 'r1',
-            }),
-          }),
-        );
+        // Resources at or before the resume position are enabled; those beyond are disabled.
+        expect(screen.getByText(R2_TITLE).closest('button')).toBeEnabled();
+        expect(screen.getByText(R4_TITLE).closest('button')).toBeDisabled();
+        expect(screen.getByText(R5_TITLE).closest('button')).toBeDisabled();
       });
     });
 
-    it('handles "Next" button navigation on last resource of lesson', async () => {
-      // Start at r2 (2nd of 2 in Lesson 1)
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r2',
-      });
-
-      const nextButton = await screen.findByRole('button', { name: /next/i });
-      await waitFor(() => {
-        expect(nextButton).toBeEnabled();
-      });
-
-      await fireEvent.click(nextButton);
+    it('displays the Up Next unit in the side panel footer', async () => {
+      renderComponent({ unitId: 'unit-1', lessonId: 'l1', resourceId: 'r1' });
 
       await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              // expect to go to the next lesson
-              lessonId: 'l2',
-              resourceId: 'r3',
-            }),
-          }),
-        );
-      });
-    });
-
-    it('handles "Previous" button navigation correctly on first resource of lesson', async () => {
-      // Start at r3 (1st of 2 in Lesson 2)
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l2',
-        resourceId: 'r3',
-      });
-
-      // Wait for content render
-      await waitFor(() => {
-        expect(screen.getByTestId('content-viewer')).toBeVisible();
-      });
-
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
-      expect(prevButton).toBeEnabled();
-
-      await fireEvent.click(prevButton);
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              // expect to go to the last resource of the previous lesson
-              lessonId: 'l1',
-              resourceId: 'r2',
-            }),
-          }),
-        );
-      });
-    });
-
-    it('disables "Previous" button on the first resource of the unit', async () => {
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
-
-      const prevButton = await screen.findByRole('button', { name: /previous/i });
-      expect(prevButton).toBeDisabled();
-    });
-
-    // Note: Cross-lesson navigation via Next is not implemented in the provided code snippet logic
-    // The code only calculates index within `unitResources` which FLATTENS the unit.
-    // `unitResources` = [r1, r2, r3].
-    // nextEnabled checks `currentResourceIndexInUnit < unitResources.length - 1`.
-
-    it('enables "Next" button to cross lessons within the unit', async () => {
-      // r2 is last in Lesson 1. r3 is in Lesson 2.
-      // flattened list: r1, r2, r3.
-      // r2 index is 1. length is 3. 1 < 2 => Next Enabled.
-
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r2',
-      });
-
-      const nextButton = await screen.findByRole('button', { name: /next/i });
-      await waitFor(() => {
-        expect(nextButton).toBeEnabled();
-      });
-
-      await fireEvent.click(nextButton);
-
-      await waitFor(() => {
-        expect(router.replace).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: PageNames.COURSE_CONTENT__RESOURCE,
-            params: expect.objectContaining({
-              resourceId: 'r3',
-              lessonId: 'l2', // Should switch to l2
-            }),
-          }),
-        );
-      });
-    });
-
-    it('disables "Next" button on the last resource of the unit', async () => {
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l2',
-        resourceId: 'r3',
-      });
-
-      const nextButton = await screen.findByRole('button', { name: /next/i });
-      expect(nextButton).toBeDisabled();
-    });
-
-    it('displays the "Up Next" unit in the side panel footer', async () => {
-      // unit-1 is current. unit-2 is next.
-      // Ensure fetchCollection returns units with proper structure
-      ContentNodeResource.fetchCollection.mockResolvedValue([
-        { id: 'unit-1', title: 'Unit 1', modality: 'UNIT' },
-        { id: 'unit-2', title: 'Unit 2', modality: 'UNIT' },
-      ]);
-
-      renderComponent({
-        unitId: 'unit-1',
-        lessonId: 'l1',
-        resourceId: 'r1',
-      });
-
-      await waitFor(() => {
-        // Check for Unit 2 title.
-        expect(screen.getByText('Unit 2')).toBeVisible();
+        expect(screen.getByText(UNIT_2_TITLE)).toBeVisible();
       });
     });
   });

@@ -463,83 +463,6 @@ export default function useLearnerResources() {
     return activeTest.unit_id === unitId && activeTest.test_type === testType;
   }
 
-  /**
-   * @param {String} courseId
-   * @param {String} unitId
-   * @param {String} lessonId
-   * @returns {Boolean} Whether the lesson resource is available
-   * @public
-   */
-  function isCourseLessonAvailable(courseId, unitId, lessonId) {
-    const progress = getCourseProgress(courseId);
-    const units = getCourseUnits(courseId);
-
-    if (!progress?.started || !progress.resume_position?.unit_id) {
-      return false;
-    }
-
-    const resumeUnitId = progress.resume_position.unit_id;
-    const resumeLessonId = progress.resume_position.lesson_id;
-
-    // Find the current unit to get its lft
-    const currentUnit = units.find(unit => unit.id === resumeUnitId);
-
-    if (!currentUnit) {
-      return false;
-    }
-
-    const targetUnit = units.find(unit => unit.id === unitId);
-
-    if (!targetUnit || !targetUnit.children?.results) {
-      return false;
-    }
-
-    // If this unit comes before the current unit, all lessons are available
-    if (targetUnit.lft < currentUnit.lft) {
-      return true;
-    }
-
-    // If this is the current unit
-    if (unitId === resumeUnitId) {
-      // If a unitId is provided without a current lesson, the unit is complete
-      // and the lesson should be available
-      if (!resumeLessonId) {
-        return true;
-      }
-
-      const lessons = targetUnit.children.results;
-      const resumeLesson = lessons.find(lesson => lesson.id === resumeLessonId);
-      const targetLesson = lessons.find(lesson => lesson.id === lessonId);
-
-      if (!resumeLesson || !targetLesson) {
-        return false;
-      }
-
-      // Check if target lesson's lft <= resume lesson's lft
-      return targetLesson.lft <= resumeLesson.lft;
-    }
-
-    return false;
-  }
-
-  /**
-   * @param {String} courseId
-   * @param {String} unitId
-   * @param {String} lessonId
-   * @returns {Boolean} Whether this is the current lesson being worked on
-   * @public
-   */
-  function isCurrentCourseLesson(courseId, unitId, lessonId) {
-    const progress = getCourseProgress(courseId);
-    const resumePosition = progress?.resume_position;
-
-    if (!resumePosition) {
-      return false;
-    }
-
-    return resumePosition.unit_id === unitId && resumePosition.lesson_id === lessonId;
-  }
-
   return {
     classes,
     activeClassesLessons,
@@ -569,7 +492,5 @@ export default function useLearnerResources() {
     fetchCourse,
     fetchCourses,
     isUnitTestAvailable,
-    isCourseLessonAvailable,
-    isCurrentCourseLesson,
   };
 }
