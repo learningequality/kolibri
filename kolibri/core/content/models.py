@@ -510,6 +510,7 @@ class ContentRequest(models.Model):
 
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
+    channel_version = models.IntegerField(default=None, null=True, blank=True)
     priority = models.IntegerField(
         default=ContentRequestPriority.REGULAR,
         choices=ContentRequestPriority.choices(),
@@ -520,7 +521,13 @@ class ContentRequest(models.Model):
     objects = ContentRequestManager()
 
     class Meta:
-        unique_together = ("type", "source_model", "source_id", "contentnode_id")
+        unique_together = (
+            "type",
+            "source_model",
+            "source_id",
+            "contentnode_id",
+            "channel_version",
+        )
         ordering = ("requested_at",)
 
     def save(self, *args, **kwargs):

@@ -91,6 +91,11 @@ class CourseSession(AbstractFacilityDataModel):
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
+    # Tracks the channel version at the time of course creation or last channel update
+    # This is used so that the course session node is updated when the channel is updated,
+    # retriggering content requests if needed.
+    channel_version = models.IntegerField(default=0, blank=True, null=True)
+
     morango_model_name = "coursesession"
 
     content_assignments = ContentAssignmentManager(
@@ -101,6 +106,7 @@ class CourseSession(AbstractFacilityDataModel):
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,
+        channel_version_field="channel_version",
     )
 
     def __str__(self):

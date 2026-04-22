@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from sqlalchemy import and_
 from sqlalchemy import case
 from sqlalchemy import cast
@@ -35,6 +36,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.utils.tree import get_channel_node_depth
+from kolibri.core.courses.models import CourseSession
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.lock import db_lock
 
@@ -975,3 +977,18 @@ def set_channel_ancestors(channel_id):
     )
 
     bridge.end()
+
+
+def update_channel_version_to_assignments(channel):
+    """
+    Update assignments channel_version to trigger an update event on
+    LOD devices when channel content is updated.
+    """
+    course_ids = ContentNode.objects.filter(
+        channel_id=channel.id,
+        modality=modalities.COURSE,
+    ).values_list("id", flat=True)
+
+    CourseSession.objects.filter(course__in=course_ids).update(
+        channel_version=channel.version
+    )

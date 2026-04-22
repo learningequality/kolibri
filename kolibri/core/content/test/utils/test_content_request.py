@@ -4,10 +4,14 @@ from datetime import timedelta
 from functools import partial
 
 import mock
+import pytest
 from django.test import LiveServerTestCase
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
+from le_utils.constants import content_kinds
 from morango.models.core import SyncSession
+from rest_framework.test import APIClient
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -21,6 +25,8 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.test.helpers import ChannelBuilder
+from kolibri.core.content.test.sqlalchemytesting import django_connection_engine
+from kolibri.core.content.utils import sqlalchemybridge as _sabridge
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.content_request import _get_import_metadata
@@ -29,6 +35,7 @@ from kolibri.core.content.utils.content_request import _process_content_requests
 from kolibri.core.content.utils.content_request import _process_download
 from kolibri.core.content.utils.content_request import _total_size
 from kolibri.core.content.utils.content_request import completed_downloads_queryset
+from kolibri.core.content.utils.content_request import create_content_download_requests
 from kolibri.core.content.utils.content_request import create_content_removal_requests
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
 from kolibri.core.content.utils.content_request import incomplete_removals_queryset
@@ -42,13 +49,13 @@ from kolibri.core.content.utils.content_request import process_download_request
 from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
+from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
-
 
 _module = "kolibri.core.content.utils.content_request."
 
@@ -194,10 +201,13 @@ class ProcessMetadataImportTestCase(BaseTestCase):
 
         incomplete_downloads = incomplete_downloads_queryset()
 
-        # first, process the metadata import for any incomplete downloads without metadata
-        self.incomplete_downloads_qs = incomplete_downloads.filter(has_metadata=False)
+        # Build the queryset of downloads needing metadata import (only missing metadata
+        # here, as the existing tests focus on that path).
+        self.downloads_needing_metadata_import = incomplete_downloads.filter(
+            has_metadata=False
+        )
         self.count_patcher = mock.patch.object(
-            self.incomplete_downloads_qs, "count", return_value=0
+            self.downloads_needing_metadata_import, "count", return_value=0
         )
         self.mock_count = self.count_patcher.start()
         self.addCleanup(self.count_patcher.stop)
@@ -249,7 +259,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
             (peer2, self.mock_client),
         ]
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.assertEqual(
             self.mock_import_metadata_calls,
             [
@@ -269,7 +279,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = True
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_not_called()
         self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
         self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
@@ -287,7 +297,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = False
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.mock_count.assert_called()
         self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
         self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
@@ -309,7 +319,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = True
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         self.assertEqual(
             self.mock_import_metadata_calls,
             [
@@ -339,7 +349,7 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         ]
         self.mock_import_metadata_return_value = False
 
-        process_metadata_import(self.incomplete_downloads_qs)
+        process_metadata_import(self.downloads_needing_metadata_import)
         for mock_call in self.mock_import_metadata_calls:
             self.assertEqual(mock_call[0], self.mock_client)
         self.assertEqual(
@@ -1640,7 +1650,8 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
     def test_metadata_import_skipped_when_contentnode_already_present(
         self, _mock_setting
     ):
-        """process_metadata_import is NOT called when all downloads already have a ContentNode."""
+        """process_metadata_import is NOT called when all downloads already have a ContentNode
+        and no channel_version is set."""
         node_id = uuid.uuid4().hex
         ContentNode.objects.create(
             id=node_id,
@@ -1654,6 +1665,34 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         process_content_requests()
 
         self.mock_process_metadata_import.assert_not_called()
+
+    def test_metadata_import_triggered_for_versioned_download_with_existing_node(
+        self, _mock_setting
+    ):
+        """process_metadata_import IS called when channel_version exceeds the currently
+        imported channel version, even if the ContentNode already exists (channel was
+        updated and metadata must be re-imported)."""
+        channel_id = uuid.uuid4().hex
+        node_id = uuid.uuid4().hex
+        root = ContentNode.objects.create(
+            id=node_id,
+            title="pre-existing",
+            kind="topic",
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+        )
+        # Simulate a channel that was previously imported at version 1
+        ChannelMetadata.objects.create(
+            id=channel_id, name="test channel", root=root, version=1
+        )
+        download = self._create_download(contentnode_id=node_id)
+        # channel_version=2 > currently-imported version 1, so metadata must be re-imported
+        download.channel_version = 2
+        download.save()
+
+        process_content_requests()
+
+        self.mock_process_metadata_import.assert_called_once()
 
     # ------------------------------------------------------------------ #
     # Phase 2: descendant request creation                                 #
@@ -1941,3 +1980,423 @@ class CreateContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         create_content_removal_requests(self.facility, [assignment])
 
         self.assertFalse(ContentDownloadRequest.objects.filter(id=download.id).exists())
+
+
+class CreateContentDownloadRequestsTestCase(BaseQuerysetTestCase):
+    """
+    Tests for create_content_download_requests().
+
+    Verifies that channel_version is stored on the request and that a new
+    request is created when the version changes, allowing re-download after
+    a channel update.
+    """
+
+    def _make_assignment(
+        self, contentnode_id=None, source_id=None, channel_version=None
+    ):
+        return ContentAssignment(
+            contentnode_id=contentnode_id or uuid.uuid4().hex,
+            source_model="test_model",
+            source_id=source_id or uuid.uuid4().hex,
+            metadata=None,
+            channel_version=channel_version,
+        )
+
+    def test_creates_download_request_with_channel_version(self):
+        """channel_version is stored on the created ContentDownloadRequest."""
+        assignment = self._make_assignment(channel_version=3)
+
+        create_content_download_requests(self.facility, [assignment])
+
+        req = ContentDownloadRequest.objects.get(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        )
+        self.assertEqual(req.channel_version, 3)
+
+    def test_creates_download_request_with_null_channel_version(self):
+        """channel_version=None (default) is stored correctly."""
+        assignment = self._make_assignment(channel_version=None)
+
+        create_content_download_requests(self.facility, [assignment])
+
+        req = ContentDownloadRequest.objects.get(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        )
+        self.assertIsNone(req.channel_version)
+
+    def test_idempotent_for_same_version(self):
+        """Calling twice with the same version does not create duplicate requests."""
+        assignment = self._make_assignment(channel_version=1)
+
+        create_content_download_requests(self.facility, [assignment])
+        create_content_download_requests(self.facility, [assignment])
+
+        count = ContentDownloadRequest.objects.filter(
+            source_model=assignment.source_model,
+            source_id=assignment.source_id,
+            contentnode_id=assignment.contentnode_id,
+        ).count()
+        self.assertEqual(count, 1)
+
+    def test_new_request_created_when_version_changes(self):
+        """When channel_version changes, a new pending download request is created."""
+        source_id = uuid.uuid4().hex
+        contentnode_id = uuid.uuid4().hex
+
+        assignment_v1 = self._make_assignment(
+            contentnode_id=contentnode_id, source_id=source_id, channel_version=1
+        )
+        assignment_v2 = self._make_assignment(
+            contentnode_id=contentnode_id, source_id=source_id, channel_version=2
+        )
+
+        create_content_download_requests(self.facility, [assignment_v1])
+        create_content_download_requests(self.facility, [assignment_v2])
+
+        requests = ContentDownloadRequest.objects.filter(
+            source_model=assignment_v1.source_model,
+            source_id=source_id,
+            contentnode_id=contentnode_id,
+        )
+        self.assertEqual(requests.count(), 2)
+        versions = set(requests.values_list("channel_version", flat=True))
+        self.assertEqual(versions, {1, 2})
+
+
+def _create_network_location(**location_overrides):
+    kwargs = dict(
+        id=uuid.uuid4().hex,
+        base_url="https://le.fyi",
+        instance_id=uuid.uuid4().hex,
+        location_type="dynamic",
+        kolibri_version="0.16.0",
+        is_local=True,
+        connection_status=ConnectionStatus.Okay,
+    )
+    kwargs.update(location_overrides)
+    network_location = NetworkLocation.objects.create(**kwargs)
+    return network_location
+
+
+@pytest.fixture(scope="module")
+def import_metadata_responses(django_db_setup, django_db_blocker):
+    """
+    Method to build a mock response object for _get_import_metadata, it creates a channel,
+    fetches metadata for it using the importmetadata endpoint, do the same for a simulated
+    channel upgrade, and removes the channel from the database, so that it doesn't interfere
+    with other tests.
+    """
+    with django_db_blocker.unblock():
+        client = APIClient()
+        channel_version = 1
+        builder = ChannelBuilder(levels=3, num_children=3)
+        channel_id = builder.channel["id"]
+        builder.channel["version"] = channel_version
+        builder.insert_into_default_db()
+
+        channel_root = ChannelMetadata.objects.get(id=channel_id).root
+        root_children = channel_root.get_children()
+        # leaf from first branch of the tree
+        leaf_1 = (
+            root_children[0].get_descendants().exclude(kind=content_kinds.TOPIC).first()
+        )
+        # leaf from second branch of the tree
+        leaf_2 = (
+            root_children[1].get_descendants().exclude(kind=content_kinds.TOPIC).first()
+        )
+        # topic from third branch of the tree, useful for import_descendants tests
+        folder_3 = root_children[2]
+
+        def _retrieve_metadata():
+            response = client.get(
+                reverse("kolibri:core:importmetadata-detail", kwargs={"pk": leaf_1.id})
+            )
+            leaf_1__metadata = response.json()
+
+            response = client.get(
+                reverse("kolibri:core:importmetadata-detail", kwargs={"pk": leaf_2.id})
+            )
+            leaf_2__metadata = response.json()
+
+            response = client.get(
+                reverse(
+                    "kolibri:core:importmetadata-detail", kwargs={"pk": folder_3.id}
+                )
+                + "?descendants=true"
+            )
+            folder_3__metadata = response.json()
+
+            return {
+                leaf_1.id: leaf_1__metadata,
+                leaf_2.id: leaf_2__metadata,
+                folder_3.id: folder_3__metadata,
+            }
+
+        v1_metadata = _retrieve_metadata()
+
+        ChannelMetadata.objects.filter(id=channel_id).update(
+            version=channel_version + 1
+        )
+        # Update tree of folder_3 to have different structure
+        folder_3.get_children().first().delete()  # Folder 3 now has only 2 children instead of 3
+        v2_metadata = _retrieve_metadata()
+
+        builder.remove_from_default_db()
+
+        return {
+            "channel_id": channel_id,
+            "leaf_1": leaf_1.id,
+            "leaf_2": leaf_2.id,
+            "folder_3": folder_3.id,
+            "v1_metadata": v1_metadata,
+            "v2_metadata": v2_metadata,
+        }
+
+
+@pytest.mark.django_db(transaction=True, databases="__all__")
+class TestImportMetadataChannelUpgrade:
+    """
+    Integration tests for _import_metadata covering channel-upgrade scenarios.
+
+    _get_import_metadata is mocked to return data in the format produced by
+    ImportMetadataViewset._serialize (keyed by model db_table names, schema_version "5").
+    import_channel_from_data is exercised for real so that ContentNode and ChannelMetadata
+    rows are actually written to the database, allowing assertions against final DB state.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _setup(self, import_metadata_responses):
+        mock_client = mock.MagicMock()
+        self.facility = Facility.objects.create(name="Test Facility")
+        self.admin = FacilityUser.objects.create(
+            username="admin_upgrade",
+            password="password",
+            facility=self.facility,
+        )
+        self.channel_version = 1
+        self.instance_id = uuid.uuid4().hex
+        self.facility.add_admin(self.admin)
+        self.import_metadata_responses = import_metadata_responses
+        self.channel_id = import_metadata_responses["channel_id"]
+        self.leaf_1 = import_metadata_responses["leaf_1"]
+        self.leaf_2 = import_metadata_responses["leaf_2"]
+        self.folder_3 = import_metadata_responses["folder_3"]
+
+        # --- SharingPool patch so the local import (import_channel_from_data) uses
+        # Django's connection and can see in-memory test data.
+        default_cs = get_default_db_string()
+        _orig_get_engine = _sabridge.get_engine
+
+        def _patched_get_engine_mock(connection_string):
+            if connection_string == default_cs:
+                return django_connection_engine()
+            return _orig_get_engine(connection_string)
+
+        _engine_patch = mock.patch.object(
+            _sabridge, "get_engine", side_effect=_patched_get_engine_mock
+        )
+
+        # Mocking _get_import_metadata to return the prepared metadata responses for the test channel
+        def _get_import_metadata_mock(client, download):
+            node_id = download.contentnode_id
+            data = import_metadata_responses[f"v{self.channel_version}_metadata"].get(
+                node_id
+            )
+            if not data:
+                return None
+            return data
+
+        _get_import_metadata_patch = mock.patch(
+            _module + "_get_import_metadata", side_effect=_get_import_metadata_mock
+        )
+
+        # Mocking PreferredDevicesWithClient to return a single peer with the test instance_id
+        _preferred_mock = mock.MagicMock()
+        peer1 = _create_network_location(instance_id=self.instance_id)
+        _preferred_mock.return_value.__iter__.return_value = [
+            (peer1, mock_client),
+        ]
+        _preferred_mock.build_from_sync_sessions.return_value = []
+        _preferred_patch = mock.patch(
+            _module + "PreferredDevicesWithClient", new=_preferred_mock
+        )
+
+        # Mocking _process_content_requests to avoid side effects during the test
+        def _process_content_requests_mock(incomplete_downloads):
+            # Just assume all downloads are completed successfully without doing any real processing
+            incomplete_downloads.update(status=ContentRequestStatus.Completed)
+
+        _process_content_requests_patch = mock.patch(
+            _module + "_process_content_requests",
+            side_effect=_process_content_requests_mock,
+        )
+
+        with _engine_patch, _get_import_metadata_patch, _preferred_patch, _process_content_requests_patch:
+            yield
+
+    def _upgrade_channel_version_on_server(self):
+        """
+        Simulates a channel upgrade on the server by incrementing self.channel_version, which is
+        used by the mocked _get_import_metadata to know which metadata to return "from the server".
+        """
+        if self.channel_version == 2:
+            raise ValueError("Channel version is already at 2, cannot upgrade further.")
+
+        self.channel_version += 1
+
+    def _create_download(self, contentnode_id, metadata=None, channel_version=None):
+        download = ContentDownloadRequest.build_for_user(self.admin)
+        download.contentnode_id = contentnode_id
+        download.source_instance_id = self.instance_id
+        if metadata is not None:
+            download.metadata = metadata
+
+        if channel_version is not None:
+            download.channel_version = channel_version
+
+        download.save()
+        return download
+
+    def _get_metadata(self, contentnode_id, channel_version, model):
+        return self.import_metadata_responses[f"v{channel_version}_metadata"][
+            contentnode_id
+        ][model._meta.db_table]
+
+    def test_smoke_test(self):
+        process_content_requests()
+
+    def test_import_metadata_for_leaf_node(self):
+        self._create_download(self.leaf_1)
+
+        process_content_requests()
+
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert not ContentNode.objects.filter(id=self.leaf_2).exists()
+        assert not ContentNode.objects.filter(id=self.folder_3).exists()
+        assert ChannelMetadata.objects.filter(id=self.channel_id).exists()
+        assert (
+            ChannelMetadata.objects.get(id=self.channel_id).version
+            == self.channel_version
+        )
+
+    def test_two_downloads_on_same_process_requests(self):
+        self._create_download(self.leaf_1)
+        self._create_download(self.leaf_2)
+
+        process_content_requests()
+
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert ContentNode.objects.filter(id=self.leaf_2).exists()
+        assert not ContentNode.objects.filter(id=self.folder_3).exists()
+
+    def test_two_downloads_on_different_process_requests(self):
+        self._create_download(self.leaf_1)
+        process_content_requests()
+
+        self._create_download(self.leaf_2)
+        process_content_requests()
+
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert ContentNode.objects.filter(id=self.leaf_2).exists()
+        assert not ContentNode.objects.filter(id=self.folder_3).exists()
+
+    def test_import_metadata_for_topic_node_with_descendants(self):
+        self._create_download(self.folder_3, metadata={"import_descendants": True})
+
+        process_content_requests()
+
+        contentnodes = self._get_metadata(
+            self.folder_3, self.channel_version, ContentNode
+        )
+        contentnodes_ids = {node["id"] for node in contentnodes}
+
+        contentnodes_imported = ContentNode.objects.all().values_list("id", flat=True)
+        assert ContentNode.objects.filter(id=self.folder_3).exists()
+        assert set(contentnodes_imported) == contentnodes_ids
+
+    def test_channel_upgrade_updates_tree_with_new_structure(
+        self, import_metadata_responses
+    ):
+        self._create_download(self.folder_3, metadata={"import_descendants": True})
+
+        process_content_requests()
+
+        self._upgrade_channel_version_on_server()
+        self._create_download(
+            self.folder_3,
+            metadata={"import_descendants": True},
+            channel_version=self.channel_version,
+        )
+
+        process_content_requests()
+        contentnodes = self._get_metadata(
+            self.folder_3, self.channel_version, ContentNode
+        )
+        contentnodes_ids = {node["id"] for node in contentnodes}
+
+        contentnodes_imported = ContentNode.objects.all().values_list("id", flat=True)
+        assert ContentNode.objects.filter(id=self.folder_3).exists()
+        # New contentnodes doesn't include the deleted child, if contentnodes on the database
+        # are equal, it means that old structure was replaced successfully.
+        assert set(contentnodes_imported) == contentnodes_ids
+        assert (
+            ChannelMetadata.objects.get(id=self.channel_id).version
+            == self.channel_version
+        )
+
+    def test_channel_upgrade_does_not_remove_previously_imported_contentnodes(
+        self, import_metadata_responses
+    ):
+        # First import the channel with the initial version
+        self._create_download(self.leaf_1)
+
+        process_content_requests()
+
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+
+        self._upgrade_channel_version_on_server()
+
+        # Import a different leaf node with the new channel version
+        self._create_download(self.leaf_2)
+
+        process_content_requests()
+
+        # Assert that both the previously imported leaf and the newly imported leaf exist
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert ContentNode.objects.filter(id=self.leaf_2).exists()
+        assert (
+            ChannelMetadata.objects.get(id=self.channel_id).version
+            == self.channel_version
+        )
+
+    def test_lower_channel_version_does_not_overwrite_higher_version(
+        self, import_metadata_responses
+    ):
+        # First import the channel with the initial version
+        self.channel_version = 2
+        self._create_download(self.leaf_1)
+
+        process_content_requests()
+
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert (
+            ChannelMetadata.objects.get(id=self.channel_id).version
+            == self.channel_version
+        )
+
+        # Assume preferred peer is not available, and we are falling back to another peer with an
+        # older channel version
+        self.channel_version = 1
+        self._create_download(self.leaf_2)
+
+        process_content_requests()
+
+        # Assert that channel version did not got downgraded and leaf_2 metadata was not imported
+        # since it's from an older channel version
+        assert not ContentNode.objects.filter(id=self.leaf_2).exists()
+        assert ContentNode.objects.filter(id=self.leaf_1).exists()
+        assert ChannelMetadata.objects.get(id=self.channel_id).version == 2

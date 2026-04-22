@@ -39,6 +39,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import set_channel_ancestors
+from kolibri.core.content.utils.annotation import update_channel_version_to_assignments
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.errors import KolibriUpgradeError
@@ -241,6 +242,7 @@ class ChannelImport:
         destination=None,
         partial=False,
         version_requested=False,
+        force_upgrade=False,
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
@@ -253,6 +255,8 @@ class ChannelImport:
         self.cancel_check = cancel_check
 
         self.partial = partial
+        self.force_upgrade = force_upgrade
+        self.channel_upgraded = False
 
         if isinstance(source, str):
             if self.partial:
@@ -746,7 +750,10 @@ class ChannelImport:
             current_version = self.current_channel.version
             current_partial = self.current_channel.partial
             if self.partial:
-                if current_version != self.channel_version:
+                if current_version == self.channel_version:
+                    return True
+
+                if not self.force_upgrade or self.channel_version < current_version:
                     # We have previously loaded this channel, with a different version to the metadata we are trying to insert
                     logger.warning(
                         (
@@ -759,8 +766,8 @@ class ChannelImport:
                         )
                     )
                     return False
-                return True
-            elif current_version is not None and (
+
+            if current_version is not None and (
                 current_version < self.channel_version
                 or current_partial
                 or (self.version_requested and current_version > self.channel_version)
@@ -789,6 +796,8 @@ class ChannelImport:
                 self.delete_old_channel_many_to_many_fields(self.channel_id)
                 if root_node:
                     self.delete_old_channel_tree_data(root_node["tree_id"])
+                self.channel_upgraded = True
+
             else:
                 # We have previously fully loaded this channel with the same version, or a newer
                 # version without an explicit version request — nothing to import.
@@ -1019,6 +1028,8 @@ class ChannelImport:
             annotate_label_bitmasks(channel_contentnodes)
             annotate_modality(channel_contentnodes)
             set_channel_ancestors(self.channel_id)
+            if not self.partial and self.channel_upgraded:
+                update_channel_version_to_assignments(channel)
 
             channel.save()
 
@@ -1201,6 +1212,7 @@ def initialize_import_manager(
     destination=None,
     partial=False,
     version_requested=False,
+    force_upgrade=False,
 ):
     # For old versions of content databases, we can only infer the schema version
     min_version = channel_metadata.get(
@@ -1241,6 +1253,7 @@ def initialize_import_manager(
         destination=destination,
         partial=partial,
         version_requested=version_requested,
+        force_upgrade=force_upgrade,
     )
 
 
@@ -1261,14 +1274,22 @@ def import_channel_from_local_db(
     return import_manager.run_and_annotate()
 
 
-def import_channel_from_data(source_data, cancel_check=None, partial=False):
+def import_channel_from_data(
+    source_data, cancel_check=None, partial=False, force_upgrade=False
+):
     channel_metadata = source_data.get(ChannelMetadata._meta.db_table)[0]
 
     import_manager = initialize_import_manager(
-        channel_metadata, source_data, cancel_check=cancel_check, partial=partial
+        channel_metadata,
+        source_data,
+        cancel_check=cancel_check,
+        partial=partial,
+        force_upgrade=force_upgrade,
     )
 
-    return import_manager.run_and_annotate()
+    import_ran = import_manager.run_and_annotate()
+
+    return import_ran, import_manager.channel_upgraded
 
 
 def import_channel_by_id(
