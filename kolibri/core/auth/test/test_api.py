@@ -42,6 +42,7 @@ from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
@@ -769,9 +770,7 @@ class FacilityAPITestCase(APITestCase):
         assert dataset.learner_can_login_with_no_password is False
         assert dataset.show_download_button_in_learn is True
 
-    @patch(
-        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
-    )
+    @patch("kolibri.core.auth.api.LEARNER_PICTURE_PASSWORD_LIMIT", 2)
     def test_picture_passwords_exhausted_false_when_learner_count_below_limit(self):
         self.client.login(
             username=self.superuser.username,
@@ -787,9 +786,7 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["picture_passwords_exhausted"])
 
-    @patch(
-        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
-    )
+    @patch("kolibri.core.auth.api.LEARNER_PICTURE_PASSWORD_LIMIT", 2)
     def test_picture_passwords_exhausted_true_when_learner_count_reaches_limit(self):
         self.client.login(
             username=self.superuser.username,
@@ -806,9 +803,7 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data["picture_passwords_exhausted"])
 
-    @patch(
-        "kolibri.core.auth.utils.picture_passwords.LEARNER_PICTURE_PASSWORD_LIMIT", 2
-    )
+    @patch("kolibri.core.auth.api.LEARNER_PICTURE_PASSWORD_LIMIT", 2)
     def test_picture_passwords_exhausted_ignores_non_learner_users(self):
         self.client.login(
             username=self.superuser.username,
@@ -828,6 +823,37 @@ class FacilityAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["picture_passwords_exhausted"])
+
+    def test_learner_count_in_facility_response(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        # facility1 has user1 (a learner) plus the superuser (not a learner)
+        self.assertEqual(response.data["learner_count"], 1)
+
+    def test_learner_limit_in_facility_response(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["learner_limit"], LEARNER_PICTURE_PASSWORD_LIMIT)
 
 
 def _add_demographic_schema_to_facility(facility):
