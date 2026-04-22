@@ -38,7 +38,6 @@ from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
 from kolibri.utils.system import get_free_space
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -50,8 +49,8 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
     the token resolves to the given channel_id. Returns a dict with 'id', 'public',
     'version', and 'library' keys, or None if the channel is not found (HTTP 404).
 
-    When a token is provided, the request includes channel_versions=true so Studio
-    returns version and library metadata.
+    The request always includes channel_versions=true so Studio returns version
+    and library metadata.
     """
     if token is None and channel_id is None:
         raise ValueError("Either token or channel_id must be provided")
@@ -59,11 +58,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
     identifier = token if token is not None else channel_id
     client = NetworkClient.build_for_address(baseurl)
     try:
-        resp = client.get(
-            get_channel_lookup_url(
-                identifier=identifier, channel_versions=(token is not None)
-            )
-        )
+        resp = client.get(get_channel_lookup_url(identifier=identifier))
     except NetworkLocationResponseFailure as e:
         if e.response.status_code == 404:
             return None

@@ -2777,6 +2777,44 @@ class KolibriStudioAPITestCase(APITestCase):
         called_url = mock_get.call_args[0][0]
         self.assertIn("/v1/channels/", called_url)
 
+    def test_retrieve_with_token_uses_token_as_studio_identifier(self):
+        """retrieve() uses the token (not pk) as the Studio lookup identifier when provided."""
+        channel_id = uuid.uuid4().hex
+        v1_response = [
+            {
+                "id": channel_id,
+                "name": "draft channel",
+                "version": 1,
+                "description": "",
+                "language": None,
+                "included_languages": [],
+                "icon_encoding": None,
+                "public": False,
+                "total_resource_count": 0,
+                "published_size": 0,
+                "last_published": None,
+                "version_notes": "",
+                "tagline": None,
+            }
+        ]
+        mock_response = mock.Mock()
+        mock_response.json.return_value = v1_response
+        with mock.patch.object(
+            NetworkClient, "get", return_value=mock_response
+        ) as mock_get:
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": channel_id},
+                ),
+                data={"token": "draft-token-xyz"},
+                format="json",
+            )
+        self.assertEqual(response.status_code, 200)
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("draft-token-xyz", called_url)
+        self.assertNotIn(channel_id, called_url)
+
     def test_community_channel_with_baseurl_uses_v1_api(self):
         """retrieve() uses v1 API for COMMUNITY channels when a custom baseurl is provided."""
         builder = ChannelBuilder()

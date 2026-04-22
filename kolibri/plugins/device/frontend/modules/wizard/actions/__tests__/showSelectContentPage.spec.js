@@ -115,6 +115,28 @@ describe('loadChannelMetadata action', () => {
       });
     });
 
+    it('if channel has a token, then "startremotechannelimport" is called with token', () => {
+      store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', {
+        id: 'remoteimport_brand_new_channel',
+        token: 'test-channel-token',
+      });
+      return loadChannelMetadata(store).then(() => {
+        expect(TaskResource.startTask).toHaveBeenCalledWith({
+          type: TaskTypes.REMOTECHANNELIMPORT,
+          channel_id: 'remoteimport_brand_new_channel',
+          token: 'test-channel-token',
+        });
+      });
+    });
+
+    it('if channel has no token, then "startremotechannelimport" is called without token', () => {
+      return loadChannelMetadata(store).then(() => {
+        expect(TaskResource.startTask).not.toHaveBeenCalledWith(
+          expect.objectContaining({ token: expect.anything() }),
+        );
+      });
+    });
+
     it('errors from startTask are handled', () => {
       TaskResource.startTask.mockRejectedValue();
       return loadChannelMetadata(store).then(() => {
