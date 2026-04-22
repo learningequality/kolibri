@@ -7,7 +7,6 @@ import { OptionsForSignIn } from '../../constants/Auth';
 
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
 jest.mock('kolibri/composables/useUser');
-jest.mock('lockr');
 jest.mock('../useFacilities');
 jest.mock('kolibri/utils/i18n', () => ({
   currentLanguage: 'en',

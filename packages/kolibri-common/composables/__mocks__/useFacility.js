@@ -11,6 +11,11 @@ const MOCK_DEFAULTS = {
   setFacilityId: jest.fn(),
 };
 
+const MOCK_DEFAULTS_SELECT = {
+  selectedFacilityId: ref(null),
+  setSelectedFacilityId: jest.fn(),
+};
+
 const MOCK_DEFAULTS_CONFIG = {
   facilityConfig: ref({}),
   isAttendanceFeatureEnabled: computed(() => true),
@@ -27,6 +32,13 @@ export function useFacilityMock(overrides = {}) {
   };
 }
 
+export function useFacilitySelectMock(overrides = {}) {
+  return {
+    ...MOCK_DEFAULTS_SELECT,
+    ...overrides,
+  };
+}
+
 export function useFacilityConfigMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS_CONFIG,
@@ -39,5 +51,8 @@ const mock = jest.fn(() => useFacilityMock());
 
 // Named export for useFacilityConfig
 export const useFacilityConfig = jest.fn(() => useFacilityConfigMock());
+
+// // Named export for useFacilitySelect
+export const useFacilitySelect = jest.fn(() => useFacilitySelectMock());
 
 export default mock;
