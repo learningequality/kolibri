@@ -116,6 +116,21 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Message shown to admins when they cannot create new learner accounts because the facility has reached the picture password learner limit.',
   },
+  picturePasswordWillBeAssigned: {
+    message: 'Kolibri will automatically assign a picture password after the user is created.',
+    context:
+      'Informational message shown in the new user creation form when picture login is enabled and the facility is under the 1300 learner limit, explaining that new learners will receive a picture password automatically.',
+  },
+  signingInHeading: {
+    message: 'Signing in',
+    context:
+      'Section heading shown in the user creation form when picture password is enabled, introducing how the new learner will sign in.',
+  },
+  learnersPictureSignInInfo: {
+    message: 'Learners will sign in by selecting a unique 3-picture code.',
+    context:
+      'Description shown in the user creation form explaining the picture password sign-in method for learners.',
+  },
   howLearnersSignIn: {
     message: 'How learners sign in',
     context: 'Section heading on Facility settings page',
