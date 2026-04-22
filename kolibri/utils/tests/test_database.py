@@ -327,3 +327,57 @@ class TestSqliteForeignKeyCheck(unittest.TestCase):
 
         # This should not raise any exceptions
         sqlite_check_foreign_keys([nonexistent_path])
+
+    def test_foreign_key_check_more_than_999_violations(self):
+        """Test that more than 999 violations do not raise OperationalError: too many SQL variables"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("PRAGMA foreign_keys = OFF;")
+        cursor.execute("CREATE TABLE parent (id INTEGER PRIMARY KEY);")
+        cursor.execute(
+            """
+            CREATE TABLE child (
+                id INTEGER PRIMARY KEY,
+                parent_id INTEGER,
+                FOREIGN KEY (parent_id) REFERENCES parent(id)
+            );
+        """
+        )
+
+        # Insert 1001 rows referencing a parent that does not exist
+        cursor.executemany(
+            "INSERT INTO child (parent_id) VALUES (?);",
+            [(i,) for i in range(1, 1002)],
+        )
+        conn.commit()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        conn.commit()
+        conn.close()
+
+        backup_dir = os.path.join(self.temp_dir, "backups")
+        os.makedirs(backup_dir, exist_ok=True)
+
+        with patch(
+            "kolibri.core.deviceadmin.utils.default_backup_folder",
+            return_value=backup_dir,
+        ):
+            # Before the fix this raised: sqlite3.OperationalError: too many SQL variables
+            sqlite_check_foreign_keys([self.db_path])
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM child;")
+        count = cursor.fetchone()[0]
+        conn.close()
+
+        self.assertEqual(count, 0, "All 1001 violating rows should have been deleted")
+
+        json_files = glob.glob(
+            os.path.join(backup_dir, "foreign_key_violations_*.json")
+        )
+        self.assertEqual(len(json_files), 1)
+
+        with open(json_files[0], "r", encoding="utf-8") as jsonfile:
+            data = json.load(jsonfile)
+        self.assertEqual(len(data), 1001)

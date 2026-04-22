@@ -25,6 +25,9 @@ def _collect_violations_by_table(cursor):
     return violations_by_table
 
 
+SQLITE_MAX_VARIABLE_NUMBER = 999
+
+
 def _collect_and_delete_violating_records(cursor, violations_by_table):
     records_to_backup = []
 
@@ -33,17 +36,19 @@ def _collect_and_delete_violating_records(cursor, violations_by_table):
         columns_info = cursor.fetchall()
         column_names = [col[1] for col in columns_info]
 
-        rowid_placeholders = ",".join("?" * len(rowids))
-        cursor.execute(
-            f"SELECT * FROM {bad_table} WHERE rowid IN ({rowid_placeholders});",
-            rowids,
-        )
-        violating_data = cursor.fetchall()
+        for batch_start in range(0, len(rowids), SQLITE_MAX_VARIABLE_NUMBER):
+            batch = rowids[batch_start : batch_start + SQLITE_MAX_VARIABLE_NUMBER]
+            rowid_placeholders = ",".join("?" * len(batch))
+            cursor.execute(
+                f"SELECT * FROM {bad_table} WHERE rowid IN ({rowid_placeholders});",
+                batch,
+            )
+            violating_data = cursor.fetchall()
 
-        for data_row in violating_data:
-            fields = dict(zip(column_names, data_row))
-            record = {"model": bad_table, "fields": fields}
-            records_to_backup.append(record)
+            for data_row in violating_data:
+                fields = dict(zip(column_names, data_row))
+                record = {"model": bad_table, "fields": fields}
+                records_to_backup.append(record)
 
         for rowid in rowids:
             cursor.execute(f"DELETE FROM {bad_table} WHERE rowid = {rowid};")
