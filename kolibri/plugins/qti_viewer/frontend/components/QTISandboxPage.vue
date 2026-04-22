@@ -26,44 +26,28 @@
 
         <div class="answer-state-editor">
           <h3>Answer State</h3>
-          <div class="answer-state-controls">
-            <KButton
-              size="small"
-              :disabled="!newKeyName"
-              @click="addAnswerStateKey"
-            >
-              Add Key
-            </KButton>
-            <input
-              v-model="newKeyName"
-              placeholder="Key name"
-              class="key-input"
-              @keyup.enter="addAnswerStateKey"
-            >
-          </div>
           <div class="answer-state-items">
             <div
-              v-for="(value, key) in answerState"
+              v-for="(value, key) in currentAnswerState"
               :key="key"
               class="answer-state-item"
             >
               <span class="key-name">{{ key }}:</span>
               <input
-                :value="value"
+                :value="formatAnswerValue(value)"
                 class="value-input"
                 @input="updateAnswerStateValue(key, $event.target.value)"
               >
-              <KIconButton
-                icon="close"
-                size="small"
-                @click="removeAnswerStateKey(key)"
-              />
             </div>
             <div
-              v-if="Object.keys(answerState).length === 0"
+              v-if="Object.keys(currentAnswerState).length === 0"
               class="empty-state-small"
             >
-              No answer state keys
+              {{
+                selectedXml
+                  ? 'This item has no response declarations.'
+                  : 'Select an item to populate the answer state.'
+              }}
             </div>
           </div>
         </div>
@@ -86,14 +70,35 @@
             :ref="setViewer"
             :itemData="selectedXml"
             :interactive="interactive"
-            :answerState="answerState"
+            :answerState="userAnswerState"
             preset="qti"
+            @startTracking="refreshOutcomes"
+            @interaction="refreshOutcomes"
           />
           <div
             v-else
             class="empty-state"
           >
             Select a QTI item to see the preview
+          </div>
+        </div>
+
+        <div class="outcomes-panel">
+          <h3>Outcomes</h3>
+          <div
+            v-if="Object.keys(outcomes).length === 0"
+            class="empty-state-small"
+          >
+            This item has no outcome declarations.
+          </div>
+          <div
+            v-for="(value, key) in outcomes"
+            v-else
+            :key="key"
+            class="outcome-item"
+          >
+            <span class="key-name">{{ key }}:</span>
+            <code class="outcome-value">{{ formatOutcome(value) }}</code>
           </div>
         </div>
       </div>
@@ -165,6 +170,23 @@
   import items from './__fixtures__/items';
   import structure from './__fixtures__/structure';
 
+  /**
+   * Parse a value typed into an answer-state input back into a seed value.
+   * Record and container responses are surfaced as JSON, so parse those back
+   * to an object/array; a plain scalar that isn't valid JSON (e.g. an
+   * identifier or free-text answer) round-trips as its raw string.
+   * @param {string} raw - The raw input string
+   * @returns {object|string} The parsed object/array, or the original string
+   */
+  export function parseAnswerStateInput(raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed !== null && typeof parsed === 'object' ? parsed : raw;
+    } catch {
+      return raw;
+    }
+  }
+
   export default {
     name: 'QTISandboxPage',
 
@@ -176,12 +198,20 @@
 
     data() {
       return {
-        answerState: {},
+        // What the user types into the answer-state inputs. Passed as the
+        // :answerState prop to seed responses. Never written from
+        // checkAnswer output.
+        userAnswerState: {},
+        // Snapshot of the live response values from the most recent
+        // checkAnswer call. Drives the answer-state display and key list.
+        currentAnswerState: {},
+        // Snapshot of the live outcome values from the most recent
+        // checkAnswer call.
+        outcomes: {},
         interactive: true,
         showSidePanel: false,
         inputtedXml: '',
         structure,
-        newKeyName: '',
         // Reactive handle to the current ContentViewer instance. $refs is not
         // reactive, so the setViewer ref callback assigns it here as the viewer
         // (un)mounts.
@@ -212,6 +242,16 @@
       },
     },
 
+    watch: {
+      async selectedXml() {
+        this.outcomes = {};
+        this.currentAnswerState = {};
+        this.userAnswerState = {};
+        await this.$nextTick();
+        this.refreshOutcomes();
+      },
+    },
+
     methods: {
       // Stable ref callback so its identity does not change between renders.
       // An inline arrow function would be re-created each render, making Vue
@@ -230,25 +270,32 @@
           this.showSidePanel = false;
         }
       },
-      addAnswerStateKey() {
-        if (this.newKeyName && !this.answerState[this.newKeyName]) {
-          this.answerState = {
-            ...this.answerState,
-            [this.newKeyName]: '',
-          };
-          this.newKeyName = '';
-        }
-      },
-      removeAnswerStateKey(key) {
-        const newState = { ...this.answerState };
-        delete newState[key];
-        this.answerState = newState;
-      },
       updateAnswerStateValue(key, value) {
-        this.answerState = {
-          ...this.answerState,
-          [key]: value,
+        this.userAnswerState = {
+          ...this.userAnswerState,
+          [key]: parseAnswerStateInput(value),
         };
+      },
+      refreshOutcomes() {
+        const result = this.viewer?.checkAnswer?.();
+        if (!result) return;
+        this.outcomes = result.outcomes ?? {};
+        // Strip QTI_CONTEXT — it rides in on the answerState payload but
+        // isn't a response variable and shouldn't appear in the display.
+        const responses = { ...(result.answerState ?? {}) };
+        delete responses.QTI_CONTEXT;
+        this.currentAnswerState = responses;
+      },
+      formatOutcome(value) {
+        if (value === null || value === undefined) return 'null';
+        if (typeof value === 'string') return JSON.stringify(value);
+        if (Array.isArray(value) || typeof value === 'object') return JSON.stringify(value);
+        return String(value);
+      },
+      formatAnswerValue(value) {
+        if (value === null || value === undefined) return '';
+        if (Array.isArray(value) || typeof value === 'object') return JSON.stringify(value);
+        return String(value);
       },
     },
 
@@ -336,21 +383,6 @@
     }
   }
 
-  .answer-state-controls {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-bottom: 0.75rem;
-
-    .key-input {
-      flex: 1;
-      padding: 0.375rem 0.5rem;
-      font-size: 0.85rem;
-      border: 1px solid #cccccc;
-      border-radius: 3px;
-    }
-  }
-
   .answer-state-items {
     max-height: 120px;
     overflow-y: auto;
@@ -397,6 +429,48 @@
     background-color: white;
     border: 1px solid #cccccc;
     border-radius: 4px;
+  }
+
+  .outcomes-panel {
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background-color: #fafafa;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+
+    h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      color: #555555;
+    }
+  }
+
+  .outcome-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.375rem;
+    margin-bottom: 0.375rem;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+
+    .key-name {
+      min-width: 80px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #666666;
+    }
+
+    .outcome-value {
+      flex: 1;
+      padding: 0.25rem 0.375rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #333333;
+      background-color: #f5f5f5;
+      border-radius: 2px;
+    }
   }
 
   .empty-state {
