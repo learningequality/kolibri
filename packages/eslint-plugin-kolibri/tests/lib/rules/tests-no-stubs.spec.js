@@ -24,6 +24,10 @@ tester.run('tests-no-stubs', rule, {
     { code: withTestingLibrary(`render(UsersTable, { props: { title: 'Title' } });`) },
     { code: withTestingLibrary(`render(UsersTable, { listeners: { close: closeHandler } });`) },
     { code: withTestingLibrary(`render(UsersTable, { store, routes });`) },
+    // check that the rule is not active in obsolete Vue Test Utils files
+    {
+      code: `mount(UsersTable, { stubs: { SomeStub: true } });`,
+    },
   ],
 
   invalid: [

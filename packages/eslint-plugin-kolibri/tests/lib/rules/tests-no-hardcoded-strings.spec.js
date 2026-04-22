@@ -64,6 +64,9 @@ tester.run('tests-no-hardcoded-strings', rule, {
     { code: withTestingLibrary(`findAllByText('-');`) },
     { code: withTestingLibrary(`queryByText('52');`) },
     { code: withTestingLibrary(`findByText('90%');`) },
+
+    // check that the rule is not active in obsolete Vue Test Utils files
+    { code: `toContain('Enroll learners to mark attendance')` },
   ],
 
   invalid: [
