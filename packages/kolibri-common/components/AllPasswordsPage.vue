@@ -54,55 +54,56 @@
         @changeSort="handleSortChange"
       >
         <template #header="{ header }">
-          <span v-show="!$isPrint">{{ header.label }}</span>
+          <span
+            v-show="!$isPrint"
+            :class="{ visuallyhidden: header.columnId === 'picture_password' }"
+          >{{ header.label }}</span>
         </template>
-        <template #cell="{ content }">
+        <template #cell="{ content, colIndex }">
+          <span
+            v-if="colIndex === 0"
+            dir="auto"
+            :style="{ color: $themeTokens.text }"
+          >{{ content.full_name }}</span>
+
+          <span
+            v-else-if="colIndex === 1"
+            dir="auto"
+            :style="{ color: $themeTokens.annotation }"
+          >{{ content.username }}</span>
+
           <div
-            class="learner-row"
-            :style="learnerRowStyle"
+            v-else
+            dir="ltr"
           >
-            <div class="learner-info">
-              <span
-                dir="auto"
-                class="learner-name"
-                :style="{ color: $themeTokens.text }"
-              >{{ content.full_name }}</span>
-              <span
-                dir="auto"
-                class="learner-username"
-                :style="{ color: $themeTokens.annotation }"
-              >{{ content.username }}</span>
-            </div>
-            <div class="learner-password">
-              <template v-if="content.picture_password">
-                <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
-                <div
-                  v-if="$isPrint && printFormat === 'text'"
-                  dir="ltr"
-                  class="password-text-sequence"
-                >
-                  {{ getPasswordTextLabels(content.picture_password) }}
-                </div>
-                <!-- Images: icon sequence with labels -->
-                <UserPicturePassword
-                  v-else
-                  :picturePassword="content.picture_password"
-                  :showSequenceNumbers="$isPrint"
-                />
-              </template>
+            <template v-if="content.picture_password">
+              <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
               <div
-                v-else
-                class="no-password-info"
+                v-if="$isPrint && printFormat === 'text'"
+                class="password-text-sequence"
               >
-                <span
-                  class="no-password-title"
-                  :style="{ color: $themeTokens.text }"
-                >{{ noPicturePasswordDescription$() }}</span>
-                <span
-                  class="no-password-subtitle"
-                  :style="{ color: $themeTokens.annotation }"
-                >{{ noPasswordSignInDescription$() }}</span>
+                {{ getPasswordTextLabels(content.picture_password) }}
               </div>
+              <!-- Images: icon sequence with labels -->
+              <UserPicturePassword
+                v-else
+                :picturePassword="content.picture_password"
+                :showSequenceNumbers="$isPrint"
+                :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: content.full_name })"
+              />
+            </template>
+            <div
+              v-else
+              class="no-password-info"
+            >
+              <span
+                class="no-password-title"
+                :style="{ color: $themeTokens.text }"
+              >{{ noPicturePasswordDescription$() }}</span>
+              <span
+                class="no-password-subtitle"
+                :style="{ color: $themeTokens.annotation }"
+              >{{ noPasswordSignInDescription$() }}</span>
             </div>
           </div>
         </template>
@@ -153,10 +154,9 @@
               :style="{ color: $themeTokens.annotation }"
             >{{ previewLearner.username }}</span>
           </div>
-          <div class="learner-password">
+          <div dir="ltr">
             <div
               v-if="printFormat === 'text'"
-              dir="ltr"
               class="password-text-sequence"
             >
               {{ getPasswordTextLabels(previewLearner.picture_password) }}
@@ -165,6 +165,9 @@
               v-else
               :picturePassword="previewLearner.picture_password"
               :showSequenceNumbers="true"
+              :ariaLabel="
+                picturePasswordSequenceForLearner$({ learnerName: previewLearner.full_name })
+              "
             />
           </div>
         </div>
@@ -202,7 +205,8 @@
       const { currentFacilityName } = useFacility();
       const { windowBreakpoint } = useKResponsiveWindow();
 
-      const { nameLabel$, cancelAction$, continueAction$ } = coreStrings;
+      const { nameLabel$, usernameLabel$, passwordLabel$, cancelAction$, continueAction$ } =
+        coreStrings;
       const {
         noLearnersInClass$,
         noPicturePasswordDescription$,
@@ -213,6 +217,7 @@
         printWithTextOnly$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
+        picturePasswordSequenceForLearner$,
       } = picturePasswordStrings;
 
       const previewLearner = computed(() => {
@@ -223,19 +228,32 @@
         return Boolean(previewLearner.value);
       });
 
+      const sortKey = ref(0);
       const sortOrder = ref(null);
 
-      const sortedLearners = computed(() => {
-        return orderBy(learners.value, ['full_name'], [sortOrder.value || 'asc']);
-      });
-
       const tableHeaders = computed(() => [
-        { label: nameLabel$(), dataType: 'string', columnId: 'full_name' },
+        { label: nameLabel$(), dataType: 'string', columnId: 'full_name', width: '45%' },
+        { label: usernameLabel$(), dataType: 'string', columnId: 'username', width: '45%' },
+        {
+          label: passwordLabel$(),
+          dataType: 'undefined',
+          columnId: 'picture_password',
+          width: '10%',
+        },
       ]);
 
-      const tableRows = computed(() => sortedLearners.value.map(learner => [learner]));
+      const sortedLearners = computed(() => {
+        const header = tableHeaders.value[sortKey.value];
+        const column = header && header.dataType !== 'undefined' ? header.columnId : 'full_name';
+        return orderBy(learners.value, [column], [sortOrder.value || 'asc']);
+      });
 
-      function handleSortChange({ sortOrder: order }) {
+      const tableRows = computed(() =>
+        sortedLearners.value.map(learner => [learner, learner, learner]),
+      );
+
+      function handleSortChange({ sortKey: key, sortOrder: order }) {
+        sortKey.value = key;
         sortOrder.value = order;
       }
 
@@ -296,6 +314,7 @@
         printWithTextOnly$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
+        picturePasswordSequenceForLearner$,
       };
     },
     props: {
@@ -309,15 +328,6 @@
       },
     },
     computed: {
-      learnerRowStyle() {
-        if (!(this.$isPrint && this.printFormat === 'images')) return {};
-        return {
-          backgroundColor: this.$themePalette.grey.v_100,
-          border: `3px solid ${this.$themeTokens.fineLine}`,
-          borderRadius: '8px',
-          padding: '8px 16px',
-        };
-      },
       previewContentStyle() {
         return {
           backgroundColor: this.$themePalette.grey.v_100,
@@ -358,13 +368,6 @@
     justify-content: flex-end;
   }
 
-  .learner-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 48px;
-  }
-
   .learner-info {
     display: flex;
     flex-direction: column;
@@ -400,12 +403,6 @@
     font-size: 16px;
   }
 
-  .learner-row .password-text-sequence {
-    width: 165px;
-    padding-left: 8px;
-    text-align: start;
-  }
-
   .preview-section {
     margin-top: 16px;
   }
@@ -436,7 +433,7 @@
   }
 
   @media print {
-    .learner-row {
+    .passwords-table-print /deep/ td {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }

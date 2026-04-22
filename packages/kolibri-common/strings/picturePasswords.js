@@ -209,9 +209,14 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Preview',
     context: 'Label for the live preview section in the print format dialog',
   },
-  picturePasswordSequence: {
-    message: 'Picture password: {sequence}',
+  picturePasswordSequenceForLearner: {
+    message: 'Picture password sequence for {learnerName}',
     context:
-      'Accessible label for a learner\'s picture password icon sequence, e.g. "Picture password: moon, water, bird". Read aloud by screen readers in place of the generic "list" announcement.',
+      "Accessible label for a learner's picture password icon sequence when multiple learners are shown together (e.g. the All Passwords page). Lets screen readers distinguish one learner's sequence from another. The icons and their names are already announced as items of the ordered list, so this label intentionally does not repeat them.",
+  },
+  picturePasswordSequenceDescription: {
+    message: 'A sequence of 3 pictures and their names',
+    context:
+      'Accessible description of the picture password sequence list, explaining its structure to screen reader users. The number 3 is a fixed design constant (picture passwords are always 3 icons long).',
   },
 });

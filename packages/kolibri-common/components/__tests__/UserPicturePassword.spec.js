@@ -40,15 +40,34 @@ describe('UserPicturePassword', () => {
     jest.clearAllMocks();
   });
 
-  it('sets an aria-label on the list describing the icon sequence', () => {
+  it('does not set an aria-label by default (callers provide context-specific labels)', () => {
     render(UserPicturePassword, {
       props: { picturePassword: '3.7.12' },
     });
 
-    const expectedLabel = picturePasswordStrings.picturePasswordSequence$({
-      sequence: 'moon, water, bird',
+    const list = screen.getByRole('list');
+    expect(list).not.toHaveAttribute('aria-label');
+  });
+
+  it('applies an aria-label when the ariaLabel prop is provided', () => {
+    render(UserPicturePassword, {
+      props: { picturePassword: '3.7.12', ariaLabel: 'Picture password sequence for Alice' },
     });
-    expect(screen.getByRole('list', { name: expectedLabel })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole('list', { name: 'Picture password sequence for Alice' }),
+    ).toBeInTheDocument();
+  });
+
+  it('sets a static aria-description describing the sequence structure', () => {
+    render(UserPicturePassword, {
+      props: { picturePassword: '3.7.12' },
+    });
+
+    expect(screen.getByRole('list')).toHaveAttribute(
+      'aria-description',
+      picturePasswordStrings.picturePasswordSequenceDescription$(),
+    );
   });
 
   it('renders expected captions for picturePassword 3.7.12', () => {

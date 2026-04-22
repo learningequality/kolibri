@@ -4,6 +4,7 @@
     class="picture-password-icons"
     :class="{ 'show-sequence-numbers': showSequenceNumbers }"
     :aria-label="ariaLabel"
+    :aria-description="picturePasswordSequenceDescription$()"
   >
     <li
       v-for="(icon, index) in picturePasswordIcons"
@@ -36,7 +37,7 @@
     name: 'UserPicturePassword',
     setup(props) {
       const { facilityConfig } = useFacility();
-      const { picturePasswordSequence$ } = picturePasswordStrings;
+      const { picturePasswordSequenceDescription$ } = picturePasswordStrings;
 
       const picturePasswordIcons = computed(() =>
         getPicturePasswordIcons(
@@ -56,17 +57,11 @@
           : (facilityConfig.value.picture_password_settings?.show_icon_text ?? false),
       );
 
-      const ariaLabel = computed(() =>
-        picturePasswordSequence$({
-          sequence: picturePasswordIcons.value.map(icon => icon.label).join(', '),
-        }),
-      );
-
       return {
         picturePasswordIcons,
         iconStyles,
         effectiveShowIconText,
-        ariaLabel,
+        picturePasswordSequenceDescription$,
       };
     },
     props: {
@@ -92,6 +87,14 @@
       showSequenceNumbers: {
         type: Boolean,
         default: false,
+      },
+      // Optional accessible name for the list. Callers that render this in a
+      // context where multiple picture passwords appear together (e.g. the All
+      // Passwords page) should pass a label that identifies whose sequence it
+      // is. Omit when a surrounding semantic heading already provides context.
+      ariaLabel: {
+        type: String,
+        default: null,
       },
     },
   };
