@@ -1,3 +1,5 @@
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+
 export const ComponentMap = {
   USERNAME_SIGN_IN: 'SignInPage',
   PICTURE_SIGN_IN: 'PictureSignInPage',
@@ -7,8 +9,10 @@ export const ComponentMap = {
   NEW_PASSWORD: 'NewPasswordPage',
 };
 
-export const pageNameToModuleMap = {
-  [ComponentMap.USERNAME_SIGN_IN]: 'signIn',
+export const SignInOptionToComponentMap = {
+  [OptionsForSignIn.USERNAME_ONLY]: ComponentMap.USERNAME_SIGN_IN,
+  [OptionsForSignIn.USERNAME_PASSWORD]: ComponentMap.USERNAME_SIGN_IN,
+  [OptionsForSignIn.PICTURE_PASSWORD]: ComponentMap.PICTURE_SIGN_IN,
 };
 
 export const DeviceUnusableReason = {
