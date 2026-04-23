@@ -42,6 +42,7 @@
   }
 
   .no-password-title {
+    padding-bottom: 4px;
     font-size: 14px;
   }
 
