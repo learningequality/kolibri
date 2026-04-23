@@ -65,8 +65,8 @@ describe('AllPasswordsPage', () => {
     it('does not show learner data while the fetch is pending', () => {
       FacilityUserResource.fetchCollection.mockImplementation(() => new Promise(() => {}));
       renderComponent();
-      expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
-      expect(screen.queryByText(LEARNERS[1].full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS.alice.full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS.bob.full_name)).not.toBeInTheDocument();
     });
 
     it('hides the loading indicator after the fetch resolves', async () => {
@@ -90,21 +90,21 @@ describe('AllPasswordsPage', () => {
     it('renders the full name of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
-      expect(screen.getByText(LEARNERS[1].full_name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS.alice.full_name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS.bob.full_name)).toBeInTheDocument();
     });
 
     it('renders the username of each learner', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(LEARNERS[0].username)).toBeInTheDocument();
-      expect(screen.getByText(LEARNERS[1].username)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS.alice.username)).toBeInTheDocument();
+      expect(screen.getByText(LEARNERS.bob.username)).toBeInTheDocument();
     });
 
     it('renders resolved icon labels for a learner with a picture_password', async () => {
       renderComponent();
       await global.flushPromises();
-      expect(screen.getByText(ICON_LABELS.join(', '))).toBeInTheDocument();
+      ICON_LABELS.forEach(label => expect(screen.getByText(label)).toBeInTheDocument());
     });
 
     it('renders the "no password" description for a learner with picture_password=null', async () => {
@@ -150,7 +150,7 @@ describe('AllPasswordsPage', () => {
         screen.getByRole('radio', { name: picturePasswordStrings.printWithTextOnly$() }),
       );
       await global.flushPromises();
-      expect(screen.getByText('testIcon1 - testIcon2 - testIcon3')).toBeInTheDocument();
+      expect(screen.getByText(ICON_LABELS.join(' - '))).toBeInTheDocument();
     });
   });
 
@@ -160,8 +160,8 @@ describe('AllPasswordsPage', () => {
       renderComponent();
       await global.flushPromises();
       // KTable hides the table element entirely when rows are empty
-      expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
-      expect(screen.queryByText(LEARNERS[1].full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS.alice.full_name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNERS.bob.full_name)).not.toBeInTheDocument();
     });
 
     it('renders the empty class message', async () => {
