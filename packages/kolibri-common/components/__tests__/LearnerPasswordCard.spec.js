@@ -6,14 +6,11 @@ import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords'
 import LearnerPasswordCard from '../LearnerPasswordCard.vue';
 
 jest.mock('kolibri-common/composables/useFacility');
+const ICON_LABELS = ['testIcon1', 'testIcon2', 'testIcon3'];
+
 jest.mock('kolibri-common/utils/picturePassword', () => ({
   getPicturePasswordIcons: jest.fn(pw => {
-    if (pw === '3.7.12')
-      return [
-        { label: 'testIcon1', iconName: 'moonColorful' },
-        { label: 'testIcon2', iconName: 'waterColorful' },
-        { label: 'testIcon3', iconName: 'birdColorful' },
-      ];
+    if (pw === '3.7.12') return ICON_LABELS.map(label => ({ label }));
     return [];
   }),
 }));
@@ -75,7 +72,7 @@ describe('LearnerPasswordCard', () => {
   describe('when printFormat is "text"', () => {
     it('renders icon labels joined by " - "', () => {
       renderCard({ printFormat: 'text' });
-      expect(screen.getByText('testIcon1 - testIcon2 - testIcon3')).toBeInTheDocument();
+      expect(screen.getByText(ICON_LABELS.join(' - '))).toBeInTheDocument();
     });
 
     it('does not render the icon image sequence', () => {
@@ -92,7 +89,7 @@ describe('LearnerPasswordCard', () => {
 
     it('does not render the text sequence', () => {
       renderCard();
-      expect(screen.queryByText('testIcon1 - testIcon2 - testIcon3')).not.toBeInTheDocument();
+      expect(screen.queryByText(ICON_LABELS.join(' - '))).not.toBeInTheDocument();
     });
   });
 });
