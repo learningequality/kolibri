@@ -6,7 +6,11 @@
     :primary="false"
     :showHeader="!$isPrint"
   >
-    <KPageContainer :class="{ 'passwords-page-container': !$isPrint && windowBreakpoint > 4 }">
+    <KPageContainer
+      :class="{ 'passwords-page-container': !$isPrint && windowBreakpoint > 4 }"
+      :topMargin="$isPrint ? 0 : 24"
+      :noPadding="$isPrint"
+    >
       <!-- Screen-only header with Print button -->
       <KGrid v-show="!$isPrint">
         <KGridItem
