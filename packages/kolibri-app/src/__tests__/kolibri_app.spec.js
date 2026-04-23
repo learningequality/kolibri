@@ -18,7 +18,7 @@ jest.mock('kolibri/heartbeat', () => ({
 }));
 
 jest.mock('kolibri/router', () => {
-  const VueRouter = require('vue-router');
+  const VueRouter = jest.requireActual('vue-router');
   return {
     _vueRouter: null,
     initRouter() {

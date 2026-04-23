@@ -295,6 +295,9 @@ export default [
       // import-x/default doesn't handle CJS module.exports as default exports
       // unlike the old eslint-plugin-import, so disable for parity
       'import-x/default': OFF,
+      'import-x/no-commonjs': ERROR,
+      'import-x/no-amd': ERROR,
+      'import-x/no-import-module-exports': ERROR,
 
       'small-import/no-full-import': ERROR,
 

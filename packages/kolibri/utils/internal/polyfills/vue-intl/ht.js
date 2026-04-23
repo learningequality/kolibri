@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 !(function (e, a) {
   'object' == typeof exports && 'undefined' != typeof module
     ? (module.exports = a())

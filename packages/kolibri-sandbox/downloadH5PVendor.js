@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 var fs = require('node:fs');
 var https = require('node:https');
 var path = require('node:path');

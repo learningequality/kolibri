@@ -1,3 +1,4 @@
+import heartbeat from 'kolibri/heartbeat';
 import { error, handleError, handleApiError, clearError } from '../appError';
 
 jest.mock('kolibri/heartbeat', () => ({
@@ -58,7 +59,6 @@ describe('appError', () => {
     });
 
     it('does not set error for disconnection error codes', () => {
-      const heartbeat = require('kolibri/heartbeat');
       const apiError = new Error('Disconnected');
       apiError.response = { status: 0 };
       // DisconnectionErrorCodes includes 0
@@ -74,7 +74,6 @@ describe('appError', () => {
     });
 
     it('does not set error for disconnection codes when shouldThrow is false', () => {
-      const heartbeat = require('kolibri/heartbeat');
       const apiError = new Error('Disconnected');
       apiError.response = { status: 0 };
       handleApiError({ error: apiError, reloadOnReconnect: true, shouldThrow: false });

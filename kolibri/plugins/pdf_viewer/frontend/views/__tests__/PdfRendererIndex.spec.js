@@ -1,12 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import PdfRendererIndex from '../PdfRendererIndex';
 import * as mockPDFJS from '../__mocks__/pdfjsMock';
+import PdfRendererIndex from '../PdfRendererIndex';
 
 const { zoomIn$, zoomOut$ } = coreStrings;
 
 jest.mock('kolibri/urls');
-jest.mock('pdfjs-dist/legacy/build/pdf', () => require('../__mocks__/pdfjsMock'));
+jest.mock('pdfjs-dist/legacy/build/pdf', () => mockPDFJS);
 jest.mock('lodash/debounce', () => fn => fn);
 jest.mock('lodash/throttle', () => fn => fn);
 

@@ -20,7 +20,7 @@ jest.mock('../../../csv/exporter', () => {
   return { __esModule: true, default: MockCSVExporter };
 });
 jest.mock('kolibri-common/composables/usePagination', () => {
-  const { ref } = require('vue');
+  const { ref } = jest.requireActual('vue');
   return {
     __esModule: true,
     default: jest.fn(() => {
@@ -30,8 +30,8 @@ jest.mock('kolibri-common/composables/usePagination', () => {
   };
 });
 jest.mock('../../../composables/useCoreCoach', () => {
-  const { computed } = require('vue');
-  const store = require('kolibri/store').default;
+  const { computed } = jest.requireActual('vue');
+  const store = jest.requireActual('kolibri/store').default;
   return () => ({
     classId: computed(() => 'class-123'),
     className: computed(() => store.state.classSummary.name || ''),

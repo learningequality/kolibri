@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 /*
  * A utility that extracts Perseus messages into a Javascript file for compatibility
  * with our i18n machinery. Also converts them into ICU format in the process.

@@ -1,4 +1,4 @@
-var pathToRegexp = require('path-to-regexp');
+import pathToRegexp from 'path-to-regexp';
 
 export function generateNavRoute(rootUrl, pathReference, params = {}) {
   let compiledRoute;

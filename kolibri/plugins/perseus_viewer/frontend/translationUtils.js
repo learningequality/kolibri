@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 const piRegex = /text\{pi\}/g;
 const piTextPlaceholder = 'text[pi]';
 

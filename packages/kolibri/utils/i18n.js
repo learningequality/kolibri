@@ -2,6 +2,7 @@ import has from 'lodash/has';
 import Vue, { ref } from 'vue';
 import logger from 'kolibri-logging';
 import plugin_data from 'kolibri-plugin-data';
+import VueIntl from 'vue-intl';
 import importIntlLocale from './internal/intl-locale-data';
 import importVueIntlLocaleData from './internal/vue-intl-locale-data';
 import setupAndLoadFonts from './internal/setupAndLoadFonts';
@@ -215,7 +216,6 @@ async function _setUpVueIntl() {
    * Note that this _must_ be called after i18nSetup because this function sets up
    * the currentLanguage module variable which is referenced inside of here.
    **/
-  const VueIntl = require('vue-intl');
   Vue.use(VueIntl, { defaultLocale });
   Vue.prototype.isRtl = languageDirection === 'rtl';
 
