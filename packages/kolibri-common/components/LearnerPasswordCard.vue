@@ -76,7 +76,7 @@
       },
       ariaLabel: {
         type: String,
-        default: '',
+        default: null,
       },
     },
   };
