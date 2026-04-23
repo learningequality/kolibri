@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 // Eslint configuration to check browser compatibility
 module.exports = {
   env: {

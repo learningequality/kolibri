@@ -1,4 +1,6 @@
 import UserSyncStatusResource from 'kolibri-common/apiResources/UserSyncStatusResource';
+import { handleApiError } from 'kolibri/utils/appError';
+import { fetchClassSyncStatus } from '../fetchClassSyncStatus';
 
 jest.mock('kolibri-common/apiResources/UserSyncStatusResource', () => ({
   __esModule: true,
@@ -7,19 +9,13 @@ jest.mock('kolibri-common/apiResources/UserSyncStatusResource', () => ({
   },
 }));
 
-// Must mock appError before importing fetchClassSyncStatus,
-// since it imports named exports at module level.
-const mockHandleApiError = jest.fn();
 jest.mock('kolibri/utils/appError', () => ({
   __esModule: true,
-  handleApiError: mockHandleApiError,
+  handleApiError: jest.fn(),
   handleError: jest.fn(),
   clearError: jest.fn(),
   error: { value: null },
 }));
-
-// Import after mocks are set up
-const { fetchClassSyncStatus } = require('../fetchClassSyncStatus');
 
 describe('fetchClassSyncStatus', () => {
   afterEach(() => {
@@ -48,7 +44,7 @@ describe('fetchClassSyncStatus', () => {
 
     const result = await fetchClassSyncStatus('class-123');
 
-    expect(mockHandleApiError).toHaveBeenCalledWith({ error });
+    expect(handleApiError).toHaveBeenCalledWith({ error });
     expect(result).toBe(error);
   });
 });

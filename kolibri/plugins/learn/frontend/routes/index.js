@@ -19,6 +19,7 @@ import classesRoutes from './classesRoutes';
 let qtiSandboxRoutes = [];
 if (process.env.NODE_ENV !== 'production') {
   try {
+    // eslint-disable-next-line import-x/no-commonjs
     const { sandboxRoutes } = require('../../../qti_viewer/frontend/sandbox');
     qtiSandboxRoutes = sandboxRoutes;
   } catch (e) {

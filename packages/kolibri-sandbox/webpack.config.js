@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 const path = require('node:path');
 const fs = require('node:fs');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');

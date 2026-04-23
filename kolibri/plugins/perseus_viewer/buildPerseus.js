@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 const fs = require('fs');
 const path = require('path');
 const extractPerseusMessages = require('./extractPerseusMessages');

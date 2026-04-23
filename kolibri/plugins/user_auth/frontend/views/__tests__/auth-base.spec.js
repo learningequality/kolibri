@@ -5,6 +5,7 @@ import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
+import pluginData from 'kolibri-plugin-data';
 import AuthBase from '../AuthBase.vue';
 import { userString } from '../commonUserStrings';
 import makeStore from '../../__tests__/utils/makeStore';
@@ -23,8 +24,6 @@ jest.mock('kolibri-plugin-data', () => ({
     deviceUnusableReason: null,
   },
 }));
-
-const pluginData = require('kolibri-plugin-data').default;
 
 const routes = [{ name: 'SignUpPage', path: '/signup' }];
 

@@ -29,7 +29,7 @@ jest.mock('../../../composables/useAttendance');
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('../../../composables/useCoreCoach', () => {
-  const { ref, computed } = require('vue');
+  const { ref, computed } = jest.requireActual('vue');
   return {
     __esModule: true,
     default: jest.fn(() => ({

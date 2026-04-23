@@ -15,7 +15,7 @@ jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => (
 jest.mock('kolibri/composables/useSnackbar');
 jest.mock('../../composables/useFacilityEditor');
 jest.mock('kolibri-common/composables/useTaskPolling', () => {
-  const { ref } = require('vue');
+  const { ref } = jest.requireActual('vue');
   return {
     __esModule: true,
     default: jest.fn(() => ({ tasks: ref([]) })),

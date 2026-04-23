@@ -1,3 +1,4 @@
+import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
 import { useAttendance } from '../useAttendance';
 
 jest.mock('kolibri-common/apiResources/AttendanceSessionResource');
@@ -11,9 +12,6 @@ jest.mock('kolibri-common/strings/attendanceStrings', () => ({
     }),
   },
 }));
-
-const AttendanceSessionResource =
-  require('kolibri-common/apiResources/AttendanceSessionResource').default;
 
 describe('useAttendance', () => {
   beforeEach(() => {

@@ -15,6 +15,7 @@ import katexA11y from 'katex/dist/contrib/render-a11y-string';
 import createReactClass from 'create-react-class';
 import scriptLoader from 'kolibri/utils/scriptLoader';
 import urls from 'kolibri/urls';
+import { ConfigFileName as mathJaxConfigFileName } from '../constants';
 
 let pendingScripts = [];
 let pendingCallbacks = [];
@@ -39,7 +40,6 @@ const unProcess = script => {
 };
 
 // because MathJax isn't compatible with webpack, we are loading it this way.
-const mathJaxConfigFileName = require('../constants').ConfigFileName;
 // the config is fragile, Khan may change it and we need to update the following hardcoded path.
 const mathJaxUrl = urls.static(`mathjax/2.1/MathJax.js?config=${mathJaxConfigFileName}`);
 

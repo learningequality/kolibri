@@ -30,6 +30,7 @@ describe('pageVisible ref', () => {
 
   it('should default to true', () => {
     jest.isolateModules(() => {
+      // eslint-disable-next-line import-x/no-commonjs
       ({ pageVisible } = require('../browserInfo'));
     });
     expect(pageVisible.value).toBe(true);
@@ -38,6 +39,7 @@ describe('pageVisible ref', () => {
   it('should update to false when document becomes hidden after debounce', () => {
     jest.useFakeTimers();
     jest.isolateModules(() => {
+      // eslint-disable-next-line import-x/no-commonjs
       ({ pageVisible } = require('../browserInfo'));
     });
 
@@ -57,6 +59,7 @@ describe('pageVisible ref', () => {
   it('should update to true when document becomes visible after debounce', () => {
     jest.useFakeTimers();
     jest.isolateModules(() => {
+      // eslint-disable-next-line import-x/no-commonjs
       ({ pageVisible } = require('../browserInfo'));
     });
 

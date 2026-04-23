@@ -1,9 +1,9 @@
 import { render } from '@testing-library/vue';
+import * as mockPDFJS from '../__mocks__/pdfjsMock';
 import PdfPage from '../PdfPage';
 import { EventBus } from '../../utils/event_utils';
-import * as mockPDFJS from '../__mocks__/pdfjsMock';
 
-jest.mock('pdfjs-dist/legacy/build/pdf', () => require('../__mocks__/pdfjsMock'));
+jest.mock('pdfjs-dist/legacy/build/pdf', () => mockPDFJS);
 
 function makeWrapper(options = {}) {
   return render(PdfPage, {
