@@ -1,12 +1,24 @@
 import { render, screen, fireEvent, within } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ref, computed } from 'vue';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
+import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacilityEditor from '../../composables/useFacilityEditor';
 import ConfigPage from '../FacilityConfigPage';
+
+const {
+  picturePasswordInfoLabel$,
+  picturePasswordInfoBody$,
+  childFriendlyIconsInfoLabel$,
+  childFriendlyIconsInfoTitle$,
+  picturePasswordUnavailableExplanation$,
+  picturePasswordUnavailableInfoLabel$,
+  picturePasswordUnavailableTitle$,
+} = picturePasswordStrings;
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../device/frontend/views/DeviceSettingsPage/api.js', () => ({
@@ -88,6 +100,8 @@ function createMockFacilityConfig(overrides = {}) {
   });
 
   return {
+    // facility must be passed as a ref by callers; defaults to ref(null)
+    facility: ref(null),
     facilityName: ref('Test Facility'),
     facilityId: ref('test-facility-id'),
     settings,
@@ -157,35 +171,35 @@ describe('facility config page view', () => {
   it('updates a facility setting when the admin toggles a checkbox', async () => {
     const settings = ref({});
     renderPage({ mockFacilityConfig: { settings } });
-    await fireEvent.click(screen.getByTestId('learner_can_edit_username'));
+    await userEvent.click(screen.getByTestId('learner_can_edit_username'));
     expect(settings.value.learner_can_edit_username).toBe(true);
   });
 
   it('updates learner_can_edit_name when toggling the checkbox', async () => {
     const settings = ref({});
     renderPage({ mockFacilityConfig: { settings } });
-    await fireEvent.click(screen.getByTestId('learner_can_edit_name'));
+    await userEvent.click(screen.getByTestId('learner_can_edit_name'));
     expect(settings.value.learner_can_edit_name).toBe(true);
   });
 
   it('updates learner_can_sign_up when toggling the checkbox', async () => {
     const settings = ref({});
     renderPage({ mockFacilityConfig: { settings } });
-    await fireEvent.click(screen.getByTestId('learner_can_sign_up'));
+    await userEvent.click(screen.getByTestId('learner_can_sign_up'));
     expect(settings.value.learner_can_sign_up).toBe(true);
   });
 
   it('updates enable_mark_attendance when toggling the checkbox', async () => {
     const settings = ref({});
     renderPage({ mockFacilityConfig: { settings } });
-    await fireEvent.click(screen.getByTestId('enable_mark_attendance'));
+    await userEvent.click(screen.getByTestId('enable_mark_attendance'));
     expect(settings.value.enable_mark_attendance).toBe(true);
   });
 
   it('updates show_download_button_in_learn when toggling the checkbox', async () => {
     const settings = ref({});
     renderPage({ mockFacilityConfig: { settings } });
-    await fireEvent.click(screen.getByTestId('show_download_button_in_learn'));
+    await userEvent.click(screen.getByTestId('show_download_button_in_learn'));
     expect(settings.value.show_download_button_in_learn).toBe(true);
   });
 
@@ -193,7 +207,7 @@ describe('facility config page view', () => {
     const mockFacilityConfig = createMockFacilityConfig();
     renderPage({ mockFacilityConfig });
     const checkbox = screen.getByTestId('learner_can_edit_password');
-    await fireEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(mockFacilityConfig.settings.value.learner_can_edit_password).toBe(true);
   });
 
@@ -205,14 +219,14 @@ describe('facility config page view', () => {
         signInOption: OptionsForSignIn.PICTURE_PASSWORD,
       },
     });
-    await fireEvent.click(screen.getByTestId('show_icon_text'));
+    await userEvent.click(screen.getByTestId('show_icon_text'));
     expect(mockModifyPicturePasswordSetting).toHaveBeenCalledWith('show_icon_text', true);
   });
 
   it('calls modifySignInOption when selecting username_password radio button', async () => {
     const mockModifySignInOption = jest.fn();
     renderPage({ mockFacilityConfig: { modifySignInOption: mockModifySignInOption } });
-    await fireEvent.click(screen.getByTestId(OptionsForSignIn.USERNAME_PASSWORD));
+    await userEvent.click(screen.getByTestId(OptionsForSignIn.USERNAME_PASSWORD));
     expect(mockModifySignInOption).toHaveBeenCalledWith(OptionsForSignIn.USERNAME_PASSWORD);
     expect(screen.getByTestId('learner_can_edit_password')).toBeInTheDocument();
   });
@@ -222,15 +236,15 @@ describe('facility config page view', () => {
     renderPage({
       mockFacilityConfig: createMockFacilityConfig({ modifySignInOption: mockModifySignInOption }),
     });
-    await fireEvent.click(screen.getByTestId(OptionsForSignIn.USERNAME_ONLY));
+    await userEvent.click(screen.getByTestId(OptionsForSignIn.USERNAME_ONLY));
     expect(mockModifySignInOption).toHaveBeenCalledWith(OptionsForSignIn.USERNAME_ONLY);
-    expect(() => screen.getByTestId('learner_can_edit_password')).toThrow();
+    expect(screen.queryByTestId('learner_can_edit_password')).not.toBeInTheDocument();
   });
 
   it('calls modifySignInOption when selecting picture_password radio button', async () => {
     const mockModifySignInOption = jest.fn();
     renderPage({ mockFacilityConfig: { modifySignInOption: mockModifySignInOption } });
-    await fireEvent.click(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD));
+    await userEvent.click(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD));
     expect(mockModifySignInOption).toHaveBeenCalledWith(OptionsForSignIn.PICTURE_PASSWORD);
     expect(screen.getByTestId('child_friendly_icons')).toBeInTheDocument();
     expect(screen.getByTestId('standard_icons')).toBeInTheDocument();
@@ -245,7 +259,7 @@ describe('facility config page view', () => {
     });
     renderPage({ mockFacilityConfig });
 
-    await fireEvent.click(screen.getByTestId('child_friendly_icons'));
+    await userEvent.click(screen.getByTestId('child_friendly_icons'));
     expect(mockFacilityConfig.modifyPicturePasswordSetting).toHaveBeenCalledWith(
       'icon_style',
       PicturePasswordIconStyle.COLORFUL,
@@ -260,7 +274,7 @@ describe('facility config page view', () => {
     });
     renderPage({ mockFacilityConfig });
 
-    await fireEvent.click(screen.getByTestId('standard_icons'));
+    await userEvent.click(screen.getByTestId('standard_icons'));
     expect(mockFacilityConfig.modifyPicturePasswordSetting).toHaveBeenCalledWith(
       'icon_style',
       PicturePasswordIconStyle.STANDARD,
@@ -275,7 +289,7 @@ describe('facility config page view', () => {
     });
     renderPage({ mockFacilityConfig });
 
-    await fireEvent.click(screen.getByTestId('show_icon_text'));
+    await userEvent.click(screen.getByTestId('show_icon_text'));
     expect(mockFacilityConfig.modifyPicturePasswordSetting).toHaveBeenCalledWith(
       'show_icon_text',
       true,
@@ -285,6 +299,7 @@ describe('facility config page view', () => {
   it('saves changes when the admin clicks Save changes', async () => {
     const saveFacilityConfigMock = jest.fn();
     renderPage({ mockFacilityConfig: { saveFacilityConfig: saveFacilityConfigMock } });
+    // BottomAppBar uses fixed positioning; userEvent fails pointer-events check in JSDOM
     await fireEvent.click(screen.getByRole('button', { name: coreString('saveChangesAction') }));
     expect(saveFacilityConfigMock).toHaveBeenCalled();
   });
@@ -314,6 +329,71 @@ describe('facility config page view', () => {
       expect(
         within(pageContainer).getByRole('button', { name: coreString('saveChangesAction') }),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('picture password info modal', () => {
+    it('opens when clicking the info icon next to the picture password option', async () => {
+      renderPage();
+      await userEvent.click(screen.getByRole('button', { name: picturePasswordInfoLabel$() }));
+      expect(screen.getByText(picturePasswordInfoBody$())).toBeInTheDocument();
+    });
+  });
+
+  describe('child-friendly icons info modal', () => {
+    it('opens when clicking the info icon next to the child-friendly icons option', async () => {
+      renderPage({ mockFacilityConfig: { signInOption: OptionsForSignIn.PICTURE_PASSWORD } });
+      await userEvent.click(
+        screen.getByRole('button', { name: childFriendlyIconsInfoLabel$() }),
+      );
+      expect(screen.getByText(childFriendlyIconsInfoTitle$())).toBeInTheDocument();
+    });
+  });
+
+  describe('when picture passwords are exhausted', () => {
+    function renderExhausted(extra = {}) {
+      return renderPage({
+        mockFacilityConfig: {
+          facility: ref({
+            picture_passwords_exhausted: true,
+            learner_count: 1301,
+            learner_limit: 1300,
+          }),
+          ...extra,
+        },
+      });
+    }
+
+    it('disables the picture password radio button', () => {
+      renderExhausted();
+      expect(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD)).toHaveClass(
+        'k-radio-button-disabled',
+      );
+    });
+
+    it('shows the picture password unavailable explanation text', () => {
+      renderExhausted();
+      expect(screen.getByText(picturePasswordUnavailableExplanation$())).toBeInTheDocument();
+    });
+
+    it('opens the unavailable modal when clicking the info icon in the explanation', async () => {
+      renderExhausted();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordUnavailableInfoLabel$() }),
+      );
+      expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
+    });
+
+    it('opens the unavailable modal when clicking the disabled radio button', async () => {
+      renderExhausted();
+      await userEvent.click(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD));
+      expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
+    });
+
+    it('hides the icon style section', () => {
+      renderExhausted({ signInOption: OptionsForSignIn.PICTURE_PASSWORD });
+      expect(screen.queryByTestId('child_friendly_icons')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('standard_icons')).not.toBeInTheDocument();
     });
   });
 });
