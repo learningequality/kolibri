@@ -5,6 +5,17 @@ import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import UserPicturePassword from '../UserPicturePassword.vue';
 
+const {
+  moon$,
+  water$,
+  bird$,
+  picturePasswordSequenceDescription$,
+  picturePasswordSequenceForLearner$,
+} = picturePasswordStrings;
+
+const LEARNER_NAME = 'Alice';
+const PICTURE_PASSWORD = '3.7.12';
+
 jest.mock('kolibri-common/composables/useFacility');
 
 function mockFacilityConfig(iconStyle, showIconText = false) {
@@ -42,7 +53,7 @@ describe('UserPicturePassword', () => {
 
   it('does not set an aria-label by default (callers provide context-specific labels)', () => {
     render(UserPicturePassword, {
-      props: { picturePassword: '3.7.12' },
+      props: { picturePassword: PICTURE_PASSWORD },
     });
 
     const list = screen.getByRole('list');
@@ -50,36 +61,35 @@ describe('UserPicturePassword', () => {
   });
 
   it('applies an aria-label when the ariaLabel prop is provided', () => {
+    const ariaLabel = picturePasswordSequenceForLearner$({ learnerName: LEARNER_NAME });
     render(UserPicturePassword, {
-      props: { picturePassword: '3.7.12', ariaLabel: 'Picture password sequence for Alice' },
+      props: { picturePassword: PICTURE_PASSWORD, ariaLabel },
     });
 
-    expect(
-      screen.getByRole('list', { name: 'Picture password sequence for Alice' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: ariaLabel })).toBeInTheDocument();
   });
 
   it('sets a static aria-description describing the sequence structure', () => {
     render(UserPicturePassword, {
-      props: { picturePassword: '3.7.12' },
+      props: { picturePassword: PICTURE_PASSWORD },
     });
 
     expect(screen.getByRole('list')).toHaveAttribute(
       'aria-description',
-      picturePasswordStrings.picturePasswordSequenceDescription$(),
+      picturePasswordSequenceDescription$(),
     );
   });
 
   it('renders expected captions for picturePassword 3.7.12', () => {
     const { container } = render(UserPicturePassword, {
-      props: { picturePassword: '3.7.12' },
+      props: { picturePassword: PICTURE_PASSWORD },
     });
 
     const captions = Array.from(container.querySelectorAll('figcaption')).map(node =>
       node.textContent.trim(),
     );
 
-    expect(captions).toEqual(['moon', 'water', 'bird']);
+    expect(captions).toEqual([moon$(), water$(), bird$()]);
   });
 
   it('hides figcaption labels when showIconText is false via facilityConfig', () => {
@@ -136,7 +146,7 @@ describe('UserPicturePassword', () => {
   describe('showSequenceNumbers prop', () => {
     it('does not add show-sequence-numbers class by default', () => {
       const { container } = render(UserPicturePassword, {
-        props: { picturePassword: '3.7.12' },
+        props: { picturePassword: PICTURE_PASSWORD },
       });
 
       expect(container.querySelector('.show-sequence-numbers')).not.toBeInTheDocument();
@@ -144,7 +154,7 @@ describe('UserPicturePassword', () => {
 
     it('adds show-sequence-numbers class when showSequenceNumbers is true', () => {
       const { container } = render(UserPicturePassword, {
-        props: { picturePassword: '3.7.12', showSequenceNumbers: true },
+        props: { picturePassword: PICTURE_PASSWORD, showSequenceNumbers: true },
       });
 
       expect(container.querySelector('.show-sequence-numbers')).toBeInTheDocument();
