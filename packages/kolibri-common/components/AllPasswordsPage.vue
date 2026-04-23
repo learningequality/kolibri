@@ -31,33 +31,21 @@
         </KGridItem>
       </KGrid>
 
-      <!-- Print-only header with facility and class name -->
-      <div
-        v-if="$isPrint"
-        class="print-header"
-      >
-        <h4 class="print-facility-class">{{ currentFacilityName }} - {{ className }}</h4>
-      </div>
-
       <KTable
+        v-if="!$isPrint"
         :headers="tableHeaders"
         :rows="tableRows"
         :caption="allPasswordsHeader$()"
         :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
-        :sortable="!$isPrint"
-        :class="{
-          'passwords-table-print-images': $isPrint && printFormat === 'images',
-          'passwords-table-print': $isPrint,
-        }"
+        sortable
         disableBuiltinSorting
         @changeSort="handleSortChange"
       >
         <template #header="{ header }">
-          <span
-            v-show="!$isPrint"
-            :class="{ visuallyhidden: header.columnId === 'picture_password' }"
-          >{{ header.label }}</span>
+          <span :class="{ visuallyhidden: header.columnId === 'picture_password' }">
+            {{ header.label }}
+          </span>
         </template>
         <template #cell="{ content, colIndex }">
           <span
@@ -76,38 +64,36 @@
             v-else
             dir="ltr"
           >
-            <template v-if="content.picture_password">
-              <!-- Text-only: hyphenated labels e.g. "cat - dog - rat" -->
-              <div
-                v-if="$isPrint && printFormat === 'text'"
-                class="password-text-sequence"
-              >
-                {{ getPasswordTextLabels(content.picture_password) }}
-              </div>
-              <!-- Images: icon sequence with labels -->
-              <UserPicturePassword
-                v-else
-                :picturePassword="content.picture_password"
-                :showSequenceNumbers="$isPrint"
-                :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: content.full_name })"
-              />
-            </template>
-            <div
-              v-else
-              class="no-password-info"
-            >
-              <span
-                class="no-password-title"
-                :style="{ color: $themeTokens.text }"
-              >{{ noPicturePasswordDescription$() }}</span>
-              <span
-                class="no-password-subtitle"
-                :style="{ color: $themeTokens.annotation }"
-              >{{ noPasswordSignInDescription$() }}</span>
-            </div>
+            <UserPicturePassword
+              v-if="content.picture_password"
+              :picturePassword="content.picture_password"
+              :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: content.full_name })"
+            />
+            <NoPasswordInfo v-else />
           </div>
         </template>
       </KTable>
+
+      <!-- Print-only list: one card per learner, stacked vertically -->
+      <section
+        v-else
+        class="print-list"
+      >
+        <!-- Print-only header with facility and class name -->
+        <div class="print-header">
+          <h4 class="print-facility-class">{{ currentFacilityName }} - {{ className }}</h4>
+        </div>
+
+        <LearnerPasswordCard
+          v-for="learner in sortedLearners"
+          :key="learner.id"
+          :learner="learner"
+          :cardStyle="printListCardStyle"
+          :printFormat="printFormat"
+          :showSequenceNumbers="true"
+          :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: learner.full_name })"
+        />
+      </section>
     </KPageContainer>
 
     <!-- Print format selection dialog -->
@@ -138,39 +124,13 @@
         class="preview-section"
       >
         <h6 class="preview-label">{{ printFormatPreviewLabel$() }}</h6>
-        <div
-          class="preview-content"
-          :style="previewContentStyle"
-        >
-          <div class="learner-info">
-            <span
-              dir="auto"
-              class="learner-name"
-              :style="{ color: $themeTokens.text }"
-            >{{ previewLearner.full_name }}</span>
-            <span
-              dir="auto"
-              class="learner-username"
-              :style="{ color: $themeTokens.annotation }"
-            >{{ previewLearner.username }}</span>
-          </div>
-          <div dir="ltr">
-            <div
-              v-if="printFormat === 'text'"
-              class="password-text-sequence"
-            >
-              {{ getPasswordTextLabels(previewLearner.picture_password) }}
-            </div>
-            <UserPicturePassword
-              v-else
-              :picturePassword="previewLearner.picture_password"
-              :showSequenceNumbers="true"
-              :ariaLabel="
-                picturePasswordSequenceForLearner$({ learnerName: previewLearner.full_name })
-              "
-            />
-          </div>
-        </div>
+        <LearnerPasswordCard
+          :learner="previewLearner"
+          :cardStyle="cardStyle"
+          :printFormat="printFormat"
+          :showSequenceNumbers="true"
+          :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: previewLearner.full_name })"
+        />
       </section>
     </KModal>
   </ImmersivePage>
@@ -184,17 +144,18 @@
   import orderBy from 'lodash/orderBy';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
-  import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
+  import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
+  import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
   import useFacility from 'kolibri-common/composables/useFacility';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'AllPasswordsPage',
-    components: { ImmersivePage, UserPicturePassword },
+    components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
@@ -209,8 +170,6 @@
         coreStrings;
       const {
         noLearnersInClass$,
-        noPicturePasswordDescription$,
-        noPasswordSignInDescription$,
         printAction$,
         allPasswordsHeader$,
         printWithImages$,
@@ -274,12 +233,6 @@
           });
       });
 
-      function getPasswordTextLabels(picturePassword) {
-        return getPicturePasswordIcons(picturePassword)
-          .map(icon => icon.label)
-          .join(' - ');
-      }
-
       function openPrintDialog() {
         showPrintDialog.value = true;
       }
@@ -299,15 +252,13 @@
         hasPicturePasswords,
         tableHeaders,
         tableRows,
+        sortedLearners,
         handleSortChange,
-        getPasswordTextLabels,
         openPrintDialog,
         closePrintDialog,
         cancelAction$,
         continueAction$,
         noLearnersInClass$,
-        noPicturePasswordDescription$,
-        noPasswordSignInDescription$,
         printAction$,
         allPasswordsHeader$,
         printWithImages$,
@@ -328,11 +279,24 @@
       },
     },
     computed: {
-      previewContentStyle() {
+      cardStyle() {
         return {
           backgroundColor: this.$themePalette.grey.v_100,
           borderColor: this.$themeTokens.fineLine,
         };
+      },
+      printListCardStyle() {
+        if (this.printFormat === 'text') {
+          return {
+            ...this.cardStyle,
+            border: 'none',
+            borderBottom: `2px solid ${this.$themeTokens.fineLine}`,
+            borderRadius: 0,
+            paddingTop: '0px',
+            paddingBottom: '16px',
+          };
+        }
+        return this.cardStyle;
       },
     },
     methods: {
@@ -368,41 +332,6 @@
     justify-content: flex-end;
   }
 
-  .learner-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .learner-name {
-    padding-bottom: 4px;
-    font-size: 16px;
-  }
-
-  .learner-username {
-    font-size: 14px;
-  }
-
-  .no-password-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 165px;
-    min-height: 64px;
-    padding-left: 8px;
-  }
-
-  .no-password-title {
-    font-size: 14px;
-  }
-
-  .no-password-subtitle {
-    font-size: 12px;
-  }
-
-  .password-text-sequence {
-    font-size: 16px;
-  }
-
   .preview-section {
     margin-top: 16px;
   }
@@ -413,13 +342,15 @@
     font-weight: bold;
   }
 
-  .preview-content {
+  .print-list {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    border: 2px solid;
-    border-radius: 8px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .print-list /deep/ .password-text-sequence {
+    width: 165px;
+    padding-left: 8px;
   }
 
   .print-header {
@@ -427,17 +358,7 @@
     padding: 2px 8px;
   }
 
-  .passwords-table-print /deep/ th,
-  .passwords-table-print-images /deep/ td {
-    border-bottom-width: 0 !important;
-  }
-
   @media print {
-    .passwords-table-print /deep/ td {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
     .print-header {
       display: block;
     }
