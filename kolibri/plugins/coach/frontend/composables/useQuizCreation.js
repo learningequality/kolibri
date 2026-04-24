@@ -60,7 +60,7 @@ export default function useQuizCreation() {
   const _exerciseMap = {};
 
   /**
-   * Question item to be replaced in the next save operation.
+   * Question item to be replaced in the next save operation
    */
   const _questionItemsToReplace = ref(null);
 

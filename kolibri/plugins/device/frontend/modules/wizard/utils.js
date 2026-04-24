@@ -16,11 +16,6 @@ export function getRemoteChannelByToken(token) {
   return RemoteChannelResource.fetchModel({ id: token, force: true });
 }
 
-/**
- * Fetches a collection of remote channels matching a token.
- * @param {string} token - The channel token to look up.
- * @returns {Promise<Array>} Resolves with an array of matching remote channel objects.
- */
 export function getRemoteChannelBundleByToken(token) {
   return RemoteChannelResource.fetchCollection({ getParams: { token } });
 }

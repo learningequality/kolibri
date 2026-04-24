@@ -9,10 +9,6 @@ import { handleApiError } from 'kolibri/utils/appError';
 /* Function to fetch device info from the backend
  * and resolve validated data
  */
-/**
- * Fetches device info and device name from the backend API.
- * @returns {Promise<object>} Resolves with validated device info data.
- */
 export function getDeviceInfo() {
   const requests = [
     client({ url: urls['kolibri:core:deviceinfo']() }),

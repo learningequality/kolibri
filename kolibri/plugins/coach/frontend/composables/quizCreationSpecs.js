@@ -111,15 +111,15 @@ export const QuizQuestion = {
 /**
  * @typedef  {object}             QuizSection                Defines a single section of the quiz
  * @property {string}             section_id                 A unique ID for the section - this is
- *                                                           only used on the front-end.
- * @property {string}             section_title              The title of the quiz section.
+ *                                                           only used on the front-end
+ * @property {string}             section_title              The title of the quiz section
  * @property {string}             description                A text blob associated with the
- *                                                           section.
+ *                                                           section
  * @property {QuizQuestion[]}     questions                  The list of QuizQuestion objects in the
- *                                                           section.
+ *                                                           section
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
- *                                                           randomized, to the learners.
+ *                                                           randomized, to the learners
  */
 export const QuizSection = {
   section_id: {
@@ -151,9 +151,9 @@ function getRandomInt() {
 
 /**
  * @typedef  {object}         Quiz                The overall primary Quiz object
- * @property {string}         title               The title of the whole quiz.
- * @property {QuizSection[]}  question_sources    The QuizSection objects that make up the quiz.
- * @property {number}         seed                A random number used to seed the randomization.
+ * @property {string}         title               The title of the whole quiz
+ * @property {QuizSection[]}  question_sources    The QuizSection objects that make up the quiz
+ * @property {number}         seed                A random number used to seed the randomization
  */
 export const Quiz = {
   title: {

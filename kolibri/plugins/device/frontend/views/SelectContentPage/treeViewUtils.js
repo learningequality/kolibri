@@ -66,11 +66,6 @@ const sumTotalResources = sumBy('total_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
 
 // Props shared with all partially-selected nodes
-/**
- * Returns annotation props for a partially-selected (indeterminate) node.
- * @param {object} node - The content node to annotate.
- * @returns {object} Annotated node with indeterminate checkbox type and status message.
- */
 function partiallySelectedNode(node) {
   return {
     ...node,
@@ -81,11 +76,6 @@ function partiallySelectedNode(node) {
 }
 
 // Props shared with all fully-selected nodes
-/**
- * Returns annotation props for a fully-selected (checked) node.
- * @param {object} node - The content node to annotate.
- * @returns {object} Annotated node with checked checkbox type and status message.
- */
 function fullySelectedNode(node) {
   return {
     ...node,
@@ -98,11 +88,6 @@ function fullySelectedNode(node) {
 }
 
 // Props shared with all unselected nodes
-/**
- * Returns annotation props for an unselected (unchecked) node.
- * @param {object} node - The content node to annotate.
- * @returns {object} Annotated node with unchecked checkbox type and no status message.
- */
 function unselectedNode(node) {
   return {
     ...node,

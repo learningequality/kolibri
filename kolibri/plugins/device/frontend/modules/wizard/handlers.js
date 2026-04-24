@@ -19,12 +19,6 @@ import { getChannelWithContentSizes } from './apiChannelMetadata';
 const logging = logger.getLogger(__filename);
 
 // Utilities for the show*Page actions
-/**
- * Fetches the drive list and resolves with the drive matching the given ID.
- * @param {object} store - The Vuex store instance with wizard state.
- * @param {string} driveId - The ID of the drive to find.
- * @returns {Promise<object>} Resolves with the drive object, or rejects with an error type.
- */
 function getSelectedDrive(store, driveId) {
   return new Promise((resolve, reject) => {
     store
@@ -45,11 +39,6 @@ function getSelectedDrive(store, driveId) {
   });
 }
 
-/**
- * Returns a promise that resolves with the list of installed channels, fetching if not cached.
- * @param {object} store - The Vuex store instance with manageContent state.
- * @returns {Promise<Array>} Resolves with the list of installed channel objects.
- */
 function getInstalledChannelsPromise(store) {
   const { channelList } = store.state.manageContent;
   // Only refresh channel list if it hasn't been fetched yet (i.e. user went straight to URL)
@@ -60,11 +49,6 @@ function getInstalledChannelsPromise(store) {
   }
 }
 
-/**
- * Determines the transfer type (local import, peer import, or remote import) from route params.
- * @param {object} params - Route params object potentially containing drive_id or address_id.
- * @returns {string} The TransferTypes constant corresponding to the transfer type.
- */
 function getTransferType(params) {
   const { drive_id, address_id } = params;
   if (drive_id) {
@@ -78,12 +62,6 @@ function getTransferType(params) {
   return TransferTypes.REMOTEIMPORT;
 }
 
-/**
- * Handles a wizard page error by committing the error type to the store or reporting it.
- * @param {object} store - The Vuex store instance.
- * @param {object} error - The error object, optionally containing an errorType property.
- * @returns {void}
- */
 function handleError(store, error) {
   const { error: errorType } = error;
   // special errors that are handled gracefully by UI
@@ -97,13 +75,6 @@ function handleError(store, error) {
 
 // Handler for when user goes directly to the Available Channels URL.
 // Params are { drive_id?: string, address_id?: string }
-/**
- * Loads available channels for the given transfer type and populates the wizard state.
- * @param {object} store - The Vuex store instance.
- * @param {object} params - Route params with optional drive_id, address_id, and token.
- * @param {object} route - The current Vue Router route object.
- * @returns {Promise<void>} Resolves when the available channels page state is ready.
- */
 export function showAvailableChannelsPage(store, params, route) {
   let availableChannelsPromise;
   let selectedDrivePromise;

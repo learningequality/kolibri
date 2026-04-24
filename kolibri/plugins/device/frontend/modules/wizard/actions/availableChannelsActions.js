@@ -30,12 +30,6 @@ export function getAllRemoteChannels(store, publicChannels) {
   });
 }
 
-/**
- * Enrich drive channels with installed version information for upgrade UIs.
- * @param {object} store - The Vuex store instance.
- * @param {object} drive - The drive object containing metadata.channels.
- * @returns {object[]} Array of channel objects with version fields added.
- */
 export function getAllDriveChannels(store, drive) {
   // Adds extra version information to drive.metadata.channels objects
   // to support the upgrade UIs

@@ -7,12 +7,6 @@ import urls from 'kolibri/urls';
 
 const pluckIds = map('id');
 
-/**
- * Checks if a node is a descendant of or the same as another node.
- * @param {object} testNode - The node to test.
- * @param {object} selfNode - The reference node to check against.
- * @returns {boolean} True if testNode is a descendant of or equal to selfNode.
- */
 function isDescendantOrSelf(testNode, selfNode) {
   return testNode.id === selfNode.id || find(testNode.path, { id: selfNode.id });
 }

@@ -53,16 +53,6 @@ const languageGlobals = plugin_data['languageGlobals'] || {};
 
 export const i18nReady = ref(false);
 
-/**
- * Wrap a translation call with namespace and formatter context.
- * @param {string} nameSpace - The translator namespace.
- * @param {object} defaultMessages - Map of message IDs to default message strings.
- * @param {Function} formatter - The vue-intl $formatMessage function.
- * @param {string} messageId - The key of the message to translate.
- * @param {object|Array} args - Positional array or named options for interpolation.
- * @returns {string} The formatted translated string.
- * @throws {string} If called before i18n is ready.
- */
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
   if (!i18nReady.value) {
     throw 'Translator used before i18n is ready';
@@ -100,20 +90,10 @@ export const currentLanguage = languageGlobals.languageCode || defaultLocale;
 // Default to ltr
 export const languageDirection = languageGlobals.languageDir || languageDirections.LTR;
 
-/**
- * Get the language direction for a language ID.
- * @param {string} id - The language ID to look up.
- * @returns {string} The language direction ('ltr' or 'rtl').
- */
 export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
 }
 
-/**
- * Check whether a language ID corresponds to a right-to-left language.
- * @param {string} id - The language ID to check.
- * @returns {boolean} True if the language is RTL.
- */
 export function isRtl(id) {
   return getLangDir(id) === languageDirections.RTL;
 }
@@ -151,20 +131,10 @@ const languageDensityMapping = {
   zh: languageDensities.dense,
 };
 
-/**
- * Extract the BCP 47 language code from a language ID.
- * @param {string} id - The language ID (e.g. 'en-US').
- * @returns {string} The lowercase language code (e.g. 'en').
- */
 export function languageIdToCode(id) {
   return id.split('-')[0].toLowerCase();
 }
 
-/**
- * Set the global language density based on a language ID.
- * @param {string} id - The language ID used to determine density.
- * @returns {void}
- */
 function setLanguageDensity(id) {
   const langCode = languageIdToCode(id);
   // Set the exported languageDensity in JS
@@ -173,7 +143,16 @@ function setLanguageDensity(id) {
   global.document.body.classList.add(`language-${languageDensity}`);
 }
 
+/**
+ * Class exposing translation functions for a particular message name space.
+ * @class
+ */
 class Translator {
+  /**
+   * Create a Translator object.
+   * @param {string} nameSpace - The nameSpace of the messages for translation.
+   * @param {object} defaultMessages - an object mapping message ids to default messages.
+   */
   constructor(nameSpace, defaultMessages) {
     this._nameSpace = nameSpace;
     this._defaultMessages = defaultMessages;
@@ -220,18 +199,18 @@ export function createTranslator(nameSpace, defaultMessages) {
 }
 
 /**
- * Create a Translator that shares the namespace and strings of another Vue component.
- * @param {object} Component - A Vue component options object with a name and $trs.
- * @returns {Translator} A configured Translator instance for the component.
+ * Returns a Translator instance that can grab strings from another component.
+ * WARNINGS:
+ *  - Cannot be used across plugin boundaries
+ *  - Use sparingly, e.g. to bypass string freeze
+ *  - Try to remove post-string-freeze
+ * @param {Component} Component - An imported component.
+ * @returns {Translator} A Translator instance for the component.
  */
 export function crossComponentTranslator(Component) {
   return new Translator(Component.name, Component.$trs);
 }
 
-/**
- * Install vue-intl and load locale data for the current language.
- * @returns {Promise<void>} Resolves when vue-intl is fully configured.
- */
 async function _setUpVueIntl() {
   /**
    * Use the vue-intl plugin.
@@ -262,12 +241,11 @@ async function _setUpVueIntl() {
   i18nReady.value = true;
 }
 
-/**
- * Initialize the i18n system: set up fonts, polyfills, and vue-intl.
- * @param {boolean} skipPolyfill - When true, skip loading the Intl polyfill.
- * @returns {Promise<void>} Resolves when i18n is fully initialized.
- */
 export async function i18nSetup(skipPolyfill = false) {
+  /**
+   * Load fonts, app strings, and Intl polyfills
+   */
+
   // Set up typography
   setLanguageDensity(currentLanguage);
   setupAndLoadFonts();
@@ -290,12 +268,23 @@ export async function i18nSetup(skipPolyfill = false) {
 }
 
 /**
- * Locale-aware string comparison, with fallback for browsers that lack full support.
- * @param {string} str1 - The first string to compare.
- * @param {string} str2 - The second string to compare.
- * @param {string} [locale] - The BCP 47 locale tag to use for comparison.
- * @param {object} [options] - Additional Intl.Collator options.
- * @returns {number} Negative, zero, or positive as per localeCompare semantics.
+ * Locale-aware string comparison wrapper for proper internationalization.
+ *
+ * This wrapper exists primarily for iOS 9.3 compatibility, which does not
+ * fully support the locale and options parameters of String.prototype.localeCompare.
+ * All other supported browsers (Chrome 49+, Firefox 52+, Safari 11.1+, etc.)
+ * have full support.
+ * @param {string} str1 - First string to compare
+ * @param {string} str2 - Second string to compare
+ * @param {string} [locale] - BCP 47 locale code (defaults to currentLanguage)
+ * @param {object} [options] - Comparison options
+ * @param {string} [options.usage] - 'sort' for sorting, 'search' for case-insensitive search
+ * @param {string} [options.sensitivity] - 'base', 'accent', 'case', or 'variant'
+ * @param {boolean} [options.ignorePunctuation] - Whether to ignore punctuation
+ * @param {string} [options.numeric] - Whether numeric collation should be used
+ * @param {string} [options.caseFirst] - Whether upper or lower case should sort first
+ * @returns {number} -1 if str1 < str2, 0 if equal, 1 if str1 > str2
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
  */
 export function localeCompare(str1, str2, locale, options) {
   const compareLocale = locale || currentLanguage;
@@ -309,11 +298,7 @@ export function localeCompare(str1, str2, locale, options) {
   }
 }
 
-/**
- * Format an array of values as a locale-aware list string.
- * @param {string[]} array - The items to format as a list.
- * @returns {string} A locale-formatted list string.
- */
+// Wrapper to Intl.ListFormat
 export function formatList(array) {
   if (Intl.ListFormat) {
     const formatter = new Intl.ListFormat(currentLanguage, { style: 'short', type: 'unit' });
@@ -324,10 +309,14 @@ export function formatList(array) {
 }
 
 /**
- * Sort languages alphabetically, placing the current language first.
- * @param {object[]} availableLanguages - Array of language objects with an id property.
- * @param {string} currentLanguageId - The ID of the language to place first.
- * @returns {object[]} Sorted array of language objects.
+ * Sorts an Array of language objects by their `lang_name` property.
+ * If currentLanguageId is truthy and is a language code that exists in
+ * an element of availableLanguages, that element is always sorted first.
+ * @param {Array} availableLanguages - Array of language objects
+ * @param {(string | null | undefined)} currentLanguageId - Lang code for currently
+ *  selected language
+ * @returns {Array} Array of sorted language objects with the
+ *  currently selected language object first, if one exists.
  */
 export function sortLanguages(availableLanguages, currentLanguageId) {
   const currentLanguageElem = availableLanguages.find(language => {
@@ -348,9 +337,9 @@ export function sortLanguages(availableLanguages, currentLanguageId) {
 /**
  * Compares two language objects by their lang_name property using locale-aware comparison.
  * Used for sorting language lists in the language switcher.
- * @param {object} a - First language object with lang_name property.
- * @param {object} b - Second language object with lang_name property.
- * @returns {number} -1 if a < b, 0 if equal, 1 if a > b.
+ * @param {object} a - First language object with lang_name property
+ * @param {object} b - Second language object with lang_name property
+ * @returns {number} -1 if a < b, 0 if equal, 1 if a > b
  */
 export function compareLanguages(a, b) {
   return localeCompare(a.lang_name, b.lang_name);

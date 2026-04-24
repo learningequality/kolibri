@@ -54,11 +54,6 @@ const LEARNERS = {
   bob: { id: 'learner-b', name: 'Bob', username: 'bob' },
 };
 
-/**
- * Creates a Vuex test store with a classSummary module pre-populated with given learners.
- * @param {Array} learners - Array of learner objects to add to the learnerMap.
- * @returns {object} A configured Vuex store instance.
- */
 function setupTestStore(learners = Object.values(LEARNERS)) {
   const testStore = new Vuex.Store({
     state: {
@@ -207,10 +202,6 @@ function getLearnerSwitch(learnerId) {
   return getSwitch(`attendance-${learnerId}`);
 }
 
-/**
- * Gets the mark-all-present toggle switch input element.
- * @returns {Element|null} The mark-all switch input element.
- */
 function getMarkAllSwitch() {
   return getSwitch('mark-all-present');
 }
