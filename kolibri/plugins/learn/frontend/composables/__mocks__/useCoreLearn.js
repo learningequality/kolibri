@@ -8,7 +8,7 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useCoreLearnMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:.
+ * with  `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named

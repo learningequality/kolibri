@@ -235,7 +235,7 @@ export const wizardMachine = createMachine(
       },
       personalDataConsent: {
         /**
-         * NextEvent here is used to provide the Vue component what command it is expected to send
+         * The `nextEvent` property specifies the event the Vue component is expected to send
          * in this particular case.
          */
         meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },

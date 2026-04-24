@@ -344,7 +344,7 @@
         default: null,
       },
       /**
-       * Whether the current unit is already completed. I.e. We are seeing a
+       * Whether the current unit is already completed. I.e., we are seeing a
        * unit previous to the current unit in the unit tree.
        */
       isUnitComplete: {

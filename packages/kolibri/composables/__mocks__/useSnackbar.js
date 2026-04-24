@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `useSnackbarMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:.
+ * with  `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named

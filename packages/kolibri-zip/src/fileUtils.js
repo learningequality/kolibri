@@ -50,6 +50,10 @@ export class Mapper {
     throw new Error('Not implemented');
   }
 
+  /**
+   * Replace file references in the content with resolved URLs.
+   * @abstract
+   */
   replacePaths() {
     throw new Error('Not implemented');
   }

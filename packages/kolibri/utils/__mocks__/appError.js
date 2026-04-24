@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `appErrorMock` that accepts
  * an object with values to be overriden and use it together
- * with `jest.replaceProperty` or direct assignment as follows:.
+ * with `jest.replaceProperty` or direct assignment, as shown in the example below.
  *
  * ```
  * import { appErrorMock } from 'kolibri/utils/appError';

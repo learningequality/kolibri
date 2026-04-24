@@ -11,11 +11,11 @@ const ACTIVATE = Symbol('activate');
  * Each requestable slot uses a single provide/inject key. The pattern:
  * - Root component: stores child overrides in a map with depth metadata
  * - Nested component: forwards the override up to its parent via inject,
- * incrementing depth at each level
+ *   incrementing depth at each level
  * - Resolution: focused registration wins; otherwise deepest wins;
- * ties broken by insertion order (last wins)
+ *   ties broken by insertion order (last wins)
  * - Each caller is tracked by a unique identity so sibling unmounts
- * only remove their own registration.
+ *   only remove their own registration.
  * @param {string} injectionKey - The provide/inject key for this slot.
  * @param {object} slots       - The component's slots object (from setup context).
  * @param {string} slotKey     - The name of the slot to manage (e.g. 'sidePanel').

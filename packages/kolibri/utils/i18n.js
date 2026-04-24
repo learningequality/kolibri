@@ -293,8 +293,8 @@ export async function i18nSetup(skipPolyfill = false) {
  * Locale-aware string comparison, with fallback for browsers that lack full support.
  * @param {string} str1 - The first string to compare.
  * @param {string} str2 - The second string to compare.
- * @param {string} locale - The BCP 47 locale tag to use for comparison.
- * @param {object} options - Additional Intl.Collator options.
+ * @param {string} [locale] - The BCP 47 locale tag to use for comparison.
+ * @param {object} [options] - Additional Intl.Collator options.
  * @returns {number} Negative, zero, or positive as per localeCompare semantics.
  */
 export function localeCompare(str1, str2, locale, options) {
