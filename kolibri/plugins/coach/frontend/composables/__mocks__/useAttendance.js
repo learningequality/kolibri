@@ -26,10 +26,6 @@
 
 import { ref } from 'vue';
 
-/**
- * Creates default mock values for the useAttendance composable.
- * @returns {object} Default mock values with refs and jest functions.
- */
 function createDefaults() {
   return {
     attendanceLoading: ref(false),
@@ -52,11 +48,6 @@ function createDefaults() {
   };
 }
 
-/**
- * Creates a mock implementation of the useAttendance composable with optional overrides.
- * @param {object} overrides - Properties to override on the default mock values.
- * @returns {object} Mock composable return value.
- */
 export function useAttendanceMock(overrides = {}) {
   return {
     ...createDefaults(),

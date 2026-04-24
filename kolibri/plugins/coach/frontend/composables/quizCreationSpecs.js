@@ -6,6 +6,17 @@
  * Note also that any file importing this should also have the JSDoc typedefs available to your IDE.
  */
 
+/**
+ * @typedef  {object}  QuizExercise    An object referencing an exercise or topic to be used
+ *                                     within the `QuizSection.resource_pool` property.
+ * @property {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
+ * @property {string}  title           The resource title
+ * @property {string}  parent          The ID of the parent contentnode
+ * @property {string}  content_id      The ID for the piece of content
+ * @property {boolean} is_leaf         Whether or not this is a leaf node (i.e. an exercise)
+ * @property {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
+ */
+
 export const QuizExercise = {
   id: {
     type: String,
@@ -45,6 +56,19 @@ export const QuizExercise = {
 function _exercise_id_validator(value) {
   return /^[0-9a-f]{32}$/.test(value);
 }
+
+/**
+ * @typedef  {object} QuizQuestion         A particular question in a Quiz - aka an assessment item
+ *                                         from a QuizExercise.
+ * @property {string} item                 A unique identifier for this question that is
+ *                                         a combination of <exercise_id>:<question_id>
+ * @property {string} exercise_id          The ID of the resource from which the question originates
+ * @property {string} question_id          A unique identifier of this particular question within
+ *                                         the quiz -- same as the `assessment_item_id`
+ * @property {string} title                A title for the question, editable by the user
+ * @property {number} counter_in_exercise  A number assigned to separate questions which have the
+ *                                         same exercise title to differentiate them
+ */
 
 export const QuizQuestion = {
   item: {
@@ -121,10 +145,6 @@ export const QuizSection = {
   },
 };
 
-/**
- * Returns a random integer between 0 and 999 for use as a quiz seed.
- * @returns {number} A random integer.
- */
 function getRandomInt() {
   return Math.floor(Math.random() * 1000);
 }

@@ -6,12 +6,14 @@ import { PageNames } from '../constants';
 import useCoreCoach from './useCoreCoach';
 
 /**
- * Composable providing attendance form state and actions.
- * @param {object} root0 - Options object.
- * @param {object} root0.hasChanges - Ref indicating whether form has unsaved changes.
- * @param {Function} root0.markClean - Function to mark the form as clean (no unsaved changes).
- * @param {object} root0.submitting - Ref indicating whether the form is being submitted.
- * @param {Function} root0.onChange - Callback invoked when attendance values change.
+ * Shared attendance form logic used by both AttendanceNewPage and AttendanceEditPage.
+ * @param {object} options - Options object.
+ * @param {import('vue').Ref<boolean>|import('vue').ComputedRef<boolean>} options.hasChanges
+ *   Reactive flag indicating whether the form has unsaved changes.
+ * @param {Function} options.markClean - Called when the user confirms leaving without saving.
+ * @param {import('vue').Ref<boolean>} options.submitting
+ *   Reactive flag for whether a submit/save is in progress.
+ * @param {Function} [options.onChange] - Optional callback fired when the attendance map changes.
  * @returns {object} Attendance form state and methods.
  */
 export default function useAttendanceForm({ hasChanges, markClean, submitting, onChange }) {

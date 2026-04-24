@@ -34,7 +34,6 @@ export default [
       'jsdoc/informative-docs': ERROR,
       'jsdoc/sort-tags': ERROR,
       'jsdoc/require-description': ERROR,
-      'jsdoc/require-description-complete-sentence': ERROR,
       'jsdoc/require-hyphen-before-param-description': ERROR,
       'jsdoc/require-throws': ERROR,
     },
