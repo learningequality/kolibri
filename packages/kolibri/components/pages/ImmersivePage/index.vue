@@ -137,3 +137,14 @@
   };
 
 </script>
+
+
+<style>
+
+  @media print {
+    .main-wrapper {
+      display: block !important;
+    }
+  }
+
+</style>
