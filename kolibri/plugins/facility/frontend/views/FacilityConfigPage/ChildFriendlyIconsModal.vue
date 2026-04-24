@@ -10,7 +10,7 @@
     <div class="icon-grids">
       <div class="icon-grid-column">
         <p class="icon-grid-label">
-          {{ childFriendlyIcons$() }}
+          {{ childFriendlyIconsColumnLabel$() }}
         </p>
         <div class="icon-grid">
           <div
@@ -29,7 +29,7 @@
       </div>
       <div class="icon-grid-column">
         <p class="icon-grid-label">
-          {{ standardIcons$() }}
+          {{ standardIconsColumnLabel$() }}
         </p>
         <div class="icon-grid">
           <div
@@ -64,8 +64,8 @@
       const {
         childFriendlyIconsInfoTitle$,
         childFriendlyIconsInfoDescription$,
-        childFriendlyIcons$,
-        standardIcons$,
+        childFriendlyIconsColumnLabel$,
+        standardIconsColumnLabel$,
       } = picturePasswordStrings;
 
       const allIcons = Object.values(PICTURE_PASSWORD_SET);
@@ -80,8 +80,8 @@
         getIconLabel,
         childFriendlyIconsInfoTitle$,
         childFriendlyIconsInfoDescription$,
-        childFriendlyIcons$,
-        standardIcons$,
+        childFriendlyIconsColumnLabel$,
+        standardIconsColumnLabel$,
       };
     },
   };

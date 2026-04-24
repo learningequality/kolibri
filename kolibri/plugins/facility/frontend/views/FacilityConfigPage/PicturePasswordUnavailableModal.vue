@@ -6,8 +6,12 @@
     @submit="$emit('close')"
     @cancel="$emit('close')"
   >
-    <p v-if="learnerLimit !== null">
-      {{ picturePasswordUnavailableBody$({ learnerLimit: $formatNumber(learnerLimit) }) }}
+    <p>
+      {{
+        picturePasswordUnavailableBody$({
+          learnerLimit: $formatNumber(LEARNER_PICTURE_PASSWORD_LIMIT),
+        })
+      }}
     </p>
     <p>
       {{
@@ -27,22 +31,10 @@
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
+  const LEARNER_PICTURE_PASSWORD_LIMIT = 1300;
+
   export default {
     name: 'PicturePasswordUnavailableModal',
-    props: {
-      facilityName: {
-        type: String,
-        required: true,
-      },
-      learnerCount: {
-        type: Number,
-        required: true,
-      },
-      learnerLimit: {
-        type: Number,
-        default: null,
-      },
-    },
     setup() {
       const {
         picturePasswordUnavailableTitle$,
@@ -52,10 +44,21 @@
 
       return {
         coreString,
+        LEARNER_PICTURE_PASSWORD_LIMIT,
         picturePasswordUnavailableTitle$,
         picturePasswordUnavailableBody$,
         picturePasswordUnavailableLearnerCount$,
       };
+    },
+    props: {
+      facilityName: {
+        type: String,
+        required: true,
+      },
+      learnerCount: {
+        type: Number,
+        required: true,
+      },
     },
   };
 

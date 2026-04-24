@@ -200,14 +200,20 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Accessible label for the information icon button next to the picture password sign-in option.',
   },
-  picturePasswordInfoTitle: {
-    message: 'About picture passwords',
-    context: 'Title of the modal that explains how picture password sign-in works.',
+  picturePasswordInfoIntro: {
+    message: 'Picture password is designed for early-literacy learners.',
+    context: 'Opening sentence in the picture password info modal.',
   },
   picturePasswordInfoBody: {
     message:
-      'Learners sign in by selecting a unique sequence of 3 pictures. They can also sign in with their username as an alternative.',
+      'Learners sign in by selecting a 3-picture sequence unique to their account. Each sequence is auto-generated and assigned by Kolibri and cannot be changed. This feature is only available in facilities with fewer than 1,300 learners.',
     context: 'Main content in the information modal about the picture password sign-in method.',
+  },
+  picturePasswordInfoNote: {
+    message:
+      'Learners who join the facility after the 1,300 user limit can sign in with a username.',
+    context:
+      'Note shown in the picture password info modal about learners added after the limit is reached.',
   },
 
   // Info modal for child-friendly icons radio option
@@ -217,33 +223,39 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
       'Accessible label for the information icon button next to the child-friendly icons option.',
   },
   childFriendlyIconsInfoTitle: {
-    message: 'Icon styles',
+    message: 'Child-friendly icons',
     context: 'Title for the modal showing available picture password icon styles.',
   },
   childFriendlyIconsInfoDescription: {
-    message: 'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
+    message:
+      'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
     context: 'Description shown in the icon styles information modal.',
+  },
+  childFriendlyIconsColumnLabel: {
+    message: 'Child-friendly',
+    context: 'Column header for the child-friendly icons column in the icon styles modal.',
+  },
+  standardIconsColumnLabel: {
+    message: 'Standard',
+    context: 'Column header for the standard icons column in the icon styles modal.',
   },
 
   // Exhausted state — inline explanation and info modal
-  picturePasswordUnavailableInfoLabel: {
-    message: 'Why picture password is unavailable',
-    context:
-      'Accessible label for the information icon button next to the picture password unavailability explanation.',
-  },
   picturePasswordUnavailableExplanation: {
     message: 'Picture password is unavailable for this facility.',
     context:
       'Short explanation shown below the disabled picture password option when the learner limit is reached.',
   },
   picturePasswordUnavailableTitle: {
-    message: 'Picture password not available',
+    message: 'Setting not available',
     context:
       'Title for the modal explaining why picture password is unavailable when the learner limit is reached.',
   },
   picturePasswordUnavailableBody: {
-    message: 'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
-    context: 'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
+    message:
+      'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
+    context:
+      'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
   },
   picturePasswordUnavailableLearnerCount: {
     message: 'Current number of learners in {facilityName}: {learnerCount}',

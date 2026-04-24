@@ -114,43 +114,47 @@
               />
 
               <template v-if="isPictureLoginFeatureEnabled">
-                <KRadioButton
-                  v-model="signInOption"
-                  :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
-                  :description="picturePasswordDescription$()"
-                  :disabled="picturePasswordDisabled"
-                  :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
-                  @click.native="onPicturePasswordClick"
+                <div
+                  @click="picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)"
                 >
-                  {{ picturePassword$() }}
-                  <KIconButton
-                    icon="info"
-                    size="mini"
-                    :color="$themeTokens.primary"
-                    :ariaLabel="picturePasswordInfoLabel$()"
-                    @click.stop="showPicturePasswordInfoModal = true"
-                  />
-                </KRadioButton>
+                  <KRadioButton
+                    v-model="signInOption"
+                    :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
+                    :description="picturePasswordDescription$()"
+                    :disabled="picturePasswordDisabled"
+                    :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
+                  >
+                    {{ picturePassword$() }}
+                    <KIconButton
+                      icon="info"
+                      size="mini"
+                      :color="$themeTokens.primary"
+                      :ariaLabel="picturePasswordInfoLabel$()"
+                      @click.stop="showPicturePasswordInfoModal = true"
+                    />
+                  </KRadioButton>
+                </div>
                 <div
                   v-if="picturePasswordDisabled"
-                  class="nested-settings exhausted-explanation"
+                  class="exhausted-explanation nested-settings"
                 >
-                  <KIcon icon="warning" :style="{ fill: $themePalette.yellow.v_600 }" />
+                  <KIcon
+                    icon="warning"
+                    :style="{ fill: $themePalette.yellow.v_600 }"
+                  />
                   <span>{{ picturePasswordUnavailableExplanation$() }}</span>
                   <KIconButton
                     icon="info"
                     size="mini"
                     :color="$themeTokens.primary"
-                    :ariaLabel="picturePasswordUnavailableInfoLabel$()"
+                    :ariaLabel="picturePasswordUnavailableExplanation$()"
                     @click="showPicturePasswordUnavailableModal = true"
                   />
                 </div>
               </template>
               <KRadioButtonGroup
                 v-if="
-                  isPictureLoginFeatureEnabled &&
-                    signInOption === OptionsForSignIn.PICTURE_PASSWORD &&
-                    !picturePasswordDisabled
+                  isPictureLoginFeatureEnabled && signInOption === OptionsForSignIn.PICTURE_PASSWORD
                 "
                 class="nested-settings picture-password-settings"
                 :aria-label="iconStyle$()"
@@ -158,6 +162,7 @@
                 <KRadioButton
                   v-model="picturePasswordStyle"
                   :buttonValue="PicturePasswordIconStyle.COLORFUL"
+                  :disabled="picturePasswordDisabled"
                   data-testid="child_friendly_icons"
                 >
                   {{ childFriendlyIcons$() }}
@@ -173,6 +178,7 @@
                   v-model="picturePasswordStyle"
                   :label="standardIcons$()"
                   :buttonValue="PicturePasswordIconStyle.STANDARD"
+                  :disabled="picturePasswordDisabled"
                   data-testid="standard_icons"
                 />
                 <hr
@@ -182,6 +188,7 @@
                 <KCheckbox
                   v-model="picturePasswordShowIconText"
                   :label="showIconNames$()"
+                  :disabled="picturePasswordDisabled"
                   data-testid="show_icon_text"
                 />
               </KRadioButtonGroup>
@@ -290,7 +297,6 @@
         v-if="showPicturePasswordUnavailableModal"
         :facilityName="facilityName"
         :learnerCount="facilityLearnerCount"
-        :learnerLimit="facilityLearnerLimit"
         @close="showPicturePasswordUnavailableModal = false"
       />
     </KPageContainer>
@@ -509,7 +515,6 @@
         showIconNames$,
         iconStyle$,
         picturePasswordUnavailableExplanation$,
-        picturePasswordUnavailableInfoLabel$,
       } = picturePasswordStrings;
       const { pinPlaceholder$ } = pinAuthenticationModalStrings;
       const { changeLocation$ } = deviceSettingsPageStrings;
@@ -525,11 +530,8 @@
       const showPicturePasswordUnavailableModal = ref(false);
 
       // computed
-      const facilityLearnerCount = computed(() => facility.value?.learner_count ?? 0);
-      const facilityLearnerLimit = computed(() => facility.value?.learner_limit ?? null);
-      const picturePasswordDisabled = computed(
-        () => !!facility.value?.picture_passwords_exhausted,
-      );
+      const facilityLearnerCount = computed(() => facility.value?.num_learners ?? 0);
+      const picturePasswordDisabled = computed(() => !!facility.value?.picture_passwords_exhausted);
 
       const deviceSettingsUrl = computed(() => {
         const getUrl = urls['kolibri:kolibri.plugins.device:device_management'];
@@ -616,13 +618,6 @@
         }
       }
 
-      // Uses @click.native so it fires on KRadioButton's root div even when disabled.
-      function onPicturePasswordClick() {
-        if (picturePasswordDisabled.value) {
-          showPicturePasswordUnavailableModal.value = true;
-        }
-      }
-
       function handleCreatePin() {
         createPinShow.value = true;
       }
@@ -701,10 +696,8 @@
         pictureLoginTaskLoading,
         picturePasswordDisabled,
         facilityLearnerCount,
-        facilityLearnerLimit,
 
         // Functions
-        onPicturePasswordClick,
         submitFacilityName,
         saveConfig,
         handleCreatePinSubmit,
@@ -738,7 +731,6 @@
         showIconNames$,
         iconStyle$,
         picturePasswordUnavailableExplanation$,
-        picturePasswordUnavailableInfoLabel$,
       };
     },
     computed: {

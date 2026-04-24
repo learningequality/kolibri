@@ -16,7 +16,6 @@ const {
   childFriendlyIconsInfoLabel$,
   childFriendlyIconsInfoTitle$,
   picturePasswordUnavailableExplanation$,
-  picturePasswordUnavailableInfoLabel$,
   picturePasswordUnavailableTitle$,
 } = picturePasswordStrings;
 
@@ -343,9 +342,7 @@ describe('facility config page view', () => {
   describe('child-friendly icons info modal', () => {
     it('opens when clicking the info icon next to the child-friendly icons option', async () => {
       renderPage({ mockFacilityConfig: { signInOption: OptionsForSignIn.PICTURE_PASSWORD } });
-      await userEvent.click(
-        screen.getByRole('button', { name: childFriendlyIconsInfoLabel$() }),
-      );
+      await userEvent.click(screen.getByRole('button', { name: childFriendlyIconsInfoLabel$() }));
       expect(screen.getByText(childFriendlyIconsInfoTitle$())).toBeInTheDocument();
     });
   });
@@ -356,8 +353,7 @@ describe('facility config page view', () => {
         mockFacilityConfig: {
           facility: ref({
             picture_passwords_exhausted: true,
-            learner_count: 1301,
-            learner_limit: 1300,
+            num_learners: 1301,
           }),
           ...extra,
         },
@@ -379,7 +375,7 @@ describe('facility config page view', () => {
     it('opens the unavailable modal when clicking the info icon in the explanation', async () => {
       renderExhausted();
       await userEvent.click(
-        screen.getByRole('button', { name: picturePasswordUnavailableInfoLabel$() }),
+        screen.getByRole('button', { name: picturePasswordUnavailableExplanation$() }),
       );
       expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
     });
