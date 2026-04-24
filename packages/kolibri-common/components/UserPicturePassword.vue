@@ -12,12 +12,12 @@
         :key="`${icon.label}-${index}`"
         :class="$computedClass({ color: $themeTokens.annotation })"
       >
-        <figure>
+        <figure :data-testid="`picture-password-icon-${icon.iconName}`">
           <KIcon
-            class="icon"
             :icon="icon.iconName"
+            :style="iconStyles"
           />
-          <figcaption>
+          <figcaption :class="{ visuallyhidden: !effectiveShowIconText }">
             {{ icon.label }}
           </figcaption>
         </figure>
@@ -48,6 +48,17 @@
         ),
       );
 
+      const iconStyles = computed(() => ({
+        width: props.iconSize,
+        height: props.iconSize,
+      }));
+
+      const effectiveShowIconText = computed(() =>
+        props.showIconText !== null
+          ? props.showIconText
+          : (facilityConfig.value.picture_password_settings?.show_icon_text ?? false),
+      );
+
       const ariaLabel = computed(() => {
         const labels = picturePasswordIcons.value.map(icon => icon.label).join(', ');
         const count = picturePasswordIcons.value.length;
@@ -58,6 +69,8 @@
 
       return {
         picturePasswordIcons,
+        iconStyles,
+        effectiveShowIconText,
         ariaLabel,
       };
     },
