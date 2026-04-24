@@ -308,7 +308,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         enabling = not currently_enabled and new_pps is not None
 
         if enabling:
-            if are_picture_passwords_exhausted(dataset.id):
+            if get_learner_count(dataset.id) >= LEARNER_PICTURE_PASSWORD_LIMIT:
                 return Response(
                     {"detail": "Picture passwords exhausted for this facility."},
                     status=status.HTTP_400_BAD_REQUEST,

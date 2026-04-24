@@ -2563,7 +2563,7 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         mock_storage.get_job.return_value = mock_enqueued_job
 
     @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch("kolibri.core.auth.api.are_picture_passwords_exhausted", return_value=True)
+    @patch("kolibri.core.auth.api.get_learner_count", return_value=LEARNER_PICTURE_PASSWORD_LIMIT)
     def test_enable_rejected_when_exhausted(self, mock_exhausted, mock_task):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.patch(
