@@ -219,4 +219,14 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Accessible description of the picture password sequence list, explaining its structure to screen reader users. The number 3 is a fixed design constant (picture passwords are always 3 icons long).',
   },
+  picturePasswordForLearner: {
+    message: 'Password for {learnerName} is a list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a learner's picture password when the learner name is known. For example: 'Password for Alice is a list of 3 pictures: moon, water, bird'.",
+  },
+  picturePasswordList: {
+    message: 'A list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a picture password when no learner name is available. For example: 'A list of 3 pictures: moon, water, bird'.",
+  },
 });

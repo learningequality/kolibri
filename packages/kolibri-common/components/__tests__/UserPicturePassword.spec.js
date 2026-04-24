@@ -5,13 +5,8 @@ import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import UserPicturePassword from '../UserPicturePassword.vue';
 
-const {
-  moon$,
-  water$,
-  bird$,
-  picturePasswordSequenceDescription$,
-  picturePasswordSequenceForLearner$,
-} = picturePasswordStrings;
+const { moon$, water$, bird$, picturePasswordForLearner$, picturePasswordList$ } =
+  picturePasswordStrings;
 
 const LEARNER_NAME = 'Alice';
 const PICTURE_PASSWORD = '3.7.12';
@@ -51,33 +46,28 @@ describe('UserPicturePassword', () => {
     jest.clearAllMocks();
   });
 
-  it('does not set an aria-label by default (callers provide context-specific labels)', () => {
-    render(UserPicturePassword, {
-      props: { picturePassword: PICTURE_PASSWORD },
+  describe('aria-label', () => {
+    it('uses the list sentence when no learnerName is provided', () => {
+      render(UserPicturePassword, {
+        props: { picturePassword: PICTURE_PASSWORD },
+      });
+
+      const labels = [moon$(), water$(), bird$()].join(', ');
+      expect(screen.getByText(picturePasswordList$({ count: 3, labels }))).toBeInTheDocument();
     });
 
-    const list = screen.getByRole('list');
-    expect(list).not.toHaveAttribute('aria-label');
-  });
+    it('uses the learner sentence when learnerName is provided', () => {
+      render(UserPicturePassword, {
+        props: { picturePassword: PICTURE_PASSWORD, learnerName: LEARNER_NAME },
+      });
 
-  it('applies an aria-label when the ariaLabel prop is provided', () => {
-    const ariaLabel = picturePasswordSequenceForLearner$({ learnerName: LEARNER_NAME });
-    render(UserPicturePassword, {
-      props: { picturePassword: PICTURE_PASSWORD, ariaLabel },
+      const labels = [moon$(), water$(), bird$()].join(', ');
+      expect(
+        screen.getByText(
+          picturePasswordForLearner$({ learnerName: LEARNER_NAME, count: 3, labels }),
+        ),
+      ).toBeInTheDocument();
     });
-
-    expect(screen.getByRole('list', { name: ariaLabel })).toBeInTheDocument();
-  });
-
-  it('sets a static aria-description describing the sequence structure', () => {
-    render(UserPicturePassword, {
-      props: { picturePassword: PICTURE_PASSWORD },
-    });
-
-    expect(screen.getByRole('list')).toHaveAttribute(
-      'aria-description',
-      picturePasswordSequenceDescription$(),
-    );
   });
 
   it('renders expected captions for picturePassword 3.7.12', () => {

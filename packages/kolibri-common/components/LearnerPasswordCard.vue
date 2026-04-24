@@ -28,7 +28,7 @@
           v-else
           :picturePassword="learner.picture_password"
           :showSequenceNumbers="showSequenceNumbers"
-          :ariaLabel="ariaLabel"
+          :learnerName="learnerName"
         />
       </template>
       <NoPasswordInfo
@@ -77,7 +77,7 @@
         type: Boolean,
         default: false,
       },
-      ariaLabel: {
+      learnerName: {
         type: String,
         default: null,
       },

@@ -59,7 +59,7 @@
             <UserPicturePassword
               v-if="content.picture_password"
               :picturePassword="content.picture_password"
-              :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: content.full_name })"
+              :learnerName="content.full_name"
               :style="{ marginLeft: '-6px' }"
             />
             <NoPasswordInfo v-else />
@@ -85,7 +85,7 @@
           :cardStyle="printListCardStyle"
           :printFormat="printFormat"
           :showSequenceNumbers="true"
-          :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: learner.full_name })"
+          :learnerName="learner.full_name"
         />
       </section>
     </KPageContainer>
@@ -123,7 +123,7 @@
           :cardStyle="cardStyle"
           :printFormat="printFormat"
           :showSequenceNumbers="true"
-          :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: previewLearner.full_name })"
+          :learnerName="previewLearner.full_name"
         />
       </section>
     </KModal>
@@ -179,7 +179,6 @@
         printWithTextOnly$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
-        picturePasswordSequenceForLearner$,
       } = picturePasswordStrings;
 
       const previewLearner = computed(() => {
@@ -253,7 +252,6 @@
         printWithTextOnly$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
-        picturePasswordSequenceForLearner$,
         kolibriLabel$,
       };
     },

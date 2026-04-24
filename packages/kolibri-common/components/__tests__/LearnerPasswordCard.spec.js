@@ -76,15 +76,15 @@ describe('LearnerPasswordCard', () => {
     });
 
     it('does not render the icon image sequence', () => {
-      renderCard({ printFormat: 'text' });
-      expect(screen.queryByRole('list')).not.toBeInTheDocument();
+      const { container } = renderCard({ printFormat: 'text' });
+      expect(container.querySelector('.picture-password-wrapper')).not.toBeInTheDocument();
     });
   });
 
   describe('when printFormat is "images" (default)', () => {
     it('renders the UserPicturePassword icon sequence', () => {
-      renderCard();
-      expect(screen.getByRole('list')).toBeInTheDocument();
+      const { container } = renderCard();
+      expect(container.querySelector('.picture-password-wrapper')).toBeInTheDocument();
     });
 
     it('does not render the text sequence', () => {

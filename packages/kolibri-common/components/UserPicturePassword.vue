@@ -1,27 +1,29 @@
 <template>
 
-  <ol
-    class="picture-password-icons"
-    :class="{ 'show-sequence-numbers': showSequenceNumbers }"
-    :aria-label="ariaLabel"
-    :aria-description="picturePasswordSequenceDescription$()"
-  >
-    <li
-      v-for="(icon, index) in picturePasswordIcons"
-      :key="`${icon.label}-${index}`"
-      :class="$computedClass({ color: $themeTokens.annotation })"
+  <div class="picture-password-wrapper">
+    <span class="visuallyhidden">{{ ariaLabel }}</span>
+    <ol
+      class="picture-password-icons"
+      :class="{ 'show-sequence-numbers': showSequenceNumbers }"
+      aria-hidden="true"
     >
-      <figure :data-testid="`picture-password-icon-${icon.iconName}`">
-        <KIcon
-          :icon="icon.iconName"
-          :style="iconStyles"
-        />
-        <figcaption :class="{ visuallyhidden: !effectiveShowIconText }">
-          {{ icon.label }}
-        </figcaption>
-      </figure>
-    </li>
-  </ol>
+      <li
+        v-for="(icon, index) in picturePasswordIcons"
+        :key="`${icon.label}-${index}`"
+        :class="$computedClass({ color: $themeTokens.annotation })"
+      >
+        <figure>
+          <KIcon
+            class="icon"
+            :icon="icon.iconName"
+          />
+          <figcaption>
+            {{ icon.label }}
+          </figcaption>
+        </figure>
+      </li>
+    </ol>
+  </div>
 
 </template>
 
@@ -37,7 +39,7 @@
     name: 'UserPicturePassword',
     setup(props) {
       const { facilityConfig } = useFacility();
-      const { picturePasswordSequenceDescription$ } = picturePasswordStrings;
+      const { picturePasswordForLearner$, picturePasswordList$ } = picturePasswordStrings;
 
       const picturePasswordIcons = computed(() =>
         getPicturePasswordIcons(
@@ -46,22 +48,17 @@
         ),
       );
 
-      const iconStyles = computed(() => ({
-        width: props.iconSize,
-        height: props.iconSize,
-      }));
-
-      const effectiveShowIconText = computed(() =>
-        props.showIconText !== null
-          ? props.showIconText
-          : (facilityConfig.value.picture_password_settings?.show_icon_text ?? false),
-      );
+      const ariaLabel = computed(() => {
+        const labels = picturePasswordIcons.value.map(icon => icon.label).join(', ');
+        const count = picturePasswordIcons.value.length;
+        return props.learnerName
+          ? picturePasswordForLearner$({ learnerName: props.learnerName, count, labels })
+          : picturePasswordList$({ count, labels });
+      });
 
       return {
         picturePasswordIcons,
-        iconStyles,
-        effectiveShowIconText,
-        picturePasswordSequenceDescription$,
+        ariaLabel,
       };
     },
     props: {
@@ -88,11 +85,7 @@
         type: Boolean,
         default: false,
       },
-      // Optional accessible name for the list. Callers that render this in a
-      // context where multiple picture passwords appear together (e.g. the All
-      // Passwords page) should pass a label that identifies whose sequence it
-      // is. Omit when a surrounding semantic heading already provides context.
-      ariaLabel: {
+      learnerName: {
         type: String,
         default: null,
       },
@@ -103,6 +96,10 @@
 
 
 <style lang="scss" scoped>
+
+  .picture-password-wrapper {
+    position: relative;
+  }
 
   .picture-password-icons {
     display: flex;
