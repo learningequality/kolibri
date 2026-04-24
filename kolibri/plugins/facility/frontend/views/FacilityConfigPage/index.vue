@@ -129,7 +129,7 @@
                       icon="info"
                       size="mini"
                       :color="$themeTokens.primary"
-                      :ariaLabel="picturePasswordInfoLabel$()"
+                      :ariaLabel="picturePassword$()"
                       @click.stop="showPicturePasswordInfoModal = true"
                     />
                   </KRadioButton>
@@ -508,7 +508,6 @@
         enterUsernameOnly$,
         picturePassword$,
         picturePasswordDescription$,
-        picturePasswordInfoLabel$,
         childFriendlyIcons$,
         childFriendlyIconsInfoLabel$,
         standardIcons$,
@@ -724,7 +723,6 @@
         enterUsernameOnly$,
         picturePassword$,
         picturePasswordDescription$,
-        picturePasswordInfoLabel$,
         childFriendlyIcons$,
         childFriendlyIconsInfoLabel$,
         standardIcons$,
