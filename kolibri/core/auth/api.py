@@ -88,7 +88,7 @@ from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
-from kolibri.core.auth.constants.picture_passwords import LEARNER_PICTURE_PASSWORD_LIMIT
+from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
@@ -308,7 +308,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         enabling = not currently_enabled and new_pps is not None
 
         if enabling:
-            if get_learner_count(dataset.id) >= LEARNER_PICTURE_PASSWORD_LIMIT:
+            if are_picture_passwords_exhausted(dataset.id):
                 return Response(
                     {"detail": "Picture passwords exhausted for this facility."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -925,12 +925,12 @@ def _map_dataset(facility):
     return dataset
 
 
-def _facility_learner_count(facility):
+def _facility_num_learners(facility):
     return get_learner_count(facility["dataset__id"])
 
 
 def _picture_passwords_exhausted(facility):
-    return _facility_learner_count(facility) >= LEARNER_PICTURE_PASSWORD_LIMIT
+    return are_picture_passwords_exhausted(facility["dataset__id"])
 
 
 class FacilityViewSet(ValuesViewset):
@@ -954,12 +954,8 @@ class FacilityViewSet(ValuesViewset):
     field_map = OrderedDict(
         [
             # must precede _map_dataset since it depends on the dataset ID
-            ("learner_count", _facility_learner_count),
-            # kept as a convenience field: the frontend has learner_count and
-            # learner_limit and could compute this itself, but exposing the flag
-            # directly avoids duplicating the comparison logic in every client.
+            ("num_learners", _facility_num_learners),
             ("picture_passwords_exhausted", _picture_passwords_exhausted),
-            ("learner_limit", lambda x: LEARNER_PICTURE_PASSWORD_LIMIT),
             ("dataset", _map_dataset),
         ]
     )
