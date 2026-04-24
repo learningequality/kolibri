@@ -6,9 +6,11 @@
         {{ classLabel$() }}
       </h2>
       <KRadioButton
-        v-model="isClassSelected"
+        :currentValue="isClassSelected"
         :buttonValue="SELECT_CLASS_OPTION"
         :disabled="disabled"
+        @change="selectEntireClass"
+        @keydown.space.prevent="selectEntireClass"
       >
         <KLabeledIcon
           :label="entireClassLabel$()"
@@ -103,25 +105,20 @@
         },
       });
 
-      const isClassSelected = computed({
-        get: () => {
-          if (!props.showSelectClassOption) {
-            return '';
-          }
-          if (workingSelectedGroupIds.value.find(group => group === props.classId)) {
-            return SELECT_CLASS_OPTION;
-          }
+      const isClassSelected = computed(() => {
+        if (!props.showSelectClassOption) {
           return '';
-        },
-        set: value => {
-          if (value === SELECT_CLASS_OPTION) {
-            workingSelectedGroupIds.value = [props.classId];
-            workingAdHocLearners.value = [];
-          } else {
-            workingSelectedGroupIds.value = [];
-          }
-        },
+        }
+        if (workingSelectedGroupIds.value.find(group => group === props.classId)) {
+          return SELECT_CLASS_OPTION;
+        }
+        return '';
       });
+
+      const selectEntireClass = () => {
+        workingSelectedGroupIds.value = [props.classId];
+        workingAdHocLearners.value = [];
+      };
 
       const groups = computed(() => {
         if (props.groups) {
@@ -190,6 +187,7 @@
         areAllUngroupedLearnersSelected,
 
         selectAllUngroupedLearners,
+        selectEntireClass,
 
         classLabel$,
         groupsLabel$,

@@ -27,6 +27,7 @@
         :loadingMore="loadingMore"
         :selectedResources="selectedResources"
         :getTopicLink="getCourseLink"
+        :cardsHeadingLevel="2"
         @setSelectedResources="setSelectedResourcesHandler"
       />
     </template>

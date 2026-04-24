@@ -4,7 +4,6 @@
     <UiIcon
       class="k-filter-icon"
       :style="{ color: $themeTokens.annotation }"
-      :ariaLabel="coreString('filter')"
     >
       <KIcon icon="search" />
     </UiIcon>

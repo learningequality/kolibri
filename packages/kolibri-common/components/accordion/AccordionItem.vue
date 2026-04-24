@@ -12,6 +12,7 @@
     <h3 class="header-wrapper">
       <button
         class="header"
+        :class="$computedClass({ ':focus': $coreOutline })"
         :style="headerAppearanceOverrides"
         :aria-expanded="isExpanded"
         :aria-controls="contentId"
@@ -148,6 +149,11 @@
 
   .accordion-item {
     border-bottom: 1px solid;
+
+    &:focus-within {
+      position: relative;
+      z-index: 1;
+    }
 
     &.disabled {
       pointer-events: none;
