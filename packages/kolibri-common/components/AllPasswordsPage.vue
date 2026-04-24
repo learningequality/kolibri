@@ -42,9 +42,8 @@
         :caption="allPasswordsHeader$()"
         :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
+        :defaultSort="{ columnId: 'full_name', direction: 'asc' }"
         sortable
-        disableBuiltinSorting
-        @changeSort="handleSortChange"
       >
         <template #header="{ header }">
           <span>
@@ -53,19 +52,7 @@
         </template>
         <template #cell="{ content, colIndex }">
           <span
-            v-if="colIndex === 0"
-            dir="auto"
-            :style="{ color: $themeTokens.text }"
-          >{{ content.full_name }}</span>
-
-          <span
-            v-else-if="colIndex === 1"
-            dir="auto"
-            :style="{ color: $themeTokens.annotation }"
-          >{{ content.username }}</span>
-
-          <div
-            v-else
+            v-if="colIndex === 2"
             dir="ltr"
           >
             <!-- Offsets icon's internal left padding to align with cell edge -->
@@ -76,7 +63,8 @@
               :style="{ marginLeft: '-6px' }"
             />
             <NoPasswordInfo v-else />
-          </div>
+          </span>
+          <span v-else>{{ content }}</span>
         </template>
       </KTable>
 
@@ -87,11 +75,11 @@
       >
         <!-- Print-only header with facility and class name -->
         <div class="print-header">
-          <h4 class="print-facility-class">{{ currentFacilityName }} - {{ className }}</h4>
+          <h4 class="print-facility-class">{{ pageTitle }}</h4>
         </div>
 
         <LearnerPasswordCard
-          v-for="learner in sortedLearners"
+          v-for="learner in printLearners"
           :key="learner.id"
           :learner="learner"
           :cardStyle="printListCardStyle"
@@ -162,16 +150,7 @@
   export default {
     name: 'AllPasswordsPage',
     metaInfo() {
-      return {
-        title: [
-          this.allPasswordsHeader$(),
-          this.className,
-          this.currentFacilityName,
-          this.kolibriLabel$(),
-        ]
-          .filter(Boolean)
-          .join(' - '),
-      };
+      return { title: this.pageTitle };
     },
     components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
@@ -211,9 +190,6 @@
         return Boolean(previewLearner.value);
       });
 
-      const sortKey = ref(0);
-      const sortOrder = ref(null);
-
       const tableHeaders = computed(() => [
         { label: nameLabel$(), dataType: 'string', columnId: 'full_name', width: '45%' },
         { label: usernameLabel$(), dataType: 'string', columnId: 'username', width: '45%' },
@@ -225,20 +201,9 @@
         },
       ]);
 
-      const sortedLearners = computed(() => {
-        const header = tableHeaders.value[sortKey.value];
-        const column = header && header.dataType !== 'undefined' ? header.columnId : 'full_name';
-        return orderBy(learners.value, [column], [sortOrder.value || 'asc']);
-      });
+      const printLearners = computed(() => orderBy(learners.value, ['full_name'], ['asc']));
 
-      const tableRows = computed(() =>
-        sortedLearners.value.map(learner => [learner, learner, learner]),
-      );
-
-      function handleSortChange({ sortKey: key, sortOrder: order }) {
-        sortKey.value = key;
-        sortOrder.value = order;
-      }
+      const tableRows = computed(() => learners.value.map(l => [l.full_name, l.username, l]));
 
       onMounted(() => {
         Promise.all([
@@ -276,8 +241,7 @@
         hasPicturePasswords,
         tableHeaders,
         tableRows,
-        sortedLearners,
-        handleSortChange,
+        printLearners,
         openPrintDialog,
         closePrintDialog,
         cancelAction$,
@@ -304,6 +268,16 @@
       },
     },
     computed: {
+      pageTitle() {
+        return [
+          this.allPasswordsHeader$(),
+          this.className,
+          this.currentFacilityName,
+          this.kolibriLabel$(),
+        ]
+          .filter(Boolean)
+          .join(' - ');
+      },
       cardStyle() {
         return {
           backgroundColor: this.$themePalette.grey.v_100,
