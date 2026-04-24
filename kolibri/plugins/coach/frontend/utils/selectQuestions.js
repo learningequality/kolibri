@@ -8,11 +8,6 @@ const logging = logger.getLogger(__filename);
 
 const getTotalOfQuestions = sumBy(qArray => qArray.length);
 
-/**
- * Converts an exercise object to an array of question objects.
- * @param {object} exercise - The exercise content node with id and assessmentmetadata.
- * @returns {Array} Question objects with exercise_id, question_id, item, and counter_in_exercise.
- */
 export function exerciseToQuestionArray(exercise) {
   return exercise.assessmentmetadata.assessment_item_ids.map((question_id, i) => {
     return {
@@ -29,12 +24,6 @@ export function exerciseToQuestionArray(exercise) {
   });
 }
 
-/**
- * Builds a map of exercise IDs to their question arrays, excluding specified questions.
- * @param {Array} exercises - Array of exercise content node objects.
- * @param {Array} excludedQuestionIds - Array of question item IDs to exclude from the map.
- * @returns {object} Map of exercise ID to array of question objects.
- */
 function getExerciseQuestionsMap(exercises, excludedQuestionIds = []) {
   const excludedQuestionIdMap = {};
   for (const uId of excludedQuestionIds) {

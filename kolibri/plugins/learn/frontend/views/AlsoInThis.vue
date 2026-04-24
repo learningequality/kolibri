@@ -155,8 +155,8 @@
     },
     props: {
       /**
-       * The contentNode objects to be displayed.
-       * Each contentNode must include the following keys: id, title, duration, progress, is_leaf.
+       * contentNodes - The contentNode objects to be displayed. Each
+       * contentNode must include the following keys id, title, duration, progress, is_leaf.
        */
       contentNodes: {
         type: Array,

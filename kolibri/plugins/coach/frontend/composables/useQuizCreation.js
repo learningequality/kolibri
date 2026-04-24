@@ -11,15 +11,11 @@ import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import selectQuestions, { exerciseToQuestionArray } from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
-// objectSpecs expects every property to be available -- but we don't want to have to make an
-// object with every property just to validate it. So we use these functions to validate subsets
-// of the properties.
+// Validators
+/* objectSpecs expects every property to be available -- but we don't want to have to make an
+ * object with every property just to validate it. So we use these functions to validate subsets
+ * of the properties. */
 
-/**
- * Validates a quiz object against the Quiz specification.
- * @param {object} quiz - The quiz object to validate.
- * @returns {boolean} True if the quiz is valid, false otherwise.
- */
 function validateQuiz(quiz) {
   return validateObject(quiz, Quiz);
 }
@@ -64,11 +60,6 @@ export default function useQuizCreation() {
    */
   const _questionItemsToReplace = ref(null);
 
-  /**
-   * Sets the question item IDs to be replaced in the next save operation.
-   * @param {Array} item - Array of question item IDs to replace.
-   * @returns {void}
-   */
   function setQuestionItemsToReplace(item) {
     set(_questionItemsToReplace, item);
   }

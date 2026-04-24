@@ -48,11 +48,6 @@ export const QuizExercise = {
   },
 };
 
-/**
- * Validates that a value is a 32-character hexadecimal exercise ID.
- * @param {string} value - The value to validate.
- * @returns {boolean} True if valid, false otherwise.
- */
 function _exercise_id_validator(value) {
   return /^[0-9a-f]{32}$/.test(value);
 }

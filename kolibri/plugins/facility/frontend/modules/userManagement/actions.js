@@ -41,14 +41,6 @@ export function createFacilityUser(store, payload) {
   });
 }
 
-/**
- * Updates a facility user's details and/or role.
- * @param {object} store - The Vuex store instance.
- * @param {object} root0 - Payload object.
- * @param {string} root0.userId - The ID of the user to update.
- * @param {object} root0.updates - Object containing facilityUserUpdates and optional roleUpdates.
- * @returns {Promise<void>} Resolves when the user has been updated.
- */
 export function updateFacilityUserDetails(store, { userId, updates }) {
   const { facilityUserUpdates, roleUpdates } = updates;
   if (isEmpty(facilityUserUpdates) && !roleUpdates) {
@@ -63,25 +55,10 @@ export function updateFacilityUserDetails(store, { userId, updates }) {
   );
 }
 
-/**
- * Updates the password for a facility user.
- * @param {object} store - The Vuex store instance.
- * @param {object} root0 - Payload object.
- * @param {string} root0.userId - The ID of the user to update.
- * @param {string} root0.password - The new password to set.
- * @returns {Promise<object>} Resolves with the updated user model.
- */
 export function updateFacilityUserPassword(store, { userId, password }) {
   return FacilityUserResource.saveModel({ id: userId, data: { password } });
 }
 
-/**
- * Deletes a facility user by ID.
- * @param {object} store - The Vuex store instance.
- * @param {object} root0 - Payload object.
- * @param {string} root0.userId - The ID of the user to delete.
- * @returns {Promise<void>} Resolves when the user has been deleted.
- */
 export function deleteFacilityUser(store, { userId }) {
   return FacilityUserResource.deleteModel({ id: userId });
 }

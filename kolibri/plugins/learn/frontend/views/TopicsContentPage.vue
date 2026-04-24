@@ -254,12 +254,6 @@
       const moreResourcesContentAvailable = ref(null);
       const moreResourcesContentLoading = ref(false);
 
-      /**
-       * Load topic content from the API and update component state if still on the same page.
-       * @param {Function} shouldResolve - Guard function that returns false if navigation occurred.
-       * @param {string} baseurl - Base URL for the content request.
-       * @returns {Promise<void>} Resolves when content has been loaded.
-       */
       function _loadTopicsContent(shouldResolve, baseurl) {
         const id = props.id;
         return Promise.all([
@@ -287,10 +281,6 @@
         );
       }
 
-      /**
-       * Load content for the topics content page and update component state.
-       * @returns {void}
-       */
       function showTopicsContent() {
         const deviceId = props.deviceId;
         set(loading, true);
@@ -324,10 +314,6 @@
         });
       }
 
-      /**
-       * Fetch the next page of resources content and append it to the current list.
-       * @returns {Promise<object[]>} Resolves with the updated resources content array.
-       */
       function loadMoreResourcesContent() {
         const more = moreResourcesContentAvailable.value;
         if (!more) {

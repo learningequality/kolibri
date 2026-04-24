@@ -12,7 +12,7 @@
  * to programatically re-focus after components are mounted again.
  * However, for that we need to be able to estimate when navigation
  * occured as a result of user interaction with tabs because in other
- * cases focus shouldn't be manipulated (such as when visiting a page for
+ * cases focus shouldn't be manipulated (e.g. when visiting a page for
  * the first time before clicking on tabs) .
  *
  * Usage: When tabs are clicked, save that interaction by calling `saveTabsClick`.
@@ -41,16 +41,11 @@ const lastTabsInteraction = reactive({
   timestamp: '',
 });
 
-/**
- * Composable for tracking tabs interaction state.
- * @returns {object} Methods for saving and checking tabs click events.
- */
 export function useCoachTabs() {
   /**
-   * Records a tabs interaction event with a timestamp.
-   * @param {string} tabsInterfaceId - ID of the tabbed interface that was interacted with.
-   * @param {string} event - The type of interaction event (e.g. 'click').
-   * @returns {void}
+   * Stores an interaction with tabs
+   * @param {string} tabsInterfaceId - ID of a tabbed interface interacted with
+   * @param {string} event - An event kind. Available kinds: 'click'
    */
   function saveTabsInteraction(tabsInterfaceId, event) {
     lastTabsInteraction.tabsInterfaceId = tabsInterfaceId;
@@ -59,17 +54,18 @@ export function useCoachTabs() {
   }
 
   /**
-   * Stores a click interaction with tabs.
-   * @param {string} tabsInterfaceId - ID of a tabbed interface interacted with.
+   * Stores a click interaction with tabs
+   * @param {string} tabsInterfaceId - ID of a tabbed interface interacted with
    */
   function saveTabsClick(tabsInterfaceId) {
     saveTabsInteraction(tabsInterfaceId, TabsEvents.CLICK);
   }
 
   /**
-   * Returns whether the given tabs interface was clicked recently.
-   * @param {string} tabsInterfaceId - ID of the tabbed interface to check.
-   * @returns {boolean} True if the tabs were clicked within the recent interaction limit.
+   * Returns whether the given tabs interface was clicked recently
+   * @param {string} tabsInterfaceId - ID of a tabbed interface
+   * @returns {boolean} `true` when tabs with the provided ID were
+   *                    clicked recently
    */
   function wereTabsClickedRecently(tabsInterfaceId) {
     if (lastTabsInteraction.tabsInterfaceId !== tabsInterfaceId) {

@@ -196,7 +196,7 @@
         return questions.value[currentQuestionIndex.value];
       });
 
-      /** Finds the section which the current attempt belongs to and expands it. */
+      /** Finds the section which the current attempt belongs to and expands it */
       function expandCurrentSectionIfNeeded() {
         if (!isExpanded(currentSectionIndex.value)) {
           expand(currentSectionIndex.value);

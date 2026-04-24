@@ -19,9 +19,11 @@ const {
 const { defaultErrorMessage$ } = coreStrings;
 
 /**
- * Composable providing course session state and actions for the coach view.
- * @param {object} courseSessionId - A ref containing the course session ID.
- * @returns {object} Course session state and action methods.
+ * A composable for managing course session state.
+ * Handles fetching course session data, course content, active tests, and test history.
+ * Provides derived state for units and unit phase.
+ * @param {object} courseSessionId - A ref containing the course session ID
+ * @returns {object} Reactive state and methods for managing the course session
  */
 export default function useCourseSession(courseSessionId) {
   const { createSnackbar } = useSnackbar();
@@ -52,10 +54,6 @@ export default function useCourseSession(courseSessionId) {
   // -----------
   // Data fetching
   // -----------
-  /**
-   * Fetches the course session, course content, and last unit test from the server.
-   * @returns {void}
-   */
   function fetchCourseSession() {
     pageLoading.value = true;
     contentMissing.value = false;
@@ -178,8 +176,8 @@ export default function useCourseSession(courseSessionId) {
 
   /**
    * Activates a test for the current active unit.
-   * @param {string} testType - Either 'pre' or 'post'.
-   * @returns {Promise} Resolves when the test is activated.
+   * @param {string} testType - Either 'pre' or 'post'
+   * @returns {Promise} Resolves when the test is activated
    */
   function activateTest(testType) {
     dataLoading.value = true;
@@ -209,7 +207,7 @@ export default function useCourseSession(courseSessionId) {
   /**
    * Closes the currently active test.
    * Moves the closed test to history and clears activeTest.
-   * @returns {Promise} Resolves when the test is closed.
+   * @returns {Promise} Resolves when the test is closed
    */
   function closeTest() {
     dataLoading.value = true;
@@ -243,7 +241,7 @@ export default function useCourseSession(courseSessionId) {
   /**
    * Toggles the active state of the course session.
    * Updates the courseSession ref with the new state on success.
-   * @returns {Promise} Resolves with the updated course session.
+   * @returns {Promise} Resolves with the updated course session
    */
   function toggleCourseActive() {
     return CourseSessionResource.saveModel({

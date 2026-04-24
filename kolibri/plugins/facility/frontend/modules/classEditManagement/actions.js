@@ -3,14 +3,6 @@ import MembershipResource from 'kolibri-common/apiResources/MembershipResource';
 import RoleResource from 'kolibri-common/apiResources/RoleResource';
 import { handleApiError } from 'kolibri/utils/appError';
 
-/**
- * Removes a learner from a class by deleting their membership.
- * @param {object} store - The Vuex store instance.
- * @param {object} root0 - Payload object.
- * @param {string} root0.classId - The ID of the class to remove the learner from.
- * @param {string} root0.userId - The ID of the learner to remove.
- * @returns {Promise<void>|void} Resolves when the learner has been removed.
- */
 export function removeClassLearner(store, { classId, userId }) {
   if (!classId || !userId) {
     // if no id passed, abort the function
@@ -31,14 +23,6 @@ export function removeClassLearner(store, { classId, userId }) {
   );
 }
 
-/**
- * Removes a coach from a class by deleting their role.
- * @param {object} store - The Vuex store instance.
- * @param {object} root0 - Payload object.
- * @param {string} root0.classId - The ID of the class to remove the coach from.
- * @param {string} root0.userId - The ID of the coach to remove.
- * @returns {Promise<void>|void} Resolves when the coach has been removed.
- */
 export function removeClassCoach(store, { classId, userId }) {
   // TODO class id should be accessible from state.
   if (!classId || !userId) {

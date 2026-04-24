@@ -10,7 +10,7 @@ const _loadingMore = ref(false);
 /**
  * @typedef {object} QuizResourcesConfig
  * @property { computed <string|null|undefined> } topicId - The id of the root node to fetch the
- * children for.
+ * children for
  */
 
 /**
@@ -42,15 +42,20 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     params,
   });
 
+  /**
+   * @type {ref<Array>} All resources which have been fetched that are the children of
+   * the given topicId annotated with assessment metadata
+   */
   const _resources = ref([]);
 
   /** @type {ref<boolean>} Whether we are currently fetching/processing the child nodes */
   const _loading = ref(false);
 
   /**
-   * Annotates topic nodes in the results array with the count of descendant assessments.
-   * @param {Array} results - Array of content node objects to annotate.
-   * @returns {Promise<Array>} Resolves with annotated nodes, excluding topics with no assessments.
+   * Annotates the child TOPIC nodes with the number of assessments that are contained within them
+   * @param {Array} results - The array of results from a content API call
+   * @returns {Promise<Array>} - A promise that resolves when the annotations have been
+   *   made and returns the annotated results
    */
   async function annotateTopicsWithDescendantCounts(results) {
     const topicIds = results
@@ -126,11 +131,6 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     });
   }
 
-  /**
-   * Replaces the current resources list with a new list.
-   * @param {Array} r - The new array of resource objects.
-   * @returns {void}
-   */
   function setResources(r) {
     set(_resources, r);
   }

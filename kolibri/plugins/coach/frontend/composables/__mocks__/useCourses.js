@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `useCoursesMock` that accepts
  * an object with values to be overridden and use it together
- * with `mockImplementation`, as shown in the example below.
+ * with `mockImplementation` as follows:
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -41,11 +41,6 @@ const MOCK_DEFAULTS = {
   refreshClassCourses: jest.fn().mockResolvedValue([]),
 };
 
-/**
- * Creates a mock implementation of the useCourses composable with optional overrides.
- * @param {object} overrides - Properties to override on the default mock values.
- * @returns {object} Mock composable return value.
- */
 export function useCoursesMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,
