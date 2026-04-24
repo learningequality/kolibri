@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="picturePasswordInfoLabel$()"
+    :title="picturePasswordInfoTitle$()"
     :submitText="coreString('closeAction')"
     @submit="$emit('close')"
     @cancel="$emit('close')"
@@ -20,11 +20,13 @@
   export default {
     name: 'PicturePasswordInfoModal',
     setup() {
-      const { picturePasswordInfoLabel$, picturePasswordInfoBody$ } = picturePasswordStrings;
+      const { picturePasswordInfoLabel$, picturePasswordInfoTitle$, picturePasswordInfoBody$ } =
+        picturePasswordStrings;
 
       return {
         coreString,
         picturePasswordInfoLabel$,
+        picturePasswordInfoTitle$,
         picturePasswordInfoBody$,
       };
     },

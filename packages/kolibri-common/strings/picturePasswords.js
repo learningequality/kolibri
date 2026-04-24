@@ -200,6 +200,10 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Accessible label for the information icon button next to the picture password sign-in option.',
   },
+  picturePasswordInfoTitle: {
+    message: 'About picture passwords',
+    context: 'Title of the modal that explains how picture password sign-in works.',
+  },
   picturePasswordInfoBody: {
     message:
       'Learners sign in by selecting a unique sequence of 3 pictures. They can also sign in with their username as an alternative.',
