@@ -31,7 +31,10 @@
           :ariaLabel="ariaLabel"
         />
       </template>
-      <NoPasswordInfo v-else />
+      <NoPasswordInfo
+        v-else
+        :style="{ paddingLeft: '8px' }"
+      />
     </div>
   </div>
 

@@ -38,7 +38,6 @@
     justify-content: center;
     width: 165px;
     min-height: 64px;
-    padding-left: 8px;
   }
 
   .no-password-title {

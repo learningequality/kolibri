@@ -47,7 +47,7 @@
         @changeSort="handleSortChange"
       >
         <template #header="{ header }">
-          <span :class="{ visuallyhidden: header.columnId === 'picture_password' }">
+          <span>
             {{ header.label }}
           </span>
         </template>
@@ -68,10 +68,12 @@
             v-else
             dir="ltr"
           >
+            <!-- Offsets icon's internal left padding to align with cell edge -->
             <UserPicturePassword
               v-if="content.picture_password"
               :picturePassword="content.picture_password"
               :ariaLabel="picturePasswordSequenceForLearner$({ learnerName: content.full_name })"
+              :style="{ marginLeft: '-6px' }"
             />
             <NoPasswordInfo v-else />
           </div>
