@@ -209,6 +209,40 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
                 else 0,
             )
 
+    def _get_detail_response(self):
+        self.client.login(
+            username=self.facility_admin.username, password=DUMMY_PASSWORD
+        )
+        return self.client.get(
+            reverse(self.detail_name, kwargs={"pk": self.classroom.id})
+        )
+
+    def test_picture_password_settings_is_null_when_not_configured(self):
+        response = self._get_detail_response()
+        self.assertIsNone(response.data["picture_password_settings"])
+
+    def test_picture_password_settings_returned_when_configured(self):
+        settings = {"icon_style": "colorful", "show_icon_text": True}
+        dataset = self.facility.dataset
+        # picture_password_settings requires learner_can_edit_password=False
+        dataset.learner_can_edit_password = False
+        dataset.picture_password_settings = settings
+        dataset.save()
+        try:
+            response = self._get_detail_response()
+            self.assertEqual(response.data["picture_password_settings"], settings)
+        finally:
+            # Reset settings to avoid affecting other tests, given that the facility
+            # is desfined globally across tests.
+            dataset.learner_can_edit_password = True
+            dataset.picture_password_settings = None
+            dataset.save()
+
+    def test_learner_data_includes_picture_password(self):
+        response = self._get_detail_response()
+        learner_data = response.data["learners"]
+        self.assertTrue(all("picture_password" in learner for learner in learner_data))
+
     def test_completed_exercise_with_help_notification_shows_completed(self):
         """Regression test for #14515: progress=1.0 should override help status."""
         learner = self.users[0]

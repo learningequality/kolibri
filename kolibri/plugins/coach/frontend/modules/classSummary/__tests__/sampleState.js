@@ -1,6 +1,7 @@
 export default {
   id: '4707894249cbe44b7fd142bdb87fe90e',
   name: 'HackSesh1',
+  picture_password_settings: null,
   coachMap: {
     '01aabb508501c28a98b8cf7268260913': {
       id: '01aabb508501c28a98b8cf7268260913',
@@ -18,86 +19,103 @@ export default {
       id: 'dbfffe45c6728ce9fea834f5c22a56bf',
       name: 'A',
       username: 'AHacks',
+      picture_password: null,
     },
     '6ec2cae486c0e4c261f613679493eebc': {
       id: '6ec2cae486c0e4c261f613679493eebc',
       name: 'B',
       username: 'BHacks',
+      picture_password: null,
     },
     edd265c283d730c293f30210316756bf: {
       id: 'edd265c283d730c293f30210316756bf',
       name: 'C',
       username: 'CHacks',
+      picture_password: null,
     },
     '4b1c478c5b1abaa02795022fcd1cce64': {
       id: '4b1c478c5b1abaa02795022fcd1cce64',
       name: 'D',
       username: 'DHacks',
+      picture_password: null,
     },
     '497adae79fe6ae7ce5d4e8e334d3e1d6': {
       id: '497adae79fe6ae7ce5d4e8e334d3e1d6',
       name: 'E',
       username: 'EHacks',
+      picture_password: null,
     },
     '1a91e06a08b0f0c8e2244b06e971afa2': {
       id: '1a91e06a08b0f0c8e2244b06e971afa2',
       name: 'F',
       username: 'FHacks',
+      picture_password: null,
     },
     '46f8737c3c4a389be236ac91f6e9e90c': {
       id: '46f8737c3c4a389be236ac91f6e9e90c',
       name: 'G',
       username: 'GHacks',
+      picture_password: null,
     },
     '08398c7a922e6544e48ccc48a32c78fa': {
       id: '08398c7a922e6544e48ccc48a32c78fa',
       name: 'H',
       username: 'HHacks',
+      picture_password: null,
     },
     '21a4e212cf7d3390960bfbe9ec5340a4': {
       id: '21a4e212cf7d3390960bfbe9ec5340a4',
       name: 'I',
       username: 'IHacks',
+      picture_password: null,
     },
     e5fbe1b7df091ccf71985b412ff93f7e: {
       id: 'e5fbe1b7df091ccf71985b412ff93f7e',
       name: 'J',
       username: 'JHacks',
+      picture_password: null,
     },
     '905a13b28ce7e33a46dcdc94f9d7ac46': {
       id: '905a13b28ce7e33a46dcdc94f9d7ac46',
       name: 'K',
       username: 'KHacks',
+      picture_password: null,
     },
     '95f77340b4c1ad299934bc7752cb37c8': {
       id: '95f77340b4c1ad299934bc7752cb37c8',
       name: 'L',
       username: 'LHacks',
+      picture_password: null,
     },
     '3e996995ce5555c4e62f69e2374a62a7': {
       id: '3e996995ce5555c4e62f69e2374a62a7',
       name: 'M',
       username: 'MHacks',
+      picture_password: null,
     },
     '8c92ba7f6fb88a11bce6427cad2fc921': {
       id: '8c92ba7f6fb88a11bce6427cad2fc921',
       name: 'N',
       username: 'NHacks',
+      picture_password: null,
     },
     db6a72b70250db5ed2d69955eece98bd: {
       id: 'db6a72b70250db5ed2d69955eece98bd',
       name: 'O',
       username: 'OHacks',
+      picture_password: null,
     },
     '3464d9eb39989076f59a22f6fbcd3260': {
       id: '3464d9eb39989076f59a22f6fbcd3260',
       name: 'P',
       username: 'PHacks',
+      picture_password: null,
     },
     '9a0caacac19f290bfdd175298772660c': {
       id: '9a0caacac19f290bfdd175298772660c',
       name: 'Q',
       username: 'QHacks',
+      picture_password: null,
     },
   },
   groupMap: {

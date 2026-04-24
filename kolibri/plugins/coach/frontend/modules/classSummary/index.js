@@ -92,6 +92,11 @@ function defaultState() {
      * }
      */
     lessonMap: {},
+    /*
+     * picture_password_settings := { icon_style: 'standard' | 'colorful', show_icon_text: boolean }
+     * null when picture password login is not enabled for the facility
+     */
+    picture_password_settings: null,
   };
 }
 
@@ -373,6 +378,7 @@ export default {
       Object.assign(state, {
         id: summary.id,
         facility_id: summary.facility_id,
+        picture_password_settings: summary.picture_password_settings,
         name: summary.name,
         coachMap: _itemMap(summary.coaches, 'id'),
         learnerMap: _itemMap(summary.learners, 'id'),

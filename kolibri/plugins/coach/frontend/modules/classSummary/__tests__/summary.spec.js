@@ -9,6 +9,43 @@ describe('coach summary module', () => {
 
     expect(store.state).toEqual(expectedState);
   });
+  describe('SET_STATE: picture_password_settings', () => {
+    it('maps null picture_password_settings from the API response', () => {
+      const state = store.state;
+      store.mutations.SET_STATE(state, {
+        ...sampleServerResponse,
+        picture_password_settings: null,
+      });
+      expect(state.picture_password_settings).toBeNull();
+    });
+
+    it('maps a non-null picture_password_settings from the API response', () => {
+      const settings = { icon_style: 'colorful', show_icon_text: true };
+      const state = store.state;
+      store.mutations.SET_STATE(state, {
+        ...sampleServerResponse,
+        picture_password_settings: settings,
+      });
+      expect(state.picture_password_settings).toEqual(settings);
+    });
+  });
+
+  describe('SET_STATE: learner picture_password', () => {
+    it('includes picture_password in learnerMap entries', () => {
+      const state = store.state;
+      const [firstLearner, secondLearner] = sampleServerResponse.learners;
+      store.mutations.SET_STATE(state, {
+        ...sampleServerResponse,
+        learners: [
+          { ...firstLearner, picture_password: '3.7.12' },
+          { ...secondLearner, picture_password: null },
+        ],
+      });
+      expect(state.learnerMap[firstLearner.id].picture_password).toBe('3.7.12');
+      expect(state.learnerMap[secondLearner.id].picture_password).toBeNull();
+    });
+  });
+
   it('_itemMap behaves as expected', () => {
     const input = [
       {
