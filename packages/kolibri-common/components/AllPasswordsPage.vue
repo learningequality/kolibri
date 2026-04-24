@@ -161,6 +161,18 @@
 
   export default {
     name: 'AllPasswordsPage',
+    metaInfo() {
+      return {
+        title: [
+          this.allPasswordsHeader$(),
+          this.className,
+          this.currentFacilityName,
+          this.kolibriLabel$(),
+        ]
+          .filter(Boolean)
+          .join(' - '),
+      };
+    },
     components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
       const learners = ref([]);
@@ -172,8 +184,14 @@
       const { currentFacilityName } = useFacility();
       const { windowBreakpoint } = useKResponsiveWindow();
 
-      const { nameLabel$, usernameLabel$, passwordLabel$, cancelAction$, continueAction$ } =
-        coreStrings;
+      const {
+        nameLabel$,
+        usernameLabel$,
+        passwordLabel$,
+        cancelAction$,
+        continueAction$,
+        kolibriLabel$,
+      } = coreStrings;
       const {
         noLearnersInClass$,
         printAction$,
@@ -272,6 +290,7 @@
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
         picturePasswordSequenceForLearner$,
+        kolibriLabel$,
       };
     },
     props: {
