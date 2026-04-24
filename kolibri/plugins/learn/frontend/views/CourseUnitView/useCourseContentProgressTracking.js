@@ -207,7 +207,7 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
  *                                                                              content state.
  * @property {(interaction: object) => Promise<void>} handleUpdateInteraction Updates the
  *                                                                          interaction state.
- * @property {(data: any) => Promise<void>} updateContentSession Updates the content session.
+ * @property {(data: unknown) => Promise<void>} updateContentSession Updates the content session.
  * @property {(error: Error) => void} onError Handles errors by flagging the session as errored
  *                                            and dispatching to the store.
  * @returns {CourseContentProgressInjectObject} An object with properties and methods for managing

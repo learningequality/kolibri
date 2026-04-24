@@ -55,7 +55,7 @@ export function coercePoint(value) {
 
 /**
  * Validates if a value can be coerced to a QTI point.
- * @param {*} value - The value to validate.
+ * @param {unknown} value - The value to validate.
  * @returns {boolean} - True if valid point.
  */
 export function validatePoint(value) {
@@ -82,7 +82,7 @@ export function coercePair(value) {
 
 /**
  * Validates if a value can be coerced to a QTI pair.
- * @param {*} value - The value to validate.
+ * @param {unknown} value - The value to validate.
  * @returns {boolean} - True if valid pair.
  */
 export function validatePair(value) {
@@ -104,7 +104,7 @@ export function coerceDuration(value) {
 
 /**
  * Validates if a value can be coerced to a QTI duration.
- * @param {*} value - The value to validate.
+ * @param {unknown} value - The value to validate.
  * @returns {boolean} - True if valid duration.
  */
 export function validateDuration(value) {
@@ -118,7 +118,7 @@ export function validateDuration(value) {
 
 /**
  * Validates if a value is a valid QTI file (JavaScript File object).
- * @param {*} value - The value to validate.
+ * @param {unknown} value - The value to validate.
  * @returns {boolean} - True if valid File object.
  */
 export function validateFile(value) {

@@ -51,7 +51,7 @@ const validateOrientation = createEnumValidator(Orientation);
  * Creates a Vue prop configuration from a base prop object.
  * @param {object} baseProp - Base prop configuration (type, validator, etc.).
  * @param {boolean} required - Whether the prop is required (default: true).
- * @param {*} defaultValue - Default value (default: null when not required).
+ * @param {unknown} defaultValue - Default value (default: null when not required).
  * @returns {object} Vue prop configuration.
  */
 const createProp = (baseProp, required = true, defaultValue) => {

@@ -28,6 +28,7 @@ export default [
     rules: {
       ...jsdocRecommended.rules,
       'jsdoc/require-jsdoc': OFF,
+      'jsdoc/reject-function-type': OFF,
       'jsdoc/no-blank-blocks': ERROR,
       'jsdoc/no-blank-block-descriptions': ERROR,
       'jsdoc/informative-docs': ERROR,

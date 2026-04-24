@@ -90,7 +90,7 @@ module.exports = {
    * Return an array containing end locations of all comments containing
    * jsdoc's `@public`.
    * @param {object[]} comments - Array of comment nodes.
-   * @returns {number[]} Array of line numbers where @public comments end.
+   * @returns {number[]} Array of line numbers where `@public` comments end.
    */
   getPublicCommentsEnds(comments) {
     return comments

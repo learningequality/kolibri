@@ -111,7 +111,7 @@ export default function useFacilityEditor(facilityId) {
   /**
    * Updates a single facility dataset setting.
    * @param {string} name - The setting property name to update.
-   * @param {*} value - The new value for the setting.
+   * @param {unknown} value - The new value for the setting.
    * @returns {void}
    */
   function modifySetting(name, value) {
@@ -148,7 +148,7 @@ export default function useFacilityEditor(facilityId) {
   /**
    * Updates a single picture password setting property.
    * @param {string} name - The picture password setting property name.
-   * @param {*} value - The new value for the setting.
+   * @param {unknown} value - The new value for the setting.
    * @returns {void}
    */
   function modifyPicturePasswordSetting(name, value) {
