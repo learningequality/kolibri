@@ -366,9 +366,9 @@ describe('facility config page view', () => {
 
     it('disables the picture password radio button', () => {
       renderExhausted();
-      expect(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD)).toHaveClass(
-        'k-radio-button-disabled',
-      );
+      expect(
+        screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD).querySelector('input'),
+      ).toBeDisabled();
     });
 
     it('shows the picture password unavailable explanation text', () => {
