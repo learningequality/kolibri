@@ -246,6 +246,7 @@ describe('useFacility', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-1' },
+        force: true,
       });
     });
 
@@ -385,6 +386,7 @@ describe('useFacilityConfig', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-1' },
+        force: true,
       });
       expect(result).toEqual(mockFacilityConfig);
       expect(facilityConfig.value).toEqual(result);
@@ -399,6 +401,7 @@ describe('useFacilityConfig', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-2' },
+        force: true,
       });
     });
 

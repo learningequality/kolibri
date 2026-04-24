@@ -150,6 +150,7 @@ export function useFacilityConfig(facilityId) {
       getParams: {
         facility_id: facilityId,
       },
+      force: true,
     });
 
     let config = {};
