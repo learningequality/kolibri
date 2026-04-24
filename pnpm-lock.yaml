@@ -1195,6 +1195,9 @@ importers:
       enhanced-resolve:
         specifier: ^5.20.1
         version: 5.20.1
+      kolibri:
+        specifier: workspace:*
+        version: link:../kolibri
       kolibri-glob:
         specifier: workspace:*
         version: link:../kolibri-glob
