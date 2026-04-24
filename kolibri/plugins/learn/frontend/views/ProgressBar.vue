@@ -48,7 +48,7 @@
    * A progress bar that has three states:
    * - won't display when not started (progress = 0)
    * - blue bar when in progress (0 < progress < 1)
-   * - Completed icon with text when complete
+   * - Completed icon with text when complete.
    */
   export default {
     name: 'ProgressBar',

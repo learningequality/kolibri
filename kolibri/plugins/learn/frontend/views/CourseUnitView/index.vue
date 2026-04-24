@@ -415,10 +415,6 @@
         return true;
       };
 
-      /**
-       * Redirect to a valid position if the current unit is previous to the resume position unit
-       * or if resume position doesn't have where to resume within the unit
-       */
       const checkRedirectToUnitTree = () => {
         if (
           props.unitId === resumeData.value?.resume_position?.unit_id &&
@@ -521,10 +517,6 @@
         return false;
       };
 
-      /**
-       * If we need to redirect to resume_position, it is because the current route
-       * is invalid or is currently on the resume position.
-       */
       const shouldRedirectToResumePosition = () => {
         if (!props.unitId) {
           // no data, redirect

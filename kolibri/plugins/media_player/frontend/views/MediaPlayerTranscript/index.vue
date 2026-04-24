@@ -131,9 +131,6 @@
         // Add 10ms to cueTime to avoid triggering two cues if they overlap on end and start time
         this.player.currentTime(cueTime + 0.01);
       },
-      /**
-       * @param {String} place `beginning` or `end`
-       */
       handleGoTo(place) {
         if (!this.cues.length || !Object.keys(this.$refs).length) {
           return;
@@ -207,10 +204,6 @@
 
         this.$nextTick(this.scrollThrottle);
       },
-      /**
-       * @param {Function} callback
-       * @return {Function}
-       */
       cueReduce(callback) {
         return (reduced, cueId) => {
           const cue = this.getCue(cueId);

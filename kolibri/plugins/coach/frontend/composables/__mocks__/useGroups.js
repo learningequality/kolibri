@@ -8,7 +8,7 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useGroupsMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -36,6 +36,11 @@ const MOCK_DEFAULTS = {
   showGroupsPage: jest.fn(),
 };
 
+/**
+ * Creates a mock implementation of the useGroups composable with optional overrides.
+ * @param {object} overrides - Properties to override on the default mock values.
+ * @returns {object} Mock composable return value.
+ */
 export function useGroupsMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,

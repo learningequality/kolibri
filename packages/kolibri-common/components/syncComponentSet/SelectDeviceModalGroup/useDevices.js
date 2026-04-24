@@ -9,13 +9,6 @@ import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } f
 
 const logging = logger.getLogger(__filename);
 
-/**
- * @param {{}} apiParams
- * @return {{
- *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<bool>, isFetching: Ref<bool>,
- *  filterFailed: Ref<bool>, forceFetch: (function(): Promise<void>)
- * }}
- */
 export default function useDevices(apiParams = {}) {
   const devices = ref([]);
   const isFetching = ref(false);
@@ -57,17 +50,6 @@ export default function useDevices(apiParams = {}) {
   };
 }
 
-/**
- *
- * @param {{}} apiParams
- * @param {
- *  function(NetworkLocation): Promise<bool>|[function(NetworkLocation): Promise<bool>]
- * } filterFunctionOrFunctions
- * @return {{
- *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<bool>, isFetching: Ref<bool>,
- *  filterFailed: Ref<bool>, forceFetch: (function(): Promise<void>)
- * }}
- */
 export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
   const isFiltering = ref(false);
   const filteringFailed = ref(false);
@@ -143,13 +125,6 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
   };
 }
 
-/**
- * Produces a memoized function that returns a Promise resolving with a boolean for filtering
- * devices, and automatically clears memoized result if it fails, unless it is a 404
- *
- * @param {function(NetworkLocation): Promise<boolean>} filterFunction
- * @return {(function(NetworkLocation): Promise<boolean>)}
- */
 function useAsyncDeviceFilter(filterFunction) {
   const memoized = useMemoize(filterFunction, { getKey: device => device.id });
 
@@ -168,13 +143,6 @@ function useAsyncDeviceFilter(filterFunction) {
   };
 }
 
-/**
- * Produces a function that resolves with a boolean for a device that has the specified facility
- * @param {string|null} [id]
- * @param {bool|null} [learner_can_sign_up]
- * @param {bool|null} [on_my_own_setup]
- * @return {function(NetworkLocation): Promise<boolean>}
- */
 export function useDeviceFacilityFilter({
   id = null,
   learner_can_sign_up = null,
@@ -200,11 +168,6 @@ export function useDeviceFacilityFilter({
   });
 }
 
-/**
- * Produces a function that resolves with a boolean for a device that has the specified channel
- * @param {string|null} id
- * @return {function(NetworkLocation): Promise<boolean>}
- */
 export function useDeviceChannelFilter({ id = null }) {
   if (!id) {
     return () => Promise.resolve(true);
@@ -215,13 +178,6 @@ export function useDeviceChannelFilter({ id = null }) {
   });
 }
 
-/**
- * Produces a function that resolves with a boolean if Kolibri version is at least the specified
- * @param {number} major
- * @param {number} minor
- * @param {number} patch
- * @return {function(NetworkLocation): Promise<boolean>}
- */
 export function useDeviceMinimumVersionFilter(major, minor, patch) {
   const { isMinimumKolibriVersion } = useMinimumKolibriVersion(major, minor, patch);
 

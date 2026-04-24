@@ -521,13 +521,6 @@
         }
         this.$emit('updateContentState', contentState);
       },
-      /**
-       * Handle bookmark items click.
-       * Adaptation of the original functions from pdf.js:
-       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L237
-       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L176
-       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/base_viewer.js#L1175
-       */
       goToDestination(dest) {
         if (!this.pdfDocument) {
           return;
@@ -601,9 +594,6 @@
           },
         );
       },
-      /**
-       * Focus a given pdf page and return true if the page was already rendered
-       */
       focusPage(pageNumber, bookmark) {
         const page = document.querySelector('#pdf-page-' + pageNumber);
         if (page) {
@@ -626,11 +616,6 @@
         }
         return false;
       },
-      /**
-       * Get the page number from the explicit destination array.
-       * Adaptation of the original function from pdf.js:
-       * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L181
-       */
       getDestinationPageNumber(explicitDest) {
         return new Promise(resolve => {
           const destRef = explicitDest[0];

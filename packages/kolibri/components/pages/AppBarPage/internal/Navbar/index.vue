@@ -57,7 +57,7 @@
   import NavbarLink from './NavbarLink';
 
   /**
-   * Used for navigation between sub-pages of a top-level Kolibri section
+   * Used for navigation between sub-pages of a top-level Kolibri section.
    */
   export default {
     name: 'Navbar',
@@ -77,7 +77,7 @@
     },
     props: {
       /**
-       * An array of options objects, with one object per dropdown item
+       * An array of options objects, with one object per dropdown item.
        */
       navigationLinks: {
         type: Array,

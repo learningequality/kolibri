@@ -17,19 +17,39 @@ const REMOVE_NODE_ACTION = 'manageContent/wizard/removeNodeForTransfer';
 describe('contentTreeViewer actions', () => {
   let store;
 
+  /**
+   * Asserts that the included nodes list equals the expected array.
+   * @param {Array} expected - The expected array of included nodes.
+   * @returns {void}
+   */
   function assertIncludeEquals(expected) {
     // HACK add the hard-coded file sizes to the expected array
     expect(store.state.manageContent.wizard.nodesForTransfer.included).toEqual(expected);
   }
 
+  /**
+   * Asserts that the omitted nodes list equals the expected array.
+   * @param {Array} expected - The expected array of omitted nodes.
+   * @returns {void}
+   */
   function assertOmitEquals(expected) {
     expect(store.state.manageContent.wizard.nodesForTransfer.omitted).toEqual(expected);
   }
 
+  /**
+   * Sets the included nodes in the wizard transfer state.
+   * @param {Array} nodes - The nodes to set as included.
+   * @returns {void}
+   */
   function setIncludedNodes(nodes) {
     store.state.manageContent.wizard.nodesForTransfer.included = nodes;
   }
 
+  /**
+   * Sets the omitted nodes in the wizard transfer state.
+   * @param {Array} nodes - The nodes to set as omitted.
+   * @returns {void}
+   */
   function setOmittedNodes(nodes) {
     store.state.manageContent.wizard.nodesForTransfer.omitted = nodes;
   }
@@ -51,7 +71,7 @@ describe('contentTreeViewer actions', () => {
   /**
    * Notes:
    * `makeNode` gives each Node a resource and file count of 1 by default,
-   * with 0 file/resources on the device, so the asserted file sizes may be unrealistic
+   * with 0 file/resources on the device, so the asserted file sizes may be unrealistic.
    *
    */
   describe('addNodeForTransfer action', () => {
@@ -327,6 +347,11 @@ describe('updateTreeViewTopic action', () => {
     store = makeSelectContentPageStore();
   });
 
+  /**
+   * Asserts that the wizard path equals the expected array.
+   * @param {Array} expected - The expected path array of topic objects.
+   * @returns {void}
+   */
   function assertPathEquals(expected) {
     expect(store.state.manageContent.wizard.path).toEqual(expected.map(omit('path')));
   }

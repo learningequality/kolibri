@@ -1,6 +1,6 @@
 /**
  * Unit tests for QTI variable declarations
- * Tests the parsing and validation of QTI variable declarations
+ * Tests the parsing and validation of QTI variable declarations.
  */
 
 import { QTIVariable, areTypesCompatible, areDeclarationsCompatible } from '../declarations';

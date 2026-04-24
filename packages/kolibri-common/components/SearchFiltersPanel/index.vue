@@ -227,7 +227,7 @@
     },
     props: {
       /**
-       * When true, options are presented using accordions rather than buttons & dropdowns
+       * When true, options are presented using accordions rather than buttons & dropdowns.
        */
       accordion: {
         type: Boolean,
@@ -406,17 +406,13 @@
         this.setCategory(category);
         this.currentCategory = null;
       },
-      /**
-       * @public
-       * Focuses on correct first element for FocusTrap depending on content
-       * rendered in SearchFiltersPanel.
-       */
       focusFirstEl() {
         if (this.$refs.searchBox) {
           this.$refs.searchBox.focusSearchBox();
         }
       },
       /**
+       * Close the category search panel; called from search filter pages via $refs.
        * @public
        */
       closeCategorySearch() {

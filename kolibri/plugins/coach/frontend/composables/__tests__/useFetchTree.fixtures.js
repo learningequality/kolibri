@@ -3,7 +3,7 @@
  * resource selection workflow.
  *
  * For a convenient way to generate a response including "more" - use this channel token:
- * tigil-fajod
+ * tigil-fajod.
  *
  * Note that all fixtures here are referring that channel. The "without more" fixture is the first
  * page of results, which only includes a single topic, and therefore no "more" object.

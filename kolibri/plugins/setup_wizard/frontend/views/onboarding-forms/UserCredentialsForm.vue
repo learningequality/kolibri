@@ -140,13 +140,12 @@
         type: Boolean,
         default: false,
       },
-      /** Will use learner-focused labels if false -- the data flow is the same in any case **/
       adminUserLabels: {
         type: Boolean,
         default: true,
       },
       /**
-       * The user given which will prefill the data for fullName and username
+       * The user given which will prefill the data for fullName and username.
        */
       selectedUser: {
         type: Object,

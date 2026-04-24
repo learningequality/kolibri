@@ -3,19 +3,6 @@ import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 
-/**
- * Defaults to returning true if version is 0.15+
- *
- * If values are not provided for revisionVersion, then any values are allowed. This means that if
- * no value is provided for revisionVersion then alpha and beta versions will be permitted. Just
- * providing 0 as majorVersion and 15 as minorVersion would allow any version greater than or equal
- * to 0.15 (including any alphas or betas)
- *
- * @param majorVersion
- * @param minorVersion
- * @param revisionVersion
- * @return {{isMinimumKolibriVersion: (function(version: string): boolean)}}
- */
 export default function useMinimumKolibriVersion(
   majorVersion = 0,
   minorVersion = 15,

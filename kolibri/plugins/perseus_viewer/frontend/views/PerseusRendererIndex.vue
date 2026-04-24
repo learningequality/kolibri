@@ -76,23 +76,6 @@
 
   const blobImageRegex = /blob:[^)^"]+/g;
 
-  /**
-   * Global register of all Perseus files. This object is used to keep track of all Perseus files
-   * across multiple instances of the PerseusRenderer. This allows for reuse of the same file and
-   * prevents collisions between different instances where they might try to render the same image
-   * from the same file, but with different URLs. This also allows us to only monkey patch the Util
-   * functions once, as it gives us a global register and prevents duelling components from
-   * overriding each other.
-   *
-   * @type {
-   *  Object.<string, {zipFile: ZipFile, usageCounter: number, imageUrls: Object.<string, string>}>
-   * }
-   *
-   * @property {ZipFile} zipFile - A ZipFile object for the Perseus file.
-   * @property {number} usageCounter - The number of components using this object.
-   * @property {Object.<string, string>} imageUrls - A lookup object mapping from the image filename
-   * to the URL generated for that image for display.
-   */
   const globalPerseusFileRegistry = {};
 
   function setUpPerseusFile(defaultFile) {
@@ -600,9 +583,6 @@
           this.setCorrectAnswer();
         }
       },
-      /**
-       * @public
-       */
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
           const check = this.itemRenderer.scoreInput();
@@ -640,6 +620,7 @@
         }
       },
       /**
+       * Triggers the next available hint in the current exercise item.
        * @public
        */
       takeHint() {

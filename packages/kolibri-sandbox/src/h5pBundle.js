@@ -30,7 +30,7 @@ window.H5P.jQuery.fn.load = function (url) {
    * NOTE:
    * This is needed in order to support old libraries that uses the .load() function
    * for elements in the deprecated jQuery way (elem.load(fn)), the correct way to do this
-   * now is elem.on('load', fn)
+   * now is elem.on('load', fn).
    */
   if (typeof url === 'function') {
     logging.warn('You are using a deprecated H5P library. Please upgrade!');

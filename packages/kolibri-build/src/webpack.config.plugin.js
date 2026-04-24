@@ -21,21 +21,6 @@ const WebpackMessages = require('./webpackMessages');
 const MessageRegistrationPlugin = require('./webpackMessageRegistrationPlugin');
 const { createCssInsert } = require('./createCssInsert');
 
-/**
- * Turn an object containing the vital information for a frontend plugin and return a bundle
- * configuration for webpack.
- * @param {Object} data - An object that contains the data for configuring the bundle.
- * @param {string} data.config - Injected webpack configuration for this bundle.
- * @param {string} data.name - The name that the plugin is referred to by.
- * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
- * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data
- * @param {string} mode - The webpack mode to set for the configuration
- * @param {boolean} hot - Activate hot module reloading
- * @param {Number} port - port that the dev server is served on
- * @param {string} address - address that the dev server is served on
- * @param {boolean} setDevServerPublicPath - whether to set the public path for the dev server
- * @returns {Object} bundle - An object defining the webpack config.
- */
 module.exports = (
   data,
   {

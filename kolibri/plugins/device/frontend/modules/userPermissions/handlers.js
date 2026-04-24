@@ -8,11 +8,9 @@ import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 /**
- * Serially fetches Permissions, then FacilityUser. If returned Promise rejects,
- * it is from the request for FacilityUser.
- *
- * @param {string} userId
- * @returns Promise<{ permissions, user }, FacilityUserError>
+ * Fetch permissions and user data for the given user ID.
+ * @param {string} userId - The ID of the user to fetch permissions for.
+ * @returns {Promise<object>} Resolves with combined permissions and user data.
  */
 function fetchUserPermissions(userId) {
   const permissionsPromise = DevicePermissionsResource.fetchModel({ id: userId, force: true });
@@ -39,11 +37,11 @@ function fetchUserPermissions(userId) {
 }
 
 /**
- * Action to hydrate user-permissions-page.
- *
- * @param {Store} store
- * @param {string} userId
- * @returns Promise<void>
+ * Load the user permissions page state into the Vuex store.
+ * @param {object} store - The Vuex store instance.
+ * @param {string} userId - The ID of the user whose permissions to display.
+ * @param {object} route - The current Vue Router route object.
+ * @returns {Promise<void>} Resolves when state has been loaded.
  */
 export function showUserPermissionsPage(store, userId, route) {
   const { fetchFacilities } = useFacilities();

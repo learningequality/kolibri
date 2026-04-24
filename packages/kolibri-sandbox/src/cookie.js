@@ -2,7 +2,7 @@
  * This class offers an API-compatible replacement document.cookie
  * to be used when apps are run in sandbox mode.
  *
- * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
+ * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/document/cookie.
  */
 import BaseShim from './baseShim';
 
@@ -81,6 +81,11 @@ export default class Cookie extends BaseShim {
       byPath: {},
     };
 
+    /**
+     * Return a copy of sourceObj with session-only cookies removed.
+     * @param {object} sourceObj - The cookie map to filter.
+     * @returns {object} Filtered cookie map without session-only entries.
+     */
     function filterCookies(sourceObj) {
       const output = {};
       Object.keys(sourceObj).forEach(key => {

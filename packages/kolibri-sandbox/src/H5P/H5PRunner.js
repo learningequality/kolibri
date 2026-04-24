@@ -420,11 +420,6 @@ export default class H5PRunner {
     });
   }
 
-  /**
-   * Loads a Javascript file and executes it.
-   * @param  {String} url URL for the script
-   * @return {Promise}     Promise that resolves when the script has loaded
-   */
   scriptLoader(url, css = false) {
     const iframeDocument = this.iframe.contentWindow.document;
     return new Promise((resolve, reject) => {

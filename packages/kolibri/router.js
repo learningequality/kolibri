@@ -4,7 +4,8 @@ import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 
-/** Wrapper around Vue Router.
+/**
+ * Wrapper around Vue Router.
  *  Implements URL mapping to Vuex actions in addition to Vue components.
  *  Otherwise intended as a mostly transparent replacement to vue-router.
  */

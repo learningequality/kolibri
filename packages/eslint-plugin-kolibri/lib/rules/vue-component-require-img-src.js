@@ -15,7 +15,17 @@ module.exports = {
     },
   },
 
+  /**
+   * Creates the rule's visitor object.
+   * @param {object} context - ESLint rule context.
+   * @returns {object} Visitor object with node handlers.
+   */
   create(context) {
+    /**
+     * Reports a missing or invalid src attribute on a node.
+     * @param {object} node - AST node to report on.
+     * @returns {void}
+     */
     function report(node) {
       context.report({
         node,
@@ -25,7 +35,9 @@ module.exports = {
 
     return utils.defineTemplateBodyVisitor(context, {
       /**
-       * @param {VElement} node
+       * Check img elements for a valid src attribute.
+       * @param {object} node - VElement AST node for the img tag.
+       * @returns {void}
        */
       "VElement[rawName='img']"(node) {
         const srcAttr = utils.getAttribute(node, 'src');

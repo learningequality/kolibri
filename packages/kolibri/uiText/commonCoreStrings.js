@@ -1666,7 +1666,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
  * - Misspelling of the key in coreStrings but a kolibri-constant used to access it is
  *   spelled correctly and will not map.
  * - Keys were defined and string-froze which are not camelCase.
- * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping
+ * - Keys which, when _.camelCase()'ed will not result in a valid key, requiring manual mapping.
  */
 const nonconformingKeys = {
   PEERS: 'toUseWithPeers',
@@ -1702,16 +1702,6 @@ const MetadataLookup = invert(
   ),
 );
 
-/**
- * Return translated string for key defined in the coreStrings translator. Will map
- * ID keys generated in the kolibri-constants library to their appropriate translations
- * if available.
- *
- * @param {string} key - A key as defined in the coreStrings translator; also accepts keys
- * for the object MetadataLookup.
- * @param {object} args - An object with keys matching ICU syntax arguments for the translation
- * string mapping to the values to be passed for those arguments.
- */
 export function coreString(key, args) {
   const metadataKey = get(MetadataLookup, key, null);
   key = metadataKey ? camelCase(metadataKey) : key;
@@ -1732,7 +1722,6 @@ export default {
     coreString,
     /**
      * Shows a specific snackbar notification from our notificationStrings translator.
-     *
      * @param {string} key - A key as defined in the notificationsStrings translator.
      * @param {object} args - An object with keys matching ICU syntax arguments for the translation
      * string mapping to the values to be passed for those arguments.

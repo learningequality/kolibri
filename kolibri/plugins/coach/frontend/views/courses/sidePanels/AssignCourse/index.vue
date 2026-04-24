@@ -40,7 +40,7 @@
    * Data Flow:
    * - This component provides shared assignment data to child components
    * - Child components inject the data they need for their specific concerns
-   * - Navigation between subpages is handled through Vue Router
+   * - Navigation between subpages is handled through Vue Router.
    *
    * You can see what subpages are available by checking the children routes defined in
    * coach/frontend/routes/coursesRoutes.js under the "COURSES_ASSIGN" route.

@@ -1,5 +1,5 @@
 /**
- * A composable function containing logic related to channels
+ * A composable function containing logic related to channels.
  */
 import pickBy from 'lodash/pickBy';
 import { ref, reactive } from 'vue';

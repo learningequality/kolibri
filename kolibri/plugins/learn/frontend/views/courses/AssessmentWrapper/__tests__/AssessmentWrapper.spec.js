@@ -37,13 +37,6 @@ function buildProps(overrides = {}) {
   };
 }
 
-/**
- * ContentViewer stub that exposes events through test-trigger buttons.
- * This avoids needing to access __vue__ or the component vm.
- *
- * By default `checkAnswer` returns null (no answer given).
- * Override by providing a different stub via the `stubs` option.
- */
 function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints = 0 } = {}) {
   return {
     name: 'ContentViewer',
@@ -107,12 +100,10 @@ function renderComponent(props = {}, { stubs, ...restOptions } = {}) {
   });
 }
 
-/** Helper to read the current-status text content. */
 function getStatusText() {
   return screen.getByTestId('current-status').textContent.trim();
 }
 
-/** Helper to get the displayed item id from the content viewer stub. */
 function getDisplayedItemId() {
   return screen.getByTestId('content-viewer-item-id').textContent.trim();
 }

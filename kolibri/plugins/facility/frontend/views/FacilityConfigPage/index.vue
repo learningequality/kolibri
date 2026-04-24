@@ -297,7 +297,7 @@
 
   /**
    * Using the createTranslator to aid concatenation
-   * of strings missed before string freeze. This only a workaround
+   * of strings missed before string freeze. This only a workaround.
    */
   const deviceSettingsPageStrings = createTranslator('DeviceSettingsPage', {
     changeLocation: {

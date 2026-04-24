@@ -30,15 +30,6 @@ export function setContentNodeProgress(progress) {
 }
 
 export default function useContentNodeProgress() {
-  /**
-   * Fetches content node progress data
-   * and saves data to this composable's store
-   *
-   * @param {Object} getParams Parameters to filter by, should be the same as
-   * the contentnodes fetched that we want the progress for.
-   * @returns {Promise}
-   * @public
-   */
   function fetchContentNodeProgress(getParams) {
     return ContentNodeProgressResource.fetchCollection({
       getParams,
@@ -51,15 +42,6 @@ export default function useContentNodeProgress() {
     });
   }
 
-  /**
-   * Fetches content node progress data
-   * and saves data to this composable's store
-   *
-   * @param {Object} getParams Parameters to filter by, should be the same as
-   * the contentnodes fetched that we want the progress for.
-   * @returns {Promise}
-   * @public
-   */
   function fetchContentNodeTreeProgress({ id, params }) {
     return ContentNodeProgressResource.fetchTree({
       params,

@@ -29,22 +29,6 @@ const logging = logger.getLogger(__filename);
 
 const EXPAND_DIVS_TIMEOUT = 300; // ms
 
-/**
- * @typedef {Object} TextLayerBuilderOptions
- * @property {HTMLDivElement} textLayerDiv - The text layer container.
- * @property {number} pageIndex - The page index.
- * @property {PageViewport} viewport - The viewport of the text layer.
- * @property {TextHighlighter} highlighter - Optional object that will handle
- *   highlighting text from the find controller.
- * @property {boolean} enhanceTextSelection - Option to turn on improved
- *   text selection.
- */
-
-/**
- * The text layer builder provides text selection functionality for the PDF.
- * It does this by creating overlay divs over the PDF's text. These divs
- * contain text that matches the PDF text they are overlaying.
- */
 class TextLayerBuilder {
   constructor({
     textLayerDiv,
@@ -70,9 +54,6 @@ class TextLayerBuilder {
     this._bindMouse();
   }
 
-  /**
-   * @private
-   */
   _finishRendering() {
     this.renderingDone = true;
 
@@ -95,7 +76,6 @@ class TextLayerBuilder {
 
   /**
    * Renders the text layer.
-   *
    * @param {number} [timeout] - Wait for a specified amount of milliseconds
    *                             before rendering.
    */
@@ -190,7 +170,6 @@ class TextLayerBuilder {
    * Improves text selection by adding an additional div where the mouse was
    * clicked. This reduces flickering of the content if the mouse is slowly
    * dragged up or down.
-   *
    * @private
    */
   _bindMouse() {

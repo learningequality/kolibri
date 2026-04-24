@@ -102,19 +102,9 @@
       window.setTimeout(() => this.lastFocus.focus());
     },
     methods: {
-      /**
-       * @public
-       * Focuses on correct last element for FocusTrap depending on content
-       * rendered in CoreMenu.
-       */
       focusLastEl() {
         last(this.$el.querySelectorAll('.core-menu-option')).focus();
       },
-      /**
-       * @public
-       * Focuses on correct first element for FocusTrap depending on content
-       * rendered in CoreMenu.
-       */
       focusFirstEl() {
         if (this.$el.querySelector('.core-menu-option')) {
           this.$el.querySelector('.core-menu-option').focus();

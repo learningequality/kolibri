@@ -8,17 +8,7 @@ import sanitizeError from './utils/sanitizeError';
 
 export const logging = logger.getLogger(__filename);
 
-/** Class representing a single API resource object */
 export class Model {
-  /**
-   * Create a model instance.
-   * @param {object} data - data to insert into the model at creation time - should include at
-   * least an id for fetching, or data an no id if the intention is to save a new model.
-   * @param {object} getParams - an object of parameters to be parsed into GET parameters on the
-   * fetch.
-   * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
-   * behaviour for the model.
-   */
   constructor(data, getParams = {}, resource, url) {
     this.resource = resource;
     if (!this.resource) {
@@ -56,7 +46,7 @@ export class Model {
 
   /**
    * Method to fetch data from the server for this particular model.
-   * @param {boolean} [force=false] - fetch whether or not it's been synced already.
+   * @param {boolean} [force] - Fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
@@ -102,8 +92,8 @@ export class Model {
 
   /**
    * Method to save data to the server for this particular model.
-   * @param {object} attrs - an object of attributes to be saved on the model.
-   * @param {Boolean} exists - a Boolean flag to override the default new behaviour
+   * @param {object} attrs - An object of attributes to be saved on the model.
+   * @param {boolean} exists - A Boolean flag to override the default new behaviour.
    * @returns {Promise} - Promise is resolved with Model attributes when the XHR successfully
    * returns, otherwise reject is called with the response object.
    */
@@ -178,12 +168,6 @@ export class Model {
     return promise;
   }
 
-  /**
-   * Method to delete model.
-   * @param {Integer} id - target model's id.
-   * @returns {Promise} - Promise is resolved with target model's id
-   * returns, otherwise reject is called with the response object.
-   */
   delete() {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
@@ -256,18 +240,19 @@ export class Model {
   }
 }
 
-/** Class representing a 'view' of a single API resource.
+/**
+ * Class representing a 'view' of a single API resource.
  *  Contains different Model objects, depending on the parameters passed to its fetch method.
  */
 export class Collection {
   /**
    * Create a Collection instance.
-   * @param {Object} getParams - Default parameters to use when fetching data from the server.
-   * @param {Object[]|Model[]} data - Data to prepopulate the collection with,
+   * @param {object} getParams - Default parameters to use when fetching data from the server.
+   * @param {object[] | Model[]} data - Data to prepopulate the collection with,
    * useful if wanting to save multiple models.
-   * @param {Resource} resource - object of the Resource class, specifies the urls and fetching
+   * @param {Resource} resource - Object of the Resource class, specifies the urls and fetching
    * behaviour for the collection.
-   * @param {Function} url - a url function for this collection if undefind default to list url
+   * @param {Function} url - A url function for this collection if undefind default to list url.
    */
   constructor(getParams = {}, data = [], resource, url) {
     this.resource = resource;
@@ -287,7 +272,7 @@ export class Collection {
 
   /**
    * Method to fetch data from the server for this collection.
-   * @param {boolean} force - fetch whether or not it's been synced already.
+   * @param {boolean} force - Fetch whether or not it's been synced already.
    * @returns {Promise} - Promise is resolved with Array of Model attributes when the XHR
    * successfully returns, otherwise reject is called with the response object.
    */
@@ -354,12 +339,6 @@ export class Collection {
     return promise;
   }
 
-  /**
-   * Method to save data to the server for this particular collection.
-   * Can only currently be used to save new models to the server, not do bulk updates.
-   * @returns {Promise} - Promise is resolved with list of collection attributes when the XHR
-   * successfully returns, otherwise reject is called with the response object.
-   */
   save(data = []) {
     const promise = new Promise((resolve, reject) => {
       Promise.all(this.promises).then(
@@ -485,8 +464,8 @@ export class Collection {
    * Make a model a member of the collection - record in the models Array, and in the mapping
    * from id to model. Will automatically instantiate Models for data passed in as objects, and
    * deduplicate within the collection.
-   * @param {(Object|Model|Object[]|Model[])} models - Either an Array or single instance of an
-   * object or Model.
+   * @param {(object | Model | object[] | Model[])} models - Either an Array or single instance
+   * of an object or Model.
    */
   set(models) {
     let modelsToSet;
@@ -539,7 +518,7 @@ export class Collection {
   /**
    * Set this Collection as synced or not, for true, will also set all models cached in it
    * as synced.
-   * @param  {Boolean} value Is this Collection synced or not?
+   * @param  {boolean} value - Is this Collection synced or not?
    */
   set synced(value) {
     this._synced = value;
@@ -559,7 +538,7 @@ export class Collection {
   /**
    * Set this Collection as new or not, for false, will also set all models cached in it
    * as not new.
-   * @param  {Boolean} value Is this Collection new or not?
+   * @param  {boolean} value - Is this Collection new or not?
    */
   set new(value) {
     this._new = value;
@@ -571,14 +550,12 @@ export class Collection {
   }
 }
 
-/** Class representing a single API resource.
+/**
+ * Class representing a single API resource.
  *  Contains references to all Models that have been fetched from the server.
  *  Can also be subclassed in order to create custom behaviour for particular API resources.
  */
 export class Resource {
-  /**
-   * Create a resource with a Django REST API name corresponding to the name parameter.
-   */
   constructor({ name, idKey = 'id', namespace = 'core', ...options } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
@@ -626,10 +603,6 @@ export class Resource {
     return this.__getCache('models', endpointName);
   }
 
-  /**
-   * @param {Object} getParams - default parameters to use for Collection fetching.
-   * @returns {Collection} - Returns an instantiated Collection object.
-   */
   getCollection(getParams = {}, endpointName, detailId) {
     const cache = this.__collectionCache(endpointName);
     const key = this.__cacheKey(getParams, { detailId });
@@ -639,14 +612,6 @@ export class Resource {
     return cache[key];
   }
 
-  /**
-   * Optionally pass in data and instantiate a collection for saving that data or fetching
-   * data from the resource.
-   * @param {Object} getParams - default parameters to use for Collection fetching.
-   * @param {Object[]} data - Data to instantiate the Collection - see Model constructor for
-   * details of data.
-   * @returns {Collection} - Returns an instantiated Collection object.
-   */
   createCollection(getParams = {}, data = [], endpointName, detailId) {
     let url;
     if (endpointName && detailId) {
@@ -661,11 +626,6 @@ export class Resource {
     return collection;
   }
 
-  /**
-   * Get a model by id
-   * @param {String} id - The primary key of the Model instance.
-   * @returns {Model} - Returns a Model instance.
-   */
   getModel(id, getParams = {}, endpointName) {
     const cache = this.__modelCache(endpointName);
     const cacheKey = this.__cacheKey({ [this.idKey]: id }, getParams);
@@ -675,22 +635,11 @@ export class Resource {
     return cache[cacheKey];
   }
 
-  /**
-   * Find a model by its attributes - will return first model found that matches
-   * @param  {Object} attrs Hash of attributes to search by
-   * @param  {string} endpointName name of endpoint to search model cache
-   * @return {Model}       First matching Model
-   */
   findModel(attrs, endpointName) {
     const cache = this.__modelCache(endpointName);
     return find(cache, model => matches(attrs)(model.attributes));
   }
 
-  /**
-   * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
-   * @param {Object} data - The data for the model to add.
-   * @returns {Model} - Returns the instantiated Model.
-   */
   createModel(data, getParams = {}, endpointName) {
     let url;
     if (endpointName) {
@@ -701,11 +650,6 @@ export class Resource {
     return this.addModel(model, getParams, endpointName);
   }
 
-  /**
-   * Add a model to the resource for deduplication, dirty checking, and tracking purposes.
-   * @param {Object|Model} model - Either the data for the model to add, or the Model itself.
-   * @returns {Model} - Returns the instantiated Model.
-   */
   addModel(model, getParams = {}, endpointName) {
     if (!(model instanceof Model)) {
       return this.createModel(model, getParams, endpointName);
@@ -730,13 +674,6 @@ export class Resource {
     return cache[cacheKey];
   }
 
-  /**
-   * Fetch a model from a resource
-   * @param  {string} options.id               id of the model to fetch
-   * @param  {Object} [options.getParams={}]   any getParams to use when fetching the model
-   * @param  {Boolean} [force=false]           whether to respect the cache when fetching
-   * @return {Promise}                         Promise that resolves on fetch with the model data
-   */
   fetchModel({ id, getParams = {}, force = false } = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -744,14 +681,6 @@ export class Resource {
     return this.getModel(id, getParams).fetch(force);
   }
 
-  /**
-   * Save a model to a resource
-   * @param  {string} [options.id]             id of the model to save
-   * @param  {Object} [options.getParams={}]   any getParams to use when saving the model
-   * @param  {Object} data                     data to save on the model
-   * @param  {Boolean} [exists=false]          flag that this model exists on the server already
-   * @return {Promise}                         Promise that resolves on save with the model data
-   */
   saveModel({ id, getParams = {}, data = {}, exists = false } = {}) {
     if (!id) {
       return this.createModel(data, getParams).save();
@@ -759,12 +688,6 @@ export class Resource {
     return this.getModel(id, getParams).save(data, exists);
   }
 
-  /**
-   * Delete a model from a resource
-   * @param  {string} options.id               id of the model to delete
-   * @param  {Object} [options.getParams={}]   any getParams to use when deleting the model
-   * @return {Promise}                         Promise that resolves on delete with the model id
-   */
   deleteModel({ id, getParams = {} } = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -772,46 +695,23 @@ export class Resource {
     return this.getModel(id, getParams).delete();
   }
 
-  /**
-   * Fetch a collection from a resource
-   * @param  {Object} [options.getParams={}]   any getParams to use when fetching the collection
-   * @param  {Boolean} [force=false]           whether to respect the cache when fetching
-   * @return {Promise}                         Promise that resolves on fetch with the collection
-   */
   fetchCollection({ getParams = {}, force = false } = {}) {
     return this.getCollection(getParams).fetch(force);
   }
 
-  /**
-   * Do a bulk save of a collection, only works for specific resources
-   * @param  {Object[]}  options.data          An array of objects representing the models to be
-   * saved.
-   * @param  {Object} [options.getParams]      any getParams to use when caching the collection
-   * @return {Promise}                         Promise that resolves on save with array of models
-   */
   saveCollection({ data = [], getParams = {} } = {}) {
     return this.getCollection(getParams).save(data);
   }
 
   /**
-   * Do a bulk delete of a collection, only works for specific resources, and must use getParams
-   * @param  {Object} getParams getParams that more narrowly specify the collection to be deleted.
-   * @return {Promise}          Promise that resolves on deletion
+   * Do a bulk delete of a collection, only works for specific resources, and must use getParams.
+   * @param  {object} getParams - getParams that more narrowly specify the collection to be deleted.
+   * @returns {Promise}          Promise that resolves on deletion.
    */
   deleteCollection(getParams = {}) {
     return this.getCollection(getParams).delete();
   }
 
-  /**
-   * Fetch from a custom detail endpoint on a resource, that returns a single JSON object
-   * (as opposed to an array of objects).
-   * Mostly used as a convenience method for defining additional endpoint fetch methods on a
-   * resource object.
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id         The id of the model for which this is a detail
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with a single object
-   */
   fetchDetailModel(detailName, id, getParams = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -822,16 +722,6 @@ export class Resource {
     return this.getModel(id, getParams, detailName).fetch();
   }
 
-  /**
-   * Fetch from a custom detail endpoint on a resource, that returns an array of JSON objects
-   * (as opposed to a single object).
-   * Mostly used as a convenience method for defining additional endpoint fetch methods on a
-   * resource object.
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id         The id of the model for which this is a detail
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with an array of objects
-   */
   fetchDetailCollection(detailName, id, getParams = {}, force = false) {
     if (!id) {
       throw TypeError('An id must be specified');
@@ -842,14 +732,6 @@ export class Resource {
     return this.getCollection(getParams, detailName, id).fetch(force);
   }
 
-  /**
-   * Fetch from a custom list endpoint on a resource, that returns an array of JSON objects.
-   * Mostly used as a convenience method for defining additional endpoint fetch methods
-   * on a resource object.
-   * @param  {string} listName   The name given to the list endpoint
-   * @param  {Object} getParams  Any getParams needed while fetching
-   * @return {Promise}           Promise that resolves on fetch with an array of objects
-   */
   fetchListCollection(listName, getParams = {}) {
     if (!listName) {
       throw TypeError('A listName must be specified');
@@ -857,15 +739,6 @@ export class Resource {
     return this.getCollection(getParams, listName).fetch();
   }
 
-  /**
-   * This method is a convenience method for access to a resource endpoint unmediated by the
-   * model/collection framework that facilitates caching. This method is for list endpoints.
-   * @param  {string} method   A valid HTTP method name, in all caps.
-   * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} args     The getParams or data to be passed to the endpoint,
-   * depending on method
-   * @return {Promise}         Promise that resolves with the request
-   */
   accessListEndpoint(method, listName, args = {}, multipart = false) {
     if (!listName) {
       throw TypeError('A listName must be specified');
@@ -885,16 +758,6 @@ export class Resource {
     });
   }
 
-  /**
-   * This method is a convenience method for access to a resource endpoint unmediated by the
-   * model/collection framework that facilitates caching. This method is for detail endpoints.
-   * @param  {string} method   A valid HTTP method name, in all caps.
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id       The primary key or id for the detail endpoint.
-   * @param  {Object} args     The getParams or data to be passed to the endpoint,
-   * depending on method
-   * @return {Promise}         Promise that resolves with the request
-   */
   accessDetailEndpoint(method, detailName, id, args = {}, multipart = false) {
     if (!detailName) {
       throw TypeError('A detailName must be specified');
@@ -932,21 +795,15 @@ export class Resource {
   }
 
   /**
-   * Call a GET on a custom list endpoint
-   * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} params     The getParams to be passed to the endpoint
-   * @return {Promise}         Promise that resolves with the request
+   * Call a GET on a custom list endpoint.
+   * @param  {string} listName - The name given to the list endpoint.
+   * @param  {object} params     - The getParams to be passed to the endpoint.
+   * @returns {Promise}         Promise that resolves with the request.
    */
   getListEndpoint(listName, params = {}) {
     return this.accessListEndpoint('get', listName, params);
   }
 
-  /**
-   * Call a POST on a custom list endpoint
-   * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} params     The body of the request
-   * @return {Promise}         Promise that resolves with the request
-   */
   postListEndpoint(listName, params = {}) {
     return this.accessListEndpoint('post', listName, params);
   }
@@ -954,21 +811,20 @@ export class Resource {
   /**
    * Call a POST on a custom list endpoint and use
    * 'multipart/form-data' as Mimetype instead of 'application/json'.
-   *
-   * @param  {string} listName The name given to the list endpoint
-   * @param  {Object} params     The body of the request
-   * @return {Promise}         Promise that resolves with the request
+   * @param  {string} listName - The name given to the list endpoint.
+   * @param  {object} params     - The body of the request.
+   * @returns {Promise}         Promise that resolves with the request.
    */
   postListEndpointMultipart(listName, params = {}) {
     return this.accessListEndpoint('post', listName, params, true);
   }
 
   /**
-   * Call a POST on a custom detail endpoint
-   * @param  {string} detailName The name given to the detail endpoint
-   * @param  {string} id         The id for the detail endpoint
-   * @param  {Object} params     The body of the request
-   * @return {Promise}         Promise that resolves with the request
+   * Call a POST on a custom detail endpoint.
+   * @param  {string} detailName - The name given to the detail endpoint.
+   * @param  {string} id         - The id for the detail endpoint.
+   * @param  {object} params     - The body of the request.
+   * @returns {Promise}         Promise that resolves with the request.
    */
   postDetailEndpoint(detailName, id, params = {}) {
     return this.accessDetailEndpoint('post', detailName, id, params);

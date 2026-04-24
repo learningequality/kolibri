@@ -254,6 +254,12 @@
       const moreResourcesContentAvailable = ref(null);
       const moreResourcesContentLoading = ref(false);
 
+      /**
+       * Load topic content from the API and update component state if still on the same page.
+       * @param {Function} shouldResolve - Guard function that returns false if navigation occurred.
+       * @param {string} baseurl - Base URL for the content request.
+       * @returns {Promise<void>} Resolves when content has been loaded.
+       */
       function _loadTopicsContent(shouldResolve, baseurl) {
         const id = props.id;
         return Promise.all([
@@ -281,6 +287,10 @@
         );
       }
 
+      /**
+       * Load content for the topics content page and update component state.
+       * @returns {void}
+       */
       function showTopicsContent() {
         const deviceId = props.deviceId;
         set(loading, true);
@@ -314,6 +324,10 @@
         });
       }
 
+      /**
+       * Fetch the next page of resources content and append it to the current list.
+       * @returns {Promise<object[]>} Resolves with the updated resources content array.
+       */
       function loadMoreResourcesContent() {
         const more = moreResourcesContentAvailable.value;
         if (!more) {
@@ -586,15 +600,6 @@
           }
         }
       },
-      /**
-       * When a lessonId is given, this method will fetch the lesson and then fetch its
-       * content nodes. The user is guaranteed to be logged in if there is a lessonId.
-       *
-       * The nodes' progresses are mapped via the useContentNodeProgress composable
-       *
-       * @modifies this.viewResourcesContents - Assigned the content nodes retrieved
-       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly)
-       */
       fetchLessonSiblings() {
         // Get the lesson and then assign its resources to this.viewResourcesContents
         // fetchLesson also handles fetching the progress data for this lesson and
@@ -607,19 +612,6 @@
             .map(n => n.contentnode);
         });
       },
-      /**
-       * Prepares a list of content nodes which are children of this.content.parent without
-       * this.content and calls fetchContentNodeProgress when the user is logged in.
-       *
-       * Then it will fetch the "next folder" - which is the next content for this.content that
-       * is a topic.
-       *
-       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
-       * if found
-       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
-       * is logged in
-       */
       fetchSiblings() {
         if (!this.content) {
           return Promise.resolve();

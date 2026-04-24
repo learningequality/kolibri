@@ -11,53 +11,14 @@ import useFetch from 'kolibri-common/composables/useFetch.js';
  */
 
 /**
- * Composable for managing the selection of resources within a topic tree.
- * This utility handles selection rules, manages fetch states for channels, bookmarks,
- * and topic trees, and offers methods to add, remove, or override selected resources.
- *
- * @param {Object} options
- * @param {Object} options.bookmarks Configuration object for bookmarks fetch. It can contain
- * `filters` an object with extra query params, and `annotator` a function to annotate the results.
- * @param {Object} options.channels Configuration object for channels fetch. It can contain
- * `filters` an object with extra query params, and `annotator` a function to annotate the results.
- * @param {Object} options.topicTree Configuration object for topic tree fetch. It can contain
- * `filters` an object with extra query params, and `annotator` a function to annotate the results.
- * @param {string} options.searchResultsRouteName The name of the route where the search results
- *  will be displayed so that we can redirect to it when the search terms are updated.
- * @param {Object} options.search Configuration object for search fetch. It can contain
- * `filters` an object with extra query params that will be present in all search requests.
- *
- * @typedef {Object} UseResourceSelectionResponse
- * @property {Object} topic Topic tree object, contains the information of the topic,
- *   its ascendants and children.
- *   Defined only if the `topicId` query in the route is set.
- * @property {boolean} loading Indicates whether the main topic tree, channels, and bookmarks
- *   data are currently loading. This does not account for loading more data. For such cases,
- *   use the fetch objects of each entity.
- * @property {FetchObject} channelsFetch Channels fetch object to manage the process of
- *   fetching channels. We currently don't support fetching more channels.
- * @property {FetchObject} bookmarksFetch Bookmarks fetch object to manage the process of
- *   fetching bookmarks. Fetching more bookmarks is supported.
- * @property {FetchObject} treeFetch Topic tree fetch object to manage the process of
- *   fetching topic trees and their resources. Fetching more resources is supported.
- * @property {FetchObject} searchFetch Search fetch object to manage the process of
- *   fetching search results. Fetching more search results is supported.
- * @property {Array<string>} searchTerms The search terms used to filter the search results.
- * @property {boolean} displayingSearchResults Indicates whether we currently have search terms.
- * @property {Array<(node: Object) => boolean>} selectionRules An array of functions that determine
- *   whether a node can be selected.
- * @property {Array<Object>} selectedResources An array of currently selected resources.
- * @property {(resources: Array<Object>) => void} selectResources Adds the specified resources
- *   to the `selectedResources` array.
- * @property {(resources: Array<Object>) => void} deselectResources Removes the specified resources
- *   from the `selectedResources` array.
- * @property {(resources: Array<Object>) => void} setSelectedResources Replaces the current
- *   `selectedResources` array with the provided resources array.
- * @property {() => void} clearSearch Clears the current search terms and results.
- * @property {(tag: Object) => void} removeSearchFilterTag Removes the specified tag from the
- *  search terms.
- *
- * @returns {UseResourceSelectionResponse}
+ * Composable for managing resource selection across bookmarks, channels, topic trees, and search.
+ * @param {object} root0 - Options object.
+ * @param {string} root0.searchResultsRouteName - Route name to navigate to for search results.
+ * @param {object} root0.bookmarks - Bookmark fetch configuration with filters and annotator.
+ * @param {object} root0.channels - Channel fetch configuration with optional filters and annotator.
+ * @param {object} root0.topicTree - Topic tree fetch configuration with filters and annotator.
+ * @param {object} root0.search - Search configuration with optional filters.
+ * @returns {object} Resource selection state and methods.
  */
 export default function useResourceSelection({
   searchResultsRouteName,

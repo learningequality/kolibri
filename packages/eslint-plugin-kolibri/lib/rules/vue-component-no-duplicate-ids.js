@@ -17,12 +17,18 @@ module.exports = {
     },
     fixable: null,
   },
-  /** @param {RuleContext} context */
+  /**
+   * Creates the rule's visitor object.
+   * @param {object} context - ESLint rule context.
+   * @returns {object} Visitor object with node handlers.
+   */
   create(context) {
     const IdAttrsMap = new Map();
     return utils.defineTemplateBodyVisitor(context, {
       /**
-       * @param {VAttribute & { value: VLiteral } } node
+       * Collect all static id attribute nodes for duplicate detection.
+       * @param {object} node - VAttribute AST node with a VLiteral value.
+       * @returns {void}
        */
       'VAttribute[directive=false][key.name="id"]'(node) {
         const idAttr = node.value;

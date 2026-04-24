@@ -1,8 +1,8 @@
 /**
- * This module creates utilities for validating xAPI statements
+ * This module creates utilities for validating xAPI statements.
  *
  * For more information, see:
- * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md
+ * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md.
  */
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';

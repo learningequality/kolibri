@@ -4,12 +4,10 @@ import { UserKinds } from 'kolibri/constants';
 import { updateFacilityLevelRoles } from './utils';
 
 /**
- * Does a POST request to assign a user role (only used in this file)
- * @param {Object} user
- * @param {string} user.id
- * @param {string} user.facility
- * @param {string} user.roles
- * Needed: id, facility, role
+ * Updates the facility-level role for a user and refreshes the user model.
+ * @param {object} user - The facility user object.
+ * @param {object} role - The role object containing the kind to assign.
+ * @returns {Promise<object>} Resolves with the refreshed user model.
  */
 function setUserRole(user, role) {
   return updateFacilityLevelRoles(user, role.kind).then(() => {
@@ -19,9 +17,10 @@ function setUserRole(user, role) {
 }
 
 /**
- * Do a POST to create new user
- * @param {object} stateUserData
- *  Needed: username, full_name, facility, role, password
+ * Creates a new facility user and optionally assigns a non-learner role.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} payload - User creation data: username, password, role, and demographics.
+ * @returns {Promise<object|void>} Resolves when the user has been created.
  */
 export function createFacilityUser(store, payload) {
   return FacilityUserResource.saveModel({
@@ -42,6 +41,14 @@ export function createFacilityUser(store, payload) {
   });
 }
 
+/**
+ * Updates a facility user's details and/or role.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} root0 - Payload object.
+ * @param {string} root0.userId - The ID of the user to update.
+ * @param {object} root0.updates - Object containing facilityUserUpdates and optional roleUpdates.
+ * @returns {Promise<void>} Resolves when the user has been updated.
+ */
 export function updateFacilityUserDetails(store, { userId, updates }) {
   const { facilityUserUpdates, roleUpdates } = updates;
   if (isEmpty(facilityUserUpdates) && !roleUpdates) {
@@ -56,10 +63,25 @@ export function updateFacilityUserDetails(store, { userId, updates }) {
   );
 }
 
+/**
+ * Updates the password for a facility user.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} root0 - Payload object.
+ * @param {string} root0.userId - The ID of the user to update.
+ * @param {string} root0.password - The new password to set.
+ * @returns {Promise<object>} Resolves with the updated user model.
+ */
 export function updateFacilityUserPassword(store, { userId, password }) {
   return FacilityUserResource.saveModel({ id: userId, data: { password } });
 }
 
+/**
+ * Deletes a facility user by ID.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} root0 - Payload object.
+ * @param {string} root0.userId - The ID of the user to delete.
+ * @returns {Promise<void>} Resolves when the user has been deleted.
+ */
 export function deleteFacilityUser(store, { userId }) {
   return FacilityUserResource.deleteModel({ id: userId });
 }

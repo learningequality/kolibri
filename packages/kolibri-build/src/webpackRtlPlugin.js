@@ -24,10 +24,9 @@ const STAGE_ATTACH = 10;
 
 /**
  * Generate the runtime code for RTL CSS dynamic loading.
- *
- * @param {string} bundleId - The webpack bundle identifier
- * @param {string} rtlManagerAccess - JS expression that evaluates to the rtlcss module
- * @returns {string} The runtime JavaScript code
+ * @param {string} bundleId - The webpack bundle identifier.
+ * @param {string} rtlManagerAccess - JS expression that evaluates to the rtlcss module.
+ * @returns {string} The runtime JavaScript code.
  */
 function generateRuntimeCode(bundleId, rtlManagerAccess) {
   // Lazy initialization is required because runtime code executes before modules.
@@ -73,10 +72,6 @@ class RTLCSSRuntimeModule extends RuntimeModule {
     return generateRuntimeCode(this.bundleId, rtlManagerAccess);
   }
 
-  /**
-   * Find the webpack-assigned module ID for kolibri/rtlcss.
-   * Called during generate(), which runs after module ID optimization.
-   */
   _findRtlModuleId() {
     for (const module of this.compilation.modules) {
       if (module.rawRequest === 'kolibri/rtlcss') {
@@ -94,7 +89,7 @@ class RTLCSSRuntimeModule extends RuntimeModule {
 /**
  * Webpack plugin that:
  * 1. Generates RTL variants of all CSS files using rtlcss
- * 2. Injects runtime code to dynamically load RTL CSS based on language direction
+ * 2. Injects runtime code to dynamically load RTL CSS based on language direction.
  */
 class WebpackRTLPlugin {
   constructor(options = {}) {
@@ -113,9 +108,6 @@ class WebpackRTLPlugin {
     });
   }
 
-  /**
-   * Generate .rtl.css files for all CSS assets
-   */
   _setupRTLCSSGeneration(compilation) {
     compilation.hooks.processAssets.tap(
       {
@@ -140,9 +132,6 @@ class WebpackRTLPlugin {
     );
   }
 
-  /**
-   * Inject runtime module for dynamic RTL CSS loading
-   */
   _setupRuntimeModule(compilation) {
     const { isCoreBundle } = this.options;
 

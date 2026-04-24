@@ -18,7 +18,7 @@
 
   /**
    * A simple thumbnail for a quiz that displays
-   * `exercise` icon on top of gray background
+   * `exercise` icon on top of gray background.
    */
   export default {
     name: 'QuizThumbnail',

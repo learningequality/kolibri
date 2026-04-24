@@ -20,29 +20,10 @@ configure({
   useWebWorkers: supportsWorkers,
 });
 
-/**
- * A map of file extensions to Mapper subclasses that handle path replacement
- * for that file type. Each key is an extension (without dot, e.g. 'css', 'html')
- * and each value is a class extending {@link Mapper} from fileUtils.
- *
- * @typedef {Object<string, typeof import('./fileUtils').Mapper>} FilePathMappers
- */
-
 const DEFAULT_MAX_FULL_LOAD_SIZE = 2.5 * 1024 * 1024; // 2.5MB
 const DEFAULT_LARGE_MEDIA_THRESHOLD = 500 * 1024; // 500KB
 
-/**
- * Represents an extracted file from a ZIP archive.
- *
- * Files may either contain extracted data (obj is a Uint8Array) or be backed
- * by a URL generator for large media files (obj is null, _urlGenerator is set).
- */
 class ExtractedFile {
-  /**
-   * @param {string} name - Full path of the file within the ZIP
-   * @param {Uint8Array|null} obj - Extracted file data, or null for URL-generated files
-   * @param {Function|null} [urlGenerator=null] - Function `(filename) => url` for large files
-   */
   constructor(name, obj, urlGenerator = null) {
     this.name = name;
     this.obj = obj;
@@ -50,16 +31,10 @@ class ExtractedFile {
     this._urlGenerator = urlGenerator;
   }
 
-  /**
-   * @returns {string} File extension in lowercase (e.g. 'css', 'html')
-   */
   get fileNameExt() {
     return (this.name.split('.').slice(-1)[0] || '').toLowerCase();
   }
 
-  /**
-   * @returns {string} MIME type based on file extension
-   */
   get mimeType() {
     const ext = this.fileNameExt;
     // Note: getMimeType's typedef says "fileExtension" but it accepts full filenames
@@ -67,12 +42,6 @@ class ExtractedFile {
     return MIMETYPE_OVERRIDES[ext] || getMimeType(this.name);
   }
 
-  /**
-   * Returns the file contents as a decoded UTF-8 string.
-   *
-   * @returns {string} File contents
-   * @throws {Error} If the file uses a URL generator (large media files have no extracted data)
-   */
   toString() {
     if (this._urlGenerator) {
       throw new Error('Cannot convert large file to string: ' + this.name);
@@ -83,8 +52,7 @@ class ExtractedFile {
   /**
    * Returns a URL for this file. For extracted files, creates and caches a blob URL.
    * For URL-generated files, returns the generated URL. Result is cached.
-   *
-   * @returns {string} Blob URL or generated URL
+   * @returns {string} Blob URL or generated URL.
    */
   toUrl() {
     if (this._url) {
@@ -117,19 +85,6 @@ class ExtractedFile {
  * large media file delegation, and automatic path replacement in CSS/HTML/XML.
  */
 export default class ZipFile {
-  /**
-   * @param {string} url - URL of the ZIP file
-   * @param {Object} [options]
-   * @param {FilePathMappers} [options.filePathMappers] - Map of file extension to Mapper
-   *   subclass for path replacement. Pass `{}` to disable replacement entirely.
-   * @param {number} [options.maxFullLoadSize=2.5MB] - ZIP files larger than this are loaded
-   *   lazily via range requests instead of downloading entirely
-   * @param {Function} [options.largeFileUrlGenerator] - Function `(filename) => url` for serving
-   *   large audio/video files directly. Required for largeMediaThreshold to have effect.
-   * @param {number} [options.largeMediaThreshold] - Audio/video files larger than this use
-   *   largeFileUrlGenerator instead of being extracted. Defaults to 500KB.
-   * @param {number} [options.chunkSize] - Target size for grouped range requests
-   */
   constructor(
     url,
     {
@@ -203,12 +158,6 @@ export default class ZipFile {
     }
   }
 
-  /**
-   * Extract a file from the zip by path
-   * @param {Object} entry - zip.js entry object
-   * @param {Object} visitedPaths - Paths already visited (for cycle detection)
-   * @returns {Promise<ExtractedFile>}
-   */
   async _extractFile(entry, visitedPaths = {}) {
     // Check cache first
     if (this._extractedFileCache[entry.filename]) {
@@ -236,10 +185,9 @@ export default class ZipFile {
   /**
    * Replace internal file references (CSS url(), HTML src/href, etc.) with URLs.
    * Tracks visited paths to prevent infinite loops from circular references.
-   *
-   * @param {ExtractedFile} file - The file to carry out replacement of references in
-   * @param {Object} visitedPaths - A map of paths that have already been visited to prevent a loop
-   * @returns {Promise<ExtractedFile>} The file with references replaced
+   * @param {ExtractedFile} file - The file to carry out replacement of references in.
+   * @param {object} visitedPaths - A map of paths that have already been visited to prevent a loop.
+   * @returns {Promise<ExtractedFile>} The file with references replaced.
    * @private
    */
   async _replaceFiles(file, visitedPaths) {
@@ -283,11 +231,10 @@ export default class ZipFile {
 
   /**
    * Find and extract all files matching a predicate.
-   *
    * @param {Function} filterPredicate - Called with `{name, filename}` for each entry;
-   *   return truthy to include
-   * @param {Object} [visitedPaths={}] - Paths already visited (for cycle detection)
-   * @returns {Promise<ExtractedFile[]>} Matching extracted files
+   *   return truthy to include.
+   * @param {object} [visitedPaths] - Paths already visited (for cycle detection).
+   * @returns {Promise<ExtractedFile[]>} Matching extracted files.
    * @private
    */
   async _getFiles(filterPredicate, visitedPaths = {}) {
@@ -316,9 +263,8 @@ export default class ZipFile {
 
   /**
    * Extract a single file by exact path.
-   *
-   * @param {string} filename - Full path within the ZIP (e.g. 'assets/style.css')
-   * @returns {Promise<ExtractedFile|undefined>} The extracted file, or undefined if not found
+   * @param {string} filename - Full path within the ZIP (e.g. 'assets/style.css').
+   * @returns {Promise<ExtractedFile|undefined>} The extracted file, or undefined if not found.
    */
   async file(filename) {
     await this._fileLoadingPromise;
@@ -342,9 +288,8 @@ export default class ZipFile {
 
   /**
    * Extract all files whose paths start with the given prefix.
-   *
-   * @param {string} path - Path prefix to match (e.g. 'assets/')
-   * @returns {Promise<ExtractedFile[]>} Matching extracted files
+   * @param {string} path - Path prefix to match (e.g. 'assets/').
+   * @returns {Promise<ExtractedFile[]>} Matching extracted files.
    */
   async files(path) {
     if (this._loadingError) {
@@ -355,9 +300,8 @@ export default class ZipFile {
 
   /**
    * Extract all files with the given extension.
-   *
-   * @param {string} extension - Extension to match, including dot (e.g. '.css')
-   * @returns {Promise<ExtractedFile[]>} Matching extracted files
+   * @param {string} extension - Extension to match, including dot (e.g. '.css').
+   * @returns {Promise<ExtractedFile[]>} Matching extracted files.
    */
   async filesFromExtension(extension) {
     if (this._loadingError) {

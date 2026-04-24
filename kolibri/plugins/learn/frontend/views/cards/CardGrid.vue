@@ -25,7 +25,7 @@
     },
     props: {
       /**
-       * `1` or `2`
+       * `1` or `2`.
        *
        * The following number of cards will
        * be displayed on one row:
@@ -34,13 +34,13 @@
        *   Level 3+: 3 cards
        *   Level 2: 2 cards
        *   Level 1: 1 cards
-       *   Level 0: 1 card
+       *   Level 0: 1 card.
        *
        * Grid type `2`
        *   Level 3+: 4 cards
        *   Level 2: 3 cards
        *   Level 1: 2 cards
-       *   Level 0: 1 card
+       *   Level 0: 1 card.
        */
       gridType: {
         type: Number,

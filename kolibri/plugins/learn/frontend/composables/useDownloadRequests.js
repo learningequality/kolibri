@@ -1,5 +1,5 @@
 /**
- * A composable function containing logic related to download requests
+ * A composable function containing logic related to download requests.
  */
 
 import Vue, { getCurrentInstance, onBeforeUnmount, reactive, ref } from 'vue';

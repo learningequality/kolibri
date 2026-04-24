@@ -67,12 +67,15 @@
     },
     methods: {
       /**
+       * Accessible via parent component refs.
+       * @returns {void}
        * @public
        */
       focus() {
         return this.$refs.textbox.focus();
       },
       /**
+       * Accessible via parent component refs.
        * @public
        */
       reset() {

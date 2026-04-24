@@ -1,5 +1,5 @@
 /**
- * @fileoverview Require padding lines between blocks
+ * @file Require padding lines between blocks
  * Vendored and modified from:
  * https://github.com/vuejs/eslint-plugin-vue/blob/9b55f3c18403b0a77808ba758ec3a8e72a884036/lib/rules/padding-line-between-blocks.js
  * Modified for two padded lines.
@@ -10,7 +10,7 @@ const kolibriUtils = require('../utils');
 
 /**
  * Split the source code into multiple lines based on the line delimiters.
- * @param {string} text Source code as a string.
+ * @param {string} text - Source code as a string.
  * @returns {string[]} Array of source code lines.
  */
 function splitLines(text) {
@@ -18,21 +18,17 @@ function splitLines(text) {
 }
 
 /**
- * Check and report blocks.
- * This autofix inserts two blank lines between the given 2 blocks.
- * @param {RuleContext} context The rule context to report.
- * @param {VElement} prevBlock The previous block to check.
- * @param {VElement} nextBlock The next block to check.
- * @param {Token[]} betweenTokens The array of tokens between blocks.
+ * Check and report blocks, inserting two blank lines between them.
+ * @param {object} context - The ESLint rule context.
+ * @param {object} prevBlock - The previous block to check.
+ * @param {object} nextBlock - The next block to check.
+ * @param {object[]} betweenTokens - The array of tokens between blocks.
  * @returns {void}
- * @private
  */
 function verifyForAlways(context, prevBlock, nextBlock, betweenTokens) {
   const tokenOrNodes = [...betweenTokens, nextBlock];
-  /** @type {ASTNode | Token} */
   let prev = prevBlock;
   let linebreaks = 0;
-  /** @type {ASTNode | Token | undefined} */
   let linebreak;
   const paddingLines = [];
   for (const tokenOrNode of tokenOrNodes) {
@@ -87,7 +83,6 @@ module.exports = {
       always: 'Expected two blank lines before this block.',
     },
   },
-  /** @param {RuleContext} context */
   create(context) {
     const parserServices = kolibriUtils.getParserServices(context);
     if (!parserServices || !parserServices.getDocumentFragment) {
@@ -101,18 +96,20 @@ module.exports = {
 
     const paddingType = { verify: verifyForAlways };
 
-    /** @type {Token[]} */
     let tokens;
     /**
-     * @returns {VElement[]}
+     * Return all top-level HTML elements in the document fragment.
+     * @returns {object[]} Array of top-level VElement nodes.
      */
     function getTopLevelHTMLElements() {
       return documentFragment.children.filter(utils.isVElement);
     }
 
     /**
-     * @param {VElement} prev
-     * @param {VElement} next
+     * Get the tokens and comments between two block elements.
+     * @param {object} prev - The previous element.
+     * @param {object} next - The next element.
+     * @returns {object[]} Tokens between the two elements.
      */
     function getTokenAndCommentsBetween(prev, next) {
       // When there is no <template>, tokenStore.getTokensBetween cannot be used.
@@ -148,7 +145,6 @@ module.exports = {
       context,
       {},
       {
-        /** @param {Program} node */
         Program(node) {
           if (utils.hasInvalidEOF(node)) {
             return;

@@ -1,5 +1,5 @@
 /**
- * A composable function containing logic related to pinned devices
+ * A composable function containing logic related to pinned devices.
  */
 
 import { get, set } from '@vueuse/core';

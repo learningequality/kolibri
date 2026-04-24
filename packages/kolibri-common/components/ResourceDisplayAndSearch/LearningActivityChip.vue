@@ -24,7 +24,7 @@
   import LearningActivityIcon from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityIcon.vue';
 
   /**
-   * Wraps LearningActivityIcon in KLabeledIcon
+   * Wraps LearningActivityIcon in KLabeledIcon.
    */
   export default {
     name: 'LearningActivityChip',
@@ -33,7 +33,7 @@
     props: {
       /**
        * Learning activity constant(s)
-       * Can be one constant or an array of constants
+       * Can be one constant or an array of constants.
        */
       kind: {
         type: String,

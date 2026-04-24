@@ -33,7 +33,7 @@
     props: {
       /**
        * Learning activity constant(s)
-       * Can be one constant or an array of constants
+       * Can be one constant or an array of constants.
        */
       kind: {
         type: [String, Array],

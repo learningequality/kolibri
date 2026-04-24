@@ -101,24 +101,32 @@
         });
       },
       /**
+       * Returns the duration of this transcript cue in seconds.
+       * @returns {number} Duration in seconds.
        * @public
        */
       duration() {
         return this.cue.endTime - this.cue.startTime;
       },
       /**
+       * Returns the rendered height of this cue element in pixels.
+       * @returns {number} Height in pixels.
        * @public
        */
       height() {
         return this.$el.offsetHeight;
       },
       /**
+       * Returns the vertical offset of this cue element from the top of its container.
+       * @returns {number} Vertical offset in pixels.
        * @public
        */
       offsetTop() {
         return this.$el.offsetTop;
       },
       /**
+       * Moves keyboard focus to this transcript cue element.
+       * @returns {void}
        * @public
        */
       focus() {

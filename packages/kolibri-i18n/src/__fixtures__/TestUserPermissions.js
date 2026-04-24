@@ -5,7 +5,7 @@
  * This file includes known quantities of uses and definitions which should
  * be processed by the String Profiling.
  *
- * Total Uses: 5
+ * Total Uses: 5.
  */
 
 // Don't lint this file because I added random uses of $tr() that parse properly

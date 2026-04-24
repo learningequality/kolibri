@@ -222,25 +222,16 @@
 
       const { selectPracticeQuiz } = route.query;
 
-      /**
-       * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
-       */
       const workingResourcePool = ref([]);
 
       const resetSelection = () => {
         workingResourcePool.value = [];
         workingQuestions.value = [];
       };
-      /**
-       * @type {Ref<QuizQuestions[]>}
-       */
       const workingQuestions = ref([]);
 
       const showManualSelectionNotice = ref(false);
 
-      /**
-       * Selection settings for the current resource selection session
-       */
       const settings = ref({
         maxQuestions: null,
         questionCount: null,
@@ -304,11 +295,6 @@
 
       const { closeConfirmationTitle$, closeConfirmationMessage$ } = coachStrings;
 
-      /**
-       * @param {QuizExercise[]} resources
-       * @affects workingResourcePool -- Updates it with the given resources and is ensured to have
-       * a list of unique resources to avoid unnecessary duplication
-       */
       function addToWorkingResourcePool(resources = []) {
         workingResourcePool.value = uniqWith(
           [
@@ -319,28 +305,16 @@
         );
       }
 
-      /**
-       * @param {QuizExercise} content
-       * @affects workingResourcePool - Remove given quiz exercise from workingResourcePool
-       */
       function removeFromWorkingResourcePool(resources = []) {
         workingResourcePool.value = workingResourcePool.value.filter(
           obj => !resources.some(r => r.id === obj.id),
         );
       }
 
-      /**
-       * @affects workingResourcePool - Resets the workingResourcePool to the previous state
-       */
       function setWorkingResourcePool(resources = []) {
         workingResourcePool.value = resources;
       }
 
-      /**
-       * @param {QuizQuestions[]} questions
-       * @affects workingQuestions -- Updates it with the given questions and is ensured to have
-       * a list of unique questions to avoid unnecessary duplication
-       */
       function addToWorkingQuestions(questions, resource) {
         workingQuestions.value = uniqWith([...workingQuestions.value, ...questions], isEqual);
         if (!workingResourcePool.value.find(r => r.id === resource.id)) {
@@ -348,10 +322,6 @@
         }
       }
 
-      /**
-       * @param {QuizQuestions[]} questions
-       * @affects workingQuestions -- Removes the given questions from the workingQuestions
-       */
       function removeFromWorkingQuestions(questions) {
         workingQuestions.value = workingQuestions.value.filter(
           obj => !questions.some(r => r.item === obj.item),
@@ -396,18 +366,9 @@
         { getKey: content => content.id },
       );
 
-      /**
-       * Practice quizzes should only be included if the resource selection side panel
-       * is in `selectPracticeQuiz` mode.
-       */
       const isPracticeQuiz = item =>
         !selectPracticeQuiz || get(item, ['options', 'modality'], false) === Modalities.QUIZ;
 
-      /**
-       * Because survey questions have no 'correct' answer, and in some cases have a
-       * 'correct answer'chosen at random for the sake of having one,
-       * we should not allow them to be included in quizzes.
-       */
       const isNotSurvey = item => get(item, ['options', 'modality'], false) !== Modalities.SURVEY;
 
       const {

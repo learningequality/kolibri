@@ -1,5 +1,5 @@
 /**
- * Unit tests for QTI value coercion utilities
+ * Unit tests for QTI value coercion utilities.
  */
 
 import {

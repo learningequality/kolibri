@@ -41,28 +41,6 @@ export default {
     };
   },
   actions: {
-    /** -- Not used as is, but useful for posterity
-    setFormalUsageDefaults(store) {
-      const defaults = permissionPresets.formal.mappings;
-      store.commit('SET_FACILITY_PRESET', Presets.FORMAL);
-      store.commit('SET_ALLOW_GUEST_ACCESS', false);
-      store.commit('SET_LEARNER_CAN_SIGN_UP', defaults.learner_can_sign_up);
-      store.commit(
-        'SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD',
-        defaults.learner_can_login_with_no_password
-      );
-    },
-    setNonformalUsageDefaults(store) {
-      const defaults = permissionPresets.nonformal.mappings;
-      store.commit('SET_FACILITY_PRESET', Presets.NONFORMAL);
-      store.commit('SET_ALLOW_GUEST_ACCESS', true);
-      store.commit('SET_LEARNER_CAN_SIGN_UP', defaults.learner_can_sign_up);
-      store.commit(
-        'SET_LEARNER_CAN_LOGIN_WITH_NO_PASSWORD',
-        defaults.learner_can_login_with_no_password
-      );
-    },
-    **/
     showError(store, errorMsg) {
       store.commit('SET_ERROR', true);
       handleApiError({ error: errorMsg });

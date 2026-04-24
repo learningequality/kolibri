@@ -35,15 +35,6 @@ export default function useContentLink() {
     return query;
   }
 
-  /**
-   * A function to generate a VueRouter link object that links to
-   * either a resource or a topic, and generates query parameters
-   * that allow creating a backlink to the route context in which
-   * this link is generated
-   * @param {string} id - the id of the node
-   * @param {boolean} isResource - whether this is a resource or not
-   * @return {Object} VueRouter link object
-   */
   function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
     const query = _getBackLinkQuery();
 
@@ -61,18 +52,6 @@ export default function useContentLink() {
     return `${base}${path}?${new URLSearchParams(query)}`;
   }
 
-  /**
-   * A function to generate a VueRouter link object that links to
-   * either a resource or a topic, and copies current query parameters
-   * created by generateContentBackLinkCurrentPage if they exist,
-   * allowing e.g. a resource page to link to another resource page
-   * while maintaining the conceptual model of a single immersive overlay
-   * that can be closed out, returning to the originating page that linked
-   * to the original resource.
-   * @param {string} id - the id of the node
-   * @param {boolean} isResource - whether this is a resource or not
-   * @return {Object} VueRouter link object
-   */
   function genContentLinkKeepCurrentBackLink(id, isResource = false, deviceId) {
     const oldQuery = route.query;
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
@@ -80,17 +59,6 @@ export default function useContentLink() {
     return _makeNodeLink(id, isResource, query, deviceId);
   }
 
-  /**
-   * A function to generate a VueRouter link object that links to
-   * a topic, and decodes previous query parameters
-   * created by generateContentBackLinkCurrentPage if they exist,
-   * allowing e.g. a resource page to link to a topic page
-   * while maintaining the conceptual model of a single immersive overlay
-   * that can be closed out, returning to the originating page that linked
-   * to the original parent topic of the resource.
-   * @param {string} id - the id of the node
-   * @return {Object} VueRouter link object
-   */
   function genContentLinkKeepPreviousBackLink(id, deviceId) {
     const oldQuery = _decodeBackLinkQuery(route.query);
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);

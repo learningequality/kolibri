@@ -4,7 +4,7 @@ import SubtitlesMenuItem from './subtitlesMenuItem';
 import TranscriptMenuItem from './transcriptMenuItem';
 
 /**
- * The Component for the Button that will open the CaptionsMenu
+ * The Component for the Button that will open the CaptionsMenu.
  */
 class CaptionsButton extends buttonMixin('TextTrackButton') {
   buildMenu() {
@@ -13,26 +13,14 @@ class CaptionsButton extends buttonMixin('TextTrackButton') {
     });
   }
 
-  /**
-   * @override
-   * @return {string}
-   */
   buildCSSClass() {
     return this.removePopupClass(`vjs-captions-button ${super.buildCSSClass()}`);
   }
 
-  /**
-   * @override
-   * @return {string}
-   */
   buildWrapperCSSClass() {
     return this.removePopupClass(`vjs-captions-button ${super.buildWrapperCSSClass()}`);
   }
 
-  /**
-   * @override
-   * @returns {TranscriptMenuItem[]|SubtitlesMenuItem[]}
-   */
   createItems() {
     // Use logic from parent to determine if we should fill menu
     const length = super.createItems().length;

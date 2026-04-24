@@ -29,13 +29,6 @@
   export default {
     name: 'MetadataChips',
     props: {
-      /**
-       * A list of tags to display
-       * @type {Object[Tag]}
-       * @property {string} label
-       * @property {string} key
-       * @property {string} icon
-       */
       tags: {
         type: Array,
         required: true,

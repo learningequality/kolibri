@@ -193,10 +193,6 @@
           this.validate();
         }
       },
-      /**
-       * Validates the selected recipients and sets the error message if invalid
-       * @public
-       */
       validate() {
         if (!this.hasRecipients) {
           this.assignmentInvalidText = this.$tr('noRecipientsSelected');
@@ -206,6 +202,7 @@
         return this.assignmentInvalidText;
       },
       /**
+       * Announces a validation error via live region and shifts focus to the first invalid field.
        * @public
        */
       async handleSubmitRecipientsFailure() {

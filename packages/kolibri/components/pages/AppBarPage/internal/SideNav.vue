@@ -521,10 +521,6 @@
         return !this.isLearnerOnlyImport || !item.fullFacilityOnly;
       },
 
-      /**
-       * @public
-       * Focuses on correct first element for FocusTrap.
-       */
       focusFirstEl() {
         this.$nextTick(() => {
           this.$refs.coreMenu.focusFirstEl();

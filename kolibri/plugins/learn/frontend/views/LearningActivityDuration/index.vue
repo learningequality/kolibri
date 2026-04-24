@@ -40,7 +40,7 @@
    * 2. For read - 'Reference' is displayed
    * 3. For all other learning activities - 'Short activity' is displayed
    *    for activities no longer than 30 minutes and 'Long activity'
-   *    is displayed for activities longer than 30 minutes
+   *    is displayed for activities longer than 30 minutes.
    */
   export default {
     name: 'LearningActivityDuration',
@@ -76,7 +76,7 @@
       },
       /**
        * `text` - duration is rendered as plain text
-       * `chip` - duration is displayed in the dark gray chip
+       * `chip` - duration is displayed in the dark gray chip.
        */
       appearance: {
         type: String,

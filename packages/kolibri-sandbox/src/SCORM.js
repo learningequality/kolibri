@@ -3,7 +3,7 @@
  * to be used when apps are run in sandbox mode.
  *
  * For more information, see:
- * https://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/
+ * https://scorm.com/scorm-explained/technical-scorm/run-time/run-time-reference/.
  */
 import BaseShim from './baseShim';
 

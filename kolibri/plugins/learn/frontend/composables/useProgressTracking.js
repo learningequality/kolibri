@@ -312,10 +312,6 @@ export default function useProgressTracking() {
     }
   }
 
-  /**
-   * Initialize a content session for progress tracking
-   * To be called on page load for content viewers
-   */
   function initContentSession({
     node,
     lessonId,
@@ -489,9 +485,6 @@ export default function useProgressTracking() {
       });
   }
 
-  /**
-   * Update a content session for progress tracking
-   */
   function updateContentSession({
     progressDelta,
     progress,
@@ -605,19 +598,11 @@ export default function useProgressTracking() {
     });
   }
 
-  /**
-   * Start interval timer and set start time
-   * @param {int} interval
-   */
   function startTrackingProgress() {
     timeCheckIntervalTimer = setInterval(updateContentSession, intervalTime);
     lastElapsedTimeCheck = new Date();
   }
 
-  /**
-   * Stop interval timer and update latest times
-   * Must be called after startTrackingProgress
-   */
   function stopTrackingProgress() {
     clearTrackingInterval();
     try {

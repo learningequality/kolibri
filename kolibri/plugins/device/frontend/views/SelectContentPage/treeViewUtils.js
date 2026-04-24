@@ -66,6 +66,11 @@ const sumTotalResources = sumBy('total_resources');
 const sumOnDeviceResources = sumBy('on_device_resources');
 
 // Props shared with all partially-selected nodes
+/**
+ * Returns annotation props for a partially-selected (indeterminate) node.
+ * @param {object} node - The content node to annotate.
+ * @returns {object} Annotated node with indeterminate checkbox type and status message.
+ */
 function partiallySelectedNode(node) {
   return {
     ...node,
@@ -76,6 +81,11 @@ function partiallySelectedNode(node) {
 }
 
 // Props shared with all fully-selected nodes
+/**
+ * Returns annotation props for a fully-selected (checked) node.
+ * @param {object} node - The content node to annotate.
+ * @returns {object} Annotated node with checked checkbox type and status message.
+ */
 function fullySelectedNode(node) {
   return {
     ...node,
@@ -88,6 +98,11 @@ function fullySelectedNode(node) {
 }
 
 // Props shared with all unselected nodes
+/**
+ * Returns annotation props for an unselected (unchecked) node.
+ * @param {object} node - The content node to annotate.
+ * @returns {object} Annotated node with unchecked checkbox type and no status message.
+ */
 function unselectedNode(node) {
   return {
     ...node,
@@ -98,15 +113,11 @@ function unselectedNode(node) {
 }
 
 /**
- * Takes a Node, plus contextual data from store, then annotates them with info
- * needed to correctly display it on tree view.
- *
- * @param node {Node}
- * @param selectedNodes {SelectedNodes}
- * @param selectedNodes.omitted {Array<Node>}
- * @param selectedNodes.included {Array<Node>}
- * @returns {AnnotatedNode} - annotations are message, disabled, and checkboxType
- *
+ * Annotates a content node with its selection state for the content tree view.
+ * @param {object} node - The content node to annotate.
+ * @param {object} selectedNodes - Object with included and omitted node arrays.
+ * @param {boolean} forImport - Whether the tree is being used for import (vs export/manage).
+ * @returns {object} Annotated node with checkbox type, message, and disabled state.
  */
 export function annotateNode(node, selectedNodes, forImport = true) {
   const { on_device_resources, total_resources } = node;
@@ -202,9 +213,12 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 }
 
 /**
- * Takes an array of breadcrumb { id, title } objects in state, and converts them
- * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
- *
+ * Transforms a content node into a breadcrumb link object for the tree view.
+ * @param {object} node - The content node to transform.
+ * @param {object} root0 - Route context object.
+ * @param {object} root0.query - The current route query parameters.
+ * @param {object} root0.params - The current route params including channel_id.
+ * @returns {object} Breadcrumb object with text and link properties.
  */
 export function transformBreadrumb(node, { query, params }) {
   return {

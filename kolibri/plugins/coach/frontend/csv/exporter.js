@@ -10,13 +10,6 @@ const NAME_DEFAULTS = {
 };
 
 class CSVExporter {
-  /**
-   * @param {Object[]} columns
-   * @param {String} columns[].name The title of the column
-   * @param {String} columns[].key The key of the column
-   * @param {Function} [columns[].format] A function that will produce the value for a row
-   * @param {String} [baseFilename]
-   */
   constructor(columns, baseFilename = '') {
     this._columns = columns;
     this._filename = baseFilename;
@@ -25,9 +18,6 @@ class CSVExporter {
     };
   }
 
-  /**
-   * @param {Object} names
-   */
   addNames(names) {
     this._names = {
       ...this._names,
@@ -35,9 +25,6 @@ class CSVExporter {
     };
   }
 
-  /**
-   * @return {String}
-   */
   buildFilename() {
     const filenameParts = [this._filename];
 
@@ -69,10 +56,6 @@ class CSVExporter {
     return sanitize(filenameParts.join(' - ') + '.csv');
   }
 
-  /**
-   * @param {Object[]} dataArray
-   * @return {mixed[]}
-   */
   formatData(dataArray) {
     return [
       this._columns.map(column => column.name),
@@ -89,9 +72,6 @@ class CSVExporter {
     ];
   }
 
-  /**
-   * @param {Object[]} dataArray
-   */
   export(dataArray) {
     csvGenerator.download({
       fileName: this.buildFilename(),

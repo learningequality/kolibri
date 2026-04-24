@@ -103,7 +103,7 @@
         required: true,
       },
       /**
-       * vue-router link object
+       * Vue-router link object.
        */
       to: {
         type: Object,

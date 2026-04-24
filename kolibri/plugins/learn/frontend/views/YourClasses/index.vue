@@ -77,7 +77,7 @@
       },
       /**
        * If there is more than four classes, only first four of them
-       * and "View all" link will be displayed if `true`
+       * and "View all" link will be displayed if `true`.
        */
       short: {
         type: Boolean,

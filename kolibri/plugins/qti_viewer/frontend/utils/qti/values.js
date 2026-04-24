@@ -31,20 +31,15 @@ export const validateBoolean = value => {
 };
 
 /**
- * Helper function to parse space-separated values
- * @param {string} str - Space-separated string
- * @param {Function} coerceFn - Function to coerce each value
- * @returns {Array} - Array of coerced values
+ * Helper function to parse space-separated values.
+ * @param {string} str - Space-separated string.
+ * @param {Function} coerceFn - Function to coerce each value.
+ * @returns {Array} - Array of coerced values.
  */
 function parseSpaceSeparated(str, coerceFn) {
   return str.trim().split(/\s+/).map(coerceFn);
 }
 
-/**
- * Coerces a value to a QTI point (array of two integers)
- * @param {*} value - The value to coerce
- * @returns {Array} - [x, y] array of integers
- */
 export function coercePoint(value) {
   if (isArray(value) && value.length === 2) {
     return [parseInt(value[0], 10), parseInt(value[1], 10)];
@@ -59,9 +54,9 @@ export function coercePoint(value) {
 }
 
 /**
- * Validates if a value can be coerced to a QTI point
- * @param {*} value - The value to validate
- * @returns {boolean} - True if valid point
+ * Validates if a value can be coerced to a QTI point.
+ * @param {*} value - The value to validate.
+ * @returns {boolean} - True if valid point.
  */
 export function validatePoint(value) {
   try {
@@ -72,11 +67,6 @@ export function validatePoint(value) {
   }
 }
 
-/**
- * Coerces a value to a QTI pair (array of two strings)
- * @param {*} value - The value to coerce
- * @returns {Array} - [first, second] array of strings
- */
 export function coercePair(value) {
   if (isArray(value) && value.length === 2) {
     return [String(value[0]), String(value[1])];
@@ -91,9 +81,9 @@ export function coercePair(value) {
 }
 
 /**
- * Validates if a value can be coerced to a QTI pair
- * @param {*} value - The value to validate
- * @returns {boolean} - True if valid pair
+ * Validates if a value can be coerced to a QTI pair.
+ * @param {*} value - The value to validate.
+ * @returns {boolean} - True if valid pair.
  */
 export function validatePair(value) {
   try {
@@ -104,11 +94,6 @@ export function validatePair(value) {
   }
 }
 
-/**
- * Coerces a value to a QTI duration (non-negative number)
- * @param {*} value - The value to coerce
- * @returns {number} - The coerced duration value
- */
 export function coerceDuration(value) {
   const num = parseFloat(value);
   if (!isNaN(num) && num >= 0) {
@@ -118,9 +103,9 @@ export function coerceDuration(value) {
 }
 
 /**
- * Validates if a value can be coerced to a QTI duration
- * @param {*} value - The value to validate
- * @returns {boolean} - True if valid duration
+ * Validates if a value can be coerced to a QTI duration.
+ * @param {*} value - The value to validate.
+ * @returns {boolean} - True if valid duration.
  */
 export function validateDuration(value) {
   try {
@@ -132,20 +117,14 @@ export function validateDuration(value) {
 }
 
 /**
- * Validates if a value is a valid QTI file (JavaScript File object)
- * @param {*} value - The value to validate
- * @returns {boolean} - True if valid File object
+ * Validates if a value is a valid QTI file (JavaScript File object).
+ * @param {*} value - The value to validate.
+ * @returns {boolean} - True if valid File object.
  */
 export function validateFile(value) {
   return value instanceof File;
 }
 
-/**
- * Coerces a value to the specified QTI base type
- * @param {*} value - The value to coerce
- * @param {string} baseType - The QTI base type
- * @returns {*} - The coerced value
- */
 export function coerceValueWithBaseType(value, baseType) {
   // Handle null/undefined/empty cases per QTI specification
   if (value === null || value === undefined || value === 'NULL' || value === '') {

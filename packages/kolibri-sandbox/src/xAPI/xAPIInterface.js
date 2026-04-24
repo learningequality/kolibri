@@ -1,8 +1,8 @@
 /**
- * This class creates an interface for validating, storing, and retrieving xAPI statements
+ * This class creates an interface for validating, storing, and retrieving xAPI statements.
  *
  * For more information, see:
- * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md
+ * https://github.com/adlnet/xAPI-Spec/blob/master/xAPI-Data.md.
  */
 import filter from 'lodash/filter';
 import find from 'lodash/find';

@@ -35,14 +35,11 @@ function decodeMarkedSafeText(text) {
 }
 
 export default function pluginMediatorFactory(facade) {
-  /**
-   * The Mediator object - registers and loads kolibri_modules.
-   */
   const mediator = {
     /**
      * Keep track of all registered kolibri_modules - object is of form:
-     * kolibriModuleName: kolibri_module_object
-     **/
+     * kolibriModuleName: kolibri_module_object.
+     */
     _kolibriModuleRegistry: {},
 
     // wait to call kolibri_module `ready` until dependencies are loaded
@@ -55,31 +52,15 @@ export default function pluginMediatorFactory(facade) {
      */
     _readyCallbacks: [],
 
-    /**
-     * Map from kolibriModule name to an array of pending callbacks. Callbacks
-     * are queued in retrieveContentViewer() when the module has not yet
-     * registered; flushed and removed in registerKolibriModuleSync().
-     * @type {Object.<string, Function[]>}
-     */
     _contentViewerCallbacks: {},
 
-    /**
-     * Keep track of all registered language assets for modules.
-     * kolibriModuleName: {object} - with keys for different languages.
-     **/
     _languageAssetRegistry: {},
 
     /**
      * Keep track of all registered content viewers.
      */
     _contentViewerRegistry: {},
-    /**
-     * Keep track of urls for content viewers.
-     */
     _contentViewerUrls: {},
-    /**
-     * Public ready method - called when plugins can start operating
-     */
     ready() {
       this.registerMessages();
       this.registerAllContentViewers();
@@ -88,19 +69,12 @@ export default function pluginMediatorFactory(facade) {
 
     /**
      * Mark the mediator as ready and flush all pending ready callbacks.
-     **/
+     */
     setReady() {
       this._ready = true;
       this._readyCallbacks.splice(0).forEach(cb => cb());
     },
 
-    /**
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @description Registers a kolibriModule that has already been loaded into the
-     * frontend. Flushes any pending content viewer callbacks for the module, then
-     * calls kolibriModule.ready() immediately if the mediator is ready, or defers it
-     * until setReady() is called.
-     */
     registerKolibriModuleSync(kolibriModule) {
       this._kolibriModuleRegistry[kolibriModule.name] = kolibriModule;
 
@@ -119,14 +93,6 @@ export default function pluginMediatorFactory(facade) {
       }
     },
 
-    /**
-     * A method for directly registering language assets on the mediator.
-     * This is used to set language assets as loaded and register them to the Vue intl
-     * translation apparatus.
-     * @param  {String} moduleName name of the module.
-     * @param  {String} language   language code whose messages we are registering.
-     * @param  {Object} messageMap an object with message id to message mappings.
-     */
     registerLanguageAssets(moduleName) {
       const messageElement = document.querySelector(`template[data-i18n="${moduleName}"]`);
       if (!messageElement) {
@@ -151,23 +117,12 @@ export default function pluginMediatorFactory(facade) {
         Vue.registerMessages(currentLanguage, messageMap);
       }
     },
-    /**
-     * A method for taking all registered language assets and registering them against Vue Intl.
-     */
     registerMessages() {
       for (const moduleName in this._languageAssetRegistry) {
         Vue.registerMessages(currentLanguage, this._languageAssetRegistry[moduleName]);
       }
       delete this._languageAssetRegistry;
     },
-    /**
-     * A method for registering content viewers for asynchronous loading and track
-     * which file types we have registered viewers for.
-     * @param  {String} kolibriModuleName name of the module.
-     * @param  {String[]} kolibriModuleUrls the URLs of the Javascript
-     * files that constitute the kolibriModule
-     * @param  {String[]} contentPresets the names of presets this content viewer can render
-     */
     registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets) {
       this._contentViewerUrls[kolibriModuleName] = kolibriModuleUrls;
       contentPresets.forEach(preset => {
@@ -215,11 +170,6 @@ export default function pluginMediatorFactory(facade) {
       }
     },
 
-    /**
-     * A method to retrieve a content viewer component.
-     * @param  {String} preset    content preset
-     * @return {Promise}          Promise that resolves with loaded content viewer Vue component
-     */
     retrieveContentViewer(preset) {
       return new Promise((resolve, reject) => {
         const kolibriModuleName = this._contentViewerRegistry[preset];

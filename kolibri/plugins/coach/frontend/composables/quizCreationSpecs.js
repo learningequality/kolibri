@@ -6,17 +6,6 @@
  * Note also that any file importing this should also have the JSDoc typedefs available to your IDE.
  */
 
-/**
- * @typedef   {Object}  QuizExercise    An object referencing an exercise or topic to be used
- *                                      within the `QuizSeciton.resource_pool` property.
- * @property  {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
- * @property  {string}  title           The resource title
- * @property  {string}  parent          The ID of the parent contentnode
- * @property  {string}  content_id      The ID for the piece of content
- * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
- * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
- */
-
 export const QuizExercise = {
   id: {
     type: String,
@@ -48,22 +37,15 @@ export const QuizExercise = {
   },
 };
 
+/**
+ * Validates that a value is a 32-character hexadecimal exercise ID.
+ * @param {string} value - The value to validate.
+ * @returns {boolean} True if valid, false otherwise.
+ */
 function _exercise_id_validator(value) {
   return /^[0-9a-f]{32}$/.test(value);
 }
 
-/**
- * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
- *                                         from an QuizExercise.
- * @property {string} item                 A  ** unique **  identifier for this question that is
- *                                         a combination of <exercise_id>:<question_id>
- * @property {string} exercise_id          The ID of the resource from which the question originates
- * @property {string} question_id          A *unique* identifier of this particular question within
- *                                         the quiz -- same as the `assessment_item_id`
- * @property {string} title                A title for the question, editable by the user
- * @property {number} counter_in_exercise  A number assigned to separate questions which have the
- *                                         same exercise title to differentiate them
- */
 export const QuizQuestion = {
   item: {
     type: String,
@@ -103,16 +85,17 @@ export const QuizQuestion = {
 };
 
 /**
- * @typedef  {Object}             QuizSection                Defines a single section of the quiz
+ * @typedef  {object}             QuizSection                Defines a single section of the quiz
  * @property {string}             section_id                 A unique ID for the section - this is
- *                                                           only used on the front-end
- * @property {string}             section_title              The title of the quiz section
- * @property {string}             description                A text blob associated with the section
+ *                                                           only used on the front-end.
+ * @property {string}             section_title              The title of the quiz section.
+ * @property {string}             description                A text blob associated with the
+ *                                                           section.
  * @property {QuizQuestion[]}     questions                  The list of QuizQuestion objects in the
- *                                                           section
+ *                                                           section.
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
- *                                                           randomized, to the learners
+ *                                                           randomized, to the learners.
  */
 export const QuizSection = {
   section_id: {
@@ -138,15 +121,19 @@ export const QuizSection = {
   },
 };
 
+/**
+ * Returns a random integer between 0 and 999 for use as a quiz seed.
+ * @returns {number} A random integer.
+ */
 function getRandomInt() {
   return Math.floor(Math.random() * 1000);
 }
 
 /**
- * @typedef  {Object}         Quiz                The overall primary Quiz object
- * @property {string}         title               The title of the whole quiz
- * @property {QuizSection[]}  question_sources    A list of the QuizSection objects that make up the
- * @property {number}         seed                A random number used to seed the randomization
+ * @typedef  {object}         Quiz                The overall primary Quiz object
+ * @property {string}         title               The title of the whole quiz.
+ * @property {QuizSection[]}  question_sources    The QuizSection objects that make up the quiz.
+ * @property {number}         seed                A random number used to seed the randomization.
  */
 export const Quiz = {
   title: {

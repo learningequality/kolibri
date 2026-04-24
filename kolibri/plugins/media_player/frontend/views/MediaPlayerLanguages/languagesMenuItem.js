@@ -2,11 +2,6 @@ import mixin from '../../mixins/videojsMenuItemVueMixin';
 import languagesMenuItem from './LanguagesMenuItem.vue';
 
 class LanguagesMenuItem extends mixin(languagesMenuItem) {
-  /**
-   * @param {Player} player
-   * @param {Object} options
-   * @param {TextTrack} options.track
-   */
   constructor(player, options = {}) {
     const track = options.track;
 
@@ -16,10 +11,6 @@ class LanguagesMenuItem extends mixin(languagesMenuItem) {
     super(player, options);
   }
 
-  /**
-   * @param {Object} [options]
-   * @return {VueComponent}
-   */
   createVueComponent(options = {}) {
     return super.createVueComponent(
       Object.assign(
@@ -34,16 +25,10 @@ class LanguagesMenuItem extends mixin(languagesMenuItem) {
     );
   }
 
-  /**
-   * @return {String}
-   */
   getLabel() {
     return this.localize(this.options_.label);
   }
 
-  /**
-   * @return {TextTrack}
-   */
   getTrack() {
     return this.options_.track;
   }

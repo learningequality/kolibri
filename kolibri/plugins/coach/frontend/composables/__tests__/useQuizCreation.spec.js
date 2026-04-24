@@ -11,8 +11,9 @@ ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 const VALID_EXERCISE_ID = 'af26e1b4f3b94f3e8f4f3b4f3e8f4f3a';
 
 /**
- * @param num {number} - The number of questions to create
- * @param overrides {object} - Any overrides to apply to the default question
+ * Generates an array of mock quiz questions.
+ * @param {number} num - Number of questions to generate.
+ * @returns {Array} Array of generated quiz question objects.
  */
 function generateQuestions(num = 0) {
   const qs = [];
@@ -31,9 +32,10 @@ function generateQuestions(num = 0) {
   return qs;
 }
 
-/** @param numQuestions {number} - The number of questions to create within the exercise
- *  @returns {Exercise} - An exercise with the given number of questions
- *  A helper function to mock an exercise with a given number of questions (for `resource_pool`)
+/**
+ * Generates a mock quiz exercise with the given number of questions.
+ * @param {number} numQuestions - Number of questions to include in the exercise.
+ * @returns {object} A mock exercise object with assessmentmetadata.
  */
 function generateExercise(numQuestions) {
   const assessments = generateQuestions(numQuestions);

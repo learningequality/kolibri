@@ -5,27 +5,16 @@ import Settings from '../../utils/settings';
 
 const { handleSelectedLanguageChange } = videojs.getComponent('TextTrackMenuItem').prototype;
 
-/**
- * @return {{captionLanguage: *, captionSubtitles: boolean, captionTranscript: boolean}}
- */
 const defaultSettings = () => ({
   captionLanguage: vue.locale,
   captionSubtitles: true,
   captionTranscript: false,
 });
 
-/**
- * @param state
- * @return {TextTrack[]}
- */
 const tracks = state => {
   return trackUtils.listToArray(state.trackList || []);
 };
 
-/**
- * @param state
- * @return {TextTrack|null}
- */
 const languageTrack = state => {
   return tracks(state).find(track => state.language === track.language);
 };
@@ -80,30 +69,18 @@ export default {
     },
   },
   getters: {
-    /**
-     * @param state
-     * @return {string}
-     */
     languageLabel(state) {
       const track = languageTrack(state);
       return track ? track.label : '';
     },
     /**
      * @param state
-     * @return {TextTrack[]}
+     * @returns {TextTrack[]}
      */
     tracks,
-    /**
-     * @param state
-     * @return {TextTrack}
-     */
     activeTrack(state) {
       return tracks(state).find(track => trackUtils.isEnabled(track));
     },
-    /**
-     * @param state
-     * @return {TextTrack|null}
-     */
     languageTrack,
   },
   actions: {

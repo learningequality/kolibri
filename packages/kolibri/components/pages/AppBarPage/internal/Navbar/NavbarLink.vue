@@ -32,8 +32,8 @@
   import themeConfig from 'kolibri/styles/themeConfig';
 
   /**
-Links for use inside the Navbar
-*/
+Links for use inside the Navbar.
+   */
   export default {
     name: 'NavbarLink',
     setup() {
@@ -45,14 +45,14 @@ Links for use inside the Navbar
     },
     props: {
       /**
-       * The text
+       * The text.
        */
       title: {
         type: String,
         default: null,
       },
       /**
-       * A router link object
+       * A router link object.
        */
       link: {
         type: Object,

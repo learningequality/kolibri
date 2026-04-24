@@ -70,34 +70,21 @@ function setCourseData(courseId, content, progress) {
 }
 
 export default function useLearnerResources() {
-  /**
-   * @returns {Array} - All quizzes assigned to a learner in all their classes
-   * @private
-   */
   const _classesQuizzes = computed(() => {
     return flatMap(get(classes), c => c.exams);
   });
 
-  /**
-   * Because the API endpoint only returns active lessons this is just all the lessons
-   * @returns {Array} - All active lessons assigned to a learner in all their classes
-   * @public
-   */
   const activeClassesLessons = computed(() => {
     return flatMap(get(classes), c => c.lessons);
   });
 
-  /**
-   * @returns {Array} - All courses assigned to a learner in all their classes
-   * @public
-   */
   const activeClassesCourses = computed(() => {
     return flatMap(get(classes), c => c.courses || []);
   });
 
   /**
    * @returns {Array} - An array of { contentNodeId, lessonId, classId, active } objects
-   *                    of all resources from all learner's classes
+   *                    of all resources from all learner's classes.
    * @private
    */
   const _classesResources = computed(() => {
@@ -118,7 +105,7 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Array} - All active quizzes assigned to a learner in all their classes
+   * @returns {Array} - All active quizzes assigned to a learner in all their classes.
    * @public
    */
   const activeClassesQuizzes = computed(() => {
@@ -127,7 +114,7 @@ export default function useLearnerResources() {
 
   /**
    * @returns {Array} - Active and in progress quizzes assigned to a learner
-   *                    in all their classes
+   *                    in all their classes.
    * @public
    */
   const resumableClassesQuizzes = computed(() => {
@@ -136,7 +123,7 @@ export default function useLearnerResources() {
 
   /**
    * @returns {Array} - An array of { contentNodeId, lessonId, classId, contentNode } objects
-   *                    of all resources in progress from all learner's active lessons
+   *                    of all resources in progress from all learner's active lessons.
    * @public
    */
   const resumableClassesResources = computed(() => {
@@ -152,8 +139,8 @@ export default function useLearnerResources() {
   });
 
   /**
-   * @returns {Boolean} - `true` if a learner finished all active
-   *                       classes lessons and quizzes (or when there are none)
+   * @returns {boolean} - `true` if a learner finished all active
+   *                       classes lessons and quizzes (or when there are none).
    * @public
    */
   const learnerFinishedAllClasses = computed(() => {
@@ -166,20 +153,10 @@ export default function useLearnerResources() {
     return !(hasUnfinishedLesson || hasUnfinishedQuiz);
   });
 
-  /**
-   * @param {String} classId
-   * @returns {Object} A class
-   * @public
-   */
   function getClass(classId) {
     return get(classes).find(c => c.id === classId);
   }
 
-  /**
-   * @param {String} classId
-   * @returns {Array} All active lessons of a class
-   * @public
-   */
   function getClassActiveLessons(classId) {
     const classroom = getClass(classId);
     if (!classroom || !classroom.lessons) {
@@ -188,11 +165,6 @@ export default function useLearnerResources() {
     return classroom.lessons.filter(lesson => lesson.active);
   }
 
-  /**
-   * @param {String} classId
-   * @returns {Array} All active quizzes of a class
-   * @public
-   */
   function getClassActiveQuizzes(classId) {
     const classroom = getClass(classId);
     if (!classroom || !classroom.exams) {
@@ -201,11 +173,6 @@ export default function useLearnerResources() {
     return classroom.exams.filter(exam => exam.active);
   }
 
-  /**
-   * @param {String} classId
-   * @returns {Array} All courses of a class
-   * @public
-   */
   function getClassActiveCourses(classId) {
     const classroom = getClass(classId);
     if (!classroom || !classroom.courses) {
@@ -214,11 +181,6 @@ export default function useLearnerResources() {
     return classroom.courses;
   }
 
-  /**
-   * @param {Object} lesson
-   * @returns {Object} vue-router link to a lesson page
-   * @public
-   */
   function getClassLessonLink(lesson) {
     if (!lesson) {
       return undefined;
@@ -232,12 +194,6 @@ export default function useLearnerResources() {
     };
   }
 
-  /**
-   * @param {Object} quiz
-   * @returns {Object} vue-router link to a quiz report page when the quiz
-   *                   is closed. Otherwise returns a link to a quiz page.
-   * @public
-   */
   function getClassQuizLink(quiz) {
     if (!quiz || !quiz.progress) {
       return undefined;
@@ -264,11 +220,6 @@ export default function useLearnerResources() {
     };
   }
 
-  /**
-   * @param {Object} course
-   * @returns {Object} vue-router link to a course page (placeholder)
-   * @public
-   */
   function getClassCourseLink(course) {
     if (!course) {
       return undefined;
@@ -281,15 +232,6 @@ export default function useLearnerResources() {
     };
   }
 
-  /**
-   * Fetches a class by its ID and saves data
-   * to this composable's store
-   *
-   * @param {String} classId
-   * @param {Boolean} force Cache won't be used when `true`
-   * @returns  {Promise}
-   * @public
-   */
   function fetchClass({ classId, force = false }) {
     return LearnerClassroomResource.fetchModel({ id: classId, force }).then(classroom => {
       const updatedClasses = [...get(classes).filter(c => c.id !== classId), classroom];
@@ -299,14 +241,6 @@ export default function useLearnerResources() {
     });
   }
 
-  /**
-   * Fetches current learner's classes
-   * and saves data to this composable's store
-   *
-   * @param {Boolean} force Cache won't be used when `true`
-   * @returns {Promise}
-   * @public
-   */
   function fetchClasses({ force = false } = {}) {
     return LearnerClassroomResource.fetchCollection({ force }).then(collection => {
       set(classes, collection);
@@ -320,13 +254,6 @@ export default function useLearnerResources() {
     });
   }
 
-  /**
-   * Fetches resumable content nodes with their progress data
-   * and saves data to this composable's store
-   *
-   * @returns {Promise}
-   * @public
-   */
   function fetchResumableContentNodes() {
     const params = {
       resume: true,
@@ -344,13 +271,6 @@ export default function useLearnerResources() {
     });
   }
 
-  /**
-   * Fetches more resumable content nodes with their progress data
-   * and saves data to this composable's store
-   *
-   * @returns {Promise}
-   * @public
-   */
   function fetchMoreResumableContentNodes() {
     const params = get(moreResumableContentNodes);
     if (!params) {
@@ -372,42 +292,18 @@ export default function useLearnerResources() {
     return deduplicateResources(get(_resumableContentNodes));
   });
 
-  /**
-   * @param {String} courseId
-   * @returns {Object} Course content tree
-   * @public
-   */
   function getCourseContent(courseId) {
     return get(courseContent)[courseId];
   }
 
-  /**
-   * @param {String} courseId
-   * @returns {Object} Course progress data
-   * @public
-   */
   function getCourseProgress(courseId) {
     return get(courseProgress)[courseId];
   }
 
-  /**
-   * @param {String} courseId
-   * @returns {Array} Course units
-   * @public
-   */
   function getCourseUnits(courseId) {
     return get(courseContent)[courseId]?.children?.results ?? [];
   }
 
-  /**
-   * Fetches a course by its session ID and saves data
-   * to this composable's store
-   *
-   * @param {String} courseSessionId
-   * @param {Boolean} force Cache won't be used when `true`
-   * @returns {Promise<Object>} Course data
-   * @public
-   */
   async function fetchCourse({ courseSessionId, force = false }) {
     const course = await LearnerCourseResource.fetchModel({ id: courseSessionId, force });
 
@@ -433,25 +329,12 @@ export default function useLearnerResources() {
     return { course, content, progress };
   }
 
-  /**
-   * Fetches current learner's courses
-   * and saves data to this composable's store
-   *
-   * @param {Boolean} force Cache won't be used when `true`
-   * @returns {Promise<Array>}
-   * @public
-   */
   async function fetchCourses({ force = false } = {}) {
     const collection = await LearnerCourseResource.fetchCollection({ force });
     set(courses, collection);
     return collection;
   }
 
-  /**
-   * @param {String} testType - 'pre' or 'post'
-   * @returns {Boolean} Whether the test is currently available
-   * @public
-   */
   function isUnitTestAvailable(courseId, unitId, testType) {
     const progress = getCourseProgress(courseId);
     const activeTest = progress?.active_test;
@@ -463,13 +346,6 @@ export default function useLearnerResources() {
     return activeTest.unit_id === unitId && activeTest.test_type === testType;
   }
 
-  /**
-   * @param {String} courseId
-   * @param {String} unitId
-   * @param {String} lessonId
-   * @returns {Boolean} Whether the lesson resource is available
-   * @public
-   */
   function isCourseLessonAvailable(courseId, unitId, lessonId) {
     const progress = getCourseProgress(courseId);
     const units = getCourseUnits(courseId);
@@ -522,13 +398,6 @@ export default function useLearnerResources() {
     return false;
   }
 
-  /**
-   * @param {String} courseId
-   * @param {String} unitId
-   * @param {String} lessonId
-   * @returns {Boolean} Whether this is the current lesson being worked on
-   * @public
-   */
   function isCurrentCourseLesson(courseId, unitId, lessonId) {
     const progress = getCourseProgress(courseId);
     const resumePosition = progress?.resume_position;

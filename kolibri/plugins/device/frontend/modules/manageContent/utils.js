@@ -1,13 +1,6 @@
 import coreStore from 'kolibri/store';
 import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 
-/**
- * Watches the state.taskList and resolves when the tracked Task is COMPLETED.
- *
- * @param {string} taskId
- * @returns {Promise}
- *
- */
 export function waitForTaskToComplete(taskId, store = coreStore) {
   const taskList = state => state.manageContent.taskList;
   return new Promise((resolve, reject) => {

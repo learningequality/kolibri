@@ -1,12 +1,17 @@
 import UserType from 'kolibri-common/utils/userType';
 
 /**
- * Vuex State Mappers
+ * Vuex State Mappers.
  *
  * The methods below help map data from
- * the API to state in the Vuex store
+ * the API to state in the Vuex store.
  */
 
+/**
+ * Maps a facility user API object to Vuex state shape.
+ * @param {object} facilityUser - The facility user object from the API.
+ * @returns {object} Mapped user state object.
+ */
 export function _userState(facilityUser) {
   return {
     id: facilityUser.id,

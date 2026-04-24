@@ -9,6 +9,10 @@ import { handleApiError } from 'kolibri/utils/appError';
 /* Function to fetch device info from the backend
  * and resolve validated data
  */
+/**
+ * Fetches device info and device name from the backend API.
+ * @returns {Promise<object>} Resolves with validated device info data.
+ */
 export function getDeviceInfo() {
   const requests = [
     client({ url: urls['kolibri:core:deviceinfo']() }),
@@ -37,10 +41,10 @@ export function getDeviceInfo() {
 }
 
 /**
- * Action to hydrate device-info page.
- *
- * @param {Store} store
- * @returns Promise<void>
+ * Fetches device info and commits it to the Vuex store for the device info page.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} route - The current Vue Router route object.
+ * @returns {Promise<void>} Resolves when device info has been loaded into the store.
  */
 export function showDeviceInfoPage(store, route) {
   const { canManageContent } = useUser();

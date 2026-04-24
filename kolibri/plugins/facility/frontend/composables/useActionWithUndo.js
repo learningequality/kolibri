@@ -2,31 +2,14 @@ import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManage
 import useSnackbar from 'kolibri/composables/useSnackbar';
 
 /**
- *
- * @param {Object} options
- * @param {() => Promise<boolean>} options.action - Callback that executes the action to perform.
- * Should return a boolean promise indicating whether the action was successful. If the action
- * succeeds, the snackbar will display a success message and provide an undo option.
- *
- * @param {() => string} options.actionNotice$ - Function that returns the message to display on
- * the snackbar when the action is successful.
- *
- * @param {() => Promise<void>} options.undoAction - Callback that executes the undo action.
- * Be careful if this action is happening after the component that triggered the original action has
- * been unmounted (e.g. you cannot emit events from an unmounted component). If the undoAction fails
- * the function should throw an error, and a snackbar will be shown with a generic error message.
- *
- * @param {() => string} options.undoActionNotice$ - Function that returns the message to display on
- * the snackbar when the undo action is successful.
- *
- * @param {() => void} [options.onBlur] - Optional callback that executes when the undo button in
- * the snackbar loses focus.
- *
- * @typedef {Object} UseActionWithUndoObject
- * @property {() => Promise<void>} performAction - A method to manually trigger the main action
- * with all the undo machinery set up.
- *
- * @returns {UseActionWithUndoObject}
+ * Composable that wraps an action with an undo capability via a snackbar notification.
+ * @param {object} root0 - Options object.
+ * @param {Function} root0.action - The primary action to perform.
+ * @param {Function} root0.actionNotice$ - Function returning the snackbar message after the action.
+ * @param {Function} root0.undoAction - The function to call to undo the primary action.
+ * @param {Function} root0.undoActionNotice$ - Function returning the snackbar message after undo.
+ * @param {Function} root0.onBlur - Callback invoked when the snackbar action loses focus.
+ * @returns {object} An object containing the performAction function.
  */
 export default function useActionWithUndo({
   action,

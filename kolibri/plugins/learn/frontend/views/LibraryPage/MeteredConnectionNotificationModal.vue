@@ -159,19 +159,6 @@
         message: 'Allow Kolibri to use mobile data',
         context: 'An option that a user can select in a form',
       },
-      /** TODO Uncomment these when strings are not frozen, then use them to fix the other TODO
-      *  above in this file.
-
-    saveFailureNotification: {
-      message: 'Settings have not been updated',
-      context: 'Error message that displays if device settings are not saved correctly.',
-    },
-    saveSuccessNotification: {
-      message: 'Settings have been updated',
-      context: 'Notification that displays if device settings have been saved correctly.\n',
-    },
-
-    */
     },
   };
 

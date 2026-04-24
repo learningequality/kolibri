@@ -1,5 +1,5 @@
 /**
- * @fileoverview Don't allow hardcoded strings in Testing Library queries.
+ * @file Don't allow hardcoded strings in Testing Library queries.
  */
 
 'use strict';
@@ -17,6 +17,11 @@ const SKIP_ENTIRELY = /^(get|query|getAll|queryAll|find|findAll)ByTestId$/;
 // role arg ('button', 'dialog') is a WAI-ARIA spec constant
 const SKIP_FIRST_ARG = /^(get|query|getAll|queryAll|find|findAll)ByRole$/;
 
+/**
+ * Determines whether an AST node is an allowed (non-hardcoded) argument value.
+ * @param {object} node - AST node to check.
+ * @returns {boolean} True if the node is an allowed argument type or allowed literal value.
+ */
 function isAllowed(node) {
   // CallExpression - deleteAction$(),coreString('facilitiesLabel')
   // MemberExpression - ReportsLearnerTable.$trs.allQuestionsAnswered.message

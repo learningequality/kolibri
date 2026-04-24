@@ -46,7 +46,7 @@
       },
       /**
        * Controls how transparent the spotlight overlay appears;
-       * default opacity of 0.5 may appear too dark on some pages
+       * default opacity of 0.5 may appear too dark on some pages.
        */
       spotlightOpacity: {
         type: Number,

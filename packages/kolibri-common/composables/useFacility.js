@@ -9,10 +9,6 @@ import useFacilities from './useFacilities';
 
 const selectedFacilityId = ref(Lockr.get('facilityId') || null);
 
-/**
- * Composable for the context of a single facility, defaulting to the user's facility, but can be
- * changed by calling `setFacilityId`
- */
 export default function useFacility() {
   const { userFacilityId } = useUser();
   const { fetchFacilities, getFacility } = useFacilities();
@@ -46,21 +42,12 @@ export default function useFacility() {
     return selectedFacility.value ? selectedFacility.value.name : '';
   });
 
-  /**
-   * Sets the selected facility
-   * @param {string} facilityId
-   * @return {Promise<void>}
-   */
   async function setFacilityId(facilityId) {
     selectedFacilityId.value = facilityId;
 
     await updateFacilityConfig();
   }
 
-  /**
-   * Updates the facility config, if necessary
-   * @return {Promise<object>}
-   */
   async function updateFacilityConfig() {
     if (!facilityId.value || isPlainObject(selectedFacility.value?.dataset)) {
       return selectedFacility.value?.dataset;
@@ -80,10 +67,6 @@ export default function useFacility() {
   };
 }
 
-/**
- * Composable for accessing a facility's configuration
- * @param {string} facilityId
- */
 export function useFacilityConfig(facilityId) {
   const _facilityId = facilityId;
   const facilityConfig = ref({});
@@ -116,11 +99,6 @@ export function useFacilityConfig(facilityId) {
     return null;
   });
 
-  /**
-   * Get the current selected facility's config
-   * @param {string|null} [facilityId]
-   * @return {Promise<void>}
-   */
   async function fetchFacilityConfig(facilityId = null) {
     facilityId = facilityId || _facilityId;
 

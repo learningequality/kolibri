@@ -1,5 +1,5 @@
 /**
- * A composable function containing logic related to channels
+ * A composable function containing logic related to channels.
  */
 
 import { computed, ref, onBeforeUnmount, watch } from 'vue';
@@ -15,10 +15,6 @@ import plugin_data from 'kolibri-plugin-data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
 
-/**
- * The ref is defined in the outer scope so it can be used as a shared store
- * @type {Ref<NetworkLocation|null>}
- */
 const currentDevice = ref(null);
 
 const { kolibriLibrary$ } = learnStrings;
@@ -77,11 +73,6 @@ export function setCurrentDevice(id) {
   });
 }
 
-/**
- * @param {string|null} routingDeviceId
- * @param {function(NetworkLocation):*} callback
- * @return {ComputedRef<*|null>}
- */
 function computedDevice(routingDeviceId, callback) {
   return computed(() => {
     const device = get(currentDevice);

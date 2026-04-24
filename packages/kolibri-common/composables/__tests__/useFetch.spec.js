@@ -4,23 +4,6 @@ import useFetch from 'kolibri-common/composables/useFetch.js';
 const _eventDispatcher = new Vue();
 let _fetchCount = 0;
 
-/**
- * Helper method that will return a fetch method that we can control when it resolves.
- * This is useful to simulate fetch methods that can resolve in different times. Or fetch
- * operations that can resolve after others that have been initiated before.
- *
- * Example:
- * const { fetchMethod, resolveFetch } = getSincronizableFetch();
- *
- * // This will not resolve until resolveFetch('fetch1') is called
- * // once resolveFetch('fetch1') is called, the fetchMethod will return 'response1'
- * fetchData({ id: 'fetch1', response: 'response1' }).then(response => {
- *   console.log(response); // 'response1'
- * });
- *
- * ...
- * resolveFetch('fetch1');
- */
 const getSincronizableFetch = () => {
   _fetchCount += 1;
   const fetchMethod = async ({ id, response, error }) => {

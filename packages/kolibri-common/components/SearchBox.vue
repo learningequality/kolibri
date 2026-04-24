@@ -152,6 +152,7 @@
     },
     methods: {
       /**
+       * Moves keyboard focus to the search input element.
        * @public
        */
       focusSearchBox() {

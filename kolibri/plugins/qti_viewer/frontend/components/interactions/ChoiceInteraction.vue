@@ -20,10 +20,6 @@
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
   }
 
-  /**
-   * Safely normalizes a response value to an array.
-   * Handles null, undefined, scalars, and arrays uniformly.
-   */
   function getSelectionsArray(value) {
     if (value === null || value === undefined) {
       return [];

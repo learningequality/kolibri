@@ -81,15 +81,16 @@
   // when it is finally in QUEUED status in the task poll.
   const TASK_ENQUEUE_TIMEOUT = 5000;
 
-  /** Workflow
+  /**
+   Workflow
   - wizardService holds successfully imported learners and a list of all possible learners
   - This component will maintain a list of users currently being imported by polling the
     SoudQueue task queue - we use this list of users to change their "import" button to a
     circular loader; then when they are done being imported, we add them to the final state
     which allows us to identify them as being "imported" in place of the "import" button
   - If the admin goes back from here they go to a loading page which will ping the same Queue
-    and offer them to import another user once all SoudQueue tasks are COMPLETE
-*/
+    and offer them to import another user once all SoudQueue tasks are COMPLETE.
+   */
   export default {
     name: 'ImportMultipleUsers',
     components: {

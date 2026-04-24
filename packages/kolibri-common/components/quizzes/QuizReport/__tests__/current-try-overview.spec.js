@@ -51,13 +51,6 @@ const worseDiff = {
   correct: 0,
 };
 
-/**
- * Returns defaultProps but you can pass overrides. If you want to override try only, pass
- * an empty object in the first param position.
- * @param propOverrides - will take precence
- * @param tryOverrides - will override defaultTry (but propOverrides with a currentTry key
- *  will override *that*
- */
 function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
   return Object.assign(
     {},

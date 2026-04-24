@@ -438,6 +438,10 @@
         dataPlugins.value = plugins.value.map(plugin => ({ ...plugin }));
       });
 
+      /**
+       * Toggle each plugin whose enabled state differs from the original.
+       * @returns {void}
+       */
       function checkAndTogglePlugins() {
         dataPlugins.value.forEach((plugin, index) => {
           if (plugin.enabled !== plugins.value[index].enabled) {
@@ -446,6 +450,10 @@
         });
       }
 
+      /**
+       * Return true if any plugin has had its enabled state changed.
+       * @returns {boolean} Whether any plugin enabled state has changed.
+       */
       function checkPluginChanges() {
         // returns true if any of the plugins have changed its
         // enabled state

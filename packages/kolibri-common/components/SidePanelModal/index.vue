@@ -187,7 +187,6 @@
       responsiveWidth() {
         return this.isMobile ? '100vw' : this.sidePanelWidth;
       },
-      /** Styling Properties */
       headerStyles() {
         return {
           backgroundColor: this.immersive ? this.$themeTokens.appBar : this.$themeTokens.surface,
@@ -241,10 +240,6 @@
       focusLastEl() {
         this.$el.querySelector('.close-button').focus();
       },
-      /**
-       * @public
-       * Reset the next focus to the first focus element
-       */
       focusFirstEl() {
         this.$el.querySelector('.close-button').focus();
       },

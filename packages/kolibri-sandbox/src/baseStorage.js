@@ -2,7 +2,7 @@
  * This class offers an API-compatible replacement for localStorage and sessionStorage
  * to be used when apps are run in sandbox mode.
  *
- * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Storage
+ * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Storage.
  */
 import BaseShim from './baseShim';
 

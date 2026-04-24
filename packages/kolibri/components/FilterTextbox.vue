@@ -44,7 +44,7 @@
   import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   /**
-   * Used to filter items via text input
+   * Used to filter items via text input.
    */
   export default {
     name: 'FilterTextbox',
@@ -54,21 +54,18 @@
     mixins: [commonCoreStrings],
     props: {
       /**
-       * v-model
+       * V-model.
        */
       value: {
         type: String,
         default: null,
       },
-      /**
-       * Placeholder
-       */
       placeholder: {
         type: String,
         required: true,
       },
       /**
-       * Whether to autofocus
+       * Whether to autofocus.
        */
       autofocus: {
         type: Boolean,
@@ -81,7 +78,7 @@
         default: 15,
       },
       /**
-       * Whether to show a border around the input
+       * Whether to show a border around the input.
        */
       showBorder: {
         type: Boolean,
@@ -89,7 +86,7 @@
       },
       /**
        * The aria-controls attribute for the input
-       * This is used to link the input to the element it controls
+       * This is used to link the input to the element it controls.
        */
       ariaControls: {
         type: String,
@@ -113,7 +110,7 @@
         },
         set(val) {
           /**
-           * Emits input event with new value
+           * Emits input event with new value.
            */
           if (this.throttleInput) {
             this.throttledEmitInput(val);
@@ -136,6 +133,7 @@
         this.$refs.searchinput.focus();
       },
       /**
+       * Moves keyboard focus to the search input element.
        * @public
        */
       focus() {

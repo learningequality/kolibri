@@ -26,7 +26,7 @@ export default function useCardLayoutSpan() {
      * 4: < 1280px | Large screen  | 12 columns
      * 5: < 1440px | Large screen  | 12 columns
      * 6: < 1600px | Large screen  | 12 columns
-     * 7: > 1600px | Large screen  | 12 columns
+     * 7: > 1600px | Large screen  | 12 columns.
      *
      * On resize, display X cards per row where:
      * X = total columns in grid / column span for each card.

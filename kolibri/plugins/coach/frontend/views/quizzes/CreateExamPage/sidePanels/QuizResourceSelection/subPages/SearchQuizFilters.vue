@@ -77,10 +77,6 @@
         type: Object,
         required: true,
       },
-      /**
-       * Fetch object for fetching search results.
-       * @type {FetchObject}
-       */
       searchFetch: {
         type: Object,
         required: true,

@@ -318,8 +318,8 @@
         });
       },
       /**
+       * Called by the parent after the watched import or export task has finished.
        * @public
-       * Used by the taskNotificationMixin to handle the completion of the task
        */
       onWatchedTaskFinished() {
         // After import task has finished, refresh so those nodes will be disabled

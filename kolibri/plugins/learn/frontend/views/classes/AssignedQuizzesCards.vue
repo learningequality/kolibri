@@ -87,7 +87,7 @@
       },
       /**
        * A quiz's class name will be displayed above
-       * the quiz title if `true`
+       * the quiz title if `true`.
        */
       displayClassName: {
         type: Boolean,

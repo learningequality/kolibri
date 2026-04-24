@@ -4,14 +4,6 @@ import RoleResource from 'kolibri-common/apiResources/RoleResource';
 
 const FACILITY_ROLES = [UserKinds.ADMIN, UserKinds.ASSIGNABLE_COACH, UserKinds.COACH];
 
-/**
- * Implements business logic for changing a FacilityUser's Role
- *
- * If Learner/New User -> ASSIGNABLE_COACH/COACH/ADMIN, then create that Role
- * If ASSIGNABLE_COACH/COACH/ADMIN -> LEARNER, then delete all Classroom-Level Coach Roles
- * IF ASSIGNABLE_COACH/COACH/ADMIN -> ASSIGNABLE_COACH/COACH/ADMIN, then replace only that Role
- *
- */
 export function updateFacilityLevelRoles(facilityUser, newRoleKind) {
   const { roles, facility, id } = facilityUser;
   // Currently, we assume only ONE Facility-Level Role per user

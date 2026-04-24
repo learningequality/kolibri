@@ -174,7 +174,7 @@
    * A customized `KModal` fork (it deviates too much
    * for us to be able to use `KModal` and we don't want
    * to update KDS because this may be the only modal
-   * following different patterns)
+   * following different patterns).
    */
   export default {
     name: 'CompletionModal',
@@ -250,7 +250,7 @@
         /**
          * If there is a resource following the current resource,
          * "Keep going" section is displayed and a user can navigate
-         * to the next resource
+         * to the next resource.
          */
         nextContentNode: null,
         loading: true,
@@ -413,9 +413,9 @@
         this.$router.push(this.nextContentNodeRoute);
       },
       /**
+       * Handles focus events to trap focus within the modal when appropriate.
+       * @param {Event} event - The focus event to evaluate.
        * @public
-       * Focuses on correct first element for FocusTrap depending on content
-       * rendered in CompletionModal.
        */
       focusElementTest(event) {
         const { target } = event;

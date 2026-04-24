@@ -23,7 +23,7 @@ import useUser from 'kolibri/composables/useUser';
  * 1) Avoid introducing external dependencies wherever possible
  * 2) Provide usable default mocks for all depdencies we do add (commented out)
  *    OR
- *    Know that we will need to directly copy and paste them into the visualizer
+ *    Know that we will need to directly copy and paste them into the visualizer.
  *
  * For now, this means copying the imports from `../constants` and writing an
  * object in place of `pluginData`.
@@ -235,9 +235,9 @@ export const wizardMachine = createMachine(
       },
       personalDataConsent: {
         /**
-         * nextEvent here is used to provide the Vue component what command it is expected to send
-         * in this particular case
-         **/
+         * NextEvent here is used to provide the Vue component what command it is expected to send
+         * in this particular case.
+         */
         meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },
         on: {
           CONTINUE: 'createSuperuserAndFacility',
@@ -322,7 +322,6 @@ export const wizardMachine = createMachine(
         on: {
           ...importLodUsersDefinition.on,
           PREVIOUS_STATE: '#wizard.fullOrLearnOnlyDevice',
-          /** TODO Probably these two events could be refactored */
           SET_SUPERUSER: { actions: 'setSuperuser' },
           SET_SUPERADMIN: { actions: 'setSuperuserIfNull' },
           IMPORT_USER: { actions: 'setSuperuserIfNull' },
@@ -420,9 +419,7 @@ export const wizardMachine = createMachine(
       }),
       /**
        * Assigns the machine to have the initial context again while maintaining the value of
-       * canGetOsUser.
-
-       * This effectively resets the machine's state
+       * canGetOsUser. This effectively resets the machine's state.
        */
       resetContext: assign(initialContext),
       setImportedFacility: assign({

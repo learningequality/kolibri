@@ -40,14 +40,8 @@ function getSource(compilation, name) {
 }
 
 class BundleTrackerPlugin {
-  /**
-   * Track assets file location per bundle
-   * @param {Options} options
-   */
   constructor(options) {
-    /** @type {Options} */
     this.options = options;
-    /** @type {Contents} */
     this.contents = {
       status: 'initialization',
       assets: {},
@@ -59,11 +53,6 @@ class BundleTrackerPlugin {
     this.outputTrackerFile = '';
     this.outputTrackerDir = '';
   }
-  /**
-   * Setup parameter from compiler data
-   * @param {Compiler} compiler
-   * @returns this
-   */
   _setParamsFromCompiler(compiler) {
     this.options = defaults({}, this.options, {
       path: get(compiler.options, 'output.path', process.cwd()),
@@ -84,12 +73,6 @@ class BundleTrackerPlugin {
 
     return this;
   }
-  /**
-   * Write bundle tracker stats file
-   *
-   * @param {Compiler} compiler
-   * @param {Partial<Contents>} contents
-   */
   _writeOutput(compiler, contents) {
     assign(this.contents, contents, {
       chunks: assign(this.contents.chunks, contents.chunks),
@@ -105,10 +88,6 @@ class BundleTrackerPlugin {
       JSON.stringify(this.contents, null, this.options.indent),
     );
   }
-  /**
-   * Compute hash for a content
-   * @param {string} content
-   */
   _computeIntegrity(content) {
     // @ts-ignore: TS2532 this.options.integrityHashes can't be undefined here because
     // we set a default value on _setParamsFromCompiler
@@ -120,18 +99,9 @@ class BundleTrackerPlugin {
       })
       .join(' ');
   }
-  /**
-   * Handle compile hook
-   * @param {Compiler} compiler
-   */
   _handleCompile(compiler) {
     this._writeOutput(compiler, { status: 'compile' });
   }
-  /**
-   * Handle compile hook
-   * @param {Compiler} compiler
-   * @param {Stats} stats
-   */
   _handleDone(compiler, stats) {
     if (stats.hasErrors()) {
       const findError = compilation => {
@@ -150,7 +120,6 @@ class BundleTrackerPlugin {
       return;
     }
 
-    /** @type {Contents} */
     const output = { status: 'done', assets: {}, chunks: {} };
     each(stats.compilation.assets, (file, assetName) => {
       const fileInfo = {
@@ -203,10 +172,6 @@ class BundleTrackerPlugin {
 
     this._writeOutput(compiler, output);
   }
-  /**
-   * Method called by webpack to apply plugin hook
-   * @param {Compiler} compiler
-   */
   apply(compiler) {
     this._setParamsFromCompiler(compiler);
 

@@ -92,14 +92,6 @@ function profileToCSV(profile) {
   );
 }
 
-/**
- *
- * @param {object} profile      - The given strProfile of string definitions and
- *                                previously profiled uses.
- * @param {string} namespace    - The namespace to query.
- * @param {string} key          - The key to query.
- * @param {bool} common         - Is the suspected use one of a Common string set?
- */
 function getStringFromNamespaceKey(allMessages, namespace, key) {
   return get(allMessages, [`${namespace}.${key}`, 'message']);
 }
@@ -126,16 +118,6 @@ function isCommonFn(string) {
 }
 
 /* Profiling Functions */
-/**
- * The following functions contain all of the logic to process ASTs,
- * targeting the specific nodes that contain the data that we need.
- * It manipulates the profile passed to it with any new data - then
- * returns that profile.
- *
- * profileVueScript - parses Vue <script> content.
- * profileVueTemplate - parses Vue <template> content.
- * profileJSFile - parses JS files.
- */
 
 function profileVueScript(profile, ast, pathname, namespace, allMessages) {
   let key;
@@ -326,7 +308,7 @@ function getVueTemplateAST(filePath) {
    *
    * It's a string - which is what ast-traverse wants anyway - so we can strip the `with()`
    * altogether, leaving us with a stringified array containing everything we need to
-   * create a thorough AST of the compiled Vue template.               *
+   * create a thorough AST of the compiled Vue template.               *.
    */
   const render = template.render.replace(/^.{18}|.{1}$/g, '');
   return parseAST(render);

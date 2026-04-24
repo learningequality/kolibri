@@ -2,8 +2,10 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { handleApiError } from 'kolibri/utils/appError';
 
 /**
- * Do a POST to create new class
- * @param {string} name
+ * Creates a new class with the given name and adds it to the store.
+ * @param {object} store - The Vuex store instance.
+ * @param {string} name - The name for the new class.
+ * @returns {Promise<void>} Resolves when the class has been created.
  */
 export function createClass(store, name) {
   return ClassroomResource.saveModel({

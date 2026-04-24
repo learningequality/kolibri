@@ -43,6 +43,11 @@
     setup() {
       const { getClass, getClassLessonLink } = useLearnerResources();
 
+      /**
+       * Get the display name of the class a lesson belongs to.
+       * @param {object} lesson - The lesson object with a collection ID.
+       * @returns {string} The class name, or an empty string if not found.
+       */
       function getLessonClassName(lesson) {
         const lessonClass = getClass(lesson.collection);
         return lessonClass ? lessonClass.name : '';
@@ -65,7 +70,7 @@
       },
       /**
        * A lesson's class name will be displayed above
-       * the lesson title if `true`
+       * the lesson title if `true`.
        */
       displayClassName: {
         type: Boolean,

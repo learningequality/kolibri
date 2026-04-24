@@ -8,6 +8,11 @@ const logging = logger.getLogger(__filename);
 
 const getTotalOfQuestions = sumBy(qArray => qArray.length);
 
+/**
+ * Converts an exercise object to an array of question objects.
+ * @param {object} exercise - The exercise content node with id and assessmentmetadata.
+ * @returns {Array} Question objects with exercise_id, question_id, item, and counter_in_exercise.
+ */
 export function exerciseToQuestionArray(exercise) {
   return exercise.assessmentmetadata.assessment_item_ids.map((question_id, i) => {
     return {
@@ -24,6 +29,12 @@ export function exerciseToQuestionArray(exercise) {
   });
 }
 
+/**
+ * Builds a map of exercise IDs to their question arrays, excluding specified questions.
+ * @param {Array} exercises - Array of exercise content node objects.
+ * @param {Array} excludedQuestionIds - Array of question item IDs to exclude from the map.
+ * @returns {object} Map of exercise ID to array of question objects.
+ */
 function getExerciseQuestionsMap(exercises, excludedQuestionIds = []) {
   const excludedQuestionIdMap = {};
   for (const uId of excludedQuestionIds) {
@@ -42,15 +53,12 @@ function getExerciseQuestionsMap(exercises, excludedQuestionIds = []) {
 }
 
 /**
- * Choose a an evenly-distributed random selection of questions from exercises. Note that the order
- * of the arrays should correspond to each other, ie, exerciseIds[i] should correspond to
- * questionIdArrays[i] should correspond to exerciseTitles[i], etc.
- *
- * @param {Number} numQuestions - target number of questions
- * @param {String[]} exercises - Exercise objects
- * @param {number} seed - value to seed the random shuffle with
- *
- * @return {QuizQuestion[]}
+ * Selects a set of questions from the given exercises using a seeded shuffle.
+ * @param {number} numQuestions - The number of questions to select.
+ * @param {Array} exercises - Array of exercise content node objects to draw questions from.
+ * @param {number} seed - Seed value for the random shuffle.
+ * @param {Array} excludedQuestionIds - Question item IDs to exclude from selection.
+ * @returns {Array} Array of selected question objects sorted by title.
  */
 export default function selectQuestions(numQuestions, exercises, seed, excludedQuestionIds = []) {
   const allQuestionsByExercise = getExerciseQuestionsMap(exercises, excludedQuestionIds);

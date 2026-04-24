@@ -8,7 +8,7 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useContentNodeProgressMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with  `mockImplementation` as follows:.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -39,6 +39,11 @@ const MOCK_DEFAULTS = {
   contentNodeProgressMap: {},
 };
 
+/**
+ * Creates a mock implementation of the useContentNodeProgress composable with optional overrides.
+ * @param {object} overrides - Properties to override on the default mock values.
+ * @returns {object} Mock composable return value.
+ */
 export function useContentNodeProgressMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,

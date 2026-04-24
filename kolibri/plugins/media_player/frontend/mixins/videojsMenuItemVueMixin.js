@@ -1,8 +1,5 @@
 import videojsVueMixin from './videojsVueMixin';
 
-/**
- * @param {Object} vueComponent A compiled vue component object
- */
 export default function videojsMenuItemVueMixin(vueComponent) {
   return class extends videojsVueMixin('MenuItem', vueComponent) {
     createVueComponent(options = {}) {
@@ -12,7 +9,7 @@ export default function videojsMenuItemVueMixin(vueComponent) {
     }
 
     /**
-     * Pass responsibility to focus down to Vue component
+     * Pass responsibility to focus down to Vue component.
      */
     focus() {
       this.getVueComponent().focus();
@@ -26,13 +23,13 @@ export default function videojsMenuItemVueMixin(vueComponent) {
     }
 
     /**
-     * We don't need to handle clicks
+     * We don't need to handle clicks.
      * @override
      */
     handleClick() {}
 
     /**
-     * Remove Video.js tap event handling so it doesn't mess with menu on mobile
+     * Remove Video.js tap event handling so it doesn't mess with menu on mobile.
      */
     emitTapEvents() {}
   };

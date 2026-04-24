@@ -67,7 +67,7 @@
       },
       /**
        * A course's class name will be displayed above
-       * the course title if `true`
+       * the course title if `true`.
        */
       displayClassName: {
         type: Boolean,

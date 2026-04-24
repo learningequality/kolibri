@@ -27,13 +27,12 @@ const MasteryCriterionKey = Symbol('MasteryCriterion');
  * Composable that manages progress tracking for course content.
  * Should be instantiated in CourseUnitView and provides progress state
  * to child components via Vue's provide/inject mechanism.
- *
- * @param {Object} options **Required** Configuration options for the composable.
- * @param {import('vue').Ref<Object>} options.contentNode **optional** Reactive ref to the
+ * @param {object} options - **Required** Configuration options for the composable.
+ * @param {import('vue').Ref<object>} options.contentNode - **optional** Reactive ref to the
  *                                                        current content node.
- * @param {import('vue').Ref<string>} options.courseSessionId **Required** Reactive ref to the
+ * @param {import('vue').Ref<string>} options.courseSessionId - **Required** Reactive ref to the
  *                                                            course session ID.
- * @param {import('vue').Ref<Object>} options.activeTest **Optional** Reactive ref to the
+ * @param {import('vue').Ref<object>} options.activeTest - **Optional** Reactive ref to the
  *                                                      active test information, if applicable.
  */
 export default function useCourseContentProgress({ contentNode, courseSessionId, activeTest }) {
@@ -70,9 +69,6 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
     }
   };
 
-  /**
-   * Wrapped updateContentSession to prevent updates after error
-   */
   const wrappedUpdateContentSession = data => {
     if (!errored.value) {
       return updateContentSession(data);
@@ -101,9 +97,6 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
     handleApiError({ error });
   };
 
-  /**
-   * Initialize the content session for progress tracking
-   */
   const initSession = async (repeat = false) => {
     const node = contentNode.value;
     const test = activeTest.value;
@@ -186,21 +179,20 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
  * provided by `useCourseContentProgress`.
  * Should be called in any child component of CourseUnitView
  * that needs access to progress tracking.
- *
- * @typedef {Object} CourseContentProgressInjectObject
+ * @typedef {object} CourseContentProgressInjectObject
  * @property {import('vue').Ref<boolean>} sessionReady Whether the content session has been
  *                                                     initialized and is ready.
  * @property {import('vue').Ref<number|null>} progress The current progress value (0 to 1).
  * @property {import('vue').Ref<number|null>} time_spent The time spent on the content in seconds.
- * @property {Object} extra_fields Reactive object containing extra fields from the session.
+ * @property {object} extra_fields Reactive object containing extra fields from the session.
  * @property {import('vue').Ref<Array>} pastattempts An array of past attempts for the content.
  * @property {import('vue').Ref<boolean|null>} complete Whether the content is marked as
  *                                                      complete.
  * @property {import('vue').Ref<number|null>} totalattempts The total number of attempts for the
  *                                                          content.
- * @property {import('vue').Ref<Object>} context The context object containing additional
+ * @property {import('vue').Ref<object>} context The context object containing additional
  *                                              information about the content session.
- * @property {import('vue').Ref<Object|null>} mastery_criterion The mastery criterion for the
+ * @property {import('vue').Ref<object | null>} mastery_criterion The mastery criterion for the
  *                                                              content,if applicable.
  * @property {() => void} startTrackingProgress Starts the interval timer for progress tracking.
  * @property {() => Promise<void>} stopTrackingProgress Stops the interval timer and saves
@@ -211,14 +203,13 @@ export default function useCourseContentProgress({ contentNode, courseSessionId,
  *                                                                           to an absolute value.
  * @property {(progressDelta: number) => Promise<void>} handleAddProgress Adds a delta to the
  *                                                                        current progress.
- * @property {(contentState: Object) => Promise<void>} handleUpdateContentState Updates the
+ * @property {(contentState: object) => Promise<void>} handleUpdateContentState Updates the
  *                                                                              content state.
- * @property {(interaction: Object) => Promise<void>} handleUpdateInteraction Updates the
+ * @property {(interaction: object) => Promise<void>} handleUpdateInteraction Updates the
  *                                                                          interaction state.
  * @property {(data: any) => Promise<void>} updateContentSession Updates the content session.
  * @property {(error: Error) => void} onError Handles errors by flagging the session as errored
  *                                            and dispatching to the store.
- *
  * @returns {CourseContentProgressInjectObject} An object with properties and methods for managing
  *                                             the course content progress tracking.
  */

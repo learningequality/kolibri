@@ -118,11 +118,6 @@ describe('CourseUnitView', () => {
     });
   }
 
-  /**
-   * Sets up a full unit tree mock with lessons and resources so that
-   * the `shouldRedirectToResumePosition` checks can find the resource
-   * in the tree structure.
-   */
   function setupUnitTree({
     unitId = UNIT_1,
     lessonIds = [LESSON_1, LESSON_2, LESSON_3],

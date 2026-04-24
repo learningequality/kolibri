@@ -1,5 +1,5 @@
 /**
- * Mixin that connects a component to a child MediaPlayerMenu component
+ * Mixin that connects a component to a child MediaPlayerMenu component.
  */
 export default {
   computed: {
@@ -8,29 +8,15 @@ export default {
     },
   },
   methods: {
-    /**
-     * @public
-     * @return {Element}
-     */
     contentEl() {
       return this.menu.contentEl();
     },
-    /**
-     * @public
-     */
     show() {
       this.menu.show();
     },
-    /**
-     * @public
-     */
     hide() {
       this.menu.hide();
     },
-    /**
-     * @public
-     * @return {boolean}
-     */
     showing() {
       return this.menu.showing();
     },

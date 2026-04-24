@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `appErrorMock` that accepts
  * an object with values to be overriden and use it together
- * with `jest.replaceProperty` or direct assignment as follows:
+ * with `jest.replaceProperty` or direct assignment as follows:.
  *
  * ```
  * import { appErrorMock } from 'kolibri/utils/appError';
@@ -24,6 +24,11 @@ const MOCK_DEFAULTS = {
   error: ref(null),
 };
 
+/**
+ * Create a mock with optional value overrides.
+ * @param {object} overrides - Values to override the mock defaults.
+ * @returns {object} Mock object with merged defaults and overrides.
+ */
 export function appErrorMock(overrides = {}) {
   const mocks = {
     ...MOCK_DEFAULTS,

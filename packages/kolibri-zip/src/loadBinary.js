@@ -2,10 +2,6 @@
  * Vendored from https://github.com/Stuk/jszip-utils/blob/master/lib/index.js
  */
 
-/**
- * @param  {string} path    The path to the resource to GET.
- * @return {Promise}
- */
 export default function (path) {
   return new Promise((resolve, reject) => {
     try {

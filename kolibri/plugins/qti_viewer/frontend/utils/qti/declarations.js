@@ -1,6 +1,6 @@
 /**
  * QTI Variable Declaration System
- * Handles parsing and validation of QTI variable declarations
+ * Handles parsing and validation of QTI variable declarations.
  */
 import { ref } from 'vue';
 import isFunction from 'lodash/isFunction';

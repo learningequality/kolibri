@@ -216,19 +216,6 @@
       };
     },
     props: {
-      /**
-       * The assignment object to be edited
-       * @type {Object}
-       * @required
-       * @example
-       * {
-       *  title: 'Assignment Title',
-       *  description: 'Assignment Description',
-       *  assignments: ['collection_id_1', 'collection_id_2'],
-       *  active: true,
-       *  learner_ids: ['learner_id_1', 'learner_id_2'],
-       * }
-       */
       assignment: {
         type: Object,
         required: true,
@@ -410,6 +397,7 @@
         }
       },
       /**
+       * Called when the save request fails with a server error.
        * @public
        */
       handleSubmitFailure() {
@@ -426,9 +414,6 @@
         this.showDeletedUsersError = true;
         this.showServerError = true;
       },
-      /**
-       * @public
-       */
       handleSubmitTitleFailure() {
         this.formIsSubmitted = false;
         this.showTitleError = true;
@@ -437,6 +422,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       /**
+       * Called when the save request succeeds to clear all error states.
        * @public
        */
       handleSubmitSuccess() {
@@ -444,9 +430,6 @@
         this.showServerError = false;
         this.showDeletedUsersError = false;
       },
-      /**
-       * @public
-       */
       validate(handleFailure = true) {
         let error = '';
         this.showServerError = false;

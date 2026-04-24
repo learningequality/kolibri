@@ -124,7 +124,6 @@
           return null; // We'll set this to a key and null values are removed from the API call
         }
       },
-      /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         let superuser = null;
         // We need the superuser information unless the superuser will be created at login,
@@ -168,7 +167,6 @@
         return omitBy(payload, v => v === null);
       },
 
-      /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
         return this.wizardContext('onMyOwnOrGroup') == Presets.PERSONAL;
       },

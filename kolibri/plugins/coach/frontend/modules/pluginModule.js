@@ -97,11 +97,6 @@ export default {
           store.commit('SET_DATA_LOADING', false);
         });
     },
-    /**
-      * Handle coach page errors.
-      * The status code errors that's related to the authentication issue, most not show
-        in coach page beacuse there's an `auth-message` that explain the error.
-      **/
     handleCoachPageError(store, errorObject) {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);

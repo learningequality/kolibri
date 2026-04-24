@@ -1,12 +1,3 @@
-/**
- * Checks if the error contains error constants that can be handled
- * If it does, it returns the array of recognized error constants.
- * If it does not, it returns false
- * @export
- * @param {object} errorObj Request error
- * @param {Object} errorConstants Error constants to search for
- * @returns {(Array|null)} An array of error constants or null.
- */
 export default function CatchErrors(errorObj, errorConstants) {
   const errors = errorObj.response.data;
   if (errors && Array.isArray(errors)) {

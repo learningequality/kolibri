@@ -2,9 +2,9 @@
  * This class offers an API-compatible replacement for sessionStorage
  * to be used when apps are run in sandbox mode.
  *
- * sessionStorage is not persisted outside the sandboxed iframe
+ * SessionStorage is not persisted outside the sandboxed iframe.
  *
- * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage
+ * For more information, see: https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage.
  */
 import BaseStorage from './baseStorage';
 

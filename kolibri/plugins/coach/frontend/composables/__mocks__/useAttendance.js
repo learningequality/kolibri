@@ -8,7 +8,7 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useAttendanceMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -26,6 +26,10 @@
 
 import { ref } from 'vue';
 
+/**
+ * Creates default mock values for the useAttendance composable.
+ * @returns {object} Default mock values with refs and jest functions.
+ */
 function createDefaults() {
   return {
     attendanceLoading: ref(false),
@@ -48,6 +52,11 @@ function createDefaults() {
   };
 }
 
+/**
+ * Creates a mock implementation of the useAttendance composable with optional overrides.
+ * @param {object} overrides - Properties to override on the default mock values.
+ * @returns {object} Mock composable return value.
+ */
 export function useAttendanceMock(overrides = {}) {
   return {
     ...createDefaults(),

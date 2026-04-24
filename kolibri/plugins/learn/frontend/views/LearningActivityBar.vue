@@ -247,7 +247,7 @@
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
-     * - `download` on 'Download' click
+     * - `download` on 'Download' click.
      */
     props: {
       resourceTitle: {
@@ -255,7 +255,7 @@
         required: true,
       },
       /**
-       * An array of one or more learning activities constants
+       * An array of one or more learning activities constants.
        */
       learningActivities: {
         type: Array,
@@ -265,7 +265,7 @@
       /**
        * Is the bar used in the context of a lesson?
        * There are slight differences in rendering
-       * related to the context, e.g. action buttons labels.
+       * related to the context, such as action button labels.
        */
       isLessonContext: {
         type: Boolean,
@@ -290,8 +290,8 @@
       },
       /**
     The progress of the currently viewed content to determine
-    if and which progress icon should be shown (none/started/complete)
-    */
+    if and which progress icon should be shown (none/started/complete).
+       */
       contentProgress: {
         type: Number,
         required: false,
@@ -299,16 +299,16 @@
       },
       /**
     A 1/0 Boolean check whether we should show the Coach Content icon
-    to be passed to the CoachContentLabel component
-    */
+    to be passed to the CoachContentLabel component.
+       */
       isCoachContent: {
         type: Number,
         required: false,
         default: 0,
       },
       /**
-    The ContentNodeKinds kind of the content being viewed
-    */
+    The ContentNodeKinds kind of the content being viewed.
+       */
       contentKind: {
         type: String,
         required: false,
@@ -316,7 +316,7 @@
       },
       /**
     Is this a practice quiz?
-    */
+       */
       isQuiz: {
         type: Boolean,
         required: false,
@@ -324,23 +324,23 @@
       },
       /**
     Is the post-quiz report what is currently displayed?
-    */
+       */
       showingReportState: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
-    Suggested time in seconds
-    */
+    Suggested time in seconds.
+       */
       duration: {
         type: Number,
         required: false,
         default: null,
       },
       /**
-    Actual time spent in seconds
-    */
+    Actual time spent in seconds.
+       */
       timeSpent: {
         type: Number,
         required: false,
@@ -348,15 +348,15 @@
       },
       /**
     A Boolean check whether we should show the Bookmark Icon
-    what should not happen if the user is not logged in
-    */
+    what should not happen if the user is not logged in.
+       */
       showBookmark: {
         type: Boolean,
         required: false,
         default: true,
       },
       /**
-       * Shows the download button when truthy
+       * Shows the download button when truthy.
        */
       showDownloadButton: {
         type: Boolean,
@@ -364,7 +364,7 @@
         default: false,
       },
       /**
-       * Shows the downloading loader and disables download action when truthy
+       * Shows the downloading loader and disables download action when truthy.
        */
       isDownloading: {
         type: Boolean,
@@ -571,6 +571,7 @@
         });
       },
       /**
+       * Trigger the next-steps animation; called from TopicsContentPage via $refs.
        * @public
        */
       animateNextSteps() {

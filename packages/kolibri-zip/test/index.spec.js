@@ -22,9 +22,9 @@ if (!global.URL.revokeObjectURL) {
 }
 
 /**
- * Helper to create a zip file with specified contents
- * @param {Object} files - Object mapping filenames to content strings
- * @returns {Uint8Array} - The zip file data
+ * Helper to create a zip file with specified contents.
+ * @param {object} files - Object mapping filenames to content strings.
+ * @returns {Uint8Array} - The zip file data.
  */
 function createTestZip(files) {
   const zipContents = {};
@@ -34,9 +34,6 @@ function createTestZip(files) {
   return zipSync(zipContents);
 }
 
-/**
- * Setup xhr-mock to serve a zip file with range request support
- */
 function setupMockServer(zipData, url = 'test.zip') {
   xhrMock.reset();
   xhrMock.get(url, (req, res) => {
@@ -70,11 +67,10 @@ function setupMockServer(zipData, url = 'test.zip') {
 /**
  * Combined helper to create zip, setup mock server, and return ZipFile instance.
  * Reduces boilerplate in tests.
- *
- * @param {Object} files - Object mapping filenames to content strings
- * @param {string} url - URL for the mock server (default: 'test.zip')
- * @param {Object} options - Options passed to ZipFile constructor
- * @returns {ZipFile} - Initialized ZipFile instance
+ * @param {object} files - Object mapping filenames to content strings.
+ * @param {string} url - URL for the mock server (default: 'test.zip').
+ * @param {object} options - Options passed to ZipFile constructor.
+ * @returns {ZipFile} - Initialized ZipFile instance.
  */
 function setupZip(files, url = 'test.zip', options = {}) {
   const zipData = createTestZip(files);
@@ -386,12 +382,12 @@ describe('ZipFile public API', () => {
 });
 
 /**
- * Lazy loading tests
+ * Lazy loading tests.
  *
  * Key behaviors that differentiate lazy loading:
  * 1. Large zips are NOT fully downloaded - download is aborted early
  * 2. Range requests are made to fetch file data
- * 3. largeFileUrlGenerator is called for large media files
+ * 3. The `largeFileUrlGenerator` option is called for large media files.
  */
 describe('ZipFile lazy loading', () => {
   let requestLog = [];
@@ -410,9 +406,6 @@ describe('ZipFile lazy loading', () => {
     jest.restoreAllMocks();
   });
 
-  /**
-   * Helper to create a large zip file for testing lazy loading
-   */
   function createLargeTestZip(options = {}) {
     const {
       smallFiles = { 'small.txt': 'Small content' },
@@ -436,9 +429,6 @@ describe('ZipFile lazy loading', () => {
     return zipSync(zipContents);
   }
 
-  /**
-   * Setup mock server that tracks all requests and supports range requests
-   */
   function setupTrackingMockServer(zipData, url = 'large.zip') {
     xhrMock.reset();
     xhrMock.get(url, (req, res) => {

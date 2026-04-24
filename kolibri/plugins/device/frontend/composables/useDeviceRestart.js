@@ -1,5 +1,5 @@
 /**
- * A composable function containing logic related to restarting the device
+ * A composable function containing logic related to restarting the device.
  */
 
 import { ref } from 'vue';
@@ -18,6 +18,10 @@ const canRestart = plugin_data.canRestart;
 const baseClient = clientFactory();
 
 // POST to /api/device/devicerestart
+/**
+ * Sends a POST request to trigger a device restart.
+ * @returns {Promise<boolean>} Resolves with true if the restart was initiated successfully.
+ */
 export function restartDevice() {
   return client({
     url: urls['kolibri:core:devicerestart'](),
@@ -25,6 +29,10 @@ export function restartDevice() {
   }).then(resp => Boolean(resp.data));
 }
 
+/**
+ * Checks whether the device is currently in a restarting state by polling the restart endpoint.
+ * @returns {Promise<boolean>} Resolves with true if the device is restarting, false otherwise.
+ */
 export function isDeviceRestarting() {
   return baseClient({
     url: urls['kolibri:core:devicerestart'](),
@@ -33,6 +41,10 @@ export function isDeviceRestarting() {
     .catch(() => true);
 }
 
+/**
+ * Initiates a device restart and waits for it to complete before resuming polling.
+ * @returns {Promise<void>} Resolves when the device has finished restarting.
+ */
 function restart() {
   if (!canRestart) {
     return Promise.reject('Device restart is not supported with current server configuration');
@@ -62,6 +74,10 @@ function restart() {
   });
 }
 
+/**
+ * Composable providing device restart state and actions.
+ * @returns {object} Restart state, restart action, and canRestart flag.
+ */
 export default function useDeviceRestart() {
   return {
     restarting,

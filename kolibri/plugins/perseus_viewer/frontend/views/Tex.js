@@ -2,7 +2,7 @@
 /**
  * For math rendered using KaTex and/or MathJax. Use me like <TeX>2x + 3</TeX>.
  * Vendored and tweaked from:
- * https://github.com/Khan/react-components/blob/fee9ceb0ff7dfe40370465101dd86f1def33a9d5/js/tex.jsx
+ * https://github.com/Khan/react-components/blob/fee9ceb0ff7dfe40370465101dd86f1def33a9d5/js/tex.jsx.
  */
 /* global MathJax */
 

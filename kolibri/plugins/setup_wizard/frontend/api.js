@@ -5,8 +5,8 @@ import { Resource } from 'kolibri/apiResource';
 /**
  * The <Module>Resource classes here map directly to the <Module>ViewSet of the same
  * name in the kolibri.plugins.setup_wizard.api module (note how the definitions of)
- * the Resource instances below have 'kolibri.plugins.setup_wizard' for their 'namespace'
- **/
+ * the Resource instances below have 'kolibri.plugins.setup_wizard' for their 'namespace'.
+ */
 
 export const SetupWizardResource = new Resource({
   name: 'setupwizard',

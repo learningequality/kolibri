@@ -37,12 +37,6 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
-  /**
-   * @typedef   {Object}    Tab
-   * @property  {string}    label
-   * @property  {string}    id
-   */
-
   export default {
     // TODO Rename this to TabsListWithOverflow as it will wrap stuff in a KTabsList
     name: 'TabsWithOverflow',

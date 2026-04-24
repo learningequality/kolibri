@@ -8,14 +8,17 @@ import useFetchTree from './useFetchTree';
 const logger = logging.getLogger(__filename);
 const _loadingMore = ref(false);
 /**
- * @typedef {Object} QuizResourcesConfig
+ * @typedef {object} QuizResourcesConfig
  * @property { computed <string|null|undefined> } topicId - The id of the root node to fetch the
- * children for
+ * children for.
  */
 
 /**
- * @module useQuizResources
- * @param {QuizResourcesConfig} config
+ * Composable for fetching and managing quiz-eligible resources from a content topic.
+ * @param {object} root0 - Options object.
+ * @param {object} root0.topicId - A computed ref containing the topic ID to fetch resources from.
+ * @param {boolean} root0.practiceQuiz - Whether to filter resources to practice quiz content only.
+ * @returns {object} Resource list, loading state, and fetch methods.
  */
 export default function useQuizResources({ topicId, practiceQuiz = false } = {}) {
   const params = {
@@ -39,18 +42,15 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     params,
   });
 
-  /** @type {ref<ExerciseResource[]>} All resources which have been fetched that are the children of
-   * the given topicId annotated with assessment metadata */
   const _resources = ref([]);
 
-  /** @type {ref<Boolean>} Whether we are currently fetching/processing the child nodes */
+  /** @type {ref<boolean>} Whether we are currently fetching/processing the child nodes */
   const _loading = ref(false);
 
   /**
-   * Annotates the child TOPIC nodes with the number of assessments that are contained within them
-   * @param {ContentNode[]} results - The array of results from a content API call
-   * @returns {Promise<ContentNode[]>} - A promise that resolves when the annotations have been
-   *   made and returns the annotated results
+   * Annotates topic nodes in the results array with the count of descendant assessments.
+   * @param {Array} results - Array of content node objects to annotate.
+   * @returns {Promise<Array>} Resolves with annotated nodes, excluding topics with no assessments.
    */
   async function annotateTopicsWithDescendantCounts(results) {
     const topicIds = results
@@ -97,9 +97,8 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   }
 
   /**
-   *  @affects _resources - Sets the _resources to the results of the fetchTree call
-   *  @affects _loading
-   *  @returns {Promise<null>} - A promise that resolves when the annotations have been made and
+   * Fetches the initial set of quiz resources for the current topic.
+   * @returns {Promise<void>} Resolves when resources have been fetched and annotated.
    */
   async function fetchQuizResources() {
     set(_loading, true);
@@ -112,9 +111,8 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   }
 
   /**
-   *  @affects _resources - Appends the results of the fetchMore call to the _resources
-   *    and annotates any new topics with descendant counts
-   *  @affects _loading - fetchMore & annotateTopicsWithDescendantCounts update the loading states
+   * Fetches the next page of quiz resources and appends them to the current list.
+   * @returns {Promise<void>} Resolves when additional resources have been fetched and annotated.
    */
   async function fetchMoreQuizResources() {
     set(_loading, true);
@@ -128,6 +126,11 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     });
   }
 
+  /**
+   * Replaces the current resources list with a new list.
+   * @param {Array} r - The new array of resource objects.
+   * @returns {void}
+   */
   function setResources(r) {
     set(_resources, r);
   }

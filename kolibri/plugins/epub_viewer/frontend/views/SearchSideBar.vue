@@ -95,12 +95,12 @@
   /**
    * Searches through an entire book for a string, but caps after a certain amount of results is
    * exceeded
-   * Helpful in preventing a CPU lockup for search queries with a lot of search results
-   * @param {object} book Ebookjs book object
-   * @param {string} searchQuery String to search for
-   * @param {number} maxSearchResults Stop searching for matches after this is amount is exceeded,
-   *                                  e.g. 1000
-   * @returns {Promise} A promise that resolves to the search results
+   * Helpful in preventing a CPU lockup for search queries with a lot of search results.
+   * @param {object} book - Ebookjs book object.
+   * @param {string} searchQuery - String to search for.
+   * @param {number} maxSearchResults - Stop searching for matches after this is amount is exceeded,
+   *                                  e.g. 1000.
+   * @returns {Promise} A promise that resolves to the search results.
    */
   function searchThroughEntireBook(book, searchQuery, maxSearchResults) {
     function searchThroughSpineItem(spineItem, searchQuery, numOfTotalSearchResultsSoFar) {
@@ -174,6 +174,7 @@
     },
     methods: {
       /**
+       * Moves keyboard focus to the search input field.
        * @public
        */
       focusOnInput() {
@@ -198,13 +199,6 @@
           );
         }
       },
-      /**
-       * This method "marks" the match text to which the cfi refers in every result in the
-       * search results list
-       * @param {array} searchResults
-       * @returns {array} searchResults with the excerpt split into before, match, and after
-       * where the match is the text that will be highlighted
-       */
       selectMatchResult(searchResults) {
         const searchQuery = this.searchQuery.toLowerCase();
         return searchResults.map((result, i) => {
@@ -228,18 +222,6 @@
           };
         });
       },
-      /**
-       * Identify the index of the match in the result excerpt based
-       * on the distance between the cfis with the next result compared to
-       * the distance of the result excerpt between a match and the next match.
-       * @param {object} params
-       * @param {string[]} params.textSplit The result excerpt split by the search query
-       * @param {string} params.cfi The cfi of the current result
-       * @param {object} params.nextResult The next result
-       * @returns {number} The index of the match in the result excerpt
-       * @example If there are n matches in the same result excerpt, this method will
-       * return 0 if the cfi refers to the first match, 1 for the second match, etc.
-       */
       getMatchIndex({ textSplit, cfi, nextResult }) {
         if (textSplit.length <= 2) {
           // There is just one match in the result excerpt
@@ -262,15 +244,6 @@
         // so we return the last match.
         return textSplit.length - 2;
       },
-      /**
-       * If two matches appears in the same result excerpt then they are in the same node.
-       * So, this method finds the distance between the two matches and return -1 if they are
-       * not in the same node.
-       * @param {string} cfi1 The cfi of the first match
-       * @param {string} cfi2 The cfi of the second match after the first one
-       * @returns {number} The number of characters between the two matches or -1 if they are
-       * not in the same node.
-       */
       getDistanceInNode(cfi1, cfi2) {
         const cfiParser = new EpubCFI();
         const cfi1Parsed = cfiParser.parse(cfi1);
@@ -298,15 +271,6 @@
         const distance = cfi2StartTerminal.offset - cfi1EndTerminal.offset;
         return distance;
       },
-      /**
-       * Divide the excerpt into before, match, and after based on the index of the match
-       * where the match is the text that will be highlighted
-       * @param {object} params
-       * @param {string[]} params.textSplit The result excerpt split by the search query
-       * @param {string} params.excerpt The result excerpt
-       * @param {number} params.selectedIndex The index of the match in the result excerpt
-       * @returns {object} The excerpt divided into before, match, and after
-       */
       splitExcerpt({ textSplit, excerpt, selectedIndex }) {
         const searchQueryLength = this.searchQuery.length;
         let startIndex = searchQueryLength * selectedIndex;

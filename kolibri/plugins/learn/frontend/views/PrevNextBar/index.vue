@@ -133,7 +133,7 @@
         default: null,
       },
       /**
-       * Override default behavior of enabling/disabling next button based on currentNumber
+       * Override default behavior of enabling/disabling next button based on currentNumber.
        */
       nextEnabled: {
         type: Boolean,

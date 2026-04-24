@@ -56,13 +56,18 @@ const VERB_MAP = {
  */
 
 /**
- * @param {String|Number} interval
- * @return {string}
+ * Pads a time interval value with leading zeros to at least 2 digits.
+ * @param {number|string} interval - The time value to pad.
+ * @returns {string} The zero-padded string.
  */
 function padTime(interval) {
   return pad(interval, 2, '0');
 }
 
+/**
+ * Returns CSV field definition for the average score column.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function avgScore() {
   return [
     {
@@ -79,6 +84,10 @@ export function avgScore() {
   ];
 }
 
+/**
+ * Returns CSV field definitions for help needed and total learner counts.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function helpNeeded() {
   return [
     {
@@ -94,6 +103,11 @@ export function helpNeeded() {
   ];
 }
 
+/**
+ * Returns CSV field definition for the all learners count column.
+ * @param {string} key - The row property key to read the value from.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function allLearners(key = 'all') {
   return [
     {
@@ -104,6 +118,11 @@ export function allLearners(key = 'all') {
   ];
 }
 
+/**
+ * Returns CSV field definition for the last activity date column.
+ * @param {string} key - The row property key to read the date value from.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function lastActivity(key = 'lastActivity') {
   return [
     {
@@ -122,6 +141,11 @@ export function lastActivity(key = 'lastActivity') {
   ];
 }
 
+/**
+ * Returns CSV field definition for the learner progress status column.
+ * @param {string} key - The row property key to read the status value from.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function learnerProgress(key = 'status') {
   return [
     {
@@ -136,6 +160,12 @@ export function learnerProgress(key = 'status') {
   ];
 }
 
+/**
+ * Returns CSV field definition for a column that displays a formatted list of values.
+ * @param {string} key - The row property key to read the list value from.
+ * @param {string} label - The translation key from coachStrings for the column header.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function list(key, label) {
   return [
     {
@@ -154,6 +184,11 @@ export function list(key, label) {
   ];
 }
 
+/**
+ * Returns CSV field definition for the name column.
+ * @param {string} label - The translation key from coachStrings for the column header.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function name(label = 'nameLabel') {
   return [
     {
@@ -163,6 +198,11 @@ export function name(label = 'nameLabel') {
   ];
 }
 
+/**
+ * Returns CSV field definitions for the recipient type and recipient names columns.
+ * @param {string} className - Class name shown when the assignment targets the whole class.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function recipients(className) {
   return [
     {
@@ -199,6 +239,10 @@ export function recipients(className) {
   ];
 }
 
+/**
+ * Returns CSV field definition for the individual learner score column.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function score() {
   return [
     {
@@ -215,6 +259,10 @@ export function score() {
   ];
 }
 
+/**
+ * Returns CSV field definitions for the completion tally (not started, started, completed, etc.).
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function tally() {
   return [
     {
@@ -236,6 +284,12 @@ export function tally() {
   ];
 }
 
+/**
+ * Returns CSV field definition for the time spent column, formatted as HH:MM:SS.
+ * @param {string} key - The row property key to read the time value from.
+ * @param {string} label - Optional column header label; defaults to the core time spent label.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function timeSpent(key, label) {
   label = label || coreStrings.$tr('timeSpentLabel');
   return [
@@ -260,6 +314,10 @@ export function timeSpent(key, label) {
   ];
 }
 
+/**
+ * Returns CSV field definition for the title column.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function title() {
   return [
     {
@@ -269,6 +327,10 @@ export function title() {
   ];
 }
 
+/**
+ * Returns CSV field definition for the question title column.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function questionTitle() {
   return [
     {
@@ -278,6 +340,11 @@ export function questionTitle() {
   ];
 }
 
+/**
+ * Returns CSV field definitions for quiz questions answered, correct, and total columns.
+ * @param {object} quiz - The quiz object containing question_count.
+ * @returns {Array} Array of CSV field definition objects.
+ */
 export function quizQuestionsAnswered(quiz) {
   return [
     {

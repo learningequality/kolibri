@@ -168,8 +168,8 @@
       pollTask() {
         /**
        - Save tasks returned to this.loadingTasks
-       - Clear completed
-       **/
+       - Clear completed.
+         */
         TaskResource.list({ queue: this.queue })
           .then(tasks => {
             if (!tasks.length) {

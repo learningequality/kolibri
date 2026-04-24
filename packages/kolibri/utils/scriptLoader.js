@@ -1,7 +1,7 @@
 /**
  * Loads a Javascript file and executes it.
- * @param  {String} url URL for the script
- * @return {Promise}     Promise that resolves when the script has loaded
+ * @param  {string} url - URL for the script.
+ * @returns {Promise}     Promise that resolves when the script has loaded.
  */
 export default function scriptLoader(url) {
   return new Promise((resolve, reject) => {

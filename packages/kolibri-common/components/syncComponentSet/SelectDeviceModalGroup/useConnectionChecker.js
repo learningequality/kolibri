@@ -20,17 +20,6 @@ function useMemoizeWithExpiry(asyncFunction, options = {}) {
   };
 }
 
-/**
- *
- * @param {Ref<NetworkLocation[]>} devices
- * @param {Number} threshold - minimum `since_last_accessed` needed to perform check
- * @param {Number} interval - time between running individual checks
- * @param {Number} concurrency - the number of simultaneous connection checks
- * @return {{
- *  checkFailed: Ref<bool>, isChecking: Ref<bool>, hasChecked: Ref<bool>,
- *  doCheck: (function(id: string): Promise<NetworkLocation>),
- * }}
- */
 export default function useConnectionChecker(
   devices,
   { threshold = 5, interval = 2, concurrency = 3 } = {},

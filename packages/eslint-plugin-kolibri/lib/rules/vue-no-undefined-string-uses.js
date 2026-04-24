@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow attempted uses of undefined translation strings.
+ * @file Disallow attempted uses of undefined translation strings.
  */
 
 'use strict';

@@ -6,12 +6,9 @@ const { GROUP_WATCH, GROUP_METHODS, PROPERTY_LABEL } = require('./constants');
 
 module.exports = {
   /**
-   * Extract the called method name from a CallExpression node, such as:
-   *   screen.getByText(...) => 'getByText'
-   *   getByText(...) => 'getByText'
-   *
-   * @param {ASTNode} node - A CallExpression node
-   * @returns {string|null}
+   * Extract the called method name from a CallExpression node.
+   * @param {object} node - A CallExpression node.
+   * @returns {string|null} The called method name, or null if not found.
    */
   getCallMethodName(node) {
     if (node.callee.type === 'MemberExpression') {
@@ -26,13 +23,17 @@ module.exports = {
   /**
    * Safely access parserServices from the ESLint rule context.
    * In ESLint 9 flat config, parserServices moved to context.sourceCode.parserServices.
+   * @param {object} context - The ESLint rule context.
+   * @returns {object|null} The parser services object, or null if unavailable.
    */
   getParserServices(context) {
     return context.sourceCode && context.sourceCode.parserServices;
   },
 
   /**
-   * Extract names from references objects
+   * Extract names from references objects.
+   * @param {object[]} references - Array of reference objects.
+   * @returns {string[]} Array of reference names.
    */
   getReferencesNames(references) {
     if (!references || !references.length) {
@@ -51,6 +52,8 @@ module.exports = {
   /**
    * Check if there's vue-eslint-parser available.
    * If not, report a problem.
+   * @param {object} context - The ESLint rule context.
+   * @returns {boolean} True if vue-eslint-parser is available, false otherwise.
    */
   checkVueEslintParser(context) {
     const parserServices = this.getParserServices(context);
@@ -73,7 +76,8 @@ module.exports = {
 
   /**
    * Get an array of watchers names.
-   * @param {Object} obj Vue object
+   * @param {object} obj - Vue component options object.
+   * @returns {string[]} Array of watcher names.
    */
   getWatchersNames(obj) {
     const watchers = Array.from(
@@ -84,7 +88,9 @@ module.exports = {
 
   /**
    * Return an array containing end locations of all comments containing
-   * jsdoc's `@public`
+   * jsdoc's `@public`.
+   * @param {object[]} comments - Array of comment nodes.
+   * @returns {number[]} Array of line numbers where @public comments end.
    */
   getPublicCommentsEnds(comments) {
     return comments
@@ -94,6 +100,8 @@ module.exports = {
 
   /**
    * Extract name from a directive dynamic argument node.
+   * @param {object} node - The directive key node.
+   * @returns {string|null} The dynamic argument name, or null if not found.
    */
   getDirectiveDynamicArgName(node) {
     if (!node.raw || !node.raw.argument || !node.raw.argument.length) {
@@ -111,6 +119,8 @@ module.exports = {
 
   /**
    * Run callback on this expression properties nodes.
+   * @param {Function} func - Callback to run on each matching node.
+   * @returns {object} ESLint AST visitor object.
    */
   executeOnThisExpressionProperty(func) {
     return {
@@ -124,6 +134,8 @@ module.exports = {
 
   /**
    * Run callback on beforeRouteEnter component instance property.
+   * @param {Function} func - Callback to run on each matching node.
+   * @returns {object} ESLint AST visitor object.
    */
   executeOnBefoureRouteEnterInstanceProperty(func) {
     let instanceParamName;
@@ -143,10 +155,9 @@ module.exports = {
   },
 
   /**
-   * Run callback on watch string method literal node, e.g. on `add` literal node in
-   * watch: {
-   *   counter: 'add'
-   * }
+   * Run callback on watch string method literal nodes, such as an `add` literal in a watch object.
+   * @param {Function} func - Callback to run on each matching node.
+   * @returns {object} ESLint AST visitor object.
    */
   executeOnWatchStringMethod(func) {
     return {
@@ -157,8 +168,9 @@ module.exports = {
   },
 
   /**
-   * Run callback on directive dynamic argument node, e.g. on
-   * <a :[attributeName]="..."> ... </a>
+   * Run callback on directive dynamic argument nodes, such as a `:[attributeName]` dynamic binding.
+   * @param {Function} func - Callback to run on each matching node.
+   * @returns {object} ESLint AST visitor object.
    */
   executeOnDirectiveDynamicArg(func) {
     return {
@@ -179,6 +191,8 @@ module.exports = {
 
   /**
    * Run callback when end of the root template reached.
+   * @param {Function} func - Callback to run when root template ends.
+   * @returns {object} ESLint AST visitor object.
    */
   executeOnRootTemplateEnd(func) {
     let rootTemplateEnd;
@@ -203,7 +217,10 @@ module.exports = {
 
   /**
    * Report unused Vue component properties.
-   * @param {Array} disabledLines An array of lines to not be reported, e.g. [14, 24]
+   * @param {object} context - The ESLint rule context.
+   * @param {object[]} properties - Array of property objects to check.
+   * @param {number[]} disabledLines - An array of lines to not be reported, e.g. [14, 24].
+   * @returns {void}
    */
   reportUnusedProperties(context, properties, disabledLines) {
     if (!properties || !properties.length) {
@@ -228,7 +245,10 @@ module.exports = {
   },
 
   /**
-   * Report unused Vuex properties.
+   * Report Vuex properties that are mapped but never used in the component.
+   * @param {object} context - The ESLint rule context.
+   * @param {object[]} properties - Array of property objects to check.
+   * @returns {void}
    */
   reportUnusedVuexProperties(context, properties) {
     if (!properties || !properties.length) {
@@ -245,6 +265,10 @@ module.exports = {
 
   /**
    * Report unused translation definitions.
+   * @param {object} context - The ESLint rule context.
+   * @param {object[]} definitions - Array of translation definition objects.
+   * @param {string[]} uses - Array of translation keys that are used.
+   * @returns {void}
    */
   reportUnusedTranslations(context, definitions, uses) {
     const unused = definitions.filter(prop => !uses.includes(prop.name));
@@ -258,7 +282,11 @@ module.exports = {
   },
 
   /**
-   * Report uses of undefined strings
+   * Report uses of undefined strings.
+   * @param {object} context - The ESLint rule context.
+   * @param {object[]} definitions - Array of translation definition objects.
+   * @param {object[]} uses - Array of translation use objects.
+   * @returns {void}
    */
   reportUseOfUndefinedTranslation(context, definitions, uses) {
     const definedStrings = definitions.map(prop => prop.name);
@@ -273,7 +301,10 @@ module.exports = {
   },
 
   /**
-   * Report improper translation string definitions
+   * Report improper translation string definitions.
+   * @param {object} context - The ESLint rule context.
+   * @param {object[]} normalDefinitionNodes - Array of normal definition node objects.
+   * @returns {void}
    */
   reportImproperTranslationString(context, normalDefinitionNodes) {
     const trsNodes = normalDefinitionNodes.map(prop => prop.name);

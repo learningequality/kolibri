@@ -6,17 +6,13 @@ import { PageNames } from '../constants';
 import useCoreCoach from './useCoreCoach';
 
 /**
- * Shared attendance form logic used by both AttendanceNewPage and AttendanceEditPage.
- *
- * @param {Object} options
- * @param {import('vue').Ref<boolean>|import('vue').ComputedRef<boolean>} options.hasChanges
- *   Reactive flag indicating whether the form has unsaved changes.
- * @param {Function} options.markClean
- *   Called when the user confirms leaving without saving.
- * @param {import('vue').Ref<boolean>} options.submitting
- *   Reactive flag for whether a submit/save is in progress.
- * @param {Function} [options.onChange]
- *   Optional callback fired whenever the attendance map changes (toggle or mark-all).
+ * Composable providing attendance form state and actions.
+ * @param {object} root0 - Options object.
+ * @param {object} root0.hasChanges - Ref indicating whether form has unsaved changes.
+ * @param {Function} root0.markClean - Function to mark the form as clean (no unsaved changes).
+ * @param {object} root0.submitting - Ref indicating whether the form is being submitted.
+ * @param {Function} root0.onChange - Callback invoked when attendance values change.
+ * @returns {object} Attendance form state and methods.
  */
 export default function useAttendanceForm({ hasChanges, markClean, submitting, onChange }) {
   const router = useRouter();
@@ -40,6 +36,11 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
       .sort((a, b) => localeCompare(a.name, b.name));
   });
 
+  /**
+   * Sets the set of enrolled learner IDs to filter the learner list.
+   * @param {object} ids - A Set of learner IDs, or null to include all learners.
+   * @returns {void}
+   */
   function setEnrolledLearnerIds(ids) {
     enrolledLearnerIds.value = ids;
   }
@@ -60,6 +61,11 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     Object.values(previouslyEnrolledMap.value).sort((a, b) => localeCompare(a.name, b.name)),
   );
 
+  /**
+   * Populates the map of previously enrolled learners from attendance records.
+   * @param {Array} records - Attendance record objects with user and presence data.
+   * @returns {void}
+   */
   function setPreviouslyEnrolled(records) {
     const map = {};
     records.forEach(r => {
@@ -95,6 +101,11 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
       sortedLearners.value.length > 0 && currentPresentCount.value === sortedLearners.value.length,
   );
 
+  /**
+   * Sets the attendance status for all current learners.
+   * @param {boolean} value - Whether to mark all learners as present or absent.
+   * @returns {void}
+   */
   function setAllLearners(value) {
     const newMap = {};
     sortedLearners.value.forEach(l => {
@@ -104,6 +115,11 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     if (onChange) onChange();
   }
 
+  /**
+   * Handles the mark-all checkbox change event.
+   * @param {boolean} checked - Whether the mark-all checkbox is checked.
+   * @returns {void}
+   */
   function handleMarkAllChange(checked) {
     if (checked) {
       showMarkAllModal.value = true;
@@ -112,15 +128,28 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     }
   }
 
+  /**
+   * Confirms marking all learners as present and closes the modal.
+   * @returns {void}
+   */
   function confirmMarkAll() {
     setAllLearners(true);
     showMarkAllModal.value = false;
   }
 
+  /**
+   * Cancels the mark-all action and closes the modal.
+   * @returns {void}
+   */
   function cancelMarkAll() {
     showMarkAllModal.value = false;
   }
 
+  /**
+   * Navigates back to the attendance history page with optional query parameters.
+   * @param {object} query - Query parameters to include in the route.
+   * @returns {void}
+   */
   function navigateBack(query = {}) {
     router.push({
       ...backRoute.value,
@@ -129,6 +158,10 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
   }
 
   // Unsaved changes guard
+  /**
+   * Confirms navigation away from the page, discarding unsaved changes.
+   * @returns {void}
+   */
   function confirmLeave() {
     const dest = pendingRoute.value;
     pendingRoute.value = null;
@@ -136,10 +169,21 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     router.push(dest);
   }
 
+  /**
+   * Cancels the pending navigation, keeping the user on the current page.
+   * @returns {void}
+   */
   function cancelLeave() {
     pendingRoute.value = null;
   }
 
+  /**
+   * Vue Router navigation guard to prompt confirmation when leaving with unsaved changes.
+   * @param {object} to - The target route being navigated to.
+   * @param {object} _from - The current route being navigated away from.
+   * @param {Function} next - The callback to resolve the guard.
+   * @returns {void}
+   */
   function beforeRouteLeave(to, _from, next) {
     if (hasChanges.value && !submitting.value) {
       pendingRoute.value = to;
@@ -149,6 +193,10 @@ export default function useAttendanceForm({ hasChanges, markClean, submitting, o
     }
   }
 
+  /**
+   * Builds the attendance records array from current learner states.
+   * @returns {Array} Array of record objects with user ID and presence status.
+   */
   function buildRecords() {
     return sortedLearners.value.map(learner => ({
       user: learner.id,

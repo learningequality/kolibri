@@ -9,11 +9,10 @@ import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManage
 import { DateRangeFilters } from '../constants';
 
 /**
- * Composable to manage user filters in the user management pages.
- *
- * @param {object} options
- * @param {Array} options.classes - Ref to the list of classes available for filtering.
- * @returns
+ * Composable providing user filter state and methods for the facility users table.
+ * @param {object} root0 - Options object.
+ * @param {object} root0.classes - A ref or computed containing the list of available classes.
+ * @returns {object} Filter state, options, and methods for applying and resetting filters.
  */
 export default function useUsersFilters({ classes }) {
   const router = useRouter();
@@ -130,15 +129,6 @@ export default function useUsersFilters({ classes }) {
     { immediate: true },
   );
 
-  /**
-   * Apply the current filters to the route by updating the query parameters,
-   * and pushing the new route. This will remove from the query any filters
-   * that are not longer applied, but will leave any other query parameters intact.
-   *
-   * @param {object} options
-   * @param {string} options.nextRouteName - The name of the route to navigate to
-   *                                         after applying filters.
-   */
   const applyFilters = ({ nextRouteName } = {}) => {
     const nextQuery = { ...route.query };
     delete nextQuery.page; // Reset to the first page when applying filters

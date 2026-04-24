@@ -155,7 +155,7 @@
     },
     props: {
       /**
-       * contentNodes - The contentNode objects to be displayed. Each
+       * ContentNodes - The contentNode objects to be displayed. Each
        * contentNode must include the following keys id, title, duration, progress, is_leaf.
        */
       contentNodes: {
@@ -220,7 +220,10 @@
       },
     },
     computed: {
-      /** Overrides some default styles in KRouterLink */
+      /**
+       * Overrides some default styles in KRouterLink.
+       * @returns {object} The CSS style overrides applied to KRouterLink.
+       */
       linkStyles() {
         return {
           color: this.$themeTokens.text + '!important',

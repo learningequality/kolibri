@@ -8,7 +8,7 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useBaseSearch` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with  `mockImplementation` as follows:.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -63,6 +63,11 @@ const MOCK_DEFAULTS = {
   }),
 };
 
+/**
+ * Create a mock with optional value overrides.
+ * @param {object} overrides - Values to override the mock defaults.
+ * @returns {object} Mock object with merged defaults and overrides.
+ */
 export function useBaseSearchMock(overrides = {}) {
   return {
     ...MOCK_DEFAULTS,

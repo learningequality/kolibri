@@ -344,7 +344,7 @@
         default: null,
       },
       /**
-       * Whether the current unit is already completed. i.e. we are seeing a
+       * Whether the current unit is already completed. I.e. We are seeing a
        * unit previous to the current unit in the unit tree.
        */
       isUnitComplete: {
@@ -356,7 +356,7 @@
         default: null,
       },
       /**
-       * The maximum lft of the resource that can be seen in the unit tree
+       * The maximum lft of the resource that can be seen in the unit tree.
        */
       maxResourceLft: {
         type: Number,

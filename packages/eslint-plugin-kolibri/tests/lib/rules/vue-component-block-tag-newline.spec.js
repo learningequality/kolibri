@@ -1,6 +1,6 @@
 /**
  * Vendored and modified from:
- * https://github.com/vuejs/eslint-plugin-vue/blob/9b55f3c18403b0a77808ba758ec3a8e72a884036/tests/lib/rules/block-tag-newline.js
+ * https://github.com/vuejs/eslint-plugin-vue/blob/9b55f3c18403b0a77808ba758ec3a8e72a884036/tests/lib/rules/block-tag-newline.js.
  */
 'use strict';
 

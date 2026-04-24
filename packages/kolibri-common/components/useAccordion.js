@@ -1,14 +1,6 @@
 import uniq from 'lodash/uniq';
 import { isRef, ref, computed } from 'vue';
 
-/**
- * @param {Object} options
- * @param {Array<Ref>} options.items - array of items in accordion
- * @param {Function: int => bool} options.collapseGuard - function to determine if collapse is
- *    allowed - when true, collapse is blocked
- * @param {Function: int => bool} options.expandGuard - function to determine if expand is allowed
- *  - when true, expand is blocked
- */
 export default function useAccordion(items) {
   if (!isRef(items)) {
     throw new Error('items is required and must be reactive value');
@@ -63,19 +55,3 @@ export default function useAccordion(items) {
     toggle,
   };
 }
-
-/**
- * <KAccordion>
- *   <KAccordionItem
- *      v-for="(item, index) in items"
- *      :isExpanded="isExpanded(index)"
- *   >
- *      <template #heading>
- *        <h3 @click="toggle(index)">{{ item.title }}</h3>
- *      </template>
- *      <template #content>
- *        <p v-if="isExpanded(index)">{{ item.content }}</p>
- *      </template>
- *   </KAccordionItem>
- * </KAccordion>
- */

@@ -29,29 +29,11 @@ const EOCD_PROXIMITY_THRESHOLD = 100;
  * AdaptiveHttpReader extends zip.js's Reader to provide adaptive fast/lazy loading for zip files.
  *
  * - Fast path: For small files (< maxFullLoadSize), downloads entire file in one request
- * - Lazy path: For large files (> maxFullLoadSize), aborts download and uses range requests
+ * - Lazy path: For large files (> maxFullLoadSize), aborts download and uses range requests.
  *
  * Uses XHR only for iOS Safari 9.3 compatibility (no fetch API).
- *
- * Usage:
- *   const reader = new AdaptiveHttpReader(url, {
- *     maxFullLoadSize: 2.5 * 1024 * 1024,    // Threshold for lazy loading
- *     largeMediaThreshold: 500 * 1024,         // Threshold for large media
- *   });
- *   await reader.init();
- *   const data = await reader.readUint8Array(offset, length);
  */
 export default class AdaptiveHttpReader extends Reader {
-  /**
-   * @param {string} url - URL of the ZIP file to read
-   * @param {Object} [options]
-   * @param {number} [options.maxFullLoadSize=2.5MB] - Files larger than this trigger lazy
-   *   loading with range requests instead of downloading entirely
-   * @param {number} [options.largeMediaThreshold=500KB] - Audio/video files larger than this
-   *   are excluded from chunks and expected to be served via a largeFileUrlGenerator
-   * @param {number} [options.chunkSize=500KB] - Target size for grouping adjacent small files
-   *   into single range requests
-   */
   constructor(
     url,
     {
@@ -72,35 +54,14 @@ export default class AdaptiveHttpReader extends Reader {
     this.size = 0;
   }
 
-  /**
-   * Returns true if the reader is in lazy mode (file > maxFullLoadSize).
-   */
   get useLazyMode() {
     return this._useLazyMode;
   }
 
-  /**
-   * Returns true if chunks have been configured (or aren't needed).
-   * After this point, all reads should be served from chunks.
-   */
   get chunksConfigured() {
     return this._initialized && (!this._useLazyMode || this._fullData || this._chunks !== null);
   }
 
-  /**
-   * Estimate the Central Directory size based on total file size.
-   * This is used to prefetch the tail of the file (EOCD + CD) in one request.
-   *
-   * Heuristic: For typical content zips, the Central Directory is roughly 1-3% of total size.
-   * Each CD entry is ~46 bytes + filename length. For H5P/content zips with many small files,
-   * the CD percentage is higher; for zips with few large files, it's lower.
-   *
-   * We use 3% as a conservative estimate, with bounds:
-   * - Minimum 1KB (covers EOCD + a few entries)
-   * - Maximum 128KB (avoid over-fetching for huge zips)
-   *
-   * @returns {number} Estimated tail size to prefetch
-   */
   _estimateTailSize() {
     return Math.min(MAX_TAIL_SIZE, Math.max(MIN_TAIL_SIZE, Math.floor(this.size * CD_SIZE_RATIO)));
   }
@@ -108,7 +69,7 @@ export default class AdaptiveHttpReader extends Reader {
   /**
    * Initialize the reader - tries fast path first, falls back to lazy mode if file is too large.
    * This method is idempotent - if already initialized, it does nothing.
-   * (zip.js may call init() internally, so we need to handle being called multiple times)
+   * (zip.js may call init() internally, so we need to handle being called multiple times).
    */
   async init() {
     // Guard against multiple initialization (zip.js calls init() internally)
@@ -135,9 +96,8 @@ export default class AdaptiveHttpReader extends Reader {
   /**
    * Attempt to download the full file. Aborts if Content-Length > maxFullLoadSize
    * or if loaded bytes > maxFullLoadSize.
-   *
-   * @returns {Promise<Uint8Array>} The full file data
-   * @throws {Error} 'File too large' if file exceeds maxFullLoadSize
+   * @returns {Promise<Uint8Array>} The full file data.
+   * @throws {Error} 'File too large' if file exceeds maxFullLoadSize.
    */
   _tryFullDownload() {
     return new Promise((resolve, reject) => {
@@ -182,11 +142,10 @@ export default class AdaptiveHttpReader extends Reader {
    * Read a range of bytes from the file.
    * - Fast path: returns data from cached _fullData
    * - Cached path: returns data from tail or entry chunks
-   * - Lazy path: makes individual range request
-   *
-   * @param {number} index - Start offset
-   * @param {number} length - Number of bytes to read
-   * @returns {Promise<Uint8Array>} The requested data
+   * - Lazy path: makes individual range request.
+   * @param {number} index - Start offset.
+   * @param {number} length - Number of bytes to read.
+   * @returns {Promise<Uint8Array>} The requested data.
    */
   async readUint8Array(index, length) {
     if (this._fullData) {
@@ -237,10 +196,9 @@ export default class AdaptiveHttpReader extends Reader {
   /**
    * Find a cached chunk that fully contains the requested range.
    * Checks both tail chunk and entry-based chunks.
-   *
-   * @param {number} index - Start offset
-   * @param {number} length - Number of bytes needed
-   * @returns {Object|null} Chunk object or null
+   * @param {number} index - Start offset.
+   * @param {number} length - Number of bytes needed.
+   * @returns {object | null} Chunk object or null.
    */
   _findCachedChunk(index, length) {
     // Check tail chunk first (covers end of file including CD)
@@ -263,10 +221,9 @@ export default class AdaptiveHttpReader extends Reader {
 
   /**
    * Make a range request for specific bytes.
-   *
-   * @param {number} start - Start offset
-   * @param {number} length - Number of bytes to read
-   * @returns {Promise<Uint8Array>} The requested data
+   * @param {number} start - Start offset.
+   * @param {number} length - Number of bytes to read.
+   * @returns {Promise<Uint8Array>} The requested data.
    */
   _rangeRequest(start, length) {
     return new Promise((resolve, reject) => {
@@ -292,9 +249,8 @@ export default class AdaptiveHttpReader extends Reader {
    * Build chunk boundaries from entry metadata.
    * Groups adjacent small files into chunks of approximately chunkSize.
    * Large files (>= largeMediaThreshold) are excluded from chunks.
-   *
-   * @param {Array} entries - Array of zip.js entry objects
-   * @returns {Array} Array of chunk objects with startOffset, endOffset, data, fetching
+   * @param {Array} entries - Array of zip.js entry objects.
+   * @returns {Array} Array of chunk objects with startOffset, endOffset, data, fetching.
    */
   _buildChunks(entries) {
     // Filter out directories and entries without offset, sort by offset
@@ -363,9 +319,8 @@ export default class AdaptiveHttpReader extends Reader {
    * Find the chunk containing the given byte offset using binary search.
    * Chunks are sorted by startOffset and do not overlap in valid ZIP files
    * (they may have gaps where large files were excluded).
-   *
-   * @param {number} offset - Byte offset to find
-   * @returns {Object|null} Chunk object or null if not in any chunk
+   * @param {number} offset - Byte offset to find.
+   * @returns {object | null} Chunk object or null if not in any chunk.
    */
   _findChunk(offset) {
     if (!this._chunks || this._chunks.length === 0) return null;
@@ -398,11 +353,10 @@ export default class AdaptiveHttpReader extends Reader {
 
   /**
    * Read data from a chunk, fetching it if necessary.
-   *
-   * @param {Object} chunk - Chunk object
-   * @param {number} index - Absolute offset in ZIP file
-   * @param {number} length - Number of bytes to read
-   * @returns {Promise<Uint8Array>} The requested data
+   * @param {object} chunk - Chunk object.
+   * @param {number} index - Absolute offset in ZIP file.
+   * @param {number} length - Number of bytes to read.
+   * @returns {Promise<Uint8Array>} The requested data.
    */
   async _readFromChunk(chunk, index, length) {
     // Ensure chunk data is loaded (with promise deduplication for concurrent reads)
@@ -425,8 +379,7 @@ export default class AdaptiveHttpReader extends Reader {
   /**
    * Configure chunked fetching based on entry metadata.
    * Must be called after init() and after ZIP entries are parsed.
-   *
-   * @param {Array} entries - Array of zip.js entry objects with offset and compressedSize
+   * @param {Array} entries - Array of zip.js entry objects with offset and compressedSize.
    */
   configureChunks(entries) {
     // Only configure chunks once, and only in lazy mode
@@ -440,9 +393,8 @@ export default class AdaptiveHttpReader extends Reader {
   /**
    * Check if a zip entry should use URL generation instead of extraction.
    * Returns true for large streamable media files (audio/video).
-   *
-   * @param {Object} entry - zip.js entry object with filename and uncompressedSize
-   * @returns {boolean} true if file should use URL generator
+   * @param {object} entry - Zip.js entry object with filename and uncompressedSize.
+   * @returns {boolean} True if file should use URL generator.
    */
   shouldLoadFromUrl(entry) {
     // Only defer streamable media (audio/video) that benefits from range requests.

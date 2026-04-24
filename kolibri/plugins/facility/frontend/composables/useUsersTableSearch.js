@@ -4,8 +4,8 @@ import pickBy from 'lodash/pickBy';
 import debounce from 'lodash/debounce';
 
 /**
- * Composable for managing search functionality in the Users table
- * Handles search term state and URL query parameter synchronization
+ * Composable providing search state and methods for the facility users table.
+ * @returns {object} Search term ref, textbox ref, and methods to focus and clear the search.
  */
 export default function useUsersTableSearch() {
   const route = useRoute();

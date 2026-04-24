@@ -54,6 +54,11 @@ const LEARNERS = {
   bob: { id: 'learner-b', name: 'Bob', username: 'bob' },
 };
 
+/**
+ * Creates a Vuex test store with a classSummary module pre-populated with given learners.
+ * @param {Array} learners - Array of learner objects to add to the learnerMap.
+ * @returns {object} A configured Vuex store instance.
+ */
 function setupTestStore(learners = Object.values(LEARNERS)) {
   const testStore = new Vuex.Store({
     state: {
@@ -86,6 +91,13 @@ function setupTestStore(learners = Object.values(LEARNERS)) {
   return testStore;
 }
 
+/**
+ * Renders the AttendanceNewPage component with mocked dependencies.
+ * @param {object} root0 - Options object.
+ * @param {Array} root0.learners - Learners to include in the test store.
+ * @param {object} root0.createSessionResult - Promise result for the createSession mock.
+ * @returns {object} Render result plus mocked functions and router.
+ */
 function renderNewPage({
   learners = Object.values(LEARNERS),
   createSessionResult = Promise.resolve({ id: 'new-session' }),
@@ -130,6 +142,17 @@ const MOCK_RECORDS = [
   { user: 'learner-c', present: true, user_name: 'Charlie', user_username: 'charlie' },
 ];
 
+/**
+ * Renders the AttendanceEditPage component with mocked dependencies.
+ * @param {object} root0 - Options object.
+ * @param {Array} root0.learners - Learners to include in the test store.
+ * @param {object} root0.session - Mock session object to return from fetchSession.
+ * @param {Array} root0.records - Mock attendance records to return from fetchRecords.
+ * @param {object} root0.bulkUpdateResult - Promise result for the bulkUpdateRecords mock.
+ * @param {Function} root0.fetchSession - Optional custom mock for fetchSession.
+ * @param {Function} root0.fetchRecords - Optional custom mock for fetchRecords.
+ * @returns {object} Render result plus mocked functions and router.
+ */
 function renderEditPage({
   learners = Object.values(LEARNERS),
   session = MOCK_SESSION,
@@ -172,8 +195,9 @@ function renderEditPage({
 }
 
 /**
- * Helper to find a switch input by its name attribute.
- * KSwitch renders as <input type="checkbox" name="...">
+ * Gets an input element by its name attribute.
+ * @param {string} name - The name attribute of the input element.
+ * @returns {Element|null} The matching input element, or null if not found.
  */
 function getSwitch(name) {
   return document.querySelector(`input[name="${name}"]`);
@@ -183,6 +207,10 @@ function getLearnerSwitch(learnerId) {
   return getSwitch(`attendance-${learnerId}`);
 }
 
+/**
+ * Gets the mark-all-present toggle switch input element.
+ * @returns {Element|null} The mark-all switch input element.
+ */
 function getMarkAllSwitch() {
   return getSwitch('mark-all-present');
 }

@@ -11,11 +11,15 @@ import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import selectQuestions, { exerciseToQuestionArray } from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
-/** Validators **/
-/* objectSpecs expects every property to be available -- but we don't want to have to make an
- * object with every property just to validate it. So we use these functions to validate subsets
- * of the properties. */
+// objectSpecs expects every property to be available -- but we don't want to have to make an
+// object with every property just to validate it. So we use these functions to validate subsets
+// of the properties.
 
+/**
+ * Validates a quiz object against the Quiz specification.
+ * @param {object} quiz - The quiz object to validate.
+ * @returns {boolean} True if the quiz is valid, false otherwise.
+ */
 function validateQuiz(quiz) {
   return validateObject(quiz, Quiz);
 }
@@ -33,7 +37,8 @@ const fieldsToSave = [
 ];
 
 /**
- * Composable function presenting primary interface for Quiz Creation
+ * Composable providing quiz creation state and actions.
+ * @returns {object} Quiz creation state and action methods.
  */
 export default function useQuizCreation() {
   const store = getCurrentInstance()?.proxy?.$store;
@@ -43,17 +48,10 @@ export default function useQuizCreation() {
 
   const quizHasChanged = ref(false);
 
-  /** @type {ref<Quiz>}
-   * The "source of truth" quiz object from which all reactive properties should derive
-   * This will be validated and sent to the API when the user saves the quiz */
   const _quiz = ref(objectWithDefaults({}, Quiz));
 
-  /** @type {ref<QuizSection>}
-   * The section that is currently selected for editing */
   const activeSectionIndex = computed(() => Number(store?.state?.route?.params?.sectionIndex || 0));
 
-  /** @type {ref<String[]>}
-   * The QuizQuestion.items that are currently selected for action in the active section */
   const _selectedQuestionIds = ref([]);
 
   // An internal map for exercises
@@ -62,10 +60,15 @@ export default function useQuizCreation() {
   const _exerciseMap = {};
 
   /**
-   * Question item to be replaced in the next save operation
+   * Question item to be replaced in the next save operation.
    */
   const _questionItemsToReplace = ref(null);
 
+  /**
+   * Sets the question item IDs to be replaced in the next save operation.
+   * @param {Array} item - Array of question item IDs to replace.
+   * @returns {void}
+   */
   function setQuestionItemsToReplace(item) {
     set(_questionItemsToReplace, item);
   }
@@ -76,12 +79,6 @@ export default function useQuizCreation() {
   // Section Management
   // ------------------
 
-  /**
-   * @param   {QuizSection} section
-   * @returns {QuizSection}
-   * @affects _quiz - Updates the section with the given sectionIndex with the given param
-   * @throws {TypeError} if section is not a valid QuizSection
-   **/
   function updateSection({ sectionIndex, ...updates }) {
     set(quizHasChanged, true);
     const targetSection = get(allSections)[sectionIndex];
@@ -155,14 +152,6 @@ export default function useQuizCreation() {
     updateSection({ sectionIndex, questions, resourcePool });
   }
 
-  /**
-   * Replace `questionItemsToReplace` questions in the `baseQuestions` array with the
-   * `replacements` questions
-   * @param {Array<Question>} baseQuestions base questions array
-   * @param {Array<string>} questionItemsToReplace question items to replace
-   * @param {Array<Question>} replacements array of questions to replace the question items
-   * @returns
-   */
   function _replaceQuestions(baseQuestions, questionItemsToReplace, replacements) {
     if (questionItemsToReplace.length !== replacements.length) {
       throw new TypeError(
@@ -178,13 +167,6 @@ export default function useQuizCreation() {
     return newQuestions;
   }
 
-  /**
-   * Add an array of questions to a section
-   * @param {Object} options
-   * @param {number} options.sectionIndex - The index of the section to add the questions to
-   * @param {QuizQuestion[]} options.questions - The questions array to add
-   * @param {QuizExercise[]} options.resources - The resources to add to the exercise map
-   */
   function addQuestionsToSection({ sectionIndex, questions, resources, questionItemsToReplace }) {
     const targetSection = get(allSections)[sectionIndex];
     if (!targetSection) {
@@ -213,17 +195,16 @@ export default function useQuizCreation() {
     updateSection({ sectionIndex, questions: questionsToAdd, resourcePool: resources });
   }
 
-  /** @returns {QuizSection}
-   * Adds a section to the quiz and returns it */
+  /**
+   * Adds a new empty section to the quiz.
+   * @returns {object} The newly created quiz section.
+   */
   function addSection() {
     const newSection = objectWithDefaults({}, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
     return newSection;
   }
 
-  /**
-   * @throws {Error} if section not found
-   * Deletes the given section by sectionIndex */
   function removeSection(sectionIndex) {
     if (!get(allSections)[sectionIndex]) {
       throw new Error(`Section with index ${sectionIndex} not found; cannot be removed.`);
@@ -246,12 +227,12 @@ export default function useQuizCreation() {
   // Quiz General
   // ------------
 
-  /** @affects _quiz
-   * @affects activeSectionIndex
-   * @param {string} collection - The collection (aka current class ID) to associate the exam with
-   * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
-   * use */
-
+  /**
+   * Initializes the quiz state, either creating a new quiz or loading an existing one.
+   * @param {string} collection - The collection ID to assign the quiz to.
+   * @param {string} quizId - The ID of an existing quiz to load, or 'new' to create a new quiz.
+   * @returns {Promise<void>} Resolves when initialization is complete.
+   */
   async function initializeQuiz(collection, quizId = 'new') {
     if (quizId === 'new') {
       const assignments = [collection];
@@ -273,7 +254,8 @@ export default function useQuizCreation() {
   }
 
   /**
-   * @returns {Promise<Quiz>}
+   * Saves the current quiz state to the server.
+   * @returns {Promise<object>} Resolves with the saved exam object.
    */
   function saveQuiz() {
     if (!validateQuiz(get(_quiz))) {
@@ -314,11 +296,6 @@ export default function useQuizCreation() {
     });
   }
 
-  /**
-   * @param  {Quiz} updates
-   * @throws {TypeError} if updates is not a valid Quiz object
-   * @affects _quiz
-   * Validates the input type and then updates _quiz with the given updates */
   function updateQuiz(updates) {
     set(quizHasChanged, true);
     if (!validateQuiz(updates)) {
@@ -331,16 +308,20 @@ export default function useQuizCreation() {
   // Questions / Exercises management
   // --------------------------------
 
-  /** @param {QuizQuestion[]} questions
-   * @affects _selectedQuestionIds - Adds question to _selectedQuestionIds if it isn't
-   * there already */
+  /**
+   * Adds question IDs to the current selection, deduplicating as needed.
+   * @param {Array} ids - Array of question item IDs to add to the selection.
+   * @returns {void}
+   */
   function addQuestionsToSelection(ids) {
     set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), ...ids]));
   }
 
   /**
-   * @param {QuizQuestion[]} questions
-   * @affects _selectedQuestionIds - Removes question from _selectedQuestionIds if it is there */
+   * Removes question IDs from the current selection.
+   * @param {Array} ids - Array of question item IDs to remove from the selection.
+   * @returns {void}
+   */
   function removeQuestionsFromSelection(ids) {
     set(
       _selectedQuestionIds,
@@ -348,6 +329,10 @@ export default function useQuizCreation() {
     );
   }
 
+  /**
+   * Clears all currently selected question IDs.
+   * @returns {void}
+   */
   function clearSelectedQuestions() {
     set(_selectedQuestionIds, []);
   }
@@ -355,25 +340,17 @@ export default function useQuizCreation() {
   // Utilities
 
   // Computed properties
-  /** @type {ComputedRef<Quiz>} The value of _quiz */
   const quiz = computed(() => get(_quiz));
-  /** @type {ComputedRef<QuizSection[]>} The value of _quiz's `question_sources` */
   const allSections = computed(() => get(quiz).question_sources);
-  /** @type {ComputedRef<QuizSection>} The active section */
   const activeSection = computed(() => get(allSections)[get(activeSectionIndex)]);
-  /** @type {ComputedRef<QuizSection[]>} The inactive sections */
   const inactiveSections = computed(() =>
     get(allSections)
       .slice(0, get(activeSectionIndex))
       .concat(get(allSections).slice(get(activeSectionIndex) + 1)),
   );
 
-  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
-   *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection)?.questions || []);
 
-  /** @type {ComputedRef<Object.<string, QuizExercise>>}
-   * A map of exercise id to exercise for the currently active section */
   const activeResourceMap = computed(() => {
     const map = {};
     for (const question of get(activeQuestions)) {
@@ -390,14 +367,10 @@ export default function useQuizCreation() {
     return _quiz.value && _exerciseMap;
   });
 
-  /** @type {ComputedRef<QuizExercise[]>}   The active section's exercises */
   const activeResourcePool = computed(() => Object.values(get(activeResourceMap)));
 
-  /** @type {ComputedRef<String[]>}
-   * All QuizQuestion.items the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
 
-  /** @type {ComputedRef<Array<QuizQuestion>>} A list of all questions in the quiz */
   const allQuestionsInQuiz = computed(() => {
     return get(allSections).reduce((acc, section) => {
       acc = [...acc, ...section.questions];
@@ -410,7 +383,8 @@ export default function useQuizCreation() {
   });
 
   /**
-
+   * Removes all currently selected questions from the active section.
+   * @returns {void}
    */
   function deleteActiveSelectedQuestions() {
     const sectionIndex = get(activeSectionIndex);
@@ -425,8 +399,6 @@ export default function useQuizCreation() {
   }
 
   const noQuestionsSelected = computed(() => get(selectedActiveQuestions).length === 0);
-  /** @type {ComputedRef<String>} The label that should be shown alongside the "Select all" checkbox
-   */
   const selectAllLabel = computed(() => {
     if (get(noQuestionsSelected)) {
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
@@ -437,10 +409,6 @@ export default function useQuizCreation() {
     }
   });
 
-  /**
-   * Map of exercise id to array of question items that are not used for each exercise
-   * @type {ComputedRef<Object.<string, string[]>>}
-   */
   const activeExercisesUnusedQuestionsMap = computed(() => {
     const map = {};
     for (const exercise of Object.values(get(activeResourceMap))) {
@@ -454,10 +422,10 @@ export default function useQuizCreation() {
   });
 
   /**
-   * Method to replace questions in `questionItems` with new questions selected from
-   * the unused questions of the exercises that each question belongs to.
-   * @param {Array<string>} questionItems
-   * @throws {Error} If there are no enough unused questions in the exercise to replace a question
+   * Replace questions in `questionItems` with new questions from the unused questions of each
+   * question's exercise.
+   * @param {Array<string>} questionItems - Question item IDs to replace.
+   * @throws {Error} If there are not enough unused questions in the exercise to replace a question.
    */
   function autoReplaceQuestions(questionItems = []) {
     if (!questionItems?.length) {
@@ -556,6 +524,10 @@ export default function useQuizCreation() {
   };
 }
 
+/**
+ * Injects the quiz creation context provided by a parent component using useQuizCreation.
+ * @returns {object} All injected quiz creation state and action methods.
+ */
 export function injectQuizCreation() {
   const allQuestionsInQuiz = inject('allQuestionsInQuiz');
   const updateSection = inject('updateSection');
