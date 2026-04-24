@@ -109,6 +109,7 @@
 
 <script>
 
+  import { useRouter } from 'vue-router/composables';
   import every from 'lodash/every';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -122,10 +123,11 @@
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import { handleApiError } from 'kolibri/utils/appError';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthWatcher from '../composables/useAuthWatcher';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
@@ -150,7 +152,31 @@
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { selectedFacility, facilityConfig } = useFacility();
+      const router = useRouter();
+      const { defaultRoute, selectedFacility, facilityConfig, canSignUpWithFacility } =
+        useAuthFlow();
+      const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
+
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        // If the facility ID is unset, it could mean the facility is no longer an option, or
+        // if the newly selected facility might not allow sign-ups
+        if ((!newFacilityId && oldFacilityId) || !canSignUpWithFacility.value) {
+          router.push({
+            name: defaultRoute.value,
+          });
+        }
+      });
+
+      // watches only if the configuration itself changes, the above watcher catches if the
+      // facility changes
+      watchForFacilityConfigChange(() => {
+        if (!canSignUpWithFacility.value) {
+          router.push({
+            name: defaultRoute.value,
+          });
+        }
+      });
+
       return {
         selectedFacility,
         facilityConfig,

@@ -20,7 +20,7 @@
           <KButton
             appearance="raised-button"
             :primary="false"
-            @click="setFacility(facility.id)"
+            @click="selectFacility(facility.id)"
           >
             <template #icon>
               <KIcon
@@ -68,10 +68,11 @@
 <script>
 
   import partition from 'lodash/partition';
+  import { useRouter, useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../constants';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthWatcher from '../composables/useAuthWatcher';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
 
@@ -79,10 +80,37 @@
     name: 'FacilitySelect',
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
-    setup() {
-      const { facilities } = useFacilities();
-      const { setFacilityId } = useFacility();
-      return { facilities, setFacilityId };
+    setup(props) {
+      const { facilities, facilityId, setFacilityId } = useAuthFlow();
+      const { watchForFacilityChange } = useAuthWatcher();
+      const router = useRouter();
+      const route = useRoute();
+
+      function navigateToWhereToNext() {
+        const whereToNext = { ...props.whereToNext };
+        if (route.query.next) {
+          whereToNext.query.next = route.query.next;
+        }
+        router.push(whereToNext);
+      }
+
+      // facilityId is synchronized to local storage, so if multiple tabs change it, this should
+      // keep the page in sync, also catches where facility ID is changing from persisted selection
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        if (newFacilityId !== oldFacilityId && newFacilityId) {
+          navigateToWhereToNext();
+        }
+      });
+
+      function selectFacility(_facilityId) {
+        setFacilityId(_facilityId);
+        // catches case where facility ID isn't changing relative to persisted option
+        if (facilityId.value === _facilityId) {
+          navigateToWhereToNext();
+        }
+      }
+
+      return { facilities, selectFacility };
     },
     props: {
       // This component is interstitial and needs to know where to go when it's done
@@ -91,7 +119,11 @@
         type: Object,
         required: true,
         validate(obj) {
-          return [ComponentMap.USERNAME_SIGN_IN, ComponentMap.SIGN_UP].includes(obj.name);
+          return [
+            ComponentMap.PICTURE_SIGN_IN,
+            ComponentMap.USERNAME_SIGN_IN,
+            ComponentMap.SIGN_UP,
+          ].includes(obj.name);
         },
       },
     },
@@ -117,18 +149,6 @@
         return this.whereToNext.name === ComponentMap.SIGN_UP
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
-      },
-    },
-    methods: {
-      async setFacility(facilityId) {
-        const whereToNext = { ...this.whereToNext };
-        if (this.$route.query.next) {
-          whereToNext.query.next = this.$route.query.next;
-        }
-        // Save the selected facility, get its config, then move along to next route
-        await this.$store.dispatch('setFacilityId', { facilityId });
-        await this.setFacilityId(facilityId);
-        this.$router.push(whereToNext);
       },
     },
     $trs: {

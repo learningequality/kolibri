@@ -1,15 +1,26 @@
 import { render, screen } from '@testing-library/vue';
-import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { ref } from 'vue';
+import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import AuthSelect from '../AuthSelect';
 import { userString } from '../commonUserStrings';
-import makeStore from '../../__tests__/utils/makeStore';
 
 const { signInLabel$ } = coreStrings;
 
 jest.mock('kolibri/composables/useUser');
-jest.mock('kolibri-common/composables/useFacility');
+jest.mock('../../composables/useAuthFlow');
+jest.mock('kolibri/router', () => ({
+  __esModule: true,
+  default: {
+    getRoute: jest.fn(routeName => {
+      if (routeName === 'FacilitySelect') {
+        return { name: routeName, path: '/facilities' };
+      }
+      return { name: routeName, path: '/signin' };
+    }),
+  },
+}));
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({
   __esModule: true,
@@ -34,9 +45,13 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
 }));
 
 function renderComponent() {
-  const store = makeStore();
+  useAuthFlow.mockReturnValue(
+    useAuthFlowMock({
+      signInRoute: ref('SignInPage'),
+      canSignUpWithAnyFacility: ref(true),
+    }),
+  );
   return render(AuthSelect, {
-    store,
     routes,
   });
 }

@@ -67,6 +67,7 @@
               :label="coreString('usernameLabel')"
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
+              :showInvalidText="true"
               @blur="handleUsernameBlur"
               @input="handleUsernameInput"
               @keydown="handleUsernameKeydown"
@@ -158,7 +159,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import get from 'lodash/get';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
@@ -167,12 +167,15 @@
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
-  import useFacility from 'kolibri-common/composables/useFacility';
+  import { useRouter } from 'vue-router/composables';
   import { ComponentMap } from '../../constants';
+  import { getFacilitySelectionRoute } from '../../utils';
   import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
+  import useAuthFlow from '../../composables/useAuthFlow';
+  import useAuthWatcher from '../../composables/useAuthWatcher';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -193,9 +196,22 @@
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
+      const router = useRouter();
       const { isAppContext, login } = useUser();
-      const { selectedFacility } = useFacility();
-      return { login, isAppContext, selectedFacility };
+      const { hasMultipleFacilities, selectedFacility, facilityConfig, defaultRoute } =
+        useAuthFlow();
+      const { watchForFacilityChange } = useAuthWatcher();
+
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        // If the facility ID is unset, it could mean the facility is no longer an option
+        if (!newFacilityId && oldFacilityId) {
+          router.push({
+            name: defaultRoute.value,
+          });
+        }
+      });
+
+      return { login, isAppContext, selectedFacility, facilityConfig, hasMultipleFacilities };
     },
     data() {
       return {
@@ -215,15 +231,14 @@
       };
     },
     computed: {
-      ...mapState('signIn', ['hasMultipleFacilities']),
       backToFacilitySelectionRoute() {
-        const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-        const whereToNext = this.$router.getRoute(ComponentMap.USERNAME_SIGN_IN);
         let query = {};
         if (this.nextParam) {
           query = { next: this.nextParam };
         }
-        return { ...facilityRoute, params: { whereToNext }, query };
+        return getFacilitySelectionRoute(ComponentMap.USERNAME_SIGN_IN, {
+          query,
+        });
       },
       showPasswordForm() {
         return (
@@ -247,7 +262,7 @@
         return this.loginError === LoginErrors.USER_NOT_FOUND;
       },
       simpleSignIn() {
-        return this.selectedFacility.dataset.learner_can_login_with_no_password;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       showUsersList() {
         return this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW && this.isAppContext;
@@ -295,9 +310,7 @@
         return getUrlParameter('next');
       },
       showFacilityName() {
-        return (
-          this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
-        );
+        return this.hasMultipleFacilities || get(this.facilityConfig, 'preset') !== 'informal';
       },
       isNextButtonEnabled() {
         return !this.busy && this.username !== '' && validateUsername(this.username);
@@ -487,8 +500,10 @@
             }
           }
 
-          if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
-            this.$refs.password.$refs.textbox.$refs.input.select();
+          if (this.userDoesNotExist) {
+            this.$refs.username.focus();
+          } else if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
+            this.$refs.password.focus();
           }
         } catch (error) {
           // Handle any unexpected errors

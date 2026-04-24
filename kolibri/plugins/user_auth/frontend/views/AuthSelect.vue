@@ -14,7 +14,10 @@
           :primary="true"
         />
       </div>
-      <div class="sign-up-prompt">
+      <div
+        v-if="canSignUpWithAnyFacility"
+        class="sign-up-prompt"
+      >
         <div class="label">
           {{ $tr('newUserPrompt') }}
         </div>
@@ -34,8 +37,11 @@
 
 <script>
 
+  import { computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { ComponentMap } from '../constants';
+  import { getFacilitySelectionRoute } from '../utils';
+  import useAuthFlow from '../composables/useAuthFlow';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
 
@@ -43,18 +49,17 @@
     name: 'AuthSelect',
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
-    computed: {
-      signUpRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
-      },
-      signInRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.USERNAME_SIGN_IN);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
-      },
-      facilitySelectRoute() {
-        return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-      },
+    setup() {
+      const { signInRoute: _signInRouteName, canSignUpWithAnyFacility } = useAuthFlow();
+
+      const signInRoute = computed(() => getFacilitySelectionRoute(_signInRouteName.value));
+      const signUpRoute = computed(() => getFacilitySelectionRoute(ComponentMap.SIGN_UP));
+
+      return {
+        signInRoute,
+        signUpRoute,
+        canSignUpWithAnyFacility,
+      };
     },
     $trs: {
       newUserPrompt: {

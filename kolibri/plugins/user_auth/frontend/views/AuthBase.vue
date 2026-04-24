@@ -195,9 +195,9 @@
   import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import useUser from 'kolibri/composables/useUser';
   import { ComponentMap } from '../constants';
+  import useAuthFlow from '../composables/useAuthFlow';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
   import getUrlParameter from './getUrlParameter';
@@ -208,12 +208,12 @@
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal, DeviceUnusableMessage },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { facilityConfig } = useFacility();
+      const { canSignUp } = useAuthFlow();
       const { isAppContext } = useUser();
       const allowAccess = computed(() => {
         return plugin_data.allowRemoteAccess || isAppContext.value;
       });
-      return { themeConfig, facilityConfig, allowAccess };
+      return { themeConfig, allowAccess, canSignUp };
     },
     props: {
       hideCreateAccount: {
@@ -250,11 +250,6 @@
       },
       guestURL() {
         return urls['kolibri:core:guest']();
-      },
-      canSignUp() {
-        return (
-          this.facilityConfig.is_full_facility_import && this.facilityConfig.learner_can_sign_up
-        );
       },
       nextParam() {
         // query is after hash

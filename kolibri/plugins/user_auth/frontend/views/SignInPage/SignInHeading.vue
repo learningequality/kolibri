@@ -26,14 +26,14 @@
 
 <script>
 
-  import useFacility from 'kolibri-common/composables/useFacility';
   import commonUserStrings from '../commonUserStrings';
+  import useAuthFlow from '../../composables/useAuthFlow';
 
   export default {
     name: 'SignInHeading',
     mixins: [commonUserStrings],
     setup() {
-      const { selectedFacility } = useFacility();
+      const { selectedFacility } = useAuthFlow();
       return {
         selectedFacility,
       };
