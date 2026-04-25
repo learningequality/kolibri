@@ -11,7 +11,7 @@ import useFacilityEditor from '../../composables/useFacilityEditor';
 import ConfigPage from '../FacilityConfigPage';
 
 const {
-  picturePasswordInfoLabel$,
+  picturePassword$,
   picturePasswordInfoBody$,
   childFriendlyIconsInfoLabel$,
   childFriendlyIconsInfoTitle$,
@@ -334,7 +334,7 @@ describe('facility config page view', () => {
   describe('picture password info modal', () => {
     it('opens when clicking the info icon next to the picture password option', async () => {
       renderPage();
-      await userEvent.click(screen.getByRole('button', { name: picturePasswordInfoLabel$() }));
+      await userEvent.click(screen.getByRole('button', { name: picturePassword$() }));
       expect(screen.getByText(picturePasswordInfoBody$())).toBeInTheDocument();
     });
   });
@@ -343,7 +343,9 @@ describe('facility config page view', () => {
     it('opens when clicking the info icon next to the child-friendly icons option', async () => {
       renderPage({ mockFacilityConfig: { signInOption: OptionsForSignIn.PICTURE_PASSWORD } });
       await userEvent.click(screen.getByRole('button', { name: childFriendlyIconsInfoLabel$() }));
-      expect(screen.getByText(childFriendlyIconsInfoTitle$())).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: childFriendlyIconsInfoTitle$() }),
+      ).toBeInTheDocument();
     });
   });
 

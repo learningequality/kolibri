@@ -237,7 +237,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
 
   // Exhausted state — inline explanation and info modal
   picturePasswordUnavailableExplanation: {
-    message: 'Picture password is unavailable for this facility.',
+    message: 'Picture password is not available right now.',
     context:
       'Short explanation shown below the disabled picture password option when the learner limit is reached.',
   },
