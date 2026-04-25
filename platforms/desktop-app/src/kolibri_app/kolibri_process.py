@@ -7,11 +7,13 @@ across platform-specific implementations.
 Platform-specific behavior is achieved by adding different plugins to the same
 base process class, rather than having separate wrapper classes per platform.
 """
+import secrets
 
 from kolibri.main import initialize
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 
+from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.logger import logging
 
 
@@ -30,6 +32,13 @@ class KolibriProcess(KolibriProcessBus):
     def __init__(self, port=None, zip_port=None):
         logging.info("Initializing Kolibri...")
         initialize()
+
+        # Per-launch shared secret. The token round-trips through
+        # InitializeAppView (URL query) -> APP_AUTH_TOKEN_COOKIE -> provisioning
+        # validator -> KolibriAppGetOSUserHook, which compares it against the
+        # expected value before returning the desktop OS user.
+        self.auth_token = secrets.token_urlsafe(32)
+        KolibriAppGetOSUserHook.expected_auth_token = self.auth_token
 
         if port is None:
             port = OPTIONS["Deployment"]["HTTP_PORT"]

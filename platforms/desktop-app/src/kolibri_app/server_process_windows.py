@@ -85,7 +85,7 @@ class WindowsIpcPlugin(SimplePlugin):
         Construct the server URLs based on the port.
         """
         kolibri_origin = f"http://localhost:{port}"
-        root_url = kolibri_origin + app_initialize_url()
+        root_url = kolibri_origin + app_initialize_url(auth_token=self.bus.auth_token)
         return kolibri_origin, root_url
 
     def on_server_start(self, port):
