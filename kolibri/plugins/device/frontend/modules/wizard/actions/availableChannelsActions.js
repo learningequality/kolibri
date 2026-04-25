@@ -3,13 +3,18 @@ import find from 'lodash/find';
 import { getRemoteChannelByToken } from '../utils';
 
 /**
+ * @typedef {import('kolibri-common/apiResources/RemoteChannelResource').Channel} Channel
+ */
+
+/**
  * HACK: Makes a request to Kolibri Studio to get info on unlisted channels, then appends
- * them to the public channels. This hack is to get around the fact that the ChannelMetadata object
- * does not indicate the origins of a channel: whether a remote public, remote unlisted, or bespoke
- * channel from USB, the ChannelMetadata is identical.
- *
- * @param {Array<Channel>} publicChannels - the list of publich channels, which will not be queried
- * @returns {Promise<Array<Channel>>}
+ * them to the public channels. This hack is to get around the fact that the ChannelMetadata
+ * object does not indicate the origins of a channel: whether a remote public, remote unlisted,
+ * or bespoke channel from USB, the ChannelMetadata is identical.
+ * @param {object} store - The Vuex store instance.
+ * @param {Array<Channel>} publicChannels - The list of public channels, which will not be
+ * queried.
+ * @returns {Promise<Array<Channel>>} Resolves with the combined channel list.
  */
 export function getAllRemoteChannels(store, publicChannels) {
   const { channelList } = store.rootState.manageContent;

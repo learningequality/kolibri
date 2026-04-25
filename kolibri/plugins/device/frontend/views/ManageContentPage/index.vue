@@ -264,8 +264,8 @@
         TaskResource.clearAll();
       },
       /**
+       * Refreshes the channel list after a watched content task completes.
        * @public
-       * Used by the taskNotificationMixin to handle the completion of the task
        */
       onWatchedTaskFinished() {
         this.refreshChannelList();

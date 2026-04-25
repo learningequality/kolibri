@@ -3,11 +3,10 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import { handleApiError } from 'kolibri/utils/appError';
 
 /**
- * Adds or modifies a DevicePermissions model.
- *
- * @param {boolean} payload.is_superuser
- * @param {boolean} payload.can_manage_content
- * @returns Promise<DevicePermissions>
+ * Saves or updates device permissions for a user and commits the updated state to the store.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} payload - Permissions payload with userId, is_superuser, and can_manage_content.
+ * @returns {Promise<object>} Resolves with the updated user model.
  */
 export function addOrUpdateUserPermissions(store, payload) {
   const permissions = {

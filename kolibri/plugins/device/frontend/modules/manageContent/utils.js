@@ -3,10 +3,11 @@ import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 
 /**
  * Watches the state.taskList and resolves when the tracked Task is COMPLETED.
- *
- * @param {string} taskId
- * @returns {Promise}
- *
+ * @param {string} taskId - The id of the task to track.
+ * @param {object} [store] - The Vuex store to watch (defaults to the core store).
+ * @returns {Promise<{taskId: string, cancelled: boolean}>} Resolves when the task
+ * completes (or is cancelled, in which case `cancelled` is true). Rejects when the
+ * task transitions to a failed state.
  */
 export function waitForTaskToComplete(taskId, store = coreStore) {
   const taskList = state => state.manageContent.taskList;

@@ -28,7 +28,6 @@ const SOUD_QUEUE = 'soud_sync';
  * - Fetching and managing users from the LOD device.
  * - Handling the import of users with different methods (as admin, with credentials).
  * - Managing the state and route redirection of the import process using an XState machine.
- *
  * @returns {void}
  */
 export default function useLodDeviceUsers() {
@@ -134,8 +133,8 @@ export default function useLodDeviceUsers() {
   }
 
   /**
-   * Filter running importLODUser tasks whose users are not already in the usersBeingImported
-   * and add them to the usersBeingImported list.
+   * Adds any running import tasks not yet tracked by the machine to the import list.
+   * @returns {void}
    */
   function _addMissingUsersToImportList() {
     tasks.value
@@ -228,25 +227,23 @@ export default function useLodDeviceUsers() {
 
 /**
  * Injects the state and methods from the LOD device users composable.
- *
- * @typedef {Object} InjectLodDeviceUsersObject
+ * @typedef {object} InjectLodDeviceUsersObject
  * @property {Array} users The list of users fetched from the LOD device.
  * @property {boolean} loading The loading state of the users.
- * @property {Object} remoteAdmin The remote admin user information
- *  that is set in the "import as admin" xstate machine flow.
+ * @property {object} remoteAdmin The remote admin user information
+ * that is set in the "import as admin" xstate machine flow.
  * @property {Array} remoteUsers The list of remote users fetched from the remote device.
  * @property {string|null} importDeviceId The ID of the device from which users are being imported.
- * @property {Object} selectedFacility The facility selected to import users from.
+ * @property {object} selectedFacility The facility selected to import users from.
  * @property {Array} usersBeingImported The list of users currently being imported.
  * @property {boolean} showCannotRemoveUser Flag to indicate if the "cannot remove user"
- *  message should be shown.
+ * message should be shown.
  * @property {import('xstate').Interpreter} importLodMachineService The XState service managing the
- *  import process.
+ * import process.
  * @property {Function} fetchUsers Function to fetch the users from the LOD device.
  * @property {Function} removeUser Function to remove a user from the LOD device.
  * @property {Function} resetShowCannotRemoveUser Function to reset the
- *  "cannot remove user" message.
- *
+ * "cannot remove user" message.
  * @returns {InjectLodDeviceUsersObject} An object containing the state and methods.
  */
 export function injectLodDeviceUsers() {
