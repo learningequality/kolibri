@@ -124,7 +124,7 @@
         default: '',
       },
       /**
-       * vue-router link object
+       * Vue-router link object
        * The action button is rendered as a link targeting
        * this route if provided, otherwise it's rendered as
        * a button that emits `buttonClick` event.
@@ -178,6 +178,8 @@
     },
     methods: {
       /**
+       * Returns a reference to the primary action button element.
+       * @returns {object} The button element ref.
        * @public
        */
       getButtonRef() {

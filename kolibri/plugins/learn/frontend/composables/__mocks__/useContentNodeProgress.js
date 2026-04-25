@@ -13,15 +13,15 @@
  * ```
  * // eslint-disable-next-line import-x/named
  * import useContentNodeProgress, {
- *  useContentNodeProgressMock
+ * useContentNodeProgressMock
  * } from '<useContentNodeProgress file path>';
  *
  * jest.mock('<useContentNodeProgress file path>')
  *
  * it('test', () => {
- *   useContentNodeProgress.mockImplementation(
- *     () => useContentNodeProgressMock({ isUserLoggedIn: true })
- *   );
+ * useContentNodeProgress.mockImplementation(
+ * () => useContentNodeProgressMock({ isUserLoggedIn: true })
+ * );
  * })
  * ```
  *

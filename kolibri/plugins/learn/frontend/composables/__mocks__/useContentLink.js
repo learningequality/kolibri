@@ -17,9 +17,9 @@
  * jest.mock('<useContentLink file path>')
  *
  * it('test', () => {
- *   useContentLink.mockImplementation(
- *    () => useContentLinkMock({ channels: [{ id: 'channel-1' }] })
- *   );
+ * useContentLink.mockImplementation(
+ * () => useContentLinkMock({ channels: [{ id: 'channel-1' }] })
+ * );
  * })
  * ```
  *

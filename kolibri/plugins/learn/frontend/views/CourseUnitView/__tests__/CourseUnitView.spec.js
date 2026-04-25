@@ -157,6 +157,11 @@ describe('CourseUnitView', () => {
   /**
    * Mocks the unit tree returned by ContentNodeResource.fetchTree for the
    * redirect-guard tests that need a specific parent/child shape.
+   * @param {object} [config] - Tree configuration.
+   * @param {string} [config.unitId] - id of the unit at the root of the mocked tree.
+   * @param {Array<string>} [config.lessonIds] - Lesson ids to include as children of the unit.
+   * @param {{[lessonId: string]: Array<string>}} [config.resourceIdsByLesson] - Map of
+   * lesson id to the resource ids placed under that lesson.
    */
   function setupUnitTree({
     unitId = UNIT_1,

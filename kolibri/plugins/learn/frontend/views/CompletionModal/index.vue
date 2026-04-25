@@ -411,9 +411,9 @@
         this.$router.push(this.nextContentNodeRoute);
       },
       /**
+       * Handles focus events to trap focus within the modal when appropriate.
+       * @param {Event} event - The focus event to evaluate.
        * @public
-       * Focuses on correct first element for FocusTrap depending on content
-       * rendered in CompletionModal.
        */
       focusElementTest(event) {
         const { target } = event;

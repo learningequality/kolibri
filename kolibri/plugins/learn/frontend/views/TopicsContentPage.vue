@@ -588,10 +588,11 @@
        * When a lessonId is given, this method will fetch the lesson and then fetch its
        * content nodes. The user is guaranteed to be logged in if there is a lessonId.
        *
-       * The nodes' progresses are mapped via the useContentNodeProgress composable
-       *
-       * @modifies this.viewResourcesContents - Assigned the content nodes retrieved
-       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly)
+       * The nodes' progresses are mapped via the useContentNodeProgress composable.
+       * @modifies this.viewResourcesContents - Assigned the content nodes retrieved.
+       * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly).
+       * @returns {Promise<void>} Resolves once the lesson and its resources have
+       * been fetched and assigned.
        */
       fetchLessonSiblings() {
         // Get the lesson and then assign its resources to this.viewResourcesContents
@@ -611,12 +612,13 @@
        *
        * Then it will fetch the "next folder" - which is the next content for this.content that
        * is a topic.
-       *
-       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
-       * if found
+       * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes.
+       * @modifies this.nextFolder - Sets the value with this.content's parent's next sibling folder
+       * if found.
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
-       * is logged in
+       * is logged in.
+       * @returns {Promise<void>} Resolves once the parent's children and the next-folder
+       * pointer have been resolved (or immediately if there is no current content).
        */
       fetchSiblings() {
         if (!this.content) {

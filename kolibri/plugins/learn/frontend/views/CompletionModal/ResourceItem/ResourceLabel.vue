@@ -58,7 +58,7 @@
         required: true,
       },
       /**
-       * vue-router link object
+       * Vue-router link object
        * If provided, a resource title will be rendered
        * as a link targeting this route.
        */

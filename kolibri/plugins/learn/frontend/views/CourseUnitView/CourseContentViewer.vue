@@ -250,7 +250,7 @@
       },
       /**
        * Previous resource in the course unit. Used mainly as navigation fallback in case there
-       * isn't any other way to get out of the current viewer (e.g. no next resource available,but
+       * isn't any other way to get out of the current viewer (e.g., no next resource available, but
        * no other way to get out of the current resource except going back to the previous one).
        */
       previousResource: {

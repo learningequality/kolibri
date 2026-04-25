@@ -15,22 +15,23 @@
   const REQUEST_BOTTOM_BAR_KEY = 'resourceLayoutRequestBottomBar';
   const REQUEST_SIDE_PANEL_FOOTER_KEY = 'resourceLayoutRequestSidePanelFooter';
 
-  /**
+  /*
    * ResourceLayout — full-screen layout for course content viewing.
    *
    * Nested ResourceLayouts can "claim" claimable slots from their ancestor,
    * with deepest winning by default and focus-based switching between subtrees.
    *
-   * @slot default        - Main content area
-   * @slot topBar         - Top navigation bar content (rendered inside KToolbar; non-claimable)
-   * @slot sidePanel      - Side panel content (claimable by nested ResourceLayouts)
-   * @slot bottomBar      - Bottom bar content (claimable by nested ResourceLayouts)
-   * @slot sidePanelTopBar   - Side panel header/title area (non-claimable)
-   * @slot sidePanelFooter   - Side panel footer (claimable by nested ResourceLayouts)
+   * Slots:
+   *   default          - Main content area
+   *   topBar           - Top navigation bar content (rendered inside KToolbar; non-claimable)
+   *   sidePanel        - Side panel content (claimable by nested ResourceLayouts)
+   *   bottomBar        - Bottom bar content (claimable by nested ResourceLayouts)
+   *   sidePanelTopBar  - Side panel header/title area (non-claimable)
+   *   sidePanelFooter  - Side panel footer (claimable by nested ResourceLayouts)
    *
    * Exposes:
-   * - onSidePanelNavigation() - to be called by parent components when navigation occurs due to
-   *   an action on the side panel, so the panel can be closed in modal mode.
+   *   onSidePanelNavigation() - call when navigation occurs via the side panel,
+   *     so the panel can be closed in modal mode.
    */
   export default {
     name: 'ResourceLayout',

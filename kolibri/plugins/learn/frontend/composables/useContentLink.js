@@ -39,10 +39,12 @@ export default function useContentLink() {
    * A function to generate a VueRouter link object that links to
    * either a resource or a topic, and generates query parameters
    * that allow creating a backlink to the route context in which
-   * this link is generated
-   * @param {string} id - the id of the node
-   * @param {boolean} isResource - whether this is a resource or not
-   * @return {Object} VueRouter link object
+   * this link is generated.
+   * @param {string} id - The id of the node.
+   * @param {boolean} isResource - Whether this is a resource or not.
+   * @param {string} [deviceId] - Override for the device id route parameter; defaults
+   * to the device id on the current route.
+   * @returns {object} VueRouter link object.
    */
   function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
     const query = _getBackLinkQuery();
@@ -69,9 +71,10 @@ export default function useContentLink() {
    * while maintaining the conceptual model of a single immersive overlay
    * that can be closed out, returning to the originating page that linked
    * to the original resource.
-   * @param {string} id - the id of the node
-   * @param {boolean} isResource - whether this is a resource or not
-   * @return {Object} VueRouter link object
+   * @param {string} id - The id of the node.
+   * @param {boolean} isResource - Whether this is a resource or not.
+   * @param {string} [deviceId] - Override for the device id route parameter.
+   * @returns {object} VueRouter link object.
    */
   function genContentLinkKeepCurrentBackLink(id, isResource = false, deviceId) {
     const oldQuery = route.query;
@@ -88,8 +91,9 @@ export default function useContentLink() {
    * while maintaining the conceptual model of a single immersive overlay
    * that can be closed out, returning to the originating page that linked
    * to the original parent topic of the resource.
-   * @param {string} id - the id of the node
-   * @return {Object} VueRouter link object
+   * @param {string} id - The id of the node.
+   * @param {string} [deviceId] - Override for the device id route parameter.
+   * @returns {object} VueRouter link object.
    */
   function genContentLinkKeepPreviousBackLink(id, deviceId) {
     const oldQuery = _decodeBackLinkQuery(route.query);

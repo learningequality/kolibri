@@ -23,8 +23,7 @@ const loadingBookmarksMap = reactive({});
 
 /**
  * Adds or updates a bookmark in the shared bookmarksMap.
- *
- * @param {Object} bookmark - A bookmark object with at least `contentnode_id` and `id`.
+ * @param {object} bookmark - A bookmark object with at least `contentnode_id` and `id`.
  */
 export function setBookmark(bookmark) {
   set(bookmarksMap, bookmark.contentnode_id, bookmark);
@@ -32,7 +31,6 @@ export function setBookmark(bookmark) {
 
 /**
  * Removes a bookmark from the shared bookmarksMap by contentnode_id.
- *
  * @param {string} contentnodeId - The content node ID to remove from the map.
  */
 export function clearBookmark(contentnodeId) {
@@ -42,7 +40,6 @@ export function clearBookmark(contentnodeId) {
 /**
  * Creates a bookmark on the server and updates the local bookmarksMap.
  * On failure, removes the entry from the map.
- *
  * @param {string} contentnodeId - The content node ID to bookmark.
  * @returns {Promise} Promise that resolves with the created bookmark data.
  */
@@ -71,7 +68,6 @@ export async function createBookmark(contentnodeId) {
 /**
  * Removes a bookmark from the server and updates the local bookmarksMap.
  * On failure, restores the bookmark back into the map.
- *
  * @param {string} contentnodeId - The content node ID whose bookmark to remove.
  * @returns {Promise} Promise that resolves when the bookmark is deleted.
  */
@@ -99,8 +95,7 @@ export async function removeBookmark(contentnodeId) {
 export default function useBookmarks() {
   /**
    * Fetches bookmarks data and saves data to this composable's store.
-   *
-   * @param {Object} getParams - Parameters to filter by (e.g. { contentnode_id }).
+   * @param {object} getParams - Parameters to filter by (e.g. { contentnode_id }).
    * @returns {Promise} Promise that resolves with the fetched bookmarks array.
    * @public
    */

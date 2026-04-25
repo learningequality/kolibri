@@ -17,9 +17,9 @@
  * jest.mock('<useCoreLearn file path>')
  *
  * it('test', () => {
- *   useCoreLearn.mockImplementation(
- *    () => useCoreLearnMock({ inClasses: true })
- *   );
+ * useCoreLearn.mockImplementation(
+ * () => useCoreLearnMock({ inClasses: true })
+ * );
  * })
  * ```
  *

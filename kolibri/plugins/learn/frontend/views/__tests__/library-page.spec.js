@@ -141,7 +141,7 @@ describe('LibraryPage', () => {
     beforeAll(() => {
       useBaseSearch.mockImplementation(() => useBaseSearchMock({ displayingSearchResults: false }));
     });
-    /** useBaseSearch#displayingSearchResults is falsy and there are rootNodes */
+    /* useBaseSearch#displayingSearchResults is falsy and there are rootNodes */
     it('displays a grid of channel cards', async () => {
       const wrapper = await makeWrapper();
       expect(wrapper.find('[data-testid="channels"').element).toBeTruthy();
