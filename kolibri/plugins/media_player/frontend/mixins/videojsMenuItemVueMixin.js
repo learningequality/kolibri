@@ -1,8 +1,5 @@
 import videojsVueMixin from './videojsVueMixin';
 
-/**
- * @param {Object} vueComponent A compiled vue component object
- */
 export default function videojsMenuItemVueMixin(vueComponent) {
   return class extends videojsVueMixin('MenuItem', vueComponent) {
     createVueComponent(options = {}) {

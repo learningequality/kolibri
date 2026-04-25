@@ -132,7 +132,8 @@
         this.player.currentTime(cueTime + 0.01);
       },
       /**
-       * @param {String} place `beginning` or `end`
+       * Move keyboard focus to the first or last cue in the transcript.
+       * @param {string} place - `beginning` or `end`.
        */
       handleGoTo(place) {
         if (!this.cues.length || !Object.keys(this.$refs).length) {
@@ -208,8 +209,10 @@
         this.$nextTick(this.scrollThrottle);
       },
       /**
-       * @param {Function} callback
-       * @return {Function}
+       * Build a reducer that walks each rendered cue and applies `callback`.
+       * Cues that fail to resolve, or callbacks that throw, are skipped.
+       * @param {Function} callback - Reducer invoked as `(reduced, cue)`.
+       * @returns {Function} A reducer compatible with `Array.prototype.reduce`.
        */
       cueReduce(callback) {
         return (reduced, cueId) => {

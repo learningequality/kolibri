@@ -1,13 +1,20 @@
 import videojsVueMixin from './videojsVueMixin';
 
 /**
- * @param {Object} vueComponent A compiled vue component object
+ * @typedef {import('video.js').default.Component} VideoJsComponent
+ */
+
+/**
+ * Build a video.js Menu subclass that renders its content through a Vue component.
+ * @param {object} vueComponent - A compiled vue component object
+ * @returns {typeof VideoJsComponent} The extended Menu class
  */
 export default function videojsMenuVueMixin(vueComponent) {
   return class extends videojsVueMixin('Menu', vueComponent) {
     /**
-     * @param player
-     * @param options
+     * Initialise lock and focused-child state on top of the parent Menu constructor.
+     * @param {VideoJsComponent} player - The video.js player instance
+     * @param {object} [options] - Options forwarded to the parent Menu component
      */
     constructor(player, options) {
       super(player, options);
@@ -19,9 +26,8 @@ export default function videojsMenuVueMixin(vueComponent) {
     /**
      * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
      * options (the languages) in the right spot
-     *
      * @override
-     * @return {*|Element}
+     * @returns {Element} The element into which menu items should be inserted
      */
     contentEl() {
       return this.getVueComponent().contentEl();
@@ -30,9 +36,8 @@ export default function videojsMenuVueMixin(vueComponent) {
     /**
      * `contentEl` is used when `addItem` is called, so this allows the addition of the text track
      * options (the languages) in the right spot
-     *
      * @override
-     * @return {*|Element}
+     * @returns {Element} The element into which menu items should be inserted
      */
     get contentEl_() {
       return this.contentEl();
@@ -44,9 +49,8 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Override parent's method, which adds event handlers we don't want
-     *
      * @override
-     * @param {Component|String} item The name or instance of the item to add
+     * @param {VideoJsComponent | string} item - The name or instance of the item to add
      */
     addItem(item) {
       this.addChild(item);
@@ -54,7 +58,6 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Triggered by mouseenter of button container
-     *
      * @override
      */
     show() {
@@ -63,7 +66,6 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Triggered by mouseleave of button container
-     *
      * @override
      */
     hide() {
@@ -72,7 +74,6 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Triggered on click in ancestor
-     *
      * @override
      */
     lockShowing() {
@@ -81,7 +82,6 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Triggered on blur in ancestor
-     *
      * @override
      */
     unlockShowing() {
@@ -89,7 +89,8 @@ export default function videojsMenuVueMixin(vueComponent) {
     }
 
     /**
-     * @param {Boolean} lock Whether or not to lock it open
+     * Show the menu, optionally locking it open so mouseleave won't hide it.
+     * @param {boolean} lock - Whether or not to lock it open
      */
     doShow(lock = false) {
       const component = this.getVueComponent();
@@ -108,7 +109,8 @@ export default function videojsMenuVueMixin(vueComponent) {
     }
 
     /**
-     * @param {Boolean} unlock Whether or not to unlock it if it's locked open
+     * Hide the menu, optionally unlocking it first if it was locked open.
+     * @param {boolean} unlock - Whether or not to unlock it if it's locked open
      */
     doHide(unlock = false) {
       const component = this.getVueComponent();
@@ -124,6 +126,8 @@ export default function videojsMenuVueMixin(vueComponent) {
 
     /**
      * Called by Video.js key event handlers
+     * @param {number} [index] - Child index to focus; defaults to the last focused child, wraps on
+     * overflow
      */
     focus(index) {
       const children = this.children();
