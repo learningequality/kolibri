@@ -32,8 +32,8 @@
   import themeConfig from 'kolibri/styles/themeConfig';
 
   /**
-Links for use inside the Navbar
-*/
+     Links for use inside the Navbar.
+   */
   export default {
     name: 'NavbarLink',
     setup() {

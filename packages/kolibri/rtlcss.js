@@ -19,9 +19,8 @@ class RTLManager {
   /**
    * Register a webpack bundle for RTL management.
    * Called by webpack runtime code injected into each bundle.
-   *
-   * @param {string} bundleId - The webpack bundle identifier (compilation.name)
-   * @returns {Object} Bundle-scoped API with miniCssF method for URL transformation
+   * @param {string} bundleId - The webpack bundle identifier (compilation.name).
+   * @returns {object} Bundle-scoped API with miniCssF method for URL transformation.
    */
   registerBundle(bundleId) {
     if (!this.bundleStates.has(bundleId)) {
@@ -33,9 +32,8 @@ class RTLManager {
       /**
        * Transform CSS URL based on current RTL state.
        * Called by webpack's miniCssF hook to transform chunk URLs.
-       *
-       * @param {string} originalPath - Original CSS file path
-       * @returns {string} Transformed path (.rtl.css if RTL enabled)
+       * @param {string} originalPath - Original CSS file path.
+       * @returns {string} Transformed path (.rtl.css if RTL enabled).
        */
       miniCssF: originalPath => {
         if (!originalPath) return originalPath;
@@ -49,7 +47,6 @@ class RTLManager {
   /**
    * Register CSS URLs for a bundle so that enableRTL/disableRTL can
    * create initial link elements or switch direction for them.
-   *
    * @param {string} bundleId - Bundle identifier
    * @param {string[]} cssUrls - All CSS URLs for the bundle (both LTR and RTL variants)
    */
@@ -63,7 +60,6 @@ class RTLManager {
    * Load CSS for a bundle using its registered URLs and the current direction.
    * Creates tagged link elements via reloadBundleCSS — the same code path
    * used by enableRTL/disableRTL for subsequent direction switches.
-   *
    * @param {string} bundleId - Bundle identifier (must have been registered via registerBundleCSS)
    */
   loadRegisteredBundleCSS(bundleId) {
@@ -76,7 +72,6 @@ class RTLManager {
    * Enable RTL mode for a bundle.
    * If CSS links already exist in the DOM, swaps them to RTL.
    * If no links exist but URLs are registered, creates them.
-   *
    * @param {string} bundleId - Bundle identifier
    * @returns {Promise<void>}
    */
@@ -90,7 +85,6 @@ class RTLManager {
    * Disable RTL mode for a bundle.
    * If CSS links already exist in the DOM, swaps them to LTR.
    * If no links exist but URLs are registered, creates them.
-   *
    * @param {string} bundleId - Bundle identifier
    * @returns {Promise<void>}
    */
@@ -105,7 +99,6 @@ class RTLManager {
    * If tagged link elements exist in the DOM, swaps their URLs.
    * If no tagged links exist but URLs were registered via registerBundleCSS,
    * creates new tagged link elements for the current direction.
-   *
    * @param {string} bundleId - Bundle identifier
    * @returns {Promise<void>}
    * @throws {Error} If CSS file fails to load

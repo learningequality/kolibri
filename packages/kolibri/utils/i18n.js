@@ -189,9 +189,10 @@ class Translator {
 }
 
 /**
- * Returns a Translator instance.
- * @param {string} nameSpace - The nameSpace of the messages for translation.
- * @param {object} defaultMessages - an object mapping message ids to default messages.
+ * Create a Translator instance for the given namespace and messages.
+ * @param {string} nameSpace - The unique namespace for this translator.
+ * @param {object} defaultMessages - Map of message IDs to default message strings.
+ * @returns {Translator} A configured Translator instance.
  */
 export function createTranslator(nameSpace, defaultMessages) {
   return new Translator(nameSpace, defaultMessages);
@@ -200,10 +201,11 @@ export function createTranslator(nameSpace, defaultMessages) {
 /**
  * Returns a Translator instance that can grab strings from another component.
  * WARNINGS:
- *  - Cannot be used across plugin boundaries
- *  - Use sparingly, e.g. to bypass string freeze
- *  - Try to remove post-string-freeze
+ * - Cannot be used across plugin boundaries
+ * - Use sparingly, e.g. to bypass string freeze
+ * - Try to remove post-string-freeze
  * @param {Component} Component - An imported component.
+ * @returns {Translator} A Translator instance for the component.
  */
 export function crossComponentTranslator(Component) {
   return new Translator(Component.name, Component.$trs);
@@ -215,7 +217,7 @@ async function _setUpVueIntl() {
    *
    * Note that this _must_ be called after i18nSetup because this function sets up
    * the currentLanguage module variable which is referenced inside of here.
-   **/
+   */
   Vue.use(VueIntl, { defaultLocale });
   Vue.prototype.isRtl = languageDirection === 'rtl';
 
@@ -242,7 +244,7 @@ async function _setUpVueIntl() {
 export async function i18nSetup(skipPolyfill = false) {
   /**
    * Load fonts, app strings, and Intl polyfills
-   **/
+   */
 
   // Set up typography
   setLanguageDensity(currentLanguage);
@@ -272,18 +274,16 @@ export async function i18nSetup(skipPolyfill = false) {
  * fully support the locale and options parameters of String.prototype.localeCompare.
  * All other supported browsers (Chrome 49+, Firefox 52+, Safari 11.1+, etc.)
  * have full support.
- *
  * @param {string} str1 - First string to compare
  * @param {string} str2 - Second string to compare
  * @param {string} [locale] - BCP 47 locale code (defaults to currentLanguage)
  * @param {object} [options] - Comparison options
- * @param {string} [options.usage='sort'] - 'sort' for sorting, 'search' for case-insensitive search
+ * @param {string} [options.usage='sort'] - 'sort', or 'search' for case-insensitive search
  * @param {string} [options.sensitivity] - 'base', 'accent', 'case', or 'variant'
  * @param {boolean} [options.ignorePunctuation] - Whether to ignore punctuation
  * @param {string} [options.numeric] - Whether numeric collation should be used
  * @param {string} [options.caseFirst] - Whether upper or lower case should sort first
  * @returns {number} -1 if str1 < str2, 0 if equal, 1 if str1 > str2
- *
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
  */
 export function localeCompare(str1, str2, locale, options) {
@@ -312,13 +312,11 @@ export function formatList(array) {
  * Sorts an Array of language objects by their `lang_name` property.
  * If currentLanguageId is truthy and is a language code that exists in
  * an element of availableLanguages, that element is always sorted first.
- *
- * @export
- * @param {Array} availableLanguages Array of language objects
- * @param {(String|null|undefined)} currentLanguageId Lang code for currently
- *  selected language
+ * @param {Array} availableLanguages - Array of language objects
+ * @param {(string | null | undefined)} currentLanguageId - Lang code for currently
+ * selected language
  * @returns {Array} Array of sorted language objects with the
- *  currently selected language object first, if one exists.
+ * currently selected language object first, if one exists.
  */
 export function sortLanguages(availableLanguages, currentLanguageId) {
   const currentLanguageElem = availableLanguages.find(language => {
@@ -339,7 +337,6 @@ export function sortLanguages(availableLanguages, currentLanguageId) {
 /**
  * Compares two language objects by their lang_name property using locale-aware comparison.
  * Used for sorting language lists in the language switcher.
- *
  * @param {object} a - First language object with lang_name property
  * @param {object} b - Second language object with lang_name property
  * @returns {number} -1 if a < b, 0 if equal, 1 if a > b

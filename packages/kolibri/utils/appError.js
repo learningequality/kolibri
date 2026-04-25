@@ -11,7 +11,6 @@ export const error = ref(null);
 
 /**
  * Set a plain error string as the global app error.
- *
  * @param {string} errorString - The error message to display
  */
 export function handleError(errorString) {
@@ -29,13 +28,13 @@ export function clearError() {
 /**
  * Handle an API error by setting the global error state.
  * For disconnection errors, delegates to the heartbeat reconnection overlay instead.
- *
- * @param {Object} options
- * @param {*} options.error - The error object or string
- * @param {boolean} [options.reloadOnReconnect=false] - Whether to reload on reconnection
+ * @param {object} options - Options object.
+ * @param {Error|object|string} options.error - The error object or string.
+ * @param {boolean} [options.reloadOnReconnect=false] - Whether to reload on reconnection.
  * @param {boolean} [options.shouldThrow=true] - Whether to re-throw the error after handling.
- *   Defaults to true to preserve the original throw-after-set semantics.
- * @throws {*} Re-throws options.error unless shouldThrow is false or the error is a disconnection
+ * Defaults to true to preserve the original throw-after-set semantics.
+ * @throws {Error|object|string} Re-throws options.error unless shouldThrow is false or the
+ * error is a disconnection.
  */
 export function handleApiError({ error: err, reloadOnReconnect = false, shouldThrow = true } = {}) {
   let errorString = err;

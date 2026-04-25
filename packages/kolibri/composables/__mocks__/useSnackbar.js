@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `useSnackbarMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with  `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -17,15 +17,15 @@
  *
  * jest.mock('<useSnackbar file path>')
  * describe('describe test', function () {
- *   let snackbar = { snackbarIsVisible: ref(false) }
+ * let snackbar = { snackbarIsVisible: ref(false) }
  *
- *   beforeAll(() => {
- *     useSnackbar.mockImplementation(() => useSnackbarMock(snackbar)
- *   })
+ * beforeAll(() => {
+ * useSnackbar.mockImplementation(() => useSnackbarMock(snackbar)
+ * })
  *
- *   it('the test', () => {
- *     expect(get(snackbar.snackbarIsVisible)).toEqual(false);
- *   )
+ * it('the test', () => {
+ * expect(get(snackbar.snackbarIsVisible)).toEqual(false);
+ * )
  * })
  * ```
  */

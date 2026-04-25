@@ -524,8 +524,8 @@
       },
 
       /**
-       * @public
        * Focuses on correct first element for FocusTrap.
+       * @public
        */
       focusFirstEl() {
         this.$nextTick(() => {

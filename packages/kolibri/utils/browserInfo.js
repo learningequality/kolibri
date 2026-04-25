@@ -3,8 +3,17 @@ import UAParser from 'ua-parser-js';
 import { ref } from 'vue';
 
 /**
- * A requirements specification object.
- * @typedef {Object.<string, Browser>} Requirements.
+ * @typedef  {object} Browser
+ * @property {string} name - User-agent browser name.
+ * @property {string|number} major - Major version number.
+ * @property {string|number} [minor] - Minor version number, when known.
+ * @property {string|number} [patch] - Patch version number, when known.
+ */
+
+/**
+ * A requirements specification object: a map from browser name to the minimum
+ * version permitted for that browser.
+ * @typedef {{[name: string]: Browser}} Requirements
  */
 
 /**
@@ -12,10 +21,10 @@ import { ref } from 'vue';
  * passed in. It does this in a permissive way, whereby if no specification is made for a particular
  * browser name, then it will return true. If, however, the browser is specified in the requirements
  * object, then if it fails to pass the version requirements specified, then false will be returned.
- * @param  {Browser} browser     - a browser specification object for the browser being tested.
- * @param  {Requirements} requirements - a requirements specification object specifying conditions
+ * @param {Browser} browser - a browser specification object for the browser being tested.
+ * @param {Requirements} requirements - a requirements specification object specifying conditions
  * to test.
- * @return {boolean} - false if failed to pass any of the requirements, true otherwise.
+ * @returns {boolean} - false if failed to pass any of the requirements, true otherwise.
  */
 export function passesRequirements(browser, requirements) {
   if (browser.major && browser.name) {
@@ -50,6 +59,7 @@ const info = parser.getResult();
 
 const browserVersion = (info.browser.version || '').split('.');
 
+/** @type {Browser} */
 export const browser = {
   name: info.browser.name,
   major: browserVersion[0],

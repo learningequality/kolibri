@@ -4,9 +4,10 @@ import logger from 'kolibri-logging';
 
 const logging = logger.getLogger(__filename);
 
-/** Wrapper around Vue Router.
- *  Implements URL mapping to Vuex actions in addition to Vue components.
- *  Otherwise intended as a mostly transparent replacement to vue-router.
+/**
+ * Wrapper around Vue Router.
+ * Implements URL mapping to Vuex actions in addition to Vue components.
+ * Otherwise intended as a mostly transparent replacement to vue-router.
  */
 class Router {
   /**
@@ -99,12 +100,11 @@ class Router {
 
   /**
    * Generates a route object and warns if it's not valid
-   *
-   * @method getRoute
-   * @param {string} name The name of the route
-   * @param {object} [params] The route parameters object
-   * @param {object} [query] The route query object
-   * @return {{name: string, params: Object, query: Object}} The route object
+   * @function getRoute
+   * @param {string} name - The name of the route
+   * @param {object} [params] - The route parameters object
+   * @param {object} [query] - The route query object
+   * @returns {{name: string, params: object, query: object}} The route object
    */
 
   /****************************/

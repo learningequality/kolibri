@@ -7,6 +7,10 @@ import { rtlManager } from 'kolibri/rtlcss';
 import ContentViewerLoading from '../components/internal/ContentViewer/ContentViewerLoading';
 import ContentViewerError from '../components/internal/ContentViewer/ContentViewerError';
 
+/**
+ * @typedef {import('kolibri-module').default} KolibriModule
+ */
+
 const logger = logging.getLogger(__filename);
 
 /**
@@ -42,7 +46,7 @@ export default function pluginMediatorFactory(facade) {
     /**
      * Keep track of all registered kolibri_modules - object is of form:
      * kolibriModuleName: kolibri_module_object
-     **/
+     */
     _kolibriModuleRegistry: {},
 
     // wait to call kolibri_module `ready` until dependencies are loaded
@@ -59,14 +63,14 @@ export default function pluginMediatorFactory(facade) {
      * Map from kolibriModule name to an array of pending callbacks. Callbacks
      * are queued in retrieveContentViewer() when the module has not yet
      * registered; flushed and removed in registerKolibriModuleSync().
-     * @type {Object.<string, Function[]>}
+     * @type {{[key: string]: Function[]}}
      */
     _contentViewerCallbacks: {},
 
     /**
      * Keep track of all registered language assets for modules.
      * kolibriModuleName: {object} - with keys for different languages.
-     **/
+     */
     _languageAssetRegistry: {},
 
     /**
@@ -88,18 +92,18 @@ export default function pluginMediatorFactory(facade) {
 
     /**
      * Mark the mediator as ready and flush all pending ready callbacks.
-     **/
+     */
     setReady() {
       this._ready = true;
       this._readyCallbacks.splice(0).forEach(cb => cb());
     },
 
     /**
-     * @param {KolibriModule} kolibriModule - object of KolibriModule class
-     * @description Registers a kolibriModule that has already been loaded into the
+     * Registers a kolibriModule that has already been loaded into the
      * frontend. Flushes any pending content viewer callbacks for the module, then
      * calls kolibriModule.ready() immediately if the mediator is ready, or defers it
      * until setReady() is called.
+     * @param {KolibriModule} kolibriModule - The freshly loaded module instance to register
      */
     registerKolibriModuleSync(kolibriModule) {
       this._kolibriModuleRegistry[kolibriModule.name] = kolibriModule;
@@ -123,9 +127,8 @@ export default function pluginMediatorFactory(facade) {
      * A method for directly registering language assets on the mediator.
      * This is used to set language assets as loaded and register them to the Vue intl
      * translation apparatus.
-     * @param  {String} moduleName name of the module.
-     * @param  {String} language   language code whose messages we are registering.
-     * @param  {Object} messageMap an object with message id to message mappings.
+     * @param {string} moduleName - Module whose embedded translation template should be parsed
+     * and registered
      */
     registerLanguageAssets(moduleName) {
       const messageElement = document.querySelector(`template[data-i18n="${moduleName}"]`);
@@ -163,10 +166,10 @@ export default function pluginMediatorFactory(facade) {
     /**
      * A method for registering content viewers for asynchronous loading and track
      * which file types we have registered viewers for.
-     * @param  {String} kolibriModuleName name of the module.
-     * @param  {String[]} kolibriModuleUrls the URLs of the Javascript
+     * @param {string} kolibriModuleName - Identifier of the module that provides the viewer
+     * @param {string[]} kolibriModuleUrls - the URLs of the Javascript
      * files that constitute the kolibriModule
-     * @param  {String[]} contentPresets the names of presets this content viewer can render
+     * @param {string[]} contentPresets - the names of presets this content viewer can render
      */
     registerContentViewer(kolibriModuleName, kolibriModuleUrls, contentPresets) {
       this._contentViewerUrls[kolibriModuleName] = kolibriModuleUrls;
@@ -217,8 +220,8 @@ export default function pluginMediatorFactory(facade) {
 
     /**
      * A method to retrieve a content viewer component.
-     * @param  {String} preset    content preset
-     * @return {Promise}          Promise that resolves with loaded content viewer Vue component
+     * @param {string} preset - Content preset whose viewer component should be resolved
+     * @returns {Promise} Promise that resolves with loaded content viewer Vue component
      */
     retrieveContentViewer(preset) {
       return new Promise((resolve, reject) => {
