@@ -3,6 +3,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import pluginImportX from 'eslint-plugin-import-x';
 import pluginJest from 'eslint-plugin-jest';
 import pluginJestDom from 'eslint-plugin-jest-dom';
+import jsdoc from 'eslint-plugin-jsdoc';
 import pluginKolibri from 'eslint-plugin-kolibri';
 import pluginN from 'eslint-plugin-n';
 import pluginSmallImport from 'eslint-plugin-small-import';
@@ -11,6 +12,7 @@ import globals from 'globals';
 
 const OFF = 0;
 const ERROR = 2;
+const jsdocRecommended = jsdoc.configs['flat/recommended-error'];
 
 export default [
   js.configs.recommended,
@@ -19,6 +21,32 @@ export default [
   pluginImportX.flatConfigs.warnings,
   pluginJestDom.configs['flat/recommended'],
   eslintConfigPrettier,
+  // JSDoc linting for .js and .vue files
+  {
+    ...jsdocRecommended,
+    files: ['**/*.js', '**/*.vue'],
+    rules: {
+      ...jsdocRecommended.rules,
+      'jsdoc/require-jsdoc': OFF,
+      'jsdoc/reject-function-type': OFF,
+      // Default values like `[size=2.5MB]` are useful documentation, not a redundant
+      // restatement of a code default; `no-defaults` rejects all of them indiscriminately.
+      'jsdoc/no-defaults': OFF,
+      // A specific `@returns` shape/typedef is self-documenting; requiring prose after it just
+      // forces a restatement of the type.
+      'jsdoc/require-returns-description': OFF,
+      'jsdoc/no-blank-blocks': ERROR,
+      'jsdoc/no-blank-block-descriptions': ERROR,
+      'jsdoc/informative-docs': ERROR,
+      'jsdoc/sort-tags': ERROR,
+      'jsdoc/check-line-alignment': [ERROR, 'never'],
+      'jsdoc/require-description': ERROR,
+      'jsdoc/require-hyphen-before-param-description': ERROR,
+      'jsdoc/require-throws': ERROR,
+      // `@affects` documents side-effects on outer state; used widely in Kolibri composables.
+      'jsdoc/check-tag-names': [ERROR, { definedTags: ['affects'] }],
+    },
+  },
   {
     plugins: {
       kolibri: pluginKolibri,
