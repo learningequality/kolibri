@@ -23,7 +23,7 @@ if (!global.URL.revokeObjectURL) {
 
 /**
  * Helper to create a zip file with specified contents
- * @param {Object} files - Object mapping filenames to content strings
+ * @param {object} files - Object mapping filenames to content strings
  * @returns {Uint8Array} - The zip file data
  */
 function createTestZip(files) {
@@ -35,7 +35,9 @@ function createTestZip(files) {
 }
 
 /**
- * Setup xhr-mock to serve a zip file with range request support
+ * Setup xhr-mock to serve a zip file with range request support.
+ * @param {Uint8Array} zipData - The zip bytes that should be served.
+ * @param {string} [url] - URL the mock server should respond to.
  */
 function setupMockServer(zipData, url = 'test.zip') {
   xhrMock.reset();
@@ -70,10 +72,9 @@ function setupMockServer(zipData, url = 'test.zip') {
 /**
  * Combined helper to create zip, setup mock server, and return ZipFile instance.
  * Reduces boilerplate in tests.
- *
- * @param {Object} files - Object mapping filenames to content strings
+ * @param {object} files - Object mapping filenames to content strings
  * @param {string} url - URL for the mock server (default: 'test.zip')
- * @param {Object} options - Options passed to ZipFile constructor
+ * @param {object} options - Options passed to ZipFile constructor
  * @returns {ZipFile} - Initialized ZipFile instance
  */
 function setupZip(files, url = 'test.zip', options = {}) {
@@ -411,7 +412,13 @@ describe('ZipFile lazy loading', () => {
   });
 
   /**
-   * Helper to create a large zip file for testing lazy loading
+   * Helper to create a large zip file for testing lazy loading.
+   * @param {object} [options] - Configuration for the synthesised zip.
+   * @param {{[name: string]: string}} [options.smallFiles] - Small file entries to include
+   * in the zip, keyed by filename.
+   * @param {number} [options.largeVideoSize] - Size in bytes of the synthesised video file.
+   * @param {boolean} [options.includeVideo] - Whether to include the synthesised video file.
+   * @returns {Uint8Array} The synthesised zip bytes.
    */
   function createLargeTestZip(options = {}) {
     const {
@@ -437,7 +444,9 @@ describe('ZipFile lazy loading', () => {
   }
 
   /**
-   * Setup mock server that tracks all requests and supports range requests
+   * Setup mock server that tracks all requests and supports range requests.
+   * @param {Uint8Array} zipData - The zip bytes that should be served.
+   * @param {string} [url] - URL the mock server should respond to.
    */
   function setupTrackingMockServer(zipData, url = 'large.zip') {
     xhrMock.reset();

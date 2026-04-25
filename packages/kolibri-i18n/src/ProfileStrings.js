@@ -93,12 +93,11 @@ function profileToCSV(profile) {
 }
 
 /**
- *
- * @param {object} profile      - The given strProfile of string definitions and
- *                                previously profiled uses.
- * @param {string} namespace    - The namespace to query.
- * @param {string} key          - The key to query.
- * @param {bool} common         - Is the suspected use one of a Common string set?
+ * Look up the message for a given namespace and key in the merged messages map.
+ * @param {object} allMessages - Map of all known messages, keyed as `namespace.key`.
+ * @param {string} namespace - The namespace to query.
+ * @param {string} key - The key to query within the namespace.
+ * @returns {string|undefined} The translated message, or undefined when no match is found.
  */
 function getStringFromNamespaceKey(allMessages, namespace, key) {
   return get(allMessages, [`${namespace}.${key}`, 'message']);

@@ -422,8 +422,9 @@ export default class H5PRunner {
 
   /**
    * Loads a Javascript file and executes it.
-   * @param  {String} url URL for the script
-   * @return {Promise}     Promise that resolves when the script has loaded
+   * @param {string} url - URL for the script.
+   * @param {boolean} [css] - When true, load the URL as a stylesheet instead of a script.
+   * @returns {Promise<void>} Resolves when the script (or stylesheet) has loaded.
    */
   scriptLoader(url, css = false) {
     const iframeDocument = this.iframe.contentWindow.document;

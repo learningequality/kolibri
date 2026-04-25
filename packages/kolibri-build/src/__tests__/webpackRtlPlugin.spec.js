@@ -1,20 +1,18 @@
-const path = require('path');
+const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackRTLPlugin = require('../webpackRtlPlugin');
 const { createCssInsert } = require('../createCssInsert');
-const fs = require('fs');
-const os = require('os');
 
 // Polyfill setImmediate for Jest environment (webpack requires it)
 if (typeof setImmediate === 'undefined') {
   global.setImmediate = (fn, ...args) => setTimeout(fn, 0, ...args);
-  global.clearImmediate = (id) => clearTimeout(id);
+  global.clearImmediate = id => clearTimeout(id);
 }
 
-/**
- * Helper to compile a webpack bundle and return the output
- */
+/* Helper to compile a webpack bundle and return the output */
 function compileBundle(config) {
   return new Promise((resolve, reject) => {
     const compiler = webpack(config);
@@ -32,9 +30,7 @@ function compileBundle(config) {
   });
 }
 
-/**
- * Helper to create test files for webpack compilation
- */
+/* Helper to create test files for webpack compilation */
 function createTestFiles(tempDir) {
   const entryFile = path.join(tempDir, 'entry.js');
   const cssFile = path.join(tempDir, 'styles.css');
@@ -63,7 +59,7 @@ describe('WebpackRTLPlugin', () => {
       // Somehow this test triggers swc-compiler's import of browserslist
       // which then does a warning about not being up to date.
       // Suppress the warning as the up to dateness is irrelevant to this test.
-      jest.spyOn(console, 'warn').mockImplementation()
+      jest.spyOn(console, 'warn').mockImplementation();
       const testDir = path.join(tempDir, 'rtl-generation');
       fs.mkdirSync(testDir, { recursive: true });
       const { entryFile } = createTestFiles(testDir);
@@ -74,7 +70,9 @@ describe('WebpackRTLPlugin', () => {
         entry: entryFile,
         output: { path: outputDir, filename: 'bundle.js' },
         module: {
-          rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] }],
+          rules: [
+            { test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] },
+          ],
         },
         plugins: [
           new MiniCssExtractPlugin({ filename: '[name].css' }),
@@ -83,8 +81,8 @@ describe('WebpackRTLPlugin', () => {
       });
 
       const files = fs.readdirSync(outputDir);
-      const cssFiles = files.filter((f) => f.endsWith('.css') && !f.endsWith('.rtl.css'));
-      const rtlCssFiles = files.filter((f) => f.endsWith('.rtl.css'));
+      const cssFiles = files.filter(f => f.endsWith('.css') && !f.endsWith('.rtl.css'));
+      const rtlCssFiles = files.filter(f => f.endsWith('.rtl.css'));
 
       expect(cssFiles.length).toBeGreaterThan(0);
       expect(rtlCssFiles.length).toBeGreaterThan(0);
@@ -111,7 +109,9 @@ describe('WebpackRTLPlugin', () => {
         entry: entryFile,
         output: { path: outputDir, filename: 'bundle.js' },
         module: {
-          rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] }],
+          rules: [
+            { test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] },
+          ],
         },
         plugins: [
           new MiniCssExtractPlugin({ filename: '[name].css' }),
@@ -119,7 +119,7 @@ describe('WebpackRTLPlugin', () => {
         ],
       });
 
-      compiler.hooks.compilation.tap('TestPlugin', (compilation) => {
+      compiler.hooks.compilation.tap('TestPlugin', compilation => {
         compilation.hooks.afterProcessAssets.tap('TestPlugin', () => {
           for (const chunk of compilation.chunks) {
             const runtimeModules = [...compilation.chunkGraph.getChunkRuntimeModulesInOrder(chunk)];
@@ -168,7 +168,9 @@ describe('WebpackRTLPlugin', () => {
         entry: entryFile,
         output: { path: outputDir, filename: 'bundle.js' },
         module: {
-          rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] }],
+          rules: [
+            { test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] },
+          ],
         },
         plugins: [
           new MiniCssExtractPlugin({ filename: '[name].css' }),
@@ -220,7 +222,9 @@ describe('WebpackRTLPlugin', () => {
         entry: entryFile,
         output: { path: outputDir, filename: 'bundle.js' },
         module: {
-          rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] }],
+          rules: [
+            { test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] },
+          ],
         },
         plugins: [
           new MiniCssExtractPlugin({ filename: '[name].css' }),
@@ -259,7 +263,7 @@ describe('WebpackRTLPlugin', () => {
       fs.writeFileSync(entryFile, `import('./asyncModule.js');`);
     });
 
-    it('should generate RTL CSS files', (done) => {
+    it('should generate RTL CSS files', done => {
       const outputDir = path.join(tempDir, 'dist2');
 
       const compiler = webpack({
@@ -298,16 +302,16 @@ describe('WebpackRTLPlugin', () => {
         // Verify that both LTR and RTL CSS files were generated
         const files = fs.readdirSync(outputDir);
         // With dynamic imports, CSS ends up in a chunk file not main.css
-        const cssFiles = files.filter((f) => f.endsWith('.css'));
-        const rtlCssFiles = cssFiles.filter((f) => f.endsWith('.rtl.css'));
-        const ltrCssFiles = cssFiles.filter((f) => !f.endsWith('.rtl.css'));
+        const cssFiles = files.filter(f => f.endsWith('.css'));
+        const rtlCssFiles = cssFiles.filter(f => f.endsWith('.rtl.css'));
+        const ltrCssFiles = cssFiles.filter(f => !f.endsWith('.rtl.css'));
         expect(ltrCssFiles.length).toBeGreaterThan(0);
         expect(rtlCssFiles.length).toBeGreaterThan(0);
         done();
       });
     });
 
-    it('should have miniCssF intercept code in the generated bundle', (done) => {
+    it('should have miniCssF intercept code in the generated bundle', done => {
       const outputDir = path.join(tempDir, 'dist3');
 
       const compiler = webpack({
@@ -344,10 +348,7 @@ describe('WebpackRTLPlugin', () => {
         }
 
         // Read the generated bundle and verify the intercept pattern
-        const bundleContent = fs.readFileSync(
-          path.join(outputDir, 'bundle.js'),
-          'utf-8'
-        );
+        const bundleContent = fs.readFileSync(path.join(outputDir, 'bundle.js'), 'utf-8');
 
         // The bundle should contain the miniCssF definition (from MiniCssExtractPlugin)
         expect(bundleContent).toContain('miniCssF');
@@ -391,7 +392,7 @@ describe('WebpackRTLPlugin', () => {
 
       insert(linkElement);
 
-      expect(linkElement.getAttribute('data-webpack-bundle')).toBe('my-bundle-id');
+      expect(linkElement).toHaveAttribute('data-webpack-bundle', 'my-bundle-id');
       expect(document.head.contains(linkElement)).toBe(true);
 
       // Clean up
@@ -412,7 +413,9 @@ describe('WebpackRTLPlugin', () => {
         entry: entryFile,
         output: { path: outputDir, filename: 'bundle.js' },
         module: {
-          rules: [{ test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] }],
+          rules: [
+            { test: /\.css$/, use: [MiniCssExtractPlugin.loader, require.resolve('css-loader')] },
+          ],
         },
         plugins: [
           new MiniCssExtractPlugin({

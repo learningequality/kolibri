@@ -24,17 +24,24 @@ const { createCssInsert } = require('./createCssInsert');
 /**
  * Turn an object containing the vital information for a frontend plugin and return a bundle
  * configuration for webpack.
- * @param {Object} data - An object that contains the data for configuring the bundle.
+ * @param {object} data - An object that contains the data for configuring the bundle.
  * @param {string} data.config - Injected webpack configuration for this bundle.
  * @param {string} data.name - The name that the plugin is referred to by.
  * @param {string} data.static_dir - Directory path to the module in which the plugin is defined.
- * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data
- * @param {string} mode - The webpack mode to set for the configuration
- * @param {boolean} hot - Activate hot module reloading
- * @param {Number} port - port that the dev server is served on
- * @param {string} address - address that the dev server is served on
- * @param {boolean} setDevServerPublicPath - whether to set the public path for the dev server
- * @returns {Object} bundle - An object defining the webpack config.
+ * @param {string} data.stats_file - The name of the webpack bundle stats file that the plugin data.
+ * @param {object} [options] - Build options.
+ * @param {string} [options.mode] - The webpack mode to set for the configuration.
+ * @param {boolean} [options.hot] - Activate hot module reloading.
+ * @param {number} [options.port] - Port that the dev server is served on.
+ * @param {string} [options.address] - Address that the dev server is served on.
+ * @param {boolean} [options.cache] - Whether to enable webpack persistent caching.
+ * @param {boolean} [options.transpile] - Whether to transpile sources via Babel.
+ * @param {boolean} [options.devServer] - Whether the bundle is being built for the dev server.
+ * @param {string} [options.kdsPath] - Path to a local Kolibri Design System checkout to alias.
+ * @param {boolean} [options.setDevServerPublicPath] - Whether to set the public path for
+ * the dev server.
+ * @returns {object|undefined} The webpack bundle configuration, or undefined when `data`
+ * is missing required parameters.
  */
 module.exports = (
   data,
