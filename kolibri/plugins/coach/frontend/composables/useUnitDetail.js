@@ -18,11 +18,10 @@ const STATUS_KEY_MAP = Object.fromEntries(
 /**
  * Returns objectives from bucketedObjectives whose IDs are mapped to lessonId
  * in the lesson_objectives map from ContentNode.options.
- *
- * @param {string} lessonId
- * @param {Object} lessonObjectivesMap - { [lessonContentnodeId]: string[] }
- * @param {Object[]} bucketedObjectives
- * @returns {Object[]}
+ * @param {string} lessonId - The lesson ContentNode ID whose objectives to select.
+ * @param {object} lessonObjectivesMap - { [lessonContentnodeId]: string[] }
+ * @param {object[]} bucketedObjectives - Objectives carrying score-bucket counts to filter.
+ * @returns {object[]} The objectives mapped to the given lesson.
  */
 export function filterObjectivesForLesson(lessonId, lessonObjectivesMap, bucketedObjectives) {
   const loIds = lessonObjectivesMap[lessonId];
@@ -33,12 +32,11 @@ export function filterObjectivesForLesson(lessonId, lessonObjectivesMap, buckete
 
 /**
  * Computes the status tally for a single content item across all assigned learners.
- *
- * @param {string} contentId
- * @param {Object} contentStatusIndex - { [contentId]: { [learnerId]: status } }
- * @param {string[]} learnerIds
+ * @param {string} contentId - The content item's ID to tally.
+ * @param {object} contentStatusIndex - { [contentId]: { [learnerId]: status } }
+ * @param {string[]} learnerIds - The IDs of the assigned learners to count.
  * @returns {{ completed: number, started: number, helpNeeded: number, notStarted: number,
- *   total: number }}
+ *   total: number }} The per-status learner counts plus the total learner count.
  */
 export function computeResourceTally(contentId, contentStatusIndex, learnerIds) {
   const byLearner = contentStatusIndex[contentId] || {};

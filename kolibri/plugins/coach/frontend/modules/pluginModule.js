@@ -98,10 +98,12 @@ export default {
         });
     },
     /**
-      * Handle coach page errors.
-      * The status code errors that's related to the authentication issue, most not show
-        in coach page beacuse there's an `auth-message` that explain the error.
-      **/
+     * Handle coach page errors.
+     * The status code errors that's related to the authentication issue, most not show
+       in coach page beacuse there's an `auth-message` that explain the error.
+     * @param {object} store - The Vuex store action context.
+     * @param {object} errorObject - The error caught from a failed coach page request.
+     */
     handleCoachPageError(store, errorObject) {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);

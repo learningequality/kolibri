@@ -47,9 +47,13 @@ function sanitize(input, replacement) {
 }
 
 /**
- * @param  {String} input   Original filename
- * @param  {Object} [options] {replacement: String | Function }
- * @return {String}         Sanitized filename
+ * Sanitize a filename, removing characters that are unsafe on common operating
+ * systems and capping the result at 255 bytes. Pass a replacement string to
+ * substitute unsafe characters; characters that remain unsafe after substitution
+ * are then stripped.
+ * @param {string} input - Original filename.
+ * @param {{replacement?: string|Function}} [options] - Sanitisation options.
+ * @returns {string} Sanitised filename, safe to write on macOS, Linux, and Windows.
  */
 export default function (input, options) {
   const replacement = (options && options.replacement) || '';

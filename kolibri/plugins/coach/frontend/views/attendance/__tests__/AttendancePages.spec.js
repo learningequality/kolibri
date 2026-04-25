@@ -176,8 +176,9 @@ function renderEditPage({
 }
 
 /**
- * Helper to find a switch input by its name attribute.
- * KSwitch renders as <input type="checkbox" name="...">
+ * Gets an input element by its name attribute.
+ * @param {string} name - The name attribute of the input element.
+ * @returns {Element|null} The matching input element, or null if not found.
  */
 function getSwitch(name) {
   return document.querySelector(`input[name="${name}"]`);

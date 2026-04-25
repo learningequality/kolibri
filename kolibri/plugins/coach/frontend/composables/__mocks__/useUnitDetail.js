@@ -17,9 +17,9 @@
  * jest.mock('<useUnitDetail file path>')
  *
  * it('test', () => {
- *   useUnitDetail.mockImplementation(
- *     () => useUnitDetailMock({ lessons: ref([...]) })
- *   );
+ * useUnitDetail.mockImplementation(
+ * () => useUnitDetailMock({ lessons: ref([...]) })
+ * );
  * })
  * ```
  */

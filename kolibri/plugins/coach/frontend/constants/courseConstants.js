@@ -23,9 +23,9 @@ export const TestType = Object.freeze({
  *
  * The ratio is computed as correctCount / numQuestions for that objective.
  * Classification:
- *   LOW:  ratio <= 0.5  (0–50% correct)
- *   MID:  ratio > 0.5 and <= 0.8  (51–80% correct)
- *   HIGH: ratio > 0.8  (>80% correct)
+ * LOW:  ratio <= 0.5  (0–50% correct)
+ * MID:  ratio > 0.5 and <= 0.8  (51–80% correct)
+ * HIGH: ratio > 0.8  (>80% correct)
  *
  * Used by classifyLearnerMastery() in utils/scoreBucketing.js.
  */

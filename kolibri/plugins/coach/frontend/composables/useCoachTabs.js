@@ -44,9 +44,8 @@ const lastTabsInteraction = reactive({
 export function useCoachTabs() {
   /**
    * Stores an interaction with tabs
-   *
-   * @param {String} tabsInterfaceId ID of a tabbed interface interacted with
-   * @param {String} event An event kind. Available kinds: 'click'
+   * @param {string} tabsInterfaceId - ID of a tabbed interface interacted with
+   * @param {string} event - An event kind. Available kinds: 'click'
    */
   function saveTabsInteraction(tabsInterfaceId, event) {
     lastTabsInteraction.tabsInterfaceId = tabsInterfaceId;
@@ -56,17 +55,17 @@ export function useCoachTabs() {
 
   /**
    * Stores a click interaction with tabs
-   *
-   * @param {String} tabsInterfaceId ID of a tabbed interface interacted with
+   * @param {string} tabsInterfaceId - ID of a tabbed interface interacted with
    */
   function saveTabsClick(tabsInterfaceId) {
     saveTabsInteraction(tabsInterfaceId, TabsEvents.CLICK);
   }
 
   /**
-   * @param {String} tabsInterfaceId ID of a tabbed interface
-   * @returns {Boolean} `true` when tabs with the provided ID were
-   *                    clicked recently
+   * Returns whether the given tabs interface was clicked recently
+   * @param {string} tabsInterfaceId - ID of a tabbed interface
+   * @returns {boolean} `true` when tabs with the provided ID were
+   * clicked recently
    */
   function wereTabsClickedRecently(tabsInterfaceId) {
     if (lastTabsInteraction.tabsInterfaceId !== tabsInterfaceId) {
