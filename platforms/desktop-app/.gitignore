@@ -141,3 +141,5 @@ installer/nssm.exe
 update_report.txt
 installer/dist-installer/
 installer/translations/locale/*/*.isl
+# WebView2 SDK extracted by scripts/extract_webview2_iids.py for vtable layout
+webview2_sdk/
