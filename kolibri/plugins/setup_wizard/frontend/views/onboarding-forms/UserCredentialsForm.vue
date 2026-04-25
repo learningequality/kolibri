@@ -140,7 +140,7 @@
         type: Boolean,
         default: false,
       },
-      /** Will use learner-focused labels if false -- the data flow is the same in any case **/
+      /* Will use learner-focused labels if false -- the data flow is the same in any case */
       adminUserLabels: {
         type: Boolean,
         default: true,

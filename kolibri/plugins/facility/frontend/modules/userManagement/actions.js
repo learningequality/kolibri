@@ -5,12 +5,11 @@ import { selectedFacilityId } from 'kolibri-common/composables/useFacility';
 import { updateFacilityLevelRoles } from './utils';
 
 /**
- * Does a POST request to assign a user role (only used in this file)
- * @param {Object} user
- * @param {string} user.id
- * @param {string} user.facility
- * @param {string} user.roles
- * Needed: id, facility, role
+ * Does a POST request to assign a user role (only used in this file). Needed fields on `user`:
+ * `id`, `facility`.
+ * @param {object} user - The facility user object.
+ * @param {object} role - The role object; `role.kind` is the role kind to assign.
+ * @returns {Promise<object>} Resolves with the refreshed user model.
  */
 function setUserRole(user, role) {
   return updateFacilityLevelRoles(user, role.kind).then(() => {
@@ -20,9 +19,11 @@ function setUserRole(user, role) {
 }
 
 /**
- * Do a POST to create new user
- * @param {object} stateUserData
- *  Needed: username, full_name, facility, role, password
+ * Does a POST to create a new facility user. Needed fields on `payload`: `username`, `full_name`,
+ * `facility`, `role`, `password`.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} payload - User creation data: username, password, role, and demographics.
+ * @returns {Promise<object|void>} Resolves when the user has been created.
  */
 export function createFacilityUser(store, payload) {
   return FacilityUserResource.saveModel({

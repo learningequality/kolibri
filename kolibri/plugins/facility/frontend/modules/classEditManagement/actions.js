@@ -46,9 +46,12 @@ export function removeClassCoach(store, { classId, userId }) {
 }
 
 /**
- * Do a PATCH to update the class.
- * @param {string} id - class id.
- * @param {object} updateData.
+ * Updates a class with the given data and commits the change to the store.
+ * @param {object} store - The Vuex store instance.
+ * @param {object} payload - Payload object.
+ * @param {string} payload.id - The ID of the class to update.
+ * @param {object} payload.updateData - The data to update on the class.
+ * @returns {Promise<void>|void} Resolves when the class has been updated.
  */
 export function updateClass(store, { id, updateData }) {
   if (!id || Object.keys(updateData).length === 0) {
