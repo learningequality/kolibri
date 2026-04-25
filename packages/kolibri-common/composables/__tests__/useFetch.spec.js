@@ -10,16 +10,20 @@ let _fetchCount = 0;
  * operations that can resolve after others that have been initiated before.
  *
  * Example:
+ * ```js
  * const { fetchMethod, resolveFetch } = getSincronizableFetch();
  *
- * // This will not resolve until resolveFetch('fetch1') is called
- * // once resolveFetch('fetch1') is called, the fetchMethod will return 'response1'
+ * // This will not resolve until resolveFetch('fetch1') is called.
+ * // Once resolveFetch('fetch1') is called, the fetchMethod will return 'response1'.
  * fetchData({ id: 'fetch1', response: 'response1' }).then(response => {
- *   console.log(response); // 'response1'
+ * console.log(response); // 'response1'
  * });
- *
- * ...
  * resolveFetch('fetch1');
+ * ```
+ * @returns {{
+ *   fetchMethod: (args: {id: string, response: unknown}) => Promise<unknown>,
+ *   resolveFetch: (id: string) => void,
+ * }} A controllable fetch method paired with a resolver keyed on the request id.
  */
 const getSincronizableFetch = () => {
   _fetchCount += 1;

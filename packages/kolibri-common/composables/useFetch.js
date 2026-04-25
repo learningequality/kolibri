@@ -1,54 +1,41 @@
 import { ref, computed } from 'vue';
 
 /**
+ * @typedef  {object} FetchObject
+ * @property {import('vue').Ref<unknown>} data - The main fetched data.
+ * @property {import('vue').Ref<?object>} error - Error object if a fetch failed.
+ * @property {import('vue').Ref<?number>} count - Count of the fetched data, e.g. the total
+ * number of items.
+ * @property {import('vue').Ref<boolean>} loading - Data loading state. This does not reflect
+ * the loading state when fetching more data; refer to `loadingMore` for that.
+ * @property {import('vue').Ref<boolean>} loadingMore - Loading state when fetching more data.
+ * @property {import('vue').ComputedRef<boolean>} hasMore - Whether there is more data to fetch.
+ * @property {(...args: unknown[]) => Promise<void>} fetchData - Manually trigger the main fetch.
+ * @property {(...args: unknown[]) => Promise<void>} fetchMore - Manually trigger a fetch of
+ * additional data.
+ */
+
+/**
  * A composable for managing fetch operations with optional methods for additional data fetching.
  *
- * @param {Object} options **Required** Configuration options for the fetch operation.
- * @param {(...args) => Promise<any>} options.fetchMethod **Required** Function to fetch the
- * initial data.
- * * Should return a Promise resolving to the fetched data or a `{ results: any[], more: any }`
- *   object. The "results" property should be the fetched data and the "more" property should be
- *   the next "more" object to use in the fetchMore method.
- *
  * Example:
  * ```js
  * const { data, loading, error, fetchData } = useFetch({
- *  fetchMethod: () => ContentNodeResource.fetchBookmarks()
- * })
+ * fetchMethod: () => ContentNodeResource.fetchBookmarks(),
+ * fetchMoreMethod: moreParams => ContentNodeResource.fetchBookmarks(moreParams),
+ * });
  * ```
  *
- *
- * @param {(more, ...args) => Promise<any>} [options.fetchMoreMethod] Function to fetch more data.
- * * This function receives a "moreParams" object as its first argument. This moreParams object is
- *   from the "more" property of the response from the previous fetch to fetch more data.
- * * Should return a Promise resolving to { results: any[], more: any }. The "results" property
- *   should be the fetched data and the "more" property should be the next "moreParams" object to
- *   use in the next fetchMore method.
- * * FetchMore just works if the fetched data is an array
- *
- * Example:
- *
- * ```js
- * const { data, loading, error, fetchData } = useFetch({
- *   fetchMethod: () => ContentNodeResource.fetchBookmarks(),
- *   fetchMoreMethod: moreParams => ContentNodeResource.fetchBookmarks(moreParams)
- * })
- * ```
- *
- *
- * @typedef {Object} FetchObject
- * @property {any} data The main fetched data.
- * @property {Object} error Error object if a fetch data failed.
- * @property {any} count The count of the fetched data. E.g., the total number of items.
- * @property {boolean} loading Data loading state. This loading doesnt reflect the loading when
- *   fetching more data. refer to `loadingMore` for that.
- * @property {boolean} loadingMore Loading state when fetching more data. This is different from
- *  `loading` which is for the main data fetch.
- * @property {boolean} hasMore A computed property to check if there is more data to fetch.
- * @property {(...args) => Promise<void>} fetchData A method to manually trigger the main fetch.
- * @property {(...args) => Promise<void>} fetchMore A method to manually trigger fetch more data.
- *
- * @returns {FetchObject} An object with properties and methods for managing the fetch process.
+ * `fetchMethod` should return either the fetched data, or an object of the form
+ * `{ results, more, count }` where `results` is the fetched data and `more` is the
+ * `moreParams` object passed to subsequent `fetchMoreMethod` calls. `fetchMore` only
+ * works when the fetched data is an array.
+ * @param {object} options - Configuration options for the fetch operation.
+ * @param {(...args: unknown[]) => Promise<unknown>} options.fetchMethod - Function to fetch
+ * the initial data.
+ * @param {(more: unknown, ...args: unknown[]) => Promise<unknown>} [options.fetchMoreMethod]
+ * Function to fetch more data, called with the previous response's `more` object.
+ * @returns {FetchObject} An object exposing the fetch state and actions.
  */
 export default function useFetch(options) {
   const { fetchMethod, fetchMoreMethod } = options || {};

@@ -7,6 +7,10 @@ const DEFAULT_PAGE_SIZE = 30;
  * Composable for managing pagination state via URL query parameters.
  * Provides a writable `currentPage` computed that syncs with `route.query.page`
  * and a writable `itemsPerPage` computed that syncs with `route.query.page_size`.
+ * @returns {{
+ *   currentPage: import('vue').WritableComputedRef<number>,
+ *   itemsPerPage: import('vue').WritableComputedRef<number>,
+ * }} Reactive bindings for the current page and page size.
  */
 export default function usePagination() {
   const route = useRoute();

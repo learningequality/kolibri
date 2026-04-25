@@ -7,8 +7,9 @@ import { OptionsForSignIn } from '../constants/Auth';
 import useFacilities from './useFacilities';
 
 /**
- * Composable for accessing the selected facility
- * @param {boolean} listenToStorageChanges Whether to be reactive to localStorage changes
+ * Composable for accessing the selected facility.
+ * @param {boolean} listenToStorageChanges - Whether to be reactive to localStorage changes.
+ * @returns {object} The reactive selected facility ID and its setter.
  */
 export function useFacilitySelect(listenToStorageChanges = false) {
   const { userIsMultiFacilityAdmin } = useFacilities();
@@ -42,8 +43,9 @@ export function useFacilitySelect(listenToStorageChanges = false) {
 }
 
 /**
- * Composable for accessing a facility's configuration
- * @param {Ref<string>|string} facilityId
+ * Composable for accessing a facility's configuration.
+ * @param {import('vue').Ref<string>|string} facilityId - The facility ID whose config to load.
+ * @returns {object} Reactive facility config plus computed sign-in helpers.
  */
 export function useFacilityConfig(facilityId) {
   const _facilityId = facilityId;
@@ -78,9 +80,10 @@ export function useFacilityConfig(facilityId) {
   });
 
   /**
-   * Get the current selected facility's config
-   * @param {Ref<string|null>|string|null} [facilityId]
-   * @return {Promise<void>}
+   * Get the current selected facility's config.
+   * @param {import('vue').Ref<string|null>|string|null} [facilityId] - Override the captured
+   * facility ID for this fetch.
+   * @returns {Promise<object|undefined>} Resolves with the loaded facility config.
    */
   async function fetchFacilityConfig(facilityId = null) {
     facilityId = unref(facilityId) || unref(_facilityId);
@@ -145,8 +148,8 @@ const currentFacilityName = computed(() => {
 
 /**
  * Sets the selected facility
- * @param {string} facilityId
- * @return {Promise<void>}
+ * @param {string} facilityId - The ID of the facility to select
+ * @returns {Promise<void>}
  */
 async function setFacilityId(facilityId) {
   setSelectedFacilityId(facilityId);
@@ -156,7 +159,7 @@ async function setFacilityId(facilityId) {
 
 /**
  * Refetches the selected facility
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 async function fetchFacility() {
   return await _fetchFacility(facilityId);
@@ -164,8 +167,8 @@ async function fetchFacility() {
 
 /**
  * Updates the facility config, if necessary
+ * @returns {Promise<object>} Resolves with the facility config
  * @deprecated Use `fetchFacilityConfig` instead
- * @return {Promise<object>}
  */
 async function updateFacilityConfig() {
   return await _fetchFacilityConfig(facilityId);
@@ -173,15 +176,41 @@ async function updateFacilityConfig() {
 
 /**
  * Updates the facility config, if necessary
- * @return {Promise<object>}
+ * @returns {Promise<object>} Resolves with the facility config
  */
 async function fetchFacilityConfig() {
   return await _fetchFacilityConfig(facilityId);
 }
 
 /**
+ * @typedef {object} UseFacilityReturn
+ * @property {import('vue').ComputedRef<string>} facilityId - The selected facility's ID
+ * @property {import('vue').ComputedRef<object>} selectedFacility - The selected facility, or an
+ * empty object when none is cached
+ * @property {import('vue').ComputedRef<string>} currentFacilityName - The selected facility's name,
+ * or an empty string when none is selected
+ * @property {import('vue').Ref<object>} facilityConfig - The selected facility's dataset config
+ * @property {import('vue').ComputedRef<boolean>} isAttendanceFeatureEnabled - Whether the
+ * attendance feature is enabled for the current language
+ * @property {import('vue').ComputedRef<boolean>} isPictureLoginFeatureEnabled - Whether picture
+ * login is enabled for the current language
+ * @property {import('vue').ComputedRef<string[]>} signInOptions - The sign-in options available for
+ * the selected facility
+ * @property {import('vue').ComputedRef<object|null>} picturePasswordSettings - The picture password
+ * settings, or null when picture login is not enabled
+ * @property {() => Promise<void>} fetchFacilities - Fetches all facilities from the backend
+ * @property {() => Promise<void>} fetchFacility - Refetches the selected facility
+ * @property {() => Promise<object>} fetchFacilityConfig - Refetches the selected facility's config
+ * @property {() => Promise<object>} updateFacilityConfig - Deprecated alias of
+ * `fetchFacilityConfig`
+ * @property {(facilityId: string) => Promise<void>} setFacilityId - Selects a facility and fetches
+ * it and its config
+ */
+
+/**
  * Composable for the context of a single facility, defaulting to the user's facility, but can be
  * changed by calling `setFacilityId`
+ * @returns {UseFacilityReturn} The facility context and its action helpers
  */
 export default function useFacility() {
   return {

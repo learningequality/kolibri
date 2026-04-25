@@ -8,19 +8,19 @@
  * If you need to override some default values from some tests,
  * you can import a helper function `useLearningActivitiesMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with  `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named
  * import useLearningActivities, { useLearningActivitiesMock }
- *   from '<useLearningActivities file path>';
+ * from '<useLearningActivities file path>';
  *
  * jest.mock('<useLearningActivities file path>')
  *
  * it('test', () => {
- *   useLearningActivities.mockImplementation(
- *     () => useLearningActivitiesMock({ classes: [{ id: 'class-1' }] })
- *   );
+ * useLearningActivities.mockImplementation(
+ * () => useLearningActivitiesMock({ classes: [{ id: 'class-1' }] })
+ * );
  * })
  * ```
  *

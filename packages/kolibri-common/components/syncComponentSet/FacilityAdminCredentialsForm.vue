@@ -121,8 +121,9 @@
     },
     methods: {
       /**
+       * Validates the form and, if valid, initiates a peer facility import task.
+       * @returns {Promise} Resolves to the new task ID on success, or false on failure.
        * @public
-       * @return {Promise<Boolean>}
        */
       startImport() {
         this.shouldValidate = true;

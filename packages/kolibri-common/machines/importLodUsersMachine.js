@@ -21,14 +21,15 @@ const getInitialContext = () => ({
 /**
  * Machine to handle the import of users in a LOD device.
  * This machine could be used as a stand alone machine or as a sub-machine of another machine:
- * * If you want to use it as a stand alone machine, please use the
- *   `getImportLodUsersMachine` function.
- * * If you want to use it as a sub-machine, please use the `getImportLodUsersDefinition` object.
- *   And then map the `initial`, `state`, and `on` properties to the parent sub-state, the
- *   `actions` and `context` properties to the parent machine actions and context properties.
- *   As a sub-machine, this machine will send the following events to the parent machine:
- *   * PREVIOUS_STATE: When the user wants to go back to state previous to this machine.
- *   * IMPORT_USER: When an user is being imported.
+ * If you want to use it as a stand alone machine, please use the
+ * `getImportLodUsersMachine` function.
+ * If you want to use it as a sub-machine, please use the `getImportLodUsersDefinition` object.
+ * And then map the `initial`, `state`, and `on` properties to the parent sub-state, the
+ * `actions` and `context` properties to the parent machine actions and context properties.
+ * As a sub-machine, this machine will send the following events to the parent machine:
+ * PREVIOUS_STATE: When the user wants to go back to state previous to this machine.
+ * IMPORT_USER: When an user is being imported.
+ * @returns {object} The xstate machine definition object.
  */
 export const getImportLodUsersDefinition = () => ({
   id: 'importLodUsers',
