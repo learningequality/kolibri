@@ -12,6 +12,7 @@ const KeypadSymbol = Symbol('keypad');
  *
  * Returns the keypadAPI (for passing to Perseus as keypadElement) and a
  * keypadContextValue (for bridging React's KeypadContext.Provider).
+ * @returns {{ keypadAPI: object, keypadContextValue: object }}
  */
 export default function useKeypad() {
   const active = ref(false);
@@ -103,8 +104,18 @@ export default function useKeypad() {
 }
 
 /**
+ * @typedef {object} KeypadContext
+ * @property {import('vue').Ref<boolean>} active - True while the keypad is open
+ * @property {import('vue').Ref<object>} keypadConfig - Keys and input mode to display
+ * @property {() => void} dismiss - Hide the keypad
+ * @property {Function} handleKeyPress - Forward a child's key press
+ * @property {(el: HTMLElement) => void} setDOMNode - Register the keypad DOM node
+ */
+
+/**
  * Inject keypad state provided by a parent useKeypad() call.
  * Use this in child components that need to interact with the keypad.
+ * @returns {KeypadContext|undefined}
  */
 export function injectKeypad() {
   return inject(KeypadSymbol);

@@ -2,26 +2,29 @@ import { watch } from 'vue';
 import useAuthFlow from './useAuthFlow';
 
 /**
- * @typedef {function} FacilityChangeCallback
- * @param {string|null} newFacilityId
- * @param {string|null} oldFacilityId
- * @return {void}
+ * @callback FacilityChangeCallback
+ * @param {string|null} newFacilityId - The newly selected facility ID, or null.
+ * @param {string|null} oldFacilityId - The previously selected facility ID, or null.
+ * @returns {void}
  */
 /**
- * @typedef {function} FacilityConfigChangeCallback
- * @param {object|null} newFacilityConfig
- * @param {object|null} oldFacilityConfig
- * @return {void}
+ * @callback FacilityConfigChangeCallback
+ * @param {object|null} newFacilityConfig - The new facility configuration, or null.
+ * @param {object|null} oldFacilityConfig - The previous facility configuration, or null.
+ * @returns {void}
  */
 
 /**
  * @typedef {object} UseAuthWatcherReturn
- * @property {function(FacilityChangeCallback): void} watchForFacilityChange
- * @property {function(FacilityConfigChangeCallback): void} watchForFacilityConfigChange
+ * @property {(callback: FacilityChangeCallback) => void} watchForFacilityChange - Registers a
+ * callback fired when the selected facility changes.
+ * @property {(callback: FacilityConfigChangeCallback) => void} watchForFacilityConfigChange -
+ * Registers a callback fired when the facility configuration changes.
  */
 
 /**
- * @param {FacilityChangeCallback} callback
+ * Registers a callback fired when the selected facility ID changes.
+ * @param {FacilityChangeCallback} callback - Invoked with the new and old facility IDs.
  */
 function watchForFacilityChange(callback) {
   const { facilityId } = useAuthFlow();
@@ -33,7 +36,7 @@ function watchForFacilityChange(callback) {
 
 /**
  * Fires the callback when the configuration itself has changed, not when the facility ID changes
- * @param {FacilityConfigChangeCallback} callback
+ * @param {FacilityConfigChangeCallback} callback - Invoked with the new and old facility configs.
  */
 function watchForFacilityConfigChange(callback) {
   const { facilityConfig } = useAuthFlow();
@@ -51,7 +54,7 @@ function watchForFacilityConfigChange(callback) {
 
 /**
  * Common watcher patterns for this Kolibri plugin
- * @return {UseAuthWatcherReturn}
+ * @returns {UseAuthWatcherReturn} The facility and config change watcher registrars.
  */
 export default function useAuthWatcher() {
   return {

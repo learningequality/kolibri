@@ -174,7 +174,7 @@
         required: true,
       },
       /**
-       * position in the selection sequence when this option is selected
+       * Position in the selection sequence when this option is selected
        * or null when unselected.
        */
       sequencePosition: {

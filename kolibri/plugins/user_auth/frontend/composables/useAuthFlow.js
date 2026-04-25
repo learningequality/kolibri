@@ -8,7 +8,6 @@ import { useFacilitySelect, useFacilityConfig } from 'kolibri-common/composables
 /**
  * Global initialization state to prevent unnecessary repeated API calls. Having all the composables
  * state global makes testing challenging
- *
  * @type {import('vue').Ref<boolean>}
  * @private
  */
@@ -52,8 +51,8 @@ const selectedFacility = computed(() => (facilityId.value ? getFacility(facility
 
 /**
  * The user's last chosen sign-in method persisted in local storage
- * @private
  * @type {import('@vueuse/core').RemovableRef<string|null>}
+ * @private
  */
 const _persistentSignInMethod = useLocalStorage('signInMethod', null, {
   serializer: StorageSerializers.string,
@@ -135,8 +134,8 @@ const picturePasswordShowIconText = computed(() => {
 
 /**
  * Set the active facility ID
- * @param _facilityId
- * @return {Promise<void>}
+ * @param {import('vue').Ref<string>|string} _facilityId - The facility ID to activate.
+ * @returns {Promise<void>}
  */
 async function setFacilityId(_facilityId) {
   try {
@@ -152,7 +151,8 @@ async function setFacilityId(_facilityId) {
 
 /**
  * Initializes the sign-in flow state
- * @return {Promise<void>}
+ * @param {boolean} [force] - Re-run initialization even if it has already run.
+ * @returns {Promise<void>}
  */
 async function initializeFlow(force = false) {
   if (_initialized.value && !force) return;
@@ -184,6 +184,7 @@ async function initializeFlow(force = false) {
 
 /**
  * Composable managing the state for the authentication flow and its pages
+ * @returns {object} The authentication-flow state and its action helpers.
  */
 export default function useAuthFlow() {
   return {

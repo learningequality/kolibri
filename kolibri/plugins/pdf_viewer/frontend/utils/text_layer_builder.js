@@ -30,14 +30,13 @@ const logging = logger.getLogger(__filename);
 const EXPAND_DIVS_TIMEOUT = 300; // ms
 
 /**
- * @typedef {Object} TextLayerBuilderOptions
- * @property {HTMLDivElement} textLayerDiv - The text layer container.
- * @property {number} pageIndex - The page index.
- * @property {PageViewport} viewport - The viewport of the text layer.
- * @property {TextHighlighter} highlighter - Optional object that will handle
- *   highlighting text from the find controller.
- * @property {boolean} enhanceTextSelection - Option to turn on improved
- *   text selection.
+ * @typedef  {object} TextLayerBuilderOptions
+ * @property {HTMLDivElement} textLayerDiv - The text layer container DOM node.
+ * @property {number} pageIndex - Zero-based PDF page index.
+ * @property {object} viewport - The pdf.js PageViewport for the text layer.
+ * @property {?object} highlighter - Optional pdf.js TextHighlighter that will handle
+ * highlighting text from the find controller.
+ * @property {boolean} enhanceTextSelection - Option to turn on improved text selection.
  */
 
 /**
@@ -71,6 +70,8 @@ class TextLayerBuilder {
   }
 
   /**
+   * Mark rendering as complete and emit `textlayerrendered` once any post-render
+   * teardown has run.
    * @private
    */
   _finishRendering() {
@@ -95,9 +96,8 @@ class TextLayerBuilder {
 
   /**
    * Renders the text layer.
-   *
    * @param {number} [timeout] - Wait for a specified amount of milliseconds
-   *                             before rendering.
+   * before rendering.
    */
   render(timeout = 0) {
     if (!(this.textContent || this.textContentStream) || this.renderingDone) {
@@ -190,7 +190,6 @@ class TextLayerBuilder {
    * Improves text selection by adding an additional div where the mouse was
    * clicked. This reduces flickering of the content if the mouse is slowly
    * dragged up or down.
-   *
    * @private
    */
   _bindMouse() {

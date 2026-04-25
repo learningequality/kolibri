@@ -154,9 +154,8 @@
 
       /**
        * Handles authentication once the user has entered a picture password and submits it
-       *
-       * @param {string} picturePassword
-       * @return {Promise<void>}
+       * @param {string} picturePassword - The picture-password sequence the user entered.
+       * @returns {Promise<void>}
        */
       async function prevalidate(picturePassword) {
         busy.value = true;

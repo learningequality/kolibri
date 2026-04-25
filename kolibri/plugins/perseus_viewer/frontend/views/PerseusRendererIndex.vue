@@ -91,15 +91,17 @@
    * from the same file, but with different URLs. This also allows us to only monkey patch the Util
    * functions once, as it gives us a global register and prevents duelling components from
    * overriding each other.
-   *
-   * @type {
-   *  Object.<string, {zipFile: ZipFile, usageCounter: number, imageUrls: Object.<string, string>}>
-   * }
-   *
+   * @type {{
+   *  [key: string]: {
+   *    zipFile: ZipFile,
+   *    usageCounter: number,
+   *    imageUrls: {[key: string]: string},
+   *  },
+   * }}
    * @property {ZipFile} zipFile - A ZipFile object for the Perseus file.
    * @property {number} usageCounter - The number of components using this object.
-   * @property {Object.<string, string>} imageUrls - A lookup object mapping from the image filename
-   * to the URL generated for that image for display.
+   * @property {{[key: string]: string}} imageUrls - A lookup object mapping from the image
+   * filename to the URL generated for that image for display.
    */
   const globalPerseusFileRegistry = {};
 
@@ -607,6 +609,10 @@
         }
       },
       /**
+       * Score the current answer state through the Perseus item renderer and
+       * return the result, or null when the renderer is not yet ready.
+       * @returns {?{correct: boolean, answerState: object, simpleAnswer: string}}
+       * The check result, or null when no answer can be checked.
        * @public
        */
       checkAnswer() {
@@ -660,6 +666,7 @@
         }
       },
       /**
+       * Reveal the next hint and emit the updated answer state.
        * @public
        */
       takeHint() {

@@ -2,8 +2,8 @@
  * Static key definitions for the NumericKeypad.
  *
  * Only two things are dynamic at runtime:
- *   1. Digit labels — localized to the content's numeral system
- *   2. The multiplication key in expression mode — × vs · based on Perseus config
+ * 1. Digit labels — localized to the content's numeral system
+ * 2. The multiplication key in expression mode — × vs · based on Perseus config
  *
  * Everything else (operator keys, grid positions, aria labels) is defined here
  * as module-level constants.
@@ -27,6 +27,15 @@ const {
   customExponent$,
   squareRoot$,
 } = translator;
+
+/**
+ * @typedef {object} KeyDef
+ * @property {string} id - Stable key identifier
+ * @property {string} label - Display label
+ * @property {Function} ariaLabel - Returns the accessible label
+ * @property {boolean} [secondary] - Shifted/secondary key
+ * @property {object} [gridStyle] - CSS grid placement
+ */
 
 // --- Operator keys (static) ---
 
@@ -131,6 +140,10 @@ const SQRT = {
 /**
  * Attach a grid position to a key definition.
  * Returns a new object to avoid mutating the constant.
+ * @param {object} key - Key definition to position
+ * @param {number} col - Zero-based grid column
+ * @param {number} row - Zero-based grid row
+ * @returns {KeyDef} Positioned copy of key
  */
 function at(key, col, row) {
   return { ...key, gridStyle: { gridColumn: col + 1, gridRow: row + 1 } };
@@ -138,6 +151,11 @@ function at(key, col, row) {
 
 /**
  * Create a digit key. Label is resolved at runtime from localizedDigits.
+ * @param {number} n - Digit value
+ * @param {number} col - Zero-based grid column
+ * @param {number} row - Zero-based grid row
+ * @param {string[]} localizedDigits - Glyphs indexed by digit value
+ * @returns {KeyDef} A digit key definition
  */
 function digit(n, col, row, localizedDigits) {
   const label = localizedDigits ? localizedDigits[n] : String(n);
