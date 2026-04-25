@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow improper formatting of translation strings.
+ * @file Disallow improper formatting of translation strings.
  */
 
 'use strict';

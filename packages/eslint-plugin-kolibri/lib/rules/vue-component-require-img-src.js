@@ -1,5 +1,7 @@
 const utils = require('eslint-plugin-vue/lib/utils');
 
+/** @typedef {import('vue-eslint-parser').AST.VElement} VElement */
+
 module.exports = {
   meta: {
     type: 'code',
@@ -25,7 +27,8 @@ module.exports = {
 
     return utils.defineTemplateBodyVisitor(context, {
       /**
-       * @param {VElement} node
+       * Check img elements for a valid src attribute.
+       * @param {VElement} node - Img tag element node.
        */
       "VElement[rawName='img']"(node) {
         const srcAttr = utils.getAttribute(node, 'src');

@@ -1,5 +1,5 @@
 /**
- * @fileoverview Custom rules.
+ * @file Custom rules.
  * @author Learning Equality
  */
 'use strict';
