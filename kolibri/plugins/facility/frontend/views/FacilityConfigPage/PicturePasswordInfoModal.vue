@@ -10,53 +10,64 @@
     <p>{{ picturePasswordInfoBody$() }}</p>
     <p>{{ picturePasswordInfoNote$() }}</p>
 
-    <!-- eslint-disable vue/no-bare-strings-in-template kolibri/vue-component-class-name-casing -->
-    <!-- Static illustration of the picture password grid UI -->
     <div
       class="illustration-wrapper"
+      :style="{ backgroundColor: $themePalette.grey.v_700 }"
       aria-hidden="true"
     >
-      <div class="illustration-card">
+      <div
+        class="illustration-card"
+        :style="{ backgroundColor: $themeTokens.surface }"
+      >
         <div class="pp-grid">
-          <div class="pp-cell"></div>
           <div
-            class="pp-cell pp-cell-selected"
-            :style="{ borderColor: $themeTokens.primary }"
+            v-for="(cell, index) in gridCells"
+            :key="index"
+            :class="['pp-cell', { 'pp-cell-selected': cell.step }]"
+            :style="
+              cell.step
+                ? { borderColor: $themeTokens.primary, backgroundColor: $themeBrand.primary.v_100 }
+                : { backgroundColor: $themePalette.grey.v_200 }
+            "
           >
             <span
+              v-if="cell.step"
               class="pp-badge"
-              :style="{ backgroundColor: $themeTokens.primary }"
-            >1</span>
+              :data-step="cell.step"
+              :style="{ backgroundColor: $themeTokens.primary, color: $themeTokens.textInverted }"
+            ></span>
           </div>
-          <div class="pp-cell"></div>
-          <div
-            class="pp-cell pp-cell-selected"
-            :style="{ borderColor: $themeTokens.primary }"
-          >
-            <span
-              class="pp-badge"
-              :style="{ backgroundColor: $themeTokens.primary }"
-            >2</span>
-          </div>
-          <div class="pp-cell"></div>
-          <div class="pp-cell"></div>
-          <div class="pp-cell"></div>
-          <div class="pp-cell"></div>
-          <div class="pp-cell"></div>
         </div>
         <div class="pp-action-row">
-          <div class="pp-progress">
-            <div class="pp-dot"></div>
-            <div class="pp-dot"></div>
-            <div class="pp-dash"></div>
+          <div
+            class="pp-progress"
+            :style="{ backgroundColor: $themeTokens.surface }"
+          >
+            <div
+              class="pp-dot"
+              :style="{ backgroundColor: $themeTokens.annotation }"
+            ></div>
+            <div
+              class="pp-dot"
+              :style="{ backgroundColor: $themeTokens.annotation }"
+            ></div>
+            <div
+              class="pp-dash"
+              :style="{ backgroundColor: $themeTokens.fineLine }"
+            ></div>
           </div>
-          <div class="pp-submit">
-            <span class="pp-arrow">&#8594;</span>
+          <div
+            class="pp-submit"
+            :style="{ backgroundColor: $themeTokens.fineLine }"
+          >
+            <KIcon
+              icon="forward"
+              :style="{ fill: $themeTokens.annotation }"
+            />
           </div>
         </div>
       </div>
     </div>
-    <!-- eslint-enable vue/no-bare-strings-in-template kolibri/vue-component-class-name-casing -->
   </KModal>
 
 </template>
@@ -77,8 +88,12 @@
         picturePasswordInfoNote$,
       } = picturePasswordStrings;
 
+      // Indices 1 and 3 are the two selected cells in the illustration (4 rows × 3 cols)
+      const gridCells = [{}, { step: '1' }, {}, { step: '2' }, {}, {}, {}, {}, {}, {}, {}, {}];
+
       return {
         coreString,
+        gridCells,
         picturePassword$,
         picturePasswordInfoIntro$,
         picturePasswordInfoBody$,
@@ -92,13 +107,14 @@
 
 <style lang="scss" scoped>
 
+  // Dimensions approximate the picture-password grid UI mockup
   .illustration-wrapper {
     display: flex;
     justify-content: center;
     padding: 24px;
     margin-top: 8px;
-    background-color: #666666;
     border-radius: 8px;
+    outline: 0;
   }
 
   .illustration-card {
@@ -107,7 +123,6 @@
     gap: 12px;
     width: 220px;
     padding: 16px;
-    background-color: #ffffff;
     border-radius: 8px;
   }
 
@@ -119,14 +134,12 @@
 
   .pp-cell {
     height: 48px;
-    background-color: #e0e0e0;
     border: 2px solid transparent;
     border-radius: 8px;
   }
 
   .pp-cell-selected {
     position: relative;
-    background-color: #dceeff;
   }
 
   .pp-badge {
@@ -140,8 +153,12 @@
     height: 18px;
     font-size: 11px;
     font-weight: bold;
-    color: #ffffff;
     border-radius: 50%;
+
+    &::after {
+      color: inherit;
+      content: attr(data-step);
+    }
   }
 
   .pp-action-row {
@@ -156,21 +173,18 @@
     align-items: center;
     justify-content: center;
     padding: 8px;
-    background-color: #f0f0f0;
     border-radius: 6px;
   }
 
   .pp-dot {
     width: 12px;
     height: 12px;
-    background-color: #b0b0b0;
     border-radius: 50%;
   }
 
   .pp-dash {
     flex: 1;
     height: 4px;
-    background-color: #d0d0d0;
     border-radius: 4px;
   }
 
@@ -178,13 +192,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #d0d0d0;
     border-radius: 6px;
-  }
-
-  .pp-arrow {
-    font-size: 18px;
-    color: #888888;
   }
 
 </style>
