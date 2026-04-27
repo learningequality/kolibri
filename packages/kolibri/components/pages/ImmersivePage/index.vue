@@ -111,7 +111,7 @@
           ? this.appearanceOverrides
           : {
             width: '100%',
-            display: 'inline-block',
+            display: this.$isPrint ? undefined : 'inline-block',
             backgroundColor: this.$themePalette.grey.v_100,
             paddingBottom: '72px',
             paddingLeft: this.paddingLeftRight,
@@ -137,14 +137,3 @@
   };
 
 </script>
-
-
-<style>
-
-  @media print {
-    .main-wrapper {
-      display: block !important;
-    }
-  }
-
-</style>
