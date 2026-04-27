@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import router from 'kolibri/router';
-import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import LearnerHeader from '../LearnerHeader.vue';
@@ -10,8 +9,6 @@ import LearnerHeader from '../LearnerHeader.vue';
 jest.mock('kolibri-common/composables/useFacility');
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../../composables/fetchClassSyncStatus');
-
-const { picturePassword$ } = picturePasswordStrings;
 
 const LEARNER_ID = 'learner-1';
 const PICTURE_PASSWORD = '3.7.12';
@@ -60,30 +57,29 @@ describe('LearnerHeader', () => {
     });
 
     it('renders the password row with an empty placeholder when the learner has no picture_password', () => {
-      renderComponent({
+      const { container } = renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
         picturePassword: null,
       });
       expect(screen.getByText(coreString('passwordLabel'))).toBeInTheDocument();
-      expect(screen.queryByRole('list', { name: picturePassword$() })).not.toBeInTheDocument();
+      expect(container.querySelector('.picture-password-wrapper')).not.toBeInTheDocument();
     });
 
     it('renders the password row with icons when both picture_password_settings and picture_password are set', () => {
-      renderComponent({
+      const { container } = renderComponent({
         picturePasswordSettings: PICTURE_PASSWORD_SETTINGS,
         picturePassword: PICTURE_PASSWORD,
       });
       expect(screen.getByText(coreString('passwordLabel'))).toBeInTheDocument();
-      expect(screen.getByRole('list', { name: picturePassword$() })).toBeInTheDocument();
+      expect(container.querySelector('.picture-password-wrapper')).toBeInTheDocument();
     });
 
     it('renders colorful icon names when icon_style is colorful', () => {
-      renderComponent({
+      const { container } = renderComponent({
         picturePasswordSettings: { icon_style: 'colorful', show_icon_text: false },
         picturePassword: PICTURE_PASSWORD,
       });
-      const passwordList = screen.getByRole('list', { name: picturePassword$() });
-      const icons = [...passwordList.querySelectorAll('[data-testid^="picture-password-icon-"]')];
+      const icons = [...container.querySelectorAll('[data-testid^="picture-password-icon-"]')];
       expect(icons.map(el => el.getAttribute('data-testid'))).toEqual([
         'picture-password-icon-moonColorful',
         'picture-password-icon-waterColorful',
@@ -92,12 +88,11 @@ describe('LearnerHeader', () => {
     });
 
     it('renders standard icon names when icon_style is standard', () => {
-      renderComponent({
+      const { container } = renderComponent({
         picturePasswordSettings: { icon_style: 'standard', show_icon_text: false },
         picturePassword: PICTURE_PASSWORD,
       });
-      const passwordList = screen.getByRole('list', { name: picturePassword$() });
-      const icons = [...passwordList.querySelectorAll('[data-testid^="picture-password-icon-"]')];
+      const icons = [...container.querySelectorAll('[data-testid^="picture-password-icon-"]')];
       expect(icons.map(el => el.getAttribute('data-testid'))).toEqual([
         'picture-password-icon-moonStandard',
         'picture-password-icon-waterStandard',

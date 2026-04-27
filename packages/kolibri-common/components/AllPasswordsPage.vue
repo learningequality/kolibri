@@ -4,88 +4,137 @@
     :appBarTitle="allPasswordsHeader$()"
     :route="route"
     :primary="false"
+    :showHeader="!$isPrint"
   >
-    <KPageContainer>
-      <KGrid>
+    <KPageContainer
+      :class="{ 'passwords-page-container': !$isPrint && windowBreakpoint > 4 }"
+      :topMargin="$isPrint ? 0 : 24"
+      :noPadding="$isPrint"
+    >
+      <!-- Screen-only header with Print button -->
+      <KGrid v-show="!$isPrint">
         <KGridItem
-          :layout12="{ span: 6, alignment: 'left' }"
-          :layout8="{ span: 4, alignment: 'left' }"
-          :layout4="{ span: 2, alignment: 'left' }"
+          :layout12="{ span: isAppContext ? 12 : 6, alignment: 'left' }"
+          :layout8="{ span: isAppContext ? 8 : 4, alignment: 'left' }"
+          :layout4="{ span: isAppContext ? 4 : 2, alignment: 'left' }"
           class="header-row"
         >
           <h1 class="header-title">{{ allPasswordsHeader$() }}</h1>
         </KGridItem>
         <KGridItem
+          v-if="!isAppContext"
           :layout12="{ span: 6, alignment: 'right' }"
           :layout8="{ span: 4, alignment: 'right' }"
           :layout4="{ span: 2, alignment: 'right' }"
           class="header-row print-button"
         >
-          <KButton :text="printAction$()" />
+          <KButton
+            :text="printAction$()"
+            :disabled="!hasPicturePasswords"
+            @click="openPrintDialog"
+          />
         </KGridItem>
       </KGrid>
-      <CoreTable
+
+      <KTable
+        v-if="!$isPrint"
+        :headers="tableHeaders"
+        :rows="tableRows"
+        :caption="allPasswordsHeader$()"
         :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
-        :selectable="true"
+        :defaultSort="{ columnId: 'full_name', direction: 'asc' }"
+        sortable
+        disableBuiltinSorting
+        @changeSort="handleSortChange"
       >
-        <template #headers>
-          <th
-            class="table-header"
-            :style="{ color: $themeTokens.text }"
+        <template #header="{ header }">
+          <span>
+            {{ header.label }}
+          </span>
+        </template>
+        <template #cell="{ content, colIndex }">
+          <span
+            v-if="colIndex === 2"
+            dir="ltr"
           >
-            {{ nameLabel$() }}
-          </th>
+            <!-- Offsets icon's internal left padding to align with cell edge -->
+            <UserPicturePassword
+              v-if="content.picture_password"
+              :picturePassword="content.picture_password"
+              :learnerName="content.full_name"
+              :style="{ marginLeft: '-6px' }"
+            />
+            <NoPasswordInfo v-else />
+          </span>
+          <span v-else>{{ content }}</span>
         </template>
-        <template #tbody>
-          <tbody>
-            <tr
-              v-for="learner in learners"
-              :key="learner.id"
-            >
-              <td :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }">
-                <div class="learner-row">
-                  <div class="learner-info">
-                    <span
-                      dir="auto"
-                      class="learner-name"
-                      :style="{ color: $themeTokens.text }"
-                    >{{ learner.full_name }}</span>
-                    <span
-                      dir="auto"
-                      class="learner-username"
-                      :style="{ color: $themeTokens.annotation }"
-                    >{{ learner.username }}</span>
-                  </div>
-                  <div class="learner-password">
-                    <template v-if="learner.picture_password">
-                      {{ resolvePicturePassword(learner.picture_password) }}
-                    </template>
-                    <div
-                      v-else
-                      class="no-password-info"
-                    >
-                      <span
-                        class="no-password-title"
-                        :style="{ color: $themeTokens.text }"
-                      >
-                        {{ noPicturePasswordDescription$() }}
-                      </span>
-                      <span
-                        class="no-password-subtitle"
-                        :style="{ color: $themeTokens.annotation }"
-                      >
-                        {{ noPasswordSignInDescription$() }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </CoreTable>
+      </KTable>
+
+      <!-- Print-only list: one card per learner, stacked vertically -->
+      <section
+        v-else
+        class="print-list"
+      >
+        <!-- Print-only header with facility and class name -->
+        <div class="print-header">
+          <h4 class="print-facility-class">{{ pageTitle }}</h4>
+        </div>
+
+        <LearnerPasswordCard
+          v-for="learner in printLearners"
+          :key="learner.id"
+          :learner="learner"
+          :cardStyle="printListCardStyle"
+          :printFormat="printFormat"
+          :showSequenceNumbers="true"
+          :learnerName="learner.full_name"
+        />
+      </section>
     </KPageContainer>
+
+    <!-- Print format selection dialog -->
+    <KModal
+      v-if="showPrintDialog"
+      :title="printPasswordsDialogHeader$()"
+      :submitText="continueAction$()"
+      :cancelText="cancelAction$()"
+      @submit="handlePrintSubmit"
+      @cancel="closePrintDialog"
+    >
+      <KRadioButtonGroup>
+        <KRadioButton
+          v-model="printFormat"
+          :label="printWithImages$()"
+          buttonValue="images"
+        />
+        <KRadioButton
+          v-model="printFormat"
+          :label="printWithTextOnly$()"
+          buttonValue="text"
+        />
+      </KRadioButtonGroup>
+
+      <!-- Live preview for example learner -->
+      <section
+        v-if="previewLearner"
+        class="preview-section"
+      >
+        <p
+          class="preview-label"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ printFormatPreviewLabel$() }}
+        </p>
+        <LearnerPasswordCard
+          :learner="previewLearner"
+          :cardStyle="cardStyle"
+          :printFormat="printFormat"
+          :showSequenceNumbers="true"
+          :learnerName="previewLearner.full_name"
+        />
+      </section>
+    </KModal>
   </ImmersivePage>
 
 </template>
@@ -93,59 +142,144 @@
 
 <script>
 
-  import { ref, onMounted } from 'vue';
-  import CoreTable from 'kolibri/components/CoreTable';
+  import { ref, computed, onMounted } from 'vue';
+  import orderBy from 'lodash/orderBy';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
+  import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
+  import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
+  import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
+  import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
+  import useFacility from 'kolibri-common/composables/useFacility';
+  import useUser from 'kolibri/composables/useUser';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'AllPasswordsPage',
-    components: { CoreTable, ImmersivePage },
+    metaInfo() {
+      return { title: this.pageTitle };
+    },
+    components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
       const learners = ref([]);
       const loading = ref(true);
+      const showPrintDialog = ref(false);
+      const printFormat = ref('images');
+      const className = ref('');
 
-      const { nameLabel$ } = coreStrings;
+      const { currentFacilityName } = useFacility();
+      const { isAppContext } = useUser();
+      const { windowBreakpoint } = useKResponsiveWindow();
+
       const {
-        noPicturePasswordDescription$,
-        noPasswordSignInDescription$,
+        nameLabel$,
+        usernameLabel$,
+        passwordLabel$,
+        cancelAction$,
+        continueAction$,
+        kolibriLabel$,
+      } = coreStrings;
+      const {
         noLearnersInClass$,
         printAction$,
         allPasswordsHeader$,
+        printWithImages$,
+        printWithTextOnly$,
+        printPasswordsDialogHeader$,
+        printFormatPreviewLabel$,
       } = picturePasswordStrings;
 
+      const previewLearner = computed(() => {
+        return learners.value.find(learner => learner.picture_password) || null;
+      });
+
+      const hasPicturePasswords = computed(() => {
+        return Boolean(previewLearner.value);
+      });
+
+      const tableHeaders = computed(() => [
+        { label: nameLabel$(), dataType: 'string', columnId: 'full_name', width: '45%' },
+        { label: usernameLabel$(), dataType: 'string', columnId: 'username', width: '45%' },
+        {
+          label: passwordLabel$(),
+          dataType: 'undefined',
+          columnId: 'picture_password',
+          width: '10%',
+        },
+      ]);
+
+      const sortConfig = ref({ columnId: 'full_name', direction: 'asc' });
+
+      const sortedLearners = computed(() =>
+        orderBy(learners.value, [sortConfig.value.columnId], [sortConfig.value.direction]),
+      );
+
+      const printLearners = computed(() => sortedLearners.value);
+
+      const tableRows = computed(() => sortedLearners.value.map(l => [l.full_name, l.username, l]));
+
       onMounted(() => {
-        FacilityUserResource.fetchCollection({
-          getParams: { member_of: props.classId },
-          force: true,
-        })
-          .then(data => {
-            learners.value = data;
+        Promise.all([
+          FacilityUserResource.fetchCollection({
+            getParams: { member_of: props.classId },
+            force: true,
+          }),
+          ClassroomResource.fetchModel({ id: props.classId }),
+        ])
+          .then(([users, classroom]) => {
+            learners.value = users;
+            className.value = classroom.name;
           })
           .finally(() => {
             loading.value = false;
           });
       });
 
-      function resolvePicturePassword(picturePassword) {
-        return getPicturePasswordIcons(picturePassword)
-          .map(icon => icon.label)
-          .join(', ');
+      function handleSortChange({ sortKey, sortOrder }) {
+        const columnId = tableHeaders.value[sortKey]?.columnId;
+        if (!sortOrder || !columnId || columnId === 'picture_password') {
+          sortConfig.value = { columnId: 'full_name', direction: 'asc' };
+        } else {
+          sortConfig.value = { columnId, direction: sortOrder };
+        }
+      }
+
+      function openPrintDialog() {
+        showPrintDialog.value = true;
+      }
+
+      function closePrintDialog() {
+        showPrintDialog.value = false;
       }
 
       return {
-        learners,
         loading,
-        resolvePicturePassword,
-        nameLabel$,
-        noPicturePasswordDescription$,
-        noPasswordSignInDescription$,
+        isAppContext,
+        handleSortChange,
+        showPrintDialog,
+        printFormat,
+        className,
+        currentFacilityName,
+        windowBreakpoint,
+        previewLearner,
+        hasPicturePasswords,
+        tableHeaders,
+        tableRows,
+        printLearners,
+        openPrintDialog,
+        closePrintDialog,
+        cancelAction$,
+        continueAction$,
         noLearnersInClass$,
         printAction$,
         allPasswordsHeader$,
+        printWithImages$,
+        printWithTextOnly$,
+        printPasswordsDialogHeader$,
+        printFormatPreviewLabel$,
+        kolibriLabel$,
       };
     },
     props: {
@@ -158,12 +292,54 @@
         default: null,
       },
     },
+    computed: {
+      pageTitle() {
+        return [
+          this.allPasswordsHeader$(),
+          this.className,
+          this.currentFacilityName,
+          this.kolibriLabel$(),
+        ]
+          .filter(Boolean)
+          .join(' - ');
+      },
+      cardStyle() {
+        return {
+          backgroundColor: this.$themePalette.grey.v_100,
+          borderColor: this.$themeTokens.fineLine,
+        };
+      },
+      printListCardStyle() {
+        if (this.printFormat === 'text') {
+          return {
+            ...this.cardStyle,
+            border: 'none',
+            borderBottom: `2px solid ${this.$themeTokens.fineLine}`,
+            borderRadius: 0,
+            paddingTop: '0px',
+            paddingBottom: '16px',
+          };
+        }
+        return this.cardStyle;
+      },
+    },
+    methods: {
+      handlePrintSubmit() {
+        this.closePrintDialog();
+        this.$nextTick(() => this.$print());
+      },
+    },
   };
 
 </script>
 
 
 <style lang="scss" scoped>
+
+  .passwords-page-container {
+    max-width: 1000px;
+    margin: 80px auto 72px;
+  }
 
   .header-row {
     display: flex;
@@ -181,43 +357,41 @@
     justify-content: flex-end;
   }
 
-  .table-header {
+  .preview-section {
+    margin-top: 16px;
+  }
+
+  .preview-label {
+    margin-top: 32px;
+    margin-bottom: 8px;
     font-size: 14px;
   }
 
-  .learner-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 48px;
-    padding: 8px 0;
-  }
-
-  .learner-info,
-  .no-password-info {
+  .print-list {
     display: flex;
     flex-direction: column;
-    padding: 4px;
+    gap: 16px;
   }
 
-  .learner-name {
-    font-size: 16px;
+  .print-list /deep/ .password-text-sequence {
+    width: 165px;
+    padding-left: 8px;
   }
 
-  .learner-username {
-    font-size: 14px;
+  .print-header {
+    display: none;
+    padding: 2px 8px;
   }
 
-  .learner-password {
-    text-align: right;
-  }
+  @media print {
+    .print-header {
+      display: block;
+    }
 
-  .no-password-title {
-    font-size: 14px;
-  }
-
-  .no-password-subtitle {
-    font-size: 12px;
+    .print-facility-class {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
   }
 
 </style>

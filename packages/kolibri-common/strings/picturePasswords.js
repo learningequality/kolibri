@@ -173,7 +173,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context: 'Button label that navigates to the page listing all learner picture passwords',
   },
   noPicturePasswordDescription: {
-    message: 'No picture password assigned',
+    message: 'No picture password',
     context: 'Shown in the learner password list when a learner has no picture password set',
   },
   printAction: {
@@ -192,5 +192,31 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   noLearnersInClass: {
     message: 'There are no learners in this class',
     context: 'Shown on the all passwords page when the class has no enrolled learners',
+  },
+  printWithImages: {
+    message: 'Print with images',
+    context: 'Radio option label for printing the picture password list with icon images',
+  },
+  printWithTextOnly: {
+    message: 'Print with text only',
+    context: 'Radio option label for printing the picture password list using text labels only',
+  },
+  printPasswordsDialogHeader: {
+    message: 'Print passwords',
+    context: 'Title for the dialog where coaches choose how to print the picture password list',
+  },
+  printFormatPreviewLabel: {
+    message: 'Preview',
+    context: 'Label for the live preview section in the print format dialog',
+  },
+  picturePasswordForLearner: {
+    message: 'Password for {learnerName} is a list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a learner's picture password when the learner name is known. For example: 'Password for Alice is a list of 3 pictures: moon, water, bird'.",
+  },
+  picturePasswordList: {
+    message: 'A list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a picture password when no learner name is available. For example: 'A list of 3 pictures: moon, water, bird'.",
   },
 });

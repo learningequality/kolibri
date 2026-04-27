@@ -1,7 +1,10 @@
 <template>
 
   <div class="main">
-    <ScrollingHeader :scrollPosition="0">
+    <ScrollingHeader
+      v-if="showHeader"
+      :scrollPosition="0"
+    >
       <ImmersiveToolbar
         ref="appBar"
         :appBarTitle="!loading ? appBarTitle : ''"
@@ -91,6 +94,11 @@
         required: false,
         default: '',
       },
+      showHeader: {
+        type: Boolean,
+        required: false,
+        default: true,
+      },
     },
     data() {
       return {
@@ -103,7 +111,7 @@
           ? this.appearanceOverrides
           : {
             width: '100%',
-            display: 'inline-block',
+            display: this.$isPrint ? undefined : 'inline-block',
             backgroundColor: this.$themePalette.grey.v_100,
             paddingBottom: '72px',
             paddingLeft: this.paddingLeftRight,
