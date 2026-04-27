@@ -73,6 +73,7 @@
 
   import { computed, ref, watch } from 'vue';
   import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
+  import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
@@ -235,8 +236,8 @@
        */
       iconStyle: {
         type: String,
-        default: 'colorful',
-        validator: value => ['colorful', 'standard'].includes(value),
+        default: PicturePasswordIconStyle.COLORFUL,
+        validator: value => Object.values(PicturePasswordIconStyle).includes(value),
       },
       /**
        * Whether to show the translated icon name below each icon.
