@@ -3,8 +3,10 @@ import { currentLanguage } from '../../utils/i18n';
 import mediatorFactory from '../pluginMediator';
 
 if (!Object.prototype.hasOwnProperty.call(global, 'Intl')) {
+  /* eslint-disable import-x/no-commonjs */
   global.Intl = require('intl');
   require('intl/locale-data/jsonp/en.js');
+  /* eslint-enable import-x/no-commonjs */
 }
 
 describe('Mediator', function () {

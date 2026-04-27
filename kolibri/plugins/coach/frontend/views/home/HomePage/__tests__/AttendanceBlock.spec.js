@@ -12,7 +12,7 @@ import AttendanceBlock from '../AttendanceBlock.vue';
 jest.mock('../../../../composables/useAttendance');
 jest.mock('kolibri/utils/appError');
 jest.mock('../../../../composables/useCoreCoach', () => {
-  const { computed } = require('vue');
+  const { computed } = jest.requireActual('vue');
   return () => ({
     classId: computed(() => 'test-class-id'),
     pageTitle: computed(() => ''),

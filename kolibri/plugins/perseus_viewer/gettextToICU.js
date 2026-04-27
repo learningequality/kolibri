@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 /*
  * A function to transform Perseus' gettext formatted messages to ICU message syntax
  * Can be used replace all strings in a source file,

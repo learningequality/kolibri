@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-import Vue, { ref } from 'vue';
+import Vue, { ref, h, onMounted, onUnmounted } from 'vue';
 import ResourceLayout from '../index.vue';
 
 // Disable eslint rules for vue components in this test file
@@ -1852,10 +1852,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 
@@ -1890,10 +1889,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 
@@ -1932,10 +1930,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 
@@ -1971,10 +1968,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 
@@ -2015,10 +2011,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 
@@ -2060,10 +2055,9 @@ describe('ResourceLayout', () => {
       const TrackedComponent = {
         name: 'TrackedComponent',
         setup() {
-          const { onMounted, onUnmounted } = require('vue');
           onMounted(() => mountCount());
           onUnmounted(() => unmountCount());
-          return () => require('vue').h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
+          return () => h('div', { attrs: { 'data-testid': 'tracked' } }, 'tracked');
         },
       };
 

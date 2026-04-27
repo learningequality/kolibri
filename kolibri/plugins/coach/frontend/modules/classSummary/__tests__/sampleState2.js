@@ -1,6 +1,7 @@
 export default {
   id: 'class_id',
   name: 'class_name',
+  picture_password_settings: null,
   coachMap: {
     coach_id_1: {
       id: 'coach_id_1',
@@ -25,56 +26,67 @@ export default {
       id: 'learner_id_1',
       name: 'A',
       username: 'A',
+      picture_password: null,
     },
     learner_id_2: {
       id: 'learner_id_2',
       name: 'B',
       username: 'B',
+      picture_password: null,
     },
     learner_id_3: {
       id: 'learner_id_3',
       name: 'C',
       username: 'C',
+      picture_password: null,
     },
     learner_id_4: {
       id: 'learner_id_4',
       name: 'D',
       username: 'D',
+      picture_password: null,
     },
     learner_id_5: {
       id: 'learner_id_5',
       name: 'E',
       username: 'E',
+      picture_password: null,
     },
     learner_id_6: {
       id: 'learner_id_6',
       name: 'F',
       username: 'F',
+      picture_password: null,
     },
     learner_id_7: {
       id: 'learner_id_7',
       name: 'G',
       username: 'G',
+      picture_password: null,
     },
     learner_id_8: {
       id: 'learner_id_8',
       name: 'H',
       username: 'H',
+      picture_password: null,
     },
     learner_id_9: {
       id: 'learner_id_9',
       name: 'I',
       username: 'I',
+      picture_password: null,
     },
     learner_id_10: {
       id: 'learner_id_10',
       name: 'J',
       username: 'J',
+      picture_password: null,
     },
     learner_id_11: {
       id: 'learner_id_11',
       name: 'K',
       username: 'K',
+      picture_password: null,
     },
   },
   groupMap: {

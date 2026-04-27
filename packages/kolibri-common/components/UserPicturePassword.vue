@@ -1,16 +1,22 @@
 <template>
 
-  <ol class="picture-password-icons">
+  <ol
+    class="picture-password-icons"
+    :aria-label="picturePassword$()"
+  >
     <li
       v-for="(icon, index) in picturePasswordIcons"
       :key="`${icon.label}-${index}`"
     >
-      <figure>
+      <figure :data-testid="`picture-password-icon-${icon.iconName}`">
         <KIcon
-          class="icon"
           :icon="icon.iconName"
+          :style="iconStyles"
         />
-        <figcaption :style="{ color: $themeTokens.annotation }">
+        <figcaption
+          :style="{ color: $themeTokens.annotation }"
+          :class="{ visuallyhidden: !effectiveShowIconText }"
+        >
           {{ icon.label }}
         </figcaption>
       </figure>
@@ -25,22 +31,38 @@
   import { computed } from 'vue';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
   export default {
     name: 'UserPicturePassword',
     setup(props) {
       const { facilityConfig } = useFacility();
+      const { picturePassword$ } = picturePasswordStrings;
 
       const picturePasswordIcons = computed(() =>
         getPicturePasswordIcons(
           props.picturePassword,
-          facilityConfig.value.picture_password_settings?.icon_style,
+          props.iconStyle || facilityConfig.value.picture_password_settings?.icon_style,
         ),
+      );
+
+      const iconStyles = computed(() => ({
+        width: props.iconSize,
+        height: props.iconSize,
+      }));
+
+      const effectiveShowIconText = computed(() =>
+        props.showIconText !== null
+          ? props.showIconText
+          : (facilityConfig.value.picture_password_settings?.show_icon_text ?? false),
       );
 
       return {
         // state
         picturePasswordIcons,
+        iconStyles,
+        effectiveShowIconText,
+        picturePassword$,
       };
     },
     props: {
@@ -50,6 +72,18 @@
         validator(value) {
           return (value || '').split('.').length === 3;
         },
+      },
+      showIconText: {
+        type: Boolean,
+        default: null,
+      },
+      iconStyle: {
+        type: String,
+        default: null,
+      },
+      iconSize: {
+        type: String,
+        default: '46px',
       },
     },
   };
@@ -76,12 +110,6 @@
       flex-direction: column;
       align-items: center;
       margin: 0;
-    }
-
-    .icon {
-      // 46px renders a raw icon of roughly 32px, matching design spec
-      width: 46px;
-      height: 46px;
     }
 
     figcaption {

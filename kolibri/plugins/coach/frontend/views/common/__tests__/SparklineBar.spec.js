@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import SparklineBar, { MIN_SEGMENT_WIDTH_PX } from '../SparklineBar.vue';
+
+const { sparklineDistributionLabel$ } = coursesStrings;
 
 function renderSparkline(overrides = {}) {
   return render(SparklineBar, {
@@ -15,19 +18,28 @@ function renderSparkline(overrides = {}) {
 
 describe('SparklineBar', () => {
   it('renders all three segments and keeps zero-count segments visible', () => {
-    const { container } = renderSparkline({ lowCount: 0, midCount: 0, highCount: 0 });
+    const COUNTS = { lowCount: 0, midCount: 0, highCount: 0 };
+    const { container } = renderSparkline(COUNTS);
 
     const segments = container.querySelectorAll('.segment');
     expect(segments).toHaveLength(3);
-    expect(screen.getByText('0', { selector: '.segment-low .count-text' })).toBeInTheDocument();
-    expect(screen.getByText('0', { selector: '.segment-mid .count-text' })).toBeInTheDocument();
-    expect(screen.getByText('0', { selector: '.segment-high .count-text' })).toBeInTheDocument();
+    expect(
+      screen.getByText(COUNTS.lowCount, { selector: '.segment-low .count-text' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(COUNTS.midCount, { selector: '.segment-mid .count-text' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(COUNTS.highCount, { selector: '.segment-high .count-text' }),
+    ).toBeInTheDocument();
   });
 
   it('provides a visually hidden textual summary for screen readers', () => {
     renderSparkline({ lowCount: 1, midCount: 0, highCount: 4 });
 
-    const hiddenSummary = screen.getByText(/1 low, 0 medium, 4 high/i);
+    const hiddenSummary = screen.getByText(
+      sparklineDistributionLabel$({ lowCount: 1, midCount: 0, highCount: 4 }),
+    );
     expect(hiddenSummary).toHaveClass('visuallyhidden');
     expect(hiddenSummary).not.toHaveAttribute('aria-hidden');
   });

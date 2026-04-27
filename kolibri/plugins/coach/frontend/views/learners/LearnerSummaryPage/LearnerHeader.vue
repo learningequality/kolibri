@@ -17,7 +17,10 @@
       />
     </h1>
     <KGrid>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem
+        :layout12="{ span: 6 }"
+        style="margin-bottom: 16px"
+      >
         <HeaderTable>
           <HeaderTableRow>
             <template #key>
@@ -35,6 +38,21 @@
               {{ learner.username }}
             </template>
           </HeaderTableRow>
+          <HeaderTableRow v-if="picturePasswordSettings">
+            <template #key>
+              {{ coreString('passwordLabel') }}
+            </template>
+            <template #value>
+              <UserPicturePassword
+                v-if="learner.picture_password"
+                :showIconText="picturePasswordSettings.show_icon_text"
+                iconSize="32px"
+                :picturePassword="learner.picture_password"
+                :iconStyle="picturePasswordSettings.icon_style"
+              />
+              <KEmptyPlaceholder v-else />
+            </template>
+          </HeaderTableRow>
           <HeaderTableRow>
             <template #key>
               {{ coachString('groupsLabel') }}
@@ -45,7 +63,7 @@
           </HeaderTableRow>
         </HeaderTable>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: 3 }">
         <div :style="boxStyle">
           <p
             class="key"
@@ -64,7 +82,7 @@
           </div>
         </div>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: 3 }">
         <div :style="boxStyle">
           <p
             class="key"
@@ -79,8 +97,8 @@
           </div>
         </div>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }" />
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: 6 }" />
+      <KGridItem :layout12="{ span: 3 }">
         <div :style="boxStyle">
           <p
             class="key"
@@ -93,7 +111,7 @@
           </div>
         </div>
       </KGridItem>
-      <KGridItem :layout12="{ span: 4 }">
+      <KGridItem :layout12="{ span: 3 }">
         <div :style="boxStyle">
           <p
             class="key"
@@ -115,6 +133,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import commonCoach from '../../common';
   import ReportsControls from '../../common/ReportsControls';
 
@@ -122,6 +141,7 @@
     name: 'LearnerHeader',
     components: {
       ReportsControls,
+      UserPicturePassword,
     },
     mixins: [commonCoach, commonCoreStrings],
     // A list of all lessons assigned to the relevant Learner
@@ -132,6 +152,9 @@
       },
     },
     computed: {
+      picturePasswordSettings() {
+        return this.$store.state.classSummary.picture_password_settings;
+      },
       learner() {
         return this.learnerMap[this.$route.params.learnerId];
       },

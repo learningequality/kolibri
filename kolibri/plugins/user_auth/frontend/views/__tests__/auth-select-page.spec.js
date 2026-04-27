@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import AuthSelect from '../AuthSelect';
+import { userString } from '../commonUserStrings';
 import makeStore from '../../__tests__/utils/makeStore';
+
+const { signInLabel$ } = coreStrings;
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/composables/useFacility');
@@ -40,8 +44,8 @@ function renderComponent() {
 describe('user index page component', () => {
   it('shows sign in and create account options with facility selection', () => {
     renderComponent();
-    const signInLink = screen.getByRole('link', { name: 'Sign in' });
-    const createAccountLink = screen.getByRole('link', { name: 'Create an account' });
+    const signInLink = screen.getByRole('link', { name: signInLabel$() });
+    const createAccountLink = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(signInLink).toHaveAttribute('href', '#/facilities');
     expect(createAccountLink).toHaveAttribute('href', '#/facilities');
   });

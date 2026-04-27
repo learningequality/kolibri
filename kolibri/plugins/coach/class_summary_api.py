@@ -250,7 +250,9 @@ def serialize_groups(queryset):
 
 
 def serialize_users(queryset):
-    return list(queryset.values("id", "username", name=F("full_name")))
+    return list(
+        queryset.values("id", "username", "picture_password", name=F("full_name"))
+    )
 
 
 def _map_lesson(item):
@@ -322,7 +324,9 @@ class ClassSummaryViewSet(viewsets.ViewSet):
     permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions)
 
     def retrieve(self, request, pk):
-        classroom = get_object_or_404(auth_models.Classroom, id=pk)
+        classroom = get_object_or_404(
+            auth_models.Classroom.objects.select_related("parent__dataset"), id=pk
+        )
         query_learners = FacilityUser.objects.filter(memberships__collection=classroom)
         lesson_data = serialize_lessons(request, pk)
         exam_data = serialize_exams(request, pk)
@@ -367,9 +371,12 @@ class ClassSummaryViewSet(viewsets.ViewSet):
 
         learners_data = serialize_users(query_learners)
 
+        picture_password_settings = classroom.parent.dataset.picture_password_settings
+
         output = {
             "id": pk,
             "facility_id": classroom.parent.id,
+            "picture_password_settings": picture_password_settings,
             "name": classroom.name,
             "coaches": serialize_users(
                 FacilityUser.objects.filter(

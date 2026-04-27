@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import CoreMenuOption from '../CoreMenuOption.vue';
 
+const OPTION_LABEL = 'Sample Option';
+const SECONDARY_TEXT = 'Secondary Text';
+
 const sampleSubRoutes = [
   { name: 'subRoute1', label: 'Sub Route 1' },
   { name: 'subRoute2', label: 'Sub Route 2' },
@@ -104,13 +107,13 @@ describe('CoreMenuOption', () => {
       });
 
       it('should display the label of the option when provided', () => {
-        renderComponent({ label: 'Sample Option', subRoutes: sampleSubRoutes });
-        expect(screen.getByText('Sample Option')).toBeInTheDocument();
+        renderComponent({ label: OPTION_LABEL, subRoutes: sampleSubRoutes });
+        expect(screen.getByText(OPTION_LABEL)).toBeInTheDocument();
       });
 
       it('should display the secondary text of the option when provided', () => {
-        renderComponent({ secondaryText: 'Secondary Text', subRoutes: sampleSubRoutes });
-        expect(screen.getByText('Secondary Text')).toBeInTheDocument();
+        renderComponent({ secondaryText: SECONDARY_TEXT, subRoutes: sampleSubRoutes });
+        expect(screen.getByText(SECONDARY_TEXT)).toBeInTheDocument();
       });
 
       it('should display the icon of the option when provided', () => {
@@ -137,8 +140,8 @@ describe('CoreMenuOption', () => {
       });
 
       it('should display the label of the option when provided', () => {
-        renderComponent({ label: 'Sample Option', subRoutes: [] });
-        expect(screen.getByText('Sample Option')).toBeInTheDocument();
+        renderComponent({ label: OPTION_LABEL, subRoutes: [] });
+        expect(screen.getByText(OPTION_LABEL)).toBeInTheDocument();
       });
 
       it('pressing tab from keyboard should focus the menuitem', async () => {

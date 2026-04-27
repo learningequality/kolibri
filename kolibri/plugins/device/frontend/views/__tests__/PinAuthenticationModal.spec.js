@@ -2,7 +2,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import PinAuthenticationModal from '../PinAuthenticationModal.vue';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import PinAuthenticationModal, { strings as pinModalStrings } from '../PinAuthenticationModal';
+
+const { cancelAction$, continueAction$, requiredFieldError$, numbersOnly$ } = coreStrings;
+const { incorrectPin$, pinPlaceholder$ } = pinModalStrings;
 
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
@@ -29,7 +33,7 @@ describe('PinAuthenticationModal', () => {
   it('emits cancel when the user clicks Cancel', async () => {
     const { emitted } = renderComponent();
 
-    await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    await fireEvent.click(screen.getByRole('button', { name: cancelAction$() }));
 
     expect(emitted()).toHaveProperty('cancel');
     expect(emitted().cancel).toHaveLength(1);
@@ -39,16 +43,16 @@ describe('PinAuthenticationModal', () => {
     it('does not show validation messages before the user submits the form', () => {
       renderComponent();
 
-      expect(screen.queryByText('Incorrect PIN, please try again')).not.toBeInTheDocument();
-      expect(screen.queryByText('This field is required')).not.toBeInTheDocument();
-      expect(screen.queryByText('Enter numbers only')).not.toBeInTheDocument();
+      expect(screen.queryByText(incorrectPin$())).not.toBeInTheDocument();
+      expect(screen.queryByText(requiredFieldError$())).not.toBeInTheDocument();
+      expect(screen.queryByText(numbersOnly$())).not.toBeInTheDocument();
     });
 
     it('emits submit when the user enters a valid PIN and submits', async () => {
       const { emitted } = renderComponent();
 
-      await userEvent.type(screen.getByLabelText('PIN'), '1234');
-      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+      await userEvent.type(screen.getByLabelText(pinPlaceholder$()), '1234');
+      await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
 
       await waitFor(() => {
         expect(emitted()).toHaveProperty('submit');
@@ -67,29 +71,29 @@ describe('PinAuthenticationModal', () => {
 
       renderComponent();
 
-      await userEvent.type(screen.getByLabelText('PIN'), '1234');
-      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+      await userEvent.type(screen.getByLabelText(pinPlaceholder$()), '1234');
+      await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
 
       await waitFor(() => {
-        expect(screen.getByText('Incorrect PIN, please try again')).toBeInTheDocument();
+        expect(screen.getByText(incorrectPin$())).toBeInTheDocument();
       });
     });
 
     it('shows a numbers-only validation message when the PIN contains letters', async () => {
       renderComponent();
 
-      await userEvent.type(screen.getByLabelText('PIN'), 'abcd');
-      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+      await userEvent.type(screen.getByLabelText(pinPlaceholder$()), 'abcd');
+      await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
 
-      expect(screen.getByText('Enter numbers only')).toBeInTheDocument();
+      expect(screen.getByText(numbersOnly$())).toBeInTheDocument();
     });
 
     it('shows a required-field validation message when the PIN is empty', async () => {
       renderComponent();
 
-      await fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+      await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
 
-      expect(screen.getByText('This field is required')).toBeInTheDocument();
+      expect(screen.getByText(requiredFieldError$())).toBeInTheDocument();
     });
   });
 });

@@ -1025,11 +1025,13 @@ export class Resource {
   }
 
   client(options) {
+    // eslint-disable-next-line import-x/no-commonjs
     const client = require('kolibri/client').default;
     return client(options);
   }
 
   logError(err) {
+    // eslint-disable-next-line import-x/no-commonjs
     const router = require('kolibri/router').default;
     if (!err.config) {
       return;

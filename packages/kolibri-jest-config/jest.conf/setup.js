@@ -77,8 +77,9 @@ Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 
 Vue.component('ContentViewer', {
+  props: ['options'],
   render(h) {
-    return h('p', 'ContentViewer');
+    return h('p', this.options && this.options.title);
   },
 });
 

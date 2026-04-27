@@ -295,6 +295,9 @@ export default [
       // import-x/default doesn't handle CJS module.exports as default exports
       // unlike the old eslint-plugin-import, so disable for parity
       'import-x/default': OFF,
+      'import-x/no-commonjs': ERROR,
+      'import-x/no-amd': ERROR,
+      'import-x/no-import-module-exports': ERROR,
 
       'small-import/no-full-import': ERROR,
 
@@ -351,6 +354,10 @@ export default [
       globals: {
         ...globals.jest,
       },
+    },
+    rules: {
+      'kolibri/tests-no-hardcoded-strings': ERROR,
+      'kolibri/tests-no-stubs': ERROR,
     },
   },
   // Override: __mocks__ files get jest globals

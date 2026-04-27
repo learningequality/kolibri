@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/vue';
 import { defineComponent, ref } from 'vue';
 import SearchSideBar from '../SearchSideBar';
 
+const FOCUS_BUTTON_TEXT = 'Focus';
+
 describe('Search side bar', () => {
   function renderComponent() {
     return render(SearchSideBar, {
@@ -36,13 +38,13 @@ describe('Search side bar', () => {
       },
       template: ` <div>
         <SearchSideBar ref="sidebarRef" :book="{}" />
-        <button @click="focusInput">Focus</button>
+        <button @click="focusInput">${FOCUS_BUTTON_TEXT}</button>
       </div> `,
     });
 
     render(Parent, { attachTo: document.body });
 
-    const button = screen.getByRole('button', { name: 'Focus' });
+    const button = screen.getByRole('button', { name: FOCUS_BUTTON_TEXT });
     button.click();
 
     const input = screen.getByRole('searchbox');

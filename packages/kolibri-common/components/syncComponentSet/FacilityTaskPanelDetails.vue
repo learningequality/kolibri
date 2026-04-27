@@ -2,6 +2,7 @@
 
   <div
     class="task-panel"
+    data-testid="task-panel"
     :class="{ 'task-panel-sm': windowIsSmall }"
   >
     <div class="icon">

@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs */
 /*
  * This is an auto-generated file, any manual edits will be overridden.
  *

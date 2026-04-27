@@ -30,6 +30,7 @@
       />
       <ContentViewer
         v-else-if="!contentNode.assessmentmetadata"
+        data-testid="content-viewer"
         class="content-viewer"
         :lang="contentNode.lang"
         :files="contentNode.files"

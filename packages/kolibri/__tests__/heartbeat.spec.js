@@ -18,7 +18,7 @@ jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/utils/browserInfo', () => {
   const actual = jest.requireActual('kolibri/utils/browserInfo');
-  const { ref } = require('vue');
+  const { ref } = jest.requireActual('vue');
   return {
     ...actual,
     pageVisible: ref(true),

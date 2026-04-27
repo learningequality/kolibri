@@ -52,11 +52,12 @@ describe('multiFacility signUpPage component', () => {
   it('right facility', async () => {
     renderComponent();
     expect(screen.getByTestId('facilityLabel')).toHaveTextContent('Facility 1');
+    const FACILITY_2_NAME = 'Facility 2';
     selectedFacility.value = {
       id: 2,
-      name: 'Facility 2',
+      name: FACILITY_2_NAME,
       dataset: { learner_can_login_with_no_password: false },
     };
-    expect(await screen.findByText(/Facility 2/)).toBeInTheDocument();
+    expect(await screen.findByText(FACILITY_2_NAME)).toBeInTheDocument();
   });
 });

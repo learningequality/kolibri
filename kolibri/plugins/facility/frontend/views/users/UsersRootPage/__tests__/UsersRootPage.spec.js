@@ -3,10 +3,16 @@ import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
 import useUserManagement from '../../../../composables/useUserManagement';
 import { useUserManagementMock } from '../../../../composables/__mocks__/useUserManagement';
 import makeStore from '../../../../__tests__/utils/makeStore';
 import UserPage from '../index';
+
+const { usersLabel$, searchForUser$, filter$, optionsLabel$ } = coreStrings;
+const { noUsersMatchSearch$, noUsersMatchFilter$, noUsersMatchFiltersAndSearch$ } =
+  bulkUserManagementStrings;
 
 jest.mock('kolibri/urls');
 jest.mock('lockr');
@@ -65,10 +71,10 @@ describe('UserPage component', () => {
   it('shows the main users management controls', async () => {
     await renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Users' })).toBeInTheDocument();
-    expect(screen.getByRole('searchbox', { name: 'Search for a user...' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Filter' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Options' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: usersLabel$() })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: searchForUser$() })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: filter$() })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: optionsLabel$() })).toBeInTheDocument();
   });
 
   it('shows a search-specific empty state when no users match the search term', async () => {
@@ -102,7 +108,7 @@ describe('UserPage component', () => {
 
     expect(usersInFacility).toHaveLength(2);
     expect(searchResults).toHaveLength(0);
-    expect(screen.getByText('No users match this search')).toBeInTheDocument();
+    expect(screen.getByText(noUsersMatchSearch$())).toBeInTheDocument();
   });
 
   it('shows a filter-specific empty state when filters are applied', async () => {
@@ -113,7 +119,7 @@ describe('UserPage component', () => {
       },
     });
 
-    expect(screen.getByText('No users match this filter')).toBeInTheDocument();
+    expect(screen.getByText(noUsersMatchFilter$({ filtersCount: 1 }))).toBeInTheDocument();
   });
 
   it('shows combined empty-state messaging when both search and filters are applied', async () => {
@@ -125,6 +131,8 @@ describe('UserPage component', () => {
       },
     });
 
-    expect(screen.getByText('No users match this search and these filters')).toBeInTheDocument();
+    expect(
+      screen.getByText(noUsersMatchFiltersAndSearch$({ filtersCount: 2 })),
+    ).toBeInTheDocument();
   });
 });

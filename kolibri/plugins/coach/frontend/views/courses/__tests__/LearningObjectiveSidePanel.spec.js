@@ -1,30 +1,9 @@
-import { render, screen, within } from '@testing-library/vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
 import '@testing-library/jest-dom';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import LearningObjectiveSidePanel from '../LearningObjectiveSidePanel.vue';
 
-const STUBS = {
-  SidePanelModal: {
-    name: 'SidePanelModal',
-    template: '<div data-testid="side-panel-modal"><slot /></div>',
-  },
-  SidePanelLayout: {
-    name: 'SidePanelLayout',
-    props: ['title', 'subtitle', 'closePanel', 'contentContainerStyleOverrides'],
-    template: `
-      <div data-testid="side-panel-layout">
-        <div data-testid="panel-title">{{ title }}</div>
-        <div data-testid="panel-subtitle">{{ subtitle }}</div>
-        <button data-testid="close-button" @click="closePanel">Close</button>
-        <slot />
-      </div>
-    `,
-  },
-  KIcon: {
-    name: 'KIcon',
-    props: ['icon', 'color'],
-    template: '<span :data-testid="\'icon-\' + icon" />',
-  },
-};
+const { closeAction$ } = coreStrings;
 
 const OBJECTIVE = {
   id: 'lo-1',
@@ -66,15 +45,14 @@ function renderPanel(propsOverrides = {}) {
       reportData: REPORT_DATA,
       ...propsOverrides,
     },
-    stubs: STUBS,
   });
 }
 
 describe('LearningObjectiveSidePanel', () => {
   it('renders LO title and unit name in header', () => {
     renderPanel();
-    expect(screen.getByTestId('panel-title')).toHaveTextContent('Capital letters');
-    expect(screen.getByTestId('panel-subtitle')).toHaveTextContent('Unit 1: Letters');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Capital letters');
+    expect(screen.getByText(REPORT_DATA.unit_title)).toBeInTheDocument();
   });
 
   it('shows completion count based on active test takers', () => {
@@ -120,7 +98,6 @@ describe('LearningObjectiveSidePanel', () => {
     // user-2 scored 1/4=25% (low); user-3 has no scores and is excluded
     const banner = screen.getByTestId('warning-banner');
     expect(banner).toBeInTheDocument();
-    expect(within(banner).getByTestId('icon-error')).toBeInTheDocument();
   });
 
   it('hides warning banner when no learners are struggling', () => {
@@ -161,8 +138,7 @@ describe('LearningObjectiveSidePanel', () => {
 
   it('emits closePanel when close button is clicked', async () => {
     const { emitted } = renderPanel();
-    const closeButton = screen.getByTestId('close-button');
-    await closeButton.click();
+    await fireEvent.click(screen.getByRole('button', { name: closeAction$() }));
     expect(emitted().closePanel).toBeTruthy();
   });
 

@@ -1181,8 +1181,8 @@ importers:
         specifier: 10.4.23
         version: 10.4.23(postcss@8.5.6)
       browserslist-config-kolibri:
-        specifier: 0.18.0
-        version: 0.18.0
+        specifier: workspace:*
+        version: link:../browserslist-config-kolibri
       commander:
         specifier: ^14.0.3
         version: 14.0.3
@@ -1283,8 +1283,8 @@ importers:
         specifier: ^0.5.6
         version: 0.5.6
       dompurify:
-        specifier: ^3.3.3
-        version: 3.3.3
+        specifier: ^3.4.0
+        version: 3.4.0
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -4311,9 +4311,6 @@ packages:
   browserify-zlib@0.2.0:
     resolution: {integrity: sha512-Z942RysHXmJrhqk88FmKBVq/v5tqmSkDz7p54G/MGyjMnCFFnC79XWNbg+Vta8W6Wb2qtSZTSxIGkJrRpCFEiA==}
 
-  browserslist-config-kolibri@0.18.0:
-    resolution: {integrity: sha512-d8JCoLUG8XlgfaE/wB7P58ok6ddiGGjChm6dVsL3W2702ibgFjOx+NtFHrLKCpkSuiaR2/gevvaQsIFwkVNNiA==}
-
   browserslist@4.28.1:
     resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -5178,8 +5175,8 @@ packages:
     resolution: {integrity: sha512-l32Xp/TLgWb8ReqbVJAFIvXmY7go4nTxxlWiAFyhoQw9RKEOHBZNnyGvJWqDVSPmq3Y9HlM4npqF/T6VMOXhww==}
     deprecated: dommatrix is no longer maintained. Please use @thednp/dommatrix.
 
-  dompurify@3.3.3:
-    resolution: {integrity: sha512-Oj6pzI2+RqBfFG+qOaOLbFXLQ90ARpcGG6UePL82bJLtdsa6CYJD7nmiU8MW9nQNOtCHV3lZ/Bzq1X0QYbBZCA==}
+  dompurify@3.4.0:
+    resolution: {integrity: sha512-nolgK9JcaUXMSmW+j1yaSvaEaoXYHwWyGJlkoCTghc97KgGDDSnpoU/PlEnw63Ah+TGKFOyY+X5LnxaWbCSfXg==}
 
   domutils@2.8.0:
     resolution: {integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==}
@@ -11666,16 +11663,16 @@ snapshots:
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.28.6
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
 
   '@types/babel__traverse@7.28.0':
     dependencies:
-      '@babel/types': 7.28.6
+      '@babel/types': 7.29.0
 
   '@types/body-parser@1.19.6':
     dependencies:
@@ -12688,8 +12685,6 @@ snapshots:
     dependencies:
       pako: 1.0.11
 
-  browserslist-config-kolibri@0.18.0: {}
-
   browserslist@4.28.1:
     dependencies:
       baseline-browser-mapping: 2.9.15
@@ -13445,7 +13440,7 @@ snapshots:
 
   dommatrix@1.0.3: {}
 
-  dompurify@3.3.3:
+  dompurify@3.4.0:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 

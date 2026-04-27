@@ -1,5 +1,11 @@
 import { render, fireEvent, screen } from '@testing-library/vue';
+import { createTranslator } from 'kolibri/utils/i18n';
 import InteractionList from '..';
+
+const { currAnswer$, noInteractions$ } = createTranslator(
+  InteractionList.name,
+  InteractionList.$trs,
+);
 
 const renderComponent = props => {
   const defaultProps = {
@@ -54,7 +60,9 @@ describe('InteractionList', () => {
         expect(isSelected(interactionItems[i])).toBe(selectedInteractionIndex === i);
 
       // Check if the correct attempt label is rendered
-      expect(screen.getByText(`Attempt ${selectedInteractionIndex + 1}`)).toBeInTheDocument();
+      expect(
+        screen.getByText(currAnswer$({ value: selectedInteractionIndex + 1 })),
+      ).toBeInTheDocument();
     });
 
     it("no event is emitted when the user clicks on the same interaction that's already selected", async () => {
@@ -89,6 +97,6 @@ describe('InteractionList', () => {
 
   it('renders the correct label when they are no interactions', () => {
     renderComponent({ interactions: [] });
-    expect(screen.getByText('No attempts made on this question')).toBeInTheDocument();
+    expect(screen.getByText(noInteractions$())).toBeInTheDocument();
   });
 });
