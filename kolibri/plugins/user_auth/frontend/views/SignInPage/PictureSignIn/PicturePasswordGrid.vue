@@ -217,8 +217,6 @@
       }));
 
       return {
-        $themeTokens,
-        $themePalette,
         icons,
         progressSlots,
         submitEnabled,
