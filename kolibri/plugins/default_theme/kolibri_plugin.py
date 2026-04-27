@@ -18,8 +18,9 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                 "background": static("assets/default_theme/background.jpg"),
                 "backgroundImgCredit": "Lewa Wildlife Conservancy",
                 "topLogo": {
-                    "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
+                    "style": "margin-bottom: 5px; width: 50px; height: 50px;",
                 },
+                "titleStyle": {"fontWeight": "600", "fontSize": "20px"},
             },
             "logos": [
                 {

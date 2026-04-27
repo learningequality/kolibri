@@ -495,11 +495,6 @@
     transition: opacity 0s;
   }
 
-  .logo {
-    width: 100%;
-    height: auto;
-  }
-
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 0;
