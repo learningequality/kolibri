@@ -45,6 +45,8 @@
         :emptyMessage="noLearnersInClass$()"
         :defaultSort="{ columnId: 'full_name', direction: 'asc' }"
         sortable
+        disableBuiltinSorting
+        @changeSort="handleSortChange"
       >
         <template #header="{ header }">
           <span>
@@ -208,9 +210,15 @@
         },
       ]);
 
-      const printLearners = computed(() => orderBy(learners.value, ['full_name'], ['asc']));
+      const sortConfig = ref({ columnId: 'full_name', direction: 'asc' });
 
-      const tableRows = computed(() => learners.value.map(l => [l.full_name, l.username, l]));
+      const sortedLearners = computed(() =>
+        orderBy(learners.value, [sortConfig.value.columnId], [sortConfig.value.direction]),
+      );
+
+      const printLearners = computed(() => sortedLearners.value);
+
+      const tableRows = computed(() => sortedLearners.value.map(l => [l.full_name, l.username, l]));
 
       onMounted(() => {
         Promise.all([
@@ -229,6 +237,15 @@
           });
       });
 
+      function handleSortChange({ sortKey, sortOrder }) {
+        const columnId = tableHeaders.value[sortKey]?.columnId;
+        if (!sortOrder || !columnId || columnId === 'picture_password') {
+          sortConfig.value = { columnId: 'full_name', direction: 'asc' };
+        } else {
+          sortConfig.value = { columnId, direction: sortOrder };
+        }
+      }
+
       function openPrintDialog() {
         showPrintDialog.value = true;
       }
@@ -240,6 +257,7 @@
       return {
         loading,
         isAppContext,
+        handleSortChange,
         showPrintDialog,
         printFormat,
         className,
@@ -319,7 +337,8 @@
 <style lang="scss" scoped>
 
   .passwords-page-container {
-    margin: 80px 175px 72px;
+    max-width: 1000px;
+    margin: 80px auto 72px;
   }
 
   .header-row {
