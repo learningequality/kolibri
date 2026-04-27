@@ -10,6 +10,7 @@
     <p>{{ picturePasswordInfoBody$() }}</p>
     <p>{{ picturePasswordInfoNote$() }}</p>
 
+    <!-- eslint-disable vue/no-bare-strings-in-template kolibri/vue-component-class-name-casing -->
     <!-- Static illustration of the picture password grid UI -->
     <div
       class="illustration-wrapper"
@@ -18,16 +19,24 @@
       <div class="illustration-card">
         <div class="pp-grid">
           <div class="pp-cell"></div>
-          <!-- eslint-disable-next-line kolibri/vue-component-class-name-casing -->
-          <div class="pp-cell pp-cell-selected">
-            <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
-            <span class="pp-badge">1</span>
+          <div
+            class="pp-cell pp-cell-selected"
+            :style="{ borderColor: $themeTokens.primary }"
+          >
+            <span
+              class="pp-badge"
+              :style="{ backgroundColor: $themeTokens.primary }"
+            >1</span>
           </div>
           <div class="pp-cell"></div>
-          <!-- eslint-disable-next-line kolibri/vue-component-class-name-casing -->
-          <div class="pp-cell pp-cell-selected">
-            <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
-            <span class="pp-badge">2</span>
+          <div
+            class="pp-cell pp-cell-selected"
+            :style="{ borderColor: $themeTokens.primary }"
+          >
+            <span
+              class="pp-badge"
+              :style="{ backgroundColor: $themeTokens.primary }"
+            >2</span>
           </div>
           <div class="pp-cell"></div>
           <div class="pp-cell"></div>
@@ -42,12 +51,12 @@
             <div class="pp-dash"></div>
           </div>
           <div class="pp-submit">
-            <!-- eslint-disable-next-line vue/no-bare-strings-in-template -->
             <span class="pp-arrow">&#8594;</span>
           </div>
         </div>
       </div>
     </div>
+    <!-- eslint-enable vue/no-bare-strings-in-template kolibri/vue-component-class-name-casing -->
   </KModal>
 
 </template>
@@ -118,7 +127,6 @@
   .pp-cell-selected {
     position: relative;
     background-color: #dceeff;
-    border-color: #0073be;
   }
 
   .pp-badge {
@@ -133,7 +141,6 @@
     font-size: 11px;
     font-weight: bold;
     color: #ffffff;
-    background-color: #0073be;
     border-radius: 50%;
   }
 

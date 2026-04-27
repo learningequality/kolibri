@@ -31,6 +31,7 @@
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
+  // Must match LEARNER_PICTURE_PASSWORD_LIMIT in kolibri/core/auth/constants/picture_passwords.py
   const LEARNER_PICTURE_PASSWORD_LIMIT = 1300;
 
   export default {
