@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { ref } from 'vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignInPage from '../SignInPage';
 import { ComponentMap } from '../../constants';
 
@@ -11,6 +12,7 @@ const { usernameLabel$, usernameNotAlphaNumError$, requiredFieldError$ } = coreS
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({ allowRemoteAccess: true }));
 jest.mock('../../composables/useAuthFlow');
+jest.mock('../../composables/useAuthRouter');
 
 function renderComponent() {
   const selectedFacility = {
@@ -26,7 +28,17 @@ function renderComponent() {
       selectedFacility: ref(selectedFacility),
       facilityConfig: ref({ learner_can_login_with_no_password: false, preset: 'formal' }),
       hasMultipleFacilities: ref(false),
-      defaultRoute: ref(ComponentMap.USERNAME_SIGN_IN),
+    }),
+  );
+  useAuthRouter.mockImplementation(() =>
+    useAuthRouterMock({
+      defaultRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),
+      nextParam: ref(''),
+      getFacilitySelectionRoute: jest.fn(() => ({
+        name: ComponentMap.FACILITY_SELECT,
+        params: { signUpNext: false },
+        query: {},
+      })),
     }),
   );
 

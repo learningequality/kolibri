@@ -1,9 +1,7 @@
 import Lockr from 'lockr';
-import router from 'kolibri/router';
 import { SIGNED_OUT_DUE_TO_INACTIVITY } from 'kolibri/constants';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useSnackbar from 'kolibri/composables/useSnackbar';
-import { ComponentMap } from './constants';
 
 const snackbarTranslator = createTranslator('UserPageSnackbars', {
   dismiss: {
@@ -29,18 +27,4 @@ export async function showInactivitySnackbar() {
     });
     Lockr.set(SIGNED_OUT_DUE_TO_INACTIVITY, null);
   }
-}
-
-/**
- * @param {String} nextRouteName The name route of where to go after facility selection
- * @param {Object} extra Extra route parameters
- * @return {*&{params: {whereToNext: *}}}
- */
-export function getFacilitySelectionRoute(nextRouteName, extra = {}) {
-  return {
-    ...router.getRoute(ComponentMap.FACILITY_SELECT),
-    // set `whereToNext` param, see FACILITY_SELECT route
-    params: { whereToNext: router.getRoute(nextRouteName) },
-    ...extra,
-  };
 }

@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/vue';
 import { ref, computed } from 'vue';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignUpPage from '../SignUpPage';
 import { ComponentMap } from '../../constants';
 
 jest.mock('../../composables/useAuthFlow');
+jest.mock('../../composables/useAuthRouter');
 
 const selectedFacility = ref({
   id: 1,
@@ -20,8 +22,13 @@ function renderComponent() {
       selectedFacility,
       facilityConfig: ref({ learner_can_login_with_no_password: false }),
       facilityId: computed(() => selectedFacility.value?.id || null),
-      defaultRoute: ref(ComponentMap.USERNAME_SIGN_IN),
       canSignUpWithFacility: computed(() => true),
+    }),
+  );
+  useAuthRouter.mockReturnValue(
+    useAuthRouterMock({
+      defaultRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),
+      nextParam: ref(''),
     }),
   );
 

@@ -7,38 +7,16 @@
       -->
     <div v-if="!needsToCreatePassword">
       <!-- ** Text and Backlinks ** -->
-
-      <div class="navigation-links">
-        <!-- In MFD show return to facility select when not asking for password -->
-        <KRouterLink
-          v-if="hasMultipleFacilities && !showPasswordForm"
-          class="back-link"
-          icon="back"
-          :text="coreString('changeLearningFacility')"
-          :to="backToFacilitySelectionRoute"
-        />
-
-        <!-- When password form shows, show a change user link -->
-        <!-- Not using v-else here to be more explicit -->
-        <KButton
-          v-if="showPasswordForm"
-          class="change-user-btn"
-          appearance="basic-link"
-          :text="$tr('changeUser')"
-          @click="clearUser"
-        >
-          <template #icon>
-            <KIcon
-              class="change-user-icon"
-              icon="back"
-              :color="$themeTokens.primary"
-            />
-          </template>
-        </KButton>
-      </div>
+      <AuthContextHeading
+        class="auth-heading"
+        :class="{ 'with-action': hasMultipleFacilities || showPasswordForm }"
+        :useBackAction="hasMultipleFacilities || showPasswordForm"
+        :backLabel="showPasswordForm ? $tr('changeUser') : coreString('changeLearningFacility')"
+        :backTo="showPasswordForm ? null : backToFacilitySelectionRoute"
+        @back="clearUser"
+      />
 
       <SignInHeading
-        :showFacilityName="showFacilityName"
         :showPasswordForm="showPasswordForm"
         :username="username"
       />
@@ -159,7 +137,6 @@
 
 <script>
 
-  import get from 'lodash/get';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useUser from 'kolibri/composables/useUser';
@@ -167,15 +144,17 @@
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
-  import { useRouter } from 'vue-router/composables';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import { computed } from 'vue';
+  import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../../constants';
-  import { getFacilitySelectionRoute } from '../../utils';
-  import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
+  import useAuthRouter from '../../composables/useAuthRouter';
+  import AuthContextHeading from '../AuthContextHeading.vue';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -188,6 +167,7 @@
       };
     },
     components: {
+      AuthContextHeading,
       AuthBase,
       SignInHeading,
       UiAutocompleteSuggestion,
@@ -197,21 +177,37 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const router = useRouter();
+      const route = useRoute();
       const { isAppContext, login } = useUser();
-      const { hasMultipleFacilities, selectedFacility, facilityConfig, defaultRoute } =
-        useAuthFlow();
+      const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
+      const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
+      const { setSelectedFacilityId } = useFacilitySelect();
       const { watchForFacilityChange } = useAuthWatcher();
+
+      const backToFacilitySelectionRoute = computed(() => getFacilitySelectionRoute(false));
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
         // If the facility ID is unset, it could mean the facility is no longer an option
         if (!newFacilityId && oldFacilityId) {
-          router.push({
-            name: defaultRoute.value,
-          });
+          router.push(defaultRoute.value);
         }
       });
 
-      return { login, isAppContext, selectedFacility, facilityConfig, hasMultipleFacilities };
+      function doLogin(sessionPayload) {
+        // ensure selected facility in local storage is synchronized
+        setSelectedFacilityId(facilityId.value);
+        return login(sessionPayload);
+      }
+
+      return {
+        doLogin,
+        isAppContext,
+        selectedFacility,
+        facilityConfig,
+        hasMultipleFacilities,
+        nextParam,
+        backToFacilitySelectionRoute,
+      };
     },
     data() {
       return {
@@ -231,15 +227,6 @@
       };
     },
     computed: {
-      backToFacilitySelectionRoute() {
-        let query = {};
-        if (this.nextParam) {
-          query = { next: this.nextParam };
-        }
-        return getFacilitySelectionRoute(ComponentMap.USERNAME_SIGN_IN, {
-          query,
-        });
-      },
       showPasswordForm() {
         return (
           Boolean(this.username) &&
@@ -300,17 +287,6 @@
       },
       passwordIsInvalid() {
         return Boolean(this.passwordIsInvalidText);
-      },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
-      },
-      showFacilityName() {
-        return this.hasMultipleFacilities || get(this.facilityConfig, 'preset') !== 'informal';
       },
       isNextButtonEnabled() {
         return !this.busy && this.username !== '' && validateUsername(this.username);
@@ -485,7 +461,7 @@
         }
 
         try {
-          const err = await this.login(sessionPayload);
+          const err = await this.doLogin(sessionPayload);
           // If we don't have a password, we submitted without a username
           if (err) {
             if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
@@ -556,13 +532,21 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
+  .auth-heading {
+    margin-bottom: 20px;
+
+    &.with-action {
+      margin-bottom: 14px;
+    }
+  }
+
   .login-form {
     text-align: left;
   }
 
   .login-btn {
     width: 100%;
-    margin-top: 16px;
+    margin-top: 0;
   }
 
   .suggestions-wrapper {

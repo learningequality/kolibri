@@ -109,7 +109,7 @@
 
 <script>
 
-  import { useRouter } from 'vue-router/composables';
+  import { useRoute, useRouter } from 'vue-router/composables';
   import every from 'lodash/every';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -128,8 +128,8 @@
   import { SignUpResource } from '../apiResource';
   import useAuthFlow from '../composables/useAuthFlow';
   import useAuthWatcher from '../composables/useAuthWatcher';
+  import useAuthRouter from '../composables/useAuthRouter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
-  import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
 
   const { DEFERRED } = DemographicConstants;
@@ -153,17 +153,16 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const router = useRouter();
-      const { defaultRoute, selectedFacility, facilityConfig, canSignUpWithFacility } =
-        useAuthFlow();
+      const route = useRoute();
+      const { defaultRoute, nextParam } = useAuthRouter(route);
+      const { selectedFacility, facilityConfig, canSignUpWithFacility } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
         // If the facility ID is unset, it could mean the facility is no longer an option, or
         // if the newly selected facility might not allow sign-ups
         if ((!newFacilityId && oldFacilityId) || !canSignUpWithFacility.value) {
-          router.push({
-            name: defaultRoute.value,
-          });
+          router.push(defaultRoute.value);
         }
       });
 
@@ -171,13 +170,12 @@
       // facility changes
       watchForFacilityConfigChange(() => {
         if (!canSignUpWithFacility.value) {
-          router.push({
-            name: defaultRoute.value,
-          });
+          router.push(defaultRoute.value);
         }
       });
 
       return {
+        nextParam,
         selectedFacility,
         facilityConfig,
         handleApiError,
@@ -207,14 +205,6 @@
       },
       ComponentMap() {
         return ComponentMap;
-      },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
       },
       showPasswordInput() {
         return !this.facilityConfig.learner_can_login_with_no_password;

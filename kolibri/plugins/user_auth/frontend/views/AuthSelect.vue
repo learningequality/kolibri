@@ -1,6 +1,6 @@
 <template>
 
-  <AuthBase :hideCreateAccount="true">
+  <AuthBase :hideFacilityBasedOptions="true">
     <div class="auth-select">
       <div>
         <div class="label">
@@ -38,10 +38,10 @@
 <script>
 
   import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { ComponentMap } from '../constants';
-  import { getFacilitySelectionRoute } from '../utils';
   import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthRouter from '../composables/useAuthRouter';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
 
@@ -50,10 +50,20 @@
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { signInRoute: _signInRouteName, canSignUpWithAnyFacility } = useAuthFlow();
+      const route = useRoute();
+      const {
+        getFacilitySelectionRoute,
+        signInRoute: _signInRoute,
+        signUpRoute: _signUpRoute,
+      } = useAuthRouter(route);
+      const { canSignUpWithAnyFacility, hasMultipleFacilities } = useAuthFlow();
 
-      const signInRoute = computed(() => getFacilitySelectionRoute(_signInRouteName.value));
-      const signUpRoute = computed(() => getFacilitySelectionRoute(ComponentMap.SIGN_UP));
+      const signInRoute = computed(() => {
+        return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : _signInRoute.value;
+      });
+      const signUpRoute = computed(() => {
+        return hasMultipleFacilities.value ? getFacilitySelectionRoute(true) : _signUpRoute.value;
+      });
 
       return {
         signInRoute,

@@ -7,11 +7,14 @@ import pluginData from 'kolibri-plugin-data';
 import AuthBase from '../AuthBase.vue';
 import { userString } from '../commonUserStrings';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
+import { ComponentMap } from '../../constants';
 
 const { restrictedAccess$ } = createTranslator(AuthBase.name, AuthBase.$trs);
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../composables/useAuthFlow');
+jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({
   __esModule: true,
@@ -35,6 +38,11 @@ useAuthFlow.mockReturnValue(
   useAuthFlowMock({
     facilityConfig: ref({ learner_can_sign_up: true, is_full_facility_import: true }),
     canSignUp: ref(true),
+  }),
+);
+useAuthRouter.mockReturnValue(
+  useAuthRouterMock({
+    signUpRoute: ref({ name: ComponentMap.SIGN_UP, params: {}, query: {} }),
   }),
 );
 

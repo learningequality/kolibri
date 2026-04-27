@@ -103,6 +103,7 @@
       showDemoBanner() {
         return [
           ComponentMap.USERNAME_SIGN_IN,
+          ComponentMap.PICTURE_SIGN_IN,
           ComponentMap.FACILITY_SELECT,
           ComponentMap.AUTH_SELECT,
           ComponentMap.NEW_PASSWORD,

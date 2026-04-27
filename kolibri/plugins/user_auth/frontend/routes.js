@@ -1,15 +1,33 @@
-import router from 'kolibri/router';
 import { clearError } from 'kolibri/utils/appError';
-import { showInactivitySnackbar, getFacilitySelectionRoute } from './utils';
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+import { showInactivitySnackbar } from './utils';
 import { ComponentMap } from './constants';
 import AuthSelect from './views/AuthSelect';
 import FacilitySelect from './views/FacilitySelect';
 import SignInPage from './views/SignInPage';
+import PictureSignInPage from './views/SignInPage/PictureSignInPage.vue';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
 import useAuthFlow from './composables/useAuthFlow';
+import useAuthRouter from './composables/useAuthRouter';
 
-const { facilityId, defaultRoute, signInRoute, canSignUpWithFacility } = useAuthFlow();
+const { facilityId, signInMethod, canSignUpWithFacility } = useAuthFlow();
+
+async function signInHook(method, to, from, next) {
+  const { getFacilitySelectionRoute } = useAuthRouter(to);
+
+  // Persist the sign-in method according to the route
+  if (signInMethod.value !== method) {
+    signInMethod.value = method;
+  }
+  // If no facility has been selected, take user to facility selection
+  if (!facilityId.value) {
+    next(getFacilitySelectionRoute(false));
+    return;
+  }
+  await showInactivitySnackbar();
+  next();
+}
 
 export default [
   {
@@ -17,45 +35,41 @@ export default [
     name: 'root',
     beforeEnter(to, from, next) {
       // Redirect to default route
-      next(router.getRoute(defaultRoute.value));
+      next(useAuthRouter(to).defaultRoute.value);
     },
   },
   {
     path: '/signin',
     component: SignInPage,
     async beforeEnter(to, from, next) {
-      // If no facility has been selected, take user to facility selection
-      if (!facilityId.value) {
-        // Go to FacilitySelect with whereToNext => SignUpPage
-        next(
-          getFacilitySelectionRoute(signInRoute.value, {
-            query: to.query.next ? { next: to.query.next } : {},
-          }),
-        );
-        return;
-      }
-      await showInactivitySnackbar();
-      next();
+      await signInHook(OptionsForSignIn.USERNAME_ONLY, to, from, next);
+    },
+  },
+  {
+    path: '/picture-signin',
+    component: PictureSignInPage,
+    async beforeEnter(to, from, next) {
+      await signInHook(OptionsForSignIn.PICTURE_PASSWORD, to, from, next);
     },
   },
   {
     path: '/create_account',
     component: SignUpPage,
     async beforeEnter(to, from, next) {
+      const { getFacilitySelectionRoute, defaultRoute } = useAuthRouter(to);
       // Clear error if arriving on Sign Up
       if (from.name !== ComponentMap.SIGN_UP) {
         clearError();
       }
 
       if (!facilityId.value) {
-        // Go to FacilitySelect with whereToNext => SignUpPage
-        next(getFacilitySelectionRoute(ComponentMap.SIGN_UP));
+        next(getFacilitySelectionRoute(true));
         return;
       }
 
       if (!canSignUpWithFacility.value) {
         // Redirect to default route
-        next(router.getRoute(defaultRoute.value));
+        next(defaultRoute.value);
         return;
       }
 
@@ -74,7 +88,7 @@ export default [
     component: NewPasswordPage,
     beforeEnter(to, from, next) {
       if (!to.query.facility || !to.query.username) {
-        next(router.getRoute(defaultRoute.value));
+        next(useAuthRouter(to).defaultRoute.value);
       } else {
         next();
       }
@@ -93,10 +107,10 @@ export default [
     beforeEnter(to, from, next) {
       // This param is required, so return to AuthSelect
       // unless we have it
-      if (to.params.whereToNext) {
+      if (to.params.signUpNext !== undefined) {
         next();
       } else {
-        next(router.getRoute(ComponentMap.AUTH_SELECT));
+        next(useAuthRouter(to).homeRoute.value);
       }
     },
   },
