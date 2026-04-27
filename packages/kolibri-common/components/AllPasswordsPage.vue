@@ -117,7 +117,7 @@
         v-if="previewLearner"
         class="preview-section"
       >
-        <h6 class="preview-label">{{ printFormatPreviewLabel$() }}</h6>
+        <p class="preview-label">{{ printFormatPreviewLabel$() }}</p>
         <LearnerPasswordCard
           :learner="previewLearner"
           :cardStyle="cardStyle"
