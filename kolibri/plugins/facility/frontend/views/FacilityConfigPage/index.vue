@@ -154,7 +154,9 @@
               </template>
               <KRadioButtonGroup
                 v-if="
-                  isPictureLoginFeatureEnabled && signInOption === OptionsForSignIn.PICTURE_PASSWORD
+                  isPictureLoginFeatureEnabled &&
+                    signInOption === OptionsForSignIn.PICTURE_PASSWORD &&
+                    !picturePasswordDisabled
                 "
                 class="nested-settings picture-password-settings"
                 :aria-label="iconStyle$()"
