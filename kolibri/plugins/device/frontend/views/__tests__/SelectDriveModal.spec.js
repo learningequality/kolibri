@@ -40,7 +40,9 @@ const renderComponent = (options = {}) => {
   const { store, data } = options;
   return render(SelectDriveModal, {
     props: { mode: 'import' },
-    data() { return { ...data }; },
+    data() {
+      return { ...data };
+    },
     store: store || makeStore(),
   });
 };
@@ -96,7 +98,7 @@ describe('SelectDriveModal', () => {
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     renderComponent({ store });
-    
+
     // 2 writable drives with same name
     expect(screen.getAllByText('Writable and Importable')).toHaveLength(2);
     expect(screen.queryByText('Unwritable')).not.toBeInTheDocument();
@@ -108,7 +110,11 @@ describe('SelectDriveModal', () => {
       d.metadata.channels = [];
     });
     renderComponent({ store });
-    expect(screen.getByText('No USB or network drives with Kolibri resources are connected to the server.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'No USB or network drives with Kolibri resources are connected to the server.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -117,7 +123,9 @@ describe('SelectDriveModal', () => {
       d.writable = false;
     });
     renderComponent({ store });
-    expect(screen.getByText('Could not find a writable drive connected to the server')).toBeInTheDocument();
+    expect(
+      screen.getByText('Could not find a writable drive connected to the server'),
+    ).toBeInTheDocument();
   });
 
   it('when a drive is selected, "Continue" button is enabled', async () => {
@@ -131,5 +139,4 @@ describe('SelectDriveModal', () => {
     renderComponent({ store });
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
-
 });
