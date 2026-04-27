@@ -117,7 +117,12 @@
         v-if="previewLearner"
         class="preview-section"
       >
-        <p class="preview-label">{{ printFormatPreviewLabel$() }}</p>
+        <p
+          class="preview-label"
+          :style="{ color: $themeTokens.annotation }"
+        >
+          {{ printFormatPreviewLabel$() }}
+        </p>
         <LearnerPasswordCard
           :learner="previewLearner"
           :cardStyle="cardStyle"
@@ -334,9 +339,9 @@
   }
 
   .preview-label {
+    margin-top: 32px;
     margin-bottom: 8px;
     font-size: 14px;
-    font-weight: bold;
   }
 
   .print-list {
