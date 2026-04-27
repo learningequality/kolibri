@@ -139,12 +139,15 @@ const picturePasswordShowIconText = computed(() => {
  * @return {Promise<void>}
  */
 async function setFacilityId(_facilityId) {
-  facilityId.value = unref(_facilityId);
   try {
+    // fetch updated config first, then update the selected facility
     await fetchFacilityConfig(_facilityId);
   } catch (error) {
     handleApiError({ error, reloadOnReconnect: true });
   }
+
+  // Since things watch this, leave this til last
+  facilityId.value = unref(_facilityId);
 }
 
 /**
