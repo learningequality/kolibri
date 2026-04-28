@@ -11,7 +11,7 @@ import { PageNames } from '../../../constants';
 
 jest.mock('kolibri-common/composables/useFacility');
 
-const { viewPasswordsAction$ } = picturePasswordStrings;
+const { printPicturePasswordsAction$ } = picturePasswordStrings;
 const { optionsLabel$ } = coreStrings;
 
 const classId = 'test-class-id';
@@ -75,7 +75,7 @@ describe('ClassEditPage', () => {
     const optionsButton = screen.getByRole('button', { name: optionsLabel$() });
     await fireEvent.click(optionsButton);
 
-    expect(screen.queryByText(viewPasswordsAction$())).not.toBeInTheDocument();
+    expect(screen.queryByText(printPicturePasswordsAction$())).not.toBeInTheDocument();
   });
 
   it('shows "View Passwords" option when picture_password_settings is not null', async () => {
@@ -86,7 +86,7 @@ describe('ClassEditPage', () => {
     const optionsButton = screen.getByRole('button', { name: optionsLabel$() });
     await fireEvent.click(optionsButton);
 
-    expect(screen.getByText(viewPasswordsAction$())).toBeInTheDocument();
+    expect(screen.getByText(printPicturePasswordsAction$())).toBeInTheDocument();
   });
 
   it('navigates to passwords page when "View Passwords" is selected', async () => {
@@ -97,7 +97,7 @@ describe('ClassEditPage', () => {
     const optionsButton = screen.getByRole('button', { name: optionsLabel$() });
     await fireEvent.click(optionsButton);
 
-    const viewPasswordsOption = screen.getByText(viewPasswordsAction$());
+    const viewPasswordsOption = screen.getByText(printPicturePasswordsAction$());
     await fireEvent.click(viewPasswordsOption);
 
     expect(router.currentRoute.name).toBe(PageNames.CLASS_PASSWORDS_PAGE);

@@ -73,6 +73,7 @@ export const UsersExportStatuses = {
 export const ClassesActions = {
   ENROLL_LEARNER: 'ENROLL_LEARNER',
   ASSIGN_COACH: 'ASSIGN_COACH',
+  PRINT_PICTURE_PASSWORDS: 'PRINT_PICTURE_PASSWORDS',
 };
 
 export const DateRangeFilters = {

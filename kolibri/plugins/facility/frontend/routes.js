@@ -73,9 +73,6 @@ export default [
         params: { id: route.params.id, facility_id: route.params.facility_id },
       },
     }),
-    handler: () => {
-      store.dispatch('preparePage', { isAsync: false });
-    },
   },
   {
     name: PageNames.CLASS_ENROLL_LEARNER,
