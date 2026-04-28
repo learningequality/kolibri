@@ -1,6 +1,7 @@
 import store from 'kolibri/store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
+import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
@@ -59,6 +60,21 @@ export default [
     component: ClassEditPage,
     handler: toRoute => {
       showClassEditPage(store, toRoute.params.id);
+    },
+  },
+  {
+    name: PageNames.CLASS_PASSWORDS_PAGE,
+    path: '/:facility_id?/classes/:id/passwords/',
+    component: AllPasswordsPage,
+    props: route => ({
+      classId: route.params.id,
+      route: {
+        name: PageNames.CLASS_EDIT_MGMT_PAGE,
+        params: { id: route.params.id, facility_id: route.params.facility_id },
+      },
+    }),
+    handler: () => {
+      store.dispatch('preparePage', { isAsync: false });
     },
   },
   {
