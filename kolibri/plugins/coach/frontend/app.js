@@ -6,7 +6,7 @@ import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
 import KolibriApp from 'kolibri-app';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { PageNames } from './constants';
+import { PageNames, pagesWithLocalDataLoading } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import HomeActivityPage from './views/home/HomeActivityPage';
@@ -133,51 +133,7 @@ class CoachToolsModule extends KolibriApp {
         this.store.dispatch('coachNotifications/stopPolling');
       }
       // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
-      if (
-        to.name &&
-        [
-          PageNames.EXAMS_ROOT,
-          PageNames.EXAM_CREATION_ROOT,
-          PageNames.LESSONS_ROOT,
-          PageNames.LESSON_CREATION_ROOT,
-          PageNames.LESSON_SUMMARY,
-          PageNames.LESSON_EDIT_DETAILS,
-          PageNames.RESOURCE_CONTENT_PREVIEW,
-          PageNames.GROUP_SUMMARY,
-          PageNames.GROUP_ENROLL,
-          PageNames.GROUPS_ROOT,
-          PageNames.HOME_PAGE,
-          PageNames.LESSON_SELECT_RESOURCES,
-          PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION,
-          PageNames.LESSON_SELECT_RESOURCES_PREVIEW_RESOURCE,
-          PageNames.LESSON_SELECT_RESOURCES_INDEX,
-          PageNames.LESSON_SELECT_RESOURCES_SEARCH,
-          PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
-          PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
-          PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-          PageNames.QUIZ_SELECT_RESOURCES,
-          PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-          PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
-          PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
-          PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
-          PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS,
-          PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
-          PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
-          PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
-          PageNames.QUIZ_PREVIEW_RESOURCE,
-          PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
-          PageNames.COURSES_ROOT,
-          PageNames.COURSES_ASSIGN,
-          PageNames.COURSES_ASSIGN_INDEX,
-          PageNames.COURSES_ASSIGN_COURSE_DETAILS,
-          PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
-          PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
-          PageNames.COURSE_SUMMARY_ASSIGN,
-          PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
-          PageNames.COURSE_SUMMARY_ASSIGN_SELECT_RECIPIENTS,
-          HomeActivityPage.name,
-        ].includes(to.name)
-      ) {
+      if (to.name && pagesWithLocalDataLoading.includes(to.name)) {
         next();
         return;
       }
