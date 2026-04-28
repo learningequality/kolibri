@@ -113,57 +113,6 @@ export const ViewMoreButtonStates = {
   ERROR: 'ERROR',
 };
 
-// Pages that handle their own data loading. The beforeEach guard calls next()
-// immediately for these instead of waiting for initClassInfo to resolve.
-// See https://github.com/learningequality/kolibri/issues/11219
-// Regression: ATTENDANCE_* pages were missing from this list, causing a UI
-// freeze on Cancel — https://github.com/learningequality/kolibri/issues/14554
-export const pagesWithLocalDataLoading = [
-  PageNames.EXAMS_ROOT,
-  PageNames.EXAM_CREATION_ROOT,
-  PageNames.LESSONS_ROOT,
-  PageNames.LESSON_CREATION_ROOT,
-  PageNames.LESSON_SUMMARY,
-  PageNames.LESSON_EDIT_DETAILS,
-  PageNames.RESOURCE_CONTENT_PREVIEW,
-  PageNames.GROUP_SUMMARY,
-  PageNames.GROUP_ENROLL,
-  PageNames.GROUPS_ROOT,
-  PageNames.HOME_PAGE,
-  PageNames.LESSON_SELECT_RESOURCES,
-  PageNames.LESSON_SELECT_RESOURCES_PREVIEW_SELECTION,
-  PageNames.LESSON_SELECT_RESOURCES_PREVIEW_RESOURCE,
-  PageNames.LESSON_SELECT_RESOURCES_INDEX,
-  PageNames.LESSON_SELECT_RESOURCES_SEARCH,
-  PageNames.LESSON_SELECT_RESOURCES_SEARCH_RESULTS,
-  PageNames.LESSON_SELECT_RESOURCES_BOOKMARKS,
-  PageNames.LESSON_SELECT_RESOURCES_TOPIC_TREE,
-  PageNames.QUIZ_SELECT_RESOURCES,
-  PageNames.QUIZ_SELECT_RESOURCES_INDEX,
-  PageNames.QUIZ_SELECT_RESOURCES_BOOKMARKS,
-  PageNames.QUIZ_SELECT_RESOURCES_TOPIC_TREE,
-  PageNames.QUIZ_PREVIEW_SELECTED_RESOURCES,
-  PageNames.QUIZ_PREVIEW_SELECTED_QUESTIONS,
-  PageNames.QUIZ_SELECT_RESOURCES_SETTINGS,
-  PageNames.QUIZ_SELECT_RESOURCES_SEARCH,
-  PageNames.QUIZ_SELECT_RESOURCES_SEARCH_RESULTS,
-  PageNames.QUIZ_PREVIEW_RESOURCE,
-  PageNames.QUIZ_SELECT_RESOURCES_LANDING_SETTINGS,
-  PageNames.COURSES_ROOT,
-  PageNames.COURSES_ASSIGN,
-  PageNames.COURSES_ASSIGN_INDEX,
-  PageNames.COURSES_ASSIGN_COURSE_DETAILS,
-  PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
-  PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
-  PageNames.COURSE_SUMMARY_ASSIGN,
-  PageNames.COURSE_SUMMARY_ASSIGN_COURSE_DETAILS,
-  PageNames.COURSE_SUMMARY_ASSIGN_SELECT_RECIPIENTS,
-  PageNames.ATTENDANCE_NEW,
-  PageNames.ATTENDANCE_HISTORY,
-  PageNames.ATTENDANCE_EDIT,
-  'HomeActivityPage',
-];
-
 export const pageNameToModuleMap = {
   [PageNames.LESSONS_ROOT]: 'lessonsRoot',
   // Omitting modules for resource selection, exam creation, and preview to prevent
