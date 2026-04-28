@@ -18,7 +18,7 @@ catalog:
   xhr-mock: ^2.5.1
   core-js: ^3.47.0
   kolibri-constants: 0.2.16
-  kolibri-design-system: 5.6.1
+  kolibri-design-system: "github:nucleogenesis/kolibri-design-system-1#1183--ktoolbar-cleanup"
   lodash: ^4.17.23
   vue: 2.7.16
   vue-meta: ^2.4.0

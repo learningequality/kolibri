@@ -12,10 +12,9 @@
       <nav>
         <KToolbar
           ref="toolbar"
-          :showIcon="true"
           :style="toolbarStyle"
         >
-          <template #icon>
+          <template #leading-actions>
             <KIconButton
               icon="close"
               :color="getThemeToken('textColor')"

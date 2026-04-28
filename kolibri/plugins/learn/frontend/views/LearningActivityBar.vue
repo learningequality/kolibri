@@ -33,7 +33,7 @@
         :progress="contentProgress"
         class="progress-icon"
       />
-      <template #icon>
+      <template #leading-actions>
         <KIconButton
           icon="back"
           data-testid="backButton"
@@ -43,7 +43,7 @@
         />
       </template>
 
-      <template #actions>
+      <template #trailing-actions>
         <Transition name="downloading-loader">
           <!--
             wrapping span needed here because
@@ -640,7 +640,7 @@
     display: flex;
   }
 
-  /deep/ .k-toolbar-nav-icon {
+  /deep/ .k-toolbar-leading-actions {
     min-width: 0; // avoids early resource title truncation on Safari and Mac
     margin-left: 0; // prevents icon cutoff
   }

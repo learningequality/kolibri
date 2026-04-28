@@ -12,15 +12,13 @@
       <SkipNavigationLink />
 
       <KToolbar
-        :removeNavIcon="showAppNavView"
-        type="clear"
         class="app-bar"
         :style="{
           height: topBarHeight + 'px',
           color: themeConfig.appBar.textColor,
+          backgroundColor: 'transparent',
         }"
         :raised="false"
-        :removeBrandDivider="true"
       >
         <KTextTruncator
           :text="truncatedTitle"
@@ -28,7 +26,7 @@
         />
         <template
           v-if="!showAppNavView"
-          #icon
+          #leading-actions
         >
           <KIconButton
             icon="menu"
@@ -64,7 +62,7 @@
           </slot>
         </template>
 
-        <template #actions>
+        <template #trailing-actions>
           <div
             ref="appBarActions"
             aria-live="polite"
