@@ -261,7 +261,7 @@
         handleMarkAllChange,
         confirmMarkAll,
         cancelMarkAll,
-        handleCancel: navigateBack,
+        handleCancel: () => navigateBack(),
         confirmLeave,
         cancelLeave,
         searchPlaceholder$,
