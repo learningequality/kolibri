@@ -13,7 +13,7 @@
         color: isFullscreen ? $themeTokens.text : $themeTokens.textInverted,
       }"
     >
-      <template #icon>
+      <template #leading-actions>
         <router-link
           v-if="hasRoute"
           :to="route"
@@ -54,7 +54,7 @@
           />
         </span>
       </template>
-      <template #actions>
+      <template #trailing-actions>
         <slot name="actions"></slot>
       </template>
     </KToolbar>
@@ -157,12 +157,8 @@
     overflow: hidden;
   }
 
-  /deep/ .k-toolbar-nav-icon {
+  /deep/ .k-toolbar-leading-actions {
     margin-left: 0;
-  }
-
-  /deep/ .k-toolbar-title {
-    text-overflow: ellipsis;
   }
 
 </style>

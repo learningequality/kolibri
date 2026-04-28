@@ -26,7 +26,7 @@
         />
         <template
           v-if="!showAppNavView"
-          #icon
+          #leading-actions
         >
           <KIconButton
             icon="menu"
@@ -62,7 +62,7 @@
           </slot>
         </template>
 
-        <template #actions>
+        <template #trailing-actions>
           <div
             ref="appBarActions"
             aria-live="polite"

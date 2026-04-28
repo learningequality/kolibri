@@ -14,7 +14,7 @@
           ref="toolbar"
           :style="toolbarStyle"
         >
-          <template #icon>
+          <template #leading-actions>
             <KIconButton
               icon="close"
               :color="getThemeToken('textColor')"
