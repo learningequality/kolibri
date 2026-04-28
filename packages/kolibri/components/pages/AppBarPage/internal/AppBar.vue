@@ -1,137 +1,112 @@
 <template>
 
-  <div
+  <header
     v-show="!$isPrint"
     ref="appBar"
-    :style="{
-      backgroundColor: themeConfig.appBar.background,
-      color: themeConfig.appBar.textColor,
-    }"
   >
-    <header>
-      <SkipNavigationLink />
+    <SkipNavigationLink />
 
-      <KToolbar
-        class="app-bar"
-        :style="{
-          height: topBarHeight + 'px',
-          color: themeConfig.appBar.textColor,
-          backgroundColor: 'transparent',
-        }"
-        :raised="false"
-      >
-        <KTextTruncator
-          :text="truncatedTitle"
-          :maxLines="1"
-        />
-        <template
-          v-if="!showAppNavView"
-          #leading-actions
-        >
-          <KIconButton
-            icon="menu"
-            data-onboarding-id="menubar"
-            :color="themeConfig.appBar.textColor"
-            :ariaLabel="$tr('openNav')"
-            @click="$emit('toggleSideNav')"
-          />
-        </template>
-
-        <template #brand>
-          <img
-            v-if="themeConfig.appBar.topLogo"
-            :src="themeConfig.appBar.topLogo.src"
-            :alt="themeConfig.appBar.topLogo.alt"
-            :style="themeConfig.appBar.topLogo.style"
-            :class="showAppNavView ? 'brand-logo-left' : 'brand-logo'"
-          >
-        </template>
-
-        <template
-          v-if="showNavigation"
-          #navigation
-        >
-          <slot name="sub-nav">
-            <Navbar
-              v-if="links.length > 0"
-              :style="hiddenNavbarStyle"
-              :navigationLinks="links"
-              :title="title"
-              @update-overflow-count="overflowCount = $event"
-            />
-          </slot>
-        </template>
-
-        <template #trailing-actions>
-          <div
-            ref="appBarActions"
-            aria-live="polite"
-            :style="{
-              paddingBottom: '6px',
-            }"
-          >
-            <slot name="app-bar-actions"></slot>
-            <span v-if="isLearner">
-              <KIcon
-                ref="pointsButton"
-                icon="pointsActive"
-                :ariaLabel="$tr('pointsAriaLabel')"
-                :color="$themeTokens.primary"
-              />
-              <div
-                v-if="!windowIsSmall"
-                class="points-description"
-              >
-                {{ $formatNumber(totalPoints) }}
-              </div>
-              <div
-                v-if="pointsDisplayed"
-                class="points-popover"
-                :style="{
-                  color: $themeTokens.text,
-                  padding: '8px',
-                  backgroundColor: $themeTokens.surface,
-                }"
-              >
-                {{ $tr('pointsMessage', { points: totalPoints }) }}
-              </div>
-            </span>
-            <span
-              v-if="isUserLoggedIn"
-              tabindex="-1"
-            >
-              <KIcon
-                icon="person"
-                :style="{
-                  fill: themeConfig.appBar.textColor,
-                  height: '24px',
-                  width: '24px',
-                  margin: '4px',
-                  top: '8px',
-                }"
-              />
-              <span class="username">
-                {{ usernameForDisplay }}
-              </span>
-            </span>
-          </div>
-        </template>
-      </KToolbar>
-    </header>
-    <div
-      v-show="showNavigation && !showAppNavView && !showTopNavBar"
-      class="subpage-nav"
+    <KToolbar
+      class="app-bar"
+      :style="{
+        height: topBarHeight + 'px',
+        color: themeConfig.appBar.textColor,
+        backgroundColor: themeConfig.appBar.background,
+      }"
+      :title="title"
+      :raised="false"
     >
-      <slot name="sub-nav">
-        <Navbar
-          v-if="links.length > 0"
-          :class="{ 'sub-nav': !showTopNavBar }"
-          :navigationLinks="links"
-          :title="title"
+      <template
+        v-if="!showAppNavView"
+        #leading-actions
+      >
+        <KIconButton
+          icon="menu"
+          data-onboarding-id="menubar"
+          :color="themeConfig.appBar.textColor"
+          :ariaLabel="$tr('openNav')"
+          @click="$emit('toggleSideNav')"
         />
-      </slot>
-    </div>
-  </div>
+      </template>
+
+      <template #brand>
+        <img
+          v-if="themeConfig.appBar.topLogo"
+          :src="themeConfig.appBar.topLogo.src"
+          :alt="themeConfig.appBar.topLogo.alt"
+          :style="themeConfig.appBar.topLogo.style"
+          :class="showAppNavView ? 'brand-logo-left' : 'brand-logo'"
+        >
+      </template>
+
+      <template #trailing-actions>
+        <div
+          ref="appBarActions"
+          aria-live="polite"
+          :style="{
+            paddingBottom: '6px',
+          }"
+        >
+          <slot name="app-bar-actions"></slot>
+          <span v-if="isLearner">
+            <KIcon
+              ref="pointsButton"
+              icon="pointsActive"
+              :ariaLabel="$tr('pointsAriaLabel')"
+              :color="$themeTokens.primary"
+            />
+            <div
+              v-if="!windowIsSmall"
+              class="points-description"
+            >
+              {{ $formatNumber(totalPoints) }}
+            </div>
+            <div
+              v-if="pointsDisplayed"
+              class="points-popover"
+              :style="{
+                color: $themeTokens.text,
+                padding: '8px',
+                backgroundColor: $themeTokens.surface,
+              }"
+            >
+              {{ $tr('pointsMessage', { points: totalPoints }) }}
+            </div>
+          </span>
+          <span
+            v-if="isUserLoggedIn"
+            tabindex="-1"
+          >
+            <KIcon
+              icon="person"
+              :style="{
+                fill: themeConfig.appBar.textColor,
+                height: '24px',
+                width: '24px',
+                margin: '4px',
+                top: '8px',
+              }"
+            />
+            <span class="username">
+              {{ usernameForDisplay }}
+            </span>
+          </span>
+        </div>
+      </template>
+
+      <template
+        v-if="showNavigation && !showAppNavView && (links.length > 0 || $scopedSlots['sub-nav'])"
+        #extension
+      >
+        <slot name="sub-nav">
+          <Navbar
+            :navigationLinks="links"
+            :title="title"
+          />
+        </slot>
+      </template>
+    </KToolbar>
+  </header>
 
 </template>
 
@@ -212,39 +187,12 @@
     data() {
       return {
         pointsDisplayed: false,
-        appBarWidth: 0,
-        overflowCount: 0,
       };
     },
     computed: {
       // temp hack for the VF plugin
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
-      },
-      showTopNavBar() {
-        return this.overflowCount === 0;
-      },
-      truncatedTitle() {
-        if (!this.title) return '';
-        // Dynamically truncate title based on remaining space in AppBar
-        const offset = this.$refs.appBarActions?.clientWidth + 100;
-        const averageCharWidth = 10;
-        const availableWidth = this.appBarWidth - offset;
-        const maxChars = availableWidth > 0 ? Math.floor(availableWidth / averageCharWidth) : 1;
-        return this.truncateText(this.title, maxChars);
-      },
-      hiddenNavbarStyle() {
-        if (this.showTopNavBar) {
-          return {};
-        }
-        // Hide top navbar, but keep it in the DOM for overflow calulations
-        const rightOffset = `${this.title.length * 10 + 250}px`;
-        return {
-          pointerEvents: 'none',
-          opacity: '0',
-          position: 'fixed',
-          right: rightOffset,
-        };
       },
     },
     created() {
@@ -255,13 +203,10 @@
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
-      window.removeEventListener('resize', this.updateAppBarWidth);
     },
     mounted() {
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
-      window.addEventListener('resize', this.updateAppBarWidth);
-      this.updateAppBarWidth();
     },
     methods: {
       handleWindowClick(event) {
@@ -282,15 +227,6 @@
         if ((event.key == 'Tab' || event.key == 'Escape') && this.pointsDisplayed) {
           this.pointsDisplayed = false;
         }
-      },
-      updateAppBarWidth() {
-        this.appBarWidth = this.$refs.appBar?.clientWidth || 0;
-      },
-      truncateText(value, maxLength) {
-        if (value && value.length > maxLength) {
-          return value.substring(0, maxLength) + '...';
-        }
-        return value;
       },
     },
     $trs: {
@@ -417,10 +353,6 @@
     display: inline-block;
     margin-left: 8px;
     font-size: 14px;
-  }
-
-  /deep/ .sub-nav .items {
-    margin-top: 0;
   }
 
 </style>
