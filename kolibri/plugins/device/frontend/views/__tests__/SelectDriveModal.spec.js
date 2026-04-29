@@ -1,7 +1,19 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import SelectDriveModal, {
+  strings as driveModalStrings,
+} from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
+import { strings as driveListStrings } from '../ManageContentPage/SelectTransferSourceModal/DriveList';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
+
+const { findingLocalDrives$ } = driveModalStrings;
+const { noImportableDrives$, noExportableDrives$ } = driveListStrings;
+const { continueAction$ } = coreStrings;
+
+const WRITABLE_IMPORTABLE = 'Writable and Importable';
+const UNWRITABLE = 'WRITABLE_IMPORTABLE';
+const INCOMPATIBLE_CHANNEL = 'Incompatible Channel';
 
 SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
 
@@ -9,27 +21,27 @@ function makeStore() {
   const store = makeAvailableChannelsPageStore();
   store.commit('manageContent/wizard/SET_DRIVE_LIST', [
     {
-      id: 'unwritable_drive',
+      id: 'WRITABLE_IMPORTABLE_drive',
       metadata: { channels: [{ id: 'installed_channel' }] },
-      name: 'Unwritable',
+      name: UNWRITABLE,
       writable: false,
     },
     {
       id: 'writable_importable_drive',
       metadata: { channels: [{ id: 'channel_1', version: 1 }] },
-      name: 'Writable and Importable',
+      name: WRITABLE_IMPORTABLE,
       writable: true,
     },
     {
       id: 'incompatible_chanel_drive',
       metadata: { channels: [{ id: 'channel_2', version: 1 }] },
-      name: 'Incompatible Channel',
+      name: INCOMPATIBLE_CHANNEL,
       writable: true,
     },
     {
       id: 'no_content_drive',
       metadata: { channels: [] },
-      name: 'Writable and Importable',
+      name: WRITABLE_IMPORTABLE,
       writable: true,
     },
   ]);
@@ -40,7 +52,9 @@ const renderComponent = (options = {}) => {
   const { store, data } = options;
   return render(SelectDriveModal, {
     props: { mode: 'import' },
-    data() { return { ...data }; },
+    data() {
+      return { ...data };
+    },
     store: store || makeStore(),
   });
 };
@@ -58,13 +72,13 @@ describe('SelectDriveModal', () => {
 
   it('when drive list is loading, show a message', async () => {
     renderComponent({ store, data: { driveStatus: 'LOADING' } });
-    expect(screen.getByText('Finding local drives…')).toBeInTheDocument();
+    expect(screen.getByText(findingLocalDrives$())).toBeInTheDocument();
   });
 
   it('when drive list is loaded, it shows the drive-list component', () => {
     renderComponent({ store });
-    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
-    expect(screen.queryByText('Finding local drives…')).not.toBeInTheDocument();
+    expect(screen.getByText(WRITABLE_IMPORTABLE)).toBeInTheDocument();
+    expect(screen.queryByText(findingLocalDrives$())).not.toBeInTheDocument();
   });
 
   it('in import mode, drive-list only shows drives with content', () => {
@@ -72,7 +86,7 @@ describe('SelectDriveModal', () => {
     renderComponent({ store });
 
     expect(screen.getAllByRole('radio')).toHaveLength(3);
-    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
+    expect(screen.getByText(WRITABLE_IMPORTABLE)).toBeInTheDocument();
   });
 
   it('in import more mode, drive-list only shows drives with a compatible channel', () => {
@@ -81,25 +95,25 @@ describe('SelectDriveModal', () => {
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];
     renderComponent({ store });
-    expect(screen.getByText('Writable and Importable')).toBeInTheDocument();
+    expect(screen.getByText(WRITABLE_IMPORTABLE)).toBeInTheDocument();
   });
 
-  it('in import more mode, drive-list hides drives with an incompatible channel', () => {
+  it('in import more mode, drive-list hides drives with an INCOMPATIBLE_CHANNEL', () => {
     setTransferType('localimport');
     const channel = { id: 'channel_2', version: 6, available: true };
     store.commit('manageContent/wizard/SET_TRANSFERRED_CHANNEL', channel);
     store.state.manageContent.channelList = [{ ...channel }];
     renderComponent({ store });
-    expect(screen.queryByText('Incompatible Channel')).not.toBeInTheDocument();
+    expect(screen.queryByText(INCOMPATIBLE_CHANNEL)).not.toBeInTheDocument();
   });
 
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     renderComponent({ store });
-    
+
     // 2 writable drives with same name
-    expect(screen.getAllByText('Writable and Importable')).toHaveLength(2);
-    expect(screen.queryByText('Unwritable')).not.toBeInTheDocument();
+    expect(screen.getAllByText(WRITABLE_IMPORTABLE)).toHaveLength(2);
+    expect(screen.queryByText(UNWRITABLE)).not.toBeInTheDocument();
   });
 
   it('in import mode, if there are no drives with content, there is an empty state', () => {
@@ -108,7 +122,7 @@ describe('SelectDriveModal', () => {
       d.metadata.channels = [];
     });
     renderComponent({ store });
-    expect(screen.getByText('No USB or network drives with Kolibri resources are connected to the server.')).toBeInTheDocument();
+    expect(screen.getByText(noImportableDrives$())).toBeInTheDocument();
   });
 
   it('in export mode, if there are no writable drives, there is an empty state', () => {
@@ -117,19 +131,18 @@ describe('SelectDriveModal', () => {
       d.writable = false;
     });
     renderComponent({ store });
-    expect(screen.getByText('Could not find a writable drive connected to the server')).toBeInTheDocument();
+    expect(screen.getByText(noExportableDrives$())).toBeInTheDocument();
   });
 
   it('when a drive is selected, "Continue" button is enabled', async () => {
     renderComponent({ store });
     const radio = screen.getAllByRole('radio')[0];
     await userEvent.click(radio);
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: continueAction$() })).toBeEnabled();
   });
 
   it('when no drive is selected, "Continue" button is disabled', () => {
     renderComponent({ store });
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: continueAction$() })).toBeDisabled();
   });
-
 });
