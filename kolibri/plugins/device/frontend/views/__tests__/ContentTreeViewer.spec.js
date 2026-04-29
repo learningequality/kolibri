@@ -1,40 +1,24 @@
-import { mount } from '@vue/test-utils';
-import omit from 'lodash/fp/omit';
+import { render, screen, within } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import { createTranslator } from 'kolibri/utils/i18n';
 import ContentTreeViewer from '../SelectContentPage/ContentTreeViewer';
 import { makeNode } from '../../__tests__/utils/data';
 import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 import router from './testRouter';
 
+const ContentTreeViewerStrings = createTranslator('ContentTreeViewer', ContentTreeViewer.$trs);
+
 function simplePath(ids) {
   return ids.map(makeNode);
 }
 
-function makeWrapper(options = {}) {
+function renderComponent(options = {}) {
   const { props = {}, store } = options;
-  return mount(ContentTreeViewer, {
-    propsData: props,
+  return render(ContentTreeViewer, {
+    props,
     store: store || makeSelectContentPageStore(),
     ...router,
   });
-}
-
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    // Need to filter out checkboxes in content-node-rows
-    selectAllCheckbox: () => wrapper.findAllComponents({ name: 'KCheckbox' }).filter(el => el.props().label === 'Select all').at(0),
-    emptyState: () => wrapper.find('.no-contents'),
-    contentsSection: () => wrapper.findAll('.contents'),
-    contentNodeRows: () => wrapper.findAllComponents({ name: 'ContentNodeRow' }),
-    addNodeForTransferMock: () => {
-      const mock = wrapper.vm.addNodeForTransfer = jest.fn().mockResolvedValue();
-      return mock;
-    },
-    removeNodeForTransferMock: () => {
-      const mock = wrapper.vm.removeNodeForTransfer = jest.fn().mockResolvedValue();
-      return mock;
-    },
-  };
 }
 
 describe('ContentTreeViewer component', () => {
@@ -74,9 +58,9 @@ describe('ContentTreeViewer component', () => {
         },
       ],
     });
-    const wrapper = makeWrapper({ store });
-    const rows = wrapper.findAllComponents({ name: 'ContentNodeRow' });
-    expect(rows).toHaveLength(2);
+
+    renderComponent({ store });
+    expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 
   it('if in LOCALIMPORT, then non-importable nodes are filtered from the list', () => {
@@ -94,9 +78,8 @@ describe('ContentTreeViewer component', () => {
         },
       ],
     });
-    const wrapper = makeWrapper({ store });
-    const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).toHaveLength(1);
+    renderComponent({ store });
+    expect(screen.getAllByRole('row')).toHaveLength(2);
   });
 
   it('in LOCALEXPORT, if a node has available: false, then it is not shown', () => {
@@ -116,99 +99,117 @@ describe('ContentTreeViewer component', () => {
         },
       ],
     });
-    const wrapper = makeWrapper({ store });
-    const { contentNodeRows } = getElements(wrapper);
-    expect(contentNodeRows()).toHaveLength(1);
+
+    renderComponent({ store });
+    expect(screen.getAllByRole('row')).toHaveLength(2);
   });
 
   it('shows an empty state if the topic has no children', () => {
     setChildren([]);
-    const wrapper = makeWrapper({ store });
-    const { contentsSection, emptyState } = getElements(wrapper);
-    expect(contentsSection()).toHaveLength(0);
-    expect(emptyState().element.tagName).toBe('DIV');
+    renderComponent({ store });
+    expect(
+      screen.getByText(ContentTreeViewerStrings.$tr('topicHasNoContents')),
+    ).toBeInTheDocument();
   });
 
-  it('child nodes are annotated with their full path', () => {
+  it('checks child nodes are rendered at their correct full path', () => {
     store.state.manageContent.wizard.path = [
       { id: 'channel_1', title: 'Channel 1' },
       { id: 'topic_1', title: 'Topic 1' },
     ];
-    const wrapper = makeWrapper({ store });
-    wrapper.vm.annotatedChildNodes.forEach(n => {
-      const expectedPath = [
-        { id: 'channel_1', title: 'Channel 1' },
-        { id: 'topic_1', title: 'Topic 1' },
-        { id: n.id, title: n.title },
-      ];
-      expect(n.path).toEqual(expectedPath);
-    });
+
+    renderComponent({ store });
+    const navPath = screen.getByRole('list');
+    expect(within(navPath).getByRole('link', { name: 'Channel 1' })).toBeInTheDocument();
+    expect(within(navPath).getByText('Topic 1')).toBeInTheDocument();
   });
 
   describe('"select all" checkbox state', () => {
-    // These are integration tests with component and annotateNode utility
-    function checkboxIsChecked(wrapper) {
-      const { selectAllCheckbox } = getElements(wrapper);
-      return selectAllCheckbox().props().checked;
-    }
-
     it('if neither topic nor any ancestor is selected, then "Select All" is unchecked', () => {
-      const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).toEqual(false);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('checkbox', { name: ContentTreeViewerStrings.$tr('selectAll') }),
+      ).not.toBeChecked();
     });
+
     it('if any ancestor of the topic is selected, then "Select All" is checked', () => {
       store.state.manageContent.wizard.path = [{ id: 'channel_1' }];
       setIncludedNodes([makeNode('channel_1')]);
-      const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).toEqual(true);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('checkbox', { name: ContentTreeViewerStrings.$tr('selectAll') }),
+      ).toBeChecked();
     });
 
     it('if the topic itself is selected, then "Select All" is checked', () => {
       setIncludedNodes([makeNode('topic_1')]);
-      const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).toEqual(true);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('checkbox', { name: ContentTreeViewerStrings.$tr('selectAll') }),
+      ).toBeChecked();
     });
 
-    it('if topic is selected, but one descendant is omitted', () => {
+    it('if topic is selected, but one descendant is omitted then "Select All" is unchecked', () => {
       // ...then "Select All" is unchecked
       setIncludedNodes([makeNode('topic_1')]);
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1' }] })]);
-      const wrapper = makeWrapper({ store });
-      expect(checkboxIsChecked(wrapper)).toEqual(false);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('checkbox', { name: ContentTreeViewerStrings.$tr('selectAll') }),
+      ).not.toBeChecked();
     });
   });
 
   describe('toggling "select all" checkbox', () => {
-    const sanitizeNode = omit(['message', 'checkboxType', 'disabled', 'children']);
-    it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', () => {
+    beforeEach(() => {
+      jest.spyOn(store, 'dispatch').mockResolvedValue();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', async () => {
       // Selected w/ unselected child scenario
       setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })]);
       setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1', title: '' }] })]);
-      const wrapper = makeWrapper({ store });
-      const { selectAllCheckbox, addNodeForTransferMock } = getElements(wrapper);
-      const addNodeMock = addNodeForTransferMock();
-      selectAllCheckbox().trigger('click');
-      expect(addNodeMock).toHaveBeenCalledTimes(1);
-      expect(addNodeMock).toHaveBeenCalledWith(
-        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode)),
+      renderComponent({ store });
+      const selectAllCheckbox = screen.getByRole('checkbox', {
+        name: ContentTreeViewerStrings.$tr('selectAll'),
+      });
+      await userEvent.click(selectAllCheckbox);
+      expect(store.dispatch).toHaveBeenCalledTimes(1);
+      expect(store.dispatch).toHaveBeenCalledWith(
+        'manageContent/wizard/addNodeForTransfer',
+        expect.objectContaining({ id: 'topic_1' }),
       );
     });
 
-    it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action', () => {
+    it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action ', async () => {
       setIncludedNodes([makeNode('topic_1')]);
-      const wrapper = makeWrapper({ store });
-      const { selectAllCheckbox, removeNodeForTransferMock } = getElements(wrapper);
-      const removeNodeMock = removeNodeForTransferMock();
-      selectAllCheckbox().trigger('click');
-      expect(removeNodeMock).toHaveBeenCalledTimes(1);
-      expect(removeNodeMock).toHaveBeenCalledWith(
-        expect.objectContaining(sanitizeNode(wrapper.vm.annotatedTopicNode)),
+      renderComponent({ store });
+      const selectAllCheckbox = screen.getByRole('checkbox', {
+        name: ContentTreeViewerStrings.$tr('selectAll'),
+      });
+      await userEvent.click(selectAllCheckbox);
+      expect(store.dispatch).toHaveBeenCalledTimes(1);
+      expect(store.dispatch).toHaveBeenCalledWith(
+        'manageContent/wizard/removeNodeForTransfer',
+        expect.objectContaining({ id: 'topic_1' }),
       );
     });
   });
 
   describe('selecting child nodes', () => {
-    it('clicking a checked child node triggers a "remove node" action', () => {
+    beforeEach(() => {
+      jest.spyOn(store, 'dispatch').mockResolvedValue();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('unchecks a checked child node checkbox when clicked', async () => {
       const subTopic = makeNode('subtopic_1', {
         path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
         total_resources: 100,
@@ -216,18 +217,15 @@ describe('ContentTreeViewer component', () => {
       });
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
-      const wrapper = makeWrapper({ store });
-      const { removeNodeForTransferMock } = getElements(wrapper);
-      const { mock } = removeNodeForTransferMock();
-      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
-      expect(topicRow.props().checked).toEqual(true);
-      expect(topicRow.props().disabled).toEqual(false);
-      topicRow.find('input[type="checkbox"]').trigger('click');
-      expect(mock.calls).toHaveLength(1);
-      expect(mock.calls[0][0]).toMatchObject(subTopic);
+      renderComponent({ store });
+
+      const checkbox = screen.getByRole('checkbox', { name: 'node_subtopic_1' });
+      expect(checkbox).toBeChecked();
+      await userEvent.click(checkbox);
+      expect(checkbox).not.toBeChecked();
     });
 
-    it('clicking an unchecked child node triggers an "add node" action', () => {
+    it('checks a unchecked child node checkbox when clicked', async () => {
       // Need to add at least two children, so clicking subtopic doesn't complete the topic
       const subTopic = makeNode('subtopic_1', {
         path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
@@ -240,17 +238,14 @@ describe('ContentTreeViewer component', () => {
         on_device_resources: 50,
       });
       setChildren([subTopic, subTopic2]);
-      const wrapper = makeWrapper({ store });
-      const { addNodeForTransferMock } = getElements(wrapper);
-      const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
-      expect(topicRow.props().checked).toEqual(false);
-      topicRow.find('input[type="checkbox"]').trigger('click');
-      expect(mock.calls).toHaveLength(1);
-      expect(mock.calls[0][0]).toMatchObject(subTopic);
+      renderComponent({ store });
+      const checkbox = screen.getByRole('checkbox', { name: 'node_subtopic_1' });
+      expect(checkbox).not.toBeChecked();
+      await userEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
     });
 
-    it('clicking an indeterminate child node triggers an "add node" action', () => {
+    it('selects an indeterminate child node when clicked', async () => {
       const subTopic = makeNode('subtopic', {
         path: simplePath(['channel_1', 'topic_1']),
         total_resources: 5,
@@ -267,15 +262,12 @@ describe('ContentTreeViewer component', () => {
       store.state.manageContent.wizard.path = simplePath(['channel_1']);
       setChildren([subTopic, subTopic2]);
       setIncludedNodes([subSubTopic]);
-      const wrapper = makeWrapper({ store });
-      const { addNodeForTransferMock } = getElements(wrapper);
-      const { mock } = addNodeForTransferMock();
-      const topicRow = wrapper.findComponent({ name: 'ContentNodeRow' });
-      expect(topicRow.props().checked).toEqual(false);
-      expect(topicRow.props().indeterminate).toEqual(true);
-      topicRow.find('input[type="checkbox"]').trigger('click');
-      expect(mock.calls).toHaveLength(1);
-      expect(mock.calls[0][0]).toMatchObject({ id: 'subtopic' });
+      renderComponent({ store });
+      const checkbox = screen.getAllByRole('checkbox', { name: /node_subtopic/i })[0];
+      expect(checkbox).not.toBeChecked();
+      expect(checkbox).toHaveProperty('indeterminate', true);
+      await userEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
     });
   });
 });
