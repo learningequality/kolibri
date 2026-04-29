@@ -29,7 +29,7 @@ catalogs:
       version: 0.2.16
     kolibri-design-system:
       specifier: github:nucleogenesis/kolibri-design-system-1#1183--ktoolbar-cleanup
-      version: 5.6.1
+      version: 5.6.2
     lodash:
       specifier: ^4.17.23
       version: 4.17.23
@@ -147,7 +147,7 @@ importers:
         version: 11.3.0(vue@2.7.16)
       babel-loader:
         specifier: ^10.1.1
-        version: 10.1.1(@babel/core@7.29.0)(webpack@5.105.4)
+        version: 10.1.1(@babel/core@7.29.0)(webpack@5.106.2)
       browserslist-config-kolibri:
         specifier: workspace:*
         version: link:../../packages/browserslist-config-kolibri
@@ -183,7 +183,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -219,7 +219,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -295,7 +295,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -350,7 +350,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -417,7 +417,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -454,7 +454,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-sandbox:
         specifier: workspace:*
         version: link:../../../packages/kolibri-sandbox
@@ -493,7 +493,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -557,7 +557,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -599,7 +599,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -744,7 +744,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -817,7 +817,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -844,7 +844,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -871,7 +871,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -905,7 +905,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../../../packages/kolibri-logging
@@ -954,7 +954,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-viewer:
         specifier: workspace:*
         version: link:../../../packages/kolibri-viewer
@@ -984,7 +984,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-plugin-data:
         specifier: workspace:*
         version: link:../../../packages/kolibri-plugin-data
@@ -1030,7 +1030,7 @@ importers:
         version: link:../../../packages/kolibri-common
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
@@ -1100,7 +1100,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1299,7 +1299,7 @@ importers:
         version: 0.2.16
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1363,7 +1363,7 @@ importers:
         version: 1.0.0-beta.5(eslint-plugin-import@2.32.0(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-import-x:
         specifier: ^4.0.0
-        version: 4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.4(jiti@2.6.1))
+        version: 4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-jest:
         specifier: ^29.15.1
         version: 29.15.1(eslint@9.39.4(jiti@2.6.1))(jest@30.2.0(@types/node@25.0.9))(typescript@5.9.3)
@@ -1559,7 +1559,7 @@ importers:
         version: link:../kolibri
       kolibri-design-system:
         specifier: 'catalog:'
-        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a
+        version: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d
       kolibri-logging:
         specifier: workspace:*
         version: link:../kolibri-logging
@@ -1707,13 +1707,13 @@ importers:
         version: 4.17.23
       mini-css-extract-plugin:
         specifier: ^2.9.4
-        version: 2.10.0(webpack@5.105.4)
+        version: 2.10.0(webpack@5.106.2)
       node-sass:
         specifier: 9.0.0
         version: 9.0.0
       postcss-loader:
         specifier: ^8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.4)
+        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.106.2)
       process:
         specifier: ^0.11.10
         version: 0.11.10
@@ -1734,7 +1734,7 @@ importers:
         version: 4.3.0
       sass-loader:
         specifier: 16.0.7
-        version: 16.0.7(node-sass@9.0.0)(webpack@5.105.4)
+        version: 16.0.7(node-sass@9.0.0)(webpack@5.106.2)
       semver:
         specifier: ^7.7.2
         version: 7.7.3
@@ -1743,25 +1743,25 @@ importers:
         version: 6.0.1
       style-loader:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.105.4)
+        version: 4.0.0(webpack@5.106.2)
       temp:
         specifier: ^0.8.3
         version: 0.8.4
       terser-webpack-plugin:
         specifier: ^5.3.14
-        version: 5.3.16(webpack@5.105.4)
+        version: 5.3.16(webpack@5.106.2)
       toml:
         specifier: ^3.0.0
         version: 3.0.0
       url-loader:
         specifier: ^4.1.1
-        version: 4.1.1(webpack@5.105.4)
+        version: 4.1.1(webpack@5.106.2)
       vue-jest:
         specifier: ^3.0.0
         version: 3.0.7(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(vue-template-compiler@2.7.16)(vue@2.7.16)
       vue-loader:
         specifier: ^15.11.1
-        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.105.4))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.105.4)
+        version: 15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.106.2))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.106.2)
       vue-sfc-descriptor-to-string:
         specifier: 1.0.0
         version: 1.0.0
@@ -4260,6 +4260,11 @@ packages:
   balanced-match@2.0.0:
     resolution: {integrity: sha512-1ugUSr8BHXRnK23KfuYS+gVMC3LB8QGH9W1iGtDPsNWoQbgtXSExkBu2aDR4epiGWZOjZsj6lDl/N/AqqTC3UA==}
 
+  baseline-browser-mapping@2.10.20:
+    resolution: {integrity: sha512-1AaXxEPfXT+GvTBJFuy4yXVHWJBXa4OdbIebGN/wX5DlsIkU0+wzGnd2lOzokSk51d5LUmqjgBLRLlypLUqInQ==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
   baseline-browser-mapping@2.9.15:
     resolution: {integrity: sha512-kX8h7K2srmDyYnXRIppo4AH/wYgzWVCs+eKr3RusRSQ5PvRYoEFmR/I0PbdTjKFAoKqp5+kbxnNTFO9jOfSVJg==}
     hasBin: true
@@ -4314,6 +4319,11 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
+  browserslist@4.28.2:
+    resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+
   bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
 
@@ -4351,6 +4361,10 @@ packages:
     resolution: {integrity: sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==}
     engines: {node: '>= 0.4'}
 
+  call-bind@1.0.9:
+    resolution: {integrity: sha512-a/hy+pNsFUTR+Iz8TCJvXudKVLAnz/DyeSUo10I5yvFDQJBFU2s9uqQpoSrJlroHUKoKqzg+epxyP9lqFdzfBQ==}
+    engines: {node: '>= 0.4'}
+
   call-bound@1.0.4:
     resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
     engines: {node: '>= 0.4'}
@@ -4383,6 +4397,9 @@ packages:
 
   caniuse-lite@1.0.30001765:
     resolution: {integrity: sha512-LWcNtSyZrakjECqmpP4qdg0MMGdN368D7X8XvvAqOcqMv0RxnlqVKZl2V6/mBR68oYMxOZPLw/gO7DuisMHUvQ==}
+
+  caniuse-lite@1.0.30001790:
+    resolution: {integrity: sha512-bOoxfJPyYo+ds6W0YfptaCWbFnJYjh2Y1Eow5lRv+vI2u8ganPZqNm1JwNh0t2ELQCqIWg4B3dWEusgAmsoyOw==}
 
   chalk@1.1.3:
     resolution: {integrity: sha512-U3lRVLMSlsCfjqYPbLyVv11M9CPW4I728d6TCKMAOJueEeB9/8o+eSsMnxPJD+Q+K909sdESg7C+tIkoH6on1A==}
@@ -5191,6 +5208,9 @@ packages:
   electron-to-chromium@1.5.267:
     resolution: {integrity: sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw==}
 
+  electron-to-chromium@1.5.343:
+    resolution: {integrity: sha512-YHnQ3MXI08icvL9ZKnEBy05F2EQ8ob01UaMOuMbM8l+4UcAq6MPPbBTJBbsBUg3H8JeZNt+O4fjsoWth3p6IFg==}
+
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
     engines: {node: '>=12'}
@@ -5249,8 +5269,8 @@ packages:
   error-ex@1.3.4:
     resolution: {integrity: sha512-sqQamAnR14VgCr1A618A3sGrygcpK+HEbenA/HiEAkkUwcZIIB/tgWqHFxWgOyDh4nB4JCRimh79dR5Ywc9MDQ==}
 
-  es-abstract@1.24.1:
-    resolution: {integrity: sha512-zHXBLhP+QehSSbsS9Pt23Gg964240DPd6QCf8WpkqEXxQ7fhdZzYsocOr5u7apWonsS5EjZDmTF+/slGMyasvw==}
+  es-abstract@1.24.2:
+    resolution: {integrity: sha512-2FpH9Q5i2RRwyEP1AylXe6nYLR5OhaJTZwmlcP0dL/+JCbgg7yyEo/sEK6HeGZRf3dFpWwThaRHVApXSkW3xeg==}
     engines: {node: '>= 0.4'}
 
   es-define-property@1.0.1:
@@ -5340,8 +5360,8 @@ packages:
       eslint: '*'
       eslint-plugin-import: '*'
 
-  eslint-import-resolver-node@0.3.9:
-    resolution: {integrity: sha512-WFj2isz22JahUv+B788TlO3N6zL3nNJGU8CcZbPZvVEkBPaJdCV4vy5wyghty5ROFbCRnm132v8BScu5/1BQ8g==}
+  eslint-import-resolver-node@0.3.10:
+    resolution: {integrity: sha512-tRrKqFyCaKict5hOd244sL6EQFNycnMQnBe+j8uqGNXYzsImGbGUU4ibtoaBmv5FLwJwcFJNeg1GeVjQfbMrDQ==}
 
   eslint-module-utils@2.12.1:
     resolution: {integrity: sha512-L8jSWTze7K2mTg0vos/RuLRS5soomksDPoJLXIslC7c8Wmut3bx7CPpJijDcBZtxQ5lrbUdM+s0OlNbz0DCDNw==}
@@ -5962,6 +5982,10 @@ packages:
 
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
+    engines: {node: '>= 0.4'}
+
+  hasown@2.0.3:
+    resolution: {integrity: sha512-ej4AhfhfL2Q2zpMmLo7U1Uv9+PyhIZpgQLGT1F9miIGmiCJIoCgSmczFdrc97mWT4kVY72KA+WnnhJ5pghSvSg==}
     engines: {node: '>= 0.4'}
 
   he@1.2.0:
@@ -6743,9 +6767,9 @@ packages:
   kolibri-constants@0.2.16:
     resolution: {integrity: sha512-z2tH+Sl8vBX1Y7O3BYTfwQs33Ozp6QRKZIHhl66A8sZkxUVBFFKOR+SgGOt0U0Q7pT/PH4yfCZ5mu6u8J641zQ==}
 
-  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a:
-    resolution: {tarball: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a}
-    version: 5.6.1
+  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d:
+    resolution: {tarball: https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d}
+    version: 5.6.2
 
   launch-editor-middleware@2.12.0:
     resolution: {integrity: sha512-SgU5QWoR+Grq1sQedvS/RlfoyO6bdvrztpP+2RRg8UzE7Jz2Yup5J4jiFfm2J9dYBCQYD26AbJVbjnvgwdL6Pw==}
@@ -7175,6 +7199,10 @@ packages:
     resolution: {integrity: sha512-BOb67bWg2dTyax5kdef5WfU3X8xu4wPg+zHzkvls0Q/QpYycIFRLEEIdAx9Wma43DxG6Qzn4illdZoYseKWa4A==}
     engines: {node: '>= 0.4.6'}
 
+  node-exports-info@1.6.0:
+    resolution: {integrity: sha512-pyFS63ptit/P5WqUkt+UUfe+4oevH+bFeIiPPdfb0pFeYEu/1ELnJu5l+5EcTKYL5M7zaAa7S8ddywgXypqKCw==}
+    engines: {node: '>= 0.4'}
+
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -7197,6 +7225,9 @@ packages:
 
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
+
+  node-releases@2.0.38:
+    resolution: {integrity: sha512-3qT/88Y3FbH/Kx4szpQQ4HzUbVrHPKTLVpVocKiLfoYvw9XSGOX2FmD2d6DrXbVYyAQTF2HeF6My8jmzx7/CRw==}
 
   node-sass@9.0.0:
     resolution: {integrity: sha512-yltEuuLrfH6M7Pq2gAj5B6Zm7m+gdZoG66wTqG6mIZV/zijq3M2OO2HswtT6oBspPyFhHDcaxWpsBm0fRNDHPg==}
@@ -7261,6 +7292,10 @@ packages:
 
   object.assign@4.1.7:
     resolution: {integrity: sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==}
+    engines: {node: '>= 0.4'}
+
+  object.entries@1.1.9:
+    resolution: {integrity: sha512-8u/hfXFRBD1O0hPUjioLhoWFHRmt6tKA4/vZPyckBr18l1KE9uHrFaFaUi8MDRTpi4uak2goyPTSNJLXX2k2Hw==}
     engines: {node: '>= 0.4'}
 
   object.fromentries@2.0.8:
@@ -8037,6 +8072,11 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
+  resolve@2.0.0-next.6:
+    resolution: {integrity: sha512-3JmVl5hMGtJ3kMmB3zi3DL25KfkCEyy3Tw7Gmw7z5w8M9WlwoPFnIvwChzu1+cF3iaK3sp18hhPz8ANeimdJfA==}
+    engines: {node: '>= 0.4'}
+    hasBin: true
+
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
     engines: {node: '>= 4'}
@@ -8083,8 +8123,8 @@ packages:
   rxjs@7.8.2:
     resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
-  safe-array-concat@1.1.3:
-    resolution: {integrity: sha512-AURm5f0jYEOydBj7VQlVvDrjeFgthDdEF5H1dP+6mNpoXOMo1quQqJ4wvJDyRZ9+pO3kGWoOdmV08cSv2aJV6Q==}
+  safe-array-concat@1.1.4:
+    resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
     engines: {node: '>=0.4'}
 
   safe-buffer@5.1.2:
@@ -8615,8 +8655,8 @@ packages:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
 
-  tapable@2.3.2:
-    resolution: {integrity: sha512-1MOpMXuhGzGL5TTCZFItxCc0AARf1EZFQkGqMm7ERKj8+Hgr5oLvJOVFcC+lRmR8hCe2S3jC4T5D7Vg/d7/fhA==}
+  tapable@2.3.3:
+    resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
   tar@6.2.1:
@@ -9212,8 +9252,8 @@ packages:
       webpack-cli:
         optional: true
 
-  webpack@5.105.4:
-    resolution: {integrity: sha512-jTywjboN9aHxFlToqb0K0Zs9SbBoW4zRUlGzI2tYNxVYcEi/IPpn+Xi4ye5jTLvX2YeLuic/IvxNot+Q1jMoOw==}
+  webpack@5.106.2:
+    resolution: {integrity: sha512-wGN3qcrBQIFmQ/c0AiOAQBvrZ5lmY8vbbMv4Mxfgzqd/B6+9pXtLo73WuS1dSGXM5QYY3hZnIbvx+K1xxe6FyA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -10241,7 +10281,7 @@ snapshots:
       '@babel/helper-globals': 7.28.0
       '@babel/parser': 7.28.6
       '@babel/template': 7.28.6
-      '@babel/types': 7.29.0
+      '@babel/types': 7.28.6
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
@@ -12280,10 +12320,10 @@ snapshots:
 
   array-includes@3.1.9:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-object-atoms: 1.1.1
       get-intrinsic: 1.3.0
       is-string: 1.1.1
@@ -12293,34 +12333,34 @@ snapshots:
 
   array.prototype.findlastindex@1.2.6:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
       es-shim-unscopables: 1.1.0
 
   array.prototype.flat@1.3.3:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-shim-unscopables: 1.1.0
 
   array.prototype.flatmap@1.3.3:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-shim-unscopables: 1.1.0
 
   arraybuffer.prototype.slice@1.0.4:
     dependencies:
       array-buffer-byte-length: 1.0.2
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
@@ -12423,12 +12463,12 @@ snapshots:
     optionalDependencies:
       webpack: 5.104.1(webpack-cli@7.0.2)
 
-  babel-loader@10.1.1(@babel/core@7.29.0)(webpack@5.105.4):
+  babel-loader@10.1.1(@babel/core@7.29.0)(webpack@5.106.2):
     dependencies:
       '@babel/core': 7.29.0
       find-up: 5.0.0
     optionalDependencies:
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   babel-messages@6.23.0:
     dependencies:
@@ -12593,6 +12633,8 @@ snapshots:
 
   balanced-match@2.0.0: {}
 
+  baseline-browser-mapping@2.10.20: {}
+
   baseline-browser-mapping@2.9.15: {}
 
   batch@0.6.1: {}
@@ -12659,6 +12701,14 @@ snapshots:
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
+
+  browserslist@4.28.2:
+    dependencies:
+      baseline-browser-mapping: 2.10.20
+      caniuse-lite: 1.0.30001790
+      electron-to-chromium: 1.5.343
+      node-releases: 2.0.38
+      update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
   bser@2.1.1:
     dependencies:
@@ -12734,6 +12784,13 @@ snapshots:
       get-intrinsic: 1.3.0
       set-function-length: 1.2.2
 
+  call-bind@1.0.9:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      es-define-property: 1.0.1
+      get-intrinsic: 1.3.0
+      set-function-length: 1.2.2
+
   call-bound@1.0.4:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -12771,6 +12828,8 @@ snapshots:
       lodash.uniq: 4.5.0
 
   caniuse-lite@1.0.30001765: {}
+
+  caniuse-lite@1.0.30001790: {}
 
   chalk@1.1.3:
     dependencies:
@@ -13045,7 +13104,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.104.1(@swc/core@1.15.24)(webpack-cli@7.0.2)
 
-  css-loader@7.1.2(webpack@5.105.4):
+  css-loader@7.1.2(webpack@5.106.2):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.6)
       postcss: 8.5.6
@@ -13056,7 +13115,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   css-minimizer-webpack-plugin@7.0.2(webpack@5.104.1):
     dependencies:
@@ -13430,6 +13489,8 @@ snapshots:
 
   electron-to-chromium@1.5.267: {}
 
+  electron-to-chromium@1.5.343: {}
+
   emittery@0.13.1: {}
 
   emoji-regex@8.0.0: {}
@@ -13485,12 +13546,12 @@ snapshots:
     dependencies:
       is-arrayish: 0.2.1
 
-  es-abstract@1.24.1:
+  es-abstract@1.24.2:
     dependencies:
       array-buffer-byte-length: 1.0.2
       arraybuffer.prototype.slice: 1.0.4
       available-typed-arrays: 1.0.7
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       data-view-buffer: 1.0.2
       data-view-byte-length: 1.0.2
@@ -13509,7 +13570,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       has-proto: 1.2.0
       has-symbols: 1.1.0
-      hasown: 2.0.2
+      hasown: 2.0.3
       internal-slot: 1.1.0
       is-array-buffer: 3.0.5
       is-callable: 1.2.7
@@ -13527,7 +13588,7 @@ snapshots:
       object.assign: 4.1.7
       own-keys: 1.0.1
       regexp.prototype.flags: 1.5.4
-      safe-array-concat: 1.1.3
+      safe-array-concat: 1.1.4
       safe-push-apply: 1.0.0
       safe-regex-test: 1.1.0
       set-proto: 1.0.0
@@ -13573,7 +13634,7 @@ snapshots:
 
   es-shim-unscopables@1.1.0:
     dependencies:
-      hasown: 2.0.2
+      hasown: 2.0.3
 
   es-to-primitive@1.3.0:
     dependencies:
@@ -13631,20 +13692,20 @@ snapshots:
       eslint-plugin-import: 2.32.0(eslint@9.39.4(jiti@2.6.1))
       resolve.exports: 2.0.3
 
-  eslint-import-resolver-node@0.3.9:
+  eslint-import-resolver-node@0.3.10:
     dependencies:
       debug: 3.2.7
       is-core-module: 2.16.1
-      resolve: 1.22.11
+      resolve: 2.0.0-next.6
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(eslint-import-resolver-node@0.3.9)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-module-utils@2.12.1(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       eslint: 9.39.4(jiti@2.6.1)
-      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-node: 0.3.10
     transitivePeerDependencies:
       - supports-color
 
@@ -13667,7 +13728,7 @@ snapshots:
       eslint: 9.39.4(jiti@2.6.1)
       eslint-compat-utils: 0.5.1(eslint@9.39.4(jiti@2.6.1))
 
-  eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@typescript-eslint/types': 8.53.1
       comment-parser: 1.4.5
@@ -13681,7 +13742,7 @@ snapshots:
       unrs-resolver: 1.11.1
     optionalDependencies:
       '@typescript-eslint/utils': 8.53.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
-      eslint-import-resolver-node: 0.3.9
+      eslint-import-resolver-node: 0.3.10
     transitivePeerDependencies:
       - supports-color
 
@@ -13695,9 +13756,9 @@ snapshots:
       debug: 3.2.7
       doctrine: 2.1.0
       eslint: 9.39.4(jiti@2.6.1)
-      eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.9)(eslint@9.39.4(jiti@2.6.1))
-      hasown: 2.0.2
+      eslint-import-resolver-node: 0.3.10
+      eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.10)(eslint@9.39.4(jiti@2.6.1))
+      hasown: 2.0.3
       is-core-module: 2.16.1
       is-glob: 4.0.3
       minimatch: 3.1.5
@@ -14159,11 +14220,11 @@ snapshots:
 
   function.prototype.name@1.1.8:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.2
+      hasown: 2.0.3
       is-callable: 1.2.7
 
   functional-red-black-tree@1.0.1: {}
@@ -14378,6 +14439,10 @@ snapshots:
   hash-sum@1.0.2: {}
 
   hasown@2.0.2:
+    dependencies:
+      function-bind: 1.1.2
+
+  hasown@2.0.3:
     dependencies:
       function-bind: 1.1.2
 
@@ -15382,7 +15447,7 @@ snapshots:
 
   kolibri-constants@0.2.16: {}
 
-  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/afa62dac4ad99d09b37b8ac12727f17291fecf6a:
+  kolibri-design-system@https://codeload.github.com/nucleogenesis/kolibri-design-system-1/tar.gz/ba795be369c0bb304e898a2f4105ea07c7b5817d:
     dependencies:
       aphrodite: https://codeload.github.com/learningequality/aphrodite/tar.gz/fdc8d7be8912a5cf17f74ff10f124013c52c3e32
       autosize: 3.0.21
@@ -15729,11 +15794,11 @@ snapshots:
       tapable: 2.3.0
       webpack: 5.104.1(@swc/core@1.15.24)(webpack-cli@7.0.2)
 
-  mini-css-extract-plugin@2.10.0(webpack@5.105.4):
+  mini-css-extract-plugin@2.10.0(webpack@5.106.2):
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.0
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   minimalistic-assert@1.0.1: {}
 
@@ -15875,6 +15940,13 @@ snapshots:
       clone: 2.1.2
       lodash: 4.17.23
 
+  node-exports-info@1.6.0:
+    dependencies:
+      array.prototype.flatmap: 1.3.3
+      es-errors: 1.3.0
+      object.entries: 1.1.9
+      semver: 6.3.1
+
   node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
@@ -15905,6 +15977,8 @@ snapshots:
   node-int64@0.4.0: {}
 
   node-releases@2.0.27: {}
+
+  node-releases@2.0.38: {}
 
   node-sass@9.0.0:
     dependencies:
@@ -15989,22 +16063,29 @@ snapshots:
       has-symbols: 1.1.0
       object-keys: 1.1.1
 
+  object.entries@1.1.9:
+    dependencies:
+      call-bind: 1.0.9
+      call-bound: 1.0.4
+      define-properties: 1.2.1
+      es-object-atoms: 1.1.1
+
   object.fromentries@2.0.8:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-object-atoms: 1.1.1
 
   object.groupby@1.0.3:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
 
   object.values@1.2.1:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
@@ -16238,14 +16319,14 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  postcss-loader@8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.4):
+  postcss-loader@8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.106.2):
     dependencies:
       cosmiconfig: 9.0.0(typescript@5.9.3)
       jiti: 2.6.1
       postcss: 8.5.6
       semver: 7.7.3
     optionalDependencies:
-      webpack: 5.105.4
+      webpack: 5.106.2
     transitivePeerDependencies:
       - typescript
 
@@ -16690,9 +16771,9 @@ snapshots:
 
   reflect.getprototypeof@1.0.10:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
       get-intrinsic: 1.3.0
@@ -16777,6 +16858,15 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
+  resolve@2.0.0-next.6:
+    dependencies:
+      es-errors: 1.3.0
+      is-core-module: 2.16.1
+      node-exports-info: 1.6.0
+      object-keys: 1.1.1
+      path-parse: 1.0.7
+      supports-preserve-symlinks-flag: 1.0.0
+
   retry@0.12.0: {}
 
   retry@0.13.1: {}
@@ -16820,9 +16910,9 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  safe-array-concat@1.1.3:
+  safe-array-concat@1.1.4:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       get-intrinsic: 1.3.0
       has-symbols: 1.1.0
@@ -16863,12 +16953,12 @@ snapshots:
       node-sass: 9.0.0
       webpack: 5.104.1(@swc/core@1.15.24)(webpack-cli@7.0.2)
 
-  sass-loader@16.0.7(node-sass@9.0.0)(webpack@5.105.4):
+  sass-loader@16.0.7(node-sass@9.0.0)(webpack@5.106.2):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       node-sass: 9.0.0
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   sax@1.4.4: {}
 
@@ -17209,24 +17299,24 @@ snapshots:
 
   string.prototype.trim@1.2.10:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-data-property: 1.1.4
       define-properties: 1.2.1
-      es-abstract: 1.24.1
+      es-abstract: 1.24.2
       es-object-atoms: 1.1.1
       has-property-descriptors: 1.0.2
 
   string.prototype.trimend@1.0.9:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
   string.prototype.trimstart@1.0.8:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       define-properties: 1.2.1
       es-object-atoms: 1.1.1
 
@@ -17270,9 +17360,9 @@ snapshots:
     dependencies:
       webpack: 5.104.1(@swc/core@1.15.24)(webpack-cli@7.0.2)
 
-  style-loader@4.0.0(webpack@5.105.4):
+  style-loader@4.0.0(webpack@5.106.2):
     dependencies:
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   style-search@0.1.0: {}
 
@@ -17458,7 +17548,7 @@ snapshots:
 
   tapable@2.3.0: {}
 
-  tapable@2.3.2: {}
+  tapable@2.3.3: {}
 
   tar@6.2.1:
     dependencies:
@@ -17501,22 +17591,22 @@ snapshots:
       terser: 5.46.0
       webpack: 5.104.1
 
-  terser-webpack-plugin@5.3.16(webpack@5.105.4):
+  terser-webpack-plugin@5.3.16(webpack@5.106.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.46.0
-      webpack: 5.105.4
+      webpack: 5.106.2
 
-  terser-webpack-plugin@5.4.0(webpack@5.105.4):
+  terser-webpack-plugin@5.4.0(webpack@5.106.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.46.1
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   terser@5.46.0:
     dependencies:
@@ -17679,7 +17769,7 @@ snapshots:
 
   typed-array-byte-length@1.0.3:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       for-each: 0.3.5
       gopd: 1.2.0
       has-proto: 1.2.0
@@ -17688,7 +17778,7 @@ snapshots:
   typed-array-byte-offset@1.0.4:
     dependencies:
       available-typed-arrays: 1.0.7
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       for-each: 0.3.5
       gopd: 1.2.0
       has-proto: 1.2.0
@@ -17697,7 +17787,7 @@ snapshots:
 
   typed-array-length@1.0.7:
     dependencies:
-      call-bind: 1.0.8
+      call-bind: 1.0.9
       for-each: 0.3.5
       gopd: 1.2.0
       is-typed-array: 1.1.15
@@ -17780,6 +17870,12 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
+  update-browserslist-db@1.2.3(browserslist@4.28.2):
+    dependencies:
+      browserslist: 4.28.2
+      escalade: 3.2.0
+      picocolors: 1.1.1
+
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
@@ -17793,12 +17889,12 @@ snapshots:
       schema-utils: 3.3.0
       webpack: 5.104.1(@swc/core@1.15.24)(webpack-cli@7.0.2)
 
-  url-loader@4.1.1(webpack@5.105.4):
+  url-loader@4.1.1(webpack@5.106.2):
     dependencies:
       loader-utils: 2.0.4
       mime-types: 2.1.35
       schema-utils: 3.3.0
-      webpack: 5.105.4
+      webpack: 5.106.2
 
   url-polyfill@1.1.14: {}
 
@@ -17985,15 +18081,15 @@ snapshots:
       - walrus
       - whiskers
 
-  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.105.4))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.105.4):
+  vue-loader@15.11.1(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(css-loader@7.1.2(webpack@5.106.2))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)(vue-template-compiler@2.7.16)(webpack@5.106.2):
     dependencies:
       '@vue/component-compiler-utils': 3.3.0(babel-core@7.0.0-bridge.0(@babel/core@7.29.0))(lodash@4.17.23)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)(underscore@1.13.8)
-      css-loader: 7.1.2(webpack@5.105.4)
+      css-loader: 7.1.2(webpack@5.106.2)
       hash-sum: 1.0.2
       loader-utils: 1.4.2
       vue-hot-reload-api: 2.3.4
       vue-style-loader: 4.1.3
-      webpack: 5.105.4
+      webpack: 5.106.2
     optionalDependencies:
       vue-template-compiler: 2.7.16
     transitivePeerDependencies:
@@ -18326,7 +18422,7 @@ snapshots:
       - esbuild
       - uglify-js
 
-  webpack@5.105.4:
+  webpack@5.106.2:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -18336,7 +18432,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.16.0
       acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.1
+      browserslist: 4.28.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.20.1
       es-module-lexer: 2.0.0
@@ -18344,13 +18440,12 @@ snapshots:
       events: 3.3.0
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
-      json-parse-even-better-errors: 2.3.1
       loader-runner: 4.3.1
-      mime-types: 2.1.35
+      mime-db: 1.54.0
       neo-async: 2.6.2
       schema-utils: 4.3.3
-      tapable: 2.3.2
-      terser-webpack-plugin: 5.4.0(webpack@5.105.4)
+      tapable: 2.3.3
+      terser-webpack-plugin: 5.4.0(webpack@5.106.2)
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
