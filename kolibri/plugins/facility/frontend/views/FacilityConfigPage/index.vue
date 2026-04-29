@@ -114,25 +114,33 @@
               />
 
               <template v-if="isPictureLoginFeatureEnabled">
-                <div
-                  @click="picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)"
-                >
+                <div class="radio-button-and-info-wrapper">
                   <KRadioButton
                     v-model="signInOption"
+                    :label="picturePassword$()"
                     :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
-                    :description="picturePasswordDescription$()"
                     :disabled="picturePasswordDisabled"
                     :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
-                  >
-                    {{ picturePassword$() }}
-                    <KIconButton
-                      icon="info"
-                      size="mini"
-                      :color="$themeTokens.primary"
-                      :ariaLabel="picturePassword$()"
-                      @click.stop="showPicturePasswordInfoModal = true"
-                    />
-                  </KRadioButton>
+                    @click="picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)"
+                  />
+                  <KIconButton
+                    icon="info"
+                    size="mini"
+                    :color="$themeTokens.primary"
+                    :ariaLabel="picturePasswordInfoLabel$()"
+                    :disabled="picturePasswordDisabled"
+                    @click.stop="showPicturePasswordInfoModal = true"
+                  />
+                </div>
+                <div
+                  class="radio-description"
+                  :style="{
+                    color: picturePasswordDisabled
+                      ? $themeTokens.textDisabled
+                      : $themeTokens.annotation,
+                  }"
+                >
+                  {{ picturePasswordDescription$() }}
                 </div>
                 <div
                   v-if="picturePasswordDisabled"
@@ -154,28 +162,28 @@
               </template>
               <KRadioButtonGroup
                 v-if="
-                  isPictureLoginFeatureEnabled &&
-                    signInOption === OptionsForSignIn.PICTURE_PASSWORD &&
-                    !picturePasswordDisabled
+                  isPictureLoginFeatureEnabled && signInOption === OptionsForSignIn.PICTURE_PASSWORD
                 "
                 class="nested-settings picture-password-settings"
                 :aria-label="iconStyle$()"
               >
-                <KRadioButton
-                  v-model="picturePasswordStyle"
-                  :buttonValue="PicturePasswordIconStyle.COLORFUL"
-                  :disabled="picturePasswordDisabled"
-                  data-testid="child_friendly_icons"
-                >
-                  {{ childFriendlyIcons$() }}
+                <div class="radio-button-and-info-wrapper">
+                  <KRadioButton
+                    v-model="picturePasswordStyle"
+                    :label="childFriendlyIcons$()"
+                    :buttonValue="PicturePasswordIconStyle.COLORFUL"
+                    :disabled="picturePasswordDisabled"
+                    data-testid="child_friendly_icons"
+                  />
                   <KIconButton
                     icon="info"
                     size="mini"
                     :color="$themeTokens.primary"
                     :ariaLabel="childFriendlyIconsInfoLabel$()"
+                    :disabled="picturePasswordDisabled"
                     @click.stop="showChildFriendlyIconsModal = true"
                   />
-                </KRadioButton>
+                </div>
                 <KRadioButton
                   v-model="picturePasswordStyle"
                   :label="standardIcons$()"
@@ -509,6 +517,7 @@
         enterUsernameAndPassword$,
         enterUsernameOnly$,
         picturePassword$,
+        picturePasswordInfoLabel$,
         picturePasswordDescription$,
         childFriendlyIcons$,
         childFriendlyIconsInfoLabel$,
@@ -724,6 +733,7 @@
         enterUsernameAndPassword$,
         enterUsernameOnly$,
         picturePassword$,
+        picturePasswordInfoLabel$,
         picturePasswordDescription$,
         childFriendlyIcons$,
         childFriendlyIconsInfoLabel$,
@@ -803,6 +813,22 @@
 
   .divider {
     border-style: solid;
+  }
+
+  .radio-button-and-info-wrapper {
+    display: flex;
+    align-items: center;
+
+    /deep/ .k-radio-button-container {
+      width: auto;
+    }
+  }
+
+  .radio-description {
+    margin-inline-start: 32px;
+    margin-top: -4px;
+    font-size: 12px;
+    line-height: normal;
   }
 
   .exhausted-explanation {

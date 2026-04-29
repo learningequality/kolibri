@@ -195,6 +195,11 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   },
 
   // Info modal for picture password radio option
+  picturePasswordInfoLabel: {
+    message: 'About picture passwords',
+    context:
+      'Accessible label for the information icon button next to the picture password option, and title for the picture password info modal.',
+  },
   picturePasswordInfoIntro: {
     message: 'Picture password is designed for early-literacy learners.',
     context: 'Opening sentence in the picture password info modal.',
@@ -216,10 +221,6 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'About icon styles',
     context:
       'Accessible label for the information icon button next to the child-friendly icons option.',
-  },
-  childFriendlyIconsInfoTitle: {
-    message: 'Child-friendly icons',
-    context: 'Title for the modal showing available picture password icon styles.',
   },
   childFriendlyIconsInfoDescription: {
     message:

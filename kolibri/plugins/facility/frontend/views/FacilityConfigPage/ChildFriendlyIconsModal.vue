@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="childFriendlyIconsInfoTitle$()"
+    :title="childFriendlyIcons$()"
     :submitText="coreString('closeAction')"
     @submit="$emit('close')"
     @cancel="$emit('close')"
@@ -62,7 +62,7 @@
     name: 'ChildFriendlyIconsModal',
     setup() {
       const {
-        childFriendlyIconsInfoTitle$,
+        childFriendlyIcons$,
         childFriendlyIconsInfoDescription$,
         childFriendlyIconsColumnLabel$,
         standardIconsColumnLabel$,
@@ -78,7 +78,7 @@
         coreString,
         allIcons,
         getIconLabel,
-        childFriendlyIconsInfoTitle$,
+        childFriendlyIcons$,
         childFriendlyIconsInfoDescription$,
         childFriendlyIconsColumnLabel$,
         standardIconsColumnLabel$,
@@ -94,7 +94,7 @@
   .icon-grids {
     display: flex;
     gap: 24px;
-    margin-top: 16px;
+    margin-top: 32px;
   }
 
   .icon-grid-column {
@@ -104,12 +104,13 @@
   .icon-grid-label {
     margin: 0 0 8px;
     font-weight: bold;
+    text-align: center;
   }
 
   .icon-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 
   .icon-item {
@@ -119,8 +120,8 @@
   }
 
   .icon {
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
   }
 
 </style>
