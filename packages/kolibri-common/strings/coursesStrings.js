@@ -140,7 +140,7 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context: 'Confirmation message when deleting a course from the course detail page',
   },
   filterCourseStatus: {
-    message: 'status',
+    message: 'Status',
     context: 'Label for filter dropdown to filter courses by visibility status',
   },
   filterCourseVisible: {
@@ -312,6 +312,10 @@ export const coursesStrings = createTranslator('CoursesStrings', {
   dateAssigned: {
     message: 'Date assigned',
     context: 'Label in course summary showing how long it has been since the course was assigned',
+  },
+  setCourseVisibilityLabel: {
+    message: 'Set course visibility',
+    context: 'Aria label for the toggle switch to set course visibility, read by screen readers',
   },
   courseVisible: {
     message: 'Course visible to learners',
@@ -569,5 +573,9 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Sorted by score (lowest first)',
     context:
       'Subtitle below the individual performance heading explaining the sort order of learner scores',
+  },
+  allCoursesForClass: {
+    message: "All courses for class '{className}'",
+    context: 'Accessible caption for the courses table, read by screen readers',
   },
 });
