@@ -11,8 +11,8 @@ const { findingLocalDrives$ } = driveModalStrings;
 const { noImportableDrives$, noExportableDrives$ } = driveListStrings;
 const { continueAction$ } = coreStrings;
 
+const UNWRITABLE = 'Unwritable';
 const WRITABLE_IMPORTABLE = 'Writable and Importable';
-const UNWRITABLE = 'WRITABLE_IMPORTABLE';
 const INCOMPATIBLE_CHANNEL = 'Incompatible Channel';
 
 SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
