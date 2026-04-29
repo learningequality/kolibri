@@ -1,36 +1,37 @@
 import { render, screen } from '@testing-library/vue';
 import SelectTransferSourceModal from '../ManageContentPage/SelectTransferSourceModal';
+import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
+import { strings as importSourceStrings } from '../ManageContentPage/SelectTransferSourceModal/SelectImportSourceModal';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
-const stubs = {
-  SelectImportSourceModal: { template: '<div data-testid="select-import-source"></div>' },
-  SelectDriveModal: { template: '<div data-testid="select-drive"></div>' },
-};
+jest.mock('kolibri/client');
+jest.mock('kolibri/urls');
+
+SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
+
+const { network$ } = importSourceStrings;
 
 describe('SelectTransferSourceModal', () => {
   let store;
 
   beforeEach(() => {
     store = makeAvailableChannelsPageStore();
+    store.commit('manageContent/wizard/SET_DRIVE_LIST', []);
   });
 
   it('when at select source stage, shows correct modal', () => {
     render(SelectTransferSourceModal, {
       props: { pageName: 'SELECT_IMPORT_SOURCE' },
       store,
-      stubs,
     });
-    expect(screen.getByTestId('select-import-source')).toBeInTheDocument();
-    expect(screen.queryByTestId('select-drive')).not.toBeInTheDocument();
+    expect(screen.getByText(network$())).toBeInTheDocument();
   });
 
   it('when exporting or local importing, shows the correct modal', () => {
     render(SelectTransferSourceModal, {
       props: { pageName: 'SELECT_DRIVE' },
       store,
-      stubs,
     });
-    expect(screen.getByTestId('select-drive')).toBeInTheDocument();
-    expect(screen.queryByTestId('select-import-source')).not.toBeInTheDocument();
+    expect(screen.queryByText(network$())).not.toBeInTheDocument();
   });
 });
