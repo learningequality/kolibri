@@ -11,6 +11,7 @@ import classSummaryModule from '../../../modules/classSummary';
 /* eslint-disable import/named */
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
 /* eslint-enable import/named */
+import { PageNames } from '../../../constants';
 import AttendanceNewPage from '../AttendanceNewPage.vue';
 import AttendanceEditPage from '../AttendanceEditPage.vue';
 
@@ -41,6 +42,8 @@ const MOCK_LEARNERS = [
   { id: 'learner-a', name: 'Alice', username: 'alice' },
   { id: 'learner-b', name: 'Bob', username: 'bob' },
 ];
+
+const [LEARNER_CHARLIE, LEARNER_ALICE, LEARNER_BOB] = MOCK_LEARNERS;
 
 const COMPONENT_STUBS = {
   CoachImmersivePage: {
@@ -219,9 +222,9 @@ describe('AttendanceNewPage', () => {
   it('renders learners sorted alphabetically', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText('Bob')).toBeInTheDocument();
-      expect(screen.getByText('Charlie')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_BOB.name)).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_CHARLIE.name)).toBeInTheDocument();
     });
   });
 
@@ -236,16 +239,16 @@ describe('AttendanceNewPage', () => {
   it('filters learners by search input', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     const filterInput = screen.getByPlaceholderText(/search/i);
     await fireEvent.update(filterInput, 'ali');
 
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.queryByText('Bob')).not.toBeInTheDocument();
-      expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+      expect(screen.queryByText(LEARNER_BOB.name)).not.toBeInTheDocument();
+      expect(screen.queryByText(LEARNER_CHARLIE.name)).not.toBeInTheDocument();
     });
   });
 
@@ -267,7 +270,7 @@ describe('AttendanceNewPage', () => {
   it('shows confirmation modal when marking all present', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     await fireEvent.click(getMarkAllSwitch());
@@ -280,7 +283,7 @@ describe('AttendanceNewPage', () => {
   it('wraps mark-all modal action buttons in KButtonGroup', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     await fireEvent.click(getMarkAllSwitch());
@@ -308,7 +311,7 @@ describe('AttendanceNewPage', () => {
     // so the modal never re-opened — requiring a second click to trigger it again.
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     // First click — opens modal
@@ -336,7 +339,7 @@ describe('AttendanceNewPage', () => {
   it('marks all learners present after confirming modal', async () => {
     renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     await fireEvent.click(getMarkAllSwitch());
@@ -355,7 +358,7 @@ describe('AttendanceNewPage', () => {
   it('calls createSession and redirects with a success snackbar query on submit', async () => {
     const { createSession, createSnackbar } = renderNewPage();
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     await fireEvent.click(getLearnerSwitch('learner-a'));
@@ -380,7 +383,7 @@ describe('AttendanceNewPage', () => {
       createSessionResult: () => Promise.reject(new Error('API error')),
     });
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     const initialRoute = router.currentRoute.name;
@@ -393,6 +396,21 @@ describe('AttendanceNewPage', () => {
 
     expect(createSnackbar).toHaveBeenCalled();
     expect(router.currentRoute.name).toBe(initialRoute);
+  });
+
+  it('Cancel button navigates to ATTENDANCE_HISTORY without passing the click event as query', async () => {
+    const { router } = renderNewPage();
+    await waitFor(() => {
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+    });
+
+    const pushSpy = jest.spyOn(router, 'push');
+    await fireEvent.click(screen.getByRole('button', { name: coreString('cancelAction') }));
+
+    expect(pushSpy).toHaveBeenCalledTimes(1);
+    const routeArg = pushSpy.mock.calls[0][0];
+    expect(routeArg.name).toBe(PageNames.ATTENDANCE_HISTORY);
+    expect(routeArg.query).toEqual({});
   });
 });
 
@@ -418,7 +436,7 @@ describe('AttendanceEditPage', () => {
     await waitFor(() => {
       expect(fetchSession).toHaveBeenCalledWith('session-1');
       expect(fetchRecords).toHaveBeenCalledWith('session-1');
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     // Sorted: Alice (present), Bob (absent), Charlie (present)
@@ -434,7 +452,7 @@ describe('AttendanceEditPage', () => {
     });
 
     expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
-    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+    expect(screen.queryByText(LEARNER_ALICE.name)).not.toBeInTheDocument();
   });
 
   it('displays the session date and time in the heading', async () => {
@@ -480,7 +498,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Bob')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_BOB.name)).toBeInTheDocument();
     });
 
     // Toggle Bob from absent to present (1 change)
@@ -503,7 +521,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Bob')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_BOB.name)).toBeInTheDocument();
     });
 
     // Toggle Bob from absent to present
@@ -536,7 +554,7 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Bob')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_BOB.name)).toBeInTheDocument();
     });
     const initialRoute = router.currentRoute.name;
 
@@ -581,7 +599,7 @@ describe('AttendanceEditPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Alice' })),
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_ALICE.name })),
       ).toBeInTheDocument();
     });
 
@@ -610,13 +628,13 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     // Bob joined after this session — should not appear at all
-    expect(screen.queryByText('Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText(LEARNER_BOB.name)).not.toBeInTheDocument();
     expect(
-      screen.queryByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+      screen.queryByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_BOB.name })),
     ).not.toBeInTheDocument();
   });
 
@@ -632,10 +650,10 @@ describe('AttendanceEditPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Alice' })),
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_ALICE.name })),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_BOB.name })),
       ).toBeInTheDocument();
     });
 
@@ -663,12 +681,14 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_BOB.name })),
       ).toBeInTheDocument();
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Charlie' })),
+        screen.getByText(
+          attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_CHARLIE.name }),
+        ),
       ).toBeInTheDocument();
     });
   });
@@ -686,7 +706,7 @@ describe('AttendanceEditPage', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: 'Bob' })),
+        screen.getByText(attendanceStrings.previouslyEnrolledLabel$({ name: LEARNER_BOB.name })),
       ).toBeInTheDocument();
     });
 
@@ -726,11 +746,28 @@ describe('AttendanceEditPage', () => {
     await global.flushPromises();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
     });
 
     // 3 total present (Alice current + Bob and Charlie previously enrolled), 0 absent.
     expect(screen.getByText(attendanceStrings.presentCount$({ count: 3 }))).toBeInTheDocument();
     expect(screen.getByText(attendanceStrings.absentCount$({ count: 0 }))).toBeInTheDocument();
+  });
+
+  it('Cancel button navigates to ATTENDANCE_HISTORY without passing the click event as query', async () => {
+    const { router } = renderEditPage();
+    await global.flushPromises();
+
+    await waitFor(() => {
+      expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
+    });
+
+    const pushSpy = jest.spyOn(router, 'push');
+    await fireEvent.click(screen.getByRole('button', { name: coreString('cancelAction') }));
+
+    expect(pushSpy).toHaveBeenCalledTimes(1);
+    const routeArg = pushSpy.mock.calls[0][0];
+    expect(routeArg.name).toBe(PageNames.ATTENDANCE_HISTORY);
+    expect(routeArg.query).toEqual({});
   });
 });
