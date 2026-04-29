@@ -71,10 +71,11 @@ export default function makeStore() {
 }
 // Use for availableChannelsPage and all children:
 // channel-list-item
-export function makeAvailableChannelsPageStore() {
+export function makeAvailableChannelsPageStore({ channelList } = {}) {
   const store = coreStoreFactory(cloneDeep(pluginModule));
   store.registerModule('core', coreModule);
-  store.state.manageContent.channelList = [...channelsOnDevice];
+  store.state.manageContent.channelList =
+    channelList !== undefined ? channelList : [...channelsOnDevice];
   store.state.core.loading = false;
   Object.assign(store.state.manageContent.wizard, {
     driveList: [
