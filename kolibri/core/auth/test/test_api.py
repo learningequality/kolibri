@@ -829,6 +829,22 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["picture_passwords_exhausted"])
 
+    def test_learner_count_in_facility_response(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        # facility1 has user1 (a learner) plus the superuser (not a learner)
+        self.assertEqual(response.data["num_learners"], 1)
+
 
 def _add_demographic_schema_to_facility(facility):
     facility.dataset.extra_fields.update(

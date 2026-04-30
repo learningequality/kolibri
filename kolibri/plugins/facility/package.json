@@ -20,6 +20,7 @@
     },
     "devDependencies": {
         "@testing-library/jest-dom": "catalog:",
+        "@testing-library/user-event": "catalog:",
         "@testing-library/vue": "catalog:"
     }
 }

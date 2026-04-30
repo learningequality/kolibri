@@ -89,6 +89,7 @@ from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
+from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
@@ -924,6 +925,10 @@ def _map_dataset(facility):
     return dataset
 
 
+def _facility_num_learners(facility):
+    return get_learner_count(facility["dataset__id"])
+
+
 def _picture_passwords_exhausted(facility):
     return are_picture_passwords_exhausted(facility["dataset__id"])
 
@@ -949,6 +954,7 @@ class FacilityViewSet(ValuesViewset):
     field_map = OrderedDict(
         [
             # must precede _map_dataset since it depends on the dataset ID
+            ("num_learners", _facility_num_learners),
             ("picture_passwords_exhausted", _picture_passwords_exhausted),
             ("dataset", _map_dataset),
         ]

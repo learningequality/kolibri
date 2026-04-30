@@ -198,6 +198,71 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'There are no learners in this class',
     context: 'Shown on the all passwords page when the class has no enrolled learners',
   },
+
+  // Info modal for picture password radio option
+  picturePasswordInfoLabel: {
+    message: 'About picture passwords',
+    context:
+      'Accessible label for the information icon button next to the picture password option, and title for the picture password info modal.',
+  },
+  picturePasswordInfoIntro: {
+    message: 'Picture password is designed for early-literacy learners.',
+    context: 'Opening sentence in the picture password info modal.',
+  },
+  picturePasswordInfoBody: {
+    message:
+      'Learners sign in by selecting a 3-picture sequence unique to their account. Each sequence is auto-generated and assigned by Kolibri and cannot be changed. This feature is only available in facilities with fewer than 1,300 learners.',
+    context: 'Main content in the information modal about the picture password sign-in method.',
+  },
+  picturePasswordInfoNote: {
+    message:
+      'Learners who join the facility after the 1,300 user limit can sign in with a username.',
+    context:
+      'Note shown in the picture password info modal about learners added after the limit is reached.',
+  },
+
+  // Info modal for child-friendly icons radio option
+  childFriendlyIconsInfoLabel: {
+    message: 'About icon styles',
+    context:
+      'Accessible label for the information icon button next to the child-friendly icons option.',
+  },
+  childFriendlyIconsInfoDescription: {
+    message:
+      'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
+    context: 'Description shown in the icon styles information modal.',
+  },
+  childFriendlyIconsColumnLabel: {
+    message: 'Child-friendly',
+    context: 'Column header for the child-friendly icons column in the icon styles modal.',
+  },
+  standardIconsColumnLabel: {
+    message: 'Standard',
+    context: 'Column header for the standard icons column in the icon styles modal.',
+  },
+
+  // Exhausted state — inline explanation and info modal
+  picturePasswordUnavailableExplanation: {
+    message: 'Picture password is not available right now.',
+    context:
+      'Short explanation shown below the disabled picture password option when the learner limit is reached.',
+  },
+  picturePasswordUnavailableTitle: {
+    message: 'Setting not available',
+    context:
+      'Title for the modal explaining why picture password is unavailable when the learner limit is reached.',
+  },
+  picturePasswordUnavailableBody: {
+    message:
+      'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
+    context:
+      'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
+  },
+  picturePasswordUnavailableLearnerCount: {
+    message: 'Current number of learners in {facilityName}: {learnerCount}',
+    context:
+      'Shows the current learner count for the facility in the picture password unavailable modal. {facilityName} is the name of the facility and {learnerCount} is the number of learners.',
+  },
   printWithImages: {
     message: 'Print with images',
     context: 'Radio option label for printing the picture password list with icon images',
