@@ -15,4 +15,11 @@ module.exports = Object.assign(baseConfig, {
     '!**/node_modules/**',
     '!**/__fixtures__/**',
   ],
+  moduleNameMapper: {
+    // Preserve base config mappings (CSS/asset mocks) and add our own overrides.
+    ...baseConfig.moduleNameMapper,
+    // Ensure the kolibri package resolves from this repo's packages directory
+    // rather than any symlinked version in node_modules.
+    '^kolibri/utils/appError$': '<rootDir>/packages/kolibri/utils/appError.js',
+  },
 });
