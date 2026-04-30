@@ -172,8 +172,13 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'View Passwords',
     context: 'Button label that navigates to the page listing all learner picture passwords',
   },
+  printPicturePasswordsAction: {
+    message: 'Print picture passwords',
+    context:
+      'Dropdown option on the class edit page that navigates to the page for printing learner picture passwords',
+  },
   noPicturePasswordDescription: {
-    message: 'No picture password assigned',
+    message: 'No picture password',
     context: 'Shown in the learner password list when a learner has no picture password set',
   },
   printAction: {
@@ -257,5 +262,31 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Current number of learners in {facilityName}: {learnerCount}',
     context:
       'Shows the current learner count for the facility in the picture password unavailable modal. {facilityName} is the name of the facility and {learnerCount} is the number of learners.',
+  },
+  printWithImages: {
+    message: 'Print with images',
+    context: 'Radio option label for printing the picture password list with icon images',
+  },
+  printWithTextOnly: {
+    message: 'Print with text only',
+    context: 'Radio option label for printing the picture password list using text labels only',
+  },
+  printPasswordsDialogHeader: {
+    message: 'Print passwords',
+    context: 'Title for the dialog where coaches choose how to print the picture password list',
+  },
+  printFormatPreviewLabel: {
+    message: 'Preview',
+    context: 'Label for the live preview section in the print format dialog',
+  },
+  picturePasswordForLearner: {
+    message: 'Password for {learnerName} is a list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a learner's picture password when the learner name is known. For example: 'Password for Alice is a list of 3 pictures: moon, water, bird'.",
+  },
+  picturePasswordList: {
+    message: 'A list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a picture password when no learner name is available. For example: 'A list of 3 pictures: moon, water, bird'.",
   },
 });

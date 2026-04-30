@@ -145,12 +145,14 @@
 <script>
 
   import { mapState, mapActions } from 'vuex';
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import UserTable from 'kolibri-common/components/UserTable';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
-  import { Modals } from '../../constants.js';
+  import useFacility from 'kolibri-common/composables/useFacility';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { ClassesActions, Modals, PageNames } from '../../constants.js';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ClassCopyModal from '../common/ClassCopyModal.vue';
   import ClassDeleteModal from '../common/ClassDeleteModal';
@@ -178,6 +180,12 @@
       const classToCopy = ref({});
       const { copyClass$, renameClassLabel$, deleteClass$ } = bulkUserManagementStrings;
       const { classToDelete, selectClassToDelete, clearClassToDelete } = useDeleteClass();
+      const { facilityConfig } = useFacility();
+      const { printPicturePasswordsAction$ } = picturePasswordStrings;
+      const picturePasswordEnabled = computed(() =>
+        Boolean(facilityConfig.value.picture_password_settings),
+      );
+
       return {
         pageLoading,
         classToCopy,
@@ -187,6 +195,8 @@
         classToDelete,
         selectClassToDelete,
         clearClassToDelete,
+        printPicturePasswordsAction$,
+        picturePasswordEnabled,
       };
     },
     data() {
@@ -212,7 +222,7 @@
         return Modals;
       },
       dropDownOptions() {
-        return [
+        const options = [
           {
             label: this.copyClass$(),
             value: 'COPY_CLASS',
@@ -223,12 +233,20 @@
             value: 'EDIT_CLASS_NAME',
             id: 'rename',
           },
-          {
-            label: this.deleteClass$(),
-            value: 'DELETE_CLASS',
-            id: 'delete',
-          },
         ];
+        if (this.picturePasswordEnabled) {
+          options.push({
+            label: this.printPicturePasswordsAction$(),
+            value: ClassesActions.PRINT_PICTURE_PASSWORDS,
+            id: 'view-passwords',
+          });
+        }
+        options.push({
+          label: this.deleteClass$(),
+          value: 'DELETE_CLASS',
+          id: 'delete',
+        });
+        return options;
       },
     },
     methods: {
@@ -273,6 +291,12 @@
           this.classToCopy = classroom;
           this.displayModal(Modals.COPY_CLASS);
           return;
+        }
+        if (selection.value === ClassesActions.PRINT_PICTURE_PASSWORDS) {
+          this.$router.push({
+            name: PageNames.CLASS_PASSWORDS_PAGE,
+            params: { id: classroom.id, facility_id: this.$route.params.facility_id },
+          });
         }
       },
     },
