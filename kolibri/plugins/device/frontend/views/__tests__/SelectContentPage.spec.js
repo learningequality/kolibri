@@ -36,23 +36,28 @@ describe('SelectContentPage', () => {
   });
 
   it('shows the thumbnail, title, descripton, and version of the channel', () => {
+    const heading = 'Awesome Channel';
+    const version = 'Version 10';
+    const description = 'An awesome channel';
     const fakeImage = 'data:image/png;base64,abcd1234';
     updateMetaChannel(store, { thumbnail: fakeImage });
     renderComponent({ store });
     expect(screen.getByRole('img')).toHaveAttribute('src', fakeImage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Awesome Channel');
-    expect(screen.getByText('Version 10')).toBeInTheDocument();
-    expect(screen.getByText('An awesome channel')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(heading);
+    expect(screen.getByText(version)).toBeInTheDocument();
+    expect(screen.getByText(description)).toBeInTheDocument();
   });
 
   it('shows the total size of the channel', () => {
     renderComponent({ store });
-    expect(screen.getAllByRole('row')[1]).toHaveTextContent('Total size 1,000 5 GB');
+    const TOTAL_SIZE_OF_CHANNEL = 'Total size 1,000 5 GB';
+    expect(screen.getAllByRole('row')[1]).toHaveTextContent(TOTAL_SIZE_OF_CHANNEL);
   });
 
   it('shows the total size of any resources on the device', () => {
     renderComponent({ store });
-    expect(screen.getAllByRole('row')[2]).toHaveTextContent('On your device 2,000 95 MB');
+    const TOTAL_SIZE_OF_RESOURCES_ON_DEVICE = 'On your device 2,000 95 MB';
+    expect(screen.getAllByRole('row')[2]).toHaveTextContent(TOTAL_SIZE_OF_RESOURCES_ON_DEVICE);
   });
 
   it('shows size and resources as 0 if channel is not on device', () => {
@@ -62,19 +67,22 @@ describe('SelectContentPage', () => {
       on_device_file_size: 0,
     });
     renderComponent({ store });
-    expect(screen.getAllByRole('row')[2]).toHaveTextContent('On your device 0 0 B');
+    const TOTAL_SIZE_IF_CHANNEL_NOT_ON_DEVICE = 'On your device 0 0 B';
+    expect(screen.getAllByRole('row')[2]).toHaveTextContent(TOTAL_SIZE_IF_CHANNEL_NOT_ON_DEVICE);
   });
 
   it('shows a update notification if a new version is available', () => {
     updateMetaChannel(store, { version: 1000 });
     renderComponent({ store });
-    expect(screen.getByText('Version 1000 is available')).toBeInTheDocument();
+    const NEW_VERSION_TEXT = 'Version 1000 is available';
+    expect(screen.getByText(NEW_VERSION_TEXT)).toBeInTheDocument();
   });
 
   it('if a new version is not available, then no notification/button appear', () => {
     updateMetaChannel(store, { version: 10 }); // same version
     renderComponent({ store });
-    expect(screen.queryByText('Version 1000 is available')).not.toBeInTheDocument();
+    const NEW_VERSION_TEXT = 'Version 1000 is available';
+    expect(screen.queryByText(NEW_VERSION_TEXT)).not.toBeInTheDocument();
   });
 
   describe('draft channel (installed version = 0)', () => {

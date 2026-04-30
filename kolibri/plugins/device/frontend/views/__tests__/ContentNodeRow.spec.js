@@ -1,4 +1,4 @@
-import { queryByDisplayValue, render, screen } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import ContentNodeRow from '../SelectContentPage/ContentNodeRow';
 import { makeNode } from '../../__tests__/utils/data';
@@ -29,16 +29,20 @@ function renderComponent(props = {}) {
 }
 
 describe('contentNodeRow component', () => {
+  const NODE_TITLE = defaultProps.node.title;
+  const NODE_ID = defaultProps.node.id;
+  const NODE_MESSAGE = defaultProps.message;
+
   it('shows the correct title', () => {
     renderComponent();
-    expect(screen.getByText('Awesome Content', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText(NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
   it('shows the correct message when checkbox is checked', async () => {
     renderComponent();
     const checkbox = screen.getByRole('checkbox');
     await userEvent.click(checkbox);
-    expect(screen.getByText('HELLO')).toBeInTheDocument();
+    expect(screen.getByText(NODE_MESSAGE)).toBeInTheDocument();
   });
 
   it('when node is not a topic, title is just text', () => {
@@ -47,22 +51,22 @@ describe('contentNodeRow component', () => {
         kind: 'video',
       }),
     });
-
-    expect(screen.queryByRole('link', { name: /node_1/i })).not.toBeInTheDocument();
-    expect(screen.getByText('node_1', { selector: 'span' })).toBeInTheDocument();
+    const VIDEO_NODE_TITLE = 'node_1';
+    expect(screen.queryByRole('link', { name: VIDEO_NODE_TITLE })).not.toBeInTheDocument();
+    expect(screen.getByText(VIDEO_NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
   it('when node is disabled, title is just text', () => {
     renderComponent({ disabled: true });
-
-    const link = screen.queryByRole('link', { name: 'Awesome Content' });
+    const link = screen.queryByRole('link', { name: NODE_TITLE });
     expect(link).toHaveAttribute('href', undefined);
   });
 
   it('topic links have the correct route', async () => {
     renderComponent();
-    const link = screen.getByRole('link', { name: 'Awesome Content' });
-    expect(link).toHaveAttribute('href', expect.stringContaining('node_id=awesome_content'));
+    const link = screen.getByRole('link', { name: NODE_TITLE });
+    const expectedSubstring = `node_id=${NODE_ID}`;
+    expect(link).toHaveAttribute('href', expect.stringContaining(expectedSubstring));
   });
 
   it('checks the checkbox when clicked if initially unchecked', async () => {
@@ -98,43 +102,38 @@ describe('contentNodeRow component', () => {
   });
 
   describe('course modality nodes', () => {
+    const NODE_TITLE = 'My Course';
+    const NODE_KIND = 'topic';
+    const NODE_MODALITY = 'COURSE';
+    const NODE_ID = 'course_1';
+
+    const NODE = {
+      title: NODE_TITLE,
+      kind: NODE_KIND,
+      modality: NODE_MODALITY,
+      id: NODE_ID,
+    };
+
     it('does not render a link for course nodes even though they are topics', () => {
       renderComponent({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+        node: NODE,
       });
-
-      expect(screen.queryByRole('link', { name: 'My Course' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: NODE_TITLE })).not.toBeInTheDocument();
     });
 
     it('uses the course icon instead of topic icon for course nodes', () => {
       renderComponent({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+        node: NODE,
       });
-
       expect(screen.getByTestId('icon-course')).toBeInTheDocument();
     });
 
     it('prepends "Course: " to the title for course nodes', () => {
       renderComponent({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+        node: NODE,
       });
-
-      expect(screen.getByText(/Course:.*My Course/i)).toBeInTheDocument();
+      const PREPENDED_TITLE = 'Course: My Course';
+      expect(screen.getByText(PREPENDED_TITLE)).toBeInTheDocument();
     });
   });
 });

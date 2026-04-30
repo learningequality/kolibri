@@ -8,6 +8,9 @@ import router from './testRouter';
 
 const ContentTreeViewerStrings = createTranslator('ContentTreeViewer', ContentTreeViewer.$trs);
 
+jest.mock('kolibri/urls');
+jest.mock('kolibri/client');
+
 function simplePath(ids) {
   return ids.map(makeNode);
 }
@@ -113,15 +116,19 @@ describe('ContentTreeViewer component', () => {
   });
 
   it('checks child nodes are rendered at their correct full path', () => {
+    const CHANNEL_ID = 'channel_1';
+    const CHANNEL_TITLE = 'Channel 1';
+    const TOPIC_ID = 'topic_1';
+    const TOPIC_TITLE = 'Topic 1';
     store.state.manageContent.wizard.path = [
-      { id: 'channel_1', title: 'Channel 1' },
-      { id: 'topic_1', title: 'Topic 1' },
+      { id: CHANNEL_ID, title: CHANNEL_TITLE },
+      { id: TOPIC_ID, title: TOPIC_TITLE },
     ];
 
     renderComponent({ store });
     const navPath = screen.getByRole('list');
-    expect(within(navPath).getByRole('link', { name: 'Channel 1' })).toBeInTheDocument();
-    expect(within(navPath).getByText('Topic 1')).toBeInTheDocument();
+    expect(within(navPath).getByRole('link', { name: CHANNEL_TITLE })).toBeInTheDocument();
+    expect(within(navPath).getByText(TOPIC_TITLE)).toBeInTheDocument();
   });
 
   describe('"select all" checkbox state', () => {
@@ -171,8 +178,9 @@ describe('ContentTreeViewer component', () => {
 
     it('if unchecked, clicking the "Select All" for the topic triggers an "add node" action', async () => {
       // Selected w/ unselected child scenario
-      setIncludedNodes([makeNode('topic_1', { total_resources: 1000 })]);
-      setOmittedNodes([makeNode('subtopic_1', { path: [{ id: 'topic_1', title: '' }] })]);
+      const NODE_ID = 'topic_1';
+      setIncludedNodes([makeNode(NODE_ID, { total_resources: 1000 })]);
+      setOmittedNodes([makeNode('subtopic_1', { path: [{ id: NODE_ID, title: '' }] })]);
       renderComponent({ store });
       const selectAllCheckbox = screen.getByRole('checkbox', {
         name: ContentTreeViewerStrings.$tr('selectAll'),
@@ -181,12 +189,13 @@ describe('ContentTreeViewer component', () => {
       expect(store.dispatch).toHaveBeenCalledTimes(1);
       expect(store.dispatch).toHaveBeenCalledWith(
         'manageContent/wizard/addNodeForTransfer',
-        expect.objectContaining({ id: 'topic_1' }),
+        expect.objectContaining({ id: NODE_ID }),
       );
     });
 
     it('if topic is checked, clicking the "Select All" for the topic triggers a "remove node" action ', async () => {
-      setIncludedNodes([makeNode('topic_1')]);
+      const NODE_ID = 'topic_1';
+      setIncludedNodes([makeNode(NODE_ID)]);
       renderComponent({ store });
       const selectAllCheckbox = screen.getByRole('checkbox', {
         name: ContentTreeViewerStrings.$tr('selectAll'),
@@ -195,51 +204,46 @@ describe('ContentTreeViewer component', () => {
       expect(store.dispatch).toHaveBeenCalledTimes(1);
       expect(store.dispatch).toHaveBeenCalledWith(
         'manageContent/wizard/removeNodeForTransfer',
-        expect.objectContaining({ id: 'topic_1' }),
+        expect.objectContaining({ id: NODE_ID }),
       );
     });
   });
 
   describe('selecting child nodes', () => {
-    beforeEach(() => {
-      jest.spyOn(store, 'dispatch').mockResolvedValue();
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
     it('unchecks a checked child node checkbox when clicked', async () => {
+      const SUB_TOPIC_ID = 'subtopic_1';
+      const SUB_TOPIC_TITLE = 'node_subtopic_1';
       const subTopic = makeNode('subtopic_1', {
-        path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
+        path: [{ id: SUB_TOPIC_ID, title: SUB_TOPIC_TITLE }],
         total_resources: 100,
         on_device_resources: 50,
       });
       setChildren([subTopic]);
       setIncludedNodes([subTopic]);
       renderComponent({ store });
-
-      const checkbox = screen.getByRole('checkbox', { name: 'node_subtopic_1' });
+      const checkbox = screen.getByRole('checkbox', { name: SUB_TOPIC_TITLE });
       expect(checkbox).toBeChecked();
       await userEvent.click(checkbox);
       expect(checkbox).not.toBeChecked();
     });
 
     it('checks a unchecked child node checkbox when clicked', async () => {
+      const SUB_TOPIC_ID = 'subtopic_1';
+      const SUB_TOPIC_TITLE = 'node_subtopic_1';
       // Need to add at least two children, so clicking subtopic doesn't complete the topic
       const subTopic = makeNode('subtopic_1', {
-        path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
+        path: [{ id: SUB_TOPIC_ID, title: SUB_TOPIC_TITLE }],
         total_resources: 100,
         on_device_resources: 50,
       });
       const subTopic2 = makeNode('subtopic_2', {
-        path: [{ id: 'subtopic_1', title: 'node_subtopic_1' }],
+        path: [{ id: SUB_TOPIC_ID, title: SUB_TOPIC_TITLE }],
         total_resources: 100,
         on_device_resources: 50,
       });
       setChildren([subTopic, subTopic2]);
       renderComponent({ store });
-      const checkbox = screen.getByRole('checkbox', { name: 'node_subtopic_1' });
+      const checkbox = screen.getByRole('checkbox', { name: SUB_TOPIC_TITLE });
       expect(checkbox).not.toBeChecked();
       await userEvent.click(checkbox);
       expect(checkbox).toBeChecked();
@@ -259,11 +263,13 @@ describe('ContentTreeViewer component', () => {
         total_resources: 1,
       });
 
+      const SUB_TOPIC_TITLE = 'node_subtopic';
+
       store.state.manageContent.wizard.path = simplePath(['channel_1']);
       setChildren([subTopic, subTopic2]);
       setIncludedNodes([subSubTopic]);
       renderComponent({ store });
-      const checkbox = screen.getAllByRole('checkbox', { name: /node_subtopic/i })[0];
+      const checkbox = screen.getAllByRole('checkbox', { name: SUB_TOPIC_TITLE })[0];
       expect(checkbox).not.toBeChecked();
       expect(checkbox).toHaveProperty('indeterminate', true);
       await userEvent.click(checkbox);
