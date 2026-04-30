@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { i18nSetup } from 'kolibri/utils/i18n';
 import SelectContentPage from '../SelectContentPage';
 import ChannelContentsSummary from '../SelectContentPage/ChannelContentsSummary';
 import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
@@ -29,6 +30,10 @@ function updateMetaChannel(store, updates) {
 
 describe('SelectContentPage', () => {
   let store;
+
+  beforeAll(async () => {
+    await i18nSetup(true);
+  });
 
   beforeEach(() => {
     store = makeSelectContentPageStore();
@@ -75,5 +80,40 @@ describe('SelectContentPage', () => {
     updateMetaChannel(store, { version: 10 }); // same version
     const wrapper = makeWrapper({ store });
     expect(wrapper.text()).not.toMatch(/Version \S+ available/);
+  });
+
+  describe('draft channel (installed version = 0)', () => {
+    function setInstalledVersion(store, version) {
+      const existing = store.state.manageContent.channelList[0];
+      store.commit('manageContent/SET_CHANNEL_LIST', [{ ...existing, version }]);
+    }
+
+    it('shows ContentTreeViewer when installed version is 0 and Studio has newer version', () => {
+      setInstalledVersion(store, 0);
+      updateMetaChannel(store, { version: 5 });
+      const wrapper = makeWrapper({ store });
+      expect(wrapper.findAllComponents({ name: 'ContentTreeViewer' }).length).toBeGreaterThan(0);
+    });
+
+    it('shows NewChannelVersionBanner when installed version is 0 and Studio has newer version', () => {
+      setInstalledVersion(store, 0);
+      updateMetaChannel(store, { version: 5 });
+      const wrapper = makeWrapper({ store });
+      expect(wrapper.findComponent({ name: 'NewChannelVersionBanner' }).exists()).toBe(true);
+    });
+
+    it('shows SelectionBottomBar when installed version is 0 and Studio has newer version', () => {
+      setInstalledVersion(store, 0);
+      updateMetaChannel(store, { version: 5 });
+      const wrapper = makeWrapper({ store });
+      expect(wrapper.findAllComponents({ name: 'SelectionBottomBar' }).length).toBeGreaterThan(0);
+    });
+
+    it('hides ContentTreeViewer when installed version > 0 and newer version available on Studio', () => {
+      // Preserve existing non-draft behavior
+      updateMetaChannel(store, { version: 1000 });
+      const wrapper = makeWrapper({ store });
+      expect(wrapper.findAllComponents({ name: 'ContentTreeViewer' }).length).toBe(0);
+    });
   });
 });
