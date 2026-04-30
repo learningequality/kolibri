@@ -121,16 +121,12 @@
                     :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
                     :disabled="picturePasswordDisabled"
                     :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
-                    @click.native="
-                      picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)
-                    "
                   />
                   <KIconButton
                     icon="info"
                     size="mini"
                     :color="$themeTokens.primary"
                     :ariaLabel="picturePasswordInfoLabel$()"
-                    :disabled="picturePasswordDisabled"
                     @click.stop="showPicturePasswordInfoModal = true"
                   />
                 </div>
@@ -182,7 +178,6 @@
                     size="mini"
                     :color="$themeTokens.primary"
                     :ariaLabel="childFriendlyIconsInfoLabel$()"
-                    :disabled="picturePasswordDisabled"
                     @click.stop="showChildFriendlyIconsModal = true"
                   />
                 </div>

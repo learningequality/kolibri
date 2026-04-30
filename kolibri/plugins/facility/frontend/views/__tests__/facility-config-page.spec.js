@@ -380,12 +380,6 @@ describe('facility config page view', () => {
       expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
     });
 
-    it('opens the unavailable modal when clicking the disabled radio button', async () => {
-      renderExhausted();
-      await userEvent.click(screen.getByTestId(OptionsForSignIn.PICTURE_PASSWORD));
-      expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
-    });
-
     it('disables radio buttons in icon style section', () => {
       renderExhausted({ signInOption: OptionsForSignIn.PICTURE_PASSWORD });
       expect(screen.getByTestId('child_friendly_icons').querySelector('input')).toBeDisabled();
