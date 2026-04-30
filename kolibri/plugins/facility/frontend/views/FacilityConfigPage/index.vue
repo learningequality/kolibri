@@ -121,7 +121,9 @@
                     :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
                     :disabled="picturePasswordDisabled"
                     :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
-                    @click="picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)"
+                    @click.native="
+                      picturePasswordDisabled && (showPicturePasswordUnavailableModal = true)
+                    "
                   />
                   <KIconButton
                     icon="info"

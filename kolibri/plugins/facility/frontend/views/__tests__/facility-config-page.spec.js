@@ -11,10 +11,10 @@ import useFacilityEditor from '../../composables/useFacilityEditor';
 import ConfigPage from '../FacilityConfigPage';
 
 const {
-  picturePassword$,
+  picturePasswordInfoLabel$,
   picturePasswordInfoBody$,
   childFriendlyIconsInfoLabel$,
-  childFriendlyIconsInfoTitle$,
+  childFriendlyIcons$,
   picturePasswordUnavailableExplanation$,
   picturePasswordUnavailableTitle$,
 } = picturePasswordStrings;
@@ -334,7 +334,7 @@ describe('facility config page view', () => {
   describe('picture password info modal', () => {
     it('opens when clicking the info icon next to the picture password option', async () => {
       renderPage();
-      await userEvent.click(screen.getByRole('button', { name: picturePassword$() }));
+      await userEvent.click(screen.getByRole('button', { name: picturePasswordInfoLabel$() }));
       expect(screen.getByText(picturePasswordInfoBody$())).toBeInTheDocument();
     });
   });
@@ -343,9 +343,7 @@ describe('facility config page view', () => {
     it('opens when clicking the info icon next to the child-friendly icons option', async () => {
       renderPage({ mockFacilityConfig: { signInOption: OptionsForSignIn.PICTURE_PASSWORD } });
       await userEvent.click(screen.getByRole('button', { name: childFriendlyIconsInfoLabel$() }));
-      expect(
-        screen.getByRole('heading', { name: childFriendlyIconsInfoTitle$() }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: childFriendlyIcons$() })).toBeInTheDocument();
     });
   });
 
@@ -388,10 +386,10 @@ describe('facility config page view', () => {
       expect(screen.getByText(picturePasswordUnavailableTitle$())).toBeInTheDocument();
     });
 
-    it('hides the icon style section', () => {
+    it('disables radio buttons in icon style section', () => {
       renderExhausted({ signInOption: OptionsForSignIn.PICTURE_PASSWORD });
-      expect(screen.queryByTestId('child_friendly_icons')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('standard_icons')).not.toBeInTheDocument();
+      expect(screen.getByTestId('child_friendly_icons').querySelector('input')).toBeDisabled();
+      expect(screen.getByTestId('standard_icons').querySelector('input')).toBeDisabled();
     });
   });
 });
