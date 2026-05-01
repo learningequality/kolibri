@@ -1,7 +1,7 @@
 name: Handle pull request events
 on:
   pull_request_target:
-    types: [review_requested, labeled]
+    types: [opened, review_requested, labeled]
 jobs:
   call-workflow:
     name: Call shared workflow
