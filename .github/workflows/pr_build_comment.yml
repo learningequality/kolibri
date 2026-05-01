@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Make text for build comment
         id: comment-text
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const utils = require('./.github/githubUtils.js')
@@ -23,14 +23,14 @@ jobs:
         run: unzip pr_number.zip
       - name: Get PR number
         id: pr-number
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
             const prNumber = Number(fs.readFileSync('./pr_number'));
             return prNumber
       - name: Post build comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
