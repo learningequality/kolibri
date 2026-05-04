@@ -8,10 +8,12 @@ database transaction and will not properly sync. Once the model is created, it c
 through regular Django ORM calls, with `.using(<server_alias>)`.
 """
 import datetime
+import json
 import os
 import unittest
 import uuid
 
+import mock
 import requests
 from django.core.management import call_command
 from django.db import connections
@@ -19,10 +21,14 @@ from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from morango.constants import transfer_statuses
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.models import Store
 from morango.models import syncable_models
+from morango.models.certificates import Filter
 from morango.sync.controller import MorangoProfileController
 
 from ..constants.morango_sync import PROFILE_FACILITY_DATA
@@ -35,9 +41,12 @@ from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
 from .helpers import DUMMY_PASSWORD
+from .helpers import make_sync_context
 from .sync_utils import multiple_kolibri_servers
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.management.utils import get_client_and_server_certs
+from kolibri.core.auth.sync_operations import _INTEGRITY_ERROR_EXCEPTION
+from kolibri.core.auth.sync_operations import PicturePasswordCollisionOperation
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
@@ -91,6 +100,100 @@ class DateTimeTZFieldTestCase(TransactionTestCase):
             self.controller.deserialize_from_store()
         except AttributeError as e:
             self.fail(e.message)
+
+
+class PicturePasswordCollisionIntegrationTestCase(TransactionTestCase):
+    """
+    Exercises real Morango deserialization to verify that
+    PicturePasswordCollisionOperation resolves a picture_password unique-together
+    collision end-to-end: the colliding learner ends up in kolibriauth_facilityuser
+    with a new sequence and the Store record is left fully clean.
+
+    Uses TransactionTestCase because Morango's _begin_transaction uses
+    transaction isolation that is incompatible with TestCase's database wrapping.
+    """
+
+    def test_collision_resolved_and_learner_created(self):
+        from morango.sync.operations import _deserialize_from_store
+        from morango.sync.operations import _serialize_into_store
+
+        facility = Facility.objects.create(name="Test Facility")
+        dataset_id = facility.dataset_id
+        transfer_session_id = uuid.uuid4()
+
+        local_user = FacilityUser.objects.create(
+            username="local_learner",
+            password="***",
+            facility=facility,
+            picture_password="1.2.3",
+        )
+
+        _serialize_into_store(PROFILE_FACILITY_DATA)
+        local_store = Store.objects.get(id=local_user.id)
+
+        remote_user_id = uuid.uuid4().hex
+        remote_serialized = json.loads(local_store.serialized)
+        remote_serialized["id"] = remote_user_id
+        remote_serialized["username"] = "remote_learner"
+        remote_serialized["picture_password"] = "1.2.3"  # collision
+
+        remote_store = Store.objects.create(
+            id=remote_user_id,
+            profile=PROFILE_FACILITY_DATA,
+            partition="{dataset_id}:user-ro:{user_id}".format(
+                dataset_id=dataset_id, user_id=remote_user_id
+            ),
+            source_id=remote_user_id,
+            model_name=FacilityUser.morango_model_name,
+            serialized=json.dumps(remote_serialized),
+            dirty_bit=True,
+            deleted=False,
+            deserialization_exception=None,
+            last_transfer_session_id=transfer_session_id,
+            last_saved_instance=uuid.uuid4(),
+            last_saved_counter=1,
+        )
+
+        # First deserialization: remote_store should fail with a unique_together
+        # collision because local_user already holds picture_password="1.2.3".
+        _deserialize_from_store(PROFILE_FACILITY_DATA)
+
+        remote_store.refresh_from_db()
+        self.assertTrue(remote_store.dirty_bit)
+        self.assertEqual(
+            remote_store.deserialization_exception, _INTEGRITY_ERROR_EXCEPTION
+        )
+        self.assertFalse(FacilityUser.objects.filter(id=remote_user_id).exists())
+
+        # We mock super().handle() and get_dataset_id because we have already
+        # directly simulated the deserialization failure above; what we are
+        # testing here is the correction and re-deserialization path.
+        context = make_sync_context(transfer_session_id)
+        context.sync_session.profile = PROFILE_FACILITY_DATA
+        context.filter = Filter(dataset_id)
+        operation = PicturePasswordCollisionOperation()
+        with mock.patch(
+            "kolibri.core.auth.sync_operations.ReceiverDeserializeOperation.handle",
+            return_value=transfer_statuses.COMPLETED,
+        ), mock.patch(
+            "kolibri.core.auth.sync_operations.get_dataset_id",
+            return_value=dataset_id,
+        ):
+            result = operation.handle(context)
+
+        self.assertEqual(result, transfer_statuses.COMPLETED)
+        remote_store.refresh_from_db()
+        self.assertFalse(remote_store.dirty_bit)
+        self.assertFalse(remote_store.deleted)
+        self.assertIsNone(remote_store.deserialization_exception)
+        self.assertIsNone(remote_store.deserialization_error)
+        self.assertFalse(DeletedModels.objects.filter(id=remote_store.id).exists())
+        self.assertFalse(HardDeletedModels.objects.filter(id=remote_store.id).exists())
+
+        # The operation re-deserializes immediately, so no manual call is needed.
+        self.assertTrue(FacilityUser.objects.filter(id=remote_user_id).exists())
+        remote_in_db = FacilityUser.objects.get(id=remote_user_id)
+        self.assertNotEqual(remote_in_db.picture_password, "1.2.3")
 
 
 class MultipleServerTestCase(TestCase):

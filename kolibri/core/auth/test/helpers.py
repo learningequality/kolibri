@@ -1,6 +1,7 @@
 """
 Helper functions for use across the user/auth/permission-related tests.
 """
+import mock
 from django.core.cache import caches
 from django.core.cache.backends.base import InvalidCacheBackendError
 
@@ -134,3 +135,12 @@ def create_dummy_facility_data(
         facility.add_role(coach, role_kinds.ASSIGNABLE_COACH)
 
     return data
+
+
+def make_sync_context(transfer_session_id):
+    context = mock.Mock()
+    context.is_receiver = True
+    context.sync_session = mock.Mock()
+    context.filter = mock.Mock()
+    context.transfer_session.id = transfer_session_id
+    return context

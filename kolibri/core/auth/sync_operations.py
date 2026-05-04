@@ -1,26 +1,39 @@
 import json
 import logging
+import random
 
 from morango.constants import transfer_stages
+from morango.constants import transfer_statuses
+from morango.models import DeletedModels
+from morango.models import HardDeletedModels
+from morango.models import Store
 from morango.models.certificates import Filter
+from morango.sync.operations import _deserialize_from_store
 from morango.sync.operations import BaseOperation
 from morango.sync.operations import InitializeOperation
 from morango.sync.operations import LocalOperation
 from morango.sync.operations import NetworkInitializeOperation
+from morango.sync.operations import ReceiverDeserializeOperation
 
 from .sync_event_hook_utils import get_dataset_id
 from .sync_event_hook_utils import get_other_side_kolibri_version
 from .sync_event_hook_utils import get_user_id_for_single_user_sync
 from .sync_event_hook_utils import other_side_using_single_user_cert
 from .sync_event_hook_utils import this_side_using_single_user_cert
+from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
+from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
+from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.upgrade import matches_version
 from kolibri.utils.version import truncate_version
 
-
 logger = logging.getLogger(__name__)
 SORTED_STAGES = sorted(transfer_stages.ALL, key=lambda s: transfer_stages.precedence(s))
+_INTEGRITY_ERROR_EXCEPTION = "django.db.utils.IntegrityError"
 PREVIOUS_STAGES = dict(zip(SORTED_STAGES, [None] + SORTED_STAGES[:-1]))
 
 
@@ -338,3 +351,91 @@ class KolibriSingleUserSyncOperation(KolibriSyncOperationMixin, LocalOperation):
         :return: False or transfer status
         """
         return False
+
+
+class PicturePasswordCollisionOperation(ReceiverDeserializeOperation):
+    """
+    Recovers from picture_password unique-together collisions by assigning new
+    sequences (or None if exhausted), then immediately re-running deserialization
+    and returning COMPLETED. The dirty_bit must remain True so the immediate
+    re-deserialization picks up the corrected records.
+    """
+
+    priority = -1
+
+    def handle(self, context):
+        self._assert(context.sync_session is not None)
+        self._assert(context.transfer_session is not None)
+        self._assert(context.filter is not None)
+        self._assert(context.is_receiver)
+
+        result = super().handle(context)
+
+        if result != transfer_statuses.COMPLETED:
+            return result
+
+        dataset_id = get_dataset_id(context)
+
+        broken_stores = list(
+            Store.objects.filter(
+                partition__startswith=dataset_id,
+                model_name=FacilityUser.morango_model_name,
+                dirty_bit=True,
+                deserialization_exception=_INTEGRITY_ERROR_EXCEPTION,
+                last_transfer_session_id=context.transfer_session.id,
+            )
+        )
+
+        if not broken_stores:
+            return transfer_statuses.COMPLETED
+
+        exhausted = are_picture_passwords_exhausted(dataset_id)
+
+        # Pre-compute to avoid per-iteration DB queries and duplicate assignments
+        # within this batch (DB state won't reflect in-memory changes until bulk_update).
+        available_sequences = []
+        if not exhausted:
+            facility = Facility.objects.get(dataset_id=dataset_id)
+            available_sequences = list(
+                get_all_valid_sequences(PICTURE_PASSWORD_SET)
+                - get_assigned_sequences(facility)
+            )
+            random.shuffle(available_sequences)
+            if not available_sequences:
+                exhausted = True
+
+        for store in broken_stores:
+            app_model = FacilityUser.deserialize(
+                json.loads(store.serialized), sync_filter=context.filter
+            )
+
+            if exhausted:
+                app_model.picture_password = None
+            else:
+                app_model.picture_password = available_sequences.pop()
+                if not available_sequences:
+                    exhausted = True
+
+            store.serialized = json.dumps(app_model.serialize())
+            store.deleted = False
+            store.deserialization_error = None
+            store.deserialization_exception = None
+
+        # dirty_bit is intentionally omitted: it must stay True so that
+        # _deserialize_from_store below re-processes each corrected record.
+        Store.objects.bulk_update(
+            broken_stores,
+            [
+                "serialized",
+                "deleted",
+                "deserialization_error",
+                "deserialization_exception",
+            ],
+        )
+
+        store_ids = [store.id for store in broken_stores]
+        DeletedModels.objects.filter(id__in=store_ids).delete()
+        HardDeletedModels.objects.filter(id__in=store_ids).delete()
+
+        _deserialize_from_store(context.sync_session.profile, filter=context.filter)
+        return transfer_statuses.COMPLETED
