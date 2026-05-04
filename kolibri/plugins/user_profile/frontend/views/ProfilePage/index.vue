@@ -121,10 +121,9 @@
                 :picturePassword="currentUser.picture_password"
                 :showIconText="false"
               />
-              <KOptionalText
+              <KEmptyPlaceholder
                 v-else
                 data-testid="picture-password-empty"
-                :text="''"
               />
             </td>
           </tr>
