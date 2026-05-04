@@ -114,6 +114,16 @@ describe('picture password row', () => {
     });
   }
 
+  it('fetches the facility and its config on mount', async () => {
+    // Without this fetch the page-level facilityConfig is empty, which silently
+    // disables every facility-config-driven row on the Profile (#14545 fallout).
+    await renderProfile({ userKind: UserKinds.LEARNER });
+
+    const { fetchFacilities, updateFacilityConfig } = useFacilityMock();
+    expect(fetchFacilities).toHaveBeenCalled();
+    expect(updateFacilityConfig).toHaveBeenCalled();
+  });
+
   it('renders the picture password display for a learner with a picture_password', async () => {
     await renderProfile({
       userKind: UserKinds.LEARNER,

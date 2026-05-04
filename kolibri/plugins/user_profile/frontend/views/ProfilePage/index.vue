@@ -259,7 +259,7 @@
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
       const { facilities } = useFacilities();
-      const { facilityConfig } = useFacility();
+      const { facilityConfig, fetchFacilities, updateFacilityConfig } = useFacility();
       const userPermissions = computed(() => pickBy(_userPermissions));
 
       return {
@@ -279,6 +279,8 @@
         totalPoints,
         facilityConfig,
         facilities,
+        fetchFacilities,
+        updateFacilityConfig,
       };
     },
     computed: {
@@ -320,8 +322,12 @@
         return this.isSuperuser || this.isCoach || learner_can_edit;
       },
     },
-    created() {
+    async created() {
       this.fetchPoints();
+      // Load the facility list and selected-facility config so facilityConfig is
+      // populated for everything on this page that depends on it (#14545).
+      await this.fetchFacilities();
+      await this.updateFacilityConfig();
     },
     methods: {
       getPermissionString(permission) {
