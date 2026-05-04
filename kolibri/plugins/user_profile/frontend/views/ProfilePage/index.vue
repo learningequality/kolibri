@@ -112,6 +112,23 @@
             </td>
           </tr>
 
+          <tr v-if="showPicturePasswordRow">
+            <th>{{ coreString('passwordLabel') }}</th>
+            <td>
+              <UserPicturePassword
+                v-if="currentUser.picture_password"
+                data-testid="picture-password-display"
+                :picturePassword="currentUser.picture_password"
+                :showIconText="false"
+              />
+              <KOptionalText
+                v-else
+                data-testid="picture-password-empty"
+                :text="''"
+              />
+            </td>
+          </tr>
+
           <tr v-if="!isLearnerOnlyImport && canEditPassword">
             <th>{{ coreString('passwordLabel') }}</th>
             <td>
@@ -194,8 +211,9 @@
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
+  import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
-  import { PermissionTypes } from 'kolibri/constants';
+  import { PermissionTypes, UserKinds } from 'kolibri/constants';
   import useUser from 'kolibri/composables/useUser';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
@@ -222,6 +240,7 @@
       NotificationsRoot,
       GenderDisplayText,
       PermissionsIcon,
+      UserPicturePassword,
       UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
@@ -288,6 +307,12 @@
           return this.$tr('limitedPermissions');
         }
         return '';
+      },
+      showPicturePasswordRow() {
+        return (
+          this.userKind === UserKinds.LEARNER &&
+          this.facilityConfig?.picture_password_settings != null
+        );
       },
       canEditPassword() {
         const learner_can_edit =
