@@ -4,9 +4,7 @@
     <div class="wrapper-table">
       <div class="main-row table-row">
         <div class="main-cell table-cell">
-          <!-- remote access disabled -->
           <div
-            v-if="!allowAccess || deviceUnusableReason"
             class="box"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
@@ -25,103 +23,86 @@
               {{ logoText }}
             </h1>
             <template v-if="!allowAccess">
+              <!-- remote access disabled -->
               <p data-testid="restrictedAccess">
                 {{ $tr('restrictedAccess') }}
               </p>
               <p>{{ $tr('restrictedAccessDescription') }}</p>
             </template>
             <DeviceUnusableMessage
-              v-else
+              v-else-if="deviceUnusableReason"
               :reason="deviceUnusableReason"
             />
-          </div>
-          <!-- remote access enabled -->
-          <div
-            v-else
-            class="box"
-            :style="{ backgroundColor: $themeTokens.surface }"
-          >
-            <CoreLogo
-              v-if="themeConfig.signIn.topLogo"
-              class="logo"
-              :src="themeConfig.signIn.topLogo.src"
-              :alt="themeConfig.signIn.topLogo.alt"
-              :style="themeConfig.signIn.topLogo.style"
-            />
-            <h1
-              v-if="themeConfig.signIn.showTitle"
-              class="kolibri-title"
-              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
-            >
-              {{ logoText }}
-            </h1>
-            <p
-              v-if="themeConfig.signIn.showPoweredBy"
-              :style="themeConfig.signIn.poweredByStyle"
-              class="small-text"
-            >
-              <KButton
-                v-if="oidcProviderFlow"
-                :text="$tr('poweredByKolibri')"
-                appearance="basic-link"
-                @click="whatsThisModalVisible = true"
-              />
-              <KExternalLink
-                v-else
-                :text="$tr('poweredByKolibri')"
-                :primary="true"
-                href="https://learningequality.org/r/powered_by_kolibri"
-                :openInNewTab="true"
-                appearance="basic-link"
-              />
-            </p>
+            <!-- Regular auth layout (remote access enabled) -->
+            <template v-else>
+              <p
+                v-if="themeConfig.signIn.showPoweredBy"
+                :style="themeConfig.signIn.poweredByStyle"
+                class="small-text"
+              >
+                <KButton
+                  v-if="oidcProviderFlow"
+                  :text="$tr('poweredByKolibri')"
+                  appearance="basic-link"
+                  @click="whatsThisModalVisible = true"
+                />
+                <KExternalLink
+                  v-else
+                  :text="$tr('poweredByKolibri')"
+                  :primary="true"
+                  href="https://learningequality.org/r/powered_by_kolibri"
+                  :openInNewTab="true"
+                  appearance="basic-link"
+                />
+              </p>
 
-            <slot></slot>
+              <slot></slot>
 
-            <p
-              v-if="showCreateAccountButton"
-              class="create"
-            >
-              <KRouterLink
-                :text="userString('createAccountAction')"
-                :to="signUpRoute"
-                :primary="false"
-                appearance="raised-button"
-                :disabled="busy"
-                style="width: 100%"
-                data-testid="createUser"
-              />
-            </p>
+              <p
+                v-if="showCreateAccountButton"
+                class="create"
+              >
+                <KRouterLink
+                  :text="userString('createAccountAction')"
+                  :to="signUpRoute"
+                  :primary="false"
+                  appearance="raised-button"
+                  :disabled="busy"
+                  style="width: 100%"
+                  data-testid="createUser"
+                />
+              </p>
 
-            <div>
-              <component
-                :is="component"
-                v-for="component in loginOptions"
-                :key="component.name"
-              />
-            </div>
-            <p
-              v-if="allowAlternateSignIn"
-              class="alternative-link small-text"
-            >
-              <KRouterLink
-                :text="alternateSignInText$()"
-                :to="alternateSignInRoute"
-                :primary="true"
-                appearance="basic-link"
-              />
-            </p>
-            <p
-              v-if="showGuestAccess"
-              class="alternative-link small-text"
-            >
-              <KExternalLink
-                :text="$tr('accessAsGuest')"
-                :href="guestURL"
-                :primary="true"
-                appearance="basic-link"
-              />
-            </p>
+              <div>
+                <component
+                  :is="component"
+                  v-for="component in loginOptions"
+                  :key="component.name"
+                />
+              </div>
+              <p
+                v-if="allowAlternateSignIn"
+                class="alternative-link small-text"
+              >
+                <KRouterLink
+                  :text="alternateSignInText$()"
+                  :to="alternateSignInRoute"
+                  :primary="true"
+                  appearance="basic-link"
+                />
+              </p>
+              <p
+                v-if="showGuestAccess"
+                class="alternative-link small-text"
+              >
+                <KExternalLink
+                  :text="$tr('accessAsGuest')"
+                  :href="guestURL"
+                  :primary="true"
+                  appearance="basic-link"
+                />
+              </p>
+            </template>
           </div>
           <div
             class="background"
