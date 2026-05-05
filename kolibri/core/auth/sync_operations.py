@@ -389,33 +389,22 @@ class PicturePasswordCollisionOperation(ReceiverDeserializeOperation):
         if not broken_stores:
             return transfer_statuses.COMPLETED
 
-        exhausted = are_picture_passwords_exhausted(dataset_id)
-
-        # Pre-compute to avoid per-iteration DB queries and duplicate assignments
-        # within this batch (DB state won't reflect in-memory changes until bulk_update).
         available_sequences = []
-        if not exhausted:
+        if not are_picture_passwords_exhausted(dataset_id):
             facility = Facility.objects.get(dataset_id=dataset_id)
             available_sequences = list(
                 get_all_valid_sequences(PICTURE_PASSWORD_SET)
                 - get_assigned_sequences(facility)
             )
             random.shuffle(available_sequences)
-            if not available_sequences:
-                exhausted = True
 
         for store in broken_stores:
             app_model = FacilityUser.deserialize(
                 json.loads(store.serialized), sync_filter=context.filter
             )
-
-            if exhausted:
-                app_model.picture_password = None
-            else:
-                app_model.picture_password = available_sequences.pop()
-                if not available_sequences:
-                    exhausted = True
-
+            app_model.picture_password = (
+                available_sequences.pop() if available_sequences else None
+            )
             store.serialized = json.dumps(app_model.serialize())
             store.deleted = False
             store.deserialization_error = None
