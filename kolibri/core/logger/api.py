@@ -434,7 +434,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 content_id=content_id,
                 user=user,
             )
-            updated_fields = ("end_timestamp", "channel_id", "_morango_dirty_bit")
+            updated_fields = ("end_timestamp", "channel_id")
             if repeat:
                 summarylog.progress = 0
                 updated_fields += ("progress",)
@@ -753,9 +753,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     if end_timestamp:
                         masterylog.end_timestamp = end_timestamp
                         update_fields += ("end_timestamp",)
-                    masterylog.save(
-                        update_fields=update_fields + ("_morango_dirty_bit",)
-                    )
+                    masterylog.save(update_fields=update_fields)
                 return masterylog.id
             except MasteryLog.DoesNotExist:
                 raise ValidationError(
@@ -860,7 +858,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "interaction_history",
                 "end_timestamp",
                 "time_spent",
-                "_morango_dirty_bit",
             }
             item_interactions = list(item_interactions)
             attemptlog = self._get_attemptlog(
@@ -937,7 +934,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         return max(0, min(1.0, progress))
 
     def _update_content_log(self, log, end_timestamp, validated_data):
-        update_fields = ("end_timestamp", "_morango_dirty_bit")
+        update_fields = ("end_timestamp",)
 
         log.end_timestamp = end_timestamp
         if "progress_delta" in validated_data:
