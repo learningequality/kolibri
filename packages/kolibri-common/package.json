@@ -25,7 +25,7 @@
     "lockr": "0.8.5",
     "lodash": "catalog:",
     "screenfull": "^5.2.0",
-    "uuid": "^11.1.0",
+    "uuid": "^14.0.0",
     "vue-router": "catalog:",
     "vuex": "catalog:",
     "xstate": "catalog:"
