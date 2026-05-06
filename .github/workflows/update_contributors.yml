@@ -1,0 +1,31 @@
+name: Update contributors in AUTHORS.md
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # 1st of each month, 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run updater
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/update_contributors.py --since-days 35
+      - uses: actions/create-github-app-token@v3
+        id: token
+        with:
+          app-id: ${{ secrets.LE_BOT_APP_ID }}
+          private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.token.outputs.token }}
+          branch: bot/update-contributors
+          title: Add new contributors to AUTHORS.md
+          commit-message: Add new contributors to AUTHORS.md
+          body: Adds new GitHub contributor logins missing from AUTHORS.md.
