@@ -897,6 +897,17 @@ class ProgressTrackingViewSetStartSessionResumeTestCase(APITestCase):
         self.assertEqual(self.node.id, data["context"]["node_id"])
         self.assertEqual(session_id, data["session_id"])
 
+    def test_start_session_updates_summarylog_morango_dirty_bit(self):
+        self.summary_log.save(update_dirty_bit_to=False)
+        self.summary_log.refresh_from_db()
+        self.assertFalse(self.summary_log._morango_dirty_bit)
+
+        response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.summary_log.refresh_from_db()
+        self.assertTrue(self.summary_log._morango_dirty_bit)
+
     def tearDown(self):
         self.client.logout()
 
@@ -1706,6 +1717,27 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
         self.assertEqual(response.json()["complete"], True)
         log = ContentSummaryLog.objects.get()
         self.assertEqual(1.0, log.progress)
+
+    def test_update_session_sets_morango_dirty_bit_for_session_and_summary_logs(self):
+        self.session_log.save(update_dirty_bit_to=False)
+        self.summary_log.save(update_dirty_bit_to=False)
+
+        self.session_log.refresh_from_db()
+        self.summary_log.refresh_from_db()
+        self.assertFalse(self.session_log._morango_dirty_bit)
+        self.assertFalse(self.summary_log._morango_dirty_bit)
+
+        response = self._make_request(
+            {
+                "progress_delta": 0.1,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.session_log.refresh_from_db()
+        self.summary_log.refresh_from_db()
+        self.assertTrue(self.session_log._morango_dirty_bit)
+        self.assertTrue(self.summary_log._morango_dirty_bit)
 
     def test_anonymous_user_session_404(self):
         session_log = ContentSessionLog.objects.create(
@@ -2536,6 +2568,56 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
         self.assertNotEqual(
             self.mastery_log.end_timestamp, self.mastery_log.start_timestamp
         )
+
+    def test_update_assessment_session_sets_masterylog_morango_dirty_bit(self):
+        self.mastery_log.save(update_dirty_bit_to=False)
+        self.mastery_log.refresh_from_db()
+        self.assertFalse(self.mastery_log._morango_dirty_bit)
+
+        response = self._make_request(
+            {
+                "time_spent_delta": 5,
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.mastery_log.refresh_from_db()
+        self.assertTrue(self.mastery_log._morango_dirty_bit)
+
+    def test_update_assessment_session_sets_existing_attempt_morango_dirty_bit(self):
+        timestamp = local_now()
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=self.user,
+            interaction_history=[],
+        )
+        attemptlog.save(update_dirty_bit_to=False)
+        attemptlog.refresh_from_db()
+        self.assertFalse(attemptlog._morango_dirty_bit)
+
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "id": attemptlog.id,
+                        "item": self.item,
+                        "answer": {"response": "updated"},
+                        "correct": 1.0,
+                        "time_spent": 5,
+                        "replace": True,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attemptlog.refresh_from_db()
+        self.assertTrue(attemptlog._morango_dirty_bit)
 
     def test_update_assessment_session_create_attempt_in_lesson_succeeds(self):
         lesson = create_assigned_lesson_for_user(self.user)
