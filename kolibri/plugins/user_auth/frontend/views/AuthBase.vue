@@ -79,12 +79,12 @@
             <slot></slot>
 
             <p
-              v-if="!hideCreateAccount && canSignUp"
+              v-if="showCreateAccountButton"
               class="create"
             >
               <KRouterLink
                 :text="userString('createAccountAction')"
-                :to="signUpPage"
+                :to="signUpRoute"
                 :primary="false"
                 appearance="raised-button"
                 :disabled="busy"
@@ -101,8 +101,19 @@
               />
             </div>
             <p
+              v-if="allowAlternateSignIn"
+              class="alternative-link small-text"
+            >
+              <KRouterLink
+                :text="alternateSignInText$()"
+                :to="alternateSignInRoute"
+                :primary="true"
+                appearance="basic-link"
+              />
+            </p>
+            <p
               v-if="showGuestAccess"
-              class="guest small-text"
+              class="alternative-link small-text"
             >
               <KExternalLink
                 :text="$tr('accessAsGuest')"
@@ -188,35 +199,76 @@
 <script>
 
   import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import themeConfig from 'kolibri/styles/themeConfig';
+  import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import useUser from 'kolibri/composables/useUser';
-  import { ComponentMap } from '../constants';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthRouter from '../composables/useAuthRouter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
-  import getUrlParameter from './getUrlParameter';
   import DeviceUnusableMessage from './DeviceUnusableMessage.vue';
 
   export default {
     name: 'AuthBase',
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal, DeviceUnusableMessage },
     mixins: [commonCoreStrings, commonUserStrings],
-    setup() {
-      const { facilityConfig } = useFacility();
+    setup(props) {
+      const route = useRoute();
+      const { nextParam, pictureSignInRoute, usernameSignInRoute, signUpRoute } =
+        useAuthRouter(route);
+      const { canSignUp, signInOptions, signInMethod } = useAuthFlow();
       const { isAppContext } = useUser();
+      const { enterUsername$, enterPictures$ } = picturePasswordStrings;
+
       const allowAccess = computed(() => {
         return plugin_data.allowRemoteAccess || isAppContext.value;
       });
-      return { themeConfig, facilityConfig, allowAccess };
+      const allowAlternateSignIn = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)
+        );
+      });
+      const showPictureSignInOption = computed(() => {
+        return signInMethod.value !== OptionsForSignIn.PICTURE_PASSWORD;
+      });
+
+      const showCreateAccountButton = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          canSignUp.value &&
+          (!allowAlternateSignIn.value || showPictureSignInOption.value)
+        );
+      });
+      const alternateSignInText$ = computed(() => {
+        return showPictureSignInOption.value ? enterPictures$ : enterUsername$;
+      });
+      const alternateSignInRoute = computed(() => {
+        return showPictureSignInOption.value ? pictureSignInRoute.value : usernameSignInRoute.value;
+      });
+
+      return {
+        themeConfig,
+        allowAccess,
+        allowAlternateSignIn,
+        showCreateAccountButton,
+        alternateSignInRoute,
+        signUpRoute,
+        nextParam,
+        // strings
+        alternateSignInText$,
+      };
     },
     props: {
-      hideCreateAccount: {
+      hideFacilityBasedOptions: {
         type: Boolean,
         required: false,
         default: false,
@@ -250,26 +302,6 @@
       },
       guestURL() {
         return urls['kolibri:core:guest']();
-      },
-      canSignUp() {
-        return (
-          this.facilityConfig.is_full_facility_import && this.facilityConfig.learner_can_sign_up
-        );
-      },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
-      },
-      signUpPage() {
-        const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
-        if (this.nextParam) {
-          return { ...signUpRoute, query: { next: this.nextParam } };
-        }
-        return signUpRoute;
       },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
@@ -397,23 +429,18 @@
     position: relative;
     z-index: 1;
     width: 360px;
-    padding: 32px;
+    padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
   }
 
-  .login-btn {
-    width: calc(100% - 16px);
-  }
-
   .create {
-    margin-top: 24px;
-    margin-bottom: 0;
+    margin-top: 16px;
   }
 
-  .guest {
-    margin-top: 24px;
-    margin-bottom: 8px;
+  .alternative-link {
+    margin-top: 20px;
+    margin-bottom: 0;
   }
 
   .small-text {
@@ -468,16 +495,9 @@
     transition: opacity 0s;
   }
 
-  .logo {
-    width: 100%;
-    height: auto;
-  }
-
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 24px;
-    font-weight: 100;
   }
 
   .footer-logo {

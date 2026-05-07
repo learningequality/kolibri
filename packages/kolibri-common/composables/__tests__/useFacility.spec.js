@@ -1,28 +1,24 @@
 import { ref } from 'vue';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import useUser from 'kolibri/composables/useUser';
-import Lockr from 'lockr';
 import useFacilities from '../useFacilities';
-import useFacility, { useFacilityConfig } from '../useFacility';
+import useFacility, { useFacilitySelect, useFacilityConfig } from '../useFacility';
 import { OptionsForSignIn } from '../../constants/Auth';
 
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
 jest.mock('kolibri/composables/useUser');
-jest.mock('lockr');
 jest.mock('../useFacilities');
 jest.mock('kolibri/utils/i18n', () => ({
   currentLanguage: 'en',
 }));
 
-// Reset module-level state between tests
-jest.mock('../useFacility', () => {
-  const actual = jest.requireActual('../useFacility');
-  return {
-    __esModule: true,
-    ...actual,
-    default: jest.fn(facilityId => actual.default(facilityId)),
-    useFacilityConfig: jest.fn(facilityId => actual.useFacilityConfig(facilityId)),
-  };
+describe('useFacilitySelect', () => {
+  it('should provide facility selection', () => {
+    const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
+    expect(selectedFacilityId.value).toBeNull();
+    setSelectedFacilityId('facility-1');
+    expect(selectedFacilityId.value).toBe('facility-1');
+  });
 });
 
 describe('useFacility', () => {
@@ -44,9 +40,6 @@ describe('useFacility', () => {
     useUser.mockReturnValue({
       userFacilityId: ref(null),
     });
-
-    // Mock Lockr - return null so no saved facility ID
-    Lockr.get.mockReturnValue(null);
 
     // Mock useFacilities - return null for getFacility initially
     useFacilities.mockReturnValue({
@@ -253,6 +246,7 @@ describe('useFacility', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-1' },
+        force: true,
       });
     });
 
@@ -392,6 +386,7 @@ describe('useFacilityConfig', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-1' },
+        force: true,
       });
       expect(result).toEqual(mockFacilityConfig);
       expect(facilityConfig.value).toEqual(result);
@@ -406,6 +401,7 @@ describe('useFacilityConfig', () => {
 
       expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
         getParams: { facility_id: 'facility-2' },
+        force: true,
       });
     });
 

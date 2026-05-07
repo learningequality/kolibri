@@ -1,19 +1,20 @@
 import { render, screen } from '@testing-library/vue';
-import '@testing-library/jest-dom';
 import { ref } from 'vue';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
-import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
 import pluginData from 'kolibri-plugin-data';
 import AuthBase from '../AuthBase.vue';
 import { userString } from '../commonUserStrings';
-import makeStore from '../../__tests__/utils/makeStore';
+import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
+import { ComponentMap } from '../../constants';
 
 const { restrictedAccess$ } = createTranslator(AuthBase.name, AuthBase.$trs);
 
 jest.mock('kolibri/composables/useUser');
-jest.mock('kolibri-common/composables/useFacility');
+jest.mock('../../composables/useAuthFlow');
+jest.mock('../../composables/useAuthRouter');
 jest.mock('kolibri/urls');
 jest.mock('kolibri-plugin-data', () => ({
   __esModule: true,
@@ -33,18 +34,22 @@ VueRouter.prototype.getRoute = jest.fn((name, params = {}, query = {}) => ({
   query,
 }));
 
-useFacility.mockReturnValue(
-  useFacilityMock({
+useAuthFlow.mockReturnValue(
+  useAuthFlowMock({
     facilityConfig: ref({ learner_can_sign_up: true, is_full_facility_import: true }),
+    canSignUp: ref(true),
+  }),
+);
+useAuthRouter.mockReturnValue(
+  useAuthRouterMock({
+    signUpRoute: ref({ name: ComponentMap.SIGN_UP, params: {}, query: {} }),
   }),
 );
 
 function renderComponent({ allowRemoteAccess = true, isAppContext = false } = {}) {
   pluginData.allowRemoteAccess = allowRemoteAccess;
   useUser.mockImplementation(() => useUserMock({ isAppContext }));
-  const store = makeStore();
   return render(AuthBase, {
-    store,
     routes,
   });
 }

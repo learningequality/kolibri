@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/vue';
-import '@testing-library/jest-dom';
 import { ref, computed } from 'vue';
-import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
+import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import SignUpPage from '../SignUpPage';
-import makeStore from '../../__tests__/utils/makeStore';
+import { ComponentMap } from '../../constants';
 
-jest.mock('kolibri-common/composables/useFacility');
+jest.mock('../../composables/useAuthFlow');
+jest.mock('../../composables/useAuthRouter');
 
 const selectedFacility = ref({
   id: 1,
@@ -16,26 +17,29 @@ const selectedFacility = ref({
 });
 
 function renderComponent() {
-  const store = makeStore();
-
-  useFacility.mockReturnValue(
-    useFacilityMock({
+  useAuthFlow.mockReturnValue(
+    useAuthFlowMock({
       selectedFacility,
       facilityConfig: ref({ learner_can_login_with_no_password: false }),
       facilityId: computed(() => selectedFacility.value?.id || null),
-      currentFacilityName: computed(() => selectedFacility.value?.name || ''),
+      canSignUpWithFacility: computed(() => true),
+    }),
+  );
+  useAuthRouter.mockReturnValue(
+    useAuthRouterMock({
+      defaultRoute: ref({ name: ComponentMap.USERNAME_SIGN_IN, params: {}, query: {} }),
+      nextParam: ref(''),
     }),
   );
 
   return render(
     SignUpPage,
     {
-      store,
-      routes: [{ name: 'SIGN_IN', path: '/signin' }],
+      routes: [{ name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' }],
     },
     (_vue, _store, router) => {
       router.getRoute = () => {
-        return { name: 'SIGN_IN', path: '/signin' };
+        return { name: ComponentMap.USERNAME_SIGN_IN, path: '/signin' };
       };
     },
   );

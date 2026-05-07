@@ -1,13 +1,32 @@
-import { ref, computed } from 'vue';
+import { ref, computed, unref } from 'vue';
+import { useLocalStorage, StorageSerializers } from '@vueuse/core';
 import isPlainObject from 'lodash/isPlainObject';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import Lockr from 'lockr';
 import { OptionsForSignIn } from '../constants/Auth';
 import useFacilities from './useFacilities';
 
-const selectedFacilityId = ref(Lockr.get('facilityId') || null);
+/**
+ * Composable for accessing the selected facility
+ * @param {boolean} listenToStorageChanges Whether to be reactive to localStorage changes
+ */
+export function useFacilitySelect(listenToStorageChanges = false) {
+  const selectedFacilityId = useLocalStorage('facilityId', null, {
+    listenToStorageChanges,
+    serializer: StorageSerializers.string,
+  });
+
+  return {
+    selectedFacilityId,
+    setSelectedFacilityId: facilityId => (selectedFacilityId.value = unref(facilityId)),
+  };
+}
+
+/**
+ * We don't allow this to be reactive to storage changes, since that could cause issues for SPAs
+ */
+const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
 
 /**
  * Composable for the context of a single facility, defaulting to the user's facility, but can be
@@ -52,8 +71,7 @@ export default function useFacility() {
    * @return {Promise<void>}
    */
   async function setFacilityId(facilityId) {
-    selectedFacilityId.value = facilityId;
-
+    setSelectedFacilityId(facilityId);
     await updateFacilityConfig();
   }
 
@@ -66,7 +84,7 @@ export default function useFacility() {
       return selectedFacility.value?.dataset;
     }
     // update facility config
-    return await fetchFacilityConfig(facilityId.value);
+    return await fetchFacilityConfig(facilityId);
   }
 
   return {
@@ -85,7 +103,7 @@ export default function useFacility() {
  * @param {string} facilityId
  */
 export function useFacilityConfig(facilityId) {
-  const _facilityId = facilityId;
+  const _facilityId = unref(facilityId);
   const facilityConfig = ref({});
 
   // computed feature flags
@@ -118,11 +136,11 @@ export function useFacilityConfig(facilityId) {
 
   /**
    * Get the current selected facility's config
-   * @param {string|null} [facilityId]
+   * @param {Ref<string|null>|string|null} [facilityId]
    * @return {Promise<void>}
    */
   async function fetchFacilityConfig(facilityId = null) {
-    facilityId = facilityId || _facilityId;
+    facilityId = unref(facilityId) || _facilityId;
 
     if (!facilityId) {
       return;
@@ -132,6 +150,7 @@ export function useFacilityConfig(facilityId) {
       getParams: {
         facility_id: facilityId,
       },
+      force: true,
     });
 
     let config = {};

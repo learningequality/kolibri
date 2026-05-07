@@ -289,4 +289,14 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       "Screen reader sentence describing a picture password when no learner name is available. For example: 'A list of 3 pictures: moon, water, bird'.",
   },
+
+  // Sign-in
+  enterPictures: {
+    message: 'Enter pictures instead',
+    context: 'Link text on the sign-in page for switching to the picture password method',
+  },
+  enterUsername: {
+    message: 'Enter username instead',
+    context: 'Link text on the sign-in page for switching to the username & password method',
+  },
 });

@@ -1,82 +1,79 @@
-import { get } from '@vueuse/core';
-import useUser from 'kolibri/composables/useUser';
-import store from 'kolibri/store';
-import router from 'kolibri/router';
-import useFacilities from 'kolibri-common/composables/useFacilities';
-import { showSignInPage } from './modules/signIn/handlers';
-import { showSignUpPage } from './modules/signUp/handlers';
+import { clearError } from 'kolibri/utils/appError';
+import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+import { showInactivitySnackbar } from './utils';
 import { ComponentMap } from './constants';
 import AuthSelect from './views/AuthSelect';
 import FacilitySelect from './views/FacilitySelect';
 import SignInPage from './views/SignInPage';
+import PictureSignInPage from './views/SignInPage/PictureSignInPage.vue';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
+import useAuthFlow from './composables/useAuthFlow';
+import useAuthRouter from './composables/useAuthRouter';
 
-const { facilities } = useFacilities();
+const { facilityId, signInMethod, canSignUpWithFacility } = useAuthFlow();
+
+async function signInHook(method, to, from, next) {
+  const { getFacilitySelectionRoute } = useAuthRouter(to);
+
+  // Persist the sign-in method according to the route
+  if (signInMethod.value !== method) {
+    signInMethod.value = method;
+  }
+  // If no facility has been selected, take user to facility selection
+  if (!facilityId.value) {
+    next(getFacilitySelectionRoute(false));
+    return;
+  }
+  await showInactivitySnackbar();
+  next();
+}
 
 export default [
   {
     path: '/',
     name: 'root',
     beforeEnter(to, from, next) {
-      // If Multiple Facilities but we've not stored a facilityId in localstorage
-      // then we go to the AuthSelect route
-      if (facilities.value.length > 1 && !store.state.facilityId) {
-        next(router.getRoute(ComponentMap.AUTH_SELECT));
-      } else {
-        next(router.getRoute(ComponentMap.SIGN_IN));
-      }
+      // Redirect to default route
+      next(useAuthRouter(to).defaultRoute.value);
     },
   },
   {
     path: '/signin',
     component: SignInPage,
-    beforeEnter(to, from, next) {
-      // If we're on multiple facility device, show auth_select when
-      // there is no facilityId
-      if (facilities.value.length > 1 && !store.state.facilityId) {
-        // Go to FacilitySelect with whereToNext => SignUpPage
-        const whereToNext = router.getRoute(ComponentMap.SIGN_IN);
-        let query = {};
-        if (to.query.next) {
-          query = { next: to.query.next };
-        }
-        const route = {
-          ...router.getRoute(ComponentMap.FACILITY_SELECT),
-          params: { whereToNext },
-          query,
-        };
-        next(route);
-      } else {
-        showSignInPage(store).then(() => {
-          next();
-        });
-      }
+    async beforeEnter(to, from, next) {
+      await signInHook(OptionsForSignIn.USERNAME_ONLY, to, from, next);
+    },
+  },
+  {
+    path: '/picture-signin',
+    component: PictureSignInPage,
+    async beforeEnter(to, from, next) {
+      await signInHook(OptionsForSignIn.PICTURE_PASSWORD, to, from, next);
     },
   },
   {
     path: '/create_account',
     component: SignUpPage,
-    beforeEnter(to, from, next) {
-      const { isLearnerOnlyImport } = useUser();
-      if (get(isLearnerOnlyImport)) {
-        next(router.getRoute(ComponentMap.PROFILE));
-        return Promise.resolve();
+    async beforeEnter(to, from, next) {
+      const { getFacilitySelectionRoute, defaultRoute } = useAuthRouter(to);
+      // Clear error if arriving on Sign Up
+      if (from.name !== ComponentMap.SIGN_UP) {
+        clearError();
       }
 
-      if (facilities.value.length > 1 && !store.state.facilityId) {
-        // Go to FacilitySelect with whereToNext => SignUpPage
-        const whereToNext = router.getRoute(ComponentMap.SIGN_UP);
-        const route = {
-          ...router.getRoute(ComponentMap.FACILITY_SELECT),
-          params: { whereToNext },
-        };
-        next(route);
-      } else {
-        showSignUpPage(store, from).then(() => {
-          next();
-        });
+      if (!facilityId.value) {
+        next(getFacilitySelectionRoute(true));
+        return;
       }
+
+      if (!canSignUpWithFacility.value) {
+        // Redirect to default route
+        next(defaultRoute.value);
+        return;
+      }
+
+      next();
     },
   },
   {
@@ -91,7 +88,7 @@ export default [
     component: NewPasswordPage,
     beforeEnter(to, from, next) {
       if (!to.query.facility || !to.query.username) {
-        next({ path: '/' });
+        next(useAuthRouter(to).defaultRoute.value);
       } else {
         next();
       }
@@ -110,10 +107,10 @@ export default [
     beforeEnter(to, from, next) {
       // This param is required, so return to AuthSelect
       // unless we have it
-      if (to.params.whereToNext) {
+      if (to.params.signUpNext !== undefined) {
         next();
       } else {
-        next(router.getRoute(ComponentMap.AUTH_SELECT));
+        next(useAuthRouter(to).homeRoute.value);
       }
     },
   },

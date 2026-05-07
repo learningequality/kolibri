@@ -97,6 +97,16 @@ class Router {
     return this._vueRouter;
   }
 
+  /**
+   * Generates a route object and warns if it's not valid
+   *
+   * @method getRoute
+   * @param {string} name The name of the route
+   * @param {object} [params] The route parameters object
+   * @param {object} [query] The route query object
+   * @return {{name: string, params: Object, query: Object}} The route object
+   */
+
   /****************************/
   /* vue-router proxy methods */
   /****************************/

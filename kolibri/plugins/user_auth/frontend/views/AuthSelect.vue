@@ -1,6 +1,6 @@
 <template>
 
-  <AuthBase :hideCreateAccount="true">
+  <AuthBase :hideFacilityBasedOptions="true">
     <div class="auth-select">
       <div>
         <div class="label">
@@ -14,7 +14,10 @@
           :primary="true"
         />
       </div>
-      <div class="sign-up-prompt">
+      <div
+        v-if="canSignUpWithAnyFacility"
+        class="sign-up-prompt"
+      >
         <div class="label">
           {{ $tr('newUserPrompt') }}
         </div>
@@ -34,8 +37,11 @@
 
 <script>
 
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { ComponentMap } from '../constants';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthRouter from '../composables/useAuthRouter';
   import AuthBase from './AuthBase';
   import commonUserStrings from './commonUserStrings';
 
@@ -43,18 +49,27 @@
     name: 'AuthSelect',
     components: { AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
-    computed: {
-      signUpRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_UP);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
-      },
-      signInRoute() {
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
-        return { ...this.facilitySelectRoute, params: { whereToNext } };
-      },
-      facilitySelectRoute() {
-        return this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-      },
+    setup() {
+      const route = useRoute();
+      const {
+        getFacilitySelectionRoute,
+        signInRoute: _signInRoute,
+        signUpRoute: _signUpRoute,
+      } = useAuthRouter(route);
+      const { canSignUpWithAnyFacility, hasMultipleFacilities } = useAuthFlow();
+
+      const signInRoute = computed(() => {
+        return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : _signInRoute.value;
+      });
+      const signUpRoute = computed(() => {
+        return hasMultipleFacilities.value ? getFacilitySelectionRoute(true) : _signUpRoute.value;
+      });
+
+      return {
+        signInRoute,
+        signUpRoute,
+        canSignUpWithAnyFacility,
+      };
     },
     $trs: {
       newUserPrompt: {

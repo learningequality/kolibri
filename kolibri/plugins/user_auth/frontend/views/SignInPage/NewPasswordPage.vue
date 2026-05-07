@@ -2,22 +2,11 @@
 
   <AuthBase>
     <div class="new-password-content">
-      <KButton
-        class="go-back-btn"
-        appearance="basic-link"
-        data-testid="goback"
-        @click="goBack"
-      >
-        <template #icon>
-          <KIcon
-            icon="back"
-            class="go-back-icon"
-            :style="{
-              fill: $themeTokens.primary,
-            }"
-          />{{ coreString('goBackAction') }}
-        </template>
-      </KButton>
+      <AuthContextHeading
+        :useBackAction="true"
+        :backLabel="coreString('goBackAction')"
+        :backTo="signInRoute"
+      />
 
       <p>{{ $tr('needToMakeNewPasswordLabel', { user: username }) }}</p>
 
@@ -51,20 +40,25 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
-  import { ComponentMap } from '../../constants';
+  import { useRoute } from 'vue-router/composables';
   import { setUnspecifiedPassword } from '../../api';
   import AuthBase from '../AuthBase';
+  import useAuthRouter from '../../composables/useAuthRouter';
+  import AuthContextHeading from '../AuthContextHeading.vue';
 
   export default {
     name: 'NewPasswordPage',
     components: {
+      AuthContextHeading,
       AuthBase,
       PasswordTextbox,
     },
     mixins: [commonCoreStrings],
     setup() {
       const { login } = useUser();
-      return { login };
+      const route = useRoute();
+      const { nextParam, signInRoute } = useAuthRouter(route);
+      return { login, nextParam, signInRoute };
     },
     props: {
       username: {
@@ -89,7 +83,7 @@
           username: this.username,
           password: this.password,
           facility: this.facilityId,
-          next: this.$route.query.next,
+          next: this.nextParam,
         });
       },
     },
@@ -120,9 +114,7 @@
         }
       },
       goBack() {
-        this.$router.push({
-          name: ComponentMap.SIGN_IN,
-        });
+        this.$router.push(this.signInRoute);
       },
     },
     $trs: {
