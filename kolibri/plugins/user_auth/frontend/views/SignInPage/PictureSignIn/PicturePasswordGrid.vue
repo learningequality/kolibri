@@ -1,7 +1,10 @@
 <template>
 
   <div class="picture-password-grid">
-    <div class="icon-grid">
+    <div
+      class="icon-grid"
+      :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }"
+    >
       <PicturePasswordOption
         v-for="iconData in icons"
         :key="iconData.id"
@@ -77,6 +80,7 @@
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import PicturePasswordOption from './PicturePasswordOption';
 
   // Pre-compute once at module scope — PICTURE_PASSWORD_SET is static JSON so
@@ -95,6 +99,7 @@
       const $themeTokens = themeTokens();
       const $themePalette = themePalette();
       const { sendPoliteMessage } = useKLiveRegion();
+      const { elementWidth } = useKResponsiveElement();
 
       const {
         iconSelectedAsFirst$,
@@ -117,6 +122,22 @@
         const entry = PICTURE_PASSWORD_SET[String(id)];
         return picturePasswordStrings[`${entry.name}$`]();
       };
+
+      // empiric value, options below this width look very squished
+      // This value accounts for the grid gap as well.
+      const minOptionWidth = 80;
+
+      const allowedColumns = [3, 4, 6];
+
+      // How many columns can we fit given the current width of the component?
+      // Pick the largest allowed number of columns that will fit.
+      const columns = computed(() => {
+        const maxPossible = Math.floor(elementWidth.value / minOptionWidth);
+
+        const validOptions = allowedColumns.filter(num => num <= maxPossible);
+
+        return validOptions.length > 0 ? Math.max(...validOptions) : 3;
+      });
 
       const icons = computed(() =>
         ICON_ENTRIES.map(entry => {
@@ -218,6 +239,7 @@
 
       return {
         icons,
+        columns,
         progressSlots,
         submitEnabled,
         submitButtonAriaLabel,
@@ -272,7 +294,6 @@
 
   .icon-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 22px;
   }
 
@@ -292,7 +313,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     min-height: 56px;
     padding: 12px;
     // enforce width to be 50%, and set width and height for icons
@@ -302,11 +323,13 @@
 
   .progress-icon {
     width: 100%;
+    max-width: 50px;
     height: 100%;
   }
 
   .progress-empty {
     width: 100%;
+    max-width: 50px;
     height: 7px;
     border-radius: 16px;
   }

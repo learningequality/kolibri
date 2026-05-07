@@ -1,7 +1,9 @@
+import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
 import PicturePasswordGrid from '../PicturePasswordGrid.vue';
 
 const mockSendPoliteMessage = jest.fn();
@@ -9,6 +11,11 @@ const mockSendPoliteMessage = jest.fn();
 jest.mock('kolibri-design-system/lib/composables/useKLiveRegion', () => ({
   __esModule: true,
   default: jest.fn(() => ({ sendPoliteMessage: mockSendPoliteMessage })),
+}));
+
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveElement', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 function renderComponent(props = {}) {
@@ -35,6 +42,7 @@ const submitButton = () => screen.getByTestId('submit-button');
 describe('PicturePasswordGrid', () => {
   beforeEach(() => {
     mockSendPoliteMessage.mockClear();
+    useKResponsiveElement.mockReturnValue({ elementWidth: ref(0) });
   });
 
   describe('submit event', () => {
@@ -205,6 +213,29 @@ describe('PicturePasswordGrid', () => {
       expect(mockSendPoliteMessage).toHaveBeenLastCalledWith(
         picturePasswordStrings.allIconsSelected$(),
       );
+    });
+  });
+
+  describe('responsive columns', () => {
+    it.each([
+      [3, 100],
+      [3, 240],
+      [3, 319],
+      [4, 320],
+      [4, 479],
+      [6, 480],
+      [6, 1000],
+    ])('shows %i-column grid at %i px wide', (expectedColumns, width) => {
+      useKResponsiveElement.mockReturnValue({ elementWidth: ref(width) });
+      const { container } = renderComponent();
+      const grid = container.querySelector('.icon-grid');
+      expect(grid).toHaveStyle({ gridTemplateColumns: `repeat(${expectedColumns}, 1fr)` });
+    });
+
+    it('falls back to 3 columns when elementWidth is 0', () => {
+      const { container } = renderComponent();
+      const grid = container.querySelector('.icon-grid');
+      expect(grid).toHaveStyle({ gridTemplateColumns: 'repeat(3, 1fr)' });
     });
   });
 });

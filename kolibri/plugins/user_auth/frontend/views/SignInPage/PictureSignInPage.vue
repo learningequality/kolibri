@@ -1,11 +1,30 @@
 <template>
 
-  <AuthBase :busy="busy">
+  <AuthBase
+    :busy="busy"
+    :landscapeLayout="landscapeLayout"
+  >
+    <template #header-leading-actions>
+      <!--
+        AuthBase only renders `header-leading-actions` in landscape layout, so this
+        AuthContextHeading will only render in that layout. The AuthContextHeading
+        outside of this slot will render in portrait layout.
+      -->
+      <AuthContextHeading
+        class="landscape-auth-context-heading"
+        :useBackAction="hasMultipleFacilities"
+        :backLabel="coreString('changeLearningFacility')"
+        :backTo="backTo"
+      />
+    </template>
+
     <AuthContextHeading
+      v-if="!landscapeLayout"
       :useBackAction="hasMultipleFacilities"
       :backLabel="coreString('changeLearningFacility')"
       :backTo="backTo"
     />
+
     <PicturePasswordGrid
       class="picture-grid"
       :class="{ 'after-action': hasMultipleFacilities }"
@@ -29,6 +48,9 @@
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { isTouchDevice } from 'kolibri/utils/browserInfo';
+
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -54,6 +76,7 @@
       const route = useRoute();
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
+      const { windowIsLandscape } = useKResponsiveWindow();
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
       const {
         hasMultipleFacilities,
@@ -69,6 +92,12 @@
       const wrongSequence = ref(false);
       const backTo = computed(() => {
         return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : null;
+      });
+
+      const landscapeLayout = computed(() => {
+        // Only show the landscape layout if the window is wide enough and it's a touch device.
+        // So that we don't change the layout for desktop users.
+        return windowIsLandscape.value && isTouchDevice;
       });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
@@ -129,6 +158,7 @@
         // state
         busy,
         wrongSequence,
+        landscapeLayout,
         backTo,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -156,6 +186,10 @@
     &.after-action {
       margin-top: 10px;
     }
+  }
+
+  .landscape-auth-context-heading {
+    margin-top: 0;
   }
 
 </style>
