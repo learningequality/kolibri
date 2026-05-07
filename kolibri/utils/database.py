@@ -83,7 +83,6 @@ def sqlite_check_foreign_keys(database_paths):
         if not os.path.exists(name):
             continue
 
-        db_connection = sqlite3.connect(name)
         with sqlite3.connect(name) as db_connection:
             cursor = db_connection.cursor()
 
