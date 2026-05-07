@@ -1,7 +1,9 @@
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
-import useUser from 'kolibri/composables/useUser';
-import useFacilities from '../useFacilities';
+// eslint-disable-next-line import-x/named
+import useUser, { useUserMock } from 'kolibri/composables/useUser';
+// eslint-disable-next-line import-x/named
+import useFacilities, { useFacilitiesMock } from '../useFacilities';
 import useFacility, { useFacilitySelect, useFacilityConfig } from '../useFacility';
 import { OptionsForSignIn } from '../../constants/Auth';
 
@@ -13,11 +15,68 @@ jest.mock('kolibri/utils/i18n', () => ({
 }));
 
 describe('useFacilitySelect', () => {
-  it('should provide facility selection', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    jest.clearAllMocks();
+    useUser.mockImplementation(() =>
+      useUserMock({
+        isUserLoggedIn: false,
+        userFacilityId: null,
+      }),
+    );
+    useFacilities.mockImplementation(() => useFacilitiesMock());
+  });
+
+  it('persists selected facility for signed out users', () => {
     const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
     expect(selectedFacilityId.value).toBeNull();
     setSelectedFacilityId('facility-1');
     expect(selectedFacilityId.value).toBe('facility-1');
+  });
+
+  it('uses user facility for logged-in users who are not multi-facility admins', () => {
+    window.localStorage.setItem('facilityId', 'facility-2');
+    useUser.mockImplementation(() =>
+      useUserMock({
+        isUserLoggedIn: true,
+        userFacilityId: 'facility-1',
+      }),
+    );
+    useFacilities.mockImplementation(() =>
+      useFacilitiesMock({
+        userIsMultiFacilityAdmin: ref(false),
+      }),
+    );
+
+    const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
+    expect(selectedFacilityId.value).toBe('facility-1');
+
+    setSelectedFacilityId('facility-3');
+    expect(window.localStorage.getItem('facilityId')).toBe('facility-2');
+    expect(selectedFacilityId.value).toBe('facility-1');
+  });
+
+  it('allows multi-facility admins to select and persist facility while logged in', async () => {
+    window.localStorage.setItem('facilityId', 'facility-2');
+    useUser.mockImplementation(() =>
+      useUserMock({
+        isUserLoggedIn: true,
+        userFacilityId: 'facility-1',
+      }),
+    );
+    useFacilities.mockImplementation(() =>
+      useFacilitiesMock({
+        userIsMultiFacilityAdmin: ref(true),
+      }),
+    );
+
+    const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
+    expect(selectedFacilityId.value).toBe('facility-2');
+
+    setSelectedFacilityId('facility-3');
+    await nextTick();
+    expect(window.localStorage.getItem('facilityId')).toBe('facility-3');
+    expect(selectedFacilityId.value).toBe('facility-3');
   });
 });
 
@@ -34,6 +93,7 @@ describe('useFacility', () => {
   };
 
   beforeEach(() => {
+    window.localStorage.clear();
     jest.clearAllMocks();
 
     // Mock useUser - return null to start with no facility selected

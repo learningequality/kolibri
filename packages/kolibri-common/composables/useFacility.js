@@ -12,14 +12,33 @@ import useFacilities from './useFacilities';
  * @param {boolean} listenToStorageChanges Whether to be reactive to localStorage changes
  */
 export function useFacilitySelect(listenToStorageChanges = false) {
-  const selectedFacilityId = useLocalStorage('facilityId', null, {
+  const { userIsMultiFacilityAdmin } = useFacilities();
+  const { userFacilityId, isUserLoggedIn } = useUser();
+
+  const defaultFacilityId = useLocalStorage('facilityId', null, {
     listenToStorageChanges,
     serializer: StorageSerializers.string,
   });
 
+  const selectedFacilityId = computed(() => {
+    // don't bother with the persisted store value if user is logged in and not multi-facility admin
+    if (isUserLoggedIn.value && !userIsMultiFacilityAdmin.value) {
+      return userFacilityId.value;
+    }
+
+    return defaultFacilityId.value || userFacilityId.value;
+  });
+
+  function setSelectedFacilityId(facilityId) {
+    // places like the sign-in flow persist a default facility
+    if (!isUserLoggedIn.value || userIsMultiFacilityAdmin.value) {
+      defaultFacilityId.value = facilityId;
+    }
+  }
+
   return {
     selectedFacilityId,
-    setSelectedFacilityId: facilityId => (selectedFacilityId.value = unref(facilityId)),
+    setSelectedFacilityId,
   };
 }
 
