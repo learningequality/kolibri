@@ -6,22 +6,41 @@
         <div class="main-cell table-cell">
           <div
             class="box"
+            :class="{
+              landscape: showLandscapeLayout,
+            }"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
-            <CoreLogo
-              v-if="themeConfig.signIn.topLogo"
-              class="logo"
-              :src="themeConfig.signIn.topLogo.src"
-              :alt="themeConfig.signIn.topLogo.alt"
-              :style="themeConfig.signIn.topLogo.style"
-            />
-            <h1
-              v-if="themeConfig.signIn.showTitle"
-              class="kolibri-title"
-              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+            <div
+              :class="{
+                'header-row': showLandscapeLayout,
+              }"
             >
-              {{ logoText }}
-            </h1>
+              <div v-if="showLandscapeLayout">
+                <slot name="header-leading-actions"></slot>
+              </div>
+              <div
+                :class="{
+                  'header-title-row': showLandscapeLayout,
+                }"
+              >
+                <CoreLogo
+                  v-if="themeConfig.signIn.topLogo"
+                  class="logo"
+                  :src="themeConfig.signIn.topLogo.src"
+                  :alt="themeConfig.signIn.topLogo.alt"
+                  :style="themeConfig.signIn.topLogo.style"
+                />
+                <h1
+                  v-if="themeConfig.signIn.showTitle"
+                  class="kolibri-title"
+                  :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+                >
+                  {{ logoText }}
+                </h1>
+              </div>
+            </div>
+
             <template v-if="!allowAccess">
               <!-- remote access disabled -->
               <p data-testid="restrictedAccess">
@@ -80,28 +99,40 @@
                   :key="component.name"
                 />
               </div>
-              <p
-                v-if="allowAlternateSignIn"
-                class="alternative-link small-text"
+              <div
+                :class="{
+                  'footer-links-landscape': showLandscapeLayout,
+                }"
               >
-                <KRouterLink
-                  :text="alternateSignInText$()"
-                  :to="alternateSignInRoute"
-                  :primary="true"
-                  appearance="basic-link"
-                />
-              </p>
-              <p
-                v-if="showGuestAccess"
-                class="alternative-link small-text"
-              >
-                <KExternalLink
-                  :text="$tr('accessAsGuest')"
-                  :href="guestURL"
-                  :primary="true"
-                  appearance="basic-link"
-                />
-              </p>
+                <p
+                  v-if="allowAlternateSignIn"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KRouterLink
+                    :text="alternateSignInText$()"
+                    :to="alternateSignInRoute"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+                <p
+                  v-if="showGuestAccess"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KExternalLink
+                    :text="$tr('accessAsGuest')"
+                    :href="guestURL"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+              </div>
             </template>
           </div>
           <div
@@ -236,12 +267,22 @@
         return showPictureSignInOption.value ? pictureSignInRoute.value : usernameSignInRoute.value;
       });
 
+      const deviceUnusableReason = plugin_data.deviceUnusableReason;
+
+      const showLandscapeLayout = computed(() => {
+        // Prevent landscape layout from showing if the device is unusable or
+        // remote access is disabled.
+        return props.landscapeLayout && allowAccess.value && !deviceUnusableReason;
+      });
+
       return {
         themeConfig,
         allowAccess,
         allowAlternateSignIn,
         showCreateAccountButton,
         alternateSignInRoute,
+        deviceUnusableReason,
+        showLandscapeLayout,
         signUpRoute,
         nextParam,
         // strings
@@ -249,6 +290,11 @@
       };
     },
     props: {
+      landscapeLayout: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
       hideFacilityBasedOptions: {
         type: Boolean,
         required: false,
@@ -298,9 +344,6 @@
       },
       showGuestAccess() {
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
-      },
-      deviceUnusableReason() {
-        return plugin_data.deviceUnusableReason;
       },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
@@ -413,6 +456,12 @@
     padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
+
+    &.landscape {
+      width: 70%;
+      min-width: 360px;
+      max-width: 1000px;
+    }
   }
 
   .create {
@@ -489,6 +538,36 @@
     margin-right: 10px;
     margin-left: 8px;
     vertical-align: middle;
+  }
+
+  .footer-links-landscape {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    p {
+      padding: 0 16px;
+      border-right: 1px solid;
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+
+  .header-title-row {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
   /deep/ .ui-textbox-input {
