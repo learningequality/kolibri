@@ -90,9 +90,8 @@ class ParamValidator:
                 param = False
             else:
                 raise InvalidQueryParamsException(
-                    "%s is not a valid bool: must be one of: %s",
-                    param,
-                    TRUE_VALUES + FALSE_VALUES,
+                    "%s is not a valid bool: must be one of: %s"
+                    % (param, TRUE_VALUES + FALSE_VALUES)
                 )
         elif hasattr(
             self.param_type, "_default_manager"
@@ -103,7 +102,7 @@ class ParamValidator:
             param = query_set.get(**{self.field: param})
         else:
             raise InvalidQueryParamsException(
-                "Invalid param type: %s" % self.param_type.____name__
+                "Invalid param type: %s" % self.param_type.__name__
             )
         return param
 
@@ -126,7 +125,7 @@ class ParamValidator:
     def check_value_constraints(self, param):
         try:
             if self.eq and param != self.eq:
-                raise InvalidQueryParamsException("must be less than %s!" % self.eq)
+                raise InvalidQueryParamsException("must be equal to %s!" % self.eq)
             else:
                 if self.lt and param >= self.lt:
                     raise InvalidQueryParamsException("must be less than %s!" % self.lt)
