@@ -10,6 +10,7 @@ jobs:
   post:
     name: Add build artifact PR comment
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
       - uses: actions/checkout@v6
       - name: Make text for build comment
