@@ -4062,7 +4062,7 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
 
 
 class PicturePasswordPrevalidateTestCase(APITestCase):
-    """Tests for ?prevalidate=true on the session endpoint.
+    """Tests for prevalidate=True in the POST body of the session endpoint.
 
     Validates a picture password server-side without creating a session,
     returning the learner's full name on success.
