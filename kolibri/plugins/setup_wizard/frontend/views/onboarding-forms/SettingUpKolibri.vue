@@ -230,7 +230,7 @@
             this.wrapOnboarding();
             if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
               const { password } = this.deviceProvisioningData.superuser || {};
-              const error = await this.login({
+              const { error } = await this.login({
                 facilityId,
                 username,
                 password,

@@ -66,7 +66,7 @@ export default function useUser() {
   async function login(sessionPayload) {
     Lockr.set(UPDATE_MODAL_DISMISSED, false);
     try {
-      await client({
+      const response = await client({
         data: {
           ...sessionPayload,
           active: true,
@@ -86,6 +86,7 @@ export default function useUser() {
           redirectBrowser();
         }
       }
+      return { data: response.data, error: null };
     } catch (error) {
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
@@ -95,15 +96,17 @@ export default function useUser() {
       ]);
 
       if (errorsCaught) {
+        let loginError;
         if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          return LoginErrors.INVALID_CREDENTIALS;
+          loginError = LoginErrors.INVALID_CREDENTIALS;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          return LoginErrors.PASSWORD_MISSING;
+          loginError = LoginErrors.PASSWORD_MISSING;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
-          return LoginErrors.PASSWORD_NOT_SPECIFIED;
+          loginError = LoginErrors.PASSWORD_NOT_SPECIFIED;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.NOT_FOUND)) {
-          return LoginErrors.USER_NOT_FOUND;
+          loginError = LoginErrors.USER_NOT_FOUND;
         }
+        return { data: null, error: loginError };
       } else {
         handleApiError({ error });
       }

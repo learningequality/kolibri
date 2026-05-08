@@ -299,4 +299,23 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'Enter username instead',
     context: 'Link text on the sign-in page for switching to the username & password method',
   },
+  isThisYou: {
+    message: 'Is this you?',
+    context:
+      'Title of the confirmation modal shown after a successful picture password sign-in, asking the learner to confirm their identity.',
+  },
+  yesConfirmAction: {
+    message: 'Yes',
+    context: 'Button label confirming identity in the picture password sign-in confirmation modal.',
+  },
+  noGoBackAction: {
+    message: 'No, go back',
+    context:
+      'Button label denying identity and returning to the sign-in grid in the picture password confirmation modal.',
+  },
+  yourPasswordIs: {
+    message: 'Your password is: {labels}',
+    context:
+      "Screen reader sentence describing the learner's picture password sequence in the confirmation modal. For example: 'Your password is: dog, water, bee'.",
+  },
 });

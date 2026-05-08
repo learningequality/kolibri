@@ -35,6 +35,14 @@
       @wrongSequenceHandled="wrongSequence = false"
       @submit="createSession"
     />
+    <PicturePasswordConfirmModal
+      v-if="showConfirmModal"
+      :learnerName="confirmedLearnerName"
+      :picturePassword="submittedPicturePassword"
+      :iconStyle="picturePasswordStyle"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </AuthBase>
 
 </template>
@@ -51,13 +59,16 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
-
+  import client from 'kolibri/client';
+  import urls from 'kolibri/urls';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
   import useAuthRouter from '../../composables/useAuthRouter';
   import AuthContextHeading from '../AuthContextHeading.vue';
   import PicturePasswordGrid from './PictureSignIn/PicturePasswordGrid.vue';
+  import PicturePasswordConfirmModal from './PictureSignIn/PicturePasswordConfirmModal.vue';
 
   export default {
     name: 'PictureSignInPage',
@@ -70,6 +81,7 @@
       AuthBase,
       AuthContextHeading,
       PicturePasswordGrid,
+      PicturePasswordConfirmModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -91,6 +103,9 @@
 
       const busy = ref(false);
       const wrongSequence = ref(false);
+      const showConfirmModal = ref(false);
+      const confirmedLearnerName = ref('');
+      const submittedPicturePassword = ref('');
       const backTo = computed(() => {
         return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : null;
       });
@@ -130,6 +145,7 @@
         const sessionPayload = {
           facility: facilityId.value,
           picture_password: picturePassword,
+          disableRedirect: true,
         };
 
         if (nextParam.value) {
@@ -140,8 +156,12 @@
         setSelectedFacilityId(facilityId.value);
 
         try {
-          const err = await login(sessionPayload);
-          if (err) {
+          const { data, error } = await login(sessionPayload);
+          if (data) {
+            submittedPicturePassword.value = picturePassword;
+            confirmedLearnerName.value = data.full_name || '';
+            showConfirmModal.value = true;
+          } else if (error) {
             wrongSequence.value = true;
           }
         } catch (error) {
@@ -155,17 +175,45 @@
         }
       }
 
+      function handleConfirm() {
+        showConfirmModal.value = false;
+        if (nextParam.value) {
+          redirectBrowser(nextParam.value);
+        } else {
+          redirectBrowser();
+        }
+      }
+
+      async function handleCancel() {
+        try {
+          await client({
+            url: urls['kolibri:core:session_detail']('current'),
+            method: 'delete',
+          });
+        } catch (_) {
+          // Best-effort logout — proceed regardless
+        } finally {
+          showConfirmModal.value = false;
+          wrongSequence.value = true;
+        }
+      }
+
       return {
         // state
         busy,
         wrongSequence,
         landscapeLayout,
+        showConfirmModal,
+        confirmedLearnerName,
+        submittedPicturePassword,
         backTo,
         picturePasswordStyle,
         picturePasswordShowIconText,
         hasMultipleFacilities,
         // actions
         createSession,
+        handleConfirm,
+        handleCancel,
       };
     },
     $trs: {
