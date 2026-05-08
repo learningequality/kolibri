@@ -136,7 +136,7 @@
       });
 
       onMounted(() => {
-        modalTitle.value.focus();
+        confirmBtn.value.$el.focus();
       });
 
       return {
