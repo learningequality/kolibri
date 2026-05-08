@@ -119,7 +119,6 @@
                 v-if="currentUser.picture_password"
                 data-testid="picture-password-display"
                 :picturePassword="currentUser.picture_password"
-                :showIconText="false"
               />
               <KEmptyPlaceholder
                 v-else
@@ -252,6 +251,7 @@
         userKind,
         userPermissions: _userPermissions,
         isCoach,
+        isAdmin,
         isSuperuser,
         userHasPermissions,
         userFacilityId,
@@ -270,6 +270,7 @@
         userKind,
         userPermissions,
         isCoach,
+        isAdmin,
         isSuperuser,
         userHasPermissions,
         userFacilityId,
@@ -319,7 +320,7 @@
         const learner_can_edit =
           this.facilityConfig.learner_can_edit_password &&
           !this.facilityConfig.learner_can_login_with_no_password;
-        return this.isSuperuser || this.isCoach || learner_can_edit;
+        return this.isSuperuser || this.isAdmin || this.isCoach || learner_can_edit;
       },
     },
     async created() {

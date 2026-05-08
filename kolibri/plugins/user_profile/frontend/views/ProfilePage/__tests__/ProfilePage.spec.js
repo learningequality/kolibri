@@ -7,6 +7,7 @@ import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResp
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { UserKinds } from 'kolibri/constants';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import ProfilePage from '../index';
 import makeStore from '../../../__tests__/utils/makeStore';
@@ -26,6 +27,7 @@ jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
 
 const { fullNameLabel$ } = coreStrings;
+const { changePasswordPrompt$ } = createTranslator(ProfilePage.name, ProfilePage.$trs);
 
 FacilityUserResource.fetchModel = jest.fn().mockResolvedValue({});
 
@@ -124,7 +126,7 @@ describe('picture password row', () => {
     expect(updateFacilityConfig).toHaveBeenCalled();
   });
 
-  it('renders the picture password display for a learner with a picture_password', async () => {
+  it("hides figcaption labels when the facility's show_icon_text is false", async () => {
     await renderProfile({
       userKind: UserKinds.LEARNER,
       picturePasswordSettings: {
@@ -134,10 +136,12 @@ describe('picture password row', () => {
       picturePassword: '3.7.12',
     });
 
-    expect(await screen.findByTestId('picture-password-display')).toBeInTheDocument();
-    // Three icons, no labels — per the AC.
+    const display = await screen.findByTestId('picture-password-display');
     const icons = screen.queryAllByTestId(/^picture-password-icon-/);
     expect(icons).toHaveLength(3);
+    const captions = [...display.querySelectorAll('figcaption')];
+    expect(captions).toHaveLength(3);
+    expect(captions.every(el => el.classList.contains('visuallyhidden'))).toBe(true);
   });
 
   it('renders the empty-value placeholder when the learner has no picture_password', async () => {
@@ -183,4 +187,30 @@ describe('picture password row', () => {
     expect(screen.queryByTestId('picture-password-display')).not.toBeInTheDocument();
     expect(screen.queryByTestId('picture-password-empty')).not.toBeInTheDocument();
   });
+
+  it("shows figcaption labels when the facility's show_icon_text is true", async () => {
+    await renderProfile({
+      userKind: UserKinds.LEARNER,
+      picturePasswordSettings: {
+        icon_style: PicturePasswordIconStyle.COLORFUL,
+        show_icon_text: true,
+      },
+      picturePassword: '3.7.12',
+    });
+
+    const display = await screen.findByTestId('picture-password-display');
+    const captions = [...display.querySelectorAll('figcaption')];
+    expect(captions).toHaveLength(3);
+    expect(captions.every(el => !el.classList.contains('visuallyhidden'))).toBe(true);
+  });
+
+  it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.SUPERUSER])(
+    'shows the Change password button for a %s when learner_can_edit_password is false',
+    async userKind => {
+      await renderProfile({ userKind });
+
+      await screen.findByText(fullNameLabel$());
+      expect(screen.getByText(changePasswordPrompt$())).toBeVisible();
+    },
+  );
 });
