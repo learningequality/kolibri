@@ -31,8 +31,10 @@
       :iconStyle="picturePasswordStyle"
       :showIconText="picturePasswordShowIconText"
       :wrongSequence="wrongSequence"
+      :clearSelection="clearSelection"
       :landscapeLayout="landscapeLayout"
       @wrongSequenceHandled="wrongSequence = false"
+      @clearSelectionHandled="clearSelection = false"
       @submit="prevalidate"
     />
     <PicturePasswordConfirmModal
@@ -103,6 +105,7 @@
 
       const busy = ref(false);
       const wrongSequence = ref(false);
+      const clearSelection = ref(false);
       const showConfirmModal = ref(false);
       const confirmedLearnerName = ref('');
       const submittedPicturePassword = ref('');
@@ -189,7 +192,7 @@
 
       function handleCancel() {
         showConfirmModal.value = false;
-        wrongSequence.value = true;
+        clearSelection.value = true;
       }
 
       return {
@@ -197,6 +200,7 @@
         busy,
         wrongSequence,
         landscapeLayout,
+        clearSelection,
         showConfirmModal,
         confirmedLearnerName,
         submittedPicturePassword,
