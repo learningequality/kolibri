@@ -173,6 +173,8 @@
           const { error } = await login(sessionPayload);
           if (error) {
             showConfirmModal.value = false;
+            submittedPicturePassword.value = '';
+            confirmedLearnerName.value = '';
             wrongSequence.value = true;
           }
         } catch (_) {
