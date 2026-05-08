@@ -118,6 +118,7 @@ export default function useUser() {
         return { data: null, error: loginError };
       } else {
         handleApiError({ error });
+        return { data: null, error: null };
       }
     }
   }
