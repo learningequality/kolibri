@@ -1,11 +1,17 @@
 <template>
 
-  <div class="modal-overlay">
-    <KFocusTrap>
+  <div
+    class="modal-overlay"
+    @mousedown.prevent
+  >
+    <KFocusTrap
+      @shouldFocusFirstEl="modalTitle.focus()"
+      @shouldFocusLastEl="confirmBtn.$el.focus()"
+    >
       <div
-        ref="modalCard"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="confirm-modal-title"
         class="modal-card"
         tabindex="-1"
         :style="{ backgroundColor: $themeTokens.surface }"
@@ -15,7 +21,10 @@
           :style="{ backgroundColor: $themePalette.yellow.v_500 }"
         >
           <h1
+            id="confirm-modal-title"
+            ref="modalTitle"
             class="modal-title"
+            tabindex="-1"
             :style="{ color: $themeTokens.text }"
           >
             {{ isThisYou$() }}
@@ -80,7 +89,7 @@
 
 <script>
 
-  import { computed, onMounted, onUnmounted, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import KFocusTrap from 'kolibri-design-system/lib/KFocusTrap';
   import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
   import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
@@ -95,7 +104,7 @@
 
     setup(props) {
       const confirmBtn = ref(null);
-      const modalCard = ref(null);
+      const modalTitle = ref(null);
       const { isThisYou$, yourPasswordIs$, yesConfirmAction$, noGoBackAction$ } =
         picturePasswordStrings;
       const palette = themePalette();
@@ -126,27 +135,13 @@
         return yourPasswordIs$({ labels });
       });
 
-      function handleFocusEscape(event) {
-        if (!modalCard.value) return;
-        if (!modalCard.value.contains(event.target)) {
-          modalCard.value.focus();
-        }
-      }
-
       onMounted(() => {
-        if (confirmBtn.value && confirmBtn.value.$el) {
-          confirmBtn.value.$el.focus();
-        }
-        window.addEventListener('focus', handleFocusEscape, true);
-      });
-
-      onUnmounted(() => {
-        window.removeEventListener('focus', handleFocusEscape, true);
+        modalTitle.value.focus();
       });
 
       return {
         confirmBtn,
-        modalCard,
+        modalTitle,
         iconTokens,
         sequenceAriaLabel,
         isThisYou$,
@@ -199,18 +194,17 @@
     top: 0;
     left: 0;
     z-index: 24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
   }
 
   .modal-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
     width: max-content;
     border-radius: 8px;
-    transform: translate(-50%, -50%);
   }
 
   .header {

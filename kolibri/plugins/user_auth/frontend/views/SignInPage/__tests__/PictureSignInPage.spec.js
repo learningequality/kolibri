@@ -161,6 +161,27 @@ describe('PictureSignInPage', () => {
       });
     });
 
+    it('dismisses the modal and triggers wrong sequence when confirm login fails', async () => {
+      mockLogin
+        .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
+        .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+
+      renderComponent();
+      await submitSequence();
+
+      await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
+
+      const confirmButton = screen.getByRole('button', { name: confirmLabel() });
+      await userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(screen.queryByText(MOCK_LEARNER_NAME)).not.toBeInTheDocument();
+        expect(checkbox(bee())).not.toBeChecked();
+        expect(checkbox(star())).not.toBeChecked();
+        expect(checkbox(moon())).not.toBeChecked();
+      });
+    });
+
     it('hides the modal and clears grid when cancel is clicked, without making a delete request', async () => {
       const client = require('kolibri/client').default;
       renderComponent();
