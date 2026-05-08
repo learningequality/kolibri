@@ -80,7 +80,8 @@ export default function useUser() {
     }
     try {
       const response = await client({
-        data: { ...sessionPayload, active: true, browser, os, prevalidate },
+        params: prevalidate ? { prevalidate } : undefined,
+        data: { ...sessionPayload, active: true, browser, os },
         url: urls['kolibri:core:session_list'](),
         method: 'post',
       });

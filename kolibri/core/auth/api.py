@@ -1478,7 +1478,7 @@ class SessionViewSet(viewsets.ViewSet):
         )
         if serializer.is_valid():
             user = serializer.validated_data["user"]
-            if request.data.get("prevalidate"):
+            if request.query_params.get("prevalidate") == "true":
                 return Response({"full_name": user.full_name})
             login(request, user)
             return self.get_session_response(request)

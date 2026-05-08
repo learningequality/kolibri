@@ -4062,12 +4062,6 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
 
 
 class PicturePasswordPrevalidateTestCase(APITestCase):
-    """Tests for prevalidate=True in the POST body of the session endpoint.
-
-    Validates a picture password server-side without creating a session,
-    returning the learner's full name on success.
-    """
-
     databases = "__all__"
 
     @classmethod
@@ -4080,16 +4074,12 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
         cls.learner.save(update_fields=["picture_password"])
 
     def _url(self):
-        return reverse("kolibri:core:session-list")
+        return reverse("kolibri:core:session-list") + "?prevalidate=true"
 
     def test_valid_picture_password_returns_full_name(self):
         response = self.client.post(
             self._url(),
-            data={
-                "picture_password": "1.2.3",
-                "facility": self.facility.id,
-                "prevalidate": True,
-            },
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
@@ -4098,11 +4088,7 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
     def test_valid_picture_password_does_not_create_session(self):
         self.client.post(
             self._url(),
-            data={
-                "picture_password": "1.2.3",
-                "facility": self.facility.id,
-                "prevalidate": True,
-            },
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
             format="json",
         )
         self.assertFalse(self.client.session.get("_auth_user_id"))
@@ -4110,11 +4096,7 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
     def test_wrong_picture_password_returns_not_found(self):
         response = self.client.post(
             self._url(),
-            data={
-                "picture_password": "9.9.9",
-                "facility": self.facility.id,
-                "prevalidate": True,
-            },
+            data={"picture_password": "9.9.9", "facility": self.facility.id},
             format="json",
         )
         self.assertEqual(response.status_code, 400)
@@ -4123,11 +4105,7 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
     def test_wrong_facility_returns_not_found(self):
         response = self.client.post(
             self._url(),
-            data={
-                "picture_password": "1.2.3",
-                "facility": self.other_facility.id,
-                "prevalidate": True,
-            },
+            data={"picture_password": "1.2.3", "facility": self.other_facility.id},
             format="json",
         )
         self.assertEqual(response.status_code, 400)
@@ -4140,11 +4118,7 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
         self.facility.add_coach(coach)
         response = self.client.post(
             self._url(),
-            data={
-                "picture_password": "4.5.6",
-                "facility": self.facility.id,
-                "prevalidate": True,
-            },
+            data={"picture_password": "4.5.6", "facility": self.facility.id},
             format="json",
         )
         self.assertEqual(response.status_code, 400)
