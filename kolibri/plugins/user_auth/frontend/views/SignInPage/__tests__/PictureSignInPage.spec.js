@@ -79,21 +79,24 @@ describe('PictureSignInPage', () => {
     mockRouterPush.mockReset();
   });
 
-  it('submitting a sequence calls login with picture_password payload and disableRedirect', async () => {
+  it('submitting a sequence calls login with prevalidate=true, not a real login', async () => {
+    mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
     renderComponent();
     await userEvent.click(checkbox(bee()));
     await userEvent.click(checkbox(star()));
     await userEvent.click(checkbox(moon()));
     await userEvent.click(screen.getByTestId('submit-button'));
 
-    expect(mockLogin).toHaveBeenCalledWith({
-      facility: 'facility_1',
-      picture_password: '1.2.3',
-      disableRedirect: true,
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith(
+        expect.objectContaining({ picture_password: '1.2.3', facility: 'facility_1' }),
+        true,
+        false,
+      );
     });
   });
 
-  it('a failed sequence response clears the grid selection', async () => {
+  it('a failed prevalidation clears the grid selection', async () => {
     mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
     renderComponent();
     await userEvent.click(checkbox(bee()));
@@ -110,10 +113,7 @@ describe('PictureSignInPage', () => {
 
   describe('confirmation modal', () => {
     beforeEach(() => {
-      mockLogin.mockResolvedValue({
-        data: { full_name: MOCK_LEARNER_NAME, user_id: 'user-1' },
-        error: null,
-      });
+      mockLogin.mockResolvedValue({ data: { full_name: MOCK_LEARNER_NAME }, error: null });
     });
 
     async function submitSequence() {
@@ -123,7 +123,7 @@ describe('PictureSignInPage', () => {
       await userEvent.click(screen.getByTestId('submit-button'));
     }
 
-    it('shows the confirmation modal with learner name after successful authentication', async () => {
+    it('shows the confirmation modal with learner name after successful prevalidation', async () => {
       renderComponent();
       await submitSequence();
 
@@ -133,7 +133,7 @@ describe('PictureSignInPage', () => {
       });
     });
 
-    it('does not redirect immediately after a successful sequence', async () => {
+    it('does not redirect immediately after a successful prevalidation', async () => {
       const redirectBrowser = require('kolibri/utils/redirectBrowser').default;
       renderComponent();
       await submitSequence();
@@ -145,8 +145,7 @@ describe('PictureSignInPage', () => {
       expect(redirectBrowser).not.toHaveBeenCalled();
     });
 
-    it('redirects when confirm is clicked', async () => {
-      const redirectBrowser = require('kolibri/utils/redirectBrowser').default;
+    it('calls login when confirm is clicked', async () => {
       renderComponent();
       await submitSequence();
 
@@ -155,10 +154,14 @@ describe('PictureSignInPage', () => {
       const confirmButton = screen.getByRole('button', { name: confirmLabel() });
       await userEvent.click(confirmButton);
 
-      expect(redirectBrowser).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockLogin).toHaveBeenCalledWith(
+          expect.objectContaining({ facility: 'facility_1', picture_password: '1.2.3' }),
+        );
+      });
     });
 
-    it('discards session and clears grid when cancel is clicked', async () => {
+    it('hides the modal and clears grid when cancel is clicked, without making a delete request', async () => {
       const client = require('kolibri/client').default;
       renderComponent();
       await submitSequence();
@@ -169,12 +172,12 @@ describe('PictureSignInPage', () => {
       await userEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(client).toHaveBeenCalledWith(expect.objectContaining({ method: 'delete' }));
         expect(screen.queryByText(MOCK_LEARNER_NAME)).not.toBeInTheDocument();
         expect(checkbox(bee())).not.toBeChecked();
         expect(checkbox(star())).not.toBeChecked();
         expect(checkbox(moon())).not.toBeChecked();
       });
+      expect(client).not.toHaveBeenCalledWith(expect.objectContaining({ method: 'delete' }));
     });
   });
 });

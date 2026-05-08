@@ -33,7 +33,7 @@
       :wrongSequence="wrongSequence"
       :landscapeLayout="landscapeLayout"
       @wrongSequenceHandled="wrongSequence = false"
-      @submit="createSession"
+      @submit="prevalidate"
     />
     <PicturePasswordConfirmModal
       v-if="showConfirmModal"
@@ -134,38 +134,23 @@
         }
       });
 
-      /**
-       * Handles authentication once the user has entered a picture password and submits it
-       *
-       * @param {string} picturePassword
-       * @return {Promise<void>}
-       */
-      async function createSession(picturePassword) {
+      async function prevalidate(picturePassword) {
         busy.value = true;
-        const sessionPayload = {
-          facility: facilityId.value,
-          picture_password: picturePassword,
-          disableRedirect: true,
-        };
-
-        if (nextParam.value) {
-          sessionPayload['next'] = nextParam.value;
-        }
-
-        // ensure selected facility in local storage is synchronized
         setSelectedFacilityId(facilityId.value);
-
         try {
-          const { data, error } = await login(sessionPayload);
+          const { data, error } = await login(
+            { picture_password: picturePassword, facility: facilityId.value },
+            true,
+            false,
+          );
           if (data) {
             submittedPicturePassword.value = picturePassword;
-            confirmedLearnerName.value = data.full_name || '';
+            confirmedLearnerName.value = data.full_name;
             showConfirmModal.value = true;
           } else if (error) {
             wrongSequence.value = true;
           }
         } catch (error) {
-          // The `login` function already handles logging errors
           createSnackbar({
             text: coreString('defaultErrorMessage'),
             autoDismiss: true,
@@ -175,27 +160,34 @@
         }
       }
 
-      function handleConfirm() {
-        showConfirmModal.value = false;
+      async function handleConfirm() {
+        busy.value = true;
+        const sessionPayload = {
+          facility: facilityId.value,
+          picture_password: submittedPicturePassword.value,
+        };
         if (nextParam.value) {
-          redirectBrowser(nextParam.value);
-        } else {
-          redirectBrowser();
+          sessionPayload['next'] = nextParam.value;
+        }
+        try {
+          const { error } = await login(sessionPayload);
+          if (error) {
+            showConfirmModal.value = false;
+            wrongSequence.value = true;
+          }
+        } catch (_) {
+          createSnackbar({
+            text: coreString('defaultErrorMessage'),
+            autoDismiss: true,
+          });
+        } finally {
+          busy.value = false;
         }
       }
 
-      async function handleCancel() {
-        try {
-          await client({
-            url: urls['kolibri:core:session_detail']('current'),
-            method: 'delete',
-          });
-        } catch (_) {
-          // Best-effort logout — proceed regardless
-        } finally {
-          showConfirmModal.value = false;
-          wrongSequence.value = true;
-        }
+      function handleCancel() {
+        showConfirmModal.value = false;
+        wrongSequence.value = true;
       }
 
       return {
@@ -211,7 +203,7 @@
         picturePasswordShowIconText,
         hasMultipleFacilities,
         // actions
-        createSession,
+        prevalidate,
         handleConfirm,
         handleCancel,
       };

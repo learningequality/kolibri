@@ -63,21 +63,29 @@ export default function useUser() {
   const userHasPermissions = computed(() => Object.values(userPermissions.value).some(Boolean));
 
   // Login/Logout Functions
-  async function login(sessionPayload) {
-    Lockr.set(UPDATE_MODAL_DISMISSED, false);
+  /**
+   * Creates an authenticated session for the given credentials.
+   *
+   * @param {Object} sessionPayload - Credentials sent to the server.
+   * @param {boolean} [prevalidate=false] - When true, validates credentials server-side without
+   *   creating a session. Returns { full_name } on success so the caller can confirm the user's
+   *   identity before committing to a real login (e.g. the picture-password confirm flow).
+   *   Skips the Lockr update-modal flag and all redirect logic.
+   * @param {boolean} [enableRedirect=true] - When false, suppresses the post-login redirect,
+   *   allowing the caller to handle navigation manually.
+   */
+  async function login(sessionPayload, prevalidate = false, enableRedirect = true) {
+    if (!prevalidate) {
+      Lockr.set(UPDATE_MODAL_DISMISSED, false);
+    }
     try {
       const response = await client({
-        data: {
-          ...sessionPayload,
-          active: true,
-          browser,
-          os,
-        },
+        data: { ...sessionPayload, active: true, browser, os, prevalidate },
         url: urls['kolibri:core:session_list'](),
         method: 'post',
       });
 
-      if (!sessionPayload.disableRedirect) {
+      if (enableRedirect) {
         if (sessionPayload.next) {
           // OIDC redirect
           redirectBrowser(sessionPayload.next);

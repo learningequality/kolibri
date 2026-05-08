@@ -218,18 +218,20 @@
     border-radius: 8px 8px 0 0;
   }
 
-  .modal-title {
-    margin: 0 0 8px;
-    font-size: 20px;
+  .modal-title,
+  .learner-name {
+    margin: 0;
     font-weight: 600;
     text-align: center;
   }
 
+  .modal-title {
+    margin-bottom: 8px;
+    font-size: 20px;
+  }
+
   .learner-name {
-    margin: 0;
     font-size: 32px;
-    font-weight: 600;
-    text-align: center;
   }
 
   .icon-sequence {
@@ -249,13 +251,12 @@
 
   .action-buttons {
     display: flex;
-    gap: 16px;
+    gap: 22px;
     justify-content: center;
     padding: 0 32px 32px;
   }
 
   .btn-bg {
-    display: inline-block;
     border-radius: 8px;
 
     /deep/ button {
