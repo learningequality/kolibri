@@ -68,7 +68,7 @@
           baseurl: baseurl.slice(0, -1),
           ...user,
         }).then(response => {
-          const { status, data } = response.data;
+          const { status, errors } = response.data;
 
           if (status == 201) {
             const task_name = 'kolibri.core.auth.tasks.peeruserimport';
@@ -87,8 +87,7 @@
                 this.handleApiError({ error: err });
               });
           } else {
-            const errorData = JSON.parse(data);
-            if (errorData.find(error => error.id === ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
+            if (errors.find(error => error.id === ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
               this.caughtErrors = [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS];
             }
             this.loading = false;
