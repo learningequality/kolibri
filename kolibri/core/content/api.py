@@ -108,7 +108,6 @@ from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.utils.conf import OPTIONS
-from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
 
@@ -242,10 +241,9 @@ class RemoteMixin:
         qs = request.GET.copy()
         del qs[REMOTE_URL_PARAM]
         try:
-            validator(baseurl)
-        except ValidationError:
+            client = NetworkClient.build_for_address(baseurl)
+        except NetworkLocationNotFound:
             raise Http404("Remote resource not found")
-        client = NetworkClient.build_for_address(baseurl)
         remote_url = remote_path
         try:
             response = client.get(
@@ -1908,9 +1906,8 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     ):
         if baseurl is not None:
             try:
-                validator(baseurl)
                 client = NetworkClient.build_for_address(baseurl)
-            except ValidationError:
+            except NetworkLocationNotFound:
                 baseurl = None
         if baseurl is None:
             client = NetworkClient(CENTRAL_CONTENT_BASE_URL)
