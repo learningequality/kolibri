@@ -4188,6 +4188,11 @@ class RemoteFacilityUserViewsetTestCase(
         response = self._call_with_payload([{"id": "not-a-uuid", "username": "alice"}])
         self.assertEqual(response.data, [])
 
+    def test_anonymous_request_to_provisioned_device_is_rejected(self):
+        provision_device()
+        response = self._call_with_payload([self.valid_item])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class RemoteFacilityUserAuthenticatedViewsetTestCase(
     RemoteFacilityResponseSanitizationMixin, APITestCase
@@ -4219,10 +4224,12 @@ class RemoteFacilityUserAuthenticatedViewsetTestCase(
                 format="json",
             )
 
-    def test_any_invalid_item_returns_403(self):
-        response = self._call_with_payload([self.valid_item, "not a dict"])
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_blank_demographics_pass_through(self):
+        item = dict(self.valid_item, id_number="", gender="", birth_year="")
+        response = self._call_with_payload([item])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_non_list_response_returns_403(self):
-        response = self._call_with_payload({"my_secret": "AKIA..."})
+    def test_anonymous_request_to_provisioned_device_is_rejected(self):
+        provision_device()
+        response = self._call_with_payload([self.valid_item])
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

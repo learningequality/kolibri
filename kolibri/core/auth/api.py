@@ -92,6 +92,7 @@ from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exha
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
@@ -1558,6 +1559,8 @@ class _RemoteFacilityUserSearchSerializer(serializers.Serializer):
 
 
 class RemoteFacilityUserViewset(views.APIView):
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+
     def get(self, request):
         baseurl = request.query_params.get("baseurl", "")
         try:
@@ -1588,6 +1591,8 @@ class RemoteFacilityUserViewset(views.APIView):
 
 
 class RemoteFacilityUserAuthenticatedViewset(views.APIView):
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+
     def post(self, request):
         """
         If the request is done by an admin user  it will return a list of the users of the
