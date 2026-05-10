@@ -1552,6 +1552,11 @@ class SessionViewSet(viewsets.ViewSet):
         return response
 
 
+class _RemoteFacilityUserSearchSerializer(serializers.Serializer):
+    id = serializers.UUIDField(format="hex", allow_null=True)
+    username = serializers.CharField()
+
+
 class RemoteFacilityUserViewset(views.APIView):
     def get(self, request):
         baseurl = request.query_params.get("baseurl", "")
@@ -1572,9 +1577,12 @@ class RemoteFacilityUserViewset(views.APIView):
             response = client.get(
                 url, params={"facility": facility, "search": username}
             )
-            return Response(response.json())
+            serializer = _RemoteFacilityUserSearchSerializer(
+                data=response.json(), many=True
+            )
+            return Response(serializer.data if serializer.is_valid() else [])
         except NetworkLocationResponseFailure:
-            return Response({})
+            return Response([])
         except Exception as e:
             raise RestValidationError(detail="Remote user lookup failed") from e
 

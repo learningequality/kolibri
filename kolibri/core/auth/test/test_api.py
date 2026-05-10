@@ -4123,3 +4123,106 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+
+class RemoteFacilityResponseSanitizationMixin:
+    """Shared assertions for endpoints that reflect a remote user list."""
+
+    valid_item = None
+
+    def _call_with_payload(self, payload):
+        raise NotImplementedError
+
+    def test_well_formed_response_passes_through(self):
+        response = self._call_with_payload([self.valid_item])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [self.valid_item])
+
+    def test_extra_keys_are_stripped(self):
+        smuggled = dict(self.valid_item, password="leaked-secret", token="AKIA...")
+        response = self._call_with_payload([smuggled])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [self.valid_item])
+
+
+class RemoteFacilityUserViewsetTestCase(
+    RemoteFacilityResponseSanitizationMixin, APITestCase
+):
+    valid_item = {"id": "00000000000000000000000000000001", "username": "alice"}
+
+    def _call_with_payload(self, payload):
+        with patch("kolibri.core.auth.api.NetworkClient") as NetworkClient:
+            client = NetworkClient.build_for_address.return_value
+            client.get.return_value.json.return_value = payload
+            return self.client.get(
+                reverse("kolibri:core:remotefacilityuser"),
+                {
+                    "baseurl": "http://remote.example",
+                    "username": "alice",
+                    "facility": uuid.uuid4().hex,
+                },
+            )
+
+    def test_non_list_response_returns_empty_list(self):
+        response = self._call_with_payload({"my_secret": "AKIA..."})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_passwordless_facility_response_with_null_id_passes_through(self):
+        payload = [{"id": None, "username": "alice"}]
+        response = self._call_with_payload(payload)
+        self.assertEqual(response.data, payload)
+
+    def test_any_invalid_item_rejects_whole_response(self):
+        valid_id = uuid.uuid4().hex
+        response = self._call_with_payload(
+            [
+                {"id": valid_id, "username": "alice"},
+                "not a dict",
+            ]
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_invalid_uuid_id_rejects_whole_response(self):
+        response = self._call_with_payload([{"id": "not-a-uuid", "username": "alice"}])
+        self.assertEqual(response.data, [])
+
+
+class RemoteFacilityUserAuthenticatedViewsetTestCase(
+    RemoteFacilityResponseSanitizationMixin, APITestCase
+):
+    valid_item = {
+        "id": "00000000000000000000000000000001",
+        "username": "alice",
+        "full_name": "Alice",
+        "facility": "00000000000000000000000000000002",
+        "roles": ["admin"],
+        "is_superuser": False,
+        "id_number": "",
+        "gender": "NOT_SPECIFIED",
+        "birth_year": "NOT_SPECIFIED",
+    }
+
+    def _call_with_payload(self, payload):
+        with patch("kolibri.core.auth.utils.users.NetworkClient") as NetworkClient:
+            client = NetworkClient.build_for_address.return_value
+            client.get.return_value.json.return_value = payload
+            return self.client.post(
+                reverse("kolibri:core:remotefacilityauthenticateduserinfo"),
+                {
+                    "baseurl": "http://remote.example",
+                    "username": self.valid_item["username"],
+                    "facility_id": self.valid_item["facility"],
+                    "password": "anything",
+                },
+                format="json",
+            )
+
+    def test_any_invalid_item_returns_403(self):
+        response = self._call_with_payload([self.valid_item, "not a dict"])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_non_list_response_returns_403(self):
+        response = self._call_with_payload({"my_secret": "AKIA..."})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
