@@ -60,57 +60,80 @@ class NetworkClient(SameHostSession):
         )
 
     @classmethod
+    def _default_timeout(cls):
+        if get_current_job() is not None:
+            return (DEFAULT_CONNECT_TIMEOUT, DEFAULT_ASYNC_READ_TIMEOUT)
+        return (DEFAULT_CONNECT_TIMEOUT, DEFAULT_SYNC_READ_TIMEOUT)
+
+    @classmethod
     def build_for_address(cls, address, timeout=None):
         """
+        Builds a NetworkClient for an address that already corresponds to a known peer.
+        Raises NetworkLocationNotFound if no NetworkLocation matches.
+
+        :param address: The address to look up in the allowlist
+        :param timeout: A timeout value in seconds or tuple for (connect, read)
+        :return: A NetworkClient with a verified connection
+        :rtype: NetworkClient|cls
+        """
+        if timeout is None:
+            timeout = cls._default_timeout()
+
+        candidates = [address] + list(get_normalized_url_variations(address))
+        network_location = NetworkLocation.objects.filter(
+            base_url__in=candidates
+        ).first()
+        if network_location is None:
+            raise errors.NetworkLocationNotFound()
+
+        with cls(network_location.base_url, timeout=timeout) as client:
+            last_accessed = network_location.last_accessed
+            if (
+                last_accessed
+                and (timezone.now() - last_accessed)
+                < timedelta(seconds=NETWORK_LOCATION_KEEP_ALIVE_TIMEOUT)
+                and network_location.connection_status == ConnectionStatus.Okay
+            ):
+                # If we know this location is okay and its been accessed recently,
+                # use it without calling connect() to save some resources
+                return client
+
+            if client.connect(raise_if_unavailable=False):
+                network_location.last_accessed = timezone.now()
+                network_location.connection_status = ConnectionStatus.Okay
+                network_location.save()
+                return client
+        raise errors.NetworkLocationNotFound()
+
+    @classmethod
+    def discover_from_address(cls, address, timeout=None):
+        """
         Normalizes the address URL and tries a number of variations until we find one
-        that's able to connect
+        that's able to connect. Use only from trusted entry points (discovery
+        validation, CLI management commands, internal re-probing).
 
         :param address: The address of which to try variations of
         :param timeout: A timeout value in seconds or tuple for (connect, read)
         :return: A NetworkClient with a verified connection
         :rtype: NetworkClient|cls
         """
+        if timeout is None:
+            timeout = cls._default_timeout()
+        try:
+            return cls.build_for_address(address, timeout=timeout)
+        except errors.NetworkLocationNotFound:
+            pass
+
         logger.info(
             "Attempting connections to variations of the URL: {}".format(address)
         )
-        if timeout is None:
-            if get_current_job() is not None:
-                # when we're within a job, then we can use longer timeouts
-                timeout = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_ASYNC_READ_TIMEOUT)
-            else:
-                # if we're within a request thread, then we limit it for an overall time
-                timeout = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_SYNC_READ_TIMEOUT)
         _, self_urls = get_urls()
-
-        # Check if the address is already known
-        network_location = NetworkLocation.objects.filter(base_url=address).first()
-        if network_location:
-            with cls(network_location.base_url, timeout=timeout) as client:
-                last_accessed = network_location.last_accessed
-                if (
-                    last_accessed
-                    and (timezone.now() - last_accessed)
-                    < timedelta(seconds=NETWORK_LOCATION_KEEP_ALIVE_TIMEOUT)
-                    and network_location.connection_status == ConnectionStatus.Okay
-                ):
-                    # If we know this location is okay and its been accessed recently,
-                    # use it without calling connect() to save some resources
-                    return client
-
-                if client.connect(raise_if_unavailable=False):
-                    network_location.last_accessed = timezone.now()
-                    network_location.connection_status = ConnectionStatus.Okay
-                    network_location.save()
-                    return client
-
-        # If we haven't found a known location, try variations
         for url in get_normalized_url_variations(address):
             if url in self_urls:
                 continue  # exclude our own URLs
             with cls(url, timeout=timeout) as client:
                 if client.connect(raise_if_unavailable=False):
                     return client
-        # we weren't able to connect to any of the URL variations, so all we can do is throw
         raise errors.NetworkLocationNotFound()
 
     @classmethod
@@ -130,7 +153,7 @@ class NetworkClient(SameHostSession):
             network_location.location_type is LocationTypes.Dynamic
             and network_location.connection_status == ConnectionStatus.Unknown
         ):
-            return cls.build_for_address(network_location.base_url, timeout=timeout)
+            return cls.discover_from_address(network_location.base_url, timeout=timeout)
         return cls(network_location.base_url, timeout=timeout)
 
     def head(self, path, **kwargs):

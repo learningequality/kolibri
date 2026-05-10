@@ -57,7 +57,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
         raise ValueError("Either token or channel_id must be provided")
 
     identifier = token if token is not None else channel_id
-    client = NetworkClient.build_for_address(baseurl)
+    client = NetworkClient.discover_from_address(baseurl)
     try:
         resp = client.get(get_channel_lookup_url(identifier=identifier))
     except NetworkLocationResponseFailure as e:

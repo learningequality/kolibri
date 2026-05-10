@@ -169,21 +169,55 @@ class NetworkClientTestCase(TestCase):
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://happyurl.qqq/")
     )
-    def test_build_for_address__success(self):
-        nc = NetworkClient.build_for_address("happyurl.qqq")
+    def test_discover_from_address__success(self):
+        nc = NetworkClient.discover_from_address("happyurl.qqq")
         self.assertEqual(nc.base_url, "https://happyurl.qqq/")
 
     @mock.patch.object(
         requests.Session, "request", mock_sad_request("https://sadurl.qqq/")
     )
-    def test_build_for_address__not_found__request_failure(self):
+    def test_discover_from_address__not_found__request_failure(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient.build_for_address("sadurl.qqq")
+            NetworkClient.discover_from_address("sadurl.qqq")
 
     @mock.patch.object(requests.Session, "request", mock_not_found())
-    def test_build_for_address__not_found(self):
+    def test_discover_from_address__not_found(self):
         with self.assertRaises(errors.NetworkLocationNotFound):
-            NetworkClient.build_for_address("nonkolibrihappyurl.qqq")
+            NetworkClient.discover_from_address("nonkolibrihappyurl.qqq")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://happyurl.qqq/")
+    )
+    def test_build_for_address__success(self):
+        NetworkLocation.objects.create(base_url="https://happyurl.qqq/")
+        nc = NetworkClient.build_for_address("https://happyurl.qqq/")
+        self.assertEqual(nc.base_url, "https://happyurl.qqq/")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://happyurl.qqq/")
+    )
+    def test_build_for_address__matches_via_variation(self):
+        NetworkLocation.objects.create(base_url="https://happyurl.qqq/")
+        nc = NetworkClient.build_for_address("happyurl.qqq")
+        self.assertEqual(nc.base_url, "https://happyurl.qqq/")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("http://happyurl.qqq:8080/")
+    )
+    def test_build_for_address__stored_without_trailing_slash(self):
+        # Stored base_urls aren't always normalized to a trailing slash —
+        # `get_normalized_url_variations` always adds one, so the allowlist
+        # lookup must tolerate either shape.
+        NetworkLocation.objects.create(base_url="http://happyurl.qqq:8080")
+        nc = NetworkClient.build_for_address("http://happyurl.qqq:8080")
+        self.assertEqual(nc.base_url, "http://happyurl.qqq:8080/")
+
+    @mock.patch.object(
+        requests.Session, "request", mock_happy_request("https://attacker.qqq/")
+    )
+    def test_build_for_address__not_in_allowlist(self):
+        with self.assertRaises(errors.NetworkLocationNotFound):
+            NetworkClient.build_for_address("https://attacker.qqq/")
 
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://url.qqq/")

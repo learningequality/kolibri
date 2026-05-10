@@ -34,7 +34,7 @@ class Command(AsyncCommand):
 
     def get_dataset_id(self, base_url, dataset_id):
         # get list of facilities and if more than 1, display all choices to user
-        client = NetworkClient.build_for_address(base_url)
+        client = NetworkClient.discover_from_address(base_url)
         facility_url = reverse_path("kolibri:core:publicfacility-list")
         facility_resp = client.get(facility_url)
         facilities = facility_resp.json()
