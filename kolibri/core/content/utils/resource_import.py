@@ -36,6 +36,7 @@ from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
+from kolibri.utils.http_session import SameHostSession
 from kolibri.utils.system import get_free_space
 
 logger = logging.getLogger(__name__)
@@ -663,7 +664,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         else:
             self.public = self.library = self.remote_version = None
 
-        self.session = requests.Session()
+        self.session = SameHostSession()
 
         super().__init__(
             channel_id,

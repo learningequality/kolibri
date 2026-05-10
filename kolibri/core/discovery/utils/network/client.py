@@ -15,6 +15,7 @@ from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
+from kolibri.utils.http_session import SameHostSession
 from kolibri.utils.server import get_urls
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ NETWORK_LOCATION_KEEP_ALIVE_TIMEOUT = 5
 DEFAULT_SYNC_READ_TIMEOUT = DEFAULT_READ_TIMEOUT / (len(HTTP_PORTS) + len(HTTPS_PORTS))
 
 
-class NetworkClient(requests.Session):
+class NetworkClient(SameHostSession):
     __slots__ = ("base_url", "timeout", "session", "device_info", "remote_ip")
 
     def __init__(self, base_url, timeout=None):

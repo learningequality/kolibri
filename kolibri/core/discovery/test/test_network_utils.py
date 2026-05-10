@@ -407,3 +407,26 @@ class NetworkClientTestCase(TestCase):
             with mock.patch.object(NetworkClient, "get", return_value=response):
                 with NetworkClient("http://url.qqq/") as nc:
                     nc.connect()
+
+    def _redirect_response(self, url, location):
+        response = requests.Response()
+        response.url = url
+        response.status_code = 302
+        response.headers["Location"] = location
+        return response
+
+    def test_get_redirect_target__cross_host_blocked(self):
+        response = self._redirect_response(
+            "http://peer.qqq/api/info/", "http://attacker.qqq/"
+        )
+        with NetworkClient("http://peer.qqq/") as nc:
+            self.assertIsNone(nc.get_redirect_target(response))
+
+    def test_get_redirect_target__same_host_followed(self):
+        response = self._redirect_response(
+            "http://peer.qqq/api/info/", "http://peer.qqq/api/info"
+        )
+        with NetworkClient("http://peer.qqq/") as nc:
+            self.assertEqual(
+                nc.get_redirect_target(response), "http://peer.qqq/api/info"
+            )

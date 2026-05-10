@@ -1073,7 +1073,7 @@ class ChannelDbVersionTestCase(TestCase):
         )
 
     @patch(
-        "kolibri.core.content.utils.resource_import.requests.Session",
+        "kolibri.core.content.utils.resource_import.SameHostSession",
     )
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_database_file_url",
@@ -3667,7 +3667,7 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
         mock_session.head.return_value = mock_response
 
         with patch(
-            "kolibri.core.content.utils.resource_import.requests.Session",
+            "kolibri.core.content.utils.resource_import.SameHostSession",
             return_value=mock_session,
         ):
             remoteimport(
@@ -3714,7 +3714,7 @@ class ImportManagerWithChannelDatabaseTestCase(TestCase):
         mock_session.head.return_value = mock_response
 
         with patch(
-            "kolibri.core.content.utils.resource_import.requests.Session",
+            "kolibri.core.content.utils.resource_import.SameHostSession",
             return_value=mock_session,
         ):
             remoteimport(
