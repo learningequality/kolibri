@@ -66,6 +66,26 @@ class NetworkClient(SameHostSession):
         return (DEFAULT_CONNECT_TIMEOUT, DEFAULT_SYNC_READ_TIMEOUT)
 
     @classmethod
+    def known_location_for_address(cls, address):
+        """
+        Looks up the NetworkLocation matching `address` exactly or via a normalized variation.
+
+        :param address: The address to look up in the allowlist
+        :return: The matching NetworkLocation, or None if malformed or not in the allowlist
+        :rtype: NetworkLocation|None
+        """
+        try:
+            variations = get_normalized_url_variations(address)
+        except errors.URLParseError:
+            return None
+        # Variations always end in `/`, but stored base_urls may or may not — e.g.
+        # `connect()` strips the trailing slash before persisting. Match both forms
+        # so a path-less peer is found regardless of which shape was stored.
+        candidates = set(variations)
+        candidates.update(url.rstrip("/") for url in variations)
+        return NetworkLocation.objects.filter(base_url__in=candidates).first()
+
+    @classmethod
     def build_for_address(cls, address, timeout=None):
         """
         Builds a NetworkClient for an address that already corresponds to a known peer.
@@ -79,10 +99,7 @@ class NetworkClient(SameHostSession):
         if timeout is None:
             timeout = cls._default_timeout()
 
-        candidates = [address] + list(get_normalized_url_variations(address))
-        network_location = NetworkLocation.objects.filter(
-            base_url__in=candidates
-        ).first()
+        network_location = cls.known_location_for_address(address)
         if network_location is None:
             raise errors.NetworkLocationNotFound()
 
