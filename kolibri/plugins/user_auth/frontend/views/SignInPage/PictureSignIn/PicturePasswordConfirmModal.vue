@@ -4,84 +4,86 @@
     class="modal-overlay"
     @mousedown.prevent
   >
-    <KFocusTrap
-      @shouldFocusFirstEl="modalTitle.focus()"
-      @shouldFocusLastEl="confirmBtn.$el.focus()"
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-modal-title"
-        class="modal-card"
-        tabindex="-1"
-        :style="{ backgroundColor: $themeTokens.surface }"
+    <div class="modal-wrapper">
+      <KFocusTrap
+        @shouldFocusFirstEl="modalTitle.focus()"
+        @shouldFocusLastEl="confirmBtn.$el.focus()"
       >
         <div
-          class="header"
-          :style="{ backgroundColor: $themePalette.yellow.v_500 }"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-modal-title"
+          class="modal-card"
+          tabindex="-1"
+          :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <h1
-            id="confirm-modal-title"
-            ref="modalTitle"
-            class="modal-title"
-            tabindex="-1"
-            :style="{ color: $themeTokens.text }"
-          >
-            {{ isThisYou$() }}
-          </h1>
-
-          <p
-            class="learner-name"
-            :style="{ color: $themeTokens.text }"
-          >
-            {{ learnerName }}
-          </p>
-        </div>
-
-        <span class="visuallyhidden">{{ sequenceAriaLabel }}</span>
-        <div
-          class="icon-sequence"
-          aria-hidden="true"
-          :style="{ backgroundColor: $themePalette.grey.v_100 }"
-        >
-          <KIcon
-            v-for="(iconToken, i) in iconTokens"
-            :key="i"
-            class="seq-icon"
-            :icon="iconToken"
-          />
-        </div>
-
-        <div class="action-buttons">
           <div
-            class="btn-bg"
-            :style="{ backgroundColor: cancelHovered ? cancelBgHover : cancelBg }"
-            @mouseenter="cancelHovered = true"
-            @mouseleave="cancelHovered = false"
+            class="header"
+            :style="{ backgroundColor: $themePalette.yellow.v_500 }"
           >
-            <KIconButton
-              icon="close"
-              :ariaLabel="noGoBackAction$()"
-              @click="$emit('cancel')"
+            <h1
+              id="confirm-modal-title"
+              ref="modalTitle"
+              class="modal-title"
+              tabindex="-1"
+              :style="{ color: $themeTokens.text }"
+            >
+              {{ isThisYou$() }}
+            </h1>
+
+            <p
+              class="learner-name"
+              :style="{ color: $themeTokens.text }"
+            >
+              {{ learnerName }}
+            </p>
+          </div>
+
+          <span class="visuallyhidden">{{ sequenceAriaLabel }}</span>
+          <div
+            class="icon-sequence"
+            aria-hidden="true"
+            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+          >
+            <KIcon
+              v-for="(iconToken, i) in iconTokens"
+              :key="i"
+              class="seq-icon"
+              :icon="iconToken"
             />
           </div>
-          <div
-            class="btn-bg"
-            :style="{ backgroundColor: confirmHovered ? confirmBgHover : confirmBg }"
-            @mouseenter="confirmHovered = true"
-            @mouseleave="confirmHovered = false"
-          >
-            <KIconButton
-              ref="confirmBtn"
-              icon="check"
-              :color="$themePalette.white"
-              :ariaLabel="yesConfirmAction$()"
-              @click="$emit('confirm')"
-            />
+
+          <div class="action-buttons">
+            <div
+              class="btn-bg"
+              :style="{ backgroundColor: cancelHovered ? cancelBgHover : cancelBg }"
+              @mouseenter="cancelHovered = true"
+              @mouseleave="cancelHovered = false"
+            >
+              <KIconButton
+                icon="close"
+                :ariaLabel="noGoBackAction$()"
+                @click="$emit('cancel')"
+              />
+            </div>
+            <div
+              class="btn-bg"
+              :style="{ backgroundColor: confirmHovered ? confirmBgHover : confirmBg }"
+              @mouseenter="confirmHovered = true"
+              @mouseleave="confirmHovered = false"
+            >
+              <KIconButton
+                ref="confirmBtn"
+                icon="check"
+                :color="$themePalette.white"
+                :ariaLabel="yesConfirmAction$()"
+                @click="$emit('confirm')"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </KFocusTrap>
+      </KFocusTrap>
+    </div>
   </div>
 
 </template>
@@ -191,19 +193,24 @@
 
   .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     z-index: 24;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
+    padding: 0 16px;
     background: rgba(0, 0, 0, 0.7);
   }
 
+  .modal-wrapper {
+    width: 100%;
+    min-width: 0;
+    max-width: 412px;
+  }
+
   .modal-card {
-    width: max-content;
+    max-height: 428px;
     border-radius: 8px;
   }
 
@@ -251,10 +258,12 @@
   }
 
   .btn-bg {
+    flex: 1;
+    min-width: 0;
     border-radius: 8px;
 
     /deep/ button {
-      width: 166px !important;
+      width: 100% !important;
       height: 96px !important;
       padding: 16px !important;
       background-color: inherit !important;
