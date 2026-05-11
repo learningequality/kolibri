@@ -26,7 +26,15 @@ export function getAllRemoteChannels(store, publicChannels) {
           latest_version: channel.version,
         }),
       )
-      .catch(() => Promise.resolve()),
+      .catch(() => {
+        if (installedChannel.version === 0) {
+          return Promise.resolve({
+            ...installedChannel,
+            installed_version: installedChannel.version,
+          });
+        }
+        return Promise.resolve();
+      }),
   );
   return Promise.all(promises).then(unlisted => {
     return [...unlisted.filter(Boolean), ...publicChannels];

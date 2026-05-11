@@ -73,6 +73,7 @@ export default [
             channel_id: params.channel_id,
             address_id: query.address_id,
             drive_id: query.drive_id,
+            token: query.token,
           });
         }
       }

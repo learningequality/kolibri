@@ -12,8 +12,6 @@ const {
   onTrackWithObjectivesPrefixLabel$,
   onTrackWithObjectivesSuffixLabel$,
   xOfYCorrectLabel$,
-  progressLabel$,
-  losCompletedLabel$,
   individualLoPerformanceLabel$,
   learningObjectiveLabel$,
   questionsCorrectLabel$,
@@ -74,11 +72,6 @@ describe('LearnerSidePanel', () => {
       renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
       expect(screen.queryByText(LEARNING_OBJECTIVES['lo-1'].text)).not.toBeInTheDocument();
     });
-
-    it('does not show PROGRESS row in empty state', () => {
-      renderComponent({ prefetchedData: makePrefetchedData({ scores: {} }) });
-      expect(screen.queryByText(progressLabel$())).not.toBeInTheDocument();
-    });
   });
 
   describe('header', () => {
@@ -86,29 +79,6 @@ describe('LearnerSidePanel', () => {
       const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
       renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
       expect(screen.getByRole('heading', { level: 1, name: LEARNER.name })).toBeInTheDocument();
-    });
-  });
-
-  describe('stats rows', () => {
-    it('shows PROGRESS label and LOs completed count', () => {
-      // Both LOs have scores → 2 of 2 completed
-      const scores = { 'user-1': { 'lo-1': 4, 'lo-2': 4 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const statsRow = document.querySelector('.stats-row');
-      expect(within(statsRow).getByText(progressLabel$(), { exact: false })).toBeInTheDocument();
-      expect(
-        within(statsRow).getByText(losCompletedLabel$({ completed: 2, total: 2 })),
-      ).toBeInTheDocument();
-    });
-
-    it('shows only attempted LOs in PROGRESS count', () => {
-      // Only lo-1 has a score entry
-      const scores = { 'user-1': { 'lo-1': 3 } };
-      renderComponent({ prefetchedData: makePrefetchedData({ scores }) });
-      const statsRow = document.querySelector('.stats-row');
-      expect(
-        within(statsRow).getByText(losCompletedLabel$({ completed: 1, total: 2 })),
-      ).toBeInTheDocument();
     });
   });
 

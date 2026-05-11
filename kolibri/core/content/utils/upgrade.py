@@ -1,7 +1,9 @@
 import logging
 import os
 
+from django.db.models import Q
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy import or_
@@ -87,6 +89,7 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
             source_path,
             cancel_check=False,
             destination=destination_path,
+            version_requested=True,
         )
 
         # import channel data from source db path
@@ -95,22 +98,31 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
 
         # annotate file availability on destination db
         annotation.set_local_file_availability_from_disk(destination=destination_path)
-        # get the diff count between whats on the default db and the annotated db
-        (
-            new_resource_ids,
-            new_resource_content_ids,
-            new_resource_total_size,
-        ) = get_new_resources_available_for_import(destination_path, channel_id)
-        # get the count for leaf nodes which are in the default db, but not in the annotated db
-        resources_to_be_deleted_count = count_removed_resources(
-            destination_path, channel_id
-        )
-        # get the ids of leaf nodes which are now incomplete due to missing local files
+        # get the ids of leaf nodes which are now incomplete due to missing local files,
+        # including new descendants of already-available courses; must run first so the
+        # exclusion set can be passed to get_new_resources_available_for_import
         (
             updated_resource_ids,
             updated_resource_content_ids,
             updated_resource_total_size,
         ) = get_automatically_updated_resources(destination_path, channel_id)
+
+        # get the diff count between whats on the default db and the annotated db,
+        # excluding nodes that will be auto-imported via the course-update path
+        (
+            new_resource_ids,
+            new_resource_content_ids,
+            new_resource_total_size,
+        ) = get_new_resources_available_for_import(
+            destination_path,
+            channel_id,
+            exclude_node_ids=set(updated_resource_ids),
+            exclude_content_ids=set(updated_resource_content_ids),
+        )
+        # get the count for leaf nodes which are in the default db, but not in the annotated db
+        resources_to_be_deleted_count = count_removed_resources(
+            destination_path, channel_id
+        )
         # remove the annotated database
         try:
             os.remove(destination_path)
@@ -161,7 +173,9 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
 batch_size = 1000
 
 
-def get_new_resources_available_for_import(destination, channel_id):
+def get_new_resources_available_for_import(
+    destination, channel_id, exclude_node_ids=None, exclude_content_ids=None
+):
     """
     Queries the destination db to get leaf nodes.
     Subtract total number of leaf nodes by the count of leaf nodes on default db to get the number of new resources.
@@ -245,6 +259,12 @@ def get_new_resources_available_for_import(destination, channel_id):
         ContentNodeTable.c.id.in_(renderable_contentnodes),
     )
 
+    if exclude_node_ids:
+        contentnode_filter_expression = and_(
+            contentnode_filter_expression,
+            ~ContentNodeTable.c.id.in_(list(exclude_node_ids)),
+        )
+
     new_resource_nodes_total_size = (
         connection.execute(
             # This does the first step in the many to many lookup for File
@@ -287,6 +307,11 @@ def get_new_resources_available_for_import(destination, channel_id):
         coerce_key(c[0])
         for c in connection.execute(new_resource_node_ids_statement).fetchall()
     ]
+
+    if exclude_node_ids:
+        new_resource_node_ids = [
+            nid for nid in new_resource_node_ids if nid not in exclude_node_ids
+        ]
 
     trans.rollback()
 
@@ -351,6 +376,11 @@ def get_new_resources_available_for_import(destination, channel_id):
         coerce_key(c[0])
         for c in connection.execute(new_resource_content_ids_statement).fetchall()
     ]
+
+    if exclude_content_ids:
+        new_resource_content_ids = [
+            cid for cid in new_resource_content_ids if cid not in exclude_content_ids
+        ]
 
     trans.rollback()
 
@@ -425,6 +455,38 @@ def count_removed_resources(destination, channel_id):
     )
 
 
+def _get_available_course_bounds(ContentNodeTable, connection, channel_id):
+    # Resolve courses available on the device and their upgrade-DB tree bounds once,
+    # before the batching loop.
+    courses_on_destination_statement = select(
+        ContentNodeTable.c.id, ContentNodeTable.c.lft, ContentNodeTable.c.rght
+    ).where(
+        and_(
+            ContentNodeTable.c.channel_id == channel_id,
+            ContentNodeTable.c.options.like(f'%"modality": "{modalities.COURSE}"%'),
+        )
+    )
+    courses_on_destination = {
+        coerce_key(row[0]): (row[1], row[2])
+        for row in connection.execute(courses_on_destination_statement).fetchall()
+    }
+
+    available_course_ids = set(
+        ContentNode.objects.filter(channel_id=channel_id, available=True)
+        .filter(modality=modalities.COURSE)
+        .values_list("id", flat=True)
+    )
+
+    # lft/rght bounds from the upgrade DB for courses that exist on both sides
+    available_course_bounds = [
+        courses_on_destination[cid]
+        for cid in available_course_ids
+        if cid in courses_on_destination
+    ]
+
+    return available_course_bounds
+
+
 def get_automatically_updated_resources(destination, channel_id):
     """
     Queries the destination db to get the leaf node ids, where local file objects are unavailable.
@@ -443,9 +505,19 @@ def get_automatically_updated_resources(destination, channel_id):
     unavailable_local_file_ids_statement = select(LocalFileTable.c.id).where(
         LocalFileTable.c.available == False  # noqa
     )
-    # get the Contentnode ids where File objects are missing in the destination db
-    contentnode_ids_statement = (
-        select(FileTable.c.contentnode_id)
+    # get the ContentNode ids where File objects are missing in the destination db,
+    # along with lft/rght for course-descendant detection
+    contentnodes_statement = (
+        select(
+            ContentNodeTable.c.id,
+            ContentNodeTable.c.lft,
+            ContentNodeTable.c.rght,
+        )
+        .select_from(
+            FileTable.join(
+                ContentNodeTable, FileTable.c.contentnode_id == ContentNodeTable.c.id
+            )
+        )
         .where(
             and_(
                 FileTable.c.local_file_id.in_(unavailable_local_file_ids_statement),
@@ -458,7 +530,12 @@ def get_automatically_updated_resources(destination, channel_id):
                 ),
             )
         )
+        .distinct()
         .limit(batch_size)
+    )
+
+    available_course_bounds = _get_available_course_bounds(
+        ContentNodeTable, connection, channel_id
     )
 
     i = 0
@@ -467,32 +544,59 @@ def get_automatically_updated_resources(destination, channel_id):
 
     updated_resource_content_ids = set()
 
-    contentnode_ids = [
-        coerce_key(cid[0])
-        for cid in connection.execute(contentnode_ids_statement.offset(i)).fetchall()
+    pending_course_node_ids = set()
+
+    contentnodes = [
+        (coerce_key(row[0]), row[1], row[2])
+        for row in connection.execute(contentnodes_statement.offset(i)).fetchall()
     ]
 
-    while contentnode_ids:
-        # Exclude topics from here to prevent erroneous imports of their children
-        # This should already be excluded as we are filtering to renderable files
-        # so this is more of a sanity check
+    while contentnodes:
+        node_ids_in_upgrade = [row[0] for row in contentnodes]
+        contentnodes_tree_values = {row[0]: (row[1], row[2]) for row in contentnodes}
+
         for c in (
-            ContentNode.objects.filter_by_uuids(contentnode_ids, validate=False)
+            ContentNode.objects.filter_by_uuids(node_ids_in_upgrade, validate=False)
             .filter(available=True, channel_id=channel_id)
-            .exclude(kind=content_kinds.TOPIC)
             .values_list("id", "content_id")
         ):
             updated_resource_ids.add(c[0])
             updated_resource_content_ids.add(c[1])
+            contentnodes_tree_values.pop(c[0], None)
+
+        # Add it to a pending array so that we can fetch its ids and content ids later
+        # against the destination db.
+        if available_course_bounds and contentnodes_tree_values:
+            for node_id, (
+                contentnode_lft,
+                contentnode_rght,
+            ) in contentnodes_tree_values.items():
+                if any(
+                    contentnode_lft > course_lft and contentnode_rght < course_rght
+                    for (course_lft, course_rght) in available_course_bounds
+                ):
+                    pending_course_node_ids.add(node_id)
 
         i += batch_size
 
-        contentnode_ids = [
-            coerce_key(cid[0])
-            for cid in connection.execute(
-                contentnode_ids_statement.offset(i)
-            ).fetchall()
+        contentnodes = [
+            (coerce_key(row[0]), row[1], row[2])
+            for row in connection.execute(contentnodes_statement.offset(i)).fetchall()
         ]
+
+    if pending_course_node_ids:
+        rows = connection.execute(
+            select(ContentNodeTable.c.id, ContentNodeTable.c.content_id).where(
+                filter_by_uuids(
+                    ContentNodeTable.c.id,
+                    list(pending_course_node_ids),
+                    vendor=bridge.engine.name,
+                )
+            )
+        ).fetchall()
+        for nid, cid in rows:
+            updated_resource_ids.add(coerce_key(nid))
+            updated_resource_content_ids.add(coerce_key(cid))
 
     # Do this after we have fetched all the ids and made them unique
     # otherwise, because we are getting our ids from the File table, we could
@@ -550,6 +654,35 @@ def get_automatically_updated_resources(destination, channel_id):
         updated_resource_content_ids,
         updated_resources_total_size,
     )
+
+
+def _get_files_for_available_courses(channel_id):
+    # Include files for new descendants of available courses that are not
+    # yet available locally.
+    available_course_nodes = ContentNode.objects.filter(
+        channel_id=channel_id,
+        available=True,
+        modality=modalities.COURSE,
+    )
+    descendant_filter = Q()
+    for course in available_course_nodes.values("lft", "rght", "tree_id"):
+        descendant_filter |= Q(
+            tree_id=course["tree_id"],
+            lft__gt=course["lft"],
+            rght__lt=course["rght"],
+        )
+    if descendant_filter:
+        course_descendants = ContentNode.objects.filter(
+            channel_id=channel_id, available=False
+        ).filter(descendant_filter)
+        return list(
+            LocalFile.objects.filter(
+                available=False,
+                files__supplementary=False,
+                files__contentnode__in=course_descendants,
+            ).values("id", "file_size", "extension")
+        )
+    return []
 
 
 def get_import_data_for_update(
@@ -623,6 +756,8 @@ def get_import_data_for_update(
             ),
         ).values("id", "file_size", "extension")
     )
+
+    queried_file_objects.extend(_get_files_for_available_courses(channel_id))
 
     checksums = set()
 

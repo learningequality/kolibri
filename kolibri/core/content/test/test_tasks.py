@@ -209,6 +209,40 @@ class ValidateRemoteImportTaskTestCase(TestCase):
             },
         )
 
+    @mock.patch("kolibri.core.content.tasks.NetworkClient")
+    def test_token_accepted_by_remote_channel_import_validator(
+        self, network_client_mock
+    ):
+        channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
+        validator = RemoteChannelImportValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechannelimport",
+                "channel_id": channel_id,
+                "channel_name": "Test Channel",
+                "token": "abcde-fghij",
+            }
+        )
+        self.assertTrue(validator.is_valid(), validator.errors)
+        self.assertEqual(validator.validated_data["kwargs"].get("token"), "abcde-fghij")
+
+    @mock.patch("kolibri.core.content.tasks.NetworkClient")
+    def test_token_absent_is_valid(self, network_client_mock):
+        channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
+        validator = RemoteChannelImportValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechannelimport",
+                "channel_id": channel_id,
+                "channel_name": "Test Channel",
+            }
+        )
+        self.assertTrue(validator.is_valid(), validator.errors)
+
 
 class ValidateLocalImportTaskTestCase(TestCase):
     def test_wrong_drive_id(self):

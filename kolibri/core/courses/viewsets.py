@@ -33,6 +33,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.query import annotate_array_aggregate
 
@@ -124,12 +125,19 @@ class CourseSessionSerializer(ModelSerializer):
         data["created_by"] = self.context["request"].user.id
         instance = super().to_internal_value(data)
 
-        # Transform course ContentNode object to its title and description
+        # Transform course ContentNode object to its title, description, and version
         course = instance.get("course")
         if course:
             instance["title"] = course.title
             instance["description"] = course.description
             instance["course"] = course.id
+
+            channel_version = (
+                ChannelMetadata.objects.filter(id=course.channel_id)
+                .values_list("version", flat=True)
+                .first()
+            )
+            instance["channel_version"] = channel_version
         return instance
 
     def create(self, validated_data):

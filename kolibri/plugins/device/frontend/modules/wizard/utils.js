@@ -44,6 +44,9 @@ export function downloadChannelMetadata(store = coreStore) {
       ? TaskTypes.DISKCHANNELIMPORT
       : TaskTypes.REMOTECHANNELIMPORT,
   };
+  if (transferredChannel.token) {
+    taskParams.token = transferredChannel.token;
+  }
   if (store.getters['manageContent/wizard/inLocalImportMode']) {
     taskParams.drive_id = selectedDrive.id;
   } else if (store.getters['manageContent/wizard/inPeerImportMode']) {

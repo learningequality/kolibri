@@ -134,6 +134,7 @@ def transfer_channel(
     content_dir=None,
     baseurl=None,
     source_path=None,
+    version=None,
 ):
     """
     Transfers a channel database either by downloading or copying
@@ -144,6 +145,8 @@ def transfer_channel(
     :param content_dir: The content directory.
     :param baseurl: The base URL from which to download (if applicable).
     :param source_path: The source path (if copying).
+    :param version: The channel version string (e.g. 5 or "next") to use when constructing
+        the download URL. None means the standard (unversioned) URL is used.
     :return: The destination path of the transferred channel database.
     """
     job = get_job()
@@ -163,7 +166,9 @@ def transfer_channel(
 
     # Determine where we're downloading/copying from, and create the appropriate transfer object.
     if method == DOWNLOAD_METHOD:
-        url = paths.get_content_database_file_url(channel_id, baseurl=baseurl)
+        url = paths.get_content_database_file_url(
+            channel_id, baseurl=baseurl, version=version
+        )
         logger.debug("URL to fetch: {}".format(url))
         filetransfer = transfer.FileDownload(url, dest, cancel_check=job.is_cancelled)
     elif method == COPY_METHOD:

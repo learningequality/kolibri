@@ -128,6 +128,7 @@ class ContentChannelmetadata(Base):
     partial = Column(Boolean)
     included_categories = Column(Text)
     included_grade_levels = Column(Text)
+    library = Column(String(50))
 
 
 class ContentContentnodeHasPrerequisite(Base):

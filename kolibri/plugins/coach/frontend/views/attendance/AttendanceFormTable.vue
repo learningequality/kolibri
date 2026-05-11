@@ -31,7 +31,7 @@
               <KSwitch
                 name="mark-all-present"
                 :ariaLabelledBy="'mark-all-present-label'"
-                :value="allPresent"
+                :value="markAllSwitchValue"
                 @change="handleMarkAllChange"
               />
             </div>
@@ -200,7 +200,7 @@
       const {
         sortedLearners,
         sortedPreviouslyEnrolled,
-        allPresent,
+        markAllPresent: markAllSwitchValue,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
         currentAbsentCount: currentAbsentCountValue,
@@ -250,7 +250,7 @@
         confirmButtonStyles,
         allItems,
         sortedLearners,
-        allPresent,
+        markAllSwitchValue,
         presentCount: presentCountValue,
         absentCount: absentCountValue,
         currentAbsentCount: currentAbsentCountValue,
@@ -261,7 +261,7 @@
         handleMarkAllChange,
         confirmMarkAll,
         cancelMarkAll,
-        handleCancel: navigateBack,
+        handleCancel: () => navigateBack(),
         confirmLeave,
         cancelLeave,
         searchPlaceholder$,

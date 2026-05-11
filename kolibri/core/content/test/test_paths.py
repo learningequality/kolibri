@@ -3,6 +3,7 @@ import hashlib
 from django.test import TestCase
 
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.paths import get_content_database_file_url
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.utils.tests.helpers import override_option
 
@@ -38,3 +39,25 @@ class ZipContentConfigTest(TestCase):
         zip_content_origin, zip_content_port = get_zip_content_config()
         self.assertEqual("https://kolibri.example.com", zip_content_origin)
         self.assertEqual(zip_content_port, "")
+
+
+class GetContentDatabaseFileUrlTest(TestCase):
+    channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_no_version_returns_standard_filename(self):
+        url = get_content_database_file_url(
+            self.channel_id, baseurl="https://studio.example.com"
+        )
+        self.assertTrue(url.endswith("{}.sqlite3".format(self.channel_id)))
+
+    def test_integer_version_returns_versioned_filename(self):
+        url = get_content_database_file_url(
+            self.channel_id, baseurl="https://studio.example.com", version=42
+        )
+        self.assertTrue(url.endswith("{}-42.sqlite3".format(self.channel_id)))
+
+    def test_string_next_returns_next_filename(self):
+        url = get_content_database_file_url(
+            self.channel_id, baseurl="https://studio.example.com", version="next"
+        )
+        self.assertTrue(url.endswith("{}-next.sqlite3".format(self.channel_id)))

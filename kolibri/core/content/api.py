@@ -36,6 +36,7 @@ from django_filters.rest_framework import NumberFilter
 from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import languages
+from le_utils.constants import library as library_constants
 from le_utils.constants import modalities
 from rest_framework import filters
 from rest_framework import mixins
@@ -85,6 +86,7 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_local_content_storage_file_url
+from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
 from kolibri.core.decorators import query_params_required
@@ -1994,6 +1996,24 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             )
         return Response(channels)
 
+    def _retrieve_from_v2(self, channel_id):
+        """Fetch a community library channel's approved version from Studio v2 API."""
+        client = NetworkClient(CENTRAL_CONTENT_BASE_URL)
+        url = get_v2_channel_lookup_url(channel_id)
+        try:
+            resp = client.get(url)
+            return Response(self._studio_response_to_kolibri_response(resp.json()))
+        except NetworkLocationResponseFailure as e:
+            if e.response.status_code == 404:
+                raise Http404(
+                    "The requested channel does not exist on the content server"
+                )
+            raise
+        except NetworkLocationConnectionFailure:
+            return Response(
+                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
     def retrieve(self, request, pk=None):
         """
         Gets metadata about a channel through a token or channel id.
@@ -2001,9 +2021,29 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         baseurl = request.GET.get("baseurl", None)
         keyword = request.GET.get("keyword", None)
         language = request.GET.get("language", None)
+        token = request.GET.get("token", None)
+
+        # Use v2 only for installed community library channels queried through
+        # the default Studio base URL (v2 is Studio-specific). Skip when a token
+        # is provided — token lookups are for draft channels, not community library.
+        if baseurl is None and token is None:
+            try:
+                library = (
+                    models.ChannelMetadata.objects.filter(id=pk)
+                    .values_list("library", flat=True)
+                    .first()
+                )
+                if library == library_constants.COMMUNITY:
+                    return self._retrieve_from_v2(pk)
+            except ValueError:
+                pass
+
         try:
             channels = self._make_channel_endpoint_request(
-                identifier=pk, baseurl=baseurl, keyword=keyword, language=language
+                identifier=token or pk,
+                baseurl=baseurl,
+                keyword=keyword,
+                language=language,
             )
         except NetworkLocationConnectionFailure:
             return Response(
