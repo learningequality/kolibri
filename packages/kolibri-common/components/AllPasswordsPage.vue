@@ -41,7 +41,6 @@
         :headers="tableHeaders"
         :rows="tableRows"
         :caption="allPasswordsHeader$()"
-        :dataLoading="loading"
         :emptyMessage="noLearnersInClass$()"
         :defaultSort="{ columnId: 'full_name', direction: 'asc' }"
         sortable
@@ -142,17 +141,14 @@
 
 <script>
 
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed } from 'vue';
   import orderBy from 'lodash/orderBy';
-  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
   import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
@@ -163,13 +159,9 @@
     },
     components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
     setup(props) {
-      const learners = ref([]);
-      const loading = ref(true);
       const showPrintDialog = ref(false);
       const printFormat = ref('images');
-      const className = ref('');
 
-      const { currentFacilityName } = useFacility();
       const { isAppContext } = useUser();
       const { windowBreakpoint } = useKResponsiveWindow();
 
@@ -192,7 +184,7 @@
       } = picturePasswordStrings;
 
       const previewLearner = computed(() => {
-        return learners.value.find(learner => learner.picture_password) || null;
+        return props.learners.find(learner => learner.picture_password) || null;
       });
 
       const hasPicturePasswords = computed(() => {
@@ -213,29 +205,12 @@
       const sortConfig = ref({ columnId: 'full_name', direction: 'asc' });
 
       const sortedLearners = computed(() =>
-        orderBy(learners.value, [sortConfig.value.columnId], [sortConfig.value.direction]),
+        orderBy(props.learners, [sortConfig.value.columnId], [sortConfig.value.direction]),
       );
 
       const printLearners = computed(() => sortedLearners.value);
 
       const tableRows = computed(() => sortedLearners.value.map(l => [l.full_name, l.username, l]));
-
-      onMounted(() => {
-        Promise.all([
-          FacilityUserResource.fetchCollection({
-            getParams: { member_of: props.classId },
-            force: true,
-          }),
-          ClassroomResource.fetchModel({ id: props.classId }),
-        ])
-          .then(([users, classroom]) => {
-            learners.value = users;
-            className.value = classroom.name;
-          })
-          .finally(() => {
-            loading.value = false;
-          });
-      });
 
       function handleSortChange({ sortKey, sortOrder }) {
         const columnId = tableHeaders.value[sortKey]?.columnId;
@@ -255,13 +230,10 @@
       }
 
       return {
-        loading,
         isAppContext,
         handleSortChange,
         showPrintDialog,
         printFormat,
-        className,
-        currentFacilityName,
         windowBreakpoint,
         previewLearner,
         hasPicturePasswords,
@@ -283,7 +255,15 @@
       };
     },
     props: {
-      classId: {
+      learners: {
+        type: Array,
+        required: true,
+      },
+      className: {
+        type: String,
+        required: true,
+      },
+      facilityName: {
         type: String,
         required: true,
       },
@@ -294,12 +274,7 @@
     },
     computed: {
       pageTitle() {
-        return [
-          this.allPasswordsHeader$(),
-          this.className,
-          this.currentFacilityName,
-          this.kolibriLabel$(),
-        ]
+        return [this.allPasswordsHeader$(), this.className, this.facilityName, this.kolibriLabel$()]
           .filter(Boolean)
           .join(' - ');
       },
