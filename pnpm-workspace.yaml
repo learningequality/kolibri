@@ -18,7 +18,7 @@ catalog:
   xhr-mock: ^2.5.1
   core-js: ^3.47.0
   kolibri-constants: 0.2.16
-  kolibri-design-system: 5.6.1
+  kolibri-design-system: https://github.com/MisRob/kolibri-design-system#21d48ae243500b55b94193f649e694f94a0e1e7f
   lodash: ^4.17.23
   vue: 2.7.16
   vue-meta: ^2.4.0
