@@ -12,7 +12,8 @@
 
 <script>
 
-  import { computed, getCurrentInstance } from 'vue';
+  import { computed } from 'vue';
+  import store from 'kolibri/store';
   import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { PageNames } from '../../constants';
@@ -22,7 +23,6 @@
     name: 'CoachAllPasswordsPage',
     components: { AllPasswordsPage },
     setup() {
-      const store = getCurrentInstance().proxy.$store;
       const { currentFacilityName } = useFacility();
 
       const learners = computed(() => store.getters['classSummary/learners']);
