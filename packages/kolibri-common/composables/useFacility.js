@@ -1,6 +1,5 @@
 import { ref, computed, unref } from 'vue';
 import { useLocalStorage, StorageSerializers } from '@vueuse/core';
-import isPlainObject from 'lodash/isPlainObject';
 import { currentLanguage } from 'kolibri/utils/i18n';
 import useUser from 'kolibri/composables/useUser';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
@@ -52,8 +51,7 @@ const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
  * changed by calling `setFacilityId`
  */
 export default function useFacility() {
-  const { userFacilityId } = useUser();
-  const { fetchFacilities, getFacility } = useFacilities();
+  const { fetchFacilities, fetchFacility, getFacility } = useFacilities();
   const { facilityConfig: _facilityConfig, fetchFacilityConfig } = useFacilityConfig(
     selectedFacilityId.value,
   );
@@ -61,24 +59,21 @@ export default function useFacility() {
   // getters
   const selectedFacility = computed(() => {
     if (selectedFacilityId.value) {
-      const facilityById = getFacility(selectedFacilityId.value);
-      if (facilityById) {
-        return facilityById;
-      }
+      return getFacility(selectedFacilityId.value) || {};
     }
-    return getFacility(userFacilityId.value) || {};
+    return {};
   });
   const facilityId = computed(() => {
     // keep facility ID in sync with logic on selected facility
-    return selectedFacility.value ? selectedFacility.value.id : null;
+    return selectedFacility.value?.id ? selectedFacility.value.id : null;
   });
   const facilityConfig = computed(() => {
-    // if we have dataset from the facility object
-    if (isPlainObject(selectedFacility.value?.dataset)) {
-      return selectedFacility.value.dataset;
+    // prefer the useFacilityConfig composable's value
+    if (_facilityConfig.value?.id) {
+      return _facilityConfig.value;
     }
-    // otherwise leverage the useFacilityConfig composable's value
-    return _facilityConfig.value;
+
+    return selectedFacility.value.dataset || {};
   });
   const currentFacilityName = computed(() => {
     return selectedFacility.value ? selectedFacility.value.name : '';
@@ -91,7 +86,8 @@ export default function useFacility() {
    */
   async function setFacilityId(facilityId) {
     setSelectedFacilityId(facilityId);
-    await updateFacilityConfig();
+    await fetchFacility(facilityId);
+    await fetchFacilityConfig(facilityId);
   }
 
   /**
@@ -99,10 +95,6 @@ export default function useFacility() {
    * @return {Promise<object>}
    */
   async function updateFacilityConfig() {
-    if (!facilityId.value || isPlainObject(selectedFacility.value?.dataset)) {
-      return selectedFacility.value?.dataset;
-    }
-    // update facility config
     return await fetchFacilityConfig(facilityId);
   }
 
