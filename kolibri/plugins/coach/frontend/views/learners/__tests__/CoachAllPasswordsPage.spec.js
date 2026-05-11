@@ -21,9 +21,10 @@ jest.mock('kolibri-common/utils/picturePassword', () => ({
 
 const FACILITY_NAME = 'Test Facility';
 const CLASS_NAME = 'Test Class';
+// classSummary stores learners with `name`, not `full_name` (aliased in the Python API)
 const LEARNERS = [
-  { id: 'u1', full_name: 'Alice Smith', username: 'alice', picture_password: '3.7.12' },
-  { id: 'u2', full_name: 'Bob Jones', username: 'bob', picture_password: null },
+  { id: 'u1', name: 'Alice Smith', username: 'alice', picture_password: '3.7.12' },
+  { id: 'u2', name: 'Bob Jones', username: 'bob', picture_password: null },
 ];
 
 const routes = [
@@ -58,23 +59,23 @@ describe('CoachAllPasswordsPage', () => {
 
   it('passes classSummary learners into AllPasswordsPage', () => {
     renderComponent();
-    expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
-    expect(screen.getByText(LEARNERS[1].full_name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[0].name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[1].name)).toBeInTheDocument();
   });
 
   it('passes the class name from classSummary into AllPasswordsPage', () => {
     renderComponent({ className: 'My Class' });
-    expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[0].name)).toBeInTheDocument();
   });
 
   it('renders a learner with picture_password and a learner without one', () => {
     renderComponent();
-    expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
-    expect(screen.getByText(LEARNERS[1].full_name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[0].name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[1].name)).toBeInTheDocument();
   });
 
   it('renders an empty table when classSummary has no learners', () => {
     renderComponent({ learners: [] });
-    expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
+    expect(screen.queryByText(LEARNERS[0].name)).not.toBeInTheDocument();
   });
 });

@@ -183,8 +183,14 @@
         printFormatPreviewLabel$,
       } = picturePasswordStrings;
 
+      // Normalize learners so full_name is always populated regardless of
+      // whether the source uses full_name (Facility) or name (Coach classSummary)
+      const normalizedLearners = computed(() =>
+        props.learners.map(l => ({ ...l, full_name: l.full_name ?? l.name })),
+      );
+
       const previewLearner = computed(() => {
-        return props.learners.find(learner => learner.picture_password) || null;
+        return normalizedLearners.value.find(learner => learner.picture_password) || null;
       });
 
       const hasPicturePasswords = computed(() => {
@@ -205,7 +211,11 @@
       const sortConfig = ref({ columnId: 'full_name', direction: 'asc' });
 
       const sortedLearners = computed(() =>
-        orderBy(props.learners, [sortConfig.value.columnId], [sortConfig.value.direction]),
+        orderBy(
+          normalizedLearners.value,
+          [sortConfig.value.columnId],
+          [sortConfig.value.direction],
+        ),
       );
 
       const printLearners = computed(() => sortedLearners.value);
