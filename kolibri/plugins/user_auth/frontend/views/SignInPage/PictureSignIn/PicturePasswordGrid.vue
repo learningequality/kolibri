@@ -3,7 +3,10 @@
   <div class="picture-password-grid">
     <div
       class="icon-grid"
-      :style="{ gridTemplateColumns: `repeat(${columns}, 1fr)` }"
+      :style="{
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        gap: landscapeLayout ? '14px' : '22px',
+      }"
     >
       <PicturePasswordOption
         v-for="iconData in icons"
@@ -275,6 +278,13 @@
         type: Boolean,
         default: false,
       },
+      /* Whether the parent AuthBase is in landscape layout, which affects the
+       * layout of this component.
+       */
+      landscapeLayout: {
+        type: Boolean,
+        default: false,
+      },
     },
   };
 
@@ -294,7 +304,6 @@
 
   .icon-grid {
     display: grid;
-    gap: 22px;
   }
 
   /* Ensure each PicturePasswordOption fills its grid cell. */

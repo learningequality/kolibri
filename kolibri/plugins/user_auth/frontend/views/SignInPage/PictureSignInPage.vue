@@ -31,6 +31,7 @@
       :iconStyle="picturePasswordStyle"
       :showIconText="picturePasswordShowIconText"
       :wrongSequence="wrongSequence"
+      :landscapeLayout="landscapeLayout"
       @wrongSequenceHandled="wrongSequence = false"
       @submit="createSession"
     />
