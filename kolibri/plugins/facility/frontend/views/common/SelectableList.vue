@@ -24,70 +24,46 @@
         }"
       />
     </div>
-    <div
-      class="select-all-checkbox-container"
-      :class="$computedClass(rowStyles)"
-      @click.self="changeSelectAll(!selectAllChecked)"
-    >
-      <KCheckbox
-        :label="selectAllLabel"
-        :checked="selectAllChecked"
-        :indeterminate="selectAllIndeterminate"
-        :disabled="!filteredOptions.length"
-        :aria-controls="listboxId"
-        @change="changeSelectAll"
-      >
-        <slot name="selectAllLabel"></slot>
-      </KCheckbox>
-    </div>
-    <p
-      :id="ariaDescribedById"
-      class="visuallyhidden"
-    >
-      {{ clickableOptionsDescription$() }}
-    </p>
-    <ul
-      v-show="filteredOptions.length"
+    <KListbox
       :id="listboxId"
-      class="list-options"
-      tabindex="0"
-      role="listbox"
-      data-focus="true"
-      aria-multiselectable="true"
-      :style="{ outline: 'none', maxHeight: maxHeight }"
+      :value="value"
       :aria-labelledby="ariaLabelledby"
-      :aria-describedby="ariaDescribedById"
-      :aria-activedescendant="getElementOptionId(focusedOption)"
-      @focus="onListFocus"
-      @blur="onListBlur"
-      @keydown="handleKeydown"
+      :messages="messages"
+      :style="maxHeight ? { maxHeight } : {}"
+      @input="$emit('input', $event)"
     >
-      <li
-        v-for="option in filteredOptions"
-        :id="getElementOptionId(option)"
-        :key="option.id"
-        role="option"
-        :class="
-          $computedClass({
-            ...rowStyles,
-            ...(isOptionFocused(option) ? { ...$coreOutline, outlineOffset: '-2px' } : {}),
-          })
-        "
-        :aria-selected="isOptionSelected(option).toString()"
-        @click="toggleOption(option)"
-      >
-        <KCheckbox
-          presentational
-          :checked="isOptionSelected(option)"
-          :label="option.label"
+      <template #selectAll="{ allSelected, someSelected, toggle }">
+        <div
+          class="select-all"
+          :style="{ borderColor: $themeTokens.fineLine }"
         >
-          <slot
-            :option="option"
-            name="option"
-          ></slot>
-        </KCheckbox>
-      </li>
-    </ul>
+          <KCheckbox
+            :label="selectAllLabel"
+            class="select-all-checkbox"
+            :checked="allSelected"
+            :indeterminate="someSelected"
+            :disabled="!filteredOptions.length"
+            :aria-controls="listboxId"
+            @change="toggle"
+          >
+            <slot name="selectAllLabel"></slot>
+          </KCheckbox>
+        </div>
+      </template>
+      <KListboxOption
+        v-for="option in filteredOptions"
+        :key="option.id"
+        :value="option.id"
+        :label="option.label"
+        :style="{ borderColor: $themeTokens.fineLine }"
+        class="option"
+      >
+        <slot
+          name="option"
+          :option="option"
+        ></slot>
+      </KListboxOption>
+    </KListbox>
     <p
       v-if="!filteredOptions.length"
       role="status"
@@ -103,39 +79,25 @@
 <script>
 
   import Fuse from 'fuse.js';
-  import uniq from 'lodash/uniq';
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import { ref, computed, toRefs, getCurrentInstance, watch } from 'vue';
+  import { ref, computed, watch, toRefs } from 'vue';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
-  import { themePalette, themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+
+  let _uid = 0;
 
   export default {
     name: 'SelectableList',
     components: {
       FilterTextbox,
     },
-    setup(props, { emit }) {
-      const { value, options } = toRefs(props);
+    setup(props) {
+      const { options } = toRefs(props);
       const filterText = ref('');
-      const focusedIndex = ref(null);
 
-      const instance = getCurrentInstance();
-      const uid = instance.proxy._uid;
-
-      const listboxId = computed(() => `selectable-listbox-${uid}`);
-      const ariaDescribedById = computed(() => `selectable-listbox-description-${uid}`);
-
-      const selectedOptions = computed({
-        get() {
-          return value.value;
-        },
-        set(newValue) {
-          emit('input', newValue);
-        },
-      });
+      const listboxId = `listbox-${_uid++}`;
 
       const fuse = computed(() => {
         return new Fuse(options.value, {
@@ -152,150 +114,6 @@
         return fuse.value.search(filterText.value).map(result => result.item);
       });
 
-      const focusedOption = computed(() => {
-        if (focusedIndex.value === null || !filteredOptions.value.length) {
-          return null;
-        }
-        return filteredOptions.value[focusedIndex.value];
-      });
-
-      function setFocusedIndex(index) {
-        focusedIndex.value = index;
-
-        if (instance.proxy.$inputModality === 'keyboard') {
-          const optionElement = document.getElementById(getElementOptionId(focusedOption.value));
-          if (optionElement) {
-            optionElement.scrollIntoView({
-              block: 'nearest',
-              inline: 'nearest',
-            });
-          }
-        }
-      }
-
-      function isOptionSelected(option) {
-        return selectedOptions.value.includes(option.id);
-      }
-
-      function isOptionFocused(option) {
-        return focusedOption.value?.id === option.id;
-      }
-
-      function toggleOption(option) {
-        if (!option) {
-          return;
-        }
-
-        const { deselectedLabel$ } = coreStrings;
-
-        if (isOptionSelected(option)) {
-          selectedOptions.value = value.value.filter(id => id !== option.id);
-          sendPoliteMessage(deselectedLabel$());
-        } else {
-          selectedOptions.value = [...value.value, option.id];
-        }
-
-        if (focusedOption.value?.id !== option.id) {
-          setFocusedIndex(filteredOptions.value.findIndex(opt => opt.id === option.id));
-        }
-      }
-
-      function getElementOptionId(option) {
-        if (!option?.id) {
-          return null;
-        }
-
-        return `sl-option-${uid}-${option.id}`;
-      }
-
-      const selectAllChecked = computed(() => {
-        return (
-          filteredOptions.value.length > 0 &&
-          filteredOptions.value.every(option => isOptionSelected(option))
-        );
-      });
-
-      const selectAllIndeterminate = computed(() => {
-        return (
-          !selectAllChecked.value && filteredOptions.value.some(option => isOptionSelected(option))
-        );
-      });
-
-      function changeSelectAll(checked) {
-        const { allNOptionsSelectedLabel$, noOptionsSelectedLabel$ } = coreStrings;
-        if (checked) {
-          selectedOptions.value = uniq([
-            ...selectedOptions.value,
-            ...filteredOptions.value.map(option => option.id),
-          ]);
-          sendPoliteMessage(allNOptionsSelectedLabel$({ count: filteredOptions.value.length }));
-        } else {
-          selectedOptions.value = selectedOptions.value.filter(
-            id => !filteredOptions.value.some(option => option.id === id),
-          );
-          sendPoliteMessage(noOptionsSelectedLabel$());
-        }
-      }
-
-      function onListFocus() {
-        if (!filteredOptions.value.length) {
-          return;
-        }
-        setFocusedIndex(0);
-      }
-
-      function onListBlur() {
-        focusedIndex.value = null;
-      }
-
-      function handleFocusNavigation(key) {
-        const diff = key === 'ArrowDown' ? 1 : -1;
-        // adding options.length and using modulo to wrap around
-        // enables circular navigation
-        const newFocusedIndex =
-          (focusedIndex.value + diff + filteredOptions.value.length) % filteredOptions.value.length;
-        setFocusedIndex(newFocusedIndex);
-      }
-
-      function handleKeydown(event) {
-        if (!filteredOptions.value.length) {
-          return;
-        }
-
-        const { key } = event;
-
-        switch (key) {
-          case 'ArrowDown':
-          case 'ArrowUp':
-            handleFocusNavigation(key);
-            break;
-          case 'Home':
-            setFocusedIndex(0);
-            break;
-          case 'End':
-            setFocusedIndex(filteredOptions.value.length - 1);
-            break;
-          case ' ':
-            toggleOption(focusedOption.value);
-            break;
-          // Cntrl + A for select all
-          case 'a':
-          case 'A':
-            if (!event.ctrlKey && !event.metaKey) {
-              return;
-            }
-            if (!selectAllChecked.value) {
-              changeSelectAll(true);
-            }
-            break;
-          default:
-            // Early return for unsupported keys so that we don't prevent default behavior
-            return;
-        }
-
-        event.preventDefault();
-      }
-
       const { sendPoliteMessage } = useKLiveRegion();
       const { resultsCount$ } = searchAndFilterStrings;
 
@@ -303,40 +121,27 @@
         sendPoliteMessage(resultsCount$({ count: newOptions.length }));
       });
 
-      const rowStyles = computed(() => ({
-        ':hover': {
-          backgroundColor: filteredOptions.value.length ? themePalette().grey.v_100 : 'transparent',
-        },
-        ':not(:last-child)': {
-          borderBottom: `1px solid ${themeTokens().fineLine}`,
-        },
-        padding: '0 10px',
-        cursor: filteredOptions.value.length ? 'pointer' : 'default',
-        display: 'flex',
-        alignItems: 'center',
-      }));
-
-      const { noResultsLabel$, clickableOptionsDescription$ } = coreStrings;
-
-      return {
-        rowStyles,
-        listboxId,
-        onListBlur,
-        filterText,
-        onListFocus,
-        toggleOption,
-        focusedOption,
-        filteredOptions,
-        selectAllChecked,
-        ariaDescribedById,
-        selectAllIndeterminate,
-        changeSelectAll,
-        isOptionFocused,
-        isOptionSelected,
-        getElementOptionId,
-        handleKeydown,
+      const {
         noResultsLabel$,
         clickableOptionsDescription$,
+        deselectedLabel$,
+        allNOptionsSelectedLabel$,
+        noOptionsSelectedLabel$,
+      } = coreStrings;
+
+      const messages = {
+        clickable: clickableOptionsDescription$(),
+        allOptionsSelected: allNOptionsSelectedLabel$(),
+        allOptionsDeselected: noOptionsSelectedLabel$(),
+        optionDeselected: deselectedLabel$(),
+      };
+
+      return {
+        messages,
+        listboxId,
+        filterText,
+        filteredOptions,
+        noResultsLabel$,
       };
     },
     props: {
@@ -396,11 +201,25 @@
     border-radius: 4px;
   }
 
-  .list-options {
-    padding: 0;
-    margin: 0;
-    overflow: auto;
-    list-style: none;
+  .select-all,
+  .select-all-checkbox {
+    width: 100%;
+  }
+
+  .option,
+  .select-all {
+    padding-right: 10px;
+    padding-left: 10px;
+    border-bottom: 1px solid;
+  }
+
+  .option {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .option:last-child {
+    border-bottom: 0;
   }
 
   .list-no-options {
