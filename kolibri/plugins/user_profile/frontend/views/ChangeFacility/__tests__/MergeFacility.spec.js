@@ -17,7 +17,11 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   clear: jest.fn(),
 }));
 
-function makeWrapper({ taskId = 'task_1' } = {}) {
+function makeWrapper({
+  taskId = 'task_1',
+  targetFacility = { name: 'Test Facility', url: 'http://url1' },
+  targetAccount = { username: 'test2' },
+} = {}) {
   return mount(MergeFacility, {
     provide: {
       changeFacilityService: {
@@ -25,11 +29,12 @@ function makeWrapper({ taskId = 'task_1' } = {}) {
         state: { value: 'syncChangeFacility' },
       },
       state: {
+        targetFacility,
         value: {
-          targetFacility: { name: 'Test Facility', url: 'http://url1' },
+          targetFacility,
           fullname: 'Test User 1',
           username: 'test1',
-          targetAccount: { username: 'test2' },
+          targetAccount,
           taskId,
         },
       },
@@ -44,7 +49,7 @@ const task = {
   status: TaskStatuses.PENDING,
   percentage: 0,
   facility_id: 'facility_id1',
-  extra_metadata: { facility_name: 'Test Facility' },
+  extra_metadata: { facility_name: 'Test Facility', remote_user_pk: 'remote-user-id' },
 };
 const incompleteTask = { ...task, status: TaskStatuses.PENDING };
 const completedTask = { ...task, status: TaskStatuses.COMPLETED };
@@ -90,7 +95,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
 
   it(`clicking finish button sends the finish event to the state machine`, async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
-    client.mockResolvedValue({});
+    client.mockResolvedValue({ data: { picture_password: null } });
     const wrapper = makeWrapper();
     await global.flushPromises();
     await wrapper.vm.$nextTick();
@@ -101,6 +106,55 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
       type: 'FINISH',
     });
     expect(client).toHaveBeenCalled();
+    expect(redirectBrowser).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows picture password confirmation modal after facility change when picture password is assigned', async () => {
+    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
+    const wrapper = makeWrapper({
+      targetFacility: {
+        name: 'Test Facility',
+        url: 'http://url1',
+        picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
+      },
+    });
+    await global.flushPromises();
+    await wrapper.vm.$nextTick();
+    clickFinishButton(wrapper);
+    await global.flushPromises();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.showPicturePasswordModal).toBe(true);
+    expect(redirectBrowser).not.toHaveBeenCalled();
+  });
+
+  it('redirects immediately when picture password is null after facility change', async () => {
+    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    client.mockResolvedValue({ data: { picture_password: null } });
+    const wrapper = makeWrapper({
+      targetFacility: {
+        name: 'Test Facility',
+        url: 'http://url1',
+        picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
+      },
+    });
+    await global.flushPromises();
+    await wrapper.vm.$nextTick();
+    clickFinishButton(wrapper);
+    await global.flushPromises();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.showPicturePasswordModal).toBe(false);
+    expect(redirectBrowser).toHaveBeenCalledTimes(1);
+  });
+
+  it('redirects when picture password modal is confirmed', () => {
+    const wrapper = makeWrapper();
+    wrapper.vm.showPicturePasswordModal = true;
+    wrapper.vm.handlePicturePasswordConfirm();
+
+    expect(wrapper.vm.showPicturePasswordModal).toBe(false);
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
   });
 

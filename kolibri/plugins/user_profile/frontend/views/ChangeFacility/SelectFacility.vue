@@ -132,6 +132,7 @@
                 address_id: device.id,
                 learner_can_sign_up: facility.learner_can_sign_up,
                 learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+                picture_password_settings: facility.picture_password_settings,
                 kolibri_version: device.kolibri_version,
               };
             });
@@ -261,6 +262,7 @@
             id: facility.id,
             learner_can_sign_up: facility.learner_can_sign_up,
             learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+            picture_password_settings: facility.picture_password_settings,
           },
         });
       },
