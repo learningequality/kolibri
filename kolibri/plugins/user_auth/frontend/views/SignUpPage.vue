@@ -102,6 +102,12 @@
     >
       <LanguageSwitcherFooter />
     </div>
+
+    <PicturePasswordAssignedModal
+      v-if="showPicturePasswordModal"
+      :picturePassword="picturePassword"
+      @confirm="handlePicturePasswordConfirm"
+    />
   </div>
 
 </template>
@@ -118,12 +124,14 @@
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
+  import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import useAuthFlow from '../composables/useAuthFlow';
@@ -149,13 +157,14 @@
       PasswordTextbox,
       UsernameTextbox,
       PrivacyLinkAndModal,
+      PicturePasswordAssignedModal,
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
       const router = useRouter();
       const route = useRoute();
       const { defaultRoute, nextParam } = useAuthRouter(route);
-      const { selectedFacility, facilityConfig, canSignUpWithFacility } = useAuthFlow();
+      const { selectedFacility, signInOptions, canSignUpWithFacility } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
@@ -177,7 +186,7 @@
       return {
         nextParam,
         selectedFacility,
-        facilityConfig,
+        signInOptions,
         handleApiError,
       };
     },
@@ -194,6 +203,8 @@
         birthYear: '',
         caughtErrors: [],
         busy: false,
+        picturePassword: '',
+        showPicturePasswordModal: false,
       };
     },
     computed: {
@@ -207,7 +218,7 @@
         return ComponentMap;
       },
       showPasswordInput() {
-        return !this.facilityConfig.learner_can_login_with_no_password;
+        return this.signInOptions.includes(OptionsForSignIn.USERNAME_PASSWORD);
       },
     },
     beforeMount() {
@@ -217,6 +228,13 @@
       }
     },
     methods: {
+      redirectAfterSignup() {
+        if (this.nextParam) {
+          redirectBrowser(this.nextParam);
+        } else {
+          redirectBrowser();
+        }
+      },
       checkForDuplicateUsername(username) {
         if (!username) {
           return Promise.resolve();
@@ -272,7 +290,7 @@
         }
       },
       passwordToSave() {
-        if (this.facilityConfig.learner_can_login_with_no_password && this.password === '')
+        if (this.signInOptions.includes(OptionsForSignIn.USERNAME_ONLY) && this.password === '')
           return 'NOT_SPECIFIED';
 
         return this.password;
@@ -294,12 +312,17 @@
             birth_year: this.birthYear || DEFERRED,
           };
           SignUpResource.saveModel({ data: payload })
-            .then(() => {
-              if (this.nextParam) {
-                redirectBrowser(this.nextParam);
-              } else {
-                redirectBrowser();
+            .then(user => {
+              if (
+                this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
+                user?.picture_password
+              ) {
+                this.picturePassword = user.picture_password;
+                this.showPicturePasswordModal = true;
+                this.busy = false;
+                return;
               }
+              this.redirectAfterSignup();
             })
             .catch(error => {
               this.busy = false;
@@ -330,6 +353,10 @@
             this.$refs.passwordTextbox.focus();
           }
         });
+      },
+      handlePicturePasswordConfirm() {
+        this.showPicturePasswordModal = false;
+        this.redirectAfterSignup();
       },
     },
     $trs: {
