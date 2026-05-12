@@ -61,9 +61,6 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
-  import client from 'kolibri/client';
-  import urls from 'kolibri/urls';
-  import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -180,7 +177,7 @@
             confirmedLearnerName.value = '';
             wrongSequence.value = true;
           }
-        } catch (_) {
+        } catch {
           createSnackbar({
             text: coreString('defaultErrorMessage'),
             autoDismiss: true,

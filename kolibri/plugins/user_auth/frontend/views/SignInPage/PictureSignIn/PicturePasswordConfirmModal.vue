@@ -16,7 +16,6 @@
             aria-modal="true"
             aria-labelledby="confirm-modal-title"
             class="modal-card"
-            tabindex="-1"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
             <div
@@ -58,9 +57,12 @@
             <div class="action-buttons">
               <div
                 class="btn-bg"
-                :style="{ backgroundColor: cancelHovered ? cancelBgHover : cancelBg }"
-                @mouseenter="cancelHovered = true"
-                @mouseleave="cancelHovered = false"
+                :class="
+                  $computedClass({
+                    backgroundColor: cancelBg,
+                    ':hover': { backgroundColor: cancelBgHover },
+                  })
+                "
               >
                 <KIconButton
                   icon="close"
@@ -70,9 +72,12 @@
               </div>
               <div
                 class="btn-bg"
-                :style="{ backgroundColor: confirmHovered ? confirmBgHover : confirmBg }"
-                @mouseenter="confirmHovered = true"
-                @mouseleave="confirmHovered = false"
+                :class="
+                  $computedClass({
+                    backgroundColor: confirmBg,
+                    ':hover': { backgroundColor: confirmBgHover },
+                  })
+                "
               >
                 <KIconButton
                   ref="confirmBtn"
@@ -94,13 +99,14 @@
 
 <script>
 
-  import { computed, onMounted, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, ref } from 'vue';
   import KFocusTrap from 'kolibri-design-system/lib/KFocusTrap';
   import KOverlay from 'kolibri-design-system/lib/KOverlay';
   import Backdrop from 'kolibri/components/Backdrop';
-  import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
   import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { getPicturePasswordIcons } from 'kolibri-common/utils/picturePassword';
+  import useReturnFocusOnUnmount from 'kolibri-common/composables/useReturnFocusOnUnmount';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
 
@@ -110,40 +116,37 @@
     components: { KFocusTrap, KOverlay, Backdrop },
 
     setup(props) {
+      useReturnFocusOnUnmount();
       const confirmBtn = ref(null);
       const modalTitle = ref(null);
       const { isThisYou$, yourPasswordIs$, yesConfirmAction$, noGoBackAction$ } =
         picturePasswordStrings;
       const palette = themePalette();
-      const cancelHovered = ref(false);
-      const confirmHovered = ref(false);
       const cancelBg = palette.grey.v_200;
       const cancelBgHover = darken1(cancelBg);
       const confirmBg = palette.green.v_600;
       const confirmBgHover = darken1(confirmBg);
 
-      const iconTokens = computed(() => {
-        return props.picturePassword.split('.').map(idStr => {
-          const entry = PICTURE_PASSWORD_SET[idStr];
-          return props.iconStyle === PicturePasswordIconStyle.STANDARD
-            ? entry.iconStandard
-            : entry.iconColorful;
-        });
-      });
+      const passwordIcons = computed(() =>
+        getPicturePasswordIcons(props.picturePassword, props.iconStyle),
+      );
+
+      const iconTokens = computed(() => passwordIcons.value.map(item => item.iconName));
 
       const sequenceAriaLabel = computed(() => {
-        const labels = props.picturePassword
-          .split('.')
-          .map(idStr => {
-            const entry = PICTURE_PASSWORD_SET[idStr];
-            return picturePasswordStrings[`${entry.name}$`]();
-          })
+        const labels = passwordIcons.value
+          .map(item => picturePasswordStrings[`${item.label}$`]())
           .join(', ');
         return yourPasswordIs$({ labels });
       });
 
       onMounted(() => {
+        document.documentElement.style.overflow = 'hidden';
         confirmBtn.value.$el.focus();
+      });
+
+      onUnmounted(() => {
+        document.documentElement.style.overflow = '';
       });
 
       return {
@@ -154,8 +157,6 @@
         isThisYou$,
         yesConfirmAction$,
         noGoBackAction$,
-        cancelHovered,
-        confirmHovered,
         cancelBg,
         cancelBgHover,
         confirmBg,
@@ -208,7 +209,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 16px;
+    padding: 16px;
   }
 
   .modal-wrapper {
@@ -218,7 +219,8 @@
   }
 
   .modal-card {
-    max-height: 428px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
     border-radius: 8px;
   }
 
