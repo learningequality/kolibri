@@ -31,9 +31,19 @@
       :iconStyle="picturePasswordStyle"
       :showIconText="picturePasswordShowIconText"
       :wrongSequence="wrongSequence"
+      :clearSelection="clearSelection"
       :landscapeLayout="landscapeLayout"
       @wrongSequenceHandled="wrongSequence = false"
-      @submit="createSession"
+      @clearSelectionHandled="clearSelection = false"
+      @submit="prevalidate"
+    />
+    <PicturePasswordConfirmModal
+      v-if="showConfirmModal"
+      :learnerName="confirmedLearnerName"
+      :picturePassword="submittedPicturePassword"
+      :iconStyle="picturePasswordStyle"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
     />
   </AuthBase>
 
@@ -51,13 +61,13 @@
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
-
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
   import useAuthRouter from '../../composables/useAuthRouter';
   import AuthContextHeading from '../AuthContextHeading.vue';
   import PicturePasswordGrid from './PictureSignIn/PicturePasswordGrid.vue';
+  import PicturePasswordConfirmModal from './PictureSignIn/PicturePasswordConfirmModal.vue';
 
   export default {
     name: 'PictureSignInPage',
@@ -70,6 +80,7 @@
       AuthBase,
       AuthContextHeading,
       PicturePasswordGrid,
+      PicturePasswordConfirmModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -91,6 +102,10 @@
 
       const busy = ref(false);
       const wrongSequence = ref(false);
+      const clearSelection = ref(false);
+      const showConfirmModal = ref(false);
+      const confirmedLearnerName = ref('');
+      const submittedPicturePassword = ref('');
       const backTo = computed(() => {
         return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : null;
       });
@@ -119,33 +134,23 @@
         }
       });
 
-      /**
-       * Handles authentication once the user has entered a picture password and submits it
-       *
-       * @param {string} picturePassword
-       * @return {Promise<void>}
-       */
-      async function createSession(picturePassword) {
+      async function prevalidate(picturePassword) {
         busy.value = true;
-        const sessionPayload = {
-          facility: facilityId.value,
-          picture_password: picturePassword,
-        };
-
-        if (nextParam.value) {
-          sessionPayload['next'] = nextParam.value;
-        }
-
-        // ensure selected facility in local storage is synchronized
         setSelectedFacilityId(facilityId.value);
-
         try {
-          const err = await login(sessionPayload);
-          if (err) {
+          const { data, error } = await login(
+            { picture_password: picturePassword, facility: facilityId.value },
+            true,
+            false,
+          );
+          if (data) {
+            submittedPicturePassword.value = picturePassword;
+            confirmedLearnerName.value = data.full_name;
+            showConfirmModal.value = true;
+          } else if (error) {
             wrongSequence.value = true;
           }
         } catch (error) {
-          // The `login` function already handles logging errors
           createSnackbar({
             text: coreString('defaultErrorMessage'),
             autoDismiss: true,
@@ -155,17 +160,55 @@
         }
       }
 
+      async function handleConfirm() {
+        busy.value = true;
+        const sessionPayload = {
+          facility: facilityId.value,
+          picture_password: submittedPicturePassword.value,
+        };
+        if (nextParam.value) {
+          sessionPayload['next'] = nextParam.value;
+        }
+        try {
+          const { error } = await login(sessionPayload);
+          if (error) {
+            showConfirmModal.value = false;
+            submittedPicturePassword.value = '';
+            confirmedLearnerName.value = '';
+            wrongSequence.value = true;
+          }
+        } catch {
+          createSnackbar({
+            text: coreString('defaultErrorMessage'),
+            autoDismiss: true,
+          });
+        } finally {
+          busy.value = false;
+        }
+      }
+
+      function handleCancel() {
+        showConfirmModal.value = false;
+        clearSelection.value = true;
+      }
+
       return {
         // state
         busy,
         wrongSequence,
         landscapeLayout,
+        clearSelection,
+        showConfirmModal,
+        confirmedLearnerName,
+        submittedPicturePassword,
         backTo,
         picturePasswordStyle,
         picturePasswordShowIconText,
         hasMultipleFacilities,
         // actions
-        createSession,
+        prevalidate,
+        handleConfirm,
+        handleCancel,
       };
     },
     $trs: {

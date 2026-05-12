@@ -4059,3 +4059,67 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user = models.FacilityUser.objects.get(id=response.data["id"])
         self.assertIsNone(user.picture_password)
+
+
+class PicturePasswordPrevalidateTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.other_facility = FacilityFactory.create()
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner.picture_password = "1.2.3"
+        cls.learner.save(update_fields=["picture_password"])
+
+    def _url(self):
+        return reverse("kolibri:core:session-list") + "?prevalidate=true"
+
+    def test_valid_picture_password_returns_full_name(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["full_name"], self.learner.full_name)
+
+    def test_valid_picture_password_does_not_create_session(self):
+        self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertFalse(self.client.session.get("_auth_user_id"))
+
+    def test_wrong_picture_password_returns_not_found(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "9.9.9", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_wrong_facility_returns_not_found(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.other_facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_non_learner_not_authenticated_via_picture_password(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        coach.picture_password = "4.5.6"
+        coach.save(update_fields=["picture_password"])
+        self.facility.add_coach(coach)
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "4.5.6", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)

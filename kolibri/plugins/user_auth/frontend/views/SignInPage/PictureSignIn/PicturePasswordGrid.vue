@@ -235,6 +235,16 @@
         },
       );
 
+      watch(
+        () => props.clearSelection,
+        value => {
+          if (value) {
+            sequence.value = [];
+            emit('clearSelectionHandled');
+          }
+        },
+      );
+
       const submitButtonStyle = computed(() => ({
         backgroundColor: submitEnabled.value ? $themeTokens.primary : $themePalette.grey.v_200,
         cursor: submitEnabled.value ? 'pointer' : 'not-allowed',
@@ -275,6 +285,15 @@
        * so the parent can reset this prop back to false.
        */
       wrongSequence: {
+        type: Boolean,
+        default: false,
+      },
+      /**
+       * Set to true by the parent to clear the selection without implying an
+       * error (e.g. when the user cancels the confirm modal). Emits
+       * `clearSelectionHandled` so the parent can reset this prop back to false.
+       */
+      clearSelection: {
         type: Boolean,
         default: false,
       },

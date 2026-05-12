@@ -461,18 +461,18 @@
         }
 
         try {
-          const err = await this.doLogin(sessionPayload);
+          const { error } = await this.doLogin(sessionPayload);
           // If we don't have a password, we submitted without a username
-          if (err) {
-            if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+          if (error) {
+            if (error === LoginErrors.PASSWORD_NOT_SPECIFIED) {
               this.$router.push({
                 name: ComponentMap.NEW_PASSWORD,
                 query: sessionPayload,
               });
-            } else if (err === LoginErrors.PASSWORD_MISSING) {
+            } else if (error === LoginErrors.PASSWORD_MISSING) {
               this.usernameSubmittedWithoutPassword = true;
             } else {
-              this.loginError = err;
+              this.loginError = error;
             }
           }
 
