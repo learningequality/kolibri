@@ -194,4 +194,42 @@ describe('availableChannelsPage', () => {
       },
     });
   });
+
+  describe('handleSubmitToken', () => {
+    let wrapper;
+    let pushSpy;
+
+    beforeEach(() => {
+      store = makeAvailableChannelsPageStore();
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      wrapper = makeWrapper({ store });
+      pushSpy = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+    });
+
+    afterEach(() => {
+      pushSpy.mockRestore();
+      wrapper.destroy();
+    });
+
+    it('single-channel token: routes to selectContentPage with token in query', () => {
+      wrapper.vm.handleSubmitToken({ token: 'test-token-xyz', channels: [{ id: 'channel-abc' }] });
+      expect(pushSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'SELECT_CONTENT',
+          query: expect.objectContaining({ token: 'test-token-xyz' }),
+        }),
+      );
+    });
+
+    it('collection token (multiple channels): does not route to SELECT_CONTENT', () => {
+      wrapper.vm.handleSubmitToken({
+        token: 'collection-token',
+        channels: [{ id: 'ch-1' }, { id: 'ch-2' }],
+      });
+      expect(pushSpy).toHaveBeenCalledTimes(1);
+      const pushed = pushSpy.mock.calls[0][0];
+      expect(pushed.name).not.toBe('SELECT_CONTENT');
+      expect(pushed.query).toMatchObject({ token: 'collection-token' });
+    });
+  });
 });

@@ -198,12 +198,17 @@ export function showSelectContentPage(store, params) {
   if (transferType === TransferTypes.REMOTEIMPORT) {
     availableSpacePromise = getAvailableSpaceOnDrive();
     transferredChannelPromise = new Promise((resolve, reject) => {
-      RemoteChannelResource.fetchModel({ id: channel_id, force: true })
+      const { token } = params;
+      RemoteChannelResource.fetchModel({
+        id: channel_id,
+        force: true,
+        getParams: token ? { token } : {},
+      })
         // Force fetching because using cached version switches
         // between returning an array and returning an object
         .then(
           channel => {
-            resolve(channel);
+            resolve(token ? { ...channel, token } : channel);
           },
           error => {
             if (error.response.status === 404) {

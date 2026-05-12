@@ -172,6 +172,108 @@ class CourseSessionGetResumeDataTestCase(TestCase):
         self.assertIsNone(result["resume_position"]["lesson_id"])
         self.assertIsNone(result["resume_position"]["resource_id"])
 
+    def test_resume_position_points_to_unavailable_when_next_incomplete(self):
+        """An *incomplete* resource that is unavailable still claims
+        resume_position — the learner waits on it rather than being routed
+        past to the next available resource. (Completed-but-missing resources
+        are filtered out by the progress gate before availability is
+        considered; see test_resume_position_skips_completed_unavailable.)"""
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        # Mark the existing resource complete.
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=self.resource_node.content_id,
+            channel_id=self.resource_node.channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+        # Add a missing resource (available=False) followed by an available one.
+        # MPTT assigns lft in insertion order, so missing comes before after.
+        missing_resource = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.resource_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson_node,
+            available=False,
+            title="Missing Resource",
+        )
+        ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.resource_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson_node,
+            available=True,
+            title="Resource After Missing",
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertEqual(result["resume_position"]["resource_id"], missing_resource.id)
+
+    def test_resume_position_skips_completed_unavailable(self):
+        """A resource the learner has already completed does not block
+        resume_position when it later becomes unavailable — the progress
+        filter drops it from the candidate set before availability is
+        considered, so resume_position advances to the next incomplete
+        resource. Complements
+        test_resume_position_points_to_unavailable_when_next_incomplete."""
+        UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit_node.id,
+            collection=self.classroom,
+            test_type=TestType.Pre,
+            closed=True,
+            activated_by=self.coach,
+        )
+        # Mark the seeded resource complete.
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=self.resource_node.content_id,
+            channel_id=self.resource_node.channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+        # A resource the learner finished before its file was deleted from
+        # the device — complete but now unavailable.
+        completed_missing = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.resource_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson_node,
+            available=False,
+            title="Completed Missing Resource",
+        )
+        ContentSummaryLog.objects.create(
+            user=self.learner,
+            content_id=completed_missing.content_id,
+            channel_id=completed_missing.channel_id,
+            kind="video",
+            progress=1.0,
+            start_timestamp=timezone.now(),
+        )
+        # The next incomplete resource — available, no progress record.
+        next_incomplete = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.resource_node.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.lesson_node,
+            available=True,
+            title="Next Incomplete Resource",
+        )
+
+        result = self.course_session.get_resume_data(self.learner)
+
+        self.assertEqual(result["resume_position"]["resource_id"], next_incomplete.id)
+
     def test_unassigned_learner_returns_defaults(self):
         """A learner not in the classroom should see no active tests."""
         other_learner = FacilityUser.objects.create(

@@ -42,7 +42,6 @@
         <FilterTextbox
           v-model="searchFilter"
           :placeholder="coreString('searchLabel')"
-          :aria-label="coreString('searchLabel')"
           :disabled="!hasCourses"
           class="filter-search"
         />
@@ -56,86 +55,85 @@
         />
       </div>
       <div v-if="showCoursesTable">
-        <CoreTable
+        <KTable
           :dataLoading="coursesAreLoading"
           :emptyMessage="hasActiveFilters ? coreString('noResultsLabel') : noCoursesAssigned$()"
+          :caption="tableCaption"
+          :headers="tableHeaders"
+          :rows="tableRows"
+          :stickyColumns="['first']"
         >
-          <template #headers>
-            <th>{{ coachString('titleLabel') }}</th>
-            <th>{{ coreString('statusLabel') }}</th>
-            <th>{{ coachString('learnersLabel') }}</th>
-            <th>{{ masteryLabel$() }}</th>
-            <th>{{ visibleLabel$() }}</th>
+          <template #header="{ header, colIndex }">
+            <span
+              v-if="colIndex === 5"
+              class="visuallyhidden"
+            >{{ header.label }}</span>
+            <span
+              v-else-if="colIndex === 4"
+              id="course-visibility-column-header"
+              class="table-header-label"
+              :style="{ color: $themeTokens.annotation }"
+            >{{ header.label }}</span>
+            <span
+              v-else
+              class="table-header-label"
+              :style="{ color: $themeTokens.annotation }"
+            >{{ header.label }}</span>
           </template>
-          <template #tbody>
-            <transition-group
-              tag="tbody"
-              name="list"
+          <template #cell="{ content, colIndex }">
+            <template v-if="colIndex === 0">
+              <div class="course-title">
+                <KRouterLink
+                  :to="courseSummaryLink(content)"
+                  :text="content.title"
+                  icon="course"
+                />
+              </div>
+            </template>
+            <template v-else-if="colIndex >= 1 && colIndex <= 3">
+              {{ content }}
+            </template>
+            <div
+              v-else-if="colIndex === 4"
+              class="visibility-toggle-container"
             >
-              <tr
-                v-for="course in sortedCourses"
-                :key="course.id"
-              >
-                <td>
-                  <div class="course-title">
-                    <KRouterLink
-                      :to="courseSummaryLink(course)"
-                      :text="course.title"
-                      icon="course"
-                    />
-                  </div>
-                  <KTextTruncator
-                    v-if="course.description"
-                    :text="course.description"
-                    :maxLines="1"
-                    class="course-description"
-                  />
-                </td>
-                <td>
-                  <span>—</span>
-                </td>
-                <td>
-                  <span>—</span>
-                </td>
-                <td>
-                  <span>
-                    {{ formatMastery(course.averageMastery) }}
-                  </span>
-                </td>
-                <td>
-                  <div class="visibility-toggle-container">
-                    <KTransition kind="component-fade-out-in">
-                      <KCircularLoader
-                        v-if="show(course.id, isUpdatingActive(course.id), 500)"
-                        :key="`loader-${course.id}`"
-                        disableDefaultTransition
-                      />
-                      <KSwitch
-                        v-else
-                        :key="`switch-${course.id}`"
-                        name="toggle-course-visibility"
-                        :checked="course.active"
-                        :value="course.active"
-                        :disabled="course.contentMissing || isUpdatingActive(course.id)"
-                        @change="toggleCourseActive(course)"
-                      />
-                    </KTransition>
-                  </div>
-                </td>
-                <td>
-                  <KIconButton icon="optionsVertical">
-                    <template #menu>
-                      <KDropdownMenu
-                        :options="courseMenuOptions(course)"
-                        @select="selection => handleCourseMenuSelect(selection, course)"
-                      />
-                    </template>
-                  </KIconButton>
-                </td>
-              </tr>
-            </transition-group>
+              <span
+                :id="`course-visibility-label-${content.id}`"
+                class="hidden"
+                aria-hidden="true"
+              >{{ `${content.title} - ${coachString('lessonVisibleLabel')}` }}</span>
+              <KTransition kind="component-fade-out-in">
+                <KCircularLoader
+                  v-if="show(content.id, isUpdatingActive(content.id), 500)"
+                  :key="`loader-${content.id}`"
+                  disableDefaultTransition
+                />
+                <KSwitch
+                  v-else
+                  :key="`switch-${content.id}`"
+                  name="toggle-course-visibility"
+                  :checked="content.active"
+                  :value="content.active"
+                  :disabled="content.contentMissing || isUpdatingActive(content.id)"
+                  :ariaLabelledBy="`course-visibility-label-${content.id}`"
+                  @change="toggleCourseActive(content)"
+                />
+              </KTransition>
+            </div>
+            <KIconButton
+              v-else-if="colIndex === 5"
+              icon="optionsVertical"
+              :aria-label="coreString('optionsLabel')"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :options="courseMenuOptions(content)"
+                  @select="selection => handleCourseMenuSelect(selection, content)"
+                />
+              </template>
+            </KIconButton>
           </template>
-        </CoreTable>
+        </KTable>
       </div>
       <div
         v-else
@@ -189,7 +187,6 @@
 
   import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
-  import CoreTable from 'kolibri/components/CoreTable';
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import { coreString as translateCoreString } from 'kolibri/uiText/commonCoreStrings';
   import useKShow from 'kolibri-design-system/lib/composables/useKShow';
@@ -219,7 +216,6 @@
       CoachAppBarPage,
       AssignCourseSuccessModal,
       DeleteCourseConfirmationModal,
-      CoreTable,
       FilterTextbox,
       MissingResourceAlert,
     },
@@ -236,7 +232,6 @@
         noCoursesAssigned$,
         emptyCoursesDescription$,
         masteryLabel$,
-        visibleLabel$,
         courseVisibleToLearnersMessage$,
         courseNotVisibleToLearnersMessage$,
         courseUpdateError$,
@@ -248,6 +243,7 @@
         courseDeleteError$,
         courseDetailsAction$,
         editRecipientsAction$,
+        allCoursesForClass$,
       } = coursesStrings;
       const { entireClassLabel$ } = coachStrings;
       const { show } = useKShow();
@@ -453,7 +449,6 @@
         noCoursesAssigned$,
         emptyCoursesDescription$,
         masteryLabel$,
-        visibleLabel$,
         filterCourseStatus$,
         filterCourseVisible$,
         filterCourseNotVisible$,
@@ -472,6 +467,7 @@
         handleCourseMenuSelect,
         editRecipientsAction$,
         courseDetailsAction$,
+        allCoursesForClass$,
         coreString,
         coachString,
       };
@@ -484,6 +480,62 @@
       };
     },
     computed: {
+      className() {
+        return this.$store.state.classSummary.name;
+      },
+      tableCaption() {
+        return this.allCoursesForClass$({ className: this.className });
+      },
+      tableHeaders() {
+        return [
+          {
+            label: this.coachString('titleLabel'),
+            dataType: 'string',
+            minWidth: '200px',
+            columnId: 'title',
+          },
+          {
+            label: this.coreString('progressLabel'),
+            dataType: 'undefined',
+            minWidth: '100px',
+            columnId: 'status',
+          },
+          {
+            label: this.coachString('learnersLabel'),
+            dataType: 'undefined',
+            minWidth: '100px',
+            columnId: 'learners',
+          },
+          {
+            label: this.masteryLabel$(),
+            dataType: 'undefined',
+            minWidth: '100px',
+            columnId: 'mastery',
+          },
+          {
+            label: this.coachString('lessonVisibleLabel'),
+            dataType: 'undefined',
+            minWidth: '200px',
+            columnId: 'visible',
+          },
+          {
+            label: this.coreString('optionsLabel'),
+            dataType: 'undefined',
+            minWidth: '64px',
+            columnId: 'options',
+          },
+        ];
+      },
+      tableRows() {
+        return this.sortedCourses.map(course => [
+          course, // title
+          '—', // status
+          '—', // learners
+          '—', // mastery
+          course, // visible toggle
+          course, // options menu
+        ]);
+      },
       learnerGroups() {
         return this.$store.getters['classSummary/groups'] || [];
       },
@@ -609,10 +661,6 @@
         this.filterSelection = this.filterOptions[0];
         this.filterRecipients = this.recipientOptions[0];
       },
-      formatMastery() {
-        // TODO: Implement mastery formatting once we figured out mastery calculation
-        return '—';
-      },
     },
   };
 
@@ -661,6 +709,10 @@
     font-weight: 600;
   }
 
+  .table-header-label {
+    font-size: 12px;
+  }
+
   .course-title {
     display: flex;
     gap: 8px;
@@ -676,6 +728,10 @@
   .course-title-text {
     font-weight: 600;
   }
+
+  // .hidden {
+  //   display: none;
+  // }
 
   .empty-courses {
     display: flex;

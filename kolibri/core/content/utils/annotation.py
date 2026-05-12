@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
 from le_utils.constants import content_kinds
+from le_utils.constants import modalities
 from sqlalchemy import and_
 from sqlalchemy import case
 from sqlalchemy import cast
@@ -35,6 +36,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
 from kolibri.core.content.utils.sqlalchemybridge import filter_by_checksums
 from kolibri.core.content.utils.tree import get_channel_node_depth
+from kolibri.core.courses.models import CourseSession
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.lock import db_lock
 
@@ -768,7 +770,7 @@ def set_content_invisible(channel_id, node_ids, exclude_node_ids, clear_admin_im
     get_all_contentnode_label_metadata()
 
 
-def set_channel_metadata_fields(channel_id, public=None):
+def set_channel_metadata_fields(channel_id, public=None, library=None, version=None):
     with db_lock():
         channel = ChannelMetadata.objects.get(id=channel_id)
         calculate_published_size(channel)
@@ -780,6 +782,11 @@ def set_channel_metadata_fields(channel_id, public=None):
 
         if public is not None:
             channel.public = public
+        if library is not None:
+            channel.library = library
+        if version is not None:
+            channel.version = version
+        if any(v is not None for v in (public, library, version)):
             channel.save()
 
 
@@ -970,3 +977,18 @@ def set_channel_ancestors(channel_id):
     )
 
     bridge.end()
+
+
+def update_channel_version_to_assignments(channel):
+    """
+    Update assignments channel_version to trigger an update event on
+    LOD devices when channel content is updated.
+    """
+    course_ids = ContentNode.objects.filter(
+        channel_id=channel.id,
+        modality=modalities.COURSE,
+    ).values_list("id", flat=True)
+
+    CourseSession.objects.filter(course__in=course_ids).update(
+        channel_version=channel.version
+    )

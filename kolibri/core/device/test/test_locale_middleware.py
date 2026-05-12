@@ -216,3 +216,56 @@ class URLResponseTests(URLResponseTestsBase, URLTestCaseBase):
 @override_option("Deployment", "URL_PATH_PREFIX", "test/")
 class PrefixedURLResponseTests(URLResponseTestsBase, URLTestCaseBase):
     pass
+
+
+class OneShotRedirectTestsBase:
+    """
+    Tests that a language-less request to a RedirectView subclass produces
+    a single redirect to the final destination rather than a two-hop chain
+    (language-prefix redirect followed by the view's own redirect).
+    """
+
+    def test_redirect_view_one_shot(self):
+        # /prefixed-redirect/ resolves (with language prefix) to a RedirectView.
+        # The middleware should rewrite the path and return its redirect in one hop,
+        # going directly to the final target rather than first to /en/prefixed-redirect/.
+        response = self.client.get(
+            get_url("prefixed-redirect/"), HTTP_ACCEPT_LANGUAGE="en"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], get_url("not-prefixed/"))
+
+    def test_template_view_still_redirects_to_language_prefix(self):
+        # /prefixed/ resolves (with language prefix) to a TemplateView, not a
+        # RedirectView. The middleware falls back to the normal language-prefix
+        # redirect so the browser ends up at the canonical URL.
+        response = self.client.get(get_url("prefixed/"), HTTP_ACCEPT_LANGUAGE="en")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], get_url("en/prefixed/"))
+
+    def test_redirect_view_one_shot_fr(self):
+        # Same as above but with French, confirming language detection still works.
+        response = self.client.get(
+            get_url("prefixed-redirect/"), HTTP_ACCEPT_LANGUAGE="fr-fr"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], get_url("not-prefixed/"))
+
+    def test_redirect_view_one_shot_session_language(self):
+        session = self.client.session
+        session[translation.LANGUAGE_SESSION_KEY] = "fr-fr"
+        session.save()
+        response = self.client.get(get_url("prefixed-redirect/"))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], get_url("not-prefixed/"))
+
+
+@override_settings(**settings_override_dict)
+class OneShotRedirectTests(OneShotRedirectTestsBase, URLTestCaseBase):
+    pass
+
+
+@override_settings(**prefixed_settings_override_dict)
+@override_option("Deployment", "URL_PATH_PREFIX", "test/")
+class PrefixedOneShotRedirectTests(OneShotRedirectTestsBase, URLTestCaseBase):
+    pass

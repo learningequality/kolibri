@@ -27,7 +27,7 @@ export function availableChannelsPageLink(params = {}) {
 }
 
 export function selectContentPageLink(params = {}) {
-  const { channelId, driveId, addressId } = params;
+  const { channelId, driveId, addressId, token } = params;
   return {
     name: ContentWizardPages.SELECT_CONTENT,
     params: {
@@ -36,6 +36,7 @@ export function selectContentPageLink(params = {}) {
     query: {
       drive_id: driveId,
       address_id: addressId,
+      token,
     },
   };
 }

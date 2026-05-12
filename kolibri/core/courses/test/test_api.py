@@ -13,6 +13,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 
 DUMMY_PASSWORD = "password"
@@ -36,10 +37,25 @@ class CourseSessionAPITestCase(APITestCase):
         cls.classroom.add_coach(cls.coach)
 
         channel_id = uuid.uuid4().hex
+        cls.root_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Channel Root",
+        )
+        cls.channel = ChannelMetadata.objects.create(
+            id=channel_id,
+            name="Test Channel",
+            version=7,
+            root=cls.root_node,
+            min_schema_version="1",
+        )
         cls.course = ContentNode.objects.create(
             id=uuid.uuid4().hex,
             channel_id=channel_id,
             content_id=uuid.uuid4().hex,
+            parent=cls.root_node,
             available=True,
             modality=modalities.COURSE,
             title="Course 1",
@@ -629,6 +645,53 @@ class CourseSessionAPITestCase(APITestCase):
             )
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_course_session_sets_channel_version(self):
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            reverse("kolibri:core:coursesession-list"),
+            {
+                "active": True,
+                "collection": self.classroom.id,
+                "course": self.course.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        session = models.CourseSession.objects.get(id=response.data["id"])
+        self.assertEqual(session.channel_version, 7)
+
+    def test_create_course_session_without_channel_sets_null(self):
+        orphan_channel_id = uuid.uuid4().hex
+        orphan_root = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=orphan_channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Orphan Root",
+        )
+        orphan_course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=orphan_channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=orphan_root,
+            available=True,
+            title="Orphan Course",
+            modality=modalities.COURSE,
+        )
+        self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
+        response = self.client.post(
+            reverse("kolibri:core:coursesession-list"),
+            {
+                "active": True,
+                "collection": self.classroom.id,
+                "course": orphan_course.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        session = models.CourseSession.objects.get(id=response.data["id"])
+        self.assertIsNone(session.channel_version)
 
 
 """"

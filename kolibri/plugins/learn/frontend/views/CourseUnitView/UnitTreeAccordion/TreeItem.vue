@@ -6,6 +6,7 @@
   >
     <button
       class="tree-item"
+      :class="$computedClass({ ':focus': $coreOutline })"
       :disabled="disabled"
       @click="$emit('click')"
     >
@@ -107,6 +108,13 @@
 
 <style scoped lang="scss">
 
+  .tree-item-wrapper {
+    &:focus-within {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
   .tree-item {
     display: flex;
     gap: 8px;
@@ -119,7 +127,6 @@
     user-select: text;
     background: unset;
     border: 0;
-    outline-offset: -3px;
 
     .item-content {
       display: flex;

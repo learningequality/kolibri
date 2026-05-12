@@ -63,15 +63,22 @@ function getInstalledChannel(channelId) {
 // to be installed. Returns errors if params are invalid.
 export function fetchChannelAtSource(params) {
   const { channel_id, drive_id, peer } = params;
-  let sourcePromise;
   if (drive_id) {
-    sourcePromise = getChannelOnDrive(drive_id, channel_id);
+    return Promise.all([getInstalledChannel(channel_id), getChannelOnDrive(drive_id, channel_id)]);
   } else if (peer) {
-    sourcePromise = getChannelOnPeer(peer, channel_id);
+    return Promise.all([getInstalledChannel(channel_id), getChannelOnPeer(peer, channel_id)]);
   } else {
-    sourcePromise = getChannelOnStudio(channel_id);
+    const installedPromise = getInstalledChannel(channel_id);
+    const studioPromise = getChannelOnStudio(channel_id);
+    return Promise.all([installedPromise, studioPromise]).catch(error =>
+      installedPromise.then(installedChannel => {
+        if (installedChannel.version === 0) {
+          return [installedChannel, null];
+        }
+        return Promise.reject(error);
+      }),
+    );
   }
-  return Promise.all([getInstalledChannel(channel_id), sourcePromise]);
 }
 
 export function fetchOrTriggerChannelDiffStatsTask(taskParams, tasks) {

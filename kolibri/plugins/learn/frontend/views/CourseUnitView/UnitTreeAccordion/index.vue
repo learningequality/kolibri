@@ -25,7 +25,7 @@
           <KIcon
             class="item-icon"
             icon="mastered"
-            :color="$themePalette.grey.v_400"
+            :color="$themeTokens.mastered"
           />
         </template>
       </TreeItem>
@@ -42,6 +42,7 @@
           :headerAppearanceOverrides="{
             padding: '0px 8px 0px 16px',
             height: '52px',
+            color: $themeTokens.text,
             backgroundColor: $themePalette.grey.v_100,
             outlineOffset: '-3px !important',
             borderBottom: '1px solid ' + $themeTokens.fineLine,
@@ -149,7 +150,7 @@
                         v-if="contentNodeProgressMap[resource.content_id] === 1"
                         class="item-icon"
                         icon="mastered"
-                        :color="$themePalette.grey.v_400"
+                        :color="$themeTokens.mastered"
                       />
                       <KIcon
                         v-else-if="contentNodeProgressMap[resource.content_id] > 0"

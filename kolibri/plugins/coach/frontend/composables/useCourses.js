@@ -28,6 +28,11 @@ export function useCourses() {
     _courses.value = _courses.value.filter(course => course.id !== courseId);
   }
 
+  async function deleteCourse(courseId) {
+    await CourseSessionResource.deleteModel({ id: courseId });
+    removeCourse(courseId);
+  }
+
   async function refreshClassCourses() {
     setCoursesAreLoading(true);
     try {
@@ -58,6 +63,7 @@ export function useCourses() {
     setCourses,
     updateCourse,
     removeCourse,
+    deleteCourse,
     refreshClassCourses,
   };
 }

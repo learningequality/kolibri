@@ -13,9 +13,12 @@ from kolibri.core.utils.cache import process_cache
 
 _CONTENT_ASSIGNMENT_INSTANCE_CACHE_TIMEOUT = 300
 
-ContentAssignment = namedtuple(
-    "ContentAssignment", ["contentnode_id", "source_model", "source_id", "metadata"]
+_ContentAssignment = namedtuple(
+    "ContentAssignment",
+    ["contentnode_id", "source_model", "source_id", "metadata", "channel_version"],
 )
+_ContentAssignment.__new__.__defaults__ = (None,)
+ContentAssignment = _ContentAssignment
 
 DeletedAssignment = namedtuple("ContentAssignment", ["source_model", "source_id"])
 
@@ -39,6 +42,7 @@ class ContentAssignmentManager:
         "lookup_field",
         "lookup_func",
         "content_download_priority_func",
+        "channel_version_field",
     )
 
     def __init__(
@@ -48,6 +52,7 @@ class ContentAssignmentManager:
         lookup_field=None,
         lookup_func=None,
         content_download_priority_func=None,
+        channel_version_field=None,
     ):
         """
         :param one_to_many: indicating that the associated model maps to multiple content nodes
@@ -70,6 +75,7 @@ class ContentAssignmentManager:
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
         self.content_download_priority_func = content_download_priority_func
+        self.channel_version_field = channel_version_field
 
     def contribute_to_class(self, model, attribute_name):
         """
@@ -208,9 +214,15 @@ class ContentAssignmentManager:
         :type model_qs: django.db.models.QuerySet
         :rtype: list of ContentAssignment
         """
-        for source_id, lookup_field_value in model_qs.values_list(
-            "id", self.lookup_field
-        ):
+        fields = ["id", self.lookup_field]
+        if self.channel_version_field:
+            fields.append(self.channel_version_field)
+
+        for row in model_qs.values_list(*fields):
+            source_id = row[0]
+            lookup_field_value = row[1]
+            channel_version = row[2] if self.channel_version_field else None
+
             # avoid duplicate contentnode_ids for same source
             contentnode_ids = set()
             assignments = []
@@ -230,6 +242,7 @@ class ContentAssignmentManager:
                         self.model.morango_model_name,
                         source_id,
                         metadata,
+                        channel_version,
                     )
                     contentnode_ids.update([contentnode_id])
 
