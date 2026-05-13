@@ -20,7 +20,7 @@ if WINDOWS:
     import win32gui
     import ctypes
 else:
-    from kolibri_app.server_manager_posix import PosixServerManager as ServerManager
+    from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
     from kolibri.core.device.utils import app_initialize_url
 
 STATE_FILE = "app_state.json"
@@ -260,7 +260,9 @@ class KolibriApp(wx.App):
             final_url = f"{root_url}?next={next_url}" if next_url else root_url
         else:
             # On other platforms, we construct the URL ourselves
-            final_url = self.kolibri_origin + app_initialize_url(next_url=next_url)
+            final_url = self.kolibri_origin + app_initialize_url(
+                auth_token=self.server_manager.auth_token, next_url=next_url
+            )
         self.kolibri_url = final_url
         logging.info(f"Loading Kolibri at: {final_url}")
 

@@ -1,12 +1,12 @@
 """Windows Server Subprocess Implementation
 
 This module implements the Kolibri server that runs as a separate subprocess on Windows.
-It uses a MagicBus plugin (`WindowsIpcPlugin`) integrated with `KolibriProcessBus`
+It uses a MagicBus plugin (`WindowsIpcPlugin`) integrated with `KolibriProcess`
 to manage Inter-Process Communication (IPC) with the main UI process via a named pipe.
 
 Architecture Overview:
 - The main UI process spawns this module as a subprocess with the --run-as-server flag.
-- `ServerProcess` initializes Kolibri and the `KolibriProcessBus`.
+- `run_windows_server()` creates a `KolibriProcess` and adds the Windows IPC plugin.
 - The `WindowsIpcPlugin` is subscribed to the bus. On its `START` event, it creates
   a named pipe and listens for a connection from the UI process in a background thread.
 - When the Kolibri server is ready, it fires a 'SERVING' event. The plugin
@@ -36,11 +36,11 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc"))
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc", "kolibri", "dist"))
 
-from kolibri.main import initialize
 from kolibri.core.device.utils import app_initialize_url
-from kolibri.utils.conf import OPTIONS
-from kolibri.utils.server import KolibriProcessBus
+
+from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
+
 
 # Named pipe for IPC between UI process and server subprocess
 # Uses Windows named pipe format: \\.<hostname>\pipe\<pipename>
@@ -85,7 +85,7 @@ class WindowsIpcPlugin(SimplePlugin):
         Construct the server URLs based on the port.
         """
         kolibri_origin = f"http://localhost:{port}"
-        root_url = kolibri_origin + app_initialize_url()
+        root_url = kolibri_origin + app_initialize_url(auth_token=self.bus.auth_token)
         return kolibri_origin, root_url
 
     def on_server_start(self, port):
@@ -271,52 +271,17 @@ class WindowsIpcPlugin(SimplePlugin):
         logging.info("Pipe server thread finished.")
 
 
-class ServerProcess:
+class WindowsKolibriProcess(KolibriProcess):
     """
-    Main server process coordinator for Windows subprocess implementation.
-    Manages the Kolibri server initialization and runs it with the IPC plugin.
+    Windows-specific Kolibri process with IPC plugin for named pipe communication.
+
+    This class is used in the Windows server subprocess (spawned with --run-as-server).
+    It inherits from KolibriProcess and adds the WindowsIpcPlugin for communication
+    with the main UI process via named pipes.
     """
 
     def __init__(self):
-        self.kolibri_server = None
+        super().__init__()
 
-    def _initialize_kolibri(self):
-        """
-        Initialize Kolibri with required plugins and configuration.
-        """
-        logging.info("Server process: Initializing Kolibri...")
-        initialize()
-
-    def _create_kolibri_server(self):
-        """
-        Create and configure the Kolibri server instance.
-        """
-        return KolibriProcessBus(
-            port=OPTIONS["Deployment"]["HTTP_PORT"],
-            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
-        )
-
-    def _setup_ipc_plugin(self):
-        """
-        Create and subscribe the IPC plugin to the server.
-        """
-        ipc_plugin = WindowsIpcPlugin(self.kolibri_server)
-        ipc_plugin.subscribe()
-        return ipc_plugin
-
-    def run(self):
-        """
-        Main server process entry point, initializes and runs Kolibri server.
-        The server runs until terminated by the Job Object or explicit shutdown.
-        """
-        try:
-            self._initialize_kolibri()
-            self.kolibri_server = self._create_kolibri_server()
-            self._setup_ipc_plugin()
-
-            logging.info("Server process: Starting Kolibri server...")
-            # Start serving, this blocks until shutdown
-            self.kolibri_server.run()
-        except (ImportError, OSError, RuntimeError, ValueError) as e:
-            logging.error(f"Server process error: {e}", exc_info=True)
-            sys.exit(1)
+        self.ipc_plugin = WindowsIpcPlugin(self)
+        self.ipc_plugin.subscribe()
