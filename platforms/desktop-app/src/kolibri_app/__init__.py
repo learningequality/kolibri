@@ -4,7 +4,7 @@ import sys
 from kolibri_app.constants import MAC
 from kolibri_app.constants import WINDOWS
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 
