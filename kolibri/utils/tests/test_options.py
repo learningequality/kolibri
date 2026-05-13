@@ -113,6 +113,21 @@ def test_default_envvar_generation():
         assert OPTIONS["Paths"]["CONTENT_DIR"] == _CONTENT_DIR
 
 
+def test_database_ssl_mode_envvar():
+    _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+
+    with mock.patch.dict(
+        os.environ,
+        {
+            "KOLIBRI_HOME": os.environ["KOLIBRI_HOME"],
+            "KOLIBRI_DATABASE_SSL_MODE": "require",
+        },
+        clear=True,
+    ):
+        OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+        assert OPTIONS["Database"]["DATABASE_SSL_MODE"] == "require"
+
+
 def test_improper_settings_display_errors_and_exit(monkeypatch):
     """
     Checks invalid options log errors and exit.
@@ -153,6 +168,16 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
             with pytest.raises(SystemExit):
                 options.read_options_file(ini_filename=tmp_ini_path)
             assert 'value "penguin" is unacceptable' in LOG_LOGGER[-2][1]
+
+        # invalid choice for postgres ssl mode causes it to bail
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Database]", "DATABASE_SSL_MODE = maybe"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+        ):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "maybe" is unacceptable' in LOG_LOGGER[-2][1]
 
 
 def test_deprecated_values_ini_file(monkeypatch):
