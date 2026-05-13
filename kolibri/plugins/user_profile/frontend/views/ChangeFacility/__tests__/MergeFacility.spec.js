@@ -1,11 +1,12 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { fireEvent, render, screen } from '@testing-library/vue';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { createTranslator } from 'kolibri/utils/i18n';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
 import MergeFacility from '../MergeFacility';
 
-const localVue = createLocalVue();
 const sendMachineEvent = jest.fn();
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
@@ -17,12 +18,17 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   clear: jest.fn(),
 }));
 
-function makeWrapper({
+const TARGET_FACILITY_NAME = 'Test Facility';
+const TARGET_FACILITY_URL = 'http://url1';
+const { continueAction$ } = coreStrings;
+const { documentTitle$, success$ } = createTranslator(MergeFacility.name, MergeFacility.$trs);
+
+function renderComponent({
   taskId = 'task_1',
-  targetFacility = { name: 'Test Facility', url: 'http://url1' },
-  targetAccount = { username: 'test2' },
+  targetFacility = { id: 'facility_id1', name: TARGET_FACILITY_NAME, url: TARGET_FACILITY_URL },
+  targetAccount = { id: 'target-user-id', username: 'test2' },
 } = {}) {
-  return mount(MergeFacility, {
+  return render(MergeFacility, {
     provide: {
       changeFacilityService: {
         send: sendMachineEvent,
@@ -34,13 +40,18 @@ function makeWrapper({
           targetFacility,
           fullname: 'Test User 1',
           username: 'test1',
+          userId: 'local-user-id',
           targetAccount,
           taskId,
         },
       },
     },
-    localVue,
   });
+}
+
+async function flushUi() {
+  await global.flushPromises();
+  await global.flushPromises();
 }
 
 const task = {
@@ -54,54 +65,51 @@ const task = {
 const incompleteTask = { ...task, status: TaskStatuses.PENDING };
 const completedTask = { ...task, status: TaskStatuses.COMPLETED };
 
-const getFinishButton = wrapper => wrapper.find('[data-testid="finishButton"]');
-const clickFinishButton = wrapper => getFinishButton(wrapper).trigger('click');
-const getRetryButton = wrapper => wrapper.find('[data-testid="retryButton"]');
-const clickRetryButton = wrapper => getRetryButton(wrapper).trigger('click');
-
 describe(`ChangeFacility/ConfirmMerge`, () => {
+  let setTimeoutSpy;
+
   beforeEach(() => {
     jest.clearAllMocks();
     TaskResource.fetchModel.mockResolvedValue(task);
+    setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(() => 0);
+  });
+
+  afterEach(() => {
+    setTimeoutSpy.mockRestore();
   });
 
   it(`smoke test`, () => {
-    const wrapper = makeWrapper();
-    expect(wrapper.exists()).toBeTruthy();
+    renderComponent();
+    expect(screen.getByRole('heading', { name: documentTitle$() })).toBeInTheDocument();
   });
 
   it(`finish button does not appear if the task is not completed`, async () => {
     TaskResource.fetchModel.mockResolvedValue(incompleteTask);
 
-    const wrapper = makeWrapper();
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    expect(getFinishButton(wrapper).exists()).toBeFalsy();
-    expect(wrapper.vm.taskCompleted).toBe(false);
+    renderComponent();
+    await flushUi();
+    expect(screen.queryByTestId('finishButton')).not.toBeInTheDocument();
   });
 
   it(`when the task is completed, finish button appears`, async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
 
-    const wrapper = makeWrapper();
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    expect(getFinishButton(wrapper).exists()).toBeTruthy();
-    expect(wrapper.vm.taskCompleted).toBe(true);
-    await wrapper.vm.$nextTick();
-    const messageDiv = wrapper.find('[data-testid="completedMessage"]');
-    expect(messageDiv.text()).toEqual("Successfully joined 'Test Facility' learning facility.");
+    renderComponent();
+    await flushUi();
+    expect(screen.getByTestId('finishButton')).toBeInTheDocument();
+    expect(screen.getByTestId('completedMessage')).toHaveTextContent(
+      success$({ target_facility: TARGET_FACILITY_NAME }),
+    );
   });
 
   it(`clicking finish button sends the finish event to the state machine`, async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
-    const wrapper = makeWrapper();
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    clickFinishButton(wrapper);
+    renderComponent();
 
-    await wrapper.vm.$nextTick();
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('finishButton'));
+    await flushUi();
     expect(sendMachineEvent).toHaveBeenCalledWith({
       type: 'FINISH',
     });
@@ -112,49 +120,59 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
   it('shows picture password confirmation modal after facility change when picture password is assigned', async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
-    const wrapper = makeWrapper({
+    renderComponent({
       targetFacility: {
-        name: 'Test Facility',
-        url: 'http://url1',
+        id: 'facility_id1',
+        name: TARGET_FACILITY_NAME,
+        url: TARGET_FACILITY_URL,
         picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
       },
     });
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    clickFinishButton(wrapper);
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('finishButton'));
+    await flushUi();
 
-    expect(wrapper.vm.showPicturePasswordModal).toBe(true);
+    expect(screen.getByTestId('continue-checkbox')).toBeInTheDocument();
     expect(redirectBrowser).not.toHaveBeenCalled();
   });
 
   it('redirects immediately when picture password is null after facility change', async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
-    const wrapper = makeWrapper({
+    renderComponent({
       targetFacility: {
-        name: 'Test Facility',
-        url: 'http://url1',
+        id: 'facility_id1',
+        name: TARGET_FACILITY_NAME,
+        url: TARGET_FACILITY_URL,
         picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
       },
     });
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    clickFinishButton(wrapper);
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.vm.showPicturePasswordModal).toBe(false);
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('finishButton'));
+    await flushUi();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('continue-checkbox')).not.toBeInTheDocument();
   });
 
-  it('redirects when picture password modal is confirmed', () => {
-    const wrapper = makeWrapper();
-    wrapper.vm.showPicturePasswordModal = true;
-    wrapper.vm.handlePicturePasswordConfirm();
+  it('redirects when picture password modal is confirmed', async () => {
+    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
 
-    expect(wrapper.vm.showPicturePasswordModal).toBe(false);
+    renderComponent({
+      targetFacility: {
+        id: 'facility_id1',
+        name: TARGET_FACILITY_NAME,
+        url: TARGET_FACILITY_URL,
+        picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
+      },
+    });
+
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('finishButton'));
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('continue-checkbox'));
+    await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
+    await flushUi();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
   });
 
@@ -164,12 +182,9 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
       response: { status: 400, data: [{ metadata: { message: 'USERNAME_ALREADY_EXISTS' } }] },
     });
     client.mockResolvedValue({});
-    const wrapper = makeWrapper({ taskId: null });
-    await global.flushPromises();
-    await wrapper.vm.$nextTick();
-    clickRetryButton(wrapper);
-
-    await wrapper.vm.$nextTick();
+    renderComponent({ taskId: null });
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('retryButton'));
     expect(sendMachineEvent).toHaveBeenCalledWith('TASKERROR');
   });
 });
