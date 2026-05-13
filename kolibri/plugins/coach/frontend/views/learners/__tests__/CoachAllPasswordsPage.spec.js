@@ -63,9 +63,10 @@ describe('CoachAllPasswordsPage', () => {
     expect(screen.getByText(LEARNERS[1].name)).toBeInTheDocument();
   });
 
-  it('passes the class name from classSummary into AllPasswordsPage', () => {
+  it('renders learners when a custom className is provided', () => {
     renderComponent({ className: 'My Class' });
     expect(screen.getByText(LEARNERS[0].name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[1].name)).toBeInTheDocument();
   });
 
   it('renders a learner with picture_password and a learner without one', () => {

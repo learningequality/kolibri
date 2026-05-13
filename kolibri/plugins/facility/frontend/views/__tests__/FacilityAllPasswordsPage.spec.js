@@ -66,8 +66,9 @@ describe('FacilityAllPasswordsPage', () => {
     expect(screen.queryByText(LEARNERS[0].full_name)).not.toBeInTheDocument();
   });
 
-  it('passes the class name from currentClass into AllPasswordsPage', () => {
+  it('renders learners when a custom className is provided', () => {
     renderComponent({ className: 'My Class' });
     expect(screen.getByText(LEARNERS[0].full_name)).toBeInTheDocument();
+    expect(screen.getByText(LEARNERS[1].full_name)).toBeInTheDocument();
   });
 });
