@@ -549,6 +549,24 @@ base_option_spec = {
             "type": "string",
             "description": "The port on which to connect to the database, Postgresql only.",
         },
+        "DATABASE_SSL_MODE": {
+            "type": "option",
+            "options": (
+                "disable",
+                "allow",
+                "prefer",
+                "require",
+                "verify-ca",
+                "verify-full",
+            ),
+            "default": "disable",
+            "description": "The sslmode for the connection, Postgresql only.",
+        },
+        "DATABASE_SSL_ROOT_CERT": {
+            "type": "path",
+            "default": "",
+            "description": "Path to the SSL certificate authority (CA) file for verifying the server certificate (maps to sslrootcert), Postgresql only.",
+        },
     },
     "Server": {
         "CHERRYPY_START": {
