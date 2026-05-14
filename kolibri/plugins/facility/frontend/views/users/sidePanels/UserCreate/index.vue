@@ -68,7 +68,7 @@
             :options="userTypeOptions"
           />
           <div
-            v-if="learnerLimitReached"
+            v-if="userCreationBlocked"
             class="learner-limit-message"
             :style="{ color: $themeTokens.annotation }"
           >
@@ -169,13 +169,13 @@
           primary
           :form="formId"
           :text="saveAndClose$()"
-          :disabled="busy"
+          :disabled="busy || userCreationBlocked"
           @click="saveAndClose()"
         />
         <KButton
           :form="formId"
           :text="saveAndAddAnother$()"
-          :disabled="busy"
+          :disabled="busy || userCreationBlocked"
           @click="saveAndAddAnother()"
         />
       </div>
@@ -255,15 +255,27 @@
       const learnerLimitReached = computed(
         () => isPictureLoginActive.value && selectedFacility.value?.picture_passwords_exhausted,
       );
+
+      const coachIsSelected = computed(() => {
+        return kind.value?.value === UserKinds.COACH;
+      });
+
+      const newUserRole = computed(() => {
+        if (coachIsSelected.value) {
+          return classCoachIsSelected.value ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
+        }
+        // Admin or Learner
+        return kind.value?.value ?? UserKinds.LEARNER;
+      });
+
       const showPicturePasswordInfo = computed(
-        () => isPictureLoginActive.value && kind.value?.value === UserKinds.LEARNER,
+        () => isPictureLoginActive.value && newUserRole.value === UserKinds.LEARNER,
       );
 
-      const userTypeOptions = computed(() => [
+      const userTypeOptions = [
         {
           label: coreStrings.learnerLabel$(),
           value: UserKinds.LEARNER,
-          disabled: learnerLimitReached.value,
         },
         {
           label: coreStrings.coachLabel$(),
@@ -273,7 +285,11 @@
           label: coreStrings.adminLabel$(),
           value: UserKinds.ADMIN,
         },
-      ]);
+      ];
+
+      const userCreationBlocked = computed(
+        () => newUserRole.value === UserKinds.LEARNER && learnerLimitReached.value,
+      );
 
       const closeConfirmationGuardRef = ref(null);
 
@@ -288,15 +304,13 @@
       const extraDemographics = ref({});
       const idNumber = ref('');
       const loading = ref(true);
-      const kind = ref({});
+      const kind = ref(userTypeOptions[0]);
       const selectedClasses = ref([]);
       const classCoachIsSelected = ref(true);
       const busy = ref(false);
       const formSubmitted = ref(false);
       const caughtErrors = ref([]);
       const showErrorWarning = ref(false);
-      // Tracks the role that resetForm() last set so hasUnsavedChanges has the correct baseline.
-      const defaultRole = ref(null);
 
       const resetForm = () => {
         fullName.value = '';
@@ -307,8 +321,7 @@
         extraDemographics.value = {};
         idNumber.value = '';
         classCoachIsSelected.value = true;
-        kind.value = {};
-        defaultRole.value = null;
+        kind.value = userTypeOptions[0];
         formSubmitted.value = false;
         caughtErrors.value = [];
         busy.value = false;
@@ -322,22 +335,10 @@
       const facilityUsers = computed(() => store.state.userManagement.facilityUsers);
 
       const showPasswordInput = computed(() => {
-        if (facilityConfig.value.learner_can_login_with_no_password) {
-          return kind.value?.value !== UserKinds.LEARNER;
+        if (isPictureLoginActive.value || facilityConfig.value.learner_can_login_with_no_password) {
+          return newUserRole.value !== UserKinds.LEARNER;
         }
         return true;
-      });
-
-      const coachIsSelected = computed(() => {
-        return kind.value?.value === UserKinds.COACH;
-      });
-
-      const newUserRole = computed(() => {
-        if (coachIsSelected.value) {
-          return classCoachIsSelected.value ? UserKinds.ASSIGNABLE_COACH : UserKinds.COACH;
-        }
-        // Admin or Learner
-        return kind.value?.value ?? null;
       });
 
       const formIsValid = computed(() => {
@@ -352,7 +353,7 @@
           idNumber.value,
           gender.value !== NOT_SPECIFIED,
           birthYear.value !== NOT_SPECIFIED,
-          newUserRole.value !== defaultRole.value,
+          kind.value !== userTypeOptions[0],
           Object.values(extraDemographics.value).some(value => {
             if (Array.isArray(value)) {
               return value.length > 0;
@@ -365,7 +366,7 @@
       });
 
       const classesAction = computed(() =>
-        kind.value?.value === UserKinds.LEARNER
+        newUserRole.value === UserKinds.LEARNER
           ? ClassesActions.ENROLL_LEARNER
           : ClassesActions.ASSIGN_COACH,
       );
@@ -463,6 +464,9 @@
       };
 
       const submitForm = async () => {
+        if (userCreationBlocked.value) {
+          return false;
+        }
         formSubmitted.value = true;
         if (!showPasswordInput.value && !passwordValid.value) {
           passwordValid.value = true;
@@ -579,7 +583,7 @@
         facilityCoachLabel$,
         facilityCoachDescription$,
         // picture password
-        learnerLimitReached,
+        userCreationBlocked,
         showPicturePasswordInfo,
         showLearnerLimitModal,
 
