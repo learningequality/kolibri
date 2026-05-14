@@ -1,82 +1,105 @@
+import uuid
+
 import mock
 from django.test import TestCase
 
+from ..backends import FacilityAuthScope
 from ..backends import FacilityUserBackend
+from ..backends import PicturePasswordAuthScope
+from ..backends import UsernameAuthScope
 from ..models import Facility
 from ..models import FacilityUser
 from .helpers import create_superuser
+from .helpers import disable_picture_password
+from .helpers import DUMMY_PASSWORD
+from .helpers import enable_picture_password
+
+
+class _NoMatchFacilityAuthScope(FacilityAuthScope):
+    def matches_credentials(self, user):
+        return False
 
 
 class FacilityUserBackendTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create()
+        cls.other_facility = Facility.objects.create()
+
+        cls.dataset = cls.facility.dataset
+
         cls.user = FacilityUser(username="Mike", facility=cls.facility)
         cls.user.set_password("foo")
         cls.user.save()
-        cls.user_other_mike = FacilityUser.objects.create(
-            username="mike", facility=cls.facility
-        )
+
+        cls.user_other_mike = FacilityUser(username="mike", facility=cls.facility)
         cls.user_other_mike.set_password("foo")
         cls.user_other_mike.save()
+
+        cls.picture_user = FacilityUser.objects.create(
+            username="pic-user",
+            facility=cls.facility,
+            picture_password="1.2.3",
+        )
+
         cls.request = mock.Mock()
 
-    def test_facility_user_authenticated(self):
+    def setUp(self):
+        dataset_id_patcher = mock.patch(
+            "kolibri.core.auth.backends.is_full_facility_import"
+        )
+        self.is_full_facility_import = dataset_id_patcher.start()
+        self.is_full_facility_import.return_value = True
+        self.addCleanup(dataset_id_patcher.stop)
+
+        disable_picture_password(self.facility, passwordless=False)
+
+    def test_authenticate__returns_user_for_valid_facility_object_credentials(self):
         self.assertEqual(
             self.user,
             FacilityUserBackend().authenticate(
-                self.request, username="Mike", password="foo", facility=self.facility
+                self.request,
+                username="Mike",
+                password="foo",
+                facility=self.facility,
             ),
         )
 
-    def test_facility_user_other_mike_authenticated(self):
-        self.assertEqual(
-            self.user_other_mike,
-            FacilityUserBackend().authenticate(
-                self.request, username="mike", password="foo", facility=self.facility
-            ),
-        )
-
-    def test_facility_user_authenticated__facility_id(self):
+    def test_authenticate__returns_user_for_valid_facility_pk_credentials(self):
         self.assertEqual(
             self.user,
             FacilityUserBackend().authenticate(
-                self.request, username="Mike", password="foo", facility=self.facility.pk
+                self.request,
+                username="Mike",
+                password="foo",
+                facility=self.facility.pk,
             ),
         )
 
-    def test_facility_user_other_mike_authenticated__facility_id(self):
-        self.assertEqual(
-            self.user_other_mike,
-            FacilityUserBackend().authenticate(
-                self.request, username="mike", password="foo", facility=self.facility.pk
-            ),
-        )
-
-    def test_facility_user_authentication_does_not_require_facility(self):
+    def test_authenticate__returns_user_without_facility_when_credentials_match(self):
         self.assertEqual(
             self.user,
             FacilityUserBackend().authenticate(
-                self.request, username="Mike", password="foo"
+                self.request,
+                username="Mike",
+                password="foo",
             ),
         )
 
-    def test_facility_user_other_mike_authentication_does_not_require_facility(self):
+    def test_authenticate__returns_first_case_insensitive_match_after_case_sensitive_miss(
+        self,
+    ):
         self.assertEqual(
-            self.user_other_mike,
+            self.user,
             FacilityUserBackend().authenticate(
-                self.request, username="mike", password="foo"
+                self.request,
+                username="MIKE",
+                password="foo",
+                facility=self.facility,
             ),
         )
 
-    def test_device_owner_not_authenticated(self):
-        self.assertIsNone(
-            FacilityUserBackend().authenticate(
-                self.request, username="Chuck", password="foobar"
-            )
-        )
-
-    def test_incorrect_password_does_not_authenticate(self):
+    def test_authenticate__returns_none_for_wrong_password(self):
         self.assertIsNone(
             FacilityUserBackend().authenticate(
                 self.request,
@@ -86,123 +109,374 @@ class FacilityUserBackendTestCase(TestCase):
             )
         )
 
-    def test_get_facility_user(self):
+    def test_authenticate__returns_none_for_missing_user(self):
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="not-a-user",
+                password="bar",
+            )
+        )
+
+    def test_authenticate__allows_learner_passwordless_login_with_facility(self):
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertEqual(
+            self.user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="Mike",
+                facility=self.facility,
+            ),
+        )
+
+    def test_authenticate__does_not_allow_coach_passwordless_login(self):
+        coach = FacilityUser.objects.create(
+            username="coach",
+            facility=self.facility,
+            picture_password="4.5.6",
+        )
+        coach.set_password(DUMMY_PASSWORD)
+        coach.save()
+        self.facility.add_coach(coach)
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="coach",
+                facility=self.facility,
+            )
+        )
+
+    def test_authenticate__allows_superuser_with_valid_password(self):
+        superuser = create_superuser(self.facility, username="superuser")
+
+        self.assertEqual(
+            superuser,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=superuser.username,
+                password=DUMMY_PASSWORD,
+            ),
+        )
+
+    def test_authenticate__does_not_allow_superuser_passwordless_when_full_import(self):
+        superuser = create_superuser(self.facility, username="superuser")
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=superuser.username,
+                facility=self.facility,
+            )
+        )
+
+    def test_authenticate__allows_superuser_passwordless_when_single_user_on_device(
+        self,
+    ):
+        superuser = create_superuser(self.facility, username="superuser")
+        self.is_full_facility_import.return_value = False
+        disable_picture_password(self.facility, passwordless=True)
+
+        self.assertEqual(
+            superuser,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=superuser.username,
+                facility=self.facility,
+            ),
+        )
+
+    def test_authenticate__uses_username_path_when_picture_password_is_none(self):
+        self.assertEqual(
+            self.user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="Mike",
+                password="foo",
+                picture_password=None,
+                facility=self.facility,
+            ),
+        )
+
+    def test_authenticate__returns_user_for_valid_picture_password_with_facility(self):
+        enable_picture_password(self.facility)
+
+        self.assertEqual(
+            self.picture_user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="1.2.3",
+                facility=self.facility,
+            ),
+        )
+
+    def test_authenticate__returns_user_for_valid_picture_password_with_facility_pk(
+        self,
+    ):
+        enable_picture_password(self.facility)
+
+        self.assertEqual(
+            self.picture_user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="1.2.3",
+                facility=self.facility.pk,
+            ),
+        )
+
+    def test_authenticate__returns_user_for_valid_username(
+        self,
+    ):
+        """
+        With picture passwords enabled, passwordless sign-in is always enabled
+        """
+        enable_picture_password(self.facility)
+
+        self.assertEqual(
+            self.picture_user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="pic-user",
+                picture_password=None,
+                facility=self.facility.pk,
+            ),
+        )
+
+    def test_authenticate__returns_user_for_valid_username_password_meaningless(
+        self,
+    ):
+        """
+        With picture passwords enabled, passwordless sign-in is always enabled, but auth does not
+        reject the attempt if a password is provided
+        """
+        enable_picture_password(self.facility)
+
+        self.assertEqual(
+            self.picture_user,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username="pic-user",
+                password="wrongpassword",
+                picture_password=None,
+                facility=self.facility.pk,
+            ),
+        )
+
+    def test_authenticate__returns_none_for_picture_password_without_facility(self):
+        enable_picture_password(self.facility)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="1.2.3",
+            )
+        )
+
+    def test_authenticate__returns_none_for_picture_password_with_wrong_facility(self):
+        disable_picture_password(self.other_facility)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="1.2.3",
+                facility=self.other_facility,
+            )
+        )
+
+    def test_authenticate__returns_none_for_non_matching_picture_password(self):
+        enable_picture_password(self.facility)
+
+        self.assertIsNone(
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="9.9.9",
+                facility=self.facility,
+            )
+        )
+
+    def test_authenticate__allows_superuser_picture_password_when_single_user_on_device(
+        self,
+    ):
+        superuser = create_superuser(self.facility, username="superuser")
+        superuser.picture_password = "2.4.6"
+        superuser.save(update_fields=["picture_password"])
+        self.is_full_facility_import.return_value = False
+        enable_picture_password(self.facility)
+
+        self.assertEqual(
+            superuser,
+            FacilityUserBackend().authenticate(
+                self.request,
+                picture_password="2.4.6",
+                facility=self.facility,
+            ),
+        )
+
+    def test_get_user__returns_user_for_existing_id(self):
         self.assertEqual(self.user, FacilityUserBackend().get_user(self.user.id))
 
-    def test_nonexistent_user_returns_none(self):
+    def test_get_user__returns_none_for_nonexistent_id(self):
         self.assertIsNone(
             FacilityUserBackend().get_user("8acf96e56d0d4ab49fab3fbf3f716bc2")
         )
 
-    def test_authenticate_nonexistent_user_returns_none(self):
-        self.assertIsNone(
-            FacilityUserBackend().authenticate(self.request, "foo", "bar")
-        )
 
-    def test_authenticate_with_wrong_password_returns_none(self):
-        self.assertIsNone(
-            FacilityUserBackend().authenticate(self.request, "Mike", "goo")
-        )
-
-
-class PicturePasswordBackendTestCase(TestCase):
+class FacilityAuthScopeTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.facility = Facility.objects.create(name="Pic Facility")
+        cls.facility = Facility.objects.create(name="Scoped Facility")
+        cls.other_facility = Facility.objects.create(name="Other Facility")
+
+    def setUp(self):
+        dataset_id_patcher = mock.patch(
+            "kolibri.core.auth.backends.is_full_facility_import"
+        )
+        self.is_full_facility_import = dataset_id_patcher.start()
+        self.is_full_facility_import.return_value = True
+        self.addCleanup(dataset_id_patcher.stop)
+
+    def test_dataset_id__returns_dataset_id_for_facility_object(self):
+        auth_scope = _NoMatchFacilityAuthScope(self.facility)
+        self.assertEqual(self.facility.dataset_id, auth_scope.dataset_id)
+
+    def test_dataset_id__returns_dataset_id_for_facility_pk(self):
+        auth_scope = _NoMatchFacilityAuthScope(self.facility.pk)
+        self.assertEqual(self.facility.dataset_id, auth_scope.dataset_id)
+
+    def test_dataset_id__returns_none_for_missing_facility_pk(self):
+        auth_scope = _NoMatchFacilityAuthScope(str(uuid.uuid4()))
+        self.assertIsNone(auth_scope.dataset_id)
+
+    def test_is_subset_of_users_device__returns_false_for_full_facility_import(self):
+        auth_scope = _NoMatchFacilityAuthScope(self.facility)
+        self.assertFalse(auth_scope.is_subset_of_users_device)
+
+    def test_is_subset_of_users_device__returns_true_for_partial_facility_import(self):
+        self.is_full_facility_import.return_value = False
+        auth_scope = _NoMatchFacilityAuthScope(self.facility)
+        self.assertTrue(auth_scope.is_subset_of_users_device)
+
+    def test_get_candidate_users__filters_users_by_dataset_scope(self):
+        scoped_user = FacilityUser.objects.create(
+            username="scoped-user",
+            facility=self.facility,
+            picture_password="1.1.1",
+        )
+        FacilityUser.objects.create(
+            username="other-user",
+            facility=self.other_facility,
+            picture_password="2.2.2",
+        )
+
+        auth_scope = _NoMatchFacilityAuthScope(self.facility)
+        self.assertEqual(list(auth_scope.get_candidate_users()), [scoped_user])
+
+
+class PicturePasswordAuthScopeTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Picture Facility")
+        cls.dataset = cls.facility.dataset
+        cls.dataset.learner_can_login_with_no_password = True
+        cls.dataset.learner_can_edit_password = False
+        cls.dataset.picture_password_settings = {
+            "icon_style": "standard",
+            "show_icon_text": True,
+        }
+        cls.dataset.save()
+
         cls.other_facility = Facility.objects.create(name="Other Facility")
         cls.learner = FacilityUser.objects.create(
             username="learner",
             facility=cls.facility,
             picture_password="1.2.3",
         )
-        cls.request = mock.Mock()
 
-    def test_valid_picture_password_returns_learner(self):
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="1.2.3",
-            facility=self.facility,
+    def setUp(self):
+        dataset_id_patcher = mock.patch(
+            "kolibri.core.auth.backends.is_full_facility_import"
         )
-        self.assertEqual(user, self.learner)
+        self.is_full_facility_import = dataset_id_patcher.start()
+        self.is_full_facility_import.return_value = True
+        self.addCleanup(dataset_id_patcher.stop)
 
-    def test_valid_picture_password_with_facility_pk_returns_learner(self):
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="1.2.3",
-            facility=self.facility.pk,
-        )
-        self.assertEqual(user, self.learner)
+    def test_authenticate__returns_learner_for_valid_picture_password(self):
+        auth_scope = PicturePasswordAuthScope(self.facility, "1.2.3")
+        self.assertTrue(auth_scope.matches_credentials(self.learner))
 
-    def test_picture_password_wrong_facility_returns_none(self):
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="1.2.3",
-            facility=self.other_facility,
-        )
-        self.assertIsNone(user)
+    def test_get_candidate_users__returns_empty_queryset_without_dataset_scope(self):
+        auth_scope = PicturePasswordAuthScope(None, "1.2.3")
+        self.assertEqual(list(auth_scope.get_candidate_users()), [])
 
-    def test_picture_password_no_match_returns_none(self):
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="9.9.9",
-            facility=self.facility,
-        )
-        self.assertIsNone(user)
+    def test_matches_credentials__returns_false_when_picture_password_settings_not_configured(
+        self,
+    ):
+        self.dataset.picture_password_settings = None
+        self.dataset.save()
 
-    def test_picture_password_no_facility_returns_none(self):
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="1.2.3",
-        )
-        self.assertIsNone(user)
+        auth_scope = PicturePasswordAuthScope(self.facility, "1.2.3")
+        self.assertFalse(auth_scope.matches_credentials(self.learner))
 
-    def test_coach_not_returned_by_picture_password(self):
+    def test_matches_credentials__returns_false_for_coach(self):
         coach = FacilityUser.objects.create(
             username="coach",
             facility=self.facility,
             picture_password="4.5.6",
         )
         self.facility.add_coach(coach)
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="4.5.6",
-            facility=self.facility,
-        )
-        self.assertIsNone(user)
 
-    def test_admin_not_returned_by_picture_password(self):
-        admin = FacilityUser.objects.create(
-            username="admin",
-            facility=self.facility,
-            picture_password="7.8.9",
-        )
-        self.facility.add_admin(admin)
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="7.8.9",
-            facility=self.facility,
-        )
-        self.assertIsNone(user)
+        auth_scope = PicturePasswordAuthScope(self.facility, "4.5.6")
+        self.assertFalse(auth_scope.matches_credentials(coach))
 
-    def test_device_superuser_not_returned_by_picture_password(self):
+    def test_matches_credentials__returns_false_for_device_superuser_when_full_import(
+        self,
+    ):
         superuser = create_superuser(self.facility, username="superuser")
         superuser.picture_password = "2.4.6"
         superuser.save(update_fields=["picture_password"])
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            picture_password="2.4.6",
-            facility=self.facility,
-        )
-        self.assertIsNone(user)
 
-    def test_picture_password_none_does_not_use_picture_path(self):
-        # When picture_password is None, falls through to username/password path
-        # (which returns None for non-existent username)
-        user = FacilityUserBackend().authenticate(
-            self.request,
-            username="nobody",
-            password="wrong",
-            picture_password=None,
-            facility=self.facility,
-        )
-        self.assertIsNone(user)
+        auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
+        self.assertFalse(auth_scope.matches_credentials(superuser))
+
+    def test_matches_credentials__returns_true_for_device_superuser_when_single_user_on_device(
+        self,
+    ):
+        self.is_full_facility_import.return_value = False
+        superuser = create_superuser(self.facility, username="superuser")
+        superuser.picture_password = "2.4.6"
+        superuser.save(update_fields=["picture_password"])
+
+        auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
+        self.assertTrue(auth_scope.matches_credentials(superuser))
+
+
+class UsernameAuthScopeTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="Username Facility")
+        cls.user = FacilityUser(username="Mike", facility=cls.facility)
+        cls.user.set_password("foo")
+        cls.user.save()
+
+    def test_get_candidate_users__filters_by_case_sensitive_username_when_enabled(self):
+        auth_scope = UsernameAuthScope(self.facility, username="mike", password="foo")
+        self.assertEqual(list(auth_scope.get_candidate_users()), [])
+
+    def test_get_candidate_users__filters_by_case_insensitive_username_when_disabled(
+        self,
+    ):
+        auth_scope = UsernameAuthScope(self.facility, username="mike", password="foo")
+        auth_scope.set_case_insensitive()
+        self.assertEqual(list(auth_scope.get_candidate_users()), [self.user])
+
+    def test_set_case_insensitive__disables_case_sensitive_matching(self):
+        auth_scope = UsernameAuthScope(self.facility, username="mike", password="foo")
+        auth_scope.set_case_insensitive()
+        self.assertFalse(auth_scope.case_sensitive)
+
+    def test_matches_credentials__returns_true_for_matching_password(self):
+        auth_scope = UsernameAuthScope(self.facility, username="Mike", password="foo")
+        self.assertTrue(auth_scope.matches_credentials(self.user))
