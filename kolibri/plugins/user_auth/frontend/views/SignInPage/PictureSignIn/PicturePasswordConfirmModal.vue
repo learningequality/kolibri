@@ -12,11 +12,15 @@
           @shouldFocusLastEl="confirmBtn.$el.focus()"
         >
           <div
+            ref="modalCard"
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-modal-title"
             class="modal-card"
-            :style="{ backgroundColor: $themeTokens.surface }"
+            :style="{
+              backgroundColor: $themeTokens.surface,
+              zoom: cardScale < 1 ? cardScale : undefined,
+            }"
           >
             <div
               class="header"
@@ -100,6 +104,7 @@
 <script>
 
   import { computed, onMounted, onUnmounted, ref } from 'vue';
+  import { useWindowSize } from '@vueuse/core';
   import KFocusTrap from 'kolibri-design-system/lib/KFocusTrap';
   import KOverlay from 'kolibri-design-system/lib/KOverlay';
   import Backdrop from 'kolibri/components/Backdrop';
@@ -119,6 +124,15 @@
       useReturnFocusOnUnmount();
       const confirmBtn = ref(null);
       const modalTitle = ref(null);
+      const modalCard = ref(null);
+      const naturalCardHeight = ref(0);
+      const { height: windowHeight } = useWindowSize();
+
+      const cardScale = computed(() => {
+        if (!naturalCardHeight.value) return 1;
+        const available = windowHeight.value - 32; // 16px overlay padding each side
+        return Math.min(1, available / naturalCardHeight.value);
+      });
       const { isThisYou$, yourPasswordIs$, yesConfirmAction$, noGoBackAction$ } =
         picturePasswordStrings;
       const palette = themePalette();
@@ -142,6 +156,7 @@
 
       onMounted(() => {
         document.documentElement.style.overflow = 'hidden';
+        naturalCardHeight.value = modalCard.value.scrollHeight;
         confirmBtn.value.$el.focus();
       });
 
@@ -152,6 +167,8 @@
       return {
         confirmBtn,
         modalTitle,
+        modalCard,
+        cardScale,
         iconTokens,
         sequenceAriaLabel,
         isThisYou$,
@@ -219,8 +236,6 @@
   }
 
   .modal-card {
-    max-height: calc(100vh - 32px);
-    overflow-y: auto;
     border-radius: 8px;
   }
 
