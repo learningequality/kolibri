@@ -41,6 +41,10 @@ on:
           - 'kolibri-plugin-data'
           - 'kolibri-viewer'
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
