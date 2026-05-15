@@ -86,14 +86,12 @@ export default function useUser() {
         method: 'post',
       });
 
-      if (!prevalidate) {
+      if (enableRedirect) {
         // Update session state before redirecting so that bfcache stores the
         // logged-in user_id. If the user navigates back, pollSessionEndPoint
         // will see user_id change to null and trigger signOutDueToInactivity.
         setSession({ session: response.data });
-      }
 
-      if (enableRedirect) {
         if (sessionPayload.next) {
           // OIDC redirect
           redirectBrowser(sessionPayload.next);
