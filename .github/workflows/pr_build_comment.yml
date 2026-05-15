@@ -13,27 +13,29 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
       - uses: actions/checkout@v6
-      - name: Make text for build comment
-        id: comment-text
+      - name: Find PR by head SHA
+        id: find-pr
         uses: actions/github-script@v9
         with:
           script: |
             const utils = require('./.github/githubUtils.js')
-            return await utils.generateAssetComment(github, context)
-      - name: Unzip PR number artifact
-        run: unzip pr_number.zip
-      - name: Get PR number
-        id: pr-number
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const fs = require('fs');
-            const prNumber = Number(fs.readFileSync('./pr_number'));
+            const prNumber = await utils.findPrByHeadSha(github, context)
+            if (!prNumber) {
+              core.notice('No open PR found for head SHA; skipping comment')
+              core.setOutput('found', 'false')
+              return null
+            }
+            core.setOutput('found', 'true')
             return prNumber
       - name: Post build comment
+        if: steps.find-pr.outputs.found == 'true'
         uses: actions/github-script@v9
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.result }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const utils = require('./.github/githubUtils.js')
-            await utils.upsertComment(github, context, ${{steps.pr-number.outputs.result}}, '**Build Artifacts**', ${{ steps.comment-text.outputs.result }})
+            const prNumber = Number(process.env.PR_NUMBER)
+            const body = await utils.generateAssetComment(github, context)
+            await utils.upsertComment(github, context, prNumber, '**Build Artifacts**', body)
