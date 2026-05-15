@@ -87,7 +87,6 @@ from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
 
-
 logger = logging.getLogger(__name__)
 
 
