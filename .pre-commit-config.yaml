@@ -102,7 +102,8 @@ repos:
     name: Require top-level permissions block in GitHub workflow files
     description: Every workflow must declare a top-level permissions block to enforce least privilege
     entry: python .pre-commit-hooks/check_workflow_permissions.py
-    language: system
+    language: python
+    additional_dependencies: ['pyyaml']
     files: ^\.github/workflows/.*\.(yml|yaml)$
 -   repo: https://github.com/isidentical/teyit
     rev: 0.4.3
