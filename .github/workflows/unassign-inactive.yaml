@@ -6,6 +6,9 @@ on:
     - cron: "1 0 * * 1" # Every Monday at 00:01 UTC
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   unassign-inactive:
     uses: learningequality/.github/.github/workflows/unassign-inactive-issues.yaml@main

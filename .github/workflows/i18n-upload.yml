@@ -3,6 +3,9 @@ name: Upload translations to Crowdin
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   upload:
     name: Extract and upload strings to Crowdin

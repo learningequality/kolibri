@@ -7,6 +7,9 @@ on:
   # Optional: Allow manual triggering
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check-commits:
     runs-on: ubuntu-latest
