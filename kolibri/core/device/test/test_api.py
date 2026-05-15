@@ -843,3 +843,49 @@ class InitializeEndpointTestCase(APITestCase):
             user = FacilityUser.objects.get(id=user_id)
             self.assertFalse(hasattr(user, "os_user"))
             self.assertEqual(self.superuser.id, user.id)
+
+    def test_redirect_relative_next_url(self):
+        """A relative same-host path is accepted."""
+        url = app_initialize_url(next_url="/learn/")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/learn/")
+
+    def test_redirect_absolute_same_host_next_url(self):
+        """A fully-qualified URL pointing at the test host is accepted."""
+        url = app_initialize_url(next_url="http://testserver/learn/")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "http://testserver/learn/")
+
+    def test_redirect_absolute_different_host_falls_back(self):
+        """A fully-qualified URL pointing at a foreign host falls back to /."""
+        url = app_initialize_url(next_url="http://evil.com/steal")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_protocol_relative_falls_back(self):
+        """A protocol-relative URL (//evil.com/foo) falls back to /."""
+        url = app_initialize_url(next_url="//evil.com/foo")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_absent_next_falls_back(self):
+        """When ?next= is absent, the redirect target is /."""
+        url = app_initialize_url()
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_referer_ignored_with_invalid_next(self):
+        """HTTP_REFERER is no longer used as a fallback."""
+        url = app_initialize_url(next_url="http://evil.com/steal")
+        response = self.client.get(
+            url,
+            follow=False,
+            HTTP_REFERER="http://testserver/valid/",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
