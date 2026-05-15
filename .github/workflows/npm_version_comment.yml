@@ -14,7 +14,22 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v6
+      - name: Find PR by head SHA
+        id: find-pr
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const utils = require('./.github/githubUtils.js')
+            const prNumber = await utils.findPrByHeadSha(github, context)
+            if (!prNumber) {
+              core.notice('No open PR found for head SHA; skipping comment')
+              core.setOutput('found', 'false')
+              return null
+            }
+            core.setOutput('found', 'true')
+            return prNumber
       - name: Download report artifact
+        if: steps.find-pr.outputs.found == 'true'
         uses: actions/github-script@v9
         with:
           script: |
@@ -36,13 +51,25 @@ jobs:
             });
             require('fs').writeFileSync('npm_version_report.zip', Buffer.from(download.data));
       - name: Unzip report
+        if: steps.find-pr.outputs.found == 'true'
         run: unzip npm_version_report.zip
       - name: Post or update comment
+        if: steps.find-pr.outputs.found == 'true'
         uses: actions/github-script@v9
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.result }}
         with:
           script: |
             const fs = require('fs');
             const utils = require('./.github/githubUtils.js');
-            const prNumber = Number(fs.readFileSync('pr_number', 'utf8').trim());
-            const body = fs.readFileSync('body', 'utf8').trim();
-            await utils.postNpmVersionComment(github, context, prNumber, body || null);
+            const raw = fs.readFileSync('data.json', 'utf8');
+            let data;
+            try {
+              data = utils.validateNpmVersionData(raw);
+            } catch (e) {
+              core.setFailed(`Invalid version data JSON: ${e.message}`);
+              return;
+            }
+            const body = data ? utils.renderNpmVersionMarkdown(data) : null;
+            const prNumber = Number(process.env.PR_NUMBER);
+            await utils.postNpmVersionComment(github, context, prNumber, body);
