@@ -241,7 +241,6 @@
                 // If we get an error logging in, just redirect to the sign-in page
                 return redirectBrowser();
               }
-              return;
             } else {
               return redirectBrowser();
             }
