@@ -1,5 +1,5 @@
 const fs = require('node:fs');
-const execSync = require('node:child_process').execSync;
+const execFileSync = require('node:child_process').execFileSync;
 const path = require('node:path');
 const temp = require('temp').track();
 
@@ -25,25 +25,24 @@ function parseConfig(buildConfig, pythonData, configPath, index = null) {
 }
 
 function readPythonPlugins({ pluginFile, plugins, pluginPath }) {
-  if (!pluginFile && !plugins && !plugins.length) {
+  if (!pluginFile && !(plugins && plugins.length)) {
     return [];
   }
   // the temporary path where the webpack_json json is stored
   const webpack_json_tempfile = temp.openSync({ suffix: '.json' }).path;
 
   // Extract the relevant information about the plugin configuration from the Python code.
-  let command = `python ${webpack_json} --output_file ${webpack_json_tempfile} `;
+  const args = [webpack_json, '--output_file', webpack_json_tempfile];
   // The plugin file takes precedence here.
   if (pluginFile) {
-    command += `--plugin_file ${pluginFile}`;
+    args.push('--plugin_file', pluginFile);
   } else if (plugins.length) {
-    const allPlugins = plugins.join(' ');
-    command += `--plugins ${allPlugins}`;
+    args.push('--plugins', ...plugins);
     if (pluginPath) {
-      command += ` --plugin_path ${pluginPath}`;
+      args.push('--plugin_path', pluginPath);
     }
   }
-  execSync(command);
+  execFileSync('python', args);
 
   const result = fs.readFileSync(webpack_json_tempfile);
 
