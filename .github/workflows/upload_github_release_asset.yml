@@ -10,6 +10,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   github_upload:
     name: Upload to Github release
