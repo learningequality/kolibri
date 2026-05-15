@@ -4123,3 +4123,134 @@ class PicturePasswordPrevalidateTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+
+class RoleListSerializerValidationTestCase(APITestCase):
+    """str(e) must not reach API response when InvalidRoleKind is raised."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = models.Facility.objects.create(name="RoleValidationFacility")
+        cls.superuser = create_superuser(cls.facility)
+        provision_device()
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_invalid_role_kind_does_not_leak_exception_text(self):
+        from kolibri.core.auth.errors import InvalidRoleKind
+
+        url = reverse("kolibri:core:role-list")
+        with patch(
+            "kolibri.core.auth.models.Role.validate_role",
+            side_effect=InvalidRoleKind("secret internal role path details"),
+        ):
+            response = self.client.post(
+                url,
+                [
+                    {
+                        "user": str(self.superuser.id),
+                        "collection": str(self.facility.id),
+                        "kind": "admin",
+                    }
+                ],
+                format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn("secret internal role path details", str(response.data))
+
+
+class RemoteFacilityUserViewsetExceptionTestCase(APITestCase):
+    """Unexpected exceptions must not leak str(e) into the API response."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = models.Facility.objects.create(name="RemoteUserFacility")
+        cls.superuser = create_superuser(cls.facility)
+        provision_device()
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_unexpected_exception_does_not_leak_exception_text(self):
+        url = reverse("kolibri:core:remotefacilityuser")
+        with patch(
+            "kolibri.core.auth.api.NetworkClient.build_for_address",
+        ) as mock_build:
+            mock_build.return_value.get.side_effect = Exception(
+                "internal connection secret"
+            )
+            response = self.client.get(
+                url,
+                {
+                    "baseurl": "http://peer.example.com",
+                    "username": "alice",
+                    "facility": str(self.facility.id),
+                },
+            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn("internal connection secret", str(response.data))
+
+
+class RemoteFacilityUserViewsetUrlValidationTestCase(APITestCase):
+    """URL validation errors must not leak str(e) into the API response."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = models.Facility.objects.create(name="UrlValidationFacility")
+        cls.superuser = create_superuser(cls.facility)
+        provision_device()
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_invalid_url_does_not_leak_validation_error_text(self):
+        url = reverse("kolibri:core:remotefacilityuser")
+        response = self.client.get(
+            url,
+            {
+                "baseurl": "not-a-valid-url",
+                "username": "alice",
+                "facility": str(self.facility.id),
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # str(ValidationError) produces a list repr like "['Invalid URL']" — must not leak
+        self.assertNotIn("['Invalid URL']", str(response.data))
+
+
+class RemoteFacilityUserAuthenticatedViewsetUrlValidationTestCase(APITestCase):
+    """URL validation errors in the authenticated viewset must not leak str(e)."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = models.Facility.objects.create(name="AuthUrlValidationFacility")
+        cls.superuser = create_superuser(cls.facility)
+        provision_device()
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def test_invalid_url_does_not_leak_validation_error_text(self):
+        url = reverse("kolibri:core:remotefacilityauthenticateduserinfo")
+        response = self.client.post(
+            url,
+            {
+                "baseurl": "not-a-valid-url",
+                "username": "alice",
+                "password": "pass",
+                "facility_id": str(self.facility.id),
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # str(ValidationError) produces a list repr like "['Invalid URL']" — must not leak
+        self.assertNotIn("['Invalid URL']", str(response.data))

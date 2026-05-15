@@ -63,7 +63,10 @@ class RoleListSerializer(serializers.ListSerializer):
             try:
                 instance.validate_role()
             except InvalidRoleKind as e:
-                raise serializers.ValidationError(str(e))
+                raise serializers.ValidationError(
+                    "Invalid role kind",
+                    code=error_constants.INVALID,
+                ) from e
         return attrs
 
     def create(self, validated_data):
@@ -325,7 +328,10 @@ class MembershipSerializer(serializers.ModelSerializer):
         try:
             return super().save(**kwargs)
         except InvalidMembershipError as e:
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError(
+                "Invalid membership",
+                code=error_constants.INVALID,
+            ) from e
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
@@ -376,7 +382,10 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
         try:
             return super().save(**kwargs)
         except IncompatibleDeviceSettingError as e:
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError(
+                "Incompatible device setting",
+                code=error_constants.INVALID,
+            ) from e
 
 
 class FacilitySerializer(serializers.ModelSerializer):
@@ -402,8 +411,8 @@ class CreateFacilitySerializer(serializers.ModelSerializer):
                 facility = Facility.objects.create(name=name, dataset=facility_dataset)
                 facility.dataset.reset_to_default_settings(preset)
             except Exception as e:
-                logger.error("Error occured while creating facility: %s", str(e))
-                raise ParseError("Error occured while creating facility")
+                logger.exception("Error occurred while creating facility")
+                raise ParseError("Error occurred while creating facility") from e
         return facility
 
 
@@ -456,7 +465,10 @@ class ClassroomSerializer(serializers.ModelSerializer):
         try:
             return super().save(**kwargs)
         except InvalidCollectionHierarchy as e:
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError(
+                "Invalid collection hierarchy",
+                code=error_constants.INVALID,
+            ) from e
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
@@ -474,7 +486,10 @@ class LearnerGroupSerializer(serializers.ModelSerializer):
         try:
             return super().save(**kwargs)
         except InvalidCollectionHierarchy as e:
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError(
+                "Invalid collection hierarchy",
+                code=error_constants.INVALID,
+            ) from e
 
 
 def validate_pin_code(value):
