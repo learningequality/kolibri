@@ -302,28 +302,42 @@ async function postNpmVersionComment(github, context, prNumber, body) {
 }
 
 /**
- * Look up the open PR for a workflow_run event using the head SHA.
- * Returns the PR number, or null if no open PR is found.
- * Disambiguates multiple matches by comparing head.repo.full_name
- * against workflow_run.head_repository.full_name.
+ * Look up the PR for a workflow_run event.
+ *
+ * Uses pulls.list with a `head: "owner:branch"` filter rather than
+ * listPullRequestsAssociatedWithCommit — the latter only knows commits in
+ * the base repo's own git tree, so returns [] for fork PRs (the primary
+ * case). The workflow_run payload exposes the source branch and source
+ * (fork) repo for pull_request-triggered workflows, which is what we
+ * need here.
+ *
+ * Returns the PR number, or null if no PR is found.
  */
 async function findPrByHeadSha(github, context) {
-  const headSha = context.payload.workflow_run.head_sha;
-  const headRepoFullName = context.payload.workflow_run.head_repository.full_name;
+  const wr = context.payload.workflow_run;
+  if (!wr || !wr.head_repository || !wr.head_branch) {
+    return null;
+  }
 
-  const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+  const headOwner = wr.head_repository.owner.login;
+  const headBranch = wr.head_branch;
+  const headSha = wr.head_sha;
+
+  const { data: prs } = await github.rest.pulls.list({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    commit_sha: headSha,
+    head: `${headOwner}:${headBranch}`,
+    state: 'all',
+    per_page: 100,
+    sort: 'updated',
+    direction: 'desc',
   });
 
-  const matched = prs.find(
-    pr =>
-      pr.state === 'open' &&
-      pr.head.sha === headSha &&
-      pr.head.repo.full_name === headRepoFullName
-  );
-
+  // Prefer exact head-SHA match; fall back to the most-recently-updated
+  // PR for this head (covers rebases / force-pushes between the upstream
+  // run and the comment workflow firing).
+  const exact = prs.find(pr => pr.head.sha === headSha);
+  const matched = exact || prs[0] || null;
   return matched ? matched.number : null;
 }
 
