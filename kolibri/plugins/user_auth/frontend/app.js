@@ -40,14 +40,6 @@ class UserAuthModule extends KolibriApp {
         initializeFlow(true);
       }
     });
-
-    // User auth only: reload on back/forward navigation so stale auth state is never shown.
-    window.addEventListener('pageshow', event => {
-      const navType = performance.getEntriesByType('navigation')[0]?.type;
-      if (event.persisted || navType === 'back_forward') {
-        window.location.reload();
-      }
-    });
   }
 }
 
