@@ -6,10 +6,13 @@ backends are checked in the order they're listed.
 import abc
 
 from django.contrib.sessions.backends.db import SessionStore as DBStore
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django.utils.functional import cached_property
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Role
 from kolibri.core.auth.models import Session
 from kolibri.core.device.utils import is_full_facility_import
 
@@ -61,7 +64,11 @@ class FacilityAuthScope(abc.ABC):
         qs = FacilityUser.objects.all()
         if self.dataset_id:
             qs = qs.filter(dataset_id=self.dataset_id)
-        return qs
+        # users who have the most roles could be more active than users who have less, but instead
+        # of trying to authenticate them first, through ordering, we just prioritize by date joined
+        return qs.annotate(
+            has_roles=Exists(Role.objects.filter(user_id=OuterRef("pk"))),
+        ).order_by("-has_roles", "date_joined")
 
     @abc.abstractmethod
     def matches_credentials(self, user):
@@ -104,7 +111,7 @@ class UsernameAuthScope(FacilityAuthScope):
         return (
             self.dataset_id
             and user.dataset.learner_can_login_with_no_password
-            and not user.roles.count()
+            and not user.has_roles
             and (not user.is_superuser or self.is_subset_of_users_device)
         )
 
@@ -133,7 +140,7 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         return (
             self.dataset_id
             and user.dataset.picture_password_settings is not None
-            and not user.roles.count()
+            and not user.has_roles
             and (not user.is_superuser or self.is_subset_of_users_device)
         )
 

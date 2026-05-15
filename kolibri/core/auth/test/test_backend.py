@@ -1,7 +1,9 @@
 import uuid
+from datetime import timedelta
 
 import mock
 from django.test import TestCase
+from django.utils import timezone
 
 from ..backends import FacilityAuthScope
 from ..backends import FacilityUserBackend
@@ -41,6 +43,8 @@ class FacilityUserBackendTestCase(TestCase):
             facility=cls.facility,
             picture_password="1.2.3",
         )
+        cls.picture_user.set_password("foo")
+        cls.picture_user.save()
 
         cls.request = mock.Mock()
 
@@ -86,14 +90,14 @@ class FacilityUserBackendTestCase(TestCase):
             ),
         )
 
-    def test_authenticate__returns_first_case_insensitive_match_after_case_sensitive_miss(
+    def test_authenticate__returns_unambiguous_case_insensitive_match_after_case_sensitive_miss(
         self,
     ):
         self.assertEqual(
-            self.user,
+            self.picture_user,
             FacilityUserBackend().authenticate(
                 self.request,
-                username="MIKE",
+                username="PIC-USER",
                 password="foo",
                 facility=self.facility,
             ),
@@ -374,6 +378,46 @@ class FacilityAuthScopeTestCase(TestCase):
         auth_scope = _NoMatchFacilityAuthScope(self.facility)
         self.assertEqual(list(auth_scope.get_candidate_users()), [scoped_user])
 
+    def test_get_candidate_users__orders_users_by_has_roles_then_date_joined(self):
+        base_time = timezone.now()
+        learner_old = FacilityUser.objects.create(
+            username="learner-old",
+            facility=self.facility,
+        )
+        coach_new = FacilityUser.objects.create(
+            username="coach-new",
+            facility=self.facility,
+        )
+        coach_old = FacilityUser.objects.create(
+            username="coach-old",
+            facility=self.facility,
+        )
+        learner_new = FacilityUser.objects.create(
+            username="learner-new",
+            facility=self.facility,
+        )
+        self.facility.add_coach(coach_new)
+        self.facility.add_coach(coach_old)
+
+        FacilityUser.objects.filter(pk=learner_old.pk).update(
+            date_joined=base_time + timedelta(seconds=1)
+        )
+        FacilityUser.objects.filter(pk=coach_new.pk).update(
+            date_joined=base_time + timedelta(seconds=4)
+        )
+        FacilityUser.objects.filter(pk=coach_old.pk).update(
+            date_joined=base_time + timedelta(seconds=2)
+        )
+        FacilityUser.objects.filter(pk=learner_new.pk).update(
+            date_joined=base_time + timedelta(seconds=3)
+        )
+
+        auth_scope = _NoMatchFacilityAuthScope(self.facility)
+        self.assertEqual(
+            list(auth_scope.get_candidate_users()),
+            [coach_old, coach_new, learner_old, learner_new],
+        )
+
 
 class PicturePasswordAuthScopeTestCase(TestCase):
     @classmethod
@@ -394,6 +438,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
             facility=cls.facility,
             picture_password="1.2.3",
         )
+        cls._set_has_roles(cls.learner)
 
     def setUp(self):
         dataset_id_patcher = mock.patch(
@@ -402,6 +447,12 @@ class PicturePasswordAuthScopeTestCase(TestCase):
         self.is_full_facility_import = dataset_id_patcher.start()
         self.is_full_facility_import.return_value = True
         self.addCleanup(dataset_id_patcher.stop)
+
+    @classmethod
+    def _set_has_roles(cls, user):
+        """This is annotated by the auth scope querysets"""
+        setattr(user, "has_roles", user.roles.count() > 0)
+        return user
 
     def test_authenticate__returns_learner_for_valid_picture_password(self):
         auth_scope = PicturePasswordAuthScope(self.facility, "1.2.3")
@@ -429,7 +480,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
         self.facility.add_coach(coach)
 
         auth_scope = PicturePasswordAuthScope(self.facility, "4.5.6")
-        self.assertFalse(auth_scope.matches_credentials(coach))
+        self.assertFalse(auth_scope.matches_credentials(self._set_has_roles(coach)))
 
     def test_matches_credentials__returns_false_for_device_superuser_when_full_import(
         self,
@@ -439,7 +490,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
         superuser.save(update_fields=["picture_password"])
 
         auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
-        self.assertFalse(auth_scope.matches_credentials(superuser))
+        self.assertFalse(auth_scope.matches_credentials(self._set_has_roles(superuser)))
 
     def test_matches_credentials__returns_true_for_device_superuser_when_single_user_on_device(
         self,
@@ -450,7 +501,7 @@ class PicturePasswordAuthScopeTestCase(TestCase):
         superuser.save(update_fields=["picture_password"])
 
         auth_scope = PicturePasswordAuthScope(self.facility, "2.4.6")
-        self.assertTrue(auth_scope.matches_credentials(superuser))
+        self.assertTrue(auth_scope.matches_credentials(self._set_has_roles(superuser)))
 
 
 class UsernameAuthScopeTestCase(TestCase):
@@ -460,6 +511,12 @@ class UsernameAuthScopeTestCase(TestCase):
         cls.user = FacilityUser(username="Mike", facility=cls.facility)
         cls.user.set_password("foo")
         cls.user.save()
+
+    @classmethod
+    def _set_has_roles(cls, user):
+        """This is annotated by the auth scope querysets"""
+        setattr(user, "has_roles", user.roles.count() > 0)
+        return user
 
     def test_get_candidate_users__filters_by_case_sensitive_username_when_enabled(self):
         auth_scope = UsernameAuthScope(self.facility, username="mike", password="foo")
@@ -480,3 +537,21 @@ class UsernameAuthScopeTestCase(TestCase):
     def test_matches_credentials__returns_true_for_matching_password(self):
         auth_scope = UsernameAuthScope(self.facility, username="Mike", password="foo")
         self.assertTrue(auth_scope.matches_credentials(self.user))
+
+    def test_matches_credentials__returns_true_for_passwordless_learner_with_role_count_zero(
+        self,
+    ):
+        disable_picture_password(self.facility, passwordless=True)
+        auth_scope = UsernameAuthScope(self.facility, username="Mike", password="wrong")
+        self.assertTrue(auth_scope.matches_credentials(self._set_has_roles(self.user)))
+
+    def test_matches_credentials__returns_false_for_passwordless_coach_with_nonzero_role_count(
+        self,
+    ):
+        disable_picture_password(self.facility, passwordless=True)
+        coach = FacilityUser.objects.create(username="coach", facility=self.facility)
+        self.facility.add_coach(coach)
+        auth_scope = UsernameAuthScope(
+            self.facility, username="coach", password="wrong"
+        )
+        self.assertFalse(auth_scope.matches_credentials(self._set_has_roles(coach)))
