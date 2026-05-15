@@ -619,12 +619,12 @@ def process_content_requests():
         _process_content_requests(incomplete_downloads)
         # must have completed downloads, we can clear any 'InsufficientStorage' statuses
         LearnerDeviceStatus.clear_statuses()
-    except InsufficientStorage as e:
-        logger.warning(str(e))
+    except InsufficientStorage:
+        logger.warning("Insufficient storage detected during automated import")
 
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
-    except NoPeerAvailable as e:
-        logger.warning(str(e))
+    except NoPeerAvailable:
+        logger.warning("No peer available during automated import")
 
 
 def _merge_import_metadata(metadata_list):
@@ -1077,15 +1077,16 @@ def process_download_request(download_request):
             raise NoPeerAvailable(
                 "Unable to import {} from peers".format(download_request.contentnode_id)
             )
-    except AlreadyAvailable as e:
+    except AlreadyAvailable:
         # do nothing, since the content is already available
-        logger.debug(str(e))
-    except Exception as e:
-        if isinstance(e, NoPeerAvailable):
-            logger.warning(e)
-        else:
-            logger.exception(e)
-
+        logger.debug("Content already available, skipping import")
+    except NoPeerAvailable:
+        logger.warning("No peer available during content import")
+        download_request.status = ContentRequestStatus.Failed
+        download_request.save()
+        return False
+    except Exception:
+        logger.exception("Unexpected error during content import")
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
         return False
