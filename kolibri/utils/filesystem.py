@@ -17,7 +17,7 @@ def get_path_permission(path):
 
 def check_is_directory(path):
     """
-    Check if the path is not a file.
+    Check if the path is a directory.
     :param path: Path to check
     :return: True if the path is a directory.
     """
