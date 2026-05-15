@@ -1,4 +1,5 @@
 /* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -67,16 +68,6 @@ async function generateAssetComment(github, context) {
     run_id: context.payload.workflow_run.id,
   })
   const artifacts = await github.paginate(opts)
-  const matchArtifact = artifacts.filter((artifact) => {
-    return artifact.name == "pr_number"
-  })[0];
-  const download = await github.rest.actions.downloadArtifact({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    artifact_id: matchArtifact.id,
-    archive_format: 'zip',
-  });
-  fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr_number.zip`, Buffer.from(download.data));
 
   let text = `### [${buildArtifactsHeader}](${context.payload.workflow_run.html_url})`
 
@@ -104,11 +95,9 @@ async function generateAssetComment(github, context) {
   }
 
   for (let artifact of artifactsToDisplay) {
-    if (!artifact.expired && artifact.name != "pr_number") {
-      const extension = artifact.name.split('.').pop()
-      const readableName = (file_manifest[extension] || {}).description || artifact.name
-      text += `\n| ${readableName} | [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()}) |`
-    }
+    const extension = artifact.name.split('.').pop()
+    const readableName = (file_manifest[extension] || {}).description || artifact.name
+    text += `\n| ${readableName} | [${artifact.name}](${repoHtmlUrl}/suites/${checkSuiteNumber}/artifacts/${artifact.id.toString()}) |`
   }
 
   const screenshotArtifact = artifacts.find(
@@ -181,31 +170,28 @@ async function uploadReleaseAsset(github, context, filePath, release_id) {
 const npmVersionsHeader = '**npm Package Versions**';
 
 /**
- * Generate the npm version check report body. Runs in pull_request context
- * (no write permissions needed). Returns { body, hasContent } where body
- * is the markdown comment text (or null if no packages were affected).
+ * Generate structured version diff data for packages changed relative to baseSha.
+ * Returns { packages: [{name, from, to}], warnings: [{name, version, changedFiles}] },
+ * or null if no publishable packages were affected.
+ * Runs in pull_request context (no write permissions needed).
+ * `from` is null for new packages.
  */
-function generateNpmVersionReport(baseSha) {
-  const { execSync } = require('child_process');
-
-  // Find all changed files under packages/
+function generateNpmVersionData(baseSha) {
   const allChanged = execSync(`git diff --name-only ${baseSha} -- packages/`)
     .toString().trim().split('\n').filter(Boolean);
 
-  // Group changed files by package directory
   const changedByPkg = {};
   for (const file of allChanged) {
     const parts = file.split('/');
     if (parts.length < 2) continue;
     const pkgDir = parts.slice(0, 2).join('/');
-    if (!changedByPkg[pkgDir]) changedByPkg[pkgDir] = [];
-    changedByPkg[pkgDir].push(file);
+    changedByPkg[pkgDir] = (changedByPkg[pkgDir] || 0) + 1;
   }
 
-  const publishRows = [];
-  const warningRows = [];
+  const packages = [];
+  const warnings = [];
 
-  for (const [pkgDir, files] of Object.entries(changedByPkg)) {
+  for (const [pkgDir, fileCount] of Object.entries(changedByPkg)) {
     const pkgJsonPath = path.join(pkgDir, 'package.json');
     if (!fs.existsSync(pkgJsonPath)) continue;
 
@@ -216,19 +202,62 @@ function generateNpmVersionReport(baseSha) {
     try {
       oldPkg = JSON.parse(execSync(`git show ${baseSha}:${pkgJsonPath}`, { encoding: 'utf8' }));
     } catch {
-      // New package — will be published
-      publishRows.push(`| ${newPkg.name} | _new_ | ${newPkg.version} |`);
+      packages.push({ name: newPkg.name, from: null, to: newPkg.version });
       continue;
     }
 
-    const versionBumped = oldPkg.version !== newPkg.version;
-    if (versionBumped) {
-      publishRows.push(`| ${newPkg.name} | ${oldPkg.version} | ${newPkg.version} |`);
+    if (oldPkg.version !== newPkg.version) {
+      packages.push({ name: newPkg.name, from: oldPkg.version, to: newPkg.version });
     } else {
-      const count = files.length;
-      warningRows.push(`| ${newPkg.name} | ${newPkg.version} | ${count} |`);
+      warnings.push({ name: newPkg.name, version: newPkg.version, changedFiles: fileCount });
     }
   }
+
+  if (packages.length || warnings.length) {
+    return { packages, warnings };
+  }
+  return null;
+}
+
+/**
+ * Validate structured version diff JSON from the artifact.
+ * Returns the parsed data object, or null if the JSON value is null (no packages changed).
+ * Throws an Error with a descriptive message on any malformed input.
+ */
+function validateNpmVersionData(raw) {
+  const data = JSON.parse(raw);
+  if (data === null) return null;
+  if (typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('expected object or null at top level');
+  }
+  if (!Array.isArray(data.packages)) throw new Error('packages must be an array');
+  if (!Array.isArray(data.warnings)) throw new Error('warnings must be an array');
+  for (const pkg of data.packages) {
+    if (typeof pkg.name !== 'string') throw new Error('package.name must be a string');
+    if (pkg.from !== null && typeof pkg.from !== 'string') {
+      throw new Error('package.from must be a string or null');
+    }
+    if (typeof pkg.to !== 'string') throw new Error('package.to must be a string');
+  }
+  for (const w of data.warnings) {
+    if (typeof w.name !== 'string') throw new Error('warning.name must be a string');
+    if (typeof w.version !== 'string') throw new Error('warning.version must be a string');
+    if (typeof w.changedFiles !== 'number') throw new Error('warning.changedFiles must be a number');
+  }
+  return data;
+}
+
+/**
+ * Render the markdown comment body from validated version diff data.
+ * Returns the markdown string, or null if there is nothing to report.
+ */
+function renderNpmVersionMarkdown(data) {
+  const publishRows = data.packages.map(
+    pkg => `| ${pkg.name} | ${pkg.from === null ? '_new_' : pkg.from} | ${pkg.to} |`
+  );
+  const warningRows = data.warnings.map(
+    w => `| ${w.name} | ${w.version} | ${w.changedFiles} |`
+  );
 
   const sections = [];
   if (publishRows.length) {
@@ -255,7 +284,7 @@ function generateNpmVersionReport(baseSha) {
 /**
  * Post or update the npm version check comment on a PR. Runs in
  * workflow_run context (with write permissions). Pass body from
- * generateNpmVersionReport, or null to delete any existing comment.
+ * renderNpmVersionMarkdown, or null to delete any existing comment.
  */
 async function postNpmVersionComment(github, context, prNumber, body) {
   if (body) {
@@ -272,10 +301,39 @@ async function postNpmVersionComment(github, context, prNumber, body) {
   }
 }
 
+/**
+ * Look up the open PR for a workflow_run event using the head SHA.
+ * Returns the PR number, or null if no open PR is found.
+ * Disambiguates multiple matches by comparing head.repo.full_name
+ * against workflow_run.head_repository.full_name.
+ */
+async function findPrByHeadSha(github, context) {
+  const headSha = context.payload.workflow_run.head_sha;
+  const headRepoFullName = context.payload.workflow_run.head_repository.full_name;
+
+  const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    commit_sha: headSha,
+  });
+
+  const matched = prs.find(
+    pr =>
+      pr.state === 'open' &&
+      pr.head.sha === headSha &&
+      pr.head.repo.full_name === headRepoFullName
+  );
+
+  return matched ? matched.number : null;
+}
+
 module.exports = {
   findComment,
+  findPrByHeadSha,
   generateAssetComment,
-  generateNpmVersionReport,
+  generateNpmVersionData,
+  validateNpmVersionData,
+  renderNpmVersionMarkdown,
   postNpmVersionComment,
   uploadReleaseAsset,
   upsertComment,
