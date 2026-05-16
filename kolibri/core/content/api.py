@@ -51,6 +51,7 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 
+from kolibri.core import error_constants
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
@@ -2098,6 +2099,10 @@ class ShareFileView(APIView):
         filepath = get_content_storage_file_path(default_file.local_file.get_filename())
         try:
             ShareFileHook.execute_file_share(filepath, message)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            logger.exception("file share hook failed")
+            return Response(
+                {"error": {"id": error_constants.SHARE_FILE_FAILED}},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         return Response(status=status.HTTP_201_CREATED)

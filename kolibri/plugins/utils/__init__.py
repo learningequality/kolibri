@@ -208,8 +208,8 @@ def enable_plugin(plugin_name, initialize_hooks=False):
         if obj:
             obj.enable()
             return True
-    except PluginDoesNotExist as e:
-        logger.error(str(e))
+    except PluginDoesNotExist:
+        logger.exception("Plugin not found: %s", plugin_name)
 
 
 def enable_plugins(plugin_names):
@@ -231,8 +231,8 @@ def disable_plugin(plugin_name, initialize_hooks=False):
         if obj:
             obj.disable()
             return True
-    except Exception as e:
-        logger.error(str(e))
+    except Exception:
+        logger.exception("Error disabling plugin %s", plugin_name)
         logger.warning(
             "Removing '{}' from configuration in a naive way.".format(plugin_name)
         )

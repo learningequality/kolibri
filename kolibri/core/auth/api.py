@@ -1558,7 +1558,10 @@ class RemoteFacilityUserViewset(views.APIView):
         try:
             validator(baseurl)
         except ValidationError as e:
-            raise RestValidationError(detail=str(e))
+            raise RestValidationError(
+                detail="Invalid URL format",
+                code=error_constants.INVALID,
+            ) from e
         username = request.query_params.get("username", None)
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
@@ -1573,7 +1576,7 @@ class RemoteFacilityUserViewset(views.APIView):
         except NetworkLocationResponseFailure:
             return Response({})
         except Exception as e:
-            raise RestValidationError(detail=str(e))
+            raise RestValidationError(detail="Remote user lookup failed") from e
 
 
 class RemoteFacilityUserAuthenticatedViewset(views.APIView):
@@ -1592,7 +1595,10 @@ class RemoteFacilityUserAuthenticatedViewset(views.APIView):
         try:
             validator(baseurl)
         except ValidationError as e:
-            raise RestValidationError(detail=str(e))
+            raise RestValidationError(
+                detail="Invalid URL format",
+                code=error_constants.INVALID,
+            ) from e
         username = request.data.get("username", None)
         facility_id = request.data.get("facility_id", None)
         password = request.data.get("password", None)

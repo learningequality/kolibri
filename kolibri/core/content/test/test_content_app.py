@@ -20,6 +20,7 @@ from le_utils.constants import modalities
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -2925,3 +2926,65 @@ class ChannelThumbnailViewTestCase(APITestCase):
             reverse("kolibri:core:channel-thumbnail", args=[self.channel_metadata.id])
         )
         self.assertEqual(response.status_code, 404)
+
+
+class ShareFileViewTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="ShareFileFacility")
+        cls.superuser = FacilityUser.objects.create_superuser(
+            username="sharefilesuper",
+            password=DUMMY_PASSWORD,
+            facility=cls.facility,
+        )
+        provision_device()
+        cls.builder = ChannelBuilder()
+        cls.builder.insert_into_default_db()
+        # Mark all nodes available so the serializer's queryset finds them
+        content.ContentNode.objects.all().update(available=True)
+        cls.root = content.ContentNode.objects.get(id=cls.builder.root_node["id"])
+        cls.leaf = (
+            cls.root.get_descendants()
+            .exclude(kind="topic")
+            .exclude(kind="exercise")
+            .first()
+        )
+
+    def setUp(self):
+        self.client.login(username="sharefilesuper", password=DUMMY_PASSWORD)
+
+    def test_post_returns_static_error_code_on_hook_failure(self):
+        """Response body must not contain raw exception text on hook failure."""
+        with mock.patch(
+            "kolibri.core.device.permissions.valid_app_key_on_request",
+            return_value=True,
+        ), mock.patch(
+            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+            side_effect=Exception("internal server path /secrets/file"),
+        ):
+            response = self.client.post(
+                reverse("kolibri:core:sharefile"),
+                {"content_node": str(self.leaf.id), "message": "test"},
+                format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        error = response.data.get("error", {})
+        self.assertEqual(error.get("id"), error_constants.SHARE_FILE_FAILED)
+        # Raw exception text must not appear in the response
+        self.assertNotIn("internal server path", str(response.data))
+
+    def test_post_returns_201_on_success(self):
+        with mock.patch(
+            "kolibri.core.device.permissions.valid_app_key_on_request",
+            return_value=True,
+        ), mock.patch(
+            "kolibri.core.content.api.ShareFileHook.execute_file_share",
+        ):
+            response = self.client.post(
+                reverse("kolibri:core:sharefile"),
+                {"content_node": str(self.leaf.id), "message": "test"},
+                format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
