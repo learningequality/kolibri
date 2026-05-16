@@ -2,6 +2,10 @@ name: Handle pull request events
 on:
   pull_request_target:
     types: [opened, review_requested, labeled]
+
+permissions:
+  contents: read
+
 jobs:
   call-workflow:
     name: Call shared workflow

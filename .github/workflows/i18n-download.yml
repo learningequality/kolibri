@@ -3,6 +3,9 @@ name: Download translations from Crowdin
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   download:
     name: Download translations and regenerate fonts

@@ -6,12 +6,15 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   comment:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    permissions:
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - name: Find PR by head SHA
