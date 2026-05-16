@@ -33,39 +33,25 @@ jobs:
             return prNumber
       - name: Download report artifact
         if: steps.find-pr.outputs.found == 'true'
-        uses: actions/github-script@v9
+        uses: actions/download-artifact@v8
         with:
-          script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
-            const match = artifacts.data.artifacts.find(a => a.name === 'npm_version_report');
-            if (!match) {
-              core.setFailed('No npm_version_report artifact found');
-              return;
-            }
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: match.id,
-              archive_format: 'zip',
-            });
-            require('fs').writeFileSync('npm_version_report.zip', Buffer.from(download.data));
-      - name: Unzip report
-        if: steps.find-pr.outputs.found == 'true'
-        run: unzip npm_version_report.zip
+          name: npm_version_report
+          path: ${{ runner.temp }}/npm_version_report
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
       - name: Post or update comment
         if: steps.find-pr.outputs.found == 'true'
         uses: actions/github-script@v9
         env:
           PR_NUMBER: ${{ steps.find-pr.outputs.result }}
+          REPORT_DIR: ${{ runner.temp }}/npm_version_report
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const utils = require('./.github/githubUtils.js');
-            const raw = fs.readFileSync('data.json', 'utf8');
+            const raw = fs.readFileSync(path.join(process.env.REPORT_DIR, 'data.json'), 'utf8');
             let data;
             try {
               data = utils.validateNpmVersionData(raw);
