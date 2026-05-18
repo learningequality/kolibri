@@ -4,10 +4,12 @@ import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import useFacility from 'kolibri-common/composables/useFacility';
 import { _userState } from '../mappers';
 
 export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
-  const { id, facility_id } = toRoute.params;
+  const { facilityId } = useFacility();
+  const { id } = toRoute.params;
   if (toRoute.name !== fromRoute.name) {
     store.dispatch('preparePage');
   }
@@ -15,7 +17,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
   // facility users that are not enrolled in this class
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: pickBy({
-      member_of: facility_id || store.getters.activeFacilityId,
+      member_of: facilityId.value,
       page: toRoute.query.page || 1,
       page_size: toRoute.query.page_size || 30,
       search: toRoute.query.search && toRoute.query.search.trim(),
@@ -50,15 +52,15 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
 }
 
 export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
-  const { id, facility_id } = toRoute.params;
+  const { facilityId } = useFacility();
+  const { id } = toRoute.params;
   if (toRoute.name !== fromRoute.name) {
     pageLoading.value = true;
   }
-  const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility eligible to be a coach that is not already a coach
   const userPromise = FacilityUserResource.fetchCollection({
     getParams: {
-      member_of: facilityId,
+      member_of: facilityId.value,
       exclude_member_of: id,
       exclude_user_type: 'learner',
       exclude_coach_for: id,

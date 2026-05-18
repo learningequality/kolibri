@@ -174,9 +174,7 @@
 
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import store from 'kolibri/store';
   import { computed, onMounted, ref } from 'vue';
-  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
   import useSnackbar from 'kolibri/composables/useSnackbar';
@@ -187,6 +185,7 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import useUserManagement from '../../../composables/useUserManagement';
   import { PageNames } from '../../../constants';
   import { overrideRoute } from '../../../utils';
@@ -210,12 +209,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { createSnackbar } = useSnackbar();
+      const { facilityId } = useFacility();
       usePreviousRoute();
-      const route = useRoute();
       const usersToDelete = ref(null);
       const loading = ref(false);
-
-      const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
 
       const {
         selectedUsers,
@@ -231,7 +228,7 @@
         resetFilters,
         clearSelectedUsers,
       } = useUserManagement({
-        activeFacilityId,
+        activeFacilityId: facilityId.value,
         softDeletedUsers: true,
       });
 

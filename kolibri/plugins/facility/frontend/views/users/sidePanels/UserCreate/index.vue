@@ -189,7 +189,7 @@
 
   import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
-  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router/composables';
+  import { useRouter, onBeforeRouteLeave } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import notificationStrings from 'kolibri/uiText/notificationStrings';
@@ -239,11 +239,10 @@
     },
     setup(props) {
       const formId = 'create-user-form';
-      const route = useRoute();
       const router = useRouter();
       const instance = getCurrentInstance();
       const $refs = instance.proxy.$refs;
-      const { setFacilityId, facilityConfig, selectedFacility, fetchFacilities } = useFacility();
+      const { facilityConfig, selectedFacility, facilityId, fetchFacilities } = useFacility();
       const picturePasswordSettings = computed(
         () => facilityConfig.value?.picture_password_settings || null,
       );
@@ -331,7 +330,6 @@
         $refs.passwordTextbox?.reset();
       };
 
-      const activeFacilityId = computed(() => route.params.facility_id);
       const facilityUsers = computed(() => store.state.userManagement.facilityUsers);
 
       const showPasswordInput = computed(() => {
@@ -441,7 +439,7 @@
         }
         const facilityUser = await FacilityUserResource.saveModel({
           data: {
-            facility: activeFacilityId.value,
+            facility: facilityId.value,
             username: username.value,
             full_name: fullName.value,
             password: passwordValue,
@@ -516,7 +514,6 @@
       };
 
       onBeforeMount(async () => {
-        await setFacilityId(activeFacilityId.value);
         // facilityConfig is now loaded; reset form so kind reflects picture_passwords_exhausted.
         resetForm();
         loading.value = false;

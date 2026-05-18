@@ -22,7 +22,7 @@
     name: 'FacilityAllPasswordsPage',
     components: { AllPasswordsPage },
     setup() {
-      const { currentFacilityName } = useFacility();
+      const { facilityId, currentFacilityName } = useFacility();
 
       const learners = computed(() => store.state.classEditManagement.classLearners);
       const className = computed(() => store.state.classEditManagement.currentClass?.name || '');
@@ -31,7 +31,7 @@
         name: PageNames.CLASS_EDIT_MGMT_PAGE,
         params: {
           id: store.state.classEditManagement.currentClass?.id,
-          facility_id: store.getters.activeFacilityId,
+          facility_id: facilityId.value,
         },
       }));
 

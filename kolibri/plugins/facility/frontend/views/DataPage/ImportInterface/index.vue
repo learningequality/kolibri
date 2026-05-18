@@ -55,6 +55,7 @@
 
   import urls from 'kolibri/urls';
   import { mapState, mapActions, mapGetters } from 'vuex';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
   import CsvInfoModal from '../../CsvInfoModal';
@@ -64,6 +65,10 @@
     components: {
       DataPageTaskProgress,
       CsvInfoModal,
+    },
+    setup() {
+      const { facilityId } = useFacility();
+      return { facilityId };
     },
     data() {
       return {
@@ -84,10 +89,7 @@
       },
       downloadCsv() {
         window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-            'user',
-            this.$store.getters.activeFacilityId,
-          ),
+          urls['kolibri:kolibri.plugins.facility:download_csv_file']('user', this.facilityId),
           '_blank',
         );
       },
