@@ -420,7 +420,7 @@ class PicturePasswordCollisionOperation(ReceiverDeserializeOperation):
             )
             local_user.save()
 
-        broken_store_ids = list(broken_stores.values_list("id", flat=True))
+        broken_store_ids = broken_stores.values_list("id", flat=True)
 
         DeletedModels.objects.filter(id__in=broken_store_ids).delete()
         HardDeletedModels.objects.filter(id__in=broken_store_ids).delete()
