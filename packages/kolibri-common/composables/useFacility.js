@@ -42,79 +42,11 @@ export function useFacilitySelect(listenToStorageChanges = false) {
 }
 
 /**
- * We don't allow this to be reactive to storage changes, since that could cause issues for SPAs
- */
-const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
-
-/**
- * Composable for the context of a single facility, defaulting to the user's facility, but can be
- * changed by calling `setFacilityId`
- */
-export default function useFacility() {
-  const { fetchFacilities, fetchFacility, getFacility } = useFacilities();
-  const { facilityConfig: _facilityConfig, fetchFacilityConfig } = useFacilityConfig(
-    selectedFacilityId.value,
-  );
-
-  // getters
-  const selectedFacility = computed(() => {
-    if (selectedFacilityId.value) {
-      return getFacility(selectedFacilityId.value) || {};
-    }
-    return {};
-  });
-  const facilityId = computed(() => {
-    // keep facility ID in sync with logic on selected facility
-    return selectedFacility.value?.id ? selectedFacility.value.id : null;
-  });
-  const facilityConfig = computed(() => {
-    // prefer the useFacilityConfig composable's value
-    if (_facilityConfig.value?.id) {
-      return _facilityConfig.value;
-    }
-
-    return selectedFacility.value.dataset || {};
-  });
-  const currentFacilityName = computed(() => {
-    return selectedFacility.value ? selectedFacility.value.name : '';
-  });
-
-  /**
-   * Sets the selected facility
-   * @param {string} facilityId
-   * @return {Promise<void>}
-   */
-  async function setFacilityId(facilityId) {
-    setSelectedFacilityId(facilityId);
-    await fetchFacility(facilityId);
-    await fetchFacilityConfig(facilityId);
-  }
-
-  /**
-   * Updates the facility config, if necessary
-   * @return {Promise<object>}
-   */
-  async function updateFacilityConfig() {
-    return await fetchFacilityConfig(facilityId);
-  }
-
-  return {
-    facilityId,
-    facilityConfig,
-    fetchFacilities,
-    updateFacilityConfig,
-    selectedFacility,
-    currentFacilityName,
-    setFacilityId,
-  };
-}
-
-/**
  * Composable for accessing a facility's configuration
- * @param {string} facilityId
+ * @param {Ref<string>|string} facilityId
  */
 export function useFacilityConfig(facilityId) {
-  const _facilityId = unref(facilityId);
+  const _facilityId = facilityId;
   const facilityConfig = ref({});
 
   // computed feature flags
@@ -151,7 +83,7 @@ export function useFacilityConfig(facilityId) {
    * @return {Promise<void>}
    */
   async function fetchFacilityConfig(facilityId = null) {
-    facilityId = unref(facilityId) || _facilityId;
+    facilityId = unref(facilityId) || unref(_facilityId);
 
     if (!facilityId) {
       return;
@@ -181,5 +113,90 @@ export function useFacilityConfig(facilityId) {
     signInOptions,
     picturePasswordSettings,
     fetchFacilityConfig,
+  };
+}
+
+/**
+ * We don't allow this to be reactive to storage changes, since that could cause issues for SPAs
+ */
+export const { selectedFacilityId, setSelectedFacilityId } = useFacilitySelect();
+
+const { fetchFacilities, fetchFacility: _fetchFacility, getFacility } = useFacilities();
+const {
+  facilityConfig,
+  fetchFacilityConfig: _fetchFacilityConfig,
+  isAttendanceFeatureEnabled,
+  isPictureLoginFeatureEnabled,
+  signInOptions,
+  picturePasswordSettings,
+} = useFacilityConfig(selectedFacilityId);
+
+// getters
+const selectedFacility = computed(() => {
+  if (selectedFacilityId.value) {
+    return getFacility(selectedFacilityId.value) || {};
+  }
+  return {};
+});
+const facilityId = computed(() => selectedFacilityId.value);
+const currentFacilityName = computed(() => {
+  return selectedFacility.value ? selectedFacility.value.name : '';
+});
+
+/**
+ * Sets the selected facility
+ * @param {string} facilityId
+ * @return {Promise<void>}
+ */
+async function setFacilityId(facilityId) {
+  setSelectedFacilityId(facilityId);
+  await _fetchFacility(facilityId);
+  await _fetchFacilityConfig(facilityId);
+}
+
+/**
+ * Refetches the selected facility
+ * @return {Promise<void>}
+ */
+async function fetchFacility() {
+  return await _fetchFacility(facilityId);
+}
+
+/**
+ * Updates the facility config, if necessary
+ * @deprecated Use `fetchFacilityConfig` instead
+ * @return {Promise<object>}
+ */
+async function updateFacilityConfig() {
+  return await _fetchFacilityConfig(facilityId);
+}
+
+/**
+ * Updates the facility config, if necessary
+ * @return {Promise<object>}
+ */
+async function fetchFacilityConfig() {
+  return await _fetchFacilityConfig(facilityId);
+}
+
+/**
+ * Composable for the context of a single facility, defaulting to the user's facility, but can be
+ * changed by calling `setFacilityId`
+ */
+export default function useFacility() {
+  return {
+    facilityId,
+    selectedFacility,
+    currentFacilityName,
+    facilityConfig,
+    isAttendanceFeatureEnabled,
+    isPictureLoginFeatureEnabled,
+    signInOptions,
+    picturePasswordSettings,
+    fetchFacilities,
+    fetchFacility,
+    fetchFacilityConfig,
+    updateFacilityConfig,
+    setFacilityId,
   };
 }

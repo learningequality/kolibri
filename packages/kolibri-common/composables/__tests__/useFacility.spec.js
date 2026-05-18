@@ -222,7 +222,7 @@ describe('useFacility', () => {
   });
 
   describe('facilityConfig', () => {
-    it('returns dataset from facility object when available', () => {
+    it('does not derive config from facility dataset', () => {
       const facilityWithDataset = {
         id: 'facility-1',
         name: 'Facility 1',
@@ -243,7 +243,7 @@ describe('useFacility', () => {
 
       const { default: useFacility } = loadUseFacilityModule();
       const { facilityConfig } = useFacility();
-      expect(facilityConfig.value).toEqual(facilityWithDataset.dataset);
+      expect(facilityConfig.value).toEqual({});
     });
 
     it('uses fetched config when available', async () => {
