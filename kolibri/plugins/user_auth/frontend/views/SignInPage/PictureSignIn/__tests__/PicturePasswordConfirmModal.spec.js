@@ -48,7 +48,7 @@ describe('PicturePasswordConfirmModal', () => {
           picturePasswordStrings.moon$(),
         ].join(', '),
       });
-      expect(screen.getByText(expected)).toBeInTheDocument();
+      expect(screen.getByText(expected)).toHaveClass('visuallyhidden');
     });
   });
 
