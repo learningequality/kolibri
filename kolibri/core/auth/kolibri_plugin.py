@@ -9,6 +9,7 @@ from kolibri.core.auth.sync_operations import KolibriLocalInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriNetworkInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
+from kolibri.core.auth.sync_operations import PicturePasswordCollisionOperation
 from kolibri.core.auth.tasks import cleanupsync
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.plugins.hooks import register_hook
@@ -89,6 +90,7 @@ class AuthSyncHook(FacilityDataSyncHook):
         KolibriNetworkInitializeOperation(),
     ]
     serializing_operations = [SingleFacilityUserChangeClearingOperation()]
+    deserializing_operations = [PicturePasswordCollisionOperation()]
     cleanup_operations = [CleanUpTaskOperation()]
 
     def post_transfer(

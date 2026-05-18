@@ -1678,3 +1678,60 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
             .filter(**base_log_params)
             .exists()
         )
+
+
+@unittest.skipIf(
+    not os.environ.get("INTEGRATION_TEST"),
+    "This test will only be run during integration testing.",
+)
+class PicturePasswordCollisionIntegrationTestCase(MultipleServerTestCase):
+    @multiple_kolibri_servers(2)
+    def test_collision_is_resolved(self, servers):
+        """
+        Two servers independently assign the same picture password to different learners.
+        After sync, both learners exist on the receiving server with distinct passwords.
+        """
+        s0, s1 = servers
+        facility, _, _ = s0.generate_base_data()
+
+        # s1 establishes the same facility via initial sync
+        s1.sync(s0, facility)
+
+        # Both servers independently create learners with the same picture password
+        s0.create_model(
+            FacilityUser,
+            username="learner_a",
+            password=DUMMY_PASSWORD,
+            facility_id=facility.id,
+            picture_password="1.2.3",
+        )
+        s1.create_model(
+            FacilityUser,
+            username="learner_b",
+            password=DUMMY_PASSWORD,
+            facility_id=facility.id,
+            picture_password="1.2.3",
+        )
+
+        # s1 syncs with s0: s1 receives learner_a (picture_password="1.2.3"), which
+        # collides with learner_b. PicturePasswordCollisionOperation reassigns learner_b.
+        s1.sync(s0, facility)
+
+        # Both learners must exist on s1
+        self.assertTrue(
+            FacilityUser.objects.using(s1.db_alias)
+            .filter(username="learner_a")
+            .exists()
+        )
+        self.assertTrue(
+            FacilityUser.objects.using(s1.db_alias)
+            .filter(username="learner_b")
+            .exists()
+        )
+
+        # learner_a keeps its original password; learner_b gets a new distinct one
+        user_a = FacilityUser.objects.using(s1.db_alias).get(username="learner_a")
+        user_b = FacilityUser.objects.using(s1.db_alias).get(username="learner_b")
+        self.assertEqual("1.2.3", user_a.picture_password)
+        self.assertNotEqual("1.2.3", user_b.picture_password)
+        self.assertIsNotNone(user_b.picture_password)
