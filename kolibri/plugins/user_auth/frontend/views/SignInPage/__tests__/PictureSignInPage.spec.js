@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import { ref } from 'vue';
-import useUser from 'kolibri/composables/useUser';
+import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { LoginErrors } from 'kolibri/constants';
 import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
@@ -46,10 +46,15 @@ function renderComponent() {
   useRouter.mockReturnValue({
     push: mockRouterPush,
   });
-  useUser.mockReturnValue({
-    login: mockLogin,
-    isAppContext: ref(true),
-  });
+  useUser.mockReturnValue(
+    useUserMock({
+      login: mockLogin,
+      isAppContext: true,
+      isUserLoggedIn: false,
+      userFacilityId: null,
+      isSuperuser: false,
+    }),
+  );
   useAuthFlow.mockReturnValue({
     hasMultipleFacilities: ref(false),
     facilityId: ref('facility_1'),
