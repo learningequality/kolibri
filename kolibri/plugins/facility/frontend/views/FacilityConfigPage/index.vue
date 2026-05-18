@@ -28,11 +28,7 @@
         </p>
       </div>
 
-      <KCircularLoader
-        v-if="facilityDataLoading"
-        class="facility-loader"
-      />
-      <template v-else-if="settings !== null">
+      <template v-if="settings !== null">
         <section class="facility-name facility-settings">
           <h2>{{ coreString('facilityLabel') }}</h2>
           <p class="current-facility-name">
@@ -337,8 +333,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { useRoute } from 'vue-router/composables';
-  import { ref, onMounted, computed, watch } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import urls from 'kolibri/urls';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
@@ -347,7 +342,6 @@
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
-  import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
@@ -466,12 +460,11 @@
     mixins: [commonCoreStrings],
     setup() {
       const { showSnackbarNotification } = commonCoreStrings.methods;
-      const route = useRoute();
       const { createSnackbar } = useSnackbar();
-      const { isAppContext, isSuperuser, userFacilityId } = useUser();
+      const { isAppContext, isSuperuser } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
-      const facilityId = route.params.facility_id || userFacilityId.value;
       const {
+        facilityId,
         facility,
         facilityName,
         settings,
@@ -484,14 +477,13 @@
         picturePasswordStyle,
         picturePasswordShowIconText,
         pictureLoginTaskId,
-        fetchFacility,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
         saveFacilityLoginSettings,
         setPin,
         unsetPin,
-      } = useFacilityEditor(facilityId);
+      } = useFacilityEditor();
 
       const {
         pageHeader$,
@@ -548,7 +540,7 @@
         return null;
       });
       const lastPartId = computed(() => {
-        return facilityId ? facilityId.slice(0, 4) : '';
+        return facilityId.value ? facilityId.value.slice(0, 4) : '';
       });
       const changePINLabel = computed(() => {
         return `${changeLocation$()} ${pinPlaceholder$()}`;
@@ -580,8 +572,9 @@
       async function saveConfig() {
         try {
           pictureLoginTaskLoading.value = true;
-          await saveFacilityConfig();
+          // save login settings first, since config will reset the settings state
           await saveFacilityLoginSettings();
+          await saveFacilityConfig();
           if (!pictureLoginTaskId.value) {
             createSnackbar(saveSuccess$());
           }
@@ -638,14 +631,6 @@
           handleRemovePinModal.value = true;
         }
       }
-
-      onMounted(async () => {
-        try {
-          await fetchFacility();
-        } catch (error) {
-          handleApiError({ error, reloadOnReconnect: true, shouldThrow: false });
-        }
-      });
 
       const { tasks: facilityTasks } = useTaskPolling('facility_task');
       const pictureLoginTaskLoading = ref(false);

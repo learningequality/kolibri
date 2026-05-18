@@ -3,8 +3,7 @@ import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import useFacilities, { useFacilitiesMock } from 'kolibri-common/composables/useFacilities'; // eslint-disable-line
-import { useFacilityConfig, useFacilityConfigMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
 import useFacilityEditor from '../useFacilityEditor';
 
@@ -12,7 +11,6 @@ jest.mock('kolibri-common/apiResources/FacilityResource');
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource');
 jest.mock('kolibri/client');
 jest.mock('kolibri/urls');
-jest.mock('kolibri-common/composables/useFacilities');
 jest.mock('kolibri-common/composables/useFacility');
 
 function mockSignInOptions(facilityConfig) {
@@ -50,23 +48,35 @@ describe('useFacilityEditor', () => {
     extra_fields: { pin_code: '5678' },
   };
 
-  beforeEach(() => {
-    // Mock useFacilities
-    useFacilities.mockReturnValue(
-      useFacilitiesMock({
-        fetchFacilities: jest.fn().mockResolvedValue([mockFacility]),
-        getFacility: jest.fn().mockReturnValue(mockFacility),
-      }),
-    );
+  function buildUseFacilityState(overrides = {}) {
+    const facilityConfig = overrides.facilityConfig || ref(mockFacilityConfig);
+    const signInOptions =
+      overrides.signInOptions || computed(() => [OptionsForSignIn.USERNAME_PASSWORD]);
+    const picturePasswordSettings =
+      overrides.picturePasswordSettings ||
+      computed(() => {
+        if (signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)) {
+          return facilityConfig.value.picture_password_settings;
+        }
+        return null;
+      });
 
-    // Mock useFacilityConfig
-    useFacilityConfig.mockReturnValue(
-      useFacilityConfigMock({
-        fetchFacilityConfig: jest.fn().mockResolvedValue(mockFacilityConfig),
-        facilityConfig: ref(mockFacilityConfig),
-        signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
-      }),
-    );
+    return useFacilityMock({
+      facilityId: ref(mockFacilityId),
+      selectedFacility: ref(mockFacility),
+      facilityConfig,
+      isAttendanceFeatureEnabled: computed(() => true),
+      isPictureLoginFeatureEnabled: computed(() => true),
+      signInOptions,
+      picturePasswordSettings,
+      fetchFacility: jest.fn().mockResolvedValue(mockFacility),
+      fetchFacilityConfig: jest.fn().mockResolvedValue(mockFacilityConfig),
+      ...overrides,
+    });
+  }
+
+  beforeEach(() => {
+    useFacility.mockReturnValue(buildUseFacilityState());
 
     // Mock urls
     urls['kolibri:core:facilitydataset_update_pin'] = jest
@@ -83,7 +93,7 @@ describe('useFacilityEditor', () => {
         settingsCopy,
         isFacilityPinValid,
         facilityDataLoading,
-      } = useFacilityEditor(mockFacilityId);
+      } = useFacilityEditor();
 
       expect(facilityDatasetId.value).toBe('');
       expect(facilityName.value).toBe('');
@@ -94,8 +104,8 @@ describe('useFacilityEditor', () => {
     });
 
     it('returns computed properties with correct initial values', () => {
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig: ref({}),
           signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
         }),
@@ -111,7 +121,7 @@ describe('useFacilityEditor', () => {
         picturePasswordSettings,
         picturePasswordStyle,
         picturePasswordShowIconText,
-      } = useFacilityEditor(mockFacilityId);
+      } = useFacilityEditor();
 
       expect(settingsHaveChanged.value).toBe(false);
       expect(isPinSet.value).toBeNull();
@@ -128,14 +138,14 @@ describe('useFacilityEditor', () => {
   describe('computed properties', () => {
     describe('settingsHaveChanged', () => {
       it('returns false when settings match settingsCopy', () => {
-        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor(mockFacilityId);
+        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor();
         settings.value = { learner_can_edit_username: true };
         copySettings();
         expect(settingsHaveChanged.value).toBe(false);
       });
 
       it('returns true when settings differ from settingsCopy', () => {
-        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor(mockFacilityId);
+        const { settings, copySettings, settingsHaveChanged } = useFacilityEditor();
         settings.value = { learner_can_edit_username: true };
         copySettings();
         settings.value.learner_can_edit_username = false;
@@ -145,19 +155,19 @@ describe('useFacilityEditor', () => {
 
     describe('isPinSet', () => {
       it('returns pin_code when extra_fields.pin_code exists', () => {
-        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor();
         settings.value = { extra_fields: { pin_code: '5678' } };
         expect(isPinSet.value).toBe('5678');
       });
 
       it('returns null when extra_fields.pin_code does not exist', () => {
-        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor();
         settings.value = { extra_fields: {} };
         expect(isPinSet.value).toBe(null);
       });
 
       it('returns null when extra_fields is undefined', () => {
-        const { settings, isPinSet } = useFacilityEditor(mockFacilityId);
+        const { settings, isPinSet } = useFacilityEditor();
         settings.value = {};
         expect(isPinSet.value).toBe(null);
       });
@@ -165,48 +175,37 @@ describe('useFacilityEditor', () => {
   });
 
   describe('fetchFacility', () => {
-    it('loads facility config and updates reactive state', async () => {
-      const { fetchFacility, facilityDatasetId, facilityName, settings, settingsCopy } =
-        useFacilityEditor(mockFacilityId);
+    it('delegates to useFacility fetchFacility', async () => {
+      const fetchFacilityMock = jest.fn().mockResolvedValue();
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
+          fetchFacility: fetchFacilityMock,
+        }),
+      );
+
+      const { fetchFacility } = useFacilityEditor();
 
       await fetchFacility();
 
-      expect(facilityDatasetId.value).toBe(mockDatasetId);
-      expect(facilityName.value).toBe('Test Facility');
-      expect(settings.value).toEqual(mockFacilityConfig);
-      expect(settingsCopy.value).toEqual(mockFacilityConfig);
+      expect(fetchFacilityMock).toHaveBeenCalledTimes(1);
     });
 
-    it('sets loading state during fetch', async () => {
-      const { fetchFacility, facilityDataLoading } = useFacilityEditor(mockFacilityId);
+    it('keeps local facility identity state unchanged when fetchFacility is delegated', async () => {
+      const { fetchFacility, facilityDatasetId, facilityName, settings, settingsCopy } =
+        useFacilityEditor();
 
-      const fetchPromise = fetchFacility();
-      expect(facilityDataLoading.value).toBe(true);
+      await fetchFacility();
 
-      await fetchPromise;
-      expect(facilityDataLoading.value).toBe(false);
-    });
-
-    it('resets state on error', async () => {
-      const mockError = new Error('Failed to fetch');
-      useFacilityConfig.mockReturnValue({
-        fetchFacilityConfig: jest.fn().mockRejectedValue(mockError),
-        facilityConfig: ref({}),
-      });
-
-      const { fetchFacility, facilityName, settings, settingsCopy } =
-        useFacilityEditor(mockFacilityId);
-
-      await expect(fetchFacility()).rejects.toThrow('Failed to fetch');
+      expect(facilityDatasetId.value).toBe('');
       expect(facilityName.value).toBe('');
-      expect(settings.value).toEqual({});
+      expect(settings.value).toEqual(mockFacilityConfig);
       expect(settingsCopy.value).toEqual({});
     });
   });
 
   describe('modifySetting', () => {
     it('updates a setting value', () => {
-      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor();
       settings.value = { learner_can_edit_username: false };
 
       modifySetting('learner_can_edit_username', true);
@@ -215,7 +214,7 @@ describe('useFacilityEditor', () => {
     });
 
     it('does not update non-existent settings', () => {
-      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor();
       settings.value = { learner_can_edit_username: false };
 
       modifySetting('non_existent_setting', true);
@@ -224,7 +223,7 @@ describe('useFacilityEditor', () => {
     });
 
     it('disables learner_can_edit_password when learner_can_login_with_no_password is true', () => {
-      const { settings, modifySetting } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySetting } = useFacilityEditor();
       settings.value = {
         learner_can_login_with_no_password: false,
         learner_can_edit_password: true,
@@ -239,8 +238,8 @@ describe('useFacilityEditor', () => {
 
   describe('signInOption computed', () => {
     it('returns PICTURE_PASSWORD when in signInOptions', () => {
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig: ref({
             ...mockFacilityConfig,
             picture_password_settings: { icon_style: 'colorful' },
@@ -249,12 +248,12 @@ describe('useFacilityEditor', () => {
         }),
       );
 
-      const { signInOption } = useFacilityEditor(mockFacilityId);
+      const { signInOption } = useFacilityEditor();
       expect(signInOption.value).toBe(OptionsForSignIn.PICTURE_PASSWORD);
     });
 
     it('returns first signInOption when PICTURE_PASSWORD is not available', () => {
-      const { signInOption } = useFacilityEditor(mockFacilityId);
+      const { signInOption } = useFacilityEditor();
       expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
     });
 
@@ -272,15 +271,15 @@ describe('useFacilityEditor', () => {
         return null;
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions,
           picturePasswordSettings,
         }),
       );
 
-      const { signInOption, modifySignInOption, settings } = useFacilityEditor(mockFacilityId);
+      const { signInOption, modifySignInOption, settings } = useFacilityEditor();
       expect(signInOption.value).toBe(OptionsForSignIn.USERNAME_PASSWORD);
       modifySignInOption(OptionsForSignIn.PICTURE_PASSWORD);
       // modifySignInOption updates settings.value which is the same ref as facilityConfig
@@ -298,15 +297,15 @@ describe('useFacilityEditor', () => {
         learner_can_login_with_no_password: true,
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { picturePasswordStyle } = useFacilityEditor(mockFacilityId);
+      const { picturePasswordStyle } = useFacilityEditor();
       expect(picturePasswordStyle.value).toBe(PicturePasswordIconStyle.STANDARD);
     });
 
@@ -317,16 +316,15 @@ describe('useFacilityEditor', () => {
         learner_can_login_with_no_password: true,
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { picturePasswordStyle, modifyPicturePasswordSetting } =
-        useFacilityEditor(mockFacilityId);
+      const { picturePasswordStyle, modifyPicturePasswordSetting } = useFacilityEditor();
       modifyPicturePasswordSetting('icon_style', PicturePasswordIconStyle.STANDARD);
       expect(picturePasswordStyle.value).toBe(PicturePasswordIconStyle.STANDARD);
     });
@@ -340,15 +338,15 @@ describe('useFacilityEditor', () => {
         learner_can_login_with_no_password: true,
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { picturePasswordShowIconText } = useFacilityEditor(mockFacilityId);
+      const { picturePasswordShowIconText } = useFacilityEditor();
       expect(picturePasswordShowIconText.value).toBe(true);
     });
 
@@ -359,16 +357,15 @@ describe('useFacilityEditor', () => {
         learner_can_login_with_no_password: true,
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { picturePasswordShowIconText, modifyPicturePasswordSetting } =
-        useFacilityEditor(mockFacilityId);
+      const { picturePasswordShowIconText, modifyPicturePasswordSetting } = useFacilityEditor();
       modifyPicturePasswordSetting('show_icon_text', true);
       expect(picturePasswordShowIconText.value).toBe(true);
     });
@@ -382,15 +379,15 @@ describe('useFacilityEditor', () => {
       });
       const signInOptions = mockSignInOptions(facilityConfig);
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions,
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySignInOption } = useFacilityEditor();
 
       modifySignInOption(OptionsForSignIn.PICTURE_PASSWORD);
 
@@ -408,15 +405,15 @@ describe('useFacilityEditor', () => {
       });
       const signInOptions = mockSignInOptions(facilityConfig);
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions,
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySignInOption } = useFacilityEditor();
 
       modifySignInOption(OptionsForSignIn.USERNAME_ONLY);
 
@@ -431,15 +428,15 @@ describe('useFacilityEditor', () => {
       });
       const signInOptions = mockSignInOptions(facilityConfig);
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions,
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { settings, modifySignInOption } = useFacilityEditor(mockFacilityId);
+      const { settings, modifySignInOption } = useFacilityEditor();
 
       modifySignInOption(OptionsForSignIn.USERNAME_PASSWORD);
 
@@ -456,15 +453,15 @@ describe('useFacilityEditor', () => {
         learner_can_login_with_no_password: true,
       });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
           signInOptions: computed(() => [OptionsForSignIn.PICTURE_PASSWORD]),
           picturePasswordSettings: computed(() => facilityConfig.value.picture_password_settings),
         }),
       );
 
-      const { settings, modifyPicturePasswordSetting } = useFacilityEditor(mockFacilityId);
+      const { settings, modifyPicturePasswordSetting } = useFacilityEditor();
 
       modifyPicturePasswordSetting('icon_style', PicturePasswordIconStyle.STANDARD);
 
@@ -478,13 +475,13 @@ describe('useFacilityEditor', () => {
     it('updates extra_fields in settings', () => {
       const facilityConfig = ref({ extra_fields: { pin_code: '1234' } });
 
-      useFacilityConfig.mockReturnValue(
-        useFacilityConfigMock({
+      useFacility.mockReturnValue(
+        buildUseFacilityState({
           facilityConfig,
         }),
       );
 
-      const { settings, modifyExtraFields } = useFacilityEditor(mockFacilityId);
+      const { settings, modifyExtraFields } = useFacilityEditor();
 
       modifyExtraFields({ pin_code: '5678' });
 
@@ -494,7 +491,7 @@ describe('useFacilityEditor', () => {
 
   describe('copySettings', () => {
     it('copies current settings to settingsCopy', () => {
-      const { settings, settingsCopy, copySettings } = useFacilityEditor(mockFacilityId);
+      const { settings, settingsCopy, copySettings } = useFacilityEditor();
       settings.value = { learner_can_edit_username: true };
 
       copySettings();
@@ -505,7 +502,7 @@ describe('useFacilityEditor', () => {
 
   describe('undoSettingsChange', () => {
     it('restores settings from settingsCopy', () => {
-      const { settings, settingsCopy, undoSettingsChange } = useFacilityEditor(mockFacilityId);
+      const { settings, settingsCopy, undoSettingsChange } = useFacilityEditor();
       settings.value = { learner_can_edit_username: true };
       settingsCopy.value = { learner_can_edit_username: false };
 
@@ -526,7 +523,7 @@ describe('useFacilityEditor', () => {
         facilityDataLoading,
         resetState,
         setLoading,
-      } = useFacilityEditor(mockFacilityId);
+      } = useFacilityEditor();
 
       // Set non-initial values
       facilityDatasetId.value = 'some-id';
@@ -551,7 +548,7 @@ describe('useFacilityEditor', () => {
       const newName = 'New Facility Name';
       FacilityResource.saveModel.mockResolvedValue({ id: mockFacilityId, name: newName });
 
-      const { saveFacilityName, facilityName } = useFacilityEditor(mockFacilityId);
+      const { saveFacilityName, facilityName } = useFacilityEditor();
 
       await saveFacilityName(newName);
 
@@ -565,7 +562,7 @@ describe('useFacilityEditor', () => {
 
   describe('saveFacilityConfig', () => {
     it('saves facility config excluding login settings fields', async () => {
-      const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityEditor(mockFacilityId);
+      const { saveFacilityConfig, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = {
         ...mockFacilityConfig,
         picture_password_settings: { icon_style: 'standard', show_icon_text: true },
@@ -590,7 +587,7 @@ describe('useFacilityEditor', () => {
 
       client.mockResolvedValue(mockResponse);
 
-      const { setPin, settings } = useFacilityEditor(mockFacilityId);
+      const { setPin, settings } = useFacilityEditor();
       settings.value = mockFacilityConfig;
 
       await setPin(mockPayload);
@@ -610,7 +607,7 @@ describe('useFacilityEditor', () => {
 
       client.mockResolvedValue(mockResponse);
 
-      const { unsetPin, settings } = useFacilityEditor(mockFacilityId);
+      const { unsetPin, settings } = useFacilityEditor();
       settings.value = mockFacilityConfig;
 
       await unsetPin();
@@ -625,13 +622,13 @@ describe('useFacilityEditor', () => {
 
   describe('setLoading', () => {
     it('sets facilityDataLoading to true', () => {
-      const { setLoading, facilityDataLoading } = useFacilityEditor(mockFacilityId);
+      const { setLoading, facilityDataLoading } = useFacilityEditor();
       setLoading(true);
       expect(facilityDataLoading.value).toBe(true);
     });
 
     it('sets facilityDataLoading to false', () => {
-      const { setLoading, facilityDataLoading } = useFacilityEditor(mockFacilityId);
+      const { setLoading, facilityDataLoading } = useFacilityEditor();
       setLoading(true);
       setLoading(false);
       expect(facilityDataLoading.value).toBe(false);
@@ -648,8 +645,7 @@ describe('useFacilityEditor', () => {
     it('calls the save-facility-login-settings endpoint via PATCH with login fields', async () => {
       client.mockResolvedValue({ data: {} });
 
-      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
-        useFacilityEditor(mockFacilityId);
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = {
         ...mockFacilityConfig,
         picture_password_settings: { icon_style: 'standard', show_icon_text: true },
@@ -678,7 +674,7 @@ describe('useFacilityEditor', () => {
       });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
-        useFacilityEditor(mockFacilityId);
+        useFacilityEditor();
       settings.value = {
         ...mockFacilityConfig,
         picture_password_settings: { icon_style: 'standard', show_icon_text: true },
@@ -696,7 +692,7 @@ describe('useFacilityEditor', () => {
       client.mockResolvedValue({ status: 200, data: { dataset: { id: 'dataset-id' } } });
 
       const { saveFacilityLoginSettings, pictureLoginTaskId, settings, facilityDatasetId } =
-        useFacilityEditor(mockFacilityId);
+        useFacilityEditor();
       settings.value = { ...mockFacilityConfig };
       facilityDatasetId.value = mockDatasetId;
 
@@ -712,8 +708,7 @@ describe('useFacilityEditor', () => {
       };
       client.mockResolvedValue({ status: 202, data: mockTaskData });
 
-      const { saveFacilityLoginSettings, settings, facilityDatasetId } =
-        useFacilityEditor(mockFacilityId);
+      const { saveFacilityLoginSettings, settings, facilityDatasetId } = useFacilityEditor();
       settings.value = {
         ...mockFacilityConfig,
         picture_password_settings: { icon_style: 'standard', show_icon_text: true },
