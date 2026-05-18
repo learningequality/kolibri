@@ -220,6 +220,27 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     context:
       'Note shown in the picture password info modal about learners added after the limit is reached.',
   },
+  picturePasswordAssignedTitle: {
+    message: 'New password',
+    context:
+      'Title of the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  picturePasswordAssignedDescription: {
+    message:
+      'Remember these pictures and write them down if you need to. You will need them to sign in to Kolibri in the future.',
+    context:
+      'Description in the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  picturePasswordAssignedAddendum: {
+    message: 'If you forget, your coach can help.',
+    context:
+      'Short note in the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  readyToContinue: {
+    message: "I'm ready to continue",
+    context:
+      'Checkbox label in the picture password confirmation modal that must be checked before continue is enabled.',
+  },
 
   // Info modal for child-friendly icons radio option
   childFriendlyIconsInfoLabel: {
