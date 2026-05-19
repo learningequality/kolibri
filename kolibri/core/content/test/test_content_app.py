@@ -32,6 +32,7 @@ from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -2873,6 +2874,10 @@ class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
     @property
     def baseurl(self):
         return self.live_server_url
+
+    def setUp(self):
+        super().setUp()
+        NetworkLocation.objects.update_or_create(base_url=self.baseurl)
 
     def _get(self, *args, **kwargs):
         if "data" not in kwargs:

@@ -1,4 +1,7 @@
+import uuid
+
 from django.urls import reverse
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
@@ -153,3 +156,63 @@ class CSRFProtectedSetupTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class CreateUserOnRemoteTestCase(APITestCase):
+    url = "kolibri:kolibri.plugins.setup_wizard:setupwizard-createuseronremote"
+
+    def setUp(self):
+        clear_process_cache()
+
+    def _post(self, upstream_status, upstream_json, json_raises=None):
+        with patch("kolibri.plugins.setup_wizard.api.NetworkClient") as NetworkClient:
+            client = NetworkClient.build_for_address.return_value
+            client.post.return_value.status_code = upstream_status
+            if json_raises is not None:
+                client.post.return_value.json.side_effect = json_raises
+            else:
+                client.post.return_value.json.return_value = upstream_json
+            return self.client.post(
+                reverse(self.url),
+                {
+                    "baseurl": "http://remote.example",
+                    "facility_id": uuid.uuid4().hex,
+                    "username": "alice",
+                    "password": "p",
+                    "full_name": "Alice",
+                },
+                format="json",
+            )
+
+    def test_success_response_does_not_reflect_remote_body(self):
+        response = self._post(
+            201, {"id": uuid.uuid4().hex, "username": "alice", "secret": "AKIA..."}
+        )
+        self.assertEqual(response.data, {"status": 201, "errors": []})
+
+    def test_error_response_is_sanitized_to_id_only(self):
+        response = self._post(
+            400,
+            [
+                {
+                    "id": "USERNAME_ALREADY_EXISTS",
+                    "metadata": {"smuggled": "AKIA..."},
+                }
+            ],
+        )
+        self.assertEqual(
+            response.data,
+            {"status": 400, "errors": [{"id": "USERNAME_ALREADY_EXISTS"}]},
+        )
+
+    def test_non_list_error_response_returns_empty_errors(self):
+        response = self._post(500, {"detail": "leaked", "secret": "AKIA..."})
+        self.assertEqual(response.data, {"status": 500, "errors": []})
+
+    def test_any_invalid_error_item_rejects_whole_response(self):
+        response = self._post(400, [{"id": "USERNAME_ALREADY_EXISTS"}, "not a dict"])
+        self.assertEqual(response.data, {"status": 400, "errors": []})
+
+    def test_non_json_response_returns_empty_errors(self):
+        response = self._post(500, None, json_raises=ValueError("not JSON"))
+        self.assertEqual(response.data, {"status": 500, "errors": []})

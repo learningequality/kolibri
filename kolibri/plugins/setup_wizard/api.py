@@ -2,6 +2,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from rest_framework import decorators
+from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
@@ -33,6 +34,10 @@ class HasPermissionDuringLODSetup(BasePermission):
         return get_device_setting("subset_of_users_device")
 
 
+class _PublicSignupErrorSerializer(serializers.Serializer):
+    id = serializers.CharField()
+
+
 @method_decorator(csrf_protect, name="dispatch")
 class SetupWizardResource(ViewSet):
     """
@@ -62,7 +67,16 @@ class SetupWizardResource(ViewSet):
             r = client.post(api_url, data=payload)
         except NetworkLocationResponseFailure as e:
             r = e.response
-        return Response({"status": r.status_code, "data": r.content})
+        errors = []
+        if r.status_code != 201:
+            try:
+                upstream = r.json()
+            except ValueError:
+                upstream = None
+            serializer = _PublicSignupErrorSerializer(data=upstream, many=True)
+            if serializer.is_valid():
+                errors = serializer.data
+        return Response({"status": r.status_code, "errors": errors})
 
 
 @method_decorator(csrf_protect, name="dispatch")

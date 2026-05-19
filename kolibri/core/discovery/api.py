@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
+from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
@@ -94,6 +95,23 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
     queryset = StaticNetworkLocation.objects.all()
 
 
+class _RemoteFacilityPicturePasswordSerializer(serializers.Serializer):
+    icon_style = serializers.ChoiceField(choices=["standard", "colorful"])
+    show_icon_text = serializers.BooleanField()
+
+
+class _RemoteFacilitySerializer(serializers.Serializer):
+    id = serializers.UUIDField(format="hex")
+    dataset = serializers.UUIDField(format="hex")
+    name = serializers.CharField()
+    learner_can_login_with_no_password = serializers.BooleanField()
+    learner_can_sign_up = serializers.BooleanField()
+    on_my_own_setup = serializers.BooleanField()
+    picture_password_settings = _RemoteFacilityPicturePasswordSerializer(
+        allow_null=True
+    )
+
+
 class NetworkLocationFacilitiesView(BaseValuesViewset):
     queryset = NetworkLocation.objects.all()
     permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
@@ -115,7 +133,10 @@ class NetworkLocationFacilitiesView(BaseValuesViewset):
                     response = client.get(
                         reverse_path("kolibri:core:publicfacility-list")
                     )
-                    facilities = response.json()
+                    serializer = _RemoteFacilitySerializer(
+                        data=response.json(), many=True
+                    )
+                    facilities = serializer.data if serializer.is_valid() else []
         except (errors.NetworkClientError, NetworkLocation.DoesNotExist):
             raise NotFound()
 

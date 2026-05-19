@@ -10,7 +10,6 @@ from urllib.parse import unquote
 import html5lib
 from cheroot import wsgi
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
@@ -32,8 +31,8 @@ from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_content_storage_remote_url
 from kolibri.core.content.utils.paths import get_zip_content_base_path
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.utils.file_transfer import RemoteFile
-from kolibri.utils.urls import validator
 
 
 logger = logging.getLogger(__name__)
@@ -337,12 +336,10 @@ def _zip_content_from_request(request):  # noqa: C901
         )
 
     if remote_baseurl:
-        try:
-            remote_baseurl = unquote(remote_baseurl)
-            validator(remote_baseurl)
-        except ValidationError:
+        remote_baseurl = unquote(remote_baseurl)
+        if NetworkClient.known_location_for_address(remote_baseurl) is None:
             return create_error_response(
-                "{baseurl} is not a valid URL".format(baseurl=remote_baseurl)
+                "{baseurl} is not a known peer".format(baseurl=remote_baseurl)
             )
 
     # if the zipfile does not exist on disk, return a 404

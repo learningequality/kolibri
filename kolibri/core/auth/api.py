@@ -92,12 +92,14 @@ from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exha
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
+from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
@@ -110,7 +112,6 @@ from kolibri.core.tasks.main import job_storage
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
-from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
 
@@ -1552,34 +1553,42 @@ class SessionViewSet(viewsets.ViewSet):
         return response
 
 
+class _RemoteFacilityUserSearchSerializer(serializers.Serializer):
+    id = serializers.UUIDField(format="hex", allow_null=True)
+    username = serializers.CharField()
+
+
 class RemoteFacilityUserViewset(views.APIView):
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+
     def get(self, request):
         baseurl = request.query_params.get("baseurl", "")
-        try:
-            validator(baseurl)
-        except ValidationError as e:
-            raise RestValidationError(
-                detail="Invalid URL format",
-                code=error_constants.INVALID,
-            ) from e
         username = request.query_params.get("username", None)
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
             raise RestValidationError(detail="Both username and facility are required")
-        client = NetworkClient.build_for_address(baseurl)
+        try:
+            client = NetworkClient.build_for_address(baseurl)
+        except NetworkLocationNotFound:
+            raise RestValidationError(detail="Unknown peer: {}".format(baseurl))
         url = reverse_path("kolibri:core:publicsearchuser-list")
         try:
             response = client.get(
                 url, params={"facility": facility, "search": username}
             )
-            return Response(response.json())
+            serializer = _RemoteFacilityUserSearchSerializer(
+                data=response.json(), many=True
+            )
+            return Response(serializer.data if serializer.is_valid() else [])
         except NetworkLocationResponseFailure:
-            return Response({})
+            return Response([])
         except Exception as e:
             raise RestValidationError(detail="Remote user lookup failed") from e
 
 
 class RemoteFacilityUserAuthenticatedViewset(views.APIView):
+    permission_classes = [IsAuthenticated | NotProvisionedHasPermission]
+
     def post(self, request):
         """
         If the request is done by an admin user  it will return a list of the users of the
@@ -1592,13 +1601,6 @@ class RemoteFacilityUserAuthenticatedViewset(views.APIView):
         :return: List of the users of the facility.
         """
         baseurl = request.data.get("baseurl", "")
-        try:
-            validator(baseurl)
-        except ValidationError as e:
-            raise RestValidationError(
-                detail="Invalid URL format",
-                code=error_constants.INVALID,
-            ) from e
         username = request.data.get("username", None)
         facility_id = request.data.get("facility_id", None)
         password = request.data.get("password", None)
@@ -1611,6 +1613,8 @@ class RemoteFacilityUserAuthenticatedViewset(views.APIView):
             )
         except AuthenticationFailed:
             raise PermissionDenied()
+        except NetworkLocationNotFound:
+            raise RestValidationError(detail="Unknown peer: {}".format(baseurl))
 
         user_info = facility_info["user"]
         roles = user_info["roles"]

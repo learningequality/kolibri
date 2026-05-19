@@ -21,8 +21,8 @@ from whitenoise.responders import Response
 from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
 
+from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.utils.file_transfer import RemoteFile
-from kolibri.utils.urls import validator
 
 
 compressed_file_extensions = ("gz",)
@@ -279,7 +279,6 @@ class StreamingStaticFile(EndRangeStaticFile):
             return NOT_ALLOWED_RESPONSE
         if method != "HEAD":
             try:
-                validator(self.remote_url)
                 file_handle = RemoteFile(
                     self.path,
                     self.remote_url,
@@ -364,6 +363,11 @@ class DynamicWhiteNoise(WhiteNoise):
         remote_baseurl = parse_qs(environ.get("QUERY_STRING", "")).get(
             "baseurl", [None]
         )[0]
+        if (
+            remote_baseurl is not None
+            and NetworkClient.known_location_for_address(remote_baseurl) is None
+        ):
+            remote_baseurl = None
         if self.autorefresh:
             static_file = self.find_file(path)
         else:

@@ -49,7 +49,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         try:
-            client = NetworkClient.build_for_address(data["base_url"])
+            client = NetworkClient.discover_from_address(data["base_url"])
         except (errors.NetworkClientError, errors.URLParseError) as e:
             raise ValidationError(
                 "Error with address {} ({})".format(

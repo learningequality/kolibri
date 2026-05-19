@@ -36,6 +36,7 @@ from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
+from kolibri.utils.http_session import SameHostSession
 from kolibri.utils.system import get_free_space
 
 logger = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
         raise ValueError("Either token or channel_id must be provided")
 
     identifier = token if token is not None else channel_id
-    client = NetworkClient.build_for_address(baseurl)
+    client = NetworkClient.discover_from_address(baseurl)
     try:
         resp = client.get(get_channel_lookup_url(identifier=identifier))
     except NetworkLocationResponseFailure as e:
@@ -663,7 +664,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         else:
             self.public = self.library = self.remote_version = None
 
-        self.session = requests.Session()
+        self.session = SameHostSession()
 
         super().__init__(
             channel_id,

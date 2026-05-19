@@ -591,7 +591,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
     def test_remote_file_iterator(self):
         output = b""
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -609,7 +609,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
     def test_remote_file_iterator_repeated(self):
         output = b""
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -626,7 +626,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
 
         output = b""
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -643,7 +643,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         data_out = b""
 
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -661,7 +661,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         end_range = self.file_size // 3 * 2
 
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -695,7 +695,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         end_range = self.file_size // 3 * 2
 
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -725,7 +725,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         ]
 
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             for start_range, end_range in ranges:
@@ -761,7 +761,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         ]
 
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             for start_range, end_range in ranges:
@@ -797,7 +797,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
 
     def test_remote_file_seek_and_tell(self):
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -807,7 +807,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
     def test_remote_file_finalized_during_read(self):
         self.set_test_data(finished=True)
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
@@ -820,7 +820,7 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
     def test_remote_file_cleaned_up_during_read(self):
         self.set_test_data(finished=True)
         with patch(
-            "kolibri.utils.file_transfer.requests.Session",
+            "kolibri.utils.file_transfer.SameHostSession",
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
