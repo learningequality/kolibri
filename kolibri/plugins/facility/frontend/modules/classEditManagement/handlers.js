@@ -3,6 +3,7 @@ import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResour
 import { localeCompare } from 'kolibri/utils/i18n';
 import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import useFacility from 'kolibri-common/composables/useFacility';
 import { _userState } from '../mappers';
 
 export function sortUsersByFullName(users) {
@@ -13,11 +14,12 @@ export function sortUsersByFullName(users) {
 
 export function showClassEditPage(store, classId) {
   store.dispatch('preparePage');
-  const facilityId = store.getters.activeFacilityId;
+  const { facilityId } = useFacility();
+
   const promises = [
     FacilityUserResource.fetchCollection({ getParams: { member_of: classId }, force: true }),
     ClassroomResource.fetchModel({ id: classId, force: true }),
-    ClassroomResource.fetchCollection({ getParams: { parent: facilityId }, force: true }),
+    ClassroomResource.fetchCollection({ getParams: { parent: facilityId.value }, force: true }),
   ];
   store.commit('classEditManagement/SET_DATA_LOADING', true);
   Promise.all(promises)

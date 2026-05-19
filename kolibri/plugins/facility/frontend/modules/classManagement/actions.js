@@ -1,5 +1,6 @@
 import ClassroomResource from 'kolibri-common/apiResources/ClassroomResource';
 import { handleApiError } from 'kolibri/utils/appError';
+import { selectedFacilityId } from 'kolibri-common/composables/useFacility';
 
 /**
  * Do a POST to create new class
@@ -9,7 +10,7 @@ export function createClass(store, name) {
   return ClassroomResource.saveModel({
     data: {
       name,
-      parent: store.rootGetters.activeFacilityId,
+      parent: selectedFacilityId.value,
     },
   }).then(
     classroom => {

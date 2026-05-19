@@ -1,6 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import { UserKinds } from 'kolibri/constants';
+import { selectedFacilityId } from 'kolibri-common/composables/useFacility';
 import { updateFacilityLevelRoles } from './utils';
 
 /**
@@ -26,7 +27,7 @@ function setUserRole(user, role) {
 export function createFacilityUser(store, payload) {
   return FacilityUserResource.saveModel({
     data: {
-      facility: store.rootGetters.activeFacilityId,
+      facility: selectedFacilityId.value,
       username: payload.username,
       full_name: payload.full_name,
       password: payload.password,

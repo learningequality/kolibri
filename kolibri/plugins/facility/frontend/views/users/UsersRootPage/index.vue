@@ -198,7 +198,7 @@
 
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import { ref, computed, getCurrentInstance, onMounted } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -241,7 +241,7 @@
       const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin, isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
-      const { setFacilityId, facilityConfig } = useFacility();
+      const { facilityId, facilityConfig } = useFacility();
       const isMoveToTrashModalOpen = ref(false);
 
       const {
@@ -257,9 +257,6 @@
         clearFiltersLabel$,
       } = bulkUserManagementStrings;
 
-      const { $store, $router } = getCurrentInstance().proxy;
-      const activeFacilityId =
-        $router.currentRoute.params.facility_id || $store.getters.activeFacilityId;
       const {
         selectedUsers,
         facilityUsers,
@@ -272,7 +269,7 @@
         fetchClasses,
         resetFilters,
         clearSelectedUsers,
-      } = useUserManagement({ activeFacilityId });
+      } = useUserManagement({ activeFacilityId: facilityId.value });
 
       // Use our new composables
       const { searchTerm, filterTextboxRef } = useUsersTableSearch();
@@ -282,7 +279,6 @@
         Boolean(facilityConfig.value.picture_password_settings),
       );
       onMounted(() => {
-        setFacilityId(activeFacilityId);
         fetchClasses();
       });
 
@@ -359,6 +355,7 @@
         // User and facility info
         userIsMultiFacilityAdmin,
         currentUserId,
+        facilityId,
         isSuperuser,
         isAdmin,
 
@@ -479,7 +476,7 @@
         if (option.value) {
           this.$router.push({
             name: option.value,
-            params: { facility_id: this.$store.getters.activeFacilityId },
+            params: { facility_id: this.facilityId },
           });
         }
       },

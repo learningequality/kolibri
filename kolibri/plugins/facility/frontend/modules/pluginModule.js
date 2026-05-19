@@ -1,9 +1,8 @@
-import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { getReactiveRoute } from 'kolibri/router';
 import { clearError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import { selectedFacilityId } from 'kolibri-common/composables/useFacility';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import classAssignMembers from './classAssignMembers';
 import classEditManagement from './classEditManagement';
@@ -39,18 +38,7 @@ export default {
   },
   getters: {
     activeFacilityId() {
-      // Return either the facility_id param in the route module,
-      // or the userFacilityId value from core.session
-
-      // For multi-facility case, only use facility_id if in route because userFacilityId
-      // fallback would always navigate to our default facility, not multi-facility landing page
-      const { userFacilityId } = useUser();
-      const { userIsMultiFacilityAdmin } = useFacilities();
-      const routeParams = getReactiveRoute().params || {};
-      if (userIsMultiFacilityAdmin.value) {
-        return routeParams.facility_id;
-      }
-      return routeParams.facility_id || get(userFacilityId);
+      return get(selectedFacilityId);
     },
     facilityPageLinks(state, getters) {
       // Use this getter to get Link objects that have the optional 'facility_id'

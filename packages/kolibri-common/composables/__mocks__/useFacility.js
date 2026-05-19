@@ -1,19 +1,28 @@
 import { ref, computed } from 'vue';
 import { OptionsForSignIn } from '../../constants/Auth';
 
+export const selectedFacilityId = ref(null);
+export const setSelectedFacilityId = jest.fn();
+
 const MOCK_DEFAULTS = {
   selectedFacility: ref({}),
   facilityId: ref(null),
   facilityConfig: ref({}),
   currentFacilityName: ref(''),
+  isAttendanceFeatureEnabled: computed(() => true),
+  isPictureLoginFeatureEnabled: computed(() => true),
+  signInOptions: computed(() => [OptionsForSignIn.USERNAME_PASSWORD]),
+  picturePasswordSettings: computed(() => null),
   fetchFacilities: jest.fn(),
+  fetchFacility: jest.fn(),
+  fetchFacilityConfig: jest.fn(),
   updateFacilityConfig: jest.fn(),
   setFacilityId: jest.fn(),
 };
 
 const MOCK_DEFAULTS_SELECT = {
-  selectedFacilityId: ref(null),
-  setSelectedFacilityId: jest.fn(),
+  selectedFacilityId,
+  setSelectedFacilityId,
 };
 
 const MOCK_DEFAULTS_CONFIG = {

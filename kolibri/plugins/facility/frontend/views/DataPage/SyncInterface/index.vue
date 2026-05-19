@@ -16,10 +16,10 @@
       </template>
       <template #tbody>
         <tbody>
-          <tr v-if="facility">
+          <tr v-if="selectedFacility">
             <td>
               <FacilityNameAndSyncStatus
-                :facility="facility"
+                :facility="selectedFacility"
                 :isSyncing="isSyncing"
                 :syncHasFailed="syncHasFailed"
                 :goToRoute="manageSyncRoute"
@@ -88,7 +88,7 @@
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
-      :targetFacility="facility"
+      :targetFacility="selectedFacility"
       :projectName="kdpProject.name"
       :token="kdpProject.token"
       @success="handleConfirmationSuccess"
@@ -97,7 +97,7 @@
 
     <SyncFacilityModalGroup
       v-if="modalShown === Modals.SYNC_FACILITY"
-      :facilityForSync="facility"
+      :facilityForSync="selectedFacility"
       @close="closeModal"
       @syncKDP="handleKDPSync"
       @syncPeer="handlePeerSync"
@@ -117,12 +117,12 @@
   import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
   import commonSyncElements from 'kolibri-common/mixins/commonSyncElements';
   import TaskResource from 'kolibri/apiResources/TaskResource';
-  import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CoreMenu from 'kolibri/components/CoreMenu';
   import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -147,15 +147,19 @@
     mixins: [commonSyncElements, commonCoreStrings],
     setup() {
       const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
+      const { facilityId, fetchFacilityConfig, fetchFacility, selectedFacility } = useFacility();
       return {
+        facilityId,
+        selectedFacility,
         windowIsLarge,
         windowIsMedium,
         windowIsSmall,
+        fetchFacility,
+        fetchFacilityConfig,
       };
     },
     data() {
       return {
-        facility: null,
         kdpProject: null, // { name, token }
         modalShown: null,
         syncTaskId: '',
@@ -170,7 +174,7 @@
         return {
           name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
           params: {
-            facility_id: this.facility.id,
+            facility_id: this.facilityId,
           },
         };
       },
@@ -199,22 +203,12 @@
         }
       },
     },
-    beforeMount() {
-      this.fetchFacility();
-    },
     beforeDestroy() {
       this.syncTaskId = '';
     },
     methods: {
       manageSyncAction() {
         this.$router.push(this.manageSyncRoute);
-      },
-      fetchFacility() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-          },
-        );
       },
       closeModal() {
         this.modalShown = null;
@@ -247,7 +241,7 @@
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
-        this.facility.dataset.registered = true;
+        this.fetchFacilityConfig();
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {
@@ -264,7 +258,7 @@
       },
       handleKDPSync() {
         this.closeModal();
-        this.startKdpSyncTask(this.facility.id)
+        this.startKdpSyncTask(this.facilityId)
           .then(task => {
             this.handleSyncFacilitySuccess(task.id);
           })
@@ -275,7 +269,7 @@
       handlePeerSync(peerData) {
         this.closeModal();
         this.startPeerSyncTask({
-          facility: this.facility.id,
+          facility: this.facilityId,
           device_id: peerData.id,
         })
           .then(task => {

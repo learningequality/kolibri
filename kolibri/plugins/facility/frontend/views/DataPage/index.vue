@@ -204,6 +204,7 @@
   import format from 'date-fns/format';
   import KDateRange from 'kolibri-design-system/lib/KDateRange';
   import useFacilities from 'kolibri-common/composables/useFacilities';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PageNames } from '../../constants';
   import FacilityAppBarPage from '../FacilityAppBarPage';
@@ -234,7 +235,15 @@
       const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
       const { isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
-      return { pageLoading, windowIsMedium, windowIsSmall, isAppContext, userIsMultiFacilityAdmin };
+      const { facilityId } = useFacility();
+      return {
+        pageLoading,
+        windowIsMedium,
+        windowIsSmall,
+        isAppContext,
+        userIsMultiFacilityAdmin,
+        facilityId,
+      };
     },
     data() {
       return {
@@ -255,7 +264,7 @@
         'inSummaryCSVCreation',
         'firstLogDate',
       ]),
-      ...mapGetters(['activeFacilityId', 'facilityPageLinks']),
+      ...mapGetters(['facilityPageLinks']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps
@@ -350,19 +359,13 @@
       },
       downloadSessionLog() {
         window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-            'session',
-            this.activeFacilityId,
-          ),
+          urls['kolibri:kolibri.plugins.facility:download_csv_file']('session', this.facilityId),
           '_blank',
         );
       },
       downloadSummaryLog() {
         window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file'](
-            'summary',
-            this.activeFacilityId,
-          ),
+          urls['kolibri:kolibri.plugins.facility:download_csv_file']('summary', this.facilityId),
           '_blank',
         );
       },
