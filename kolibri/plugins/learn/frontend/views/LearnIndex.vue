@@ -25,6 +25,7 @@
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
@@ -38,6 +39,7 @@
     },
     setup() {
       const { isUserLoggedIn, isAppContext, currentUserId } = useUser();
+      const { fetchFacilityConfig } = useFacility();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
@@ -49,7 +51,10 @@
       onMounted(async () => {
         if (!picturePasswordPending.value) return;
 
-        const user = await FacilityUserResource.fetchModel({ id: get(currentUserId) });
+        const [user] = await Promise.all([
+          FacilityUserResource.fetchModel({ id: get(currentUserId) }),
+          fetchFacilityConfig(),
+        ]);
 
         if (user.picture_password) {
           picturePasswordPending.value = false;
