@@ -99,6 +99,14 @@ export default class KolibriApp extends KolibriModule {
 
   ready() {
     this.setupVue();
+    // Refresh session state when the user returns to the SPA via back/forward navigation,
+    // so any auth changes that occurred since the page was cached are reflected immediately.
+    window.addEventListener('pageshow', event => {
+      const navType = performance.getEntriesByType('navigation')[0]?.type;
+      if (event.persisted || navType === 'back_forward') {
+        heartbeat.pollSessionEndPoint();
+      }
+    });
     return heartbeat.startPolling().then(() => {
       return Promise.all([
         // Invoke each of the state setters before initializing the app.
