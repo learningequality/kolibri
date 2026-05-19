@@ -287,7 +287,7 @@
         }).then(response => {
           const picturePasswordSettings = state.value.targetFacility.picture_password_settings;
           if (picturePasswordSettings && response.data?.picture_password) {
-            sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, true);
+            sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, 'true');
           }
           redirectBrowser();
         });

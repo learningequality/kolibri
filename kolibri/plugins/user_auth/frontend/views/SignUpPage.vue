@@ -310,7 +310,7 @@
                 this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
                 user?.picture_password
               ) {
-                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, true);
+                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, 'true');
               }
               this.redirectAfterSignup();
             })
