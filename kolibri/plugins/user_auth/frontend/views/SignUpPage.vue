@@ -122,6 +122,7 @@
     PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
     OptionsForSignIn,
   } from 'kolibri-common/constants/Auth';
+  import { useSessionStorage } from '@vueuse/core';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
@@ -178,11 +179,17 @@
         }
       });
 
+      const picturePasswordPending = useSessionStorage(
+        PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
+        false,
+      );
+
       return {
         nextParam,
         selectedFacility,
         signInOptions,
         handleApiError,
+        picturePasswordPending,
       };
     },
     data() {
@@ -310,7 +317,7 @@
                 this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
                 user?.picture_password
               ) {
-                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
+                this.picturePasswordPending = true;
               }
               this.redirectAfterSignup();
             })

@@ -148,7 +148,7 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).not.toBe('true');
   });
 
   it('redirects without storing in sessionStorage when picture sign-in is not enabled', async () => {
@@ -163,6 +163,6 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).not.toBe('true');
   });
 });

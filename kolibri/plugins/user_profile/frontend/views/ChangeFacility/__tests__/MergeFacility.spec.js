@@ -151,7 +151,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     await fireEvent.click(screen.getByTestId('finishButton'));
     await flushUi();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).not.toBe('true');
   });
 
   it(`clicking retry button sends the task error event to the state machine`, async () => {

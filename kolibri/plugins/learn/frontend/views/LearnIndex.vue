@@ -23,7 +23,7 @@
 <script>
 
   import { ref, onMounted } from 'vue';
-  import { get, useSessionStorage, StorageSerializers } from '@vueuse/core';
+  import { get, useSessionStorage } from '@vueuse/core';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
@@ -44,8 +44,7 @@
       const { picturePasswordSettings, fetchFacilityConfig } = useFacilityConfig(userFacilityId);
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
-        null,
-        { serializer: StorageSerializers.string },
+        false,
       );
 
       const showPicturePasswordModal = ref(false);
@@ -54,7 +53,7 @@
       const assignedShowIconText = ref(null);
 
       onMounted(async () => {
-        if (picturePasswordPending.value !== 'true') return;
+        if (!picturePasswordPending.value) return;
 
         const [user] = await Promise.all([
           FacilityUserResource.fetchModel({ id: get(currentUserId) }),
@@ -64,7 +63,7 @@
         ]);
 
         if (user.picture_password && picturePasswordSettings.value) {
-          picturePasswordPending.value = null;
+          picturePasswordPending.value = false;
           assignedPicturePassword.value = user.picture_password;
           assignedIconStyle.value = picturePasswordSettings.value.icon_style;
           assignedShowIconText.value = picturePasswordSettings.value.show_icon_text;

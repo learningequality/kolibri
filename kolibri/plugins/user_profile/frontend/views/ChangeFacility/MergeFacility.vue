@@ -94,6 +94,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
+  import { useSessionStorage } from '@vueuse/core';
   import { computed, inject, onMounted, ref } from 'vue';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import get from 'lodash/get';
@@ -117,6 +118,10 @@
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
+      const picturePasswordPending = useSessionStorage(
+        PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
+        false,
+      );
       const taskId = computed(() => get(state, 'value.taskId', null));
       const task = ref(null);
       const taskError = ref(false);
@@ -287,7 +292,7 @@
         }).then(response => {
           const picturePasswordSettings = state.value.targetFacility.picture_password_settings;
           if (picturePasswordSettings && response.data?.picture_password) {
-            sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
+            picturePasswordPending.value = true;
           }
           redirectBrowser();
         });
