@@ -8,8 +8,6 @@
       <PicturePasswordAssignedModal
         v-if="showPicturePasswordModal"
         :picturePassword="assignedPicturePassword"
-        :iconStyle="assignedIconStyle"
-        :showIconText="assignedShowIconText"
         @confirm="dismissPicturePasswordModal"
       />
     </transition>
@@ -27,7 +25,6 @@
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
-  import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
@@ -40,8 +37,7 @@
       PicturePasswordAssignedModal,
     },
     setup() {
-      const { isUserLoggedIn, isAppContext, currentUserId, userFacilityId } = useUser();
-      const { picturePasswordSettings, fetchFacilityConfig } = useFacilityConfig(userFacilityId);
+      const { isUserLoggedIn, isAppContext, currentUserId } = useUser();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
@@ -49,24 +45,15 @@
 
       const showPicturePasswordModal = ref(false);
       const assignedPicturePassword = ref(null);
-      const assignedIconStyle = ref(null);
-      const assignedShowIconText = ref(null);
 
       onMounted(async () => {
         if (!picturePasswordPending.value) return;
 
-        const [user] = await Promise.all([
-          FacilityUserResource.fetchModel({ id: get(currentUserId) }),
-          // fetchFacilityConfig() implicitly populates picturePasswordSettings via the
-          // facilityConfig ref inside useFacilityConfig — it must resolve before we read it below
-          fetchFacilityConfig(),
-        ]);
+        const user = await FacilityUserResource.fetchModel({ id: get(currentUserId) });
 
-        if (user.picture_password && picturePasswordSettings.value) {
+        if (user.picture_password) {
           picturePasswordPending.value = false;
           assignedPicturePassword.value = user.picture_password;
-          assignedIconStyle.value = picturePasswordSettings.value.icon_style;
-          assignedShowIconText.value = picturePasswordSettings.value.show_icon_text;
           showPicturePasswordModal.value = true;
         }
       });
@@ -80,8 +67,6 @@
         isAppContext,
         showPicturePasswordModal,
         assignedPicturePassword,
-        assignedIconStyle,
-        assignedShowIconText,
         dismissPicturePasswordModal,
       };
     },

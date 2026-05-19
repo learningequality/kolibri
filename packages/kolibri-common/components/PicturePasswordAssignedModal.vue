@@ -11,8 +11,6 @@
     <UserPicturePassword
       class="picture-password"
       :picturePassword="picturePassword"
-      :iconStyle="iconStyle"
-      :showIconText="showIconText"
       iconSize="60px"
     />
     <p class="modal-block">{{ picturePasswordAssignedAddendum$() }}</p>
@@ -69,16 +67,6 @@
       picturePassword: {
         type: String,
         required: true,
-      },
-      iconStyle: {
-        type: String,
-        required: false,
-        default: null,
-      },
-      showIconText: {
-        type: Boolean,
-        required: false,
-        default: null,
       },
     },
   };

@@ -290,8 +290,7 @@
           method: 'POST',
           data: params,
         }).then(response => {
-          const picturePasswordSettings = state.value.targetFacility.picture_password_settings;
-          if (picturePasswordSettings && response.data?.picture_password) {
+          if (response.data?.picture_password) {
             picturePasswordPending.value = true;
           }
           redirectBrowser();
