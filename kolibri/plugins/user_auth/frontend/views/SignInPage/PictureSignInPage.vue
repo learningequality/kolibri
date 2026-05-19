@@ -1,6 +1,7 @@
 <template>
 
   <AuthBase
+    ref="authBaseRef"
     :busy="busy"
     :landscapeLayout="landscapeLayout"
   >
@@ -26,15 +27,13 @@
     />
 
     <PicturePasswordGrid
+      ref="passwordGridRef"
       class="picture-grid"
       :class="{ 'after-action': hasMultipleFacilities }"
       :iconStyle="picturePasswordStyle"
       :showIconText="picturePasswordShowIconText"
-      :wrongSequence="wrongSequence"
-      :clearSelection="clearSelection"
+      :clearSequence.sync="clearSequence"
       :landscapeLayout="landscapeLayout"
-      @wrongSequenceHandled="wrongSequence = false"
-      @clearSelectionHandled="clearSelection = false"
       @submit="prevalidate"
     />
     <PicturePasswordConfirmModal
@@ -52,15 +51,18 @@
 
 <script>
 
-  import { computed, ref } from 'vue';
+  import { computed, nextTick, ref } from 'vue';
   import useUser from 'kolibri/composables/useUser';
+  import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { useRouter, useRoute } from 'vue-router/composables';
   import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
   import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -89,6 +91,8 @@
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
       const { windowIsLandscape } = useKResponsiveWindow();
+      const { sendAssertiveMessage } = useKLiveRegion();
+      const { wrongPicturesTryAgain$ } = picturePasswordStrings;
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
       const {
         hasMultipleFacilities,
@@ -101,11 +105,14 @@
       const { setSelectedFacilityId } = useFacilitySelect();
 
       const busy = ref(false);
-      const wrongSequence = ref(false);
-      const clearSelection = ref(false);
+      const clearSequence = ref(false);
       const showConfirmModal = ref(false);
       const confirmedLearnerName = ref('');
       const submittedPicturePassword = ref('');
+
+      // Template refs for calling public methods on child components
+      const authBaseRef = ref(null);
+      const passwordGridRef = ref(null);
       const backTo = computed(() => {
         return hasMultipleFacilities.value ? getFacilitySelectionRoute(false) : null;
       });
@@ -134,6 +141,12 @@
         }
       });
 
+      /**
+       * Handles authentication once the user has entered a picture password and submits it
+       *
+       * @param {string} picturePassword
+       * @return {Promise<void>}
+       */
       async function prevalidate(picturePassword) {
         busy.value = true;
         setSelectedFacilityId(facilityId.value);
@@ -146,9 +159,14 @@
           if (data) {
             submittedPicturePassword.value = picturePassword;
             confirmedLearnerName.value = data.full_name;
-            showConfirmModal.value = true;
+            await passwordGridRef.value.playSuccessAnimation(); // Play animation first
+            showConfirmModal.value = true; // Then show modal
           } else if (error) {
-            wrongSequence.value = true;
+            await authBaseRef.value.shake();
+            clearSequence.value = true;
+            await nextTick();
+            sendAssertiveMessage(wrongPicturesTryAgain$());
+            passwordGridRef.value?.focus();
           }
         } catch (error) {
           createSnackbar({
@@ -170,12 +188,19 @@
           sessionPayload['next'] = nextParam.value;
         }
         try {
-          const { error } = await login(sessionPayload);
+          const { error } = await login(sessionPayload, false, false);
           if (error) {
             showConfirmModal.value = false;
             submittedPicturePassword.value = '';
             confirmedLearnerName.value = '';
-            wrongSequence.value = true;
+            await authBaseRef.value.shake();
+            clearSequence.value = true;
+            await nextTick();
+            sendAssertiveMessage(wrongPicturesTryAgain$());
+            passwordGridRef.value?.focus();
+          } else {
+            showConfirmModal.value = false;
+            redirectBrowser(nextParam.value || undefined);
           }
         } catch {
           createSnackbar({
@@ -189,15 +214,14 @@
 
       function handleCancel() {
         showConfirmModal.value = false;
-        clearSelection.value = true;
+        clearSequence.value = true;
       }
 
       return {
         // state
         busy,
-        wrongSequence,
+        clearSequence,
         landscapeLayout,
-        clearSelection,
         showConfirmModal,
         confirmedLearnerName,
         submittedPicturePassword,
@@ -205,6 +229,9 @@
         picturePasswordStyle,
         picturePasswordShowIconText,
         hasMultipleFacilities,
+        // template refs
+        authBaseRef,
+        passwordGridRef,
         // actions
         prevalidate,
         handleConfirm,
@@ -213,7 +240,7 @@
     },
     $trs: {
       documentTitle: {
-        message: 'User Picture Password Sign In',
+        message: 'Sign in to Kolibri',
         context: 'User sign in page for using picture password.',
       },
     },
