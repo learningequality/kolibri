@@ -119,7 +119,7 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
   import {
-    PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED,
+    PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
     OptionsForSignIn,
   } from 'kolibri-common/constants/Auth';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
@@ -310,7 +310,7 @@
                 this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
                 user?.picture_password
               ) {
-                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, 'true');
+                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
               }
               this.redirectAfterSignup();
             })

@@ -28,7 +28,7 @@
   import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
-  import { PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED } from 'kolibri-common/constants/Auth';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../constants';
@@ -49,9 +49,9 @@
       const assignedShowIconText = ref(null);
 
       onMounted(async () => {
-        const dismissed = sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED);
-        if (dismissed !== 'true') return;
-        sessionStorage.removeItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED);
+        const pending = sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING);
+        if (pending !== 'true') return;
+        sessionStorage.removeItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING);
 
         const [user] = await Promise.all([
           FacilityUserResource.fetchModel({ id: get(currentUserId) }),

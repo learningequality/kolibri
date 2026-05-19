@@ -4,7 +4,7 @@ import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
 import { createTranslator } from 'kolibri/utils/i18n';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
-import { PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED } from 'kolibri-common/constants/Auth';
+import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
 import MergeFacility from '../MergeFacility';
 
 const sendMachineEvent = jest.fn();
@@ -133,7 +133,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     await flushUi();
 
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBe('true');
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
   });
 
   it('redirects without storing in sessionStorage when picture password is null after facility change', async () => {
@@ -151,7 +151,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     await fireEvent.click(screen.getByTestId('finishButton'));
     await flushUi();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
   });
 
   it(`clicking retry button sends the task error event to the state machine`, async () => {

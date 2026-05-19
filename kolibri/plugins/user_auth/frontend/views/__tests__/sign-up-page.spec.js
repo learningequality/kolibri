@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import client from 'kolibri/client';
 import {
   OptionsForSignIn,
-  PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED,
+  PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
 } from 'kolibri-common/constants/Auth';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
@@ -133,7 +133,7 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBe('true');
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
   });
 
   it('redirects without storing in sessionStorage when picture password is null', async () => {
@@ -148,7 +148,7 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
   });
 
   it('redirects without storing in sessionStorage when picture sign-in is not enabled', async () => {
@@ -163,6 +163,6 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBeNull();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBeNull();
   });
 });
