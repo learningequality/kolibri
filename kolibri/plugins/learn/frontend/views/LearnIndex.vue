@@ -51,7 +51,6 @@
       onMounted(async () => {
         const pending = sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING);
         if (pending !== 'true') return;
-        sessionStorage.removeItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING);
 
         const [user] = await Promise.all([
           FacilityUserResource.fetchModel({ id: get(currentUserId) }),
@@ -61,6 +60,7 @@
         ]);
 
         if (user.picture_password && picturePasswordSettings.value) {
+          sessionStorage.removeItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING);
           assignedPicturePassword.value = user.picture_password;
           assignedIconStyle.value = picturePasswordSettings.value.icon_style;
           assignedShowIconText.value = picturePasswordSettings.value.show_icon_text;
