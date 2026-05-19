@@ -2,11 +2,11 @@ from unittest.mock import patch
 
 from django.db.utils import DatabaseError
 from django.urls import reverse
-from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 
 
@@ -71,7 +71,8 @@ class ClassroomNotificationsTestCase(APITestCase):
 
     def test_another_classroom_coach_cannot_access_list(self):
         self.client.login(
-            username=self.another_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.another_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(self.list_name), {"classroom_id": self.classroom.id}

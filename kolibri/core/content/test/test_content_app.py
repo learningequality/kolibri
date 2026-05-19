@@ -18,13 +18,13 @@ from le_utils.constants import content_kinds
 from le_utils.constants import library as library_constants
 from le_utils.constants import modalities
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from kolibri.core import error_constants
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.content.test.helpers import ChannelBuilder

@@ -4,13 +4,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
-from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession

@@ -4,11 +4,11 @@ import uuid
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
-from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons import models
@@ -147,7 +147,8 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
 
     def test_another_classroom_coach_cannot_access_detail(self):
         self.client.login(
-            username=self.another_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.another_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(self.detail_name, kwargs={"pk": self.classroom.id})

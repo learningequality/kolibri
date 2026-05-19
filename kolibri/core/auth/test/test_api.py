@@ -26,8 +26,6 @@ from morango.models import TransferSession
 from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
-from rest_framework.test import APITransactionTestCase
 
 from .. import models
 from ..constants import role_kinds
@@ -38,6 +36,8 @@ from .helpers import create_superuser
 from .helpers import disable_picture_password
 from .helpers import DUMMY_PASSWORD
 from .helpers import enable_picture_password
+from .helpers import KolibriAPITestCase as APITestCase
+from .helpers import KolibriAPITransactionTestCase as APITransactionTestCase
 from .helpers import provision_device
 from .helpers import setup_device
 from kolibri.core import error_constants
@@ -1037,7 +1037,9 @@ class UserUpdateTestCase(APITestCase):
         )
         self.client.logout()
         response = self.client.login(
-            username=self.user.username, password=new_password, facility=self.facility
+            username=self.user.username,
+            password=new_password,
+            facility=self.facility,
         )
         self.assertTrue(response)
 
@@ -1050,7 +1052,9 @@ class UserUpdateTestCase(APITestCase):
         )
         self.client.logout()
         response = self.client.login(
-            username=self.user.username, password=new_password, facility=self.facility
+            username=self.user.username,
+            password=new_password,
+            facility=self.facility,
         )
         self.assertTrue(response)
 
@@ -1442,7 +1446,9 @@ class UserRetrieveTestCase(APITestCase):
     def _make_request(self, user=None, url=None, params=None):
         if user:
             self.client.login(
-                username=user.username, password=DUMMY_PASSWORD, facility=self.facility
+                username=user.username,
+                password=DUMMY_PASSWORD,
+                facility=self.facility,
             )
 
         if url is None:
