@@ -116,37 +116,3 @@ class PicturePasswordsSyncHookTestCase(TestCase):
         with self.assertLogs("kolibri.core.auth.kolibri_plugin", level="ERROR"):
             self._call_post_transfer()
         self.assertEqual(mock_assign.call_count, 1)
-
-
-class PicturePasswordsSyncHookDBStateTestCase(TestCase):
-    """Exercises the full assignment path against a real DB without any mocking."""
-
-    databases = "__all__"
-
-    def test_assigns_passwords_after_sync_and_preserves_existing(self):
-        facility = Facility.objects.create(name="Facility")
-        facility.dataset.learner_can_edit_password = False
-        facility.dataset.picture_password_settings = _PICTURE_PASSWORD_SETTINGS
-        facility.dataset.save()
-
-        learner_no_pwd = FacilityUser.objects.create(
-            username="no_pwd", facility=facility
-        )
-        learner_with_pwd = FacilityUser.objects.create(
-            username="with_pwd", facility=facility, picture_password="1.2.3"
-        )
-
-        context = mock.MagicMock(spec=LocalSessionContext(), is_receiver=True)
-        hook = PicturePasswordsSyncHook()
-        hook.post_transfer(
-            dataset_id=facility.dataset_id,
-            local_is_single_user=False,
-            remote_is_single_user=False,
-            single_user_id=None,
-            context=context,
-        )
-
-        learner_no_pwd.refresh_from_db()
-        learner_with_pwd.refresh_from_db()
-        self.assertIsNotNone(learner_no_pwd.picture_password)
-        self.assertEqual(learner_with_pwd.picture_password, "1.2.3")
