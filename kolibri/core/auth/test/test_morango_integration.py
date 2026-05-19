@@ -1680,6 +1680,9 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
         )
 
 
+_PICTURE_PASSWORD_SETTINGS = {"icon_style": "standard", "show_icon_text": True}
+
+
 @unittest.skipIf(
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
@@ -1735,3 +1738,68 @@ class PicturePasswordCollisionIntegrationTestCase(MultipleServerTestCase):
         self.assertEqual("1.2.3", user_a.picture_password)
         self.assertNotEqual("1.2.3", user_b.picture_password)
         self.assertIsNotNone(user_b.picture_password)
+
+
+@unittest.skipIf(
+    not os.environ.get("INTEGRATION_TEST"),
+    "This test will only be run during integration testing.",
+)
+class PicturePasswordsSyncHookTestCase(MultipleServerTestCase):
+    @multiple_kolibri_servers(2)
+    def test_picture_passwords_assigned_after_sync(self, servers):
+        """
+        Learners created on a device where picture login was not active arrive without
+        picture passwords. After syncing to a device that has picture login enabled,
+        the post_transfer hook should assign them passwords without overwriting any
+        that already exist.
+        """
+        sender, receiver = servers
+
+        def _get_pwd(**lookup):
+            return (
+                FacilityUser.objects.using(receiver.db_alias)
+                .get(**lookup)
+                .picture_password
+            )
+
+        # Set up the sender with a facility and learners; picture login is not enabled.
+        facility, learner_no_pwd, _ = sender.generate_base_data()
+
+        # Initial sync so the receiver gets the facility.
+        receiver.sync(sender, facility)
+
+        # Enable picture login on the receiver after the initial sync.
+        dataset = FacilityDataset.objects.using(receiver.db_alias).get(
+            id=facility.dataset_id
+        )
+        receiver.update_model(
+            FacilityDataset,
+            str(dataset.id),
+            picture_password_settings=_PICTURE_PASSWORD_SETTINGS,
+        )
+
+        assert _get_pwd(id=learner_no_pwd.id) is None
+
+        facility_on_receiver = Facility.objects.using(receiver.db_alias).get()
+        receiver.create_model(
+            FacilityUser,
+            username="existing_pwd_learner",
+            password=DUMMY_PASSWORD,
+            facility_id=facility_on_receiver.id,
+            picture_password="1.2.3",
+        )
+
+        # Sync again — the receiver's post_transfer hook should now assign passwords.
+        receiver.sync(sender, facility)
+
+        assert _get_pwd(id=learner_no_pwd.id) is not None
+        assert _get_pwd(username="existing_pwd_learner") == "1.2.3"
+
+        # Record what was assigned so we can confirm it survives another sync.
+        assigned_password = _get_pwd(id=learner_no_pwd.id)
+
+        # Sync a third time — the hook must not overwrite already-assigned passwords.
+        receiver.sync(sender, facility)
+
+        assert _get_pwd(id=learner_no_pwd.id) == assigned_password
+        assert _get_pwd(username="existing_pwd_learner") == "1.2.3"
