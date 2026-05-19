@@ -1,6 +1,12 @@
 <template>
 
-  <div class="picture-password-grid">
+  <form
+    ref="formRef"
+    class="picture-password-grid"
+    tabindex="-1"
+    :aria-label="formAriaLabel$()"
+    @submit.prevent="handleSubmit"
+  >
     <div
       class="icon-grid"
       :style="{
@@ -11,13 +17,14 @@
       <PicturePasswordOption
         v-for="iconData in icons"
         :key="iconData.id"
+        :class="{ bouncing: bouncingId === iconData.id }"
         :icon="iconData.iconToken"
         :iconName="iconData.name"
         :sequencePosition="iconData.sequencePosition"
         :disabled="iconData.disabled"
         :showIconText="showIconText"
         @select="handleSelect(iconData.id)"
-        @disabledSelect="handleDisabledSelect"
+        @disabledSelect="handleDisabledSelect(iconData.id)"
       />
     </div>
 
@@ -31,7 +38,7 @@
           <KIcon
             v-if="slot.iconToken"
             :key="'icon-' + i"
-            class="progress-icon"
+            :class="['progress-icon', 'bounce-in']"
             :icon="slot.iconToken"
           />
           <div
@@ -46,31 +53,33 @@
       <!-- Submit button: shows only a forward-arrow icon; the aria-label
           cycles through four instructional states as the sequence is built. -->
       <button
-        type="button"
+        type="submit"
         class="submit-button"
-        :class="
+        :class="[
           $computedClass({
             ':hover': submitEnabled
               ? {
                 backgroundColor: $themeTokens.primaryDark,
               }
               : {},
-          })
-        "
+          }),
+          { pulsing: submitPulsing },
+          { bouncing: arrowBouncing },
+        ]"
         data-testid="submit-button"
         :aria-disabled="!submitEnabled ? 'true' : undefined"
         :aria-label="submitButtonAriaLabel"
         :style="submitButtonStyle"
-        @click="handleSubmit"
       >
         <KIcon
+          data-testid="submit-icon"
           class="submit-icon"
           icon="forward"
           :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
         />
       </button>
     </div>
-  </div>
+  </form>
 
 </template>
 
@@ -113,10 +122,14 @@
         selectTwoMoreIcons$,
         selectOneMoreIcon$,
         signInWithSequence$,
+        formAriaLabel$,
       } = picturePasswordStrings;
 
       // Internal selection state: up to 3 integer IDs in order of selection.
       const sequence = ref([]);
+
+      // Template ref for the form element (used for programmatic focus)
+      const formRef = ref(null);
 
       const resolveIconToken = entry =>
         props.iconStyle === 'standard' ? entry.iconStandard : entry.iconColorful;
@@ -216,39 +229,102 @@
         sendPoliteMessage(ORDINAL_STRING_MAP[position]({ icon: iconLabelFor(id) }));
       };
 
-      const handleDisabledSelect = () => {
+      const consecutiveOverfillCount = ref(0);
+      const submitPulsing = ref(false);
+      const bouncingId = ref(null);
+
+      const handleDisabledSelect = id => {
+        if (sequence.value.length === 3) {
+          consecutiveOverfillCount.value++;
+          if (consecutiveOverfillCount.value >= 3) {
+            submitPulsing.value = true;
+          }
+        }
+
+        if (bouncingId.value === null) {
+          bouncingId.value = id;
+          setTimeout(() => {
+            bouncingId.value = null;
+          }, 380);
+        }
+
         sendPoliteMessage(allIconsSelected$());
       };
 
       const handleSubmit = () => {
         if (!submitEnabled.value) return;
+        consecutiveOverfillCount.value = 0;
+        submitPulsing.value = false;
         emit('submit', sequence.value.join('.'));
       };
 
       watch(
-        () => props.wrongSequence,
+        sequence,
+        () => {
+          consecutiveOverfillCount.value = 0;
+          submitPulsing.value = false;
+        },
+        { deep: true },
+      );
+
+      watch(
+        () => props.clearSequence,
         value => {
           if (value) {
             sequence.value = [];
-            emit('wrongSequenceHandled');
+            emit('update:clearSequence', false);
           }
         },
       );
 
-      watch(
-        () => props.clearSelection,
-        value => {
-          if (value) {
-            sequence.value = [];
-            emit('clearSelectionHandled');
+      const arrowBouncing = ref(false);
+
+      /**
+       * @public
+       * Plays the success animation bouncing each selected icon in sequence,
+       * then the submit arrow. Returns a Promise that resolves when complete.
+       */
+      const playSuccessAnimation = () => {
+        const STAGGER = 150;
+        const DURATION = 380;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const stagger = reduce ? 0 : STAGGER;
+        const dur = reduce ? 0 : DURATION;
+
+        return new Promise(resolve => {
+          for (let i = 0; i < sequence.value.length; i++) {
+            const id = sequence.value[i];
+            const isLast = i === sequence.value.length - 1;
+            window.setTimeout(() => {
+              bouncingId.value = id;
+              if (isLast) arrowBouncing.value = true;
+              window.setTimeout(() => {
+                if (bouncingId.value === id) bouncingId.value = null;
+                if (isLast) arrowBouncing.value = false;
+              }, dur);
+            }, i * stagger);
           }
-        },
-      );
+
+          window.setTimeout(() => resolve(), (sequence.value.length - 1) * stagger + dur);
+        });
+      };
 
       const submitButtonStyle = computed(() => ({
         backgroundColor: submitEnabled.value ? $themeTokens.primary : $themePalette.grey.v_200,
         cursor: submitEnabled.value ? 'pointer' : 'not-allowed',
       }));
+
+      /**
+       * @public
+       * Returns focus to the form element, e.g. after a failed sign-in attempt
+       * so that screen reader users land back inside the grid instead of on
+       * the now-disabled submit button.
+       */
+      const focus = () => {
+        if (formRef.value) {
+          formRef.value.focus();
+        }
+      };
 
       return {
         icons,
@@ -257,9 +333,17 @@
         submitEnabled,
         submitButtonAriaLabel,
         submitButtonStyle,
+        submitPulsing,
+        bouncingId,
+        arrowBouncing,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,
+        formAriaLabel$,
+        formRef,
+        focus, // eslint-disable-line vue/no-unused-properties
+        sequence, // eslint-disable-line vue/no-unused-properties
+        playSuccessAnimation, // eslint-disable-line vue/no-unused-properties
       };
     },
 
@@ -280,20 +364,11 @@
         default: true,
       },
       /**
-       * Set to true by the parent when the submitted sequence was rejected by
-       * the server. The grid clears its sequence and emits `wrongSequenceHandled`
-       * so the parent can reset this prop back to false.
+       * Set to true by the parent to clear the icon sequence. The grid clears
+       * its sequence and emits `update:clearSequence` so the parent can reset
+       * this prop back to false.
        */
-      wrongSequence: {
-        type: Boolean,
-        default: false,
-      },
-      /**
-       * Set to true by the parent to clear the selection without implying an
-       * error (e.g. when the user cancels the confirm modal). Emits
-       * `clearSelectionHandled` so the parent can reset this prop back to false.
-       */
-      clearSelection: {
+      clearSequence: {
         type: Boolean,
         default: false,
       },
@@ -319,6 +394,10 @@
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
+  }
+
+  .picture-password-grid:focus {
+    outline: none;
   }
 
   .icon-grid {
@@ -376,6 +455,54 @@
     top: 0;
     width: 40px;
     height: 40px;
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.5);
+    }
+
+    60% {
+      transform: scale(1.08);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .bounce-in {
+    animation: bounce-in 380ms ease-out both;
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: scale(1);
+    }
+
+    60% {
+      transform: scale(1.08);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .bouncing {
+    animation: bounce 380ms ease-out both;
+  }
+
+  .pulsing {
+    animation: bounce 1s ease-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bounce-in,
+    .bouncing,
+    .pulsing {
+      animation: none;
+    }
   }
 
 </style>
