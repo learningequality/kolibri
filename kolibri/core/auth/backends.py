@@ -3,15 +3,146 @@ Implements custom auth backends as described in the Django docs, for our custom 
 The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note that authentication
 backends are checked in the order they're listed.
 """
+import abc
+
 from django.contrib.sessions.backends.db import SessionStore as DBStore
-from django.db.models import Q
+from django.db.models import Exists
+from django.db.models import OuterRef
+from django.utils.functional import cached_property
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import Role
 from kolibri.core.auth.models import Session
+from kolibri.core.device.utils import is_full_facility_import
 
 
 FACILITY_CREDENTIAL_KEY = "facility"
+
+
+class FacilityAuthScope(abc.ABC):
+    """Base facility scope for authentication"""
+
+    def __init__(self, facility_or_id):
+        """
+        :param facility_or_id: The facility ID string or a Facility object
+        """
+        self.facility_or_id = facility_or_id
+
+    @cached_property
+    def dataset_id(self):
+        """
+        Resolves a facility string ID or object to its dataset ID.
+        See FacilityUserBackend.authenticate on how it accepts either
+
+        :return: The facility dataset ID
+        """
+        if not self.facility_or_id:
+            return None
+
+        # Resolve dataset_id to leverage the (dataset, picture_password) unique
+        # index. facility may be a Facility object or a raw pk/UUID.
+        if isinstance(self.facility_or_id, Facility):
+            return self.facility_or_id.dataset_id
+
+        try:
+            return Facility.objects.values_list("dataset_id", flat=True).get(
+                pk=self.facility_or_id
+            )
+        except Facility.DoesNotExist:
+            return None
+
+    @cached_property
+    def is_subset_of_users_device(self):
+        return self.dataset_id and not is_full_facility_import(self.dataset_id)
+
+    def get_candidate_users(self):
+        """
+        Determines candidate users for checking authorization
+        :return: A queryset of FacilityUser objects
+        """
+        qs = FacilityUser.objects.all()
+        if self.dataset_id:
+            qs = qs.filter(dataset_id=self.dataset_id)
+        # users who have the most roles could be more active than users who have less, but instead
+        # of trying to authenticate them first, through ordering, we just prioritize by date joined
+        return qs.annotate(
+            has_roles=Exists(Role.objects.filter(user_id=OuterRef("pk"))),
+        ).order_by("-has_roles", "date_joined")
+
+    @abc.abstractmethod
+    def matches_credentials(self, user):
+        """
+        Determines whether this user is authorized
+        :param user: A FacilityUser object
+        :return: A boolean indicating authorization
+        """
+        pass
+
+
+class UsernameAuthScope(FacilityAuthScope):
+    """Auth scope for username/password authentication"""
+
+    def __init__(self, facility_or_id, username=None, password=None):
+        super().__init__(facility_or_id)
+        self.username = username
+        self.password = password
+        self.case_sensitive = True
+
+    def set_case_insensitive(self):
+        self.case_sensitive = False
+
+    def get_candidate_users(self):
+        qs = super().get_candidate_users()
+        if self.case_sensitive:
+            return qs.filter(username=self.username)
+        return qs.filter(username__iexact=self.username)
+
+    def matches_credentials(self, user):
+        """
+        Either the provided password matches the user, or the user is a learner and the facility
+        configuration allows passwordless sign-in.
+        :param user: A FacilityUser object
+        :return: Whether the user is authorized
+        """
+        if user.check_password(self.password):
+            return True
+
+        return (
+            self.dataset_id
+            and user.dataset.learner_can_login_with_no_password
+            and not user.has_roles
+            and (not user.is_superuser or self.is_subset_of_users_device)
+        )
+
+
+class PicturePasswordAuthScope(FacilityAuthScope):
+    """Auth scope for picture password authentication"""
+
+    def __init__(self, facility_or_id, picture_password=None):
+        super().__init__(facility_or_id)
+        self.picture_password = picture_password
+
+    def get_candidate_users(self):
+        if not self.dataset_id:
+            return FacilityUser.objects.none()
+        return (
+            super().get_candidate_users().filter(picture_password=self.picture_password)
+        )
+
+    def matches_credentials(self, user):
+        """
+        Validates that the user is a learner and that the facility configuration allows picture
+        password sign-in.
+        :param user: A FacilityUser object
+        :return: Whether the user is authorized
+        """
+        return (
+            self.dataset_id
+            and user.dataset.picture_password_settings is not None
+            and not user.has_roles
+            and (not user.is_superuser or self.is_subset_of_users_device)
+        )
 
 
 class FacilityUserBackend:
@@ -38,70 +169,25 @@ class FacilityUserBackend:
         # The None check is load-bearing: filter(picture_password=None) would
         # match rows where the column IS NULL, returning an arbitrary learner.
         if picture_password is not None:
-            return self._authenticate_picture_password(picture_password, facility)
+            auth_scope = PicturePasswordAuthScope(facility, picture_password)
+            return self._run(auth_scope)
 
         # First, attempt case-sensitive login
-        user = self.authenticate_case_sensitive(username, password, facility)
+        auth_scope = UsernameAuthScope(facility, username=username, password=password)
+
+        user = self._run(auth_scope)
         if user:
             return user
 
         # If case-sensitive login fails, attempt case-insensitive login
-        user = self.authenticate_case_insensitive(username, password, facility)
-        return user
+        auth_scope.set_case_insensitive()
+        return self._run(auth_scope)
 
-    def _authenticate_picture_password(self, picture_password, facility):
-        if not facility:
-            return None
-        # Resolve dataset_id to leverage the (dataset, picture_password) unique
-        # index. facility may be a Facility object or a raw pk/UUID.
-        if hasattr(facility, "dataset_id"):
-            dataset_id = facility.dataset_id
-        else:
-            try:
-                dataset_id = Facility.objects.values_list("dataset_id", flat=True).get(
-                    pk=facility
-                )
-            except Facility.DoesNotExist:
-                return None
-        return (
-            FacilityUser.objects.filter(
-                picture_password=picture_password,
-                dataset_id=dataset_id,
-                # Restrict to learners only (no facility roles).
-                roles__isnull=True,
-            )
-            .filter(
-                # Exclude device superusers; allow users with no devicepermissions row.
-                Q(devicepermissions__is_superuser=False)
-                | Q(devicepermissions__isnull=True)
-            )
-            .first()
-        )
-
-    def _authenticate_users(self, users, password, facility):
-        if facility:
-            users = users.filter(facility=facility)
-        for user in users:
-            if user.check_password(password):
-                return user
-            # Allow login without password for learners for facilities that allow this.
-            # Must specify the facility, to prevent accidental logins
-            elif (
-                facility
-                and user.dataset.learner_can_login_with_no_password
-                and not user.roles.count()
-                and not user.is_superuser
-            ):
+    def _run(self, auth_scope):
+        for user in auth_scope.get_candidate_users():
+            if auth_scope.matches_credentials(user):
                 return user
         return None
-
-    def authenticate_case_sensitive(self, username, password, facility):
-        users = FacilityUser.objects.filter(username=username)
-        return self._authenticate_users(users, password, facility)
-
-    def authenticate_case_insensitive(self, username, password, facility):
-        users = FacilityUser.objects.filter(username__iexact=username)
-        return self._authenticate_users(users, password, facility)
 
     def get_user(self, user_id):
         """

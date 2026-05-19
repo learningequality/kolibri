@@ -45,6 +45,25 @@ def setup_device():
     return facility, superuser
 
 
+def enable_picture_password(facility):
+    dataset = facility.dataset
+    dataset.learner_can_login_with_no_password = True
+    dataset.learner_can_edit_password = False
+    dataset.picture_password_settings = {
+        "icon_style": "standard",
+        "show_icon_text": True,
+    }
+    dataset.save()
+
+
+def disable_picture_password(facility, passwordless=False):
+    dataset = facility.dataset
+    dataset.learner_can_login_with_no_password = passwordless
+    dataset.learner_can_edit_password = not passwordless
+    dataset.picture_password_settings = None
+    dataset.save()
+
+
 def create_dummy_facility_data(
     allow_sign_ups=False, classroom_count=2, learnergroup_count=2
 ):
