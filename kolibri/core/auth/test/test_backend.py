@@ -165,6 +165,21 @@ class FacilityUserBackendTestCase(TestCase):
             ),
         )
 
+    def test_authenticate__allows_superuser_with_valid_password_regardless_of_facility(
+        self,
+    ):
+        superuser = create_superuser(self.facility, username="superuser")
+
+        self.assertEqual(
+            superuser,
+            FacilityUserBackend().authenticate(
+                self.request,
+                username=superuser.username,
+                password=DUMMY_PASSWORD,
+                facility=self.other_facility.pk,
+            ),
+        )
+
     def test_authenticate__does_not_allow_superuser_passwordless_when_full_import(self):
         superuser = create_superuser(self.facility, username="superuser")
         disable_picture_password(self.facility, passwordless=True)
@@ -356,12 +371,12 @@ class FacilityAuthScopeTestCase(TestCase):
 
     def test_is_subset_of_users_device__returns_false_for_full_facility_import(self):
         auth_scope = _NoMatchFacilityAuthScope(self.facility)
-        self.assertFalse(auth_scope.is_subset_of_users_device)
+        self.assertFalse(auth_scope.is_full_facility_import)
 
     def test_is_subset_of_users_device__returns_true_for_partial_facility_import(self):
         self.is_full_facility_import.return_value = False
         auth_scope = _NoMatchFacilityAuthScope(self.facility)
-        self.assertTrue(auth_scope.is_subset_of_users_device)
+        self.assertTrue(auth_scope.is_full_facility_import)
 
     def test_get_candidate_users__filters_users_by_dataset_scope(self):
         scoped_user = FacilityUser.objects.create(

@@ -4,6 +4,7 @@ The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note th
 backends are checked in the order they're listed.
 """
 import abc
+import logging
 
 from django.contrib.sessions.backends.db import SessionStore as DBStore
 from django.db.models import Exists
@@ -18,9 +19,32 @@ from kolibri.core.device.utils import is_full_facility_import
 
 
 FACILITY_CREDENTIAL_KEY = "facility"
+logger = logging.getLogger(__name__)
 
 
-class FacilityAuthScope(abc.ABC):
+class AuthScope(abc.ABC):
+    @abc.abstractmethod
+    def get_candidate_users(self):
+        """
+        Determines candidate users for checking authorization
+        :return: A queryset of FacilityUser objects
+        """
+        pass
+
+    @abc.abstractmethod
+    def matches_credentials(self, user):
+        """
+        Determines whether this user is authorized
+        :param user: A FacilityUser object
+        :return: A boolean indicating authorization
+        """
+        pass
+
+    def __str__(self):
+        return self.__class__.__name__
+
+
+class FacilityAuthScope(AuthScope, abc.ABC):
     """Base facility scope for authentication"""
 
     def __init__(self, facility_or_id):
@@ -53,7 +77,7 @@ class FacilityAuthScope(abc.ABC):
             return None
 
     @cached_property
-    def is_subset_of_users_device(self):
+    def is_full_facility_import(self):
         return self.dataset_id and not is_full_facility_import(self.dataset_id)
 
     def get_candidate_users(self):
@@ -70,14 +94,39 @@ class FacilityAuthScope(abc.ABC):
             has_roles=Exists(Role.objects.filter(user_id=OuterRef("pk"))),
         ).order_by("-has_roles", "date_joined")
 
-    @abc.abstractmethod
+    def __str__(self):
+        suffix = ""
+        if self.facility_or_id:
+            suffix = f"<{self.facility_or_id}>"
+        return f"{super().__str__()}{suffix}"
+
+
+class SuperuserAuthScope(AuthScope):
+    """
+    Auth scope for superuser authentication, which does not need to align with a specific facility,
+    but requires superuser device permissions
+    """
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def get_candidate_users(self):
+        """
+        Only return superusers with matching username
+        :return: A queryset of FacilityUser objects
+        """
+        return FacilityUser.objects.filter(
+            username=self.username, devicepermissions__is_superuser=True
+        )
+
     def matches_credentials(self, user):
         """
-        Determines whether this user is authorized
+        Superuser's password must be verified
         :param user: A FacilityUser object
-        :return: A boolean indicating authorization
+        :return: Whether the user is authorized
         """
-        pass
+        return user.check_password(self.password)
 
 
 class UsernameAuthScope(FacilityAuthScope):
@@ -112,7 +161,7 @@ class UsernameAuthScope(FacilityAuthScope):
             self.dataset_id
             and user.dataset.learner_can_login_with_no_password
             and not user.has_roles
-            and (not user.is_superuser or self.is_subset_of_users_device)
+            and (not user.is_superuser or self.is_full_facility_import)
         )
 
 
@@ -141,7 +190,7 @@ class PicturePasswordAuthScope(FacilityAuthScope):
             self.dataset_id
             and user.dataset.picture_password_settings is not None
             and not user.has_roles
-            and (not user.is_superuser or self.is_subset_of_users_device)
+            and (not user.is_superuser or self.is_full_facility_import)
         )
 
 
@@ -181,11 +230,28 @@ class FacilityUserBackend:
 
         # If case-sensitive login fails, attempt case-insensitive login
         auth_scope.set_case_insensitive()
-        return self._run(auth_scope)
+        user = self._run(auth_scope)
+        if user:
+            return user
+
+        if username and password:
+            superuser_scope = SuperuserAuthScope(username, password)
+            user = self._run(superuser_scope)
+            if user:
+                return user
+
+        return None
 
     def _run(self, auth_scope):
+        """
+        :param auth_scope: The auth scope to validate against
+        :type auth_scope: AuthScope
+        :return:
+        """
         for user in auth_scope.get_candidate_users():
+            logger.debug(f"Using {auth_scope} to check user {user.id}")
             if auth_scope.matches_credentials(user):
+                logger.debug(f"{auth_scope} authorized user {user.id}")
                 return user
         return None
 
