@@ -1,10 +1,12 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/vue';
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue';
 import { ref, computed } from 'vue';
 import client from 'kolibri/client';
-import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
-import { coreString } from 'kolibri/uiText/commonCoreStrings';
+import {
+  OptionsForSignIn,
+  PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED,
+} from 'kolibri-common/constants/Auth';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
-import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import useAuthFlow, { useAuthFlowMock } from '../../composables/useAuthFlow'; // eslint-disable-line import-x/named
 import useAuthRouter, { useAuthRouterMock } from '../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import { SignUpResource } from '../../apiResource';
@@ -23,8 +25,6 @@ jest.mock('kolibri/utils/redirectBrowser');
 jest.mock('kolibri/urls', () => ({
   'kolibri:core:usernameavailable': () => '/usernameavailable',
 }));
-const { picturePasswordAssignedTitle$, readyToContinue$ } = picturePasswordStrings;
-
 const selectedFacility = ref({
   id: 1,
   name: 'Facility 1',
@@ -106,7 +106,10 @@ describe('picture password modal behavior', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     client.mockResolvedValue({});
+    sessionStorage.clear();
   });
+
+  const { finishAction$ } = coreStrings;
 
   async function proceedToSignupSubmit(container) {
     await fireEvent.update(container.querySelector('input[autocomplete="name"]'), 'Jane Doe');
@@ -115,12 +118,10 @@ describe('picture password modal behavior', () => {
     for (const passwordInput of passwordInputs) {
       await fireEvent.update(passwordInput, 'password123');
     }
-    await fireEvent.click(
-      within(container).getByRole('button', { name: coreString('finishAction') }),
-    );
+    await fireEvent.click(screen.getByRole('button', { name: finishAction$() }));
   }
 
-  it('shows modal after signup when picture password is assigned', async () => {
+  it('stores picture password in sessionStorage and redirects when picture password is assigned', async () => {
     SignUpResource.saveModel.mockResolvedValue({ id: 'new_user', picture_password: '3.7.12' });
     const { container } = renderComponent({
       step: 2,
@@ -129,11 +130,13 @@ describe('picture password modal behavior', () => {
 
     await proceedToSignupSubmit(container);
 
-    expect(await screen.findByText(picturePasswordAssignedTitle$())).toBeInTheDocument();
-    expect(redirectBrowser).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(redirectBrowser).toHaveBeenCalledTimes(1);
+    });
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBe('true');
   });
 
-  it('redirects without modal when picture password is null', async () => {
+  it('redirects without storing in sessionStorage when picture password is null', async () => {
     SignUpResource.saveModel.mockResolvedValue({ id: 'new_user', picture_password: null });
     const { container } = renderComponent({
       step: 2,
@@ -145,10 +148,10 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(screen.queryByText(picturePasswordAssignedTitle$())).not.toBeInTheDocument();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBeNull();
   });
 
-  it('redirects without modal when picture sign-in is not enabled', async () => {
+  it('redirects without storing in sessionStorage when picture sign-in is not enabled', async () => {
     SignUpResource.saveModel.mockResolvedValue({ id: 'new_user', picture_password: '3.7.12' });
     const { container } = renderComponent({
       step: 2,
@@ -160,25 +163,6 @@ describe('picture password modal behavior', () => {
     await waitFor(() => {
       expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
-    expect(screen.queryByText(picturePasswordAssignedTitle$())).not.toBeInTheDocument();
-  });
-
-  it('redirects after picture password confirmation', async () => {
-    SignUpResource.saveModel.mockResolvedValue({ id: 'new_user', picture_password: '3.7.12' });
-    const { container } = renderComponent({
-      step: 2,
-      _signInOptions: [OptionsForSignIn.USERNAME_PASSWORD, OptionsForSignIn.PICTURE_PASSWORD],
-    });
-
-    await proceedToSignupSubmit(container);
-    const dialog = await screen.findByRole('dialog', { name: picturePasswordAssignedTitle$() });
-    await fireEvent.click(within(dialog).getByLabelText(readyToContinue$()));
-    await fireEvent.click(
-      within(dialog).getByRole('button', { name: coreString('continueAction') }),
-    );
-
-    await waitFor(() => {
-      expect(redirectBrowser).toHaveBeenCalledTimes(1);
-    });
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED)).toBeNull();
   });
 });

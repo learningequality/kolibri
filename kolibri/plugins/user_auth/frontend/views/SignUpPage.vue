@@ -102,12 +102,6 @@
     >
       <LanguageSwitcherFooter />
     </div>
-
-    <PicturePasswordAssignedModal
-      v-if="showPicturePasswordModal"
-      :picturePassword="picturePassword"
-      @confirm="handlePicturePasswordConfirm"
-    />
   </div>
 
 </template>
@@ -124,14 +118,16 @@
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
-  import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
+  import {
+    PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED,
+    OptionsForSignIn,
+  } from 'kolibri-common/constants/Auth';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { handleApiError } from 'kolibri/utils/appError';
-  import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
   import useAuthFlow from '../composables/useAuthFlow';
@@ -157,7 +153,6 @@
       PasswordTextbox,
       UsernameTextbox,
       PrivacyLinkAndModal,
-      PicturePasswordAssignedModal,
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
@@ -203,8 +198,6 @@
         birthYear: '',
         caughtErrors: [],
         busy: false,
-        picturePassword: '',
-        showPicturePasswordModal: false,
       };
     },
     computed: {
@@ -317,10 +310,7 @@
                 this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
                 user?.picture_password
               ) {
-                this.picturePassword = user.picture_password;
-                this.showPicturePasswordModal = true;
-                this.busy = false;
-                return;
+                sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, true);
               }
               this.redirectAfterSignup();
             })
@@ -353,10 +343,6 @@
             this.$refs.passwordTextbox.focus();
           }
         });
-      },
-      handlePicturePasswordConfirm() {
-        this.showPicturePasswordModal = false;
-        this.redirectAfterSignup();
       },
     },
     $trs: {

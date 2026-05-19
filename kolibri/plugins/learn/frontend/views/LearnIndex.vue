@@ -4,6 +4,16 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
   >
+    <transition name="delay-entry">
+      <PicturePasswordAssignedModal
+        v-if="showPicturePasswordModal"
+        :picturePassword="assignedPicturePassword"
+        :iconStyle="assignedIconStyle"
+        :showIconText="assignedShowIconText"
+        @confirm="dismissPicturePasswordModal"
+      />
+    </transition>
+
     <router-view />
   </NotificationsRoot>
 
@@ -12,7 +22,13 @@
 
 <script>
 
+  import { ref, onMounted } from 'vue';
+  import { get } from '@vueuse/core';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
+  import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
+  import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED } from 'kolibri-common/constants/Auth';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
   import { PageNames } from '../constants';
@@ -21,12 +37,49 @@
     name: 'LearnIndex',
     components: {
       NotificationsRoot,
+      PicturePasswordAssignedModal,
     },
     setup() {
-      const { isUserLoggedIn, isAppContext } = useUser();
+      const { isUserLoggedIn, isAppContext, currentUserId, userFacilityId } = useUser();
+      const { picturePasswordSettings, fetchFacilityConfig } = useFacilityConfig(userFacilityId);
+
+      const showPicturePasswordModal = ref(false);
+      const assignedPicturePassword = ref(null);
+      const assignedIconStyle = ref(null);
+      const assignedShowIconText = ref(null);
+
+      onMounted(async () => {
+        const dismissed = sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED);
+        if (dismissed !== 'true') return;
+        sessionStorage.removeItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED);
+
+        const [user] = await Promise.all([
+          FacilityUserResource.fetchModel({ id: get(currentUserId) }),
+          // fetchFacilityConfig() implicitly populates picturePasswordSettings via the
+          // facilityConfig ref inside useFacilityConfig — it must resolve before we read it below
+          fetchFacilityConfig(),
+        ]);
+
+        if (user.picture_password && picturePasswordSettings.value) {
+          assignedPicturePassword.value = user.picture_password;
+          assignedIconStyle.value = picturePasswordSettings.value.icon_style;
+          assignedShowIconText.value = picturePasswordSettings.value.show_icon_text;
+          showPicturePasswordModal.value = true;
+        }
+      });
+
+      function dismissPicturePasswordModal() {
+        showPicturePasswordModal.value = false;
+      }
+
       return {
         isUserLoggedIn,
         isAppContext,
+        showPicturePasswordModal,
+        assignedPicturePassword,
+        assignedIconStyle,
+        assignedShowIconText,
+        dismissPicturePasswordModal,
       };
     },
     computed: {
@@ -43,10 +96,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  @import './learn';
-
-</style>

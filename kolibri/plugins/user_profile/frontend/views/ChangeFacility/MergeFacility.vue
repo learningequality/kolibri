@@ -83,14 +83,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
-    <PicturePasswordAssignedModal
-      v-if="showPicturePasswordModal"
-      :picturePassword="picturePassword"
-      :iconStyle="state.targetFacility.picture_password_settings.icon_style"
-      :showIconText="state.targetFacility.picture_password_settings.show_icon_text"
-      @confirm="handlePicturePasswordConfirm"
-    />
   </div>
 
 </template>
@@ -101,7 +93,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
-  import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED } from 'kolibri-common/constants/Auth';
   import { computed, inject, onMounted, ref } from 'vue';
   import TaskResource from 'kolibri/apiResources/TaskResource';
   import get from 'lodash/get';
@@ -120,7 +112,6 @@
     },
     components: {
       BottomAppBar,
-      PicturePasswordAssignedModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -129,8 +120,6 @@
       const taskId = computed(() => get(state, 'value.taskId', null));
       const task = ref(null);
       const taskError = ref(false);
-      const picturePassword = ref('');
-      const showPicturePasswordModal = ref(false);
       let isPolling = true;
       let isTaskRequested = false;
       const taskCompleted = computed(() =>
@@ -298,17 +287,10 @@
         }).then(response => {
           const picturePasswordSettings = state.value.targetFacility.picture_password_settings;
           if (picturePasswordSettings && response.data?.picture_password) {
-            picturePassword.value = response.data?.picture_password;
-            showPicturePasswordModal.value = true;
-          } else {
-            redirectBrowser();
+            sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED, true);
           }
+          redirectBrowser();
         });
-      }
-
-      function handlePicturePasswordConfirm() {
-        showPicturePasswordModal.value = false;
-        redirectBrowser();
       }
 
       function to_retry() {
@@ -358,11 +340,7 @@
         to_retry,
         successfullyJoined,
         errorMessage,
-        state,
         windowIsSmall,
-        picturePassword,
-        showPicturePasswordModal,
-        handlePicturePasswordConfirm,
       };
     },
 

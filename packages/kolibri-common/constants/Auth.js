@@ -1,3 +1,6 @@
+export const PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED =
+  'PICTURE_PASSWORD_ASSIGNED_MODAL_DISMISSED';
+
 export const PicturePasswordIconStyle = {
   COLORFUL: 'colorful',
   STANDARD: 'standard',
