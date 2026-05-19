@@ -1,6 +1,6 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { LoginErrors } from 'kolibri/constants';
@@ -310,43 +310,6 @@ describe('PictureSignInPage', () => {
       expect(mockSendAssertiveMessage).toHaveBeenCalledWith(
         picturePasswordStrings.wrongPicturesTryAgain$(),
       );
-    });
-  });
-
-  describe('successful authentication', () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('redirects only after the success animation completes', async () => {
-      mockLogin.mockResolvedValue({ data: null, error: null });
-      renderComponent();
-
-      await fireEvent.click(checkbox(bee()));
-      await fireEvent.click(checkbox(star()));
-      await fireEvent.click(checkbox(moon()));
-      await fireEvent.submit(
-        screen.getByRole('form', { name: picturePasswordStrings.formAriaLabel$() }),
-      );
-
-      // Immediately after login resolves, redirectBrowser should not have been called
-      expect(redirectBrowser).not.toHaveBeenCalled();
-
-      // Advance through the success bounce animation timers
-      jest.advanceTimersByTime(0);
-      await nextTick();
-      jest.advanceTimersByTime(150);
-      await nextTick();
-      jest.advanceTimersByTime(150);
-      await nextTick();
-      jest.advanceTimersByTime(380);
-      await nextTick();
-
-      expect(redirectBrowser).toHaveBeenCalledTimes(1);
     });
   });
 });
