@@ -223,6 +223,24 @@ describe('PictureSignInPage', () => {
       });
     });
 
+    it('redirects when confirm is clicked and login succeeds', async () => {
+      mockLogin
+        .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
+        .mockResolvedValueOnce({ data: null, error: null });
+
+      renderComponent();
+      await submitSequence();
+
+      await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
+
+      const confirmButton = screen.getByRole('button', { name: confirmLabel() });
+      await userEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(redirectBrowser).toHaveBeenCalledTimes(1);
+      });
+    });
+
     it('dismisses the modal and triggers wrong sequence when confirm login fails', async () => {
       mockLogin
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
