@@ -7,7 +7,7 @@
       >
         <template #actions>
           <KRouterLink
-            v-if="facilityConfig.picture_password_settings && learners.length"
+            v-if="picture_password_settings && learners.length"
             :text="viewPasswordsAction$()"
             appearance="raised-button"
             :to="{
@@ -77,10 +77,10 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri-common/components/ElapsedTime';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -105,7 +105,6 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { entireClassLabel$ } = coachStrings;
-      const { facilityConfig } = useFacility();
       const { viewPasswordsAction$ } = picturePasswordStrings;
 
       const recipientSelected = ref({
@@ -116,7 +115,6 @@
       return {
         pageLoading,
         entireClassLabel$,
-        facilityConfig,
         viewPasswordsAction$,
         recipientSelected,
         PageNames,
@@ -124,6 +122,7 @@
       };
     },
     computed: {
+      ...mapState('classSummary', ['picture_password_settings']),
       table() {
         const sorted = sortBy(this.learners, ['name']);
 

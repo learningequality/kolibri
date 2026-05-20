@@ -1,7 +1,5 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import { ref } from 'vue';
-import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 import makeStore from '../../../__tests__/utils/makeStore';
@@ -9,7 +7,6 @@ import LearnersRootPage from '../LearnersRootPage.vue';
 
 const { viewPasswordsAction$ } = picturePasswordStrings;
 
-jest.mock('kolibri-common/composables/useFacility');
 jest.mock('kolibri-common/composables/usePageLoading');
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../composables/fetchClassSyncStatus');
@@ -28,17 +25,13 @@ const routes = [
 const MOCK_LEARNER = { id: 'learner-1', name: 'Learner One', username: 'learner1' };
 
 function renderComponent({ picturePasswordSettings, learners = [] } = {}) {
-  useFacility.mockImplementation(() =>
-    useFacilityMock({
-      facilityConfig: ref({ picture_password_settings: picturePasswordSettings }),
-    }),
-  );
   const store = makeStore();
   const learnerMap = {};
   learners.forEach(l => {
     learnerMap[l.id] = l;
   });
   store.state.classSummary.learnerMap = learnerMap;
+  store.state.classSummary.picture_password_settings = picturePasswordSettings;
   return render(LearnersRootPage, { store, routes });
 }
 

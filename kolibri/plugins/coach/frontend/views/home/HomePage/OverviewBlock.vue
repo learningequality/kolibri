@@ -26,7 +26,7 @@
         :layout4="{ span: 2, alignment: 'right' }"
       >
         <KRouterLink
-          v-if="facilityConfig.picture_password_settings && learnerNames.length"
+          v-if="picture_password_settings && learnerNames.length"
           :text="viewPasswordsAction$()"
           appearance="raised-button"
           :to="{
@@ -84,11 +84,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import { ref } from 'vue';
   import { ClassesPageNames } from '../../../../../learn/frontend/constants';
@@ -102,12 +101,10 @@
     mixins: [commonCoach, commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();
-      const { facilityConfig } = useFacility();
       const { viewPasswordsAction$ } = picturePasswordStrings;
       const userList = ref([]);
       return {
         userIsMultiFacilityAdmin,
-        facilityConfig,
         viewPasswordsAction$,
         userList,
         PageNames,
@@ -116,6 +113,7 @@
     },
     computed: {
       ...mapGetters(['classListPageEnabled']),
+      ...mapState('classSummary', ['picture_password_settings']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },
