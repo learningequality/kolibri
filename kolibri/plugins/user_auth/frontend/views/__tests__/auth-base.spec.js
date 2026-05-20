@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/vue';
+import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
@@ -74,5 +75,100 @@ describe('auth base component', () => {
     renderComponent();
     const link = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(link).toHaveAttribute('href', '#/signup');
+  });
+
+  describe('shaking animation', () => {
+    let originalMatchMedia;
+
+    beforeEach(() => {
+      jest.useFakeTimers('modern');
+      originalMatchMedia = window.matchMedia;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+      window.matchMedia = originalMatchMedia;
+    });
+
+    function mountComponent() {
+      const router = new VueRouter({ routes });
+      return mount(AuthBase, {
+        router,
+        stubs: [
+          'router-link',
+          'KButton',
+          'KExternalLink',
+          'CoreLogo',
+          'LanguageSwitcherFooter',
+          'PrivacyInfoModal',
+          'DeviceUnusableMessage',
+        ],
+      });
+    }
+
+    it('shake() sets shaking state and resolves after 800ms (normal motion)', async () => {
+      window.matchMedia = jest.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+      }));
+
+      const wrapper = mountComponent();
+
+      let resolved = false;
+      wrapper.vm.shake().then(() => {
+        resolved = true;
+      });
+
+      expect(wrapper.vm.shaking).toBe(true);
+      expect(resolved).toBe(false);
+
+      jest.advanceTimersByTime(799);
+      await Promise.resolve();
+      expect(resolved).toBe(false);
+      expect(wrapper.vm.shaking).toBe(true);
+
+      jest.advanceTimersByTime(1);
+      await Promise.resolve();
+      expect(resolved).toBe(true);
+      expect(wrapper.vm.shaking).toBe(false);
+    });
+
+    it('shake() resolves after 1ms with prefers-reduced-motion', async () => {
+      window.matchMedia = jest.fn().mockImplementation(query => ({
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+      }));
+
+      const wrapper = mountComponent();
+
+      let resolved = false;
+      wrapper.vm.shake().then(() => {
+        resolved = true;
+      });
+
+      expect(wrapper.vm.shaking).toBe(true);
+      expect(resolved).toBe(false);
+
+      jest.advanceTimersByTime(1);
+      await Promise.resolve();
+      expect(resolved).toBe(true);
+      expect(wrapper.vm.shaking).toBe(false);
+    });
+
+    it('clears timeout on destroy to prevent memory leaks', () => {
+      window.matchMedia = jest.fn().mockImplementation(query => ({
+        matches: false,
+        media: query,
+      }));
+
+      const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
+      const wrapper = mountComponent();
+
+      wrapper.vm.shake();
+      wrapper.destroy();
+
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      clearTimeoutSpy.mockRestore();
+    });
   });
 });

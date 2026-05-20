@@ -75,21 +75,33 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
 
   // Submit button aria-label states
   selectThreeIconsToSignIn: {
-    message: 'Select 3 icons to sign in',
-    context: 'Submit button label when no icons have been selected yet.',
+    message: 'Select 3 pictures to sign in',
+    context: 'Submit button label when no pictures have been selected yet.',
   },
   selectTwoMoreIcons: {
-    message: 'Select 2 more icons',
-    context: 'Submit button label when exactly 1 icon has been selected.',
+    message: 'Select 2 more pictures',
+    context: 'Submit button label when exactly 1 picture has been selected.',
   },
   selectOneMoreIcon: {
-    message: 'Select 1 more icon',
-    context: 'Submit button label when exactly 2 icons have been selected.',
+    message: 'Select 1 more picture',
+    context: 'Submit button label when exactly 2 pictures have been selected.',
   },
   signInWithSequence: {
     message: 'Sign in with this sequence: {icon1}, {icon2}, {icon3}',
     context:
-      'Submit button label when all 3 icons have been selected; lists them in order for screen readers.',
+      'Submit button label when all 3 pictures have been selected; lists them in order for screen readers.',
+  },
+  formAriaLabel: {
+    message: 'Select 3 pictures below to sign in to Kolibri',
+    context:
+      'Accessible label for the picture password form. Read by screen readers when the form receives focus.',
+  },
+
+  // Sign-in errors
+  wrongPicturesTryAgain: {
+    message: 'Wrong pictures, try again!',
+    context:
+      'Assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
   },
 
   learnerLimitReachedHeading: {

@@ -8,6 +8,7 @@
             class="box"
             :class="{
               landscape: showLandscapeLayout,
+              shaking,
             }"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
@@ -310,6 +311,7 @@
       return {
         privacyModalVisible: false,
         whatsThisModalVisible: false,
+        shaking: false,
       };
     },
     computed: {
@@ -347,6 +349,28 @@
       },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
+      },
+    },
+    beforeDestroy() {
+      window.clearTimeout(this._shakeTimeout);
+    },
+    methods: {
+      /**
+       * @public
+       * Triggers shake animation and returns a Promise that resolves when complete.
+       * Duration matches CSS animation: 800ms normally, 1ms with prefers-reduced-motion.
+       */
+      shake() {
+        this.shaking = true;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const duration = prefersReducedMotion ? 1 : 800;
+
+        return new Promise(resolve => {
+          this._shakeTimeout = window.setTimeout(() => {
+            this.shaking = false;
+            resolve();
+          }, duration);
+        });
       },
     },
     $trs: {
@@ -573,6 +597,39 @@
   /deep/ .ui-textbox-input {
     &:hover {
       outline: none;
+    }
+  }
+
+  .shaking {
+    animation: shake 0.8s ease-in-out both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shaking {
+      animation-duration: 1ms;
     }
   }
 
