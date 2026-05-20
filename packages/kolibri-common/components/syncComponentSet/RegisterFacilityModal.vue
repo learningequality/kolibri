@@ -84,8 +84,11 @@
         this.$emit('skip', this.facility);
       },
       validateToken() {
-        // TODO synchronously handle empty strings
-        const strippedToken = this.token.replace('-', '');
+        const strippedToken = (this.token || '').replace(/-/g, '').trim();
+        if (!strippedToken) {
+          this.invalid = true;
+          return;
+        }
         this.submitting = true;
         PortalResource.validateToken(strippedToken)
           .then(response => {
