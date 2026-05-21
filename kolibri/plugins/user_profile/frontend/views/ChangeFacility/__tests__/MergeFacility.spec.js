@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/vue';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { createTranslator } from 'kolibri/utils/i18n';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import client from 'kolibri/client';
+import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
 import MergeFacility from '../MergeFacility';
 
 const sendMachineEvent = jest.fn();
@@ -20,7 +20,6 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
 
 const TARGET_FACILITY_NAME = 'Test Facility';
 const TARGET_FACILITY_URL = 'http://url1';
-const { continueAction$ } = coreStrings;
 const { documentTitle$, success$ } = createTranslator(MergeFacility.name, MergeFacility.$trs);
 
 function renderComponent({
@@ -70,6 +69,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    sessionStorage.clear();
     TaskResource.fetchModel.mockResolvedValue(task);
     setTimeoutSpy = jest.spyOn(global, 'setTimeout').mockImplementation(() => 0);
   });
@@ -117,7 +117,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
   });
 
-  it('shows picture password confirmation modal after facility change when picture password is assigned', async () => {
+  it('stores picture password in sessionStorage and redirects when picture password is assigned', async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
     renderComponent({
@@ -132,11 +132,11 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     await fireEvent.click(screen.getByTestId('finishButton'));
     await flushUi();
 
-    expect(screen.getByTestId('continue-checkbox')).toBeInTheDocument();
-    expect(redirectBrowser).not.toHaveBeenCalled();
+    expect(redirectBrowser).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
   });
 
-  it('redirects immediately when picture password is null after facility change', async () => {
+  it('redirects without storing in sessionStorage when picture password is null after facility change', async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
     renderComponent({
@@ -151,29 +151,7 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     await fireEvent.click(screen.getByTestId('finishButton'));
     await flushUi();
     expect(redirectBrowser).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId('continue-checkbox')).not.toBeInTheDocument();
-  });
-
-  it('redirects when picture password modal is confirmed', async () => {
-    TaskResource.fetchModel.mockResolvedValue(completedTask);
-    client.mockResolvedValue({ data: { picture_password: '3.7.12' } });
-
-    renderComponent({
-      targetFacility: {
-        id: 'facility_id1',
-        name: TARGET_FACILITY_NAME,
-        url: TARGET_FACILITY_URL,
-        picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
-      },
-    });
-
-    await flushUi();
-    await fireEvent.click(screen.getByTestId('finishButton'));
-    await flushUi();
-    await fireEvent.click(screen.getByTestId('continue-checkbox'));
-    await fireEvent.click(screen.getByRole('button', { name: continueAction$() }));
-    await flushUi();
-    expect(redirectBrowser).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).not.toBe('true');
   });
 
   it(`clicking retry button sends the task error event to the state machine`, async () => {

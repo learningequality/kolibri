@@ -1,3 +1,5 @@
+export const PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING = 'PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING';
+
 export const PicturePasswordIconStyle = {
   COLORFUL: 'colorful',
   STANDARD: 'standard',

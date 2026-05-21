@@ -3,7 +3,7 @@
   <div>
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="welcomeModalVisible && isLearner"
+        v-if="welcomeModalVisible && isLearner && !picturePasswordPending"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -86,7 +86,7 @@
 <script>
 
   import { computed, getCurrentInstance } from 'vue';
-  import { get, set } from '@vueuse/core';
+  import { get, set, useSessionStorage } from '@vueuse/core';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import useUser from 'kolibri/composables/useUser';
@@ -95,6 +95,7 @@
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { mapState } from 'vuex';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources, {
@@ -139,7 +140,11 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { isUserLoggedIn, user_id, isLearner } = useUser();
+      const { isUserLoggedIn, currentUserId, isLearner } = useUser();
+      const picturePasswordPending = useSessionStorage(
+        PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
+        false,
+      );
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { localChannelsCache, fetchChannels } = useChannels();
       const {
@@ -260,7 +265,8 @@
         missingResources,
         hydrateHomePage,
         pageLoading,
-        userId: user_id,
+        picturePasswordPending,
+        userId: currentUserId,
         isLearner,
       };
     },
