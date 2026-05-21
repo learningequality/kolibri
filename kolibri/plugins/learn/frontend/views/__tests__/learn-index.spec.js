@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, fireEvent, within } from '@testing-library/vue';
 import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
@@ -32,7 +32,7 @@ describe('LearnIndex picture password modal', () => {
     sessionStorage.clear();
   });
 
-  it('shows the modal and clears the flag when picture_password is set', async () => {
+  it('shows the modal and keeps the flag set while the modal is open', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
     FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: '3.7.12' });
 
@@ -40,6 +40,23 @@ describe('LearnIndex picture password modal', () => {
     await flushUi();
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
+  });
+
+  it('clears the flag when the modal is dismissed', async () => {
+    sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
+    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: '3.7.12' });
+
+    renderComponent();
+    await flushUi();
+
+    const checkbox = screen.getByTestId('continue-checkbox');
+    await fireEvent.click(checkbox);
+    const submitButton = within(screen.getByRole('dialog')).getByRole('button');
+    await fireEvent.click(submitButton);
+    await flushUi();
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).not.toBe('true');
   });
 
