@@ -63,6 +63,10 @@ kolibri/locale/.crowdin-download-marker
 .junie/
 .aiassistant/
 .aiignore
+.codex*
+.qwen/
+.vibe/
+.aider.config.yml
 
 # Complexity
 output/*.html
