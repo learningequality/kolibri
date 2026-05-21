@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/vue';
+import { createTranslator } from 'kolibri/utils/i18n';
 import SelectTransferSourceModal from '../ManageContentPage/SelectTransferSourceModal';
 import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
-import { strings as importSourceStrings } from '../ManageContentPage/SelectTransferSourceModal/SelectImportSourceModal';
+import SelectImportSourceModal from '../ManageContentPage/SelectTransferSourceModal/SelectImportSourceModal';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/client');
@@ -9,7 +10,11 @@ jest.mock('kolibri/urls');
 
 SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
 
-const { network$ } = importSourceStrings;
+const { network$ } = createTranslator(
+  SelectImportSourceModal.name,
+  SelectImportSourceModal.$trs,
+);
+const { selectDrive$ } = createTranslator(SelectDriveModal.name, SelectDriveModal.$trs);
 
 describe('SelectTransferSourceModal', () => {
   let store;
@@ -33,5 +38,6 @@ describe('SelectTransferSourceModal', () => {
       store,
     });
     expect(screen.queryByText(network$())).not.toBeInTheDocument();
+    expect(screen.getByText(selectDrive$())).toBeInTheDocument();
   });
 });
