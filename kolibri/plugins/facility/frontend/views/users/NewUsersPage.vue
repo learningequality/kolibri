@@ -210,7 +210,6 @@
 
   import FilterTextbox from 'kolibri/components/FilterTextbox';
   import PaginationActions from 'kolibri-common/components/PaginationActions';
-  import store from 'kolibri/store';
   import { computed, onMounted, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -253,10 +252,8 @@
       const route = useRoute();
       const router = useRouter();
       const { currentUserId, isSuperuser, isAdmin } = useUser();
-      const { setFacilityId, facilityConfig } = useFacility();
+      const { facilityId, facilityConfig } = useFacility();
       const isMoveToTrashModalOpen = ref(false);
-
-      const activeFacilityId = route.params.facility_id || store.getters.activeFacilityId;
 
       const newUsersCreationTreshold = new Date();
       newUsersCreationTreshold.setDate(newUsersCreationTreshold.getDate() - MAX_NEW_USER_DAYS);
@@ -275,7 +272,7 @@
         resetFilters,
         clearSelectedUsers,
       } = useUserManagement({
-        activeFacilityId,
+        activeFacilityId: facilityId.value,
         dateJoinedGt: newUsersCreationTreshold,
       });
 
@@ -360,7 +357,6 @@
       }
 
       onMounted(() => {
-        setFacilityId(activeFacilityId);
         fetchClasses();
       });
 

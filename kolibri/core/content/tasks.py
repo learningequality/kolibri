@@ -1,10 +1,12 @@
+import logging
+import re
+
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from rest_framework import serializers
 
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
-from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import ContentRequestPriority
@@ -25,6 +27,9 @@ from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.resource_export import DiskChannelResourceExportManager
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
 from kolibri.core.content.utils.resource_import import DiskChannelUpdateManager
+from kolibri.core.content.utils.resource_import import (
+    RemoteChannelDatabaseImportManager,
+)
 from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
 )
@@ -50,6 +55,8 @@ from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils.translation import gettext as _
 from kolibri.utils.version import version_matches_range
+
+logger = logging.getLogger(__name__)
 
 QUEUE = "content"
 
@@ -184,10 +191,23 @@ def diskcontentimport(
     manager.run()
 
 
+_TOKEN_RE = re.compile(r"^[a-z0-9]{10}$|^[a-z0-9]{5}-[a-z0-9]{5}$")
+
+
 class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
     peer = serializers.PrimaryKeyRelatedField(
         required=False, queryset=NetworkLocation.objects.all().values("base_url", "id")
     )
+    token = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    def validate_token(self, value):
+        if value:
+            value = value.lower()
+            if not _TOKEN_RE.match(value):
+                raise serializers.ValidationError(
+                    "Token must be 10 alphanumeric characters, optionally with a hyphen in the middle."
+                )
+        return value
 
     def validate(self, data):
         job_data = super().validate(data)
@@ -206,6 +226,8 @@ class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
         job_data["extra_metadata"].update(dict(peer_id=peer["id"]))
         job_data["kwargs"]["baseurl"] = peer["base_url"]
         job_data["kwargs"]["peer_id"] = peer["id"]
+        if data.get("token"):
+            job_data["kwargs"]["token"] = data["token"]
         return job_data
 
 
@@ -222,8 +244,14 @@ class RemoteChannelImportValidator(RemoteImportMixin, ChannelValidator):
     queue=QUEUE,
     status_fn=get_status,
 )
-def remotechannelimport(channel_id, baseurl=None, peer_id=None):
-    transfer_channel(channel_id, DOWNLOAD_METHOD, baseurl=baseurl)
+def remotechannelimport(channel_id, baseurl=None, peer_id=None, token=None):
+    manager = RemoteChannelDatabaseImportManager(
+        channel_id,
+        baseurl=baseurl,
+        peer_id=peer_id,
+        token=token,
+    )
+    manager.run()
 
 
 class RemoteChannelResourcesImportValidator(
@@ -251,6 +279,7 @@ def remotecontentimport(
     renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
+    token=None,
 ):
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
@@ -264,6 +293,7 @@ def remotecontentimport(
         renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
+        token=token,
     )
     manager.run()
 
@@ -538,6 +568,7 @@ def remoteimport(
     renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
+    token=None,
 ):
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
@@ -552,6 +583,7 @@ def remoteimport(
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
         import_channel_database=True,
+        token=token,
     )
     manager.run()
 

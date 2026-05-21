@@ -5,47 +5,19 @@ from django.core.management.base import CommandError
 from ...utils import paths
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
+from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.channel_transfer import transfer_channel
-from kolibri.core.content.utils.paths import get_channel_lookup_url
-from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.content.utils.file_availability import LocationError
+from kolibri.core.content.utils.resource_import import lookup_channel_listing_status
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
-from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 from kolibri.utils.uuids import is_valid_uuid
 
 logger = logging.getLogger(__name__)
-
-
-def resolve_channel_token(token, baseurl=None):
-    """
-    Resolve a channel token to a channel ID by querying the channel lookup endpoint.
-
-    :param token: The channel token to resolve
-    :param baseurl: The base URL of the content server (defaults to Studio)
-    :return: Tuple of (channel_id, all_channels) where all_channels is the full list
-    :raises: ValueError if the token is not found or response is invalid
-    """
-    baseurl = baseurl or CENTRAL_CONTENT_BASE_URL
-    client = NetworkClient.build_for_address(baseurl)
-    response = client.get(get_channel_lookup_url(identifier=token))
-
-    try:
-        channels = response.json()
-    except ValueError as e:
-        raise ValueError("Invalid JSON response: {}".format(e))
-
-    if not channels or not isinstance(channels, list):
-        raise ValueError("Token '{}' not found on content server".format(token))
-
-    for channel in channels:
-        if not channel.get("id"):
-            raise ValueError("Invalid response: channel missing ID")
-
-    return channels[0]["id"], channels
 
 
 class Command(AsyncCommand):
@@ -116,15 +88,18 @@ class Command(AsyncCommand):
 
     def _resolve_channel_identifier(self, identifier, baseurl):
         """
-        Resolve a channel identifier (UUID or token) to a channel_id.
+        Resolve a channel identifier (UUID or token) to (channel_id, listing_metadata).
+
+        For UUIDs, returns the identifier directly with no metadata lookup.
+        For tokens, calls lookup_channel_listing_status by token and validates the result.
+        Returns (channel_id, metadata_dict_or_None) or raises CommandError.
         """
         if is_valid_uuid(identifier):
-            return identifier
+            return identifier, None
 
+        # Token path
         try:
-            channel_id, all_channels = resolve_channel_token(
-                identifier, baseurl=baseurl
-            )
+            metadata = lookup_channel_listing_status(token=identifier, baseurl=baseurl)
         except (
             NetworkLocationConnectionFailure,
             NetworkLocationNotFound,
@@ -136,24 +111,33 @@ class Command(AsyncCommand):
                     baseurl or "Kolibri Studio"
                 )
             )
-        except ValueError as e:
+        except LocationError as e:
             raise CommandError(str(e))
 
-        if len(all_channels) > 1:
-            channel_list = ", ".join(
-                "{} ({})".format(c.get("name", "Unnamed"), c["id"])
-                for c in all_channels
-            )
+        if metadata is None:
             raise CommandError(
-                "Token '{}' matches multiple channels: {}. "
-                "Use a channel ID instead.".format(identifier, channel_list)
+                "Token '{}' not found on content server.".format(identifier)
             )
 
-        return channel_id
+        channel_id = metadata.get("id")
+        if not channel_id:
+            raise CommandError(
+                "Invalid response: token '{}' resolved to a channel without an ID.".format(
+                    identifier
+                )
+            )
+        return channel_id, metadata
 
     def download_channel(self, channel_id, baseurl, no_upgrade, content_dir):
-        # Resolve the identifier (could be channel_id or token)
-        resolved_channel_id = self._resolve_channel_identifier(channel_id, baseurl)
+        resolved_channel_id, metadata = self._resolve_channel_identifier(
+            channel_id, baseurl
+        )
+
+        raw_version = None
+        version = None
+        if metadata is not None:
+            raw_version = metadata.get("version")
+            version = "next" if raw_version is None else raw_version
 
         logger.info("Downloading data for channel id {}".format(resolved_channel_id))
         transfer_channel(
@@ -162,7 +146,16 @@ class Command(AsyncCommand):
             no_upgrade=no_upgrade,
             content_dir=content_dir,
             baseurl=baseurl,
+            version=version,
         )
+
+        # Persist token-resolved metadata when available
+        if metadata:
+            set_channel_metadata_fields(
+                resolved_channel_id,
+                library=metadata.get("library"),
+                version=0 if raw_version is None else raw_version,
+            )
 
     def copy_channel(self, channel_id, source_path, no_upgrade, content_dir):
         if not is_valid_uuid(channel_id):

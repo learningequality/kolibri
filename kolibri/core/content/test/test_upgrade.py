@@ -2,6 +2,7 @@ import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from mock import call
@@ -13,6 +14,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.upgrade import fix_multiple_trees_with_tree_id1
 from kolibri.core.content.upgrade import update_num_coach_contents
+from kolibri.core.content.utils.upgrade import diff_stats
 
 
 def get_engine(connection_string):
@@ -292,3 +294,60 @@ class UpdateNumCoachContents(TransactionTestCase):
     def tearDown(self):
         call_command("flush", interactive=False)
         super().tearDown()
+
+
+@patch("kolibri.core.content.utils.upgrade.channel_import.initialize_import_manager")
+@patch("kolibri.core.content.utils.upgrade.transfer_channel")
+@patch("kolibri.core.content.utils.upgrade.Bridge")
+@patch("kolibri.core.content.utils.upgrade.get_current_job", return_value=None)
+@patch(
+    "kolibri.core.content.utils.upgrade.read_channel_metadata_from_db_file",
+    return_value={"version": 3},
+)
+@patch(
+    "kolibri.core.content.utils.upgrade.get_new_resources_available_for_import",
+    return_value=([], [], 0),
+)
+@patch(
+    "kolibri.core.content.utils.upgrade.count_removed_resources",
+    return_value=0,
+)
+@patch(
+    "kolibri.core.content.utils.upgrade.get_automatically_updated_resources",
+    return_value=([], [], 0),
+)
+@patch("kolibri.core.content.utils.upgrade.annotation")
+@patch("kolibri.core.content.utils.upgrade.os.remove")
+@patch("kolibri.core.content.utils.upgrade.process_cache")
+class DiffStatsVersionRequestedTestCase(TestCase):
+    """
+    Verifies that diff_stats always passes version_requested=True to
+    initialize_import_manager so that the annotated-DB import proceeds
+    regardless of version direction (upgrade or downgrade).
+    """
+
+    channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+
+    def test_diff_stats_passes_version_requested_true(
+        self,
+        process_cache_mock,
+        remove_mock,
+        annotation_mock,
+        get_auto_updated_mock,
+        count_removed_mock,
+        get_new_resources_mock,
+        read_metadata_mock,
+        get_current_job_mock,
+        BridgeMock,
+        transfer_channel_mock,
+        initialize_import_manager_mock,
+    ):
+        diff_stats(self.channel_id, "network", baseurl="http://example.com")
+
+        initialize_import_manager_mock.assert_called_once()
+        _, kwargs = initialize_import_manager_mock.call_args
+        self.assertTrue(
+            kwargs.get("version_requested"),
+            "diff_stats must pass version_requested=True to initialize_import_manager "
+            "so that the annotated-DB import proceeds for both upgrades and downgrades.",
+        )

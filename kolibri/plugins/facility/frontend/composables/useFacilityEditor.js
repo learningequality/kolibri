@@ -1,28 +1,28 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
-import useFacilities from 'kolibri-common/composables/useFacilities';
 import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
-import { useFacilityConfig } from 'kolibri-common/composables/useFacility';
+import useFacility from 'kolibri-common/composables/useFacility';
 
 /**
- * @param {string} facilityId  The ID of the facility to edit
+ * A composable for editing facility settings and configuration
  */
-export default function useFacilityEditor(facilityId) {
-  const { fetchFacilities, getFacility } = useFacilities();
+export default function useFacilityEditor() {
   const {
+    facilityId,
+    selectedFacility: facility,
+    facilityConfig: settings,
     isAttendanceFeatureEnabled,
     isPictureLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
-    // TODO: update this composable to use 'facilityConfig' naming instead
-    facilityConfig: settings,
+    fetchFacility,
     fetchFacilityConfig,
-  } = useFacilityConfig(facilityId);
+  } = useFacility();
 
   // Reactive state
   const facilityDatasetId = ref('');
@@ -32,8 +32,6 @@ export default function useFacilityEditor(facilityId) {
   const facilityDataLoading = ref(false);
 
   // Computed properties
-  const facility = computed(() => getFacility(facilityId));
-
   const settingsHaveChanged = computed(() => !isEqual(settings.value, settingsCopy.value));
   const isPinSet = computed(() => {
     if (settings.value.extra_fields?.pin_code) {
@@ -76,28 +74,6 @@ export default function useFacilityEditor(facilityId) {
   // Actions
   function setLoading(loading) {
     facilityDataLoading.value = loading;
-  }
-
-  /**
-   * Loads the facility and it's config into the composable state
-   */
-  async function fetchFacility() {
-    setLoading(true);
-
-    try {
-      await Promise.all([fetchFacilityConfig(), fetchFacilities()]);
-
-      // Facility name set with watcher
-      facilityDatasetId.value = settings.value.id;
-      facilityName.value = facility.value.name;
-      settingsCopy.value = { ...settings.value };
-      setLoading(false);
-    } catch (error) {
-      facilityName.value = '';
-      settingsCopy.value = {};
-      setLoading(false);
-      throw error;
-    }
   }
 
   function modifySetting(name, value) {
@@ -149,6 +125,12 @@ export default function useFacilityEditor(facilityId) {
     settings.value = Object.assign({}, settingsCopy.value);
   }
 
+  onBeforeMount(() => {
+    facilityDatasetId.value = settings.value.id;
+    facilityName.value = facility.value.name;
+    copySettings();
+  });
+
   function resetState() {
     facilityDatasetId.value = '';
     facilityName.value = '';
@@ -164,12 +146,12 @@ export default function useFacilityEditor(facilityId) {
    */
   async function saveFacilityName(name) {
     const facility = await FacilityResource.saveModel({
-      id: facilityId,
+      id: facilityId.value,
       data: { name },
     });
 
     // Update facilities list
-    await fetchFacilities();
+    await fetchFacility();
 
     facilityName.value = name;
     return facility;
@@ -190,6 +172,7 @@ export default function useFacilityEditor(facilityId) {
       id: facilityDatasetId.value,
       data,
     });
+    await fetchFacilityConfig();
     copySettings();
   }
 
@@ -241,6 +224,7 @@ export default function useFacilityEditor(facilityId) {
     facilityDataLoading,
     pictureLoginTaskId,
     // Computed
+    facility,
     settingsHaveChanged,
     isPinSet,
     isAttendanceFeatureEnabled,

@@ -1,17 +1,30 @@
 <template>
 
-  <div class="picture-password-grid">
-    <div class="icon-grid">
+  <form
+    ref="formRef"
+    class="picture-password-grid"
+    tabindex="-1"
+    :aria-label="formAriaLabel$()"
+    @submit.prevent="handleSubmit"
+  >
+    <div
+      class="icon-grid"
+      :style="{
+        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        gap: landscapeLayout ? '14px' : '22px',
+      }"
+    >
       <PicturePasswordOption
         v-for="iconData in icons"
         :key="iconData.id"
+        :class="{ bouncing: bouncingId === iconData.id }"
         :icon="iconData.iconToken"
         :iconName="iconData.name"
         :sequencePosition="iconData.sequencePosition"
         :disabled="iconData.disabled"
         :showIconText="showIconText"
         @select="handleSelect(iconData.id)"
-        @disabledSelect="handleDisabledSelect"
+        @disabledSelect="handleDisabledSelect(iconData.id)"
       />
     </div>
 
@@ -25,7 +38,7 @@
           <KIcon
             v-if="slot.iconToken"
             :key="'icon-' + i"
-            class="progress-icon"
+            :class="['progress-icon', 'bounce-in']"
             :icon="slot.iconToken"
           />
           <div
@@ -40,31 +53,33 @@
       <!-- Submit button: shows only a forward-arrow icon; the aria-label
           cycles through four instructional states as the sequence is built. -->
       <button
-        type="button"
+        type="submit"
         class="submit-button"
-        :class="
+        :class="[
           $computedClass({
             ':hover': submitEnabled
               ? {
                 backgroundColor: $themeTokens.primaryDark,
               }
               : {},
-          })
-        "
+          }),
+          { pulsing: submitPulsing },
+          { bouncing: arrowBouncing },
+        ]"
         data-testid="submit-button"
         :aria-disabled="!submitEnabled ? 'true' : undefined"
         :aria-label="submitButtonAriaLabel"
         :style="submitButtonStyle"
-        @click="handleSubmit"
       >
         <KIcon
+          data-testid="submit-icon"
           class="submit-icon"
           icon="forward"
           :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
         />
       </button>
     </div>
-  </div>
+  </form>
 
 </template>
 
@@ -73,9 +88,11 @@
 
   import { computed, ref, watch } from 'vue';
   import { PICTURE_PASSWORD_SET } from 'kolibri/constants';
+  import { PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import PicturePasswordOption from './PicturePasswordOption';
 
   // Pre-compute once at module scope — PICTURE_PASSWORD_SET is static JSON so
@@ -94,6 +111,7 @@
       const $themeTokens = themeTokens();
       const $themePalette = themePalette();
       const { sendPoliteMessage } = useKLiveRegion();
+      const { elementWidth } = useKResponsiveElement();
 
       const {
         iconSelectedAsFirst$,
@@ -104,10 +122,14 @@
         selectTwoMoreIcons$,
         selectOneMoreIcon$,
         signInWithSequence$,
+        formAriaLabel$,
       } = picturePasswordStrings;
 
       // Internal selection state: up to 3 integer IDs in order of selection.
       const sequence = ref([]);
+
+      // Template ref for the form element (used for programmatic focus)
+      const formRef = ref(null);
 
       const resolveIconToken = entry =>
         props.iconStyle === 'standard' ? entry.iconStandard : entry.iconColorful;
@@ -116,6 +138,22 @@
         const entry = PICTURE_PASSWORD_SET[String(id)];
         return picturePasswordStrings[`${entry.name}$`]();
       };
+
+      // empiric value, options below this width look very squished
+      // This value accounts for the grid gap as well.
+      const minOptionWidth = 80;
+
+      const allowedColumns = [3, 4, 6];
+
+      // How many columns can we fit given the current width of the component?
+      // Pick the largest allowed number of columns that will fit.
+      const columns = computed(() => {
+        const maxPossible = Math.floor(elementWidth.value / minOptionWidth);
+
+        const validOptions = allowedColumns.filter(num => num <= maxPossible);
+
+        return validOptions.length > 0 ? Math.max(...validOptions) : 3;
+      });
 
       const icons = computed(() =>
         ICON_ENTRIES.map(entry => {
@@ -191,41 +229,121 @@
         sendPoliteMessage(ORDINAL_STRING_MAP[position]({ icon: iconLabelFor(id) }));
       };
 
-      const handleDisabledSelect = () => {
+      const consecutiveOverfillCount = ref(0);
+      const submitPulsing = ref(false);
+      const bouncingId = ref(null);
+
+      const handleDisabledSelect = id => {
+        if (sequence.value.length === 3) {
+          consecutiveOverfillCount.value++;
+          if (consecutiveOverfillCount.value >= 3) {
+            submitPulsing.value = true;
+          }
+        }
+
+        if (bouncingId.value === null) {
+          bouncingId.value = id;
+          setTimeout(() => {
+            bouncingId.value = null;
+          }, 380);
+        }
+
         sendPoliteMessage(allIconsSelected$());
       };
 
       const handleSubmit = () => {
         if (!submitEnabled.value) return;
+        consecutiveOverfillCount.value = 0;
+        submitPulsing.value = false;
         emit('submit', sequence.value.join('.'));
       };
 
       watch(
-        () => props.wrongSequence,
+        sequence,
+        () => {
+          consecutiveOverfillCount.value = 0;
+          submitPulsing.value = false;
+        },
+        { deep: true },
+      );
+
+      watch(
+        () => props.clearSequence,
         value => {
           if (value) {
             sequence.value = [];
-            emit('wrongSequenceHandled');
+            emit('update:clearSequence', false);
           }
         },
       );
+
+      const arrowBouncing = ref(false);
+
+      /**
+       * @public
+       * Plays the success animation bouncing each selected icon in sequence,
+       * then the submit arrow. Returns a Promise that resolves when complete.
+       */
+      const playSuccessAnimation = () => {
+        const STAGGER = 150;
+        const DURATION = 380;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const stagger = reduce ? 0 : STAGGER;
+        const dur = reduce ? 0 : DURATION;
+
+        return new Promise(resolve => {
+          for (let i = 0; i < sequence.value.length; i++) {
+            const id = sequence.value[i];
+            const isLast = i === sequence.value.length - 1;
+            window.setTimeout(() => {
+              bouncingId.value = id;
+              if (isLast) arrowBouncing.value = true;
+              window.setTimeout(() => {
+                if (bouncingId.value === id) bouncingId.value = null;
+                if (isLast) arrowBouncing.value = false;
+              }, dur);
+            }, i * stagger);
+          }
+
+          window.setTimeout(() => resolve(), (sequence.value.length - 1) * stagger + dur);
+        });
+      };
 
       const submitButtonStyle = computed(() => ({
         backgroundColor: submitEnabled.value ? $themeTokens.primary : $themePalette.grey.v_200,
         cursor: submitEnabled.value ? 'pointer' : 'not-allowed',
       }));
 
+      /**
+       * @public
+       * Returns focus to the form element, e.g. after a failed sign-in attempt
+       * so that screen reader users land back inside the grid instead of on
+       * the now-disabled submit button.
+       */
+      const focus = () => {
+        if (formRef.value) {
+          formRef.value.focus();
+        }
+      };
+
       return {
-        $themeTokens,
-        $themePalette,
         icons,
+        columns,
         progressSlots,
         submitEnabled,
         submitButtonAriaLabel,
         submitButtonStyle,
+        submitPulsing,
+        bouncingId,
+        arrowBouncing,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,
+        formAriaLabel$,
+        formRef,
+        focus, // eslint-disable-line vue/no-unused-properties
+        sequence, // eslint-disable-line vue/no-unused-properties
+        playSuccessAnimation, // eslint-disable-line vue/no-unused-properties
       };
     },
 
@@ -235,8 +353,8 @@
        */
       iconStyle: {
         type: String,
-        default: 'colorful',
-        validator: value => ['colorful', 'standard'].includes(value),
+        default: PicturePasswordIconStyle.COLORFUL,
+        validator: value => Object.values(PicturePasswordIconStyle).includes(value),
       },
       /**
        * Whether to show the translated icon name below each icon.
@@ -246,11 +364,18 @@
         default: true,
       },
       /**
-       * Set to true by the parent when the submitted sequence was rejected by
-       * the server. The grid clears its sequence and emits `wrongSequenceHandled`
-       * so the parent can reset this prop back to false.
+       * Set to true by the parent to clear the icon sequence. The grid clears
+       * its sequence and emits `update:clearSequence` so the parent can reset
+       * this prop back to false.
        */
-      wrongSequence: {
+      clearSequence: {
+        type: Boolean,
+        default: false,
+      },
+      /* Whether the parent AuthBase is in landscape layout, which affects the
+       * layout of this component.
+       */
+      landscapeLayout: {
         type: Boolean,
         default: false,
       },
@@ -271,10 +396,12 @@
     align-items: stretch;
   }
 
+  .picture-password-grid:focus {
+    outline: none;
+  }
+
   .icon-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
   }
 
   /* Ensure each PicturePasswordOption fills its grid cell. */
@@ -293,7 +420,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     min-height: 56px;
     padding: 12px;
     // enforce width to be 50%, and set width and height for icons
@@ -303,11 +430,13 @@
 
   .progress-icon {
     width: 100%;
+    max-width: 50px;
     height: 100%;
   }
 
   .progress-empty {
     width: 100%;
+    max-width: 50px;
     height: 7px;
     border-radius: 16px;
   }
@@ -326,6 +455,54 @@
     top: 0;
     width: 40px;
     height: 40px;
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.5);
+    }
+
+    60% {
+      transform: scale(1.08);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .bounce-in {
+    animation: bounce-in 380ms ease-out both;
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: scale(1);
+    }
+
+    60% {
+      transform: scale(1.08);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .bouncing {
+    animation: bounce 380ms ease-out both;
+  }
+
+  .pulsing {
+    animation: bounce 1s ease-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bounce-in,
+    .bouncing,
+    .pulsing {
+      animation: none;
+    }
   }
 
 </style>

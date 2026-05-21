@@ -36,31 +36,68 @@ from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
+from kolibri.utils.http_session import SameHostSession
 from kolibri.utils.system import get_free_space
-
 
 logger = logging.getLogger(__name__)
 
 
-def lookup_channel_listing_status(channel_id, baseurl=None):
+def lookup_channel_listing_status(channel_id=None, token=None, baseurl=None):
     """
-    Look up the listing status of the channel from the remote, this is surfaced as a
-    `public` boolean field.
-    """
-    client = NetworkClient.build_for_address(baseurl)
-    try:
-        # prevent trying to fetch a channel from a remote that it is not
-        # available from.
-        resp = client.get(get_channel_lookup_url(identifier=channel_id))
+    Look up the listing status of a channel from the remote.
 
+    Accepts a token, a channel_id, or both. When both are provided, validates that
+    the token resolves to the given channel_id. Returns a dict with 'id', 'public',
+    'version', and 'library' keys, or None if the channel is not found (HTTP 404).
+
+    The request always includes channel_versions=true so Studio returns version
+    and library metadata.
+    """
+    if token is None and channel_id is None:
+        raise ValueError("Either token or channel_id must be provided")
+
+    identifier = token if token is not None else channel_id
+    client = NetworkClient.discover_from_address(baseurl)
+    try:
+        resp = client.get(get_channel_lookup_url(identifier=identifier))
     except NetworkLocationResponseFailure as e:
         if e.response.status_code == 404:
             return None
         raise LocationError(
-            "Channel {} not found on remote {}".format(channel_id, baseurl)
+            "Failed to look up channel {} on remote {}: HTTP {}".format(
+                identifier, baseurl, e.response.status_code
+            )
         )
-    (channel_info,) = resp.json()
-    return channel_info.get("public", None)
+
+    channels = resp.json()
+    if not channels:
+        return None
+
+    if token is not None and channel_id is not None:
+        matching = [c for c in channels if c.get("id") == channel_id]
+        if not matching:
+            raise LocationError(
+                "Token '{}' does not resolve to channel {}".format(token, channel_id)
+            )
+        channel_info = matching[0]
+    else:
+        if token is not None and len(channels) > 1:
+            channel_list = ", ".join(
+                "{} ({})".format(c.get("name", "Unnamed"), c.get("id", "unknown"))
+                for c in channels
+            )
+            raise LocationError(
+                "Token '{}' matches multiple channels: {}. "
+                "Use a channel ID instead.".format(token, channel_list)
+            )
+        channel_info = channels[0]
+
+    return {
+        "id": channel_info.get("id"),
+        "public": channel_info.get("public"),
+        "version": channel_info.get("version"),
+        "library": channel_info.get("library"),
+    }
 
 
 class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
@@ -91,11 +128,16 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
         self.renderable_only = renderable_only
         self.all_thumbnails = all_thumbnails
         self.fail_on_error = fail_on_error
-        self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
+        self.content_dir = content_dir
         self.admin_imported = admin_imported
         self.import_channel_database = import_channel_database
+        self.version_requested = False
         self.channel_database_transferred_bytes = 0
         super().__init__()
+
+    @property
+    def _effective_content_dir(self):
+        return self.content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
 
     @classmethod
     def from_manifest(cls, channel_id, manifest_file, **kwargs):
@@ -123,9 +165,15 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             filename, contentfolder=self.content_dir
         )
 
-        # if the file already exists add its size to our overall progress, and skip
-        if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
-            return
+        # if the file already exists, skip if size matches; if size mismatches, dest
+        # may be a fallback path — redirect the download to the primary content dir
+        if os.path.isfile(dest):
+            if os.path.getsize(dest) == f["file_size"]:
+                return
+            dest = paths.get_content_storage_file_path(
+                filename,
+                contentfolder=self._effective_content_dir,
+            )
 
         filetransfer = self.create_file_transfer(f, filename, dest)
         if filetransfer:
@@ -278,7 +326,10 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
                 # Import the channel and update metadata
                 try:
                     import_ran = import_channel_by_id(
-                        self.channel_id, self.is_cancelled, self.content_dir
+                        self.channel_id,
+                        self.is_cancelled,
+                        self.content_dir,
+                        version_requested=self.version_requested,
                     )
                     if import_ran:
                         self._restore_node_metadata(
@@ -310,7 +361,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
             self.update_progress(data_transferred)
             self.transferred_file_size += data_transferred
             self.remaining_bytes_to_transfer -= data_transferred
-            remaining_free_space = get_free_space(self.content_dir)
+            remaining_free_space = get_free_space(self._effective_content_dir)
             # Check for errors from the download
             future.result()
             # If not errors, mark this file to be annotated
@@ -350,7 +401,7 @@ class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
 
     def _check_free_space(self, total_bytes_to_transfer):
         if not paths.using_remote_storage():
-            free_space = get_free_space(self.content_dir)
+            free_space = get_free_space(self._effective_content_dir)
 
             if free_space <= total_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(
@@ -581,6 +632,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
         import_channel_database=False,
+        token=None,
     ):
         self.timeout = timeout
         self.peer_id = peer_id
@@ -599,11 +651,20 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                 )
 
         self.baseurl = baseurl or conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"]
-        self.public = lookup_channel_listing_status(
-            channel_id=channel_id, baseurl=baseurl
+        self.token = token
+        _listing = lookup_channel_listing_status(
+            channel_id=channel_id, token=token, baseurl=baseurl
         )
+        self.listing_found = _listing is not None
+        if _listing:
+            self.public = _listing.get("public")
+            self.library = _listing.get("library")
+            raw_version = _listing.get("version")
+            self.remote_version = 0 if raw_version is None else raw_version
+        else:
+            self.public = self.library = self.remote_version = None
 
-        self.session = requests.Session()
+        self.session = SameHostSession()
 
         super().__init__(
             channel_id,
@@ -616,12 +677,39 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             admin_imported=admin_imported,
             import_channel_database=import_channel_database,
         )
+        # A token indicates the caller explicitly requested a specific channel version.
+        self.version_requested = token is not None
+
+    def run(self):
+        result = super().run()
+        if self.token and self.listing_found:
+            annotation.set_channel_metadata_fields(
+                self.channel_id,
+                library=self.library,
+                version=self.remote_version,
+            )
+        return result
+
+    @property
+    def _channel_db_version(self):
+        """
+        Returns the version string to use when constructing the channel DB URL.
+        Only applies when a token was used (Studio import) and a listing was
+        found. Peer imports and failed lookups always use the standard URL.
+        remote_version of 0 encodes a draft channel (null version) which uses
+        "next" as the URL suffix.
+        """
+        if not self.token or self.remote_version is None:
+            return None
+        return "next" if self.remote_version == 0 else self.remote_version
 
     def get_channel_database_size(self):
         """
         Get the size of the remote channel database by making a HEAD request.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         response = self.session.head(url, timeout=self.timeout)
         response.raise_for_status()
         return int(response.headers.get("Content-Length", 0))
@@ -630,7 +718,9 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         """
         Create a FileDownload transfer for the channel database.
         """
-        url = paths.get_content_database_file_url(self.channel_id, baseurl=self.baseurl)
+        url = paths.get_content_database_file_url(
+            self.channel_id, baseurl=self.baseurl, version=self._channel_db_version
+        )
         return transfer.FileDownload(
             url,
             dest,
@@ -776,6 +866,25 @@ class RemoteChannelUpdateManager(RemoteResourceImportManagerBase):
         )
 
 
+class RemoteChannelDatabaseImportManager(RemoteResourceImportManagerBase):
+    """
+    Downloads only the channel database without importing any content files.
+    Used by the remotechannelimport task.
+    """
+
+    def __init__(self, channel_id, baseurl=None, peer_id=None, token=None):
+        super().__init__(
+            channel_id,
+            baseurl=baseurl,
+            peer_id=peer_id,
+            import_channel_database=True,
+            token=token,
+        )
+
+    def get_import_data(self):
+        return 0, [], 0
+
+
 class DiskChannelResourceImportManager(DiskResourceImportManagerBase):
     def get_import_data(self):
         return get_import_export_data(
@@ -811,6 +920,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         # As this is primarily used for importing non-admin imported content
         # we reverse the default here.
         admin_imported=False,
+        token=None,
     ):
         """
         :param channel_id: A hex UUID string
@@ -827,6 +937,8 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         :type content_dir: str
         :param timeout: The timeout for the download request
         :type timeout: int
+        :param token: An optional channel token for token-based resolution
+        :type token: str or None
         """
         super().__init__(
             channel_id,
@@ -839,6 +951,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             content_dir=content_dir,
             admin_imported=admin_imported,
             timeout=timeout,
+            token=token,
         )
         self.peer = peer
         self.download_request = download_request

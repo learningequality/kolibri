@@ -119,10 +119,8 @@ class InfiniteLoopThread(Thread):
         """
         try:
             corrected_time = self.func()
-        except Exception as e:
-            self.logger.warning(
-                "Got an exception running {func}: {e}".format(func=self.func, e=str(e))
-            )
+        except Exception:
+            self.logger.exception("Got an exception running %s", self.func)
             corrected_time = 0
 
         wait = self.wait - (corrected_time if corrected_time is not None else 0)

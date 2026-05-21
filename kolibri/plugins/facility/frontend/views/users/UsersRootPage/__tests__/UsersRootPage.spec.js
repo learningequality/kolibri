@@ -5,6 +5,8 @@ import VueRouter from 'vue-router';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
+// eslint-disable-next-line import-x/named
+import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility';
 import useUserManagement from '../../../../composables/useUserManagement';
 import { useUserManagementMock } from '../../../../composables/__mocks__/useUserManagement';
 import makeStore from '../../../../__tests__/utils/makeStore';
@@ -17,6 +19,7 @@ const { noUsersMatchSearch$, noUsersMatchFilter$, noUsersMatchFiltersAndSearch$ 
 jest.mock('kolibri/urls');
 jest.mock('lockr');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('kolibri-common/composables/useFacility');
 jest.mock('../../../../composables/useUserManagement');
 
 const router = new VueRouter({
@@ -65,6 +68,7 @@ describe('UserPage component', () => {
       windowIsSmall: false,
       windowBreakpoint: 4,
     }));
+    useFacility.mockImplementation(() => useFacilityMock());
     useUserManagement.mockImplementation(() => useUserManagementMock());
   });
 

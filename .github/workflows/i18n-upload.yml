@@ -3,6 +3,9 @@ name: Upload translations to Crowdin
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   upload:
     name: Extract and upload strings to Crowdin
@@ -24,7 +27,7 @@ jobs:
           node-version-file: 'package.json'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6.0.3
         with:
           cache: true
 

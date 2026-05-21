@@ -210,6 +210,52 @@ class ContentAssignmentManagerTestCase(TestCase):
         for assignment in assignments:
             self.assertEqual(assignment.source_model, self.model.morango_model_name)
             self.assertEqual(assignment.metadata, None)
+            self.assertIsNone(assignment.channel_version)
+
+    def test_get_assignments__with_version_field(self):
+        self.manager.lookup_field = "test_lookup_field"
+        self.manager.channel_version_field = "test_version_field"
+
+        source_id1 = uuid.uuid4().hex
+        source_id2 = uuid.uuid4().hex
+        contentnode_id1 = uuid.uuid4().hex
+        contentnode_id2 = uuid.uuid4().hex
+
+        qs = mock.MagicMock()
+        qs.values_list.return_value = [
+            # (source_id, contentnode_id, version)
+            (source_id1, contentnode_id1, 1),
+            (source_id2, contentnode_id2, 2),
+        ]
+
+        assignments = list(self.manager._get_assignments(qs))
+        qs.values_list.assert_called_once_with(
+            "id", "test_lookup_field", "test_version_field"
+        )
+        self.assertEqual(len(assignments), 2)
+
+        self.assertEqual(assignments[0].contentnode_id, contentnode_id1)
+        self.assertEqual(assignments[0].source_id, source_id1)
+        self.assertEqual(assignments[0].channel_version, 1)
+
+        self.assertEqual(assignments[1].contentnode_id, contentnode_id2)
+        self.assertEqual(assignments[1].source_id, source_id2)
+        self.assertEqual(assignments[1].channel_version, 2)
+
+    def test_get_assignments__version_field_none_when_not_set(self):
+        self.manager.lookup_field = "test_lookup_field"
+        # channel_version_field not set (None by default)
+
+        source_id = uuid.uuid4().hex
+        contentnode_id = uuid.uuid4().hex
+
+        qs = mock.MagicMock()
+        qs.values_list.return_value = [(source_id, contentnode_id)]
+
+        assignments = list(self.manager._get_assignments(qs))
+        qs.values_list.assert_called_once_with("id", "test_lookup_field")
+        self.assertEqual(len(assignments), 1)
+        self.assertIsNone(assignments[0].channel_version)
 
     def test_get_assignments__lookup_func(self):
         metadata = {"test": "test"}

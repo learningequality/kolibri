@@ -4,6 +4,9 @@ on:
   issues:
     types: [assigned, unassigned]
 
+permissions:
+  contents: read
+
 jobs:
   call-label-action:
     uses: learningequality/.github/.github/workflows/community-contribution-label.yml@main

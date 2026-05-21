@@ -17,11 +17,10 @@
           </template>
           <template #cell="{ content, colIndex, row }">
             <template v-if="colIndex === 0">
-              <KButton
+              <KRouterLink
                 class="lo-link"
-                appearance="basic-link"
                 :text="content"
-                @click="onObjectiveClick(row)"
+                :to="objectiveRoute(row[1])"
               />
             </template>
             <template v-else-if="colIndex === 1">
@@ -52,7 +51,7 @@
     components: {
       SparklineBar,
     },
-    setup(props, { emit }) {
+    setup(props) {
       const { learningObjectivesLabel$, masteryLabel$, noTestDataLabel$ } = coursesStrings;
 
       const data = toRef(props, 'prefetchedData');
@@ -62,8 +61,8 @@
       const loading = computed(() => !data.value);
 
       const headers = computed(() => [
-        { label: learningObjectivesLabel$(), dataType: 'string' },
-        { label: masteryLabel$(), dataType: 'undefined', minWidth: '128px' },
+        { label: learningObjectivesLabel$(), dataType: 'string', columnId: 'objective' },
+        { label: masteryLabel$(), dataType: 'undefined', minWidth: '128px', columnId: 'mastery' },
       ]);
 
       const rows = computed(() => bucketedObjectives.value.map(obj => [obj.text, obj.id]));
@@ -73,20 +72,12 @@
         return bucketedObjectives.value.find(obj => obj.id === row[1]);
       }
 
-      function onObjectiveClick(row) {
-        emit('select-objective', {
-          objective: objectiveAt(row),
-          reportData: data.value?.reportData,
-        });
-      }
-
       return {
         loading,
         activeTestStatus,
         headers,
         rows,
         objectiveAt,
-        onObjectiveClick,
         learningObjectivesLabel$,
         noTestDataLabel$,
       };
@@ -95,6 +86,10 @@
       prefetchedData: {
         type: Object,
         default: null,
+      },
+      objectiveRoute: {
+        type: Function,
+        required: true,
       },
     },
   };
@@ -109,12 +104,14 @@
   }
 
   .lo-link {
-    padding: 8px 0;
-    padding-inline-start: 8px;
+    display: block;
+    padding: 4px 12px;
+    font-size: 14px;
   }
 
   .lo-sparkline {
-    padding-right: 8px;
+    display: block;
+    padding: 4px 12px;
   }
 
   /*

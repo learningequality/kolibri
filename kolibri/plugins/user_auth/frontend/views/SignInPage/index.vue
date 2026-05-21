@@ -7,38 +7,16 @@
       -->
     <div v-if="!needsToCreatePassword">
       <!-- ** Text and Backlinks ** -->
-
-      <div class="navigation-links">
-        <!-- In MFD show return to facility select when not asking for password -->
-        <KRouterLink
-          v-if="hasMultipleFacilities && !showPasswordForm"
-          class="back-link"
-          icon="back"
-          :text="coreString('changeLearningFacility')"
-          :to="backToFacilitySelectionRoute"
-        />
-
-        <!-- When password form shows, show a change user link -->
-        <!-- Not using v-else here to be more explicit -->
-        <KButton
-          v-if="showPasswordForm"
-          class="change-user-btn"
-          appearance="basic-link"
-          :text="$tr('changeUser')"
-          @click="clearUser"
-        >
-          <template #icon>
-            <KIcon
-              class="change-user-icon"
-              icon="back"
-              :color="$themeTokens.primary"
-            />
-          </template>
-        </KButton>
-      </div>
+      <AuthContextHeading
+        class="auth-heading"
+        :class="{ 'with-action': hasMultipleFacilities || showPasswordForm }"
+        :useBackAction="hasMultipleFacilities || showPasswordForm"
+        :backLabel="showPasswordForm ? $tr('changeUser') : coreString('changeLearningFacility')"
+        :backTo="showPasswordForm ? null : backToFacilitySelectionRoute"
+        @back="clearUser"
+      />
 
       <SignInHeading
-        :showFacilityName="showFacilityName"
         :showPasswordForm="showPasswordForm"
         :username="username"
       />
@@ -67,6 +45,7 @@
               :label="coreString('usernameLabel')"
               :invalid="usernameIsInvalid"
               :invalidText="usernameIsInvalidText"
+              :showInvalidText="true"
               @blur="handleUsernameBlur"
               @input="handleUsernameInput"
               @keydown="handleUsernameKeydown"
@@ -158,8 +137,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  import get from 'lodash/get';
   import UiAutocompleteSuggestion from 'kolibri-design-system/lib/keen/UiAutocompleteSuggestion';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import useUser from 'kolibri/composables/useUser';
@@ -167,12 +144,17 @@
   import { LoginErrors } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import FacilityUsernameResource from 'kolibri-common/apiResources/FacilityUsernameResource';
-  import useFacility from 'kolibri-common/composables/useFacility';
+  import { useRoute, useRouter } from 'vue-router/composables';
+  import { computed } from 'vue';
+  import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import { ComponentMap } from '../../constants';
-  import getUrlParameter from '../getUrlParameter';
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
+  import useAuthFlow from '../../composables/useAuthFlow';
+  import useAuthWatcher from '../../composables/useAuthWatcher';
+  import useAuthRouter from '../../composables/useAuthRouter';
+  import AuthContextHeading from '../AuthContextHeading.vue';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -185,6 +167,7 @@
       };
     },
     components: {
+      AuthContextHeading,
       AuthBase,
       SignInHeading,
       UiAutocompleteSuggestion,
@@ -193,9 +176,38 @@
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
+      const router = useRouter();
+      const route = useRoute();
       const { isAppContext, login } = useUser();
-      const { selectedFacility } = useFacility();
-      return { login, isAppContext, selectedFacility };
+      const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
+      const { hasMultipleFacilities, facilityId, selectedFacility, facilityConfig } = useAuthFlow();
+      const { setSelectedFacilityId } = useFacilitySelect();
+      const { watchForFacilityChange } = useAuthWatcher();
+
+      const backToFacilitySelectionRoute = computed(() => getFacilitySelectionRoute(false));
+
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        // If the facility ID is unset, it could mean the facility is no longer an option
+        if (!newFacilityId && oldFacilityId) {
+          router.push(defaultRoute.value);
+        }
+      });
+
+      function doLogin(sessionPayload) {
+        // ensure selected facility in local storage is synchronized
+        setSelectedFacilityId(facilityId.value);
+        return login(sessionPayload);
+      }
+
+      return {
+        doLogin,
+        isAppContext,
+        selectedFacility,
+        facilityConfig,
+        hasMultipleFacilities,
+        nextParam,
+        backToFacilitySelectionRoute,
+      };
     },
     data() {
       return {
@@ -215,16 +227,6 @@
       };
     },
     computed: {
-      ...mapState('signIn', ['hasMultipleFacilities']),
-      backToFacilitySelectionRoute() {
-        const facilityRoute = this.$router.getRoute(ComponentMap.FACILITY_SELECT);
-        const whereToNext = this.$router.getRoute(ComponentMap.SIGN_IN);
-        let query = {};
-        if (this.nextParam) {
-          query = { next: this.nextParam };
-        }
-        return { ...facilityRoute, params: { whereToNext }, query };
-      },
       showPasswordForm() {
         return (
           Boolean(this.username) &&
@@ -247,7 +249,7 @@
         return this.loginError === LoginErrors.USER_NOT_FOUND;
       },
       simpleSignIn() {
-        return this.selectedFacility.dataset.learner_can_login_with_no_password;
+        return this.facilityConfig.learner_can_login_with_no_password;
       },
       showUsersList() {
         return this.selectedFacility.num_users <= MAX_USERS_FOR_LISTING_VIEW && this.isAppContext;
@@ -285,19 +287,6 @@
       },
       passwordIsInvalid() {
         return Boolean(this.passwordIsInvalidText);
-      },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
-      },
-      showFacilityName() {
-        return (
-          this.hasMultipleFacilities || get(this.selectedFacility, 'dataset.preset') !== 'informal'
-        );
       },
       isNextButtonEnabled() {
         return !this.busy && this.username !== '' && validateUsername(this.username);
@@ -472,23 +461,25 @@
         }
 
         try {
-          const err = await this.login(sessionPayload);
+          const { error } = await this.doLogin(sessionPayload);
           // If we don't have a password, we submitted without a username
-          if (err) {
-            if (err === LoginErrors.PASSWORD_NOT_SPECIFIED) {
+          if (error) {
+            if (error === LoginErrors.PASSWORD_NOT_SPECIFIED) {
               this.$router.push({
                 name: ComponentMap.NEW_PASSWORD,
                 query: sessionPayload,
               });
-            } else if (err === LoginErrors.PASSWORD_MISSING) {
+            } else if (error === LoginErrors.PASSWORD_MISSING) {
               this.usernameSubmittedWithoutPassword = true;
             } else {
-              this.loginError = err;
+              this.loginError = error;
             }
           }
 
-          if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
-            this.$refs.password.$refs.textbox.$refs.input.select();
+          if (this.userDoesNotExist) {
+            this.$refs.username.focus();
+          } else if (this.invalidCredentials || this.usernameSubmittedWithoutPassword) {
+            this.$refs.password.focus();
           }
         } catch (error) {
           // Handle any unexpected errors
@@ -541,13 +532,21 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
+  .auth-heading {
+    margin-bottom: 20px;
+
+    &.with-action {
+      margin-bottom: 14px;
+    }
+  }
+
   .login-form {
     text-align: left;
   }
 
   .login-btn {
     width: 100%;
-    margin-top: 16px;
+    margin-top: 0;
   }
 
   .suggestions-wrapper {

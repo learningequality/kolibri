@@ -1,5 +1,6 @@
 import logging
 import uuid
+from collections import deque
 from itertools import chain
 from urllib.parse import urlencode
 
@@ -7,6 +8,7 @@ from django.db.models import BigIntegerField
 from django.db.models import BooleanField
 from django.db.models import Case
 from django.db.models import Exists
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
@@ -19,10 +21,12 @@ from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
@@ -88,6 +92,7 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
             source_model=assignment.source_model,
             source_id=assignment.source_id,
             contentnode_id=assignment.contentnode_id,
+            channel_version=assignment.channel_version,
             defaults=dict(
                 facility_id=facility.id,
                 reason=ContentRequestReason.SyncInitiated,
@@ -388,7 +393,7 @@ def _node_total_size(contentnode_id, thumbnail=False, available=False):
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
-                **filters
+                **filters,
             )
             .values(
                 _no_group_by=Value(0)
@@ -469,6 +474,32 @@ def incomplete_downloads_queryset():
     if not get_device_setting("allow_learner_download_resources"):
         qs = qs.exclude(is_learner_download=True)
     return qs
+
+
+def _downloads_needing_metadata_import_queryset(incomplete_downloads):
+    """
+    Returns a queryset of incomplete downloads that need metadata import, either because they don't have metadata
+    or because their channel version is greater than the currently imported channel version
+    """
+
+    channel_version_in_db = Subquery(
+        ChannelMetadata.objects.filter(
+            id=Subquery(
+                ContentNode.objects.filter(
+                    pk=OuterRef(OuterRef("contentnode_id"))
+                ).values("channel_id")[:1]
+            )
+        ).values("version")[:1],
+        output_field=IntegerField(),
+    )
+
+    return incomplete_downloads.filter(
+        Q(has_metadata=False)
+        | Q(
+            channel_version__isnull=False,
+            channel_version__gt=channel_version_in_db,
+        )
+    )
 
 
 def completed_downloads_queryset():
@@ -573,13 +604,13 @@ def process_content_requests():
     logger.debug("Processing content requests")
     incomplete_downloads = incomplete_downloads_queryset()
 
-    # first, process the metadata import for any incomplete downloads without metadata
-    incomplete_downloads_without_metadata = incomplete_downloads.filter(
-        has_metadata=False
+    downloads_needing_metadata_import = _downloads_needing_metadata_import_queryset(
+        incomplete_downloads
     )
-    if incomplete_downloads_without_metadata.exists():
+
+    if downloads_needing_metadata_import.exists():
         logger.debug("Attempting to import missing metadata before content import")
-        process_metadata_import(incomplete_downloads_without_metadata)
+        process_metadata_import(downloads_needing_metadata_import)
 
     _create_related_download_requests_if_needed(incomplete_downloads)
 
@@ -588,12 +619,12 @@ def process_content_requests():
         _process_content_requests(incomplete_downloads)
         # must have completed downloads, we can clear any 'InsufficientStorage' statuses
         LearnerDeviceStatus.clear_statuses()
-    except InsufficientStorage as e:
-        logger.warning(str(e))
+    except InsufficientStorage:
+        logger.warning("Insufficient storage detected during automated import")
 
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
-    except NoPeerAvailable as e:
-        logger.warning(str(e))
+    except NoPeerAvailable:
+        logger.warning("No peer available during automated import")
 
 
 def _merge_import_metadata(metadata_list):
@@ -690,27 +721,125 @@ def _get_import_metadata(client, download):
     return _merge_import_metadata(metadata_list) or None
 
 
-def _import_metadata(client, incomplete_downloads_without_metadata):
+def _get_downloads_for_potential_removed_contentnodes(import_metadata):
+    channel_metadata = import_metadata.get(ChannelMetadata._meta.db_table, [{}])[0]
+    channel_id = channel_metadata.get("id", None)
+    expected_channel_version = channel_metadata.get("version", None)
+    if not channel_id or not expected_channel_version:
+        return None
+
+    currently_imported_channel_version = (
+        ChannelMetadata.objects.filter(id=channel_id)
+        .values_list("version", flat=True)
+        .first()
+    )
+
+    if (
+        currently_imported_channel_version is None
+        or currently_imported_channel_version >= expected_channel_version
+    ):
+        return None
+
+    return list(
+        ContentDownloadRequest.objects.filter(
+            contentnode_id__in=ContentNode.objects.filter(
+                channel_id=channel_id
+            ).values_list("id", flat=True)
+        ).values_list("id", flat=True)
+    )
+
+
+def _import_metadata(client, downloads_needing_metadata_import):
     """
+    Imports metadata for a queryset of downloads that need metadata imported, using a given network client.
+    If the metadata import upgrades a channel (i.e. the current channel version is removed), then any downloads
+    for contentnodes in that channel will be re-queued for metadata import, since the contentnodes may have changed.
+
     :type client: NetworkClient
-    :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
-    :type incomplete_downloads_without_metadata: django.db.models.QuerySet
+    :param downloads_needing_metadata_import: a ContentDownloadRequest queryset
+    :type downloads_needing_metadata_import: django.db.models.QuerySet
     :return: A boolean indicating whether all metadata was imported successfully
     """
-    total_count = incomplete_downloads_without_metadata.count()
+    downloads_to_process = deque(downloads_needing_metadata_import)
+    total_count = len(downloads_to_process)
 
     # quick exit, without log noise, if nothing to do
     if not total_count:
         logging.debug("No content metadata to import")
-        return
+        return True
+
     processed_count = 0
     logger.info("Importing content metadata for {} nodes".format(total_count))
-    for download in incomplete_downloads_without_metadata:
+    while downloads_to_process:
+        download = downloads_to_process.popleft()
+
         import_metadata = _get_import_metadata(client, download)
+
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:
             processed_count += 1
-            import_channel_from_data(import_metadata, cancel_check=False, partial=True)
+
+            # In case of an upgrade, what downloads would be potentially removed?
+            potential_removed_downloads = (
+                _get_downloads_for_potential_removed_contentnodes(import_metadata)
+            )
+
+            import_ran, channel_upgraded = import_channel_from_data(
+                import_metadata,
+                cancel_check=False,
+                partial=True,
+                force_upgrade=True,
+            )
+
+            if channel_upgraded and potential_removed_downloads:
+                queued_ids = {d.id for d in downloads_to_process}
+                removed_downloads_qs = (
+                    ContentDownloadRequest.objects.filter(
+                        # Even if contentnode exists, consider it as a removed download if it's not available,
+                        # so that we can then re-process it and update availability based on content on disk
+                        ~Exists(
+                            ContentNode.objects.filter(
+                                pk=OuterRef("contentnode_id"), available=True
+                            )
+                        ),
+                        id__in=potential_removed_downloads,
+                    )
+                    .exclude(id__in=queued_ids)
+                    .annotate(
+                        # has_metadata is used to determine whether we need to re-import metadata for this download
+                        has_metadata=Exists(
+                            ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
+                        )
+                    )
+                )
+
+                # Re-queue any downloads that would be removed by the channel upgrade
+                removed_downloads_qs.update(
+                    status=ContentRequestStatus.Pending,
+                    priority=ContentRequestPriority.CRITICAL,
+                )
+                removed_downloads = list(removed_downloads_qs)
+                if removed_downloads:
+                    logger.info(
+                        f"Queued {len(removed_downloads)} downloads for re-import due to channel upgrade"
+                    )
+                    for d in removed_downloads:
+                        logger.debug(
+                            f"Re-queuing download {d.id} for contentnode {d.contentnode_id} due to channel upgrade"
+                        )
+                    new_downloads_to_process = [
+                        d for d in removed_downloads if not d.has_metadata
+                    ]
+                    downloads_to_process.extend(new_downloads_to_process)
+                    total_count += len(new_downloads_to_process)
+
+            if not import_ran:
+                logger.warning(
+                    "Import of content metadata for {} did not run".format(
+                        download.contentnode_id
+                    )
+                )
+
             if processed_count % 10 == 0:
                 logger.info(
                     "Imported content metadata for {} out of {} nodes".format(
@@ -727,16 +856,18 @@ def _import_metadata(client, incomplete_downloads_without_metadata):
     return total_count == processed_count
 
 
-def process_metadata_import(incomplete_downloads_without_metadata):
+def process_metadata_import(downloads_needing_metadata_import):
     """
-    Processes metadata import for a queryset already filtered to those without metadata
-    :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
-    :type incomplete_downloads_without_metadata: django.db.models.QuerySet
+    Processes metadata import for a queryset of downloads that need metadata imported.
+    This includes downloads without a ContentNode (has_metadata=False) as well as
+    downloads with a channel_version set, which require re-importing metadata because
+    the channel was updated since the last import.
+
+    :param downloads_needing_metadata_import: a ContentDownloadRequest queryset
+    :type downloads_needing_metadata_import: django.db.models.QuerySet
     """
     preferred_instance_ids = list(
-        incomplete_downloads_without_metadata.values_list(
-            "source_instance_id", flat=True
-        )
+        downloads_needing_metadata_import.values_list("source_instance_id", flat=True)
         # Remove any ordering to ensure the distinct makes the list properly unique.
         .order_by().distinct()
     )
@@ -750,13 +881,13 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     for peer, client in preferred_peers:
         _import_metadata(
             client,
-            incomplete_downloads_without_metadata.filter(
+            downloads_needing_metadata_import.filter(
                 source_instance_id=_uuid_to_hex(peer.instance_id),
             ),
         )
 
-    # if we've completed the import, then we can stop
-    if not incomplete_downloads_without_metadata.exists():
+    # if all downloads that need (re-)importing have been satisfied, stop early.
+    if not downloads_needing_metadata_import.exists():
         return
 
     # otherwise, try to import metadata without filtering the requests by matching instance_id,
@@ -767,7 +898,7 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     for peer, client in chain(preferred_peers, fallback_peers):
         is_complete = _import_metadata(
             client,
-            incomplete_downloads_without_metadata.exclude(
+            downloads_needing_metadata_import.exclude(
                 source_instance_id=_uuid_to_hex(peer.instance_id)
             ),
         )
@@ -776,7 +907,7 @@ def process_metadata_import(incomplete_downloads_without_metadata):
             break
     else:
         # if we haven't completed the import by this point, then we can log a warning
-        unprocessed_count = incomplete_downloads_without_metadata.count()
+        unprocessed_count = downloads_needing_metadata_import.count()
         logger.info(
             "No acceptable peer device for importing content metadata for {} nodes".format(
                 unprocessed_count
@@ -946,15 +1077,16 @@ def process_download_request(download_request):
             raise NoPeerAvailable(
                 "Unable to import {} from peers".format(download_request.contentnode_id)
             )
-    except AlreadyAvailable as e:
+    except AlreadyAvailable:
         # do nothing, since the content is already available
-        logger.debug(str(e))
-    except Exception as e:
-        if isinstance(e, NoPeerAvailable):
-            logger.warning(e)
-        else:
-            logger.exception(e)
-
+        logger.debug("Content already available, skipping import")
+    except NoPeerAvailable:
+        logger.warning("No peer available during content import")
+        download_request.status = ContentRequestStatus.Failed
+        download_request.save()
+        return False
+    except Exception:
+        logger.exception("Unexpected error during content import")
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
         return False

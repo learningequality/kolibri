@@ -4,6 +4,9 @@ on:
   issues:
     types: [opened, reopened, labeled, unlabeled]
 
+permissions:
+  contents: read
+
 jobs:
   call-workflow:
     name: Call shared workflow

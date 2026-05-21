@@ -5,6 +5,14 @@ on:
     paths:
       - 'packages/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -16,16 +24,15 @@ jobs:
         with:
           node-version-file: 'package.json'
       - name: Generate version report
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
             const utils = require('./.github/githubUtils.js');
             const base = context.payload.pull_request.base.sha;
-            const body = utils.generateNpmVersionReport(base);
+            const data = utils.generateNpmVersionData(base);
             fs.mkdirSync('npm_version_report', { recursive: true });
-            fs.writeFileSync('npm_version_report/pr_number', String(context.payload.pull_request.number));
-            fs.writeFileSync('npm_version_report/body', body || '');
+            fs.writeFileSync('npm_version_report/data.json', JSON.stringify(data));
       - uses: actions/upload-artifact@v7
         with:
           name: npm_version_report

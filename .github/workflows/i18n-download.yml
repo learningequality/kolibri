@@ -3,6 +3,9 @@ name: Download translations from Crowdin
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   download:
     name: Download translations and regenerate fonts
@@ -28,7 +31,7 @@ jobs:
           node-version-file: 'package.json'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6.0.3
         with:
           cache: true
 

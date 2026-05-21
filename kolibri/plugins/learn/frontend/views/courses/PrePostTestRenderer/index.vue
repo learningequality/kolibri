@@ -9,27 +9,11 @@
         }"
       >
         <KCircularLoader v-if="submitting" />
-        <div
+        <CourseInterstitial
           v-else-if="mastered"
-          class="complete-test"
-        >
-          <div
-            class="icon-wrapper"
-            :style="{ backgroundColor: $themePalette.green.v_100 }"
-          >
-            <KIcon
-              icon="pointsActive"
-              :color="$themePalette.green.v_500"
-              class="icon"
-            />
-          </div>
-          <strong>
-            {{ completionTitle }}
-          </strong>
-          <p>
-            {{ completionDescription }}
-          </p>
-        </div>
+          :title="completionTitle"
+          :description="completionDescription"
+        />
         <div v-else>
           <h1>
             {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
@@ -182,6 +166,7 @@
   import shuffled from 'kolibri-common/utils/shuffled';
   import { LearnerClassroomResource } from '../../../apiResources';
   import ResourceLayout from '../../ResourceLayout/index.vue';
+  import CourseInterstitial from '../../CourseUnitView/CourseInterstitial.vue';
   import { PRE_POST_TEST_CRITERION, TestType } from '../../../constants';
   import AnswerHistory from './AnswerHistory';
 
@@ -191,6 +176,7 @@
     name: 'PrePostTestRenderer',
     components: {
       AnswerHistory,
+      CourseInterstitial,
       UiAlert,
       ResourceLayout,
     },
@@ -588,32 +574,6 @@
 
     .icon {
       top: 0;
-    }
-  }
-
-  .complete-test {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-
-    .icon-wrapper {
-      padding: 24px;
-      border-radius: 50%;
-
-      .icon {
-        top: 4px;
-        left: 2px;
-        width: 52px;
-        height: 52px;
-        font-size: 52px;
-      }
-    }
-
-    p {
-      margin: 0;
     }
   }
 

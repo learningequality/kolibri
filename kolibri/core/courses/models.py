@@ -91,6 +91,11 @@ class CourseSession(AbstractFacilityDataModel):
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
+    # Tracks the channel version at the time of course creation or last channel update
+    # This is used so that the course session node is updated when the channel is updated,
+    # retriggering content requests if needed.
+    channel_version = models.IntegerField(default=0, blank=True, null=True)
+
     morango_model_name = "coursesession"
 
     content_assignments = ContentAssignmentManager(
@@ -101,6 +106,7 @@ class CourseSession(AbstractFacilityDataModel):
         lookup_field="course",
         lookup_func=course_assignment_lookup,
         content_download_priority_func=course_content_download_priority,
+        channel_version_field="channel_version",
     )
 
     def __str__(self):
@@ -159,10 +165,14 @@ class CourseSession(AbstractFacilityDataModel):
         result["started"] = True
         unit_contentnode_id = most_recent_pre_test_completed.unit_contentnode_id
 
+        # No available=True filter. An incomplete resource that is
+        # unavailable is the learner's resume position — the frontend's
+        # "resource unavailable" state gates forward navigation there.
+        # Completed-but-missing resources don't apply: the progress filter
+        # below drops them before availability matters.
         first_incomplete_resource = (
             ContentNode.objects.filter(
                 parent__parent=unit_contentnode_id,
-                available=True,
             )
             .annotate(
                 learner_progress=Subquery(

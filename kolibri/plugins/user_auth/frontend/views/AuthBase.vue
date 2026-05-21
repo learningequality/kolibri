@@ -4,113 +4,137 @@
     <div class="wrapper-table">
       <div class="main-row table-row">
         <div class="main-cell table-cell">
-          <!-- remote access disabled -->
           <div
-            v-if="!allowAccess || deviceUnusableReason"
             class="box"
+            :class="{
+              landscape: showLandscapeLayout,
+              shaking,
+            }"
             :style="{ backgroundColor: $themeTokens.surface }"
           >
-            <CoreLogo
-              v-if="themeConfig.signIn.topLogo"
-              class="logo"
-              :src="themeConfig.signIn.topLogo.src"
-              :alt="themeConfig.signIn.topLogo.alt"
-              :style="themeConfig.signIn.topLogo.style"
-            />
-            <h1
-              v-if="themeConfig.signIn.showTitle"
-              class="kolibri-title"
-              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+            <div
+              :class="{
+                'header-row': showLandscapeLayout,
+              }"
             >
-              {{ logoText }}
-            </h1>
+              <div v-if="showLandscapeLayout">
+                <slot name="header-leading-actions"></slot>
+              </div>
+              <div
+                :class="{
+                  'header-title-row': showLandscapeLayout,
+                }"
+              >
+                <CoreLogo
+                  v-if="themeConfig.signIn.topLogo"
+                  class="logo"
+                  :src="themeConfig.signIn.topLogo.src"
+                  :alt="themeConfig.signIn.topLogo.alt"
+                  :style="themeConfig.signIn.topLogo.style"
+                />
+                <h1
+                  v-if="themeConfig.signIn.showTitle"
+                  class="kolibri-title"
+                  :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+                >
+                  {{ logoText }}
+                </h1>
+              </div>
+            </div>
+
             <template v-if="!allowAccess">
+              <!-- remote access disabled -->
               <p data-testid="restrictedAccess">
                 {{ $tr('restrictedAccess') }}
               </p>
               <p>{{ $tr('restrictedAccessDescription') }}</p>
             </template>
             <DeviceUnusableMessage
-              v-else
+              v-else-if="deviceUnusableReason"
               :reason="deviceUnusableReason"
             />
-          </div>
-          <!-- remote access enabled -->
-          <div
-            v-else
-            class="box"
-            :style="{ backgroundColor: $themeTokens.surface }"
-          >
-            <CoreLogo
-              v-if="themeConfig.signIn.topLogo"
-              class="logo"
-              :src="themeConfig.signIn.topLogo.src"
-              :alt="themeConfig.signIn.topLogo.alt"
-              :style="themeConfig.signIn.topLogo.style"
-            />
-            <h1
-              v-if="themeConfig.signIn.showTitle"
-              class="kolibri-title"
-              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
-            >
-              {{ logoText }}
-            </h1>
-            <p
-              v-if="themeConfig.signIn.showPoweredBy"
-              :style="themeConfig.signIn.poweredByStyle"
-              class="small-text"
-            >
-              <KButton
-                v-if="oidcProviderFlow"
-                :text="$tr('poweredByKolibri')"
-                appearance="basic-link"
-                @click="whatsThisModalVisible = true"
-              />
-              <KExternalLink
-                v-else
-                :text="$tr('poweredByKolibri')"
-                :primary="true"
-                href="https://learningequality.org/r/powered_by_kolibri"
-                :openInNewTab="true"
-                appearance="basic-link"
-              />
-            </p>
+            <!-- Regular auth layout (remote access enabled) -->
+            <template v-else>
+              <p
+                v-if="themeConfig.signIn.showPoweredBy"
+                :style="themeConfig.signIn.poweredByStyle"
+                class="small-text"
+              >
+                <KButton
+                  v-if="oidcProviderFlow"
+                  :text="$tr('poweredByKolibri')"
+                  appearance="basic-link"
+                  @click="whatsThisModalVisible = true"
+                />
+                <KExternalLink
+                  v-else
+                  :text="$tr('poweredByKolibri')"
+                  :primary="true"
+                  href="https://learningequality.org/r/powered_by_kolibri"
+                  :openInNewTab="true"
+                  appearance="basic-link"
+                />
+              </p>
 
-            <slot></slot>
+              <slot></slot>
 
-            <p
-              v-if="!hideCreateAccount && canSignUp"
-              class="create"
-            >
-              <KRouterLink
-                :text="userString('createAccountAction')"
-                :to="signUpPage"
-                :primary="false"
-                appearance="raised-button"
-                :disabled="busy"
-                style="width: 100%"
-                data-testid="createUser"
-              />
-            </p>
+              <p
+                v-if="showCreateAccountButton"
+                class="create"
+              >
+                <KRouterLink
+                  :text="userString('createAccountAction')"
+                  :to="signUpRoute"
+                  :primary="false"
+                  appearance="raised-button"
+                  :disabled="busy"
+                  style="width: 100%"
+                  data-testid="createUser"
+                />
+              </p>
 
-            <div>
-              <component
-                :is="component"
-                v-for="component in loginOptions"
-                :key="component.name"
-              />
-            </div>
-            <p
-              v-if="showGuestAccess"
-              class="guest small-text"
-            >
-              <KExternalLink
-                :text="$tr('accessAsGuest')"
-                :href="guestURL"
-                :primary="true"
-                appearance="basic-link"
-              />
-            </p>
+              <div>
+                <component
+                  :is="component"
+                  v-for="component in loginOptions"
+                  :key="component.name"
+                />
+              </div>
+              <div
+                :class="{
+                  'footer-links-landscape': showLandscapeLayout,
+                }"
+              >
+                <p
+                  v-if="allowAlternateSignIn"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KRouterLink
+                    :text="alternateSignInText$()"
+                    :to="alternateSignInRoute"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+                <p
+                  v-if="showGuestAccess"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KExternalLink
+                    :text="$tr('accessAsGuest')"
+                    :href="guestURL"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+              </div>
+            </template>
           </div>
           <div
             class="background"
@@ -188,35 +212,91 @@
 <script>
 
   import { computed } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import CoreLogo from 'kolibri/components/CoreLogo';
   import PrivacyInfoModal from 'kolibri/components/PrivacyInfoModal';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import themeConfig from 'kolibri/styles/themeConfig';
+  import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
+  import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import useUser from 'kolibri/composables/useUser';
-  import { ComponentMap } from '../constants';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthRouter from '../composables/useAuthRouter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
   import commonUserStrings from './commonUserStrings';
-  import getUrlParameter from './getUrlParameter';
   import DeviceUnusableMessage from './DeviceUnusableMessage.vue';
 
   export default {
     name: 'AuthBase',
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal, DeviceUnusableMessage },
     mixins: [commonCoreStrings, commonUserStrings],
-    setup() {
-      const { facilityConfig } = useFacility();
+    setup(props) {
+      const route = useRoute();
+      const { nextParam, pictureSignInRoute, usernameSignInRoute, signUpRoute } =
+        useAuthRouter(route);
+      const { canSignUp, signInOptions, signInMethod } = useAuthFlow();
       const { isAppContext } = useUser();
+      const { enterUsername$, enterPictures$ } = picturePasswordStrings;
+
       const allowAccess = computed(() => {
         return plugin_data.allowRemoteAccess || isAppContext.value;
       });
-      return { themeConfig, facilityConfig, allowAccess };
+      const allowAlternateSignIn = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          signInOptions.value.includes(OptionsForSignIn.PICTURE_PASSWORD)
+        );
+      });
+      const showPictureSignInOption = computed(() => {
+        return signInMethod.value !== OptionsForSignIn.PICTURE_PASSWORD;
+      });
+
+      const showCreateAccountButton = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          canSignUp.value &&
+          (!allowAlternateSignIn.value || showPictureSignInOption.value)
+        );
+      });
+      const alternateSignInText$ = computed(() => {
+        return showPictureSignInOption.value ? enterPictures$ : enterUsername$;
+      });
+      const alternateSignInRoute = computed(() => {
+        return showPictureSignInOption.value ? pictureSignInRoute.value : usernameSignInRoute.value;
+      });
+
+      const deviceUnusableReason = plugin_data.deviceUnusableReason;
+
+      const showLandscapeLayout = computed(() => {
+        // Prevent landscape layout from showing if the device is unusable or
+        // remote access is disabled.
+        return props.landscapeLayout && allowAccess.value && !deviceUnusableReason;
+      });
+
+      return {
+        themeConfig,
+        allowAccess,
+        allowAlternateSignIn,
+        showCreateAccountButton,
+        alternateSignInRoute,
+        deviceUnusableReason,
+        showLandscapeLayout,
+        signUpRoute,
+        nextParam,
+        // strings
+        alternateSignInText$,
+      };
     },
     props: {
-      hideCreateAccount: {
+      landscapeLayout: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      hideFacilityBasedOptions: {
         type: Boolean,
         required: false,
         default: false,
@@ -231,6 +311,7 @@
       return {
         privacyModalVisible: false,
         whatsThisModalVisible: false,
+        shaking: false,
       };
     },
     computed: {
@@ -251,26 +332,6 @@
       guestURL() {
         return urls['kolibri:core:guest']();
       },
-      canSignUp() {
-        return (
-          this.facilityConfig.is_full_facility_import && this.facilityConfig.learner_can_sign_up
-        );
-      },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
-      },
-      signUpPage() {
-        const signUpRoute = this.$router.getRoute(ComponentMap.SIGN_UP);
-        if (this.nextParam) {
-          return { ...signUpRoute, query: { next: this.nextParam } };
-        }
-        return signUpRoute;
-      },
       loginOptions() {
         // POC, in the future sorting of different login options can be implemented
         return [...loginComponents];
@@ -286,11 +347,30 @@
       showGuestAccess() {
         return plugin_data.allowGuestAccess && !this.oidcProviderFlow;
       },
-      deviceUnusableReason() {
-        return plugin_data.deviceUnusableReason;
-      },
       versionMsg() {
         return this.$tr('poweredBy', { version: __version });
+      },
+    },
+    beforeDestroy() {
+      window.clearTimeout(this._shakeTimeout);
+    },
+    methods: {
+      /**
+       * @public
+       * Triggers shake animation and returns a Promise that resolves when complete.
+       * Duration matches CSS animation: 800ms normally, 1ms with prefers-reduced-motion.
+       */
+      shake() {
+        this.shaking = true;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const duration = prefersReducedMotion ? 1 : 800;
+
+        return new Promise(resolve => {
+          this._shakeTimeout = window.setTimeout(() => {
+            this.shaking = false;
+            resolve();
+          }, duration);
+        });
       },
     },
     $trs: {
@@ -397,23 +477,24 @@
     position: relative;
     z-index: 1;
     width: 360px;
-    padding: 32px;
+    padding: 24px 32px;
     margin: 16px auto;
     border-radius: $radius;
-  }
 
-  .login-btn {
-    width: calc(100% - 16px);
+    &.landscape {
+      width: 70%;
+      min-width: 360px;
+      max-width: 1000px;
+    }
   }
 
   .create {
-    margin-top: 24px;
-    margin-bottom: 0;
+    margin-top: 16px;
   }
 
-  .guest {
-    margin-top: 24px;
-    margin-bottom: 8px;
+  .alternative-link {
+    margin-top: 20px;
+    margin-bottom: 0;
   }
 
   .small-text {
@@ -468,16 +549,9 @@
     transition: opacity 0s;
   }
 
-  .logo {
-    width: 100%;
-    height: auto;
-  }
-
   .kolibri-title {
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 24px;
-    font-weight: 100;
   }
 
   .footer-logo {
@@ -490,9 +564,72 @@
     vertical-align: middle;
   }
 
+  .footer-links-landscape {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    p {
+      padding: 0 16px;
+      border-right: 1px solid;
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+
+  .header-title-row {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   /deep/ .ui-textbox-input {
     &:hover {
       outline: none;
+    }
+  }
+
+  .shaking {
+    animation: shake 0.8s ease-in-out both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shaking {
+      animation-duration: 1ms;
     }
   }
 

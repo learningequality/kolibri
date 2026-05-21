@@ -35,4 +35,6 @@ class LoginMergedUserViewset(APIView):
         if not TokenGenerator().check_token(new_user.id, token):
             return Response({"error": "Unauthorized"}, status=401)
         login(request, new_user)
-        return Response({"success": True})
+        return Response(
+            {"success": True, "picture_password": new_user.picture_password}
+        )

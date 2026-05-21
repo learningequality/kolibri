@@ -55,14 +55,6 @@ describe('LearningObjectiveSidePanel', () => {
     expect(screen.getByText(REPORT_DATA.unit_title)).toBeInTheDocument();
   });
 
-  it('shows completion count based on active test takers', () => {
-    renderPanel();
-    const completionEl = screen.getByTestId('completion-count');
-    // pre_test has 2 takers out of 3 learners
-    expect(completionEl).toHaveTextContent('2');
-    expect(completionEl).toHaveTextContent('3');
-  });
-
   it('shows pre-test average in the summary section', () => {
     renderPanel();
     // pre_test scores for lo-1: user-1=4, user-2=1, average=2.5 rounds to 3

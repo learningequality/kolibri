@@ -19,7 +19,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Kapya | Aypak |
 | Benjamin Bach | benjaoming |
 | Blaine Jester | bjester |
-| Boni Đukić | bonidjukic |
+| Boni Đukić | bonidukic |
 | Brian Kwon | br-kwon |
 | Brandon Nguyen | bransgithub |
 | John | BruvaJ |
@@ -35,7 +35,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Dylan McCall | dylanmccall |
 | Mingqi Zhu | EmanekaT |
 | Gerardo Soto | GCodeON |
-| Geoff Rich | geoffrey1218 |
+| Geoff Rich | geoffrich |
 | Hans Gamboa | HansGam |
 | Devon Rueckner | indirectlylit |
 | - | inflrscns |
@@ -43,7 +43,6 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Jamie Alexandre | jamalex |
 | Jason Tame | JasonTame |
 | Jordan Yoshihara | jayoshih |
-| Jessica Aceret | jessicaaceret |
 | Jonathan Boiser | jonboiser |
 | José L. Redrejo Rodríguez | jredrejo |
 | Jessica Aceret | jtamiace |
@@ -68,7 +67,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Eugene Oliveros | mrpau-eugene |
 | Julius legaspi | mrpau-julius |
 | Richard Amodia | mrpau-richard |
-| Nick Cannariato | nickcannariato |
+| Nick Cannariato | birdcar |
 | Jacob Pierce | nucleogenesis |
 | Paul Bussé | paulbusse |
 | Petar Cenov | pcenov |
@@ -85,7 +84,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Whitney Zhu | whitzhu |
 | Carol Willing | willingc |
 | Yash Jipkate | YashJipkate |
-| Yixuan Liu | yil039 |
+| Yixuan Liu | yixuan-liu |
 | Jaideep Sharma | camperjett |
 | Allan Otodi | AllanOXDi |
 | Liana Harris | LianaHarris360 |
@@ -105,3 +104,115 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Eshaan Aggarwal | EshaanAgg |
 | Nikhil Sharma | ThEditor |
 | - | BabyElias |
+| Prathamesh Desai | ozer550 |
+| Samson Akol | akolson |
+| Tomiwa Ogunmodede | tomiwaoLE |
+| John Warren | JohnWarren1 |
+| Karla Avila | karlaeavila |
+| - | mzq592 |
+| Dolf Andringa | dolfandringa |
+| - | swiftugandan |
+| Khang Mach | khangmach |
+| Deepansh Goyal | deepanshgoyal33 |
+| priyanka choubey | priyanka-choubey |
+| Jigish Gohil | cyberorg |
+| Lewis Cowles | Lewiscowles1986 |
+| Sneha Mishra | Tlazypanda |
+| - | Ali-Kazmi |
+| - | VedderPradhan |
+| Alvin Hsu | alvinhsu-gal220 |
+| Kushal Beniwal | KushalBeniwal |
+| Manav Kapoor | manav1403 |
+| blackboxo | blackboxo |
+| Apostolos Kalovelonis | Kalovelo |
+| - | sophianyberg |
+| Priyaraj | Priyaraj17 |
+| - | EliKlein |
+| Evgeni | Evgeni998 |
+| Akash Verma | akash5100 |
+| abhishek kumar | abhimnc |
+| Chris  | andersan |
+| saksham pathak | sakshampathak1508 |
+| Nitheezkant R | nitheezkant |
+| Bedo Khaled | abdelrahman725 |
+| Deveshree Mishrekar | drone-droid |
+| Navdeep Singh | navdeepsingh92 |
+| Kristijan Atanasovski | AtKristijan |
+| nms | ngms06 |
+| - | sharifmaryam |
+| danigm | danigm |
+| - | NobleCactus |
+| - | d0sadata |
+| Amit Panwar | amitpanwar789 |
+| Sid | hyprsyd |
+| - | reem-atalah |
+| Suyash Singh | GeekGawd |
+| Jose Hernandez-Yepez | jose-hy |
+| Zack Goldberg | zrg228 |
+| Pursottam Sah | Pursottam6003 |
+| Georges Basile Stavracas Neto | GeorgesStavracas |
+| Devanshu Augusty | Devanshu-Augusty |
+| - | Shashank245 |
+| Varun Sharma | varunsh17 |
+| M. Hasbini | mhasbini |
+| Yash Dugriyal | 0xV0YD |
+| Anup Haldar | haldaranup |
+| Andrea Misuraca | andreamisuraca |
+| - | FireSuperior482 |
+| Aryan Sharma | im-NL |
+| Abhishek Upadhyay | Tweniee |
+| Jaspreet singh | Jaspreet-singh-1032 |
+| Dan Nicholson | dbnicholson |
+| Adviti Mishra | adviti-mishra |
+| Pranjal Rajput | PR4NJ41 |
+| Fidal Mathew | FidalMathew |
+| Vivek Agrawal | vkWeb |
+| Nikhil anand | nick2432 |
+| Mohamed khaled | Mohamedkhaled81 |
+| Ayman  | AymanHammadi |
+| - | iskipu |
+| Himanshu | himanshuc3 |
+| PoJuDeSu | poju3185 |
+| the_marvite | kafukoM |
+| Gonçalo Alves | GSAprod |
+| Yomata | oge1ata |
+| Kshitij Thareja | KshitijThareja |
+| Varun Kainthla | Wck-iipi |
+| Shubham | shubh1007 |
+| Nathanael Gutierrez | nathanaelg16 |
+| Mudit Choudhary | muditchoudhary |
+| Shivam Daksh | shivam-daksh |
+| Divyansh Agarwal | nikkuAg |
+| Suraj Kumar | Suraj-kumar00 |
+| Jason Mok | jasonmokk |
+| Emmanuel Ferdman | emmanuel-ferdman |
+| Mashrafie Rahim Sheikh | m3tal10 |
+| Rahul Vishwakarma | manzil-infinity180 |
+| - | rparadowski |
+| rajveer  | malviya-rajveer |
+| Vivek Pathak | KumarVivekPathak |
+| - | lokesh-sagi125 |
+| Gautam Manchandani | GautamBytes |
+| Yash Kumar Singh | yashhash2 |
+| Sukhvir Singh | SukhvirKooner |
+| Vaibhav Agrawal | vaibhav-agr |
+| RONAK | RONAK-AI647 |
+| shobh raj | iamshobhraj |
+| Sujai Kumar Gupta | thesujai |
+| Nihal Shinde | NihalShinde4933 |
+| - | shruti862 |
+| - | WinnyChang |
+| - | Prashant-thakur77 |
+| Himanshu jayswal | himanshujays29 |
+| - | remo-lab |
+| Manoel Cortes Mendez | manocormen |
+| Anushka Sharma | sharma-anushka |
+| - | ketan0919 |
+| - | TheGreatPratyush |
+| Sahib Siddiqui | sahibsiddiqui |
+| Abhishek | Abhishek-Punhani |
+| ROHIT RAJ | rohitt-pandey |
+| Swoyamjeet Sahu | Swoyamjeetcodes |
+| Rajesh Vinod Uchil | rajeshuchil |
+| Aadarsh Mahesh K | AadarshM07 |
+| Nitya Jain | curiouscoder-cmd |

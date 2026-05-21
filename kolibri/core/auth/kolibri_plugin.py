@@ -1,17 +1,26 @@
+import logging
 import uuid
 
 from morango.sync.operations import LocalOperation
 
+from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.hooks import FacilityDataSyncHook
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Session
 from kolibri.core.auth.sync_operations import KolibriLocalInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriNetworkInitializeOperation
 from kolibri.core.auth.sync_operations import KolibriSingleUserSyncOperation
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
+from kolibri.core.auth.sync_operations import PicturePasswordCollisionOperation
 from kolibri.core.auth.tasks import cleanupsync
+from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
+from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.plugins.hooks import register_hook
+
+logger = logging.getLogger(__name__)
 
 
 class SingleFacilityUserChangeClearingOperation(KolibriSingleUserSyncOperation):
@@ -89,6 +98,7 @@ class AuthSyncHook(FacilityDataSyncHook):
         KolibriNetworkInitializeOperation(),
     ]
     serializing_operations = [SingleFacilityUserChangeClearingOperation()]
+    deserializing_operations = [PicturePasswordCollisionOperation()]
     cleanup_operations = [CleanUpTaskOperation()]
 
     def post_transfer(
@@ -105,4 +115,43 @@ class AuthSyncHook(FacilityDataSyncHook):
                 FacilityUser
             )
             cleanup_sessions(user_ids)
-            get_learner_count.clear(dataset_id)
+
+
+@register_hook
+class PicturePasswordsSyncHook(FacilityDataSyncHook):
+    def post_transfer(
+        self,
+        dataset_id,
+        local_is_single_user,
+        remote_is_single_user,
+        single_user_id,
+        context,
+    ):
+        if not context.is_receiver:
+            return
+
+        get_learner_count.clear(dataset_id)
+
+        if local_is_single_user:
+            return
+
+        dataset = FacilityDataset.objects.get(id=dataset_id)
+        if dataset.picture_password_settings is None:
+            return
+
+        if are_picture_passwords_exhausted(dataset_id):
+            return
+
+        facility = Facility.objects.get(dataset_id=dataset_id)
+        learners = FacilityUser.objects.filter(
+            dataset_id=dataset_id,
+            roles__isnull=True,
+            picture_password__isnull=True,
+        ).exclude(devicepermissions__is_superuser=True)
+
+        for user in learners.iterator():
+            try:
+                assign_picture_password(user, facility)
+            except NoAvailableSequences:
+                logger.error("No available picture password sequences remaining.")
+                break

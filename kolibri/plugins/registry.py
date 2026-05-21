@@ -122,9 +122,8 @@ class Registry:
                 HookSingleInstanceError,
                 PluginLoadsApp,
             ) as e:
-                logger.error("Cannot initialize plugin {}".format(app))
-                logger.error(str(e))
-                logger.error("Disabling plugin {}".format(app))
+                logger.exception("Cannot initialize plugin %s", app)
+                logger.error("Disabling plugin %s", app)
                 config.clear_plugin(app)
                 if isinstance(e, PluginLoadsApp):
                     logger.error(

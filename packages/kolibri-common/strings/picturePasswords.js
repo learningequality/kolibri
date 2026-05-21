@@ -75,21 +75,33 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
 
   // Submit button aria-label states
   selectThreeIconsToSignIn: {
-    message: 'Select 3 icons to sign in',
-    context: 'Submit button label when no icons have been selected yet.',
+    message: 'Select 3 pictures to sign in',
+    context: 'Submit button label when no pictures have been selected yet.',
   },
   selectTwoMoreIcons: {
-    message: 'Select 2 more icons',
-    context: 'Submit button label when exactly 1 icon has been selected.',
+    message: 'Select 2 more pictures',
+    context: 'Submit button label when exactly 1 picture has been selected.',
   },
   selectOneMoreIcon: {
-    message: 'Select 1 more icon',
-    context: 'Submit button label when exactly 2 icons have been selected.',
+    message: 'Select 1 more picture',
+    context: 'Submit button label when exactly 2 pictures have been selected.',
   },
   signInWithSequence: {
     message: 'Sign in with this sequence: {icon1}, {icon2}, {icon3}',
     context:
-      'Submit button label when all 3 icons have been selected; lists them in order for screen readers.',
+      'Submit button label when all 3 pictures have been selected; lists them in order for screen readers.',
+  },
+  formAriaLabel: {
+    message: 'Select 3 pictures below to sign in to Kolibri',
+    context:
+      'Accessible label for the picture password form. Read by screen readers when the form receives focus.',
+  },
+
+  // Sign-in errors
+  wrongPicturesTryAgain: {
+    message: 'Wrong pictures, try again!',
+    context:
+      'Assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
   },
 
   learnerLimitReachedHeading: {
@@ -172,8 +184,13 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
     message: 'View Passwords',
     context: 'Button label that navigates to the page listing all learner picture passwords',
   },
+  printPicturePasswordsAction: {
+    message: 'Print picture passwords',
+    context:
+      'Dropdown option on the class edit page that navigates to the page for printing learner picture passwords',
+  },
   noPicturePasswordDescription: {
-    message: 'No picture password assigned',
+    message: 'No picture password',
     context: 'Shown in the learner password list when a learner has no picture password set',
   },
   printAction: {
@@ -192,5 +209,146 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   noLearnersInClass: {
     message: 'There are no learners in this class',
     context: 'Shown on the all passwords page when the class has no enrolled learners',
+  },
+
+  // Info modal for picture password radio option
+  picturePasswordInfoLabel: {
+    message: 'About picture passwords',
+    context:
+      'Accessible label for the information icon button next to the picture password option, and title for the picture password info modal.',
+  },
+  picturePasswordInfoIntro: {
+    message: 'Picture password is designed for early-literacy learners.',
+    context: 'Opening sentence in the picture password info modal.',
+  },
+  picturePasswordInfoBody: {
+    message:
+      'Learners sign in by selecting a 3-picture sequence unique to their account. Each sequence is auto-generated and assigned by Kolibri and cannot be changed. This feature is only available in facilities with fewer than 1,300 learners.',
+    context: 'Main content in the information modal about the picture password sign-in method.',
+  },
+  picturePasswordInfoNote: {
+    message:
+      'Learners who join the facility after the 1,300 user limit can sign in with a username.',
+    context:
+      'Note shown in the picture password info modal about learners added after the limit is reached.',
+  },
+  picturePasswordAssignedTitle: {
+    message: 'New password',
+    context:
+      'Title of the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  picturePasswordAssignedDescription: {
+    message:
+      'Remember these pictures and write them down if you need to. You will need them to sign in to Kolibri in the future.',
+    context:
+      'Description in the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  picturePasswordAssignedAddendum: {
+    message: 'If you forget, your coach can help.',
+    context:
+      'Short note in the modal shown after learner signup or facility change when a picture password has been assigned.',
+  },
+  readyToContinue: {
+    message: "I'm ready to continue",
+    context:
+      'Checkbox label in the picture password confirmation modal that must be checked before continue is enabled.',
+  },
+
+  // Info modal for child-friendly icons radio option
+  childFriendlyIconsInfoLabel: {
+    message: 'About icon styles',
+    context:
+      'Accessible label for the information icon button next to the child-friendly icons option.',
+  },
+  childFriendlyIconsInfoDescription: {
+    message:
+      'The child-friendly icons are designed for young learners. These icons use the same objects as the standard set, in a more colorful and engaging style.',
+    context: 'Description shown in the icon styles information modal.',
+  },
+  childFriendlyIconsColumnLabel: {
+    message: 'Child-friendly',
+    context: 'Column header for the child-friendly icons column in the icon styles modal.',
+  },
+  standardIconsColumnLabel: {
+    message: 'Standard',
+    context: 'Column header for the standard icons column in the icon styles modal.',
+  },
+
+  // Exhausted state — inline explanation and info modal
+  picturePasswordUnavailableExplanation: {
+    message: 'Picture password is not available right now.',
+    context:
+      'Short explanation shown below the disabled picture password option when the learner limit is reached.',
+  },
+  picturePasswordUnavailableTitle: {
+    message: 'Setting not available',
+    context:
+      'Title for the modal explaining why picture password is unavailable when the learner limit is reached.',
+  },
+  picturePasswordUnavailableBody: {
+    message:
+      'Picture passwords are only available for facilities with up to {learnerLimit} learners.',
+    context:
+      'Body of the modal explaining why picture password is not available. {learnerLimit} is the maximum number of learners allowed for picture password.',
+  },
+  picturePasswordUnavailableLearnerCount: {
+    message: 'Current number of learners in {facilityName}: {learnerCount}',
+    context:
+      'Shows the current learner count for the facility in the picture password unavailable modal. {facilityName} is the name of the facility and {learnerCount} is the number of learners.',
+  },
+  printWithImages: {
+    message: 'Print with images',
+    context: 'Radio option label for printing the picture password list with icon images',
+  },
+  printWithTextOnly: {
+    message: 'Print with text only',
+    context: 'Radio option label for printing the picture password list using text labels only',
+  },
+  printPasswordsDialogHeader: {
+    message: 'Print passwords',
+    context: 'Title for the dialog where coaches choose how to print the picture password list',
+  },
+  printFormatPreviewLabel: {
+    message: 'Preview',
+    context: 'Label for the live preview section in the print format dialog',
+  },
+  picturePasswordForLearner: {
+    message: 'Password for {learnerName} is a list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a learner's picture password when the learner name is known. For example: 'Password for Alice is a list of 3 pictures: moon, water, bird'.",
+  },
+  picturePasswordList: {
+    message: 'A list of {count} pictures: {labels}',
+    context:
+      "Screen reader sentence describing a picture password when no learner name is available. For example: 'A list of 3 pictures: moon, water, bird'.",
+  },
+
+  // Sign-in
+  enterPictures: {
+    message: 'Enter pictures instead',
+    context: 'Link text on the sign-in page for switching to the picture password method',
+  },
+  enterUsername: {
+    message: 'Enter username instead',
+    context: 'Link text on the sign-in page for switching to the username & password method',
+  },
+  isThisYou: {
+    message: 'Is this you?',
+    context:
+      'Title of the confirmation modal shown after a successful picture password sign-in, asking the learner to confirm their identity.',
+  },
+  yesConfirmAction: {
+    message: 'Yes',
+    context: 'Button label confirming identity in the picture password sign-in confirmation modal.',
+  },
+  noGoBackAction: {
+    message: 'No, go back',
+    context:
+      'Button label denying identity and returning to the sign-in grid in the picture password confirmation modal.',
+  },
+  yourPasswordIs: {
+    message: 'Your password is: {labels}',
+    context:
+      "Screen reader sentence describing the learner's picture password sequence in the confirmation modal. For example: 'Your password is: dog, water, bee'.",
   },
 });

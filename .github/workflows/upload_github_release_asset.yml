@@ -10,6 +10,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 jobs:
   github_upload:
     name: Upload to Github release
@@ -21,7 +24,7 @@ jobs:
         with:
           name: ${{ inputs.filename }}
           path: dist
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@v9
         with:
           script: |
             const utils = require('./.github/githubUtils.js')

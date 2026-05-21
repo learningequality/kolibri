@@ -1,4 +1,6 @@
+import os
 import platform
+import tempfile
 import uuid
 from collections import namedtuple
 from datetime import timedelta
@@ -843,3 +845,110 @@ class InitializeEndpointTestCase(APITestCase):
             user = FacilityUser.objects.get(id=user_id)
             self.assertFalse(hasattr(user, "os_user"))
             self.assertEqual(self.superuser.id, user.id)
+
+    def test_redirect_relative_next_url(self):
+        """A relative same-host path is accepted."""
+        url = app_initialize_url(next_url="/learn/")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/learn/")
+
+    def test_redirect_absolute_same_host_next_url(self):
+        """A fully-qualified URL pointing at the test host is accepted."""
+        url = app_initialize_url(next_url="http://testserver/learn/")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "http://testserver/learn/")
+
+    def test_redirect_absolute_different_host_falls_back(self):
+        """A fully-qualified URL pointing at a foreign host falls back to /."""
+        url = app_initialize_url(next_url="http://evil.com/steal")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_protocol_relative_falls_back(self):
+        """A protocol-relative URL (//evil.com/foo) falls back to /."""
+        url = app_initialize_url(next_url="//evil.com/foo")
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_absent_next_falls_back(self):
+        """When ?next= is absent, the redirect target is /."""
+        url = app_initialize_url()
+        response = self.client.get(url, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+    def test_redirect_referer_ignored_with_invalid_next(self):
+        """HTTP_REFERER is no longer used as a fallback."""
+        url = app_initialize_url(next_url="http://evil.com/steal")
+        response = self.client.get(
+            url,
+            follow=False,
+            HTTP_REFERER="http://testserver/valid/",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/")
+
+
+class PathPermissionViewTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        provision_device(language_id="en", default_facility=cls.facility)
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
+        super().setUp()
+        clear_process_cache()
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_requires_authentication(self):
+        self.client.logout()
+        response = self.client.get(
+            reverse("kolibri:core:pathpermission"), {"path": "/tmp"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_returns_submitted_path_not_realpath(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            link = os.path.join(tmpdir, "link")
+            target = os.path.join(tmpdir, "target")
+            os.mkdir(target)
+            os.symlink(target, link)
+            response = self.client.get(
+                reverse("kolibri:core:pathpermission"), {"path": link}
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # The response must echo the submitted path, not the symlink target
+            self.assertEqual(response.data["path"], link)
+            self.assertNotEqual(response.data["path"], target)
+
+    def test_tilde_path_not_expanded(self):
+        # ~root/.ssh must NOT be expanded to /root/.ssh
+        response = self.client.get(
+            reverse("kolibri:core:pathpermission"), {"path": "~root/.ssh"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # The response path must be the literal submitted string
+        self.assertEqual(response.data["path"], "~root/.ssh")
+        # directory check must be False (literal path does not exist)
+        self.assertFalse(response.data["directory"])
+
+    def test_real_dir_writable_and_directory(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            response = self.client.get(
+                reverse("kolibri:core:pathpermission"), {"path": tmpdir}
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertTrue(response.data["directory"])
+            self.assertTrue(response.data["writable"])
+            self.assertEqual(response.data["path"], tmpdir)

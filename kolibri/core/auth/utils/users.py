@@ -1,4 +1,5 @@
 from django.core.management.base import CommandError
+from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotFound
 
@@ -19,6 +20,18 @@ def create_adhoc_group_for_learners(classroom, learners):
     for learner in learners:
         Membership.objects.create(user=learner, collection=adhoc_group)
     return adhoc_group
+
+
+class _RemoteFacilityUserSerializer(serializers.Serializer):
+    id = serializers.UUIDField(format="hex")
+    username = serializers.CharField()
+    full_name = serializers.CharField(allow_blank=True)
+    facility = serializers.UUIDField(format="hex")
+    is_superuser = serializers.BooleanField()
+    id_number = serializers.CharField(allow_blank=True)
+    gender = serializers.CharField(allow_blank=True)
+    birth_year = serializers.CharField(allow_blank=True)
+    roles = serializers.ListField(child=serializers.CharField())
 
 
 def get_remote_users_info(baseurl, facility_id, username, password, client=None):
@@ -81,13 +94,13 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
                 detail="Authentication failed",
                 code=error_constants.AUTHENTICATION_FAILED,
             )
-    auth_info = response.json()
+    serializer = _RemoteFacilityUserSerializer(data=response.json(), many=True)
+    auth_info = serializer.data if serializer.is_valid() else []
     if len(auth_info) > 1:
-        user_info = [u for u in response.json() if u["username"] == username][0]
+        user_info = [u for u in auth_info if u["username"] == username][0]
     else:
         user_info = auth_info[0]
-    facility_info = {"user": user_info, "users": auth_info}
-    return facility_info
+    return {"user": user_info, "users": auth_info}
 
 
 def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user_id):

@@ -18,7 +18,7 @@
           </p>
         </section>
 
-        <section>
+        <section v-if="hasNextVersion">
           <p>
             <strong>
               {{
@@ -106,7 +106,7 @@
             :text="$tr('updateChannelAction')"
             appearance="raised-button"
             :primary="true"
-            :disabled="loadingChannel || loadingTask"
+            :disabled="loadingChannel || loadingTask || !hasNextVersion"
             @click="showModal = true"
           />
         </BottomAppBar>
@@ -178,14 +178,17 @@
       channelIsIncomplete() {
         return false;
       },
+      hasNextVersion() {
+        return this.nextVersion !== null;
+      },
       versionAvailableText() {
-        if (this.channelName) {
+        if (this.channelName && this.hasNextVersion) {
           return this.$tr('versionIsAvailable', {
             channelName: this.channelName,
             nextVersion: this.nextVersion,
           });
         }
-        return '';
+        return this.channelName || '';
       },
       params() {
         return pickBy({
@@ -222,7 +225,11 @@
         this.setChannelData(installedChannel, sourceChannel);
 
         this.loadingChannel = false;
-        this.startDiffStatsTask();
+        if (sourceChannel) {
+          this.startDiffStatsTask();
+        } else {
+          this.loadingTask = false;
+        }
       });
     },
     methods: {
@@ -278,10 +285,10 @@
       setChannelData(installedChannel, sourceChannel) {
         this.channelName = installedChannel.name;
         this.currentVersion = installedChannel.version;
-        this.nextVersion = sourceChannel.version;
+        this.nextVersion = sourceChannel ? sourceChannel.version : null;
         // Currently, version notes only available if upgrading from Studio via
         // RemoteChannelViewset
-        this.versionNotes = sourceChannel.version_notes || {};
+        this.versionNotes = sourceChannel ? sourceChannel.version_notes || {} : {};
       },
       loadChannelInfo() {
         return fetchChannelAtSource(this.params).catch(error => {

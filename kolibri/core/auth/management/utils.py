@@ -124,7 +124,7 @@ def get_facility(facility_id=None, noninteractive=False):
 
 def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
     # get list of facilities and if more than 1, display all choices to user
-    client = NetworkClient.build_for_address(baseurl)
+    client = NetworkClient.discover_from_address(baseurl)
     facility_url = reverse_path("kolibri:core:publicfacility-list")
     response = client.get(facility_url)
     facilities = response.json()
@@ -166,7 +166,7 @@ def get_baseurl(address):
 
     # validate base url
     try:
-        return NetworkClient.build_for_address(address).base_url
+        return NetworkClient.discover_from_address(address).base_url
     except URLParseError:
         raise CommandError(
             "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(

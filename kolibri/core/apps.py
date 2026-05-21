@@ -181,12 +181,11 @@ class KolibriCoreConfig(AppConfig):
                 )
 
         except ConnectionError as e:
-            logger.warning("Unable to connect to Redis: {}".format(str(e)))
+            logger.exception("Unable to connect to Redis")
 
             raise RedisConnectionError(
                 "Unable to connect to Redis: {}".format(str(e))
             ) from e
 
-        except Exception as e:
-            logger.warning("Unable to check Redis settings")
-            logger.warning(e)
+        except Exception:
+            logger.exception("Unable to check Redis settings")

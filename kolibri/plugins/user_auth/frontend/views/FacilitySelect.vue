@@ -1,12 +1,12 @@
 <template>
 
-  <AuthBase :hideCreateAccount="true">
+  <AuthBase :hideFacilityBasedOptions="true">
     <div class="facility-select">
-      <KRouterLink
-        class="backlink"
-        :to="backTo"
-        :text="userString('goBackToHomeAction')"
-        icon="back"
+      <AuthContextHeading
+        :useBackAction="true"
+        :backLabel="userString('goBackToHomeAction')"
+        :backTo="backTo"
+        :title="heading"
       />
       <div v-if="facilityList['enabled'].length">
         <p class="label">
@@ -20,7 +20,7 @@
           <KButton
             appearance="raised-button"
             :primary="false"
-            @click="setFacility(facility.id)"
+            @click="selectFacility(facility.id)"
           >
             <template #icon>
               <KIcon
@@ -68,39 +68,70 @@
 <script>
 
   import partition from 'lodash/partition';
-  import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacilities from 'kolibri-common/composables/useFacilities';
-  import useFacility from 'kolibri-common/composables/useFacility';
-  import { ComponentMap } from '../constants';
+  import { useRouter, useRoute } from 'vue-router/composables';
+  import commonCoreStrings, { coreString } from 'kolibri/uiText/commonCoreStrings';
+  import { computed } from 'vue';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthWatcher from '../composables/useAuthWatcher';
+  import useAuthRouter from '../composables/useAuthRouter';
   import AuthBase from './AuthBase';
-  import commonUserStrings from './commonUserStrings';
+  import commonUserStrings, { userString } from './commonUserStrings';
+  import AuthContextHeading from './AuthContextHeading.vue';
 
   export default {
     name: 'FacilitySelect',
-    components: { AuthBase },
+    components: { AuthContextHeading, AuthBase },
     mixins: [commonCoreStrings, commonUserStrings],
-    setup() {
-      const { facilities } = useFacilities();
-      const { setFacilityId } = useFacility();
-      return { facilities, setFacilityId };
+    setup(props) {
+      const route = useRoute();
+      const router = useRouter();
+      const { homeRoute, signInRoute, signUpRoute } = useAuthRouter(route);
+      const { facilities, facilityId, setFacilityId } = useAuthFlow();
+      const { watchForFacilityChange } = useAuthWatcher();
+
+      const backTo = computed(() => homeRoute.value);
+      const heading = computed(() => {
+        return props.signUpNext ? userString('createAccountAction') : coreString('facilitiesLabel');
+      });
+
+      /**
+       * Navigate to sign-in or sign-up page
+       */
+      function navigateToSignIn() {
+        router.push(props.signUpNext ? signUpRoute.value : signInRoute.value);
+      }
+
+      // facilityId is synchronized to local storage, so if multiple tabs change it, this should
+      // keep the page in sync, also catches where facility ID is changing from persisted selection
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        if (newFacilityId !== oldFacilityId && newFacilityId) {
+          navigateToSignIn();
+        }
+      });
+
+      async function selectFacility(_facilityId) {
+        // track this before the change
+        const sameFacilityId = facilityId.value === _facilityId;
+        await setFacilityId(_facilityId);
+        // catches case where facility ID isn't changing relative to persisted option
+        if (sameFacilityId) {
+          navigateToSignIn();
+        }
+      }
+
+      return { backTo, facilities, heading, selectFacility };
     },
     props: {
-      // This component is interstitial and needs to know where to go when it's done
-      // The type is Object, but it needs to be one of the listed routes in the validator
-      whereToNext: {
-        type: Object,
+      // This component is interstitial and needs to know where to go when it's done, sign-up or
+      // otherwise to sign-in
+      signUpNext: {
+        type: Boolean,
         required: true,
-        validate(obj) {
-          return [ComponentMap.SIGN_IN, ComponentMap.SIGN_UP].includes(obj.name);
-        },
       },
     },
     computed: {
-      backTo() {
-        return this.$router.getRoute(ComponentMap.AUTH_SELECT);
-      },
       facilityList() {
-        if (this.whereToNext.name === ComponentMap.SIGN_UP) {
+        if (this.signUpNext) {
           const partitionedFacilities = partition(
             this.facilities,
             f => f.dataset.learner_can_sign_up,
@@ -114,21 +145,9 @@
         }
       },
       label() {
-        return this.whereToNext.name === ComponentMap.SIGN_UP
+        return this.signUpNext
           ? this.$tr('canSignUpForFacilityLabel')
           : this.$tr('selectFacilityLabel');
-      },
-    },
-    methods: {
-      async setFacility(facilityId) {
-        const whereToNext = { ...this.whereToNext };
-        if (this.$route.query.next) {
-          whereToNext.query.next = this.$route.query.next;
-        }
-        // Save the selected facility, get its config, then move along to next route
-        await this.$store.dispatch('setFacilityId', { facilityId });
-        await this.setFacilityId(facilityId);
-        this.$router.push(whereToNext);
       },
     },
     $trs: {
@@ -176,10 +195,6 @@
     // 12 margin from button beneath + 4 for 16px
     padding-bottom: 4px;
     font-size: 14px;
-  }
-
-  .backlink {
-    margin: 24px 0 16px;
   }
 
   .facility-icon {

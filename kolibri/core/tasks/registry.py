@@ -82,10 +82,6 @@ class _registry(dict):
         self.__init_check()
         return super().items()
 
-    def __cmp__(self, other):
-        self.__init_check()
-        return super().__cmp__(other)
-
     def _initialize(self):
         logger.debug("Importing 'tasks' module from django apps")
 
@@ -110,7 +106,7 @@ class _registry(dict):
 
     def update(self, other):
         # Coerce args to a dict and then set each key in that dict
-        other = {}.update(other)
+        other = dict(other)
         for key, value in other.items():
             self[key] = value
 

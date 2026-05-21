@@ -37,6 +37,18 @@ except ImportError:
     pass
 
 
+def _get_postgres_ssl_options(database_options):
+    ssl_mode = database_options["DATABASE_SSL_MODE"]
+    if ssl_mode == "disable":
+        return {}
+
+    ssl_options = {"sslmode": ssl_mode}
+    ssl_root_cert = database_options["DATABASE_SSL_ROOT_CERT"].strip()
+    if ssl_root_cert:
+        ssl_options["sslrootcert"] = ssl_root_cert
+    return ssl_options
+
+
 if not os.path.exists(conf.KOLIBRI_HOME):
     raise RuntimeError("The KOLIBRI_HOME dir does not exist")
 
@@ -179,6 +191,12 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
+    postgres_ssl_options = _get_postgres_ssl_options(conf.OPTIONS["Database"])
+
+    default_db_options = {}
+    if postgres_ssl_options:
+        default_db_options["OPTIONS"] = postgres_ssl_options.copy()
+
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -188,6 +206,7 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             "HOST": conf.OPTIONS["Database"]["DATABASE_HOST"],
             "PORT": conf.OPTIONS["Database"]["DATABASE_PORT"],
             "TEST": {"NAME": "test"},
+            **default_db_options,
         },
         "default-serializable": {
             "ENGINE": "django.db.backends.postgresql",
@@ -196,7 +215,10 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
             "USER": conf.OPTIONS["Database"]["DATABASE_USER"],
             "HOST": conf.OPTIONS["Database"]["DATABASE_HOST"],
             "PORT": conf.OPTIONS["Database"]["DATABASE_PORT"],
-            "OPTIONS": {"isolation_level": isolation_level},
+            "OPTIONS": {
+                "isolation_level": isolation_level,
+                **postgres_ssl_options,
+            },
             "TEST": {"MIRROR": "default"},
         },
     }

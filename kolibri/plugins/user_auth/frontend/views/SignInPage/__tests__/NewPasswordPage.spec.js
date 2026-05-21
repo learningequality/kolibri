@@ -8,6 +8,8 @@ import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coreStoreFactory } from 'kolibri/store';
 import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
 import { setUnspecifiedPassword } from '../../../api';
+import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
+import useAuthRouter, { useAuthRouterMock } from '../../../composables/useAuthRouter'; // eslint-disable-line import-x/named
 import NewPasswordPage from '../NewPasswordPage.vue';
 
 const { passwordLabel$ } = coreStrings;
@@ -18,6 +20,8 @@ jest.mock('kolibri-plugin-data', () => ({ allowRemoteAccess: true }));
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('../../../api');
+jest.mock('../../../composables/useAuthFlow');
+jest.mock('../../../composables/useAuthRouter');
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
 
@@ -27,6 +31,17 @@ function renderComponent() {
     login: mockLogin,
     userFacilityId: ref(null),
   }));
+  useAuthFlow.mockReturnValue(
+    useAuthFlowMock({
+      selectedFacility: ref({ id: 'facility_1', name: 'Facility 1' }),
+    }),
+  );
+  useAuthRouter.mockReturnValue(
+    useAuthRouterMock({
+      nextParam: ref(''),
+      signInRoute: ref({ name: 'SignInPage' }),
+    }),
+  );
 
   return render(
     NewPasswordPage,

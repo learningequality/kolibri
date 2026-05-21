@@ -126,6 +126,12 @@ class ChannelBuilder:
         )
         File.objects.bulk_create((File(**f) for f in self.files.values()))
 
+    def remove_from_default_db(self):
+        File.objects.filter(id__in=self.files.keys()).delete()
+        LocalFile.objects.filter(id__in=self.localfiles.keys()).delete()
+        ContentNode.objects.filter(id__in=self.nodes.keys()).delete()
+        ChannelMetadata.objects.filter(id=self.channel["id"]).delete()
+
     def recurse_tree_until_leaf_container(self, parent):
         if not parent.get("children"):
             parent["children"] = []

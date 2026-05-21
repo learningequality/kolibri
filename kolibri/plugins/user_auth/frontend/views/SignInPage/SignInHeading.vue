@@ -1,24 +1,10 @@
 <template>
 
-  <div class="sign-in-text">
-    <div v-if="showFacilityName && !showPasswordForm">
-      {{ userString('signInToFacilityLabel', { facility: selectedFacility.name }) }}
-    </div>
-
-    <!-- Asking for password, has multiple facilities or is not informal -->
-    <div v-else-if="showFacilityName && showPasswordForm">
-      {{
-        userString('signingInToFacilityAsUserLabel', {
-          facility: selectedFacility.name,
-          user: username,
-        })
-      }}
-    </div>
-
-    <!-- Asking for password, has one facility which is informal -->
-    <div v-else-if="showPasswordForm">
-      {{ userString('signingInAsUserLabel', { user: username }) }}
-    </div>
+  <div
+    v-if="showPasswordForm"
+    class="sign-in-text"
+  >
+    {{ userString('signingInAsUserLabel', { user: username }) }}
   </div>
 
 </template>
@@ -26,23 +12,12 @@
 
 <script>
 
-  import useFacility from 'kolibri-common/composables/useFacility';
   import commonUserStrings from '../commonUserStrings';
 
   export default {
     name: 'SignInHeading',
     mixins: [commonUserStrings],
-    setup() {
-      const { selectedFacility } = useFacility();
-      return {
-        selectedFacility,
-      };
-    },
     props: {
-      showFacilityName: {
-        type: Boolean,
-        required: true,
-      },
       showPasswordForm: {
         type: Boolean,
         required: true,
@@ -60,8 +35,7 @@
 <style lang="scss" scoped>
 
   .sign-in-text {
-    margin-top: 24px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     text-align: left;
   }
 

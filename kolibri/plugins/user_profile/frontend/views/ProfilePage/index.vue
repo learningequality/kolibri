@@ -112,6 +112,21 @@
             </td>
           </tr>
 
+          <tr v-if="showPicturePasswordRow">
+            <th>{{ coreString('passwordLabel') }}</th>
+            <td>
+              <UserPicturePassword
+                v-if="currentUser.picture_password"
+                data-testid="picture-password-display"
+                :picturePassword="currentUser.picture_password"
+              />
+              <KEmptyPlaceholder
+                v-else
+                data-testid="picture-password-empty"
+              />
+            </td>
+          </tr>
+
           <tr v-if="!isLearnerOnlyImport && canEditPassword">
             <th>{{ coreString('passwordLabel') }}</th>
             <td>
@@ -194,8 +209,9 @@
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
+  import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
-  import { PermissionTypes } from 'kolibri/constants';
+  import { PermissionTypes, UserKinds } from 'kolibri/constants';
   import useUser from 'kolibri/composables/useUser';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
@@ -222,6 +238,7 @@
       NotificationsRoot,
       GenderDisplayText,
       PermissionsIcon,
+      UserPicturePassword,
       UserTypeDisplay,
     },
     mixins: [commonCoreStrings],
@@ -234,6 +251,7 @@
         userKind,
         userPermissions: _userPermissions,
         isCoach,
+        isAdmin,
         isSuperuser,
         userHasPermissions,
         userFacilityId,
@@ -241,7 +259,7 @@
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
       const { facilities } = useFacilities();
-      const { facilityConfig } = useFacility();
+      const { facilityConfig, fetchFacilities, updateFacilityConfig } = useFacility();
       const userPermissions = computed(() => pickBy(_userPermissions));
 
       return {
@@ -252,6 +270,7 @@
         userKind,
         userPermissions,
         isCoach,
+        isAdmin,
         isSuperuser,
         userHasPermissions,
         userFacilityId,
@@ -261,6 +280,8 @@
         totalPoints,
         facilityConfig,
         facilities,
+        fetchFacilities,
+        updateFacilityConfig,
       };
     },
     computed: {
@@ -289,15 +310,25 @@
         }
         return '';
       },
+      showPicturePasswordRow() {
+        return (
+          this.userKind === UserKinds.LEARNER &&
+          this.facilityConfig?.picture_password_settings != null
+        );
+      },
       canEditPassword() {
         const learner_can_edit =
           this.facilityConfig.learner_can_edit_password &&
           !this.facilityConfig.learner_can_login_with_no_password;
-        return this.isSuperuser || this.isCoach || learner_can_edit;
+        return this.isSuperuser || this.isAdmin || this.isCoach || learner_can_edit;
       },
     },
-    created() {
+    async created() {
       this.fetchPoints();
+      // Load the facility list and selected-facility config so facilityConfig is
+      // populated for everything on this page that depends on it (#14545).
+      await this.fetchFacilities();
+      await this.updateFacilityConfig();
     },
     methods: {
       getPermissionString(permission) {

@@ -101,7 +101,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
     mode,
     cache: cache && {
       type: 'filesystem',
-      version: '1.0.0',
+      version: `1.0.0-${hot ? 'hot' : 'nothot'}-${transpile ? 'transpiled' : 'source'}`,
       buildDependencies: {
         config: [__filename],
       },

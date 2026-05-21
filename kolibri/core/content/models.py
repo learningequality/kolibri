@@ -32,6 +32,7 @@ from django.db.models import OuterRef
 from django.db.models import QuerySet
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from le_utils.constants import library as library_constants
 from le_utils.constants import modalities
 from morango.models.fields import UUIDField
 from mptt.managers import TreeManager
@@ -394,6 +395,12 @@ class ChannelMetadata(base_models.ChannelMetadata):
     included_grade_levels = models.TextField(null=True, blank=True)
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
     public = models.BooleanField(null=True)
+    library = models.CharField(
+        max_length=50,
+        choices=library_constants.choices,
+        null=True,
+        blank=True,
+    )
     # Has only a subset of this channel's metadata been imported?
     # Use a null boolean field to avoid issues during metadata import
     partial = models.BooleanField(null=True, default=False)
@@ -503,6 +510,7 @@ class ContentRequest(models.Model):
 
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
+    channel_version = models.IntegerField(default=None, null=True, blank=True)
     priority = models.IntegerField(
         default=ContentRequestPriority.REGULAR,
         choices=ContentRequestPriority.choices(),
@@ -513,7 +521,13 @@ class ContentRequest(models.Model):
     objects = ContentRequestManager()
 
     class Meta:
-        unique_together = ("type", "source_model", "source_id", "contentnode_id")
+        unique_together = (
+            "type",
+            "source_model",
+            "source_id",
+            "contentnode_id",
+            "channel_version",
+        )
         ordering = ("requested_at",)
 
     def save(self, *args, **kwargs):

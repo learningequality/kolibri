@@ -7,8 +7,9 @@ import { useCourses } from '../../../composables/useCourses';
 
 /**
  * Composable for managing the logic for the Assign Course side panel.
- * This composable will live during the lifetime of the Assign Course side panel, and
- * will be used to encapsulate all the logic related to assigning a course to learners.
+ * Holds the global assignment state for the side panel session: the selected course,
+ * selected recipients, and snapshots of the original recipients used to detect unsaved changes.
+ * State persists across side panel subpage navigation and is reset via resetAssignment().
  *
  * This is instantiated in the root component of the Assign Course side panel
  * and its state and methods will be passed down to child components through provide/inject.
@@ -25,6 +26,10 @@ export default function useAssignCourse({ classId }) {
 
   const selectedGroupIds = ref([]);
   const selectedLearnerIds = ref([]);
+
+  // Snapshot of recipients at the time editing began, used to detect unsaved changes
+  const originalGroupIds = ref([]);
+  const originalLearnerIds = ref([]);
 
   const coursesFetch = useFetch({
     fetchMethod: () => {
@@ -46,6 +51,16 @@ export default function useAssignCourse({ classId }) {
 
   const isLoading = computed(() => coursesFetch.loading.value);
 
+  const hasRecipientChanges = computed(() => {
+    const sameGroups =
+      selectedGroupIds.value.length === originalGroupIds.value.length &&
+      selectedGroupIds.value.every(id => originalGroupIds.value.includes(id));
+    const sameLearners =
+      selectedLearnerIds.value.length === originalLearnerIds.value.length &&
+      selectedLearnerIds.value.every(id => originalLearnerIds.value.includes(id));
+    return !sameGroups || !sameLearners;
+  });
+
   const { refreshClassCourses } = useCourses();
 
   const selectCourse = course => {
@@ -60,6 +75,8 @@ export default function useAssignCourse({ classId }) {
     courseSessionId.value = courseSession.id;
     selectedGroupIds.value = [...(courseSession.assignments || [])];
     selectedLearnerIds.value = [...(courseSession.learner_ids || [])];
+    originalGroupIds.value = [...(courseSession.assignments || [])];
+    originalLearnerIds.value = [...(courseSession.learner_ids || [])];
   };
 
   /**
@@ -97,6 +114,8 @@ export default function useAssignCourse({ classId }) {
     courseSessionId.value = null;
     selectedGroupIds.value = [];
     selectedLearnerIds.value = [];
+    originalGroupIds.value = [];
+    originalLearnerIds.value = [];
     courseSessionVisible.value = false;
   };
 
@@ -117,6 +136,7 @@ export default function useAssignCourse({ classId }) {
     selectedLearnerIds,
     selectCourse,
     courseSessionId,
+    hasRecipientChanges,
     setCourseVisibility,
     setExistingAssignment,
     resetAssignment,
@@ -131,6 +151,7 @@ export default function useAssignCourse({ classId }) {
   provide('assignCourseSelectedGroupIds', selectedGroupIds);
   provide('assignCourseSelectedLearnerIds', selectedLearnerIds);
   provide('assignCourseCourseSessionId', courseSessionId);
+  provide('assignCourseHasRecipientChanges', hasRecipientChanges);
   provide('assignCourseSelectCourse', selectCourse);
   provide('assignCourseSetExistingAssignment', setExistingAssignment);
   provide('assignCourseResetAssignment', resetAssignment);
@@ -148,11 +169,20 @@ export default function useAssignCourse({ classId }) {
  * @property {import('vue').Ref<string>} searchKeywords The keywords used to search for courses.
  * @property {FetchObject} coursesFetch The useFetch object for fetching courses.
  * @property {import('vue').Ref<Object|null>} selectedCourse The currently selected course.
+ * @property {import('vue').Ref<string|null>} courseSessionId The id of the course session being
+ *                                                            edited, or null when creating a new
+ *                                                            assignment.
  * @property {import('vue').Ref<Array<string>>} selectedGroupIds The ids of the selected groups
  *                                                               to assign the course to.
  * @property {import('vue').Ref<Array<string>>} selectedLearnerIds The ids of the selected learners
  *                                                                 to assign the course to.
+ * @property {import('vue').ComputedRef<boolean>} hasRecipientChanges True when selected recipients
+ *                                                                     differ from the snapshot
+ *                                                                     taken at edit-session start.
  * @property {(course: Object) => void} selectCourse Method to set the `selectedCourse` ref.
+ * @property {(courseSession: Object) => void} setExistingAssignment Populate state from an existing
+ *                                                                   course session for editing.
+ * @property {() => void} resetAssignment Reset all assignment state to initial empty values.
  * @property {() => Promise<Object>} assignCourse Method to assign the selected course to the
  *                                                selected learners and groups.
  *
@@ -169,6 +199,7 @@ export function injectAssignCourse() {
     selectedLearnerIds: inject('assignCourseSelectedLearnerIds'),
     selectCourse: inject('assignCourseSelectCourse'),
     courseSessionId: inject('assignCourseCourseSessionId'),
+    hasRecipientChanges: inject('assignCourseHasRecipientChanges'),
     setExistingAssignment: inject('assignCourseSetExistingAssignment'),
     resetAssignment: inject('assignCourseResetAssignment'),
     assignCourse: inject('assignCourseAssignCourse'),

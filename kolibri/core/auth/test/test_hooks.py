@@ -130,28 +130,6 @@ class AuthSyncHookSessionCleanupTestCase(TestCase):
         )
         mock_session.delete_all_sessions.assert_not_called()
 
-    def test_post_transfer__clear_learner_count(self, mock_session, mock_learner_count):
-        """Test that post_transfer clears learner count"""
-        self.context.is_receiver = True
-        # Create a regular (non-deleted) user
-        user = FacilityUser.objects.create(
-            username="regular_user",
-            facility=self.facility,
-        )
-        # Mock transfer session to return this user's ID
-        self.mock_transfer_session.get_touched_record_ids_for_model.return_value = [
-            user.id
-        ]
-
-        self.hook.post_transfer(
-            dataset_id=self.facility.dataset_id,
-            local_is_single_user=False,
-            remote_is_single_user=False,
-            single_user_id=None,
-            context=self.context,
-        )
-        mock_learner_count.clear.assert_called_once_with(self.facility.dataset_id)
-
     def test_post_transfer__with_soft_deleted_users(
         self, mock_session, mock_learner_count
     ):

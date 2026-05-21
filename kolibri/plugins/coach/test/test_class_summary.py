@@ -1,21 +1,31 @@
+import datetime
 import uuid
 
 from django.urls import reverse
+from django.utils import timezone
 from le_utils.constants import content_kinds
 from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons import models
+from kolibri.core.logger.models import AttemptLog
+from kolibri.core.logger.models import ContentSessionLog
+from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.test.helpers import EvaluationMixin
 from kolibri.core.notifications.models import HelpReason
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
+from kolibri.plugins.coach.class_summary_api import COMPLETED
 from kolibri.plugins.coach.class_summary_api import content_status_serializer
+from kolibri.plugins.coach.class_summary_api import HELP_NEEDED
+from kolibri.plugins.coach.class_summary_api import NOT_STARTED
+from kolibri.plugins.coach.class_summary_api import STARTED
 from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
@@ -367,3 +377,206 @@ class ClassSummaryDiffTestCase(EvaluationMixin, APITestCase):
                 if previous_try
                 else 0,
             )
+
+
+class ClassSummaryStatusTests(APITestCase):
+    """
+    Tests that the class summary API endpoint returns correct status values
+    in content_learner_status for each content/learner combination.
+
+    Mirrors the status scenarios in UnitLessonProgressStatusTests to confirm
+    the shared get_log_status logic works correctly via both endpoints.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="Summary Status Test Facility")
+        cls.classroom = Classroom.objects.create(
+            name="Summary Status Test Classroom", parent=cls.facility
+        )
+        cls.coach = helpers.create_coach(
+            "summarystatuscoach", "password", cls.facility, classroom=cls.classroom
+        )
+        cls.learner = helpers.create_learner(
+            "summarystatuslearner", "password", cls.facility, cls.classroom
+        )
+
+        channel_id = uuid.uuid4().hex
+        cls.video_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            title="Status Test Video",
+            kind=content_kinds.VIDEO,
+            available=True,
+        )
+        cls.exercise_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            title="Status Test Exercise",
+            kind=content_kinds.EXERCISE,
+            available=True,
+        )
+        cls.lesson = models.Lesson.objects.create(
+            title="Status Test Lesson",
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.coach,
+            resources=[
+                {
+                    "contentnode_id": cls.video_node.id,
+                    "content_id": cls.video_node.content_id,
+                    "channel_id": channel_id,
+                },
+                {
+                    "contentnode_id": cls.exercise_node.id,
+                    "content_id": cls.exercise_node.content_id,
+                    "channel_id": channel_id,
+                },
+            ],
+        )
+        cls.url = reverse(
+            "kolibri:kolibri.plugins.coach:classsummary-detail",
+            kwargs={"pk": cls.classroom.id},
+        )
+
+    def setUp(self):
+        self.client.login(username="summarystatuscoach", password="password")
+
+    def _create_summary_log(self, user, content_node, progress=0.0):
+        now = timezone.now()
+        return ContentSummaryLog.objects.create(
+            user=user,
+            content_id=content_node.content_id,
+            channel_id=content_node.channel_id,
+            start_timestamp=now - datetime.timedelta(hours=1),
+            end_timestamp=now,
+            time_spent=300.0,
+            progress=progress,
+            kind=content_node.kind,
+        )
+
+    def _add_attempt(self, user, summary_log):
+        now = timezone.now()
+        session = ContentSessionLog.objects.create(
+            user=user,
+            content_id=summary_log.content_id,
+            channel_id=summary_log.channel_id,
+            start_timestamp=now - datetime.timedelta(hours=1),
+            end_timestamp=now,
+            kind=content_kinds.EXERCISE,
+        )
+        mastery = MasteryLog.objects.create(
+            user=user,
+            summarylog=summary_log,
+            start_timestamp=now - datetime.timedelta(hours=1),
+            mastery_level=1,
+            complete=False,
+        )
+        AttemptLog.objects.create(
+            masterylog=mastery,
+            sessionlog=session,
+            user=user,
+            item=uuid.uuid4().hex,
+            start_timestamp=now - datetime.timedelta(minutes=10),
+            end_timestamp=now,
+            correct=0,
+        )
+
+    def _get_status(self, response, learner_id, content_id):
+        for entry in response.data["content_learner_status"]:
+            if entry["learner_id"] == learner_id and entry["content_id"] == content_id:
+                return entry["status"]
+        return None
+
+    def test_no_log_yields_no_status_entry(self):
+        """Without a ContentSummaryLog, a learner has no entry in content_learner_status."""
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        learner_entries = [
+            e
+            for e in response.data["content_learner_status"]
+            if e["learner_id"] == self.learner.id
+        ]
+        self.assertEqual(learner_entries, [])
+
+    def test_video_started_status(self):
+        """A video with 0 < progress < 1 is STARTED."""
+        self._create_summary_log(self.learner, self.video_node, progress=0.5)
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.video_node.content_id),
+            STARTED,
+        )
+
+    def test_video_completed_status(self):
+        """A video with progress == 1 is COMPLETED."""
+        self._create_summary_log(self.learner, self.video_node, progress=1.0)
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.video_node.content_id),
+            COMPLETED,
+        )
+
+    def test_exercise_no_attempts_is_not_started(self):
+        """An exercise with a log but no attempt logs is NOT_STARTED."""
+        self._create_summary_log(self.learner, self.exercise_node, progress=0.0)
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.exercise_node.content_id),
+            NOT_STARTED,
+        )
+
+    def test_exercise_with_attempts_is_started(self):
+        """An exercise with attempt logs but progress < 1 is STARTED."""
+        log = self._create_summary_log(self.learner, self.exercise_node, progress=0.3)
+        self._add_attempt(self.learner, log)
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.exercise_node.content_id),
+            STARTED,
+        )
+
+    def test_help_needed_status(self):
+        """A HelpNeeded notification gives HELP_NEEDED status for an in-progress exercise."""
+        log = self._create_summary_log(self.learner, self.exercise_node, progress=0.3)
+        self._add_attempt(self.learner, log)
+        LearnerProgressNotification.objects.create(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=self.learner.id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson.id,
+            contentnode_id=self.exercise_node.id,
+            reason=HelpReason.Multiple,
+            timestamp=local_now(),
+        )
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.exercise_node.content_id),
+            HELP_NEEDED,
+        )
+
+    def test_progress_complete_overrides_help_notification(self):
+        """progress == 1 returns COMPLETED even when a HelpNeeded notification exists."""
+        log = self._create_summary_log(self.learner, self.exercise_node, progress=1.0)
+        self._add_attempt(self.learner, log)
+        LearnerProgressNotification.objects.create(
+            notification_object=NotificationObjectType.Resource,
+            notification_event=NotificationEventType.Help,
+            user_id=self.learner.id,
+            classroom_id=self.classroom.id,
+            lesson_id=self.lesson.id,
+            contentnode_id=self.exercise_node.id,
+            reason=HelpReason.Multiple,
+            timestamp=local_now(),
+        )
+        response = self.client.get(self.url)
+        self.assertEqual(
+            self._get_status(response, self.learner.id, self.exercise_node.content_id),
+            COMPLETED,
+        )

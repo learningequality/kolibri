@@ -230,7 +230,7 @@
             this.wrapOnboarding();
             if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
               const { password } = this.deviceProvisioningData.superuser || {};
-              const error = await this.login({
+              const { error } = await this.login({
                 facilityId,
                 username,
                 password,
@@ -241,7 +241,6 @@
                 // If we get an error logging in, just redirect to the sign-in page
                 return redirectBrowser();
               }
-              return;
             } else {
               return redirectBrowser();
             }

@@ -35,7 +35,9 @@ from ..constants.facility_presets import mappings
 from ..models import Facility
 from ..serializers import _prepare_for_bulk_create
 from .helpers import create_superuser
+from .helpers import disable_picture_password
 from .helpers import DUMMY_PASSWORD
+from .helpers import enable_picture_password
 from .helpers import provision_device
 from .helpers import setup_device
 from kolibri.core import error_constants
@@ -828,6 +830,22 @@ class FacilityAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data["picture_passwords_exhausted"])
+
+    def test_learner_count_in_facility_response(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse(
+                "kolibri:core:facility-detail",
+                kwargs={"pk": self.facility1.id},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        # facility1 has user1 (a learner) plus the superuser (not a learner)
+        self.assertEqual(response.data["num_learners"], 1)
 
 
 def _add_demographic_schema_to_facility(facility):
@@ -1855,6 +1873,10 @@ class PicturePasswordLoginTestCase(APITestCase):
         cls.learner.picture_password = "1.2.3"
         cls.learner.save(update_fields=["picture_password"])
 
+    def setUp(self):
+        enable_picture_password(self.facility)
+        enable_picture_password(self.other_facility)
+
     def test_valid_picture_password_creates_session(self):
         response = self.client.post(
             reverse("kolibri:core:session-list"),
@@ -1866,6 +1888,21 @@ class PicturePasswordLoginTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user_id"], self.learner.id)
+
+    def test_picture_password_not_enabled(self):
+        disable_picture_password(self.facility, passwordless=True)
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "picture_password": "1.2.3",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIsInstance(response.data, list)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
 
     def test_picture_password_wrong_facility_returns_not_found(self):
         response = self.client.post(
@@ -1997,30 +2034,6 @@ class PicturePasswordLoginTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user_id"], self.learner.id)
-
-
-class PicturePasswordPasswordlessLoginTestCase(APITestCase):
-    """Passwordless login must still work when picture-password feature is enabled."""
-
-    databases = "__all__"
-
-    @classmethod
-    def setUpTestData(cls):
-        provision_device()
-        cls.facility = FacilityFactory.create()
-        cls.facility.dataset.learner_can_login_with_no_password = True
-        cls.facility.dataset.learner_can_edit_password = False
-        cls.facility.dataset.save()
-
-    def test_passwordless_login_unaffected_by_picture_password_feature(self):
-        learner = FacilityUserFactory.create(facility=self.facility)
-        response = self.client.post(
-            reverse("kolibri:core:session-list"),
-            data={"username": learner.username, "facility": self.facility.id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["user_id"], learner.id)
 
 
 class SignUpBase:
@@ -4043,3 +4056,180 @@ class FacilityUserSerializerPicturePasswordTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user = models.FacilityUser.objects.get(id=response.data["id"])
         self.assertIsNone(user.picture_password)
+
+
+class PicturePasswordPrevalidateTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.other_facility = FacilityFactory.create()
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner.picture_password = "1.2.3"
+        cls.learner.save(update_fields=["picture_password"])
+
+    def setUp(self):
+        enable_picture_password(self.facility)
+
+    def _url(self):
+        return reverse("kolibri:core:session-list") + "?prevalidate=true"
+
+    def test_valid_picture_password_returns_full_name(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["full_name"], self.learner.full_name)
+
+    def test_valid_picture_password_does_not_create_session(self):
+        self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertFalse(self.client.session.get("_auth_user_id"))
+
+    def test_wrong_picture_password_returns_not_found(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "9.9.9", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_wrong_facility_returns_not_found(self):
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "1.2.3", "facility": self.other_facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+    def test_non_learner_not_authenticated_via_picture_password(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        coach.picture_password = "4.5.6"
+        coach.save(update_fields=["picture_password"])
+        self.facility.add_coach(coach)
+        response = self.client.post(
+            self._url(),
+            data={"picture_password": "4.5.6", "facility": self.facility.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+
+class RemoteFacilityResponseSanitizationMixin:
+    """Shared assertions for endpoints that reflect a remote user list."""
+
+    valid_item = None
+
+    def _call_with_payload(self, payload):
+        raise NotImplementedError
+
+    def test_well_formed_response_passes_through(self):
+        response = self._call_with_payload([self.valid_item])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [self.valid_item])
+
+    def test_extra_keys_are_stripped(self):
+        smuggled = dict(self.valid_item, password="leaked-secret", token="AKIA...")
+        response = self._call_with_payload([smuggled])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [self.valid_item])
+
+
+class RemoteFacilityUserViewsetTestCase(
+    RemoteFacilityResponseSanitizationMixin, APITestCase
+):
+    valid_item = {"id": "00000000000000000000000000000001", "username": "alice"}
+
+    def _call_with_payload(self, payload):
+        with patch("kolibri.core.auth.api.NetworkClient") as NetworkClient:
+            client = NetworkClient.build_for_address.return_value
+            client.get.return_value.json.return_value = payload
+            return self.client.get(
+                reverse("kolibri:core:remotefacilityuser"),
+                {
+                    "baseurl": "http://remote.example",
+                    "username": "alice",
+                    "facility": uuid.uuid4().hex,
+                },
+            )
+
+    def test_non_list_response_returns_empty_list(self):
+        response = self._call_with_payload({"my_secret": "AKIA..."})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_passwordless_facility_response_with_null_id_passes_through(self):
+        payload = [{"id": None, "username": "alice"}]
+        response = self._call_with_payload(payload)
+        self.assertEqual(response.data, payload)
+
+    def test_any_invalid_item_rejects_whole_response(self):
+        valid_id = uuid.uuid4().hex
+        response = self._call_with_payload(
+            [
+                {"id": valid_id, "username": "alice"},
+                "not a dict",
+            ]
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_invalid_uuid_id_rejects_whole_response(self):
+        response = self._call_with_payload([{"id": "not-a-uuid", "username": "alice"}])
+        self.assertEqual(response.data, [])
+
+    def test_anonymous_request_to_provisioned_device_is_rejected(self):
+        provision_device()
+        response = self._call_with_payload([self.valid_item])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class RemoteFacilityUserAuthenticatedViewsetTestCase(
+    RemoteFacilityResponseSanitizationMixin, APITestCase
+):
+    valid_item = {
+        "id": "00000000000000000000000000000001",
+        "username": "alice",
+        "full_name": "Alice",
+        "facility": "00000000000000000000000000000002",
+        "roles": ["admin"],
+        "is_superuser": False,
+        "id_number": "",
+        "gender": "NOT_SPECIFIED",
+        "birth_year": "NOT_SPECIFIED",
+    }
+
+    def _call_with_payload(self, payload):
+        with patch("kolibri.core.auth.utils.users.NetworkClient") as NetworkClient:
+            client = NetworkClient.build_for_address.return_value
+            client.get.return_value.json.return_value = payload
+            return self.client.post(
+                reverse("kolibri:core:remotefacilityauthenticateduserinfo"),
+                {
+                    "baseurl": "http://remote.example",
+                    "username": self.valid_item["username"],
+                    "facility_id": self.valid_item["facility"],
+                    "password": "anything",
+                },
+                format="json",
+            )
+
+    def test_blank_demographics_pass_through(self):
+        item = dict(self.valid_item, id_number="", gender="", birth_year="")
+        response = self._call_with_payload([item])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_anonymous_request_to_provisioned_device_is_rejected(self):
+        provision_device()
+        response = self._call_with_payload([self.valid_item])
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

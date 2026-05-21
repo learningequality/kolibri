@@ -41,6 +41,10 @@ on:
           - 'kolibri-plugin-data'
           - 'kolibri-viewer'
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -54,7 +58,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6.0.3
       - name: Link workspace packages
         run: pnpm install --ignore-scripts --no-optional
       - name: Publish to npm

@@ -2,10 +2,9 @@ import store from 'kolibri/store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
-import useUser from 'kolibri/composables/useUser';
-import { get } from '@vueuse/core';
 import useFacilities from 'kolibri-common/composables/useFacilities';
-import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import useFacility from 'kolibri-common/composables/useFacility';
+import FacilityAllPasswordsPage from './views/FacilityAllPasswordsPage';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -35,9 +34,6 @@ export default [
     path: '/:subtopicName?/facilities',
     component: AllFacilitiesPage,
     props: true,
-    handler() {
-      store.dispatch('preparePage', { isAsync: false });
-    },
   },
   // In the multi-facility case, the optional facility_id needs to be provided.
   // If it's missing, then we are likely in single-facility situation and we use
@@ -46,17 +42,25 @@ export default [
     name: PageNames.CLASS_MGMT_PAGE,
     path: '/:facility_id?/classes',
     component: ManageClassPage,
-    handler: toRoute => {
+    async handler(toRoute) {
       if (facilityParamRequiredGuard(toRoute, ManageClassPage.name)) {
         return;
       }
-      showClassesPage(store, toRoute);
+      showClassesPage(store);
     },
   },
   {
     name: PageNames.CLASS_EDIT_MGMT_PAGE,
     path: '/:facility_id?/classes/:id',
     component: ClassEditPage,
+    async handler(toRoute) {
+      showClassEditPage(store, toRoute.params.id);
+    },
+  },
+  {
+    name: PageNames.CLASS_PASSWORDS_PAGE,
+    path: '/:facility_id?/classes/:id/passwords/',
+    component: FacilityAllPasswordsPage,
     handler: toRoute => {
       showClassEditPage(store, toRoute.params.id);
     },
@@ -82,9 +86,7 @@ export default [
     component: UsersRootPage,
     path: '/:facility_id?/users/',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, UsersRootPage.name)) {
-        return;
-      }
+      facilityParamRequiredGuard(toRoute, UsersRootPage.name);
     },
     children: getSidePanelRoutes([
       PageNames.FILTER_USERS_SIDE_PANEL,
@@ -98,9 +100,7 @@ export default [
     component: NewUsersPage,
     path: '/:facility_id?/users/new-users',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, NewUsersPage.name)) {
-        return;
-      }
+      facilityParamRequiredGuard(toRoute, NewUsersPage.name);
     },
     children: getSidePanelRoutes(
       [
@@ -118,9 +118,7 @@ export default [
     component: UsersTrashPage,
     path: '/:facility_id?/users/deleted',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, UsersTrashPage.name)) {
-        return;
-      }
+      facilityParamRequiredGuard(toRoute, UsersTrashPage.name);
     },
     children: getSidePanelRoutes([PageNames.FILTER_USERS_SIDE_PANEL], 'TRASH'),
   },
@@ -156,10 +154,7 @@ export default [
     component: FacilityConfigPage,
     path: '/:facility_id?/settings',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, FacilityConfigPage.name)) {
-        return;
-      }
-      pageLoading.value = false;
+      facilityParamRequiredGuard(toRoute, FacilityConfigPage.name);
     },
   },
   {
@@ -176,21 +171,20 @@ export default [
   },
   {
     path: '/:facility_id?/managesync',
-    props: route => {
-      const { userFacilityId } = useUser();
-      const facilityId = route.params.facility_id || get(userFacilityId);
+    props: () => {
+      const { facilityId } = useFacility();
       return {
-        facilityId,
+        facilityId: facilityId.value,
         goBackRoute: {
           name: PageNames.DATA_EXPORT_PAGE,
-          params: { facility_id: route.params.facility_id },
+          params: { facility_id: facilityId.value },
         },
         editSyncRoute: function (deviceId) {
           return {
             name: SyncPageNames.EDIT_SYNC_SCHEDULE,
             params: {
               deviceId,
-              facility_id: facilityId,
+              facility_id: facilityId.value,
             },
           };
         },
@@ -204,13 +198,13 @@ export default [
     component: EditDeviceSyncSchedule,
     name: SyncPageNames.EDIT_SYNC_SCHEDULE,
     props: route => {
-      const { userFacilityId } = useUser();
+      const { facilityId } = useFacility();
       return {
-        facilityId: route.params.facility_id || get(userFacilityId),
+        facilityId: facilityId.value,
         deviceId: route.params.deviceId,
         goBackRoute: {
           name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { facility_id: route.params.facility_id },
+          params: { facility_id: facilityId.value },
         },
       };
     },

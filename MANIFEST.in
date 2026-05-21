@@ -33,10 +33,10 @@ recursive-include kolibri/plugins/*/build *.json
 
 recursive-exclude kolibri/* *pyc
 recursive-exclude kolibri/* *pyo
-recursive-exclude kolibri/core/assets *
-recursive-exclude kolibri/core/node_modules *
-recursive-exclude kolibri/plugins/*/assets *
-recursive-exclude kolibri/plugins/*/node_modules *
+prune kolibri/core/frontend
+prune kolibri/core/node_modules
+prune kolibri/plugins/*/frontend
+prune kolibri/plugins/*/node_modules
 exclude kolibri/*/buildConfig.js
 exclude kolibri/plugins/*/buildConfig.js
 

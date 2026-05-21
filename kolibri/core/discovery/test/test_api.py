@@ -231,6 +231,105 @@ class NetworkLocationAPITestCase(APITestCase):
                 )
 
 
+class NetworkLocationFacilitiesViewTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.peer = models.StaticNetworkLocation.objects.create(
+            base_url="http://peer.example/",
+            instance_id="b" * 32,
+        )
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    valid_facility = {
+        "id": "00000000000000000000000000000003",
+        "dataset": "00000000000000000000000000000004",
+        "name": "Peer Facility",
+        "learner_can_login_with_no_password": False,
+        "learner_can_sign_up": True,
+        "on_my_own_setup": False,
+        "picture_password_settings": {
+            "icon_style": "standard",
+            "show_icon_text": True,
+        },
+    }
+
+    def _retrieve(self, payload):
+        with mock.patch("kolibri.core.discovery.api.NetworkClient") as NetworkClient:
+            client = (
+                NetworkClient.build_from_network_location.return_value.__enter__.return_value
+            )
+            client.base_url = self.peer.base_url
+            client.get.return_value.json.return_value = payload
+            return self.client.get(
+                reverse(
+                    "kolibri:core:networklocation_facilities-detail",
+                    kwargs={"pk": self.peer.id},
+                )
+            )
+
+    def test_well_formed_response_passes_through(self):
+        response = self._retrieve([self.valid_facility])
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["facilities"], [self.valid_facility])
+
+    def test_null_picture_password_settings_passes_through(self):
+        payload = [dict(self.valid_facility, picture_password_settings=None)]
+        response = self._retrieve(payload)
+        self.assertEqual(response.data["facilities"], payload)
+
+    def test_extra_keys_are_stripped(self):
+        smuggled = dict(self.valid_facility, smuggled="AKIA...", token="leaked")
+        response = self._retrieve([smuggled])
+        self.assertEqual(response.data["facilities"], [self.valid_facility])
+
+    def test_extra_keys_inside_picture_password_settings_are_stripped(self):
+        smuggled = dict(
+            self.valid_facility,
+            picture_password_settings={
+                "icon_style": "standard",
+                "show_icon_text": True,
+                "smuggled": "AKIA...",
+            },
+        )
+        response = self._retrieve([smuggled])
+        self.assertEqual(response.data["facilities"], [self.valid_facility])
+
+    def test_non_list_response_yields_empty_facilities(self):
+        response = self._retrieve({"my_secret": "AKIA..."})
+        self.assertEqual(response.data["facilities"], [])
+
+    def test_any_invalid_item_rejects_whole_response(self):
+        response = self._retrieve([self.valid_facility, "not a dict"])
+        self.assertEqual(response.data["facilities"], [])
+
+    def test_invalid_uuid_id_rejects_whole_response(self):
+        bad = dict(self.valid_facility, id="not-a-uuid")
+        response = self._retrieve([bad])
+        self.assertEqual(response.data["facilities"], [])
+
+    def test_invalid_picture_password_icon_style_rejects_whole_response(self):
+        bad = dict(
+            self.valid_facility,
+            picture_password_settings={
+                "icon_style": "rogue",
+                "show_icon_text": True,
+            },
+        )
+        response = self._retrieve([bad])
+        self.assertEqual(response.data["facilities"], [])
+
+
 class PinnedDeviceAPITestCase(APITestCase):
     databases = "__all__"
 

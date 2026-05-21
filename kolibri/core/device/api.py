@@ -16,7 +16,6 @@ from django.http import HttpResponseRedirect
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.http import urlunquote
 from django.utils.translation import get_language
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
@@ -80,7 +79,6 @@ from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
-from kolibri.utils.filesystem import resolve_path
 from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -88,7 +86,6 @@ from kolibri.utils.server import restart
 from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
-
 
 logger = logging.getLogger(__name__)
 
@@ -487,7 +484,7 @@ class PathPermissionView(views.APIView):
             {
                 "writable": get_path_permission(pathname),
                 "directory": check_is_directory(pathname),
-                "path": resolve_path(pathname),
+                "path": pathname,
             }
         )
 
@@ -508,24 +505,14 @@ class InitializeAppView(APIView):
                     auth_token = None
             except ValidationError as e:
                 logger.error(e)
-        redirect_url = request.GET.get("next", "/")
-        # Copied and modified from https://github.com/django/django/blob/stable/1.11.x/django/views/i18n.py#L40
-        if (
-            redirect_url or not request.is_ajax()
-        ) and not url_has_allowed_host_and_scheme(
-            url=redirect_url,
+        redirect_url = "/"
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(
+            url=next_url,
             allowed_hosts={request.get_host()},
             require_https=request.is_secure(),
         ):
-            redirect_url = request.META.get("HTTP_REFERER")
-            if redirect_url:
-                redirect_url = urlunquote(redirect_url)  # HTTP_REFERER may be encoded.
-            if not url_has_allowed_host_and_scheme(
-                url=redirect_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ):
-                redirect_url = "/"
+            redirect_url = next_url
         response = HttpResponseRedirect(redirect_url)
         set_app_key_on_response(response, auth_token)
         return response

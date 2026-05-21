@@ -426,14 +426,9 @@ def execute_sync(context):
         if isinstance(e, MorangoResumeSyncError):
             # will be retried immediately with Ready status
             sync_queue.status = SyncQueueStatus.Ready
-            logger.warning(
-                "{} Failed to resume SoUD sync session: {}".format(context, str(e))
-            )
+            logger.warning("%s Failed to resume SoUD sync session", context)
         else:
-            logger.error(
-                "{} Critical error occurred during syncing: {}".format(context, str(e))
-            )
-            logger.exception(e)
+            logger.exception("%s Critical error occurred during syncing", context)
             sync_queue.status = SyncQueueStatus.Pending
             sync_queue.increment_and_backoff_next_attempt()
     else:

@@ -12,10 +12,10 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import NotificationsRoot from 'kolibri/components/pages/NotificationsRoot';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import { PageNames } from '../constants';
 
   export default {
@@ -26,15 +26,16 @@
     mixins: [commonCoreStrings],
     setup() {
       const { isAdmin, isSuperuser, session } = useUser();
+      const { facilityId } = useFacility();
 
       return {
+        facilityId,
         isAdmin,
         isSuperuser,
         session,
       };
     },
     computed: {
-      ...mapGetters(['activeFacilityId']),
       pageName() {
         return this.$route.name;
       },
@@ -50,7 +51,7 @@
             return false;
           }
           // Admins can only see the facility they belong to
-          return this.session.facility_id === this.activeFacilityId;
+          return this.session.facility_id === this.facilityId;
         }
         return false;
       },

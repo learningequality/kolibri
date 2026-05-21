@@ -6,43 +6,59 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   comment:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    permissions:
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
-      - name: Download report artifact
-        uses: actions/github-script@v8
+      - name: Find PR by head SHA
+        id: find-pr
+        uses: actions/github-script@v9
         with:
           script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
-            const match = artifacts.data.artifacts.find(a => a.name === 'npm_version_report');
-            if (!match) {
-              core.setFailed('No npm_version_report artifact found');
-              return;
+            const utils = require('./.github/githubUtils.js')
+            const prNumber = await utils.findPrByHeadSha(github, context)
+            if (!prNumber) {
+              core.notice('No open PR found for head SHA; skipping comment')
+              core.setOutput('found', 'false')
+              return null
             }
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: match.id,
-              archive_format: 'zip',
-            });
-            require('fs').writeFileSync('npm_version_report.zip', Buffer.from(download.data));
-      - name: Unzip report
-        run: unzip npm_version_report.zip
+            core.setOutput('found', 'true')
+            return prNumber
+      - name: Download report artifact
+        if: steps.find-pr.outputs.found == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: npm_version_report
+          path: ${{ runner.temp }}/npm_version_report
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
       - name: Post or update comment
-        uses: actions/github-script@v8
+        if: steps.find-pr.outputs.found == 'true'
+        uses: actions/github-script@v9
+        env:
+          PR_NUMBER: ${{ steps.find-pr.outputs.result }}
+          REPORT_DIR: ${{ runner.temp }}/npm_version_report
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const utils = require('./.github/githubUtils.js');
-            const prNumber = Number(fs.readFileSync('pr_number', 'utf8').trim());
-            const body = fs.readFileSync('body', 'utf8').trim();
-            await utils.postNpmVersionComment(github, context, prNumber, body || null);
+            const raw = fs.readFileSync(path.join(process.env.REPORT_DIR, 'data.json'), 'utf8');
+            let data;
+            try {
+              data = utils.validateNpmVersionData(raw);
+            } catch (e) {
+              core.setFailed(`Invalid version data JSON: ${e.message}`);
+              return;
+            }
+            const body = data ? utils.renderNpmVersionMarkdown(data) : null;
+            const prNumber = Number(process.env.PR_NUMBER);
+            await utils.postNpmVersionComment(github, context, prNumber, body);

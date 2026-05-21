@@ -5,6 +5,7 @@ const MOCK_DEFAULTS = {
   hasMultipleFacilities: computed(() => false),
   userIsMultiFacilityAdmin: computed(() => false),
   fetchFacilities: jest.fn(),
+  fetchFacility: jest.fn(),
   getFacility: jest.fn(),
 };
 

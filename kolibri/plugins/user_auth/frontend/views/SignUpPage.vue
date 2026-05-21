@@ -90,7 +90,7 @@
         </p>
         <KRouterLink
           :text="userString('signInPrompt')"
-          :to="$router.getRoute(ComponentMap.SIGN_IN)"
+          :to="$router.getRoute(ComponentMap.USERNAME_SIGN_IN)"
           appearance="basic-link"
         />
       </form>
@@ -102,6 +102,12 @@
     >
       <LanguageSwitcherFooter />
     </div>
+
+    <PicturePasswordAssignedModal
+      v-if="showPicturePasswordModal"
+      :picturePassword="picturePassword"
+      @confirm="handlePicturePasswordConfirm"
+    />
   </div>
 
 </template>
@@ -109,6 +115,7 @@
 
 <script>
 
+  import { useRoute, useRouter } from 'vue-router/composables';
   import every from 'lodash/every';
   import { DemographicConstants, ERROR_CONSTANTS } from 'kolibri/constants';
   import GenderSelect from 'kolibri-common/components/userAccounts/GenderSelect';
@@ -117,17 +124,20 @@
   import UsernameTextbox from 'kolibri-common/components/userAccounts/UsernameTextbox';
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri-common/components/userAccounts/PrivacyLinkAndModal';
+  import PicturePasswordAssignedModal from 'kolibri-common/components/PicturePasswordAssignedModal.vue';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import urls from 'kolibri/urls';
   import client from 'kolibri/client';
   import CatchErrors from 'kolibri/utils/CatchErrors';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useFacility from 'kolibri-common/composables/useFacility';
   import { handleApiError } from 'kolibri/utils/appError';
+  import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { ComponentMap } from '../constants';
   import { SignUpResource } from '../apiResource';
+  import useAuthFlow from '../composables/useAuthFlow';
+  import useAuthWatcher from '../composables/useAuthWatcher';
+  import useAuthRouter from '../composables/useAuthRouter';
   import LanguageSwitcherFooter from './LanguageSwitcherFooter';
-  import getUrlParameter from './getUrlParameter';
   import commonUserStrings from './commonUserStrings';
 
   const { DEFERRED } = DemographicConstants;
@@ -147,13 +157,36 @@
       PasswordTextbox,
       UsernameTextbox,
       PrivacyLinkAndModal,
+      PicturePasswordAssignedModal,
     },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      const { selectedFacility, facilityConfig } = useFacility();
+      const router = useRouter();
+      const route = useRoute();
+      const { defaultRoute, nextParam } = useAuthRouter(route);
+      const { selectedFacility, signInOptions, canSignUpWithFacility } = useAuthFlow();
+      const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
+
+      watchForFacilityChange((newFacilityId, oldFacilityId) => {
+        // If the facility ID is unset, it could mean the facility is no longer an option, or
+        // if the newly selected facility might not allow sign-ups
+        if ((!newFacilityId && oldFacilityId) || !canSignUpWithFacility.value) {
+          router.push(defaultRoute.value);
+        }
+      });
+
+      // watches only if the configuration itself changes, the above watcher catches if the
+      // facility changes
+      watchForFacilityConfigChange(() => {
+        if (!canSignUpWithFacility.value) {
+          router.push(defaultRoute.value);
+        }
+      });
+
       return {
+        nextParam,
         selectedFacility,
-        facilityConfig,
+        signInOptions,
         handleApiError,
       };
     },
@@ -170,6 +203,8 @@
         birthYear: '',
         caughtErrors: [],
         busy: false,
+        picturePassword: '',
+        showPicturePasswordModal: false,
       };
     },
     computed: {
@@ -182,16 +217,8 @@
       ComponentMap() {
         return ComponentMap;
       },
-      nextParam() {
-        // query is after hash
-        if (this.$route.query.next) {
-          return this.$route.query.next;
-        }
-        // query is before hash
-        return getUrlParameter('next');
-      },
       showPasswordInput() {
-        return !this.facilityConfig.learner_can_login_with_no_password;
+        return this.signInOptions.includes(OptionsForSignIn.USERNAME_PASSWORD);
       },
     },
     beforeMount() {
@@ -201,6 +228,13 @@
       }
     },
     methods: {
+      redirectAfterSignup() {
+        if (this.nextParam) {
+          redirectBrowser(this.nextParam);
+        } else {
+          redirectBrowser();
+        }
+      },
       checkForDuplicateUsername(username) {
         if (!username) {
           return Promise.resolve();
@@ -256,7 +290,7 @@
         }
       },
       passwordToSave() {
-        if (this.facilityConfig.learner_can_login_with_no_password && this.password === '')
+        if (this.signInOptions.includes(OptionsForSignIn.USERNAME_ONLY) && this.password === '')
           return 'NOT_SPECIFIED';
 
         return this.password;
@@ -278,12 +312,17 @@
             birth_year: this.birthYear || DEFERRED,
           };
           SignUpResource.saveModel({ data: payload })
-            .then(() => {
-              if (this.nextParam) {
-                redirectBrowser(this.nextParam);
-              } else {
-                redirectBrowser();
+            .then(user => {
+              if (
+                this.signInOptions.includes(OptionsForSignIn.PICTURE_PASSWORD) &&
+                user?.picture_password
+              ) {
+                this.picturePassword = user.picture_password;
+                this.showPicturePasswordModal = true;
+                this.busy = false;
+                return;
               }
+              this.redirectAfterSignup();
             })
             .catch(error => {
               this.busy = false;
@@ -314,6 +353,10 @@
             this.$refs.passwordTextbox.focus();
           }
         });
+      },
+      handlePicturePasswordConfirm() {
+        this.showPicturePasswordModal = false;
+        this.redirectAfterSignup();
       },
     },
     $trs: {

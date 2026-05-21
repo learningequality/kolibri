@@ -10,6 +10,9 @@ on:
         description: "TAR file name"
         value: ${{ jobs.build_whl.outputs.tar-file-name }}
 
+permissions:
+  contents: read
+
 jobs:
   build_whl:
     name: Build WHL
@@ -36,7 +39,7 @@ jobs:
       with:
         node-version-file: 'package.json'
     - name: Install pnpm
-      uses: pnpm/action-setup@v5
+      uses: pnpm/action-setup@v6.0.3
       with:
         cache: true
     - name: Install Javascript dependencies

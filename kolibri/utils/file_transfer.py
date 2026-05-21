@@ -19,6 +19,8 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
 
+from kolibri.utils.http_session import SameHostSession
+
 
 try:
     # Pre-empt the PanicException that importing cryptography can cause
@@ -772,9 +774,10 @@ class FileDownload(Transfer):
         full_ranges=True,
     ):
 
-        # allow an existing requests.Session instance to be passed in, so it can be reused for speed
-        # initialize a fresh requests session, if one wasn't provided
-        self.session = session or requests.Session()
+        # Allow an existing requests.Session to be passed in, so it can be
+        # reused for speed. The default blocks cross-host redirects so a
+        # caller-supplied baseurl can't pivot us onto another host.
+        self.session = session or SameHostSession()
 
         # A flag to allow the download to remain in the chunked file directory
         # for easier clean up when it is just a temporary download.

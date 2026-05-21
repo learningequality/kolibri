@@ -63,21 +63,35 @@ export default function useUser() {
   const userHasPermissions = computed(() => Object.values(userPermissions.value).some(Boolean));
 
   // Login/Logout Functions
-  async function login(sessionPayload) {
-    Lockr.set(UPDATE_MODAL_DISMISSED, false);
+  /**
+   * Creates an authenticated session for the given credentials.
+   *
+   * @param {Object} sessionPayload - Credentials sent to the server.
+   * @param {boolean} [prevalidate=false] - When true, validates credentials server-side without
+   *   creating a session. Returns { full_name } on success so the caller can confirm the user's
+   *   identity before committing to a real login (e.g. the picture-password confirm flow).
+   *   Skips the Lockr update-modal flag and all redirect logic.
+   * @param {boolean} [enableRedirect=true] - When false, suppresses the post-login redirect,
+   *   allowing the caller to handle navigation manually.
+   */
+  async function login(sessionPayload, prevalidate = false, enableRedirect = true) {
+    if (!prevalidate) {
+      Lockr.set(UPDATE_MODAL_DISMISSED, false);
+    }
     try {
-      await client({
-        data: {
-          ...sessionPayload,
-          active: true,
-          browser,
-          os,
-        },
+      const response = await client({
+        params: prevalidate ? { prevalidate } : undefined,
+        data: { ...sessionPayload, active: true, browser, os },
         url: urls['kolibri:core:session_list'](),
         method: 'post',
       });
 
-      if (!sessionPayload.disableRedirect) {
+      if (enableRedirect) {
+        // Update session state before redirecting so that bfcache stores the
+        // logged-in user_id. If the user navigates back, pollSessionEndPoint
+        // will see user_id change to null and trigger signOutDueToInactivity.
+        setSession({ session: response.data });
+
         if (sessionPayload.next) {
           // OIDC redirect
           redirectBrowser(sessionPayload.next);
@@ -86,6 +100,7 @@ export default function useUser() {
           redirectBrowser();
         }
       }
+      return { data: response.data, error: null };
     } catch (error) {
       const errorsCaught = CatchErrors(error, [
         ERROR_CONSTANTS.INVALID_CREDENTIALS,
@@ -95,15 +110,17 @@ export default function useUser() {
       ]);
 
       if (errorsCaught) {
+        let loginError;
         if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_CREDENTIALS)) {
-          return LoginErrors.INVALID_CREDENTIALS;
+          loginError = LoginErrors.INVALID_CREDENTIALS;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.MISSING_PASSWORD)) {
-          return LoginErrors.PASSWORD_MISSING;
+          loginError = LoginErrors.PASSWORD_MISSING;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED)) {
-          return LoginErrors.PASSWORD_NOT_SPECIFIED;
+          loginError = LoginErrors.PASSWORD_NOT_SPECIFIED;
         } else if (errorsCaught.includes(ERROR_CONSTANTS.NOT_FOUND)) {
-          return LoginErrors.USER_NOT_FOUND;
+          loginError = LoginErrors.USER_NOT_FOUND;
         }
+        return { data: null, error: loginError };
       } else {
         handleApiError({ error });
       }

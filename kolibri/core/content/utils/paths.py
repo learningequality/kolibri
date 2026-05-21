@@ -9,7 +9,6 @@ from kolibri.core.utils.urls import join_url
 from kolibri.utils import conf
 from kolibri.utils.server import get_zip_port
 
-
 # valid storage filenames consist of 32-char hex plus a file extension
 VALID_STORAGE_FILENAME = re.compile(r"[0-9a-f]{32}(-data)?\.[0-9a-z]+")
 
@@ -204,8 +203,12 @@ def get_content_database_url(baseurl=None):
     return join_url(get_content_url(baseurl), "databases/")
 
 
-def get_content_database_file_url(channel_id, baseurl=None):
-    return join_url(get_content_database_url(baseurl), "{}.sqlite3".format(channel_id))
+def get_content_database_file_url(channel_id, baseurl=None, version=None):
+    if version is not None:
+        filename = "{}-{}.sqlite3".format(channel_id, version)
+    else:
+        filename = "{}.sqlite3".format(channel_id)
+    return join_url(get_content_database_url(baseurl), filename)
 
 
 def get_content_storage_url(baseurl=None):
@@ -232,15 +235,18 @@ def get_channel_lookup_url(version="1", identifier=None, keyword=None, language=
     content_server_path = "/api/public/v{}/channels".format(version)
     if identifier:
         content_server_path += "/lookup/{}".format(identifier)
-    query_params = {}
+    query_params = {"channel_versions": "true"}
     if keyword:
         query_params["keyword"] = keyword
     if language:
         query_params["language"] = language
-    if query_params:
-        content_server_path += "?" + urlencode(query_params)
+    content_server_path += "?" + urlencode(query_params)
 
     return content_server_path
+
+
+def get_v2_channel_lookup_url(identifier):
+    return "/api/public/v2/channel/{}?public=false".format(identifier)
 
 
 def get_file_checksums_url(channel_id, baseurl, version="1"):
