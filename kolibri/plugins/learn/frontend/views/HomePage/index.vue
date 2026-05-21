@@ -140,7 +140,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { isUserLoggedIn, user_id, isLearner } = useUser();
+      const { isUserLoggedIn, currentUserId, isLearner } = useUser();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
@@ -266,7 +266,7 @@
         hydrateHomePage,
         pageLoading,
         picturePasswordPending,
-        userId: user_id,
+        userId: currentUserId,
         isLearner,
       };
     },

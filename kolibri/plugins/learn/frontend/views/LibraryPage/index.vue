@@ -272,7 +272,7 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, user_id } = useUser();
+      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, currentUserId } = useUser();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
@@ -445,7 +445,7 @@
         endTour,
         resumeTour,
         picturePasswordPending,
-        userId: user_id,
+        userId: currentUserId,
       };
     },
     props: {
