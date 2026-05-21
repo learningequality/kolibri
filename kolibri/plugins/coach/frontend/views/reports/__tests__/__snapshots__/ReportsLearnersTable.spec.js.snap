@@ -20,7 +20,7 @@ exports[`ReportsLearnersTable doesn't render groups information when show groups
     </thead>
     <transition-group-stub tag="tbody" name="list">
       <tr data-testid="entry">
-        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #000000; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_psanzm link" data-testid="learner-link"><!----> <span class="link-text">learner1</span>
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #000000; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a data-testid="learner-link" dir="auto" class="KRouterLink-noKey-0_psanzm link"><!----> <span class="link-text">learner1</span>
           <!----></a></span></span> <span class="icon-after"><!----></span></span>
         </td>
         <td>
@@ -41,7 +41,7 @@ exports[`ReportsLearnersTable doesn't render groups information when show groups
   </span></td>
       </tr>
       <tr data-testid="entry">
-        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #000000; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a dir="auto" class="KRouterLink-noKey-0_psanzm link" data-testid="learner-link"><!----> <span class="link-text">learner2</span>
+        <td><span class="labeled-icon-wrapper"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #000000; top: 2px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning"><a data-testid="learner-link" dir="auto" class="KRouterLink-noKey-0_psanzm link"><!----> <span class="link-text">learner2</span>
           <!----></a></span></span> <span class="icon-after"><!----></span></span>
         </td>
         <td>
