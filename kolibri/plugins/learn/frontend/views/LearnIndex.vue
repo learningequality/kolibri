@@ -57,13 +57,15 @@
         ]);
 
         if (user.picture_password) {
-          picturePasswordPending.value = false;
           assignedPicturePassword.value = user.picture_password;
           showPicturePasswordModal.value = true;
+        } else {
+          picturePasswordPending.value = false;
         }
       });
 
       function dismissPicturePasswordModal() {
+        picturePasswordPending.value = false;
         showPicturePasswordModal.value = false;
       }
 
