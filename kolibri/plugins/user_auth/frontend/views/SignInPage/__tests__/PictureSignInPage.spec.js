@@ -329,5 +329,71 @@ describe('PictureSignInPage', () => {
         picturePasswordStrings.wrongPicturesTryAgain$(),
       );
     });
+
+    it('shows a visible error notification after a failed prevalidate', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows a visible error notification after confirm login fails', async () => {
+      mockLogin
+        .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
+        .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+
+      renderComponent();
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('clears the visible error notification on the next submission attempt', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      // First failed attempt
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+
+      // Second attempt — error should clear immediately on submit
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).not.toBeInTheDocument();
+      });
+    });
   });
 });

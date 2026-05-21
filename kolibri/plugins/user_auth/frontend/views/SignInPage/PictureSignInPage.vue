@@ -26,6 +26,15 @@
       :backTo="backTo"
     />
 
+    <UiAlert
+      v-if="wrongPictures"
+      class="error-alert"
+      type="error"
+      :dismissible="false"
+    >
+      {{ wrongPicturesTryAgain$() }}
+    </UiAlert>
+
     <PicturePasswordGrid
       ref="passwordGridRef"
       class="picture-grid"
@@ -63,6 +72,7 @@
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -83,6 +93,7 @@
       AuthContextHeading,
       PicturePasswordGrid,
       PicturePasswordConfirmModal,
+      UiAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -109,6 +120,7 @@
       const showConfirmModal = ref(false);
       const confirmedLearnerName = ref('');
       const submittedPicturePassword = ref('');
+      const wrongPictures = ref(false);
 
       // Template refs for calling public methods on child components
       const authBaseRef = ref(null);
@@ -149,6 +161,7 @@
        */
       async function prevalidate(picturePassword) {
         busy.value = true;
+        wrongPictures.value = false;
         setSelectedFacilityId(facilityId.value);
         try {
           const { data, error } = await login(
@@ -165,6 +178,7 @@
             await authBaseRef.value.shake();
             clearSequence.value = true;
             await nextTick();
+            wrongPictures.value = true;
             sendAssertiveMessage(wrongPicturesTryAgain$());
             passwordGridRef.value?.focus();
           }
@@ -196,6 +210,7 @@
             await authBaseRef.value.shake();
             clearSequence.value = true;
             await nextTick();
+            wrongPictures.value = true;
             sendAssertiveMessage(wrongPicturesTryAgain$());
             passwordGridRef.value?.focus();
           } else {
@@ -225,6 +240,7 @@
         showConfirmModal,
         confirmedLearnerName,
         submittedPicturePassword,
+        wrongPictures,
         backTo,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -236,6 +252,8 @@
         prevalidate,
         handleConfirm,
         handleCancel,
+        // strings
+        wrongPicturesTryAgain$,
       };
     },
     $trs: {
@@ -250,6 +268,11 @@
 
 
 <style lang="scss" scoped>
+
+  .error-alert {
+    margin-top: 16px;
+    text-align: start;
+  }
 
   .picture-grid {
     margin-top: 20px;
