@@ -27,12 +27,12 @@
     <KListbox
       :id="listboxId"
       :value="value"
-      :aria-labelledby="ariaLabelledby"
+      :ariaLabelledBy="ariaLabelledby"
       :messages="messages"
       :style="maxHeight ? { maxHeight } : {}"
       @input="$emit('input', $event)"
     >
-      <template #selectAll="{ allSelected, someSelected, toggle }">
+      <template #selectAll="{ allSelected, someSelected, setAllSelected }">
         <div
           class="select-all"
           :style="{ borderColor: $themeTokens.fineLine }"
@@ -44,7 +44,7 @@
             :indeterminate="someSelected"
             :disabled="!filteredOptions.length"
             :aria-controls="listboxId"
-            @change="toggle"
+            @change="setAllSelected"
           >
             <slot name="selectAllLabel"></slot>
           </KCheckbox>
@@ -111,7 +111,13 @@
         if (!filterText.value) {
           return options.value;
         }
-        return fuse.value.search(filterText.value).map(result => result.item);
+        return (
+          fuse.value
+            .search(filterText.value)
+            // Sort by Fuse's built-in original index reference to prevent re-sorting by score
+            .sort((a, b) => a.refIndex - b.refIndex)
+            .map(result => result.item)
+        );
       });
 
       const { sendPoliteMessage } = useKLiveRegion();
