@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "क्लिपबोर्ड पर कॉपी करें",
   "TotalPoints.pointsTooltip": "आपने { points, number } अंक प्राप्त किए हैं!",
   "UpdateNotification.adminMessage": "कृपया अपने Kolibri प्रशासक से सम्पर्क कीजिए",
-  "UpdateNotification.hideNotificationLabel": "यह संदेश दोबारा न दिखाएँ",
   "UpdateNotification.upgradeDownload": "इसे यहाँ डाउनलोड करें",
   "UpdateNotification.upgradeHeader": "नया संस्करण उपलब्ध है",
   "UpdateNotification.upgradeHeaderImportant": "महत्वपूर्ण अपडेट उपलब्ध है",

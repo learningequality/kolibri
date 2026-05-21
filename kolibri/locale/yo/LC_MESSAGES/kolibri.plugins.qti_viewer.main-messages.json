@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Àwòrán tí a mú gbòòrò",
-  "SafeHtmlImage.expandImage": "Ṣe ìmúgbòòrò àwòrán"
+  "SafeHtmlImage.expandImage": "Ṣe ìmúgbòòrò àwòrán",
+  "TextEntryInteractionStrings.textEntryLabel": "Ìdáhùn rẹ"
 }

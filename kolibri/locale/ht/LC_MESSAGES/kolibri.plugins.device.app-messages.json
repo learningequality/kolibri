@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Dosye",
   "ContentIcon.user": "Itilizatè",
   "ContentIcon.video": "Videyo",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Seleksyone tout",
   "ContentTreeViewer.topicHasNoContents": "Dosye sa a pa gen okenn sou-dosye oubyen resous",
   "ContentWizardUiAlert.channelNotFoundError": "Yo pa jwenn chanèl lan",

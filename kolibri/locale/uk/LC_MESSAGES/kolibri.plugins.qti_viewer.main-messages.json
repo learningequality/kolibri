@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Збільшене зображення",
-  "SafeHtmlImage.expandImage": "Збільшити зображення"
+  "SafeHtmlImage.expandImage": "Збільшити зображення",
+  "TextEntryInteractionStrings.textEntryLabel": "Ваша відповідь"
 }

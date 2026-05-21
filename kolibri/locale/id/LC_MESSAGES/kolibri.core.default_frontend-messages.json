@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Salin ke papan klip",
   "TotalPoints.pointsTooltip": "Anda mendapatkan { points, number } poin",
   "UpdateNotification.adminMessage": "Silakan hubungi administrator perangkat untuk server ini",
-  "UpdateNotification.hideNotificationLabel": "Jangan tampilkan pesan ini lagi",
   "UpdateNotification.upgradeDownload": "Unduh di sini",
   "UpdateNotification.upgradeHeader": "Peningkatan tersedia",
   "UpdateNotification.upgradeHeaderImportant": "Peningkatan penting tersedia",

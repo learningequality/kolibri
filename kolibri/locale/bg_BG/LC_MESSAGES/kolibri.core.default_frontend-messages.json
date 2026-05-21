@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копиране в клипборда",
   "TotalPoints.pointsTooltip": "Спечели { points, number } точки",
   "UpdateNotification.adminMessage": "Моля, консултирай се със своя Колибри администратор",
-  "UpdateNotification.hideNotificationLabel": "Не показвай това съобщение отново",
   "UpdateNotification.upgradeDownload": "Изтегли оттук",
   "UpdateNotification.upgradeHeader": "Има налични подобрения",
   "UpdateNotification.upgradeHeaderImportant": "Налични са важни подобрения",

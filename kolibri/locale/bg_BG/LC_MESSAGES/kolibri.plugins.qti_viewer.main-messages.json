@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Разгънато изображение",
-  "SafeHtmlImage.expandImage": "По-голямо изображение"
+  "SafeHtmlImage.expandImage": "По-голямо изображение",
+  "TextEntryInteractionStrings.textEntryLabel": "Твоят отговор"
 }

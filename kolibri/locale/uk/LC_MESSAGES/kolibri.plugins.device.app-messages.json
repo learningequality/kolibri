@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Тека",
   "ContentIcon.user": "Користувач",
   "ContentIcon.video": "Відео",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Вибрати все",
   "ContentTreeViewer.topicHasNoContents": "Ця тека не містить інших тек або матеріалів",
   "ContentWizardUiAlert.channelNotFoundError": "Канал не знайдено",

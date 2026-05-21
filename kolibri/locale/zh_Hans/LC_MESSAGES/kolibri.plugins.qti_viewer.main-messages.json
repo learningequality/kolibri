@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "放大的图像",
-  "SafeHtmlImage.expandImage": "放大图像"
+  "SafeHtmlImage.expandImage": "放大图像",
+  "TextEntryInteractionStrings.textEntryLabel": ""
 }

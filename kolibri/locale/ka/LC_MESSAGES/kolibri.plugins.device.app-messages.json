@@ -93,6 +93,7 @@
   "ContentIcon.topic": "საქაღალდე",
   "ContentIcon.user": "მომხმარებელი",
   "ContentIcon.video": "ვიდეო",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "ყველას მონიშვნა",
   "ContentTreeViewer.topicHasNoContents": "ამ საქაღალდეს არ აქვს ქვესაქაღალდეები, ან რესურსები",
   "ContentWizardUiAlert.channelNotFoundError": "არხი არ მოიძებნა",

@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-commonjs, import-x/no-amd, import-x/no-import-module-exports */
 // eslint-disable-next-line no-undef
 IntlPolyfill.__addLocaleData({
   locale: 'ht',

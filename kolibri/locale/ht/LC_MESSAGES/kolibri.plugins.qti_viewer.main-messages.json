@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Imaj elaji",
-  "SafeHtmlImage.expandImage": "Agrandi imaj"
+  "SafeHtmlImage.expandImage": "Agrandi imaj",
+  "TextEntryInteractionStrings.textEntryLabel": "Repons ou an"
 }

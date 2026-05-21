@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Dossier",
   "ContentIcon.user": "Utilisateur",
   "ContentIcon.video": "Vidéo",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Tout sélectionner",
   "ContentTreeViewer.topicHasNoContents": "Ce dossier ne contient pas de sous-dossiers ou de ressources",
   "ContentWizardUiAlert.channelNotFoundError": "Chaîne non trouvée",

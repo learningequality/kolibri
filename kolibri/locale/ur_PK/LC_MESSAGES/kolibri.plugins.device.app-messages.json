@@ -93,6 +93,7 @@
   "ContentIcon.topic": "فولڈر",
   "ContentIcon.user": "صارف",
   "ContentIcon.video": "وڈیو",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "تمام منتخب کریں",
   "ContentTreeViewer.topicHasNoContents": "اس فولڈر میں سب فولڈر یا وسائل موجود نہیں ہیں",
   "ContentWizardUiAlert.channelNotFoundError": "چینل موجود نہیں",

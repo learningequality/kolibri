@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Ordner",
   "ContentIcon.user": "Benutzer",
   "ContentIcon.video": "Video",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Alle auswählen",
   "ContentTreeViewer.topicHasNoContents": "Dieser Ordner enthält keine Unterordner oder Materialien",
   "ContentWizardUiAlert.channelNotFoundError": "Kanal nicht gefunden",

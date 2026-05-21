@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copiar para área de transferência",
   "TotalPoints.pointsTooltip": "Você ganhou { points, number } pontos",
   "UpdateNotification.adminMessage": "Favor contatar seu administrador Kolibri",
-  "UpdateNotification.hideNotificationLabel": "Não mostrar esta mensagem novamente",
   "UpdateNotification.upgradeDownload": "Baixe-a aqui",
   "UpdateNotification.upgradeHeader": "Atualização disponível",
   "UpdateNotification.upgradeHeaderImportant": "Uma importante atualização está disponível",
