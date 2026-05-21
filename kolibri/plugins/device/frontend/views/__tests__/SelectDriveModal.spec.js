@@ -1,14 +1,13 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import SelectDriveModal, {
-  strings as driveModalStrings,
-} from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
-import { strings as driveListStrings } from '../ManageContentPage/SelectTransferSourceModal/DriveList';
+import SelectDriveModal from '../ManageContentPage/SelectTransferSourceModal/SelectDriveModal';
+import DriveList from '../ManageContentPage/SelectTransferSourceModal/DriveList';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
-const { findingLocalDrives$ } = driveModalStrings;
-const { noImportableDrives$, noExportableDrives$ } = driveListStrings;
+const { findingLocalDrives$ } = createTranslator(SelectDriveModal.name, SelectDriveModal.$trs);
+const { noImportableDrives$, noExportableDrives$ } = createTranslator(DriveList.name, DriveList.$trs);
 const { continueAction$ } = coreStrings;
 
 const UNWRITABLE = 'Unwritable';
@@ -21,7 +20,7 @@ function makeStore() {
   const store = makeAvailableChannelsPageStore();
   store.commit('manageContent/wizard/SET_DRIVE_LIST', [
     {
-      id: 'WRITABLE_IMPORTABLE_drive',
+      id: 'unwritable_drive',
       metadata: { channels: [{ id: 'installed_channel' }] },
       name: UNWRITABLE,
       writable: false,
@@ -33,7 +32,7 @@ function makeStore() {
       writable: true,
     },
     {
-      id: 'incompatible_chanel_drive',
+      id: 'incompatible_channel_drive',
       metadata: { channels: [{ id: 'channel_2', version: 1 }] },
       name: INCOMPATIBLE_CHANNEL,
       writable: true,
@@ -84,7 +83,6 @@ describe('SelectDriveModal', () => {
   it('in import mode, drive-list only shows drives with content', () => {
     setTransferType('localimport');
     renderComponent({ store });
-
     expect(screen.getAllByRole('radio')).toHaveLength(3);
     expect(screen.getByText(WRITABLE_IMPORTABLE)).toBeInTheDocument();
   });
@@ -110,8 +108,6 @@ describe('SelectDriveModal', () => {
   it('in export mode, drive-list only shows drives that are writable', () => {
     setTransferType('localexport');
     renderComponent({ store });
-
-    // 2 writable drives with same name
     expect(screen.getAllByText(WRITABLE_IMPORTABLE)).toHaveLength(2);
     expect(screen.queryByText(UNWRITABLE)).not.toBeInTheDocument();
   });
@@ -144,5 +140,25 @@ describe('SelectDriveModal', () => {
   it('when no drive is selected, "Continue" button is disabled', () => {
     renderComponent({ store });
     expect(screen.getByRole('button', { name: continueAction$() })).toBeDisabled();
+  });
+
+  it('clicking "Continue" triggers a "go forward" action', async () => {
+    setTransferType('localimport');
+    const goForwardSpy = jest
+      .spyOn(SelectDriveModal.methods, 'goForwardFromSelectDriveModal')
+      .mockResolvedValue();
+    renderComponent({ store });
+    
+    // writable_importable_drive select karo explicitly
+    const radios = screen.getAllByRole('radio');
+    await userEvent.click(radios[0]);
+    
+    await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
+    
+    expect(goForwardSpy).toHaveBeenCalledWith({
+      driveId: expect.any(String),
+      forExport: false,
+    });
+    goForwardSpy.mockRestore();
   });
 });
