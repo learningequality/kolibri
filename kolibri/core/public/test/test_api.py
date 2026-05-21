@@ -153,6 +153,11 @@ class PublicAPITestCase(APITestCase):
             response.data["subset_of_users_device"], settings.subset_of_users_device
         )
 
+    def test_info_endpoint_v4(self):
+        response = self.client.get(reverse("kolibri:core:info-list"), data={"v": "4"})
+        settings = DeviceSettings.objects.get()
+        self.assertEqual(response.data["is_provisioned"], settings.is_provisioned)
+
     def test_public_channel_list(self):
         response = self.client.get(get_channel_lookup_url())
         data = response.json()

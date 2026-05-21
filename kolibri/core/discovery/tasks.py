@@ -356,6 +356,7 @@ def _refresh_reserved_locations():
             "location_type": LocationTypes.Reserved,
             "is_local": False,
             "kolibri_version": "0.16.0",
+            "is_provisioned": True,
         },
     )
 
@@ -370,6 +371,7 @@ def _refresh_reserved_locations():
             "is_local": False,
             "application": "Kolibri Data Portal",
             "kolibri_version": "0.16.0",
+            "is_provisioned": True,
         },
     )
 

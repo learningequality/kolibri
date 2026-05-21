@@ -7,6 +7,7 @@ info = {
     "instance_id": "a" * 32,
     "operating_system": "windows",
     "kolibri_version": "0.11.0",
+    "is_provisioned": True,
 }
 
 

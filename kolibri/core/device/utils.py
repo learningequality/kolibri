@@ -434,9 +434,19 @@ device_info_keys = {
         "subset_of_users_device",
         "min_content_schema_version",
     ],
+    "4": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+        "subset_of_users_device",
+        "min_content_schema_version",
+        "is_provisioned",
+    ],
 }
 
-DEVICE_INFO_VERSION = "3"
+DEVICE_INFO_VERSION = "4"
 
 
 def get_device_info(version=DEVICE_INFO_VERSION):
@@ -454,9 +464,11 @@ def get_device_info(version=DEVICE_INFO_VERSION):
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
     if device_provisioned():
+        is_provisioned = True
         device_name = get_device_setting("name")
         subset_of_users_device = get_device_setting("subset_of_users_device")
     else:
+        is_provisioned = False
         device_name = instance_model.hostname
         subset_of_users_device = False
 
@@ -470,6 +482,7 @@ def get_device_info(version=DEVICE_INFO_VERSION):
         else platform.system(),
         "subset_of_users_device": subset_of_users_device,
         "min_content_schema_version": MIN_CONTENT_SCHEMA_VERSION,
+        "is_provisioned": is_provisioned,
     }
 
     info = {}
