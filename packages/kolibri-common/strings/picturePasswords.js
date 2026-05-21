@@ -101,7 +101,7 @@ export const picturePasswordStrings = createTranslator('PicturePasswordStrings',
   wrongPicturesTryAgain: {
     message: 'Wrong pictures, try again!',
     context:
-      'Assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
+      'Error notification and assertive screen reader announcement when the learner submits an incorrect picture password sequence.',
   },
 
   learnerLimitReachedHeading: {
