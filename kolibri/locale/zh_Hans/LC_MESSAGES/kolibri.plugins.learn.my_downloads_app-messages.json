@@ -28,6 +28,7 @@
   "CommonLearnStrings.resourceCompletedLabel": "资源已完成",
   "CommonLearnStrings.resumeLabel": "继续",
   "CommonLearnStrings.shareFile": "分享",
+  "CommonLearnStrings.shareFileMessage": "",
   "CommonLearnStrings.showLess": "显示较少",
   "CommonLearnStrings.suggestedTime": "建议的时间",
   "CommonLearnStrings.toggleLicenseDescription": "切换许可证描述",

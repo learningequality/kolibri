@@ -28,6 +28,7 @@
   "CommonLearnStrings.resourceCompletedLabel": "Resource completed",
   "CommonLearnStrings.resumeLabel": "Resume",
   "CommonLearnStrings.shareFile": "Share",
+  "CommonLearnStrings.shareFileMessage": "\"{title}\" (in \"{topic}\"), from {copyrightHolder}",
   "CommonLearnStrings.showLess": "Show less",
   "CommonLearnStrings.suggestedTime": "Suggested time",
   "CommonLearnStrings.toggleLicenseDescription": "Toggle license description",

@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Ảnh mở rộng",
-  "SafeHtmlImage.expandImage": "Mở rộng ảnh"
+  "SafeHtmlImage.expandImage": "Mở rộng ảnh",
+  "TextEntryInteractionStrings.textEntryLabel": "Câu trả lời của bạn"
 }

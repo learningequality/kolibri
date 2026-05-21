@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "复制到剪切板",
   "TotalPoints.pointsTooltip": "你赚了 { points, number } 分",
   "UpdateNotification.adminMessage": "请联系此服务器的设备管理员",
-  "UpdateNotification.hideNotificationLabel": "不再显示此信息",
   "UpdateNotification.upgradeDownload": "在这里下载",
   "UpdateNotification.upgradeHeader": "有可用更新",
   "UpdateNotification.upgradeHeaderImportant": "重要更新可用",

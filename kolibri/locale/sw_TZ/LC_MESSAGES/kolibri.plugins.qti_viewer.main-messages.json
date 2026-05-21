@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Picha iliyopanuliwa",
-  "SafeHtmlImage.expandImage": "Panua picha"
+  "SafeHtmlImage.expandImage": "Panua picha",
+  "TextEntryInteractionStrings.textEntryLabel": "Jibu lako"
 }

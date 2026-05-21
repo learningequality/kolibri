@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 21:35+0000\n"
-"PO-Revision-Date: 2026-02-25 22:07\n"
+"POT-Creation-Date: 2026-05-21 22:42+0000\n"
+"PO-Revision-Date: 2026-05-21 22:48\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -170,29 +170,29 @@ msgid "Database ID is not valid"
 msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:61
+#: core/auth/tasks.py:63
 msgid "Data syncing in progress"
 msgstr "Đang đồng bộ hoá dữ liệu"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:65
+#: core/auth/tasks.py:67
 msgid "Do not disconnect your device from the network."
 msgstr "Không ngắt kết nối mạng thiết bị của bạn"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:60
+#: core/content/tasks.py:67
 msgid "Updating your library"
 msgstr "Đang cập nhật thư viện"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:63
+#: core/content/tasks.py:70
 msgid "Library updated"
 msgstr "Thư viện đã được cập nhật"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:66
+#: core/content/tasks.py:73
 msgid "Library update failed"
 msgstr "Cập nhật thư viện thất bại"
 
@@ -337,7 +337,7 @@ msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 msgid "Kolibri"
 msgstr "Kolibri"
 
-#: core/views.py:186
+#: core/views.py:180
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
 
@@ -369,7 +369,7 @@ msgctxt "Default name for the exported CSV file of facility user data. Please ke
 msgid "users"
 msgstr "người dùng"
 
-#: plugins/learn/kolibri_plugin.py:31
+#: plugins/learn/kolibri_plugin.py:35
 msgid "Learn"
 msgstr "Học tập"
 
@@ -377,7 +377,7 @@ msgstr "Học tập"
 msgid "Policies"
 msgstr "Chính sách"
 
-#: plugins/setup_wizard/kolibri_plugin.py:19
+#: plugins/setup_wizard/kolibri_plugin.py:20
 msgid "Setup Wizard"
 msgstr "Thuật sĩ thiết lập"
 

@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Hoton da aka fadada",
-  "SafeHtmlImage.expandImage": "Fadada hoto"
+  "SafeHtmlImage.expandImage": "Fadada hoto",
+  "TextEntryInteractionStrings.textEntryLabel": ""
 }

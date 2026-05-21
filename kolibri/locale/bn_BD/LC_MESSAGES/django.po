@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 21:35+0000\n"
-"PO-Revision-Date: 2026-02-25 22:07\n"
+"POT-Creation-Date: 2026-05-21 22:42+0000\n"
+"PO-Revision-Date: 2026-05-21 22:47\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -170,29 +170,29 @@ msgid "Database ID is not valid"
 msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:61
+#: core/auth/tasks.py:63
 msgid "Data syncing in progress"
 msgstr "ডেটা সিঙ্ক করা হচ্ছে"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:65
+#: core/auth/tasks.py:67
 msgid "Do not disconnect your device from the network."
 msgstr "নেটওয়ার্ক থেকে আপনার ডিভাইসের সংযোগ বিচ্ছিন্ন করবেন না।"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:60
+#: core/content/tasks.py:67
 msgid "Updating your library"
 msgstr "আপনার লাইব্রেরি আপডেট করা হচ্ছে"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:63
+#: core/content/tasks.py:70
 msgid "Library updated"
 msgstr "লাইব্রেরি আপডেট করা হয়েছে"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:66
+#: core/content/tasks.py:73
 msgid "Library update failed"
 msgstr "লাইব্রেরি আপডেট করা ব্যর্থ হয়েছে"
 
@@ -337,7 +337,7 @@ msgstr "আপনার বর্তমান ব্রাউজারটি আ
 msgid "Kolibri"
 msgstr "কলিব্রি"
 
-#: core/views.py:186
+#: core/views.py:180
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "কোনও উপযুক্ত পুনর্নির্দেশ পাতা খুঁজে পাওয়া যায়নি। সম্ভবত কলিব্রি ঠিকভাবে কনফিগার করা হয়নি।"
 
@@ -369,7 +369,7 @@ msgctxt "Default name for the exported CSV file of facility user data. Please ke
 msgid "users"
 msgstr "ব্যবহারকারী"
 
-#: plugins/learn/kolibri_plugin.py:31
+#: plugins/learn/kolibri_plugin.py:35
 msgid "Learn"
 msgstr "শিখুন"
 
@@ -377,7 +377,7 @@ msgstr "শিখুন"
 msgid "Policies"
 msgstr "নীতিমালা"
 
-#: plugins/setup_wizard/kolibri_plugin.py:19
+#: plugins/setup_wizard/kolibri_plugin.py:20
 msgid "Setup Wizard"
 msgstr "সেটআপ উইজার্ড"
 

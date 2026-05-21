@@ -93,6 +93,7 @@
   "ContentIcon.topic": "ফোল্ডার",
   "ContentIcon.user": "ব্যবহারকারী",
   "ContentIcon.video": "ভিডিও",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "সব নির্বাচন করুন",
   "ContentTreeViewer.topicHasNoContents": "এই ফোল্ডারের ভেতরে কোনো সাবফোল্ডার বা উপকরণ নেই",
   "ContentWizardUiAlert.channelNotFoundError": "চ্যানেলটি খুঁজে পাওয়া যায়নি",

@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "کپی به کلیپ‌بورد",
   "TotalPoints.pointsTooltip": "شما { points, number } امتیاز بدست آورده‌اید",
   "UpdateNotification.adminMessage": "لطفن با سرپرست‌تان در Kolibri مشورت کنید",
-  "UpdateNotification.hideNotificationLabel": "این پیغام دوباره نشان داده نشود",
   "UpdateNotification.upgradeDownload": "از اینجا آن را دانلود کنید",
   "UpdateNotification.upgradeHeader": "به‌روز رسانی موجود است",
   "UpdateNotification.upgradeHeaderImportant": "به‌روز رسانی مهم در دسترس می‌باشد",

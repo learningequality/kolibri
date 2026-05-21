@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "تصویر گسترده‌شده",
-  "SafeHtmlImage.expandImage": "گسترش تصویر"
+  "SafeHtmlImage.expandImage": "گسترش تصویر",
+  "TextEntryInteractionStrings.textEntryLabel": "پاسخ شما"
 }

@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "نسخ إلى الحافظة",
   "TotalPoints.pointsTooltip": "لقد حصلت على { points, number } نقطة",
   "UpdateNotification.adminMessage": "الرجاء الرجوع إلى مشرف كوليبري في مَرفقك التّعليمي",
-  "UpdateNotification.hideNotificationLabel": "لا تعرض هذه الرسالة مرة أخرى",
   "UpdateNotification.upgradeDownload": "قم بتحميله هنا",
   "UpdateNotification.upgradeHeader": "التحديث للنسخة الجديدة أصبح متاحاً",
   "UpdateNotification.upgradeHeaderImportant": "هناك ترقية مهمة متاحة",

@@ -93,6 +93,7 @@
   "ContentIcon.topic": "ဖိုဒါ",
   "ContentIcon.user": "အသုံးပြုသူ",
   "ContentIcon.video": "ဗီဒီယို",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "အားလုံးကိုရွေးချယ်မည်",
   "ContentTreeViewer.topicHasNoContents": "ဤဖိုင်တွဲ အောက်တွင် ထပ်မံခွဲထားသည့် ဖိုင်တွဲအငယ် သို့မဟုတ် အရင်းမြစ်များ မရှိပါ။",
   "ContentWizardUiAlert.channelNotFoundError": "ချယ်နယ်မတွေ့ပါ",

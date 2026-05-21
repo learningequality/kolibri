@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copia negli appunti",
   "TotalPoints.pointsTooltip": "Hai guadagnato { points, number } punti",
   "UpdateNotification.adminMessage": "Contatta l'amministratore del dispositivo per questo server",
-  "UpdateNotification.hideNotificationLabel": "Non mostrare più questo messaggio",
   "UpdateNotification.upgradeDownload": "Scaricalo da qui",
   "UpdateNotification.upgradeHeader": "Aggiornamento disponibile",
   "UpdateNotification.upgradeHeaderImportant": "Aggiornamento importante disponibile",

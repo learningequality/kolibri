@@ -93,6 +93,7 @@
   "ContentIcon.topic": "फोल्डर",
   "ContentIcon.user": "उपयोगकर्ता",
   "ContentIcon.video": "वीडियो",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "सभी का चयन करें",
   "ContentTreeViewer.topicHasNoContents": "इस फ़ोल्डर में कोई सबफ़ोल्डर या संसाधन नहीं हैं",
   "ContentWizardUiAlert.channelNotFoundError": "चैनल नहीं मिला",

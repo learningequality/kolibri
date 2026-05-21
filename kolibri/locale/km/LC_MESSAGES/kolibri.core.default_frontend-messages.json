@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ចម្លងទៅ Clipboard",
   "TotalPoints.pointsTooltip": "អ្នករកបាន { points, number } ពិន្ទុ",
   "UpdateNotification.adminMessage": "សូមទាក់ទងទៅកាន់អ្នកគ្រប់គ្រងឧបករណ៍សម្រាប់ម៉ាសុីន Server",
-  "UpdateNotification.hideNotificationLabel": "កុំបង្ហាញសារនេះម្តងទៀត",
   "UpdateNotification.upgradeDownload": "ទាញយកបាននៅទីនេះ",
   "UpdateNotification.upgradeHeader": "មាន Upgrade",
   "UpdateNotification.upgradeHeaderImportant": "មាន Upgrade សំខាន់",

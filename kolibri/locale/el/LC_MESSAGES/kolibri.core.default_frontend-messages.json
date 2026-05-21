@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Αντιγραφή στο πρόχειρο",
   "TotalPoints.pointsTooltip": "Κερδίσατε { points, number } πόντους",
   "UpdateNotification.adminMessage": "Επικοινωνήστε με τον διαχειριστή της συσκευής για αυτόν τον διακομιστή",
-  "UpdateNotification.hideNotificationLabel": "Να μην εμφανιστεί ξανά αυτό το μήνυμα",
   "UpdateNotification.upgradeDownload": "Κάντε λήψη εδώ",
   "UpdateNotification.upgradeHeader": "Διαθέσιμη αναβάθμιση",
   "UpdateNotification.upgradeHeaderImportant": "Διαθέσιμη σημαντική αναβάθμιση",

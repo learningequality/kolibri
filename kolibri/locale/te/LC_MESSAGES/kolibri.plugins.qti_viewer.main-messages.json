@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "విస్తరించబడిన చిత్రం",
-  "SafeHtmlImage.expandImage": "చిత్రాన్ని విస్తరించండి"
+  "SafeHtmlImage.expandImage": "చిత్రాన్ని విస్తరించండి",
+  "TextEntryInteractionStrings.textEntryLabel": ""
 }

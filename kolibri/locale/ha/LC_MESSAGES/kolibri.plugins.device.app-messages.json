@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Folda",
   "ContentIcon.user": "Mai amfani",
   "ContentIcon.video": "Bidiyo",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Zabi duk",
   "ContentTreeViewer.topicHasNoContents": "Wannan ma'ajiya ba ta da kananan ma'ajiyai ko albarkatu",
   "ContentWizardUiAlert.channelNotFoundError": "Ba a sami tashar ba",

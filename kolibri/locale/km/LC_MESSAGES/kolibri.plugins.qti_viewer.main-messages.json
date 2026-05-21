@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "រូបភាពដែលបានពង្រីក",
-  "SafeHtmlImage.expandImage": "ពង្រីករូបភាព"
+  "SafeHtmlImage.expandImage": "ពង្រីករូបភាព",
+  "TextEntryInteractionStrings.textEntryLabel": ""
 }

@@ -93,6 +93,7 @@
   "ContentIcon.topic": "文件夹",
   "ContentIcon.user": "用户",
   "ContentIcon.video": "视频",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "选择全部",
   "ContentTreeViewer.topicHasNoContents": "此文件夹没有子文件夹或资源",
   "ContentWizardUiAlert.channelNotFoundError": "未找到频道",

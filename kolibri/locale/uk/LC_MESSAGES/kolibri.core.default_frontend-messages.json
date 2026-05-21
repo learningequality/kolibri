@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копіювати до буфера обміну",
   "TotalPoints.pointsTooltip": "Ви отримали { points, number } балів",
   "UpdateNotification.adminMessage": "Зверніться до адміністратора пристрою для цього сервера",
-  "UpdateNotification.hideNotificationLabel": "Більше не показувати це повідомлення",
   "UpdateNotification.upgradeDownload": "Завантажте його тут",
   "UpdateNotification.upgradeHeader": "Доступне оновлення",
   "UpdateNotification.upgradeHeaderImportant": "Доступне важливе оновлення",

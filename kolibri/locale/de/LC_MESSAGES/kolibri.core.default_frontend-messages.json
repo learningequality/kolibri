@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "In die Zwischenablage kopieren",
   "TotalPoints.pointsTooltip": "Aktuelle Punktzahl: { points, number } Punkte",
   "UpdateNotification.adminMessage": "Wenden Sie sich an den Geräteadministrator für diesen Server.",
-  "UpdateNotification.hideNotificationLabel": "Diese Meldung nicht mehr anzeigen",
   "UpdateNotification.upgradeDownload": "Hier herunterladen",
   "UpdateNotification.upgradeHeader": "Upgrade verfügbar",
   "UpdateNotification.upgradeHeaderImportant": "Wichtiges Upgrade verfügbar",

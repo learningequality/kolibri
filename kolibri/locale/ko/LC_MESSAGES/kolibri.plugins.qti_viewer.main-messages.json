@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "확장된 이미지",
-  "SafeHtmlImage.expandImage": "이미지 확장"
+  "SafeHtmlImage.expandImage": "이미지 확장",
+  "TextEntryInteractionStrings.textEntryLabel": "내 답변"
 }
