@@ -68,6 +68,20 @@
               :label="enableMarkAttendance$()"
               data-testid="enable_mark_attendance"
             />
+            <template v-if="!isPictureLoginFeatureEnabled">
+              <KCheckbox
+                :checked="signInOption === OptionsForSignIn.USERNAME_PASSWORD"
+                :label="learnerNeedPasswordToLogin$()"
+                data-testid="learner_can_login_with_no_password"
+                @change="handleNoPicturePasswordSignInOptionToggle"
+              />
+              <KCheckbox
+                v-model="settings.learner_can_edit_password"
+                :disabled="signInOption !== OptionsForSignIn.USERNAME_PASSWORD"
+                :label="learnerCanEditPassword$()"
+                data-testid="learner_can_edit_password"
+              />
+            </template>
           </div>
         </section>
 
@@ -84,7 +98,10 @@
         </section>
 
         <!-- How learners sign in Section -->
-        <section class="facility-settings learner-signin">
+        <section
+          v-if="isPictureLoginFeatureEnabled"
+          class="facility-settings learner-signin"
+        >
           <h3>{{ howLearnersSignIn$() }}</h3>
           <div class="settings">
             <KRadioButtonGroup>
@@ -109,55 +126,51 @@
                 :data-testid="OptionsForSignIn.USERNAME_ONLY"
               />
 
-              <template v-if="isPictureLoginFeatureEnabled">
-                <div class="radio-button-and-info-wrapper">
-                  <KRadioButton
-                    v-model="signInOption"
-                    :label="picturePassword$()"
-                    :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
-                    :disabled="picturePasswordDisabled"
-                    :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
-                  />
-                  <KIconButton
-                    icon="info"
-                    size="mini"
-                    :color="$themeTokens.primary"
-                    :ariaLabel="picturePasswordInfoLabel$()"
-                    @click.stop="showPicturePasswordInfoModal = true"
-                  />
-                </div>
-                <div
-                  class="radio-description"
-                  :style="{
-                    color: picturePasswordDisabled
-                      ? $themeTokens.textDisabled
-                      : $themeTokens.annotation,
-                  }"
-                >
-                  {{ picturePasswordDescription$() }}
-                </div>
-                <div
-                  v-if="picturePasswordDisabled"
-                  class="exhausted-explanation nested-settings"
-                >
-                  <KIcon
-                    icon="warning"
-                    :style="{ fill: $themePalette.yellow.v_600 }"
-                  />
-                  <span>{{ picturePasswordUnavailableExplanation$() }}</span>
-                  <KIconButton
-                    icon="info"
-                    size="mini"
-                    :color="$themeTokens.primary"
-                    :ariaLabel="picturePasswordUnavailableExplanation$()"
-                    @click="showPicturePasswordUnavailableModal = true"
-                  />
-                </div>
-              </template>
+              <div class="radio-button-and-info-wrapper">
+                <KRadioButton
+                  v-model="signInOption"
+                  :label="picturePassword$()"
+                  :buttonValue="OptionsForSignIn.PICTURE_PASSWORD"
+                  :disabled="picturePasswordDisabled"
+                  :data-testid="OptionsForSignIn.PICTURE_PASSWORD"
+                />
+                <KIconButton
+                  icon="info"
+                  size="mini"
+                  :color="$themeTokens.primary"
+                  :ariaLabel="picturePasswordInfoLabel$()"
+                  @click.stop="showPicturePasswordInfoModal = true"
+                />
+              </div>
+              <div
+                class="radio-description"
+                :style="{
+                  color: picturePasswordDisabled
+                    ? $themeTokens.textDisabled
+                    : $themeTokens.annotation,
+                }"
+              >
+                {{ picturePasswordDescription$() }}
+              </div>
+              <div
+                v-if="picturePasswordDisabled"
+                class="exhausted-explanation nested-settings"
+              >
+                <KIcon
+                  icon="warning"
+                  :style="{ fill: $themePalette.yellow.v_600 }"
+                />
+                <span>{{ picturePasswordUnavailableExplanation$() }}</span>
+                <KIconButton
+                  icon="info"
+                  size="mini"
+                  :color="$themeTokens.primary"
+                  :ariaLabel="picturePasswordUnavailableExplanation$()"
+                  @click="showPicturePasswordUnavailableModal = true"
+                />
+              </div>
               <KRadioButtonGroup
-                v-if="
-                  isPictureLoginFeatureEnabled && signInOption === OptionsForSignIn.PICTURE_PASSWORD
-                "
+                v-if="signInOption === OptionsForSignIn.PICTURE_PASSWORD"
                 class="nested-settings picture-password-settings"
                 :aria-label="iconStyle$()"
               >
@@ -343,7 +356,6 @@
   import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
-  import { createTranslator } from 'kolibri/utils/i18n';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
 
   import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
@@ -357,86 +369,7 @@
   import PicturePasswordInfoModal from './PicturePasswordInfoModal';
   import ChildFriendlyIconsModal from './ChildFriendlyIconsModal';
   import PicturePasswordUnavailableModal from './PicturePasswordUnavailableModal';
-
-  /**
-   * Using the createTranslator to aid concatenation
-   * of strings missed before string freeze. This only a workaround
-   */
-  const deviceSettingsPageStrings = createTranslator('DeviceSettingsPage', {
-    changeLocation: {
-      message: 'Change',
-      context: 'Label to change primary storage location',
-    },
-  });
-  const pinAuthenticationModalStrings = createTranslator('PinAuthenticationModal', {
-    pinPlaceholder: {
-      message: 'PIN',
-      context: 'Placeholder label for a PIN input',
-    },
-  });
-  const facilityConfigPageStrings = createTranslator('FacilityConfigPage', {
-    learnerCanEditUsername: {
-      message: 'Allow learners to edit their username',
-      context: "Option on 'Facility settings' page.",
-    },
-    learnerCanEditName: {
-      message: 'Allow learners to edit their full name',
-      context: "Option on 'Facility settings' page.",
-    },
-    learnerCanSignUp: {
-      message: 'Allow learners to create accounts',
-      context: "Option on 'Facility settings' page.",
-    },
-    learnerCanEditPassword: {
-      message: 'Allow learners to edit their password when signed in',
-      context: "Option on 'Facility settings' page.",
-    },
-    showDownloadButtonInLearn: {
-      message: "Show 'download' button with resources",
-      context: "Option on 'Facility settings' page.\n",
-    },
-    enableMarkAttendance: {
-      message: 'Allow coaches to take attendance (English only)',
-      context: "Option on 'Facility settings' page.",
-    },
-    saveFailure: {
-      message: 'There was a problem saving your settings',
-      context: 'Status report after the facility change operation.',
-    },
-    saveSuccess: {
-      message: 'Facility settings updated',
-      context: 'Status report after the facility change operation.',
-    },
-    pageDescription: {
-      message: 'Configure facility settings here.',
-      context: 'Interpret as "[You can] configure facility settings here"',
-    },
-    deviceSettings: {
-      message: 'You can also configure device settings',
-      context: 'Text link on Facility settings page.',
-    },
-    pageHeader: {
-      message: 'Facility settings',
-      context: 'Title of the Facility > Settings page.',
-    },
-    documentTitle: {
-      message: 'Facility Settings',
-      context: 'Title of page where user can configure facility settings.',
-    },
-    deviceManagementPin: {
-      message: 'Device management PIN',
-      context: 'The title for the device management PIN',
-    },
-    deviceManagementDescription: {
-      message:
-        'This 4-digit PIN allows users to manage content and other settings on learn-only devices',
-      context: 'Description for the device management',
-    },
-    createPinBtn: {
-      message: 'Create PIN',
-      context: 'Button for the create PIN',
-    },
-  });
+  import facilityConfigPageStrings from './strings';
 
   export default {
     name: 'FacilityConfigPage',
@@ -495,11 +428,14 @@
         showDownloadButtonInLearn$,
         enableMarkAttendance$,
         learnerCanEditPassword$,
+        learnerNeedPasswordToLogin$,
         deviceManagementPin$,
         deviceManagementDescription$,
         createPinBtn$,
         saveSuccess$,
         saveFailure$,
+        pinPlaceholder$,
+        changeLocation$,
       } = facilityConfigPageStrings;
       const {
         howLearnersSignIn$,
@@ -515,8 +451,6 @@
         iconStyle$,
         picturePasswordUnavailableExplanation$,
       } = picturePasswordStrings;
-      const { pinPlaceholder$ } = pinAuthenticationModalStrings;
-      const { changeLocation$ } = deviceSettingsPageStrings;
 
       // state
       const showEditFacilityModal = ref(false);
@@ -632,6 +566,16 @@
         }
       }
 
+      const handleNoPicturePasswordSignInOptionToggle = () => {
+        // When picture password is disabled in the UI, just treat it
+        // being enabled as 'USERNAME_ONLY' to avoid ambiguous state.
+        if (signInOption.value !== OptionsForSignIn.USERNAME_PASSWORD) {
+          signInOption.value = OptionsForSignIn.USERNAME_PASSWORD;
+        } else {
+          signInOption.value = OptionsForSignIn.USERNAME_ONLY;
+        }
+      };
+
       const { tasks: facilityTasks } = useTaskPolling('facility_task');
       const pictureLoginTaskLoading = ref(false);
 
@@ -697,6 +641,7 @@
         handleRemovePinSubmit,
         handleCreatePin,
         handleSelect,
+        handleNoPicturePasswordSignInOptionToggle,
 
         // Strings
         pageHeader$,
@@ -707,6 +652,7 @@
         learnerCanSignUp$,
         enableMarkAttendance$,
         learnerCanEditPassword$,
+        learnerNeedPasswordToLogin$,
         showDownloadButtonInLearn$,
         deviceManagementPin$,
         deviceManagementDescription$,
