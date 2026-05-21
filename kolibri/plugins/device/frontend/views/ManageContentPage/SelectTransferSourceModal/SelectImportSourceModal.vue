@@ -43,21 +43,6 @@
   import { createTranslator } from 'kolibri/utils/i18n';
   import { ContentSources } from '../../../constants';
 
-  export const strings = createTranslator('SelectImportSourceModal', {
-    network: {
-      message: 'Kolibri Studio (online)',
-      context: 'Refers to a source where resources can be imported from.\n',
-    },
-    localNetworkOrInternet: {
-      message: 'Local network or internet',
-      context: 'Refers to a source where resources can be imported from.',
-    },
-    localDrives: {
-      message: 'Attached drive or memory card',
-      context: 'Refers to a source where resources can be imported from.',
-    },
-  });
-
   export default {
     name: 'SelectImportSourceModal',
     components: {
