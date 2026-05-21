@@ -4,6 +4,7 @@
     <!-- Select Network Address Step -->
     <SelectDeviceModalGroup
       v-if="atSelectAddress"
+      :filterByHasFacilities="true"
       @submit="handleAddressSubmit"
       @cancel="closeModal"
     />
