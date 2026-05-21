@@ -140,6 +140,15 @@ class UpdateNetworkLocationTestCase(BaseTestCase):
         self.assertEqual(self.mock_location.connection_status, ConnectionStatus.Okay)
         self.assertEqual(self.mock_location.connection_faults, 0)
 
+    def test_okay__sets_is_provisioned_from_device_info(self):
+        self.mock_location.is_provisioned = None
+        self.mock_client.device_info["is_provisioned"] = True
+
+        update_network_location(self.mock_location)
+
+        self.assertEqual(self.mock_location.connection_status, ConnectionStatus.Okay)
+        self.assertTrue(self.mock_location.is_provisioned)
+
     def test_okay__dynamic(self):
         self.mock_location.location_type = LocationTypes.Dynamic
         update_network_location(self.mock_location)
@@ -200,3 +209,29 @@ class UpdateNetworkLocationTestCase(BaseTestCase):
         self.assertEqual(self.mock_location.connection_status, ConnectionStatus.Okay)
         self.assertEqual(self.mock_location.connection_faults, 0)
         self.assertEqual(self.mock_location.base_url, "http://url.qqq")
+
+    def test_conflict_resolution__no_facilities_marks_unprovisioned(self):
+        self.mock_location.connection_status = ConnectionStatus.Conflict
+        self.mock_location.is_provisioned = True
+        response = mock_response(200)
+        self.mock_client.get.return_value = response
+        response.json.return_value = []
+
+        update_network_location(self.mock_location)
+
+        self.assertEqual(
+            self.mock_location.connection_status, ConnectionStatus.Conflict
+        )
+        self.assertFalse(self.mock_location.is_provisioned)
+
+    def test_okay__without_device_provisioned_flag_uses_facility_presence(self):
+        self.mock_client.device_info.update(is_provisioned=None)
+        self.mock_location.is_provisioned = None
+        response = mock_response(200)
+        self.mock_client.get.return_value = response
+        response.json.return_value = []
+
+        update_network_location(self.mock_location)
+
+        self.assertEqual(self.mock_location.connection_status, ConnectionStatus.Okay)
+        self.assertFalse(self.mock_location.is_provisioned)

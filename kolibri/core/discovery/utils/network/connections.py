@@ -59,7 +59,15 @@ def capture_network_state(network_location, client):
         # don't update the instance ID if it's a reserved location
         if key == "instance_id" and network_location.reserved:
             continue
-        setattr(network_location, key, client.device_info.get(key))
+        device_info_value = client.device_info.get(key)
+        # if we've set `is_provisioned` to True/False, don't unset it with None
+        if (
+            key == "is_provisioned"
+            and network_location.is_provisioned is not None
+            and device_info_value is None
+        ):
+            continue
+        setattr(network_location, key, device_info_value)
 
 
 @contextmanager
@@ -125,6 +133,10 @@ def update_network_location(network_location):
                     f.get("id") for f in network_location_facilities
                 ]
 
+                # having no facilities is as close to being unprovisioned as we can get
+                if not network_location_facility_ids:
+                    network_location.is_provisioned = False
+
                 if not Facility.objects.filter(
                     id__in=network_location_facility_ids
                 ).exists():
@@ -145,3 +157,10 @@ def update_network_location(network_location):
                 )
             # finally, capture the location's network state (ip, url, etc)
             capture_network_state(network_location, client)
+
+            # if the device is running an older version that doesn't report `is_provisioned` in
+            # its device info, check if it has facilities
+            if network_location.is_provisioned is None:
+                response = client.get("api/public/v1/facility")
+                network_location_facilities = response.json()
+                network_location.is_provisioned = bool(network_location_facilities)
