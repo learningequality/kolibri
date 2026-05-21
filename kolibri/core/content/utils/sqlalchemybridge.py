@@ -81,6 +81,13 @@ class SharingPool(NullPool):
 
 
 def sqlite_connection_string(db_path):
+    # shortcut db_paths like `file:memorydb_default?mode=memory&cache=shared`
+    # to ensure they have `uri=true` so sqlite treats it as in-memory
+    if db_path.startswith("file:"):
+        separator = "&" if "?" in db_path else "?"
+        return "sqlite:///{db_path}{separator}uri=true".format(
+            db_path=db_path, separator=separator
+        )
     # Call normpath to ensure that Windows paths are properly formatted
     return "sqlite://{db_path}".format(
         db_path="" if db_path == ":memory:" else "/" + os.path.normpath(db_path)
