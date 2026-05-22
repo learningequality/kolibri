@@ -44,9 +44,13 @@ export function setChannelInfo(store) {
   );
 }
 
+function initFacilityConfig() {
+  return fetchFacilityConfig().catch(() => {});
+}
+
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
-    return [setChannelInfo, () => fetchFacilityConfig().catch(() => {})];
+    return [setChannelInfo, initFacilityConfig];
   }
   get routes() {
     return routes;
