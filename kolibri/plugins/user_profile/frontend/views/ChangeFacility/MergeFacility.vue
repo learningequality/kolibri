@@ -290,7 +290,10 @@
           method: 'POST',
           data: params,
         }).then(response => {
-          if (response.data?.picture_password) {
+          if (
+            response.data?.picture_password ||
+            state.value.targetFacility?.picture_password_settings
+          ) {
             picturePasswordPending.value = true;
           }
           redirectBrowser();
