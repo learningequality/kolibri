@@ -1,5 +1,6 @@
 import time
 import uuid
+from threading import Event
 
 import pytest
 
@@ -10,7 +11,6 @@ from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_path_to_callable
 from kolibri.core.tasks.worker import Worker
-from kolibri.utils.multiprocessing_compat import Event
 
 
 @pytest.fixture

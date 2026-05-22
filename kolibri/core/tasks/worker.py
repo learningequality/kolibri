@@ -1,11 +1,11 @@
 import logging
 from concurrent.futures import CancelledError
+from concurrent.futures import ThreadPoolExecutor
 
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.utils import InfiniteLoopThread
-from kolibri.utils.multiprocessing_compat import PoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,6 @@ def execute_job(
     worker_process=None,
     worker_thread=None,
     worker_extra=None,
-    log_queue=None,
 ):
     """
     Call the function stored in the job.func.
@@ -34,7 +33,7 @@ def execute_job(
     django_connection.close()
 
 
-def execute_job_with_python_worker(job_id, log_queue=None):
+def execute_job_with_python_worker(job_id):
     """
     Call execute_job but additionally with the current host, process and thread information taken
     directly from python internals.
@@ -48,12 +47,11 @@ def execute_job_with_python_worker(job_id, log_queue=None):
         worker_host=socket.gethostname(),
         worker_process=str(os.getpid()),
         worker_thread=str(threading.get_ident()),
-        log_queue=log_queue,
     )
 
 
 class Worker:
-    def __init__(self, regular_workers=2, high_workers=1, log_queue=None):
+    def __init__(self, regular_workers=2, high_workers=1):
         # Internally, we use concurrent.future.Future to run and track
         # job executions. We need to keep track of which future maps to which
         # job they were made from, and we use the job_future_mapping dict to do
@@ -75,8 +73,6 @@ class Worker:
         # High workers run only 'high' priority jobs.
         self.regular_workers = regular_workers
         self.max_workers = regular_workers + high_workers
-        # Track any log queue that is passed in
-        self.log_queue = log_queue
 
         self.workers = self.start_workers()
         self.job_checker = self.start_job_checker()
@@ -100,7 +96,7 @@ class Worker:
         self.workers.shutdown(wait=wait)
 
     def start_workers(self):
-        pool = PoolExecutor(max_workers=self.max_workers)
+        pool = ThreadPoolExecutor(max_workers=self.max_workers)
         return pool
 
     def handle_finished_future(self, future):
@@ -194,7 +190,6 @@ class Worker:
         future = self.workers.submit(
             execute_job_with_python_worker,
             job_id=job.job_id,
-            log_queue=self.log_queue,
         )
 
         # Check if the job ID already exists in the future_job_mapping dictionary

@@ -286,9 +286,7 @@ class ServicesPlugin(SimplePlugin):
         from kolibri.core.tasks.main import initialize_workers
 
         # Initialize the iceqube engine to handle queued tasks
-        # Add a loose coupling between our LogPlugin and the ServicesPlugin
-        # by getting any log_queue that might be present on the bus
-        self.worker = initialize_workers(log_queue=getattr(self.bus, "log_queue", None))
+        self.worker = initialize_workers()
 
     def STOP(self):
         if self.worker is not None:
@@ -552,7 +550,6 @@ class LogPlugin(SimplePlugin):
         # which will reinitialize logging, and override
         # what we are doing here.
         self.queue_listener = setup_queue_logging()
-        self.bus.log_queue = self.queue_listener.queue
 
     def log(self, msg, level):
         logger.log(level, msg)
