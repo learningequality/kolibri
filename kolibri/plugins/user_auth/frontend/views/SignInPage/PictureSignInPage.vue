@@ -43,6 +43,7 @@
       :showIconText="picturePasswordShowIconText"
       :clearSequence.sync="clearSequence"
       :landscapeLayout="landscapeLayout"
+      @select="onGridSelect"
       @submit="prevalidate"
     />
     <PicturePasswordConfirmModal
@@ -232,6 +233,12 @@
         clearSequence.value = true;
       }
 
+      function onGridSelect(len) {
+        if (len === 1 && wrongPictures.value) {
+          wrongPictures.value = false;
+        }
+      }
+
       return {
         // state
         busy,
@@ -252,6 +259,7 @@
         prevalidate,
         handleConfirm,
         handleCancel,
+        onGridSelect,
         // strings
         wrongPicturesTryAgain$,
       };

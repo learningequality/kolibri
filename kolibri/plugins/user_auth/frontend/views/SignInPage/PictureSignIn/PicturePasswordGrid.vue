@@ -224,6 +224,7 @@
         }
 
         sequence.value = [...sequence.value, id];
+        emit('select', sequence.value.length);
 
         const position = sequence.value.length;
         sendPoliteMessage(ORDINAL_STRING_MAP[position]({ icon: iconLabelFor(id) }));

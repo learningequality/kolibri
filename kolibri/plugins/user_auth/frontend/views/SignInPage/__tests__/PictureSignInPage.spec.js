@@ -367,6 +367,29 @@ describe('PictureSignInPage', () => {
       });
     });
 
+    it('clears the error notification when the first icon of a new sequence is selected', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      // First failed attempt — error notification appears
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+
+      // Selecting the first icon of the next sequence clears the error immediately
+      await userEvent.click(checkbox(bee()));
+      expect(
+        screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+      ).not.toBeInTheDocument();
+    });
+
     it('clears the visible error notification on the next submission attempt', async () => {
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       renderComponent();
