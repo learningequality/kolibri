@@ -49,7 +49,6 @@
 
 <script>
 
-  import { createTranslator } from 'kolibri/utils/i18n';
   import { mapActions, mapState, mapGetters, mapMutations } from 'vuex';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';

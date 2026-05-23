@@ -40,7 +40,6 @@
   import { mapActions, mapMutations } from 'vuex';
   import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
   import SelectSourceModal from 'kolibri-common/components/syncComponentSet/SelectSourceModal';
-  import { createTranslator } from 'kolibri/utils/i18n';
   import { ContentSources } from '../../../constants';
 
   export default {

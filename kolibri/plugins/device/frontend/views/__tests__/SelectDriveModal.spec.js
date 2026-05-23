@@ -149,7 +149,6 @@ describe('SelectDriveModal', () => {
       .mockResolvedValue();
     renderComponent({ store });
     
-    // writable_importable_drive select karo explicitly
     const radios = screen.getAllByRole('radio');
     await userEvent.click(radios[0]);
     
