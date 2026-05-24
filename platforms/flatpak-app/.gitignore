@@ -1,5 +1,14 @@
 __pycache__
 
+# Ignore all top-level dotfiles; opt in the ones that belong in git.
+/.*
+!/.bumpversion.toml
+!/.editorconfig
+!/.flake8
+!/.github/
+!/.gitignore
+!/.pre-commit-config.yaml
+
 # Meson build
 /build
 
@@ -8,3 +17,7 @@ __pycache__
 _flatpak/
 _repo/
 *.flatpak
+
+# Generated Kolibri module manifest + downloaded wheels (build-time inputs)
+/build-aux/flatpak/modules/python3-kolibri.json
+/build-aux/flatpak/modules/*.whl
