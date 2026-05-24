@@ -1,18 +1,18 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
--   repo: https://github.com/asottile/reorder_python_imports
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/asottile/reorder_python_imports
     rev: v3.13.0
     hooks:
-    -   id: reorder-python-imports
--   repo: https://github.com/psf/black
+      - id: reorder-python-imports
+  - repo: https://github.com/psf/black
     rev: 24.8.0
     hooks:
       - id: black
@@ -21,12 +21,22 @@ repos:
         # pre-commit's default_language_version, see
         # https://pre-commit.com/#top_level-default_language_version
         # language_version: python3.12
--   repo: https://github.com/PyCQA/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 7.1.1
     hooks:
-    -   id: flake8
--   repo: https://github.com/pre-commit/mirrors-mypy
+      - id: flake8
+  - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2
     hooks:
-    -   id: mypy
+      - id: mypy
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+        # Expects shellcheck to be installed on the system
+        # https://github.com/koalaman/shellcheck#installing
 exclude: '\.patch$'

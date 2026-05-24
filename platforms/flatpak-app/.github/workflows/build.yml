@@ -1,41 +1,70 @@
 name: Build
-
-on: [push, pull_request, workflow_dispatch]
-
+on:
+  pull_request:
+    branches:
+      - master
 jobs:
-  lint:
-    name: Lint
+  latest_kolibri_release:
+    name: Resolve newest Kolibri release wheel
     runs-on: ubuntu-latest
-
+    outputs:
+      whl-url: ${{ steps.get_latest_kolibri_release.outputs.result }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: actions/setup-python@v5
+      - name: Get newest Kolibri release wheel URL
+        id: get_latest_kolibri_release
+        uses: actions/github-script@v9
         with:
-          python-version: '3.10'
-
-      - name: Run pre-commit hooks
-        uses: pre-commit/action@v3.0.0
-
+          result-encoding: string
+          script: |
+            // Newest release (pre-releases included) with a .whl asset. A
+            // just-published build may not have it uploaded yet, so walk back.
+            const iterator = github.paginate.iterator(github.rest.repos.listReleases, {
+              owner: 'learningequality',
+              repo: 'kolibri',
+              per_page: 30,
+            });
+            for await (const { data: releases } of iterator) {
+              for (const release of releases) {
+                const whlAsset = release.assets.find(a => a.name.endsWith('.whl'));
+                if (whlAsset) {
+                  return whlAsset.browser_download_url;
+                }
+              }
+            }
+            throw new Error('No Kolibri release with a .whl asset found');
   flatpak:
     name: Flatpak
-    needs: lint
+    needs: latest_kolibri_release
+    uses: ./.github/workflows/build_flatpak.yml
+    with:
+      whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}
+  smoke_test:
+    name: Behavioural smoke test
+    needs: flatpak
     runs-on: ubuntu-latest
-
-    container:
-      image: bilelmoussaoui/flatpak-github-actions:gnome-44
-      options: --privileged
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build Flatpak bundle
-        uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
+        uses: actions/checkout@v6
+      # flatpak runs the bundle; xvfb gives it a headless display; dbus-x11
+      # provides dbus-launch for the app's private session bus.
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            flatpak xvfb dbus-x11
+      - name: Install the GNOME 47 runtime
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.gnome.Platform//47
+      - name: Download Flatpak bundle
+        uses: actions/download-artifact@v8
         with:
-          bundle: org.learningequality.Kolibri.Devel.flatpak
-          manifest-path: build-aux/flatpak/org.learningequality.Kolibri.Devel.json
-          cache: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
-          cache-key: kolibri-gnome-${{ github.sha }}
+          name: ${{ needs.flatpak.outputs.bundle-file-name }}
+      - name: Run behavioural smoke test
+        run: python3 build-aux/flatpak/smoke_test.py "${{ needs.flatpak.outputs.bundle-file-name }}"
+      - name: Upload smoke-test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-test-logs
+          path: /tmp/smoke-*.log
