@@ -1,7 +1,7 @@
 {
     "app-id" : "org.learningequality.Kolibri.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "47",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
     "command" : "/app/bin/kolibri-gnome",
     "desktop-file-name-suffix" : " (Dev)",
@@ -40,7 +40,7 @@
     },
     "build-options": {
         "env": {
-            "KOLIBRI_MODULE_PATH": "/app/lib/python3.12/site-packages/kolibri"
+            "KOLIBRI_MODULE_PATH": "/app/lib/python3.13/site-packages/kolibri"
         },
         "test-args" : [
             "--socket=fallback-x11",
@@ -49,14 +49,13 @@
     },
     "cleanup-commands" : [
 	"mkdir -p /app/lib/ffmpeg",
-        "find ${KOLIBRI_MODULE_PATH}/dist/cext -type d -name 'cp*' -not -path ${KOLIBRI_MODULE_PATH}/dist/cext/cp311 -exec rm -rf '{}' '+'",
-        "rm -rf ${KOLIBRI_MODULE_PATH}/dist/cext/*/Windows",
-        "find ${KOLIBRI_MODULE_PATH} -type d -name 'test*' -not -path ${KOLIBRI_MODULE_PATH}/dist/django/test -exec rm -rf '{}' '+'"
+        "rm -rf ${KOLIBRI_MODULE_PATH}/dist/cext"
     ],
     "modules" : [
         "modules/iproute2.json",
         "modules/python3-kolibri.json",
-        "modules/python3-kolibri-app-desktop-xdg-plugin.json",
+        "modules/python3-cryptography.json",
+        "modules/python3-pillow.json",
         "modules/python3-setproctitle.json",
         "modules/kolibri-content-dir.json",
         "modules/kolibri-plugins-dir.json",
