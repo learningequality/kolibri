@@ -38,6 +38,40 @@ jobs:
     uses: ./.github/workflows/build_flatpak.yml
     with:
       whl-url: ${{ needs.latest_kolibri_release.outputs.whl-url }}
+  release_script_tests:
+    name: Release script unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install test dependencies
+        run: pip install pytest Pillow
+      - name: Run release script tests
+        run: pytest build-aux/flatpak/tests -q
+  validate_production_manifest:
+    name: Validate production manifest
+    needs: latest_kolibri_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install flatpak-builder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends flatpak-builder
+      # The production python3-kolibri.json is rendered, not committed; render it
+      # (as the pinned url+sha256 source production ships) so the includes resolve.
+      - name: Render the production Kolibri module
+        run: ./build-aux/flatpak/prepare-kolibri-module.py --url "${{ needs.latest_kolibri_release.outputs.whl-url }}" --pin
+      # --show-manifest resolves every modules/*.json include and validates the
+      # merged JSON without building, catching a missing/malformed include the
+      # old top-level json.load() could not.
+      - name: Resolve and validate the merged manifest
+        run: flatpak-builder --show-manifest build-aux/flatpak/org.learningequality.Kolibri.json > /dev/null
   smoke_test:
     name: Behavioural smoke test
     needs: flatpak
@@ -52,10 +86,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             flatpak xvfb dbus-x11
-      - name: Install the GNOME 47 runtime
+      - name: Install the GNOME 49 runtime
         run: |
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y flathub org.gnome.Platform//47
+          flatpak install --user -y flathub org.gnome.Platform//49
       - name: Download Flatpak bundle
         uses: actions/download-artifact@v8
         with:

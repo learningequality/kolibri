@@ -1,0 +1,13 @@
+{
+    "name": "kolibri-tools",
+    "buildsystem": "simple",
+    "build-commands": [
+        "install -m 755 -t ${FLATPAK_DEST}/bin kolibri-listcontent.py"
+    ],
+    "sources": [
+        {
+            "type": "file",
+            "path": "../tools/kolibri-listcontent.py"
+        }
+    ]
+}

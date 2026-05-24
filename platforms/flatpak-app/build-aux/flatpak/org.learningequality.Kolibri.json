@@ -1,0 +1,73 @@
+{
+    "app-id" : "org.learningequality.Kolibri",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "49",
+    "sdk" : "org.gnome.Sdk",
+    "command" : "kolibri-gnome",
+    "finish-args" : [
+        "--device=dri",
+        "--share=ipc",
+        "--share=network",
+        "--socket=fallback-x11",
+        "--socket=pulseaudio",
+        "--socket=wayland",
+        "--system-talk-name=org.learningequality.Kolibri.Daemon",
+        "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri/data/kolibri",
+        "--env=KOLIBRI_HTTP_PORT=0",
+        "--env=PYTHONPATH=/app/kolibri-plugins/lib/python"
+    ],
+    "add-extensions" : {
+        "org.learningequality.Kolibri.Content" : {
+            "version" : "1.0",
+            "directory" : "share/kolibri-content",
+            "subdirectories" : true,
+            "no-autodownload" : true
+        },
+        "org.freedesktop.Platform.ffmpeg-full" : {
+            "directory" : "lib/ffmpeg",
+            "version" : "24.08",
+            "add-ld-path" : ".",
+            "autodelete" : false
+        },
+        "org.learningequality.Kolibri.Plugin" : {
+            "version" : "1.0",
+            "directory" : "kolibri-plugins",
+            "merge-dirs" : "lib/python",
+            "subdirectories" : true,
+            "no-autodownload" : true
+        }
+    },
+    "build-options" : {
+        "env" : {
+            "KOLIBRI_MODULE_PATH" : "/app/lib/python3.13/site-packages/kolibri"
+        }
+    },
+    "cleanup-commands" : [
+        "mkdir -p /app/lib/ffmpeg",
+        "rm -rf ${KOLIBRI_MODULE_PATH}/dist/cext"
+    ],
+    "modules" : [
+        "modules/iproute2.json",
+        "modules/python3-kolibri.json",
+        "modules/python3-cryptography.json",
+        "modules/python3-pillow.json",
+        "modules/python3-setproctitle.json",
+        "modules/kolibri-content-dir.json",
+        "modules/kolibri-plugins-dir.json",
+        "modules/kolibri-loading-page.json",
+        "modules/kolibri-tools.json",
+        {
+            "name" : "kolibri-gnome",
+            "buildsystem" : "meson",
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://github.com/learningequality/kolibri-installer-gnome.git",
+                    "tag" : "v3.8",
+                    "commit" : "4f81b7b2682f3bc438ddd44b60fc66b1b83a71e7"
+                }
+            ]
+        },
+        "modules/migrate-kolibri-daemon-path.json"
+    ]
+}
