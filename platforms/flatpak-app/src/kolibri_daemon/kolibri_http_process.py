@@ -5,11 +5,11 @@ import multiprocessing
 from enum import auto
 from enum import Enum
 
+import kolibri
 from kolibri.dist.magicbus import ProcessBus
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
-from .kolibri_app_interface import KolibriAppInterface
 from .kolibri_service_context import KolibriServiceContext
 from .kolibri_service_context import KolibriServiceProcess
 from .kolibri_utils import init_kolibri
@@ -57,8 +57,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
         from kolibri.utils.server import KolibriProcessBus
 
         self.__update_kolibri_context()
-
-        KolibriAppInterface.get_default().register()
 
         self.__kolibri_bus = KolibriProcessBus(
             port=OPTIONS["Deployment"]["HTTP_PORT"],
@@ -135,10 +133,14 @@ class KolibriHttpProcess(KolibriServiceProcess):
         self.context.is_device_provisioned = device_provisioned()
 
     def __update_kolibri_context(self):
-        import kolibri
         from kolibri.core.device.models import DeviceAppKey
+        from kolibri.core.device.utils import app_initialize_url
 
         self.context.app_key = DeviceAppKey.get_app_key()
+        # Let Kolibri resolve the app-mode initialize URL (its location moved
+        # from the removed kolibri.plugins.app to core in Kolibri 0.19), rather
+        # than hard-coding the path in the front-end.
+        self.context.app_initialize_url = app_initialize_url()
         self.context.kolibri_home = KOLIBRI_HOME_PATH.as_posix()
         self.context.kolibri_version = kolibri.__version__
 

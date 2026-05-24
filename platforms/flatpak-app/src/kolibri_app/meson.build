@@ -2,6 +2,7 @@ python_installation.install_sources(
     [
         'globals.py',
         '__init__.py',
+        'kolibri_plugin.py',
         'kolibri_settings.py',
         'utils.py',
     ],

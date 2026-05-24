@@ -378,8 +378,6 @@ class _KolibriSetupHelper(GObject.GObject):
     __require_is_device_provisioned: bool
     __property_watchers: list[PropertyWatcher]
 
-    INITIALIZE_API_PATH = "/app/api/initialize"
-
     auth_token = GObject.Property(type=str, default=None)
     is_auth_token_ready = GObject.Property(type=bool, default=False)
     is_cookie_manager_ready = GObject.Property(type=bool, default=False)
@@ -419,7 +417,7 @@ class _KolibriSetupHelper(GObject.GObject):
 
         self.__property_watchers.append(
             PropertyWatcher(
-                (self.__kolibri_daemon, "app-key"),
+                (self.__kolibri_daemon, "app-initialize-url"),
                 (self.__kolibri_daemon, "is-started"),
                 (self, "is-auth-token-ready"),
                 *await_device_provisioned,
@@ -463,7 +461,7 @@ class _KolibriSetupHelper(GObject.GObject):
         self.props.auth_token = login_token
         self.props.is_auth_token_ready = True
 
-    def __initialize_kolibri_session(self, app_key: str, *args):
+    def __initialize_kolibri_session(self, app_initialize_url: str, *args):
         if (
             not self.__kolibri_daemon.do_automatic_login
             and not self.__require_is_device_provisioned
@@ -479,8 +477,11 @@ class _KolibriSetupHelper(GObject.GObject):
         if self.props.auth_token:
             initialize_query["auth_token"] = self.props.auth_token
 
+        # app_initialize_url is the path Kolibri itself resolved for the
+        # app-mode initialize endpoint (provided by kolibri-daemon over D-Bus),
+        # already including the app key.
         self.__kolibri_daemon.kolibri_api_get_async(
-            f"{self.INITIALIZE_API_PATH}/{app_key}?{urlencode(initialize_query)}",
+            f"{app_initialize_url}?{urlencode(initialize_query)}",
             self.__on_kolibri_initialize_api_ready,
             flags=Soup.MessageFlags.NO_REDIRECT,
             parse_json=False,

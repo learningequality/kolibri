@@ -16,6 +16,7 @@ class KolibriServiceContext(object):
     """
 
     APP_KEY_LENGTH: int = 32
+    APP_INITIALIZE_URL_LENGTH: int = 1024
     BASE_URL_LENGTH: int = 1024
     EXTRA_URL_LENGTH: int = 1024
     KOLIBRI_HOME_LENGTH: int = 4096
@@ -84,6 +85,11 @@ class KolibriServiceContext(object):
 
         self.__app_key_value = multiprocessing.Array(c_char, self.APP_KEY_LENGTH)
         self.__app_key_set_event = multiprocessing.Event()
+
+        self.__app_initialize_url_value = multiprocessing.Array(
+            c_char, self.APP_INITIALIZE_URL_LENGTH
+        )
+        self.__app_initialize_url_set_event = multiprocessing.Event()
 
         self.__is_device_provisioned_value = multiprocessing.Value(c_bool)
         self.__is_device_provisioned_set_event = multiprocessing.Event()
@@ -278,6 +284,29 @@ class KolibriServiceContext(object):
     ) -> typing.Optional[str]:
         self.__app_key_set_event.wait(timeout)
         return self.app_key
+
+    @property
+    def app_initialize_url(self) -> typing.Optional[str]:
+        if self.__app_initialize_url_set_event.is_set():
+            return self.__app_initialize_url_value.value.decode("ascii")  # type: ignore[attr-defined]
+        else:
+            return None
+
+    @app_initialize_url.setter
+    def app_initialize_url(self, app_initialize_url: typing.Optional[str]):
+        if app_initialize_url is None:
+            self.__app_initialize_url_set_event.clear()
+            self.__app_initialize_url_value.value = None  # type: ignore[attr-defined]
+        else:
+            self.__app_initialize_url_value.value = bytes(app_initialize_url, encoding="ascii")  # type: ignore[attr-defined]
+            self.__app_initialize_url_set_event.set()
+        self.push_has_changes()
+
+    def await_app_initialize_url(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
+        self.__app_initialize_url_set_event.wait(timeout)
+        return self.app_initialize_url
 
     @property
     def is_device_provisioned(self) -> typing.Optional[bool]:
