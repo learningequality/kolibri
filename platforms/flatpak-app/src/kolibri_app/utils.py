@@ -4,9 +4,12 @@ import os
 import typing
 
 
+# Genuinely-external modules whose installed version is worth surfacing in debug
+# info. kolibri_app and kolibri_app_desktop_xdg_plugin ship *with* this app (see
+# src/), so their version is the app's PROJECT_VERSION, already reported
+# separately — listing them here would only yield None.
 _APP_MODULES_LIST = [
     "kolibri",
-    "kolibri_app_desktop_xdg_plugin",
 ]
 
 
