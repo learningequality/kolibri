@@ -26,6 +26,15 @@
       :backTo="backTo"
     />
 
+    <UiAlert
+      v-if="wrongPictures"
+      class="error-alert"
+      type="error"
+      :dismissible="false"
+    >
+      {{ wrongPicturesTryAgain$() }}
+    </UiAlert>
+
     <PicturePasswordGrid
       ref="passwordGridRef"
       class="picture-grid"
@@ -34,6 +43,7 @@
       :showIconText="picturePasswordShowIconText"
       :clearSequence.sync="clearSequence"
       :landscapeLayout="landscapeLayout"
+      @select="onGridSelect"
       @submit="prevalidate"
     />
     <PicturePasswordConfirmModal
@@ -60,9 +70,9 @@
   import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import AuthBase from '../AuthBase';
   import useAuthFlow from '../../composables/useAuthFlow';
   import useAuthWatcher from '../../composables/useAuthWatcher';
@@ -83,6 +93,7 @@
       AuthContextHeading,
       PicturePasswordGrid,
       PicturePasswordConfirmModal,
+      UiAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -91,7 +102,6 @@
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
       const { windowIsLandscape } = useKResponsiveWindow();
-      const { sendAssertiveMessage } = useKLiveRegion();
       const { wrongPicturesTryAgain$ } = picturePasswordStrings;
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
       const {
@@ -109,6 +119,7 @@
       const showConfirmModal = ref(false);
       const confirmedLearnerName = ref('');
       const submittedPicturePassword = ref('');
+      const wrongPictures = ref(false);
 
       // Template refs for calling public methods on child components
       const authBaseRef = ref(null);
@@ -149,6 +160,7 @@
        */
       async function prevalidate(picturePassword) {
         busy.value = true;
+        wrongPictures.value = false;
         setSelectedFacilityId(facilityId.value);
         try {
           const { data, error } = await login(
@@ -163,10 +175,10 @@
             showConfirmModal.value = true; // Then show modal
           } else if (error) {
             await authBaseRef.value.shake();
+            passwordGridRef.value?.focusSentinel();
             clearSequence.value = true;
             await nextTick();
-            sendAssertiveMessage(wrongPicturesTryAgain$());
-            passwordGridRef.value?.focus();
+            wrongPictures.value = true;
           }
         } catch (error) {
           createSnackbar({
@@ -194,10 +206,10 @@
             submittedPicturePassword.value = '';
             confirmedLearnerName.value = '';
             await authBaseRef.value.shake();
+            passwordGridRef.value?.focusSentinel();
             clearSequence.value = true;
             await nextTick();
-            sendAssertiveMessage(wrongPicturesTryAgain$());
-            passwordGridRef.value?.focus();
+            wrongPictures.value = true;
           } else {
             showConfirmModal.value = false;
             redirectBrowser(nextParam.value || undefined);
@@ -217,6 +229,12 @@
         clearSequence.value = true;
       }
 
+      function onGridSelect(len) {
+        if (len === 1 && wrongPictures.value) {
+          wrongPictures.value = false;
+        }
+      }
+
       return {
         // state
         busy,
@@ -225,6 +243,7 @@
         showConfirmModal,
         confirmedLearnerName,
         submittedPicturePassword,
+        wrongPictures,
         backTo,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -236,6 +255,9 @@
         prevalidate,
         handleConfirm,
         handleCancel,
+        onGridSelect,
+        // strings
+        wrongPicturesTryAgain$,
       };
     },
     $trs: {
@@ -250,6 +272,11 @@
 
 
 <style lang="scss" scoped>
+
+  .error-alert {
+    margin-top: 16px;
+    text-align: start;
+  }
 
   .picture-grid {
     margin-top: 20px;

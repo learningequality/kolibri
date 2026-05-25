@@ -28,20 +28,11 @@ jest.mock('kolibri-plugin-data', () => ({
 }));
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
-const mockSendPoliteMessage = jest.fn();
-const mockSendAssertiveMessage = jest.fn();
 
 jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
 jest.mock('../../../composables/useAuthWatcher');
 jest.mock('vue-router/composables');
-jest.mock('kolibri-design-system/lib/composables/useKLiveRegion', () => ({
-  __esModule: true,
-  default: jest.fn(() => ({
-    sendPoliteMessage: mockSendPoliteMessage,
-    sendAssertiveMessage: mockSendAssertiveMessage,
-  })),
-}));
 const bee = () => picturePasswordStrings.bee$();
 const star = () => picturePasswordStrings.star$();
 const moon = () => picturePasswordStrings.moon$();
@@ -103,8 +94,6 @@ describe('PictureSignInPage', () => {
   beforeEach(() => {
     mockLogin.mockReset();
     mockRouterPush.mockReset();
-    mockSendPoliteMessage.mockReset();
-    mockSendAssertiveMessage.mockReset();
     redirectBrowser.mockReset();
     window.matchMedia = jest.fn().mockImplementation(query => ({
       matches: false,
@@ -281,7 +270,7 @@ describe('PictureSignInPage', () => {
   });
 
   describe('error handling and accessibility', () => {
-    it('sends an assertive message and returns focus to the form after a failed prevalidate', async () => {
+    it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       const { container } = renderComponent();
 
@@ -290,22 +279,50 @@ describe('PictureSignInPage', () => {
       await userEvent.click(checkbox(moon()));
       await userEvent.click(screen.getByTestId('submit-button'));
 
-      // Wait for the sequence to clear after shake resolves
       await waitFor(() => {
-        expect(checkbox(bee())).not.toBeChecked();
+        const sentinel = container.querySelector('form [aria-hidden="true"]');
+        expect(sentinel).toHaveFocus();
       });
-
-      // Assertive message should have been sent with the error string
-      expect(mockSendAssertiveMessage).toHaveBeenCalledWith(
-        picturePasswordStrings.wrongPicturesTryAgain$(),
-      );
-
-      // Focus should be on the form
-      const form = container.querySelector('form');
-      expect(form).toHaveFocus();
     });
 
-    it('sends an assertive message and returns focus to the form after confirm login fails', async () => {
+    it('returns focus to the error sentinel inside the grid after confirm login fails', async () => {
+      mockLogin
+        .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
+        .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+
+      const { container } = renderComponent();
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
+
+      await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
+
+      await waitFor(() => {
+        const sentinel = container.querySelector('form [aria-hidden="true"]');
+        expect(sentinel).toHaveFocus();
+      });
+    });
+
+    it('shows a visible error notification after a failed prevalidate', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows a visible error notification after confirm login fails', async () => {
       mockLogin
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
@@ -317,17 +334,65 @@ describe('PictureSignInPage', () => {
       await userEvent.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
-
       await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
 
-      // Wait for the sequence to clear after shake resolves
       await waitFor(() => {
-        expect(checkbox(bee())).not.toBeChecked();
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('clears the error notification when the first icon of a new sequence is selected', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      // First failed attempt — error notification appears
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
       });
 
-      expect(mockSendAssertiveMessage).toHaveBeenCalledWith(
-        picturePasswordStrings.wrongPicturesTryAgain$(),
-      );
+      // Selecting the first icon of the next sequence clears the error immediately
+      await userEvent.click(checkbox(bee()));
+      expect(
+        screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+      ).not.toBeInTheDocument();
+    });
+
+    it('clears the visible error notification on the next submission attempt', async () => {
+      mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
+      renderComponent();
+
+      // First failed attempt
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).toBeInTheDocument();
+      });
+
+      // Second attempt — error should clear immediately on submit
+      await userEvent.click(checkbox(bee()));
+      await userEvent.click(checkbox(star()));
+      await userEvent.click(checkbox(moon()));
+      await userEvent.click(screen.getByTestId('submit-button'));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+        ).not.toBeInTheDocument();
+      });
     });
   });
 });
