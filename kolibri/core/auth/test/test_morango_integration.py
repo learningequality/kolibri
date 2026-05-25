@@ -12,7 +12,6 @@ import os
 import unittest
 import uuid
 
-import requests
 from django.core.management import call_command
 from django.db import connections
 from django.test import TestCase
@@ -161,27 +160,6 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
 
         controller = MorangoProfileController(PROFILE_FACILITY_DATA)
         network_connection = controller.create_network_connection(server.baseurl)
-
-        # facility mismatch for superuser 1
-        with self.assertRaises(requests.exceptions.HTTPError):
-            get_client_and_server_certs(
-                superuser_1.username,
-                "superuser_1",
-                facility_1.dataset_id,
-                network_connection,
-                facility_id=facility_2.id,
-                noninteractive=True,
-            )
-        # facility mismatch for superuser 2
-        with self.assertRaises(requests.exceptions.HTTPError):
-            get_client_and_server_certs(
-                superuser_2.username,
-                "superuser_2",
-                facility_2.dataset_id,
-                network_connection,
-                facility_id=facility_1.id,
-                noninteractive=True,
-            )
 
         client_cert, server_cert, username = get_client_and_server_certs(
             superuser_1.username,

@@ -1,6 +1,5 @@
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
 
 from .. import models
 from kolibri.core import error_constants
@@ -9,6 +8,7 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
