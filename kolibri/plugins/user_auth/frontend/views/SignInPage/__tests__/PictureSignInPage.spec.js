@@ -270,7 +270,7 @@ describe('PictureSignInPage', () => {
   });
 
   describe('error handling and accessibility', () => {
-    it('returns focus to the form after a failed prevalidate', async () => {
+    it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       const { container } = renderComponent();
 
@@ -279,17 +279,13 @@ describe('PictureSignInPage', () => {
       await userEvent.click(checkbox(moon()));
       await userEvent.click(screen.getByTestId('submit-button'));
 
-      // Wait for the sequence to clear after shake resolves
       await waitFor(() => {
-        expect(checkbox(bee())).not.toBeChecked();
+        const sentinel = container.querySelector('form [aria-hidden="true"]');
+        expect(sentinel).toHaveFocus();
       });
-
-      // Focus should be on the form
-      const form = container.querySelector('form');
-      expect(form).toHaveFocus();
     });
 
-    it('returns focus to the form after confirm login fails', async () => {
+    it('returns focus to the error sentinel inside the grid after confirm login fails', async () => {
       mockLogin
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
@@ -304,13 +300,10 @@ describe('PictureSignInPage', () => {
 
       await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
 
-      // Wait for the sequence to clear after shake resolves
       await waitFor(() => {
-        expect(checkbox(bee())).not.toBeChecked();
+        const sentinel = container.querySelector('form [aria-hidden="true"]');
+        expect(sentinel).toHaveFocus();
       });
-
-      const form = container.querySelector('form');
-      expect(form).toHaveFocus();
     });
 
     it('shows a visible error notification after a failed prevalidate', async () => {

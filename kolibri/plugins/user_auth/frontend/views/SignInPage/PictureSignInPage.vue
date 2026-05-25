@@ -175,10 +175,10 @@
             showConfirmModal.value = true; // Then show modal
           } else if (error) {
             await authBaseRef.value.shake();
+            passwordGridRef.value?.focusErrorTarget();
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;
-            passwordGridRef.value?.focus();
           }
         } catch (error) {
           createSnackbar({
@@ -206,10 +206,10 @@
             submittedPicturePassword.value = '';
             confirmedLearnerName.value = '';
             await authBaseRef.value.shake();
+            passwordGridRef.value?.focusErrorTarget();
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;
-            passwordGridRef.value?.focus();
           } else {
             showConfirmModal.value = false;
             redirectBrowser(nextParam.value || undefined);
