@@ -7,7 +7,10 @@ import DriveList from '../ManageContentPage/SelectTransferSourceModal/DriveList'
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 
 const { findingLocalDrives$ } = createTranslator(SelectDriveModal.name, SelectDriveModal.$trs);
-const { noImportableDrives$, noExportableDrives$ } = createTranslator(DriveList.name, DriveList.$trs);
+const { noImportableDrives$, noExportableDrives$ } = createTranslator(
+  DriveList.name,
+  DriveList.$trs,
+);
 const { continueAction$ } = coreStrings;
 
 const UNWRITABLE = 'Unwritable';
@@ -148,12 +151,12 @@ describe('SelectDriveModal', () => {
       .spyOn(SelectDriveModal.methods, 'goForwardFromSelectDriveModal')
       .mockResolvedValue();
     renderComponent({ store });
-    
+
     const radios = screen.getAllByRole('radio');
     await userEvent.click(radios[0]);
-    
+
     await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
-    
+
     expect(goForwardSpy).toHaveBeenCalledWith({
       driveId: expect.any(String),
       forExport: false,

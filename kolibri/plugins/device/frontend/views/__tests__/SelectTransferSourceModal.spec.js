@@ -10,10 +10,7 @@ jest.mock('kolibri/urls');
 
 SelectDriveModal.methods.refreshDriveList = jest.fn().mockResolvedValue();
 
-const { network$ } = createTranslator(
-  SelectImportSourceModal.name,
-  SelectImportSourceModal.$trs,
-);
+const { network$ } = createTranslator(SelectImportSourceModal.name, SelectImportSourceModal.$trs);
 const { selectDrive$ } = createTranslator(SelectDriveModal.name, SelectDriveModal.$trs);
 
 describe('SelectTransferSourceModal', () => {
