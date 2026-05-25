@@ -648,6 +648,8 @@ def diskchannelimport(
 
 
 class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
+    token = serializers.CharField(required=False, allow_null=True, default=None)
+
     def validate(self, data):
         job_data = super().validate(data)
         # get channel version metadata
@@ -655,15 +657,19 @@ class RemoteChannelDiffStatsValidator(RemoteChannelImportValidator):
             client = NetworkClient.build_for_address(job_data["kwargs"]["baseurl"])
         else:
             client = NetworkClient(conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"])
-        url = get_channel_lookup_url(identifier=data["channel_id"])
+        token = data["token"]
+        url = get_channel_lookup_url(identifier=token if token else data["channel_id"])
         try:
             resp = client.get(url)
         except NetworkLocationResponseFailure as e:
             resp = e.response
         channel_metadata = resp.json()
-        job_data["extra_metadata"]["new_channel_version"] = channel_metadata[0][
-            "version"
-        ]
+        raw_version = channel_metadata[0].get("version")
+        new_channel_version = 0 if raw_version is None else raw_version
+        job_data["extra_metadata"]["new_channel_version"] = new_channel_version
+        if token:
+            job_data["kwargs"]["token"] = token
+            job_data["kwargs"]["new_channel_version"] = new_channel_version
         return job_data
 
 
@@ -678,11 +684,15 @@ def remotechanneldiffstats(
     channel_id,
     baseurl=None,
     peer_id=None,
+    token=None,
+    new_channel_version=None,
 ):
     return diff_stats(
         channel_id,
         "network",
         baseurl=baseurl,
+        token=token,
+        new_channel_version=new_channel_version,
     )
 
 

@@ -16,6 +16,7 @@ from kolibri.core.content.tasks import ChannelResourcesValidator
 from kolibri.core.content.tasks import ChannelValidator
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.tasks import LocalChannelImportValidator
+from kolibri.core.content.tasks import RemoteChannelDiffStatsValidator
 from kolibri.core.content.tasks import RemoteChannelImportValidator
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils import conf
@@ -299,6 +300,101 @@ class ValidateLocalImportTaskTestCase(TestCase):
                 "kwargs": {},
             },
         )
+
+
+class ValidateRemoteChannelDiffStatsTestCase(TestCase):
+    databases = "__all__"
+
+    @mock.patch("kolibri.core.content.tasks.NetworkClient")
+    def test_sets_new_channel_version_from_token_lookup(self, network_client_mock):
+        """Validator should use the token to look up the channel and set
+        new_channel_version from the response, not from a client-supplied value."""
+        channel_id = uuid.uuid4().hex
+        token = "token-12345"
+
+        # NetworkClient(baseurl) is called when there is no peer_id.
+        # Return the version from the token-resolved lookup response.
+        network_client_mock.return_value.get.return_value.json.return_value = [
+            {"version": 7}
+        ]
+        # build_for_address is called by the parent validator to validate the baseurl.
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
+
+        validator = RemoteChannelDiffStatsValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechanneldiffstats",
+                "channel_id": channel_id,
+                "channel_name": "test channel",
+                "token": token,
+            }
+        )
+        validator.is_valid(raise_exception=True)
+
+        self.assertEqual(
+            validator.validated_data["extra_metadata"]["new_channel_version"], 7
+        )
+        self.assertEqual(validator.validated_data["kwargs"]["new_channel_version"], 7)
+        # The lookup URL must contain the token, not the channel_id
+        lookup_url = network_client_mock.return_value.get.call_args[0][0]
+        self.assertIn(token, lookup_url)
+        self.assertNotIn(channel_id, lookup_url)
+
+    @mock.patch("kolibri.core.content.tasks.NetworkClient")
+    def test_draft_channel_null_version_normalized_to_zero(self, network_client_mock):
+        """Studio returns null for draft channel versions; validator must normalize to 0."""
+        channel_id = uuid.uuid4().hex
+        token = "draft-00000"
+
+        network_client_mock.return_value.get.return_value.json.return_value = [
+            {"version": None}
+        ]
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
+
+        validator = RemoteChannelDiffStatsValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechanneldiffstats",
+                "channel_id": channel_id,
+                "channel_name": "draft channel",
+                "token": token,
+            }
+        )
+        validator.is_valid(raise_exception=True)
+
+        self.assertEqual(
+            validator.validated_data["extra_metadata"]["new_channel_version"], 0
+        )
+        self.assertEqual(validator.validated_data["kwargs"]["new_channel_version"], 0)
+
+    @mock.patch("kolibri.core.content.tasks.NetworkClient")
+    def test_falls_back_to_channel_id_when_no_token(self, network_client_mock):
+        """When no token is provided the lookup uses the channel_id (existing behaviour)."""
+        channel_id = uuid.uuid4().hex
+
+        network_client_mock.return_value.get.return_value.json.return_value = [
+            {"version": 3}
+        ]
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
+
+        validator = RemoteChannelDiffStatsValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechanneldiffstats",
+                "channel_id": channel_id,
+                "channel_name": "test channel",
+            }
+        )
+        validator.is_valid(raise_exception=True)
+
+        self.assertEqual(
+            validator.validated_data["extra_metadata"]["new_channel_version"], 3
+        )
+        lookup_url = network_client_mock.return_value.get.call_args[0][0]
+        self.assertIn(channel_id, lookup_url)
 
 
 class AutomaticDownloadTestCase(TestCase):
