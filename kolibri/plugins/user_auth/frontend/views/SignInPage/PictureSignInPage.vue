@@ -70,7 +70,6 @@
   import { useFacilitySelect } from 'kolibri-common/composables/useFacility';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { isTouchDevice } from 'kolibri/utils/browserInfo';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
@@ -103,7 +102,6 @@
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
       const { windowIsLandscape } = useKResponsiveWindow();
-      const { sendAssertiveMessage } = useKLiveRegion();
       const { wrongPicturesTryAgain$ } = picturePasswordStrings;
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
       const {
@@ -180,7 +178,6 @@
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;
-            sendAssertiveMessage(wrongPicturesTryAgain$());
             passwordGridRef.value?.focus();
           }
         } catch (error) {
@@ -212,7 +209,6 @@
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;
-            sendAssertiveMessage(wrongPicturesTryAgain$());
             passwordGridRef.value?.focus();
           } else {
             showConfirmModal.value = false;

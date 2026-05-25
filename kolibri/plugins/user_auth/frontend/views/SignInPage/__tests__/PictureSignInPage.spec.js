@@ -28,20 +28,11 @@ jest.mock('kolibri-plugin-data', () => ({
 }));
 const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
-const mockSendPoliteMessage = jest.fn();
-const mockSendAssertiveMessage = jest.fn();
 
 jest.mock('../../../composables/useAuthFlow');
 jest.mock('../../../composables/useAuthRouter');
 jest.mock('../../../composables/useAuthWatcher');
 jest.mock('vue-router/composables');
-jest.mock('kolibri-design-system/lib/composables/useKLiveRegion', () => ({
-  __esModule: true,
-  default: jest.fn(() => ({
-    sendPoliteMessage: mockSendPoliteMessage,
-    sendAssertiveMessage: mockSendAssertiveMessage,
-  })),
-}));
 const bee = () => picturePasswordStrings.bee$();
 const star = () => picturePasswordStrings.star$();
 const moon = () => picturePasswordStrings.moon$();
@@ -103,8 +94,6 @@ describe('PictureSignInPage', () => {
   beforeEach(() => {
     mockLogin.mockReset();
     mockRouterPush.mockReset();
-    mockSendPoliteMessage.mockReset();
-    mockSendAssertiveMessage.mockReset();
     redirectBrowser.mockReset();
     window.matchMedia = jest.fn().mockImplementation(query => ({
       matches: false,
@@ -281,7 +270,7 @@ describe('PictureSignInPage', () => {
   });
 
   describe('error handling and accessibility', () => {
-    it('sends an assertive message and returns focus to the form after a failed prevalidate', async () => {
+    it('returns focus to the form after a failed prevalidate', async () => {
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       const { container } = renderComponent();
 
@@ -295,22 +284,17 @@ describe('PictureSignInPage', () => {
         expect(checkbox(bee())).not.toBeChecked();
       });
 
-      // Assertive message should have been sent with the error string
-      expect(mockSendAssertiveMessage).toHaveBeenCalledWith(
-        picturePasswordStrings.wrongPicturesTryAgain$(),
-      );
-
       // Focus should be on the form
       const form = container.querySelector('form');
       expect(form).toHaveFocus();
     });
 
-    it('sends an assertive message and returns focus to the form after confirm login fails', async () => {
+    it('returns focus to the form after confirm login fails', async () => {
       mockLogin
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
 
-      renderComponent();
+      const { container } = renderComponent();
       await userEvent.click(checkbox(bee()));
       await userEvent.click(checkbox(star()));
       await userEvent.click(checkbox(moon()));
@@ -325,9 +309,8 @@ describe('PictureSignInPage', () => {
         expect(checkbox(bee())).not.toBeChecked();
       });
 
-      expect(mockSendAssertiveMessage).toHaveBeenCalledWith(
-        picturePasswordStrings.wrongPicturesTryAgain$(),
-      );
+      const form = container.querySelector('form');
+      expect(form).toHaveFocus();
     });
 
     it('shows a visible error notification after a failed prevalidate', async () => {
