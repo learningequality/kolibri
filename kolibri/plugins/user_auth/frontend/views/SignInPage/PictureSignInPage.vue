@@ -175,7 +175,7 @@
             showConfirmModal.value = true; // Then show modal
           } else if (error) {
             await authBaseRef.value.shake();
-            passwordGridRef.value?.focusErrorTarget();
+            passwordGridRef.value?.focusSentinel();
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;
@@ -206,7 +206,7 @@
             submittedPicturePassword.value = '';
             confirmedLearnerName.value = '';
             await authBaseRef.value.shake();
-            passwordGridRef.value?.focusErrorTarget();
+            passwordGridRef.value?.focusSentinel();
             clearSequence.value = true;
             await nextTick();
             wrongPictures.value = true;

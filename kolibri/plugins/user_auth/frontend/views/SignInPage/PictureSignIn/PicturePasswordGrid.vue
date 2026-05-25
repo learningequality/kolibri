@@ -8,7 +8,7 @@
     @submit.prevent="handleSubmit"
   >
     <div
-      ref="errorFocusRef"
+      ref="sentinelRef"
       tabindex="-1"
       class="visuallyhidden"
       aria-hidden="true"
@@ -136,7 +136,7 @@
 
       // Template refs for programmatic focus
       const formRef = ref(null);
-      const errorFocusRef = ref(null);
+      const sentinelRef = ref(null);
 
       const resolveIconToken = entry =>
         props.iconStyle === 'standard' ? entry.iconStandard : entry.iconColorful;
@@ -336,14 +336,13 @@
 
       /**
        * @public
-       * Moves focus to the visually-hidden sentinel at the top of the form.
-       * Focusing the form itself causes screen readers to announce every picture
-       * password icon, so this aria-hidden sentinel absorbs focus without
-       * triggering that full grid read-out.
+       * Moves focus to the visually-hidden sentinel at the top of the form,
+       * e.g. after a failed sign-in attempt, so that screen readers land
+       * inside the grid without announcing every picture password icon.
        */
-      const focusErrorTarget = () => {
-        if (errorFocusRef.value) {
-          errorFocusRef.value.focus();
+      const focusSentinel = () => {
+        if (sentinelRef.value) {
+          sentinelRef.value.focus();
         }
       };
 
@@ -362,9 +361,9 @@
         handleSubmit,
         formAriaLabel$,
         formRef,
-        errorFocusRef,
+        sentinelRef,
         focus, // eslint-disable-line vue/no-unused-properties
-        focusErrorTarget, // eslint-disable-line vue/no-unused-properties
+        focusSentinel, // eslint-disable-line vue/no-unused-properties
         sequence, // eslint-disable-line vue/no-unused-properties
         playSuccessAnimation, // eslint-disable-line vue/no-unused-properties
       };
