@@ -38,6 +38,7 @@
 
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
+  import { useSessionStorage } from '@vueuse/core';
   import useUser from 'kolibri/composables/useUser';
   import { error as coreError, handleApiError, clearError } from 'kolibri/utils/appError';
   import pluginData from 'kolibri-plugin-data';
@@ -50,6 +51,7 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { Presets } from 'kolibri/constants';
   import Lockr from 'lockr';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import { DeviceTypePresets } from '../../constants';
 
   const PROVISION_TASK_QUEUE = 'device_provision';
@@ -61,7 +63,11 @@
     mixins: [commonCoreStrings],
     setup() {
       const { isAppContext, login } = useUser();
-      return { isAppContext, login, coreError, handleApiError, clearError };
+      const picturePasswordPending = useSessionStorage(
+        PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
+        false,
+      );
+      return { isAppContext, login, coreError, handleApiError, clearError, picturePasswordPending };
     },
     computed: {
       facilityData() {
@@ -228,6 +234,12 @@
 
             this.clearPollingTasks();
             this.wrapOnboarding();
+            const selectedFacility = this.wizardContext('selectedFacility');
+            if (selectedFacility?.picture_password_settings) {
+              // picturePasswordPending is a ref returned from setup(); Vue 2.7 auto-unwraps
+              // refs on the component instance so assigning via `this` sets .value correctly.
+              this.picturePasswordPending = true;
+            }
             if (this.deviceProvisioningData.superuser || this.userBasedOnOs) {
               const { password } = this.deviceProvisioningData.superuser || {};
               const { error } = await this.login({

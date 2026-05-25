@@ -260,7 +260,7 @@
       const { fetchPoints, totalPoints } = useTotalProgress();
       const { facilities } = useFacilities();
       const { facilityConfig, fetchFacilities, updateFacilityConfig } = useFacility();
-      const userPermissions = computed(() => pickBy(_userPermissions));
+      const userPermissions = computed(() => pickBy(_userPermissions.value));
 
       return {
         pageLoading,
@@ -311,10 +311,13 @@
         return '';
       },
       showPicturePasswordRow() {
-        return (
-          this.userKind === UserKinds.LEARNER &&
-          this.facilityConfig?.picture_password_settings != null
-        );
+        if (this.facilityConfig?.picture_password_settings == null) {
+          return false;
+        }
+        if (this.isSuperuser && this.isLearnerOnlyImport) {
+          return true;
+        }
+        return this.userKind === UserKinds.LEARNER;
       },
       canEditPassword() {
         const learner_can_edit =

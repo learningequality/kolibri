@@ -136,7 +136,10 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
     expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
   });
 
-  it('redirects without storing in sessionStorage when picture password is null after facility change', async () => {
+  // Previously (before the picture-password fix) this case did NOT set the flag — that was the bug.
+  // The facility has picture_password_settings but the user's picture_password hasn't synced yet;
+  // the flag must stay set so the modal can appear after the next sync.
+  it('stores picture password pending in sessionStorage when picture passwords are enabled but not yet synced', async () => {
     TaskResource.fetchModel.mockResolvedValue(completedTask);
     client.mockResolvedValue({ data: { picture_password: null } });
     renderComponent({
@@ -147,6 +150,17 @@ describe(`ChangeFacility/ConfirmMerge`, () => {
         picture_password_settings: { icon_style: 'colorful', show_icon_text: true },
       },
     });
+    await flushUi();
+    await fireEvent.click(screen.getByTestId('finishButton'));
+    await flushUi();
+    expect(redirectBrowser).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING)).toBe('true');
+  });
+
+  it('redirects without storing in sessionStorage when picture password is null and picture passwords are not enabled', async () => {
+    TaskResource.fetchModel.mockResolvedValue(completedTask);
+    client.mockResolvedValue({ data: { picture_password: null } });
+    renderComponent();
     await flushUi();
     await fireEvent.click(screen.getByTestId('finishButton'));
     await flushUi();

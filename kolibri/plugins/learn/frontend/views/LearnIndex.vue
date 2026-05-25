@@ -38,8 +38,8 @@
       PicturePasswordAssignedModal,
     },
     setup() {
-      const { isUserLoggedIn, isAppContext, currentUserId } = useUser();
-      const { fetchFacilityConfig } = useFacility();
+      const { isUserLoggedIn, isAppContext, currentUserId, isLearner } = useUser();
+      const { fetchFacilityConfig, facilityConfig } = useFacility();
       const picturePasswordPending = useSessionStorage(
         PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
         false,
@@ -59,7 +59,7 @@
         if (user.picture_password) {
           assignedPicturePassword.value = user.picture_password;
           showPicturePasswordModal.value = true;
-        } else {
+        } else if (!facilityConfig.value?.picture_password_settings || !isLearner.value) {
           picturePasswordPending.value = false;
         }
       });
