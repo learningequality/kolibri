@@ -45,9 +45,11 @@ function getChannelOnPeer(peerId, channelId) {
     });
 }
 
-function getChannelOnStudio(channelId) {
+function getChannelOnStudio(channelId, token) {
   return RemoteChannelResource.fetchModel({
     id: channelId,
+    getParams: token ? { token } : undefined,
+    force: true,
   }).catch(() => {
     return Promise.reject('CHANNEL_NOT_ON_STUDIO');
   });
@@ -62,14 +64,14 @@ function getInstalledChannel(channelId) {
 // Based on URL parameters from NewChannelVersionPage, fetches the channel
 // to be installed. Returns errors if params are invalid.
 export function fetchChannelAtSource(params) {
-  const { channel_id, drive_id, peer } = params;
+  const { channel_id, drive_id, peer, token } = params;
   if (drive_id) {
     return Promise.all([getInstalledChannel(channel_id), getChannelOnDrive(drive_id, channel_id)]);
   } else if (peer) {
     return Promise.all([getInstalledChannel(channel_id), getChannelOnPeer(peer, channel_id)]);
   } else {
     const installedPromise = getInstalledChannel(channel_id);
-    const studioPromise = getChannelOnStudio(channel_id);
+    const studioPromise = getChannelOnStudio(channel_id, token);
     return Promise.all([installedPromise, studioPromise]).catch(error =>
       installedPromise.then(installedChannel => {
         if (installedChannel.version === 0) {
