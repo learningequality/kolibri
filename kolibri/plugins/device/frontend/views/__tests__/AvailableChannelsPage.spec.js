@@ -232,4 +232,56 @@ describe('availableChannelsPage', () => {
       expect(pushed.query).toMatchObject({ token: 'collection-token' });
     });
   });
+
+  describe('handleSubmitToken redirect', () => {
+    beforeEach(async () => {
+      // Reset shared router to AVAILABLE_CHANNELS so each navigation test starts fresh
+      await router.router.push({ name: 'AVAILABLE_CHANNELS' }).catch(() => {});
+    });
+
+    it('redirects to NewChannelVersionPage when token-resolved version differs from installed', async () => {
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const wrapper = makeWrapper({ store });
+
+      // awesome_channel is installed at version 10 (from test data in makeStore)
+      // Token resolves to version 11 — a different version
+      await wrapper.vm.handleSubmitToken({
+        token: 'my-token',
+        channels: [{ id: 'awesome_channel', version: 11 }],
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.$route.name).toBe('NEW_CHANNEL_VERSION_PAGE');
+      expect(wrapper.vm.$route.params.channel_id).toBe('awesome_channel');
+      expect(wrapper.vm.$route.query.token).toBe('my-token');
+    });
+
+    it('goes to SelectContentPage when token-resolved version matches installed', async () => {
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const wrapper = makeWrapper({ store });
+
+      // awesome_channel is installed at version 10; token also resolves to version 10
+      await wrapper.vm.handleSubmitToken({
+        token: 'my-token',
+        channels: [{ id: 'awesome_channel', version: 10 }],
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.$route.name).toBe('SELECT_CONTENT');
+    });
+
+    it('goes to SelectContentPage when channel is not installed', async () => {
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const wrapper = makeWrapper({ store });
+
+      // new_uninstalled_channel is not in channelsOnDevice
+      await wrapper.vm.handleSubmitToken({
+        token: 'my-token',
+        channels: [{ id: 'new_uninstalled_channel', version: 1 }],
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.$route.name).toBe('SELECT_CONTENT');
+    });
+  });
 });

@@ -343,7 +343,24 @@
             });
           }
         } else {
-          this.goToSelectContentPageForChannel(channels[0], token);
+          const channel = channels[0];
+          const installedChannel = this.installedChannelsWithResources.find(
+            ({ id }) => id === channel.id,
+          );
+          if (installedChannel && installedChannel.version !== channel.version) {
+            this.$router.push({
+              name: PageNames.NEW_CHANNEL_VERSION_PAGE,
+              params: { channel_id: channel.id },
+              query: {
+                address_id: this.$route.query.address_id,
+                drive_id: this.$route.query.drive_id,
+                token,
+                last: PageNames.AVAILABLE_CHANNELS_PAGE,
+              },
+            });
+          } else {
+            this.goToSelectContentPageForChannel(channel, token);
+          }
         }
       },
       clearToken() {

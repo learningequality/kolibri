@@ -22,6 +22,10 @@ export default {
         name: 'SELECT_CONTENT',
         path: '/content/channel/:channel_id?',
       },
+      {
+        name: 'NEW_CHANNEL_VERSION_PAGE',
+        path: '/content/manage_channel/:channel_id/upgrade',
+      },
     ],
   }),
 };

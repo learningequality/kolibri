@@ -196,6 +196,7 @@
           drive_id: this.$route.query.drive_id,
           peer: this.$route.query.address_id,
           channel_name: this.channelName,
+          token: this.$route.query.token,
         });
       },
       sortedFilteredVersionNotes() {
