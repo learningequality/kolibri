@@ -347,7 +347,10 @@
           const installedChannel = this.installedChannelsWithResources.find(
             ({ id }) => id === channel.id,
           );
-          if (installedChannel && installedChannel.version !== channel.version) {
+          // A draft always reports version 0, so its version number can't reveal a
+          // change; always route an installed draft through the version page.
+          const isDraft = channel.version === 0;
+          if (installedChannel && (isDraft || installedChannel.version !== channel.version)) {
             this.$router.push({
               name: PageNames.NEW_CHANNEL_VERSION_PAGE,
               params: { channel_id: channel.id },

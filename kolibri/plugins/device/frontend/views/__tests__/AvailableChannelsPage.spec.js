@@ -256,6 +256,36 @@ describe('availableChannelsPage', () => {
       expect(wrapper.vm.$route.query.token).toBe('my-token');
     });
 
+    it('redirects to NewChannelVersionPage for an installed draft (version 0) even when versions match', async () => {
+      // A draft always reports version 0, so an installed draft has the same version
+      // number as a changed draft. The version-difference check alone would skip the
+      // upgrade flow, so drafts must always route to it.
+      const draftStore = makeAvailableChannelsPageStore({
+        channelList: [
+          {
+            id: 'draft_channel',
+            name: 'Draft',
+            version: 0,
+            available: true,
+            on_device_resources: 5,
+            on_device_file_size: 100,
+          },
+        ],
+      });
+      draftStore.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const wrapper = makeWrapper({ store: draftStore });
+
+      await wrapper.vm.handleSubmitToken({
+        token: 'my-token',
+        channels: [{ id: 'draft_channel', version: 0 }],
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.$route.name).toBe('NEW_CHANNEL_VERSION_PAGE');
+      expect(wrapper.vm.$route.params.channel_id).toBe('draft_channel');
+      expect(wrapper.vm.$route.query.token).toBe('my-token');
+    });
+
     it('goes to SelectContentPage when token-resolved version matches installed', async () => {
       store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
       const wrapper = makeWrapper({ store });

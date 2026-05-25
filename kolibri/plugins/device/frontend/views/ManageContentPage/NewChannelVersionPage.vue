@@ -12,7 +12,7 @@
           <h1>
             {{ versionAvailableText }}
           </h1>
-          <p>{{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+          <p>{{ $tr('youAreCurrentlyOnVersion', { currentVersion: String(currentVersion) }) }}</p>
           <p v-if="channelIsIncomplete">
             {{ $tr('channelIsIncomplete', { available, total }) }}
           </p>
@@ -23,8 +23,8 @@
             <strong>
               {{
                 $tr('versionChangesHeader', {
-                  oldVersion: currentVersion,
-                  newVersion: nextVersion,
+                  oldVersion: String(currentVersion),
+                  newVersion: String(nextVersion),
                 })
               }}
             </strong>
@@ -78,7 +78,7 @@
         <dl>
           <template v-for="(note, idx) in sortedFilteredVersionNotes">
             <dt :key="`dt-${idx}`">
-              {{ $tr('versionNumberHeader', { version: note.version }) }}
+              {{ $tr('versionNumberHeader', { version: String(note.version) }) }}
             </dt>
             <dd
               :key="`dd-${idx}`"
@@ -98,7 +98,9 @@
           @submit="handleSubmit"
           @cancel="showModal = false"
         >
-          <p>{{ $tr('updateConfirmationQuestion', { channelName, version: nextVersion }) }}</p>
+          <p>
+            {{ $tr('updateConfirmationQuestion', { channelName, version: String(nextVersion) }) }}
+          </p>
         </KModal>
 
         <BottomAppBar>
@@ -185,7 +187,7 @@
         if (this.channelName && this.hasNextVersion) {
           return this.$tr('versionIsAvailable', {
             channelName: this.channelName,
-            nextVersion: this.nextVersion,
+            nextVersion: String(this.nextVersion),
           });
         }
         return this.channelName || '';
