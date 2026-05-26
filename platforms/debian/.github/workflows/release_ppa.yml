@@ -1,17 +1,31 @@
-name: Publish Debian Repository
+name: Release PPA
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Debian package version to promote (e.g. 0.19.3-0ubuntu1)'
+        required: true
+      deb-url:
+        description: 'URL to download a .deb file (for GitHub Pages PPA)'
+        required: false
   workflow_call:
     inputs:
+      version:
+        description: 'Debian package version to promote'
+        required: true
+        type: string
       deb-file-name:
-        description: 'Artifact name of the .deb file (from build_deb workflow)'
+        description: 'Artifact name of the .deb file (from build workflow)'
         required: true
         type: string
       debian-repo-signing-key-id:
-        description: 'Debian repo signing key ID (falls back to vars.DEBIAN_REPO_SIGNING_KEY_ID if not set)'
+        description: 'Debian repo signing key ID (falls back to vars.DEBIAN_REPO_SIGNING_KEY_ID)'
         required: false
         type: string
     secrets:
+      LP_CREDENTIALS:
+        required: true
       DEBIAN_REPO_SIGNING_KEY:
         required: true
       LE_BOT_APP_ID:
@@ -20,26 +34,54 @@ on:
       LE_BOT_PRIVATE_KEY:
         description: 'GitHub App Private Key for cross-repo authentication'
         required: true
-  workflow_dispatch:
-    inputs:
-      deb-url:
-        description: 'URL to download a .deb file'
-        required: true
-        type: string
-
-concurrency:
-  group: debian-repo-publish
-  cancel-in-progress: false
-
-permissions:
-  contents: read
 
 jobs:
-  publish:
+  promote:
+    name: Promote packages from kolibri-proposed to kolibri
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout codebase
+        uses: actions/checkout@v6
+        with:
+          repository: learningequality/kolibri-installer-debian
+          ref: ${{ github.ref }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-launchpadlib python3-distro-info
+      - name: Write Launchpad credentials
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+        run: echo "$LP_CREDENTIALS" > /tmp/lp-creds.txt
+      - name: Promote from kolibri-proposed to kolibri
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          python3 scripts/launchpad_copy.py promote \
+            --version "${{ inputs.version }}"
+      - name: Wait for promoted packages to be published
+        env:
+          LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
+        run: |
+          python3 scripts/launchpad_copy.py wait-for-published \
+            --version "${{ inputs.version }}" \
+            --ppa kolibri
+      - name: Cleanup Launchpad credentials
+        if: always()
+        run: rm -f /tmp/lp-creds.txt
+
+  publish_github_pages_ppa:
+    name: Publish GitHub Pages PPA
+    runs-on: ubuntu-latest
+    concurrency:
+      group: debian-repo-publish
+      cancel-in-progress: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          repository: learningequality/kolibri-installer-debian
+          ref: ${{ github.ref }}
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y reprepro
@@ -56,7 +98,8 @@ jobs:
 
       - name: Import GPG signing key into isolated keyring
         run: |
-          export GNUPGHOME=$(mktemp -d)
+          GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME
           echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
           echo "pinentry-mode loopback" > "$GNUPGHOME/gpg.conf"
           echo "allow-loopback-pinentry" > "$GNUPGHOME/gpg-agent.conf"
@@ -73,7 +116,11 @@ jobs:
 
       - name: Download .deb from URL
         if: inputs.deb-url
-        run: make get-deb deb="${{ inputs.deb-url }}"
+        env:
+          DEB_URL: ${{ inputs.deb-url }}
+        run: |
+          mkdir -p incoming
+          wget -P incoming/ "$DEB_URL"
 
       - name: Identify .deb file
         id: deb
