@@ -120,7 +120,9 @@ tar xf *orig.tar.gz
 # SOURCE_DIR=`tar --exclude="*/*" -tf *.orig.tar.gz|head -1`
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
-DEB_VERSION=`cat VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
+# Convert to Debian version format so this matches the filename dpkg-buildpackage
+# produces from the generated changelog (version_to_debian in generate_changelog.py).
+DEB_VERSION=`cat VERSION | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g'`
 
 cd $SOURCE_DIR
 python3 ../../build_tools/generate_changelog.py \
