@@ -270,6 +270,18 @@ def test_generate_release_entries(_mock_codename):
     assert entries[0]["ubuntu_revision"] == 1
 
 
+@patch("build_tools.generate_changelog.get_current_lts_codename", return_value="noble")
+def test_generate_release_entries_respects_ubuntu_revision(_mock_codename):
+    """A bumped revision re-releases the same upstream version as -0ubuntuN."""
+    releases = [
+        {"tag_name": "v0.19.2", "prerelease": False, "published_at": "2025-10-31T15:09:14Z"},
+    ]
+    entries = generate_release_entries(releases, ubuntu_revision=2)
+    assert entries[0]["ubuntu_revision"] == 2
+    assert "0.19.2-0ubuntu2" in entries[0]["text"]
+    assert "0.19.2-0ubuntu1" not in entries[0]["text"]
+
+
 # --- Tests for CHANGELOG parsing ---
 
 SAMPLE_PACKAGING_CHANGELOG = """\

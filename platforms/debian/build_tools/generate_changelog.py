@@ -219,10 +219,15 @@ def get_current_lts_codename():
     return ubuntu.lts()
 
 
-def generate_release_entries(releases):
+def generate_release_entries(releases, ubuntu_revision=1):
     """Generate changelog entry dicts from GitHub release data.
 
     Returns list of dicts with keys: version, ubuntu_revision, text
+
+    ubuntu_revision bumps the Debian packaging revision (the N in
+    -0ubuntuN). Use > 1 to re-release the same upstream version after a
+    packaging-only fix, since a PPA permanently reserves each uploaded
+    version-revision.
     """
     distribution = get_current_lts_codename()
     entries = []
@@ -232,7 +237,7 @@ def generate_release_entries(releases):
         timestamp = github_timestamp_to_debian(release["published_at"])
         text = format_changelog_entry(
             version=version,
-            ubuntu_revision=1,
+            ubuntu_revision=ubuntu_revision,
             distribution=distribution,
             message="New upstream release",
             maintainer=MAINTAINER,
@@ -240,7 +245,7 @@ def generate_release_entries(releases):
         )
         entries.append({
             "version": version,
-            "ubuntu_revision": 1,
+            "ubuntu_revision": ubuntu_revision,
             "text": text,
         })
 
@@ -308,7 +313,7 @@ def interleave_entries(release_entries, packaging_entries):
 
 
 def generate_updated_changelog(existing_content, releases, packaging_changelog,
-                               build_version):
+                               build_version, ubuntu_revision=1):
     """Generate the full updated debian/changelog content.
 
     Combines new release entries, packaging entries, and existing content.
@@ -325,7 +330,7 @@ def generate_updated_changelog(existing_content, releases, packaging_changelog,
         return existing_content
 
     # Generate release entries
-    release_entries = generate_release_entries(new_releases)
+    release_entries = generate_release_entries(new_releases, ubuntu_revision=ubuntu_revision)
 
     # Parse packaging entries and filter to only new ones
     pkg_entries = parse_packaging_changelog(packaging_changelog)
@@ -350,7 +355,8 @@ def generate_updated_changelog(existing_content, releases, packaging_changelog,
     return new_section + "\n" + existing_content
 
 
-def main(debian_changelog_path, version_path, packaging_changelog_path):
+def main(debian_changelog_path, version_path, packaging_changelog_path,
+         ubuntu_revision=1):
     """Update debian/changelog from GitHub releases and top-level CHANGELOG."""
     with open(debian_changelog_path) as f:
         existing_content = f.read()
@@ -370,6 +376,7 @@ def main(debian_changelog_path, version_path, packaging_changelog_path):
         releases=releases,
         packaging_changelog=packaging_changelog,
         build_version=build_version,
+        ubuntu_revision=ubuntu_revision,
     )
 
     with open(debian_changelog_path, "w") as f:
@@ -394,5 +401,10 @@ if __name__ == "__main__":
         "--packaging-changelog", default="CHANGELOG",
         help="Path to top-level CHANGELOG (default: %(default)s)"
     )
+    parser.add_argument(
+        "--ubuntu-revision", type=int, default=1,
+        help="Debian packaging revision, the N in -0ubuntuN (default: %(default)s)"
+    )
     args = parser.parse_args()
-    main(args.debian_changelog, args.version_file, args.packaging_changelog)
+    main(args.debian_changelog, args.version_file, args.packaging_changelog,
+         ubuntu_revision=args.ubuntu_revision)

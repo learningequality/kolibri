@@ -6,6 +6,10 @@ on:
       tar-url:
         description: 'URL for Kolibri tar file'
         required: true
+      ubuntu-revision:
+        description: 'Debian packaging revision (the N in -0ubuntuN); bump to re-release the same version after a packaging fix'
+        required: false
+        default: '1'
   workflow_call:
     inputs:
       tar-file-name:
@@ -18,6 +22,11 @@ on:
         description: 'A ref for this workflow to check out its own repo'
         required: false
         type: string
+      ubuntu-revision:
+        description: 'Debian packaging revision (the N in -0ubuntuN)'
+        required: false
+        type: string
+        default: '1'
     outputs:
       version:
         description: "Full Debian version string (e.g. 0.19.3-0ubuntu1)"
@@ -71,12 +80,14 @@ jobs:
         run: pip install .
       - name: Extract version
         id: version
+        env:
+          UBUNTU_REVISION: ${{ inputs.ubuntu-revision }}
         run: |
           make dist/VERSION
           VERSION=$(cat dist/VERSION)
           # Convert to Debian version format (match version_to_debian in generate_changelog.py)
           DEB_VERSION=$(echo "$VERSION" | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g')
-          FULL_VERSION="${DEB_VERSION}-0ubuntu1"
+          FULL_VERSION="${DEB_VERSION}-0ubuntu${UBUNTU_REVISION}"
           echo "version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
           echo "Package version: $FULL_VERSION"
       - name: Write Launchpad credentials
@@ -111,6 +122,7 @@ jobs:
         if: steps.check_source.outputs.already_uploaded != 'true'
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          UBUNTU_REVISION: ${{ inputs.ubuntu-revision }}
         run: make commit-new-release
       - name: Cleanup credentials
         if: always()
