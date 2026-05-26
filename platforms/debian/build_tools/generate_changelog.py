@@ -77,10 +77,7 @@ def is_prerelease(version_str):
 
 
 PACKAGE_NAME = "kolibri-source"
-MAINTAINER = (
-    "Learning Equality \\(Learning Equality\\'s public signing key\\) "
-    "<accounts@learningequality.org>>"
-)
+MAINTAINER = "Learning Equality <accounts@learningequality.org>"
 
 
 def version_to_debian(version_str):

@@ -1,8 +1,10 @@
+from email.utils import parseaddr
 from unittest.mock import patch
 
 from vcr_config import my_vcr
 
 from build_tools.generate_changelog import (
+    MAINTAINER,
     parse_existing_changelog,
     parse_packaging_changelog,
     kolibri_version_key,
@@ -77,7 +79,7 @@ def test_format_changelog_entry():
         ubuntu_revision=1,
         distribution="noble",
         message="New upstream release",
-        maintainer="Learning Equality \\(Learning Equality\\'s public signing key\\) <accounts@learningequality.org>>",
+        maintainer="Learning Equality <accounts@learningequality.org>",
         timestamp="Thu, 31 Oct 2025 16:09:14 +0100",
     )
     expected = """\
@@ -85,7 +87,7 @@ kolibri-source (0.19.2-0ubuntu1) noble; urgency=medium
 
   * New upstream release
 
- -- Learning Equality \\(Learning Equality\\'s public signing key\\) <accounts@learningequality.org>>  Thu, 31 Oct 2025 16:09:14 +0100
+ -- Learning Equality <accounts@learningequality.org>  Thu, 31 Oct 2025 16:09:14 +0100
 """
     assert entry == expected
 
@@ -97,10 +99,45 @@ def test_format_changelog_entry_prerelease():
         ubuntu_revision=1,
         distribution="noble",
         message="New upstream release",
-        maintainer="Learning Equality \\(Learning Equality\\'s public signing key\\) <accounts@learningequality.org>>",
+        maintainer="Learning Equality <accounts@learningequality.org>",
         timestamp="Thu, 06 Feb 2026 19:46:25 +0000",
     )
     assert "kolibri-source (0.19.2~alpha0-0ubuntu1)" in entry
+
+
+def test_maintainer_is_valid_mailbox():
+    """MAINTAINER must be a valid RFC822 mailbox.
+
+    Regression: it previously contained backslash escapes and a doubled
+    '>' (``... <accounts@learningequality.org>>``), which dpkg-genchanges
+    on newer Ubuntu series (resolute) rejects as an invalid email address,
+    aborting the Launchpad build.
+    """
+    name, email = parseaddr(MAINTAINER)
+    assert email == "accounts@learningequality.org"
+    assert name == "Learning Equality"
+    assert "\\" not in MAINTAINER
+    assert MAINTAINER.count("<") == 1
+    assert MAINTAINER.count(">") == 1
+
+
+def test_generated_entry_uses_valid_maintainer():
+    """Entries generated via the MAINTAINER constant carry a valid mailbox."""
+    with patch(
+        "build_tools.generate_changelog.get_current_lts_codename",
+        return_value="noble",
+    ):
+        entries = generate_release_entries(
+            [{"tag_name": "v0.19.2", "prerelease": False,
+              "published_at": "2025-10-31T15:09:14Z"}]
+        )
+    trailer = [ln for ln in entries[0]["text"].splitlines() if ln.startswith(" -- ")][0]
+    # Trailer format: " -- {maintainer}  {timestamp}"; maintainer and
+    # timestamp are separated by exactly two spaces.
+    maintainer = trailer[len(" -- "):].split("  ", 1)[0]
+    _, email = parseaddr(maintainer)
+    assert email == "accounts@learningequality.org"
+    assert "\\" not in maintainer
 
 
 def test_github_timestamp_to_debian():
