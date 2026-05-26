@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch, PropertyMock
 import pytest
 
 from scripts.launchpad_copy import (
+    get_current_series,
     get_supported_series,
     LaunchpadWrapper,
     PACKAGE_WHITELIST,
@@ -522,6 +523,21 @@ class TestPromote:
         assert mock_release.syncSources.call_count == 2
         # Overall result is failure because jammy failed
         assert result == 1
+
+
+# --- series helpers ---
+
+
+def test_get_current_series_returns_lts():
+    """The publish series is the current LTS, not the runner's OS series.
+
+    Regression: this used `lsb_release -cs` (the runner, e.g. noble), which
+    diverges from the upload target chosen for the changelog (the latest LTS,
+    e.g. resolute) once a new LTS ships before the runner image updates.
+    """
+    with patch("scripts.launchpad_copy.UbuntuDistroInfo") as MockUDI:
+        MockUDI.return_value.lts.return_value = "resolute"
+        assert get_current_series() == "resolute"
 
 
 # --- CLI parser tests ---

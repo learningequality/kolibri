@@ -19,7 +19,6 @@ import argparse
 import functools
 import logging
 import os
-import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -67,8 +66,20 @@ REQUESTS = LAST_REQUESTS = 0
 
 
 def get_current_series():
-    """Get the Ubuntu series codename for the current system."""
-    return subprocess.check_output(["lsb_release", "-cs"], text=True).strip()
+    """Ubuntu series we publish the source to: the current LTS.
+
+    This must match the changelog distribution chosen by
+    generate_changelog.get_current_lts_codename() (UbuntuDistroInfo().lts()),
+    NOT the runner's own OS series. The two diverge once a newer LTS is
+    released while the CI runner is still on the previous one (e.g. runner on
+    noble while the latest LTS, and therefore the upload target, is resolute).
+    """
+    if UbuntuDistroInfo is None:
+        raise ImportError(
+            "distro-info package is required. "
+            "Install with: sudo apt install python3-distro-info"
+        )
+    return UbuntuDistroInfo().lts()
 
 
 def get_supported_series(source_series):
