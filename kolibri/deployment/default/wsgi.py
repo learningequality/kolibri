@@ -16,7 +16,6 @@ from django.db.utils import OperationalError
 
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
-from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +30,10 @@ def generate_wsgi_application():
         conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
     ).lstrip("/")
     content_dirs = [paths.get_content_dir_path()] + paths.get_content_fallback_paths()
+
+    # Must be imported after get_wsgi_application is called
+    # as this depends on the NetworkClient (which depends on Django models)
+    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 
     # Mount static files
     return DynamicWhiteNoise(
