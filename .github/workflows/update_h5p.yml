@@ -56,14 +56,13 @@ jobs:
                 print(f"changed={'true' if has_changed else 'false'}", file=f)
         shell: python
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.8
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: 'package.json'
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.3
-        with:
-          cache: true
+          cache: 'pnpm'
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
