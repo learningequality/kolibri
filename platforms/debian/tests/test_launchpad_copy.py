@@ -13,6 +13,8 @@ from scripts.launchpad_copy import (
     PACKAGE_WHITELIST,
     PROPOSED_PPA_NAME,
     RELEASE_PPA_NAME,
+    SOURCE_PACKAGE_NAME,
+    BINARY_PACKAGE_NAME,
     POCKET,
     build_parser,
 )
@@ -136,7 +138,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        result = wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1")
+        result = wrapper.check_source("0.19.3-0ubuntu1")
         assert result == 0
 
     def test_returns_1_when_source_missing(self):
@@ -145,7 +147,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        result = wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1")
+        result = wrapper.check_source("0.19.3-0ubuntu1")
         assert result == 1
 
     def test_ignores_deleted_sources(self):
@@ -155,7 +157,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        result = wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1")
+        result = wrapper.check_source("0.19.3-0ubuntu1")
         assert result == 1
 
     def test_ignores_superseded_sources(self):
@@ -165,7 +167,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        result = wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1")
+        result = wrapper.check_source("0.19.3-0ubuntu1")
         assert result == 1
 
     def test_custom_ppa_name(self):
@@ -174,7 +176,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1", ppa_name="kolibri")
+        wrapper.check_source("0.19.3-0ubuntu1", ppa_name="kolibri")
 
         wrapper.get_ppa.assert_called_with("kolibri")
 
@@ -184,7 +186,7 @@ class TestCheckSource:
 
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
-        result = wrapper.check_source("kolibri-source", "0.19.3-0ubuntu1")
+        result = wrapper.check_source("0.19.3-0ubuntu1")
         assert result == 2
 
 
@@ -325,11 +327,36 @@ class TestWaitForPublished:
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "kolibri-source", "0.19.3-0ubuntu1",
+            "0.19.3-0ubuntu1",
             series=["noble"], timeout=5, interval=1,
         )
 
         assert result == 0
+
+    def test_queries_binaries_by_binary_name(self):
+        """Binaries are queried by the binary name, not the source name.
+
+        Regression: wait_for_published used to query getPublishedBinaries
+        with the source name ("kolibri-source"), which never matches the
+        actual binary ("kolibri"), so the wait could only ever time out.
+        """
+        assert BINARY_PACKAGE_NAME != SOURCE_PACKAGE_NAME
+
+        wrapper, mock_ppa, _, _ = make_wrapper_with_mock_lp()
+        source = make_mock_source(series_name="noble")
+        mock_ppa.getPublishedSources.return_value = [source]
+        mock_binary = MagicMock()
+        mock_binary.status = "Published"
+        mock_binary.distro_arch_series_link = "https://api.launchpad.net/devel/ubuntu/noble/amd64"
+        mock_ppa.getPublishedBinaries.return_value = [mock_binary]
+        wrapper.get_ppa = MagicMock(return_value=mock_ppa)
+
+        # series=None so the source-discovery branch also runs
+        result = wrapper.wait_for_published("0.19.3-0ubuntu1", timeout=5, interval=1)
+
+        assert result == 0
+        assert mock_ppa.getPublishedSources.call_args.kwargs["source_name"] == SOURCE_PACKAGE_NAME
+        assert mock_ppa.getPublishedBinaries.call_args.kwargs["binary_name"] == BINARY_PACKAGE_NAME
 
     def test_returns_1_on_timeout(self):
         wrapper, mock_ppa, _, _ = make_wrapper_with_mock_lp()
@@ -341,7 +368,7 @@ class TestWaitForPublished:
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "kolibri-source", "0.19.3-0ubuntu1",
+            "0.19.3-0ubuntu1",
             series=["noble"], timeout=1, interval=1,
         )
 
@@ -365,7 +392,7 @@ class TestWaitForPublished:
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "kolibri-source", "0.19.3-0ubuntu1", timeout=5, interval=1,
+            "0.19.3-0ubuntu1", timeout=5, interval=1,
         )
 
         assert result == 0
@@ -386,7 +413,7 @@ class TestWaitForPublished:
 
         # Only waiting for noble, not jammy
         result = wrapper.wait_for_published(
-            "kolibri-source", "0.19.3-0ubuntu1",
+            "0.19.3-0ubuntu1",
             series=["noble"], timeout=5, interval=1,
         )
 
@@ -407,7 +434,7 @@ class TestWaitForPublished:
         wrapper.get_ppa = MagicMock(return_value=mock_ppa)
 
         result = wrapper.wait_for_published(
-            "kolibri-source", "0.19.3-0ubuntu1", timeout=5, interval=1,
+            "0.19.3-0ubuntu1", timeout=5, interval=1,
         )
 
         assert result == 0
@@ -504,12 +531,11 @@ class TestBuildParser:
     def test_check_source_args(self):
         parser = build_parser()
         args = parser.parse_args([
-            "check-source", "--package", "kolibri-source",
+            "check-source",
             "--version", "0.19.3-0ubuntu1",
         ])
         assert args.command == "check-source"
         assert args.version == "0.19.3-0ubuntu1"
-        assert args.package == "kolibri-source"
         assert args.ppa == PROPOSED_PPA_NAME
 
     def test_copy_to_series_args(self):
@@ -527,7 +553,6 @@ class TestBuildParser:
         parser = build_parser()
         args = parser.parse_args([
             "wait-for-published",
-            "--package", "kolibri-source",
             "--version", "0.19.3-0ubuntu1",
             "--timeout", "3600", "--interval", "30",
             "--series", "noble", "jammy",

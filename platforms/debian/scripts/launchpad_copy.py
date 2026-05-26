@@ -49,7 +49,11 @@ except ImportError:
 PPA_OWNER = "learningequality"
 PROPOSED_PPA_NAME = "kolibri-proposed"
 RELEASE_PPA_NAME = "kolibri"
-PACKAGE_WHITELIST = ["kolibri-source"]
+# The source package and the single binary package it produces have
+# different names (debian/control: Source: kolibri-source / Package: kolibri).
+SOURCE_PACKAGE_NAME = "kolibri-source"
+BINARY_PACKAGE_NAME = "kolibri"
+PACKAGE_WHITELIST = [SOURCE_PACKAGE_NAME]
 POCKET = "Release"
 APP_NAME = "ppa-kolibri-source-copy-packages"
 
@@ -350,7 +354,7 @@ class LaunchpadWrapper:
         log.debug("All done")
         return result
 
-    def check_source(self, package, version, ppa_name=None):
+    def check_source(self, version, ppa_name=None):
         """Check if a source package version exists in a PPA.
 
         Returns 0 if found (already uploaded), 1 if missing, 2 on error.
@@ -359,26 +363,26 @@ class LaunchpadWrapper:
         try:
             ppa = self.get_ppa(ppa_name)
             published = ppa.getPublishedSources(
-                source_name=package,
+                source_name=SOURCE_PACKAGE_NAME,
                 version=version,
                 order_by_date=True,
             )
             active = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
         except Exception as e:
-            log.error("Error checking %s %s in %s: %s", package, version, ppa_name, e)
+            log.error("Error checking %s %s in %s: %s", SOURCE_PACKAGE_NAME, version, ppa_name, e)
             return 2
         if active:
-            log.info("%s %s already exists in %s (status: %s)", package, version, ppa_name, active[0].status)
+            log.info("%s %s already exists in %s (status: %s)", SOURCE_PACKAGE_NAME, version, ppa_name, active[0].status)
             return 0
-        log.info("%s %s not found in %s", package, version, ppa_name)
+        log.info("%s %s not found in %s", SOURCE_PACKAGE_NAME, version, ppa_name)
         return 1
 
-    def wait_for_published(self, package, version, ppa_name=None, series=None, timeout=1800, interval=60):
-        """Wait for published binaries to appear for a package.
+    def wait_for_published(self, version, ppa_name=None, series=None, timeout=1800, interval=60):
+        """Wait for published binaries to appear for the package.
 
         If series is given, waits for those specific series to have published binaries.
         If series is None, discovers all series that have a published source for this
-        package+version and waits until every one of them also has published binaries.
+        version and waits until every one of them also has published binaries.
         Returns 0 if all expected series are published, 1 on failure or timeout.
         """
         ppa_name = ppa_name or PROPOSED_PPA_NAME
@@ -388,7 +392,7 @@ class LaunchpadWrapper:
 
         log.info(
             "Waiting for %s %s to be published in %s%s...",
-            package,
+            BINARY_PACKAGE_NAME,
             version,
             ppa_name,
             " for series: %s" % ", ".join(sorted(expected)) if expected else "",
@@ -398,7 +402,7 @@ class LaunchpadWrapper:
             # If no explicit series, discover from published sources
             if expected is None:
                 sources = ppa.getPublishedSources(
-                    source_name=package,
+                    source_name=SOURCE_PACKAGE_NAME,
                     version=version,
                     order_by_date=True,
                 )
@@ -418,7 +422,7 @@ class LaunchpadWrapper:
 
             # Check published binaries
             bins = ppa.getPublishedBinaries(
-                binary_name=package,
+                binary_name=BINARY_PACKAGE_NAME,
                 version=version,
                 order_by_date=True,
             )
@@ -444,7 +448,7 @@ class LaunchpadWrapper:
             log.info("Retrying in %ds (%ds remaining)...", interval, remaining)
             time.sleep(interval)
 
-        log.error("Timeout: %s %s not published within %ds", package, version, timeout)
+        log.error("Timeout: %s %s not published within %ds", BINARY_PACKAGE_NAME, version, timeout)
         return 1
 
     def promote(self, version):
@@ -535,7 +539,6 @@ def build_parser():
         "wait-for-published",
         help="Wait for published binaries to appear for a source package.",
     )
-    wait_parser.add_argument("--package", required=True, help="Source package name.")
     wait_parser.add_argument("--version", required=True, help="Expected version string.")
     wait_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to poll (default: %(default)s).")
     wait_parser.add_argument("--timeout", type=int, default=1800, help="Max wait in seconds (default: %(default)s).")
@@ -548,7 +551,6 @@ def build_parser():
         "check-source",
         help="Check if a source package version already exists in a PPA.",
     )
-    check_parser.add_argument("--package", required=True, help="Source package name.")
     check_parser.add_argument("--version", required=True, help="Expected version string.")
     check_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to check (default: %(default)s).")
 
@@ -579,7 +581,6 @@ def cmd_wait_for_published(args):
     """Wait for published binaries to appear."""
     lp = LaunchpadWrapper()
     return lp.wait_for_published(
-        package=args.package,
         version=args.version,
         ppa_name=args.ppa,
         series=args.series,
@@ -592,7 +593,6 @@ def cmd_check_source(args):
     """Check if a source package version already exists in a PPA."""
     lp = LaunchpadWrapper()
     return lp.check_source(
-        package=args.package,
         version=args.version,
         ppa_name=args.ppa,
     )

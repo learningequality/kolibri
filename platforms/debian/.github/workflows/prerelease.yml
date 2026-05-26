@@ -90,7 +90,6 @@ jobs:
         run: |
           set +e
           python3 scripts/launchpad_copy.py check-source \
-            --package kolibri-source \
             --version "${{ steps.version.outputs.version }}"
           rc=$?
           set -e
