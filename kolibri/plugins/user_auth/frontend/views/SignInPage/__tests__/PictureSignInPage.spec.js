@@ -41,6 +41,10 @@ const cancelLabel = () => picturePasswordStrings.noGoBackAction$();
 const confirmLabel = () => picturePasswordStrings.yesConfirmAction$();
 const checkbox = name => screen.getByRole('checkbox', { name });
 
+function createUser() {
+  return userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) });
+}
+
 const MOCK_LEARNER_NAME = 'Alice Example';
 
 function renderComponent() {
@@ -91,13 +95,13 @@ function renderComponent() {
 }
 
 describe('PictureSignInPage', () => {
+  // Suppress all animation timers so event handlers and state transitions resolve
+  // in fake time. Animation timing is tested in PicturePasswordConfirmModal.spec.js.
   beforeEach(() => {
-    mockLogin.mockReset();
-    mockRouterPush.mockReset();
-    redirectBrowser.mockReset();
-    window.matchMedia = jest.fn().mockImplementation(query => ({
-      matches: false,
-      media: query,
+    jest.useFakeTimers({ doNotFake: ['nextTick'] });
+    window.matchMedia = jest.fn(q => ({
+      matches: q === '(prefers-reduced-motion: reduce)',
+      media: q,
       onchange: null,
       addListener: jest.fn(),
       removeListener: jest.fn(),
@@ -105,15 +109,24 @@ describe('PictureSignInPage', () => {
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
     }));
+    mockLogin.mockReset();
+    mockRouterPush.mockReset();
+    redirectBrowser.mockReset();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    window.matchMedia = undefined;
   });
 
   it('submitting a sequence calls login with prevalidate=true, not a real login', async () => {
+    const user = createUser();
     mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
     renderComponent();
-    await userEvent.click(checkbox(bee()));
-    await userEvent.click(checkbox(star()));
-    await userEvent.click(checkbox(moon()));
-    await userEvent.click(screen.getByTestId('submit-button'));
+    await user.click(checkbox(bee()));
+    await user.click(checkbox(star()));
+    await user.click(checkbox(moon()));
+    await user.click(screen.getByTestId('submit-button'));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith(
@@ -125,14 +138,15 @@ describe('PictureSignInPage', () => {
   });
 
   it('a failed response clears the grid selection after shake ends', async () => {
+    const user = createUser();
     mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
     renderComponent();
-    await userEvent.click(checkbox(bee()));
-    await userEvent.click(checkbox(star()));
-    await userEvent.click(checkbox(moon()));
-    await userEvent.click(screen.getByTestId('submit-button'));
+    await user.click(checkbox(bee()));
+    await user.click(checkbox(star()));
+    await user.click(checkbox(moon()));
+    await user.click(screen.getByTestId('submit-button'));
 
-    // Grid is still filled while the shake is active
+    // Grid is still filled while the shake timer is pending
     expect(checkbox(bee())).toBeChecked();
     expect(checkbox(star())).toBeChecked();
     expect(checkbox(moon())).toBeChecked();
@@ -145,12 +159,13 @@ describe('PictureSignInPage', () => {
   });
 
   it('applies shaking class on a failed sequence and removes it after shake() resolves', async () => {
+    const user = createUser();
     mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
     const { container } = renderComponent();
-    await userEvent.click(checkbox(bee()));
-    await userEvent.click(checkbox(star()));
-    await userEvent.click(checkbox(moon()));
-    await userEvent.click(screen.getByTestId('submit-button'));
+    await user.click(checkbox(bee()));
+    await user.click(checkbox(star()));
+    await user.click(checkbox(moon()));
+    await user.click(screen.getByTestId('submit-button'));
 
     await waitFor(() => {
       expect(container.querySelector('.shaking')).toBeTruthy();
@@ -166,16 +181,17 @@ describe('PictureSignInPage', () => {
       mockLogin.mockResolvedValue({ data: { full_name: MOCK_LEARNER_NAME }, error: null });
     });
 
-    async function submitSequence() {
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+    async function submitSequence(user) {
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
     }
 
     it('shows the confirmation modal with learner name after successful prevalidation', async () => {
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => {
         expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument();
@@ -184,8 +200,9 @@ describe('PictureSignInPage', () => {
     });
 
     it('does not redirect immediately after a successful prevalidation', async () => {
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => {
         expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument();
@@ -195,13 +212,14 @@ describe('PictureSignInPage', () => {
     });
 
     it('calls login when confirm is clicked', async () => {
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
 
       const confirmButton = screen.getByRole('button', { name: confirmLabel() });
-      await userEvent.click(confirmButton);
+      await user.click(confirmButton);
 
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith(
@@ -217,13 +235,14 @@ describe('PictureSignInPage', () => {
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: null });
 
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
 
       const confirmButton = screen.getByRole('button', { name: confirmLabel() });
-      await userEvent.click(confirmButton);
+      await user.click(confirmButton);
 
       await waitFor(() => {
         expect(redirectBrowser).toHaveBeenCalledTimes(1);
@@ -235,13 +254,14 @@ describe('PictureSignInPage', () => {
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
 
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
 
       const confirmButton = screen.getByRole('button', { name: confirmLabel() });
-      await userEvent.click(confirmButton);
+      await user.click(confirmButton);
 
       await waitFor(() => {
         expect(screen.queryByText(MOCK_LEARNER_NAME)).not.toBeInTheDocument();
@@ -252,13 +272,14 @@ describe('PictureSignInPage', () => {
     });
 
     it('hides the modal and clears grid when cancel is clicked, without making a delete request', async () => {
+      const user = createUser();
       renderComponent();
-      await submitSequence();
+      await submitSequence(user);
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
 
       const cancelButton = screen.getByRole('button', { name: cancelLabel() });
-      await userEvent.click(cancelButton);
+      await user.click(cancelButton);
 
       await waitFor(() => {
         expect(screen.queryByText(MOCK_LEARNER_NAME)).not.toBeInTheDocument();
@@ -271,13 +292,14 @@ describe('PictureSignInPage', () => {
 
   describe('error handling and accessibility', () => {
     it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {
+      const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       const { container } = renderComponent();
 
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => {
         const sentinel = container.querySelector('form [aria-hidden="true"]');
@@ -290,15 +312,16 @@ describe('PictureSignInPage', () => {
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
 
+      const user = createUser();
       const { container } = renderComponent();
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
 
-      await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
+      await user.click(screen.getByRole('button', { name: confirmLabel() }));
 
       await waitFor(() => {
         const sentinel = container.querySelector('form [aria-hidden="true"]');
@@ -307,13 +330,14 @@ describe('PictureSignInPage', () => {
     });
 
     it('shows a visible error notification after a failed prevalidate', async () => {
+      const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       renderComponent();
 
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => {
         expect(
@@ -327,14 +351,15 @@ describe('PictureSignInPage', () => {
         .mockResolvedValueOnce({ data: { full_name: MOCK_LEARNER_NAME }, error: null })
         .mockResolvedValueOnce({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
 
+      const user = createUser();
       renderComponent();
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => expect(screen.getByText(MOCK_LEARNER_NAME)).toBeInTheDocument());
-      await userEvent.click(screen.getByRole('button', { name: confirmLabel() }));
+      await user.click(screen.getByRole('button', { name: confirmLabel() }));
 
       await waitFor(() => {
         expect(
@@ -344,14 +369,15 @@ describe('PictureSignInPage', () => {
     });
 
     it('clears the error notification when the first icon of a new sequence is selected', async () => {
+      const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       renderComponent();
 
       // First failed attempt — error notification appears
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => {
         expect(
@@ -360,21 +386,22 @@ describe('PictureSignInPage', () => {
       });
 
       // Selecting the first icon of the next sequence clears the error immediately
-      await userEvent.click(checkbox(bee()));
+      await user.click(checkbox(bee()));
       expect(
         screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
       ).not.toBeInTheDocument();
     });
 
     it('clears the visible error notification on the next submission attempt', async () => {
+      const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });
       renderComponent();
 
       // First failed attempt
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
       await waitFor(() => {
         expect(
@@ -382,17 +409,15 @@ describe('PictureSignInPage', () => {
         ).toBeInTheDocument();
       });
 
-      // Second attempt — error should clear immediately on submit
-      await userEvent.click(checkbox(bee()));
-      await userEvent.click(checkbox(star()));
-      await userEvent.click(checkbox(moon()));
-      await userEvent.click(screen.getByTestId('submit-button'));
+      // Second attempt — prevalidate clears wrongPictures before the shake timer fires
+      await user.click(checkbox(bee()));
+      await user.click(checkbox(star()));
+      await user.click(checkbox(moon()));
+      await user.click(screen.getByTestId('submit-button'));
 
-      await waitFor(() => {
-        expect(
-          screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
-        ).not.toBeInTheDocument();
-      });
+      expect(
+        screen.queryByText(picturePasswordStrings.wrongPicturesTryAgain$()),
+      ).not.toBeInTheDocument();
     });
   });
 });

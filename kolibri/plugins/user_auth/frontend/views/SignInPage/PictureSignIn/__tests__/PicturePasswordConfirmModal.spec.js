@@ -84,6 +84,49 @@ describe('PicturePasswordConfirmModal', () => {
     });
   });
 
+  describe('prefers-reduced-motion', () => {
+    beforeEach(() => {
+      window.matchMedia = jest.fn(q => ({
+        matches: q === '(prefers-reduced-motion: reduce)',
+        media: q,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      }));
+    });
+
+    afterEach(() => {
+      window.matchMedia = undefined;
+    });
+
+    it('emits cancel immediately without a timer when reduced motion is preferred', async () => {
+      const { emitted } = renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      expect(emitted()['cancel']).toBeTruthy();
+    });
+
+    it('emits confirm immediately without a timer when reduced motion is preferred', async () => {
+      const { emitted } = renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.yesConfirmAction$() }),
+      );
+      expect(emitted()['confirm']).toBeTruthy();
+    });
+
+    it('does not apply animation classes when reduced motion is preferred', async () => {
+      renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      expect(document.body.querySelector('.action-buttons')).not.toHaveClass('gap-collapsed');
+    });
+  });
+
   describe('button animations', () => {
     it('disables both buttons after one is pressed', async () => {
       renderComponent();
