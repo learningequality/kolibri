@@ -11,7 +11,7 @@ const { noImportableDrives$, noExportableDrives$ } = createTranslator(
   DriveList.name,
   DriveList.$trs,
 );
-const { continueAction$ } = coreStrings;
+const { continueAction$, cancelAction$ } = coreStrings;
 
 const UNWRITABLE = 'Unwritable';
 const WRITABLE_IMPORTABLE = 'Writable and Importable';
@@ -51,9 +51,9 @@ function makeStore() {
 }
 
 const renderComponent = (options = {}) => {
-  const { store, data } = options;
+  const { store, data, props } = options;
   return render(SelectDriveModal, {
-    props: { mode: 'import' },
+    props: { mode: 'import', ...props },
     data() {
       return { ...data };
     },
@@ -151,16 +151,38 @@ describe('SelectDriveModal', () => {
       .spyOn(SelectDriveModal.methods, 'goForwardFromSelectDriveModal')
       .mockResolvedValue();
     renderComponent({ store });
-
     const radios = screen.getAllByRole('radio');
     await userEvent.click(radios[0]);
-
     await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
-
     expect(goForwardSpy).toHaveBeenCalledWith({
       driveId: expect.any(String),
       forExport: false,
     });
     goForwardSpy.mockRestore();
+  });
+
+  it('clicking "Continue" emits a submit event with driveId when in manageMode', async () => {
+    const { emitted } = renderComponent({ store, props: { manageMode: true } });
+    const radios = screen.getAllByRole('radio');
+    await userEvent.click(radios[0]);
+    await userEvent.click(screen.getByRole('button', { name: continueAction$() }));
+    expect(emitted().submit).toHaveLength(1);
+    expect(emitted().submit[0][0]).toHaveProperty('driveId');
+  });
+
+  it('clicking "Cancel" emits a cancel event when in manageMode', async () => {
+    const { emitted } = renderComponent({ store, props: { manageMode: true } });
+    await userEvent.click(screen.getByRole('button', { name: cancelAction$() }));
+    expect(emitted().cancel).toHaveLength(1);
+  });
+
+  it('clicking "Cancel" calls resetContentWizardState when not in manageMode', async () => {
+    const resetSpy = jest
+      .spyOn(SelectDriveModal.methods, 'resetContentWizardState')
+      .mockImplementation(() => {});
+    renderComponent({ store });
+    await userEvent.click(screen.getByRole('button', { name: cancelAction$() }));
+    expect(resetSpy).toHaveBeenCalled();
+    resetSpy.mockRestore();
   });
 });
