@@ -250,7 +250,7 @@
       @cancel="languageModalShown = false"
     />
     <TooltipTour
-      v-if="tourActive && isTourActive('SideNavigation') && !isLearner"
+      v-if="tourActive && isTourActive('SideNavigation') && hasRole"
       page="SideNavigation"
       @tourEnded="endTour('SideNavigation')"
     />
@@ -338,6 +338,7 @@
         isLearnerOnlyImport,
         username,
         full_name,
+        hasRole,
       } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
       const { topBarHeight, navItems } = useNav();
@@ -364,6 +365,7 @@
         tourActive,
         isTourActive,
         endTour,
+        hasRole,
       };
     },
     props: {
@@ -389,7 +391,7 @@
         return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
-        return this.isLearnerOnlyImport && (this.isSuperuser || this.isAdmin || this.isCoach);
+        return this.isLearnerOnlyImport && this.hasRole;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
@@ -471,10 +473,10 @@
           return true;
         }
         if (navItem.role === UserKinds.COACH) {
-          return this.isCoach || this.isAdmin || this.isSuperuser;
+          return this.hasRole;
         }
         if (navItem.role === UserKinds.ADMIN) {
-          return this.isAdmin || this.isSuperuser;
+          return this.isAdmin;
         }
         if (navItem.role === UserKinds.CAN_MANAGE_CONTENT) {
           return this.canManageContent || this.isSuperuser;
@@ -486,7 +488,7 @@
           return !this.isUserLoggedIn;
         }
         if (navItem.role === UserKinds.LEARNER) {
-          return this.isLearner || this.isCoach || this.isAdmin || this.isSuperuser;
+          return this.isUserLoggedIn;
         }
       },
       toggleNav() {
