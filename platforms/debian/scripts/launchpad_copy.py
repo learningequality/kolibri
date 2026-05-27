@@ -17,9 +17,9 @@ Adapted from kolibri-server's launchpad_copy.py with these changes:
 
 import argparse
 import functools
+import http.client
 import logging
 import os
-import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -49,9 +49,26 @@ except ImportError:
 PPA_OWNER = "learningequality"
 PROPOSED_PPA_NAME = "kolibri-proposed"
 RELEASE_PPA_NAME = "kolibri"
-PACKAGE_WHITELIST = ["kolibri-source"]
+# The source package and the single binary package it produces have
+# different names (debian/control: Source: kolibri-source / Package: kolibri).
+SOURCE_PACKAGE_NAME = "kolibri-source"
+BINARY_PACKAGE_NAME = "kolibri"
+PACKAGE_WHITELIST = [SOURCE_PACKAGE_NAME]
 POCKET = "Release"
 APP_NAME = "ppa-kolibri-source-copy-packages"
+
+# Transient network failures that should be retried rather than aborting a
+# long-running poll. ssl.SSLEOFError (a subclass of OSError) is the one seen in
+# CI: across a long polling interval Launchpad drops the idle keep-alive socket,
+# and reusing the stale connection raises "EOF occurred in violation of protocol".
+TRANSIENT_ERRORS = (OSError, http.client.HTTPException)
+if httplib2 is not None:
+    TRANSIENT_ERRORS += (httplib2.HttpLib2Error,)
+
+# Per-call retry budget for transient errors: a quick reconnect-and-retry so a
+# single blip doesn't fail the release. Backoff is BACKOFF * attempt seconds.
+TRANSIENT_RETRY_ATTEMPTS = 4
+TRANSIENT_RETRY_BACKOFF = 15
 
 log = logging.getLogger(APP_NAME)
 
@@ -63,8 +80,20 @@ REQUESTS = LAST_REQUESTS = 0
 
 
 def get_current_series():
-    """Get the Ubuntu series codename for the current system."""
-    return subprocess.check_output(["lsb_release", "-cs"], text=True).strip()
+    """Ubuntu series we publish the source to: the current LTS.
+
+    This must match the changelog distribution chosen by
+    generate_changelog.get_current_lts_codename() (UbuntuDistroInfo().lts()),
+    NOT the runner's own OS series. The two diverge once a newer LTS is
+    released while the CI runner is still on the previous one (e.g. runner on
+    noble while the latest LTS, and therefore the upload target, is resolute).
+    """
+    if UbuntuDistroInfo is None:
+        raise ImportError(
+            "distro-info package is required. "
+            "Install with: sudo apt install python3-distro-info"
+        )
+    return UbuntuDistroInfo().lts()
 
 
 def get_supported_series(source_series):
@@ -175,6 +204,43 @@ class LaunchpadWrapper:
         owner = self.owner
         log.debug("Getting PPA: %s...", name)
         return owner.getPPAByName(name=name)
+
+    def _drop_stale_connections(self):
+        """Discard cached HTTP sockets so the next API call reconnects.
+
+        Launchpad closes idle keep-alive connections; reusing a stale socket
+        after a long polling interval raises ssl.SSLEOFError. Clearing the
+        httplib2 connection cache forces a fresh connection on the next request.
+        Best-effort: the private attribute path may vary across launchpadlib
+        versions, so failures here are non-fatal (the retry still reconnects).
+        """
+        try:
+            self.lp._browser._connection.connections.clear()
+        except Exception:
+            pass
+
+    def _retry_transient(self, label, call):
+        """Run ``call()``, retrying transient network errors with backoff.
+
+        A single connection blip (e.g. a stale keep-alive socket raising
+        ssl.SSLEOFError between polls) should not abort the whole release wait.
+        Reconnects and retries up to TRANSIENT_RETRY_ATTEMPTS times; re-raises
+        if every attempt fails (a sustained outage should fail loudly).
+        """
+        for attempt in range(1, TRANSIENT_RETRY_ATTEMPTS + 1):
+            try:
+                return call()
+            except TRANSIENT_ERRORS as e:
+                if attempt == TRANSIENT_RETRY_ATTEMPTS:
+                    raise
+                delay = TRANSIENT_RETRY_BACKOFF * attempt
+                log.warning(
+                    "Transient error during %s (attempt %d/%d): %s; "
+                    "reconnecting, retrying in %ds...",
+                    label, attempt, TRANSIENT_RETRY_ATTEMPTS, e, delay,
+                )
+                self._drop_stale_connections()
+                time.sleep(delay)
 
     @functools.cached_property
     def proposed_ppa(self):
@@ -350,7 +416,7 @@ class LaunchpadWrapper:
         log.debug("All done")
         return result
 
-    def check_source(self, package, version, ppa_name=None):
+    def check_source(self, version, ppa_name=None):
         """Check if a source package version exists in a PPA.
 
         Returns 0 if found (already uploaded), 1 if missing, 2 on error.
@@ -359,26 +425,26 @@ class LaunchpadWrapper:
         try:
             ppa = self.get_ppa(ppa_name)
             published = ppa.getPublishedSources(
-                source_name=package,
+                source_name=SOURCE_PACKAGE_NAME,
                 version=version,
                 order_by_date=True,
             )
             active = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
         except Exception as e:
-            log.error("Error checking %s %s in %s: %s", package, version, ppa_name, e)
+            log.error("Error checking %s %s in %s: %s", SOURCE_PACKAGE_NAME, version, ppa_name, e)
             return 2
         if active:
-            log.info("%s %s already exists in %s (status: %s)", package, version, ppa_name, active[0].status)
+            log.info("%s %s already exists in %s (status: %s)", SOURCE_PACKAGE_NAME, version, ppa_name, active[0].status)
             return 0
-        log.info("%s %s not found in %s", package, version, ppa_name)
+        log.info("%s %s not found in %s", SOURCE_PACKAGE_NAME, version, ppa_name)
         return 1
 
-    def wait_for_published(self, package, version, ppa_name=None, series=None, timeout=1800, interval=60):
-        """Wait for published binaries to appear for a package.
+    def wait_for_published(self, version, ppa_name=None, series=None, timeout=1800, interval=60):
+        """Wait for published binaries to appear for the package.
 
         If series is given, waits for those specific series to have published binaries.
         If series is None, discovers all series that have a published source for this
-        package+version and waits until every one of them also has published binaries.
+        version and waits until every one of them also has published binaries.
         Returns 0 if all expected series are published, 1 on failure or timeout.
         """
         ppa_name = ppa_name or PROPOSED_PPA_NAME
@@ -388,7 +454,7 @@ class LaunchpadWrapper:
 
         log.info(
             "Waiting for %s %s to be published in %s%s...",
-            package,
+            BINARY_PACKAGE_NAME,
             version,
             ppa_name,
             " for series: %s" % ", ".join(sorted(expected)) if expected else "",
@@ -397,10 +463,13 @@ class LaunchpadWrapper:
         while time.time() < deadline:
             # If no explicit series, discover from published sources
             if expected is None:
-                sources = ppa.getPublishedSources(
-                    source_name=package,
-                    version=version,
-                    order_by_date=True,
+                sources = self._retry_transient(
+                    "getPublishedSources",
+                    lambda: ppa.getPublishedSources(
+                        source_name=SOURCE_PACKAGE_NAME,
+                        version=version,
+                        order_by_date=True,
+                    ),
                 )
                 source_series = set()
                 for s in sources:
@@ -417,10 +486,13 @@ class LaunchpadWrapper:
                 log.info("Discovered %d series with sources: %s", len(expected), ", ".join(sorted(expected)))
 
             # Check published binaries
-            bins = ppa.getPublishedBinaries(
-                binary_name=package,
-                version=version,
-                order_by_date=True,
+            bins = self._retry_transient(
+                "getPublishedBinaries",
+                lambda: ppa.getPublishedBinaries(
+                    binary_name=BINARY_PACKAGE_NAME,
+                    version=version,
+                    order_by_date=True,
+                ),
             )
             published_series = set()
             for b in bins:
@@ -444,7 +516,7 @@ class LaunchpadWrapper:
             log.info("Retrying in %ds (%ds remaining)...", interval, remaining)
             time.sleep(interval)
 
-        log.error("Timeout: %s %s not published within %ds", package, version, timeout)
+        log.error("Timeout: %s %s not published within %ds", BINARY_PACKAGE_NAME, version, timeout)
         return 1
 
     def promote(self, version):
@@ -535,7 +607,6 @@ def build_parser():
         "wait-for-published",
         help="Wait for published binaries to appear for a source package.",
     )
-    wait_parser.add_argument("--package", required=True, help="Source package name.")
     wait_parser.add_argument("--version", required=True, help="Expected version string.")
     wait_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to poll (default: %(default)s).")
     wait_parser.add_argument("--timeout", type=int, default=1800, help="Max wait in seconds (default: %(default)s).")
@@ -548,7 +619,6 @@ def build_parser():
         "check-source",
         help="Check if a source package version already exists in a PPA.",
     )
-    check_parser.add_argument("--package", required=True, help="Source package name.")
     check_parser.add_argument("--version", required=True, help="Expected version string.")
     check_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to check (default: %(default)s).")
 
@@ -579,7 +649,6 @@ def cmd_wait_for_published(args):
     """Wait for published binaries to appear."""
     lp = LaunchpadWrapper()
     return lp.wait_for_published(
-        package=args.package,
         version=args.version,
         ppa_name=args.ppa,
         series=args.series,
@@ -592,7 +661,6 @@ def cmd_check_source(args):
     """Check if a source package version already exists in a PPA."""
     lp = LaunchpadWrapper()
     return lp.check_source(
-        package=args.package,
         version=args.version,
         ppa_name=args.ppa,
     )

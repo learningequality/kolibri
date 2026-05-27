@@ -120,13 +120,20 @@ tar xf *orig.tar.gz
 # SOURCE_DIR=`tar --exclude="*/*" -tf *.orig.tar.gz|head -1`
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
-DEB_VERSION=`cat VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
+# Convert to Debian version format so this matches the filename dpkg-buildpackage
+# produces from the generated changelog (version_to_debian in generate_changelog.py).
+DEB_VERSION=`cat VERSION | sed 's/-\(alpha\|beta\|rc\)/~\1/g' | sed 's/\.dev/~dev/g'`
+
+# Debian packaging revision (the N in -0ubuntuN). Bump to re-release the
+# same upstream version after a packaging-only fix.
+UBUNTU_REVISION="${UBUNTU_REVISION:-1}"
 
 cd $SOURCE_DIR
 python3 ../../build_tools/generate_changelog.py \
     --debian-changelog debian/changelog \
     --version-file ../VERSION \
-    --packaging-changelog ../../CHANGELOG
+    --packaging-changelog ../../CHANGELOG \
+    --ubuntu-revision "$UBUNTU_REVISION"
 
 # package can't be run from a virtualenv
 if [[ "$VIRTUAL_ENV" != "" ]]
@@ -138,7 +145,7 @@ fi
 if [[ "$BUILD_BINARY" -eq "0" ]]; then
     # build source package only
    dpkg-buildpackage -S  --no-sign
-   signfiles kolibri-source_$DEB_VERSION-0ubuntu1
+   signfiles kolibri-source_$DEB_VERSION-0ubuntu${UBUNTU_REVISION}
 else
     # build with unsigned source, changes and gzip compression
     dpkg-buildpackage -A -Zgzip -z3 -us -uc
