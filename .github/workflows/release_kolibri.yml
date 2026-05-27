@@ -266,3 +266,5 @@ jobs:
     with:
       release-tag: ${{ github.event.release.tag_name }}
       tag-latest: ${{ needs.latest_release.outputs.is_latest_release == 'true' }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
