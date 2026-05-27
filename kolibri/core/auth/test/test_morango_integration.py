@@ -25,6 +25,7 @@ from morango.models import Store
 from morango.models import syncable_models
 from morango.sync.controller import MorangoProfileController
 
+from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
@@ -52,7 +53,9 @@ from ..models import FacilityUser
 from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
+from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
+from .helpers import provision_device
 from .sync_utils import multiple_kolibri_servers
 
 
@@ -92,6 +95,106 @@ class DateTimeTZFieldTestCase(TransactionTestCase):
             self.controller.deserialize_from_store()
         except AttributeError as e:
             self.fail(e.message)
+
+
+class CrossDatasetSuperuserDeserializationTestCase(TransactionTestCase):
+    """
+    Regression test for quizzes and lessons authored by a superuser that belongs to a
+    different dataset than the facility the content lives in (e.g. a device's own super
+    admin creating content in a facility that was synced onto the device).
+
+    In that case the models' ``pre_save`` deliberately nulls the creator/assigned_by
+    foreign key. The record must still deserialize on a receiving device: previously the
+    fields were ``blank=False``, so ``clean_fields()`` (which Morango runs during
+    deserialization) rejected the null value and the record stayed dirty in the Store,
+    never appearing on the receiving device.
+    """
+
+    def setUp(self):
+        self.controller = MorangoProfileController(PROFILE_FACILITY_DATA)
+        InstanceIDModel.get_or_create_current_instance()
+        provision_device()
+        # the facility the content lives in
+        self.facility = Facility.objects.create(name="Synced")
+        self.classroom = Classroom.objects.create(name="Class", parent=self.facility)
+        # a superuser belonging to a different dataset
+        self.other_facility = Facility.objects.create(name="Device")
+        self.superuser = create_superuser(self.other_facility, username="deviceadmin")
+
+    def _assert_deserializes_cleanly(self, *instance_ids):
+        self.controller.serialize_into_store()
+        Store.objects.update(dirty_bit=True)
+        self.controller.deserialize_from_store()
+        for instance_id in instance_ids:
+            store = Store.objects.get(id=instance_id)
+            self.assertIsNone(
+                store.deserialization_error,
+                msg="{} failed to deserialize: {}".format(
+                    store.model_name, store.deserialization_error
+                ),
+            )
+            self.assertFalse(store.dirty_bit)
+
+    def test_exam_authored_by_cross_dataset_superuser_deserializes(self):
+        exam = Exam.objects.create(
+            title="Quiz",
+            question_count=1,
+            question_sources=[
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "question_id": uuid.uuid4().hex,
+                    "title": "a",
+                }
+            ],
+            collection=self.classroom,
+            creator=self.superuser,
+            active=True,
+        )
+        assignment = ExamAssignment.objects.create(
+            exam=exam,
+            collection=self.classroom,
+            assigned_by=self.superuser,
+        )
+        # pre_save nulls the cross-dataset superuser foreign keys
+        self.assertIsNone(Exam.objects.get(id=exam.id).creator_id)
+        self.assertIsNone(ExamAssignment.objects.get(id=assignment.id).assigned_by_id)
+
+        self._assert_deserializes_cleanly(exam.id, assignment.id)
+
+    def test_lesson_authored_by_cross_dataset_superuser_deserializes(self):
+        lesson = Lesson.objects.create(
+            title="Lesson",
+            resources=[
+                {
+                    "contentnode_id": uuid.uuid4().hex,
+                    "content_id": uuid.uuid4().hex,
+                    "channel_id": uuid.uuid4().hex,
+                }
+            ],
+            collection=self.classroom,
+            created_by=self.superuser,
+            is_active=True,
+        )
+        assignment = LessonAssignment.objects.create(
+            lesson=lesson,
+            collection=self.classroom,
+            assigned_by=self.superuser,
+        )
+        # pre_save nulls the cross-dataset superuser foreign keys
+        self.assertIsNone(Lesson.objects.get(id=lesson.id).created_by_id)
+        self.assertIsNone(LessonAssignment.objects.get(id=assignment.id).assigned_by_id)
+
+        self._assert_deserializes_cleanly(lesson.id, assignment.id)
+
+    def test_attendance_session_authored_by_cross_dataset_superuser_deserializes(self):
+        session = AttendanceSession.objects.create(
+            collection=self.classroom,
+            created_by=self.superuser,
+        )
+        # pre_save nulls the cross-dataset superuser foreign key
+        self.assertIsNone(AttendanceSession.objects.get(id=session.id).created_by_id)
+
+        self._assert_deserializes_cleanly(session.id)
 
 
 class MultipleServerTestCase(TestCase):

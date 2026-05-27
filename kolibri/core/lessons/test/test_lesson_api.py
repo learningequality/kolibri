@@ -389,6 +389,33 @@ class LessonAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_can_update_lesson_with_null_created_by(self):
+        # A lesson synced in from another dataset may have a null created_by (its
+        # original cross-dataset superuser author is dropped on sync). Editing
+        # such a lesson locally must not raise. Regression test for an
+        # IntegrityError raised on PATCH ("Lesson.created_by may not be null").
+        lesson = models.Lesson(
+            title="synced lesson",
+            is_active=True,
+            collection=self.classroom,
+            created_by=None,
+        )
+        lesson.save(update_dirty_bit_to=False)
+
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        response = self.client.patch(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson.id}),
+            {
+                "id": lesson.id,
+                "title": "synced lesson",
+                "active": False,
+                "collection": self.classroom.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_can_update_lesson_to_same_title_as_other_lesson(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 

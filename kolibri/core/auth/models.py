@@ -403,23 +403,21 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         Enforce and sanitize an "authoring" foreign key to a ``FacilityUser`` -- e.g.
         ``creator``, ``created_by``, ``assigned_by`` or ``activated_by``.
 
-        The field is required on any save, so we always capture who authored the record.
-        The exception is deserialization, where the value comes from the originating
-        device and may legitimately be null (e.g. on a learner-only device where the
-        author's ``FacilityUser`` has not synced); Morango signals deserialization by
-        passing ``update_dirty_bit_to=False`` to ``save`` (and hence ``pre_save``).
+        Null is rejected only on local creation (``_state.adding``). Updates preserve
+        the existing author and deserialization may carry a null (e.g. the author's
+        ``FacilityUser`` has not synced to this device); both leave a null untouched.
+        Morango signals deserialization by passing ``update_dirty_bit_to=False``.
 
-        When the field points at a superuser belonging to a different dataset -- e.g. a
-        device's own super admin authoring content in a facility that was synced onto the
-        device -- the reference is dropped (nulled) so the record can sync without a
-        dangling cross-dataset foreign key. Any other cross-dataset user is rejected.
+        A cross-dataset superuser reference -- the device's own super admin authoring
+        content in a synced-in facility -- is dropped to keep the record syncable; any
+        other cross-dataset user is rejected.
 
-        The related foreign key must be declared ``blank=True, null=True`` so that
-        ``clean_fields`` (run by Morango during deserialization) accepts the nulled value.
+        The field must be ``blank=True, null=True`` so ``clean_fields`` accepts the
+        nulled value during deserialization.
         """
         user = getattr(self, field_name)
         is_deserialization = save_kwargs.get("update_dirty_bit_to") is False
-        if not is_deserialization and user is None:
+        if self._state.adding and not is_deserialization and user is None:
             raise IntegrityError(
                 "{model}.{field} may not be null".format(
                     model=type(self).__name__, field=field_name

@@ -65,7 +65,7 @@ class Lesson(AbstractFacilityDataModel):
     created_by = models.ForeignKey(
         FacilityUser,
         related_name="lessons_created",
-        blank=False,
+        blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
@@ -96,17 +96,7 @@ class Lesson(AbstractFacilityDataModel):
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
-
-        # maintain stricter enforcement on when assigned_by is allowed to be null
-        if self._state.adding and self.created_by is None:
-            raise IntegrityError("Lesson must be saved with a creator")
-
-        # if the created_by user is in a different dataset than the dataset we've determined, then
-        # we'll unset it to prevent deserialization errors when syncing
-        if self.created_by and self.created_by.dataset_id != self.dataset_id:
-            if not self.created_by.is_superuser:
-                raise IntegrityError("Lesson must have creator in the same dataset")
-            self.created_by = None
+        self.enforce_authoring_user_field("created_by", **kwargs)
 
     def delete(self, using=None, keep_parents=False):
         """
@@ -152,7 +142,7 @@ class LessonAssignment(AbstractFacilityDataModel):
     assigned_by = models.ForeignKey(
         FacilityUser,
         related_name="assigned_lessons",
-        blank=False,
+        blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
@@ -178,20 +168,7 @@ class LessonAssignment(AbstractFacilityDataModel):
                 "Lesson assignment foreign models must be in same dataset"
             )
 
-        # maintain stricter enforcement on when assigned_by is allowed to be null
-        # assignments aren't usually updated, but ensure only during creation
-        if self._state.adding and self.assigned_by is None:
-            raise IntegrityError("Lesson assignment must be saved with an assigner")
-
-        # validate that datasets match so this would be syncable
-        if self.assigned_by and self.assigned_by.dataset_id != self.dataset_id:
-            # the only time assigned_by can be null is if it's a superuser
-            # and if we set it to none HERE
-            if not self.assigned_by.is_superuser:
-                raise IntegrityError(
-                    "Lesson assignment must have assigner in the same dataset"
-                )
-            self.assigned_by = None
+        self.enforce_authoring_user_field("assigned_by", **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         # infer from lesson so assignments align with lessons
