@@ -1,6 +1,6 @@
 {
   "name": "kolibri-format",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A module for formatting frontend code to Kolibri standards",
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "globals": "^16.0.0",
     "kolibri-glob": "workspace:*",
     "kolibri-logging": "workspace:*",
+    "minimatch": "^9.0.5",
     "postcss-html": "^1.8.0",
     "postcss-less": "^6.0.0",
     "postcss-sass": "^0.5.0",
