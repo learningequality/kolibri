@@ -17,6 +17,7 @@ Adapted from kolibri-server's launchpad_copy.py with these changes:
 
 import argparse
 import functools
+import http.client
 import logging
 import os
 import sys
@@ -55,6 +56,19 @@ BINARY_PACKAGE_NAME = "kolibri"
 PACKAGE_WHITELIST = [SOURCE_PACKAGE_NAME]
 POCKET = "Release"
 APP_NAME = "ppa-kolibri-source-copy-packages"
+
+# Transient network failures that should be retried rather than aborting a
+# long-running poll. ssl.SSLEOFError (a subclass of OSError) is the one seen in
+# CI: across a long polling interval Launchpad drops the idle keep-alive socket,
+# and reusing the stale connection raises "EOF occurred in violation of protocol".
+TRANSIENT_ERRORS = (OSError, http.client.HTTPException)
+if httplib2 is not None:
+    TRANSIENT_ERRORS += (httplib2.HttpLib2Error,)
+
+# Per-call retry budget for transient errors: a quick reconnect-and-retry so a
+# single blip doesn't fail the release. Backoff is BACKOFF * attempt seconds.
+TRANSIENT_RETRY_ATTEMPTS = 4
+TRANSIENT_RETRY_BACKOFF = 15
 
 log = logging.getLogger(APP_NAME)
 
@@ -190,6 +204,43 @@ class LaunchpadWrapper:
         owner = self.owner
         log.debug("Getting PPA: %s...", name)
         return owner.getPPAByName(name=name)
+
+    def _drop_stale_connections(self):
+        """Discard cached HTTP sockets so the next API call reconnects.
+
+        Launchpad closes idle keep-alive connections; reusing a stale socket
+        after a long polling interval raises ssl.SSLEOFError. Clearing the
+        httplib2 connection cache forces a fresh connection on the next request.
+        Best-effort: the private attribute path may vary across launchpadlib
+        versions, so failures here are non-fatal (the retry still reconnects).
+        """
+        try:
+            self.lp._browser._connection.connections.clear()
+        except Exception:
+            pass
+
+    def _retry_transient(self, label, call):
+        """Run ``call()``, retrying transient network errors with backoff.
+
+        A single connection blip (e.g. a stale keep-alive socket raising
+        ssl.SSLEOFError between polls) should not abort the whole release wait.
+        Reconnects and retries up to TRANSIENT_RETRY_ATTEMPTS times; re-raises
+        if every attempt fails (a sustained outage should fail loudly).
+        """
+        for attempt in range(1, TRANSIENT_RETRY_ATTEMPTS + 1):
+            try:
+                return call()
+            except TRANSIENT_ERRORS as e:
+                if attempt == TRANSIENT_RETRY_ATTEMPTS:
+                    raise
+                delay = TRANSIENT_RETRY_BACKOFF * attempt
+                log.warning(
+                    "Transient error during %s (attempt %d/%d): %s; "
+                    "reconnecting, retrying in %ds...",
+                    label, attempt, TRANSIENT_RETRY_ATTEMPTS, e, delay,
+                )
+                self._drop_stale_connections()
+                time.sleep(delay)
 
     @functools.cached_property
     def proposed_ppa(self):
@@ -412,10 +463,13 @@ class LaunchpadWrapper:
         while time.time() < deadline:
             # If no explicit series, discover from published sources
             if expected is None:
-                sources = ppa.getPublishedSources(
-                    source_name=SOURCE_PACKAGE_NAME,
-                    version=version,
-                    order_by_date=True,
+                sources = self._retry_transient(
+                    "getPublishedSources",
+                    lambda: ppa.getPublishedSources(
+                        source_name=SOURCE_PACKAGE_NAME,
+                        version=version,
+                        order_by_date=True,
+                    ),
                 )
                 source_series = set()
                 for s in sources:
@@ -432,10 +486,13 @@ class LaunchpadWrapper:
                 log.info("Discovered %d series with sources: %s", len(expected), ", ".join(sorted(expected)))
 
             # Check published binaries
-            bins = ppa.getPublishedBinaries(
-                binary_name=BINARY_PACKAGE_NAME,
-                version=version,
-                order_by_date=True,
+            bins = self._retry_transient(
+                "getPublishedBinaries",
+                lambda: ppa.getPublishedBinaries(
+                    binary_name=BINARY_PACKAGE_NAME,
+                    version=version,
+                    order_by_date=True,
+                ),
             )
             published_series = set()
             for b in bins:
