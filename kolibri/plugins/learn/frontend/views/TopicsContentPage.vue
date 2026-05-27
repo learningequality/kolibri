@@ -245,7 +245,7 @@
         loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
-      const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { currentUserId, isUserLoggedIn, hasRole } = useUser();
 
       const channel = ref(null);
       const content = ref(null);
@@ -360,9 +360,7 @@
         loading,
         downloadRequestLoading,
         isUserLoggedIn,
-        isCoach,
-        isAdmin,
-        isSuperuser,
+        hasRole,
         currentUserId,
         showCompletedDownloadSnackbar,
         viewResourcesContents,
@@ -628,7 +626,7 @@
         const treeParams = {
           id: fetchGrandparent ? this.content.ancestors.slice(-2)[0].id : this.content.parent,
           params: {
-            include_coach_content: this.isAdmin || this.isCoach || this.isSuperuser,
+            include_coach_content: this.hasRole,
             depth: fetchGrandparent ? 2 : 1,
             baseurl: this.baseurl,
           },

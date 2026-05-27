@@ -55,7 +55,7 @@ const MOCK_DEFAULTS = {
   isFacilityAdmin: false,
   userPermissions: {},
   userFacilityId: undefined,
-  userKind: UserKinds.ANONYMOUS,
+  hasRole: false,
   userHasPermissions: false,
   session,
   //state
@@ -67,6 +67,11 @@ export function useUserMock(overrides = {}) {
     ...MOCK_DEFAULTS,
     ...overrides,
   };
+  // Derive hasRole from role flags unless explicitly overridden, consistent with useUser.js.
+  // isAdmin in the real composable includes superusers, so isSuperuser must also set hasRole.
+  if (!('hasRole' in overrides)) {
+    mocks.hasRole = mocks.isCoach || mocks.isAdmin || mocks.isSuperuser;
+  }
   const computedMocks = {};
   for (const key in mocks) {
     if (typeof mocks[key] !== 'function') {
