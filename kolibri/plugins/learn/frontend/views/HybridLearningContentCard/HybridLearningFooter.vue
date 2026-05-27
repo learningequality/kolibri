@@ -29,7 +29,7 @@
         @click="$emit('removeFromBookmarks')"
       />
       <CoachContentLabel
-        v-if="isUserLoggedIn && !isLearner && contentNode.num_coach_contents"
+        v-if="hasRole && contentNode.num_coach_contents"
         :style="coachContentLabelStyles"
         :class="[
           'coach-content-label',
@@ -88,7 +88,7 @@
       <p>{{ $tr('removeFromMyLibraryInfo') }}</p>
     </KModal>
     <TooltipTour
-      v-if="tourActive && isTourActive('ViewAndDownloadResources') && !isLearner"
+      v-if="tourActive && isTourActive('ViewAndDownloadResources') && hasRole"
       page="ViewAndDownloadResources"
       :spotlightOpacity="0.12"
       @tourEnded="endTour('ViewAndDownloadResources')"
@@ -124,14 +124,13 @@
     setup() {
       const { addDownloadRequest, downloadRequestMap, removeDownloadRequest } =
         useDownloadRequests();
-      const { isLearner, isUserLoggedIn } = useUser();
+      const { hasRole } = useUser();
       const { tourActive, isTourActive, startTour, endTour } = useTour();
       return {
         addDownloadRequest,
         downloadRequestMap,
         removeDownloadRequest,
-        isLearner,
-        isUserLoggedIn,
+        hasRole,
         tourActive,
         isTourActive,
         startTour,
@@ -180,7 +179,7 @@
           Number(this.bookmarked) +
           Number(this.downloadableByLearner) +
           Number(this.isTopic) +
-          Number(this.isUserLoggedIn && !this.isLearner && this.contentNode.num_coach_contents) +
+          Number(this.hasRole && this.contentNode.num_coach_contents) +
           Number(this.downloadedByLearner)
         );
       },
