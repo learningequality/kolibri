@@ -65,7 +65,9 @@ jobs:
         run: |
           python3 scripts/launchpad_copy.py wait-for-published \
             --version "${{ inputs.version }}" \
-            --ppa kolibri
+            --ppa kolibri \
+            --timeout 14400 \
+            --interval 600
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt

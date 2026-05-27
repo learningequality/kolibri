@@ -155,7 +155,9 @@ jobs:
           # No --series: discover the series the source was actually uploaded
           # to (the current LTS), rather than assuming the runner's own series.
           python3 scripts/launchpad_copy.py wait-for-published \
-            --version "${{ needs.build_source_and_upload.outputs.version }}"
+            --version "${{ needs.build_source_and_upload.outputs.version }}" \
+            --timeout 14400 \
+            --interval 600
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
@@ -218,7 +220,9 @@ jobs:
           LP_CREDENTIALS_FILE: /tmp/lp-creds.txt
         run: |
           python3 scripts/launchpad_copy.py wait-for-published \
-            --version "${{ needs.build_source_and_upload.outputs.version }}"
+            --version "${{ needs.build_source_and_upload.outputs.version }}" \
+            --timeout 14400 \
+            --interval 600
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
