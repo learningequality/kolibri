@@ -190,7 +190,7 @@
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
       const { baseurl } = currentDeviceData();
       const { windowBreakpoint, windowHeight, windowWidth } = useKResponsiveWindow();
-      const { isAdmin, isCoach, isSuperuser } = useUser();
+      const { hasRole } = useUser();
       return {
         baseurl,
         canAccessUnassignedContent,
@@ -199,9 +199,7 @@
         windowBreakpoint,
         windowHeight,
         windowWidth,
-        isAdmin,
-        isCoach,
-        isSuperuser,
+        hasRole,
       };
     },
     props: {
@@ -375,7 +373,7 @@
             ? this.contentNode.ancestors.slice(-2)[0].id
             : this.contentNode.parent,
           params: {
-            include_coach_content: this.isAdmin || this.isCoach || this.isSuperuser,
+            include_coach_content: this.hasRole,
             depth: fetchGrandparent ? 2 : 1,
             baseurl: this.baseurl,
           },
