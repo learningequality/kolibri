@@ -58,6 +58,10 @@
 
       <!-- Submit button: shows only a forward-arrow icon; the aria-label
           cycles through four instructional states as the sequence is built. -->
+      <SubmitBurstAnimation
+        v-if="burstVisible"
+        class="submit-burst"
+      />
       <button
         type="submit"
         class="submit-button"
@@ -100,6 +104,7 @@
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
   import useKResponsiveElement from 'kolibri-design-system/lib/composables/useKResponsiveElement';
   import PicturePasswordOption from './PicturePasswordOption';
+  import SubmitBurstAnimation from './animations/SubmitBurstAnimation';
 
   // Pre-compute once at module scope — PICTURE_PASSWORD_SET is static JSON so
   // there is no benefit to re-deriving this array on every component mount.
@@ -111,7 +116,7 @@
   export default {
     name: 'PicturePasswordGrid',
 
-    components: { PicturePasswordOption },
+    components: { PicturePasswordOption, SubmitBurstAnimation },
 
     setup(props, { emit }) {
       const $themeTokens = themeTokens();
@@ -286,6 +291,7 @@
       );
 
       const arrowBouncing = ref(false);
+      const burstVisible = ref(false);
 
       /**
        * @public
@@ -294,7 +300,7 @@
        */
       const playSuccessAnimation = () => {
         const STAGGER = 150;
-        const DURATION = 380;
+        const DURATION = 1480;
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const stagger = reduce ? 0 : STAGGER;
         const dur = reduce ? 0 : DURATION;
@@ -305,7 +311,13 @@
             const isLast = i === sequence.value.length - 1;
             window.setTimeout(() => {
               bouncingId.value = id;
-              if (isLast) arrowBouncing.value = true;
+              if (isLast) {
+                arrowBouncing.value = true;
+                burstVisible.value = true;
+                window.setTimeout(() => {
+                  burstVisible.value = false;
+                }, 1100);
+              }
               window.setTimeout(() => {
                 if (bouncingId.value === id) bouncingId.value = null;
                 if (isLast) arrowBouncing.value = false;
@@ -356,6 +368,7 @@
         submitPulsing,
         bouncingId,
         arrowBouncing,
+        burstVisible,
         handleSelect,
         handleDisabledSelect,
         handleSubmit,
@@ -471,6 +484,12 @@
     border: 0;
     border-radius: 8px;
     transition: $core-time;
+  }
+
+  .submit-burst {
+    position: absolute;
+    top: 50%;
+    z-index: 100;
   }
 
   .submit-icon {
