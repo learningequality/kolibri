@@ -122,7 +122,7 @@
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
 
-  // Must match the transition durations in the component's CSS (0.5s).
+  // Must match both .action-buttons and .btn-bg transition durations in the component's CSS (0.5s)
   const ANIMATION_DURATION_MS = 500;
   const PRESSED_CANCEL = 'cancel';
   const PRESSED_CONFIRM = 'confirm';
