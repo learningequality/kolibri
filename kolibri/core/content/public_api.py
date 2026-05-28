@@ -1,7 +1,7 @@
 from uuid import UUID
 
+from django.core.exceptions import EmptyResultSet
 from django.db import connection
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -82,32 +82,46 @@ class ImportMetadataViewset(GenericViewSet):
 
     def _serialize(self, nodes, node, content_schema):
         data = {}
-        files = models.File.objects.filter(contentnode__in=nodes)
+        # Materialise FK lists and use `__uuidin` (inlines as SQL literals) instead of
+        # `__in=<queryset>`, which gave postgres correlated subqueries it sometimes
+        # mis-planned into multi-hour query times on a fresh test database.
+        node_ids = list(nodes.values_list("id", flat=True))
+
+        files = models.File.objects.filter(contentnode_id__uuidin=node_ids)
         through_tags = models.ContentNode.tags.through.objects.filter(
-            contentnode__in=nodes
+            contentnode_id__uuidin=node_ids
         )
         assessmentmetadata = models.AssessmentMetaData.objects.filter(
-            contentnode__in=nodes
+            contentnode_id__uuidin=node_ids
         )
-        localfiles = models.LocalFile.objects.filter(files__in=files).distinct()
-        tags = models.ContentTag.objects.filter(
-            id__in=through_tags.values_list("contenttag_id", flat=True)
+
+        file_ids = list(files.values_list("id", flat=True))
+        localfiles = models.LocalFile.objects.filter(
+            files__id__uuidin=file_ids
         ).distinct()
-        languages = models.Language.objects.filter(
-            Q(id__in=files.values_list("lang_id", flat=True))
-            | Q(id__in=nodes.values_list("lang_id", flat=True))
+
+        contenttag_ids = list(through_tags.values_list("contenttag_id", flat=True))
+        tags = models.ContentTag.objects.filter(id__uuidin=contenttag_ids).distinct()
+
+        # Lang codes are short strings (not UUIDs) and the distinct set across a
+        # channel is tiny — dedupe and use a literal IN.
+        lang_ids = set(files.values_list("lang_id", flat=True).distinct()) | set(
+            nodes.values_list("lang_id", flat=True).distinct()
         )
-        node_ids = nodes.values_list("id", flat=True)
+        lang_ids.discard(None)
+        languages = models.Language.objects.filter(id__in=lang_ids)
+
         prerequisites = models.ContentNode.has_prerequisite.through.objects.filter(
-            from_contentnode_id__in=node_ids, to_contentnode_id__in=node_ids
+            from_contentnode_id__uuidin=node_ids,
+            to_contentnode_id__uuidin=node_ids,
         )
         related = models.ContentNode.related.through.objects.filter(
-            from_contentnode_id__in=node_ids, to_contentnode_id__in=node_ids
+            from_contentnode_id__uuidin=node_ids,
+            to_contentnode_id__uuidin=node_ids,
         )
         channel_metadata = models.ChannelMetadata.objects.filter(id=node.channel_id)
 
         cursor = connection.cursor()
-
         base = BASES[content_schema]
 
         for qs in [
@@ -131,8 +145,14 @@ class ImportMetadataViewset(GenericViewSet):
             # directly from the database.
             # One example is for JSON field data that is stored as a string in the database,
             # we want to avoid that being coerced to Python objects.
-            cursor.execute(*qs.query.sql_with_params())
-            data[qs.model._meta.db_table] = [
+            try:
+                sql, params = qs.query.sql_with_params()
+            except EmptyResultSet:
+                # `__uuidin=[]` raises EmptyResultSet rather than emitting an empty IN.
+                data[table_name] = []
+                continue
+            cursor.execute(sql, params)
+            data[table_name] = [
                 # Coerce any UUIDs to their hex representation, as Postgres raw values will be UUIDs
                 dict(
                     zip(

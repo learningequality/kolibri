@@ -50,7 +50,18 @@ class ImportMetadataTestCase(APITestCase):
             field_names.add(BaseModel._mptt_meta.left_attr)
             field_names.add(BaseModel._mptt_meta.right_attr)
             field_names.add(BaseModel._mptt_meta.level_attr)
-        for response_data, obj in zip(response.data[Model._meta.db_table], queryset):
+        # Row order is not part of the API contract for these tables (only the
+        # ContentNode descendants response guarantees order, asserted separately).
+        # Sort both sides by pk so we test row equality, not incidental order.
+        pk_col = Model._meta.pk.column
+        response_rows = sorted(
+            response.data[Model._meta.db_table],
+            key=lambda r: str(r[pk_col]).replace("-", ""),
+        )
+        expected_rows = sorted(
+            queryset, key=lambda o: str(getattr(o, pk_col)).replace("-", "")
+        )
+        for response_data, obj in zip(response_rows, expected_rows):
             # Ensure that we are not returning any empty objects
             self.assertNotEqual(response_data, {})
             for field in fields:
