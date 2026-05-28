@@ -40,11 +40,11 @@ Kolibri has two distinct build workflows:
 ### Platform installer repositories:
 Each external repository specializes in one platform:
 
-- **`kolibri-app`**: macOS .dmg with app signing and notarization
-- **`kolibri-installer-debian`**: .deb packages for Debian/Ubuntu
-- **`kolibri-installer-windows`**: .exe with Windows code signing
-- **`kolibri-installer-android`**: .apk with Google Play Store publishing
-- **`kolibri-image-pi`**: Raspberry Pi disk images
+- **kolibri-app**: macOS .dmg with app signing and notarization
+- **kolibri-installer-debian**: .deb packages for Debian/Ubuntu
+- **kolibri-installer-windows**: .exe with Windows code signing
+- **kolibri-installer-android**: .apk with Google Play Store publishing
+- **kolibri-image-pi**: Raspberry Pi disk images
 
 ## Workflow orchestration
 

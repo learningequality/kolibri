@@ -77,7 +77,8 @@ To develop on Kolibri, you'll need:
 Managing Python installations can be quite tricky. We *highly* recommend using `pyenv <https://github.com/pyenv/pyenv>`__ or if you are more comfortable using a package manager, then package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.
 
 To install pyenv see the detailed instructions here :doc:`/howtos/installing_pyenv`.
-..note::
+
+.. note::
   If you are using a package manager, make sure to install a Python version compatible with Kolibri (3.9 or above, but below 3.15). If you're using `pyenv`, you can install it with a command like `pyenv install 3.9.9`.
 
 .. warning::
@@ -92,7 +93,8 @@ There are many ways to set up Python virtual environments: You can use `pyenv-vi
 
 .. note::
   Most virtual environments will require special setup for non-Bash shells such as Fish and ZSH.
- Direct development on Windows is not supported. If you're using a Windows machine, please set up your development environment using WSL (Windows Subsystem for Linux).
+
+Direct development on Windows is not supported. If you're using a Windows machine, please set up your development environment using WSL (Windows Subsystem for Linux).
 
 To setup and start using pyenv-virtualenv, follow the instructions here :doc:`/howtos/pyenv_virtualenv`.
 
@@ -445,6 +447,8 @@ You can also run the auto-build for faster editing from the ``docs`` directory:
 
 Now you should be able to preview the docs at ``http://127.0.0.1:8888/``.
 
+
+.. _automated testing:
 
 Automated testing
 -----------------
