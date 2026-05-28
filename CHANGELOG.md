@@ -1405,7 +1405,8 @@ Updates to our quizzes provide coaches more flexibility in creating quizzes by s
 
 Noteworthy technical updates include updating to a third version of our Exam model data schema, the addtion of a new draft exam model to allow editing of quizzes before they are made active/syncable, introducing a new accordion component, and changing the quiz creation routing structure to use nested routes and a side-panel style UX.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Restore exam/utils.spec.js to previous version; tests pass by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11155
 - Enhanced Quizzes: Initial frontend state management API by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11088
@@ -1500,11 +1501,14 @@ Noteworthy technical updates include updating to a third version of our Exam mod
 - EQM: Only show save success message when saving by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12389
 - Exam Page: Move smaller screen timer to top by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12485
 
+</details>
+
 #### Github integrations, actions, dev workflow updates
 
 In 0.17, we have also improved many automated workflows to support the dev team, including increased use of dependabot, Slack integrations, and expanded use of Github actions for continuous integration and deployment.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Notify our slack on contributors' issue comments by @vkWeb in https://github.com/learningequality/kolibri/pull/11564
 - Use the official GH action for Slack by @vkWeb in https://github.com/learningequality/kolibri/pull/11623
@@ -1520,11 +1524,14 @@ In 0.17, we have also improved many automated workflows to support the dev team,
 - Increase number of dependabot PRs by @rtibbles in https://github.com/learningequality/kolibri/pull/11943
 - Add pre-commit-ci-lite action to automate PR lint fixes by @thesujai in https://github.com/learningequality/kolibri/pull/12034
 
+</details>
+
 #### Additional features and improvements
 
 Additional updates include the ability to create a new facility on an existing Kolibri, and updating the tab title to include a realtime percentage of tasks. To help ensure robustness and reliability, we have expanded the range and coverage of our unit tests.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - added functionality to create new facility on existing kolibri by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11197
 - added test cases for create new facility feature by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11303
@@ -1547,6 +1554,8 @@ Additional updates include the ability to create a new facility on an existing K
 - Added neeeded values for BaseValuesViewset by @jredrejo in https://github.com/learningequality/kolibri/pull/12346
 - Add string prompt to log in with existing username or create an account by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12310
 
+</details>
+
 ### Breaking Changes
 
 [Support for Python 2.7, deprecated in 0.16, has been dropped](https://github.com/learningequality/kolibri/pull/11654). Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
@@ -1558,7 +1567,8 @@ Additional updates include the ability to create a new facility on an existing K
 
 Important technical changes include adding Python 3.12 support, upgrading Django to version 3.2, upgrading KDS to v4.4.0, and upgrading the Perseus exercise library to a recently released version, and changes to our linting tools to simplify and improve our developer experience. Support for Python 2.7, deprecated in 0.16, has been dropped. Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Remove Python 2.7 support by @rtibbles in https://github.com/learningequality/kolibri/pull/11654
 - Remove Python 2.7 deprecation warning. by @rtibbles in https://github.com/learningequality/kolibri/pull/11713
@@ -1575,10 +1585,13 @@ Important technical changes include adding Python 3.12 support, upgrading Django
 - Create and use a standard utility library for handling zip files in the frontend by @rtibbles in https://github.com/learningequality/kolibri/pull/11539
 - updated use of entry_points according to importlib version >3.6.0 by @im-NL in https://github.com/learningequality/kolibri/pull/11417
 
+</details>
+
 #### Updates to string processes (developer-facing)
 This release is the first time that Kolibri will be using "feature file" strings, where all new strings for a feature are introduced into one files. This reduces the overhead for both dev work and translation work.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Add enhanced quiz management strings - first draft for dev work by @marcellamaki in https://github.com/learningequality/kolibri/pull/11189
 - Composable translators by @rtibbles in https://github.com/learningequality/kolibri/pull/10960
@@ -1589,10 +1602,13 @@ This release is the first time that Kolibri will be using "feature file" strings
 - First pass string updates following UX writing and ditto review by @marcellamaki in https://github.com/learningequality/kolibri/pull/12312
 - Add strings for post-setup onboarding guide component by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12113
 
+</details>
+
 #### Refactors
 Key refactors include replacing `KResponsiveWindow` with `useKResponsiveWindow` across Kolibri, work toward improving the router handler architecture in Coach, and continue work towards introducing more composables.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Replace KResponseWindow with useKResponseWindow (#11349, #11355, #11427, #11358, #11366, #11474, #11369, #11346, #11414, #11529, #11997)
 - Changed KContentRenderer to ContentRenderer. by @ShivangRawat30 in https://github.com/learningequality/kolibri/pull/11289
@@ -1607,12 +1623,15 @@ Key refactors include replacing `KResponsiveWindow` with `useKResponsiveWindow` 
 - App navigation refactor by @rtibbles in https://github.com/learningequality/kolibri/pull/12084
 - Refactored HomePage route handler to fetch initClassInfo and getFacil… by @shubh1007 in https://github.com/learningequality/kolibri/pull/12358
 
+</details>
+
 
 #### Docs related updates
 
 Updates to developer documentation builds and improved copywriting.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - docs: add new documentation related to testing style guide and testing template by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12083
 - Adds loose pinning of dev docs requirements to ensure correct builds … by @benjaoming in https://github.com/learningequality/kolibri/pull/12466
@@ -1620,10 +1639,13 @@ Updates to developer documentation builds and improved copywriting.
 - Update development documentation by @MisRob in https://github.com/learningequality/kolibri/pull/11917
 - Tweniee/Isssue:#11361 Updated Document for PR release  by @Tweniee in https://github.com/learningequality/kolibri/pull/11512
 
+</details>
+
 ### Fixed
 Fixes include accessibility updates, bug fixes, code cleanup, and UI improvements.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Maintain the zoom settings for the PDF viewer by @nikkuAg in https://github.com/learningequality/kolibri/pull/11165
 - Hide the table when data is loading by @muditchoudhary in https://github.com/learningequality/kolibri/pull/11238
@@ -1654,6 +1676,8 @@ Fixes include accessibility updates, bug fixes, code cleanup, and UI improvement
 - Don't put csrf protection on endpoint that we use to set csrf cookie. by @rtibbles in https://github.com/learningequality/kolibri/pull/12371
 - Ensure skip to main content logic is working by @marcellamaki in https://github.com/learningequality/kolibri/pull/12439
   - Update automatic download setting default to False if running in a remote content context. by @rtibbles in https://github.com/learningequality/kolibri/pull/12395
+
+</details>
 
 
 ## 0.16.0
