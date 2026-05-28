@@ -95,6 +95,12 @@ class SQLAlchemyBridgeSQLAlchemyFunctionsTestCase(TestCase):
     def test_sqlite_string(self):
         self.assertEqual("sqlite:///test", sqlite_connection_string("test"))
 
+    def test_sqlite_uri_string(self):
+        self.assertEqual(
+            "sqlite:///file:memorydb_default?mode=memory&cache=shared&uri=true",
+            sqlite_connection_string("file:memorydb_default?mode=memory&cache=shared"),
+        )
+
     def test_get_engine(self):
         self.assertEqual(type(get_engine("sqlite:///")), Engine)
 
@@ -204,11 +210,26 @@ class SQLAlchemyBridgeDefaultDBStringTestCase(TestCase):
     @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
         DATABASES={
-            "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "test.sqlite3"}
+            "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "test.sqlite3"},
         }
     )
     def test_sqlite(self):
         self.assertEqual(get_default_db_string(), "sqlite:///test.sqlite3")
+
+    @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
+    @override_settings(
+        DATABASES={
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": "file:memorydb_default?mode=memory&cache=shared",
+            },
+        }
+    )
+    def test_sqlite_uri(self):
+        self.assertEqual(
+            get_default_db_string(),
+            "sqlite:///file:memorydb_default?mode=memory&cache=shared&uri=true",
+        )
 
     @pytest.mark.filterwarnings("ignore:Overriding setting DATABASES")
     @override_settings(
