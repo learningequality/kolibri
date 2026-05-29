@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
+import { createTranslator } from 'kolibri/utils/i18n';
 import ContentNodeRow from '../SelectContentPage/ContentNodeRow';
 import { makeNode } from '../../__tests__/utils/data';
 import router from './testRouter';
+
+const tr = createTranslator('ContentNodeRow', ContentNodeRow.$trs);
 
 const defaultProps = {
   node: {
@@ -38,10 +41,8 @@ describe('contentNodeRow component', () => {
     expect(screen.getByText(NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
-  it('shows the correct message when checkbox is checked', async () => {
+  it('shows the correct message', async () => {
     renderComponent();
-    const checkbox = screen.getByRole('checkbox');
-    await userEvent.click(checkbox);
     expect(screen.getByText(NODE_MESSAGE)).toBeInTheDocument();
   });
 
@@ -56,10 +57,12 @@ describe('contentNodeRow component', () => {
     expect(screen.getByText(VIDEO_NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
-  it('when node is disabled, title is just text', () => {
+  it('when node is disabled, checkbox is disabled but link remains navigable', async () => {
     renderComponent({ disabled: true });
-    const link = screen.queryByRole('link', { name: NODE_TITLE });
-    expect(link).toHaveAttribute('href', undefined);
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+    const link = screen.getByRole('link', { name: NODE_TITLE });
+    const expectedSubstring = `node_id=${NODE_ID}`;
+    expect(link).toHaveAttribute('href', expect.stringContaining(expectedSubstring));
   });
 
   it('topic links have the correct route', async () => {
@@ -132,8 +135,9 @@ describe('contentNodeRow component', () => {
       renderComponent({
         node: NODE,
       });
-      const PREPENDED_TITLE = 'Course: My Course';
-      expect(screen.getByText(PREPENDED_TITLE)).toBeInTheDocument();
+      expect(
+        screen.getByText(tr.$tr('coursePrefixedTitle', { title: NODE_TITLE })),
+      ).toBeInTheDocument();
     });
   });
 });
