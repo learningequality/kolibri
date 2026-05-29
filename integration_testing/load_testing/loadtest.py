@@ -36,6 +36,7 @@ from logger import success
 
 # Constants
 HAR_FILES_DIR = os.path.join(os.path.dirname(__file__), "har_files")
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "generated", "results")
 QA_CHANNEL_ID = "95a52b386f2c485cb97dd60901674a98"
 FACILITY_NAME = "Load Test Facility"
 CLASS_NAME = "Load Test Class"
@@ -70,6 +71,18 @@ def _exit_with_error(message):
     default=5.0,
     help="Retry delay in seconds for 503 errors (default: 5.0)",
 )
+@click.option(
+    "--results-dir",
+    default=None,
+    help="Directory for load test results (default: auto-named under generated/results/)",
+)
+@click.option(
+    "--processes",
+    default=0,
+    help="Locust worker processes to fork (0 = single process, no forking). "
+    "Single process handles hundreds of concurrent users; only raise this for "
+    "very high load on a multi-core host.",
+)
 @click.pass_context
 def cli(
     ctx,
@@ -83,6 +96,8 @@ def cli(
     headless,
     max_retries,
     retry_delay,
+    results_dir,
+    processes,
 ):
     """Kolibri Load Testing Tool"""
     ctx.ensure_object(dict)
@@ -96,6 +111,8 @@ def cli(
     ctx.obj["headless"] = headless
     ctx.obj["max_retries"] = max_retries
     ctx.obj["retry_delay"] = retry_delay
+    ctx.obj["results_dir"] = results_dir
+    ctx.obj["processes"] = processes
 
     # If no subcommand provided, run full workflow
     if ctx.invoked_subcommand is None:
@@ -242,6 +259,19 @@ def run(ctx):
     max_retries = ctx.obj["max_retries"]
     retry_delay = ctx.obj["retry_delay"]
 
+    # Resolve where to write machine-readable results. Default to an auto-named,
+    # timestamped subdir so successive rounds are archived rather than overwritten.
+    results_dir = ctx.obj["results_dir"]
+    if not results_dir:
+        run_name = (
+            f"{kolibri_version}_{users}u_{spawn_rate}r_{duration}_"
+            f"{time.strftime('%Y%m%d-%H%M%S')}"
+        )
+        results_dir = os.path.join(RESULTS_DIR, run_name)
+    os.makedirs(results_dir, exist_ok=True)
+    csv_prefix = os.path.join(results_dir, "stats")
+    html_path = os.path.join(results_dir, "report.html")
+
     # Set up environment variables for locustfile
     env = os.environ.copy()
     env["KOLIBRI_HAR_FILE"] = har_path
@@ -264,9 +294,16 @@ def run(ctx):
         str(spawn_rate),
         "--run-time",
         duration,
-        "--processes",
-        "-1",
+        "--csv",
+        csv_prefix,
+        "--csv-full-history",
+        "--html",
+        html_path,
     ]
+
+    processes = ctx.obj["processes"]
+    if processes:
+        cmd += ["--processes", str(processes)]
 
     # Only add --headless flag if explicitly requested
     if headless:
@@ -279,6 +316,7 @@ def run(ctx):
     plain(f"HAR file: {har_path}")
     plain(f"Users: {users}, Spawn rate: {spawn_rate}, Duration: {duration}")
     plain(f"Retry config: max_retries={max_retries}, retry_delay={retry_delay}s")
+    plain(f"Results: {results_dir}")
 
     if not headless:
         web_ui_url = "http://localhost:8089"
