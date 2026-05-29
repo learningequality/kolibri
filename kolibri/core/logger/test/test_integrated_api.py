@@ -7,7 +7,9 @@ import uuid
 from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
+from django.db import connection
 from django.http.cookie import SimpleCookie
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
@@ -103,6 +105,13 @@ def create_assigned_course_for_user(user, channel_id, content_id):
         assigned_by=coach,
     )
     return course_session
+
+
+def selects_in_write_transaction(captured):
+    sqls = [query["sql"] for query in captured.captured_queries]
+    start = next(i for i, sql in enumerate(sqls) if sql.startswith("SAVEPOINT"))
+    end = next(i for i, sql in enumerate(sqls) if sql.startswith("RELEASE SAVEPOINT"))
+    return [sql for sql in sqls[start:end] if sql.startswith("SELECT")]
 
 
 class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
@@ -1748,6 +1757,13 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
         self.summary_log.refresh_from_db()
         self.assertTrue(self.session_log._morango_dirty_bit)
         self.assertTrue(self.summary_log._morango_dirty_bit)
+
+    def test_update_session_reads_outside_write_transaction(self):
+        with CaptureQueriesContext(connection) as captured:
+            response = self._make_request({"progress_delta": 0.1})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(selects_in_write_transaction(captured), [])
 
     def test_anonymous_user_session_404(self):
         session_log = ContentSessionLog.objects.create(
