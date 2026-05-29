@@ -6,6 +6,7 @@
     :loading="loading"
   >
     <template #default="{ pageContentHeight, appBarHeight }">
+      <ImpactStoryBanner />
       <slot
         :pageContentHeight="pageContentHeight"
         :appBarHeight="appBarHeight"
@@ -22,10 +23,11 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import ImpactStoryBanner from 'kolibri-common/components/ImpactStoryBanner';
 
   export default {
     name: 'FacilityAppBarPage',
-    components: { AppBarPage },
+    components: { AppBarPage, ImpactStoryBanner },
     mixins: [commonCoreStrings],
     setup() {
       const { userIsMultiFacilityAdmin } = useFacilities();

@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ასლის შექმნა",
   "TotalPoints.pointsTooltip": "თქვენ { points, number } ქულა მოიპოვეთ",
   "UpdateNotification.adminMessage": "გთხოვთ, ამ სერვერის მოწყობილობის ადმინისტრატორს დაუკავშირდით",
-  "UpdateNotification.hideNotificationLabel": "აღარ მაჩვენოთ ეს შეტყობინება",
   "UpdateNotification.upgradeDownload": "აქ გადმოწერა",
   "UpdateNotification.upgradeHeader": "ხელმისაწვდომია განახლება",
   "UpdateNotification.upgradeHeaderImportant": "ხელმისაწვდომია მნიშვნელოვანი განახლება",

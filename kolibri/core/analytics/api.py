@@ -1,12 +1,16 @@
+from rest_framework import mixins
 from rest_framework import viewsets
 
 import kolibri
+from .models import LocalNotification
 from .models import PingbackNotification
 from .models import PingbackNotificationDismissed
+from .serializers import LocalNotificationSerializer
 from .serializers import PingbackNotificationDismissedSerializer
 from .serializers import PingbackNotificationSerializer
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.utils.version import version_matches_range
 
 
@@ -38,3 +42,13 @@ class PingbackNotificationDismissedViewSet(viewsets.ModelViewSet):
     serializer_class = PingbackNotificationDismissedSerializer
     queryset = PingbackNotificationDismissed.objects.all()
     filter_backends = (KolibriAuthPermissionsFilter,)
+
+
+class LocalNotificationViewSet(
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    permission_classes = (IsSuperuser,)
+    serializer_class = LocalNotificationSerializer
+    queryset = LocalNotification.objects.all().order_by("-created_at")

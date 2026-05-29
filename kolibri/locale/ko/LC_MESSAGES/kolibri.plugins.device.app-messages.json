@@ -93,6 +93,7 @@
   "ContentIcon.topic": "폴더",
   "ContentIcon.user": "사용자",
   "ContentIcon.video": "동영상",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "전체 선택",
   "ContentTreeViewer.topicHasNoContents": "이 폴더에는 하위 폴더 또는 자료가 없습니다",
   "ContentWizardUiAlert.channelNotFoundError": "채널을 찾을 수 없습니다.",

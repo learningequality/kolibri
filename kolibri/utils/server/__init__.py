@@ -259,12 +259,16 @@ class ZipContentServerPlugin(ServerPlugin):
 
 class DefaultScheduledTasksPlugin(SimplePlugin):
     def START(self):
+        from kolibri.core.analytics.tasks import schedule_local_notification_generation
         from kolibri.core.analytics.tasks import schedule_ping
         from kolibri.core.deviceadmin.tasks import schedule_vacuum
         from kolibri.core.deviceadmin.tasks import schedule_streamed_cache_cleanup
 
         # schedule the pingback job if not already scheduled
         schedule_ping()
+
+        # schedule the local-notification generator (impact-stories) if not already scheduled
+        schedule_local_notification_generation()
 
         # schedule the vacuum job if not already scheduled
         schedule_vacuum()

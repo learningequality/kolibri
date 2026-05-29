@@ -8,6 +8,12 @@
     @submit.prevent="handleSubmit"
   >
     <div
+      ref="sentinelRef"
+      tabindex="-1"
+      class="visuallyhidden"
+      aria-hidden="true"
+    ></div>
+    <div
       class="icon-grid"
       :style="{
         gridTemplateColumns: `repeat(${columns}, 1fr)`,
@@ -128,8 +134,9 @@
       // Internal selection state: up to 3 integer IDs in order of selection.
       const sequence = ref([]);
 
-      // Template ref for the form element (used for programmatic focus)
+      // Template refs for programmatic focus
       const formRef = ref(null);
+      const sentinelRef = ref(null);
 
       const resolveIconToken = entry =>
         props.iconStyle === 'standard' ? entry.iconStandard : entry.iconColorful;
@@ -224,6 +231,7 @@
         }
 
         sequence.value = [...sequence.value, id];
+        emit('select', sequence.value.length);
 
         const position = sequence.value.length;
         sendPoliteMessage(ORDINAL_STRING_MAP[position]({ icon: iconLabelFor(id) }));
@@ -326,6 +334,18 @@
         }
       };
 
+      /**
+       * @public
+       * Moves focus to the visually-hidden sentinel at the top of the form,
+       * e.g. after a failed sign-in attempt, so that screen readers land
+       * inside the grid without announcing every picture password icon.
+       */
+      const focusSentinel = () => {
+        if (sentinelRef.value) {
+          sentinelRef.value.focus();
+        }
+      };
+
       return {
         icons,
         columns,
@@ -341,7 +361,9 @@
         handleSubmit,
         formAriaLabel$,
         formRef,
+        sentinelRef,
         focus, // eslint-disable-line vue/no-unused-properties
+        focusSentinel, // eslint-disable-line vue/no-unused-properties
         sequence, // eslint-disable-line vue/no-unused-properties
         playSuccessAnimation, // eslint-disable-line vue/no-unused-properties
       };

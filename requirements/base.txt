@@ -23,6 +23,10 @@ redis==3.5.3
 html5lib==1.1
 zeroconf-py2compat==0.19.17
 Click==8.0.4
+# Windows-only transitive dependency of Click and colorlog. The dist is built on
+# Linux, where the platform marker excludes it, so it must be listed explicitly to
+# be bundled. Pinned to 0.4.5 as 0.4.6 drops Python 3.6 (our build) support.
+colorama==0.4.5
 whitenoise==5.3.0
 idna==3.7
 ifaddr==0.1.7  # Pin as version 0.2.0 only supports Python 3.7 and above

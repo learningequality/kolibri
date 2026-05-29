@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "Αναπτυγμένη εικόνα",
-  "SafeHtmlImage.expandImage": "Ανάπτυξη εικόνας"
+  "SafeHtmlImage.expandImage": "Ανάπτυξη εικόνας",
+  "TextEntryInteractionStrings.textEntryLabel": "Η απάντησή σας"
 }

@@ -150,16 +150,19 @@ class TestServerDefaultScheduledTasks:
             )
             default_scheduled_tasks_plugin.START()
 
-            # Currently, we must have exactly four scheduled jobs
-            # two userdefined and two server defined (pingback and vacuum)
+            # We must have exactly six scheduled jobs: the two user-defined
+            # jobs above plus four server-defined jobs (pingback, local
+            # notifications, vacuum, and streamed cache cleanup).
             from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
+            from kolibri.core.analytics.tasks import LOCAL_NOTIFICATION_JOB_ID
             from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
             from kolibri.core.deviceadmin.tasks import STREAMED_CACHE_CLEANUP_JOB_ID
 
-            assert len(job_storage) == 5
+            assert len(job_storage) == 6
             assert job_storage.get_job(test1) is not None
             assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(LOCAL_NOTIFICATION_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
             assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 
@@ -167,10 +170,11 @@ class TestServerDefaultScheduledTasks:
             default_scheduled_tasks_plugin.START()
 
             # Make sure all scheduled jobs persist after restart
-            assert len(job_storage) == 5
+            assert len(job_storage) == 6
             assert job_storage.get_job(test1) is not None
             assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(LOCAL_NOTIFICATION_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
             assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 

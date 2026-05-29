@@ -53,7 +53,64 @@ describe('PicturePasswordConfirmModal', () => {
   });
 
   describe('events', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    function createUser() {
+      return userEvent.setup({ advanceTimers: jest.advanceTimersByTime.bind(jest) });
+    }
+
     it('emits confirm when the confirm button is clicked', async () => {
+      const { emitted } = renderComponent();
+      await createUser().click(
+        screen.getByRole('button', { name: picturePasswordStrings.yesConfirmAction$() }),
+      );
+      jest.runAllTimers();
+      expect(emitted()['confirm']).toBeTruthy();
+    });
+
+    it('emits cancel when the cancel button is clicked', async () => {
+      const { emitted } = renderComponent();
+      await createUser().click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      jest.runAllTimers();
+      expect(emitted()['cancel']).toBeTruthy();
+    });
+  });
+
+  describe('prefers-reduced-motion', () => {
+    beforeEach(() => {
+      window.matchMedia = jest.fn(q => ({
+        matches: q === '(prefers-reduced-motion: reduce)',
+        media: q,
+        onchange: null,
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      }));
+    });
+
+    afterEach(() => {
+      window.matchMedia = undefined;
+    });
+
+    it('emits cancel immediately without a timer when reduced motion is preferred', async () => {
+      const { emitted } = renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      expect(emitted()['cancel']).toBeTruthy();
+    });
+
+    it('emits confirm immediately without a timer when reduced motion is preferred', async () => {
       const { emitted } = renderComponent();
       await userEvent.click(
         screen.getByRole('button', { name: picturePasswordStrings.yesConfirmAction$() }),
@@ -61,12 +118,55 @@ describe('PicturePasswordConfirmModal', () => {
       expect(emitted()['confirm']).toBeTruthy();
     });
 
-    it('emits cancel when the cancel button is clicked', async () => {
-      const { emitted } = renderComponent();
+    it('does not apply animation classes when reduced motion is preferred', async () => {
+      renderComponent();
       await userEvent.click(
         screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
       );
-      expect(emitted()['cancel']).toBeTruthy();
+      expect(document.body.querySelector('.action-buttons')).not.toHaveClass('gap-collapsed');
+    });
+  });
+
+  describe('button animations', () => {
+    it('disables both buttons after one is pressed', async () => {
+      renderComponent();
+      const cancelBtn = screen.getByRole('button', {
+        name: picturePasswordStrings.noGoBackAction$(),
+      });
+      await userEvent.click(cancelBtn);
+      expect(
+        screen.getByRole('button', { name: picturePasswordStrings.yesConfirmAction$() }),
+      ).toBeDisabled();
+      expect(cancelBtn).toBeDisabled();
+    });
+
+    it('applies btn-collapsed to the confirm button when cancel is pressed', async () => {
+      renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      // KOverlay portals into document.body; query from there
+      const btnBgs = document.body.querySelectorAll('.btn-bg');
+      expect(btnBgs[1]).toHaveClass('btn-collapsed');
+      expect(btnBgs[0]).not.toHaveClass('btn-collapsed');
+    });
+
+    it('applies btn-collapsed to the cancel button when confirm is pressed', async () => {
+      renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.yesConfirmAction$() }),
+      );
+      const btnBgs = document.body.querySelectorAll('.btn-bg');
+      expect(btnBgs[0]).toHaveClass('btn-collapsed');
+      expect(btnBgs[1]).not.toHaveClass('btn-collapsed');
+    });
+
+    it('applies gap-collapsed to the action-buttons container when a button is pressed', async () => {
+      renderComponent();
+      await userEvent.click(
+        screen.getByRole('button', { name: picturePasswordStrings.noGoBackAction$() }),
+      );
+      expect(document.body.querySelector('.action-buttons')).toHaveClass('gap-collapsed');
     });
   });
 

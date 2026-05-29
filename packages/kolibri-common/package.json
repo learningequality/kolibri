@@ -14,16 +14,17 @@
     "@shopify/draggable": "1.0.0-beta.8",
     "clipboard": "^2.0.11",
     "date-fns": "^1.28.2",
+    "dialog-polyfill": "^0.5.6",
     "dompurify": "^3.4.0",
     "fuse.js": "^7.1.0",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri": "workspace:*",
     "kolibri-constants": "catalog:",
-    "kolibri-logging": "workspace:*",
-    "dialog-polyfill": "^0.5.6",
     "kolibri-design-system": "catalog:",
+    "kolibri-logging": "workspace:*",
     "lockr": "0.8.5",
     "lodash": "catalog:",
+    "qrcode": "^1.5.4",
     "screenfull": "^5.2.0",
     "uuid": "^11.1.0",
     "vue-router": "catalog:",
@@ -37,7 +38,7 @@
     "@vue/test-utils": "catalog:"
   },
   "peerDependencies": {
-    "vue": "catalog:",
-    "@vueuse/core": "catalog:"
+    "@vueuse/core": "catalog:",
+    "vue": "catalog:"
   }
 }

@@ -26,6 +26,7 @@
   import useUser from 'kolibri/composables/useUser';
   import { handleError } from 'kolibri/utils/appError';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import useUserKind from '../../composables/useUserKind';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
 
   export default {
@@ -38,7 +39,8 @@
     components: { NotificationsRoot, ImmersivePage },
     mixins: [commonCoreStrings],
     setup() {
-      const { session, userKind } = useUser();
+      const { session } = useUser();
+      const { userKind } = useUserKind();
       return { pageLoading, session, userKind, handleError };
     },
     data() {

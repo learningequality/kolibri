@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Folder",
   "ContentIcon.user": "User",
   "ContentIcon.video": "Video",
+  "ContentNodeRow.coursePrefixedTitle": "Course: {title}",
   "ContentTreeViewer.selectAll": "Select all",
   "ContentTreeViewer.topicHasNoContents": "This folder has no subfolders or resources",
   "ContentWizardUiAlert.channelNotFoundError": "Channel not found",

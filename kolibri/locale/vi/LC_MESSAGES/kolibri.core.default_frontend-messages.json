@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Sao chép vào bảng nhớ tạm",
   "TotalPoints.pointsTooltip": "Bạn đạt được { points, number } điểm",
   "UpdateNotification.adminMessage": "Vui lòng tham khảo quản trị viên Kolibri",
-  "UpdateNotification.hideNotificationLabel": "Không hiện thông báo này nữa",
   "UpdateNotification.upgradeDownload": "Tải ở đây",
   "UpdateNotification.upgradeHeader": "Nâng cấp khả dụng",
   "UpdateNotification.upgradeHeaderImportant": "Đã có nâng cấp quan trọng",

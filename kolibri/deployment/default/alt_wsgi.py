@@ -4,10 +4,10 @@ sandboxed content
 """
 import os
 
+import django
+
 import kolibri.core.content
 from kolibri.core.content.utils import paths
-from kolibri.core.content.zip_wsgi import get_application
-from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
@@ -15,6 +15,13 @@ os.environ.setdefault(
 
 
 def generate_alt_wsgi_application():
+    django.setup(set_prefix=False)
+
+    # Defer these imports until after django setup has run
+    # as both depend on the NetworkClient (which depends on Django models)
+    from kolibri.core.content.zip_wsgi import get_application
+    from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
+
     alt_content_path = "/" + paths.get_content_url(
         paths.zip_content_path_prefix()
     ).lstrip("/")

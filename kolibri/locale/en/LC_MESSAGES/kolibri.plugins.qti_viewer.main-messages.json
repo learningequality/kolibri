@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "Answer choices",
   "Lightbox.expandedImage": "Expanded image",
-  "SafeHtmlImage.expandImage": "Expand image"
+  "SafeHtmlImage.expandImage": "Expand image",
+  "TextEntryInteractionStrings.textEntryLabel": "Your answer"
 }

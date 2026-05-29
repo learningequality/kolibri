@@ -96,8 +96,9 @@ def process_docstring(app, what, name, obj, options, lines):
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
-    "m2r",
+    "m2r2",
     "notfound.extension",
+    "sphinx_llm.txt",
 ]
 
 linkcheck_ignore = [

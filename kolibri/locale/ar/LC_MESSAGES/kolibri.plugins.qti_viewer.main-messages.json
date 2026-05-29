@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "صورة موسعة",
-  "SafeHtmlImage.expandImage": "توسيع الصورة"
+  "SafeHtmlImage.expandImage": "توسيع الصورة",
+  "TextEntryInteractionStrings.textEntryLabel": "إجابتك"
 }

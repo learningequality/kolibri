@@ -93,6 +93,7 @@
   "ContentIcon.topic": "مجلد",
   "ContentIcon.user": "المستخدم",
   "ContentIcon.video": "الفيديو",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "تحديد الكل",
   "ContentTreeViewer.topicHasNoContents": "لا يحتوي هذا المجلد على مجلدات فرعية أو مصادر",
   "ContentWizardUiAlert.channelNotFoundError": "لم يتم إيجاد القناة التعليمية",

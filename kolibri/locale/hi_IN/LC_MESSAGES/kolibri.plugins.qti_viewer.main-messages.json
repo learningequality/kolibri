@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "विस्तारित छवि",
-  "SafeHtmlImage.expandImage": "छवि का विस्तार करें"
+  "SafeHtmlImage.expandImage": "छवि का विस्तार करें",
+  "TextEntryInteractionStrings.textEntryLabel": "आपका जवाब"
 }

@@ -3,6 +3,9 @@ Helper functions for use across the user/auth/permission-related tests.
 """
 from django.core.cache import caches
 from django.core.cache.backends.base import InvalidCacheBackendError
+from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 from ..models import Classroom
 from ..models import Facility
@@ -35,6 +38,32 @@ def create_superuser(facility, username="superuser"):
     superuser.save()
     DevicePermissions.objects.create(user=superuser, is_superuser=True)
     return superuser
+
+
+class KolibriAPIClient(APIClient):
+    """
+    Test API client that infers facility for username/password login when omitted.
+    """
+
+    def login(self, **credentials):
+        if "facility" not in credentials:
+            username = credentials.get("username")
+            password = credentials.get("password")
+            if username and password is not None:
+                candidates = FacilityUser.objects.filter(username__iexact=username)
+                for user in candidates:
+                    if user.check_password(password):
+                        credentials["facility"] = user.facility
+                        break
+        return super().login(**credentials)
+
+
+class KolibriAPITestCase(APITestCase):
+    client_class = KolibriAPIClient
+
+
+class KolibriAPITransactionTestCase(APITransactionTestCase):
+    client_class = KolibriAPIClient
 
 
 def setup_device():

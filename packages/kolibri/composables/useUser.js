@@ -26,6 +26,39 @@ const baseSessionState = {
 // Module-level state
 const sessionState = ref({ ...baseSessionState });
 
+/**
+ * Three-state user model: every session is exactly one of
+ * anonymous (!isUserLoggedIn), plain learner (isLearner), or role-holder (hasRole).
+ *
+ * @typedef {Object} UseUserReturn
+ * @property {import('vue').ComputedRef<boolean>} isUserLoggedIn - Not anonymous;
+ *   equal to isLearner || hasRole.
+ * @property {import('vue').ComputedRef<boolean>} isLearner - Logged in with no elevated role
+ *   ("plain learner"). Mutually exclusive with hasRole.
+ * @property {import('vue').ComputedRef<boolean>} hasRole - Holds any elevated role (coach,
+ *   assignable coach, admin, or superuser). False for anonymous and plain learners.
+ * @property {import('vue').ComputedRef<boolean>} isCoach - True for COACH or ASSIGNABLE_COACH.
+ * @property {import('vue').ComputedRef<boolean>} isFacilityCoach - True for COACH only.
+ * @property {import('vue').ComputedRef<boolean>} isClassCoach - True for ASSIGNABLE_COACH only.
+ * @property {import('vue').ComputedRef<boolean>} isAdmin - True for ADMIN or SUPERUSER
+ *   (includes superuser).
+ * @property {import('vue').ComputedRef<boolean>} isFacilityAdmin - True for ADMIN only
+ *   (excludes superuser).
+ * @property {import('vue').ComputedRef<boolean>} isSuperuser - True for SUPERUSER only.
+ * @property {import('vue').ComputedRef<boolean>} canManageContent
+ * @property {import('vue').ComputedRef<boolean>} isAppContext
+ * @property {import('vue').ComputedRef<boolean>} isLearnerOnlyImport
+ * @property {import('vue').ComputedRef<string|undefined>} currentUserId
+ * @property {import('vue').ComputedRef<string|undefined>} userFacilityId
+ * @property {import('vue').ComputedRef<Object>} userPermissions
+ * @property {import('vue').ComputedRef<boolean>} userHasPermissions
+ * @property {import('vue').ComputedRef<Object>} session
+ * @property {import('vue').ComputedRef<string>} full_name
+ * @property {import('vue').ComputedRef<string|undefined>} sessionId
+ * @property {import('vue').ComputedRef<Array<string>>} kind
+ * @property {import('vue').ComputedRef<string>} username
+ * @returns {UseUserReturn}
+ */
 export default function useUser() {
   // Session state
   const session = computed(() => sessionState.value);
@@ -51,15 +84,9 @@ export default function useUser() {
   const isFacilityCoach = computed(() => kind.value.includes(UserKinds.COACH));
   const isLearner = computed(() => kind.value.includes(UserKinds.LEARNER));
   const isFacilityAdmin = computed(() => kind.value.includes(UserKinds.ADMIN));
+  const hasRole = computed(() => isCoach.value || isAdmin.value);
   const userPermissions = computed(() => ({ can_manage_content: canManageContent.value }));
   const userFacilityId = computed(() => sessionState.value.facility_id);
-  const userKind = computed(() => {
-    if (isSuperuser.value) return UserKinds.SUPERUSER;
-    if (isAdmin.value) return UserKinds.ADMIN;
-    if (isCoach.value) return UserKinds.COACH;
-    if (isLearner.value) return UserKinds.LEARNER;
-    return UserKinds.ANONYMOUS;
-  });
   const userHasPermissions = computed(() => Object.values(userPermissions.value).some(Boolean));
 
   // Login/Logout Functions
@@ -161,7 +188,7 @@ export default function useUser() {
     isFacilityAdmin,
     userPermissions,
     userFacilityId,
-    userKind,
+    hasRole,
     userHasPermissions,
 
     // State

@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "क्लिपबोर्डवर कॉपी करा",
   "TotalPoints.pointsTooltip": "तुम्हाला { points, number } गुण मिळाले",
   "UpdateNotification.adminMessage": "कृपया आपल्या कोलिब्री प्रशासकाशी संपर्क साधा",
-  "UpdateNotification.hideNotificationLabel": "हा संदेश परत दाखवू नका",
   "UpdateNotification.upgradeDownload": "येथे डाऊनलोड करा",
   "UpdateNotification.upgradeHeader": "अपग्रेड उपलब्ध आहे",
   "UpdateNotification.upgradeHeaderImportant": "महत्वाचे अपग्रेड उपलब्ध आहे",

@@ -4,13 +4,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
-from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import clear_process_cache
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
@@ -48,7 +48,7 @@ class LearnerCourseTestCase(APITestCase):
                 parent=lesson,
                 available=True,
                 kind=content_kinds.VIDEO,
-                title=f"Resource {i+1}",
+                title=f"Resource {i + 1}",
                 description="",
             )
             ContentSummaryLog.objects.create(
@@ -75,7 +75,7 @@ class LearnerCourseTestCase(APITestCase):
         )
         new_lessons = []
         for i in range(lessons):
-            lesson = self._create_lesson(unit, f"Lesson {i+1}", resources)
+            lesson = self._create_lesson(unit, f"Lesson {i + 1}", resources)
             new_lessons.append(lesson)
 
         return unit, new_lessons
@@ -110,7 +110,7 @@ class LearnerCourseTestCase(APITestCase):
             unit = self._create_unit(
                 course_session=course_session,
                 course=course,
-                title=f"Unit {i+1}",
+                title=f"Unit {i + 1}",
                 lessons=lessons,
                 resources=resources,
             )

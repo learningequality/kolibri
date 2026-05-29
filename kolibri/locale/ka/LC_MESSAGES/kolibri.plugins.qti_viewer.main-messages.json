@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "გაფართოებული სურათი",
-  "SafeHtmlImage.expandImage": "სურათის გადიდება"
+  "SafeHtmlImage.expandImage": "სურათის გადიდება",
+  "TextEntryInteractionStrings.textEntryLabel": "თქვენი პასუხი"
 }

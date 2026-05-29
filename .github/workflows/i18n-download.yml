@@ -25,15 +25,14 @@ jobs:
             'build_tools/i18n/*.py'
             requirements/base.txt
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.8
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: 'package.json'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.3
-        with:
-          cache: true
+          cache: 'pnpm'
 
       - name: Setup Java for crowdin-cli
         uses: actions/setup-java@v5

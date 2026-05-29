@@ -7,6 +7,7 @@ import KolibriApp from 'kolibri-app';
 import { handleApiError } from 'kolibri/utils/appError';
 import useSnackbar from 'kolibri/composables/useSnackbar';
 import useFacilities from 'kolibri-common/composables/useFacilities';
+import useFacility from 'kolibri-common/composables/useFacility';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from './constants';
 import routes from './routes';
@@ -14,6 +15,7 @@ import pluginModule from './modules/pluginModule';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
 const { fetchFacilities, facilities } = useFacilities();
+const { fetchFacilityConfig } = useFacility();
 
 function _channelListState(data) {
   return data.map(channel => ({
@@ -42,9 +44,13 @@ export function setChannelInfo(store) {
   );
 }
 
+function initFacilityConfig() {
+  return fetchFacilityConfig().catch(() => {});
+}
+
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
-    return [setChannelInfo];
+    return [setChannelInfo, initFacilityConfig];
   }
   get routes() {
     return routes;

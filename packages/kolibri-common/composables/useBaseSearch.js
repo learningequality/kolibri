@@ -173,7 +173,7 @@ export default function useBaseSearch({
   const more = ref(null);
   const labels = ref(null);
 
-  const { isAdmin, isCoach, isSuperuser, isUserLoggedIn } = useUser();
+  const { hasRole, isUserLoggedIn } = useUser();
 
   const searchTerms = computed({
     get() {
@@ -237,11 +237,11 @@ export default function useBaseSearch({
   }
 
   function createBaseSearchGetParams() {
+    const role = get(hasRole);
     const getParams = {
-      exclude_modalities:
-        get(isAdmin) || get(isCoach) || get(isSuperuser) ? null : Modalities.COURSE,
-      exclude_course_ancestry: !(get(isAdmin) || get(isCoach) || get(isSuperuser)),
-      include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
+      exclude_modalities: role ? null : Modalities.COURSE,
+      exclude_course_ancestry: !role,
+      include_coach_content: role,
       baseurl: get(baseurl),
     };
     if (filters) {

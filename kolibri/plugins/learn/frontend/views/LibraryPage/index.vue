@@ -3,7 +3,9 @@
   <div :style="{ maxWidth: '1700px' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="!(rootNodesLoading || searchLoading) && welcomeModalVisible"
+        v-if="
+          !(rootNodesLoading || searchLoading) && welcomeModalVisible && !picturePasswordPending
+        "
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -184,7 +186,7 @@
         />
       </SidePanelModal>
       <TooltipTour
-        v-if="tourActive && isTourActive('LibraryPage') && !isLearner"
+        v-if="tourActive && isTourActive('LibraryPage') && hasRole"
         page="LibraryPage"
         @tourEnded="endTour('LibraryPage')"
       />
@@ -196,7 +198,7 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { get, set, useSessionStorage } from '@vueuse/core';
 
   import { onMounted, getCurrentInstance, ref, watch } from 'vue';
   import pluginData from 'kolibri-plugin-data';
@@ -216,6 +218,7 @@
   import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
   import useTour from 'kolibri/composables/useTour';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -269,7 +272,11 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const { tourActive, isTourActive, startTour, endTour, resumeTour } = useTour();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser, isLearner, user_id } = useUser();
+      const { isUserLoggedIn, hasRole, currentUserId } = useUser();
+      const picturePasswordPending = useSessionStorage(
+        PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING,
+        false,
+      );
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
         searchTerms,
@@ -313,7 +320,7 @@
         return ContentNodeResource.fetchCollection({
           getParams: {
             parent__isnull: true,
-            include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
+            include_coach_content: get(hasRole),
             baseurl,
           },
         }).then(
@@ -431,13 +438,14 @@
         rootNodes,
         pageLoading,
         isUserLoggedIn,
-        isLearner,
+        hasRole,
         tourActive,
         isTourActive,
         startTour,
         endTour,
         resumeTour,
-        userId: user_id,
+        picturePasswordPending,
+        userId: currentUserId,
       };
     },
     props: {

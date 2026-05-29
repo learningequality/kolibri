@@ -7,11 +7,11 @@ from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
-from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ContentNode

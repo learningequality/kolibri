@@ -3,13 +3,13 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
-from rest_framework.test import APITestCase
 
 from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
@@ -131,7 +131,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
 
     def test_coach_classroom_id_required(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -143,7 +144,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_classroom_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -156,7 +158,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_lesson_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -169,7 +172,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_group_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -220,7 +224,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_classroom_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -236,7 +241,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_lesson_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -257,7 +263,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         )
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -273,7 +280,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_group_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -299,7 +307,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             item="nottest",
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -327,7 +336,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             item="nottest",
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -358,7 +368,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         )
         LessonAssignment.objects.all().delete()
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -383,7 +394,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         )
         LessonAssignment.objects.all().delete()
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -408,7 +420,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
         self.classroom.add_member(learner2)
         self._set_one_difficult(learner2)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -440,7 +453,8 @@ class ExerciseDifficultQuestionTestCase(APITestCase):
             collection=self.group,
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -521,7 +535,8 @@ class QuizDifficultQuestionTestCase(APITestCase):
 
     def _login_as_coach(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
 
     def test_learner_cannot_access(self):
@@ -875,7 +890,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_classroom_id_required(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -887,7 +903,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_classroom_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -900,7 +917,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_lesson_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -913,7 +931,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
 
     def test_coach_no_progress_by_group_id(self):
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -980,7 +999,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_classroom_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -998,7 +1018,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self._set_one_difficult(self.classroom_group_learner)
         self._set_one_difficult(self.classroom_group_learner, complete=False)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1016,7 +1037,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self._set_one_difficult(self.classroom_group_learner)
         self._set_one_difficult(self.classroom_group_learner, difficult=False)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1053,7 +1075,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self._set_one_difficult(other_learner, complete=False)
         self._set_one_difficult(other_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1075,7 +1098,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self.masterylog.complete = False
         self.masterylog.save()
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1091,7 +1115,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_lesson_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1112,7 +1137,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         )
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1128,7 +1154,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
     def test_coach_one_difficult_by_group_id(self):
         self._set_one_difficult(self.classroom_group_learner)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1154,7 +1181,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             item="nottest",
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1182,7 +1210,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             item="nottest",
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1213,7 +1242,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         )
         LessonAssignment.objects.all().delete()
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1238,7 +1268,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         )
         LessonAssignment.objects.all().delete()
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1263,7 +1294,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
         self.classroom.add_member(learner2)
         self._set_one_difficult(learner2)
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1295,7 +1327,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             collection=self.group,
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(
@@ -1326,7 +1359,8 @@ class PracticeQuizDifficultQuestionTestCase(APITestCase):
             item="nottest",
         )
         self.client.login(
-            username=self.facility_and_classroom_coach.username, password=DUMMY_PASSWORD
+            username=self.facility_and_classroom_coach.username,
+            password=DUMMY_PASSWORD,
         )
         response = self.client.get(
             reverse(

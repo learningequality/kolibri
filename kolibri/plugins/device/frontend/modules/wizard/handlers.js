@@ -1,6 +1,5 @@
 import find from 'lodash/find';
 import router from 'kolibri/router';
-import logger from 'kolibri-logging';
 import { handleApiError } from 'kolibri/utils/appError';
 import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
 import { TransferTypes } from 'kolibri-common/utils/syncTaskUtils';
@@ -15,8 +14,6 @@ import {
   getTransferredChannelOnPeerServer,
 } from './apiPeerImport';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
-
-const logging = logger.getLogger(__filename);
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
@@ -164,21 +161,14 @@ export function showSelectContentPage(store, params) {
   // HACK if going directly to URL, we make sure channelList has this channel at the minimum.
   // We only get the one channel, since GETing /api/channel with file sizes is slow.
   // We let it fail silently, since it is only used to show "on device" files/resources.
-  const installedChannelPromise = getChannelWithContentSizes(params.channel_id)
-    .then(channel => {
+  const channelDataPromise = getChannelWithContentSizes(params.channel_id).catch(() => null);
+
+  const installedChannelPromise = channelDataPromise.then(channel => {
+    if (channel) {
       store.commit('manageContent/REMOVE_FROM_CHANNEL_LIST', channel.id);
       store.commit('manageContent/ADD_TO_CHANNEL_LIST', channel);
-    })
-    .catch(error => {
-      // This is an expected scenario because it's possible that there
-      // are no data for this channel on a device yet (download channel
-      // metadata task will be triggered later for this situation)
-      if (error.response && error.response.status === 404) {
-        logging.error(
-          `^^^ 404 (Not Found) error returned while requesting "${error.response.config.url}..." is an expected response.`,
-        );
-      }
-    });
+    }
+  });
 
   if (transferType === TransferTypes.LOCALIMPORT) {
     selectedDrivePromise = getSelectedDrive(store, drive_id);
@@ -212,7 +202,15 @@ export function showSelectContentPage(store, params) {
           },
           error => {
             if (error.response.status === 404) {
-              reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+              // For draft channels (version 0) already on the device, fall back to
+              // on-device channel data so the user can still browse and import content.
+              return channelDataPromise.then(installedChannel => {
+                if (installedChannel && installedChannel.version === 0) {
+                  resolve(installedChannel);
+                } else {
+                  reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+                }
+              });
             } else {
               reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
             }

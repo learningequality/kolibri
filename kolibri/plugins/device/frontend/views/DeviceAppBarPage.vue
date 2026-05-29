@@ -4,6 +4,7 @@
     :title="title"
     :loading="loading"
   >
+    <ImpactStoryBanner />
     <DeprecationWarningBanner style="margin-bottom: 1em" />
 
     <div>
@@ -17,11 +18,12 @@
 <script>
 
   import AppBarPage from 'kolibri/components/pages/AppBarPage';
+  import ImpactStoryBanner from 'kolibri-common/components/ImpactStoryBanner';
   import DeprecationWarningBanner from './DeprecationWarningBanner';
 
   export default {
     name: 'DeviceAppBarPage',
-    components: { AppBarPage, DeprecationWarningBanner },
+    components: { AppBarPage, ImpactStoryBanner, DeprecationWarningBanner },
     props: {
       title: {
         type: String,

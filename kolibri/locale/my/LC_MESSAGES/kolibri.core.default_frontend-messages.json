@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ကလစ်ဘုတ်သို့ ကော်ပီကူးပါ",
   "TotalPoints.pointsTooltip": "သင်သည် အမှတ် { points, number } မှတ် ကိုရရှိခဲ့သည်",
   "UpdateNotification.adminMessage": "သင်၏ Kolibri အက်ဒမင်သို့ဆက်သွယ်ပါ",
-  "UpdateNotification.hideNotificationLabel": "ဒီစာကိုနောက်ထပ်မပြပါနှင့်",
   "UpdateNotification.upgradeDownload": "ဒီနေရာမှာဒေါင်းလုတ်ဆွဲပါ",
   "UpdateNotification.upgradeHeader": "အဆင့်မြှင့်တင်နိုင်ပါသည်",
   "UpdateNotification.upgradeHeaderImportant": "အရေးကြီးသောအဆင့်မြှင့်တင်မှုရရှိပါပြီ",

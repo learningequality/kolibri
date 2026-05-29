@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Папка",
   "ContentIcon.user": "Потребител",
   "ContentIcon.video": "Видео",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Избери всички",
   "ContentTreeViewer.topicHasNoContents": "Тази папка няма под-папки или материали",
   "ContentWizardUiAlert.channelNotFoundError": "Каналът не беше открит",

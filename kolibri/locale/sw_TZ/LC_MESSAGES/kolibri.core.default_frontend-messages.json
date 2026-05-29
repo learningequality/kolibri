@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "Nakili kwenye ubaoklipu",
   "TotalPoints.pointsTooltip": "Umepata pointi { points, number }",
   "UpdateNotification.adminMessage": "Tafadhali wasiliana na msimamizi wako wa Kolibri",
-  "UpdateNotification.hideNotificationLabel": "Usionyeshe ujumbe huu tena",
   "UpdateNotification.upgradeDownload": "Ipakue hapa",
   "UpdateNotification.upgradeHeader": "Sasisho linapatikana",
   "UpdateNotification.upgradeHeaderImportant": "Sasisho muhimu lipo",

@@ -135,6 +135,7 @@ def transfer_channel(
     baseurl=None,
     source_path=None,
     version=None,
+    token=None,
 ):
     """
     Transfers a channel database either by downloading or copying

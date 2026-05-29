@@ -58,37 +58,44 @@
               />
             </div>
 
-            <div class="action-buttons">
+            <div
+              class="action-buttons"
+              :class="{ 'gap-collapsed': isAnyPressed }"
+            >
               <div
                 class="btn-bg"
-                :class="
+                :class="[
                   $computedClass({
                     backgroundColor: cancelBg,
                     ':hover': { backgroundColor: cancelBgHover },
-                  })
-                "
+                  }),
+                  { 'btn-collapsed': isConfirmPressed },
+                ]"
               >
                 <KIconButton
                   icon="close"
                   :ariaLabel="noGoBackAction$()"
-                  @click="$emit('cancel')"
+                  :disabled="isAnyPressed"
+                  @click="handleCancel"
                 />
               </div>
               <div
                 class="btn-bg"
-                :class="
+                :class="[
                   $computedClass({
                     backgroundColor: confirmBg,
                     ':hover': { backgroundColor: confirmBgHover },
-                  })
-                "
+                  }),
+                  { 'btn-collapsed': isCancelPressed },
+                ]"
               >
                 <KIconButton
                   ref="confirmBtn"
                   icon="check"
                   :color="$themePalette.white"
                   :ariaLabel="yesConfirmAction$()"
-                  @click="$emit('confirm')"
+                  :disabled="isAnyPressed"
+                  @click="handleConfirm"
                 />
               </div>
             </div>
@@ -115,17 +122,28 @@
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
 
+  // Must match both .action-buttons and .btn-bg transition durations in the component's CSS (0.5s)
+  const ANIMATION_DURATION_MS = 500;
+  const PRESSED_CANCEL = 'cancel';
+  const PRESSED_CONFIRM = 'confirm';
+
+  function getPrefersReduced() {
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  }
+
   export default {
     name: 'PicturePasswordConfirmModal',
 
     components: { KFocusTrap, KOverlay, Backdrop },
 
-    setup(props) {
+    setup(props, { emit }) {
       useReturnFocusOnUnmount();
       const confirmBtn = ref(null);
       const modalTitle = ref(null);
       const modalCard = ref(null);
       const naturalCardHeight = ref(0);
+      const pressed = ref(null);
+      let animationTimer = null;
       const { height: windowHeight } = useWindowSize();
 
       const cardScale = computed(() => {
@@ -154,6 +172,36 @@
         return yourPasswordIs$({ labels });
       });
 
+      const isCancelPressed = computed(() => pressed.value === PRESSED_CANCEL);
+      const isConfirmPressed = computed(() => pressed.value === PRESSED_CONFIRM);
+      const isAnyPressed = computed(() => isCancelPressed.value || isConfirmPressed.value);
+
+      function handleCancel() {
+        if (isAnyPressed.value) return;
+        if (getPrefersReduced()) {
+          emit('cancel');
+          return;
+        }
+        pressed.value = PRESSED_CANCEL;
+        animationTimer = setTimeout(() => {
+          animationTimer = null;
+          emit('cancel');
+        }, ANIMATION_DURATION_MS);
+      }
+
+      function handleConfirm() {
+        if (isAnyPressed.value) return;
+        if (getPrefersReduced()) {
+          emit('confirm');
+          return;
+        }
+        pressed.value = PRESSED_CONFIRM;
+        animationTimer = setTimeout(() => {
+          animationTimer = null;
+          emit('confirm');
+        }, ANIMATION_DURATION_MS);
+      }
+
       onMounted(() => {
         document.documentElement.style.overflow = 'hidden';
         naturalCardHeight.value = modalCard.value.scrollHeight;
@@ -162,6 +210,7 @@
 
       onUnmounted(() => {
         document.documentElement.style.overflow = '';
+        clearTimeout(animationTimer);
       });
 
       return {
@@ -178,6 +227,11 @@
         cancelBgHover,
         confirmBg,
         confirmBgHover,
+        isCancelPressed,
+        isConfirmPressed,
+        isAnyPressed,
+        handleCancel,
+        handleConfirm,
       };
     },
 
@@ -280,12 +334,35 @@
     gap: 22px;
     justify-content: center;
     padding: 0 32px 32px;
+    transition: gap 0.5s ease;
+
+    &.gap-collapsed {
+      gap: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   .btn-bg {
     flex: 1;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
     border-radius: 8px;
+    transition:
+      max-width 0.5s ease,
+      opacity 0.5s ease;
+
+    &.btn-collapsed {
+      max-width: 0;
+      opacity: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
 
     /deep/ button {
       width: 100% !important;

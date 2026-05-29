@@ -4,8 +4,10 @@ The appropriate classes should be listed in the AUTHENTICATION_BACKENDS. Note th
 backends are checked in the order they're listed.
 """
 import abc
+import logging
 
 from django.contrib.sessions.backends.db import SessionStore as DBStore
+from django.core.exceptions import PermissionDenied
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.utils.functional import cached_property
@@ -18,9 +20,80 @@ from kolibri.core.device.utils import is_full_facility_import
 
 
 FACILITY_CREDENTIAL_KEY = "facility"
+logger = logging.getLogger(__name__)
 
 
-class FacilityAuthScope(abc.ABC):
+class AuthScope(abc.ABC):
+    def get_queryset(self):
+        """
+        :return: A queryset of FacilityUser objects
+        """
+        return FacilityUser.objects.select_related("dataset")
+
+    @abc.abstractmethod
+    def iter_candidate_users(self):
+        """
+        Determines candidate users for checking authorization
+        :return: An iterator over candidate FacilityUser objects
+        """
+        pass
+
+    @abc.abstractmethod
+    def matches_credentials(self, user):
+        """
+        Determines whether this user is authorized
+        :param user: A FacilityUser object
+        :return: A boolean indicating authorization
+        """
+        pass
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return str(self)
+
+
+class UsernameAuthScope(AuthScope, abc.ABC):
+    """Auth scope for username based authentication"""
+
+    def __init__(self, username):
+        super().__init__()
+        self.username = username
+
+    def iter_candidate_users(self):
+        """
+        First iters over users with exactly matching usernames, then those with an inexact match
+        """
+        qs = self.get_queryset()
+        for user in qs.filter(username=self.username):
+            yield user
+
+        for user in qs.filter(username__iexact=self.username):
+            yield user
+
+
+class SuperuserAuthScope(UsernameAuthScope):
+    """
+    Auth scope for superuser authentication, which does not need to align with a specific facility,
+    but requires superuser device permissions
+    """
+
+    def __init__(self, username, password):
+        super().__init__(username)
+        self.password = password
+
+    def get_queryset(self):
+        return FacilityUser.objects.filter(devicepermissions__is_superuser=True)
+
+    def matches_credentials(self, user):
+        """
+        Superuser's password must be verified
+        """
+        return user.check_password(self.password)
+
+
+class FacilityAuthScope(AuthScope, abc.ABC):
     """Base facility scope for authentication"""
 
     def __init__(self, facility_or_id):
@@ -37,9 +110,6 @@ class FacilityAuthScope(abc.ABC):
 
         :return: The facility dataset ID
         """
-        if not self.facility_or_id:
-            return None
-
         # Resolve dataset_id to leverage the (dataset, picture_password) unique
         # index. facility may be a Facility object or a raw pk/UUID.
         if isinstance(self.facility_or_id, Facility):
@@ -50,69 +120,48 @@ class FacilityAuthScope(abc.ABC):
                 pk=self.facility_or_id
             )
         except Facility.DoesNotExist:
-            return None
+            # if we cannot find the requested facility, we'll just fail fast
+            raise PermissionDenied("Invalid credentials")
 
     @cached_property
-    def is_subset_of_users_device(self):
+    def is_full_facility_import(self):
         return self.dataset_id and not is_full_facility_import(self.dataset_id)
 
-    def get_candidate_users(self):
+    def get_queryset(self):
         """
         Determines candidate users for checking authorization
-        :return: A queryset of FacilityUser objects
         """
-        qs = FacilityUser.objects.all()
-        if self.dataset_id:
-            qs = qs.filter(dataset_id=self.dataset_id)
+        qs = super().get_queryset().filter(dataset_id=self.dataset_id)
         # users who have the most roles could be more active than users who have less, but instead
         # of trying to authenticate them first, through ordering, we just prioritize by date joined
         return qs.annotate(
             has_roles=Exists(Role.objects.filter(user_id=OuterRef("pk"))),
         ).order_by("-has_roles", "date_joined")
 
-    @abc.abstractmethod
-    def matches_credentials(self, user):
-        """
-        Determines whether this user is authorized
-        :param user: A FacilityUser object
-        :return: A boolean indicating authorization
-        """
-        pass
+    def __str__(self):
+        return f"{super().__str__()}<{self.facility_or_id}>"
 
 
-class UsernameAuthScope(FacilityAuthScope):
+class BasicUserAuthScope(FacilityAuthScope, UsernameAuthScope):
     """Auth scope for username/password authentication"""
 
-    def __init__(self, facility_or_id, username=None, password=None):
+    def __init__(self, facility_or_id, username, password=None):
         super().__init__(facility_or_id)
-        self.username = username
+        UsernameAuthScope.__init__(self, username)
         self.password = password
-        self.case_sensitive = True
-
-    def set_case_insensitive(self):
-        self.case_sensitive = False
-
-    def get_candidate_users(self):
-        qs = super().get_candidate_users()
-        if self.case_sensitive:
-            return qs.filter(username=self.username)
-        return qs.filter(username__iexact=self.username)
 
     def matches_credentials(self, user):
         """
         Either the provided password matches the user, or the user is a learner and the facility
         configuration allows passwordless sign-in.
-        :param user: A FacilityUser object
-        :return: Whether the user is authorized
         """
         if user.check_password(self.password):
             return True
 
         return (
-            self.dataset_id
-            and user.dataset.learner_can_login_with_no_password
+            user.dataset.learner_can_login_with_no_password
             and not user.has_roles
-            and (not user.is_superuser or self.is_subset_of_users_device)
+            and (not user.is_superuser or self.is_full_facility_import)
         )
 
 
@@ -123,25 +172,25 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         super().__init__(facility_or_id)
         self.picture_password = picture_password
 
-    def get_candidate_users(self):
-        if not self.dataset_id:
-            return FacilityUser.objects.none()
-        return (
-            super().get_candidate_users().filter(picture_password=self.picture_password)
-        )
+    def get_queryset(self):
+        return super().get_queryset().filter(picture_password=self.picture_password)
+
+    def iter_candidate_users(self):
+        """
+        We expect only one user with the dataset and picture password filters
+        """
+        for user in self.get_queryset():
+            yield user
 
     def matches_credentials(self, user):
         """
         Validates that the user is a learner and that the facility configuration allows picture
         password sign-in.
-        :param user: A FacilityUser object
-        :return: Whether the user is authorized
         """
         return (
-            self.dataset_id
-            and user.dataset.picture_password_settings is not None
+            user.dataset.picture_password_settings is not None
             and not user.has_roles
-            and (not user.is_superuser or self.is_subset_of_users_device)
+            and (not user.is_superuser or self.is_full_facility_import)
         )
 
 
@@ -165,27 +214,38 @@ class FacilityUserBackend:
         facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
         picture_password = kwargs.get("picture_password", None)
 
+        scopes = []
+
         # Picture password authentication path.
         # The None check is load-bearing: filter(picture_password=None) would
         # match rows where the column IS NULL, returning an arbitrary learner.
         if picture_password is not None:
-            auth_scope = PicturePasswordAuthScope(facility, picture_password)
-            return self._run(auth_scope)
+            if not facility:
+                # we cannot run picture password auth without it
+                raise PermissionDenied("Invalid credentials")
+            scopes.append(PicturePasswordAuthScope(facility, picture_password))
+        else:
+            if facility:
+                scopes.append(BasicUserAuthScope(facility, username, password))
+            scopes.append(SuperuserAuthScope(username, password))
 
-        # First, attempt case-sensitive login
-        auth_scope = UsernameAuthScope(facility, username=username, password=password)
+        for auth_scope in scopes:
+            user = self._run(auth_scope)
+            if user:
+                return user
 
-        user = self._run(auth_scope)
-        if user:
-            return user
-
-        # If case-sensitive login fails, attempt case-insensitive login
-        auth_scope.set_case_insensitive()
-        return self._run(auth_scope)
+        return None
 
     def _run(self, auth_scope):
-        for user in auth_scope.get_candidate_users():
+        """
+        :param auth_scope: The auth scope to validate against
+        :type auth_scope: AuthScope
+        :return:
+        """
+        for user in auth_scope.iter_candidate_users():
+            logger.debug(f"Using {auth_scope} to check user {user.id}")
             if auth_scope.matches_credentials(user):
+                logger.debug(f"{auth_scope} authorized user {user.id}")
                 return user
         return None
 

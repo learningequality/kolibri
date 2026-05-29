@@ -211,7 +211,7 @@
   import PermissionsIcon from 'kolibri-common/components/labels/PermissionsIcon';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import UserTypeDisplay from 'kolibri-common/components/UserTypeDisplay';
-  import { PermissionTypes, UserKinds } from 'kolibri/constants';
+  import { PermissionTypes } from 'kolibri/constants';
   import useUser from 'kolibri/composables/useUser';
   import GenderDisplayText from 'kolibri-common/components/userAccounts/GenderDisplayText';
   import BirthYearDisplayText from 'kolibri-common/components/userAccounts/BirthYearDisplayText';
@@ -219,6 +219,7 @@
   import useFacilities from 'kolibri-common/composables/useFacilities';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+  import useUserKind from '../../composables/useUserKind';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
@@ -248,19 +249,20 @@
       const { currentUser } = useCurrentUser();
       const {
         isLearnerOnlyImport,
-        userKind,
         userPermissions: _userPermissions,
         isCoach,
         isAdmin,
         isSuperuser,
+        isLearner,
         userHasPermissions,
         userFacilityId,
       } = useUser();
+      const { userKind } = useUserKind();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       const { fetchPoints, totalPoints } = useTotalProgress();
       const { facilities } = useFacilities();
       const { facilityConfig, fetchFacilities, updateFacilityConfig } = useFacility();
-      const userPermissions = computed(() => pickBy(_userPermissions));
+      const userPermissions = computed(() => pickBy(_userPermissions.value));
 
       return {
         pageLoading,
@@ -272,6 +274,7 @@
         isCoach,
         isAdmin,
         isSuperuser,
+        isLearner,
         userHasPermissions,
         userFacilityId,
         showLearnModal,
@@ -311,10 +314,13 @@
         return '';
       },
       showPicturePasswordRow() {
-        return (
-          this.userKind === UserKinds.LEARNER &&
-          this.facilityConfig?.picture_password_settings != null
-        );
+        if (this.facilityConfig?.picture_password_settings == null) {
+          return false;
+        }
+        if (this.isSuperuser && this.isLearnerOnlyImport) {
+          return true;
+        }
+        return this.isLearner;
       },
       canEditPassword() {
         const learner_can_edit =

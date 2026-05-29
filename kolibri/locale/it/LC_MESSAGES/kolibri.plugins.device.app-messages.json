@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Cartella",
   "ContentIcon.user": "Utente",
   "ContentIcon.video": "Video",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Seleziona tutto",
   "ContentTreeViewer.topicHasNoContents": "Questa cartella non ha sottocartelle o risorse",
   "ContentWizardUiAlert.channelNotFoundError": "Canale non trovato",

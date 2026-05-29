@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "ক্লিপবোর্ডে অনুলিপি করুন",
   "TotalPoints.pointsTooltip": "আপনি { points, number } পয়েন্ট পেয়েছেন",
   "UpdateNotification.adminMessage": "অনুগ্রহ করে আপনার কলিব্রি অ্যাডমিনের সাথে পরামর্শ করুন",
-  "UpdateNotification.hideNotificationLabel": "এই বার্তাটি আর দেখাবেন না",
   "UpdateNotification.upgradeDownload": "এটি এখানে ডাউনলোড করুন",
   "UpdateNotification.upgradeHeader": "আপগ্রেড উপলব্ধ",
   "UpdateNotification.upgradeHeaderImportant": "গুরুত্বপূর্ণ আপগ্রেড উপলব্ধ রয়েছে",

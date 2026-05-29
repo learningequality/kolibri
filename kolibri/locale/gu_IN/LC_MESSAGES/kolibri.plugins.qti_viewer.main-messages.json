@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "વિસ્તૃત કરેલી છબી",
-  "SafeHtmlImage.expandImage": "છબી વિસ્તૃત કરો"
+  "SafeHtmlImage.expandImage": "છબી વિસ્તૃત કરો",
+  "TextEntryInteractionStrings.textEntryLabel": "તમારો જવાબ"
 }

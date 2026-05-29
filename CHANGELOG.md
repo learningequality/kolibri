@@ -2,6 +2,219 @@
 
 List of the most important changes for each release.
 
+## 0.19.4
+
+### High-level overview
+
+This release adds picture password login, a way for learners to sign in by selecting a sequence of pictures instead of typing a password. It is configured per facility and is currently available only when the interface language is set to English.
+
+It also adds the ability to import and update channels from the community library directly within Kolibri.
+
+The rest of the release is mostly internal: a round of security improvements, behind-the-scenes work to keep the codebase maintainable, and early groundwork for an upcoming Courses feature that is not yet available to use.
+
+### Added
+
+#### Picture Password login (English-only, per-facility setting)
+* Add new picture_password field to FacilityUser by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14365
+* Add new facility setting fields to support picture password login.   by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14400
+* Add picture password API endpoint with role-based access by @akolson in https://github.com/learningequality/kolibri/pull/14462
+* Implement logic to assign picture password to learners by @ozer550 in https://github.com/learningequality/kolibri/pull/14469
+* Add modal for reaching picture-password learner limit by @bjester in https://github.com/learningequality/kolibri/pull/14526
+* Refactored facility settings page with picture password settings by @bjester in https://github.com/learningequality/kolibri/pull/14495
+* Add base AllPasswordsPage component and coach routing for picture passwords by @akolson in https://github.com/learningequality/kolibri/pull/14547
+* Update CreateSessionSerializer to support learners logging in with a picture password by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14550
+* Auto-assign picture_password to new learners and clear on role assignment by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14551
+* Add utility for picture passwords exhaustion by @bjester in https://github.com/learningequality/kolibri/pull/14560
+* Assign picture password when user's last role is deleted by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14566
+* Implement PicturePasswordGrid component by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14546
+* Update user edit page and user table for picture login by @bjester in https://github.com/learningequality/kolibri/pull/14573
+* Register task to assign picture password by @ozer550 in https://github.com/learningequality/kolibri/pull/14565
+* Update UserCreateSidePanel to display info about picture password assignment by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14600
+* Learner summary page picture password by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14632
+* Implement full icon display and print functionality for AllPasswordsPage by @akolson in https://github.com/learningequality/kolibri/pull/14617
+* Add facility plugin route and ClassEditPage entry point for picture passwords by @akolson in https://github.com/learningequality/kolibri/pull/14652
+* Update Facility Settings Page with informational modals by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14641
+* Picture password sign-in integration by @bjester in https://github.com/learningequality/kolibri/pull/14649
+* Add picture password row to learner Profile page by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14679
+* Show Change password row for admins; respect facility's show_icon_text by @rtibbles in https://github.com/learningequality/kolibri/pull/14692
+* Responsive picture password sign in by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14682
+* Add picture password confirm modal by @akolson in https://github.com/learningequality/kolibri/pull/14691
+* Fix new user creation when picture password is enabled by @rtibbles in https://github.com/learningequality/kolibri/pull/14693
+* Add route wrapper components for Coach and Facility picture password page by @akolson in https://github.com/learningequality/kolibri/pull/14701
+* Implement sign-up/join picture password confirmation modal by @bjester in https://github.com/learningequality/kolibri/pull/14698
+* Resolve picture_password sync collisions via PicturePasswordCollisionOperation by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14699
+* Assign picture passwords to synced learners missing them on receiver by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14650
+* Picture Password Animations by @DXCanas in https://github.com/learningequality/kolibri/pull/14690
+* Use class summary password settings instead of useFacility by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14737
+* Show picture password modal on home page after signup/facility change by @akolson in https://github.com/learningequality/kolibri/pull/14725
+* Gate picture-password UI on isPictureLoginFeatureEnabled by @rtibbles in https://github.com/learningequality/kolibri/pull/14739
+* Use KListbox by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14745
+* Fix picture password icons broken on Coach page refresh by @akolson in https://github.com/learningequality/kolibri/pull/14751
+* Add visible error notification for wrong picture password by @akolson in https://github.com/learningequality/kolibri/pull/14741
+* ensure picture password modal appears on LOD join by @marcellamaki in https://github.com/learningequality/kolibri/pull/14753
+
+#### Community library import
+* Add channel token support to importchannel management command by @rtibbles in https://github.com/learningequality/kolibri/pull/14056
+* Thread token-resolved metadata (library, version) through channel import pipeline by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14598
+* Fetch versioned channel DB URL when importing with a version token by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14607
+* Use Studio v2 API for community library channel update checks by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14608
+* Allow channel downgrade when version explicitly requested via token by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14609
+* Pass channel token through to remotechannelimport task params by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14605
+* Handle draft channels with no published Studio version by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14638
+* Fix content tree hidden and 404 error when importing from draft channels by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14664
+* Set prop for import modal to ensure devices have facilities by @bjester in https://github.com/learningequality/kolibri/pull/14749
+* Fix token-based channel import: redirect to new version page and support draft channels by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14747
+
+#### Course tools (foundational work, not yet available)
+* Pre/Post test renderer by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14389
+* Use useGoBack for course back navigation instead of hardcoded HOME by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14403
+* Exclude Courses in Search, Resume, Library & plugin_data flag for courses by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14132
+* Add unit learning objectives report API endpoint by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14422
+* Refined prev/next buttons in course viewer by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14399
+* Create content download requests and removal requests  for courses descendants by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14448
+* Add Learning Objectives report tab to CourseSummaryPage by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14440
+* Fix unit report to credit all mapped LOs for multi-LO items by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14472
+* Prioritize course content download based on learner progress by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14496
+* Add Learners report tab to CourseSummaryPage and Learner SidePanel View  by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14497
+* Add course-level learner progress notifications by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14523
+* Add Learning Objective side panel detail view by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14454
+* Handle deleted course content gracefully on courses pages by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14521
+* Add unit lesson progress API endpoint by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14535
+* Add URL routing for tab and side panel state on Course Summary page by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14606
+* Update course title by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14557
+* Course lod content update by @AlexVelezLl in https://github.com/learningequality/kolibri/pull/14619
+* Reinstate learner interaction blocking for course pre/post test flow by @nucleogenesis in https://github.com/learningequality/kolibri/pull/14562
+
+#### Other additions
+* Add Python 3.14 support by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14395
+* Add official container image with best practices by @bjester in https://github.com/learningequality/kolibri/pull/14450
+* Enable postgres SSL configuration through Kolibri options by @bjester in https://github.com/learningequality/kolibri/pull/14702
+* Add locally-triggered impact-stories prompt for super admins by @rtibbles in https://github.com/learningequality/kolibri/pull/14729
+
+### Changed
+
+#### Security hardening
+* Fix/remove pickle protocol cache defaults v0.19.x by @Swoyamjeetcodes in https://github.com/learningequality/kolibri/pull/14198
+* Add minReleaseAge to pnpm settings to reduce likelihood of supply chain compromises by @bjester in https://github.com/learningequality/kolibri/pull/14475
+* Add excludes for dep cool downs by @bjester in https://github.com/learningequality/kolibri/pull/14477
+* Automigrate allow_other_browsers_to_connect to True as it was previously always wrong by @rtibbles in https://github.com/learningequality/kolibri/pull/14596
+* Harden workflow_run comment pipelines against artifact poisoning by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14715
+* Restructure InitializeAppView redirect to validate-then-use, drop HTTP_REFERER fallback by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14710
+* Fix fork-PR lookup in findPrByHeadSha by @rtibbles in https://github.com/learningequality/kolibri/pull/14719
+* Replace execSync with execFileSync argv array in kolibri-build by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14713
+* Sweep str(e) information disclosure and log idioms from API paths by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14717
+* Add least-privilege permissions blocks to all GitHub workflow files by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14716
+* Drop expanduser from filesystem helpers; echo submitted path in API by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14718
+* Update CodeQL workflow to allow running on prs from forks by @rtibbles in https://github.com/learningequality/kolibri/pull/14721
+* Extract npm version report artifact to temp dir by @rtibbles in https://github.com/learningequality/kolibri/pull/14720
+* Authorization scopes with enhanced test coverage by @bjester in https://github.com/learningequality/kolibri/pull/14706
+* Tighten API endpoints that fetch from a caller-supplied remote URL by @rtibbles in https://github.com/learningequality/kolibri/pull/14705
+* Bypass facility ID filter for superusers, but require it for all other users by @bjester in https://github.com/learningequality/kolibri/pull/14730
+
+#### Frontend architecture
+* Refactor facilityConfig Vuex module into useFacilityEditor composable by @bjester in https://github.com/learningequality/kolibri/pull/14449
+* Replace samePageCheckGenerator with route identity checks by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14518
+* Move setUnspecifiedPassword from core Vuex to user_auth utility by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14528
+* Remove dead Vuex notification state and consumers by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14529
+* Replace Vuex pageVisibility state with reactive ref in browserInfo by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14530
+* Move fetchUserSyncStatus to coach plugin, add notification dismiss, and relocate setUnspecifiedPassword by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14531
+* Move allowRemoteAccess from core to per-plugin plugin_data by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14532
+* Remove Vuex page loading state, use shared composable by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14527
+* Replace Vuex error state with appError utility module by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14536
+* Remove Vue event bus from pluginMediator by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14540
+* Move usePageLoading composable to kolibri-common by @rtibbles in https://github.com/learningequality/kolibri/pull/14544
+* Add dynamic RTL CSS loading support for webpack bundles by @rtibbles in https://github.com/learningequality/kolibri/pull/14479
+* Remove vuex-router-sync; replace store.state.route with useRoute() by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14541
+* Double down on hooks, remove app plugin in favour of individual hooks for individual capabilities by @rtibbles in https://github.com/learningequality/kolibri/pull/12879
+
+#### Developer tooling and build
+* Update dependabot to monthly schedule with 7-day cooldown by @rtibbles in https://github.com/learningequality/kolibri/pull/14020
+* Remove call-holiday-message github action by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14048
+* fix(docs): correct spelling mistakes in documentation files by @himanshujays29 in https://github.com/learningequality/kolibri/pull/14059
+* Update Node.js version in getting_started docs from 18.x to 20.x by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14232
+* Refactor epub navigation button tests to use Vue Testing Library by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14237
+* Converted user auth page unit tests to Vue Testing Library by @AadarshM07 in https://github.com/learningequality/kolibri/pull/14245
+* Convert epub viewer bar unit tests to Vue Testing Library by @sharma-anushka in https://github.com/learningequality/kolibri/pull/14225
+* Convert epub viewer settings unit tests to Vue Testing Library for SettingsButton.spec.js and SettingsSideBar.spec.js by @ketan0919 in https://github.com/learningequality/kolibri/pull/14280
+* Refactor user auth layout tests to use Vue Testing Library by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14329
+* Add workflow for pull request  events by @MisRob in https://github.com/learningequality/kolibri/pull/14333
+* Add tests for allow_other_browsers_to_connect remote access setting by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14334
+* Add jest-fail-on-console and fix console noise in frontend tests by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14337
+* Remove stale Python 2.7 references from comments and docstrings by @ketan0919 in https://github.com/learningequality/kolibri/pull/14342
+* Migrate epub viewer search tests to Vue Testing Library by @sahibsiddiqui in https://github.com/learningequality/kolibri/pull/14321
+* test: migrate setup_wizard tests to Vue Testing Library by @rohitt-pandey in https://github.com/learningequality/kolibri/pull/14219
+* Convert PDF viewer unit tests to Vue Testing Library #14194 by @rohitt-pandey in https://github.com/learningequality/kolibri/pull/14287
+* Migrate ESLint config from legacy .eslintrc to flat config (ESLint 9) by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14346
+* Migrate plugin tests to Vue Testing Library by @Swoyamjeetcodes in https://github.com/learningequality/kolibri/pull/14197
+* refactor TaskPanel and PinAuthenticationModal to use vue test library by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14393
+* Add explicit run mode setting to smoke test. by @rtibbles in https://github.com/learningequality/kolibri/pull/14442
+* Add FUNDING.yml by @bjester in https://github.com/learningequality/kolibri/pull/14446
+* Refactor device plugin test files to use Vue Testing Library by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14376
+* Fix broken pnpm lock file. by @rtibbles in https://github.com/learningequality/kolibri/pull/14509
+* Remove quotes and generalize workflow names by @bjester in https://github.com/learningequality/kolibri/pull/14520
+* Automate npm package publishing by @rtibbles in https://github.com/learningequality/kolibri/pull/14561
+* Use VTL v1 syntax for stubs. by @rtibbles in https://github.com/learningequality/kolibri/pull/14568
+* Add npm package publish check tooling and bump versions by @rtibbles in https://github.com/learningequality/kolibri/pull/14576
+* Exclude frontend/ directories from sdist instead of old assets/ by @rtibbles in https://github.com/learningequality/kolibri/pull/14575
+* Fix npm publish workflow permissions for provenance by @rtibbles in https://github.com/learningequality/kolibri/pull/14577
+* Drop --provenance and --access public from npm publish by @rtibbles in https://github.com/learningequality/kolibri/pull/14578
+* Use pnpm pack + npm publish for OIDC trusted publishing by @rtibbles in https://github.com/learningequality/kolibri/pull/14581
+* Revert pnpm pack change, use Node 24 for npm publish by @rtibbles in https://github.com/learningequality/kolibri/pull/14582
+* Remove pnpm install from npm publish workflow by @rtibbles in https://github.com/learningequality/kolibri/pull/14583
+* Use lightweight install for npm publish workflow by @rtibbles in https://github.com/learningequality/kolibri/pull/14584
+* Add published packages summary for Slack notifications by @rtibbles in https://github.com/learningequality/kolibri/pull/14586
+* Strengthen frontend linting with dependency, Node.js, and test rules by @rtibbles in https://github.com/learningequality/kolibri/pull/14594
+* Replace babel-loader with swc-loader for webpack transpilation by @rtibbles in https://github.com/learningequality/kolibri/pull/14595
+* Update android installer version to v0.1.7.1 by @rtibbles in https://github.com/learningequality/kolibri/pull/14602
+* Update to android app version with APK build fix by @rtibbles in https://github.com/learningequality/kolibri/pull/14604
+* Convert setup wizard step unit tests to Vue Testing Library by @AadarshM07 in https://github.com/learningequality/kolibri/pull/14616
+* Narrow npm publish triggers and add Slack notifications by @rtibbles in https://github.com/learningequality/kolibri/pull/14615
+* Migrate epub viewer TOC tests from vue test utils to Vue testing library by @curiouscoder-cmd in https://github.com/learningequality/kolibri/pull/14542
+* Update browserslist config to new support matrix by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14627
+* Add new guidance and linter rules for Testing Library tests by @MisRob in https://github.com/learningequality/kolibri/pull/14579
+* Enable import-x module-system ESM enforcement rules by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14639
+* Add 'opened' to pull-request-target trigger types by @rtibbles in https://github.com/learningequality/kolibri/pull/14672
+* Conditionalize webpack cache by hot/transpile to prevent errors. by @rtibbles in https://github.com/learningequality/kolibri/pull/14678
+* Replace add_contributor workflow with monthly updater and backfill AUTHORS.md by @rtibbles in https://github.com/learningequality/kolibri/pull/14686
+* Cancel outdated CI runs when a PR is updated by @rtibbles in https://github.com/learningequality/kolibri/pull/14694
+* Bump kolibri-app workflow refs to v0.5.1 by @rtibbles in https://github.com/learningequality/kolibri/pull/14744
+
+#### Other changes
+* Consolidate deprovision to reuse facility deletion utilities by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14343
+* Optimize Role and Membership bulk creation with bulk_create by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14341
+* Upgrade KDS from v5.5.2 to v5.6.1 by @MisRob in https://github.com/learningequality/kolibri/pull/14517
+* Upgrade morango and pin setuptools by @bjester in https://github.com/learningequality/kolibri/pull/14567
+* UI cleanup by @marcellamaki in https://github.com/learningequality/kolibri/pull/14533
+* Bump morango version to v0.8.11 by @bjester in https://github.com/learningequality/kolibri/pull/14655
+* Upgrade morango to resolve dirty-bit issue and cleanup by @bjester in https://github.com/learningequality/kolibri/pull/14683
+
+### Fixed
+* Prevent crash in content cleanup when no eligible user downloads are available by @remo-lab in https://github.com/learningequality/kolibri/pull/14054
+* Fix UnboundLocalError in ClassroomNotificationsViewset.list when filter_queryset raises DatabaseError by @TheGreatPratyush in https://github.com/learningequality/kolibri/pull/14345
+* Add better error message for deleted learners in assignments by @AllanOXDi in https://github.com/learningequality/kolibri/pull/14209
+* Fix selected value handling in  select components by @Abhishek-Punhani in https://github.com/learningequality/kolibri/pull/14250
+* Use update_dirty_bit_to in pre_save to allow null user fields during deserialization by @ozer550 in https://github.com/learningequality/kolibri/pull/14234
+* Fix ResourceLayout remounting default slot on side panel toggle by @rtibbles in https://github.com/learningequality/kolibri/pull/14397
+* Handle frontend loaded zip archive content (h5p, bloom(pub/d), perseus, kpub) that contains large files by @rtibbles in https://github.com/learningequality/kolibri/pull/12805
+* Fix benchmark command Session import and macOS psutil crash by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14447
+* Remove duplicate page name definitions which was causing errors by @marcellamaki in https://github.com/learningequality/kolibri/pull/14463
+* Remove remaining duplicate PageNames definitions in coach plugin by @rtibbles in https://github.com/learningequality/kolibri/pull/14467
+* Ensure Attendance Tracking confirmation snackbar is displayed by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/14478
+* Fix flash of unstyled text (FOUT) on login page by @rtibbles in https://github.com/learningequality/kolibri/pull/14476
+* Check progress before notifications in coach lesson report status by @rtibbles in https://github.com/learningequality/kolibri/pull/14516
+* Fix progress bar resetting during import/export operations by @rtibbles in https://github.com/learningequality/kolibri/pull/14057
+* Do early resolution of language redirect for redirect views to prevent multihop redirects. by @rtibbles in https://github.com/learningequality/kolibri/pull/14597
+* fix(qti-viewer): accessibility and maxChoices fixes for choice and text-entry interactions by @rajeshuchil in https://github.com/learningequality/kolibri/pull/14374
+* Fix mark-all-present switch requiring two clicks after modal cancel by @akolson in https://github.com/learningequality/kolibri/pull/14552
+* Skip download when file already exists in fallback storage dir by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14630
+* Fix UI freeze when cancelling Edit Attendance by @akolson in https://github.com/learningequality/kolibri/pull/14653
+* A11y fixes by @marcellamaki in https://github.com/learningequality/kolibri/pull/14645
+* Miscellaneous bug fixes by @rtibbles in https://github.com/learningequality/kolibri/pull/14688
+* Fixes for global facility state handling by @bjester in https://github.com/learningequality/kolibri/pull/14703
+* Reload on back/forward navigation to prevent stale auth state by @akolson in https://github.com/learningequality/kolibri/pull/14704
+* Bundle colorama so Click works on Windows by @rtibbles in https://github.com/learningequality/kolibri/pull/14757
+* Set up Django app registry before building WSGI applications by @rtibbles in https://github.com/learningequality/kolibri/pull/14760
+
 ## 0.19.3
 
 ### High-level overview
@@ -1192,7 +1405,8 @@ Updates to our quizzes provide coaches more flexibility in creating quizzes by s
 
 Noteworthy technical updates include updating to a third version of our Exam model data schema, the addtion of a new draft exam model to allow editing of quizzes before they are made active/syncable, introducing a new accordion component, and changing the quiz creation routing structure to use nested routes and a side-panel style UX.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Restore exam/utils.spec.js to previous version; tests pass by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11155
 - Enhanced Quizzes: Initial frontend state management API by @nucleogenesis in https://github.com/learningequality/kolibri/pull/11088
@@ -1287,11 +1501,14 @@ Noteworthy technical updates include updating to a third version of our Exam mod
 - EQM: Only show save success message when saving by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12389
 - Exam Page: Move smaller screen timer to top by @nucleogenesis in https://github.com/learningequality/kolibri/pull/12485
 
+</details>
+
 #### Github integrations, actions, dev workflow updates
 
 In 0.17, we have also improved many automated workflows to support the dev team, including increased use of dependabot, Slack integrations, and expanded use of Github actions for continuous integration and deployment.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Notify our slack on contributors' issue comments by @vkWeb in https://github.com/learningequality/kolibri/pull/11564
 - Use the official GH action for Slack by @vkWeb in https://github.com/learningequality/kolibri/pull/11623
@@ -1307,11 +1524,14 @@ In 0.17, we have also improved many automated workflows to support the dev team,
 - Increase number of dependabot PRs by @rtibbles in https://github.com/learningequality/kolibri/pull/11943
 - Add pre-commit-ci-lite action to automate PR lint fixes by @thesujai in https://github.com/learningequality/kolibri/pull/12034
 
+</details>
+
 #### Additional features and improvements
 
 Additional updates include the ability to create a new facility on an existing Kolibri, and updating the tab title to include a realtime percentage of tasks. To help ensure robustness and reliability, we have expanded the range and coverage of our unit tests.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - added functionality to create new facility on existing kolibri by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11197
 - added test cases for create new facility feature by @Jaspreet-singh-1032 in https://github.com/learningequality/kolibri/pull/11303
@@ -1334,6 +1554,8 @@ Additional updates include the ability to create a new facility on an existing K
 - Added neeeded values for BaseValuesViewset by @jredrejo in https://github.com/learningequality/kolibri/pull/12346
 - Add string prompt to log in with existing username or create an account by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12310
 
+</details>
+
 ### Breaking Changes
 
 [Support for Python 2.7, deprecated in 0.16, has been dropped](https://github.com/learningequality/kolibri/pull/11654). Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
@@ -1345,7 +1567,8 @@ Additional updates include the ability to create a new facility on an existing K
 
 Important technical changes include adding Python 3.12 support, upgrading Django to version 3.2, upgrading KDS to v4.4.0, and upgrading the Perseus exercise library to a recently released version, and changes to our linting tools to simplify and improve our developer experience. Support for Python 2.7, deprecated in 0.16, has been dropped. Support for Internet Explorer 11, deprecated in 0.16, has been dropped.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Remove Python 2.7 support by @rtibbles in https://github.com/learningequality/kolibri/pull/11654
 - Remove Python 2.7 deprecation warning. by @rtibbles in https://github.com/learningequality/kolibri/pull/11713
@@ -1362,10 +1585,13 @@ Important technical changes include adding Python 3.12 support, upgrading Django
 - Create and use a standard utility library for handling zip files in the frontend by @rtibbles in https://github.com/learningequality/kolibri/pull/11539
 - updated use of entry_points according to importlib version >3.6.0 by @im-NL in https://github.com/learningequality/kolibri/pull/11417
 
+</details>
+
 #### Updates to string processes (developer-facing)
 This release is the first time that Kolibri will be using "feature file" strings, where all new strings for a feature are introduced into one files. This reduces the overhead for both dev work and translation work.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Add enhanced quiz management strings - first draft for dev work by @marcellamaki in https://github.com/learningequality/kolibri/pull/11189
 - Composable translators by @rtibbles in https://github.com/learningequality/kolibri/pull/10960
@@ -1376,10 +1602,13 @@ This release is the first time that Kolibri will be using "feature file" strings
 - First pass string updates following UX writing and ditto review by @marcellamaki in https://github.com/learningequality/kolibri/pull/12312
 - Add strings for post-setup onboarding guide component by @LianaHarris360 in https://github.com/learningequality/kolibri/pull/12113
 
+</details>
+
 #### Refactors
 Key refactors include replacing `KResponsiveWindow` with `useKResponsiveWindow` across Kolibri, work toward improving the router handler architecture in Coach, and continue work towards introducing more composables.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Replace KResponseWindow with useKResponseWindow (#11349, #11355, #11427, #11358, #11366, #11474, #11369, #11346, #11414, #11529, #11997)
 - Changed KContentRenderer to ContentRenderer. by @ShivangRawat30 in https://github.com/learningequality/kolibri/pull/11289
@@ -1394,12 +1623,15 @@ Key refactors include replacing `KResponsiveWindow` with `useKResponsiveWindow` 
 - App navigation refactor by @rtibbles in https://github.com/learningequality/kolibri/pull/12084
 - Refactored HomePage route handler to fetch initClassInfo and getFacil… by @shubh1007 in https://github.com/learningequality/kolibri/pull/12358
 
+</details>
+
 
 #### Docs related updates
 
 Updates to developer documentation builds and improved copywriting.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - docs: add new documentation related to testing style guide and testing template by @EshaanAgg in https://github.com/learningequality/kolibri/pull/12083
 - Adds loose pinning of dev docs requirements to ensure correct builds … by @benjaoming in https://github.com/learningequality/kolibri/pull/12466
@@ -1407,10 +1639,13 @@ Updates to developer documentation builds and improved copywriting.
 - Update development documentation by @MisRob in https://github.com/learningequality/kolibri/pull/11917
 - Tweniee/Isssue:#11361 Updated Document for PR release  by @Tweniee in https://github.com/learningequality/kolibri/pull/11512
 
+</details>
+
 ### Fixed
 Fixes include accessibility updates, bug fixes, code cleanup, and UI improvements.
 
-##### List of supporting PRs
+<details>
+  <summary>List of supporting PRs</summary>
 
 - Maintain the zoom settings for the PDF viewer by @nikkuAg in https://github.com/learningequality/kolibri/pull/11165
 - Hide the table when data is loading by @muditchoudhary in https://github.com/learningequality/kolibri/pull/11238
@@ -1441,6 +1676,8 @@ Fixes include accessibility updates, bug fixes, code cleanup, and UI improvement
 - Don't put csrf protection on endpoint that we use to set csrf cookie. by @rtibbles in https://github.com/learningequality/kolibri/pull/12371
 - Ensure skip to main content logic is working by @marcellamaki in https://github.com/learningequality/kolibri/pull/12439
   - Update automatic download setting default to False if running in a remote content context. by @rtibbles in https://github.com/learningequality/kolibri/pull/12395
+
+</details>
 
 
 ## 0.16.0

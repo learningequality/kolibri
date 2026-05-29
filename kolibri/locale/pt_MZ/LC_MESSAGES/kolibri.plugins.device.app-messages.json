@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Pasta",
   "ContentIcon.user": "Utilizador",
   "ContentIcon.video": "Vídeo",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Selecionar todos",
   "ContentTreeViewer.topicHasNoContents": "Esta pasta não contém nenhuma subpasta nem conteúdos",
   "ContentWizardUiAlert.channelNotFoundError": "Canal não encontrado",

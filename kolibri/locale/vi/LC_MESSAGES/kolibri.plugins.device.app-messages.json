@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Thư mục",
   "ContentIcon.user": "Người dùng",
   "ContentIcon.video": "Video",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Chọn tất cả",
   "ContentTreeViewer.topicHasNoContents": "Thư mục này không chứa thư mục con hoặc tài liệu nào",
   "ContentWizardUiAlert.channelNotFoundError": "Không tìm thấy kênh",

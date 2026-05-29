@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Folder",
   "ContentIcon.user": "Pengguna",
   "ContentIcon.video": "Video",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Pilih semua",
   "ContentTreeViewer.topicHasNoContents": "Folder ini tidak memiliki subfolder atau sumber daya",
   "ContentWizardUiAlert.channelNotFoundError": "Channel tidak ditemukan",

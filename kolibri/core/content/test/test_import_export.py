@@ -2685,7 +2685,9 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
-                ).values("id", "file_size", "extension")[:1]
+                )
+                .values("id", "file_size", "extension")
+                .order_by("id")[:1]
             ),
             1,
         )
@@ -2726,7 +2728,9 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
-                ).values("id", "file_size", "extension")[:1]
+                )
+                .values("id", "file_size", "extension")
+                .order_by("id")[:1]
             ),
             1,
         )
@@ -2762,7 +2766,9 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
-                ).values("id", "file_size", "extension")[:1]
+                )
+                .values("id", "file_size", "extension")
+                .order_by("id")[:1]
             ),
             1,
         )
@@ -2798,7 +2804,9 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
-                ).values("id", "file_size", "extension")[:1]
+                )
+                .values("id", "file_size", "extension")
+                .order_by("id")[:1]
             ),
             1,
         )
@@ -2834,7 +2842,9 @@ class ImportContentTestCase(TestCase):
             list(
                 LocalFile.objects.filter(
                     files__contentnode__channel_id=self.the_channel_id
-                ).values("id", "file_size", "extension")[:1]
+                )
+                .values("id", "file_size", "extension")
+                .order_by("id")[:1]
             ),
             1,
         )

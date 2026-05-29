@@ -74,7 +74,7 @@ Run tests for a specific class:
 
   pytest kolibri/core/auth/test/test_permissions.py -k MembershipPermissionsTestCase
 
-For more advanced usage, see :ref:`getting_started:automated testing`.
+For more advanced usage, see :ref:`automated testing`.
 
 Test Patterns and Examples
 ---------------------------

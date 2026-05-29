@@ -27,6 +27,7 @@
   "CommonLearnStrings.resourceCompletedLabel": "Ressource achevée",
   "CommonLearnStrings.resumeLabel": "Recommencer",
   "CommonLearnStrings.shareFile": "Partager",
+  "CommonLearnStrings.shareFileMessage": "",
   "CommonLearnStrings.showLess": "Afficher moins",
   "CommonLearnStrings.suggestedTime": "Temps suggéré",
   "CommonLearnStrings.toggleLicenseDescription": "Montrer la description de la licence",

@@ -93,6 +93,7 @@
   "ContentIcon.topic": "Φάκελος",
   "ContentIcon.user": "Χρήστης",
   "ContentIcon.video": "Βίντεο",
+  "ContentNodeRow.coursePrefixedTitle": "",
   "ContentTreeViewer.selectAll": "Επιλογή όλων",
   "ContentTreeViewer.topicHasNoContents": "Αυτός ο φάκελος δεν έχει υποφακέλους ή πηγές",
   "ContentWizardUiAlert.channelNotFoundError": "Το κανάλι δεν βρέθηκε",

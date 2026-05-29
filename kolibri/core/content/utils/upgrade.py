@@ -41,7 +41,6 @@ from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.cache import process_cache
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -49,7 +48,20 @@ def clear_diff_stats(channel_id):
     process_cache.delete(CHANNEL_UPDATE_STATS_CACHE_KEY.format(channel_id))
 
 
-def diff_stats(channel_id, method, drive_id=None, baseurl=None):
+def _get_channel_version_for_diff(token, new_channel_version):
+    if not token or new_channel_version is None:
+        return None
+    return "next" if new_channel_version == 0 else new_channel_version
+
+
+def diff_stats(
+    channel_id,
+    method,
+    drive_id=None,
+    baseurl=None,
+    token=None,
+    new_channel_version=None,
+):
     """
     Download the channel database to an upgraded path.
     Annotate the local file availability of the upgraded channel db.
@@ -66,6 +78,8 @@ def diff_stats(channel_id, method, drive_id=None, baseurl=None):
                 method=DOWNLOAD_METHOD,
                 no_upgrade=True,
                 baseurl=baseurl,
+                token=token,
+                version=_get_channel_version_for_diff(token, new_channel_version),
             )
         elif method == "disk":
             drive = get_mounted_drive_by_id(drive_id)

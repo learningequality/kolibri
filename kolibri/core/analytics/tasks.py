@@ -1,7 +1,11 @@
 import logging
+from datetime import timedelta
 
 from django.db import connection
 
+from kolibri.core.analytics.local_notifications import (
+    create_impact_stories_notification_if_needed,
+)
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
@@ -70,3 +74,32 @@ def schedule_ping(
             pass
     elif conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         job_storage.clear(job_id=DEFAULT_PING_JOB_ID)
+
+
+LOCAL_NOTIFICATION_JOB_ID = "local-notifications"
+COOLDOWN_DAYS = 90
+DEFAULT_CADENCE_DAYS = 1
+
+
+def _run_local_notification_generation():
+    # Plain-function body so tests can drive the body without invoking the
+    # registered-task wrapper. The reschedule is in a finally block so the
+    # task stays scheduled even if the trigger evaluator raises.
+    next_run = timedelta(days=DEFAULT_CADENCE_DAYS)
+    try:
+        if create_impact_stories_notification_if_needed():
+            next_run = timedelta(days=COOLDOWN_DAYS)
+    finally:
+        _generate_local_notifications.enqueue_in(next_run)
+
+
+@register_task(job_id=LOCAL_NOTIFICATION_JOB_ID)
+def _generate_local_notifications():
+    _run_local_notification_generation()
+
+
+def schedule_local_notification_generation():
+    try:
+        _generate_local_notifications.enqueue_in(timedelta(days=DEFAULT_CADENCE_DAYS))
+    except JobRunning:
+        pass

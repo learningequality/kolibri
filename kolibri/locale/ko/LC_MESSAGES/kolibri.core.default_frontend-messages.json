@@ -519,7 +519,6 @@
   "TechnicalTextBlock.copyToClipboardButtonPrompt": "클립보드에 복사",
   "TotalPoints.pointsTooltip": "{ points, number } 포인트를 획득하였습니다.",
   "UpdateNotification.adminMessage": "이 서버를 위해 기기 운영자에게 연락하십시오",
-  "UpdateNotification.hideNotificationLabel": "이 메시지를 다시 표시하지 않음",
   "UpdateNotification.upgradeDownload": "여기에서 다운로드하세요.",
   "UpdateNotification.upgradeHeader": "업그레이드 가능",
   "UpdateNotification.upgradeHeaderImportant": "중요한 업그레이드가 있습니다",

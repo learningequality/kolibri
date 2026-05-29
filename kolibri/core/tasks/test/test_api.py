@@ -8,10 +8,10 @@ from mock import patch
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings

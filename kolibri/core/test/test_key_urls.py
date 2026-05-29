@@ -2,11 +2,11 @@ from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from mock import patch
-from rest_framework.test import APITestCase
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
 from kolibri.core.auth.test.test_api import FacilityFactory

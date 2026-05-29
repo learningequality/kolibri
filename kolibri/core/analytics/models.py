@@ -26,3 +26,14 @@ class PingbackNotificationDismissed(models.Model):
 
     class Meta:
         unique_together = (("user", "notification"),)
+
+
+class LocalNotification(models.Model):
+    """
+    A notification generated locally by a trigger evaluator, e.g. the impact-stories
+    prompt. Hard-deleted on dismiss; cooldown is enforced by the generator task
+    rescheduling itself, not by retaining dismissed rows.
+    """
+
+    key = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)

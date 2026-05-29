@@ -1,4 +1,6 @@
 {
+  "ChoiceInteractionStrings.choiceListLabel": "",
   "Lightbox.expandedImage": "ਫੈਲਾਇਆ ਚਿੱਤਰ",
-  "SafeHtmlImage.expandImage": "ਚਿੱਤਰ ਦਾ ਵਿਸਤਾਰ ਕਰੋ"
+  "SafeHtmlImage.expandImage": "ਚਿੱਤਰ ਦਾ ਵਿਸਤਾਰ ਕਰੋ",
+  "TextEntryInteractionStrings.textEntryLabel": "ਤੁਹਾਡਾ ਜਵਾਬ"
 }

@@ -56,7 +56,7 @@
             {{ deviceString('notEnoughSpaceForChannelsWarning') }}
           </UiAlert>
           <ContentTreeViewer
-            v-if="!newVersionAvailable"
+            v-if="!shouldHideContentTree"
             class="block-item"
             :class="{ small: windowIsSmall }"
             :style="{ borderBottomColor: $themeTokens.fineLine }"
@@ -64,11 +64,11 @@
         </template>
       </template>
       <SelectionBottomBar
-        v-if="!newVersionAvailable"
+        v-if="!shouldHideContentTree"
         objectType="resource"
         actionType="import"
         :resourceCounts="{ count: transferResourceCount, fileSize: transferFileSize }"
-        :disabled="disableBottomBar || newVersionAvailable || isFileSpaceEnough"
+        :disabled="disableBottomBar || shouldHideContentTree || isFileSpaceEnough"
         @clickconfirm="handleClickConfirm"
       />
     </KPageContainer>
@@ -224,6 +224,9 @@
       },
       newVersionAvailable() {
         return this.availableVersions.source > this.availableVersions.installed;
+      },
+      shouldHideContentTree() {
+        return this.newVersionAvailable && this.availableVersions.installed > 0;
       },
       isFileSpaceEnough() {
         if (plugin_data.isRemoteContent) {

@@ -378,7 +378,7 @@
       const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
-      const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { isUserLoggedIn, hasRole } = useUser();
       const { fetchUserDownloadRequests } = useDownloadRequests(store);
 
       const isRoot = ref(false);
@@ -434,10 +434,9 @@
         const route = currentRoute();
         const skip = route.query && route.query.skip === 'true';
         const params = {
-          include_coach_content: get(isAdmin) || get(isCoach) || get(isSuperuser),
+          include_coach_content: get(hasRole),
           // Only hide COURSE from Learners in the library view
-          exclude_modalities:
-            get(isAdmin) || get(isCoach) || get(isSuperuser) ? null : Modalities.COURSE,
+          exclude_modalities: get(hasRole) ? null : Modalities.COURSE,
           baseurl,
         };
         if (get(isUserLoggedIn) && !baseurl) {
