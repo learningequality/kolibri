@@ -282,7 +282,14 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         """
         return
 
-    def _precache_dataset_id(self, user):
+    def _precache_dataset_id(self, user, sessionlog=None):
+        if sessionlog is not None:
+            dataset_cache.set(
+                ContentSessionLog.get_related_dataset_cache_key(
+                    sessionlog.id, ContentSessionLog._meta.db_table
+                ),
+                sessionlog.dataset_id,
+            )
         if user is None or user.is_anonymous:
             return
         key = ContentSessionLog.get_related_dataset_cache_key(
@@ -712,43 +719,45 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 context["course_session_id"],
             )
 
+    def _get_masterylog(self, user, summarylog, context):
+        if user.is_anonymous or summarylog is None or context["mastery_level"] is None:
+            return None
+        try:
+            return MasteryLog.objects.get(
+                user=user,
+                mastery_level=context["mastery_level"],
+                summarylog_id=summarylog.id,
+            )
+        except MasteryLog.DoesNotExist as e:
+            raise ValidationError(
+                "Invalid mastery_level value, this session has not been started."
+            ) from e
+
     def _update_and_return_mastery_log_id(
-        self, user, complete, time_spent_delta, summarylog_id, end_timestamp, context
+        self, masterylog, complete, time_spent_delta, end_timestamp, context
     ):
-        if not user.is_anonymous and context["mastery_level"] is not None:
-            try:
-                masterylog = MasteryLog.objects.get(
-                    user=user,
-                    mastery_level=context["mastery_level"],
-                    summarylog_id=summarylog_id,
-                )
-                update_fields = ()
-                if time_spent_delta:
-                    masterylog.time_spent = (
-                        masterylog.time_spent or 0
-                    ) + time_spent_delta
-                    update_fields += ("time_spent",)
-                if complete and not masterylog.complete:
-                    masterylog.complete = True
-                    masterylog.completion_timestamp = end_timestamp
-                    update_fields += (
-                        "complete",
-                        "completion_timestamp",
-                    )
-                    self._process_masterylog_completed_notification(masterylog, context)
-                else:
-                    self._check_quiz_log_permissions(masterylog)
-                if update_fields:
-                    if end_timestamp:
-                        masterylog.end_timestamp = end_timestamp
-                        update_fields += ("end_timestamp",)
-                    masterylog.save(update_fields=update_fields)
-                return masterylog.id
-            except MasteryLog.DoesNotExist as e:
-                raise ValidationError(
-                    "Invalid mastery_level value, this session has not been started."
-                ) from e
-        return None
+        if masterylog is None:
+            return None
+        update_fields = ()
+        if time_spent_delta:
+            masterylog.time_spent = (masterylog.time_spent or 0) + time_spent_delta
+            update_fields += ("time_spent",)
+        if complete and not masterylog.complete:
+            masterylog.complete = True
+            masterylog.completion_timestamp = end_timestamp
+            update_fields += (
+                "complete",
+                "completion_timestamp",
+            )
+            self._process_masterylog_completed_notification(masterylog, context)
+        else:
+            self._check_quiz_log_permissions(masterylog)
+        if update_fields:
+            if end_timestamp:
+                masterylog.end_timestamp = end_timestamp
+                update_fields += ("end_timestamp",)
+            masterylog.save(update_fields=update_fields)
+        return masterylog.id
 
     def _update_attempt(self, attemptlog, interaction, update_fields, end_timestamp):
         interaction_summary = self._generate_interaction_summary(interaction)
@@ -834,14 +843,32 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 pass
         return None
 
+    def _prefetch_attemptlogs(self, session_id, masterylog_id, user, interactions):
+        user = None if user.is_anonymous else user
+        return [
+            self._get_attemptlog(
+                session_id, masterylog_id, user, next(iter(item_interactions))
+            )
+            for _, item_interactions in groupby(interactions, lambda x: x["item"])
+        ]
+
     def _update_or_create_attempts(
-        self, session_id, masterylog_id, user, interactions, end_timestamp, context
+        self,
+        session_id,
+        masterylog_id,
+        user,
+        interactions,
+        end_timestamp,
+        context,
+        prefetched_attemptlogs,
     ):
         user = None if user.is_anonymous else user
 
         output = []
 
-        for _, item_interactions in groupby(interactions, lambda x: x["item"]):
+        for index, (_, item_interactions) in enumerate(
+            groupby(interactions, lambda x: x["item"])
+        ):
             created = False
             update_fields = {
                 "interaction_history",
@@ -849,9 +876,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "time_spent",
             }
             item_interactions = list(item_interactions)
-            attemptlog = self._get_attemptlog(
-                session_id, masterylog_id, user, item_interactions[0]
-            )
+            attemptlog = prefetched_attemptlogs[index]
 
             if attemptlog is None:
                 attemptlog = self._create_attempt(
@@ -981,7 +1006,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         else:
             complete = sessionlog.progress >= 1
 
-        return {"complete": complete}, summarylog.id if summarylog else None, context
+        return {"complete": complete}, context
 
     def _process_completed_notification(self, summarylog, context):
         if "node_id" in context:
@@ -1042,18 +1067,26 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             summarylog = ContentSummaryLog.objects.get(
                 content_id=sessionlog.content_id, user=user
             )
+        masterylog = self._get_masterylog(user, summarylog, context)
+        prefetched_attemptlogs = None
+        if "interactions" in validated_data:
+            prefetched_attemptlogs = self._prefetch_attemptlogs(
+                pk,
+                masterylog.id if masterylog else None,
+                user,
+                validated_data["interactions"],
+            )
 
         with transaction.atomic(), dataset_cache:
-            self._precache_dataset_id(user)
+            self._precache_dataset_id(user, sessionlog=sessionlog)
 
-            output, summarylog_id, context = self._update_session(
+            output, context = self._update_session(
                 sessionlog, summarylog, user, end_timestamp, validated_data, context
             )
             masterylog_id = self._update_and_return_mastery_log_id(
-                user,
+                masterylog,
                 output["complete"],
                 validated_data.get("time_spent_delta"),
-                summarylog_id,
                 end_timestamp,
                 context,
             )
@@ -1065,6 +1098,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                     validated_data["interactions"],
                     end_timestamp,
                     context,
+                    prefetched_attemptlogs,
                 )
                 output.update(attempt_output)
             return Response(output)

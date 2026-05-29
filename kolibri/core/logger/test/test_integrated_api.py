@@ -2586,6 +2586,26 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentTestCase(
             self.mastery_log.end_timestamp, self.mastery_log.start_timestamp
         )
 
+    def test_update_assessment_session_reads_outside_write_transaction(self):
+        with CaptureQueriesContext(connection) as captured:
+            response = self._make_request(
+                {
+                    "time_spent_delta": 5,
+                    "interactions": [
+                        {
+                            "item": self.item,
+                            "answer": {"response": "test"},
+                            "correct": 1.0,
+                            "time_spent": 10,
+                            "replace": True,
+                        }
+                    ],
+                }
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(selects_in_write_transaction(captured), [])
+
     def test_update_assessment_session_sets_masterylog_morango_dirty_bit(self):
         self.mastery_log.save(update_dirty_bit_to=False)
         self.mastery_log.refresh_from_db()
