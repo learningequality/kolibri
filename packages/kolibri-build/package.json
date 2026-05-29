@@ -15,6 +15,7 @@
     "kolibri-build": "./src/cli.js"
   },
   "dependencies": {
+    "@csstools/postcss-cascade-layers": "6.0.0",
     "@swc/core": "^1.11.29",
     "swc-loader": "^0.2.6",
     "autoprefixer": "10.4.23",
