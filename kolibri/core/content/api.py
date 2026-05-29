@@ -750,10 +750,15 @@ class BaseContentNodeMixin:
         return models.ContentNode.objects.filter(available=True)
 
     def get_related_data_maps(self, items, queryset):
+        # items is already the materialized page from this queryset, so filter
+        # the related tables by its content-node ids directly. Passing the live
+        # annotated queryset here would re-execute it (including its correlated
+        # subqueries) once per related-data query.
+        content_node_ids = [item["id"] for item in items]
         assessmentmetadata_map = {
             a["contentnode"]: a
             for a in models.AssessmentMetaData.objects.filter(
-                contentnode__in=queryset
+                contentnode__in=content_node_ids
             ).values(
                 "assessment_item_ids",
                 "number_of_assessments",
@@ -767,7 +772,7 @@ class BaseContentNodeMixin:
         files_map = {}
 
         files = list(
-            models.File.objects.filter(contentnode__in=queryset).values(
+            models.File.objects.filter(contentnode__in=content_node_ids).values(
                 "id",
                 "contentnode",
                 "local_file__id",
@@ -802,7 +807,7 @@ class BaseContentNodeMixin:
         tags_map = {}
 
         for t in (
-            models.ContentTag.objects.filter(tagged_content__in=queryset)
+            models.ContentTag.objects.filter(tagged_content__in=content_node_ids)
             .values(
                 "tag_name",
                 "tagged_content",
