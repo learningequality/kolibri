@@ -1,13 +1,17 @@
 import { render, screen } from '@testing-library/vue';
-import { createTranslator } from 'kolibri/utils/i18n';
+import { createTranslator, i18nSetup } from 'kolibri/utils/i18n';
 import SelectContentPage from '../SelectContentPage';
 import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 import ChannelContentsSummary from '../SelectContentPage/ChannelContentsSummary';
+import ContentTreeViewer from '../SelectContentPage/ContentTreeViewer';
 import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
+import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
 import router from './testRouter';
 
 const summaryTr = createTranslator('ChannelContentsSummary', ChannelContentsSummary.$trs);
 const bannerTr = createTranslator('NewChannelVersionBanner', NewChannelVersionBanner.$trs);
+const treeViewerTr = createTranslator('ContentTreeViewer', ContentTreeViewer.$trs);
+const bottomBarTr = createTranslator('SelectionBottomBar', SelectionBottomBar.$trs);
 
 function renderComponent(options) {
   const { store, props = {} } = options;
@@ -94,6 +98,7 @@ describe('SelectContentPage', () => {
     ).not.toBeInTheDocument();
   });
 
+  //Add translations strings to these tests & test these & commit the changes.
   describe('draft channel (installed version = 0)', () => {
     function setInstalledVersion(store, version) {
       const existing = store.state.manageContent.channelList[0];
@@ -103,29 +108,42 @@ describe('SelectContentPage', () => {
     it('shows ContentTreeViewer when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
       updateMetaChannel(store, { version: 5 });
-      const wrapper = makeWrapper({ store });
-      expect(wrapper.findAllComponents({ name: 'ContentTreeViewer' }).length).toBeGreaterThan(0);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('checkbox', {
+          name: treeViewerTr.$tr('selectAll'),
+        }),
+      ).toBeInTheDocument();
     });
 
     it('shows NewChannelVersionBanner when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
       updateMetaChannel(store, { version: 5 });
-      const wrapper = makeWrapper({ store });
-      expect(wrapper.findComponent({ name: 'NewChannelVersionBanner' }).exists()).toBe(true);
+      renderComponent({ store });
+      const NEW_VERSION = 5;
+      expect(
+        screen.getByText(bannerTr.$tr('versionAvailable', { version: NEW_VERSION })),
+      ).toBeInTheDocument();
     });
 
     it('shows SelectionBottomBar when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
       updateMetaChannel(store, { version: 5 });
-      const wrapper = makeWrapper({ store });
-      expect(wrapper.findAllComponents({ name: 'SelectionBottomBar' }).length).toBeGreaterThan(0);
+      renderComponent({ store });
+      expect(
+        screen.getByRole('button', { name: bottomBarTr.$tr('importAction') }),
+      ).toBeInTheDocument();
     });
 
     it('hides ContentTreeViewer when installed version > 0 and newer version available on Studio', () => {
       // Preserve existing non-draft behavior
       updateMetaChannel(store, { version: 1000 });
-      const wrapper = makeWrapper({ store });
-      expect(wrapper.findAllComponents({ name: 'ContentTreeViewer' }).length).toBe(0);
+      renderComponent({ store });
+      expect(
+        screen.queryByRole('checkbox', {
+          name: treeViewerTr.$tr('selectAll'),
+        }),
+      ).not.toBeInTheDocument();
     });
   });
 });
