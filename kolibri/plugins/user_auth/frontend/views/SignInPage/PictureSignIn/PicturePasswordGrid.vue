@@ -480,13 +480,12 @@
 
   .submit-container {
     position: relative;
-    // display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .submit-button {
-    // display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     height: 100%;
     padding: 0;
@@ -497,7 +496,6 @@
 
   .submit-burst {
     position: absolute;
-    top: 50%;
     z-index: 100;
   }
 
