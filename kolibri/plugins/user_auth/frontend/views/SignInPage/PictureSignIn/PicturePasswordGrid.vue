@@ -56,38 +56,40 @@
         </template>
       </div>
 
-      <!-- Submit button: shows only a forward-arrow icon; the aria-label
-          cycles through four instructional states as the sequence is built. -->
-      <SubmitBurstAnimation
-        v-if="burstVisible"
-        class="submit-burst"
-      />
-      <button
-        type="submit"
-        class="submit-button"
-        :class="[
-          $computedClass({
-            ':hover': submitEnabled
-              ? {
-                backgroundColor: $themeTokens.primaryDark,
-              }
-              : {},
-          }),
-          { pulsing: submitPulsing },
-          { bouncing: arrowBouncing },
-        ]"
-        data-testid="submit-button"
-        :aria-disabled="!submitEnabled ? 'true' : undefined"
-        :aria-label="submitButtonAriaLabel"
-        :style="submitButtonStyle"
-      >
-        <KIcon
-          data-testid="submit-icon"
-          class="submit-icon"
-          icon="forward"
-          :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
+      <div class="submit-container">
+        <!-- Submit button: shows only a forward-arrow icon; the aria-label
+        cycles through four instructional states as the sequence is built. -->
+        <SubmitBurstAnimation
+          v-if="burstVisible"
+          class="submit-burst"
         />
-      </button>
+        <button
+          type="submit"
+          class="submit-button"
+          :class="[
+            $computedClass({
+              ':hover': submitEnabled
+                ? {
+                  backgroundColor: $themeTokens.primaryDark,
+                }
+                : {},
+            }),
+            { pulsing: submitPulsing },
+            { bouncing: arrowBouncing },
+          ]"
+          data-testid="submit-button"
+          :aria-disabled="!submitEnabled ? 'true' : undefined"
+          :aria-label="submitButtonAriaLabel"
+          :style="submitButtonStyle"
+        >
+          <KIcon
+            data-testid="submit-icon"
+            class="submit-icon"
+            icon="forward"
+            :color="submitEnabled ? $themeTokens.textInverted : $themePalette.grey.v_300"
+          />
+        </button>
+      </div>
     </div>
   </form>
 
@@ -476,10 +478,17 @@
     border-radius: 16px;
   }
 
+  .submit-container {
+    position: relative;
+    // display: inline-block;
+  }
+
   .submit-button {
-    display: flex;
+    // display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100%;
     padding: 0;
     border: 0;
     border-radius: 8px;
