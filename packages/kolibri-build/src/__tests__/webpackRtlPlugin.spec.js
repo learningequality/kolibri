@@ -60,6 +60,10 @@ describe('WebpackRTLPlugin', () => {
 
   describe('RTL CSS file generation', () => {
     it('should generate .rtl.css files with RTL-transformed styles', async () => {
+      // Somehow this test triggers swc-compiler's import of browserslist
+      // which then does a warning about not being up to date.
+      // Suppress the warning as the up to dateness is irrelevant to this test.
+      jest.spyOn(console, 'warn').mockImplementation()
       const testDir = path.join(tempDir, 'rtl-generation');
       fs.mkdirSync(testDir, { recursive: true });
       const { entryFile } = createTestFiles(testDir);
