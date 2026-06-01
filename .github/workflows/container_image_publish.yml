@@ -11,6 +11,9 @@ on:
         description: Tag the image as 'latest'
         required: false
         type: boolean
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: true
   workflow_dispatch:
     inputs: *workflow_inputs
 
