@@ -7,14 +7,13 @@ Feature: Admin manages facility settings
       And there are learner and coach user accounts created in the facility
 
   Scenario: Rename the facility
-    Given I am at *Facility > Settings*
-      When I click the *Edit* link next to the facility name
-      Then I see the *Rename facility* modal
-        And I see the following warning text: Only the facility name will be changed, and the new name will be synced and updated on other devices linked to this facility.
-      When I enter a new name
-        And I click the *Save* button
-      Then I see a snackbar that says *Changes saved*
-        And I see the new name of the facility
+    When I click the *Edit* link next to the facility name
+    Then I see the *Rename facility* modal
+      And I see the following warning text: Only the facility name will be changed, and the new name will be synced and updated on other devices linked to this facility.
+    When I enter a new name
+      And I click the *Save* button
+    Then I see a snackbar that says *Changes saved*
+      And I see the new name of the facility
 
   Scenario: See the new facility name after syncing with another device
     Given I've changed the name of my facility
@@ -22,7 +21,7 @@ Feature: Admin manages facility settings
       And that device shares my facility
       And that device has the old name of the facility
     When the sync finishes
-    Then the I see the new facility name on the other device
+    Then I see the new facility name on the other device
 
   Scenario: Allow and disallow full name and username edit
     Given both the *Allow learners to edit their username* and the *Allow learners to edit their full name* checkboxes are checked
@@ -40,7 +39,7 @@ Feature: Admin manages facility settings
     Then I see the *Edit profile* page
     	And I see that both the *Full name* and *Username* fields are not editable
 
-  Scenario: Allow and disallow visitors to create accounts
+  Scenario: Allow and disallow users to create accounts
     Given the *Allow learners to create accounts* checkbox is unchecked
     When I check the *Allow learners to create accounts* checkbox
       And I click the *Save changes* button
@@ -53,42 +52,118 @@ Feature: Admin manages facility settings
     When I open Kolibri in a separate browser
     Then I no longer see the *Create an account* button on the sign-in page
 
-  Scenario: Allow simplified sign-in
-    Given the *Require password for learners* checkbox is unchecked
-    When I check the *Require password for learners* checkbox
+  Scenario: Allow coaches to take attendance (English only)
+    Given the *Allow coaches to take attendance (English only)* checkbox is unchecked
+    When as a coach I sign in to Kolibri in a separate browser
+      And I go to *Coach > Class home* page
+    Then I don't see the *Attendance* section
+    When as an admin I check the *Allow coaches to take attendance (English only)* checkbox
+      And I click the *Save changes* button
+    Then I see the *Facility settings updated* snackbar message
+    When as a coach I sign in to Kolibri in a separate browser
+      And I go to *Coach > Class home* page
+    Then I can see the *Attendance* section
+    	I can see a *Mark attendance* button
+
+  Scenario: Allow and disallow content download
+    Given the *Show 'download' button with resources* checkbox is checked
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Learn > Library* page
+      And I open a single resource
+      And I click the *View information* icon
+    Then I see the *Save to device* button
+    	And I can download the resource
+    When as an admin I uncheck the *Show 'download' button with content* checkbox
+      And I click the *Save changes* button
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Learn > Library* page
+      And I open a single resource
+      And I click the *View information* icon
+    Then I no longer see the *Save to device* button
+
+  Scenario: Learners sign in by entering username and password
+    Given the *Enter username and password* radio button is selected
+    	And the *Allow learners to edit their password when signed in* checkboxes is not checked
+    When as a learner I go to the sign-in page
+   	Then I can see that in order to sign in I have to enter my username and my password
+   	When I sign in to Kolibri
+      And I go to the *Profile* page
+    Then the *Change password* link is not displayed
+    	And I can't change my password
+
+  Scenario: Allow learners to edit their password when signed in
+    Given the *Enter username and password* radio button is selected
+    	And the *Allow learners to edit their password when signed in* checkboxes is not checked
+    When as an admin I uncheck the *Allow learners to change their password when signed in* checkbox
+      And I click the *Save changes* button
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Profile* page
+    Then I can see the *Change password* link
+    	And I can change my password
+
+  Scenario: Allow simplified sign-in with username only
+    Given the *Enter username only* radio button is not selected
+    When I select the *Enter username only* radio button
       And I click the *Save changes* button
     Then I see the *Facility settings updated* snackbar message
     When as a learner I open Kolibri in a separate browser
     Then I don't see the *Password* field at the sign-in page
       And I can sign-in without a password
 
-  Scenario: Allow and disallow password change
-    Given both the Require password for learners* and *Allow learners to change their password when signed in* checkboxes are checked
-    When as a learner I sign in to Kolibri in a separate browser
-      And I go to the *Profile* page
-    Then I can see the *Change password* link
-    When as an admin I uncheck the *Allow learners to change their password when signed in* checkbox
-      And I click the *Save changes* button
+  Scenario: Allow simplified sign-in with a picture password
+    Given the *Picture password* radio button is not selected
+    When I select the *Picture password* radio button
+    Then I see a *Child-friendly icons* radio button selected by default
+    	And I see an unselected *Standard icons* radio button below it
+    	And I see an unchecked *Show icon names* checkbox below it
+    When I click the *Save changes* button
     Then I see the *Facility settings updated* snackbar message
-    WWhen as a learner I sign in to Kolibri in a separate browser
-      And I go to the *Profile* page
-    Then the *Change password* link is no longer visible
+    When as a learner I open Kolibri in a separate browser
+    	And I go to the sign in page
+    Then I see the 12 child-friendly icons
+    When I select the correct 3-picture sequence
+    	And I click the arrow button
+    Then I am signed in as the learner
+    When I go to the *Profile* page
+    Then I can see my picture password with child-friendly icons
 
-  Scenario: Allow and disallow content download
-    Given the *Show 'download' button with content* checkbox is checked
-    When as a learner I sign in to Kolibri in a separate browser
-      And I go to the *Learn > Library*
-      And I open a single resource
-      And I click the *View information* icon
-    Then I see the *Save to device* button
-    When as an admin I uncheck the *Show 'download' button with content* checkbox
-      And I click the *Save changes* button
+  Scenario: Change the child-friendly icons to standard icons
+    Given the *Picture password* checkbox is checked
+    When I check the *Picture password* checkbox
+    Then I see a *Child-friendly icons* radio button selected by default
+    	And I see an unchecked *Standard icons* radio button below it
+    	And I see an unselected *Show icon names* checkbox below it
+    When I select the *Standard icons* radio button below it
+    	And I click the *Save changes* button
     Then I see the *Facility settings updated* snackbar message
-    When as a learner I sign in to Kolibri in a separate browser
-      And I go to the *Learn > Library*
-      And I open a single resource
-      And I click the *View information* icon
-    Then I no longer see the *Save to device* button
+    When as a learner I open Kolibri in a separate browser
+    	And I go to the sign in page
+    Then I see the 12 standard icons
+    When I select the correct 3-picture sequence
+    	And I click the arrow button
+    Then I am signed in as the learner
+    When I go to the *Profile* page
+    Then I can see my picture password shown with the standard icons
+
+  Scenario: Show icon names
+    Given the *Picture password* radio button is not selected
+    When I select the *Picture password* radio button
+    Then I see a *Child-friendly icons* radio button selected by default
+    	And I see an unselected *Standard icons* radio button below it
+    	And I see an unchecked *Show icon names* checkbox below it
+    When I check the *Show icon names* checkbox
+    	And I click the *Save changes* button
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I open Kolibri in a separate browser
+    	And I go to the sign in page
+    Then I see the 12 standard icons with their labels
+    When I select the correct 3-picture sequence
+    	And I click the arrow button
+    Then I am signed in as the learner
+    When I go to the *Profile* page
+    Then I can see my picture password shown with the icons and their labels #repeat the same scenario with the *Standard icons* option
 
   Scenario: Create a PIN
 		Given there's no existing PIN

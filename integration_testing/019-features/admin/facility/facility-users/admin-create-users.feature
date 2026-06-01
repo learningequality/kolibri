@@ -3,11 +3,11 @@ Feature: Admin creates users
 
   Background:
     Given I am signed in to Kolibri as a facility admin user
-    	And the *Require password for learners* option is enabled at *Facility > Settings*
+    	And the *Enter username and password* option is enabled at *Facility > Settings*
       And I am at *Facility > Users* page
 
   Scenario: Create a new learner user account
-  	When I look at the *New users* page
+  	When I look at the *Users* page
     Then I see a *New user* button and an *Options* drop-down
       And I see the *Assign coach*, *Enroll in class*, *Remove from class* and *Delete selected users* icons
       And I see the *Search for a user* field
@@ -100,3 +100,34 @@ Feature: Admin creates users
       And I see the *User created* snackbar message
       And the *Create new user* side panel remains open
       And all the fields are reset to their default state
+
+  Scenario: Create a new learner user account when no password is required
+  	Given the *Enter username only* option is enabled at *Facility > Settings*
+      And I am at the *Create new user* side panel
+    When I enter the user's full name
+      And I enter the username
+      And I leave the default value of *Learner* for the *User type*
+      And I enter *Identifier* #optional
+      And I select *Birth year* and *Gender* #optional
+      And I don't make a selection from the *Enroll in class* field
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
+
+  Scenario: Create a new learner user account when the *Picture password* is enabled
+  	Given the *Picture password* option is enabled at *Facility > Settings*
+      And I am at the *Create new user* side panel
+    When I enter the user's full name
+      And I enter the username
+      And I leave the default value of *Learner* for the *User type*
+      And I enter *Identifier* #optional
+      And I select *Birth year* and *Gender* #optional
+      And I don't make a selection from the *Enroll in class* field
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
+    When I click the *...* button for the user
+    	And I select *Edit details*
+    Then I can see the *Picture password* of the user #repeat the scenario with the standard icons enabled and with enabled icon names

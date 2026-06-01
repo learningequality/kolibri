@@ -14,7 +14,7 @@ Feature: Learners
   Scenario: Review the learner details
     When I click on the name of a learner
     Then I see the learner summary page
-    	And I see the learner's name, class, username and groups info
+    	And I see the learner's name, class, username, groups info and picture password (only if the option is enabled at *Facility > Settings*)
     	And I see the *Print report* icon
     	And I see the *Lessons completed*, *Average quiz score*, *Exercises completed* and *Resources viewed* cards
     	And I see the *Lessons assigned* and *Quizzes assigned* sections with a separate *Export as CSV* icon for each
@@ -47,3 +47,11 @@ Feature: Learners
   		And I save the exported CSV file to the device
   		And I open the CSV file to see the data
   	Then I see a CSV file containing the following columns: *Title*, *Progress*, *Score*
+
+  Scenario: Coach can view the picture passwords of all the learners
+  	Given the *Picture password* option is enabled at *Facility > Settings*
+    When I click the *View passwords* button
+    Then I see the *All passwords* page
+    	And I see the *All passwords* table with *Name*, *Username* and *Password* columns
+    	And I see a *Print* button
+    	And I can see the picture passwords of all the learners enrolled in the class
