@@ -25,7 +25,7 @@ jobs:
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.token.outputs.token }}
           branch: bot/update-contributors
