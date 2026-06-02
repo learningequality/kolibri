@@ -105,7 +105,7 @@ describe('SelectContentPage', () => {
   });
 
   describe('draft channel (installed version = 0)', () => {
-    const draftNewerVersion = 5;
+    const newerVersion = 5;
 
     function setInstalledVersion(store, version) {
       const existing = store.state.manageContent.channelList[0];
@@ -114,7 +114,7 @@ describe('SelectContentPage', () => {
 
     it('shows ContentTreeViewer when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: draftNewerVersion });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
       expect(
         screen.getByRole('checkbox', {
@@ -125,16 +125,16 @@ describe('SelectContentPage', () => {
 
     it('shows NewChannelVersionBanner when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: draftNewerVersion });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
       expect(
-        screen.getByText(bannerTr.$tr('versionAvailable', { version: draftNewerVersion })),
+        screen.getByText(bannerTr.$tr('versionAvailable', { version: newerVersion })),
       ).toBeInTheDocument();
     });
 
     it('shows SelectionBottomBar when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: draftNewerVersion });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
       expect(
         screen.getByRole('button', { name: bottomBarTr.$tr('importAction') }),
@@ -142,8 +142,7 @@ describe('SelectContentPage', () => {
     });
 
     it('hides ContentTreeViewer when installed version > 0 and newer version available on Studio', () => {
-      const newerVersion = 1000;
-      updateMetaChannel(store, { version: newerVersion });
+      updateMetaChannel(store, { version: 1000 });
       renderComponent({ store });
       expect(
         screen.queryByRole('checkbox', {
