@@ -82,7 +82,7 @@ describe('SelectContentPage', () => {
     });
     renderComponent({ store });
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
-      `${summaryTr.$tr('onDeviceRow')} ${onDeviceResources.toString()} ${bytesForHumans(onDeviceFileSize)}`,
+      `${summaryTr.$tr('onDeviceRow')} ${onDeviceResources.toLocaleString()} ${bytesForHumans(onDeviceFileSize)}`,
     );
   });
 
