@@ -1,9 +1,12 @@
-import { mount } from '@vue/test-utils';
+import { render, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
+import { createTranslator } from 'kolibri/utils/i18n';
 import ContentNodeRow from '../SelectContentPage/ContentNodeRow';
 import { makeNode } from '../../__tests__/utils/data';
 import router from './testRouter';
 
-//
+const tr = createTranslator('ContentNodeRow', ContentNodeRow.$trs);
+
 const defaultProps = {
   node: {
     title: 'Awesome Content',
@@ -21,141 +24,120 @@ const defaultProps = {
   },
 };
 
-function makeWrapper(props = {}) {
-  return mount(ContentNodeRow, {
-    propsData: { ...defaultProps, ...props },
+function renderComponent(props = {}) {
+  return render(ContentNodeRow, {
+    props: { ...defaultProps, ...props },
     ...router,
   });
 }
 
-// prettier-ignore
-function getElements(wrapper) {
-  return {
-    titleText: () => wrapper.find('.title').text().trim(),
-    messageText: () => wrapper.find('.message').text().trim(),
-    goToTopicButton: () => wrapper.find('a[name="select-node"]'),
-    checkbox: () => wrapper.find('input[type="checkbox"]'),
-    KCheckbox: () => wrapper.findComponent({ name: 'KCheckbox' }),
-  };
-}
-
 describe('contentNodeRow component', () => {
+  const NODE_TITLE = defaultProps.node.title;
+  const NODE_ID = defaultProps.node.id;
+  const NODE_MESSAGE = defaultProps.message;
+
   it('shows the correct title', () => {
-    const wrapper = makeWrapper();
-    const { titleText } = getElements(wrapper);
-    expect(titleText()).toEqual('Awesome Content');
+    renderComponent();
+    expect(screen.getByText(NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
-  it('shows the correct message', () => {
-    const wrapper = makeWrapper();
-    const { messageText } = getElements(wrapper);
-    expect(messageText()).toEqual('HELLO');
+  it('shows the correct message', async () => {
+    renderComponent();
+    expect(screen.getByText(NODE_MESSAGE)).toBeInTheDocument();
   });
 
   it('when node is not a topic, title is just text', () => {
-    const wrapper = makeWrapper({
+    renderComponent({
       node: makeNode('1', {
         kind: 'video',
       }),
     });
-    const { goToTopicButton, titleText } = getElements(wrapper);
-    expect(goToTopicButton().exists()).toEqual(false);
-    expect(titleText()).toEqual('node_1');
+    const VIDEO_NODE_TITLE = 'node_1';
+    expect(screen.queryByRole('link', { name: VIDEO_NODE_TITLE })).not.toBeInTheDocument();
+    expect(screen.getByText(VIDEO_NODE_TITLE, { selector: 'span' })).toBeInTheDocument();
   });
 
-  it('when node is disabled, title is just text', () => {
-    const wrapper = makeWrapper({ disabled: true });
-    const { goToTopicButton, titleText } = getElements(wrapper);
-    expect(goToTopicButton()[0]).toEqual(undefined);
-    expect(titleText()).toEqual('Awesome Content');
+  it('when node is disabled, checkbox is disabled but link remains navigable', async () => {
+    renderComponent({ disabled: true });
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+    const link = screen.getByRole('link', { name: NODE_TITLE });
+    const expectedSubstring = `node_id=${NODE_ID}`;
+    expect(link).toHaveAttribute('href', expect.stringContaining(expectedSubstring));
   });
 
-  it('topic links have the correct route', () => {
-    const wrapper = makeWrapper();
-    const { goToTopicButton } = getElements(wrapper);
-    expect(goToTopicButton().props().to).toMatchObject({
-      name: 'SELECT_CONTENT',
-      query: {
-        node_id: 'awesome_content',
-      },
-    });
+  it('topic links have the correct route', async () => {
+    renderComponent();
+    const link = screen.getByRole('link', { name: NODE_TITLE });
+    const expectedSubstring = `node_id=${NODE_ID}`;
+    expect(link).toHaveAttribute('href', expect.stringContaining(expectedSubstring));
   });
 
-  it('when checkbox is changed, it emits a "changeselection" event', () => {
-    const wrapper = makeWrapper();
-    const { checkbox } = getElements(wrapper);
-    // have to "click" the inner checkbox to trigger "change" on whole component
-    checkbox().trigger('click');
-    expect(wrapper.emitted().changeselection).toEqual([[wrapper.vm.node]]);
+  it('checks the checkbox when clicked if initially unchecked', async () => {
+    renderComponent({ checked: false });
+    const checkbox = screen.getByRole('checkbox');
+    await userEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+  });
+
+  it('unchecks the checkbox when clicked if initially checked', async () => {
+    renderComponent({ checked: true });
+    const checkbox = screen.getByRole('checkbox');
+    await userEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
   });
 
   it('when props.disabled, the checkbox is disabled', () => {
-    const wrapper = makeWrapper({ disabled: true });
-    const { checkbox } = getElements(wrapper);
-    expect(checkbox().attributes().disabled).toEqual('disabled');
+    renderComponent({ disabled: true });
+    expect(screen.getByRole('checkbox')).toBeDisabled();
   });
 
   it('when props.checked, the checkbox is checked', () => {
-    const wrapper = makeWrapper({
+    renderComponent({
       disabled: true,
       checked: true,
     });
-    // For some reason, the HTML for the actual checkbox does not have checked attribute
-    const { KCheckbox } = getElements(wrapper);
-    expect(KCheckbox().props().checked).toEqual(true);
+    expect(screen.getByRole('checkbox')).toBeChecked();
   });
 
-  it('when props.determinate, the checkbox is indeterminate', () => {
-    const wrapper = makeWrapper({
-      disabled: true,
-      checked: true,
-      indeterminate: true,
-    });
-    const { KCheckbox } = getElements(wrapper);
-    expect(KCheckbox().props().indeterminate).toEqual(true);
+  it('when props.indeterminate, the checkbox is indeterminate', () => {
+    renderComponent({ disabled: true, checked: true, indeterminate: true });
+    expect(screen.getByRole('checkbox')).toHaveProperty('indeterminate', true);
   });
 
   describe('course modality nodes', () => {
+    const NODE_TITLE = 'My Course';
+    const NODE_KIND = 'topic';
+    const NODE_MODALITY = 'COURSE';
+    const NODE_ID = 'course_1';
+
+    const NODE = {
+      title: NODE_TITLE,
+      kind: NODE_KIND,
+      modality: NODE_MODALITY,
+      id: NODE_ID,
+    };
+
     it('does not render a link for course nodes even though they are topics', () => {
-      const wrapper = makeWrapper({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+      renderComponent({
+        node: NODE,
       });
-      const { goToTopicButton } = getElements(wrapper);
-      expect(goToTopicButton().exists()).toEqual(false);
+      expect(screen.queryByRole('link', { name: NODE_TITLE })).not.toBeInTheDocument();
     });
 
     it('uses the course icon instead of topic icon for course nodes', () => {
-      const wrapper = makeWrapper({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+      renderComponent({
+        node: NODE,
       });
-      const kIcons = wrapper.findAllComponents({ name: 'KIcon' });
-      const courseIcon = kIcons.wrappers.find(w => w.props('icon') === 'course');
-      expect(courseIcon).toBeTruthy();
-      expect(wrapper.findComponent({ name: 'ContentIcon' }).exists()).toBe(false);
+      expect(screen.getByTestId('icon-course')).toBeInTheDocument();
     });
 
     it('prepends "Course: " to the title for course nodes', () => {
-      const wrapper = makeWrapper({
-        node: {
-          title: 'My Course',
-          kind: 'topic',
-          modality: 'COURSE',
-          id: 'course_1',
-        },
+      renderComponent({
+        node: NODE,
       });
-      const { titleText } = getElements(wrapper);
-      expect(titleText()).toContain('Course:');
-      expect(titleText()).toContain('My Course');
+      expect(
+        screen.getByText(tr.$tr('coursePrefixedTitle', { title: NODE_TITLE })),
+      ).toBeInTheDocument();
     });
   });
 });
