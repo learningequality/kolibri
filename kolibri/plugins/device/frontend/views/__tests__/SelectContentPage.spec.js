@@ -57,16 +57,16 @@ describe('SelectContentPage', () => {
   });
 
   it('shows the total size of the channel', () => {
-    renderComponent({ store });
     const { total_resources, total_file_size } = selectContentTransferredChannel;
+    renderComponent({ store });
     expect(screen.getAllByRole('row')[1]).toHaveTextContent(
       `${summaryTr.$tr('totalSizeRow')} ${total_resources.toLocaleString()} ${bytesForHumans(total_file_size)}`,
     );
   });
 
   it('shows the total size of any resources on the device', () => {
-    renderComponent({ store });
     const { on_device_resources, on_device_file_size } = selectContentTransferredChannel;
+    renderComponent({ store });
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
       `${summaryTr.$tr('onDeviceRow')} ${on_device_resources.toLocaleString()} ${bytesForHumans(on_device_file_size)}`,
     );
@@ -105,7 +105,7 @@ describe('SelectContentPage', () => {
   });
 
   describe('draft channel (installed version = 0)', () => {
-    const newerVersion = 5;
+    const newerVersion = 15;
 
     function setInstalledVersion(store, version) {
       const existing = store.state.manageContent.channelList[0];
