@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/vue';
 import { createTranslator, i18nSetup } from 'kolibri/utils/i18n';
+import bytesForHumans from 'kolibri/uiText/bytesForHumans';
 import SelectContentPage from '../SelectContentPage';
-import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
+import {
+  makeSelectContentPageStore,
+  selectContentTransferredChannel,
+} from '../../__tests__/utils/makeStore';
 import ChannelContentsSummary from '../SelectContentPage/ChannelContentsSummary';
 import ContentTreeViewer from '../SelectContentPage/ContentTreeViewer';
 import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
@@ -56,27 +60,31 @@ describe('SelectContentPage', () => {
 
   it('shows the total size of the channel', () => {
     renderComponent({ store });
+    const { total_resources, total_file_size } = selectContentTransferredChannel;
     expect(screen.getAllByRole('row')[1]).toHaveTextContent(
-      `${summaryTr.$tr('totalSizeRow')} 1,000 5 GB`,
+      `${summaryTr.$tr('totalSizeRow')} ${total_resources.toLocaleString()} ${bytesForHumans(total_file_size)}`,
     );
   });
 
   it('shows the total size of any resources on the device', () => {
     renderComponent({ store });
+    const { on_device_resources, on_device_file_size } = selectContentTransferredChannel;
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
-      `${summaryTr.$tr('onDeviceRow')} 2,000 95 MB`,
+      `${summaryTr.$tr('onDeviceRow')} ${on_device_resources.toLocaleString()} ${bytesForHumans(on_device_file_size)}`,
     );
   });
 
   it('shows size and resources as 0 if channel is not on device', () => {
+    const onDeviceResources = 0;
+    const onDeviceFileSize = 0;
     updateMetaChannel(store, {
       id: 'not_awesome_channel',
-      on_device_resources: 0,
-      on_device_file_size: 0,
+      on_device_resources: onDeviceResources,
+      on_device_file_size: onDeviceFileSize,
     });
     renderComponent({ store });
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
-      `${summaryTr.$tr('onDeviceRow')} 0 0 B`,
+      `${summaryTr.$tr('onDeviceRow')} ${onDeviceResources.toString()} ${bytesForHumans(onDeviceFileSize)}`,
     );
   });
 
