@@ -9,7 +9,9 @@ from unittest.mock import patch
 
 import pytest
 from django.conf import settings
+from django.db import connection
 from django.db.utils import OperationalError
+from django.test import TransactionTestCase
 from morango.models import InstanceIDModel
 
 import kolibri
@@ -194,3 +196,45 @@ def test_migrate_if_unmigrated(
         get_or_create_current_instance.side_effect = OperationalError("Test")
         main.initialize()
         _migrate_databases.assert_called_once()
+
+
+class MigrateDatabasesTestCase(TransactionTestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        if connection.vendor != "sqlite":
+            self.skipTest("SQLite-specific behaviour")
+        cursor = connection.cursor()
+        cursor.execute(
+            "CREATE TABLE optimize_probe (id INTEGER PRIMARY KEY, tag INTEGER)"
+        )
+        cursor.execute("CREATE INDEX optimize_probe_tag ON optimize_probe (tag)")
+        cursor.executemany(
+            "INSERT INTO optimize_probe (tag) VALUES (%s)",
+            [(i % 10,) for i in range(100)],
+        )
+        self.addCleanup(self._drop_probe)
+
+    def _drop_probe(self):
+        connection.cursor().execute("DROP TABLE optimize_probe")
+
+    def _has_planner_stats(self):
+        cursor = connection.cursor()
+        cursor.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='sqlite_stat1'"
+        )
+        if not cursor.fetchone()[0]:
+            return False
+        cursor.execute("SELECT count(*) FROM sqlite_stat1 WHERE tbl = 'optimize_probe'")
+        return cursor.fetchone()[0] > 0
+
+    def test_migrate_databases_refreshes_planner_statistics(self):
+        self.assertFalse(self._has_planner_stats())
+        main._migrate_databases()
+        self.assertTrue(self._has_planner_stats())
+
+    def test_migrate_databases_refreshes_planner_statistics_before_sqlite_3_46(self):
+        self.assertFalse(self._has_planner_stats())
+        with patch("sqlite3.sqlite_version_info", (3, 45, 0)):
+            main._migrate_databases()
+        self.assertTrue(self._has_planner_stats())
