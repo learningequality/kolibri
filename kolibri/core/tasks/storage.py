@@ -343,6 +343,16 @@ class Storage:
             include_unowned=include_unowned,
         )
 
+    def has_due_or_active_jobs(self, exclude_job_id=None):
+        return (
+            ORMJob.objects.filter(
+                Q(state__in=[State.SELECTED, State.RUNNING, State.CANCELING])
+                | Q(state=State.QUEUED, scheduled_time__lte=self._now())
+            )
+            .exclude(id=exclude_job_id)
+            .exists()
+        )
+
     def get_running_jobs(self, queues=None, supervisor_id=NO_VALUE):
         return self.get_jobs_by_state(
             state=State.RUNNING, queues=queues, supervisor_id=supervisor_id
