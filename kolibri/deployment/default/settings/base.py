@@ -164,6 +164,10 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+    # SQLite only loads planner statistics when a connection reads the schema,
+    # and ANALYZE doesn't change the schema, so recycle request-thread connections
+    # daily to pick up the nightly statistics refresh.
+    sqlite_conn_max_age = 24 * 60 * 60
     # Using custom SQLite backend that uses BEGIN IMMEDIATE transactions.
     # Once upgraded to Django 5.2+, revert to "django.db.backends.sqlite3" and use
     # the transaction_mode option instead.
@@ -172,6 +176,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": get_sqlite_database_path("default"),
             "OPTIONS": {"timeout": 100},
+            "CONN_MAX_AGE": sqlite_conn_max_age,
         }
     }
 
@@ -180,6 +185,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": get_sqlite_database_path(additional_db),
             "OPTIONS": {"timeout": 100},
+            "CONN_MAX_AGE": sqlite_conn_max_age,
         }
 
         if additional_db == JOB_STORAGE:
