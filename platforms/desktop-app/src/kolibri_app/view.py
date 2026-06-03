@@ -103,20 +103,18 @@ class KolibriView(object):
 
         menu_bar.Append(file_menu, _("File"))
 
-        edit_menu = wx.Menu()
-        # FIXME: Remove these once the native menu handlers are restored
-        self.add_menu_item(
-            edit_menu, _("Undo\tCtrl+Z"), handler=self.on_undo, item_id=wx.ID_UNDO
-        )
-        self.add_menu_item(
-            edit_menu, _("Redo\tCtrl+Shift+Z"), handler=self.on_redo, item_id=wx.ID_REDO
-        )
-        edit_menu.AppendSeparator()
-        self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
-        self.add_menu_item(edit_menu, _("Copy\tCtrl+C"), item_id=wx.ID_COPY)
-        self.add_menu_item(edit_menu, _("Paste\tCtrl+V"), item_id=wx.ID_PASTE)
-        self.add_menu_item(edit_menu, _("Select All\tCtrl+A"), item_id=wx.ID_SELECTALL)
-        menu_bar.Append(edit_menu, _("Edit"))
+        # manually adding menu items only needed on macOS
+        # windows and linux handle this already
+        # see https://github.com/learningequality/kolibri-app/issues/236
+        if MAC:
+            edit_menu = wx.Menu()
+            self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
+            self.add_menu_item(edit_menu, _("Copy\tCtrl+C"), item_id=wx.ID_COPY)
+            self.add_menu_item(edit_menu, _("Paste\tCtrl+V"), item_id=wx.ID_PASTE)
+            self.add_menu_item(
+                edit_menu, _("Select All\tCtrl+A"), item_id=wx.ID_SELECTALL
+            )
+            menu_bar.Append(edit_menu, _("Edit"))
 
         view_menu = wx.Menu()
         self.add_menu_item(
@@ -262,12 +260,6 @@ class KolibriView(object):
 
     def on_reload(self, event):
         self.webview.Reload()
-
-    def on_undo(self, event):
-        self.webview.Undo()
-
-    def on_redo(self, event):
-        self.webview.Redo()
 
     def on_actual_size(self, event):
         self.webview.SetZoom(html2.WEBVIEW_ZOOM_MEDIUM)
