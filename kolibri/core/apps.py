@@ -52,22 +52,19 @@ class KolibriCoreConfig(AppConfig):
     @staticmethod
     def activate_pragmas_per_connection(sender, connection, **kwargs):
         """
-        Activate SQLite3 PRAGMAs that apply on a per-connection basis. A no-op
-        right now, but kept around as infrastructure if we ever want to add
-        PRAGMAs in the future.
+        Activate SQLite3 PRAGMAs that apply on a per-connection basis.
         """
 
         if connection.vendor == "sqlite":
             cursor = connection.cursor()
 
-            # Shorten the default WAL autocheckpoint from 1000 pages to 500
             cursor.executescript(CONNECTION_PRAGMAS)
 
             # We don't turn on the following pragmas, because they have negligible
             # performance impact. For reference, here's what we've tested:
 
             # Don't ensure that the OS has fully flushed
-            # our data to disk.
+            # our data to disk. CONNECTION_PRAGMAS sets NORMAL instead.
             # cursor.execute("PRAGMA synchronous=OFF;")
 
             # Store cross-database JOINs in memory.
