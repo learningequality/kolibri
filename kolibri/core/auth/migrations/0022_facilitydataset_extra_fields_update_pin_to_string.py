@@ -6,7 +6,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0021_facilitydataset_extra_fields_validations"),
     ]

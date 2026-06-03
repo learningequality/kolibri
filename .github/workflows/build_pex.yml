@@ -1,5 +1,4 @@
 name: Build PEX file
-
 on:
   workflow_call:
     inputs:
@@ -10,10 +9,8 @@ on:
       pex-file-name:
         description: "PEX file name"
         value: ${{ jobs.build_pex.outputs.pex-file-name }}
-
 permissions:
   contents: read
-
 jobs:
   build_pex:
     name: Build PEX

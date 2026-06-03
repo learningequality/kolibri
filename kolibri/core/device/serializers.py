@@ -12,7 +12,6 @@ from kolibri.utils.filesystem import get_path_permission
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
-
     user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
 
     class Meta:
@@ -46,7 +45,6 @@ class PathListField(serializers.ListField):
 
 
 class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerializer):
-
     extra_settings = serializers.JSONField(required=False)
     primary_storage_location = serializers.CharField(required=False)
     secondary_storage_locations = PathListField(

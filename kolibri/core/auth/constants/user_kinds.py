@@ -1,6 +1,7 @@
 """
 This module contains constants representing the kinds of user that can be logged in, based on their roles and permissions.
 """
+
 from django.utils.translation import gettext_lazy as _
 
 from .role_kinds import ADMIN  # noqa F401

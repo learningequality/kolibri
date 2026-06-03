@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("content", "0034_contentrequest_source_instance_id"),
     ]

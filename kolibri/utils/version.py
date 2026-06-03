@@ -1,6 +1,7 @@
 """
 Version utility functions for comparing and manipulating version strings.
 """
+
 import logging
 import re
 

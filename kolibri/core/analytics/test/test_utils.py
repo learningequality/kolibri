@@ -72,7 +72,9 @@ class BaseDeviceSetupMixin:
             id=channel_id, name="channel", last_updated=cls.min_timestamp, root=root
         )
         lf = LocalFile.objects.create(
-            id=uuid.uuid4().hex, available=True, file_size=1048576  # 1 MB
+            id=uuid.uuid4().hex,
+            available=True,
+            file_size=1048576,  # 1 MB
         )
         File.objects.create(id=uuid.uuid4().hex, contentnode=root, local_file=lf)
 

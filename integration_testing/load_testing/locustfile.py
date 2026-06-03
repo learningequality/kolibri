@@ -14,6 +14,7 @@ Usage:
     KOLIBRI_NUM_USERS=50 \\
     locust -f locustfile.py -u 50 -r 50 --run-time 5m
 """
+
 import json
 import os
 import random

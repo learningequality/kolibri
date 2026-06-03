@@ -1654,7 +1654,7 @@ class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
         # Return abundant free space so no download is blocked by storage checks.
         free_space_patcher = mock.patch(_module + "get_free_space_for_downloads")
         self.mock_free_space = free_space_patcher.start()
-        self.mock_free_space.return_value = 10 ** 9
+        self.mock_free_space.return_value = 10**9
         self.addCleanup(free_space_patcher.stop)
 
         # Suppress device-status side effects (InsufficientStorage signals, etc.)

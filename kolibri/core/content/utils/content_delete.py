@@ -105,7 +105,10 @@ def delete_content(
     except ChannelMetadata.DoesNotExist:
         raise KeyError("Channel matching id {id} does not exist".format(id=channel_id))
 
-    (total_resource_number, delete_all_metadata,) = delete_metadata(
+    (
+        total_resource_number,
+        delete_all_metadata,
+    ) = delete_metadata(
         channel,
         node_ids,
         exclude_node_ids,

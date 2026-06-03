@@ -69,7 +69,7 @@ class PwaManifestView(TemplateView):
         # a couple of deprecated config keys.
         related_apps = []
 
-        for (config_key, platform_id, url_prefix) in [
+        for config_key, platform_id, url_prefix in [
             (
                 "ANDROID_APPLICATION_ID",
                 "play",

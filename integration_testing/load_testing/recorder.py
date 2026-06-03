@@ -1,6 +1,7 @@
 """
 Playwright-based flow recording utilities.
 """
+
 import subprocess
 
 from logger import info
@@ -58,7 +59,8 @@ def capture_manual_flow(server_url, output_har):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(
-            record_har_path=output_har, record_har_mode="minimal"  # Minimize HAR size
+            record_har_path=output_har,
+            record_har_mode="minimal",  # Minimize HAR size
         )
         page = context.new_page()
 

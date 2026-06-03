@@ -1,18 +1,14 @@
 name: npm Package Version Check
-
 on:
   pull_request:
     paths:
       - 'packages/**'
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   pull-requests: read
-
 jobs:
   check:
     runs-on: ubuntu-latest

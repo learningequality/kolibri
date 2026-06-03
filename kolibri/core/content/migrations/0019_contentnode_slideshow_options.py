@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("content", "0018_contentnode_num_coach_contents")]
 
     operations = [

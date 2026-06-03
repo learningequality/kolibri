@@ -334,8 +334,7 @@ class SyncQueueQuerySet(QuerySet):
             .annotate(
                 # so a record's score is promoted by up to half the sync interval if it has
                 # missed its rendezvous time
-                score=F("time_since_last_sync")
-                - F("time_to_attempt"),
+                score=F("time_since_last_sync") - F("time_to_attempt"),
             )
             .order_by("-score", "datetime")
         )
@@ -423,7 +422,7 @@ class SyncQueue(models.Model):
 
     @property
     def attempt_at(self):
-        """ Returns the time in seconds since epoch for the next rendezvous """
+        """Returns the time in seconds since epoch for the next rendezvous"""
         return self.updated + self.keep_alive
 
     def set_next_attempt(self, seconds):
@@ -437,7 +436,7 @@ class SyncQueue(models.Model):
     def increment_and_backoff_next_attempt(self):
         self.attempts += 1
         # exponential backoff with min of 30 seconds
-        self.set_next_attempt(28 + 2 ** self.attempts)
+        self.set_next_attempt(28 + 2**self.attempts)
 
     # Saving these models seems unusually prone to hitting database locks, so we'll retry
     # the save operation if we hit a lock.

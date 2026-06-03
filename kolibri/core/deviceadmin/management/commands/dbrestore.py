@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     output_transaction = True
 
     # @ReservedAssignment

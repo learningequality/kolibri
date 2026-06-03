@@ -137,7 +137,6 @@ class KolibriTagNavigationTestCase(APITestCase):
 
 
 class AllUrlsTest(APITestCase):
-
     databases = "__all__"
 
     # Allow codes that may indicate a poorly formed response

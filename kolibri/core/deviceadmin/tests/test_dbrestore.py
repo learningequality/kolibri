@@ -53,19 +53,16 @@ def mock_status_not_running():
 
 
 def test_latest():
-
     with pytest.raises(CommandError):
         call_command("dbrestore", "-l")
 
 
 def test_illegal_command():
-
     with pytest.raises(ValueError):
         call_command("dbrestore", latest=True, dump_file="wup wup")
 
 
 def test_no_restore_from_no_file():
-
     with pytest.raises(ValueError):
         call_command("dbrestore", dump_file="does not exist")
 
@@ -215,7 +212,6 @@ def test_restore_from_file_to_file():
 
 
 def test_search_latest():
-
     search_root = tempfile.mkdtemp()
 
     major_version = ".".join(kolibri.__version__.split(".")[:2])

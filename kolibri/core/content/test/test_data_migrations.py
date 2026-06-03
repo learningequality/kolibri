@@ -8,7 +8,6 @@ from kolibri.core.auth.test.migrationtestcase import TestMigrations
 
 
 class ChannelFieldsTestCase(TestMigrations):
-
     migrate_from = "0011_auto_20180907_1017"
     migrate_to = "0012_auto_20180910_1702"
     app = "content"
@@ -82,7 +81,6 @@ class ChannelFieldsTestCase(TestMigrations):
 
 
 class ChannelOrderTestCase(TestMigrations):
-
     migrate_from = "0015_auto_20190125_1715"
     migrate_to = "0016_auto_20190124_1639"
     app = "content"

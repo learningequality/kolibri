@@ -9,6 +9,7 @@ See kolibri/core/public/api_urls.py for the public API definitions.
 
 For more information, see: docs/backend_architecture/index.rst
 """
+
 import operator
 import threading
 import uuid
@@ -647,15 +648,17 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         missing = expected_fields - item_keys
         if missing:
             raise ValueError(
-                "Missing fields in output: {}. "
-                "Expected: {}, Got: {}".format(missing, expected_fields, item_keys)
+                "Missing fields in output: {}. Expected: {}, Got: {}".format(
+                    missing, expected_fields, item_keys
+                )
             )
 
         extra = item_keys - expected_fields
         if extra:
             raise ValueError(
-                "Unexpected fields in output: {}. "
-                "Expected: {}, Got: {}".format(extra, expected_fields, item_keys)
+                "Unexpected fields in output: {}. Expected: {}, Got: {}".format(
+                    extra, expected_fields, item_keys
+                )
             )
 
         for field_name, nested_schema in nested_schemas.items():

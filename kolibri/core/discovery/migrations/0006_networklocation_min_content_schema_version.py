@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("discovery", "0005_add_connection_tracking_metadata"),
     ]

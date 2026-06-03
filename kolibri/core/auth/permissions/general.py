@@ -2,6 +2,7 @@
 The permissions classes in this module are broadly useful. Other apps can import the classes from this module
 in their own "permissions.py" module, extend or remix them, and then apply them to their own models.
 """
+
 from django.db.models import Q
 
 from ..constants import role_kinds
@@ -115,7 +116,6 @@ class IsOwn(BasePermissions):
 
 
 def _user_is_admin_for_own_facility(user, obj=None):
-
     # import here to avoid circular imports
     from ..models import Facility
 

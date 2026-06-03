@@ -69,13 +69,13 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
 
             instance_kwargs = {}
             if context.is_server:
-                instance_kwargs[
-                    "client_instance_id"
-                ] = context.sync_session.client_instance_id
+                instance_kwargs["client_instance_id"] = (
+                    context.sync_session.client_instance_id
+                )
             else:
-                instance_kwargs[
-                    "server_instance_id"
-                ] = context.sync_session.server_instance_id
+                instance_kwargs["server_instance_id"] = (
+                    context.sync_session.server_instance_id
+                )
 
             # ensure the instance ids are strings
             for key, instance_id in instance_kwargs.items():
@@ -109,7 +109,6 @@ class AuthSyncHook(FacilityDataSyncHook):
         single_user_id,
         context,
     ):
-
         if context.is_receiver:
             user_ids = context.transfer_session.get_touched_record_ids_for_model(
                 FacilityUser

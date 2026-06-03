@@ -122,7 +122,6 @@ class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class DeviceInfoView(views.APIView):
-
     permission_classes = (UserHasAnyDevicePermissions,)
 
     def get(self, request, format=None):
@@ -195,7 +194,6 @@ class DeviceInfoView(views.APIView):
 
 
 class DeviceSettingsView(views.APIView):
-
     permission_classes = (UserHasAnyDevicePermissions,)
 
     def get(self, request):
@@ -229,7 +227,6 @@ class DeviceNameView(views.APIView):
 
 
 class SyncStatusFilter(FilterSet):
-
     member_of = ModelChoiceFilter(
         method="filter_member_of", queryset=Collection.objects.all()
     )
@@ -317,7 +314,6 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         return UserSyncStatus.objects.all()
 
     def annotate_queryset(self, queryset):
-
         queryset = queryset.annotate(
             last_synced=F("sync_session__last_activity_timestamp"),
         )
@@ -444,7 +440,6 @@ class PluginsViewSet(viewsets.ViewSet):
 
 
 class DeviceRestartView(views.APIView):
-
     permission_classes = (IsSuperuser,)
 
     def get(self, request):
@@ -472,7 +467,6 @@ class DriveInfoViewSet(viewsets.ViewSet):
 
 
 class PathPermissionView(views.APIView):
-
     permission_classes = (UserHasAnyDevicePermissions,)
 
     @swagger_auto_schema_available(

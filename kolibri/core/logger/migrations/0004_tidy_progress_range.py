@@ -21,7 +21,6 @@ def reverse(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("logger", "0003_auto_20170531_1140")]
 
     operations = [migrations.RunPython(tidy_progress_range, reverse_code=reverse)]

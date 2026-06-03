@@ -2,6 +2,7 @@
 Tiny module to store strings for task notifications for device tasks.
 TODO: This can be migrated into kolibri/core/device/tasks.py in 0.17
 """
+
 from kolibri.core.tasks.job import JobStatus
 from kolibri.utils.translation import gettext as _
 

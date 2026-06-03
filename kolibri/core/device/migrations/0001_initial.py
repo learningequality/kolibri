@@ -6,7 +6,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [("kolibriauth", "0003_auto_20170621_0958")]

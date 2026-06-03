@@ -315,9 +315,7 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import, "generate_table_mapper"
         ), patch.object(channel_import, "table_import"), patch.object(
             channel_import, "check_and_delete_existing_channel"
-        ), patch.object(
-            channel_import, "execute_post_operations"
-        ):
+        ), patch.object(channel_import, "execute_post_operations"):
             channel_import.import_channel_data()
             channel_import.generate_row_mapper.assert_called_once_with(
                 mapping_mock.get("per_row")
@@ -439,7 +437,6 @@ class ContentImportTestBase(TransactionTestCase):
             "kolibri.core.content.utils.sqlalchemybridge.get_engine",
             new=self.get_engine,
         ):
-
             import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
             update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
         self.content_engine.dispose()
@@ -769,12 +766,10 @@ class NaiveImportTestBase(ContentNodeTestBase):
         )
 
     def test_existing_localfiles_are_not_overwritten(self):
-
         with patch(
             "kolibri.core.content.utils.sqlalchemybridge.get_engine",
             new=self.get_engine,
         ):
-
             channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
             channel = ChannelMetadata.objects.get(id=channel_id)

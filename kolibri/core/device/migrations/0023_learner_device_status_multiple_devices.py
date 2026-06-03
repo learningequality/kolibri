@@ -6,7 +6,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0022_update_language_code_nyn_to_ny"),
     ]

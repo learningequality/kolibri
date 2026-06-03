@@ -10,6 +10,7 @@ Pass `--since-days N` to limit the scan to PRs updated in the last N days
 
 Set `GITHUB_TOKEN` to authenticate the API calls.
 """
+
 import argparse
 import datetime as dt
 import json

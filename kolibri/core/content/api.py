@@ -387,9 +387,7 @@ class BaseChannelMetadataMixin:
             language_id,
         ) in models.ChannelMetadata.included_languages.through.objects.filter(
             channelmetadata__in=queryset
-        ).values_list(
-            "channelmetadata_id", "language_id"
-        ):
+        ).values_list("channelmetadata_id", "language_id"):
             if channel_id not in included_languages:
                 included_languages[channel_id] = []
             included_languages[channel_id].append(language_id)

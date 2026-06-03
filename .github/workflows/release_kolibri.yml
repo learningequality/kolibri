@@ -1,13 +1,10 @@
 name: Release Kolibri
-
 on:
   release:
     types: [published]
-
 permissions:
   contents: write
   packages: write
-
 jobs:
   latest_release:
     name: Check if this release is the latest release
@@ -21,7 +18,6 @@ jobs:
         with:
           result-encoding: string
           script: |
-
             const { data: latestRelease } = await github.rest.repos.getLatestRelease({
               owner: 'learningequality',
               repo: 'kolibri',
@@ -158,75 +154,66 @@ jobs:
     needs: [whl, pex, dmg, deb, exe, zip, apk]
     strategy:
       matrix:
-        filename: [
-          '${{ needs.whl.outputs.whl-file-name }}',
-          '${{ needs.whl.outputs.tar-file-name }}',
-          '${{ needs.pex.outputs.pex-file-name }}',
-          '${{ needs.dmg.outputs.dmg-file-name }}',
-          '${{ needs.deb.outputs.deb-file-name }}',
-          '${{ needs.exe.outputs.exe-file-name }}',
-          '${{ needs.zip.outputs.zip-file-name }}',
-          '${{ needs.apk.outputs.apk-file-name }}',
-        ]
+        filename: ['${{ needs.whl.outputs.whl-file-name }}', '${{ needs.whl.outputs.tar-file-name }}', '${{ needs.pex.outputs.pex-file-name }}', '${{ needs.dmg.outputs.dmg-file-name }}', '${{ needs.deb.outputs.deb-file-name }}', '${{ needs.exe.outputs.exe-file-name }}', '${{ needs.zip.outputs.zip-file-name }}', '${{ needs.apk.outputs.apk-file-name }}']
     steps:
-    - name: Download ${{ matrix.filename }} artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: ${{ matrix.filename }}
-        path: dist
-    - uses: 'google-github-actions/auth@v3'
-      with:
-        credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v3'
-    - name: Upload files to Google Cloud Storage
-      uses: 'google-github-actions/upload-cloud-storage@v3'
-      with:
-        path: 'dist/${{ matrix.filename }}'
-        destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}'
-        process_gcloudignore: false
+      - name: Download ${{ matrix.filename }} artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ matrix.filename }}
+          path: dist
+      - uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v3'
+      - name: Upload files to Google Cloud Storage
+        uses: 'google-github-actions/upload-cloud-storage@v3'
+        with:
+          path: 'dist/${{ matrix.filename }}'
+          destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}'
+          process_gcloudignore: false
   bck_gcs_upload:
     name: Upload WHL file to Google Cloud Storage for BCK
     runs-on: ubuntu-latest
     needs: [whl]
     steps:
-    - name: Download WHL artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: ${{ needs.whl.outputs.whl-file-name }}
-        path: dist
-    - name: Zip whl file
-      run: zip -j dist/kolibri.zip dist/${{ needs.whl.outputs.whl-file-name }}
-    - uses: 'google-github-actions/auth@v3'
-      with:
-        credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v3'
-    - name: Upload to BCK bucket
-      uses: 'google-github-actions/upload-cloud-storage@v3'
-      with:
-        path: 'dist/kolibri.zip'
-        destination: '${{ secrets.BCK_PRERELEASE_BUILD_ARTIFACT_GCS_BUCKET }}'
-        parent: false
-        process_gcloudignore: false
-    - name: Unzip content static files from whl file
-      run: |
-        unzip dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
-        mv static/kolibri/core/content/static/** static
-        rm -rf static/kolibri
-        rm static/**/*.file_size
-        # Ungzip all .gz files in the static folder
-        for f in static/**/*.gz; do gunzip -f $f; done
-    - name: Upload content static files to BCK bucket
-      uses: 'google-github-actions/upload-cloud-storage@v3'
-      with:
-        path: 'static'
-        destination: '${{ secrets.STUDIO_BCK_CONTENT_STATIC_BUCKET }}'
-        process_gcloudignore: false
+      - name: Download WHL artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.whl.outputs.whl-file-name }}
+          path: dist
+      - name: Zip whl file
+        run: zip -j dist/kolibri.zip dist/${{ needs.whl.outputs.whl-file-name }}
+      - uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v3'
+      - name: Upload to BCK bucket
+        uses: 'google-github-actions/upload-cloud-storage@v3'
+        with:
+          path: 'dist/kolibri.zip'
+          destination: '${{ secrets.BCK_PRERELEASE_BUILD_ARTIFACT_GCS_BUCKET }}'
+          parent: false
+          process_gcloudignore: false
+      - name: Unzip content static files from whl file
+        run: |
+          unzip dist/${{ needs.whl.outputs.whl-file-name }} 'kolibri/core/content/static/*' -d static
+          mv static/kolibri/core/content/static/** static
+          rm -rf static/kolibri
+          rm static/**/*.file_size
+          # Ungzip all .gz files in the static folder
+          for f in static/**/*.gz; do gunzip -f "$f"; done
+      - name: Upload content static files to BCK bucket
+        uses: 'google-github-actions/upload-cloud-storage@v3'
+        with:
+          path: 'static'
+          destination: '${{ secrets.STUDIO_BCK_CONTENT_STATIC_BUCKET }}'
+          process_gcloudignore: false
   block_release_step:
-  # This step ties to the release environment which requires manual approval
-  # before it can execute. Once manual approval has been granted, the release is
-  # unblocked and all the subsequent steps in this workflow will happen.
+    # This step ties to the release environment which requires manual approval
+    # before it can execute. Once manual approval has been granted, the release is
+    # unblocked and all the subsequent steps in this workflow will happen.
     name: Job to block publish of a release until it has been manually approved
     if: ${{ !github.event.release.prerelease }}
     needs: [whl, pex, dmg, deb, exe, zip, apk, test_pypi_upload]

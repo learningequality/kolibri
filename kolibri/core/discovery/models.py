@@ -229,7 +229,6 @@ class NetworkLocationRouter(KolibriModelRouter):
 
 
 class PinnedDevice(models.Model):
-
     instance_id = UUIDField(blank=False)
     user = models.ForeignKey(FacilityUser, blank=False, on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now, db_index=True)

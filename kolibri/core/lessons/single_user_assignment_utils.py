@@ -87,7 +87,6 @@ def update_assignments_from_individual_syncable_lessons(user_id):
 
     # create new assignments and lessons for all new syncable lesson objects
     for syncablelesson in to_create:
-
         lesson = syncablelesson.deserialize_lesson()
         # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
         lesson.created_by_id = user_id

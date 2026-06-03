@@ -27,7 +27,6 @@ class Command(BaseCommand):
     help = "Scan content and databases in Kolibri folder and updates the database to show if available"
 
     def add_arguments(self, parser):
-
         channel_import_mode_help_text = """
         Specify the desired behavior for import of channel metadata databases. Value must be one of:
         - newer: only import if database version is higher than what we already have (default)
@@ -72,7 +71,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         channel_import_mode = options["channel_import_mode"]
         channels_to_include = options["channels"]
         skip_annotations = options["skip_annotations"]

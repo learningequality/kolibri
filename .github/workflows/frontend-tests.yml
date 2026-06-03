@@ -1,23 +1,19 @@
 name: Javascript Tests
-
 on:
   push:
     branches:
-    - develop
-    - 'release-v**'
+      - develop
+      - 'release-v**'
   pull_request:
     branches:
-    - develop
-    - 'release-v**'
-
+      - develop
+      - 'release-v**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   pre_job:
     name: Path match check
@@ -37,17 +33,17 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-      with:
-        lfs: true
-    - name: Install pnpm
-      uses: pnpm/action-setup@v6.0.8
-    - name: Use Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version-file: 'package.json'
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-    - name: Run tests
-      run: pnpm run coverage
+      - uses: actions/checkout@v6
+        with:
+          lfs: true
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.8
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: 'package.json'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run tests
+        run: pnpm run coverage

@@ -1,10 +1,10 @@
 exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: check-yaml
+      - id: trailing-whitespace
+      - id: check-yaml
         exclude: '^pnpm-lock\.yaml$'
       - id: check-added-large-files
         exclude: '^(pnpm-lock\.yaml|uv\.lock)$'
@@ -32,76 +32,43 @@ repos:
       - id: ruff-format
   - repo: local
     hooks:
-    -   id: lint-frontend
+      - id: lint-frontend
         name: Linting of JS, Vue, SCSS and CSS files
         description: This hook handles all frontend linting for Kolibri
         entry: pnpm run lint-frontend:format
         language: system
         files: \.(js|vue|scss|css)$
         exclude: (?x)^(kolibri/plugins/qti_viewer/frontend/components/__fixtures__/items\.js|packages/eslint-plugin-kolibri/tests/lib/rules/fixtures/malformed\.js)
--   repo: local
+  - repo: local
     hooks:
-    -   id: core-js-api
+      - id: core-js-api
         name: Rebuild kolibri package
         description: Rebuilds kolibri package on changes to core js api
         entry: pnpm exec node ./packages/build_kolibri_package.js
         language: system
         files: ^packages/kolibri/.*\.(js|vue)$
         require_serial: true
-- repo: local
-  hooks:
-  - id: no-auto-migrations
-    name: no auto-named migrations
-    entry: We do not allow _auto_ in migration names. Please give the migration a telling name.
-    language: fail
-    files: .*/migrations/.*_auto_.*\.py$
-    exclude: (?x)^(
-        kolibri/core/auth/migrations/0002_auto_20170608_2125\.py|
-        kolibri/core/auth/migrations/0003_auto_20170621_0958\.py|
-        kolibri/core/auth/migrations/0004_auto_20170816_1607\.py|
-        kolibri/core/auth/migrations/0005_auto_20170818_1203\.py|
-        kolibri/core/auth/migrations/0006_auto_20171206_1207\.py|
-        kolibri/core/auth/migrations/0007_auto_20171226_1125\.py|
-        kolibri/core/auth/migrations/0008_auto_20180222_1244\.py|
-        kolibri/core/auth/migrations/0009_auto_20180301_1123\.py|
-        kolibri/core/auth/migrations/0010_auto_20180320_1320\.py|
-        kolibri/core/auth/migrations/0013_auto_20180917_1213\.py|
-        kolibri/core/auth/migrations/0014_auto_20190815_1421\.py|
-        kolibri/core/content/migrations/0003_auto_20170607_1212\.py|
-        kolibri/core/content/migrations/0004_auto_20170825_1038\.py|
-        kolibri/core/content/migrations/0005_auto_20171009_0903\.py|
-        kolibri/core/content/migrations/0006_auto_20171128_1703\.py|
-        kolibri/core/content/migrations/0007_auto_20180212_1155\.py|
-        kolibri/core/content/migrations/0008_auto_20180429_1709\.py|
-        kolibri/core/content/migrations/0009_auto_20180410_1139\.py|
-        kolibri/core/content/migrations/0011_auto_20180907_1017\.py|
-        kolibri/core/content/migrations/0012_auto_20180910_1702\.py|
-        kolibri/core/content/migrations/0013_auto_20180919_1142\.py|
-        kolibri/core/content/migrations/0014_auto_20181218_1132\.py|
-        kolibri/core/content/migrations/0015_auto_20190125_1715\.py|
-        kolibri/core/content/migrations/0016_auto_20190124_1639\.py|
-        kolibri/core/content/migrations/0017_auto_20190415_1855\.py|
-        kolibri/core/device/migrations/0004_auto_20190306_0553\.py|
-        kolibri/core/device/migrations/0005_auto_20191203_0951\.py|
-        kolibri/core/exams/migrations/0003_auto_20190426_1015\.py|
-        kolibri/core/lessons/migrations/0002_auto_20180221_1115\.py|
-        kolibri/core/logger/migrations/0002_auto_20170518_1031\.py|
-        kolibri/core/logger/migrations/0003_auto_20170531_1140\.py|
-        kolibri/core/logger/migrations/0005_auto_20180514_1419\.py|
-      )$
-  - id: no-swappable-auth-migrations
-    name: No migrations with swappable auth models (settings.AUTH_USER_MODEL)
-    entry: settings\.AUTH_USER_MODEL
-    language: pygrep
-    files: migrations/.*\.py$
-  - id: no-kolibri-common-imports
-    name: No imports from kolibri-common (which is unpublished) in any other packages
-    entry: kolibri-common
-    language: pygrep
-    exclude: (^packages/kolibri-common/|moduleMapping\.js|(__tests__|__fixtures__))
-    files: ^packages/.*\.(js|vue)$
-  - id: check-lfs-pointers
-    name: Check LFS files are pointers not binary data
-    description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
-    entry: python .pre-commit-hooks/check_lfs_pointers.py
-    language: system
+  - repo: local
+    hooks:
+      - id: no-auto-migrations
+        name: no auto-named migrations
+        entry: We do not allow _auto_ in migration names. Please give the migration a telling name.
+        language: fail
+        files: .*/migrations/.*_auto_.*\.py$
+        exclude: (?x)^( kolibri/core/auth/migrations/0002_auto_20170608_2125\.py| kolibri/core/auth/migrations/0003_auto_20170621_0958\.py| kolibri/core/auth/migrations/0004_auto_20170816_1607\.py| kolibri/core/auth/migrations/0005_auto_20170818_1203\.py| kolibri/core/auth/migrations/0006_auto_20171206_1207\.py| kolibri/core/auth/migrations/0007_auto_20171226_1125\.py| kolibri/core/auth/migrations/0008_auto_20180222_1244\.py| kolibri/core/auth/migrations/0009_auto_20180301_1123\.py| kolibri/core/auth/migrations/0010_auto_20180320_1320\.py| kolibri/core/auth/migrations/0013_auto_20180917_1213\.py| kolibri/core/auth/migrations/0014_auto_20190815_1421\.py| kolibri/core/content/migrations/0003_auto_20170607_1212\.py| kolibri/core/content/migrations/0004_auto_20170825_1038\.py| kolibri/core/content/migrations/0005_auto_20171009_0903\.py| kolibri/core/content/migrations/0006_auto_20171128_1703\.py| kolibri/core/content/migrations/0007_auto_20180212_1155\.py| kolibri/core/content/migrations/0008_auto_20180429_1709\.py| kolibri/core/content/migrations/0009_auto_20180410_1139\.py| kolibri/core/content/migrations/0011_auto_20180907_1017\.py| kolibri/core/content/migrations/0012_auto_20180910_1702\.py| kolibri/core/content/migrations/0013_auto_20180919_1142\.py| kolibri/core/content/migrations/0014_auto_20181218_1132\.py| kolibri/core/content/migrations/0015_auto_20190125_1715\.py| kolibri/core/content/migrations/0016_auto_20190124_1639\.py| kolibri/core/content/migrations/0017_auto_20190415_1855\.py| kolibri/core/device/migrations/0004_auto_20190306_0553\.py| kolibri/core/device/migrations/0005_auto_20191203_0951\.py| kolibri/core/exams/migrations/0003_auto_20190426_1015\.py| kolibri/core/lessons/migrations/0002_auto_20180221_1115\.py| kolibri/core/logger/migrations/0002_auto_20170518_1031\.py| kolibri/core/logger/migrations/0003_auto_20170531_1140\.py| kolibri/core/logger/migrations/0005_auto_20180514_1419\.py| )$
+      - id: no-swappable-auth-migrations
+        name: No migrations with swappable auth models (settings.AUTH_USER_MODEL)
+        entry: settings\.AUTH_USER_MODEL
+        language: pygrep
+        files: migrations/.*\.py$
+      - id: no-kolibri-common-imports
+        name: No imports from kolibri-common (which is unpublished) in any other packages
+        entry: kolibri-common
+        language: pygrep
+        exclude: (^packages/kolibri-common/|moduleMapping\.js|(__tests__|__fixtures__))
+        files: ^packages/.*\.(js|vue)$
+      - id: check-lfs-pointers
+        name: Check LFS files are pointers not binary data
+        description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
+        entry: python .pre-commit-hooks/check_lfs_pointers.py
+        language: system

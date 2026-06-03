@@ -43,7 +43,7 @@ def bytes_from_humans(size, suffix="B"):
         regex = "(([0-9]*[.])?[0-9]+){}{}".format(prefix, suffix)
         match = re.match(regex, size)
         if match:
-            return int(float(match.groups()[0]) * PREFIX_FACTOR_BYTES ** i)
+            return int(float(match.groups()[0]) * PREFIX_FACTOR_BYTES**i)
     raise ValueError("Could not parse bytes value from {}".format(size))
 
 

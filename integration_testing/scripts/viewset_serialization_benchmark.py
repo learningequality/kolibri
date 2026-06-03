@@ -17,6 +17,7 @@ Examples:
     python .../viewset_serialization_benchmark.py kolibri.core.auth.api.FacilityUserViewSet \\
         --inherit-kolibri-home --compare baseline.json
 """
+
 import argparse
 import gc
 import hashlib

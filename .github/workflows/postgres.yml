@@ -1,12 +1,9 @@
 name: Postgres Versions Tests
-
 on:
   schedule:
     - cron: '0 18 * * 1'
-
 permissions:
   contents: read
-
 jobs:
   postgres:
     name: Python postgres unit tests
@@ -27,34 +24,31 @@ jobs:
           POSTGRES_DB: test
         # Set health checks to wait until postgres has started
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-    - name: Install Python 3.9
-      run: uv python install 3.9
-    - name: Install dependencies
-      run: uv sync --group test --extra postgres --python 3.9
-    - name: Run tests
-      run: |
-        uv run python -O -m pytest kolibri --color=no
-        uv run python -O -m pytest --color=no -p no:django test
-      env:
-        KOLIBRI_DATABASE_ENGINE: postgres
-        KOLIBRI_DATABASE_USER: postgres
-        KOLIBRI_DATABASE_NAME: test
-        KOLIBRI_DATABASE_HOST: localhost
-        KOLIBRI_DATABASE_PASSWORD: postgres
-        KOLIBRI_DATABASE_PORT: "5432"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.9
+        run: uv python install 3.9
+      - name: Install dependencies
+        run: uv sync --group test --extra postgres --python 3.9
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test
+        env:
+          KOLIBRI_DATABASE_ENGINE: postgres
+          KOLIBRI_DATABASE_USER: postgres
+          KOLIBRI_DATABASE_NAME: test
+          KOLIBRI_DATABASE_HOST: localhost
+          KOLIBRI_DATABASE_PASSWORD: postgres
+          KOLIBRI_DATABASE_PORT: "5432"

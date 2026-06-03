@@ -179,7 +179,6 @@ class FixMultipleTreesWithId1TestCase(TransactionTestCase):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class UpdateNumCoachContents(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def setUp(self):

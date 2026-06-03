@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0030_alter_facilityuser_managers"),
     ]

@@ -258,7 +258,6 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
 
 
 class ContentDownloadRequestMetadataSerializer(serializers.Serializer):
-
     title = serializers.CharField()
     file_size = serializers.IntegerField()
     learning_activities = serializers.ListField(
@@ -271,7 +270,6 @@ class ContentDownloadRequestSerializer(serializers.ModelSerializer):
     metadata = ContentDownloadRequestMetadataSerializer()
 
     class Meta:
-
         model = ContentDownloadRequest
         fields = ("id", "contentnode_id", "metadata", "source_instance_id")
 

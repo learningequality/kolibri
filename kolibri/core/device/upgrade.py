@@ -1,6 +1,7 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+
 from shutil import rmtree
 
 from django.conf import settings

@@ -1,6 +1,7 @@
 """
 Tests for `kolibri` module.
 """
+
 import unittest
 
 from parameterized import parameterized

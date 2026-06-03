@@ -2,7 +2,6 @@
 This module contains constants representing options for SoUD sync
 """
 
-
 DELAYED_SYNC = 900  # client: seconds to mark sync as not recent
 
 MAX_CONCURRENT_SYNCS = 1  # Server: max number of concurrent syncs allowed

@@ -1,23 +1,19 @@
 name: Docs
-
 on:
   push:
     branches:
-    - develop
-    - 'release-v**'
+      - develop
+      - 'release-v**'
   pull_request:
     branches:
-    - develop
-    - 'release-v**'
-
+      - develop
+      - 'release-v**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   pre_job:
     name: Path match check
@@ -37,17 +33,17 @@ jobs:
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-        # Pin to match the Python RTD builds docs with (.readthedocs.yaml)
-        python-version: "3.11"
-    - name: Install dependencies
-      run: uv sync --group docs
-    - name: Check Docs build
-      run: make docs
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+          # Pin to match the Python RTD builds docs with (.readthedocs.yaml)
+          python-version: "3.11"
+      - name: Install dependencies
+        run: uv sync --group docs
+      - name: Check Docs build
+        run: make docs

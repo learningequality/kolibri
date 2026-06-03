@@ -34,7 +34,6 @@ class Command(AsyncCommand):
             deprovision(progress_update=progress_update)
 
     def handle_async(self, *args, **options):
-
         # safest not to run this command while the server is running
         try:
             server.get_status()

@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0033_facilitydataset_enable_mark_attendance"),
         ("kolibriauth", "0033_facilityuser_add_picture_password"),

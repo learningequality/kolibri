@@ -24,7 +24,6 @@ def convert_datetime_to_datetimetz(apps, schema_editor, model_name=None):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("logger", "0001_initial")]
 
     operations = [

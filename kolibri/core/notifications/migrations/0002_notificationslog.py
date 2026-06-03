@@ -8,7 +8,6 @@ import kolibri.utils.time_utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("notifications", "0001_initial")]
 
     operations = [

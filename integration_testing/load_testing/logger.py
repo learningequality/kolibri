@@ -3,6 +3,7 @@ Centralized colored logging for Kolibri Load Testing CLI
 
 Provides consistent colored output across all modules.
 """
+
 import click
 
 

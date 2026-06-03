@@ -6,7 +6,6 @@ import kolibri.core.device.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("device", "0006_migrate_guest_access")]
 
     operations = [

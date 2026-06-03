@@ -2,6 +2,7 @@
 CAUTION! Keep everything here at at minimum. Do not import stuff.
 Do not import dependencies here.
 """
+
 from kolibri.utils import env
 
 # Setup the environment before loading anything else from the application

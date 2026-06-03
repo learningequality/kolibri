@@ -4,6 +4,7 @@ Kolibri Content hooks
 
 Hooks for managing the display and rendering of content.
 """
+
 import json
 from abc import abstractmethod
 

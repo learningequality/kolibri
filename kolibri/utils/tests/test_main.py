@@ -1,6 +1,7 @@
 """
 Tests for `kolibri.utils.main` module.
 """
+
 import os
 import unittest
 

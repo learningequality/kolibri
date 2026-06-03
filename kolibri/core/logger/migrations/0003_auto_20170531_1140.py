@@ -5,7 +5,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("logger", "0002_auto_20170518_1031")]
 
     operations = [

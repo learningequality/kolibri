@@ -8,7 +8,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [("kolibriauth", "0001_initial")]

@@ -7,7 +7,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0026_update_language_code_nyn_to_ny"),
         ("exams", "0007_bump_data_model_version_to_3"),

@@ -18,6 +18,7 @@ object, which grants the user a role with respect to the ``Collection`` and all 
 object also stores the "kind" of the role (currently, one of "admin" or "coach"), which affects what permissions the
 user gains through the ``Role``.
 """
+
 import logging
 from threading import local
 
@@ -192,7 +193,6 @@ def _has_permissions_class(obj):
 
 
 class FacilityDataSyncableModel(SyncableModel):
-
     morango_profile = morango_sync.PROFILE_FACILITY_DATA
 
     class Meta:
@@ -748,7 +748,6 @@ class BaseFacilityUserModelManager(SyncableModelManager, UserManager):
         return user
 
     def create_superuser(self, username, password, facility=None, full_name=None):
-
         # import here to avoid circularity
         from kolibri.core.device.models import DevicePermissions
 
@@ -1634,7 +1633,6 @@ class CollectionProxyManager(SyncableModelManager):
 
 
 class Facility(Collection):
-
     # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
     FIELDS_TO_EXCLUDE_FROM_VALIDATION = ["dataset"]
 
@@ -1759,7 +1757,6 @@ class Facility(Collection):
 
 
 class Classroom(Collection):
-
     morango_model_name = "classroom"
     morango_model_dependencies = (Facility,)
     _KIND = collection_kinds.CLASSROOM
@@ -1830,7 +1827,6 @@ class Classroom(Collection):
 
 
 class LearnerGroup(Collection):
-
     morango_model_name = "learnergroup"
     morango_model_dependencies = (Classroom,)
     _KIND = collection_kinds.LEARNERGROUP

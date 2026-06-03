@@ -745,7 +745,6 @@ class ChannelImport:
         return result
 
     def check_and_delete_existing_channel(self):
-
         if self.current_channel:
             current_version = self.current_channel.version
             current_partial = self.current_channel.partial

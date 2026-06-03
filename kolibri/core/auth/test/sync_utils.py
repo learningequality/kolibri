@@ -167,11 +167,10 @@ class KolibriServer:
             server.baseurl,
             "--facility",
             facility.id if isinstance(facility, Facility) else facility,
-            *extra_args
+            *extra_args,
         )
 
     def generate_base_data(self):
-
         self.manage("loaddata", "content_test")
         self.manage("generateuserdata", "--no-onboarding", "--num-content-items", "1")
 
@@ -203,7 +202,7 @@ class multiple_kolibri_servers:
             tempserver = KolibriServer(
                 autostart=False,
                 kolibri_home=os.environ.get("KOLIBRI_TEST_PRESEEDED_HOME"),
-                **self.server_kwargs[0]
+                **self.server_kwargs[0],
             )
             tempserver.manage("migrate")
             tempserver.delete_model(DatabaseIDModel)
@@ -231,7 +230,7 @@ class multiple_kolibri_servers:
                 KolibriServer(
                     autostart=False,
                     db_name="eco_test" + str(i + 1),
-                    **self.server_kwargs[i]
+                    **self.server_kwargs[i],
                 )
                 for i in range(self.server_count)
             ]
@@ -263,7 +262,6 @@ class multiple_kolibri_servers:
         return self.servers
 
     def __exit__(self, typ, val, traceback):
-
         # make sure all the servers are shut down
         for server in self.servers:
             server.kill()
@@ -284,7 +282,6 @@ class multiple_kolibri_servers:
     def __call__(self, f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-
             assert "servers" not in kwargs
 
             with self as servers:

@@ -7,7 +7,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0016_osuser"),
     ]

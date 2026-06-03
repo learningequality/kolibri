@@ -9,6 +9,7 @@ Checks staged content (what will be committed) to verify it's an LFS pointer,
 not binary data. This works whether or not Git LFS is installed in the environment
 running the check.
 """
+
 import logging
 import subprocess
 import sys

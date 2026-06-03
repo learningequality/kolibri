@@ -869,7 +869,8 @@ def process_metadata_import(downloads_needing_metadata_import):
     preferred_instance_ids = list(
         downloads_needing_metadata_import.values_list("source_instance_id", flat=True)
         # Remove any ordering to ensure the distinct makes the list properly unique.
-        .order_by().distinct()
+        .order_by()
+        .distinct()
     )
     version_filter = ">=0.16.0"
     preferred_peers = PreferredDevicesWithClient(
@@ -945,8 +946,7 @@ def incomplete_removals_queryset():
         )
         .exclude(
             # hoping using exclude creates SQL like `NOT EXISTS`
-            Q(has_other_download=True)
-            | Q(is_admin_imported=True)
+            Q(has_other_download=True) | Q(is_admin_imported=True)
         )
         .order_by("requested_at")
     )

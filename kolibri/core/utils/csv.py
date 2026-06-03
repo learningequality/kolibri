@@ -20,7 +20,6 @@ def validate_open_csv_params(storage_filepath, local_filepath):
 
 @contextmanager
 def open_csv_for_writing(storage_filepath=None, local_filepath=None):
-
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if storage_filepath:
@@ -47,7 +46,6 @@ def open_csv_for_writing(storage_filepath=None, local_filepath=None):
 
 @contextmanager
 def open_csv_for_reading(storage_filepath=None, local_filepath=None):
-
     validate_open_csv_params(storage_filepath, local_filepath)
 
     if storage_filepath:

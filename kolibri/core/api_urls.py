@@ -9,6 +9,7 @@ For stable APIs, use only the /public/ endpoints defined in
 kolibri.core.public.api_urls - these are maintained with backwards
 compatibility for external integrations.
 """
+
 from django.urls import include
 from django.urls import re_path
 

@@ -2,6 +2,7 @@
 WSGI config for the alternate origin server used for serving
 sandboxed content
 """
+
 import os
 
 import django

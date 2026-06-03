@@ -9,6 +9,7 @@ Environment variables:
     KOLIBRI_PORT: Port to run Kolibri on (default: 8080)
     SCREENSHOT_PATH: Path to save the screenshot (default: screenshot.png)
 """
+
 import logging
 import os
 import subprocess

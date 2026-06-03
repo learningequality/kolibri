@@ -21,7 +21,6 @@ file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class ImportabilityStats(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def test_all_files(self):

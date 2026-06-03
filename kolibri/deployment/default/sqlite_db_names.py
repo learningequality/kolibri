@@ -3,6 +3,7 @@ Constants for the names of our SQLite databases beyond the default DB.
 Keep them here for a single source of truth that can be referenced by apps
 and our default settings.
 """
+
 import os
 
 from kolibri.utils.conf import KOLIBRI_HOME

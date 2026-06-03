@@ -1,8 +1,6 @@
 # Automatically update versions for npm
-
 version: 2
 updates:
-
   # Maintain dependencies for Javascript
   - package-ecosystem: "npm"
     directory: "/"
@@ -22,7 +20,6 @@ updates:
       khanacademy:
         patterns:
           - "@khanacademy/*"
-
   # Maintain dependencies for Python (uv)
   - package-ecosystem: "uv"
     directory: "/"

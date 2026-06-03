@@ -316,7 +316,7 @@ class DynamicWhiteNoise(WhiteNoise):
         static_prefix=None,
         writable_locations=(0,),
         app_paths=None,
-        **kwargs
+        **kwargs,
     ):
         whitenoise_settings = {
             # Use 120 seconds as the default cache time for static assets

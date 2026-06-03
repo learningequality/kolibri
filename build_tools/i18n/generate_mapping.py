@@ -4,6 +4,7 @@ Script to generate a mapping from crowdin_code to Django locale code.
 Reads language_info.json and uses our copy of Django's locale utilities
 to convert intl_code to locale format.
 """
+
 import json
 import os
 

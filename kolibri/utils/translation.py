@@ -6,6 +6,7 @@ https://github.com/django/django/blob/stable/3.2.x/django/utils/translation/tran
 
 In order to give a completely transparent interface.
 """
+
 import gettext as gettext_module
 import os
 from contextlib import ContextDecorator

@@ -508,7 +508,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
         )
 
         with transaction.atomic(), dataset_cache:
-
             user = None if request.user.is_anonymous else request.user
 
             self._precache_dataset_id(user)
@@ -761,7 +760,6 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 )
 
     def _update_attempt(self, attemptlog, interaction, update_fields, end_timestamp):
-
         interaction_summary = self._generate_interaction_summary(interaction)
 
         attemptlog.interaction_history += [interaction_summary]
@@ -811,7 +809,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             start_timestamp=start_timestamp,
             completion_timestamp=end_timestamp if interaction["complete"] else None,
             end_timestamp=end_timestamp,
-            **interaction
+            **interaction,
         )
 
     def _get_attemptlog(self, session_id, masterylog_id, user, interaction):
@@ -1313,7 +1311,6 @@ class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
         selected_end_date,
         date_requested,
     ):
-
         try:
             csvlogrequest = GenerateCSVLogRequest.objects.get(
                 facility=facility,

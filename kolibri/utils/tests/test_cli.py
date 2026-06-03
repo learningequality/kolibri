@@ -1,6 +1,7 @@
 """
 Tests for `kolibri.utils.cli` module.
 """
+
 import logging
 import os
 import tempfile

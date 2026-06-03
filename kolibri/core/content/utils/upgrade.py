@@ -150,9 +150,9 @@ def diff_stats(
         job = get_current_job()
         if job:
             job.extra_metadata["new_resources_count"] = len(new_resource_content_ids)
-            job.extra_metadata[
-                "deleted_resources_count"
-            ] = resources_to_be_deleted_count
+            job.extra_metadata["deleted_resources_count"] = (
+                resources_to_be_deleted_count
+            )
             job.extra_metadata["updated_resources_count"] = len(
                 updated_resource_content_ids
             )
@@ -627,7 +627,6 @@ def get_automatically_updated_resources(destination, channel_id):
     ids_batch = updated_resource_ids[i : i + batch_size]
 
     while ids_batch:
-
         contentnode_filter_expression = filter_by_uuids(
             ContentNodeTable.c.id, ids_batch, vendor=bridge.engine.name
         )
@@ -744,7 +743,6 @@ def get_import_data_for_update(
         # in that case
 
         if updated_ids_slice:
-
             batch_nodes = nodes_to_include.filter_by_uuids(updated_ids_slice)
 
             content_ids.update(

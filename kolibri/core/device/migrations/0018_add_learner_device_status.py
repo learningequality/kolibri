@@ -7,7 +7,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0020_facilitydataset_extra_fields"),
         ("device", "0017_extra_settings"),

@@ -1,6 +1,7 @@
 """
 Tests of role and membership calculations.
 """
+
 from django.test import TestCase
 
 from ..constants import role_kinds

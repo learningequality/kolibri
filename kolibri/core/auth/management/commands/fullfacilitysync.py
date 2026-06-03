@@ -71,7 +71,6 @@ class Command(AsyncCommand):
 
         # if we don't own any certs, do a csr request
         if not owned_certs:
-
             # prompt user for creds if not already specified
             if not username or not password:
                 username = input("Please enter username: ")

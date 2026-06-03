@@ -7,7 +7,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0024_extend_username_length"),
     ]

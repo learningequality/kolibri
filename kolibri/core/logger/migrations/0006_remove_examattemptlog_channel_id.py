@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("logger", "0005_auto_20180514_1419")]
 
     operations = [

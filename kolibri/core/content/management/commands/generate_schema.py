@@ -60,7 +60,7 @@ SQLALCHEMY_CLASSES_PATH_TEMPLATE = os.path.join(
     os.path.dirname(__file__),
     "..",
     "..",
-    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",))
+    *(__SQLALCHEMY_CLASSES_PATH + (__SQLALCHEMY_CLASSES_MODULE_NAME + ".py",)),
 )
 
 
@@ -86,7 +86,6 @@ class Command(BaseCommand):
         parser.add_argument("version", type=str, nargs="?")
 
     def handle(self, *args, **options):
-
         version = options["version"]
 
         if not version:
@@ -146,7 +145,6 @@ class Command(BaseCommand):
 
         # Only do this if we are generating a new export schema version
         if not no_export_schema:
-
             # Load fixture data into the test database with Django
             call_command("loaddata", "content_import_test.json", interactive=False)
 

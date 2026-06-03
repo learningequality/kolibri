@@ -164,7 +164,6 @@ def fetch_notification_maps(**scope_filter):
 
 
 def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
-
     # First generate a unique set of content node ids from all the lessons
     lesson_node_ids = set()
     for lesson in lesson_data:

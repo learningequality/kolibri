@@ -22,9 +22,7 @@ def db_matches_schema(classes, engine):
 
     # Go through all SQLAlchemy models
     for table, klass in classes.items():
-
         if table in tables:
-
             columns = [c["name"] for c in iengine.get_columns(table)]
             mapper = inspect(klass)
 

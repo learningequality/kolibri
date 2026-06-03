@@ -10,7 +10,6 @@ import kolibri.utils.time_utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0023_change_extra_fields_validator"),
         ("content", "0032_contentnode_admin_imported"),

@@ -11,7 +11,6 @@ HTTPS_PORTS = (443,)
 
 # from https://stackoverflow.com/a/33214423
 def is_valid_hostname(hostname):
-
     if hostname[-1] == ".":
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
@@ -107,7 +106,6 @@ def is_valid_ipv6_address(ip):
 
 
 def parse_address_into_components(address):  # noqa C901
-
     # if it looks to be an IPv6 address, make sure it is surrounded by square brackets
     if address.count(":") > 2 and re.match(r"^[a-f0-9\:]+$", address):
         address = "[{}]".format(address)

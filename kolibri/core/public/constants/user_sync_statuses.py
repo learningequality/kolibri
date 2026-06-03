@@ -3,7 +3,6 @@ This module contains constants representing the possible statuses
 when a SoUD request to sync
 """
 
-
 SYNC = "SYNC"  # can begin a sync right now
 RECENTLY_SYNCED = "RECENTLY_SYNCED"
 SYNCING = "SYNCING"

@@ -4,6 +4,7 @@ options.ini file.
 The settings can be changed through environment variables or sections and keys
 in the options.ini file.
 """
+
 import ast
 import logging
 import os
@@ -965,7 +966,6 @@ def _set_from_deprecated_aliases(conf):
 
 
 def read_options_file(ini_filename="options.ini"):
-
     from kolibri.utils.conf import KOLIBRI_HOME
 
     ini_path = os.path.join(KOLIBRI_HOME, ini_filename)
@@ -1027,7 +1027,6 @@ def read_options_file(ini_filename="options.ini"):
 
     # loop over any extraneous options and warn the user that we're ignoring them
     for sections, name in get_extra_values(conf):
-
         # this code gets the extra values themselves
         the_section = conf
         for section in sections:

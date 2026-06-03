@@ -729,7 +729,6 @@ def stop():
 
 
 class BaseKolibriProcessBus(ProcessBus):
-
     extra_channels = ("SERVING", "ZIP_SERVING")
 
     def __init__(
@@ -1074,7 +1073,6 @@ def get_status():  # noqa: C901
     check_url = "http://{}:{}{}status/".format("127.0.0.1", listen_port, prefix)
 
     if conf.OPTIONS["Server"]["CHERRYPY_START"]:
-
         try:
             # Timeout is 3 seconds, we don't want the status command to be slow
             # TODO: Using 127.0.0.1 is a hardcode default from Kolibri, it could

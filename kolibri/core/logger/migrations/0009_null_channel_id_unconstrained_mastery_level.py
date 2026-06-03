@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("logger", "0008_usersessionlog_device_info"),
     ]

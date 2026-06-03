@@ -1,6 +1,7 @@
 """
 Modified and extended from https://github.com/camsaul/django-rest-params/blob/master/django_rest_params/decorators.py
 """
+
 import hashlib
 from threading import local
 
@@ -107,7 +108,7 @@ class ParamValidator:
         return param
 
     def check_type(self, param):
-        """ Check that the type of param is valid, or raise an Exception. This doesn't take self.many into account. """
+        """Check that the type of param is valid, or raise an Exception. This doesn't take self.many into account."""
         if isinstance(self.param_type, TUPLE_TYPES):
             self.check_tuple_type(param)
         else:
@@ -115,7 +116,7 @@ class ParamValidator:
         return param
 
     def check_value(self, param):
-        """ Check that a single value is lt/gt/etc. Doesn't take self.many into account. """
+        """Check that a single value is lt/gt/etc. Doesn't take self.many into account."""
         if self.param_type == int or self.param_type == float:
             self.check_value_constraints(param)
         elif self.param_type == str:
@@ -273,14 +274,12 @@ def query_params_required(**kwargs):  # noqa: C901
             validator.set_constraints(suffix, value)
 
     def _params(cls):
-
         if not issubclass(cls, APIView):
             raise AssertionError(
                 "query_params_required decorator can only be used on subclasses of APIView"
             )
 
         def initial(self, request, *args, **kwargs):
-
             # Copy this from the default viewset initial behaviour, otherwise it is not set before a
             # validation exception would be raised.
             self.format_kwarg = self.get_format_suffix(**kwargs)

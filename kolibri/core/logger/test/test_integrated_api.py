@@ -2,6 +2,7 @@
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
+
 import uuid
 
 from django.core.exceptions import MultipleObjectsReturned
@@ -1788,7 +1789,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         )
 
     def test_update_assessment_session_no_attempt_id_or_item_id_fails(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1804,7 +1804,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         self.assertEqual(response.status_code, 400)
 
     def test_update_assessment_session_no_answer_non_error_fails(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1820,7 +1819,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         self.assertEqual(response.status_code, 400)
 
     def test_update_assessment_no_correct_fails(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1836,7 +1834,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         self.assertEqual(response.status_code, 400)
 
     def test_update_assessment_no_time_spent_fails(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1852,7 +1849,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         self.assertEqual(response.status_code, 400)
 
     def test_update_assessment_session_create_attempt_succeeds(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1879,7 +1875,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         self.assertEqual(attempt.time_spent, 10)
 
     def test_update_assessment_session_create_errored_attempt_succeeds(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1913,7 +1908,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         )
 
     def test_update_assessment_session_create_hinted_attempt_succeeds(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1949,7 +1943,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         )
 
     def test_update_assessment_session_create_multiple_responses_succeeds(self):
-
         response = self._make_request(
             {
                 "interactions": [
@@ -1998,7 +1991,6 @@ class ProgressTrackingViewSetUpdateSessionAssessmentBase:
         )
 
     def test_update_assessment_session_create_multiple_responses_replace_succeeds(self):
-
         response = self._make_request(
             {
                 "interactions": [

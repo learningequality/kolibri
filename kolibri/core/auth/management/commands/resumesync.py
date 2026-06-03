@@ -43,7 +43,11 @@ class Command(MorangoSyncCommand):
         )
 
     def handle_async(self, *args, **options):
-        (baseurl, sync_session_id, chunk_size,) = (
+        (
+            baseurl,
+            sync_session_id,
+            chunk_size,
+        ) = (
             options["baseurl"],
             options["id"],
             options["chunk_size"],

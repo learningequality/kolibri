@@ -87,7 +87,9 @@ def get_drive_list():
         # Try it and revert to RAW_MOUNT_PARSER if we can't find any matches with it.
         if on_android() and not MOUNT_PARSER.match(drivelisto.decode()):
             MOUNT_PARSER = RAW_MOUNT_PARSER
-    except OSError:  # couldn't run `mount`, let's try reading the /etc/mounts listing directly
+    except (
+        OSError
+    ):  # couldn't run `mount`, let's try reading the /etc/mounts listing directly
         with open("/proc/mounts") as f:
             drivelisto = f.read()
         MOUNT_PARSER = RAW_MOUNT_PARSER
@@ -95,7 +97,6 @@ def get_drive_list():
     drives = []
 
     for drivematch in MOUNT_PARSER.finditer(drivelisto.decode()):
-
         drive = drivematch.groupdict()
         path = (
             drive["path"]
@@ -175,7 +176,6 @@ def _try_to_get_drive_info_from_dbus(device):
         return {}
 
     try:
-
         bus = dbus.SystemBus()
 
         # get the block object based on the block device name

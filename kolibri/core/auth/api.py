@@ -177,7 +177,6 @@ class KolibriAuthPermissions(permissions.BasePermission):
         return request.user.can_create(model, validated_data)
 
     def has_permission(self, request, view):
-
         # as `has_object_permission` isn't called for POST/create, we need to check here
         if request.method == "POST" and request.data:
             if type(request.data) is list:
@@ -210,7 +209,6 @@ class IsPINValidPermissions(DenyAll):
 
 
 class FacilityDatasetFilter(FilterSet):
-
     facility_id = UUIDFilter(field_name="collection")
 
     class Meta:
@@ -273,7 +271,6 @@ class FacilityDatasetViewSet(ValuesViewset):
 
     @decorators.action(methods=["post", "patch"], detail=True, url_path="update-pin")
     def update_pin(self, request, pk):
-
         serializer = ExtraFieldsSerializer(data=request.data)
         if not serializer.is_valid():
             return HttpResponseBadRequest("Invalid pin input")
@@ -394,7 +391,6 @@ class IsPINValidView(views.APIView):
 
 
 class FacilityUserFilter(FilterSet):
-
     USER_TYPE_CHOICES = (
         ("learner", "learner"),
         ("superuser", "superuser"),
@@ -937,7 +933,6 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ClassroomFilter(FilterSet):
-
     role = CharFilter(method="filter_has_role_for")
     parent = ModelChoiceFilter(queryset=Facility.objects.all())
 

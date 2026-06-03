@@ -42,7 +42,6 @@ test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class SetContentNodesInvisibleTestCase(TransactionTestCase):
-
     databases = "__all__"
     fixtures = ["content_test.json"]
 
@@ -226,7 +225,6 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class AnnotationFromLocalFileAvailability(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def test_all_local_files_available(self):
@@ -521,7 +519,6 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class AnnotationTreeRecursion(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def setUp(self):
@@ -752,7 +749,6 @@ class AnnotationTreeRecursion(TransactionTestCase):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileAvailableByChecksum(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def setUp(self):
@@ -780,7 +776,6 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileUnAvailableByChecksum(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     def setUp(self):
@@ -811,7 +806,6 @@ mock_content_file = tempfile.mkstemp()
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileByDisk(TransactionTestCase):
-
     fixtures = ["content_test.json"]
 
     file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"

@@ -414,7 +414,6 @@ def add_channel_activity_for_user(**options):  # noqa: C901
 
 
 def create_lessons_for_classroom(**options):
-
     classroom = options["classroom"]
     channels = options["channels"]
     num_lessons = options["lessons"]
@@ -438,7 +437,6 @@ def create_lessons_for_classroom(**options):
             facility.add_coach(coach)
 
     for count in range(num_lessons):
-
         channel = random.choice(channels)
         channel_content = ContentNode.objects.filter(channel_id=channel.id)
         # don't add more than 10 resources per Lesson:
@@ -468,7 +466,6 @@ def create_lessons_for_classroom(**options):
 
 
 def create_exams_for_classrooms(**options):
-
     classroom = options["classroom"]
     channels = options["channels"]
     num_exams = options["exams"]
@@ -496,7 +493,6 @@ def create_exams_for_classrooms(**options):
             facility.add_coach(coach)
 
     for count in range(num_exams):
-
         # exam questions can come from different channels
         exercise_content = ContentNode.objects.filter(
             kind=content_kinds.EXERCISE

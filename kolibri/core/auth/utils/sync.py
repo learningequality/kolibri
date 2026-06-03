@@ -48,7 +48,7 @@ def find_soud_sync_sessions(using=None, **filters):
         connection_kind="network",
         profile=PROFILE_FACILITY_DATA,
         client_certificate__scope_definition_id=ScopeDefinitions.SINGLE_USER,
-        **filters
+        **filters,
     ).order_by("-last_activity_timestamp")
 
 

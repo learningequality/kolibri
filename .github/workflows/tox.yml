@@ -1,23 +1,19 @@
 name: Python tests
-
 on:
   push:
     branches:
-    - develop
-    - 'release-v**'
+      - develop
+      - 'release-v**'
   pull_request:
     branches:
-    - develop
-    - 'release-v**'
-
+      - develop
+      - 'release-v**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   pre_job:
     name: Path match check
@@ -41,26 +37,26 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-    - name: Install Python ${{ matrix.python-version }}
-      run: uv python install ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: uv sync --group test --python ${{ matrix.python-version }}
-    - name: Check migrations
-      run: uv run kolibri manage makemigrations --check
-      env:
-        KOLIBRI_HOME: ${{ runner.temp }}/.kolibri
-    - name: Run tests
-      run: |
-        uv run python -O -m pytest kolibri --color=no
-        uv run python -O -m pytest --color=no -p no:django test
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --group test --python ${{ matrix.python-version }}
+      - name: Check migrations
+        run: uv run kolibri manage makemigrations --check
+        env:
+          KOLIBRI_HOME: ${{ runner.temp }}/.kolibri
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test
   unit_test_eol_python:
     name: Python unit tests for EOL Python versions
     needs: pre_job
@@ -79,37 +75,37 @@ jobs:
       KOLIBRI_RUN_MODE: test
       SKIP_PY_CHECK: "1"
     steps:
-    - name: Fix apt sources for archived Buster repos
-      run: |
-        echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
-        echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
-        echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
-        apt-get -y -qq update
-        apt-get install -y git git-lfs
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    # The buster container runs as root but the checkout is owned by the
-    # runner user, so git refuses to operate without this.
-    - name: Fix git safe directory
-      run: git config --global --add safe.directory /__w/kolibri/kolibri
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-    - name: Install dependencies
-      run: |
-        uv pip install --system --group base --group test
-        uv pip install --system -r requirements/cext.txt
-        make set-eol-python-version-for-tests
-    - name: Check migrations
-      run: python -m kolibri manage makemigrations --check
-    - name: Run tests
-      run: |
-        # test_version.py needs setuptools-scm (not available on 3.6/3.7)
-        # test_cli.py::test_list_plugins* needs installed entry points (not available via PYTHONPATH)
-        python -O -m pytest kolibri --color=no --ignore=kolibri/utils/tests/test_version.py -k "not test_list_plugins"
-        python -O -m pytest --color=no -p no:django test
+      - name: Fix apt sources for archived Buster repos
+        run: |
+          echo "deb http://archive.debian.org/debian-archive/debian/ buster main" > /etc/apt/sources.list
+          echo "deb http://archive.debian.org/debian-archive/debian-security/ buster/updates main" >> /etc/apt/sources.list
+          echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive
+          apt-get -y -qq update
+          apt-get install -y git git-lfs
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      # The buster container runs as root but the checkout is owned by the
+      # runner user, so git refuses to operate without this.
+      - name: Fix git safe directory
+        run: git config --global --add safe.directory /__w/kolibri/kolibri
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: |
+          uv pip install --system --group base --group test
+          uv pip install --system -r requirements/cext.txt
+          make set-eol-python-version-for-tests
+      - name: Check migrations
+        run: python -m kolibri manage makemigrations --check
+      - name: Run tests
+        run: |
+          # test_version.py needs setuptools-scm (not available on 3.6/3.7)
+          # test_cli.py::test_list_plugins* needs installed entry points (not available via PYTHONPATH)
+          python -O -m pytest kolibri --color=no --ignore=kolibri/utils/tests/test_version.py -k "not test_list_plugins"
+          python -O -m pytest --color=no -p no:django test
   postgres:
     name: Python postgres unit tests
     needs: pre_job
@@ -127,37 +123,34 @@ jobs:
           POSTGRES_DB: test
         # Set health checks to wait until postgres has started
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-    - name: Install Python 3.9
-      run: uv python install 3.9
-    - name: Install dependencies
-      run: uv sync --group test --extra postgres --python 3.9
-    - name: Run tests
-      run: |
-        uv run python -O -m pytest kolibri --color=no
-        uv run python -O -m pytest --color=no -p no:django test
-      env:
-        KOLIBRI_DATABASE_ENGINE: postgres
-        KOLIBRI_DATABASE_USER: postgres
-        KOLIBRI_DATABASE_NAME: test
-        KOLIBRI_DATABASE_HOST: localhost
-        KOLIBRI_DATABASE_PASSWORD: postgres
-        KOLIBRI_DATABASE_PORT: "5432"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.9
+        run: uv python install 3.9
+      - name: Install dependencies
+        run: uv sync --group test --extra postgres --python 3.9
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test
+        env:
+          KOLIBRI_DATABASE_ENGINE: postgres
+          KOLIBRI_DATABASE_USER: postgres
+          KOLIBRI_DATABASE_NAME: test
+          KOLIBRI_DATABASE_HOST: localhost
+          KOLIBRI_DATABASE_PASSWORD: postgres
+          KOLIBRI_DATABASE_PORT: "5432"
   postgres_ssl:
     name: Python postgres SSL smoke tests
     needs: pre_job
@@ -171,39 +164,34 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           - 5432:5432
         command: >-
-          -c ssl=on
-          -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-          -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+          -c ssl=on -c ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem -c ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-    - name: Install Python 3.9
-      run: uv python install 3.9
-    - name: Install dependencies
-      run: uv sync --group test --extra postgres --python 3.9
-    - name: Test with SSL enabled (require mode)
-      run: uv run python -O -m pytest kolibri/core/public/test/test_api.py -k SyncQueueViewSetDeletedUsersTestCase --color=no
-      env:
-        KOLIBRI_DATABASE_ENGINE: postgres
-        KOLIBRI_DATABASE_USER: postgres
-        KOLIBRI_DATABASE_NAME: test
-        KOLIBRI_DATABASE_HOST: localhost
-        KOLIBRI_DATABASE_PASSWORD: postgres
-        KOLIBRI_DATABASE_PORT: "5432"
-        KOLIBRI_DATABASE_SSL_MODE: require
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.9
+        run: uv python install 3.9
+      - name: Install dependencies
+        run: uv sync --group test --extra postgres --python 3.9
+      - name: Test with SSL enabled (require mode)
+        run: uv run python -O -m pytest kolibri/core/public/test/test_api.py -k SyncQueueViewSetDeletedUsersTestCase --color=no
+        env:
+          KOLIBRI_DATABASE_ENGINE: postgres
+          KOLIBRI_DATABASE_USER: postgres
+          KOLIBRI_DATABASE_NAME: test
+          KOLIBRI_DATABASE_HOST: localhost
+          KOLIBRI_DATABASE_PASSWORD: postgres
+          KOLIBRI_DATABASE_PORT: "5432"
+          KOLIBRI_DATABASE_SSL_MODE: require
   macos:
     name: Python unit tests on Mac OS
     needs: pre_job
@@ -214,22 +202,22 @@ jobs:
       matrix:
         python-version: ['3.10']
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        cache-python: true
-    - name: Install Python ${{ matrix.python-version }}
-      run: uv python install ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: uv sync --group test --python ${{ matrix.python-version }}
-    - name: Run tests
-      run: |
-        uv run python -O -m pytest kolibri --color=no
-        uv run python -O -m pytest --color=no -p no:django test
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --group test --python ${{ matrix.python-version }}
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test
   windows:
     name: Python unit tests on Windows Server
     needs: pre_job
@@ -240,21 +228,21 @@ jobs:
       matrix:
         python-version: [3.8]
     steps:
-    - uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v7
-      with:
-        enable-cache: true
-        # cache-python breaks on Windows due to symlink/reparse point issues
-        # when restoring cached Python installations
-        cache-python: false
-    - name: Install Python ${{ matrix.python-version }}
-      run: uv python install ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: uv sync --group test --python ${{ matrix.python-version }}
-    - name: Run tests
-      run: |
-        uv run python -O -m pytest kolibri --color=no
-        uv run python -O -m pytest --color=no -p no:django test
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          # cache-python breaks on Windows due to symlink/reparse point issues
+          # when restoring cached Python installations
+          cache-python: false
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --group test --python ${{ matrix.python-version }}
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test

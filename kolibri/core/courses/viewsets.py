@@ -473,9 +473,7 @@ class CourseSessionViewset(ValuesViewset):
                 course_session=course_session, closed=False
             ).exclude(
                 unit_contentnode_id=unit_contentnode_id, test_type=test_type
-            ).update(
-                closed=True
-            )
+            ).update(closed=True)
 
             unit_test_assignment, created = UnitTestAssignment.objects.get_or_create(
                 course_session=course_session,

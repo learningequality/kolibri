@@ -260,7 +260,6 @@ class Command(AsyncCommand):
         return default_facility
 
     def handle_async(self, *args, **options):
-
         storage_filepath = None
         local_filepath = None
 

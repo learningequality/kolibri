@@ -8,7 +8,6 @@ from kolibri.core.auth.models import extra_fields_schema
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0022_facilitydataset_extra_fields_update_pin_to_string"),
     ]

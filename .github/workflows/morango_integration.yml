@@ -1,5 +1,4 @@
 name: Morango Integration Tests
-
 on:
   schedule:
     - cron: '0 0 * * 0'
@@ -7,15 +6,12 @@ on:
     branches:
       - develop
       - release-*
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   pre_job:
     name: Path match check
@@ -55,7 +51,6 @@ jobs:
           uv pip install -e .
       - name: Test with pytest
         run: uv run pytest kolibri/core/auth/test/test_morango_integration.py
-
   morango_integration_tests_sqlite_eol_python:
     name: Morango Integration Tests for EOL Python versions
     needs: pre_job
@@ -105,7 +100,6 @@ jobs:
           chmod +x /usr/local/bin/kolibri
       - name: Test with pytest
         run: python -m pytest kolibri/core/auth/test/test_morango_integration.py
-
   morango_integration_tests_postgres:
     name: Morango Integration Tests with PostgreSQL
     needs: pre_job
@@ -125,10 +119,7 @@ jobs:
           POSTGRES_DB: test
         # Set health checks to wait until postgres has started
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432

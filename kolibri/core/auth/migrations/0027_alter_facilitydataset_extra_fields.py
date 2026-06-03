@@ -7,7 +7,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0026_update_language_code_nyn_to_ny"),
     ]
