@@ -8,6 +8,9 @@ from unittest.mock import patch
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import connection
+from django.db import DatabaseError
+from django.db import IntegrityError
+from django.db import transaction
 from django.http.cookie import SimpleCookie
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -17,6 +20,7 @@ from le_utils.constants import modalities
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.test.helpers import provision_device
@@ -195,6 +199,92 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
         self.assertEqual(result["complete"], False)
         self.assertEqual(result["extra_fields"], {})
         self.assertEqual(result["context"]["node_id"], self.node.id)
+
+    def _create_exercise_node(self):
+        node = ContentNode.objects.create(
+            channel_id=self.channel_id,
+            content_id=uuid.uuid4().hex,
+            id=uuid.uuid4().hex,
+            kind=content_kinds.EXERCISE,
+        )
+        AssessmentMetaData.objects.create(
+            mastery_model={"type": exercises.M_OF_N, "m": 8, "n": 10},
+            contentnode=node,
+            id=uuid.uuid4().hex,
+            number_of_assessments=20,
+        )
+        return node
+
+    def _start_exercise_session(self, node):
+        return self.client.post(
+            reverse("kolibri:core:trackprogress-list"),
+            data={
+                "node_id": node.id,
+                "content_id": node.content_id,
+                "channel_id": node.channel_id,
+                "kind": node.kind,
+                "mastery_model": {"type": exercises.M_OF_N, "m": 8, "n": 10},
+            },
+            format="json",
+        )
+
+    def test_start_session_rollback_sends_no_notification(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        with patch(
+            "kolibri.core.logger.viewsets.progress_tracking.wrap_to_save_queue"
+        ) as save_queue_mock:
+            with patch.object(ContentSessionLog, "save", side_effect=DatabaseError):
+                with self.assertRaises(DatabaseError):
+                    self._make_request({})
+
+        save_queue_mock.assert_not_called()
+        self.assertEqual(ContentSummaryLog.objects.count(), 0)
+
+    def test_start_session_non_unique_integrity_error_is_not_retried(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        with patch.object(
+            ContentSessionLog, "save", side_effect=IntegrityError
+        ) as save_mock:
+            with self.assertRaises(IntegrityError):
+                self._make_request({})
+
+        save_mock.assert_called_once()
+
+    def test_start_session_fresh_exercise_masterylog_id_is_stable(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._start_exercise_session(self._create_exercise_node())
+
+        self.assertEqual(response.status_code, 200)
+        masterylog = MasteryLog.objects.get()
+        self.assertEqual(
+            masterylog._morango_source_id,
+            f"{masterylog.summarylog_id}:{masterylog.mastery_level}",
+        )
+
+    def test_start_session_two_fresh_exercises_succeeds(self):
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = self._start_exercise_session(self._create_exercise_node())
+        self.assertEqual(response.status_code, 200)
+
+        response = self._start_exercise_session(self._create_exercise_node())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.count(), 2)
 
     def test_start_session_logged_in_lesson_succeeds(self):
         self.client.login(
@@ -677,6 +767,40 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
 
     def tearDown(self):
         self.client.logout()
+
+
+class ProgressTrackingViewSetStartSessionInAtomicBlockTestCase(APITransactionTestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = FacilityFactory.create()
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+        self.node = ContentNode.objects.create(
+            channel_id=uuid.uuid4().hex,
+            content_id=uuid.uuid4().hex,
+            id=uuid.uuid4().hex,
+            kind=content_kinds.VIDEO,
+        )
+        self.client.login(
+            username=self.user.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_start_session_inside_atomic_block_raises(self):
+        with transaction.atomic():
+            with self.assertRaises(RuntimeError):
+                self.client.post(
+                    reverse("kolibri:core:trackprogress-list"),
+                    data={
+                        "node_id": self.node.id,
+                        "content_id": self.node.content_id,
+                        "channel_id": self.node.channel_id,
+                        "kind": self.node.kind,
+                    },
+                    format="json",
+                )
 
 
 class ProgressTrackingPrePostTestSessionTestCase(APITestCase):
@@ -1319,6 +1443,52 @@ class ProgressTrackingViewSetStartSessionAssessmentResumeTestCase(APITestCase):
         self.assertEqual(response.json()["totalattempts"], 15)
         self.assertEqual(len(response.json()["pastattempts"]), 15)
 
+    def _make_filter_miss_once(self, manager):
+        real_filter = manager.filter
+        calls = []
+
+        def filter_miss_once(*args, **kwargs):
+            if not calls:
+                calls.append(True)
+                return manager.none()
+            return real_filter(*args, **kwargs)
+
+        return filter_miss_once
+
+    def test_start_assessment_session_masterylog_create_race_succeeds(self):
+        with patch.object(
+            MasteryLog.objects,
+            "filter",
+            side_effect=self._make_filter_miss_once(MasteryLog.objects),
+        ):
+            response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MasteryLog.objects.count(), 1)
+        data = response.json()
+        self.assertEqual(data["context"]["mastery_level"], 1)
+        self.assertEqual(data["time_spent"], self.mastery_log.time_spent)
+        self.assertEqual(ContentSessionLog.objects.count(), 2)
+        self.assertEqual(
+            ContentSessionLog.objects.exclude(id=self.session_log.id).get().id,
+            data["session_id"],
+        )
+
+    def test_start_assessment_session_summarylog_create_race_succeeds(self):
+        with patch.object(
+            ContentSummaryLog.objects,
+            "filter",
+            side_effect=self._make_filter_miss_once(ContentSummaryLog.objects),
+        ):
+            response = self._make_request({})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ContentSummaryLog.objects.count(), 1)
+        self.assertEqual(MasteryLog.objects.count(), 1)
+        data = response.json()
+        self.assertEqual(data["time_spent"], self.mastery_log.time_spent)
+        self.assertEqual(ContentSessionLog.objects.count(), 2)
+
     def tearDown(self):
         self.client.logout()
 
@@ -1757,6 +1927,19 @@ class ProgressTrackingViewSetLoggedInUpdateSessionTestCase(
         self.summary_log.refresh_from_db()
         self.assertTrue(self.session_log._morango_dirty_bit)
         self.assertTrue(self.summary_log._morango_dirty_bit)
+
+    def test_update_session_rollback_sends_no_notification(self):
+        self._update_logs("progress", 0.3)
+        with patch(
+            "kolibri.core.logger.viewsets.progress_tracking.wrap_to_save_queue"
+        ) as save_queue_mock:
+            with patch.object(ContentSummaryLog, "save", side_effect=DatabaseError):
+                with self.assertRaises(DatabaseError):
+                    self._make_request({"progress": 1.0})
+
+        save_queue_mock.assert_not_called()
+        self.session_log.refresh_from_db()
+        self.assertEqual(self.session_log.progress, 0.3)
 
     def test_update_session_reads_outside_write_transaction(self):
         with CaptureQueriesContext(connection) as captured:
