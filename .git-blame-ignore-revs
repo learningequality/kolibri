@@ -9,3 +9,6 @@
 
 # Migrated all frontend code from assets/src to frontend
 e59c54a53fe4305700d4ced05134ab95b7436b1e
+
+# Ruff and yamlfmt reformatting
+301b08fd04c464ca3b11b5b12a001db83c364b03
