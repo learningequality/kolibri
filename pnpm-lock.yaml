@@ -863,6 +863,10 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
+    devDependencies:
+      '@testing-library/vue':
+        specifier: 'catalog:'
+        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/safe_html5_viewer:
     dependencies:

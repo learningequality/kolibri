@@ -148,7 +148,7 @@
             attrs: {
               role: 'listbox',
               'aria-label': choiceListLabel$(),
-              'aria-multiselectable': multiSelectable.value,
+              'aria-multiselectable': String(multiSelectable.value),
             },
             class: [attrs.class || '', 'qti-choice-interaction'],
           },
