@@ -1,6 +1,9 @@
 import unittest
+
 from django.core.exceptions import ValidationError
+
 from kolibri.core.utils.validators import NoRepeatedValueJSONArrayValidator
+
 
 class TestNoRepeatedValueJSONArrayValidator(unittest.TestCase):
     def setUp(self):
@@ -26,10 +29,15 @@ class TestNoRepeatedValueJSONArrayValidator(unittest.TestCase):
         data = {"items": [1, 2, 3]}
         self.assertEqual(v(data), data)
 
+    def test_array_key_duplicate_values_raises_error(self):
+        v = NoRepeatedValueJSONArrayValidator(array_key="items")
+        with self.assertRaises(ValidationError):
+            v({"items": [1, 2, 2]})
+
     def test_non_list_input_raises_error(self):
         with self.assertRaises(ValidationError):
             self.validator("not a list")
-            
+
         with self.assertRaises(ValidationError):
             self.validator(123)
 
