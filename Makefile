@@ -115,8 +115,9 @@ test-all:
 	function _on_interrupt() { docker compose down; }; \
 	trap _on_interrupt SIGINT SIGTERM SIGKILL ERR; \
 	docker compose up --detach; \
-	until docker compose logs --tail=1 postgres | grep -q "database system is ready to accept connections"; do \
-		echo "$(date) - waiting for postgres..."; \
+	container_id=$$(docker compose ps -q postgres); \
+	until [ "$$(docker inspect --format='{{.State.Health.Status}}' $$container_id)" = "healthy" ]; do \
+		echo "$(date) - waiting for postgres (health=$$(docker inspect --format='{{.State.Health.Status}}' $$container_id))..."; \
 		sleep 1; \
 	done; \
 	$(MAKE) -e $(subst -with-postgres,,$@); \
