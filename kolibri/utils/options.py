@@ -42,14 +42,17 @@ logger = logging.getLogger(__name__)
 
 CACHE_SHARDS = 8
 
+# Databases registered by plugins via AdditionalSQLiteDatabaseHook cannot be
+# counted at module import, before the plugin registry has been initialized;
+# this covers the error_reports plugin's database, enabled by default.
+PLUGIN_SQLITE_DATABASES_ALLOWANCE = 1
+
 # file descriptors per thread
-# Note: this is computed at module import, before the plugin registry has
-# been initialized, so any databases registered by plugins via
-# AdditionalSQLiteDatabaseHook are not counted here.
 FD_PER_THREAD = sum(
     (
         5,  # minimum allowance
         1 + len(ADDITIONAL_SQLITE_DATABASES),  # DBs assuming SQLite
+        PLUGIN_SQLITE_DATABASES_ALLOWANCE,
         CACHE_SHARDS,  # assuming diskcache
     )
 )

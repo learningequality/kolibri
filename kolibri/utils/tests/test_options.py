@@ -11,6 +11,9 @@ from unittest import mock
 
 import pytest
 
+from kolibri.deployment.default.sqlite_db_names import (
+    get_additional_sqlite_database_names,
+)
 from kolibri.utils import options
 
 logger = logging.getLogger(__name__)
@@ -407,3 +410,8 @@ def test_lazy_function_import():
         pass
 
     assert "kolibri.utils.tests.do_not_import" in sys.modules
+
+
+def test_fd_per_thread_counts_every_sqlite_database():
+    databases = 1 + len(get_additional_sqlite_database_names())
+    assert 5 + databases + options.CACHE_SHARDS <= options.FD_PER_THREAD
