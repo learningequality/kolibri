@@ -4,6 +4,8 @@ import os
 import sqlite3
 import time
 import uuid
+from threading import Event
+from threading import local
 from threading import Thread
 
 import click
@@ -18,7 +20,6 @@ from kolibri.core.sqlite.utils import check_sqlite_integrity
 from kolibri.core.sqlite.utils import repair_sqlite_db
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.utils import conf
-from kolibri.utils import multiprocessing_compat
 from kolibri.utils.options import FD_PER_THREAD
 from kolibri.utils.system import get_fd_limit
 
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 # An object on which to store data about the current job
 # So far the only use is to track the job, but other metadata
 # could be added.
-current_state_tracker = SimpleLazyObject(multiprocessing_compat.local)
+current_state_tracker = SimpleLazyObject(local)
 
 
 def get_current_job():
@@ -77,7 +78,7 @@ class InfiniteLoopThread(Thread):
         :param thread_name: the name of the thread to use during logging and debugging
         :param wait_between_runs: how many seconds to wait in between func calls.
         """
-        self.shutdown_event = multiprocessing_compat.Event()
+        self.shutdown_event = Event()
         self.thread_name = thread_name
         self.thread_id = uuid.uuid4().hex
         self.logger = logging.getLogger(
@@ -343,41 +344,28 @@ def fd_safe_executor(fds_per_task=2):
     Context manager to give an executor that should be safe for not overloading
     file descriptors.
     """
-    # We should be deferring to conf.OPTIONS["Tasks"]["USE_WORKER_MULTIPROCESSING"]
-    # for this value, but unfortunately, the current way that the import logic
-    # is setup relies on shared memory that can only be used with threads.
-    use_multiprocessing = False
-
-    executor = (
-        concurrent.futures.ProcessPoolExecutor
-        if use_multiprocessing
-        else concurrent.futures.ThreadPoolExecutor
-    )
-
     max_workers = 10
 
-    if not use_multiprocessing:
-        # If we're not using multiprocessing for workers, we may need
-        # to limit the number of workers depending on the number of allowed
-        # file descriptors.
-        # This is a heuristic method, where we know there can be issues if
-        # the max number of file descriptors for a process is 256, and we use 10
-        # workers, with potentially 4 concurrent tasks downloading files.
-        # The number of concurrent tasks that might be downloading files is determined
-        # by the number of regular workers running in the task runner
-        # (although the high priority task queue could also be running a channel database download).
-        server_reserved_fd_count = (
-            FD_PER_THREAD * conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
-        )
-        max_descriptors_per_task = (
-            get_fd_limit() - server_reserved_fd_count
-        ) / conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"]
-        # Each task only needs to have a maximum of `fds_per_task` open file descriptors at once.
-        # To add tolerance, we divide the number of file descriptors that could be allocated to
-        # this task by double this number which should give us leeway in case of unforeseen
-        # descriptor use during the process.
-        max_workers = min(
-            max_workers, max(1, max_descriptors_per_task // (fds_per_task * 2))
-        )
+    # We may need to limit the number of workers depending on the number of
+    # allowed file descriptors.
+    # This is a heuristic method, where we know there can be issues if
+    # the max number of file descriptors for a process is 256, and we use 10
+    # workers, with potentially 4 concurrent tasks downloading files.
+    # The number of concurrent tasks that might be downloading files is determined
+    # by the number of regular workers running in the task runner
+    # (although the high priority task queue could also be running a channel database download).
+    server_reserved_fd_count = (
+        FD_PER_THREAD * conf.OPTIONS["Server"]["CHERRYPY_THREAD_POOL"]
+    )
+    max_descriptors_per_task = (
+        get_fd_limit() - server_reserved_fd_count
+    ) / conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"]
+    # Each task only needs to have a maximum of `fds_per_task` open file descriptors at once.
+    # To add tolerance, we divide the number of file descriptors that could be allocated to
+    # this task by double this number which should give us leeway in case of unforeseen
+    # descriptor use during the process.
+    max_workers = min(
+        max_workers, max(1, max_descriptors_per_task // (fds_per_task * 2))
+    )
 
-    return executor(max_workers=max_workers)
+    return concurrent.futures.ThreadPoolExecutor(max_workers=max_workers)

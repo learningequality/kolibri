@@ -19,10 +19,9 @@ job_storage = SimpleLazyObject(__job_storage)
 """ :type: Storage """
 
 
-def initialize_workers(log_queue=None):
+def initialize_workers():
     logger.info("Starting async task workers.")
     return Worker(
         regular_workers=conf.OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"],
         high_workers=conf.OPTIONS["Tasks"]["HIGH_PRIORITY_WORKERS"],
-        log_queue=log_queue,
     )

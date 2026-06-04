@@ -3,6 +3,7 @@ import os
 from logging.handlers import QueueHandler
 from logging.handlers import QueueListener
 from logging.handlers import TimedRotatingFileHandler
+from queue import Queue
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -38,22 +39,7 @@ class LoggerAwareQueueHandler(QueueHandler):
         self.logger_name = logger_name
 
     def prepare(self, record: logging.LogRecord) -> logging.LogRecord:
-        """Prepare a record for queuing, ensuring it can be pickled if needed"""
-        # Get Queue class at runtime to check if we need pickle safety
-        from kolibri.utils.multiprocessing_compat import use_multiprocessing
-
-        # Only do pickle-safety preparation for logging if we're using multiprocessing
-        if use_multiprocessing():
-            if hasattr(record, "exc_info") and record.exc_info:
-                record.exc_text = (
-                    logging.getLogger()
-                    .handlers[0]
-                    .formatter.formatException(record.exc_info)
-                )
-                record.exc_info = None
-            if hasattr(record, "args"):
-                record.args = tuple(str(arg) for arg in record.args)
-
+        """Prepare a record for queuing."""
         record = super().prepare(record)
         record._logger_name = self.logger_name
         return record
@@ -422,10 +408,6 @@ def setup_queue_logging() -> LoggerAwareQueueListener:
     Sets up queue-based logging for the main process.
     Returns the queue listener which can be used to stop logging and clean up.
     """
-    # Import Queue at function scope to avoid import order issues
-    from kolibri.utils.multiprocessing_compat import Queue
-
-    # Create queue using Kolibri's compatibility Queue
     log_queue = Queue()
 
     # Replace handlers and get original configurations
@@ -438,30 +420,10 @@ def setup_queue_logging() -> LoggerAwareQueueListener:
     return listener
 
 
-def setup_worker_logging(queue) -> None:
-    """Sets up logging in a worker to use the queue if not already configured."""
-    try:
-        _replace_handlers_with_queue(queue)
-    except QueueLoggingInitializedError:
-        pass
-
-
 def cleanup_queue_logging(listener: Optional[LoggerAwareQueueListener]) -> None:
-    """
-    Stops the queue listener and cleans up multiprocessing resources if needed.
-    """
+    """Stops the queue listener."""
     if not listener:
         return
 
     # Stop the listener to ensure pending logs are processed
     listener.stop()
-
-    # Clean up queue if it's a multiprocessing queue
-    from kolibri.utils.multiprocessing_compat import use_multiprocessing
-
-    if use_multiprocessing():
-        try:
-            listener.queue.close()
-            listener.queue.join_thread()
-        except (ValueError, AttributeError):
-            pass

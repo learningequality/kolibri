@@ -392,15 +392,13 @@ class Job:
     def task(self):
         """
         In theory we could read this from the task registry instead
-        but as this is running inside an ephemeral task runner thread
-        or process, we can potentially save ourselves some initialization
-        time and memory by just importing just this function - whereas initializing
-        the registry would import all of the registered tasks for this Kolibri.
-        This is less of an issue when the task runner is using threads and has
-        shared memory, but when it is using multiprocessing or is running in another
-        context, this will save some time.
+        but as this is running inside an ephemeral task runner thread,
+        we can potentially save ourselves some initialization time and memory
+        by importing just this function - whereas initializing the registry
+        would import all of the registered tasks for this Kolibri.
 
-        We don't bother caching this property, as we rely on the Python module import cache instead.
+        We don't bother caching this property, as we rely on the Python module
+        import cache instead.
         """
         return import_path_to_callable(self.func)
 
