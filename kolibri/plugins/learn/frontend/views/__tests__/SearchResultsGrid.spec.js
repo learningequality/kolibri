@@ -1,98 +1,71 @@
-import { mount, shallowMount } from '@vue/test-utils';
-import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+import { ref } from 'vue';
+import { render, screen } from '@testing-library/vue';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { createTranslator } from 'kolibri/utils/i18n';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+import { PageNames } from '../../constants.js';
 import SearchResultsGrid from '../SearchResultsGrid.vue';
-
-const SearchStrings = createTranslator('SearchResultsGrid', SearchResultsGrid.$trs);
-const coreStrings = commonCoreStrings.methods.coreString;
 
 jest.mock('kolibri-common/composables/useBaseSearch');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
-describe('when search results are loaded', () => {
-  beforeEach(() => {
-    useKResponsiveWindow.mockImplementation(() => ({
-      windowIsSmall: false,
-      windowIsLarge: true,
-    }));
-  });
-  /* useBaseSearch#displayingSearchResults is truthy and isLoading is false */
-  it('does not display a list of channels', () => {
-    const wrapper = shallowMount(SearchResultsGrid);
-    expect(wrapper.findComponent({ name: 'ChannelCardGroupGrid' }).exists()).toBe(false);
-  });
+const { viewMoreAction$, uncountedAdditionalResults$ } = coreStrings;
+const { results$, viewAsList$ } = createTranslator(SearchResultsGrid.name, SearchResultsGrid.$trs);
 
-  describe('when there are more results to show than the default amount', () => {
-    it('displays a message indicating there are more results', () => {
-      const wrapper = shallowMount(SearchResultsGrid, {
-        propsData: {
-          results: [{ result: 1 }],
-          more: [{ result: 2 }],
-        },
-      });
-      expect(wrapper.find('[data-testid="search-results-title"]').element).toHaveTextContent(
-        coreStrings('uncountedAdditionalResults', { num: 1 }),
-      );
-    });
+function renderComponent(props = {}, { windowIsSmall = false } = {}) {
+  useKResponsiveWindow.mockImplementation(() => ({
+    windowIsSmall,
+    windowIsLarge: !windowIsSmall,
+    windowBreakpoint: ref(windowIsSmall ? 0 : 4),
+  }));
+  return render(SearchResultsGrid, {
+    props: {
+      results: [{ id: 'r1', title: 'Result 1' }],
+      searchLoading: false,
+      ...props,
+    },
+    routes: [
+      { path: '/topics_topic', name: PageNames.TOPICS_TOPIC },
+      { path: '/topics_content', name: PageNames.TOPICS_CONTENT },
+    ],
   });
+}
 
-  describe('when there are no more results to show than the default amount', () => {
-    it('displays results message with the number of results', () => {
-      /* useBaseSearch#more is relied on here to determine if there are more to show */
-      const wrapper = shallowMount(SearchResultsGrid, {
-        propsData: {
-          results: [{ result: 1 }],
-        },
-      });
-      expect(wrapper.find('[data-testid="search-results-title"]').element).toHaveTextContent(
-        SearchStrings.$tr('results', { results: 1 }),
-      );
-    });
+describe('SearchResultsGrid', () => {
+  it('renders the results count as title when all results are shown', () => {
+    renderComponent();
+    expect(screen.getByTestId('search-results-title')).toHaveTextContent(results$({ results: 1 }));
   });
 
-  describe('when there are search results', () => {
-    describe('when the windowIsSmall', () => {
-      it('does not show toggle buttons between list and grid views', () => {
-        useKResponsiveWindow.mockImplementation(() => ({
-          windowIsSmall: true,
-          windowIsLarge: false,
-        }));
-        const wrapper = shallowMount(SearchResultsGrid);
-        expect(wrapper.find('[data-testid="toggle-view-buttons"]').exists()).toBeFalsy();
-      });
-    });
+  it('renders an uncounted results title when there are more results', () => {
+    renderComponent({ more: { next: true } });
+    expect(screen.getByTestId('search-results-title')).toHaveTextContent(
+      uncountedAdditionalResults$({ num: 1 }),
+    );
+  });
 
-    describe('when window is not extra small', () => {
-      it('displays buttons to toggle between list and grid views', () => {
-        const wrapper = shallowMount(SearchResultsGrid, {
-          propsData: {
-            results: [{ result: 1 }],
-            searchLoading: false,
-          },
-        });
-        expect(wrapper.find('[data-testid="toggle-view-buttons"]').exists()).toBeTruthy();
-      });
-    });
+  it('renders the results grid', () => {
+    renderComponent();
+    expect(screen.getByTestId('search-results-card-grid')).toBeInTheDocument();
+  });
 
-    it('displays a list of cards showing the results', () => {
-      const wrapper = shallowMount(SearchResultsGrid, {});
-      expect(wrapper.find('[data-testid="search-results-card-grid"]').exists()).toBeTruthy();
-    });
+  it('renders the list/grid view toggle buttons', () => {
+    renderComponent();
+    expect(screen.getByRole('button', { name: viewAsList$() })).toBeInTheDocument();
+  });
 
-    it('displays a button to view more when there are more to be displayed', () => {
-      const wrapper = mount(SearchResultsGrid, {
-        propsData: {
-          more: true,
-          results: ['1 result'],
-          displayingSearchResults: true,
-          searchLoading: false,
-        },
-        stubs: ['LibraryAndChannelBrowserMainContent', 'SearchChips'],
-      });
+  it('does not render the view toggle buttons on small screens', () => {
+    renderComponent({}, { windowIsSmall: true });
+    expect(screen.queryByRole('button', { name: viewAsList$() })).not.toBeInTheDocument();
+  });
 
-      const moreButton = wrapper.find('[data-testid="more-results-button"]');
-      expect(moreButton.exists()).toBeTruthy();
-    });
+  it('renders the view more button when more results exist', () => {
+    renderComponent({ more: { next: true } });
+    expect(screen.getByText(viewMoreAction$())).toBeInTheDocument();
+  });
+
+  it('does not render the view more button when there are no more results', () => {
+    renderComponent({ more: null });
+    expect(screen.queryByText(viewMoreAction$())).not.toBeInTheDocument();
   });
 });

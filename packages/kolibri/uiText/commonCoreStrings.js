@@ -505,7 +505,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   findSomethingToLearn: {
     message: 'Find something to learn',
-    context: 'Suggestion located inside the the keyword search field.',
+    context: 'Suggestion located inside the keyword search field.',
   },
   startSearchButtonLabel: {
     message: 'Start search',

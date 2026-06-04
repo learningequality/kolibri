@@ -20,8 +20,8 @@ export default function useContentLink() {
     };
   }
 
-  function _getBackLinkQuery() {
-    const oldQuery = route.query;
+  function _getBackLinkQuery(backLinkQuery) {
+    const oldQuery = backLinkQuery || route.query;
     const query = {
       prevName: route.name,
     };
@@ -44,10 +44,12 @@ export default function useContentLink() {
    * @param {boolean} isResource - Whether this is a resource or not.
    * @param {string} [deviceId] - Override for the device id route parameter; defaults
    * to the device id on the current route.
+   * @param {object} [backLinkQuery] - The query to return to, for links generated
+   * before that state has been navigated to; defaults to the current route's query.
    * @returns {object} VueRouter link object.
    */
-  function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
-    const query = _getBackLinkQuery();
+  function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId, backLinkQuery) {
+    const query = _getBackLinkQuery(backLinkQuery);
 
     return _makeNodeLink(id, isResource, query, deviceId);
   }

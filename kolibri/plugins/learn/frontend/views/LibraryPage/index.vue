@@ -1,6 +1,6 @@
 <template>
 
-  <div :style="{ maxWidth: '1700px' }">
+  <div :style="{ maxWidth: '1700px', margin: '0 auto' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="
@@ -17,24 +17,31 @@
     <LearnAppBarPage
       :appBarTitle="appBarTitle"
       :loading="rootNodesLoading"
-      :appearanceOverrides="{}"
+      :appearanceOverrides="wrapperStyles"
       :deviceId="deviceId"
       :route="back"
     >
-      <main
-        class="main-grid"
-        :style="gridOffset"
-      >
-        <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
-          <KButton
-            icon="filter"
-            data-testid="filter-button"
-            class="filter-button"
-            :text="coreString('filter')"
-            :primary="false"
-            @click="toggleSidePanelVisibility"
+      <main class="main-grid">
+        <!-- Search header: search bar + filter pills grouped together -->
+        <div
+          class="search-header"
+          :style="{
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themePalette.grey.v_200,
+          }"
+        >
+          <LibrarySearchBar
+            v-if="!isLocalLibraryEmpty || deviceId"
+            data-testid="library-search-bar"
+          />
+
+          <HorizontalFilterPills
+            v-if="!rootNodesLoading && (!isLocalLibraryEmpty || deviceId)"
+            data-testid="horizontal-filter-pills"
+            @openFilters="showFilterModal = true"
           />
         </div>
+
         <!--
           - If search is loading, show loader.
           - If there are no search results, show channels and resumable
@@ -107,12 +114,9 @@
           data-testid="search-results"
           :allowDownloads="allowDownloads"
           :results="results"
-          :removeFilterTag="removeFilterTag"
-          :clearSearch="clearSearch"
           :moreLoading="moreLoading"
           :searchMore="searchMore"
           :currentCardViewStyle="currentCardViewStyle"
-          :searchTerms="searchTerms"
           :searchLoading="searchLoading"
           :more="more"
           @setCardStyle="style => (currentCardViewStyle = style)"
@@ -120,29 +124,11 @@
         />
       </main>
 
-      <!-- Side Panels for filtering and searching  -->
-      <div v-if="(!isLocalLibraryEmpty || deviceId) && windowIsLarge && !rootNodesLoading">
-        <SearchFiltersPanel
-          ref="sidePanel"
-          v-model="searchTerms"
-          :class="windowIsLarge ? 'side-panel' : ''"
-          data-testid="side-panel-local"
-          :width="`${sidePanelWidth}px`"
-        />
-      </div>
-
-      <SidePanelModal
-        v-else-if="mobileSidePanelIsOpen && !windowIsLarge"
-        alignment="left"
-        @closePanel="toggleSidePanelVisibility"
-      >
-        <SearchFiltersPanel
-          ref="sidePanel"
-          v-model="searchTerms"
-          data-testid="side-panel"
-          :width="`${sidePanelWidth}px`"
-        />
-      </SidePanelModal>
+      <!-- All filters side panel -->
+      <SearchFiltersSidePanel
+        v-if="showFilterModal"
+        @close="showFilterModal = false"
+      />
 
       <!-- Side Panel for metadata -->
       <SidePanelModal
@@ -200,11 +186,12 @@
 
   import { get, set, useSessionStorage } from '@vueuse/core';
 
-  import { onMounted, getCurrentInstance, ref, watch } from 'vue';
+  import { getCurrentInstance, ref, watch } from 'vue';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import pluginData from 'kolibri-plugin-data';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri/composables/useUser';
+  import useNav from 'kolibri/composables/useNav';
   import { handleApiError, clearError } from 'kolibri/utils/appError';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
@@ -213,12 +200,12 @@
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import { searchKeys } from 'kolibri-common/composables/useBaseSearch';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
   import TooltipTour from 'kolibri/components/onboarding/TooltipTour';
   import useTour from 'kolibri/composables/useTour';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING } from 'kolibri-common/constants/Auth';
+  import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -237,6 +224,8 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
   import PostSetupModalGroup from '../../../../device/frontend/views/PostSetupModalGroup.vue';
+  import HorizontalFilterPills from './HorizontalFilterPills';
+  import LibrarySearchBar from './LibrarySearchBar';
   import MeteredConnectionNotificationModal from './MeteredConnectionNotificationModal.vue';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
@@ -259,12 +248,14 @@
       MeteredConnectionNotificationModal,
       ResumableContentGrid,
       SearchResultsGrid,
-      SearchFiltersPanel,
+      SearchFiltersSidePanel,
       LearnAppBarPage,
       OtherLibraries,
       PostSetupModalGroup,
       NoResourcePage,
       TooltipTour,
+      LibrarySearchBar,
+      HorizontalFilterPills,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -278,6 +269,7 @@
         false,
       );
       const { allowDownloadOnMeteredConnection } = useDeviceSettings();
+      const { windowIsSmall } = useKResponsiveWindow();
       const {
         searchTerms,
         displayingSearchResults,
@@ -287,27 +279,17 @@
         more,
         search,
         searchMore,
-        removeFilterTag,
-        clearSearch,
         currentRoute,
       } = useSearch();
       search();
       const { fetchResumableContentNodes } = useLearnerResources();
 
-      const { windowBreakpoint, windowIsLarge, windowIsMedium, windowIsSmall } =
-        useKResponsiveWindow();
+      const { topBarHeight } = useNav();
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
-
-      onMounted(() => {
-        const keywords = currentRoute().query.keywords;
-        if (keywords && keywords.length) {
-          search(keywords);
-        }
-      });
 
       const rootNodes = ref([]);
       const rootNodesLoading = ref(false);
@@ -418,19 +400,14 @@
         allowDownloadOnMeteredConnection,
         canAddDownloads,
         canDownloadExternally,
-        displayingSearchResults,
+        windowIsSmall,
         searchTerms,
+        displayingSearchResults,
         searchLoading,
         moreLoading,
         results,
         more,
         searchMore,
-        removeFilterTag,
-        clearSearch,
-        windowBreakpoint,
-        windowIsLarge,
-        windowIsMedium,
-        windowIsSmall,
         currentCardViewStyle,
         deviceName,
         back,
@@ -446,6 +423,7 @@
         resumeTour,
         picturePasswordPending,
         userId: currentUserId,
+        topBarHeight,
       };
     },
     props: {
@@ -458,7 +436,7 @@
       return {
         isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
-        mobileSidePanelIsOpen: false,
+        showFilterModal: false,
         usingMeteredConnection: true,
         isNetworkLibraryAvailable: true,
         isLoadingNetworkLibraries: true,
@@ -473,6 +451,12 @@
       },
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
+      },
+      wrapperStyles() {
+        // ImmersivePage (used when there is a deviceId) replaces its wrapper styles
+        // with these overrides rather than merging them, so clear its fixed toolbar
+        // ourselves. AppBarPage merges its own padding in, so nothing is needed there.
+        return this.deviceId ? { paddingTop: `${this.topBarHeight}px` } : {};
       },
       welcomeModalVisible() {
         return (
@@ -504,25 +488,6 @@
           return this.coreString('yourLibrary');
         }
       },
-      gridOffset() {
-        const paddingTop = this.deviceId ? (this.windowIsLarge ? '64px' : '32px') : null;
-        return this.isRtl
-          ? { paddingRight: `${this.sidePanelWidth + 24}px`, paddingTop }
-          : { paddingLeft: `${this.sidePanelWidth + 24}px`, paddingTop };
-      },
-      sidePanelWidth() {
-        if (
-          this.windowIsSmall ||
-          this.windowIsMedium ||
-          (this.isLocalLibraryEmpty && !this.deviceId)
-        ) {
-          return 0;
-        } else if (this.windowBreakpoint < 5) {
-          return 234;
-        } else {
-          return 346;
-        }
-      },
       studioId() {
         return KolibriStudioId;
       },
@@ -532,22 +497,12 @@
         this.isLocalLibraryEmpty = !newNodes.length;
       },
       searchTerms() {
-        this.mobileSidePanelIsOpen = false;
-      },
-      windowIsLarge(newVal) {
-        // Be sure we set the side panel closed if the screen size changes
-        // otherwise the watcher on mobileSidePanelIsOpen will leave the
-        // document stuck in `position: fixed;` so we won't see the scrollbar
-        if (newVal) {
-          this.mobileSidePanelIsOpen = false;
+        // On small screens the filter panel fills the viewport, hiding the
+        // results it affects, so collapse it once a filter is applied. On
+        // larger screens it sits beside the results and stays open.
+        if (this.windowIsSmall) {
+          this.showFilterModal = false;
         }
-      },
-      mobileSidePanelIsOpen() {
-        if (this.mobileSidePanelIsOpen) {
-          document.documentElement.style.position = 'fixed';
-          return;
-        }
-        document.documentElement.style.position = '';
       },
       pageLoading(newVal, oldVal) {
         if (oldVal && !newVal) {
@@ -587,9 +542,6 @@
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
-      },
-      toggleSidePanelVisibility() {
-        this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
       },
       injecttr(...args) {
         return this.$tr(...args);
@@ -670,13 +622,8 @@
     }
   }
 
-  .filter-button {
-    margin-top: 35px;
-  }
-
   .main-grid {
-    padding-right: 24px;
-    padding-bottom: 96px;
+    padding: 0 24px 96px;
   }
 
   .channels-label {
@@ -705,25 +652,15 @@
     margin-left: 8px;
   }
 
-  .side-panel {
-    @extend %dropshadow-2dp;
-
-    position: fixed;
-    top: 60px;
-    left: 0;
-    height: 100%;
-    padding: 24px 24px 0;
-    overflow-y: scroll;
-    font-size: 14px;
-  }
-
-  /*
-* Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
-*/
-  .side-panel::after {
-    display: block;
-    padding-bottom: 70px;
-    content: '';
+  .search-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    // Bleed the white band and its bottom divider across the page container
+    // while keeping the contents aligned with the grid padding
+    padding: 24px;
+    margin: 0 -24px 24px;
+    border-bottom: 1px solid;
   }
 
 </style>

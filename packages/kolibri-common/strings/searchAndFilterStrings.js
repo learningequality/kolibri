@@ -52,6 +52,18 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: "Search in folder '{folder}'",
     context: 'Title for search resources in folder',
   },
+  allFilters: {
+    message: 'All filters',
+    context: 'Label for the button and side panel showing all available search filters',
+  },
+  searchHistory: {
+    message: 'History',
+    context: 'Header for recently viewed resources in the search autocomplete dropdown',
+  },
+  recentSearches: {
+    message: 'Recent searches',
+    context: 'Header for recent search terms in the search autocomplete dropdown',
+  },
   resultsCount: {
     message: '{count, number} {count, plural, one {result} other {results}}',
     context: 'Number of search results when we have an exact count',

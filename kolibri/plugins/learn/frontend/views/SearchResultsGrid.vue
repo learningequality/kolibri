@@ -1,8 +1,6 @@
 <template>
 
   <div v-if="!searchLoading">
-    <!-- First section is the results title and the various display buttons  -->
-    <!-- for interacting or updating the results   -->
     <h2
       class="results-title"
       data-testid="search-results-title"
@@ -13,11 +11,8 @@
           : $tr('results', { results: results.length })
       }}
     </h2>
-    <SearchChips
-      :searchTerms="searchTerms"
-      @removeItem="removeFilterTag"
-      @clearSearch="clearSearch"
-    />
+
+    <!-- Toggle view buttons -->
     <div
       v-if="!windowIsSmall && results.length && !hideCardViewToggle"
       class="toggle-view-buttons"
@@ -40,7 +35,8 @@
         @click="toggleCardView('card')"
       />
     </div>
-    <!-- Grid of search results  -->
+
+    <!-- Grid of search results -->
     <LibraryAndChannelBrowserMainContent
       :contents="results"
       :allowDownloads="allowDownloads"
@@ -50,7 +46,8 @@
       @openCopiesModal="copies => (displayedCopies = copies)"
       @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
     />
-    <!-- conditionally displayed button if there are additional results -->
+
+    <!-- Load more button -->
     <KButton
       v-if="more"
       :text="coreString('viewMoreAction')"
@@ -75,7 +72,6 @@
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import SearchChips from 'kolibri-common/components/SearchChips';
   import CopiesModal from './CopiesModal';
   import LibraryAndChannelBrowserMainContent from './LibraryAndChannelBrowserMainContent';
 
@@ -84,13 +80,13 @@
     components: {
       CopiesModal,
       LibraryAndChannelBrowserMainContent,
-      SearchChips,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
       return {
         windowIsSmall,
+        windowBreakpoint,
       };
     },
     props: {
@@ -106,10 +102,6 @@
         type: Boolean,
         default: false,
       },
-      clearSearch: {
-        type: Function,
-        default: () => {},
-      },
       more: {
         type: Object,
         default: null,
@@ -122,20 +114,12 @@
         type: Array,
         default: () => [],
       },
-      removeFilterTag: {
-        type: Function,
-        default: () => {},
-      },
       searchLoading: {
         type: Boolean,
         default: false,
       },
       searchMore: {
         type: Function,
-        default: () => {},
-      },
-      searchTerms: {
-        type: Object,
         default: () => {},
       },
     },
@@ -187,7 +171,7 @@
   .filter-action-button {
     display: inline-block;
     margin: 4px;
-    margin-left: 8px;
+    margin-inline-start: 8px;
   }
 
 </style>
