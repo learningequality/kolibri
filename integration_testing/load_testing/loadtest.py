@@ -20,6 +20,7 @@ Usage:
 
 """
 
+import glob
 import json
 import os
 import subprocess
@@ -37,6 +38,8 @@ from logger import plain
 from logger import section
 from logger import step
 from logger import success
+from logger import warning
+from versions import parse_version
 
 # Constants
 HAR_FILES_DIR = os.path.join(os.path.dirname(__file__), "har_files")
@@ -50,6 +53,35 @@ def _exit_with_error(message):
     exception = click.ClickException(message)
     exception.exit_code = 2
     raise exception
+
+
+def _find_har_file(kolibri_version):
+    prefix = "lesson_flow_kolibri_"
+    exact = os.path.join(HAR_FILES_DIR, f"{prefix}{kolibri_version}.har")
+    if os.path.exists(exact):
+        return exact
+    har_versions = {}
+    for path in glob.glob(os.path.join(HAR_FILES_DIR, f"{prefix}*.har")):
+        version = parse_version(os.path.basename(path)[len(prefix) : -len(".har")])
+        if version is not None:
+            har_versions[path] = version
+    if not har_versions:
+        _exit_with_error(
+            f"No HAR file for Kolibri {kolibri_version} and none to fall back "
+            f"to in {HAR_FILES_DIR}; run 'capture' first"
+        )
+    server_version = parse_version(kolibri_version)
+    valid = [
+        path
+        for path, version in har_versions.items()
+        if server_version is None or version <= server_version
+    ]
+    if valid:
+        har_path = max(valid, key=har_versions.get)
+    else:
+        har_path = min(har_versions, key=har_versions.get)
+    warning(f"No HAR for Kolibri {kolibri_version}; using {har_path}")
+    return har_path
 
 
 def _run_locust(cmd, env, results_dir):
@@ -289,13 +321,10 @@ def run(ctx):
 
     if ctx.obj["har"]:
         har_path = ctx.obj["har"]
+        if not os.path.exists(har_path):
+            _exit_with_error(f"Specified HAR file does not exist: {har_path}")
     else:
-        # Find version-specific HAR file
-        har_filename = f"lesson_flow_kolibri_{kolibri_version}.har"
-        har_path = os.path.join(HAR_FILES_DIR, har_filename)
-
-    if not os.path.exists(har_path):
-        _exit_with_error(f"Specified HAR file does not exist: {har_path}")
+        har_path = _find_har_file(kolibri_version)
 
     # Get facility ID
     facility_id = client.get_or_create_facility(FACILITY_NAME)
