@@ -19,7 +19,9 @@ from kolibri.core.deviceadmin.utils import get_backup_files
 from kolibri.core.upgrade import matches_version
 from kolibri.core.upgrade import run_upgrades
 from kolibri.core.utils.cache import process_cache
-from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import (
+    get_additional_sqlite_database_names,
+)
 from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.plugins.utils import autoremove_unavailable_plugins
 from kolibri.plugins.utils import check_plugin_config_file_location
@@ -199,7 +201,7 @@ def _upgrades_before_django_setup(updated, version):
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         DATABASE_NAMES = [get_sqlite_database_path("default")]
 
-        for db_name in ADDITIONAL_SQLITE_DATABASES:
+        for db_name in get_additional_sqlite_database_names():
             DATABASE_NAMES.append(get_sqlite_database_path(db_name))
 
         sqlite_check_foreign_keys(DATABASE_NAMES)
@@ -214,7 +216,7 @@ def _upgrades_before_django_setup(updated, version):
         if not version or updated:
             # If this is an upgrade, it is possible we've added an additional
             # database, so we can attempt to copy a preseeded database here.
-            for db_name in ADDITIONAL_SQLITE_DATABASES:
+            for db_name in get_additional_sqlite_database_names():
                 _copy_preseeded_db(db_name)
 
 
