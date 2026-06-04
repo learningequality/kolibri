@@ -20,6 +20,7 @@ Usage:
 
 """
 
+import json
 import os
 import subprocess
 import threading
@@ -27,6 +28,9 @@ import time
 import webbrowser
 
 import click
+from compare import compare_runs
+from compare import RUN_CONFIG_FILENAME
+from compare import STATS_FILENAME
 from kolibri_client import KolibriClient
 from logger import info
 from logger import plain
@@ -48,12 +52,45 @@ def _exit_with_error(message):
     raise exception
 
 
+def _ensure_credentials(ctx):
+    if ctx.obj["server"] is None:
+        ctx.obj["server"] = click.prompt("Kolibri server URL")
+    if ctx.obj["username"] is None:
+        ctx.obj["username"] = click.prompt("Admin username")
+    if ctx.obj["password"] is None:
+        ctx.obj["password"] = click.prompt("Admin password", hide_input=True)
+
+
+def _validate_results_options(name, results_dir):
+    if name and results_dir:
+        _exit_with_error("--name and --results-dir are mutually exclusive")
+    if name and os.path.exists(os.path.join(RESULTS_DIR, name, STATS_FILENAME)):
+        _exit_with_error(
+            f"Results named '{name}' already exist at "
+            f"{os.path.join(RESULTS_DIR, name)}; use a new name"
+        )
+
+
+def _resolve_results_dir(ctx, kolibri_version, users, spawn_rate, duration):
+    results_dir = ctx.obj["results_dir"]
+    run_name = ctx.obj["name"]
+    if run_name:
+        results_dir = os.path.join(RESULTS_DIR, run_name)
+    elif not results_dir:
+        run_name = (
+            f"{kolibri_version}_{users}u_{spawn_rate}r_{duration}_"
+            f"{time.strftime('%Y%m%d-%H%M%S')}"
+        )
+        results_dir = os.path.join(RESULTS_DIR, run_name)
+    else:
+        run_name = os.path.basename(os.path.normpath(results_dir))
+    return results_dir, run_name
+
+
 @click.group(invoke_without_command=True)
-@click.option("--server", prompt="Kolibri server URL", help="Kolibri server URL")
-@click.option("--username", prompt="Admin username", help="Admin username")
-@click.option(
-    "--password", prompt="Admin password", hide_input=True, help="Admin password"
-)
+@click.option("--server", default=None, help="Kolibri server URL")
+@click.option("--username", default=None, help="Admin username")
+@click.option("--password", default=None, help="Admin password")
 @click.option("--har", "-h", help="Specific HAR file to use")
 @click.option("--users", "-u", default=50, help="Number of concurrent users")
 @click.option("--spawn-rate", "-r", default=50, help="Users spawned per second")
@@ -77,6 +114,12 @@ def _exit_with_error(message):
     help="Directory for load test results (default: auto-named under generated/results/)",
 )
 @click.option(
+    "--name",
+    default=None,
+    help="Name for this run's results dir under generated/results/ "
+    "(mutually exclusive with --results-dir)",
+)
+@click.option(
     "--processes",
     default=0,
     help="Locust worker processes to fork (0 = single process, no forking). "
@@ -97,9 +140,11 @@ def cli(
     max_retries,
     retry_delay,
     results_dir,
+    name,
     processes,
 ):
     """Kolibri Load Testing Tool"""
+    _validate_results_options(name, results_dir)
     ctx.ensure_object(dict)
     ctx.obj["server"] = server
     ctx.obj["username"] = username
@@ -112,6 +157,7 @@ def cli(
     ctx.obj["max_retries"] = max_retries
     ctx.obj["retry_delay"] = retry_delay
     ctx.obj["results_dir"] = results_dir
+    ctx.obj["name"] = name
     ctx.obj["processes"] = processes
 
     # If no subcommand provided, run full workflow
@@ -123,6 +169,7 @@ def cli(
 @click.pass_context
 def provision(ctx):
     """Provision device if not already provisioned"""
+    _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"])
 
     if not client.is_provisioned():
@@ -139,6 +186,7 @@ def provision(ctx):
 @click.pass_context
 def setup_facility(ctx):
     """Setup or get facility"""
+    _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
     facility_id = client.get_or_create_facility(FACILITY_NAME)
     success(f"Facility: {facility_id}")
@@ -148,6 +196,7 @@ def setup_facility(ctx):
 @click.pass_context
 def import_users(ctx):
     """Import users from CSV"""
+    _ensure_credentials(ctx)
     num_users = ctx.obj["users"]
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
     facility_id = client.get_or_create_facility(FACILITY_NAME)
@@ -161,6 +210,7 @@ def import_users(ctx):
 @click.pass_context
 def import_channel(ctx):
     """Import channel content"""
+    _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
     info(f"Importing channel {QA_CHANNEL_ID}...")
     client.import_channel(QA_CHANNEL_ID)
@@ -171,6 +221,7 @@ def import_channel(ctx):
 @click.pass_context
 def create_lesson(ctx):
     """Create comprehensive lesson with mixed content"""
+    _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
 
     # Get facility and classroom
@@ -189,6 +240,7 @@ def create_lesson(ctx):
 @click.pass_context
 def capture(ctx):
     """Capture HAR file for current Kolibri version"""
+    _ensure_credentials(ctx)
     # Get Kolibri version for HAR filename
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
     device_info = client.get_device_info()
@@ -219,6 +271,7 @@ def capture(ctx):
 @click.pass_context
 def run(ctx):
     """Run Locust load test"""
+    _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
 
     # Get Kolibri version to find the right HAR file
@@ -259,16 +312,21 @@ def run(ctx):
     max_retries = ctx.obj["max_retries"]
     retry_delay = ctx.obj["retry_delay"]
 
-    # Resolve where to write machine-readable results. Default to an auto-named,
-    # timestamped subdir so successive rounds are archived rather than overwritten.
-    results_dir = ctx.obj["results_dir"]
-    if not results_dir:
-        run_name = (
-            f"{kolibri_version}_{users}u_{spawn_rate}r_{duration}_"
-            f"{time.strftime('%Y%m%d-%H%M%S')}"
-        )
-        results_dir = os.path.join(RESULTS_DIR, run_name)
+    results_dir, run_name = _resolve_results_dir(
+        ctx, kolibri_version, users, spawn_rate, duration
+    )
     os.makedirs(results_dir, exist_ok=True)
+    run_config = {
+        "name": run_name,
+        "kolibri_version": kolibri_version,
+        "users": users,
+        "spawn_rate": spawn_rate,
+        "duration": duration,
+        "har": har_path,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    }
+    with open(os.path.join(results_dir, RUN_CONFIG_FILENAME), "w") as f:
+        json.dump(run_config, f, indent=2)
     csv_prefix = os.path.join(results_dir, "stats")
     html_path = os.path.join(results_dir, "report.html")
 
@@ -333,6 +391,22 @@ def run(ctx):
         threading.Thread(target=open_browser, daemon=True).start()
 
     subprocess.run(cmd, env=env)
+
+
+@cli.command()
+@click.argument("base")
+@click.argument("new")
+@click.option("--markdown", is_flag=True, help="Emit a GitHub-flavored markdown table")
+def compare(base, new, markdown):
+    """Compare two result dirs (names under generated/results/, or paths)"""
+
+    def resolve(arg):
+        results_dir = arg if os.path.isdir(arg) else os.path.join(RESULTS_DIR, arg)
+        if not os.path.exists(os.path.join(results_dir, STATS_FILENAME)):
+            _exit_with_error(f"No {STATS_FILENAME} found in {results_dir}")
+        return results_dir
+
+    click.echo(compare_runs(resolve(base), resolve(new), markdown=markdown))
 
 
 @cli.command()
