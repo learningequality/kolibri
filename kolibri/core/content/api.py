@@ -521,7 +521,6 @@ class ContentNodeFilter(FilterSet):
     learner_needs = CharFilter(method="bitmask_contains_and")
     channels = UUIDInFilter(field_name="channel_id")
     languages = CharInFilter(field_name="lang_id")
-    categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")

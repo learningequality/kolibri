@@ -932,11 +932,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: 'A label to indicate that no category label has been applied to the resource.',
   },
 
-  otherCategories: {
-    message: 'Other',
-    context: 'A label to indicate that the resource belongs to a category not listed.',
-  },
-
   // Resources Needed Categories = {
   forBeginners: {
     message: 'For beginners',

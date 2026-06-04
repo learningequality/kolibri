@@ -32,7 +32,6 @@
 
   import flatMap from 'lodash/flatMap';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-  import { NoCategories } from 'kolibri/constants';
   import useChannels from 'kolibri-common/composables/useChannels';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
 
@@ -86,9 +85,6 @@
         }
         if (key === 'channels') {
           return this.channelsMap[value].name;
-        }
-        if (key === 'categories' && value === NoCategories) {
-          return this.coreString('uncategorized');
         }
         return this.coreString(value);
       },

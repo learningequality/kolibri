@@ -2,8 +2,6 @@
 
   <SearchFiltersPanel
     ref="searchFiltersPanel"
-    v-model="searchTermsComputed"
-    accordion
     showChannels
     showActivities
     :title="topic && searchInFolder$({ folder: topic.title })"
@@ -78,10 +76,6 @@
         type: Function,
         default: () => {},
       },
-      searchTerms: {
-        type: Object,
-        required: true,
-      },
       /**
        * Fetch object for fetching search results.
        * @type {FetchObject}
@@ -94,16 +88,6 @@
         type: Object,
         required: false,
         default: null,
-      },
-    },
-    computed: {
-      searchTermsComputed: {
-        get() {
-          return this.searchTerms;
-        },
-        set(value) {
-          this.$emit('update:searchTerms', value);
-        },
       },
     },
   };
