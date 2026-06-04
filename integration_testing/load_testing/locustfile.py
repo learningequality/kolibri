@@ -15,6 +15,7 @@ Usage:
     locust -f locustfile.py -u 50 -r 50 --run-time 5m
 """
 
+import itertools
 import json
 import os
 import random
@@ -30,6 +31,7 @@ from kolibri_client import CSRFAdapter
 from locust import between
 from locust import HttpUser
 from locust import task
+from users import user_number
 
 # Load configuration from environment variables
 HAR_FILE = os.environ["KOLIBRI_HAR_FILE"]
@@ -189,10 +191,16 @@ class LessonUser(HttpUser):
         "username": "username",
     }
 
+    _user_counter = itertools.count()
+
     def on_start(self):
         """Initialize user and assign username"""
-        # Assign unique user number (1-N based on num_users)
-        user_num = (id(self) % NUM_USERS) + 1
+        user_num = user_number(
+            self.environment.runner.worker_index,
+            self.environment.parsed_options.processes or 1,
+            next(self._user_counter),
+            NUM_USERS,
+        )
         self.username = f"load_test_{user_num}"
         # Store the POST request for retry
         self.trackprogress_init_request = None

@@ -163,7 +163,9 @@ def _resolve_results_dir(ctx, kolibri_version, users, spawn_rate, duration):
 @click.option(
     "--processes",
     default=0,
+    type=click.IntRange(min=0),
     help="Locust worker processes to fork (0 = single process, no forking). "
+    "--users must be a multiple of it. "
     "Single process handles hundreds of concurrent users; only raise this for "
     "very high load on a multi-core host.",
 )
@@ -186,6 +188,10 @@ def cli(
 ):
     """Kolibri Load Testing Tool"""
     _validate_results_options(name, results_dir)
+    if ctx.invoked_subcommand in (None, "run") and processes and users % processes:
+        _exit_with_error(
+            f"--users ({users}) must be a multiple of --processes ({processes})"
+        )
     ctx.ensure_object(dict)
     ctx.obj["server"] = server
     ctx.obj["username"] = username
