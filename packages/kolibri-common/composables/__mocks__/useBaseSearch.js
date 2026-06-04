@@ -80,8 +80,23 @@ export const injectBaseSearch = jest.fn(() => ({
   availableAccessibilityOptions: [],
   availableLanguages: [],
   availableChannels: [],
+  hasGlobalLabels: true,
   searchableLabels: [],
   activeSearchTerms: [],
+  isFilterActive: jest.fn(() => false),
+  isLabelAvailable: jest.fn(() => true),
+  toggleFilter: jest.fn(),
+  appliedFilters: jest.fn(() => []),
+  clearSearch: jest.fn(),
+  searchLoading: false,
+  keyWordAutoCompleteHandler: jest.fn(),
+  autoCompleteSuggestions: [],
+  getMatchedWordSegments: jest.fn(() => []),
+  keywordsInput: '',
+  setKeywords: jest.fn(),
+  clearKeywords: jest.fn(),
+  selectFilterSuggestion: jest.fn(),
+  selectFilterCombination: jest.fn(),
 }));
 
 export const searchKeys = [];

@@ -1,24 +1,25 @@
 import { get, set } from '@vueuse/core';
+import debounce from 'lodash/debounce';
 import invert from 'lodash/invert';
 import isEqual from 'lodash/isEqual';
 import logger from 'kolibri-logging';
-import { computed, inject, provide, ref, watch } from 'vue';
+import { computed, inject, onUnmounted, provide, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router/composables';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import {
-  AllCategories,
   Categories,
   CategoriesLookup,
   ContentLevels,
   AccessibilityCategories,
   LearningActivities,
-  NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri/constants';
 import useUser from 'kolibri/composables/useUser';
+import { currentLanguage } from 'kolibri/utils/i18n';
 
 import Modalities from 'kolibri-constants/Modalities';
 import { deduplicateResources } from '../utils/contentNode';
+import useFuzzyMetadataSearch from './useFuzzyMetadataSearch';
 
 export const logging = logger.getLogger(__filename);
 
@@ -44,14 +45,17 @@ const resourcesNeededShown = [
   'OTHER_SUPPLIES',
 ];
 
-function _generateResourcesNeeded(learnerNeeds) {
+function _generateResourcesNeeded(learnerNeeds, includeTeacherContent = true) {
   const resourcesNeeded = {};
-  resourcesNeededShown.map(key => {
-    const value = ResourcesNeededTypes[key];
-    if (learnerNeeds && learnerNeeds.includes(value)) {
-      resourcesNeeded[key] = value;
-    }
-  });
+  resourcesNeededShown
+    // The "To use with teachers" need is only relevant to accounts with a role.
+    .filter(key => includeTeacherContent || key !== 'TEACHER')
+    .map(key => {
+      const value = ResourcesNeededTypes[key];
+      if (learnerNeeds && learnerNeeds.includes(value)) {
+        resourcesNeeded[key] = value;
+      }
+    });
   return resourcesNeeded;
 }
 
@@ -88,19 +92,45 @@ function _generateAccessibilityOptionsList(accessibilityLabels) {
   });
 }
 
-function _generateLibraryCategoriesLookup(categories) {
+// Languages matching the current UI language sort first (exact id match, then
+// base-code match), the rest by language code.
+function _sortLanguagesByUiMatch(languages) {
+  const uiLang = currentLanguage.toLowerCase();
+  const uiBase = uiLang.split('-')[0];
+  const matchRank = id => {
+    const lower = id.toLowerCase();
+    if (lower === uiLang) {
+      return 2;
+    }
+    if (lower.split('-')[0] === uiBase) {
+      return 1;
+    }
+    return 0;
+  };
+  return [...languages].sort(
+    (a, b) => matchRank(b.id) - matchRank(a.id) || a.id.localeCompare(b.id),
+  );
+}
+
+function _generateLibraryCategoriesLookup(categories, includeTeacherContent = true) {
   const libraryCategories = {};
 
   const availablePaths = {};
 
-  (categories || []).map(key => {
-    const paths = key.split('.');
-    let path = '';
-    for (const path_segment of paths) {
-      path = path === '' ? path_segment : path + '.' + path_segment;
-      availablePaths[path] = true;
-    }
-  });
+  // The "For teachers" category tree is only relevant to accounts with a role.
+  const teacherRoot = Categories.FOR_TEACHERS;
+  const isTeacherCategory = key => key === teacherRoot || key.startsWith(`${teacherRoot}.`);
+
+  (categories || [])
+    .filter(key => includeTeacherContent || !isTeacherCategory(key))
+    .map(key => {
+      const paths = key.split('.');
+      let path = '';
+      for (const path_segment of paths) {
+        path = path === '' ? path_segment : path + '.' + path_segment;
+        availablePaths[path] = true;
+      }
+    });
   // Create a nested object representing the hierarchy of categories
   for (const value of Object.values(Categories)
     // Sort by the length of the key path to deal with
@@ -172,6 +202,7 @@ export default function useBaseSearch({
   const _results = ref([]);
   const more = ref(null);
   const labels = ref(null);
+  const autoCompleteSuggestions = ref([]);
 
   const { hasRole, isUserLoggedIn } = useUser();
 
@@ -260,23 +291,15 @@ export default function useBaseSearch({
     const getParams = createBaseSearchGetParams();
     const terms = get(searchTerms);
     for (const key of searchKeys) {
-      if (key === 'categories') {
-        if (terms[key][AllCategories]) {
-          getParams['categories__isnull'] = false;
-          continue;
-        } else if (terms[key][NoCategories]) {
-          getParams['categories__isnull'] = true;
-          continue;
-        }
-      }
-
       const keys = Object.keys(terms[key]);
       if (keys.length) {
         getParams[key] = keys;
       }
     }
     if (terms.keywords) {
-      getParams.keywords = terms.keywords;
+      // Intentionally ?question=, not ?search= as autocomplete uses: groundwork
+      // for the AI assistant integration.
+      getParams.question = terms.keywords;
     }
     return getParams;
   }
@@ -335,6 +358,48 @@ export default function useBaseSearch({
     }
   }
 
+  // Guards against a slower, older request resolving after a newer one and
+  // clobbering its results.
+  let _suggestionsRequestId = 0;
+
+  const _fetchContentSuggestions = debounce(async (keywordsValue, metadataMatches) => {
+    const requestId = ++_suggestionsRequestId;
+    try {
+      const getParams = createBaseSearchGetParams();
+      getParams.search = keywordsValue;
+      getParams.max_results = 3;
+      getParams.kind = 'content';
+      const data = await ContentNodeResource.fetchCollection({ getParams });
+      if (requestId !== _suggestionsRequestId) {
+        return;
+      }
+      const contentResults = data.results || [];
+      const contentMatches = contentResults.map(r => ({ ...r, type: 'content' }));
+
+      // Combine: metadata first, then content
+      set(autoCompleteSuggestions, [...metadataMatches, ...contentMatches]);
+    } catch (err) {
+      logging.error('Failed to fetch autocomplete content results', err);
+    }
+  }, 300);
+  onUnmounted(() => {
+    _fetchContentSuggestions.cancel();
+  });
+
+  const keyWordAutoCompleteHandler = keywordsValue => {
+    if (!keywordsValue || keywordsValue.length < 2) {
+      _fetchContentSuggestions.cancel();
+      set(autoCompleteSuggestions, []);
+      return;
+    }
+
+    // Instant fuzzy match against translated metadata labels; the debounced
+    // backend query for content matches follows
+    const suggestions = fuzzyMetadataSearch.autoCompleteSuggestions(keywordsValue);
+    set(autoCompleteSuggestions, [...suggestions]);
+    _fetchContentSuggestions(keywordsValue, suggestions);
+  };
+
   function removeFilterTag({ value, key }) {
     if (key === 'keywords') {
       set(searchTerms, {
@@ -351,12 +416,125 @@ export default function useBaseSearch({
     }
   }
 
+  function toggleFilter({ key, value }) {
+    // The keyword search term is a free-text string rather than a set, so
+    // toggling collapses to "clear it" — the pill represents an applied query
+    // and clicking the pill removes that query.
+    if (key === 'keywords') {
+      set(searchTerms, { ...get(searchTerms), keywords: '' });
+      return;
+    }
+    const current = { ...(get(searchTerms)[key] || {}) };
+    if (current[value]) {
+      delete current[value];
+    } else {
+      current[value] = true;
+    }
+    set(searchTerms, {
+      ...get(searchTerms),
+      [key]: current,
+    });
+  }
+
+  function isFilterActive(key, value) {
+    const terms = get(searchTerms);
+    if (!terms) {
+      return false;
+    }
+    if (key === 'keywords') {
+      return Boolean(terms.keywords) && terms.keywords === value;
+    }
+    return Boolean(terms[key] && terms[key][value]);
+  }
+
+  // Flat list of every currently selected term across dimensions, in the order
+  // a UI typically wants to render them (keyword first, then everything else).
+  // Lets consumers iterate applied filters without rebuilding the same shape
+  // from `searchTerms` themselves.
+  function appliedFilters() {
+    const terms = get(searchTerms) || {};
+    const out = [];
+    if (terms.keywords) {
+      out.push({ key: 'keywords', value: terms.keywords });
+    }
+    for (const [key, values] of Object.entries(terms)) {
+      if (key === 'keywords' || !values || typeof values !== 'object') {
+        continue;
+      }
+      for (const value of Object.keys(values)) {
+        if (values[value]) {
+          out.push({ key, value });
+        }
+      }
+    }
+    return out;
+  }
+
+  // Returns true if the given filter value can still yield results within the
+  // current search context. Before any search runs, `labels` is null and we
+  // treat every value as available.
+  function isLabelAvailable(key, value) {
+    const scoped = get(labels);
+    if (!scoped || !Array.isArray(scoped[key])) {
+      return true;
+    }
+    return scoped[key].includes(value);
+  }
+
   function clearSearch() {
     set(searchTerms, {});
   }
 
+  // Mirror of the keyword search term for binding to a search input, so the
+  // input can hold unsubmitted text but follows the applied term when search
+  // state changes elsewhere (chip removal, navigation, suggestion selection).
+  const keywordsInput = ref(get(searchTerms).keywords || '');
+
+  function setKeywords(value) {
+    set(keywordsInput, value);
+    set(searchTerms, { ...get(searchTerms), keywords: value });
+  }
+
+  function clearKeywords() {
+    setKeywords('');
+  }
+
+  // Apply an autocomplete filter suggestion: activate the filter and strip
+  // the words it matched from the keyword input.
+  function selectFilterSuggestion(filter) {
+    if (!filter.filterKey || !filter.filterValue) {
+      return;
+    }
+    const current = { ...(get(searchTerms)[filter.filterKey] || {}) };
+    current[filter.filterValue] = true;
+    const updatedKeywords = fuzzyMetadataSearch.removeMatchedWords(get(keywordsInput), filter);
+    set(keywordsInput, updatedKeywords);
+    set(searchTerms, {
+      ...get(searchTerms),
+      [filter.filterKey]: current,
+      keywords: updatedKeywords,
+    });
+  }
+
+  // Apply several autocomplete filter suggestions at once, stripping every word
+  // that triggered a match so no partial keyword lingers.
+  function selectFilterCombination(filters) {
+    const terms = { ...get(searchTerms) };
+    let keywords = get(keywordsInput);
+    for (const filter of filters) {
+      if (!filter.filterKey || !filter.filterValue) {
+        continue;
+      }
+      terms[filter.filterKey] = { ...(terms[filter.filterKey] || {}), [filter.filterValue]: true };
+      keywords = fuzzyMetadataSearch.removeMatchedWords(keywords, filter);
+    }
+    set(keywordsInput, keywords);
+    set(searchTerms, { ...terms, keywords });
+  }
+
   watch(searchTerms, (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
+      set(keywordsInput, newValue.keywords || '');
       search();
     }
   });
@@ -396,22 +574,39 @@ export default function useBaseSearch({
   function ensureGlobalLabels() {
     set(globalLabelsLoading, true);
     const currentBaseUrl = get(baseurl);
+    // The device's baseurl resolves after setup, so the first fetch goes out before
+    // it is known and races the one the baseurl watcher starts. Either may land last,
+    // so a response is only the current catalog if its baseurl is still the current one.
+    const isStale = () => get(baseurl) !== currentBaseUrl;
     ContentNodeResource.fetchCollection({
       getParams: { max_results: 1, baseurl: currentBaseUrl },
     })
       .then(data => {
+        if (isStale()) {
+          return;
+        }
         const labels = data.labels;
         set(globalLabels, {
           learningActivitiesShown: _generateLearningActivitiesShown(labels.learning_activities),
-          libraryCategories: _generateLibraryCategoriesLookup(labels.categories),
-          resourcesNeeded: _generateResourcesNeeded(labels.learner_needs),
+          libraryCategories: _generateLibraryCategoriesLookup(labels.categories, get(hasRole)),
+          resourcesNeeded: _generateResourcesNeeded(labels.learner_needs, get(hasRole)),
           gradeLevelsList: _generateGradeLevelsList(labels.grade_levels || []),
           accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
-          languagesList: labels.languages || [],
+          languagesList: _sortLanguagesByUiMatch(labels.languages || []),
         });
       })
-      .catch(err => logging.error('Failed to fetch search labels from remote', err))
+      .catch(err => {
+        if (isStale()) {
+          return;
+        }
+        // Offer no filters rather than another device's.
+        set(globalLabels, null);
+        logging.error('Failed to fetch search labels from remote', err);
+      })
       .then(() => {
+        if (isStale()) {
+          return;
+        }
         set(globalLabelsLoading, false);
       });
   }
@@ -421,6 +616,9 @@ export default function useBaseSearch({
     watch(baseurl, ensureGlobalLabels);
   }
 
+  // Initialize fuzzy metadata search with globalLabels
+  const fuzzyMetadataSearch = useFuzzyMetadataSearch(globalLabels);
+
   function _getGlobalLabels(name, defaultValue) {
     const lookup = get(globalLabels);
     if (lookup) {
@@ -428,6 +626,10 @@ export default function useBaseSearch({
     }
     return defaultValue;
   }
+
+  // Every filter option comes from this catalog, so until it has loaded — or if it
+  // failed to — there is nothing that could be filtered by.
+  const hasGlobalLabels = computed(() => Boolean(get(globalLabels)));
 
   const learningActivitiesShown = computed(() => {
     return _getGlobalLabels('learningActivitiesShown', {});
@@ -454,6 +656,7 @@ export default function useBaseSearch({
   provide('availableGradeLevels', gradeLevelsList);
   provide('availableAccessibilityOptions', accessibilityOptionsList);
   provide('availableLanguages', languagesList);
+  provide('hasGlobalLabels', hasGlobalLabels);
   provide('searchLoading', searchLoading);
 
   // Provide an object of searchable labels
@@ -463,6 +666,28 @@ export default function useBaseSearch({
 
   // Currently selected search terms
   provide('activeSearchTerms', searchTerms);
+
+  // Filter helpers — share the same `searchTerms`/`labels` source so any
+  // consumer that needs to know "is this filter active?" or "is this label
+  // still selectable in the current search?" can ask one place.
+  provide('isFilterActive', isFilterActive);
+  provide('isLabelAvailable', isLabelAvailable);
+  provide('toggleFilter', toggleFilter);
+  provide('appliedFilters', appliedFilters);
+  provide('clearSearch', clearSearch);
+
+  // Handling for search autocomplete
+  provide('keyWordAutoCompleteHandler', keyWordAutoCompleteHandler);
+  provide('autoCompleteSuggestions', autoCompleteSuggestions);
+  provide('getMatchedWordSegments', fuzzyMetadataSearch.getMatchedWordSegments);
+
+  // Keyword input state and handlers, called directly by search input
+  // components rather than round-tripping through page-level events
+  provide('keywordsInput', keywordsInput);
+  provide('setKeywords', setKeywords);
+  provide('clearKeywords', clearKeywords);
+  provide('selectFilterSuggestion', selectFilterSuggestion);
+  provide('selectFilterCombination', selectFilterCombination);
 
   return {
     currentRoute,
@@ -491,9 +716,23 @@ export function injectBaseSearch() {
   const availableGradeLevels = inject('availableGradeLevels');
   const availableAccessibilityOptions = inject('availableAccessibilityOptions');
   const availableLanguages = inject('availableLanguages');
+  const hasGlobalLabels = inject('hasGlobalLabels');
   const searchableLabels = inject('searchableLabels');
   const activeSearchTerms = inject('activeSearchTerms');
+  const isFilterActive = inject('isFilterActive');
+  const isLabelAvailable = inject('isLabelAvailable');
+  const toggleFilter = inject('toggleFilter');
+  const appliedFilters = inject('appliedFilters');
+  const clearSearch = inject('clearSearch');
   const searchLoading = inject('searchLoading');
+  const keyWordAutoCompleteHandler = inject('keyWordAutoCompleteHandler');
+  const autoCompleteSuggestions = inject('autoCompleteSuggestions');
+  const getMatchedWordSegments = inject('getMatchedWordSegments');
+  const keywordsInput = inject('keywordsInput');
+  const setKeywords = inject('setKeywords');
+  const clearKeywords = inject('clearKeywords');
+  const selectFilterSuggestion = inject('selectFilterSuggestion');
+  const selectFilterCombination = inject('selectFilterCombination');
   return {
     availableLearningActivities,
     availableLibraryCategories,
@@ -501,8 +740,22 @@ export function injectBaseSearch() {
     availableGradeLevels,
     availableAccessibilityOptions,
     availableLanguages,
+    hasGlobalLabels,
     searchableLabels,
     activeSearchTerms,
+    isFilterActive,
+    isLabelAvailable,
+    toggleFilter,
+    appliedFilters,
+    clearSearch,
     searchLoading,
+    keyWordAutoCompleteHandler,
+    autoCompleteSuggestions,
+    getMatchedWordSegments,
+    keywordsInput,
+    setKeywords,
+    clearKeywords,
+    selectFilterSuggestion,
+    selectFilterCombination,
   };
 }
