@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        postgres-version: [9, 10, 11, 12, 13]
+        postgres-version: [13, 14, 15, 16, 17]
     services:
       # Label used to access the service container
       postgres:
