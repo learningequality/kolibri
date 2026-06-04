@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+from unittest.mock import MagicMock
 from unittest.mock import patch
 from unittest.mock import PropertyMock
 
@@ -11,14 +12,21 @@ from django.test import override_settings
 from django.test import RequestFactory
 from django.test import TestCase
 
+from kolibri.core.tasks.job import State
+
 from ..constants import BACKEND
+from ..constants import TASK
 from ..handlers import get_python_version
 from ..handlers import get_request_time_to_error
 from ..handlers import get_stack_frames
 from ..handlers import handle_request_exception
+from ..handlers import handle_task_failure
 from ..handlers import mark_request_start
+from ..handlers import MAX_STACK_FRAMES
 from ..handlers import REQUEST_START_TIME_KEY
+from ..kolibri_plugin import ErrorReportsPluginJobHook
 from ..models import ErrorReport
+from ..tasks import ping_error_reports
 from ..utils.request import extract_request_info
 from ..utils.request import get_request_body
 from ..utils.scrubber import MAX_SCRUB_DEPTH
@@ -151,6 +159,194 @@ class ErrorReportsSignalHandlersTestCase(TestCase):
         )
         self.assertEqual(frame["function"], "test_get_stack_frames")
         self.assertIsInstance(frame["lineno"], int)
+
+    def test_get_stack_frames_caps_deep_stacks(self):
+        def recurse(n):
+            if n == 0:
+                raise ValueError("Test Exception")
+            recurse(n - 1)
+
+        try:
+            recurse(MAX_STACK_FRAMES * 2)
+        except ValueError:
+            frames = get_stack_frames(sys.exc_info()[2])
+        self.assertEqual(len(frames), MAX_STACK_FRAMES)
+
+    def test_get_stack_frames_strips_non_kolibri_paths(self):
+        # A real traceback passing through the standard library: its frames
+        # must not leak the absolute install path off-device.
+        import json
+
+        try:
+            json.loads("{not valid json")
+        except ValueError:
+            frames = get_stack_frames(sys.exc_info()[2])
+        for frame in frames:
+            self.assertFalse(frame["filename"].startswith("/"), frame["filename"])
+        # The kolibri test frame is relativized and marked in_app.
+        self.assertTrue(
+            any(f["in_app"] and f["filename"].startswith("kolibri/") for f in frames)
+        )
+        # The standard-library frame is present but not in_app.
+        self.assertTrue(any(not f["in_app"] for f in frames))
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_request_exception_scrubs_traceback_paths(self):
+        import json
+
+        request = self.factory.get("/")
+        try:
+            json.loads("{not valid json")
+        except ValueError:
+            handle_request_exception(sender=None, request=request)
+
+        report = ErrorReport.objects.get()
+        # Neither the raw traceback nor the structured frames leak absolute paths.
+        self.assertNotIn('File "/', report.context["traceback"])
+        frames = report.context["exception"]["values"][0]["stacktrace"]["frames"]
+        for frame in frames:
+            self.assertFalse(frame["filename"].startswith("/"), frame["filename"])
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure(self):
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["test"],
+            kwargs={"test": "test"},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        report = ErrorReport.objects.get()
+        self.assertEqual(report.category, TASK)
+        exception = report.context["exception"]["values"][0]
+        self.assertEqual(exception["type"], "ValueError")
+        self.assertEqual(exception["value"], "ValueError")
+        self.assertEqual(report.context["traceback"], "Test Traceback")
+        self.assertEqual(report.context["job_info"]["func"], "test_func")
+        self.assertEqual(report.context["worker_info"]["worker_host"], "localhost")
+        # Real helpers ran rather than being mocked
+        self.assertTrue(
+            any(p.startswith("Django==") for p in report.context["packages"])
+        )
+        self.assertEqual(
+            report.context["contexts"]["runtime"]["version"], get_python_version()
+        )
+
+    @patch.object(ErrorReport, "insert_or_update_error")
+    @patch.object(logging.Logger, "error")
+    def test_handle_task_failure_never_propagates(
+        self, mock_logger_error, mock_insert_or_update_error
+    ):
+        # Error capture must never break task state management - the
+        # JobHook is dispatched inside the jobs database transaction, so
+        # anything raised here would roll back the job's state update.
+        mock_insert_or_update_error.side_effect = OperationalError("database is locked")
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["test"],
+            kwargs={"test": "test"},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        mock_logger_error.assert_any_call(
+            "Error occurred while saving error report to the database.", exc_info=True
+        )
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_scrubs_sensitive_data(self):
+        # Task args/kwargs/metadata can carry credentials, and the report is
+        # submitted off-device, so sensitive values must be scrubbed - just
+        # as they are on the request path.
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["positional"],
+            kwargs={"password": "secret", "baseurl": "https://example.com"},
+            progress=0,
+            total_progress=0,
+            extra_metadata={"token": "abc", "facility_name": "School"},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        job_info = ErrorReport.objects.get().context["job_info"]
+        self.assertEqual(job_info["kwargs"]["password"], "[filtered for security]")
+        self.assertEqual(job_info["kwargs"]["baseurl"], "https://example.com")
+        self.assertEqual(job_info["extra_metadata"]["token"], "[filtered for security]")
+        self.assertEqual(job_info["extra_metadata"]["facility_name"], "School")
+        # Scrubbing must operate on a copy - the live job object passed to the
+        # hook must not be mutated.
+        self.assertEqual(job.kwargs["password"], "secret")
+        self.assertEqual(job.extra_metadata["token"], "abc")
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_job_hook_skips_submission_task_failures(self):
+        # Capturing the submission task's own failure would create a task
+        # error report that the next pingback tries to submit, looping if the
+        # submission keeps failing.
+        job = MagicMock(func=ping_error_reports.func_string)
+        ErrorReportsPluginJobHook().update(job, MagicMock(), state=State.FAILED)
+        self.assertEqual(ErrorReport.objects.count(), 0)
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_job_hook_captures_other_task_failures(self):
+        job = MagicMock(
+            func="some.other.task",
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            facility_id=None,
+            args=[],
+            kwargs={},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+        ErrorReportsPluginJobHook().update(job, orm_job, state=State.FAILED)
+        self.assertEqual(ErrorReport.objects.filter(category=TASK).count(), 1)
 
 
 class RequestBodyExtractionTestCase(TestCase):

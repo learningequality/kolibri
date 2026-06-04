@@ -1,7 +1,6 @@
 import logging
 from datetime import timedelta
 
-from django.db import connections
 from django.db.models import Case
 from django.db.models import F
 from django.db.models import When
@@ -164,7 +163,3 @@ def ping_error_reports(server, pingback_id):
             current_job = get_current_job()
             if current_job:
                 current_job.retry_in(RETRY_INTERVAL)
-    finally:
-        # Close every connection this worker thread opened - the task reads
-        # and writes the plugin's own database, not just the default one.
-        connections.close_all()

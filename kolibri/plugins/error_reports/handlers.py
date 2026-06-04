@@ -4,6 +4,7 @@ import re
 import sys
 import time
 import traceback
+from copy import deepcopy
 from functools import lru_cache
 
 if sys.version_info < (3, 10):
@@ -14,10 +15,12 @@ else:
 import kolibri
 
 from .constants import BACKEND
+from .constants import TASK
 from .models import ErrorReport
 from .models import MAX_ERROR_MESSAGE_LENGTH
 from .models import MAX_TRACEBACK_LENGTH
 from .utils.request import extract_request_info
+from .utils.scrubber import scrub_data
 
 logger = logging.getLogger(__name__)
 
@@ -195,6 +198,71 @@ def handle_request_exception(sender, request=None, **kwargs):
         # without a guard, so anything raised here (including while building
         # the context above) would escape Django's exception handling and
         # replace the 500 response entirely.
+        logger.error(
+            "Error occurred while saving error report to the database.", exc_info=True
+        )
+
+
+def handle_task_failure(job, orm_job):
+    """
+    Called by the task JobHook when a job has failed, recording the
+    failed task with its job and worker context.
+
+    Note that job.exception is the exception class name - tasks store
+    their exceptions as strings, so no structured stack frames are
+    available here; the text traceback is recorded instead.
+    """
+    try:
+        # A Sentry-event-shaped context, like the request and frontend paths.
+        # Tasks store their exception as the class name string and have no
+        # structured frames, so the value carries the class name and the raw
+        # traceback text is kept for the server and for the report identity.
+        context = {
+            "platform": "python",
+            "level": "error",
+            "exception": {
+                "values": [
+                    {
+                        "type": job.exception,
+                        "value": job.exception,
+                        "mechanism": {"type": "task", "handled": False},
+                        "stacktrace": {"frames": []},
+                    }
+                ]
+            },
+            "traceback": scrub_traceback_paths(job.traceback),
+            "contexts": {
+                "runtime": {"name": "python", "version": get_python_version()}
+            },
+            "job_info": {
+                "job_id": job.job_id,
+                "func": job.func,
+                "facility_id": job.facility_id,
+                "args": job.args,
+                "kwargs": job.kwargs,
+                "progress": job.progress,
+                "total_progress": job.total_progress,
+                "extra_metadata": job.extra_metadata,
+            },
+            "worker_info": {
+                "worker_host": orm_job.worker_host,
+                "worker_process": orm_job.worker_process,
+                "worker_thread": orm_job.worker_thread,
+                "worker_extra": orm_job.worker_extra,
+            },
+            "packages": get_packages(),
+        }
+        # Task args, kwargs and metadata can carry credentials, and the report
+        # is submitted off-device - scrub sensitive values as the request path
+        # does. Scrub a deep copy so the live job's args/kwargs (referenced
+        # directly above) are not mutated.
+        context = deepcopy(context)
+        scrub_data(context)
+        ErrorReport.insert_or_update_error(TASK, context)
+    except Exception:
+        # Catch everything - the JobHook is dispatched inside the jobs
+        # database transaction, so anything raised here would roll back
+        # the job's state update.
         logger.error(
             "Error occurred while saving error report to the database.", exc_info=True
         )
