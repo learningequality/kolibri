@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 import re
 import sys
 import time
 import traceback
+from copy import deepcopy
 from functools import lru_cache
 
 if sys.version_info < (3, 10):
@@ -15,10 +17,13 @@ import kolibri
 from kolibri.utils import conf
 
 from .constants import BACKEND
+from .constants import TASK
 from .models import ErrorReport
+from .serializers import bounded_json_or_none
 from .serializers import MAX_ERROR_MESSAGE_LENGTH
 from .serializers import MAX_TRACEBACK_LENGTH
 from .utils.request import extract_request_info
+from .utils.scrubber import scrub_data
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +37,8 @@ KOLIBRI_PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(kolibri.__f
 # would otherwise bloat the report context. The outermost and innermost
 # frames are kept, as the middle of a deep stack is the least informative.
 MAX_STACK_FRAMES = 100
+
+MAX_JOB_DATA_SIZE = 16 * 1024
 
 
 def get_server_info(request):
@@ -254,4 +261,82 @@ def handle_request_exception(sender, request=None, **kwargs):
         # without a guard, so anything raised here (including while building
         # the context above) would escape Django's exception handling and
         # replace the 500 response entirely.
+        logger.exception("Error occurred while saving error report to the database.")
+
+
+def _bounded(value, empty):
+    value = bounded_json_or_none(value)
+    if value is None or len(json.dumps(value)) > MAX_JOB_DATA_SIZE:
+        return empty
+    return value
+
+
+def _exception_message(task_traceback, exception_name):
+    exception_line = re.compile(rf"^(?:[\w.]+\.)?{re.escape(exception_name)}(?:: |$)")
+    lines = task_traceback.rstrip().splitlines()
+    for index in range(len(lines) - 1, -1, -1):
+        match = exception_line.match(lines[index])
+        if match:
+            message = "\n".join([lines[index][match.end() :], *lines[index + 1 :]])
+            return message[:MAX_ERROR_MESSAGE_LENGTH]
+    return ""
+
+
+def handle_task_failure(job, orm_job):
+    """
+    Called by the task JobHook when a job has failed, recording the
+    failed task with its job and worker context.
+
+    Note that job.exception is the exception class name - tasks store
+    their exceptions as strings, so the stack frames are parsed back out of
+    the text traceback, which is recorded too.
+    """
+    try:
+        task_traceback = scrub_host_paths(scrub_traceback_paths(job.traceback)) or ""
+        # A Sentry-event-shaped context, like the request and frontend paths.
+        context = {
+            "platform": "python",
+            "level": "error",
+            "exception": {
+                "values": [
+                    {
+                        "type": job.exception,
+                        "value": _exception_message(task_traceback, job.exception),
+                        "mechanism": {"type": "task", "handled": False},
+                        "stacktrace": {"frames": get_traceback_frames(job.traceback)},
+                    }
+                ]
+            },
+            "traceback": task_traceback[:MAX_TRACEBACK_LENGTH],
+            "contexts": {
+                "runtime": {"name": "python", "version": get_python_version()}
+            },
+            "job_info": {
+                "job_id": job.job_id,
+                "func": job.func,
+                "facility_id": job.facility_id,
+                "args": _bounded(job.args, []),
+                "kwargs": _bounded(job.kwargs, {}),
+                "progress": job.progress,
+                "total_progress": job.total_progress,
+                "extra_metadata": _bounded(job.extra_metadata, {}),
+            },
+            "worker_info": {
+                "worker_process": orm_job.worker_process,
+                "worker_thread": orm_job.worker_thread,
+                "worker_extra": orm_job.worker_extra,
+            },
+            "packages": get_packages(),
+        }
+        # Task args, kwargs and metadata can carry credentials, and the report
+        # is submitted off-device - scrub sensitive values as the request path
+        # does. Scrub a deep copy so the live job's args/kwargs (referenced
+        # directly above) are not mutated.
+        context = deepcopy(context)
+        scrub_data(context)
+        ErrorReport.insert_or_update_error(TASK, context)
+    except Exception:
+        # Catch everything - this runs as an on_commit callback of the job's
+        # state update, and Django propagates an exception raised there to
+        # the task worker that made the update, skipping any later callbacks.
         logger.exception("Error occurred while saving error report to the database.")

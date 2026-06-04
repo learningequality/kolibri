@@ -2,7 +2,6 @@ import logging
 from datetime import timedelta
 from typing import ClassVar
 
-from django.db import connections
 from django.db.models import Case
 from django.db.models import F
 from django.db.models import When
@@ -180,10 +179,6 @@ def _submit(server, pingback_id, errors):
         else:
             _retry_or_wait_for_next_pingback(e)
         return False
-    finally:
-        # Close every connection this worker thread opened - the task reads
-        # and writes the plugin's own database, not just the default one.
-        connections.close_all()
 
 
 def _retry_or_wait_for_next_pingback(error):

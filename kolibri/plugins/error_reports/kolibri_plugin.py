@@ -1,9 +1,12 @@
 import logging
 
+from django.db import transaction
 from magicbus.plugins import SimplePlugin
 
 from kolibri.core.analytics.hooks import PingbackHook
 from kolibri.core.sqlite.hooks import AdditionalSQLiteDatabaseHook
+from kolibri.core.tasks.hooks import JobHook
+from kolibri.core.tasks.job import State
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils.server.hooks import KolibriProcessHook
@@ -64,3 +67,42 @@ class ErrorReportsPingbackHook(PingbackHook):
         from .tasks import ping_error_reports  # noqa: PLC0415
 
         ping_error_reports.enqueue(args=(server, pingback_id))
+
+
+@register_hook
+class ErrorReportsPluginJobHook(JobHook):
+    def schedule(self, job, orm_job):
+        pass
+
+    def update(self, job, orm_job, state=None, **kwargs):
+        if state != State.FAILED:
+            return
+        from kolibri.core.analytics.tasks import _ping  # noqa: PLC0415
+        from kolibri.core.discovery.utils.network.errors import (  # noqa: PLC0415
+            NetworkLocationConnectionFailure,
+        )
+        from kolibri.core.discovery.utils.network.errors import (  # noqa: PLC0415
+            NetworkLocationResponseTimeout,
+        )
+
+        from .handlers import handle_task_failure  # noqa: PLC0415
+        from .tasks import ping_error_reports  # noqa: PLC0415
+
+        # Don't capture the submission task's own failures: recording one
+        # would create a task error report that the next pingback tries to
+        # submit, and a persistently failing submission would loop forever.
+        if job.func == ping_error_reports.func_string:
+            return
+        if job.func == _ping.func_string and job.exception in (
+            NetworkLocationConnectionFailure.__name__,
+            NetworkLocationResponseTimeout.__name__,
+        ):
+            return
+        # JobHook.update runs inside the job update's transaction; on SQLite
+        # that holds the job storage write lock.
+        transaction.on_commit(
+            lambda: handle_task_failure(job, orm_job), using=orm_job._state.db
+        )
+
+    def clear(self, job, orm_job):
+        pass

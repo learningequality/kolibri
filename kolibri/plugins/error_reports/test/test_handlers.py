@@ -1,12 +1,15 @@
 import json
 import logging
+import os
 import sys
 from typing import ClassVar
+from unittest.mock import MagicMock
 from unittest.mock import patch
 from unittest.mock import PropertyMock
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import OperationalError
+from django.db import router
 from django.http.request import RawPostDataException
 from django.test import override_settings
 from django.test import RequestFactory
@@ -15,15 +18,29 @@ from django.urls import resolve
 from django.urls import reverse
 from rest_framework.views import APIView
 
+from kolibri.core.analytics.tasks import _ping
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.models import Job as ORMJob
+from kolibri.utils import conf
+
 from ..constants import BACKEND
+from ..constants import TASK
 from ..handlers import get_python_version
 from ..handlers import get_request_time_to_error
 from ..handlers import get_stack_frames
 from ..handlers import handle_request_exception
+from ..handlers import handle_task_failure
 from ..handlers import mark_request_start
+from ..handlers import MAX_JOB_DATA_SIZE
+from ..handlers import MAX_STACK_FRAMES
 from ..handlers import REQUEST_START_TIME_KEY
+from ..kolibri_plugin import ErrorReportsPluginJobHook
 from ..models import ErrorReport
 from ..serializers import MAX_JSON_DEPTH
+from ..serializers import MAX_TRACEBACK_LENGTH
+from ..tasks import ping_error_reports
 from ..utils.request import extract_request_info
 from ..utils.request import FILE_PLACEHOLDER
 from ..utils.request import get_request_body
@@ -155,6 +172,508 @@ class ErrorReportsSignalHandlersTestCase(TestCase):
         )
         self.assertEqual(frame["function"], "test_get_stack_frames")
         self.assertIsInstance(frame["lineno"], int)
+
+    def test_get_stack_frames_caps_deep_stacks(self):
+        def recurse(n):
+            if n == 0:
+                raise ValueError("Test Exception")
+            recurse(n - 1)
+
+        try:
+            recurse(MAX_STACK_FRAMES * 2)
+        except ValueError:
+            frames = get_stack_frames(sys.exc_info()[2])
+        self.assertEqual(len(frames), MAX_STACK_FRAMES)
+
+    def test_get_stack_frames_strips_non_kolibri_paths(self):
+        # A real traceback passing through the standard library: its frames
+        # must not leak the absolute install path off-device.
+        try:
+            json.loads("{not valid json")
+        except ValueError:
+            frames = get_stack_frames(sys.exc_info()[2])
+        for frame in frames:
+            self.assertFalse(frame["filename"].startswith("/"), frame["filename"])
+        # The kolibri test frame is relativized and marked in_app.
+        self.assertTrue(
+            any(f["in_app"] and f["filename"].startswith("kolibri/") for f in frames)
+        )
+        # The standard-library frame is present but not in_app.
+        self.assertTrue(any(not f["in_app"] for f in frames))
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_request_exception_scrubs_traceback_paths(self):
+        request = self.factory.get("/")
+        try:
+            json.loads("{not valid json")
+        except ValueError:
+            handle_request_exception(sender=None, request=request)
+
+        report = ErrorReport.objects.get()
+        # Neither the raw traceback nor the structured frames leak absolute paths.
+        self.assertNotIn('File "/', report.context["traceback"])
+        frames = report.context["exception"]["values"][0]["stacktrace"]["frames"]
+        for frame in frames:
+            self.assertFalse(frame["filename"].startswith("/"), frame["filename"])
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_request_exception_scrubs_host_paths_from_message(self):
+        home = os.path.expanduser("~")
+        request = self.factory.get("/")
+        try:
+            raise FileNotFoundError(
+                f"'{conf.KOLIBRI_HOME}/content/a.mp4', '{home}/notes.txt'"
+            )
+        except FileNotFoundError:
+            handle_request_exception(sender=None, request=request)
+
+        context = ErrorReport.objects.get().context
+        value = context["exception"]["values"][0]["value"]
+        self.assertEqual(value, "'$KOLIBRI_HOME/content/a.mp4', '~/notes.txt'")
+        self.assertNotIn(home, context["traceback"])
+        self.assertIn("'$KOLIBRI_HOME/content/a.mp4'", context["traceback"])
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_request_exception_scrubs_windows_host_paths(self):
+        request = self.factory.get("/")
+        with patch.object(conf, "KOLIBRI_HOME", r"C:\Users\Bob\.kolibri"), patch(
+            "os.path.expanduser", return_value=r"C:\Users\Bob"
+        ):
+            try:
+                # OSError reprs its filenames, doubling the backslashes.
+                raise FileNotFoundError(
+                    2,
+                    "No such file",
+                    r"c:\users\bob\.kolibri\content\a.mp4",
+                    None,
+                    r"C:\Users\Bob\notes.txt",
+                )
+            except FileNotFoundError:
+                handle_request_exception(sender=None, request=request)
+
+        context = ErrorReport.objects.get().context
+        value = context["exception"]["values"][0]["value"]
+        self.assertEqual(
+            value,
+            r"[Errno 2] No such file: '$KOLIBRI_HOME\\content\\a.mp4' -> '~\\notes.txt'",
+        )
+        self.assertNotIn("bob", context["traceback"].lower())
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_scrubs_host_paths(self):
+        job = MagicMock(
+            exception="FileNotFoundError",
+            traceback=(
+                "Traceback (most recent call last):\n"
+                f'  File "{conf.KOLIBRI_HOME}/plugins/x.py", line 1, in f\n'
+                "FileNotFoundError: [Errno 2] '/media/alice/USB/data' and "
+                "'/run/media/alice/SD/data'\n"
+            ),
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=[],
+            kwargs={},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(worker_process="1", worker_thread="1", worker_extra=None)
+
+        handle_task_failure(job, orm_job)
+
+        context = ErrorReport.objects.get().context
+        self.assertEqual(
+            context["exception"]["values"][0]["value"],
+            "[Errno 2] '/media/<user>/USB/data' and '/run/media/<user>/SD/data'",
+        )
+        self.assertNotIn("alice", context["traceback"])
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure(self):
+        task_traceback = (
+            "Traceback (most recent call last):\n"
+            '  File "kolibri/x.py", line 1, in f\n'
+            "ValueError: bad input\n"
+        )
+        job = MagicMock(
+            exception="ValueError",
+            traceback=task_traceback,
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["test"],
+            kwargs={"test": "test"},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        report = ErrorReport.objects.get()
+        self.assertEqual(report.category, TASK)
+        exception = report.context["exception"]["values"][0]
+        self.assertEqual(exception["type"], "ValueError")
+        self.assertEqual(exception["value"], "bad input")
+        self.assertEqual(report.context["traceback"], task_traceback)
+        self.assertEqual(report.context["job_info"]["func"], "test_func")
+        self.assertEqual(report.context["worker_info"]["worker_process"], "1")
+        self.assertNotIn("worker_host", report.context["worker_info"])
+        # Real helpers ran rather than being mocked
+        self.assertTrue(
+            any(p.startswith("Django==") for p in report.context["packages"])
+        )
+        self.assertEqual(
+            report.context["contexts"]["runtime"]["version"], get_python_version()
+        )
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def _record_task_failure(self, exception, task_traceback):
+        job = MagicMock(
+            exception=exception,
+            traceback=task_traceback,
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=[],
+            kwargs={},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+    def _task_exception_value(self, exception, task_traceback):
+        self._record_task_failure(exception, task_traceback)
+        return ErrorReport.objects.get().context["exception"]["values"][0]["value"]
+
+    def test_handle_task_failure_records_frames_of_the_raised_exception(self):
+        self._record_task_failure(
+            "NetworkLocationConnectionFailure",
+            "Traceback (most recent call last):\n"
+            '  File "/usr/lib/python3/site-packages/urllib3/connection.py", line 7, in connect\n'
+            "    sock = connect()\n"
+            "ConnectionError: refused\n"
+            "\nThe above exception was the direct cause of the following exception:\n\n"
+            "Traceback (most recent call last):\n"
+            '  File "/opt/elsewhere/tasks.py", line 52, in _ping\n'
+            "    ping_once(started, server=server)\n"
+            '  File "/usr/lib/python3/site-packages/requests/api.py", line 9, in get\n'
+            "NetworkLocationConnectionFailure: Unable to connect\n",
+        )
+
+        frames = ErrorReport.objects.get().context["exception"]["values"][0][
+            "stacktrace"
+        ]["frames"]
+        self.assertEqual(
+            [(f["filename"], f["function"], f["lineno"]) for f in frames],
+            [("tasks.py", "_ping", 52), ("requests/api.py", "get", 9)],
+        )
+
+    def test_task_failures_differing_only_in_chained_messages_are_merged(self):
+        def ping_traceback(address):
+            return (
+                "Traceback (most recent call last):\n"
+                '  File "kolibri/core/discovery/utils/network/client.py", line 9, in get\n'
+                "NewConnectionError: <HTTPConnection object at "
+                f"{address}>: Failed to establish a new connection\n"
+                "\nThe above exception was the direct cause of the following exception:\n\n"
+                "Traceback (most recent call last):\n"
+                '  File "kolibri/core/analytics/tasks.py", line 52, in _ping\n'
+                f"NetworkLocationConnectionFailure: Unable to connect: {address}\n"
+            )
+
+        self._record_task_failure(
+            "NetworkLocationConnectionFailure", ping_traceback("0x7f3f00")
+        )
+        self._record_task_failure(
+            "NetworkLocationConnectionFailure", ping_traceback("0x7f3fff")
+        )
+
+        self.assertEqual(ErrorReport.objects.count(), 1)
+        self.assertEqual(ErrorReport.objects.get().events, 2)
+
+    def test_handle_task_failure_without_exception_message(self):
+        value = self._task_exception_value(
+            "ValueError", "Traceback (most recent call last):\nValueError\n"
+        )
+        self.assertEqual(value, "")
+
+    def test_handle_task_failure_with_multiline_exception_message(self):
+        value = self._task_exception_value(
+            "ValueError",
+            "Traceback (most recent call last):\n"
+            '  File "kolibri/x.py", line 1, in f\n'
+            "ValueError: first line\nsecond line\n",
+        )
+        self.assertEqual(value, "first line\nsecond line")
+
+    def test_handle_task_failure_with_qualified_exception_name(self):
+        value = self._task_exception_value(
+            "ImportError",
+            "Traceback (most recent call last):\n"
+            '  File "kolibri/x.py", line 1, in f\n'
+            "kolibri.core.errors.ImportError: bad: input\n",
+        )
+        self.assertEqual(value, "bad: input")
+
+    @patch.object(ErrorReport, "insert_or_update_error")
+    @patch.object(logging.Logger, "error")
+    def test_handle_task_failure_never_propagates(
+        self, mock_logger_error, mock_insert_or_update_error
+    ):
+        # Error capture must never break task state management - it runs
+        # after the job's state update commits, and anything raised there
+        # would propagate into the task worker.
+        mock_insert_or_update_error.side_effect = OperationalError("database is locked")
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["test"],
+            kwargs={"test": "test"},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        mock_logger_error.assert_any_call(
+            "Error occurred while saving error report to the database.", exc_info=True
+        )
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_scrubs_sensitive_data(self):
+        # Task args/kwargs/metadata can carry credentials, and the report is
+        # submitted off-device, so sensitive values must be scrubbed - just
+        # as they are on the request path.
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["positional"],
+            kwargs={
+                "password": "secret",
+                "auth_token": "os-user-token",
+                "baseurl": "https://example.com",
+            },
+            progress=0,
+            total_progress=0,
+            extra_metadata={
+                "token": "abc",
+                "facility_name": "School",
+                "started_by_username": "admin",
+                "user_full_name": "Ada Lovelace",
+                "user_fullname": "Ada Lovelace",
+            },
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        job_info = ErrorReport.objects.get().context["job_info"]
+        self.assertEqual(job_info["kwargs"]["password"], "[filtered for security]")
+        self.assertEqual(job_info["kwargs"]["auth_token"], "[filtered for security]")
+        self.assertEqual(job_info["kwargs"]["baseurl"], "https://example.com")
+        self.assertEqual(job_info["extra_metadata"]["token"], "[filtered for security]")
+        for key in ("started_by_username", "user_full_name", "user_fullname"):
+            self.assertEqual(job_info["extra_metadata"][key], "[filtered for security]")
+        self.assertEqual(job_info["extra_metadata"]["facility_name"], "School")
+        # Scrubbing must operate on a copy - the live job object passed to the
+        # hook must not be mutated.
+        self.assertEqual(job.kwargs["password"], "secret")
+        self.assertEqual(job.extra_metadata["token"], "abc")
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_records_fractional_progress(self):
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=[],
+            kwargs={},
+            progress=0.5,
+            total_progress=1.0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        job_info = ErrorReport.objects.get().context["job_info"]
+        self.assertEqual(job_info["progress"], 0.5)
+        self.assertEqual(job_info["total_progress"], 1.0)
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_bounds_traceback_and_job_data(self):
+        job = MagicMock(
+            exception="ValueError",
+            traceback="x" * (MAX_TRACEBACK_LENGTH + 1),
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=["x" * MAX_JOB_DATA_SIZE],
+            kwargs={"node_ids": ["x" * 32] * (MAX_JOB_DATA_SIZE // 32)},
+            progress=0,
+            total_progress=0,
+            extra_metadata={"small": "value"},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        context = ErrorReport.objects.get().context
+        self.assertEqual(len(context["traceback"]), MAX_TRACEBACK_LENGTH)
+        self.assertEqual(context["job_info"]["args"], [])
+        self.assertEqual(context["job_info"]["kwargs"], {})
+        self.assertEqual(context["job_info"]["extra_metadata"], {"small": "value"})
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_handle_task_failure_drops_only_unstorable_job_data(self):
+        deep = {}
+        for _ in range(MAX_JSON_DEPTH):
+            deep = {"a": deep}
+        job = MagicMock(
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            func="test_func",
+            facility_id=None,
+            args=[float("nan")],
+            kwargs={"channel_id": "abc"},
+            progress=0,
+            total_progress=0,
+            extra_metadata=deep,
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+
+        handle_task_failure(job, orm_job)
+
+        job_info = ErrorReport.objects.get().context["job_info"]
+        self.assertEqual(job_info["args"], [])
+        self.assertEqual(job_info["kwargs"], {"channel_id": "abc"})
+        self.assertEqual(job_info["extra_metadata"], {})
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_job_hook_skips_submission_task_failures(self):
+        # Capturing the submission task's own failure would create a task
+        # error report that the next pingback tries to submit, looping if the
+        # submission keeps failing.
+        job = MagicMock(func=ping_error_reports.func_string)
+        ErrorReportsPluginJobHook().update(job, MagicMock(), state=State.FAILED)
+        self.assertEqual(ErrorReport.objects.count(), 0)
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_job_hook_skips_ping_failures_to_reach_the_server(self):
+        orm_job = MagicMock(worker_process="1", worker_thread="1", worker_extra=None)
+        orm_job._state.db = "default"
+        for exception in (
+            "NetworkLocationConnectionFailure",
+            "NetworkLocationResponseTimeout",
+        ):
+            job = MagicMock(
+                func=_ping.func_string,
+                exception=exception,
+                traceback=f"Traceback (most recent call last):\n{exception}: x\n",
+                job_id="1",
+                facility_id=None,
+                args=[],
+                kwargs={},
+                progress=0,
+                total_progress=0,
+                extra_metadata={},
+            )
+            with self.captureOnCommitCallbacks(using="default", execute=True):
+                ErrorReportsPluginJobHook().update(job, orm_job, state=State.FAILED)
+        self.assertEqual(ErrorReport.objects.count(), 0)
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_job_hook_captures_other_task_failures(self):
+        job = MagicMock(
+            func="some.other.task",
+            exception="ValueError",
+            traceback="Test Traceback",
+            job_id="1",
+            facility_id=None,
+            args=[],
+            kwargs={},
+            progress=0,
+            total_progress=0,
+            extra_metadata={},
+        )
+        orm_job = MagicMock(
+            worker_host="localhost",
+            worker_process="1",
+            worker_thread="1",
+            worker_extra=None,
+        )
+        orm_job._state.db = "default"
+        with self.captureOnCommitCallbacks(using="default", execute=True):
+            ErrorReportsPluginJobHook().update(job, orm_job, state=State.FAILED)
+            self.assertEqual(ErrorReport.objects.filter(category=TASK).count(), 0)
+        self.assertEqual(ErrorReport.objects.filter(category=TASK).count(), 1)
+
+    @override_settings(DEVELOPER_MODE=False, TESTING=False)
+    def test_failed_job_is_recorded_once_the_job_update_commits(self):
+        job_id = job_storage.enqueue_job(Job(failing_task))
+        self.addCleanup(job_storage.clear, force=True)
+        with self.captureOnCommitCallbacks(
+            using=router.db_for_write(ORMJob), execute=True
+        ):
+            job_storage.mark_job_as_failed(
+                job_id,
+                ValueError("boom"),
+                "Traceback (most recent call last):\nValueError: boom\n",
+            )
+        report = ErrorReport.objects.get(category=TASK)
+        self.assertEqual(report.context["exception"]["values"][0]["value"], "boom")
 
 
 class FailingDRFView(APIView):
