@@ -372,6 +372,9 @@ class ChannelBuilder:
             "thumbnail": "",
             "name": "testing",
             "id": channel_id or uuid4_hex(),
+            # A built channel represents a published, peer-listable channel, so
+            # its nodes stay visible on the public content endpoints.
+            "public": True,
         }
 
     def localfile_data(self, extension="mp4"):

@@ -139,14 +139,30 @@ class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViews
         )
 
 
+def filter_public_channel_nodes(queryset):
+    # Unlisted channels are hidden from the peer channel list unless unlisted
+    # import is allowed, so hide their nodes from the content endpoints too —
+    # otherwise a search surfaces resources from channels the peer cannot browse.
+    # Mirrors the channel visibility of PublicChannelMetadataViewSet.
+    if allow_peer_unlisted_channel_import():
+        return queryset
+    return queryset.filter(
+        channel_id__in=ChannelMetadata.objects.filter(public=True).values("id")
+    )
+
+
 @method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = PublicContentNodePagination
 
+    def get_queryset(self):
+        return filter_public_channel_nodes(super().get_queryset())
+
 
 @method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
-    pass
+    def get_queryset(self):
+        return filter_public_channel_nodes(super().get_queryset())
 
 
 @api_view(["GET"])

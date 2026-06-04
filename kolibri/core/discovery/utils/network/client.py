@@ -100,6 +100,9 @@ class NetworkClient(SameHostSession):
         if timeout is None:
             timeout = cls._default_timeout()
 
+        from kolibri.core.device.utils import device_info_keys
+        from kolibri.core.device.utils import DEVICE_INFO_VERSION
+
         network_location = cls.known_location_for_address(address)
         if network_location is None:
             raise errors.NetworkLocationNotFound()
@@ -113,7 +116,13 @@ class NetworkClient(SameHostSession):
                 and network_location.connection_status == ConnectionStatus.Okay
             ):
                 # If we know this location is okay and its been accessed recently,
-                # use it without calling connect() to save some resources
+                # use it without calling connect() to save some resources. Surface
+                # the device info we already persisted so callers can rely on it
+                # without forcing a fresh /info request.
+                client.device_info = {
+                    key: getattr(network_location, key, None)
+                    for key in device_info_keys[DEVICE_INFO_VERSION]
+                }
                 return client
 
             if client.connect(raise_if_unavailable=False):

@@ -220,6 +220,20 @@ class NetworkClientTestCase(TestCase):
         with self.assertRaises(errors.NetworkLocationNotFound):
             NetworkClient.build_for_address("https://attacker.qqq/")
 
+    def test_build_for_address__keep_alive_populates_device_info(self):
+        # A recently-okay location takes the keep-alive fast path (no /info
+        # request, so `requests` is left unmocked here) and the returned client
+        # still exposes the device info we persisted for it.
+        NetworkLocation.objects.create(
+            base_url="https://happyurl.qqq/",
+            connection_status=ConnectionStatus.Okay,
+            application="kolibri",
+            kolibri_version="0.20.0",
+        )
+        nc = NetworkClient.build_for_address("https://happyurl.qqq/")
+        self.assertEqual(nc.device_info["application"], "kolibri")
+        self.assertEqual(nc.device_info["kolibri_version"], "0.20.0")
+
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://url.qqq/")
     )

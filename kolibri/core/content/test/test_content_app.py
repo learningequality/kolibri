@@ -1799,6 +1799,135 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         self.assertEqual(len(response.data["results"]), 1)
 
+    def test_contentnode_list_search_title(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_description(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "balbla1"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_multiple_terms_all_must_match(self):
+        # Each term must match somewhere in title or description.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "root balbla1"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "root balbla2"}
+        )
+        self.assertEqual(len(response.data), 0)
+
+    def test_contentnode_list_search_quoted_phrase(self):
+        # A quoted phrase must match verbatim rather than term by term.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": '"root balbla1"'}
+        )
+        self.assertEqual(len(response.data), 0)
+
+    def test_contentnode_list_search_drops_stopwords(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "the root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_question_param(self):
+        # The question parameter is treated as a keyword search.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"question": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_keywords_param(self):
+        # The legacy keywords parameter is still supported.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"keywords": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_param_precedence(self):
+        # search takes precedence over question and keywords.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"search": "root", "question": "c2c1", "keywords": "c2c2"},
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_contentnode_list_search_no_usable_tokens_returns_unfiltered(self):
+        # A search that yields no usable tokens (only punctuation) falls back to
+        # the unfiltered list rather than returning zero results, matching DRF
+        # SearchFilter behaviour. This differs from the removed search viewset,
+        # which returned no results for such input.
+        unfiltered = self.client.get(reverse("kolibri:core:contentnode-list"))
+        self.assertGreater(len(unfiltered.data), 0)
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "!?,"}
+        )
+        self.assertEqual(len(response.data), len(unfiltered.data))
+
+    def test_publiccontentnode_list_search(self):
+        # The search filter lives on BaseContentNodeMixin so the public endpoint
+        # supports it too: remote peers proxy keyword search to this endpoint.
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-list"), data={"search": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_publiccontentnode_list_search_keywords_param(self):
+        # Older remotes proxy keyword search via ?keywords=; the public endpoint
+        # must keep honouring it for backwards compatibility.
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-list"), data={"keywords": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
+    def test_publiccontentnode_list_excludes_unlisted_channel(self):
+        # A peer only lists public channels, so its content endpoints must not
+        # surface nodes from unlisted (public=False) channels — otherwise a
+        # search returns resources the peer cannot browse to.
+        content.ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            public=False
+        )
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-list"), data={"search": "root"}
+        )
+        self.assertEqual(len(response.data), 0)
+        # The internal endpoint is unaffected: locally you browse your own
+        # unlisted channels.
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"), data={"search": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+
+    @mock.patch(
+        "kolibri.core.public.api.allow_peer_unlisted_channel_import",
+        return_value=True,
+    )
+    def test_publiccontentnode_list_includes_unlisted_when_allowed(self, _mock):
+        # With unlisted import allowed the peer lists unlisted channels, so their
+        # nodes are searchable too.
+        content.ChannelMetadata.objects.filter(id=self.the_channel_id).update(
+            public=False
+        )
+        response = self.client.get(
+            reverse("kolibri:core:publiccontentnode-list"), data={"search": "root"}
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], "root")
+
     def _create_session_logs(self):
         content_ids = (
             "f2332710c2fd483386cdeb5ecbdda81f",
@@ -2528,6 +2657,79 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             self.assertEqual(response.data["learner_needs"], [])
             self.assertEqual(response.data["on_device_resources"], None)
             self.assertEqual(response.data["modality"], None)
+
+    def _proxied_search_params(self, device_info, query_param="search"):
+        # Issue a proxied search to a remote with the given device_info and
+        # return the query params we actually forwarded to it.
+        with mock.patch("kolibri.core.content.api.NetworkClient") as nc:
+            mock_response = mock.Mock()
+            mock_response.headers = {}
+            mock_response.status_code = 200
+            mock_response.json.return_value = []
+            mock_client = mock.MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.device_info = device_info
+            nc.build_for_address.return_value = mock_client
+            self.client.get(
+                reverse("kolibri:core:contentnode-list"),
+                data={"baseurl": "http://example.com/", query_param: "root"},
+            )
+            return mock_client.get.call_args[1]["params"]
+
+    def test_proxied_search_param_preserved_for_new_remote(self):
+        # A remote new enough to expose ?search= receives the request unchanged.
+        params = self._proxied_search_params(
+            {"application": "kolibri", "kolibri_version": "0.20.0"}
+        )
+        self.assertEqual(params["search"], "root")
+        self.assertNotIn("keywords", params)
+
+    def test_proxied_search_param_rewritten_for_old_remote(self):
+        # A remote predating ?search= gets the legacy ?keywords= it understands.
+        params = self._proxied_search_params(
+            {"application": "kolibri", "kolibri_version": "0.19.0"}
+        )
+        self.assertEqual(params["keywords"], "root")
+        self.assertNotIn("search", params)
+
+    def test_proxied_search_param_rewritten_for_unknown_remote(self):
+        # When the remote version/application is unknown, fall back to the
+        # universally-understood ?keywords= param.
+        params = self._proxied_search_params(
+            {"application": "studio", "kolibri_version": ""}
+        )
+        self.assertEqual(params["keywords"], "root")
+        self.assertNotIn("search", params)
+
+    def test_proxied_search_param_rewritten_for_unparseable_version(self):
+        # A non-empty but unparseable version (e.g. a development build) falls
+        # back to ?keywords= rather than raising an unhandled error.
+        params = self._proxied_search_params(
+            {"application": "kolibri", "kolibri_version": "dev"}
+        )
+        self.assertEqual(params["keywords"], "root")
+
+    def test_proxied_question_param_preserved_for_new_remote(self):
+        # Full-text search sends ?question=; a remote new enough to expose it
+        # receives the request unchanged.
+        params = self._proxied_search_params(
+            {"application": "kolibri", "kolibri_version": "0.20.0"},
+            query_param="question",
+        )
+        self.assertEqual(params["question"], "root")
+        self.assertNotIn("keywords", params)
+
+    def test_proxied_question_param_rewritten_for_old_remote(self):
+        # A remote predating ?question= gets the legacy ?keywords= it
+        # understands, so full-text search still filters instead of returning
+        # every node unfiltered.
+        params = self._proxied_search_params(
+            {"application": "kolibri", "kolibri_version": "0.19.0"},
+            query_param="question",
+        )
+        self.assertEqual(params["keywords"], "root")
+        self.assertNotIn("question", params)
+        self.assertNotIn("search", params)
 
     def tearDown(self):
         """
