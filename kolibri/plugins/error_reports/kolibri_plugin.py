@@ -4,9 +4,11 @@ from django.db import transaction
 from magicbus.plugins import SimplePlugin
 
 from kolibri.core.analytics.hooks import PingbackHook
+from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.sqlite.hooks import AdditionalSQLiteDatabaseHook
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import State
+from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils.server.hooks import KolibriProcessHook
@@ -24,6 +26,16 @@ class ErrorReportsPlugin(KolibriPluginBase):
 
     untranslated_view_urls = "api_urls"
     kolibri_options = "options"
+
+
+@register_hook
+class ErrorReportsPluginAsset(WebpackBundleHook):
+    bundle_id = "main"
+
+
+@register_hook
+class ErrorReportsPluginInclusionHook(FrontEndBaseSyncHook):
+    bundle_class = ErrorReportsPluginAsset
 
 
 @register_hook
