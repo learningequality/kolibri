@@ -1732,6 +1732,14 @@ export function coreString(key, args) {
     return coreStrings.$tr(nonconformingKeys[metadataKey], args);
   }
 
+  if (nonconformingKeys[camelCase(key)]) {
+    return coreStrings.$tr(nonconformingKeys[camelCase(key)], args);
+  }
+
+  if (coreStrings.hasKey(camelCase(key))) {
+    return coreStrings.$tr(camelCase(key), args);
+  }
+
   return coreStrings.$tr(key, args);
 }
 
