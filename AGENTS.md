@@ -69,16 +69,28 @@ const { title$ } = strings;  // title$() returns translated string
 ### ⚠️ API Calls via Resource Classes Only
 Use `Resource` from `kolibri/apiResource`. Define in `apiResources.js`. Never use raw `fetch` or `axios`.
 
-### ⚠️ Backend APIs: Use ValuesViewset
-Use `ValuesViewset` (or `ReadOnlyValuesViewset`) from `kolibri.core.api` for new API endpoints — not `ModelViewSet`, `ViewSet`, or `GenericViewSet`:
+### ⚠️ Backend APIs: Use ValuesViewset with Serializer Derivation
+Use `ValuesViewset` (or `ReadOnlyValuesViewset`) from `kolibri.core.api` for new API endpoints — not `ModelViewSet`, `ViewSet`, or `GenericViewSet`. Define a DRF serializer as the source of truth; the viewset derives the `values()` query automatically:
 ```python
+from rest_framework import serializers
 from kolibri.core.api import ReadOnlyValuesViewset
 
+class MySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyModel
+        fields = ("id", "title", "description")
+
 class MyViewSet(ReadOnlyValuesViewset):
-    values = ("id", "title", "description")
-    # Define values tuple and annotate_queryset for computed fields
+    serializer_class = MySerializer
+    queryset = MyModel.objects.all()
 ```
-Viewset permissions use `KolibriAuthPermissions` from `kolibri.core.auth.api`. See `docs/backend_architecture/api_patterns.rst`.
+Do **not** define explicit `values` tuples or `field_map` dicts on new viewsets — these are legacy patterns being migrated away.
+
+The model should define a default `ordering` in its `Meta`, or the viewset's `queryset` should set an explicit `order_by()` — response ordering (and pagination) is nondeterministic otherwise.
+
+Viewset permissions use `KolibriAuthPermissions` from `kolibri.core.auth.api`, which delegates object-level checks to the model's declarative permissions (e.g. `RoleBasedPermissions`). It only works for models that participate in Kolibri's auth/permissions system — models without those declarations need a different permission class.
+
+See `docs/backend_architecture/api_patterns.rst`.
 
 ### ⚠️ Testing is Required
 - **Python:** pytest is the test runner. Django API tests extend `APITestCase` from `rest_framework.test`. Other Django tests extend `django.test.TestCase`. Only use bare pytest-style function tests for non-Django code.
