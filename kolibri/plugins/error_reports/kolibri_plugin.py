@@ -22,6 +22,9 @@ class ErrorReportsPlugin(KolibriPluginBase):
     A plugin to capture and report errors in Kolibri.
     """
 
+    untranslated_view_urls = "api_urls"
+    kolibri_options = "options"
+
 
 @register_hook
 class ErrorReportsDatabaseHook(AdditionalSQLiteDatabaseHook):
