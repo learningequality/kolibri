@@ -60,7 +60,7 @@ Then opens a browser for **manual capture** → saves a versioned HAR → execut
 
 Full run using an existing HAR (skip capture)
 ---------------------------------------------
-Use a pre-recorded HAR to skip the manual capture step. With a file in ``har_files/lesson_flow_kolibri_testing_high_latency.har``, for example:
+Use a pre-recorded HAR to skip the manual capture step. For example, with the committed 0.19.4 HAR:
 
 .. code-block:: bash
 
@@ -97,6 +97,8 @@ HAR files capture the exact sequence of HTTP requests made during a learner less
 * Frontend code changes that modify the pattern of HTTP requests during learner interactions
 * New Kolibri version where request patterns have changed
 * Adding new content types or interaction flows to test
+
+**Selection**: ``run`` uses ``har_files/lesson_flow_kolibri_<server version>.har`` when it exists. Otherwise it falls back to the newest versioned HAR and logs a warning; static bundle URLs are rewritten to the server's version at replay time. Pass ``--har`` to choose a file explicitly. HAR files are stored with Git LFS.
 
 **Versioning**: HAR files are named with the Kolibri version where they were captured
 (e.g., ``lesson_flow_kolibri_0.18.4.har``). This version acts as a "valid from" marker -
