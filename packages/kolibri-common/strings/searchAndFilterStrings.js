@@ -56,6 +56,144 @@ export const searchAndFilterStrings = createTranslator('SearchAndFilterStrings',
     message: '{count, number} {count, plural, one {result} other {results}}',
     context: 'Number of search results when we have an exact count',
   },
+  autocompleteResultsAvailable: {
+    message:
+      '{count, number} {count, plural, one {result} other {results}} available. Use the up and down arrow keys to review.',
+    context: 'Autocomplete result count and navigation help for screen readers.',
+  },
+
+  // Search synonyms: extra words a learner might type that should surface a
+  // learning activity in autocomplete even though they aren't its label.
+
+  // Watch
+  searchTermVideo: {
+    message: 'video',
+    context: "Related word that should surface the 'Watch' learning activity in search.",
+  },
+  searchTermMovie: {
+    message: 'movie',
+    context: "Related word that should surface the 'Watch' learning activity in search.",
+  },
+  searchTermFilm: {
+    message: 'film',
+    context: "Related word that should surface the 'Watch' learning activity in search.",
+  },
+  searchTermAnimation: {
+    message: 'animation',
+    context: "Related word that should surface the 'Watch' learning activity in search.",
+  },
+
+  // Listen
+  searchTermAudio: {
+    message: 'audio',
+    context: "Related word that should surface the 'Listen' learning activity in search.",
+  },
+  searchTermPodcast: {
+    message: 'podcast',
+    context: "Related word that should surface the 'Listen' learning activity in search.",
+  },
+  searchTermMusic: {
+    message: 'music',
+    context: "Related word that should surface the 'Listen' learning activity in search.",
+  },
+  searchTermSong: {
+    message: 'song',
+    context: "Related word that should surface the 'Listen' learning activity in search.",
+  },
+
+  // Read
+  searchTermBook: {
+    message: 'book',
+    context: "Related word that should surface the 'Read' learning activity in search.",
+  },
+  searchTermArticle: {
+    message: 'article',
+    context: "Related word that should surface the 'Read' learning activity in search.",
+  },
+  searchTermText: {
+    message: 'text',
+    context: "Related word that should surface the 'Read' learning activity in search.",
+  },
+  searchTermDocument: {
+    message: 'document',
+    context: "Related word that should surface the 'Read' learning activity in search.",
+  },
+  searchTermStory: {
+    message: 'story',
+    context: "Related word that should surface the 'Read' learning activity in search.",
+  },
+
+  // Practice
+  searchTermExercise: {
+    message: 'exercise',
+    context: "Related word that should surface the 'Practice' learning activity in search.",
+  },
+  searchTermQuiz: {
+    message: 'quiz',
+    context: "Related word that should surface the 'Practice' learning activity in search.",
+  },
+  searchTermTest: {
+    message: 'test',
+    context: "Related word that should surface the 'Practice' learning activity in search.",
+  },
+  searchTermDrill: {
+    message: 'drill',
+    context: "Related word that should surface the 'Practice' learning activity in search.",
+  },
+  searchTermWorksheet: {
+    message: 'worksheet',
+    context: "Related word that should surface the 'Practice' learning activity in search.",
+  },
+
+  // Create
+  searchTermMake: {
+    message: 'make',
+    context: "Related word that should surface the 'Create' learning activity in search.",
+  },
+  searchTermBuild: {
+    message: 'build',
+    context: "Related word that should surface the 'Create' learning activity in search.",
+  },
+  searchTermDraw: {
+    message: 'draw',
+    context: "Related word that should surface the 'Create' learning activity in search.",
+  },
+  searchTermDesign: {
+    message: 'design',
+    context: "Related word that should surface the 'Create' learning activity in search.",
+  },
+  searchTermCraft: {
+    message: 'craft',
+    context: "Related word that should surface the 'Create' learning activity in search.",
+  },
+
+  // Explore
+  searchTermInteractive: {
+    message: 'interactive',
+    context: "Related word that should surface the 'Explore' learning activity in search.",
+  },
+  searchTermGame: {
+    message: 'game',
+    context: "Related word that should surface the 'Explore' learning activity in search.",
+  },
+  searchTermSimulation: {
+    message: 'simulation',
+    context: "Related word that should surface the 'Explore' learning activity in search.",
+  },
+
+  // Reflect
+  searchTermJournal: {
+    message: 'journal',
+    context: "Related word that should surface the 'Reflect' learning activity in search.",
+  },
+  searchTermReview: {
+    message: 'review',
+    context: "Related word that should surface the 'Reflect' learning activity in search.",
+  },
+  searchTermSelfAssessment: {
+    message: 'self-assessment',
+    context: "Related word that should surface the 'Reflect' learning activity in search.",
+  },
   resultsCountInFolder: {
     message: "{count, number} {count, plural, one {result} other {results}} in '{folder}'",
     context: 'Number of search results when we have an exact count in a specific folder',
