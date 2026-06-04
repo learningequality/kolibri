@@ -20,8 +20,10 @@ Usage:
 
 """
 
+import glob
 import json
 import os
+import re
 import subprocess
 import threading
 import time
@@ -37,6 +39,7 @@ from logger import plain
 from logger import section
 from logger import step
 from logger import success
+from logger import warning
 
 # Constants
 HAR_FILES_DIR = os.path.join(os.path.dirname(__file__), "har_files")
@@ -50,6 +53,26 @@ def _exit_with_error(message):
     exception = click.ClickException(message)
     exception.exit_code = 2
     raise exception
+
+
+def _find_har_file(kolibri_version):
+    prefix = "lesson_flow_kolibri_"
+    exact = os.path.join(HAR_FILES_DIR, f"{prefix}{kolibri_version}.har")
+    if os.path.exists(exact):
+        return exact
+    candidates = glob.glob(os.path.join(HAR_FILES_DIR, f"{prefix}*.har"))
+    if not candidates:
+        _exit_with_error(
+            f"No HAR file for Kolibri {kolibri_version} and none to fall back "
+            f"to in {HAR_FILES_DIR}; run 'capture' first"
+        )
+
+    def version_key(path):
+        return tuple(int(n) for n in re.findall(r"\d+", os.path.basename(path)))
+
+    har_path = max(candidates, key=version_key)
+    warning(f"No HAR for Kolibri {kolibri_version}; using {har_path}")
+    return har_path
 
 
 def _ensure_credentials(ctx):
@@ -280,13 +303,10 @@ def run(ctx):
 
     if ctx.obj["har"]:
         har_path = ctx.obj["har"]
+        if not os.path.exists(har_path):
+            _exit_with_error(f"Specified HAR file does not exist: {har_path}")
     else:
-        # Find version-specific HAR file
-        har_filename = f"lesson_flow_kolibri_{kolibri_version}.har"
-        har_path = os.path.join(HAR_FILES_DIR, har_filename)
-
-    if not os.path.exists(har_path):
-        _exit_with_error(f"Specified HAR file does not exist: {har_path}")
+        har_path = _find_har_file(kolibri_version)
 
     # Get facility ID
     facility_id = client.get_or_create_facility(FACILITY_NAME)

@@ -98,6 +98,8 @@ HAR files capture the exact sequence of HTTP requests made during a learner less
 * New Kolibri version where request patterns have changed
 * Adding new content types or interaction flows to test
 
+**Selection**: ``run`` uses ``har_files/lesson_flow_kolibri_<server version>.har`` when it exists. Otherwise it falls back to the newest versioned HAR and logs a warning; static bundle URLs are rewritten to the server's version at replay time. Pass ``--har`` to choose a file explicitly. HAR files are stored with Git LFS.
+
 **Versioning**: HAR files are named with the Kolibri version where they were captured
 (e.g., ``lesson_flow_kolibri_0.18.4.har``). This version acts as a "valid from" marker -
 the HAR can be used for that version and later versions until request patterns change.
