@@ -15,6 +15,7 @@ Usage:
     locust -f locustfile.py -u 50 -r 50 --run-time 5m
 """
 
+import itertools
 import json
 import os
 import random
@@ -189,10 +190,12 @@ class LessonUser(HttpUser):
         "username": "username",
     }
 
+    _user_counter = itertools.count()
+
     def on_start(self):
         """Initialize user and assign username"""
         # Assign unique user number (1-N based on num_users)
-        user_num = (id(self) % NUM_USERS) + 1
+        user_num = (next(self._user_counter) % NUM_USERS) + 1
         self.username = f"load_test_{user_num}"
         # Store the POST request for retry
         self.trackprogress_init_request = None
