@@ -8,7 +8,6 @@ from .api import ChannelThumbnailView
 from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
-from .api import ContentNodeSearchViewset
 from .api import ContentNodeTreeViewset
 from .api import ContentNodeViewset
 from .api import ContentRequestViewset
@@ -24,9 +23,6 @@ router.register(r"contentnode", ContentNodeViewset, basename="contentnode")
 router.register(r"usercontentnode", UserContentNodeViewset, basename="usercontentnode")
 router.register(
     r"contentnode_tree", ContentNodeTreeViewset, basename="contentnode_tree"
-)
-router.register(
-    r"contentnode_search", ContentNodeSearchViewset, basename="contentnode_search"
 )
 router.register(
     r"contentnode_bookmarks",

@@ -4,7 +4,6 @@ import re
 from base64 import urlsafe_b64decode
 from collections import defaultdict
 from collections import OrderedDict
-from functools import reduce
 from random import sample
 from uuid import UUID
 
@@ -92,7 +91,6 @@ from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
-from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -1353,132 +1351,6 @@ class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
         return super().retrieve(request, pk=pk)
-
-
-# return the result of and-ing a list of queries
-def intersection(queries):
-    if queries:
-        return reduce(lambda x, y: x & y, queries)
-    return None
-
-
-def union(queries):
-    if queries:
-        return reduce(lambda x, y: x | y, queries)
-    return None
-
-
-@query_params_required(search=str, max_results=int, max_results__default=30)
-class ContentNodeSearchViewset(ContentNodeViewset):
-    def search(self, value, max_results, filter=True):
-        """
-        Implement various filtering strategies in order to get a wide range of search results.
-        When filter is used, this object must have a request attribute having
-        a 'query_params' QueryDict containing the filters to be applied
-        """
-        if filter:
-            queryset = self.filter_queryset(self.get_queryset())
-        else:
-            queryset = self.get_queryset()
-        # all words with punctuation removed
-        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
-        # words in all_words that are not stopwords
-        critical_words = [w for w in all_words if w not in stopwords_set]
-        # queries ordered by relevance priority
-        all_queries = [
-            # all words in title
-            intersection([Q(title__icontains=w) for w in all_words]),
-            # all critical words in title
-            intersection([Q(title__icontains=w) for w in critical_words]),
-            # all words in description
-            intersection([Q(description__icontains=w) for w in all_words]),
-            # all critical words in description
-            intersection([Q(description__icontains=w) for w in critical_words]),
-        ]
-        # any critical word in title, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(title__icontains=w))
-        # any critical word in description, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(description__icontains=w))
-
-        # only execute if query is meaningful
-        all_queries = [query for query in all_queries if query]
-
-        results = []
-        content_ids = set()
-        BUFFER_SIZE = max_results * 2  # grab some extras, but not too many
-
-        # iterate over each query type, and build up search results
-        for query in all_queries:
-            # in each pass, don't take any items already in the result set
-            matches = (
-                queryset.exclude_by_content_ids(list(content_ids), validate=False)
-                .filter(query)
-                .values("content_id", "id")[:BUFFER_SIZE]
-            )
-
-            for match in matches:
-                # filter the dupes
-                if match["content_id"] in content_ids:
-                    continue
-                # add new, unique results
-                content_ids.add(match["content_id"])
-                results.append(match["id"])
-
-                # bail out as soon as we reach the quota
-                if len(results) >= max_results:
-                    break
-            # bail out as soon as we reach the quota
-            if len(results) >= max_results:
-                break
-
-        results = queryset.filter_by_uuids(results, validate=False)
-
-        # If no queries, just use an empty Q.
-        all_queries_filter = union(all_queries) or Q()
-
-        total_results = (
-            queryset.filter(all_queries_filter)
-            .values_list("content_id", flat=True)
-            .distinct()
-            .count()
-        )
-
-        # Use unfiltered queryset to collect channel_ids and kinds metadata.
-        unfiltered_queryset = self.get_queryset()
-
-        channel_ids = (
-            unfiltered_queryset.filter(all_queries_filter)
-            .values_list("channel_id", flat=True)
-            .order_by("channel_id")
-            .distinct()
-        )
-
-        content_kinds = (
-            unfiltered_queryset.filter(all_queries_filter)
-            .values_list("kind", flat=True)
-            .order_by("kind")
-            .distinct()
-        )
-
-        return (results, channel_ids, content_kinds, total_results)
-
-    def list(self, request, **kwargs):
-        value = self.kwargs["search"]
-        max_results = self.kwargs["max_results"]
-        results, channel_ids, content_kinds, total_results = self.search(
-            value, max_results
-        )
-        data = self.serialize(results)
-        return Response(
-            {
-                "channel_ids": channel_ids,
-                "content_kinds": content_kinds,
-                "results": data,
-                "total_results": total_results,
-            }
-        )
 
 
 class BookmarkFilter(FilterSet):
