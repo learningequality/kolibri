@@ -1,7 +1,11 @@
 import { render, screen } from '@testing-library/vue';
 import { createTranslator, i18nSetup } from 'kolibri/utils/i18n';
+import bytesForHumans from 'kolibri/uiText/bytesForHumans';
 import SelectContentPage from '../SelectContentPage';
-import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
+import {
+  makeSelectContentPageStore,
+  selectContentTransferredChannel,
+} from '../../__tests__/utils/makeStore';
 import ChannelContentsSummary from '../SelectContentPage/ChannelContentsSummary';
 import ContentTreeViewer from '../SelectContentPage/ContentTreeViewer';
 import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
@@ -42,64 +46,67 @@ describe('SelectContentPage', () => {
   });
 
   it('shows the thumbnail, title, descripton, and version of the channel', () => {
-    const heading = 'Awesome Channel';
-    const version = '10';
-    const description = 'An awesome channel';
+    const { name, version, description } = selectContentTransferredChannel;
     const fakeImage = 'data:image/png;base64,abcd1234';
     updateMetaChannel(store, { thumbnail: fakeImage });
     renderComponent({ store });
     expect(screen.getByRole('img')).toHaveAttribute('src', fakeImage);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(heading);
-    expect(screen.getByText(summaryTr.$tr('version', { version: version }))).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(name);
+    expect(screen.getByText(summaryTr.$tr('version', { version }))).toBeInTheDocument();
     expect(screen.getByText(description)).toBeInTheDocument();
   });
 
   it('shows the total size of the channel', () => {
+    const { total_resources, total_file_size } = selectContentTransferredChannel;
     renderComponent({ store });
     expect(screen.getAllByRole('row')[1]).toHaveTextContent(
-      `${summaryTr.$tr('totalSizeRow')} 1,000 5 GB`,
+      `${summaryTr.$tr('totalSizeRow')} ${total_resources.toLocaleString()} ${bytesForHumans(total_file_size)}`,
     );
   });
 
   it('shows the total size of any resources on the device', () => {
+    const { on_device_resources, on_device_file_size } = selectContentTransferredChannel;
     renderComponent({ store });
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
-      `${summaryTr.$tr('onDeviceRow')} 2,000 95 MB`,
+      `${summaryTr.$tr('onDeviceRow')} ${on_device_resources.toLocaleString()} ${bytesForHumans(on_device_file_size)}`,
     );
   });
 
   it('shows size and resources as 0 if channel is not on device', () => {
+    const onDeviceResources = 0;
+    const onDeviceFileSize = 0;
     updateMetaChannel(store, {
       id: 'not_awesome_channel',
-      on_device_resources: 0,
-      on_device_file_size: 0,
+      on_device_resources: onDeviceResources,
+      on_device_file_size: onDeviceFileSize,
     });
     renderComponent({ store });
     expect(screen.getAllByRole('row')[2]).toHaveTextContent(
-      `${summaryTr.$tr('onDeviceRow')} 0 0 B`,
+      `${summaryTr.$tr('onDeviceRow')} ${onDeviceResources.toLocaleString()} ${bytesForHumans(onDeviceFileSize)}`,
     );
   });
 
   it('shows a update notification if a new version is available', () => {
-    updateMetaChannel(store, { version: 1000 });
+    const newVersion = 1000;
+    updateMetaChannel(store, { version: newVersion });
     renderComponent({ store });
-    const NEW_VERSION = '1000';
     expect(
-      screen.getByText(bannerTr.$tr('versionAvailable', { version: NEW_VERSION })),
+      screen.getByText(bannerTr.$tr('versionAvailable', { version: newVersion })),
     ).toBeInTheDocument();
   });
 
   it('if a new version is not available, then no notification/button appear', () => {
-    updateMetaChannel(store, { version: 10 }); // same version
+    const { version } = selectContentTransferredChannel;
+    updateMetaChannel(store, { version });
     renderComponent({ store });
-    const NEW_VERSION = '1000';
     expect(
-      screen.queryByText(bannerTr.$tr('versionAvailable', { version: NEW_VERSION })),
+      screen.queryByText(bannerTr.$tr('versionAvailable', { version })),
     ).not.toBeInTheDocument();
   });
 
-  //Add translations strings to these tests & test these & commit the changes.
   describe('draft channel (installed version = 0)', () => {
+    const newerVersion = 15;
+
     function setInstalledVersion(store, version) {
       const existing = store.state.manageContent.channelList[0];
       store.commit('manageContent/SET_CHANNEL_LIST', [{ ...existing, version }]);
@@ -107,7 +114,7 @@ describe('SelectContentPage', () => {
 
     it('shows ContentTreeViewer when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: 5 });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
       expect(
         screen.getByRole('checkbox', {
@@ -118,17 +125,16 @@ describe('SelectContentPage', () => {
 
     it('shows NewChannelVersionBanner when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: 5 });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
-      const NEW_VERSION = 5;
       expect(
-        screen.getByText(bannerTr.$tr('versionAvailable', { version: NEW_VERSION })),
+        screen.getByText(bannerTr.$tr('versionAvailable', { version: newerVersion })),
       ).toBeInTheDocument();
     });
 
     it('shows SelectionBottomBar when installed version is 0 and Studio has newer version', () => {
       setInstalledVersion(store, 0);
-      updateMetaChannel(store, { version: 5 });
+      updateMetaChannel(store, { version: newerVersion });
       renderComponent({ store });
       expect(
         screen.getByRole('button', { name: bottomBarTr.$tr('importAction') }),
@@ -136,7 +142,6 @@ describe('SelectContentPage', () => {
     });
 
     it('hides ContentTreeViewer when installed version > 0 and newer version available on Studio', () => {
-      // Preserve existing non-draft behavior
       updateMetaChannel(store, { version: 1000 });
       renderComponent({ store });
       expect(

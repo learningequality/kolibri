@@ -43,13 +43,16 @@ const allChannels = [
   },
 ];
 
+// The transferredChannel used by makeSelectContentPageStore, exported so tests can
+// derive expected display values (resource counts, file sizes) from the same source of truth.
+export const selectContentTransferredChannel = {
+  ...allChannels[0],
+  on_device_resources: 2000,
+  on_device_file_size: 95189556, // about 95 MB
+};
+
 const channelsOnDevice = [
-  {
-    ...allChannels[0],
-    on_device_resources: 2000,
-    on_device_file_size: 95189556, // about 95 MB
-    available: true,
-  },
+  { ...selectContentTransferredChannel, available: true },
   {
     ...allChannels[1],
     on_device_resources: 0,
@@ -105,11 +108,7 @@ export function makeSelectContentPageStore() {
   Object.assign(store.state.manageContent.wizard, {
     availableChannels: [...allChannels],
     transferType: 'localimport',
-    transferredChannel: {
-      ...allChannels[0],
-      on_device_resources: 2000,
-      on_device_file_size: 95189556, // about 95 MB
-    },
+    transferredChannel: { ...selectContentTransferredChannel },
     currentTopicNode: contentNodeGranularPayload(),
   });
   return store;
