@@ -1,5 +1,6 @@
 from magicbus.plugins import SimplePlugin
 
+from kolibri.core.analytics.hooks import PingbackHook
 from kolibri.core.sqlite.hooks import AdditionalSQLiteDatabaseHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
@@ -44,3 +45,12 @@ class ErrorReportsProcessHook(KolibriProcessHook):
     """
 
     MagicBusPluginClass = ServerRunPlugin
+
+
+@register_hook
+class ErrorReportsPingbackHook(PingbackHook):
+    def pingback(self, server, pingback_id):
+        # Importing here to avoid importing models at the top level
+        from .tasks import ping_error_reports
+
+        ping_error_reports.enqueue(args=(server, pingback_id))
