@@ -19,7 +19,8 @@ from kolibri.utils.version import truncate_version
 # from django.conf import settings
 
 
-@pytest.mark.django_db(transaction=True)
+# initialize() runs plugin migrations against every configured database
+@pytest.mark.django_db(transaction=True, databases="__all__")
 @patch("kolibri.plugins.registry.is_initialized", return_value=False)
 @patch("kolibri.utils.main._upgrades_after_django_setup")
 @patch("kolibri.utils.main.get_version", return_value="")

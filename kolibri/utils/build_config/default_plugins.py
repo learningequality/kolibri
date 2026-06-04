@@ -3,6 +3,7 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.default_theme",
     "kolibri.plugins.device",
     "kolibri.plugins.epub_viewer",
+    "kolibri.plugins.error_reports",
     "kolibri.plugins.html5_viewer",
     "kolibri.plugins.facility",
     "kolibri.plugins.learn",
