@@ -359,8 +359,10 @@ except (pytz.UnknownTimeZoneError, ValueError, ZoneInfoNotFoundError):
 
 # Fixes https://github.com/regebro/tzlocal/issues/44
 # tzlocal 1.4 returns 'local' if unable to detect the timezone,
-# and this TZ id is invalid
-if TIME_ZONE == "local":
+# and this TZ id is invalid. get_localzone_name() also returns None
+# in containers where /etc/localtime is a plain bind-mounted file with
+# no TZ env or /etc/timezone.
+if TIME_ZONE is None or TIME_ZONE == "local":
     TIME_ZONE = pytz.utc.zone
 
 USE_I18N = True
