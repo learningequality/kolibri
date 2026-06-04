@@ -1,4 +1,5 @@
 import VueRouter from 'vue-router';
+import { ref } from 'vue';
 
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
@@ -124,7 +125,7 @@ describe('TopicsPage', () => {
         searchQuery: '',
         searchLoading: false,
         searchError: null,
-        currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC })),
+        currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC, query: {} })),
       }),
     );
 
@@ -163,6 +164,7 @@ describe('TopicsPage', () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsSmall: false,
         windowIsLarge: true,
+        windowBreakpoint: ref(4),
       }));
 
       ContentNodeResource.fetchTree.mockResolvedValue({
@@ -185,6 +187,7 @@ describe('TopicsPage', () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsSmall: false,
         windowIsLarge: true,
+        windowBreakpoint: ref(4),
       }));
       const wrapper = shallowMount(TopicsPage, {
         store: store,
@@ -200,6 +203,7 @@ describe('TopicsPage', () => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
       windowIsLarge: true,
+      windowBreakpoint: ref(4),
     }));
     const wrapper = shallowMount(TopicsPage, {
       store: store,
@@ -214,6 +218,7 @@ describe('TopicsPage', () => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,
       windowIsLarge: true,
+      windowBreakpoint: ref(4),
     }));
     const wrapper = mount(TopicsPage, {
       store: store,
@@ -230,6 +235,7 @@ describe('TopicsPage', () => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: true,
       windowIsLarge: false,
+      windowBreakpoint: ref(0),
     }));
     const smallScreenWrapper = mount(TopicsPage, {
       store: store,
@@ -248,6 +254,7 @@ describe('TopicsPage', () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsSmall: true,
         windowIsLarge: false,
+        windowBreakpoint: ref(0),
       }));
       wrapper = shallowMount(TopicsPage, {
         store: store,
@@ -263,11 +270,14 @@ describe('TopicsPage', () => {
     it('shows breadcrumbs when screen is small', () => {
       expect(wrapper.find("[data-testid='mobile-breadcrumbs']").exists()).toBe(true);
     });
-    it('displays filter buttons when screen is not large', () => {
-      expect(wrapper.find("[data-testid='filter-button']").exists()).toBe(true);
-    });
     it('displays folders button when there are topics and the screen is not large', () => {
       expect(wrapper.find("[data-testid='folders-button']").exists()).toBe(true);
+    });
+    it('displays the search bar when the screen is small', () => {
+      expect(wrapper.find("[data-testid='library-search-bar']").exists()).toBe(true);
+    });
+    it('displays the filter pills when the screen is small', () => {
+      expect(wrapper.find("[data-testid='horizontal-filter-pills']").exists()).toBe(true);
     });
 
     describe('when showing search results', () => {
@@ -313,16 +323,22 @@ describe('TopicsPage', () => {
         // Re-mock injectBaseSearch after clearAllMocks so SearchChips
         // can access availableLanguages.value without TypeError.
         injectBaseSearch.mockReturnValue({
-          availableLearningActivities: { value: [] },
-          availableLibraryCategories: { value: [] },
-          availableResourcesNeeded: { value: [] },
-          availableGradeLevels: { value: [] },
-          availableAccessibilityOptions: { value: [] },
-          availableLanguages: { value: [] },
-          availableChannels: { value: [] },
-          searchableLabels: { value: [] },
-          activeSearchTerms: { value: [] },
-          searchLoading: { value: false },
+          availableLearningActivities: ref([]),
+          availableLibraryCategories: ref([]),
+          availableResourcesNeeded: ref([]),
+          availableGradeLevels: ref([]),
+          availableAccessibilityOptions: ref([]),
+          availableLanguages: ref([]),
+          availableChannels: ref([]),
+          searchableLabels: ref([]),
+          activeSearchTerms: ref([]),
+          searchLoading: ref(false),
+          isFilterActive: jest.fn(() => false),
+          isLabelAvailable: jest.fn(() => true),
+          toggleFilter: jest.fn(),
+          appliedFilters: jest.fn(() => []),
+          keyWordAutoCompleteHandler: jest.fn(),
+          autoCompleteSuggestions: ref([]),
         });
 
         useChannels.mockImplementation(() =>
@@ -339,6 +355,7 @@ describe('TopicsPage', () => {
         useKResponsiveWindow.mockImplementation(() => ({
           windowIsSmall: true,
           windowIsLarge: false,
+          windowBreakpoint: ref(0),
         }));
 
         useDevicesWithFilter.mockReturnValue({
@@ -381,6 +398,7 @@ describe('TopicsPage', () => {
         useKResponsiveWindow.mockImplementation(() => ({
           windowIsSmall: true,
           windowIsLarge: false,
+          windowBreakpoint: ref(0),
         }));
         wrapper = mount(TopicsPage, {
           store: store,
@@ -457,7 +475,7 @@ describe('TopicsPage', () => {
             searchQuery: '',
             searchLoading: false,
             searchError: null,
-            currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC_SEARCH })),
+            currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC_SEARCH, query: {} })),
           }),
         );
         const wrapper = mount(TopicsPage, {

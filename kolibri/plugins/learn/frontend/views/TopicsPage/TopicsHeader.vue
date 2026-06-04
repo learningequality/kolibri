@@ -66,9 +66,7 @@
         />
       </KGridItem>
     </KGrid>
-    <div>
-      <slot name="sticky-sidebar"></slot>
-    </div>
+    <slot></slot>
   </div>
 
 </template>
@@ -122,18 +120,13 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  $header-height: 274px;
   $toolbar-height: 70px;
 
   .header {
     position: relative;
     top: $toolbar-height;
     width: 100%;
-    height: $header-height;
-    padding-top: 16px;
-    padding-right: 32px;
-    padding-bottom: 0;
-    padding-left: 32px;
+    padding: 16px 32px 24px;
   }
 
   .title {
