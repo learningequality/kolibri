@@ -93,6 +93,8 @@ If something that "cannot happen" happens, crash — a dead program does less da
 
 In Kolibri, Django REST Framework's exception handling will catch unhandled exceptions and return appropriate error responses — there is no need to wrap every view method in a try/except.
 
+When you do catch and log an exception, never interpolate the exception message into the log string (``logger.error(f"Failed: {e}")``) — exception messages can contain sensitive data such as credentials, tokens, or personal information, and text baked into the message cannot be filtered or redacted by logging handlers. Log a static message and pass the exception via ``logger.error("Failed to save report.", exc_info=True)`` so it flows through the logging framework.
+
 
 Tell, don't ask
 ---------------
