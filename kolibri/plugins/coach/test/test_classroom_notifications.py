@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from unittest.mock import patch
 
 from django.db.utils import DatabaseError
@@ -187,6 +188,7 @@ class ClassroomNotificationsTestCase(APITestCase):
             "contentnode_id",
             "object",
             "event",
+            "course_session_id",
         }
         self.assertEqual(set(result.keys()), expected_fields)
 
@@ -211,3 +213,23 @@ class ClassroomNotificationsTestCase(APITestCase):
         data = response.json()
         self.assertEqual(len(data["results"]), 1)
         self.assertTrue(data["more_results"])
+
+    def test_notification_includes_course_session_id(self):
+        session_id = uuid.uuid4()
+        LearnerProgressNotification.objects.create(
+            classroom_id=self.classroom.id,
+            user_id=self.learner.id,
+            notification_object="Resource",
+            notification_event="Started",
+            course_session_id=session_id,
+        )
+        self.client.login(
+            username=self.classroom_coach.username, password=DUMMY_PASSWORD
+        )
+        response = self.client.get(
+            reverse(self.list_name), {"classroom_id": self.classroom.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        results = response.json()["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["course_session_id"], session_id.hex)
