@@ -15,12 +15,12 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-05-22T14:45:28.222562838Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-le-utils = { timestamp = "2026-05-29T14:45:28.222575422Z", span = "PT0S" }
-morango = { timestamp = "2026-05-29T14:45:28.222589569Z", span = "PT0S" }
+le-utils = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
+morango = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
 
 [[package]]
 name = "alabaster"
@@ -2848,7 +2848,7 @@ dev = [
     { name = "le-utils", specifier = "==0.2.17" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
-    { name = "mock", specifier = "==2.0.0" },
+    { name = "mock", specifier = "==5.2.0" },
     { name = "morango", specifier = "==0.8.12" },
     { name = "nodeenv", specifier = ">=1.3.3" },
     { name = "parameterized", specifier = "==0.8.1" },
@@ -2979,7 +2979,7 @@ test = [
     { name = "le-utils", specifier = "==0.2.17" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
-    { name = "mock", specifier = "==2.0.0" },
+    { name = "mock", specifier = "==5.2.0" },
     { name = "morango", specifier = "==0.8.12" },
     { name = "parameterized", specifier = "==0.8.1" },
     { name = "pytest", marker = "python_full_version < '3.14'", specifier = "==6.2.5" },
@@ -3479,15 +3479,11 @@ wheels = [
 
 [[package]]
 name = "mock"
-version = "2.0.0"
+version = "5.2.0"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pbr" },
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/53/014354fc93c591ccc4abff12c473ad565a2eb24dcd82490fae33dbf2539f/mock-2.0.0.tar.gz", hash = "sha256:b158b6df76edd239b8208d481dc46b6afd45a846b7812ff0ce58971cf5bc8bba", size = 73684, upload-time = "2016-04-06T01:38:35.726Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/07/8c/14c2ae915e5f9dca5a22edd68b35be94400719ccfa068a03e0fb63d0f6f6/mock-5.2.0.tar.gz", hash = "sha256:4e460e818629b4b173f32d08bf30d3af8123afbb8e04bb5707a1fd4799e503f0", size = 92796, upload-time = "2025-03-03T12:31:42.911Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e6/35/f187bdf23be87092bd0f1200d43d23076cee4d0dec109f195173fd3ebc79/mock-2.0.0-py2.py3-none-any.whl", hash = "sha256:5ce3c71c5545b472da17b72268978914d0252980348636840bd34a00b5cc96c1", size = 56820, upload-time = "2016-04-06T01:38:18.05Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/d9/617e6af809bf3a1d468e0d58c3997b1dc219a9a9202e650d30c2fc85d481/mock-5.2.0-py3-none-any.whl", hash = "sha256:7ba87f72ca0e915175596069dbbcc7c75af7b5e9b9bc107ad6349ede0819982f", size = 31617, upload-time = "2025-03-03T12:31:41.518Z" },
 ]
 
 [[package]]
@@ -3978,21 +3974,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/81/76/a1e769043c0c0c9fe391b702539d594731a4362334cdf4dc25d0c09761e7/parso-0.8.6.tar.gz", hash = "sha256:2b9a0332696df97d454fa67b81618fd69c35a7b90327cbe6ba5c92d2c68a7bfd", size = 401621, upload-time = "2026-02-09T15:45:24.425Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b6/61/fae042894f4296ec49e3f193aff5d7c18440da9e48102c3315e1bc4519a7/parso-0.8.6-py2.py3-none-any.whl", hash = "sha256:2c549f800b70a5c4952197248825584cb00f033b29c692671d3bf08bf380baff", size = 106894, upload-time = "2026-02-09T15:45:21.391Z" },
-]
-
-[[package]]
-name = "pbr"
-version = "7.0.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "setuptools", version = "59.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.7'" },
-    { name = "setuptools", version = "68.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.7.*'" },
-    { name = "setuptools", version = "75.3.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-    { name = "setuptools", version = "81.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/ab/1de9a4f730edde1bdbbc2b8d19f8fa326f036b4f18b2f72cfbea7dc53c26/pbr-7.0.3.tar.gz", hash = "sha256:b46004ec30a5324672683ec848aed9e8fc500b0d261d40a3229c2d2bbfcedc29", size = 135625, upload-time = "2025-11-03T17:04:56.274Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c0/db/61efa0d08a99f897ef98256b03e563092d36cc38dc4ebe4a85020fe40b31/pbr-7.0.3-py2.py3-none-any.whl", hash = "sha256:ff223894eb1cd271a98076b13d3badff3bb36c424074d26334cd25aebeecea6b", size = 131898, upload-time = "2025-11-03T17:04:54.875Z" },
 ]
 
 [[package]]
