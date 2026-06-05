@@ -2,6 +2,7 @@
 Tests for `kolibri.utils.options` module.
 """
 
+import copy
 import logging
 import os
 import sys
@@ -178,6 +179,38 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
             with pytest.raises(SystemExit):
                 options.read_options_file(ini_filename=tmp_ini_path)
             assert 'value "maybe" is unacceptable' in LOG_LOGGER[-2][1]
+
+
+def test_validator_args_enforce_bounds(monkeypatch):
+    """
+    Checks that validator_args on an option spec are passed through to the
+    underlying configobj checker (e.g. min/max for integer options).
+    """
+    spec = copy.deepcopy(options.option_spec)
+    spec["Tasks"]["REGULAR_PRIORITY_WORKERS"]["validator_args"] = {"min": 1}
+    monkeypatch.setattr(options, "option_spec", spec)
+
+    with activate_log_logger(monkeypatch):
+        _, tmp_ini_path = tempfile.mkstemp(prefix="options", suffix=".ini")
+
+        # out-of-bounds values log errors and exit
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Tasks]", "REGULAR_PRIORITY_WORKERS = 0"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+        ):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "0" is too small' in LOG_LOGGER[-2][1]
+
+        # values within bounds are read as normal
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Tasks]", "REGULAR_PRIORITY_WORKERS = 2"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+        ):
+            OPTIONS = options.read_options_file(ini_filename=tmp_ini_path)
+            assert OPTIONS["Tasks"]["REGULAR_PRIORITY_WORKERS"] == 2
 
 
 def test_deprecated_values_ini_file(monkeypatch):

@@ -873,13 +873,22 @@ def get_configspec():
             if isinstance(default, list) and not default:
                 raise RuntimeError("For an empty list don't specify a default")
             the_type = attrs["type"]
-            args = ["%r" % op for op in attrs.get("options", [])] + [
-                "default=list('{default_list}')".format(
-                    default_list="','".join(default)
-                )
-                if isinstance(default, list)
-                else "default='{default}'".format(default=default)
-            ]
+            args = (
+                ["%r" % op for op in attrs.get("options", [])]
+                + [
+                    # Pass any extra arguments through to the checker function,
+                    # e.g. min/max bounds for integer options.
+                    "{key}={value!r}".format(key=key, value=value)
+                    for key, value in attrs.get("validator_args", {}).items()
+                ]
+                + [
+                    "default=list('{default_list}')".format(
+                        default_list="','".join(default)
+                    )
+                    if isinstance(default, list)
+                    else "default='{default}'".format(default=default)
+                ]
+            )
             line = "{name} = {type}({args})".format(
                 name=name, type=the_type, args=", ".join(args)
             )
