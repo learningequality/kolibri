@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get -y -qq update
           sudo apt-get install -y gettext sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
           lfs: true
