@@ -2,7 +2,9 @@
 Cross-platform Kolibri app
 
 ### Requirements
-- **Python**: Version 3.10 is required.
+
+- **uv**: Required for managing Python and dependencies.
+  Install from [docs.astral.sh/uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 - **`wget`:** Required for downloading the Kolibri wheel.
   - **Linux/macOS:** Usually preinstalled. You can verify by running `wget --version`.
@@ -30,14 +32,7 @@ Cross-platform Kolibri app
 - Windows (Git Bash)
 
 
-**Windows Note:** On Windows, there is a bug with PyInstaller and the latest virtualenv.
-If you're using virtualenv, please downgrade your virtualenv to version 16.1.0 until
-the bug is fixed.
-
-**Mac Note:** Make sure you are using the
-[python.org Mac installer](https://www.python.org/ftp/python/3.6.8/python-3.6.8-macosx10.9.pkg)
-to install the package. Using pyenv, homebrew, etc. **will not work**. This is
-because they are configured differently from python.org builds.
+**Windows Note:** Build must be run in Git Bash on Windows.
 
 **Note:** Builds must be run natively on the platform you're targeting.
 
@@ -56,10 +51,10 @@ This step installs PyInstaller, pkginfo, and other Python packages required by t
   make dependencies
   ```
 
-- **Install Local Application Package (Optional):**
-If you plan to make changes to the kolibri-app wrapper code itself and want it recognized as an installed package in your environment, you can run:
+- **Install the Application Package (Optional):**
+If you plan to make changes to the kolibri-app wrapper code and want it recognized as an installed package in your environment:
   ```
-  pip install -e .
+  uv sync
   ```
 
 
