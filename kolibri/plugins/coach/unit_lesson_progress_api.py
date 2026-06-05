@@ -68,7 +68,7 @@ class UnitLessonProgressViewSet(viewsets.ViewSet):
                 available=True,
             )
             .order_by("lft")
-            .values("id", "title")
+            .values("id", "title", "kind")
         )
 
         lesson_node_ids = [ln["id"] for ln in lesson_nodes]
@@ -79,20 +79,32 @@ class UnitLessonProgressViewSet(viewsets.ViewSet):
                 available=True,
             )
             .order_by("lft")
-            .values_list("parent_id", "id", "content_id")
+            .values("parent_id", "id", "content_id", "title", "kind")
         )
 
         lesson_content_ids = {}
+        lesson_resources = {}
         content_id_to_node_ids = {}
-        for parent_id, node_id, content_id in resource_rows:
-            lesson_content_ids.setdefault(parent_id, []).append(content_id)
-            content_id_to_node_ids.setdefault(content_id, []).append(node_id)
+        for row in resource_rows:
+            parent_id = row["parent_id"]
+            lesson_content_ids.setdefault(parent_id, []).append(row["content_id"])
+            lesson_resources.setdefault(parent_id, []).append(
+                {
+                    "id": row["id"],
+                    "content_id": row["content_id"],
+                    "title": row["title"],
+                    "kind": row["kind"],
+                }
+            )
+            content_id_to_node_ids.setdefault(row["content_id"], []).append(row["id"])
 
         lessons = [
             {
                 "id": ln["id"],
                 "title": ln["title"],
+                "kind": ln["kind"],
                 "content_ids": lesson_content_ids.get(ln["id"], []),
+                "resources": lesson_resources.get(ln["id"], []),
             }
             for ln in lesson_nodes
         ]

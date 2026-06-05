@@ -216,6 +216,19 @@ class UnitReportViewSet(viewsets.ViewSet):
             ContentNode, pk=unit_contentnode_id, modality=modalities.UNIT
         )
 
+        course_title = (
+            ContentNode.objects.filter(id=course_session.course)
+            .values_list("title", flat=True)
+            .first()
+            or ""
+        )
+
+        unit_number = ContentNode.objects.filter(
+            parent_id=unit.parent_id,
+            modality=modalities.UNIT,
+            lft__lte=unit.lft,
+        ).count()
+
         options = unit.options or {}
 
         # Learning objectives list: [{id, text, metadata?}, ...]
@@ -296,8 +309,11 @@ class UnitReportViewSet(viewsets.ViewSet):
 
         return Response(
             {
+                "course_title": course_title,
                 "unit_title": unit.title,
+                "unit_number": unit_number,
                 "learning_objectives": learning_objectives,
+                "lesson_objectives": options.get("lesson_objectives") or {},
                 "learners": learners_sorted,
                 "pre_test": {
                     "status": pre_status,

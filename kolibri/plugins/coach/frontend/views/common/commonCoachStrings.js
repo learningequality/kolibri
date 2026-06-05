@@ -87,6 +87,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: "Back to '{lesson}'",
     context: 'Link that takes the coach back to the lesson view.',
   },
+  backToCourseLabel: {
+    message: "Back to '{course}'",
+    context: 'Link that takes the coach back to the course summary view.',
+  },
   classLabel: {
     message: 'Class',
     context:
@@ -452,6 +456,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
   groupListEmptyState: {
     message: 'There are no groups',
     context: 'Displays when no groups have been created in the Plan > Groups tab.',
+  },
+  learnerDistributionChartLabel: {
+    message: 'Learner distribution chart',
+    context:
+      'Column header for the sparkline bar chart showing learner score distribution across learning objectives.',
   },
   learnerListEmptyState: {
     message: 'There are no learners',
