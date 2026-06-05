@@ -31,7 +31,7 @@
     "globals": "^16.0.0",
     "kolibri-glob": "workspace:*",
     "kolibri-logging": "workspace:*",
-    "minimatch": "^9.0.5",
+    "minimatch": "^10.2.5",
     "postcss-html": "^1.8.0",
     "postcss-less": "^6.0.0",
     "postcss-sass": "^0.5.0",
