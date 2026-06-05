@@ -17,6 +17,7 @@ Workflow:
     This report serves as a guide for translators to update the
     other language files accordingly.
 """
+
 import argparse
 import configparser
 import os
@@ -50,7 +51,7 @@ def _generate_report(report_path, added, removed, modified):
     """Writes the comparison results to a text file."""
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(
-            f"Inno Setup String Update Report - {datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')}\n\n"
+            f"Inno Setup String Update Report - {datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')}\n\n"
         )
         f.write("=" * 50 + "\n\n")
 
@@ -119,7 +120,7 @@ def update_master_from_default(new_default_path, project_master_path):
     with open(project_master_path, "w", encoding="utf-8") as f:
         f.write("; Master English messages for Kolibri Installer\n")
         f.write(
-            f"; Last updated: {datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')}\n\n"
+            f"; Last updated: {datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')}\n\n"
         )
         final_config.write(f, space_around_delimiters=False)
     print(f"Successfully updated master file: {project_master_path}")

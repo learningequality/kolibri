@@ -15,6 +15,7 @@ Architecture Overview:
 - Server responds with port and URL when Kolibri is fully initialized
 - Handles subprocess crashes and pipe disconnections gracefully
 """
+
 import ctypes.wintypes
 import json
 import os
@@ -38,7 +39,6 @@ from kolibri.utils.server import stop as kolibri_stop
 
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
-
 
 # Named pipe for IPC between UI process and server subprocess
 PIPE_NAME = r"\\.\pipe\KolibriAppServerIPC"
@@ -221,9 +221,9 @@ class WindowsServerManager:
 
             # Configure job to terminate all processes when the job handle closes
             # This happens automatically when the UI process exits
-            extended_info["BasicLimitInformation"][
-                "LimitFlags"
-            ] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            extended_info["BasicLimitInformation"]["LimitFlags"] = (
+                win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            )
             win32job.SetInformationJobObject(
                 self.job_handle,
                 win32job.JobObjectExtendedLimitInformation,
@@ -436,7 +436,6 @@ class WindowsServerManager:
         while not self.pipe_shutdown_event.is_set():
             hr, data = win32file.ReadFile(self.pipe_handle, 4096)
             if hr == winerror.ERROR_SUCCESS or hr == winerror.ERROR_MORE_DATA:
-
                 if isinstance(data, bytes):
                     text_data = data.decode("utf-8")
                 else:

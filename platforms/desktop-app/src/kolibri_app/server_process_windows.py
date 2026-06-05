@@ -15,6 +15,7 @@ Architecture Overview:
 - The plugin responds with the stored connection details, allowing the UI to load Kolibri.
 - On the `STOP` event, the plugin cleans up its thread and handles.
 """
+
 import json
 import os
 import sys
@@ -30,7 +31,6 @@ import win32security
 import winerror
 from magicbus.plugins import SimplePlugin
 
-
 # Fix Python path for PyInstaller builds
 if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc"))
@@ -40,7 +40,6 @@ from kolibri.core.device.utils import app_initialize_url
 
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
-
 
 # Named pipe for IPC between UI process and server subprocess
 # Uses Windows named pipe format: \\.<hostname>\pipe\<pipename>
@@ -178,9 +177,9 @@ class WindowsIpcPlugin(SimplePlugin):
         """
         Block until a client connects to the named pipe.
         """
-        assert (
-            self.pipe is not None
-        ), "Pipe must be created before waiting for connection"
+        assert self.pipe is not None, (
+            "Pipe must be created before waiting for connection"
+        )
         win32pipe.ConnectNamedPipe(self.pipe, None)
         logging.info("Client connected to named pipe.")
 

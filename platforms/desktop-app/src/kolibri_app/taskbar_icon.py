@@ -7,6 +7,7 @@ Provides system tray functionality:
 - Right-click context menu for common actions
 - Integration with Windows registry for startup settings
 """
+
 import ctypes
 import os
 import sys

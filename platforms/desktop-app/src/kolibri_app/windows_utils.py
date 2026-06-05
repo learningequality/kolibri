@@ -8,7 +8,6 @@ from kolibri_app.logger import logging
 from kolibri_app.server_process_windows import WindowsKolibriProcess
 from kolibri_app.windows_registry import update_tray_icon_startup
 
-
 start_type_map = {
     "auto": win32service.SERVICE_AUTO_START,
     "disabled": win32service.SERVICE_DISABLED,

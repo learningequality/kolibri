@@ -9,8 +9,8 @@ dependency surface minimal. The vtable layout below was extracted from
 WebView2.h (Microsoft.Web.WebView2 NuGet package); see
 ``scripts/extract_webview2_iids.py`` for how to regenerate it.
 """
-import ctypes
 
+import ctypes
 
 HRESULT = ctypes.c_int  # 32-bit signed
 LPVOID = ctypes.c_void_p

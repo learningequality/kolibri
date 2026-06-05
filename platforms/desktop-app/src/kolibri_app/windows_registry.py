@@ -5,6 +5,7 @@ This includes functions for:
 - Checking for the WebView2 runtime installation.
 - Managing the application's UI and tray icon startup settings.
 """
+
 import logging
 import sys
 import winreg
