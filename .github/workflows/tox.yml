@@ -246,3 +246,22 @@ jobs:
         run: |
           uv run python -O -m pytest kolibri --color=no
           uv run python -O -m pytest --color=no -p no:django test
+  # Single stable check for branch protection. Skipped matrix jobs don't
+  # produce per-version check runs, so matrix-suffixed required checks hang
+  # as "Expected" on PRs that skip the tests; require this job instead.
+  required_checks:
+    name: Python tests
+    needs:
+      - pre_job
+      - unit_test
+      - unit_test_eol_python
+      - postgres
+      - postgres_ssl
+      - macos
+      - windows
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any needed job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
