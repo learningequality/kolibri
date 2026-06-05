@@ -1,0 +1,7 @@
+# GitHub's runner honors a `command:` key on service containers (it appends the
+# value as the container's startup args, e.g. to run postgres with `-c ssl=on`),
+# but actionlint's schema does not list it. Ignore that single false positive.
+paths:
+  .github/workflows/tox.yml:
+    ignore:
+      - 'unexpected key "command" for "services" section'

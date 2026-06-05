@@ -1,9 +1,14 @@
+# /// script
+# requires-python = ">=3.6"
+# dependencies = ["requests==2.27.1"]
+# ///
 """
 This module defines a function for customizing the requirements used at Kolibri build time
 and hence bundled into the dist folder.
 
 For more detail see the documentation in __init__.py
 """
+
 import logging
 import os
 import tempfile

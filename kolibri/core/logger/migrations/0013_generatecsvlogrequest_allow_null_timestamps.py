@@ -5,7 +5,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("logger", "0012_generatecsvlogrequest"),
     ]

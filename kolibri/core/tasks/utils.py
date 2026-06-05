@@ -220,7 +220,6 @@ def db_connection():
 
 class ProgressTracker:
     def __init__(self, total=100):
-
         # set default values
         self.progress = 0
         self.message = ""

@@ -1,4 +1,5 @@
 """Linux platform implementation."""
+
 import errno
 import functools
 import os

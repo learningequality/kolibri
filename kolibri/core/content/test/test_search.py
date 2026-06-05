@@ -53,7 +53,7 @@ class ConstrainedBitMaskTestCase(TestCase):
                     kind=content_kinds.VIDEO,
                     coach_content=False,
                     available=False,
-                    **{field: label}
+                    **{field: label},
                 )
         annotate_label_bitmasks(ContentNode.objects.all())
 
@@ -86,7 +86,7 @@ class ConstrainedBitMaskTestCase(TestCase):
                 kind=content_kinds.VIDEO,
                 coach_content=False,
                 available=False,
-                **{field: ",".join(metadata_lookup[field])}
+                **{field: ",".join(metadata_lookup[field])},
             )
             annotate_label_bitmasks(ContentNode.objects.filter(id=node.id))
             self.assertEqual(
@@ -158,7 +158,7 @@ class ConstrainedMetadataLabelsTestCase(TestCase):
                     kind=content_kinds.VIDEO,
                     coach_content=False,
                     available=False,
-                    **{field: label}
+                    **{field: label},
                 )
         annotate_label_bitmasks(ContentNode.objects.all())
 

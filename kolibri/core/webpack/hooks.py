@@ -5,6 +5,7 @@ Kolibri Webpack hooks
 To manage assets, we use the webpack format. In order to have assets bundled in,
 you should put them in ``yourapp/frontend``.
 """
+
 import codecs
 import json
 import logging

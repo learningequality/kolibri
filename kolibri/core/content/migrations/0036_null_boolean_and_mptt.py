@@ -6,7 +6,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("content", "0035_add_imscp_preset"),
     ]

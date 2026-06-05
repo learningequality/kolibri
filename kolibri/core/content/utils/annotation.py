@@ -346,7 +346,8 @@ def set_leaf_node_availability_from_local_file_availability(
     # available for rendering, or False otherwise.
     contentnode_statement = (
         # We could select any property here, as it's the exist that matters.
-        select(1).select_from(
+        select(1)
+        .select_from(
             # This does the first step in the many to many lookup for File
             # and LocalFile.
             FileTable.join(
@@ -636,7 +637,6 @@ def recurse_annotation_up_tree(channel_id):
 
     # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
-
         logger.info(
             "Annotating ContentNode objects with children for level {level}".format(
                 level=level
@@ -906,7 +906,6 @@ def set_channel_ancestors(channel_id):
 
     # Go from the shallowest to deepest
     for level in range(1, node_depth + 1):
-
         if bridge.engine.name == "sqlite":
             parent_id_expression = ContentNodeTable.c.parent_id
         elif bridge.engine.name == "postgresql":

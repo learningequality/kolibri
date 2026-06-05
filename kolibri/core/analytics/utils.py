@@ -80,7 +80,6 @@ def calculate_list_stats(data):
 
 
 def calculate_demographic_stats(dataset_id=None, channel_id=None, learners=True):
-
     stats = {}
 
     # if learners=True, only include learners, otherwise only non-learners
@@ -142,7 +141,6 @@ def dump_zipped_json(data):
 
 
 def extract_facility_statistics(facility):
-
     dataset_id = facility.dataset_id
 
     settings = {
@@ -297,7 +295,6 @@ def extract_facility_statistics(facility):
 
 
 def extract_channel_statistics(channel):
-
     channel_id = channel.id
     tree_id = channel.root.tree_id
 
@@ -413,7 +410,6 @@ def create_and_update_notifications(data, source):
 
 
 def perform_ping(started, server=DEFAULT_SERVER_URL):
-
     client = NetworkClient(server)
 
     url = "/api/v1/pingback"

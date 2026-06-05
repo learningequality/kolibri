@@ -12,6 +12,7 @@ To use
     {% content_renderer_assets %}
 
 """
+
 from django import template
 
 from .. import hooks

@@ -32,7 +32,6 @@ class Command(BaseCommand):
     help = "Scan content and databases in Kolibri folder and updates the database to show if available"
 
     def add_arguments(self, parser):
-
         channels_help_text = """
         Constrain the label generation to a particular set of channels. Other channels will not be affected.
         Separate multiple channel IDs with commas.

@@ -13,6 +13,7 @@ catches any model-touching import that creeps back into the module top level
 (for example a transitive ``NetworkClient`` import pulling in
 ``kolibri.core.discovery.models``).
 """
+
 import os
 import subprocess
 import sys

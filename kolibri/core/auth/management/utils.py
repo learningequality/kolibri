@@ -1,6 +1,7 @@
 """
 Utility methods for syncing.
 """
+
 import copy
 import getpass
 import json
@@ -202,7 +203,6 @@ def get_client_and_server_certs(
     facility_id=None,
     noninteractive=False,
 ):
-
     # get any full-facility certificates we have for the facility
     owned_certs = (
         Certificate.objects.filter(id=dataset_id)
@@ -212,14 +212,12 @@ def get_client_and_server_certs(
     )
 
     if not user_id:  # it's a full-facility sync
-
         csr_scope_params = {"dataset_id": dataset_id}
 
         client_scope = ScopeDefinitions.FULL_FACILITY
         server_scope = ScopeDefinitions.FULL_FACILITY
 
     else:  # it's a single-user sync
-
         csr_scope_params = {"dataset_id": dataset_id, "user_id": user_id}
 
         if owned_certs:
@@ -257,7 +255,6 @@ def get_client_and_server_certs(
 
     # if we don't own any certs, do a csr request
     if not owned_certs:
-
         # prompt user for creds if not already specified
         if not username or not password:
             if noninteractive:
@@ -296,9 +293,7 @@ def create_superuser_and_provision_device(username, dataset_id, noninteractive=F
     while not DevicePermissions.objects.filter(is_superuser=True).exists():
         # specify username of account that will become a superuser
         if not username:
-            if (
-                noninteractive
-            ):  # we don't want to setup a device without a superuser, so create a temporary one
+            if noninteractive:  # we don't want to setup a device without a superuser, so create a temporary one
                 superuser = FacilityUser.objects.create(
                     username="superuser", facility=facility
                 )

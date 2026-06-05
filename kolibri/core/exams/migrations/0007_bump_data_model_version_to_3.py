@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("exams", "0006_nullable_creator_assigned_by"),
     ]

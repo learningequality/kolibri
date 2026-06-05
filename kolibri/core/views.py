@@ -224,7 +224,6 @@ def static_serve_with_fallbacks(search_paths):
     """
 
     def serve_func(request, path, document_root=None):
-
         for search_path in search_paths:
             try:
                 return serve(request, path, document_root=search_path)

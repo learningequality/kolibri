@@ -10,7 +10,6 @@ from kolibri.utils import conf
 
 
 def registerfacility(token, facility):
-
     # request the server for a one-time-use nonce
     PORTAL_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
     client = NetworkClient(PORTAL_URL)

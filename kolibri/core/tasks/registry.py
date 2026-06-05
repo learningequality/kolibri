@@ -360,7 +360,7 @@ class RegisteredTask:
         retry_interval=None,
         job=None,
         priority=None,
-        **job_kwargs
+        **job_kwargs,
     ):
         """
         Schedule the function to get enqueued in `delta_time` with args and
@@ -389,7 +389,7 @@ class RegisteredTask:
         retry_interval=None,
         job=None,
         priority=None,
-        **job_kwargs
+        **job_kwargs,
     ):
         """
         Schedule the function to get enqueued at a specific `datetime` with
@@ -420,7 +420,7 @@ class RegisteredTask:
             cancellable=job_kwargs.pop("cancellable", self.cancellable),
             track_progress=job_kwargs.pop("track_progress", self.track_progress),
             long_running=job_kwargs.pop("long_running", self.long_running),
-            **job_kwargs
+            **job_kwargs,
         )
         return job_obj
 

@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("logger", "0009_null_channel_id_unconstrained_mastery_level"),
     ]

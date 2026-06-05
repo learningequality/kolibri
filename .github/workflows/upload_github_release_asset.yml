@@ -1,5 +1,4 @@
 name: Upload Release Asset to GitHub Release
-
 on:
   workflow_call:
     inputs:
@@ -9,10 +8,8 @@ on:
       release_id:
         required: true
         type: string
-
 permissions:
   contents: write
-
 jobs:
   github_upload:
     name: Upload to Github release

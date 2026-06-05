@@ -53,7 +53,6 @@ class UnitPhase(ChoicesEnum):
 
 
 class CourseSession(AbstractFacilityDataModel):
-
     # UUID reference to the course ContentNode (not FK due to sync constraints)
     course = UUIDField()
 
@@ -352,7 +351,6 @@ class CourseSession(AbstractFacilityDataModel):
 
     @classmethod
     def deserialize(cls, dict_model, sync_filter=None):
-
         if sync_filter is not None and "created_by_id" in dict_model:
             created_by_id = dict_model["created_by_id"]
             dataset_id = dict_model.get("dataset_id")

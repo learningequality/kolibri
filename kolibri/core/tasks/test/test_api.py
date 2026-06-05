@@ -709,7 +709,6 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         for enq_arg in acceptable_enqueue_args:
-
             response = self.client.post(
                 reverse("kolibri:core:task-list"),
                 {
@@ -967,7 +966,6 @@ class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
         for enq_arg in acceptable_enqueue_args:
-
             response = self.client.patch(
                 reverse("kolibri:core:task-detail", kwargs={"pk": "test-id"}),
                 {

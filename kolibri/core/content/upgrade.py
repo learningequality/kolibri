@@ -1,6 +1,7 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+
 import logging
 import os
 
@@ -164,8 +165,7 @@ def update_num_coach_contents():
         ContentNodeTable.update()
         .where(
             # That are not topics
-            ContentNodeTable.c.kind
-            != content_kinds.TOPIC
+            ContentNodeTable.c.kind != content_kinds.TOPIC
         )
         .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
     )
@@ -188,12 +188,10 @@ def update_num_coach_contents():
     )
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-
         node_depth = get_channel_node_depth(bridge, channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
-
             # Only modify topic availability here
             connection.execute(
                 ContentNodeTable.update()
@@ -243,8 +241,7 @@ def update_on_device_resources():
         ContentNodeTable.update()
         .where(
             # That are not topics
-            ContentNodeTable.c.kind
-            != content_kinds.TOPIC
+            ContentNodeTable.c.kind != content_kinds.TOPIC
         )
         .values(on_device_resources=cast(ContentNodeTable.c.available, Integer()))
     )
@@ -267,12 +264,10 @@ def update_on_device_resources():
     )
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-
         node_depth = get_channel_node_depth(bridge, channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
-
             # Only modify topic availability here
             connection.execute(
                 ContentNodeTable.update()

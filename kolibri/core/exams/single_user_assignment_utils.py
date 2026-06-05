@@ -88,7 +88,6 @@ def update_assignments_from_individual_syncable_exams(user_id):
 
     # create new assignments and exams for all new syncable exam objects
     for syncableexam in to_create:
-
         exam = IndividualSyncableExam.deserialize_exam(syncableexam.serialized_exam)
         exam.collection_id = exam.collection_id or _get_classroom_id_from_syncable_exam(
             syncableexam

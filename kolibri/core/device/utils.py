@@ -3,6 +3,7 @@ Do all imports of the device settings model inside the function scope here,
 so as to allow these functions to be easily imported without worrying about
 circular imports.
 """
+
 import json
 import logging
 import os

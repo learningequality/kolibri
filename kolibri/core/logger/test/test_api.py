@@ -2,6 +2,7 @@
 Tests that ensure the correct items are returned from api calls.
 Also tests whether the users with permissions can create logs.
 """
+
 import csv
 import datetime
 import os
@@ -38,7 +39,6 @@ from kolibri.utils.time_utils import local_now
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
-
     databases = "__all__"
 
     fixtures = ["content_test.json"]

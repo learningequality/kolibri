@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0004_auto_20190306_0553"),
         ("kolibriauth", "0012_facilitydataset_allow_guest_access"),

@@ -55,7 +55,7 @@ def _store_dynamic_instance(broadcast_id, instance):
                 base_url=instance.base_url,
                 broadcast_id=broadcast_id,
                 ip_address=instance.ip,
-                **instance.device_info
+                **instance.device_info,
             ),
             pk=instance.zeroconf_id,
         )
@@ -194,7 +194,7 @@ def _enqueue_network_location_update_with_backoff(network_location):
         )
         return
     # exponential backoff depending on how many faults/attempts we've had
-    next_attempt_minutes = 2 ** network_location.connection_faults
+    next_attempt_minutes = 2**network_location.connection_faults
     logger.debug(
         "Delaying network location {} connection update {} minutes".format(
             network_location.id, next_attempt_minutes

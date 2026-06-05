@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0001_initial"),
         ("device", "0021_default_demographic_fields"),

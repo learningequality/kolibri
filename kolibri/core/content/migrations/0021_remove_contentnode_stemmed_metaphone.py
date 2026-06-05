@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("content", "0020_le_utils_0_20_upgrade_migration")]
 
     operations = [

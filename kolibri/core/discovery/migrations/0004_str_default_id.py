@@ -6,7 +6,6 @@ import kolibri.core.discovery.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("discovery", "0003_networklocation_subset_of_users_device"),
     ]

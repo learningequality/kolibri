@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("content", "0019_contentnode_slideshow_options")]
 
     operations = [

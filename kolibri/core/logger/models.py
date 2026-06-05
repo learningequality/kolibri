@@ -10,6 +10,7 @@ It stores:
 
 Eventually, it may also store user feedback on the content and the software.
 """
+
 import logging
 from datetime import timedelta
 
@@ -58,7 +59,6 @@ class BaseLogQuerySet(SyncableModelQuerySet):
 
 
 def log_permissions(user_field):
-
     return (
         AnyoneCanWriteAnonymousLogs(field_name=user_field + "_id")
         | IsOwn(field_name=user_field + "_id")
@@ -74,7 +74,6 @@ def log_permissions(user_field):
 
 
 class BaseLogModel(AbstractFacilityDataModel):
-
     permissions = log_permissions("user")
 
     class Meta:

@@ -81,7 +81,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_user_course_session_no_delete(self):
-
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
         user.save()
@@ -97,7 +96,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_course_session_delete(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.delete(
@@ -109,7 +107,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_course_session_create(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -126,7 +123,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(created_by, self.admin.id)
 
     def test_logged_in_admin_course_session_create_with_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -148,7 +144,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_no_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -178,7 +173,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_different_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -215,7 +209,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_update_additional_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -258,7 +251,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_course_session_create_learner_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         user = FacilityUser.objects.create(username="u", facility=self.facility)
@@ -296,7 +288,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(adhoc_group.kind, collection_kinds.ADHOCLEARNERSGROUP)
 
     def test_logged_in_admin_course_session_update_learner_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -346,7 +337,6 @@ class CourseSessionAPITestCase(APITestCase):
     def test_logged_in_admin_course_session_update_learner_assignments_wrong_collection(
         self,
     ):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -383,7 +373,6 @@ class CourseSessionAPITestCase(APITestCase):
             AdHocGroup.objects.get(parent=self.classroom)
 
     def test_logged_in_user_course_session_no_create(self):
-
         # user without admin nor coach rights
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
@@ -403,7 +392,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_course_session_update_basic(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.put(
@@ -446,7 +434,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_can_get_course_session_list(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.get(
@@ -469,7 +456,6 @@ class CourseSessionAPITestCase(APITestCase):
         )
 
     def test_coach_can_see_only_allowed_course_sessions(self):
-
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:coursesession-list"))
 
@@ -483,7 +469,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertIn(self.courseSession_2.id, course_session_ids)
 
     def test_cannot_create_course_session_with_non_existent_course_id(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -498,7 +483,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_cannot_create_course_session_with_non_course_modality(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         # Create a content node that is not a COURSE
@@ -556,7 +540,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertNotIn(other_course_session.id, course_session_ids)
 
     def test_coach_can_create_course_session(self):
-
         self.client.login(username=self.coach.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -571,7 +554,6 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_learner_cannot_create_course_session(self):
-
         learner = FacilityUser.objects.create(
             username="learner", facility=self.facility
         )
@@ -706,7 +688,6 @@ kolibri/core/courses/test/test_api.py:805:"
 
 
 class UnitTestActivationAPITestCase(APITestCase):
-
     databases = "__all__"
 
     @classmethod

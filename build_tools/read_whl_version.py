@@ -1,3 +1,6 @@
+# /// script
+# dependencies = ["pkginfo"]
+# ///
 import sys
 
 from pkginfo import Wheel

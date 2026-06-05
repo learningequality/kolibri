@@ -773,7 +773,6 @@ class FileDownload(Transfer):
         retry_wait=30,
         full_ranges=True,
     ):
-
         # Allow an existing requests.Session to be passed in, so it can be
         # reused for speed. The default blocks cross-host redirects so a
         # caller-supplied baseurl can't pivot us onto another host.

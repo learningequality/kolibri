@@ -1,15 +1,12 @@
 name: Community Contribution Label
-
 on:
   issues:
     types: [assigned, unassigned]
-
 permissions:
   contents: read
-
 jobs:
   call-label-action:
     uses: learningequality/.github/.github/workflows/community-contribution-label.yml@main
     secrets:
-        LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
-        LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}
+      LE_BOT_APP_ID: ${{ secrets.LE_BOT_APP_ID }}
+      LE_BOT_PRIVATE_KEY: ${{ secrets.LE_BOT_PRIVATE_KEY }}

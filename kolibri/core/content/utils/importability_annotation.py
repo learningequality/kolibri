@@ -170,7 +170,6 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
 
     # Go from the deepest level to the shallowest
     for level in range(node_depth, 0, -1):
-
         # Only modify topic availability here
         connection.execute(
             ContentNodeTable.update()
@@ -246,7 +245,6 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
     )
 
     if new_resource_stats and new_resource_stats.get("new_resource_ids"):
-
         trans = connection.begin()
 
         # Here we are using the on_device_resources key to track 'newness'
@@ -285,7 +283,6 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
-
             # Only modify topic availability here
             connection.execute(
                 ContentNodeTable.update()

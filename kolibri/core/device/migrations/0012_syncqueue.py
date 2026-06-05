@@ -10,7 +10,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0001_initial"),
         ("device", "0011_devicesettings_subset_of_users_device"),

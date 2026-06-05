@@ -636,7 +636,12 @@ def _introspect_joined_nested(
     fields or a one-item list of ``(field_name, nested_pk_name)`` for
     many=True fields.
     """
-    (child_values, child_field_map, _, child_nested,) = _introspect_serializer_fields(
+    (
+        child_values,
+        child_field_map,
+        _,
+        child_nested,
+    ) = _introspect_serializer_fields(
         child, deferred_fields=nested_deferred, _is_nested=True
     )
     nested_entries: NestedCache = {

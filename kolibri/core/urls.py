@@ -30,6 +30,7 @@ Plugin classes can define url modules, and they will automatically be included.
 Place a url.py and have your plugin's definition class's ``url_module`` method
 return the module.
 """
+
 from django.urls import include
 from django.urls import re_path
 from rest_framework import routers

@@ -108,7 +108,6 @@ class ClassroomNotificationsFilter(FilterSet):
 
 @query_params_required(classroom_id=str)
 class ClassroomNotificationsViewset(ValuesViewset):
-
     permission_classes = (ClassroomNotificationsPermissions,)
 
     values = (
@@ -170,7 +169,7 @@ class ClassroomNotificationsViewset(ValuesViewset):
                 # returns all the notifications 24 hours older than the latest
                 last_24h = last_record.timestamp - datetime.timedelta(days=1)
                 queryset = queryset.filter(timestamp__gte=last_24h)
-            except (LearnerProgressNotification.DoesNotExist):
+            except LearnerProgressNotification.DoesNotExist:
                 return LearnerProgressNotification.objects.none()
             except DatabaseError:
                 repair_sqlite_db(connections[NOTIFICATIONS])
@@ -233,7 +232,6 @@ class ClassroomNotificationsViewset(ValuesViewset):
 
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):
-
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
         classroom_id = request.GET.get("classroom_id", None)
@@ -321,7 +319,6 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
 
 
 class QuizDifficultiesPermissions(permissions.BasePermission):
-
     # check if requesting user has permission for collection or user
     def has_permission(self, request, view):
         exam_id = view.kwargs.get("pk", None)

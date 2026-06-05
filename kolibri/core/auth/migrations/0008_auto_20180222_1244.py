@@ -5,7 +5,6 @@ import kolibri.core.auth.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("kolibriauth", "0007_auto_20171226_1125")]
 
     operations = [

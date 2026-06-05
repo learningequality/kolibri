@@ -5,7 +5,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("content", "0029_metadata_bitmasks"),
     ]

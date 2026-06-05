@@ -93,7 +93,6 @@ class Command(MorangoSyncCommand):
         baseurl = network_connection.base_url
 
         if user_id:  # it's a single-user sync
-
             if not facility_id:
                 raise CommandError(
                     "Facility ID must be specified in order to do single-user syncing"

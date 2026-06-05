@@ -370,7 +370,6 @@ class MergeUsersTestCase(TestCase):
             summ_logs = []
 
             for channel_id, content_id in content_identifiers:
-
                 sess_logs.append(
                     ContentSessionLogFactory.create(
                         user=user,
@@ -521,7 +520,6 @@ class ForkFacilityTestCase(TestCase):
             adhocgroup.add_member(user)
 
             for channel_id, content_id in content_identifiers:
-
                 ContentSessionLogFactory.create(
                     user=user,
                     channel_id=channel_id,

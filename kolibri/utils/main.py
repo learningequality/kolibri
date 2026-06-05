@@ -86,8 +86,7 @@ def conditional_backup(kolibri_version, version_file_contents):
             logger.info("Backed up database to: {path}".format(path=backup))
         except IncompatibleDatabase:
             logger.warning(
-                "Skipped automatic database backup, not compatible with "
-                "this DB engine."
+                "Skipped automatic database backup, not compatible with this DB engine."
             )
 
 
@@ -252,7 +251,6 @@ def _upgrades_after_django_setup(updated, version):
 
 
 def set_django_settings_and_python_path(django_settings, pythonpath):
-
     if django_settings:
         os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
 

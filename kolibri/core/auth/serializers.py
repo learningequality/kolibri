@@ -378,7 +378,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class FacilityDatasetSerializer(serializers.ModelSerializer):
-
     extra_fields = serializers.JSONField(required=False)
     picture_password_settings = serializers.JSONField(allow_null=True, required=False)
 

@@ -6,7 +6,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0034_merge_attendance_setting_picture_password"),
     ]

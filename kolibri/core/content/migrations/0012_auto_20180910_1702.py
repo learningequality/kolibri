@@ -40,7 +40,6 @@ def calculate_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("content", "0011_auto_20180907_1017")]
 
     operations = [migrations.RunPython(calculate_fields, migrations.RunPython.noop)]

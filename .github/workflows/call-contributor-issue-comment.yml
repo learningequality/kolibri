@@ -1,12 +1,9 @@
 name: Handle contributor comment on GitHub issue
-
 on:
   issue_comment:
     types: [created]
-
 permissions:
   contents: read
-
 jobs:
   call-workflow:
     uses: learningequality/.github/.github/workflows/contributor-issue-comment.yml@main

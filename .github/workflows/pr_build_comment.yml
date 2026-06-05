@@ -1,16 +1,13 @@
 name: Build Asset Comment for Pull Request
-
 on:
   workflow_run:
     workflows: [Kolibri Build Assets for Pull Request]
     types:
       - completed
-
 permissions:
   contents: read
   pull-requests: write
   actions: read
-
 jobs:
   post:
     name: Add build artifact PR comment

@@ -476,9 +476,9 @@ class Command(AsyncCommand):
             if normalized_name in normalized_learner_classroooms:
                 real_name = normalized_learner_classroooms[normalized_name]
                 if classroom != real_name:
-                    validator.coach_classrooms[
-                        real_name
-                    ] = validator.coach_classrooms.pop(classroom)
+                    validator.coach_classrooms[real_name] = (
+                        validator.coach_classrooms.pop(classroom)
+                    )
         return (
             per_line_errors,
             (validator.classrooms, validator.coach_classrooms),
@@ -867,7 +867,6 @@ class Command(AsyncCommand):
                     errorlines.write("\n")
 
     def handle_async(self, *args, **options):
-
         self.default_facility = self.get_facility(options)
 
         storage_filepath = None

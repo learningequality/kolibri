@@ -14,6 +14,7 @@ instead, at a different URL (e.g. with version number v2 instead of v1), leaving
 endpoint in place and maintained to the best extent possible so older clients can still use it.
 
 """
+
 from django.urls import include
 from django.urls import re_path
 from rest_framework import routers

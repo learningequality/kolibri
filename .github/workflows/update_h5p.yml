@@ -1,19 +1,15 @@
 name: Update H5P JS library
-
 on:
   schedule:
     # Runs at 00:00 UTC on Wednesday
     - cron: '0 0 * * 3'
   # Optional: Allow manual triggering
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   check-commits:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -21,7 +17,6 @@ jobs:
           ref: 'develop'
           fetch-depth: 0
           persist-credentials: false
-
       - name: Get latest commit from target repo
         id: get-commit
         uses: octokit/request-action@v2.x
@@ -32,30 +27,28 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check commit status
         id: check-commit
         run: |
-            import os
-            from pathlib import Path
-            # Get the latest commit from the API response
-            latest_commit = "${{ fromJson(steps.get-commit.outputs.data).commit.sha }}".strip()
-            # Check stored commit
-            commit_file = Path('packages/kolibri-sandbox/.h5p-commit-sha')
-            stored_commit = ""
-            if commit_file.exists():
-                stored_commit = commit_file.read_text().strip()
-                has_changed = stored_commit != latest_commit
-            else:
-                print("No stored commit found, treating as new")
-                has_changed = True
-            # Set outputs for GitHub Actions
-            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-                print(f"stored_commit={stored_commit}", file=f)
-                print(f"latest_commit={latest_commit}", file=f)
-                print(f"changed={'true' if has_changed else 'false'}", file=f)
+          import os
+          from pathlib import Path
+          # Get the latest commit from the API response
+          latest_commit = "${{ fromJson(steps.get-commit.outputs.data).commit.sha }}".strip()
+          # Check stored commit
+          commit_file = Path('packages/kolibri-sandbox/.h5p-commit-sha')
+          stored_commit = ""
+          if commit_file.exists():
+              stored_commit = commit_file.read_text().strip()
+              has_changed = stored_commit != latest_commit
+          else:
+              print("No stored commit found, treating as new")
+              has_changed = True
+          # Set outputs for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              print(f"stored_commit={stored_commit}", file=f)
+              print(f"latest_commit={latest_commit}", file=f)
+              print(f"changed={'true' if has_changed else 'false'}", file=f)
         shell: python
-
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.8
       - name: Use Node.js
@@ -67,7 +60,6 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm rebuild node-sass
-
       - name: Update commit file and run script
         if: steps.check-commit.outputs.changed == 'true'
         run: |
@@ -76,7 +68,6 @@ jobs:
 
           # Run your script here
           pnpm --filter kolibri-sandbox run build-h5p
-
       - name: Check for actual build changes
         if: steps.check-commit.outputs.changed == 'true'
         id: check-build-changes
@@ -84,11 +75,10 @@ jobs:
           # Stage only the build output files, excluding the commit SHA file
           git add kolibri/core/content/static/h5p packages/kolibri-sandbox/h5p_build.json
           if git diff --cached --quiet; then
-            echo "has_build_changes=false" >> $GITHUB_OUTPUT
+            echo "has_build_changes=false" >> "$GITHUB_OUTPUT"
           else
-            echo "has_build_changes=true" >> $GITHUB_OUTPUT
+            echo "has_build_changes=true" >> "$GITHUB_OUTPUT"
           fi
-
       - name: Generate App Token
         if: steps.check-commit.outputs.changed == 'true' && steps.check-build-changes.outputs.has_build_changes == 'true'
         id: generate-token
@@ -96,7 +86,6 @@ jobs:
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
-
       - name: Create Pull Request
         if: steps.check-commit.outputs.changed == 'true' && steps.check-build-changes.outputs.has_build_changes == 'true'
         uses: peter-evans/create-pull-request@v8

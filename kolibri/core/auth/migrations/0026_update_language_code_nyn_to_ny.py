@@ -7,7 +7,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0025_custom_demographic_schema"),
     ]

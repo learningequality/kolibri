@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("kolibriauth", "0009_auto_20180301_1123")]
 
     operations = [

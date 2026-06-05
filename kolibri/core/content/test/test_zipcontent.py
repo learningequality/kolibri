@@ -56,7 +56,6 @@ class ZipContentTestCase(TestCase):
     embedded_file_str = "Embedded file test"
 
     def setUp(self):
-
         self.hash = hashlib.md5("DUMMYDATA".encode()).hexdigest()
         self.extension = "zip"
         self.filename = "{}.{}".format(self.hash, self.extension)
@@ -366,7 +365,8 @@ class ZipContentTestCase(TestCase):
     def test_options_request_accept_ranges_binary(self):
         """Test OPTIONS request for non-HTML file returns Accept-Ranges: bytes"""
         response = self._get_file(
-            self.test_name_1, REQUEST_METHOD="OPTIONS"  # This is a .txt file
+            self.test_name_1,
+            REQUEST_METHOD="OPTIONS",  # This is a .txt file
         )
         self.assertEqual(response.headers["Accept-Ranges"], "bytes")
         self.assertEqual(response.status_code, 200)

@@ -1,6 +1,7 @@
 """
 Subset of Users Device (SOUD) tests
 """
+
 import time
 import uuid
 from functools import partial
@@ -415,7 +416,7 @@ class SoudExecuteSyncTestCase(TestCase):
         queue_updated = self.sync_queue.updated
 
         def _side_effect(*args, **kwargs):
-            """ Assert the sync queue is updated to Syncing when calling the sync command."""
+            """Assert the sync queue is updated to Syncing when calling the sync command."""
             self.sync_queue.refresh_from_db()
             self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
 
@@ -442,7 +443,7 @@ class SoudExecuteSyncTestCase(TestCase):
         self.sync_queue.save()
 
         def _side_effect(*args, **kwargs):
-            """ Assert the sync queue is updated to Syncing when calling the sync command."""
+            """Assert the sync queue is updated to Syncing when calling the sync command."""
             self.sync_queue.refresh_from_db()
             self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
 

@@ -9,9 +9,9 @@
 ## Quick Start
 
 ```bash
-pip install -r requirements/dev.txt   # Python deps
+uv sync --group dev                   # Python deps + venv
 pnpm install                          # Node deps
-pre-commit install                    # Required — commits fail without this
+prek install                          # Required — commits fail without this
 export KOLIBRI_RUN_MODE=dev
 kolibri configure setup               # Database migrations and updates
 ```
@@ -108,7 +108,7 @@ See `docs/backend_architecture/api_patterns.rst`.
 - **TDD:** Write a failing test first, then make it pass. This is especially important for bug fixes — always write a test that reproduces the bug before fixing it.
 
 ### ⚠️ Pre-commit Auto-fixes Files
-When a commit fails: pre-commit auto-fixes files → **`git add` the fixed files** → re-commit.
+When a commit fails: prek auto-fixes files → **`git add` the fixed files** → re-commit.
 
 ## Project Structure
 
@@ -136,7 +136,7 @@ kolibri/
 
 **Vue:** PascalCase filenames. Component `name` must match filename. Use `computed()` for derived values.
 
-**Git:** Imperative commit messages, no conventional-commit prefixes. Logical commit ordering for review. Black/Prettier enforced by pre-commit.
+**Git:** Imperative commit messages, no conventional-commit prefixes. Logical commit ordering for review. Ruff/Prettier enforced by prek.
 
 **Don't guess — look at existing code** for patterns: `docs/backend_architecture/api_patterns.rst`, `docs/frontend_architecture/`, existing test files in `__tests__/` or `test/`.
 
@@ -147,11 +147,11 @@ pytest kolibri/path/to/test/                          # Python (directory)
 pytest kolibri/core/auth/test/ -k test_login          # Python (filter by name)
 pnpm test-jest path/to/file.spec.js                # Frontend (single file)
 pnpm test-jest --testPathPattern learn              # Frontend (filter by pattern)
-pre-commit run --all-files                            # Lint (all files)
-pre-commit run --files path/to/File.vue               # Lint (specific file)
+prek run --all-files                                  # Lint (all files)
+prek run --files path/to/File.vue                     # Lint (specific file)
 ```
 
-Do NOT use `npx jest` or invoke Jest directly — always use `pnpm test-jest`. Always use `pre-commit` as the single entry point for linting — do not invoke ESLint or other linters directly.
+Do NOT use `npx jest` or invoke Jest directly — always use `pnpm test-jest`. Always use `prek` as the single entry point for linting — do not invoke ESLint or other linters directly.
 
 ## Docs Reference
 

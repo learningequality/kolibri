@@ -50,7 +50,6 @@ def get_by_content_id(content_id):
 
 class ContentPermalinkRedirect(View):
     def get(self, request, *args, **kwargs):
-
         # extract the GET parameters
         channel_id = request.GET.get("channel_id")
         node_id = request.GET.get("node_id")

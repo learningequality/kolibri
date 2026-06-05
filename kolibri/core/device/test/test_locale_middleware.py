@@ -32,9 +32,9 @@ settings_override_dict = {
 }
 
 prefixed_settings_override_dict = settings_override_dict.copy()
-prefixed_settings_override_dict[
-    "ROOT_URLCONF"
-] = "kolibri.core.device.test.prefixed_locale_middleware_urls"
+prefixed_settings_override_dict["ROOT_URLCONF"] = (
+    "kolibri.core.device.test.prefixed_locale_middleware_urls"
+)
 
 
 def get_url(url):

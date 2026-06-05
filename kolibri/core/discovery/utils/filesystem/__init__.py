@@ -44,7 +44,6 @@ def enumerate_mounted_disk_partitions():
     drives = {}
 
     for drive in drive_list:
-
         path = drive["path"]
         drive_id = hashlib.sha1((drive["guid"] or path).encode("utf-8")).hexdigest()[
             :32

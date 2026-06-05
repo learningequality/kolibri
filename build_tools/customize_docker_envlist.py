@@ -4,6 +4,7 @@ at Kolibri build time to pass into the docker build environment.
 
 For more detail see the documentation in __init__.py
 """
+
 import logging
 import os
 

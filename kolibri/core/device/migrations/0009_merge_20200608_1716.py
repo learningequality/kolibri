@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0008_merge_20200531_1829"),
         ("device", "0008_devicesettings_allow_other_browsers_to_connect"),

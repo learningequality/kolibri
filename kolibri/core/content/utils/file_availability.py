@@ -58,7 +58,6 @@ def get_available_checksums_from_remote(channel_id, peer_id):
         baseurl=baseurl, channel_id=channel_id
     )
     if CACHE_KEY not in process_cache:
-
         channel_checksums = (
             LocalFile.objects.filter(
                 files__contentnode__channel_id=channel_id, files__supplementary=False
@@ -133,7 +132,6 @@ def _content_dir_version(content_dir):
 
 
 def _collect_disk_checksums(content_dir):
-
     checksums = set()
     if not content_dir:
         return checksums

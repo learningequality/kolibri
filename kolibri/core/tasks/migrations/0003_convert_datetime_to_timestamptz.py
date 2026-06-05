@@ -28,7 +28,6 @@ def convert_datetime_columns_to_timestamptz(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibritasks", "0002_add_retries_fields"),
     ]

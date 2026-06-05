@@ -9,7 +9,6 @@ import kolibri.core.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0019_collection_no_mptt"),
         ("exams", "0004_exam_add_dates_opened_created_and_archived"),

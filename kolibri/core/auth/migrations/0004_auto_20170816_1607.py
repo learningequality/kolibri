@@ -5,7 +5,6 @@ from kolibri.core.auth.constants.role_kinds import ADMIN
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0003_auto_20170621_0958"),
         ("device", "0001_initial"),

@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("content", "0036_null_boolean_and_mptt"),
     ]

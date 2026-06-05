@@ -3,12 +3,10 @@ minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - kolibri-constants
   - kolibri-design-system
-
 packages:
   - packages/*
   - kolibri/core
   - kolibri/plugins/*
-
 catalog:
   "@testing-library/jest-dom": ^6.6.4
   "@testing-library/user-event": ^14.6.1
@@ -25,7 +23,6 @@ catalog:
   vue-router: ^3.6.5
   vuex: ^3.6.2
   xstate: ^4.38.3
-
 onlyBuiltDependencies:
   - core-js
   - deasync

@@ -32,7 +32,6 @@ DUMMY_PASSWORD = "password"
 
 
 class ClassSummaryTestCase(EvaluationMixin, APITestCase):
-
     databases = "__all__"
 
     fixtures = ["content_test.json"]

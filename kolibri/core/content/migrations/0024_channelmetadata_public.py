@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("content", "0023_contentnode_on_device_resources")]
 
     operations = [

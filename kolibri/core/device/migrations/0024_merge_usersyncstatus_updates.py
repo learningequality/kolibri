@@ -3,7 +3,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0022_alter_usersyncstatus_user"),
         ("device", "0023_learner_device_status_multiple_devices"),

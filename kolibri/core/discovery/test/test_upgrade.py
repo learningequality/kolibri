@@ -20,7 +20,6 @@ class TestNetworkLocationUpgrade(TestCase):
         "SQLite only test",
     )
     def test_successful_move_locations(self):
-
         locations = [NetworkLocation(base_url="example.com")]
         with patch(
             "kolibri.core.discovery.upgrade.NetworkLocation"

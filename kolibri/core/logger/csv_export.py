@@ -323,7 +323,7 @@ def csv_file_generator(
     )
     # len of topic headers should be equal to the max depth of the content node
     topic_headers = [
-        (f"Folder level {i+1}", _(f"Folder level {i+1}"))
+        (f"Folder level {i + 1}", _(f"Folder level {i + 1}"))
         for i in range(get_max_ancestor_depth(queryset))
     ]
 

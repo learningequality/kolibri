@@ -255,6 +255,7 @@ class ContentAssignmentManager:
         :param callable_func: The callable function to be executed with the new assignments.
         :type callable_func: callable
         """
+
         # since this is a local function, we need use `weak=False` to prevent garbage collection
         @receiver(models.signals.post_save, sender=self.model, weak=False)
         def on_save(sender, instance, **kwargs):
@@ -274,6 +275,7 @@ class ContentAssignmentManager:
         :param callable_func: The callable function to be executed with the new assignments.
         :type callable_func: callable
         """
+
         # since these are local functions, we need use `weak=False` to prevent garbage collection
         @receiver(models.signals.post_save, sender=self.model, weak=False)
         def on_save(sender, instance, **kwargs):

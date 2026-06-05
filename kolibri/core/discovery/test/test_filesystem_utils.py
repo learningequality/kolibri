@@ -33,7 +33,6 @@ def _get_mocked_popen(cmd_resp):
 
 def _get_mocked_disk_usage(disk_sizes):
     def mock_disk_usage(path):
-
         if path not in disk_sizes:
             raise Exception("Disk usage not mocked for path '{}'!".format(path))
 
@@ -72,7 +71,6 @@ class patch_disk_usage:
 def patch_os_access(readable, writable):
     def wrapper(f):
         def check_os_access(path, flag):
-
             if flag == os.R_OK:
                 lookup = readable
             elif flag == os.W_OK:
@@ -93,7 +91,6 @@ def patch_os_access(readable, writable):
 def patch_os_path_exists_for_kolibri_folder(folder_lookup):
     def wrapper(f):
         def check_os_path_exists(path):
-
             if not path.endswith(EXPORT_FOLDER_NAME):
                 raise Exception(
                     "Checking os.path.exists only mocked for kolibri data folder paths."

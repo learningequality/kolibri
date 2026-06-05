@@ -5,7 +5,6 @@ from kolibri.core.content.models import ContentNode
 
 
 def get_channel_node_depth(bridge, channel_id):
-
     ContentNodeTable = bridge.get_table(ContentNode)
 
     node_depth_query = select(func.max(ContentNodeTable.c.level)).where(

@@ -32,13 +32,11 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
 
         # if the request includes a GET param 'include_fields', add the requested calculated fields
         if "request" in self.context:
-
             include_fields = (
                 self.context["request"].GET.get("include_fields", "").split(",")
             )
 
             if include_fields:
-
                 # build querysets for the full set of channel nodes, as well as those that are unrenderable
                 channel_nodes = ContentNode.objects.filter(channel_id=instance.id)
                 unrenderable_nodes = channel_nodes.exclude(

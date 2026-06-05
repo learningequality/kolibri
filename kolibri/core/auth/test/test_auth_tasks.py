@@ -589,7 +589,6 @@ class FacilityTaskHelperTestCase(TestCase):
     def test_validate_and_create_sync_credentials__unknown_facility(
         self, get_facility_dataset_id, NetworkClient, MorangoProfileController
     ):
-
         facility_id = self.facility.id
         data = dict(
             type="kolibri.core.auth.tasks.peerfacilitysync",
@@ -943,7 +942,6 @@ class CleanupExpiredDeletedUsersTaskTestCase(TestCase):
 
     @patch("kolibri.core.auth.tasks.get_current_job")
     def test_soft_deleted_users_does_reenqueue(self, mock_get_current_job):
-
         user = FacilityUser.objects.create(  # noqa: F841
             username="softdeleted", facility=self.facility, date_deleted=timezone.now()
         )

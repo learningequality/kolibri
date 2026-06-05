@@ -1,23 +1,19 @@
 name: Licenses
-
 on:
   push:
     branches:
-    - develop
-    - 'release-v**'
+      - develop
+      - 'release-v**'
   pull_request:
     branches:
-    - develop
-    - 'release-v**'
-
+      - develop
+      - 'release-v**'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   actions: read
-
 jobs:
   pre_job:
     name: Path match check
@@ -30,35 +26,34 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["requirements/*.txt", "package.json", "**/package.json", "pnpm-lock.yaml", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
+          paths: '["requirements/*.txt", "pyproject.toml", "uv.lock", "package.json", "**/package.json", "pnpm-lock.yaml", "test/conditional/test_licenses.sh", ".github/workflows/check_licenses.yml"]'
   licenses:
     name: Licenses check
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - name: Install pnpm
-      uses: pnpm/action-setup@v6.0.8
-    - name: Use Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version-file: 'package.json'
-        cache: 'pnpm'
-    - uses: actions/setup-python@v6
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        # Use a Python virtual environment to ensure
-        # our license check is only for packages
-        # explicitly installed for Kolibri
-        python -m venv ./virtualenv_dir
-        source ./virtualenv_dir/bin/activate
-        python -m pip install --upgrade pip
-        # Actually install all our requirements before doing a license check
-        pip install -r requirements.txt
-        pnpm install --frozen-lockfile
-        pnpm rebuild node-sass
-    - name: Check Licenses
-      run: ./test/conditional/test_licenses.sh
+      - uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.8
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: 'package.json'
+          cache: 'pnpm'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: |
+          # Use an isolated virtual environment so the license check only sees
+          # packages explicitly installed for Kolibri -- the bundled `base`
+          # dependency group from pyproject.toml.
+          uv venv ./virtualenv_dir --python 3.11
+          source ./virtualenv_dir/bin/activate
+          uv pip install --group base
+          pnpm install --frozen-lockfile
+          pnpm rebuild node-sass
+      - name: Check Licenses
+        run: ./test/conditional/test_licenses.sh

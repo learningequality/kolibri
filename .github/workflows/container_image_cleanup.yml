@@ -1,5 +1,4 @@
 name: Cleanup Container Images
-
 on:
   schedule:
     - cron: '0 0 * * 0' # Weekly on Sunday at midnight
@@ -9,20 +8,16 @@ on:
         description: 'Number of package versions to keep'
         required: true
         default: '5'
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
 permissions:
   packages: write
-
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-
     steps:
       - name: Cleanup old package versions
         uses: actions/delete-package-versions@v5

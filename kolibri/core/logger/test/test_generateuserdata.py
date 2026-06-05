@@ -17,7 +17,6 @@ n_lessons = 2
 
 
 class GenerateUserDataTest(TestCase):
-
     fixtures = ["content_test.json"]
 
     @classmethod

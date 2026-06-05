@@ -5,6 +5,7 @@ Remove locale directories for languages not in language_info.json.
 This script should be run after downloading translations from Crowdin to clean up
 any languages that were downloaded but are not officially supported by Kolibri.
 """
+
 import logging
 import os
 import shutil

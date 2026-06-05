@@ -1,6 +1,7 @@
 """
 This is here to enable redirects from the old /user endpoint to /auth
 """
+
 from django.urls import include
 from django.urls import re_path
 from django.views.generic.base import RedirectView

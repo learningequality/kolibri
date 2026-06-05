@@ -67,7 +67,6 @@ class CleanUpTaskOperationTestCase(TestCase):
 @mock.patch("kolibri.core.auth.kolibri_plugin.get_learner_count")
 @mock.patch("kolibri.core.auth.kolibri_plugin.Session")
 class AuthSyncHookSessionCleanupTestCase(TestCase):
-
     databases = "__all__"
 
     def setUp(self):

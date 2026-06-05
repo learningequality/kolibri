@@ -45,7 +45,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_user_lesson_no_delete(self):
-
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
         user.save()
@@ -58,7 +57,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_lesson_delete(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.delete(
@@ -67,7 +65,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_logged_in_admin_lesson_create(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -83,7 +80,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 201)
 
     def test_logged_in_admin_lesson_create_with_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -103,7 +99,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_lesson_update_no_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -134,7 +129,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_lesson_update_different_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -172,7 +166,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_lesson_update_additional_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -216,7 +209,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_lesson_update_learner_assignments(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -259,7 +251,6 @@ class LessonAPITestCase(APITestCase):
         )
 
     def test_logged_in_admin_lesson_update_learner_assignments_wrong_collection(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.post(
@@ -293,7 +284,6 @@ class LessonAPITestCase(APITestCase):
             AdHocGroup.objects.get(parent=self.classroom)
 
     def test_logged_in_user_lesson_no_create(self):
-
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
         user.save()
@@ -313,7 +303,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_logged_in_admin_lesson_update(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         response = self.client.put(
@@ -329,7 +318,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user_lesson_no_update(self):
-
         user = FacilityUser.objects.create(username="learner", facility=self.facility)
         user.set_password("pass")
         user.save()
@@ -448,7 +436,6 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.UNIQUE)
 
     def test_can_get_lesson_size(self):
-
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
 
         content_root = ContentNode.objects.create(

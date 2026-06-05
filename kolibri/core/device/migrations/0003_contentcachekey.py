@@ -22,7 +22,6 @@ def create_content_cache_key(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("device", "0002_devicesettings_default_facility")]
     atomic = False
 

@@ -7,7 +7,6 @@ import kolibri.core.utils.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("device", "0020_fix_learner_device_status_choices"),
     ]

@@ -15,6 +15,7 @@ upgrade to Django 5.2+.
 
 See: https://docs.djangoproject.com/en/5.2/ref/databases/#sqlite-transaction-behavior
 """
+
 from django.db.backends.sqlite3.base import (
     DatabaseWrapper as DjangoSQLiteDatabaseWrapper,
 )

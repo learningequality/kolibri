@@ -431,7 +431,7 @@ class UserSyncStatusTestCase(APITestCase):
         return LearnerDeviceStatus.objects.create(
             instance_id=instance_id,
             user=self.user1,
-            **dict(zip(("status", "status_sentiment"), status))
+            **dict(zip(("status", "status_sentiment"), status)),
         )
 
     def setUp(self):

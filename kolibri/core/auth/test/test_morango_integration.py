@@ -7,6 +7,7 @@ method on the server object. Otherwise, the model will only be available within 
 database transaction and will not properly sync. Once the model is created, it can be retrieved
 through regular Django ORM calls, with `.using(<server_alias>)`.
 """
+
 import datetime
 import os
 import unittest
@@ -647,7 +648,6 @@ class EcosystemTestCase(MultipleServerTestCase):
 class EcosystemSingleUserTestCase(MultipleServerTestCase):
     @multiple_kolibri_servers(3)
     def test_single_user_sync(self, servers):
-
         self.maxDiff = None
         s0, s1, s2 = servers
 
@@ -992,7 +992,6 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
         # different methods for disabling the assignment as part of the process
         for kind in ("exam", "lesson"):
             for disable_assignment in (self.deactivate, self.unassign):
-
                 # Create on Laptop A, single-user sync to tablet, disable, repeat
                 # (making sure it gets both created and removed on the tablet)
                 assignment_id = self.create_assignment(kind)
@@ -1465,16 +1464,16 @@ class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
                 LessonAssignment.objects.using(alias).get(
                     id=assignment_id, lesson__is_active=True
                 )
-            assert (
-                should_exist
-            ), "Assignment {assignment_id} should not exist on server {server} but does!".format(
-                assignment_id=assignment_id, server=server
+            assert should_exist, (
+                "Assignment {assignment_id} should not exist on server {server} but does!".format(
+                    assignment_id=assignment_id, server=server
+                )
             )
         except (ExamAssignment.DoesNotExist, LessonAssignment.DoesNotExist):
-            assert (
-                not should_exist
-            ), "Assignment {assignment_id} should exist on server {server}!".format(
-                assignment_id=assignment_id, server=server
+            assert not should_exist, (
+                "Assignment {assignment_id} should exist on server {server}!".format(
+                    assignment_id=assignment_id, server=server
+                )
             )
 
 
@@ -1545,7 +1544,7 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
             ContentSummaryLog,
             start_timestamp=timezone.now(),
             kind="audio",
-            **base_log_params
+            **base_log_params,
         )
 
         # sync the log from soud1 back to the main server
@@ -1594,7 +1593,7 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
             ContentSummaryLog,
             start_timestamp=timezone.now(),
             kind="audio",
-            **base_log_params
+            **base_log_params,
         )
 
         # sync the log from soud back to the first server
@@ -1619,7 +1618,6 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
 
     @multiple_kolibri_servers(3)
     def test_issue_fixed_in_morango_pull_146(self, servers):
-
         server1, server2, soud = servers
 
         facility, learner, _ = server1.generate_base_data()
@@ -1634,7 +1632,7 @@ class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
             ContentSummaryLog,
             start_timestamp=timezone.now(),
             kind="audio",
-            **base_log_params
+            **base_log_params,
         )
 
         # do a full facility sync from the first server to the second server

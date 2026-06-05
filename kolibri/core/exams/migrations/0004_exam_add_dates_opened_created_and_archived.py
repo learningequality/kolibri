@@ -2,6 +2,7 @@
 from django.db import migrations
 from django.db import models
 
+
 # Ensure that existing date values are initialized with a NULL value
 def forward_func(apps, schema_editor):
     Exam = apps.get_model("exams", "Exam")
@@ -11,7 +12,6 @@ def forward_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("exams", "0003_auto_20190426_1015")]
 
     operations = [

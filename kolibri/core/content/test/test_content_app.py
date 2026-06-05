@@ -1,6 +1,7 @@
 """
 To run this test, type this in command line <kolibri manage test -- kolibri.core.content>
 """
+
 import datetime
 import time
 import unittest
@@ -101,7 +102,6 @@ class ContentNodeTestBase:
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_descendants_of_kind(self):
-
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(title__in=["c1"])
         actual_output = p.get_descendants(include_self=False).filter(
@@ -110,7 +110,6 @@ class ContentNodeTestBase:
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_get_top_level_topics(self):
-
         p = content.ContentNode.objects.get(title="root")
         expected_output = content.ContentNode.objects.filter(
             parent=p, kind=content_kinds.TOPIC
@@ -123,7 +122,6 @@ class ContentNodeTestBase:
         self.assertEqual(set(expected_output), set(actual_output))
 
     def test_tag_str(self):
-
         # test for ContentTag __str__
         p = content.ContentTag.objects.get(tag_name="tag_2")
         self.assertEqual(str(p), "tag_2")
@@ -233,7 +231,6 @@ def infer_learning_activity(kind):
 
 
 class ContentNodeAPIBase:
-
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
     baseurl = None
@@ -295,11 +292,11 @@ class ContentNodeAPIBase:
         thumbnail = None
         files = []
         for f in expected.files.all():
-            "local_file__id",
-            "local_file__available",
-            "local_file__file_size",
-            "local_file__extension",
-            "lang_id",
+            ("local_file__id",)
+            ("local_file__available",)
+            ("local_file__file_size",)
+            ("local_file__extension",)
+            ("lang_id",)
             file = {}
             for field in [
                 "id",
@@ -1717,7 +1714,6 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         return facility, root, c1, c2, c2c1, c2c3
 
     def test_contentnode_progress_list_endpoint(self):
-
         facility, root, c1, c2, c2c1, c2c3 = self._setup_contentnode_progress()
 
         response = self.client.get(reverse("kolibri:core:contentnodeprogress-list"))
@@ -2315,11 +2311,11 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                "local_file__id",
-                "local_file__available",
-                "local_file__file_size",
-                "local_file__extension",
-                "lang_id",
+                ("local_file__id",)
+                ("local_file__available",)
+                ("local_file__file_size",)
+                ("local_file__extension",)
+                ("lang_id",)
                 file = {}
                 for field in [
                     "id",
@@ -2438,11 +2434,11 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             files = []
 
             for f in expected.files.all():
-                "local_file__id",
-                "local_file__available",
-                "local_file__file_size",
-                "local_file__extension",
-                "lang_id",
+                ("local_file__id",)
+                ("local_file__available",)
+                ("local_file__file_size",)
+                ("local_file__extension",)
+                ("lang_id",)
                 file = {}
                 for field in [
                     "id",

@@ -1,69 +1,57 @@
 name: Download translations from Crowdin
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   download:
     name: Download translations and regenerate fonts
     runs-on: ubuntu-latest
+    env:
+      UV_PYTHON: "3.9"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           lfs: true
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.9'
-          cache: 'pip'
-          cache-dependency-path: |
-            'build_tools/i18n/*.py'
-            requirements/base.txt
-
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.9
+        run: uv python install 3.9
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.8
-
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version-file: 'package.json'
           cache: 'pnpm'
-
       - name: Setup Java for crowdin-cli
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Install gettext
         run: sudo apt-get update && sudo apt-get install -y gettext
-
       - name: Install Python dependencies
-        run: pip install -r requirements/base.txt
-
+        run: uv sync
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Download source fonts
         run: make i18n-download-source-fonts
-
       - name: Download translations and regenerate files
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_API_KEY }}
         run: make i18n-download
-
       - name: Generate App Token
         id: generate-token
         uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.LE_BOT_APP_ID }}
           private-key: ${{ secrets.LE_BOT_PRIVATE_KEY }}
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:

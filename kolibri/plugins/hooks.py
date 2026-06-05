@@ -153,6 +153,7 @@ objects are each instances of the hook classes that were registered.
 
 
 """
+
 import logging
 from abc import abstractmethod
 from functools import partial

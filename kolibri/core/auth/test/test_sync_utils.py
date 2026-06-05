@@ -303,7 +303,6 @@ class ClassroomPartitionFactoryTestCase(TestCase):
 
 
 class ClassroomPartitionFilterFactoryTestCase(TestCase):
-
     databases = "__all__"
 
     @classmethod

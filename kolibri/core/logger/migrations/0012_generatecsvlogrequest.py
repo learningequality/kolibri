@@ -8,7 +8,6 @@ import kolibri.utils.time_utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0020_facilitydataset_extra_fields"),
         ("logger", "0011_masterylog_time_spent"),

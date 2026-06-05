@@ -2,10 +2,8 @@ name: Update community pull requests spreadsheet
 on:
   pull_request_target:
     types: [assigned, unassigned, opened, closed, reopened, edited, review_requested, review_request_removed]
-
 permissions:
   contents: read
-
 jobs:
   call-workflow:
     name: Call shared workflow

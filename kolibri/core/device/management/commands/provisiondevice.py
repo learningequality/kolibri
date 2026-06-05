@@ -178,7 +178,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         logger.warning(
             "The 'provisiondevice' command is experimental, and the API and behavior will change in a future release"
         )

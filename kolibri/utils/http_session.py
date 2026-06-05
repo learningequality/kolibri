@@ -1,6 +1,7 @@
 """
 HTTP utilities shared across Kolibri's remote-fetching code paths.
 """
+
 import logging
 from urllib.parse import urljoin
 from urllib.parse import urlparse

@@ -6,7 +6,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0019_collection_no_mptt"),
         ("device", "0015_syncqueue_no_fk"),

@@ -33,11 +33,9 @@ serializer_field_mapping.update(ModelSerializer.serializer_field_mapping)
 
 
 class KolibriModelSerializer(ModelSerializer):
-
     serializer_field_mapping = serializer_field_mapping
 
     def run_validation(self, data=empty):
-
         """
         We override the default `run_validation`, because the validation
         performed by validators and the `.validate()` method should
@@ -59,7 +57,6 @@ class KolibriModelSerializer(ModelSerializer):
         return value
 
     def update_to_internal_value(self, data):
-
         """
         Dict of native values <- Dict of primitive datatypes.
         """

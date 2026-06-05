@@ -1,6 +1,7 @@
 """
 This module defines the base classes for Kolibri's class-based Permissions system.
 """
+
 from django.db.models import Q
 
 from kolibri.core.auth.constants import role_kinds
@@ -129,7 +130,6 @@ class RoleBasedPermissions(BasePermissions):
         return getattr(obj, self.target_field)
 
     def user_can_create_object(self, user, obj):
-
         roles = getattr(self, "can_be_created_by", None)
 
         if not isinstance(roles, tuple):
@@ -141,7 +141,6 @@ class RoleBasedPermissions(BasePermissions):
         return user.has_role_for(roles, target_object)
 
     def user_can_read_object(self, user, obj):
-
         roles = getattr(self, "can_be_read_by", None)
 
         if not isinstance(roles, tuple):
@@ -153,7 +152,6 @@ class RoleBasedPermissions(BasePermissions):
         return user.has_role_for(roles, target_object)
 
     def user_can_update_object(self, user, obj):
-
         roles = getattr(self, "can_be_updated_by", None)
 
         if not isinstance(roles, tuple):
@@ -165,7 +163,6 @@ class RoleBasedPermissions(BasePermissions):
         return user.has_role_for(roles, target_object)
 
     def user_can_delete_object(self, user, obj):
-
         roles = getattr(self, "can_be_deleted_by", None)
 
         if not isinstance(roles, tuple):

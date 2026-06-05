@@ -185,7 +185,6 @@ class AbstractExam(models.Model):
 
 
 class DraftExam(AbstractExam):
-
     permissions = RoleBasedPermissions(
         target_field="collection",
         can_be_created_by=(role_kinds.ADMIN, role_kinds.COACH),

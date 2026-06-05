@@ -9,11 +9,9 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-
         drives = enumerate_mounted_disk_partitions()
 
         for path, drive in drives.items():
-
             self.stdout.write(path + "\n")
             for field, value in drive._asdict().items():
                 self.stdout.write("\t{}: {}\n".format(field, value))

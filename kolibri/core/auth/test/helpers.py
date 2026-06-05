@@ -1,6 +1,7 @@
 """
 Helper functions for use across the user/auth/permission-related tests.
 """
+
 from django.core.cache import caches
 from django.core.cache.backends.base import InvalidCacheBackendError
 from rest_framework.test import APIClient

@@ -15,7 +15,6 @@ class MPTTRemoveField(migrations.RemoveField):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("kolibriauth", "0018_no_i18n_collection_kinds"),
     ]

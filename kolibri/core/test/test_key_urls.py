@@ -137,7 +137,6 @@ class KolibriTagNavigationTestCase(APITestCase):
 
 
 class AllUrlsTest(APITestCase):
-
     databases = "__all__"
 
     # Allow codes that may indicate a poorly formed response
@@ -147,7 +146,7 @@ class AllUrlsTest(APITestCase):
     def setUp(self):
         provision_device()
 
-    def check_responses(self, credentials=None):  # noqa max-complexity=12
+    def check_responses(self, credentials=None):  # noqa: C901
         r"""
         This is a very liberal test, we are mostly just concerned with making sure
         that no pages throw errors (500).
@@ -174,7 +173,7 @@ class AllUrlsTest(APITestCase):
         if not credentials:
             credentials = {}
 
-        def check_urls(urlpatterns, prefix=""):
+        def check_urls(urlpatterns, prefix=""):  # noqa: C901
             failures = []
             if credentials:
                 self.client.login(**credentials)

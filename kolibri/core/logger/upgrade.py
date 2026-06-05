@@ -1,6 +1,7 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+
 import os
 import shutil
 
