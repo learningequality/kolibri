@@ -35,6 +35,7 @@ function createDefaults() {
     resourceTally: jest.fn(() => ({ completed: 0, started: 0, helpNeeded: 0, notStarted: 0 })),
     objectivesForLesson: jest.fn(() => []),
     activeTestStatus: ref('not_activated'),
+    fetchData: jest.fn(),
   };
 }
 
