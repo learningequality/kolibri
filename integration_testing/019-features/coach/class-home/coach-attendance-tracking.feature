@@ -2,7 +2,7 @@ Feature: Attendance tracking
   Coaches need to be able to track the attendance (English only).
 
 	Background:
-    Given I am signed in to Kolibri as a super admin or a coach
+    Given I am signed in to Kolibri as a super admin, admin or a coach
       And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
     	And there is a class with enrolled learners in it
       And I am at the *Coach - '<class>' > Class home* page
