@@ -302,32 +302,43 @@
        */
       const playSuccessAnimation = () => {
         const STAGGER = 150;
-        const DURATION = 1480;
+        const ICON_BOUNCE_DURATION = 380;
+        const BURST_DURATION = 1100;
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const stagger = reduce ? 0 : STAGGER;
-        const dur = reduce ? 0 : DURATION;
+        const iconDuration = reduce ? 0 : ICON_BOUNCE_DURATION;
+        const burstDuration = reduce ? 0 : BURST_DURATION;
+        const iconCount = sequence.value.length;
+
+        if (!iconCount) {
+          return Promise.resolve();
+        }
 
         return new Promise(resolve => {
-          for (let i = 0; i < sequence.value.length; i++) {
+          for (let i = 0; i < iconCount; i++) {
             const id = sequence.value[i];
-            const isLast = i === sequence.value.length - 1;
+            const isLast = i === iconCount - 1;
             window.setTimeout(() => {
               bouncingId.value = id;
               if (isLast) {
                 arrowBouncing.value = true;
-                burstVisible.value = true;
-                window.setTimeout(() => {
-                  burstVisible.value = false;
-                }, 1100);
+                if (!reduce) {
+                  burstVisible.value = true;
+                  window.setTimeout(() => {
+                    burstVisible.value = false;
+                  }, burstDuration);
+                }
               }
               window.setTimeout(() => {
                 if (bouncingId.value === id) bouncingId.value = null;
                 if (isLast) arrowBouncing.value = false;
-              }, dur);
+              }, iconDuration);
             }, i * stagger);
           }
 
-          window.setTimeout(() => resolve(), (sequence.value.length - 1) * stagger + dur);
+          const lastStart = (iconCount - 1) * stagger;
+          const animationDuration = Math.max(lastStart + iconDuration, lastStart + burstDuration);
+          window.setTimeout(() => resolve(), animationDuration);
         });
       };
 
@@ -496,7 +507,10 @@
 
   .submit-burst {
     position: absolute;
+    top: 50%;
+    left: 50%;
     z-index: 100;
+    transform: translate(-50%, -50%);
   }
 
   .submit-icon {
