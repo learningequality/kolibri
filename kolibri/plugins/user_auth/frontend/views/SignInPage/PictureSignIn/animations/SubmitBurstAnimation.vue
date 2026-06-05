@@ -1,5 +1,6 @@
-<!-- eslint-disable  -->
+<!-- eslint-disable max-len, vue/max-len -->
 <template>
+
   <!-- prettier-ignore -->
   <svg
     id="e9E2fA0WrSF1"
@@ -11,11 +12,28 @@
     aria-hidden="true"
     style="background-color:transparent"
   >
-    <g id="e9E2fA0WrSF2" transform="translate(31 31)">
-      <g id="e9E2fA0WrSF3" transform="matrix(0 0 0 0 4.5 4.5)">
-        <g id="e9E2fA0WrSF4" opacity="0" clip-path="url(#e9E2fA0WrSF5)">
+    <g
+      id="e9E2fA0WrSF2"
+      transform="translate(31 31)"
+    >
+      <g
+        id="e9E2fA0WrSF3"
+        transform="matrix(0 0 0 0 4.5 4.5)"
+      >
+        <g
+          id="e9E2fA0WrSF4"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF5)"
+        >
           <clipPath id="e9E2fA0WrSF5">
-            <rect width="9" height="9" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="9"
+              height="9"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
             <path
@@ -27,11 +45,28 @@
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF9" transform="translate(31 31)">
-      <g id="e9E2fA0WrSF10" transform="matrix(0 0 0 0 4.5 31.297)">
-        <g id="e9E2fA0WrSF11" opacity="0" clip-path="url(#e9E2fA0WrSF12)">
+    <g
+      id="e9E2fA0WrSF9"
+      transform="translate(31 31)"
+    >
+      <g
+        id="e9E2fA0WrSF10"
+        transform="matrix(0 0 0 0 4.5 31.297)"
+      >
+        <g
+          id="e9E2fA0WrSF11"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF12)"
+        >
           <clipPath id="e9E2fA0WrSF12">
-            <rect width="9" height="9" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="9"
+              height="9"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
             <path
@@ -43,11 +78,28 @@
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF16" transform="translate(31 31)">
-      <g id="e9E2fA0WrSF17" transform="matrix(0 0 0 0 31.5 4.5)">
-        <g id="e9E2fA0WrSF18" opacity="0" clip-path="url(#e9E2fA0WrSF19)">
+    <g
+      id="e9E2fA0WrSF16"
+      transform="translate(31 31)"
+    >
+      <g
+        id="e9E2fA0WrSF17"
+        transform="matrix(0 0 0 0 31.5 4.5)"
+      >
+        <g
+          id="e9E2fA0WrSF18"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF19)"
+        >
           <clipPath id="e9E2fA0WrSF19">
-            <rect width="9" height="9" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="9"
+              height="9"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
             <path
@@ -59,11 +111,28 @@
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF23" transform="translate(31 31)">
-      <g id="e9E2fA0WrSF24" transform="matrix(0 0 0 0 31.5 31.297)">
-        <g id="e9E2fA0WrSF25" opacity="0" clip-path="url(#e9E2fA0WrSF26)">
+    <g
+      id="e9E2fA0WrSF23"
+      transform="translate(31 31)"
+    >
+      <g
+        id="e9E2fA0WrSF24"
+        transform="matrix(0 0 0 0 31.5 31.297)"
+      >
+        <g
+          id="e9E2fA0WrSF25"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF26)"
+        >
           <clipPath id="e9E2fA0WrSF26">
-            <rect width="9" height="9" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="9"
+              height="9"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
             <path
@@ -75,50 +144,142 @@
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF30" transform="translate(24 25)">
-      <g id="e9E2fA0WrSF31" transform="matrix(0 0 0 0 32 3)">
-        <g id="e9E2fA0WrSF32" opacity="0" clip-path="url(#e9E2fA0WrSF33)">
+    <g
+      id="e9E2fA0WrSF30"
+      transform="translate(24 25)"
+    >
+      <g
+        id="e9E2fA0WrSF31"
+        transform="matrix(0 0 0 0 32 3)"
+      >
+        <g
+          id="e9E2fA0WrSF32"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF33)"
+        >
           <clipPath id="e9E2fA0WrSF33">
-            <rect width="6" height="6" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="6"
+              height="6"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
-            <ellipse rx="3" ry="3" transform="translate(3 3)" fill="#ff7600" stroke-width="0" />
+            <ellipse
+              rx="3"
+              ry="3"
+              transform="translate(3 3)"
+              fill="#ff7600"
+              stroke-width="0"
+            />
           </g>
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF37" transform="translate(24 25)">
-      <g id="e9E2fA0WrSF38" transform="matrix(0 0 0 0 3 14)">
-        <g id="e9E2fA0WrSF39" opacity="0" clip-path="url(#e9E2fA0WrSF40)">
+    <g
+      id="e9E2fA0WrSF37"
+      transform="translate(24 25)"
+    >
+      <g
+        id="e9E2fA0WrSF38"
+        transform="matrix(0 0 0 0 3 14)"
+      >
+        <g
+          id="e9E2fA0WrSF39"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF40)"
+        >
           <clipPath id="e9E2fA0WrSF40">
-            <rect width="6" height="6" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="6"
+              height="6"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
-            <ellipse rx="3" ry="3" transform="translate(3 3)" fill="#00c73c" stroke-width="0" />
+            <ellipse
+              rx="3"
+              ry="3"
+              transform="translate(3 3)"
+              fill="#00c73c"
+              stroke-width="0"
+            />
           </g>
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF44" transform="translate(24 25)">
-      <g id="e9E2fA0WrSF45" transform="matrix(0 0 0 0 14 45)">
-        <g id="e9E2fA0WrSF46" opacity="0" clip-path="url(#e9E2fA0WrSF47)">
+    <g
+      id="e9E2fA0WrSF44"
+      transform="translate(24 25)"
+    >
+      <g
+        id="e9E2fA0WrSF45"
+        transform="matrix(0 0 0 0 14 45)"
+      >
+        <g
+          id="e9E2fA0WrSF46"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF47)"
+        >
           <clipPath id="e9E2fA0WrSF47">
-            <rect width="6" height="6" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="6"
+              height="6"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
-            <ellipse rx="3" ry="3" transform="translate(3 3)" fill="#f76474" stroke-width="0" />
+            <ellipse
+              rx="3"
+              ry="3"
+              transform="translate(3 3)"
+              fill="#f76474"
+              stroke-width="0"
+            />
           </g>
         </g>
       </g>
     </g>
-    <g id="e9E2fA0WrSF51" transform="translate(24 25)">
-      <g id="e9E2fA0WrSF52" transform="matrix(0 0 0 0 47 37)">
-        <g id="e9E2fA0WrSF53" opacity="0" clip-path="url(#e9E2fA0WrSF54)">
+    <g
+      id="e9E2fA0WrSF51"
+      transform="translate(24 25)"
+    >
+      <g
+        id="e9E2fA0WrSF52"
+        transform="matrix(0 0 0 0 47 37)"
+      >
+        <g
+          id="e9E2fA0WrSF53"
+          opacity="0"
+          clip-path="url(#e9E2fA0WrSF54)"
+        >
           <clipPath id="e9E2fA0WrSF54">
-            <rect width="6" height="6" rx="0" ry="0" fill="none" stroke-width="0" />
+            <rect
+              width="6"
+              height="6"
+              rx="0"
+              ry="0"
+              fill="none"
+              stroke-width="0"
+            />
           </clipPath>
           <g>
-            <ellipse rx="3" ry="3" transform="translate(3 3)" fill="#66c1f7" stroke-width="0" />
+            <ellipse
+              rx="3"
+              ry="3"
+              transform="translate(3 3)"
+              fill="#66c1f7"
+              stroke-width="0"
+            />
           </g>
         </g>
       </g>
@@ -157,16 +318,25 @@
         </g>
       </g>
       <clipPath id="e9E2fA0WrSF64">
-        <rect width="18" height="18" rx="0" ry="0" fill="none" stroke-width="0" />
+        <rect
+          width="18"
+          height="18"
+          rx="0"
+          ry="0"
+          fill="none"
+          stroke-width="0"
+        />
       </clipPath>
     </g>
   </svg>
+
 </template>
 
 
 <script>
 
-  // eslint-disable-next-line import-x/no-import-module-exports -- SVGator UMD wrapper
+  // SVGator UMD wrapper includes module.exports
+  // eslint-disable-next-line import-x/no-import-module-exports
   import { onMounted, onBeforeUnmount } from 'vue';
 
   export default {
@@ -193,8 +363,8 @@
       });
 
       onBeforeUnmount(() => {
-        if (player && typeof player.stop === 'function') {
-          player.stop();
+        if (player && typeof player.destruct === 'function') {
+          player.destruct();
         }
         player = null;
       });
