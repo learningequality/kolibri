@@ -17,7 +17,8 @@
   },
   "devDependencies": {
     "eslint": "^9.39.0",
-    "kolibri": "workspace:*"
+    "kolibri": "workspace:*",
+    "vue-eslint-parser": "^9.4.3"
   },
   "engines": {
     "node": ">=20.19.0"
