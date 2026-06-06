@@ -39,7 +39,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
           cache-python: true
@@ -84,7 +84,7 @@ jobs:
       - name: Fix git safe directory
         run: git config --global --add safe.directory /__w/kolibri/kolibri
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
       - name: Install dependencies
@@ -128,7 +128,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           enable-cache: true
           cache-python: true
