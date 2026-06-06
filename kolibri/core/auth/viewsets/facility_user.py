@@ -252,6 +252,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         instance = super().save(**kwargs)
         validated_data = dict(list(self.validated_data.items()) + list(kwargs.items()))
         password = validated_data.get("password")
+        # DRF does not call set_password(); explicit call is needed to hash (bc42e60).
         if password and password != NOT_SPECIFIED:
             instance.set_password(password)
             instance.save()
