@@ -46,7 +46,7 @@ INFO     2024-11-19 15:14:21,967 Kolibri running on: http://127.0.0.1:8000/
    When running the development server as described above, you will need to rebuild frontend assets manually using ``pnpm run build`` after every change.
 
 .. tip::
-   Rebuild frontend assets faster by rebuilding only assets related to a plugin where you currently work. For example when developing on files of the Learn plugin, after the initial ``pnpm run build`` run, for all subsequent rebuilds only run ``pnpm exec kolibri-tools build prod -- --plugins kolibri.plugins.learn`` instead of ``pnpm run build``. Use ``kolibri plugin list`` to see all plugins.
+   Rebuild frontend assets faster by rebuilding only assets related to a plugin where you currently work. For example when developing on files of the Learn plugin, after the initial ``pnpm run build`` run, for all subsequent rebuilds only run ``pnpm exec kolibri-build prod --plugins kolibri.plugins.learn`` instead of ``pnpm run build``. Use ``kolibri plugin list`` to see all plugins.
 
 ### Troubleshooting
 

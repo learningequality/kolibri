@@ -118,7 +118,7 @@ kolibri/
 ├── kolibri/plugins/       # Frontend plugins: learn/, coach/, facility/, ...
 │   └── <plugin>/          # api_urls.py, viewsets.py, kolibri_plugin.py, test/
 │       └── frontend/      # app.js, views/, composables/, routes/, __tests__/
-├── packages/              # JS packages: kolibri/, kolibri-common/, kolibri-tools/
+├── packages/              # JS packages: kolibri/, kolibri-common/
 ├── docs/                  # Developer docs (architecture, testing, i18n, etc.)
 ├── requirements/          # Python deps
 └── test/                  # Test utilities and fixtures

@@ -26,7 +26,6 @@
     "lint-frontend:format": "pnpm run lint-frontend --write",
     "lint-frontend:watch": "pnpm run lint-frontend --monitor",
     "lint-frontend:watch:format": "pnpm run lint-frontend --monitor --write",
-    "migrate-core-api": "kolibri-tools migrate  '{kolibri*/**/frontend,packages}/**/*.{js,vue}' --ignore '**/dist/**,**/node_modules/**,**/static/**'",
     "sandbox-dev": "pnpm --filter kolibri-sandbox run dev",
     "sandbox-build": "pnpm --filter kolibri-sandbox run build",
     "compress": "kolibri-build compress 'kolibri/*/**/static/**/*.{html,js,css,svg,map,eot,ttf}'"
@@ -60,7 +59,6 @@
     "kolibri-i18n": "workspace:*",
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
-    "kolibri-tools": "workspace:*",
     "rewire": "^6.0.0",
     "vue-jest": "^3.0.0",
     "vue-template-compiler": "2.7.16",
