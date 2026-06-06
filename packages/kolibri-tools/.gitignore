@@ -1,5 +1,0 @@
-# Do not ignore this lib dir
-!lib
-dist/*
-# Ignore any packaged version of the tools
-*.tgz

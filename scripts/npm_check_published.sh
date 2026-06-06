@@ -9,7 +9,7 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/npm_check_published.sh              # check all packages
-#   ./scripts/npm_check_published.sh kolibri-tools # check a specific package
+#   ./scripts/npm_check_published.sh kolibri # check a specific package
 
 has_changes=0
 

@@ -37,7 +37,7 @@
 'DEV: tools':
   - any:
       - changed-files:
-          - any-glob-to-any-file: ['packages/kolibri-tools/**/*', 'packages/eslint-plugin-kolibri/**/*', 'packages/browserslist-config-kolibri/**/*']
+          - any-glob-to-any-file: ['packages/eslint-plugin-kolibri/**/*', 'packages/browserslist-config-kolibri/**/*']
 'DEV: renderers':
   - any:
       - changed-files:
