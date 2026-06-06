@@ -19,8 +19,8 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from ..auth.api import PublicFacilityUserViewSet
 from ..auth.api import PublicFacilityViewSet
+from ..auth.viewsets.facility_user import PublicFacilityUserViewSet
 from ..auth.api import PublicSignUpViewSet
 from .api import FacilitySearchUsernameViewSet
 from .api import get_public_channel_list

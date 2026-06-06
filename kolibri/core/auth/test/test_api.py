@@ -1163,7 +1163,7 @@ class UserUpdateTestCase(APITestCase):
         self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
 
 
-@patch("kolibri.core.auth.api.cleanup_expired_deleted_users")
+@patch("kolibri.core.auth.viewsets.facility_user.cleanup_expired_deleted_users")
 class UserDeleteTestCase(APITestCase):
     databases = "__all__"
 
