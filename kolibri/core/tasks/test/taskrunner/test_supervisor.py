@@ -521,6 +521,20 @@ class TestJobSupervisorId:
         assert orm_job.state == State.SELECTED
         assert orm_job.supervisor_id == supervisor_id
 
+    def test_claimed_job_inflates_with_selected_state(self, defaultbackend, simplejob):
+        # The claim updates only the state column, not saved_job; an inflated
+        # job must still report SELECTED, since the column is the source of
+        # truth for state.
+        supervisor_id = defaultbackend.register_supervisor(
+            host="testhost", process="1234", thread="5678"
+        )
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
+        claimed = defaultbackend.get_next_queued_job(supervisor_id=supervisor_id)
+
+        assert claimed.state == State.SELECTED
+        assert defaultbackend.get_job(job_id).state == State.SELECTED
+
     @pytest.mark.django_db(databases="__all__", transaction=True)
     def test_get_next_queued_job_claims_job_exactly_once_across_threads(
         self, defaultbackend

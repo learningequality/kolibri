@@ -120,8 +120,16 @@ class Job:
     to the workers.
     """
 
-    UPDATEABLE_KEYS = {
+    # Stored in their own ORM column (the source of truth), not in saved_job;
+    # restored from the row on inflation. See Storage._orm_to_job.
+    PROJECTED_KEYS = {
+        "job_id",
+        "func",
         "state",
+    }
+
+    # Mutable fields a storage update may write through _update_job's kwargs.
+    UPDATEABLE_KEYS = {
         "exception",
         "traceback",
         "track_progress",
@@ -134,10 +142,9 @@ class Job:
         "kwargs",
     }
 
+    # Fields with no column of their own, persisted only in the saved_job JSON.
     JSON_KEYS = UPDATEABLE_KEYS | {
-        "job_id",
         "facility_id",
-        "func",
         "long_running",
     }
 
@@ -162,13 +169,23 @@ class Job:
         return string_result
 
     @classmethod
-    def from_json(cls, json_string):
-        working_dictionary = json.loads(json_string)
+    def from_orm(cls, orm_job):
+        """
+        Reconstruct a Job from an ORM row: PROJECTED_KEYS come from their
+        columns, the rest from the saved_job JSON. Stale copies of the
+        projected keys in legacy payloads are dropped.
+        """
+        working_dictionary = json.loads(orm_job.saved_job)
 
-        # func is required for a Job so it will always be in working_dictionary
-        func = working_dictionary.pop("func")
+        for projected in cls.PROJECTED_KEYS:
+            working_dictionary.pop(projected, None)
 
-        return Job(func, **working_dictionary)
+        return cls(
+            orm_job.func,
+            job_id=orm_job.id,
+            state=orm_job.state,
+            **working_dictionary,
+        )
 
     @classmethod
     def from_job(cls, job, **kwargs):

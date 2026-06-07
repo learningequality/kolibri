@@ -60,12 +60,10 @@ class Storage:
 
     def _orm_to_job(self, orm_job):
         """
-        Extracts a Job object from the saved_job string column of ORMJob
-
-        Sets the storage attribute on the job so the job can persist
-        state updates to the database.
+        Build a Job from an ORM row, attaching this storage so the job can
+        persist its own state updates.
         """
-        job = Job.from_json(orm_job.saved_job)
+        job = Job.from_orm(orm_job)
 
         job.storage = self
         return job
