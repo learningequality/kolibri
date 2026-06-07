@@ -109,3 +109,9 @@ class HexOnlyUUIDField(UUIDFieldBase):
 
     def to_internal_value(self, data):
         return super().to_internal_value(data).hex
+
+    def to_representation(self, value):
+        if isinstance(value, str):
+            # morango stores UUIDs as 32-char hex strings; pass through directly
+            return value
+        return value.hex
