@@ -13,6 +13,7 @@ from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewsetOrderingFilter
+from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.test.test_app.models import Author
 from kolibri.core.test.test_app.models import Book
 from kolibri.core.test.test_app.models import Classroom
@@ -389,6 +390,20 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(result[0]["author_id"], self.alice.pk)
+
+    def test_hex_uuid_field_on_char_model_field_is_passthrough(self):
+        """HexOnlyUUIDField(format='hex') on a CharField model field (e.g. morango
+        UUID storage) is a no-op: the DB already returns hex strings, so
+        to_representation adds no transformation. The field_map.is_noop()
+        must return True so _serialize_flat can skip dict creation."""
+        # Author.email and Author.name are both CharField — simulates morango UUID
+        viewset = make_viewset(
+            queryset=Author.objects.none(),
+            name=serializers.CharField(),
+            email=HexOnlyUUIDField(),
+        )
+        field_map = viewset._field_map
+        self.assertTrue(field_map.is_noop())
 
     def test_plain_serializer_method_field_rejected(self):
         """Plain ``SerializerMethodField`` is not supported on ValuesViewset;

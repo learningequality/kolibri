@@ -414,3 +414,16 @@ class PinnedDeviceAPITestCase(APITestCase):
             reverse("kolibri:core:pinned_devices-detail", kwargs={"pk": other_pin.id}),
         )
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_fetch_pinned_device_response_includes_id(self):
+        my_pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location.id
+        )
+        response = self.client.get(
+            reverse("kolibri:core:pinned_devices-list"),
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        item = response.data[0]
+        self.assertIn("id", item)
+        self.assertEqual(item["id"], my_pin.id)

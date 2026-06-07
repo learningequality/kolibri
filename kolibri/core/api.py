@@ -521,7 +521,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     def _serialize_flat(queryset, values, field_map):
         """Base serialization: values() call + field mapping."""
         items = queryset.values(*values)
-        if field_map:
+        if field_map and not field_map.is_noop():
             return [field_map.map_row(item) for item in items]
         return list(items)
 

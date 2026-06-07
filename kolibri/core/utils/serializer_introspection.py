@@ -198,6 +198,17 @@ class _BaseFieldMap(dict, metaclass=ABCMeta):
             if entry.source is not None and entry.to_repr is None
         }
 
+    def is_noop(self) -> bool:
+        """True if every entry is a trivial passthrough: no transformation
+        and no renaming. When True, ``_serialize_flat`` can return
+        ``list(queryset.values(...))`` directly without building new dicts."""
+        return all(
+            isinstance(entry, SourceFieldEntry)
+            and entry.source == key
+            and entry.to_repr is None
+            for key, entry in self.items()
+        )
+
 
 class _FieldMap(_BaseFieldMap):
     """
@@ -384,6 +395,19 @@ def _field_matches_inferred_type(
             inferred_class = field_mapping[model_field]
         except KeyError:
             return False
+
+    # UUIDField(format="hex") on a CharField model field: morango's UUIDField
+    # extends models.CharField (not Django's UUIDField), so DRF's ClassLookupDict
+    # maps it to CharField via MRO on all backends — including PostgreSQL, even
+    # though the DB column is native UUID there. morango.UUIDField.from_db_value
+    # always converts to a 32-char hex string before the value reaches Python, so
+    # no to_representation transformation is needed regardless of backend.
+    if (
+        inferred_class is drf_serializers.CharField
+        and isinstance(declared_field, drf_serializers.UUIDField)
+        and declared_field.uuid_format == "hex"
+    ):
+        return True
 
     # Exact class match only - subclasses may override to_representation
     return type(declared_field) is inferred_class

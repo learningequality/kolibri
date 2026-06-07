@@ -154,7 +154,6 @@ class NetworkLocationFacilitiesView(BaseValuesViewset):
 
 
 class PinnedDeviceViewSet(ValuesViewset):
-    values = ("instance_id", "id")
     serializer_class = PinnedDeviceSerializer
     permission_classes = (IsAuthenticated,)
 
