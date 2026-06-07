@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-kolibri",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Custom linting rules for kolibri",
   "author": "Learning Equality",
   "main": "lib/index.js",
