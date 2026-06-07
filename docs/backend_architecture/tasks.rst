@@ -198,3 +198,32 @@ The response will be a list of enqueued jobs like:
     ]
 
 However, if any task fails validation, all tasks in the request will be rejected. Validation happens prior to enqueuing, so tasks will not be partially started in the bulk case.
+
+
+Job execution and worker supervision
+------------------------------------
+
+Enqueued jobs are persisted in the job storage database (``kolibri.core.tasks.storage``) and executed by a ``WorkerSupervisor`` (``kolibri.core.tasks.worker``). Each supervisor runs a job checker thread that claims the next eligible ``QUEUED`` job and dispatches it to a thread pool of worker executors. Several supervisors - in separate processes, or on separate hosts sharing a postgres database - can serve the same job storage concurrently; the claim is made exactly once because it is serialized at the database level (``SELECT ... FOR UPDATE SKIP LOCKED`` on postgres, ``BEGIN IMMEDIATE`` transactions on SQLite).
+
+On Android there is no ``WorkerSupervisor``; the platform's WorkManager dispatches executions directly through ``execute_job``, passing its own ``supervisor_id``.
+
+Job ownership
+~~~~~~~~~~~~~
+
+While a job is in one of the supervised states - ``SELECTED``, ``RUNNING`` or ``CANCELING`` - it is owned by the supervisor responsible for its execution, recorded as ``supervisor_id`` on the job row. Ownership is stamped in the same database update that claims the job, and cleared again when the job reaches a terminal state or is requeued. Supervisors restrict themselves to their own jobs: a supervisor only cancels and finalizes jobs it owns (plus unowned ``CANCELING`` jobs, which were canceled before pickup and are idempotent to finalize).
+
+Supervisor liveness and reconciliation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A supervisor that dies leaves its jobs stuck in supervised states, so each supervisor registers itself in a supervisor registry and updates a heartbeat timestamp at a third of the ``SUPERVISOR_STALE_THRESHOLD`` interval (a ``Tasks`` option, 30 seconds by default - three heartbeats must be missed before a supervisor is considered dead). Heartbeats are written and compared using database time, so liveness never depends on clock synchronization between processes or hosts.
+
+On startup and on every heartbeat, each supervisor reconciles stalled jobs: ``SELECTED`` and ``RUNNING`` jobs whose owner has no fresh heartbeat (or no owner at all) are requeued, and such ``CANCELING`` jobs are finalized as ``CANCELED``, since their owner can never finalize them. On Android, where WorkManager already knows which dispatchers are alive, reconciliation is instead passed the live set explicitly.
+
+A supervisor can be *wrongly* declared dead - for example when its heartbeat thread is delayed - while its execution is still running. Its heartbeat re-registers it, but its jobs may already have been requeued and reclaimed by a peer. Execution is therefore **at least once**, and task functions should be written to be idempotent.
+
+Ownership fencing
+~~~~~~~~~~~~~~~~~
+
+To keep the at-least-once overlap from corrupting job state, every storage write made from a job execution carries the execution's ``supervisor_id`` as the expected owner. The comparison happens under a row lock, atomically with the write: if the job is no longer owned by the writer's supervisor - it was requeued, or reclaimed by a peer - the write is discarded and logged, so the disowned execution cannot overwrite the newer state, and its completion cannot reschedule a repeating job into a duplicate run. Ownership loss is also treated as a cancel signal, so a disowned cancellable execution stops at its next cancellation checkpoint rather than running a duplicate to completion.
+
+Writes made outside of an execution - for example API code updating a job's metadata - carry no expected owner and are unaffected by the fence.
