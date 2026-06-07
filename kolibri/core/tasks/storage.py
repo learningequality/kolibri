@@ -1,12 +1,17 @@
 import logging
+import uuid
 from datetime import datetime
 from datetime import timedelta
 
 from django.db import connections
 from django.db import transaction
+from django.db.models import DateTimeField
+from django.db.models import ExpressionWrapper
 from django.db.models import Q
+from django.db.models.functions import Now
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.constants import NO_VALUE
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
@@ -15,6 +20,7 @@ from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.models import Job as ORMJob
+from kolibri.core.tasks.models import Supervisor as ORMSupervisor
 from kolibri.core.tasks.validation import validate_exception
 from kolibri.core.tasks.validation import validate_interval
 from kolibri.core.tasks.validation import validate_priority
@@ -24,9 +30,6 @@ from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
-
-
-NO_VALUE = object()
 
 
 class Storage:
@@ -194,20 +197,30 @@ class Storage:
             retry_interval=retry_interval,
         )
 
-    def mark_job_as_canceled(self, job_id):
+    def mark_job_as_canceled(self, job_id, expected_supervisor_id=NO_VALUE):
         """
         Mark the job as canceled. Does not actually try to cancel a running job.
-        """
-        self._update_job(job_id, State.CANCELED)
 
-    def mark_job_as_canceling(self, job_id):
+        Returns:
+            bool: True if applied (or already canceled), False if discarded by
+                the fence or the job is gone.
+        """
+        return self._update_job(
+            job_id,
+            State.CANCELED,
+            expected_supervisor_id=expected_supervisor_id,
+        )
+
+    def mark_job_as_canceling(self, job_id, expected_supervisor_id=NO_VALUE):
         """
         Mark the job as requested for canceling. Does not actually try to cancel a running job.
 
         :param job_id: the job to be marked as canceling.
         :return: None
         """
-        self._update_job(job_id, State.CANCELING)
+        self._update_job(
+            job_id, State.CANCELING, expected_supervisor_id=expected_supervisor_id
+        )
 
     def _filter_next_query(self, queryset, priority):
         now = self._now()
@@ -215,7 +228,7 @@ class Storage:
             Q(scheduled_time__lte=now), state=State.QUEUED, priority__lte=priority
         ).order_by("priority", "scheduled_time", "time_created")
 
-    def _postgres_next_queued_job(self, priority):
+    def _postgres_next_queued_job(self, priority, supervisor_id):
         """
         For postgres we are doing our best to ensure that the selected job
         is not then also selected by another potentially concurrent worker controller
@@ -233,41 +246,68 @@ class Storage:
 
             if next_job:
                 next_job.state = State.SELECTED
+                next_job.supervisor_id = supervisor_id
                 next_job.save()
                 return next_job
         return None
 
-    def _sqlite_next_queued_job(self, priority):
+    def _sqlite_next_queued_job(self, priority, supervisor_id):
         """
-        Due to the difficulty in appropriately locking the task row
-        we do not support multiple task runners potentially duelling
-        to lock tasks for SQLite, so here we just do a minimal
-        best effort to mark the job as selected for running.
+        SQLite cannot lock individual rows, but Kolibri's custom SQLite
+        backend opens every transaction with BEGIN IMMEDIATE, taking the
+        database-wide write lock up front - so running the selection query
+        inside the transaction that marks the job SELECTED guarantees that
+        concurrent claimants cannot both claim the same job. The unlocked
+        peek keeps the frequent idle polls of the job checker read-only,
+        rather than contending for the write lock on every poll.
         """
-        orm_job = self._filter_next_query(ORMJob.objects.all(), priority).first()
+        if not self._filter_next_query(ORMJob.objects.all(), priority).exists():
+            return None
+        with transaction.atomic(using=self._get_job_database_alias()):
+            orm_job = self._filter_next_query(ORMJob.objects.all(), priority).first()
+            if orm_job:
+                orm_job.state = State.SELECTED
+                orm_job.supervisor_id = supervisor_id
+                orm_job.save()
+            return orm_job
 
-        if orm_job:
-            orm_job.state = State.SELECTED
-            orm_job.save()
-        return orm_job
-
-    def get_next_queued_job(self, priority=Priority.REGULAR):
+    def get_next_queued_job(self, priority=Priority.REGULAR, supervisor_id=None):
+        """
+        Select the next queued job to run, stamping ownership in the same
+        update that marks it SELECTED, so a supervisor dying between pick-up
+        and start does not leave the job unowned in a non-QUEUED state.
+        """
         db_backend = connections[ORMJob.objects.db].vendor
 
         if db_backend == "sqlite":
-            orm_job = self._sqlite_next_queued_job(priority)
+            orm_job = self._sqlite_next_queued_job(priority, supervisor_id)
         else:
-            orm_job = self._postgres_next_queued_job(priority)
+            orm_job = self._postgres_next_queued_job(priority, supervisor_id)
 
         if orm_job:
             return self._orm_to_job(orm_job)
         return None
 
     def filter_jobs(
-        self, queue=None, queues=None, state=None, repeating=None, func=None
+        self,
+        queue=None,
+        queues=None,
+        state=None,
+        repeating=None,
+        func=None,
+        supervisor_id=NO_VALUE,
+        include_unowned=False,
     ):
+        """
+        Because supervisor_id is nullable, None is a semantic value (unowned
+        jobs), so the no-filtering default is the NO_VALUE sentinel.
+        include_unowned widens an owner filter to also match unowned jobs.
+        """
         if queue and queues:
             raise ValueError("Cannot specify both queue and queues")
+
+        if include_unowned and supervisor_id is NO_VALUE:
+            raise ValueError("include_unowned requires a supervisor_id filter")
 
         queryset = ORMJob.objects.all()
 
@@ -291,16 +331,42 @@ class Storage:
         if func:
             queryset = queryset.filter(func=func)
 
+        queryset = self._filter_owner(queryset, supervisor_id, include_unowned)
+
         return [self._orm_to_job(o) for o in queryset]
 
-    def get_canceling_jobs(self, queues=None):
-        return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
+    def _filter_owner(self, queryset, supervisor_id, include_unowned):
+        if supervisor_id is NO_VALUE:
+            return queryset
+        owner_filter = Q(supervisor_id=supervisor_id)
+        if include_unowned:
+            owner_filter |= Q(supervisor_id__isnull=True)
+        return queryset.filter(owner_filter)
 
-    def get_running_jobs(self, queues=None):
-        return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
+    def get_canceling_jobs(
+        self, queues=None, supervisor_id=NO_VALUE, include_unowned=False
+    ):
+        return self.get_jobs_by_state(
+            state=State.CANCELING,
+            queues=queues,
+            supervisor_id=supervisor_id,
+            include_unowned=include_unowned,
+        )
 
-    def get_jobs_by_state(self, state, queues=None):
-        return self.filter_jobs(state=state, queues=queues)
+    def get_running_jobs(self, queues=None, supervisor_id=NO_VALUE):
+        return self.get_jobs_by_state(
+            state=State.RUNNING, queues=queues, supervisor_id=supervisor_id
+        )
+
+    def get_jobs_by_state(
+        self, state, queues=None, supervisor_id=NO_VALUE, include_unowned=False
+    ):
+        return self.filter_jobs(
+            state=state,
+            queues=queues,
+            supervisor_id=supervisor_id,
+            include_unowned=include_unowned,
+        )
 
     def get_all_jobs(self, queue=None, repeating=None):
         return self.filter_jobs(queue=queue, repeating=repeating)
@@ -342,10 +408,15 @@ class Storage:
                 "Cannot restart job with state={}".format(job_to_restart.state)
             )
 
-    def check_job_canceled(self, job_id):
+    def check_job_canceled(self, job_id, expected_supervisor_id=NO_VALUE):
         try:
-            job = self.get_job(job_id)
+            job, orm_job = self._get_job_and_orm_job(job_id)
         except JobNotFound:
+            return True
+
+        if self._is_disowned_write(orm_job, expected_supervisor_id):
+            # Lost ownership: signal cancel so the disowned execution stops at
+            # its next checkpoint.
             return True
 
         return job.state == State.CANCELED or job.state == State.CANCELING
@@ -361,6 +432,8 @@ class Storage:
         if job.state == State.QUEUED:
             self.clear(job_id=job_id, force=True)
         else:
+            # Cancellation can originate outside a supervisor context, so no
+            # supervisor id needed.
             self.mark_job_as_canceling(job_id)
 
     def cancel_if_exists(self, job_id):
@@ -419,7 +492,12 @@ class Storage:
             queryset.delete()
 
     def update_job_progress(
-        self, job_id, progress, total_progress, extra_metadata=None
+        self,
+        job_id,
+        progress,
+        total_progress,
+        extra_metadata=None,
+        expected_supervisor_id=NO_VALUE,
     ):
         """
         Update the job given by job_id's progress info.
@@ -437,40 +515,90 @@ class Storage:
         }
         if extra_metadata is not None:
             kwargs["extra_metadata"] = extra_metadata
-        self._update_job(job_id, **kwargs)
+        self._update_job(
+            job_id, expected_supervisor_id=expected_supervisor_id, **kwargs
+        )
 
-    def mark_job_as_failed(self, job_id, exception, traceback):
+    def mark_job_as_failed(
+        self, job_id, exception, traceback, expected_supervisor_id=NO_VALUE
+    ):
         """
         Mark the job as failed, and record the traceback and exception.
+
         Args:
             job_id: The job_id of the job that failed.
             exception: The exception object thrown by the job.
-            traceback: The traceback, if any. Note (aron): Not implemented yet. We need to find a way
-            for the conncurrent.futures workers to throw back the error to us.
+            traceback: The traceback, if any.
 
-        Returns: None
-
+        Returns:
+            bool: True if applied, False if discarded by the fence or the job
+                is gone.
         """
         exception = type(exception).__name__
-        self._update_job(job_id, State.FAILED, exception=exception, traceback=traceback)
+        return self._update_job(
+            job_id,
+            State.FAILED,
+            exception=exception,
+            traceback=traceback,
+            expected_supervisor_id=expected_supervisor_id,
+        )
 
-    def mark_job_as_running(self, job_id):
-        self._update_job(job_id, State.RUNNING)
+    def mark_job_as_running(
+        self, job_id, supervisor_id=None, expected_supervisor_id=NO_VALUE
+    ):
+        """
+        Returns:
+            bool: True if applied (including a no-op re-mark or CANCELING kept
+                for the writer), False if discarded by the fence or the job is
+                gone.
+        """
+        return self._update_job(
+            job_id,
+            State.RUNNING,
+            supervisor_id=supervisor_id,
+            expected_supervisor_id=expected_supervisor_id,
+        )
 
     def mark_job_as_queued(self, job_id):
         self._update_job(job_id, State.QUEUED)
 
-    def complete_job(self, job_id, result=None):
-        self._update_job(job_id, State.COMPLETED, result=result)
+    def complete_job(self, job_id, result=None, expected_supervisor_id=NO_VALUE):
+        """
+        Returns:
+            bool: True if applied, False if discarded by the fence or the job
+                is gone.
+        """
+        return self._update_job(
+            job_id,
+            State.COMPLETED,
+            result=result,
+            expected_supervisor_id=expected_supervisor_id,
+        )
 
-    def save_job_meta(self, job):
-        self._update_job(job.job_id, extra_metadata=job.extra_metadata)
+    def save_job_meta(self, job, expected_supervisor_id=NO_VALUE):
+        self._update_job(
+            job.job_id,
+            extra_metadata=job.extra_metadata,
+            expected_supervisor_id=expected_supervisor_id,
+        )
 
-    def save_job_as_cancellable(self, job_id, cancellable=True):
-        self._update_job(job_id, cancellable=cancellable)
+    def save_job_as_cancellable(
+        self, job_id, cancellable=True, expected_supervisor_id=NO_VALUE
+    ):
+        self._update_job(
+            job_id,
+            cancellable=cancellable,
+            expected_supervisor_id=expected_supervisor_id,
+        )
 
     def save_worker_info(
-        self, job_id, host=None, process=None, thread=None, extra=None
+        self,
+        job_id,
+        host=None,
+        process=None,
+        thread=None,
+        extra=None,
+        expected_supervisor_id=NO_VALUE,
     ):
         """
         Generally we only want to capture/update, not erase, any of this information so we only
@@ -482,7 +610,18 @@ class Storage:
 
         with transaction.atomic(using=self._get_job_database_alias()):
             try:
-                _, orm_job = self._get_job_and_orm_job(job_id)
+                # Lock the row so the fence comparison below is atomic with
+                # the write, as in _update_job.
+                _, orm_job = self._get_job_and_orm_job(job_id, for_update=True)
+                if self._is_disowned_write(orm_job, expected_supervisor_id):
+                    # Don't let a disowned execution misattribute the job's
+                    # worker identity to itself.
+                    logger.info(
+                        f"Discarding worker info update of job {job_id} from a "
+                        f"disowned execution (expected owner: {expected_supervisor_id}, "
+                        f"actual owner: {orm_job.supervisor_id})"
+                    )
+                    return
                 if host is not None:
                     orm_job.worker_host = host
                 if process is not None:
@@ -494,7 +633,7 @@ class Storage:
                 orm_job.save()
             except JobNotFound:
                 logger.error(
-                    "Tried to update job with id {} but it was not found".format(job_id)
+                    f"Tried to update job with id {job_id} but it was not found"
                 )
 
     # Turning off the complexity warning for this function as moving the conditional validation checks
@@ -614,43 +753,131 @@ class Storage:
 
         return True
 
-    def _update_job(self, job_id, state=None, **kwargs):
+    def _lock_rows(self, queryset):
+        """
+        Lock the selected job rows until the transaction commits. Only postgres
+        needs (and supports) this; SQLite's BEGIN IMMEDIATE already serializes
+        whole transactions.
+        """
+        if connections[ORMJob.objects.db].vendor == "postgresql":
+            return queryset.select_for_update()
+        return queryset
+
+    def _is_identical_re_mark(self, orm_job, state, supervisor_id, kwargs):
+        """
+        An identical re-mark (e.g. Job.execute re-marking RUNNING after the
+        dispatching supervisor already did) is a no-op, so hooks observe
+        exactly one event per state transition.
+        """
+        return (
+            state is not None
+            and state == orm_job.state
+            and not kwargs
+            and (supervisor_id is None or supervisor_id == orm_job.supervisor_id)
+        )
+
+    def _is_disowned_write(self, orm_job, expected_supervisor_id):
+        """
+        A write is disowned when the writer's expected owner no longer
+        matches: a peer declared the writer's supervisor dead and requeued
+        (and possibly reclaimed) the job.
+        """
+        return (
+            expected_supervisor_id is not NO_VALUE
+            and orm_job.supervisor_id != expected_supervisor_id
+        )
+
+    def _update_job(
+        self,
+        job_id,
+        state=None,
+        supervisor_id=None,
+        expected_supervisor_id=NO_VALUE,
+        **kwargs,
+    ):
+        """
+        Returns:
+            bool: True if applied (including a no-op re-mark or CANCELING kept
+                for the writer), False if discarded by the fence or the job is
+                gone.
+        """
         with transaction.atomic(using=self._get_job_database_alias()):
             try:
-                job, orm_job = self._get_job_and_orm_job(job_id)
-                if state is not None:
-                    orm_job.state = job.state = state
-                for kwarg in kwargs:
-                    if kwarg in Job.UPDATEABLE_KEYS:
-                        setattr(job, kwarg, kwargs[kwarg])
-                    else:
-                        logger.error(
-                            "Tried to update job with id {} with non-updateable key {}".format(
-                                job.job_id, kwarg
-                            )
-                        )
-                orm_job.saved_job = job.to_json()
-                orm_job.save()
-                for hook in self._hooks:
-                    hook.update(job, orm_job, state=state, **kwargs)
-                return job, orm_job
+                # Lock the row so concurrent updates serialize and the guards
+                # below see the winner's write.
+                job, orm_job = self._get_job_and_orm_job(job_id, for_update=True)
             except JobNotFound:
-                if state:
-                    logger.error(
-                        "Tried to update job with id {} with state {} but it was not found".format(
-                            job_id, state
-                        )
-                    )
-                else:
-                    logger.error(
-                        "Tried to update job with id {} but it was not found".format(
-                            job_id
-                        )
-                    )
+                self._log_missing_job(job_id, state)
+                return False
 
-    def _get_job_and_orm_job(self, job_id):
+            handled, result = self._short_circuit_update(
+                orm_job, state, supervisor_id, expected_supervisor_id, kwargs
+            )
+            if handled:
+                return result
+
+            self._write_job_update(job, orm_job, state, supervisor_id, kwargs)
+            for hook in self._hooks:
+                hook.update(job, orm_job, state=state, **kwargs)
+            return True
+
+    def _short_circuit_update(
+        self, orm_job, state, supervisor_id, expected_supervisor_id, kwargs
+    ):
+        """
+        Returns (handled, result): if handled, the update is skipped and result
+        is what _update_job should return; otherwise proceed with the write.
+        """
+        # Checked before the fence so a claim re-mark stays silent on the python
+        # worker path, where ownership is already stamped.
+        if self._is_identical_re_mark(orm_job, state, supervisor_id, kwargs):
+            return True, True
+        if state == State.RUNNING and orm_job.state == State.CANCELING:
+            # Keep CANCELING if a cancel landed between dispatch and the re-mark.
+            return True, True
+        if self._is_disowned_write(orm_job, expected_supervisor_id):
+            logger.info(
+                f"Discarding update of job {orm_job.id} to state {state} from a "
+                f"disowned execution (current state: {orm_job.state}, expected "
+                f"owner: {expected_supervisor_id}, actual owner: {orm_job.supervisor_id})"
+            )
+            return True, False
+        return False, None
+
+    def _write_job_update(self, job, orm_job, state, supervisor_id, kwargs):
+        if state is not None:
+            orm_job.state = job.state = state
+            # Ownership exists only in supervised states; a bare re-mark
+            # preserves the owner, a terminal state clears it.
+            if state in State.SUPERVISED_STATES:
+                if supervisor_id is not None:
+                    orm_job.supervisor_id = supervisor_id
+            else:
+                orm_job.supervisor_id = None
+        for kwarg in kwargs:
+            if kwarg in Job.UPDATEABLE_KEYS:
+                setattr(job, kwarg, kwargs[kwarg])
+            else:
+                logger.error(
+                    f"Tried to update job with id {job.job_id} with non-updateable key {kwarg}"
+                )
+        orm_job.saved_job = job.to_json()
+        orm_job.save()
+
+    def _log_missing_job(self, job_id, state):
+        if state:
+            logger.error(
+                f"Tried to update job with id {job_id} with state {state} but it was not found"
+            )
+        else:
+            logger.error(f"Tried to update job with id {job_id} but it was not found")
+
+    def _get_job_and_orm_job(self, job_id, for_update=False):
+        queryset = ORMJob.objects.all()
+        if for_update:
+            queryset = self._lock_rows(queryset)
         try:
-            orm_job = ORMJob.objects.get(id=job_id)
+            orm_job = queryset.get(id=job_id)
         except ORMJob.DoesNotExist:
             raise JobNotFound()
         job = self._orm_to_job(orm_job)
@@ -749,6 +976,8 @@ class Storage:
             orm_job_data = {
                 "id": job.job_id,
                 "state": job.state,
+                # Clear any stale owner (e.g. a re-scheduled CANCELING job).
+                "supervisor_id": None,
                 "func": job.func,
                 "priority": priority,
                 "queue": queue,
@@ -780,3 +1009,160 @@ class Storage:
 
     def _now(self):
         return local_now()
+
+    def register_supervisor(self, host, process, thread):
+        """
+        Register a supervisor under a freshly generated id.
+
+        Returns:
+            str: the supervisor id.
+        """
+        supervisor_id = uuid.uuid4().hex
+        ORMSupervisor.objects.create(
+            id=supervisor_id,
+            host=host,
+            process=process,
+            thread=thread,
+            # Liveness timestamps use database time (see reconcile_stalled_jobs).
+            last_seen=Now(),
+        )
+        return supervisor_id
+
+    def unregister_supervisor(self, supervisor_id):
+        """
+        Remove a supervisor from the registry.
+        """
+        ORMSupervisor.objects.filter(id=supervisor_id).delete()
+
+    def heartbeat_supervisor(self, supervisor_id, host, process, thread):
+        """
+        Bump last_seen, re-registering if the record is missing (a peer may have
+        wrongly reconciled it away while it was still running jobs).
+        """
+        ORMSupervisor.objects.update_or_create(
+            id=supervisor_id,
+            defaults={
+                "host": host,
+                "process": process,
+                "thread": thread,
+                # Liveness timestamps use database time (see reconcile_stalled_jobs).
+                "last_seen": Now(),
+            },
+        )
+
+    def _transition_jobs_with_dead_owner(self, owner_filter, transitions):
+        """
+        Apply per-state transitions (state -> (callable, log template)) to jobs
+        matching owner_filter, which must select only jobs without a live owner.
+        Each job transitions in its own transaction, in id order.
+        """
+        candidate_filter = Q(state__in=list(transitions)) & owner_filter
+        dead_jobs = list(
+            ORMJob.objects.filter(candidate_filter)
+            .order_by("id")
+            .values_list("id", "supervisor_id")
+        )
+        for job_id, owner_id in dead_jobs:
+            try:
+                with transaction.atomic(using=self._get_job_database_alias()):
+                    # Re-check under lock: the owner may have moved the job on
+                    # since the candidate read, and its current state picks the
+                    # transition.
+                    still_orphaned = self._lock_rows(
+                        ORMJob.objects.filter(
+                            candidate_filter, id=job_id, supervisor_id=owner_id
+                        )
+                    )
+                    orm_job = still_orphaned.first()
+                    if orm_job is None:
+                        continue
+                    transition, log_template = transitions[orm_job.state]
+                    logger.info(log_template.format(job_id, owner_id))
+                    # Unfenced: the locked re-read already confirmed owner and
+                    # state.
+                    transition(job_id)
+            except Exception:
+                # One bad transition must not abort the pass; it rolled back, so
+                # log and let a later pass retry it.
+                logger.exception(
+                    f"Failed to transition job {job_id} with no live supervisor"
+                )
+
+    def reconcile_stalled_jobs(
+        self,
+        supervisor_stale_threshold=None,
+        live_supervisor_ids=None,
+    ):
+        """
+        Requeue SELECTED/RUNNING jobs and finalize CANCELING jobs whose owner is
+        not live. Execution is at-least-once, so tasks must be idempotent.
+
+        Pass exactly one of:
+            supervisor_stale_threshold: seconds before a supervisor counts as
+                dead; the live set is derived from registry heartbeats.
+            live_supervisor_ids: the live set supplied directly (e.g. Android
+                WorkManager), in which case the registry is unused.
+        """
+        if (supervisor_stale_threshold is None) == (live_supervisor_ids is None):
+            raise ValueError(
+                "Exactly one of supervisor_stale_threshold or live_supervisor_ids must be provided"
+            )
+
+        cutoff = None
+        if supervisor_stale_threshold is not None:
+            cutoff, live_supervisor_ids = self._live_supervisors(
+                supervisor_stale_threshold
+            )
+
+        # NOT IN never matches NULL, so the isnull clause is needed too.
+        no_live_owner = Q(supervisor_id__isnull=True) | ~Q(
+            supervisor_id__in=live_supervisor_ids
+        )
+        self._transition_jobs_with_dead_owner(
+            no_live_owner, self._stalled_job_transitions()
+        )
+
+        # After the job transitions, so a mid-reconcile crash leaves records for
+        # a later pass.
+        self._delete_stale_supervisors(cutoff)
+
+    def _live_supervisors(self, stale_threshold):
+        """
+        Returns the staleness cutoff and the ids of supervisors heartbeating
+        more recently than it. Evaluated in database time, so liveness never
+        depends on clock synchronization between processes or hosts.
+        """
+        cutoff = ExpressionWrapper(
+            Now() - timedelta(seconds=stale_threshold),
+            output_field=DateTimeField(),
+        )
+        live = ORMSupervisor.objects.filter(last_seen__gte=cutoff).values_list(
+            "id", flat=True
+        )
+        return cutoff, live
+
+    def _stalled_job_transitions(self):
+        requeue = (
+            self.mark_job_as_queued,
+            "Requeuing job {} with no live supervisor (owner: {})",
+        )
+        return {
+            State.SELECTED: requeue,
+            State.RUNNING: requeue,
+            State.CANCELING: (
+                self.mark_job_as_canceled,
+                "Finalizing canceling job {} with no live supervisor (owner: {})",
+            ),
+        }
+
+    def _delete_stale_supervisors(self, cutoff):
+        if cutoff is not None:
+            # Negated gte so a null last_seen also counts as stale.
+            deleted_count, _ = ORMSupervisor.objects.filter(
+                ~Q(last_seen__gte=cutoff)
+            ).delete()
+        else:
+            # Explicit-live-set mode: the registry is unused cruft.
+            deleted_count, _ = ORMSupervisor.objects.all().delete()
+        if deleted_count:
+            logger.info(f"Removed {deleted_count} stale supervisors")

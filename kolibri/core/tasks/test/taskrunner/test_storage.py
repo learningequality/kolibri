@@ -252,6 +252,12 @@ class TestBackend:
             len(defaultbackend.get_canceling_jobs(queues=[DEFAULT_QUEUE, QUEUE])) == 3
         )
 
+    def test_filter_jobs_include_unowned_requires_owner_filter(self, defaultbackend):
+        # include_unowned widens an owner filter; without one it would be
+        # silently ignored, so reject it instead.
+        with pytest.raises(ValueError):
+            defaultbackend.filter_jobs(include_unowned=True)
+
     def test_get_jobs_by_state(self, defaultbackend):
         # Schedule jobs
         schedule_time = local_now() + datetime.timedelta(hours=1)

@@ -2,7 +2,6 @@ import concurrent.futures
 import logging
 import os
 import sqlite3
-import time
 import uuid
 from threading import Event
 from threading import local
@@ -126,7 +125,10 @@ class InfiniteLoopThread(Thread):
         wait = self.wait - (corrected_time if corrected_time is not None else 0)
 
         if wait > 0:
-            time.sleep(wait)
+            # Wait on the shutdown event rather than sleeping, so that a stop()
+            # request during the interval is acted on promptly instead of having
+            # to wait out the full interval (important for long intervals).
+            self.shutdown_event.wait(wait)
 
     def stop(self):
         self.shutdown_event.set()

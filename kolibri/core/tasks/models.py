@@ -1,4 +1,5 @@
 from django.db import models
+from morango.models import UUIDField
 
 from kolibri.core.utils.model_router import KolibriModelRouter
 from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
@@ -41,6 +42,8 @@ class Job(models.Model):
 
     # Optional references to the worker host, process and thread that are running this job,
     # and any extra metadata that can be used by specific worker implementations.
+    # Note that this is the identity of the executor thread actually running the job's
+    # function; the supervisor that dispatched it is recorded in supervisor_id below.
     worker_host = models.CharField(max_length=100, null=True, blank=True)
     worker_process = models.CharField(max_length=50, null=True, blank=True)
     worker_thread = models.CharField(max_length=50, null=True, blank=True)
@@ -51,6 +54,10 @@ class Job(models.Model):
     retries = models.IntegerField(null=True, blank=True)
     # Maximum number of retries allowed for the job
     max_retries = models.IntegerField(null=True, blank=True)
+
+    # References the supervisor currently responsible for this job.
+    # No FK constraint to avoid complexity with supervisor cleanup.
+    supervisor_id = UUIDField(null=True, blank=True)
 
     class Meta:
         db_table = "jobs"
@@ -64,11 +71,35 @@ class Job(models.Model):
         return f"Job {self.id} - {self.func} ({self.state})"
 
 
+class Supervisor(models.Model):
+    """
+    Registry of active supervisors for distributed job processing.
+    Used to detect dead supervisors and requeue their orphaned jobs.
+    """
+
+    # The hex UUID generated for the supervisor instance upon registration.
+    id = UUIDField(primary_key=True)
+
+    # Worker identity, recorded for logging and debugging only - liveness is
+    # determined solely by heartbeat staleness on last_seen. Deliberately not
+    # unique: host/pid/thread tuples can collide across pid namespaces, and a
+    # wrongly-deleted supervisor must be able to re-register by id even if
+    # another record holds the same tuple.
+    host = models.CharField(max_length=100)
+    process = models.CharField(max_length=50)
+    thread = models.CharField(max_length=50)
+
+    last_seen = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Supervisor {self.id} - {self.host}/{self.process}/{self.thread}"
+
+
 class KolibriTasksRouter(KolibriModelRouter):
     """
     Determine how to route database calls for the kolibritasks app.
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {Job}
+    MODEL_CLASSES = {Job, Supervisor}
     DB_NAME = JOB_STORAGE

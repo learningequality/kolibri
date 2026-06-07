@@ -5,6 +5,7 @@ import mock
 from django.test.testcases import TestCase
 from requests.exceptions import HTTPError
 
+from kolibri.core.tasks.constants import NO_VALUE
 from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.exceptions import JobNotRunning
 from kolibri.core.tasks.job import Job
@@ -32,7 +33,21 @@ class JobTest(TestCase):
 
         self.job.save_as_cancellable(cancellable=cancellable)
         self.job.storage.save_job_as_cancellable.assert_called_once_with(
-            self.job.job_id, cancellable=cancellable
+            self.job.job_id,
+            cancellable=cancellable,
+            expected_supervisor_id=NO_VALUE,
+        )
+
+    def test_job_update_worker_info_carries_fence_token(self):
+        self.job.update_worker_info(host="host", process="123", thread="456")
+
+        self.job.storage.save_worker_info.assert_called_once_with(
+            self.job.job_id,
+            host="host",
+            process="123",
+            thread="456",
+            extra=None,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_save_as_cancellable_sets_cancellable(self):
@@ -44,7 +59,11 @@ class JobTest(TestCase):
     def test_job_update_progress_saves_progress_to_storage(self):
         self.job.update_progress(0.5, 1.5)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.5, 1.5, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.5,
+            1.5,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_sets_progress(self):
@@ -192,7 +211,11 @@ class JobTest(TestCase):
         # Initial progress update
         self.job.update_progress(0.1, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.1,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
@@ -208,28 +231,44 @@ class JobTest(TestCase):
         # Initial progress update
         self.job.update_progress(0.1, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.1,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Progress update with ≥1% change should be sent to storage
         self.job.update_progress(0.12, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.12, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.12,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_sends_on_completion(self):
         # Initial progress update
         self.job.update_progress(0.999, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.999, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.999,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Small progress update that reaches 100% should be sent to storage
         self.job.update_progress(1.0, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 1.0, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            1.0,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_sends_on_first_total(self):
@@ -240,28 +279,44 @@ class JobTest(TestCase):
         # First update that sets a total should be sent
         job.update_progress(0.1, 100.0)
         job.storage.update_job_progress.assert_called_once_with(
-            job.job_id, 0.1, 100.0, extra_metadata=job.extra_metadata
+            job.job_id,
+            0.1,
+            100.0,
+            extra_metadata=job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_sends_on_changed_total(self):
         # First update that sets a total should be sent
         self.job.update_progress(0.1, 100.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 100.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.1,
+            100.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_sends_on_progress_decrease(self):
         # Initial progress update
         self.job.update_progress(0.5, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.5, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.5,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
         # Progress update that decreases progress should be sent to storage
         self.job.update_progress(0.499, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.499, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.499,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_retains_last_saved_values(self):
@@ -311,14 +366,22 @@ class JobTest(TestCase):
 
         # Verify storage was called with the correct parameters
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.5, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.5,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_job_update_progress_throttles_with_metadata(self):
         # Initial progress update with metadata
         self.job.update_progress(0.1, 1.0, extra_metadata={"stage": "start"})
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.1,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
@@ -332,7 +395,11 @@ class JobTest(TestCase):
         # Significant progress update should update both progress and all metadata
         self.job.update_progress(0.2, 1.0, extra_metadata={"files": 10})
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.2, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.2,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
 
     def test_update_metadata_still_works_separately(self):
@@ -345,7 +412,11 @@ class JobTest(TestCase):
         # Initial progress update
         self.job.update_progress(0.1, 1.0)
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.1, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.1,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.job.storage.update_job_progress.reset_mock()
 
@@ -363,7 +434,11 @@ class JobTest(TestCase):
         # Significant update should send all accumulated metadata
         self.job.update_progress(0.2, 1.0, extra_metadata={"step": 4})
         self.job.storage.update_job_progress.assert_called_once_with(
-            self.job.job_id, 0.2, 1.0, extra_metadata=self.job.extra_metadata
+            self.job.job_id,
+            0.2,
+            1.0,
+            extra_metadata=self.job.extra_metadata,
+            expected_supervisor_id=NO_VALUE,
         )
         self.assertEqual(self.job.extra_metadata["step"], 4)
 

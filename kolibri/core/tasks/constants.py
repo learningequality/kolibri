@@ -1,5 +1,9 @@
 DEFAULT_QUEUE = "kolibri"
 
+# Sentinel default for parameters where None is a semantic value (e.g. an
+# unowned job's supervisor_id), so "not provided" needs a distinct marker.
+NO_VALUE = object()
+
 
 class Priority:
     """

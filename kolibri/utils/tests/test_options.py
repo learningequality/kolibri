@@ -160,6 +160,16 @@ def test_improper_settings_display_errors_and_exit(monkeypatch):
                 options.read_options_file(ini_filename=tmp_ini_path)
             assert 'value "baba" is of the wrong type' in LOG_LOGGER[-2][1]
 
+        # out-of-bounds value for an option with validator_args bounds causes it to bail
+        with open(tmp_ini_path, "w") as f:
+            f.write("\n".join(["[Tasks]", "SUPERVISOR_STALE_THRESHOLD = 14"]))
+        with mock.patch.dict(
+            os.environ, {"KOLIBRI_HOME": os.environ["KOLIBRI_HOME"]}, clear=True
+        ):
+            with pytest.raises(SystemExit):
+                options.read_options_file(ini_filename=tmp_ini_path)
+            assert 'value "14" is too small' in LOG_LOGGER[-2][1]
+
         # invalid choice for "option" type causes it to bail
         with open(tmp_ini_path, "w") as f:
             f.write("\n".join(["[Database]", "DATABASE_ENGINE = penguin"]))

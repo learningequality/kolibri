@@ -800,6 +800,24 @@ base_option_spec = {
                 The file to use for the job storage database. This is only used in the case that the database backend being used is SQLite.
             """,
         },
+        "SUPERVISOR_STALE_THRESHOLD": {
+            "type": "integer",
+            "default": 30,
+            # The floor guards against a misconfiguration hammering the job
+            # storage database - each supervisor heartbeats and reconciles at
+            # a third of this interval.
+            "validator_args": {"min": 15},
+            "description": """
+                The time in seconds without a heartbeat update before a supervisor is
+                considered dead and its jobs are requeued. Each supervisor heartbeats at a
+                third of this interval, so three consecutive heartbeats must be missed
+                before a supervisor is declared dead. Heartbeats are timestamped and
+                compared using database time, so clock differences between processes and
+                hosts do not eat into the margin. Deployments where a worker process can
+                pause for long periods (e.g. system sleep, or container freezes) should
+                increase this to avoid jobs being requeued while their worker is paused.
+            """,
+        },
     },
 }
 
