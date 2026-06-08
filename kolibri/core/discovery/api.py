@@ -42,6 +42,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         )
         reserved_ids = []
         if syncable == "1":
+            base_queryset = base_queryset.filter(is_provisioned=True)
             # Include KDP's reserved location
             reserved_ids.append(DATA_PORTAL_BASE_INSTANCE_ID)
         elif syncable == "0":

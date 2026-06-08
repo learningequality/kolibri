@@ -203,6 +203,20 @@ class NetworkLocationAPITestCase(APITestCase):
         ]
         self.assert_network_location_list(None, expected_ids)
 
+    def test_syncable_filter_excludes_unprovisioned_locations(self):
+        self.login(self.superuser)
+        unprovisioned_location = models.NetworkLocation.objects.create(
+            base_url="https://unprovisioned.qqq/",
+            is_provisioned=False,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:networklocation-list"),
+            {"syncable": "1"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        location_ids = [location["id"] for location in response.data]
+        self.assertNotIn(unprovisioned_location.id, location_ids)
+
     def test_update_connection_status(self):
         from django.db.utils import IntegrityError
 

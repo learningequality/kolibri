@@ -95,6 +95,7 @@ class NetworkLocation(models.Model):
     operating_system = models.CharField(max_length=32, blank=True)
     subset_of_users_device = models.BooleanField(default=False)
     min_content_schema_version = models.CharField(max_length=32, blank=True, null=True)
+    is_provisioned = models.BooleanField(default=True, null=True, blank=True)
 
     # dates and times
     added = models.DateTimeField(auto_now_add=True, db_index=True)
