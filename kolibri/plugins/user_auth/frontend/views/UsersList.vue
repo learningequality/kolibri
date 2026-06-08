@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div data-testid="users-list">
     <KButton
       v-for="username in users"
       :key="username"

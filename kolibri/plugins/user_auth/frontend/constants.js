@@ -19,3 +19,5 @@ export const DeviceUnusableReason = {
   NO_SUPERUSERS: 'NO_SUPERUSERS',
   SUPERUSERS_SOFT_DELETED: 'SUPERUSERS_SOFT_DELETED',
 };
+
+export const MAX_USERS_FOR_LISTING_VIEW = 16;
