@@ -69,7 +69,6 @@ from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
-from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
