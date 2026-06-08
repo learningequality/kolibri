@@ -5,7 +5,6 @@ from .api import ClassroomViewSet
 from .api import DeletedFacilityUserViewSet
 from .api import DeleteImportedUserView
 from .api import FacilityDatasetViewSet
-from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
 from .api import FacilityViewSet
 from .api import IsPINValidView
@@ -24,9 +23,6 @@ from kolibri.core.routers import BulkDeleteRouter
 router = routers.SimpleRouter()
 
 router.register(r"facilitydataset", FacilityDatasetViewSet, basename="facilitydataset")
-router.register(
-    r"facilityusername", FacilityUsernameViewSet, basename="facilityusername"
-)
 router.register(r"facility", FacilityViewSet, basename="facility")
 router.register(r"session", SessionViewSet, basename="session")
 router.register(r"classroom", ClassroomViewSet, basename="classroom")

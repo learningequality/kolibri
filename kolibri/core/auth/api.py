@@ -726,27 +726,6 @@ class DeleteImportedUserView(views.APIView):
             raise Http404("User does not exist")
 
 
-class FacilityUsernameViewSet(ReadOnlyValuesViewset):
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filterset_fields = ("facility",)
-    search_fields = ("^username",)
-
-    values = ("username",)
-
-    def get_queryset(self):
-        if valid_app_key_on_request(self.request):
-            # Special case for app context to return usernames for
-            # the list display
-            return FacilityUser.objects.all()
-        return FacilityUser.objects.filter(
-            Q(dataset__learner_can_login_with_no_password=True)
-            | Q(dataset__picture_password_settings__isnull=False),
-            roles=None,
-        ).filter(
-            Q(devicepermissions__is_superuser=False) | Q(devicepermissions__isnull=True)
-        )
-
-
 class MembershipFilter(FilterSet):
     user_ids = CharFilter(method="filter_user_ids")
     by_ids = CharFilter(method="filter_by_ids")
