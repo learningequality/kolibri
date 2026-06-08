@@ -85,16 +85,6 @@ class KolibriView(object):
 
         file_menu = wx.Menu()
         self.add_menu_item(
-            file_menu, _("New Window"), handler=self.on_new_window, item_id=wx.ID_NEW
-        )
-        self.add_menu_item(
-            file_menu,
-            _("Close Window"),
-            handler=self.on_close_window,
-            item_id=wx.ID_CLOSE,
-        )
-        file_menu.AppendSeparator()
-        self.add_menu_item(
             file_menu,
             _("Open Kolibri Home Folder"),
             handler=self.on_open_kolibri_home,
@@ -143,21 +133,6 @@ class KolibriView(object):
             view_menu, _("Open in Browser"), handler=self.on_open_in_browser
         )
         menu_bar.Append(view_menu, _("View"))
-
-        history_menu = wx.Menu()
-        self.add_menu_item(
-            history_menu,
-            _("Back\tCtrl+["),
-            handler=self.on_back,
-            item_id=wx.ID_BACKWARD,
-        )
-        self.add_menu_item(
-            history_menu,
-            _("Forward\tCtrl+]"),
-            handler=self.on_forward,
-            item_id=wx.ID_FORWARD,
-        )
-        menu_bar.Append(history_menu, _("History"))
 
         help_menu = wx.Menu()
         self.add_menu_item(
@@ -235,12 +210,6 @@ class KolibriView(object):
     def on_forums(self, event):
         webbrowser.open("https://community.learningequality.org/")
 
-    def on_new_window(self, event):
-        self.app.create_kolibri_window(url=self.app.kolibri_origin)
-
-    def on_close_window(self, event):
-        self.close()
-
     def on_open_in_browser(self, event):
         webbrowser.open(self.get_url())
 
@@ -251,12 +220,6 @@ class KolibriView(object):
             subprocess.call(["open", os.environ["KOLIBRI_HOME"]])
         elif LINUX:
             subprocess.call(["xdg-open", os.environ["KOLIBRI_HOME"]])
-
-    def on_back(self, event):
-        self.webview.GoBack()
-
-    def on_forward(self, event):
-        self.webview.GoForward()
 
     def on_reload(self, event):
         self.webview.Reload()
