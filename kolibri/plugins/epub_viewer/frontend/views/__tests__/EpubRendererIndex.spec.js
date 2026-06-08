@@ -1,5 +1,15 @@
 import EpubRendererIndex from '../EpubRendererIndex';
 
+// alwan (used by the settings sidebar's nested ColorPicker) needs a canvas,
+// which jsdom does not implement; stub it out so the module tree can load.
+jest.mock('alwan', () => ({
+  __esModule: true,
+  default: class Alwan {
+    on() {}
+    destroy() {}
+  },
+}));
+
 const { methods } = EpubRendererIndex;
 
 describe('updateProgress', () => {
