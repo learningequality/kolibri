@@ -1,10 +1,10 @@
 from rest_framework import routers
 
-from .api import DynamicNetworkLocationViewSet
-from .api import NetworkLocationFacilitiesView
-from .api import NetworkLocationViewSet
-from .api import PinnedDeviceViewSet
-from .api import StaticNetworkLocationViewSet
+from .viewsets.network_location import DynamicNetworkLocationViewSet
+from .viewsets.network_location import NetworkLocationFacilitiesView
+from .viewsets.network_location import NetworkLocationViewSet
+from .viewsets.network_location import StaticNetworkLocationViewSet
+from .viewsets.pinned_device import PinnedDeviceViewSet
 
 router = routers.SimpleRouter()
 
