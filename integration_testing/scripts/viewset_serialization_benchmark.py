@@ -161,12 +161,33 @@ def get_queryset_for_viewset(viewset_class):
         return queryset.all()
 
     try:
+        from django.contrib.auth.models import AnonymousUser
+
+        from rest_framework.request import Request as DRFRequest
+        from rest_framework.test import APIRequestFactory
+
         factory = APIRequestFactory()
         django_request = factory.get("/")
-        drf_request = Request(django_request)
+
+        # Viewsets that filter by request.user (e.g. PinnedDeviceViewSet) need
+        # a real authenticated user. Try to find any user in the DB.
+        try:
+            from kolibri.core.auth.models import FacilityUser
+
+            user = FacilityUser.objects.first()
+        except Exception:
+            user = None
+
+        if user is None:
+            user = AnonymousUser()
+
+        # Force authentication by setting user directly on the DRF request
+        drf_request = DRFRequest(django_request)
+        drf_request._user = user
         viewset = viewset_class()
         viewset.request = drf_request
         viewset.kwargs = {}
+        viewset.format_kwarg = None
         return viewset.get_queryset()
     except Exception as e:
         logger.error("Could not obtain queryset for %s: %s", viewset_class.__name__, e)
