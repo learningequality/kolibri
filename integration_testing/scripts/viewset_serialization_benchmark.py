@@ -161,9 +161,6 @@ def get_queryset_for_viewset(viewset_class):
     try:
         from django.contrib.auth.models import AnonymousUser
 
-        from rest_framework.request import Request as DRFRequest
-        from rest_framework.test import APIRequestFactory
-
         factory = APIRequestFactory()
         django_request = factory.get("/")
 
@@ -180,7 +177,7 @@ def get_queryset_for_viewset(viewset_class):
             user = AnonymousUser()
 
         # Force authentication by setting user directly on the DRF request
-        drf_request = DRFRequest(django_request)
+        drf_request = Request(django_request)
         drf_request._user = user
         viewset = viewset_class()
         viewset.request = drf_request
