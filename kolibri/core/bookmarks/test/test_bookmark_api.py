@@ -115,6 +115,20 @@ class BookmarkAPITestCase(APITestCase):
                 1,
             )
 
+    def test_get_bookmark_response_fields(self):
+        """
+        Read response includes id, contentnode_id, channel_id, content_id but not user.
+        """
+        Bookmark.objects.get_or_create(**self.base_data(self.user, model_data=True))
+        response = self.client.get("/api/bookmarks/bookmarks/")
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        entry = response.data[0]
+        self.assertIn("id", entry)
+        self.assertIn("contentnode_id", entry)
+        self.assertIn("channel_id", entry)
+        self.assertIn("content_id", entry)
+        self.assertNotIn("user", entry)
+
     def test_destroy_bookmarks(self):
         """
         Ensures that users can destroy their bookmarks and ONLY THEIR bookmarks
