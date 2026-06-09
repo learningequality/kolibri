@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError as RestValidationError
 
 from kolibri.core.api import ReadOnlyValuesViewset
@@ -16,13 +17,18 @@ class FacilityUsernamePagination(ValuesViewsetCursorPagination):
     ordering = ("username",)
 
 
+class FacilityUsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FacilityUser
+        fields = ("username",)
+
+
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_fields = ("facility",)
     search_fields = ("^username",)
     pagination_class = FacilityUsernamePagination
-
-    values = ("username",)
+    serializer_class = FacilityUsernameSerializer
 
     def get_queryset(self):
         if valid_app_key_on_request(self.request):
