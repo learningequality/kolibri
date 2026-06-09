@@ -4,10 +4,10 @@ from django_filters.rest_framework import UUIDFilter
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
-from .models import Bookmark
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content.models import ContentNode
 
 
@@ -15,9 +15,18 @@ class BookmarksSerializer(ModelSerializer):
     class Meta:
         model = Bookmark
         fields = (
+            "id",
+            "channel_id",
+            "content_id",
             "contentnode_id",
             "user",
         )
+        read_only_fields = ("id",)
+        extra_kwargs = {
+            "channel_id": {"required": False},
+            "content_id": {"required": False},
+            "user": {"write_only": True},
+        }
 
     def validate(self, data):
         try:
@@ -29,10 +38,8 @@ class BookmarksSerializer(ModelSerializer):
                 )
             )
 
-        if "channel_id" not in data:
-            data["channel_id"] = contentnode.channel_id
-        if "content_id" not in data:
-            data["content_id"] = contentnode.content_id
+        data.setdefault("channel_id", contentnode.channel_id)
+        data.setdefault("content_id", contentnode.content_id)
 
         return data
 
@@ -58,7 +65,6 @@ class BookmarksFilterset(FilterSet):
 
 
 class BookmarksViewSet(ValuesViewset):
-    values = ("channel_id", "contentnode_id", "id", "content_id")
     serializer_class = BookmarksSerializer
     queryset = Bookmark.objects.all()
     permission_classes = (KolibriAuthPermissions,)
