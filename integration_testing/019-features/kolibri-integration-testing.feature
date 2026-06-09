@@ -530,6 +530,37 @@ Feature: Kolibri integration testing scenarios
       And I see the *User created* snackbar message
       And I see the new learner user in the *New users* table
 
+  Scenario: Super admin creates a new learner user account when no password is required
+  	Given the *Enter username only* option is enabled at *Facility > Settings*
+      And I am at the *Create new user* side panel
+    When I enter the user's full name
+      And I enter the username
+      And I leave the default value of *Learner* for the *User type*
+      And I enter *Identifier* #optional
+      And I select *Birth year* and *Gender* #optional
+      And I don't make a selection from the *Enroll in class* field
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
+
+  Scenario: Super admin creates a new learner user account when the *Picture password* is enabled
+  	Given the *Picture password* option is enabled at *Facility > Settings*
+      And I am at the *Create new user* side panel
+    When I enter the user's full name
+      And I enter the username
+      And I leave the default value of *Learner* for the *User type*
+      And I enter *Identifier* #optional
+      And I select *Birth year* and *Gender* #optional
+      And I don't make a selection from the *Enroll in class* field
+      And I click the *Save and close* button
+    Then the page reloads
+      And I see the *User created* snackbar message
+      And I see the new learner user in the *New users* table
+    When I click the *...* button for the user
+    	And I select *Edit details*
+    Then I can see the *Picture password* of the user #repeat the scenario with the standard icons enabled and with enabled icon names
+
   Scenario: Super admin creates a new learner user account and enroll the learner in a class
     Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users > Create new user* side panel
@@ -938,21 +969,58 @@ Feature: Kolibri integration testing scenarios
     	And I am at the *Learn > Home* page
 
   Scenario: Users can sign in and sign out
-  	Given I am at the Kolibri sign-in page
-  		And I have a valid account
-  	When I fill in my *Username*
-  		And I click the *Next* button
-  		And I fill in my password in the *Password* field
-  		And I click the *Sign in* button
-  	Then I am signed in
+  	Given I am viewing Kolibri for the first time in my current browser on a single facility device
+      And the option *Enter username and password* is enabled at *Facility > Settings*
+    When I open Kolibri in my browser
+    Then I see the Kolibri logo, the name of the facility and a *Username* field
+      And I see a disabled *Next* button
+    When I enter my username
+    Then the *Next* button becomes enabled
+    When I click the *Next* button
+    Then I see a *Signing in as '<username>'* text
+      And a *Password* field
+    When I enter my password
+      And I click the *Sign in* button
+    Then I am signed in
+      And I am at the *Learn > Home* page
   		And I can navigate through the available pages based on my permissions
   	When I expand the sidebar
   		And I click on *Sign out*
   	Then I am back at the *Sign in* page
   		And I am no longer signed in
   	When I click the browsers back button
-  	Then I see *You must be signed in to view this page*
-  		And I see a link *Sign in to Kolibri*
+  	Then I see an *You were automatically signed out due to inactivity* snackbar message
+
+  Scenario: Learner can sign in without a password
+    Given I am viewing Kolibri for the first time in my current browser on a single facility device
+      And the option *Enter username only* is enabled at *Facility > Settings*
+    When I open Kolibri in my browser
+    Then I see the Kolibri logo, the name of the facility and a *Username* field
+     	And I see a disabled *Next* button
+    When I enter my username
+    Then the *Next* button becomes enabled
+    When I click the *Next* button
+    Then I am signed in and I am at the *Learn > Home* page
+
+  Scenario: Learner can sign in with a picture password
+    Given I am viewing Kolibri for the first time in my current browser on a single facility device
+      And the option *Picture password* is enabled at *Facility > Settings*
+    When I open Kolibri in my browser
+    Then I see the Kolibri logo, the name of the facility and 12 child-friendly icons
+      And I see a disabled 3-picture sequence field
+      And I see a disabled right arrow button
+      And I see an *Enter username instead* link
+    When I select the correct 3-picture sequence
+    Then the right arrow button becomes enabled
+      And I see the 3-picture sequence to the left of it
+    When I click the arrow button
+    Then I see an *Is this you* confirmation modal
+      And I see my name
+      And I see the 3-picture sequence
+      And I see an *X* button and a green checkmark button
+    When I click the green checkmark button
+    Then I am signed in
+      And I am at the *Learn > Home* page
 
   Scenario: Learner completes an assigned lesson
   	Given I am signed in as a learner user
@@ -982,6 +1050,61 @@ Feature: Kolibri integration testing scenarios
   	Then I see the question details
   		And I see a checkbox *Show correct answer*
   		And I see the number of attempts made on this question
+
+  Scenario: Coach can take the class attendance(English only)
+    Given I am signed in to Kolibri as a coach
+    	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+    	And there is a class with enrolled learners in it
+      And I am at the *Coach - '<class>' > Class home* page
+    When I click the *Mark attendance* button
+    Then I am at the attendance page for the current time and date
+      And I see a *Search for a learner* field and a *Mark all learners present* toggle button
+      And I see a list of all the learners with a *Present* toggle button for each learner
+      And I see a *Cancel* and a *Submit attendance* button
+    When I mark each learner as either present or absent
+      And I click the *Submit attendance* button
+    Then I see the new entry added in the *Attendance history* table
+      And I see a snackbar confirmation message
+      And I see the correct number of *Present* and *Absent* learners
+
+  Scenario: Coach can edit a submitted attendance session
+    Given I am signed in to Kolibri as a coach
+    	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+    	And there is a class with enrolled learners in it
+      And I am at the *Coach - '<class>' > Class home > Attendance history* page
+      And less than 24 hours have passed since submission
+    When I click on the date of an attendance entry
+    Then I see the *Edit attendance <date and time>* modal
+      And I see the table with all of the learners and their status
+      And I see a disabled *Save* button and an enabled *Cancel* button
+    When I change the present status of one or several learners
+      And I click the *Save* button
+    Then I see a confirmation model *Save N change(s)*
+    When I click *Save*
+    Then I see an *Attendance updated* snackbar message
+      And I am back at the *Attendance history* page
+      And I can see the correct values in the *Present* and *Absent* columns
+
+  Scenario: Coach can export a single list CSV of the attendance history
+    Given I am signed in to Kolibri as a coach
+    	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+    	And there is a class with enrolled learners in it
+      And I am at the *Coach - '<class>' > Class home > Attendance history* page
+      And there is one or several submissions
+    When I click the *Export as CSV* button
+    Then I can export the generated CSV file to my device
+    When I open the downloaded CSV file
+    Then I can see that it contains the correct *Present* and *Absent* values for each date
+
+  Scenario: Coach can print the attendance history
+    Given I am signed in to Kolibri as a coach
+    	And the option *Allow coaches to take attendance (English only)* is enabled at *Facility > Settings*
+    	And there is a class with enrolled learners in it
+      And I am at the *Coach - '<class>' > Class home > Attendance history* page
+      And there is one or several submissions
+    When I click the *Print* button
+    Then I can print the generated file
+      And I can see that it contains the correct *Present* and *Absent* values for each date
 
   Scenario: Coach can review a lesson report
   	Given I am signed in to Kolibri as a coach
@@ -1074,6 +1197,25 @@ Feature: Kolibri integration testing scenarios
     When I go to either the *Quizzes* or *Learners* *page
     	And I click the *Print report* icon
     Then I can print a report
+
+  Scenario: Coach can view and print the picture passwords of the learners
+    Given I am signed in as a class coach
+      And I am at *Coach > Class home* for a specific class
+      And there are learners enrolled in the class
+      And the *Picture password* option is enabled at *Facility > Settings*
+    When I click the *View passwords* button
+    Then I see the *All passwords* page
+    	And I see the *All passwords* table with *Name*, *Username* and *Password* columns
+    	And I see a *Print* button
+    	And I can see the picture passwords of all the learners enrolled in the class
+    When I click the *Print* button
+    Then I see the *Print passwords* modal
+    	And I see a *Print with images* radio button selected by default
+    	And I see a *Print with text only* radio button
+    	And I see a preview of what I am about to print
+    When I click the *Continue* button
+    Then I can preview the generated document
+    	And I can print it
 
   Scenario: Coach enrolls learners to a group
     Given I am signed in to Kolibri as a coach
@@ -1406,11 +1548,11 @@ Feature: Kolibri integration testing scenarios
   	Given I am signed in as an admin
   	When I go to *Facility > Settings*
   	Then I can see the facility name
-  		And I can see the following checkboxes: Allow learners to edit their username, Allow learners to edit their full name, Allow learners to create accounts, Requires password for learners, Allow learners to edit their password when signed in, Show 'download' button with resources
-  		And I can see the *Device management PIN* section
-  		And I can see a *Create PIN* button
-  	When I deselect or select any of the checkboxes
-  		And I click *Save changes*
+  		And I can see the following checkboxes: Allow learners to edit their username, Allow learners to edit their full name, Allow learners to create accounts, Allow coaches to take attendance (English only), Show 'download' button with resources
+  		And I can see the *How learners sign in* section with the following radio-buttons: Enter username and password, Enter username only, Picture password, Child-friendly icons, Standard icons, Show icon names
+  		And I can see the *Device management PIN* section with a *Create PIN* button
+  	When I select or deselect any of the available options
+  		And I click the *Save changes* button
   	Then I see the *Facility settings updated* snackbar message
   	When I click the *Create PIN* button
   	Then I see the *Create device management PIN* modal
@@ -1494,13 +1636,14 @@ Feature: Kolibri integration testing scenarios
     Then the modal closes
       And I see the *Password reset* snackbar message
 
-  Scenario: Admin can edit the details of a user
-    Given I am signed in to Kolibri as an admin
+  Scenario: Admin can reset the password of a user
+  	Given I am signed in to Kolibri as an admin
+  		And the *Enter username and password* option is enabled at *Facility > Settings*
       And I am at *Facility > Users* page
-    When I click on the *⋮* button for the user I want to edit
-      And I select the *Edit details* option
-    Then I see the *Edit user details* page
-    When I modify any of the fields
+    When I click on the *Options* drop-down next to a user
+      And I select the *Reset password* option
+    Then I see the *Reset user password* modal
+    When I fill in the *Password* and *Re-enter password* fields
       And I click the *Save* button
-    Then I am back at the *Facility > Users* page
-      And I see the *Changes saved* snackbar message
+    Then the modal closes
+      And I see the *Password reset* snackbar message

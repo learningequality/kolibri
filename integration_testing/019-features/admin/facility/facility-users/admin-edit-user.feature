@@ -86,7 +86,7 @@ Feature: Admin edit users
 
   Scenario: Admin can reset the user's password
     When I click on the *⋮* button for the user whose password I want to reset
-      And I select the *Reset password* option
+      And I select the *Reset password* option #not available for users created without a password or users with a picture password
     Then I see the *Reset user password* modal
     	And I see the username of the user
     When I click or tab into *Password* field
@@ -105,7 +105,7 @@ Feature: Admin edit users
     When I scroll to my name in the user list
     Then I see a label *Admin* next to my full name
 
-  Scenario: Admin can’t delete themselves
+  Scenario: Admin can’t delete their own account
     When I scroll to my name in the user list
       And I click on the *⋮* dropdown button
     Then I see that the *Delete* action is disabled
