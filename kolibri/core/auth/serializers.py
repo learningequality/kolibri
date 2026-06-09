@@ -1,6 +1,5 @@
 import logging
 
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator
 from django.db import connections
 from django.db import transaction
@@ -16,20 +15,13 @@ from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
-from .errors import NoAvailableSequences
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
-from .models import FacilityUser
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
-from .models import validate_username_allowed_chars
-from .models import validate_username_max_length
-from .utils.picture_passwords import are_picture_passwords_exhausted
-from .utils.picture_passwords import assign_picture_password
 from kolibri.core import error_constants
-from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
 logger = logging.getLogger(__name__)
 
@@ -142,154 +134,6 @@ class RoleSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         return attrs
-
-
-class FacilityUserRoleSerializer(serializers.ModelSerializer):
-    """Read-only role serializer for FacilityUser API responses.
-
-    Excludes 'user' since it's redundant when nested inside a user response.
-    """
-
-    class Meta:
-        model = Role
-        fields = ("id", "kind", "collection")
-
-
-class FacilityUserSerializer(serializers.ModelSerializer):
-    roles = FacilityUserRoleSerializer(many=True, read_only=True)
-    is_superuser = serializers.BooleanField(
-        source="devicepermissions.is_superuser", default=False, read_only=True
-    )
-    facility = serializers.PrimaryKeyRelatedField(
-        queryset=Facility.objects.all(),
-        default=Facility.get_default_facility,
-        required=False,
-        error_messages={"does_not_exist": "Facility does not exist."},
-    )
-    extra_demographics = serializers.JSONField(required=False)
-
-    class Meta:
-        model = FacilityUser
-        extra_kwargs = {"password": {"write_only": True}}
-        fields = (
-            "id",
-            "username",
-            "full_name",
-            "password",
-            "facility",
-            "roles",
-            "is_superuser",
-            "id_number",
-            "gender",
-            "birth_year",
-            "extra_demographics",
-            "picture_password",
-            "date_joined",
-        )
-        read_only_fields = ("is_superuser", "picture_password")
-
-    def save(self, **kwargs):
-        instance = super().save(**kwargs)
-        validated_data = dict(list(self.validated_data.items()) + list(kwargs.items()))
-        password = validated_data.get("password")
-        if password and password != NOT_SPECIFIED:
-            instance.set_password(password)
-            instance.save()
-        return instance
-
-    def create(self, validated_data):
-        with transaction.atomic():
-            instance = super().create(validated_data)
-            facility = instance.facility
-            if (
-                facility.dataset.picture_password_settings is not None
-                and not are_picture_passwords_exhausted(instance.dataset_id)
-            ):
-                try:
-                    assign_picture_password(instance, instance.facility)
-                except NoAvailableSequences:
-                    pass
-        return instance
-
-    def _validate_extra_demographics(self, attrs, facility):
-        # Validate the extra demographics here, as we need access to the facility dataset
-        extra_demographics = attrs.get("extra_demographics")
-        if extra_demographics:
-            try:
-                facility.dataset.validate_demographic_data(extra_demographics)
-            except DjangoValidationError as e:
-                raise serializers.ValidationError({"extra_demographics": e.message})
-
-    def validate(self, attrs):
-        username = attrs.get("username", None)
-        if username is not None:
-            # in case a patch request does not provide username attribute
-            try:
-                validate_username_allowed_chars(username)
-            except DjangoValidationError as e:
-                raise serializers.ValidationError({"username": e.message})
-
-            try:
-                validate_username_max_length(username)
-            except DjangoValidationError as e:
-                raise serializers.ValidationError(
-                    {"username": e.message}, code=error_constants.MAX_LENGTH
-                )
-
-        # first condition is for creating object, second is for updating
-        facility = attrs.get("facility") or getattr(self.instance, "facility")
-        if (
-            "password" in attrs
-            and attrs["password"] == NOT_SPECIFIED
-            and not facility.dataset.learner_can_login_with_no_password
-        ):
-            raise serializers.ValidationError(
-                "No password specified and it is required",
-                code=error_constants.PASSWORD_NOT_SPECIFIED,
-            )
-        self._validate_extra_demographics(attrs, facility)
-
-        # if obj doesn't exist, return data
-        try:
-            obj = FacilityUser.objects.get(username__iexact=username, facility=facility)
-        except FacilityUser.DoesNotExist:
-            return attrs
-        # if we are updating object, and this `instance` is the same object, return data
-        if self.instance and obj.id == self.instance.id:
-            return attrs
-        else:
-            raise serializers.ValidationError(
-                "An account with that username already exists.",
-                code=error_constants.USERNAME_ALREADY_EXISTS,
-            )
-
-
-class DeletedFacilityUserSerializer(FacilityUserSerializer):
-    class Meta(FacilityUserSerializer.Meta):
-        fields = FacilityUserSerializer.Meta.fields + ("date_deleted",)
-
-
-class PublicFacilityUserSerializer(serializers.ModelSerializer):
-    """Read-only serializer for the public (device-to-device) user API."""
-
-    roles = serializers.CharField(source="roles.kind", read_only=True)
-    is_superuser = serializers.BooleanField(
-        source="devicepermissions.is_superuser", default=False, read_only=True
-    )
-
-    class Meta:
-        model = FacilityUser
-        fields = (
-            "id",
-            "username",
-            "full_name",
-            "facility",
-            "roles",
-            "is_superuser",
-            "id_number",
-            "gender",
-            "birth_year",
-        )
 
 
 class MembershipListSerializer(serializers.ListSerializer):

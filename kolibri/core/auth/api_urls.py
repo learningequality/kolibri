@@ -2,10 +2,10 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ClassroomViewSet
-from .api import DeletedFacilityUserViewSet
 from .api import DeleteImportedUserView
 from .api import FacilityDatasetViewSet
-from .api import FacilityUserViewSet
+from .viewsets.facility_user import DeletedFacilityUserViewSet
+from .viewsets.facility_user import FacilityUserViewSet
 from .api import FacilityViewSet
 from .api import IsPINValidView
 from .api import LearnerGroupViewSet

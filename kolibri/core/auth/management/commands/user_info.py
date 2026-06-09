@@ -8,7 +8,7 @@ from django.core.management.base import CommandError
 from django.db.models import Model
 
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.serializers import FacilityUserSerializer
+from kolibri.core.auth.viewsets.facility_user import FacilityUserSerializer
 from kolibri.core.device.models import DevicePermissions
 
 logger = logging.getLogger(__name__)

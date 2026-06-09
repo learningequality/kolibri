@@ -9,7 +9,6 @@ from uuid import uuid4
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth import logout
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
@@ -30,15 +29,11 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import CharFilter
-from django_filters.rest_framework import ChoiceFilter
-from django_filters.rest_framework import DateTimeFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
 from django_filters.rest_framework import UUIDFilter
-from morango.api.permissions import BasicMultiArgumentAuthentication
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import TransferSession
@@ -52,14 +47,12 @@ from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ValidationError as RestValidationError
 from rest_framework.mixins import CreateModelMixin
-from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .constants import collection_kinds
 from .constants import role_kinds
 from .models import Classroom
-from .models import Collection
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
@@ -68,27 +61,19 @@ from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
 from .serializers import CreateFacilitySerializer
-from .serializers import DeletedFacilityUserSerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
-from .serializers import FacilityUserSerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
-from .serializers import PublicFacilityUserSerializer
 from .serializers import RoleSerializer
 from kolibri.core import error_constants
-from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
-from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.constants import user_kinds
-from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
-from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
-from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
@@ -109,25 +94,12 @@ from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
-from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 
 logger = logging.getLogger(__name__)
-
-
-class UUIDInFilter(BaseInFilter, UUIDFilter):
-    pass
-
-
-class ModelChoiceInFilter(BaseInFilter, ModelChoiceFilter):
-    pass
-
-
-class ChoiceInFilter(BaseInFilter, ChoiceFilter):
-    pass
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
@@ -388,272 +360,6 @@ class IsPINValidView(views.APIView):
             raise Http404("Facility not found")
 
         return Response({"is_pin_valid": saved_pin_code == input_pin_code})
-
-
-class FacilityUserFilter(FilterSet):
-    USER_TYPE_CHOICES = (
-        ("learner", "learner"),
-        ("superuser", "superuser"),
-    ) + role_kinds.choices
-
-    member_of = ModelChoiceFilter(
-        method="filter_member_of", queryset=Collection.objects.all()
-    )
-    related_to__in = ModelChoiceInFilter(
-        method="filter_related_to__in", queryset=Collection.objects.all()
-    )
-    user_type = ChoiceFilter(
-        choices=USER_TYPE_CHOICES,
-        method="filter_user_type",
-    )
-    user_type__in = ChoiceInFilter(
-        choices=USER_TYPE_CHOICES,
-        method="filter_user_type",
-    )
-    exclude_member_of = ModelChoiceFilter(
-        method="filter_exclude_member_of", queryset=Collection.objects.all()
-    )
-    exclude_coach_for = ModelChoiceFilter(
-        method="filter_exclude_coach_for", queryset=Collection.objects.all()
-    )
-    exclude_user_type = ChoiceFilter(
-        choices=USER_TYPE_CHOICES,
-        method="filter_exclude_user_type",
-    )
-    date_joined__gte = DateTimeFilter(
-        field_name="date_joined",
-        lookup_expr="gte",
-    )
-    date_joined__lte = DateTimeFilter(
-        field_name="date_joined",
-        lookup_expr="lte",
-    )
-    birth_year_gte = CharFilter(method="filter_birth_year_gte")
-    birth_year_lte = CharFilter(method="filter_birth_year_lte")
-
-    by_ids = UUIDInFilter(field_name="id")
-
-    def filter_member_of(self, queryset, name, value):
-        return queryset.filter(Q(memberships__collection=value) | Q(facility=value))
-
-    def filter_related_to__in(self, queryset, name, value):
-        """
-        Filter users related to any of the collections in the provided value. Related through
-        memberships, facility, or roles.
-        """
-        return queryset.filter(
-            Q(memberships__collection__in=value)
-            | Q(facility__in=value)
-            | Q(roles__collection__in=value)
-        )
-
-    def filter_user_type(self, queryset, name, value):
-        if isinstance(value, str):
-            value = [value]
-
-        user_type_filter = Q()
-
-        if "learner" in value:
-            user_type_filter |= Q(roles__isnull=True)
-
-        if "coach" in value:
-            # Return users with either coach or classroom assignable coach roles
-            user_type_filter |= Q(roles__kind=role_kinds.COACH) | Q(
-                roles__kind=role_kinds.ASSIGNABLE_COACH
-            )
-        if "superuser" in value:
-            user_type_filter |= Q(devicepermissions__is_superuser=True)
-
-        rest_filters = [
-            user_type_value
-            for user_type_value in value
-            if user_type_value not in ["learner", "coach", "superuser"]
-        ]
-
-        if rest_filters:
-            user_type_filter |= Q(roles__kind__in=rest_filters)
-
-        return queryset.filter(user_type_filter)
-
-    def filter_exclude_member_of(self, queryset, name, value):
-        return queryset.exclude(Q(memberships__collection=value) | Q(facility=value))
-
-    def filter_exclude_coach_for(self, queryset, name, value):
-        return queryset.exclude(
-            Q(
-                roles__in=Role.objects.filter(
-                    Q(kind=role_kinds.COACH) | Q(kind=role_kinds.ASSIGNABLE_COACH),
-                    collection=value,
-                )
-            )
-        )
-
-    def filter_exclude_user_type(self, queryset, name, value):
-        if value == "learner":
-            return queryset.exclude(roles__isnull=True)
-        if value == "superuser":
-            return queryset.exclude(devicepermissions__is_superuser=True)
-        return queryset.exclude(roles__kind=value)
-
-    def filter_birth_year_gte(self, queryset, name, value):
-        queryset = queryset.exclude(
-            Q(birth_year__isnull=True)
-            | Q(birth_year=NOT_SPECIFIED)
-            | Q(birth_year=DEFERRED)
-        )
-
-        return queryset.filter(Q(birth_year__gte=value))
-
-    def filter_birth_year_lte(self, queryset, name, value):
-        queryset = queryset.exclude(
-            Q(birth_year__isnull=True)
-            | Q(birth_year=NOT_SPECIFIED)
-            | Q(birth_year=DEFERRED)
-        )
-
-        return queryset.filter(Q(birth_year__lte=value))
-
-    class Meta:
-        model = FacilityUser
-        fields = [
-            "member_of",
-            "related_to__in",
-            "user_type",
-            "user_type__in",
-            "exclude_member_of",
-            "exclude_user_type",
-            "by_ids",
-            "date_joined__gte",
-            "date_joined__lte",
-            "birth_year_gte",
-            "birth_year_lte",
-        ]
-
-
-class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
-    queryset = FacilityUser.objects.all().order_by("id")
-    serializer_class = PublicFacilityUserSerializer
-    authentication_classes = [BasicMultiArgumentAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        if self.request.user.is_anonymous:
-            return FacilityUser.objects.none()
-        facility_id = self.request.query_params.get(
-            "facility_id", self.request.user.facility_id
-        )
-        try:
-            facility_id = UUID(facility_id).hex
-        except ValueError:
-            return self.queryset.none()
-
-        # if user has admin rights for the facility returns the list of users
-        queryset = self.queryset.filter(facility_id=facility_id)
-        # otherwise, the endpoint returns only the user information
-        if not self.request.user.is_superuser and not _user_is_admin_for_own_facility(
-            self.request.user
-        ):
-            queryset = queryset.filter(id=self.request.user.id)
-
-        return queryset
-
-
-class FacilityUserViewSet(ValuesViewset, BulkDeleteMixin):
-    permission_classes = (KolibriAuthPermissions,)
-    pagination_class = OptionalPageNumberPagination
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        ValuesViewsetOrderingFilter,
-    )
-    order_by_field = "username"
-
-    queryset = FacilityUser.objects.all().order_by(order_by_field)
-    serializer_class = FacilityUserSerializer
-    filterset_class = FacilityUserFilter
-
-    search_fields = ("username", "full_name")
-
-    ordering_fields = (
-        "id",
-        "username",
-        "full_name",
-        "id_number",
-        "gender",
-        "birth_year",
-        "date_joined",
-    )
-
-    def destroy(self, request, *args, **kwargs):
-        if kwargs.get("pk"):
-            # Single object deletion
-            user = self.get_object()
-            user.date_deleted = now()
-            user.save()
-            try:
-                cleanup_expired_deleted_users.enqueue()
-            except JobRunning:
-                pass  # Task is already running, do nothing
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            # Bulk deletion
-            return self.bulk_destroy(request, *args, **kwargs)
-
-    def perform_bulk_destroy(self, objects):
-        if objects.filter(id=self.request.user.id).exists():
-            raise PermissionDenied("Super user cannot delete self")
-        objects.update(date_deleted=now())
-
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        # if the user is updating their own password, ensure they don't get logged out
-        if self.request.user == instance:
-            update_session_auth_hash(self.request, instance)
-
-
-class DeletedFacilityUserViewSet(
-    ReadOnlyValuesViewset,
-    DestroyModelMixin,
-    BulkDeleteMixin,
-):
-    """Viewset for managing soft-deleted FacilityUsers."""
-
-    permission_classes = (KolibriAuthPermissions,)
-    pagination_class = OptionalPageNumberPagination
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        ValuesViewsetOrderingFilter,
-    )
-
-    order_by_field = "date_deleted"
-    queryset = FacilityUser.soft_deleted_objects.all().order_by(order_by_field)
-    serializer_class = DeletedFacilityUserSerializer
-    filterset_class = FacilityUserFilter
-
-    search_fields = FacilityUserViewSet.search_fields
-    ordering_fields = FacilityUserViewSet.ordering_fields + ("date_deleted",)
-
-    @decorators.action(detail=False, methods=["post"])
-    def restore(self, request):
-        """
-        Restore soft-deleted FacilityUsers.
-        """
-        # Permissions for allowing bulk restore are the same as for bulk destroy
-        if not self.allow_bulk_destroy():
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        users = self.filter_queryset(self.get_queryset())
-        if not users.exists():
-            raise Http404("No deleted users found to restore.")
-
-        users.update(date_deleted=None)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SanitizeInputsSerializer(serializers.Serializer):
@@ -1051,7 +757,12 @@ class LearnerGroupViewSet(ValuesViewset):
 
 
 class BaseSignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
-    serializer_class = FacilityUserSerializer
+    def get_serializer_class(self):
+        # Inline import: viewsets.facility_user imports auth helpers from this module,
+        # creating a circular dependency that is broken by deferring this import.
+        from kolibri.core.auth.viewsets.facility_user import FacilityUserSerializer
+
+        return FacilityUserSerializer
 
     def check_can_signup(self, serializer):
         """
@@ -1107,7 +818,7 @@ class PublicSignUpViewSet(BaseSignUpViewSet):
         serializer_kwargs = dict(data=request.data)
         serializer_kwargs.setdefault("context", self.get_serializer_context())
         for serializer_class in [
-            self.serializer_class
+            self.get_serializer_class()
         ] + self.legacy_serializer_classes:
             serializer = serializer_class(**serializer_kwargs)
             try:
