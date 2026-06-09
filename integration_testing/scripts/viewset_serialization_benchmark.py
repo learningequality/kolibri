@@ -41,6 +41,7 @@ from django.conf import settings
 from django.db import connection
 from rest_framework import serializers as drf_serializers
 from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
 logger = logging.getLogger(__name__)
 
@@ -160,8 +161,6 @@ def get_queryset_for_viewset(viewset_class):
         return queryset.all()
 
     try:
-        from rest_framework.test import APIRequestFactory
-
         factory = APIRequestFactory()
         django_request = factory.get("/")
         drf_request = Request(django_request)
