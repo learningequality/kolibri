@@ -35,7 +35,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 # Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
-import kolibri  # noqa: F401
+from kolibri.utils.main import initialize
 
 from django.conf import settings
 from django.db import connection
@@ -120,8 +120,6 @@ def parse_args():
 def setup_kolibri(inherit_kolibri_home=False):
     if not inherit_kolibri_home:
         os.environ.setdefault("KOLIBRI_HOME", "/tmp/kolibri_benchmark")
-
-    from kolibri.utils.main import initialize
 
     initialize()
 
@@ -279,7 +277,6 @@ def _make_synthetic_queryset(flat_items):
 
 def _make_viewset(viewset_class, queryset):
     """Create a viewset instance with a DRF Request for standalone use."""
-    from rest_framework.test import APIRequestFactory
 
     factory = APIRequestFactory()
     django_request = factory.get("/")
