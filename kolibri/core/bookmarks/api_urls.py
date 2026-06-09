@@ -1,6 +1,6 @@
 from rest_framework import routers
 
-from .api import BookmarksViewSet
+from .viewsets.bookmark import BookmarksViewSet
 
 router = routers.SimpleRouter()
 router.register(r"bookmarks", BookmarksViewSet, basename="bookmarks")
