@@ -102,6 +102,10 @@ test-all:
 	@echo "CI runs tests across all supported Python versions."
 	uv run pytest
 
+test-morango-integ:
+	export INTEGRATION_TEST=1; \
+	python -O -m pytest kolibri/core/auth/test/test_morango_integration.py
+
 %-with-postgres:
 	@echo -e "\e[33mWARNING: for testing purposes only; postgresql database backend is ephemeral\e[0m"
 	@echo -e "\e[36mINFO: run 'docker compose -v' to remove the database volume\e[0m"
