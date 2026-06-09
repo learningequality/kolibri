@@ -28,7 +28,7 @@ jobs:
           github_token: ${{ github.token }}
           paths: '["**.py", ".github/workflows/tox.yml", "pyproject.toml", "uv.lock"]'
   unit_test:
-    name: Python unit tests for currently supported Python versions
+    name: Python unit tests for uv-supported Python versions
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -57,8 +57,8 @@ jobs:
         run: |
           uv run python -O -m pytest kolibri --color=no
           uv run python -O -m pytest --color=no -p no:django test
-  unit_test_eol_python:
-    name: Python unit tests for EOL Python versions
+  unit_test_no_uv:
+    name: Python unit tests for Python versions without uv support
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
         run: |
           uv pip install --system --group base --group test
           uv pip install --system -r requirements/cext.txt
-          make set-eol-python-version-for-tests
+          make set-no-uv-python-version-for-tests
       - name: Check migrations
         run: python -m kolibri manage makemigrations --check
       - name: Run tests
@@ -254,7 +254,7 @@ jobs:
     needs:
       - pre_job
       - unit_test
-      - unit_test_eol_python
+      - unit_test_no_uv
       - postgres
       - postgres_ssl
       - macos

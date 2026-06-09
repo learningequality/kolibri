@@ -85,34 +85,41 @@ jobs:
           path: ${{ runner.temp }}/smoke_test_screenshot.png
           if-no-files-found: ignore
   test_whl_file:
-    name: Test WHL file
+    name: Test WHL file with uv-supported Python versions
     needs: whl
     strategy:
       matrix:
-        python-version: [3.9, '3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         cext: [true, false]
     runs-on: ubuntu-latest
     steps:
-      - name: Install Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.1.0
         with:
-          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-python: true
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
       - uses: actions/download-artifact@v8
         with:
           name: ${{ needs.whl.outputs.whl-file-name }}
           path: dist
+      # Seed the venv with real pip so the wheel is installed via pip itself
+      # (not `uv pip`), exercising the install path end users actually follow.
+      - name: Create virtual environment with pip
+        run: uv venv --seed --python ${{ matrix.python-version }}
       - name: Install WHL file
-        run: pip install dist/${{ needs.whl.outputs.whl-file-name }}
+        run: .venv/bin/pip install dist/${{ needs.whl.outputs.whl-file-name }}
       - name: Smoke test WHL file
         env:
           KOLIBRI_NO_C_EXTENSIONS: ${{ matrix.cext == false && '1' || '' }}
-        run: kolibri configure setup
-  test_whl_file_eol_python:
-    name: Test WHL file with EOL Python versions
+        run: .venv/bin/kolibri configure setup
+  test_whl_file_no_uv:
+    name: Test WHL file with Python versions without uv support
     needs: whl
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7]
         cext: [true, false]
     runs-on: ubuntu-latest
     container:
@@ -128,3 +135,19 @@ jobs:
         env:
           KOLIBRI_NO_C_EXTENSIONS: ${{ matrix.cext == false && '1' || '' }}
         run: kolibri configure setup
+  # Single stable check for branch protection. Gate on this one job so matrix
+  # or implementation changes in the smoke tests don't require updating the
+  # required-checks list in branch protection.
+  smoke_tests:
+    name: WHL smoke tests
+    needs:
+      - whl
+      - browser_smoke_test
+      - test_whl_file
+      - test_whl_file_no_uv
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any needed job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
