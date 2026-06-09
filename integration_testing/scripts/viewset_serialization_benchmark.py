@@ -34,10 +34,14 @@ import tracemalloc
 from datetime import datetime
 from unittest.mock import MagicMock
 
+# Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
+import kolibri  # noqa: F401
+
 from django.conf import settings
 from django.db import connection
 from rest_framework import serializers as drf_serializers
 from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +161,12 @@ def get_queryset_for_viewset(viewset_class):
         return queryset.all()
 
     try:
+        factory = APIRequestFactory()
+        django_request = factory.get("/")
+        drf_request = Request(django_request)
         viewset = viewset_class()
+        viewset.request = drf_request
+        viewset.kwargs = {}
         return viewset.get_queryset()
     except Exception as e:
         logger.error("Could not obtain queryset for %s: %s", viewset_class.__name__, e)
