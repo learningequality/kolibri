@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.serializers import ModelSerializer
 
 from kolibri.core.api import ValuesViewset
 from kolibri.core.serializers import HexOnlyUUIDField
@@ -8,7 +7,7 @@ from kolibri.core.serializers import HexOnlyUUIDField
 from ..models import PinnedDevice
 
 
-class PinnedDeviceSerializer(ModelSerializer):
+class PinnedDeviceSerializer(serializers.ModelSerializer):
     """
     Serializer for handling requests regarding a user's Pinned Devices
     """
