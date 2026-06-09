@@ -96,16 +96,6 @@ class KolibriView(object):
 
         file_menu = wx.Menu()
         self.add_menu_item(
-            file_menu, _("New Window"), handler=self.on_new_window, item_id=wx.ID_NEW
-        )
-        self.add_menu_item(
-            file_menu,
-            _("Close Window"),
-            handler=self.on_close_window,
-            item_id=wx.ID_CLOSE,
-        )
-        file_menu.AppendSeparator()
-        self.add_menu_item(
             file_menu,
             _("Open Kolibri Home Folder"),
             handler=self.on_open_kolibri_home,
@@ -114,20 +104,18 @@ class KolibriView(object):
 
         menu_bar.Append(file_menu, _("File"))
 
-        edit_menu = wx.Menu()
-        # FIXME: Remove these once the native menu handlers are restored
-        self.add_menu_item(
-            edit_menu, _("Undo\tCtrl+Z"), handler=self.on_undo, item_id=wx.ID_UNDO
-        )
-        self.add_menu_item(
-            edit_menu, _("Redo\tCtrl+Shift+Z"), handler=self.on_redo, item_id=wx.ID_REDO
-        )
-        edit_menu.AppendSeparator()
-        self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
-        self.add_menu_item(edit_menu, _("Copy\tCtrl+C"), item_id=wx.ID_COPY)
-        self.add_menu_item(edit_menu, _("Paste\tCtrl+V"), item_id=wx.ID_PASTE)
-        self.add_menu_item(edit_menu, _("Select All\tCtrl+A"), item_id=wx.ID_SELECTALL)
-        menu_bar.Append(edit_menu, _("Edit"))
+        # manually adding menu items only needed on macOS
+        # windows and linux handle this already
+        # see https://github.com/learningequality/kolibri-app/issues/236
+        if MAC:
+            edit_menu = wx.Menu()
+            self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
+            self.add_menu_item(edit_menu, _("Copy\tCtrl+C"), item_id=wx.ID_COPY)
+            self.add_menu_item(edit_menu, _("Paste\tCtrl+V"), item_id=wx.ID_PASTE)
+            self.add_menu_item(
+                edit_menu, _("Select All\tCtrl+A"), item_id=wx.ID_SELECTALL
+            )
+            menu_bar.Append(edit_menu, _("Edit"))
 
         view_menu = wx.Menu()
         self.add_menu_item(
@@ -156,21 +144,6 @@ class KolibriView(object):
             view_menu, _("Open in Browser"), handler=self.on_open_in_browser
         )
         menu_bar.Append(view_menu, _("View"))
-
-        history_menu = wx.Menu()
-        self.add_menu_item(
-            history_menu,
-            _("Back\tCtrl+["),
-            handler=self.on_back,
-            item_id=wx.ID_BACKWARD,
-        )
-        self.add_menu_item(
-            history_menu,
-            _("Forward\tCtrl+]"),
-            handler=self.on_forward,
-            item_id=wx.ID_FORWARD,
-        )
-        menu_bar.Append(history_menu, _("History"))
 
         help_menu = wx.Menu()
         self.add_menu_item(
@@ -294,12 +267,6 @@ class KolibriView(object):
     def on_forums(self, event):
         webbrowser.open("https://community.learningequality.org/")
 
-    def on_new_window(self, event):
-        self.app.create_kolibri_window(url=self.app.kolibri_origin)
-
-    def on_close_window(self, event):
-        self.close()
-
     def on_open_in_browser(self, event):
         webbrowser.open(self.get_url())
 
@@ -311,20 +278,8 @@ class KolibriView(object):
         elif LINUX:
             subprocess.call(["xdg-open", os.environ["KOLIBRI_HOME"]])
 
-    def on_back(self, event):
-        self.webview.GoBack()
-
-    def on_forward(self, event):
-        self.webview.GoForward()
-
     def on_reload(self, event):
         self.webview.Reload()
-
-    def on_undo(self, event):
-        self.webview.Undo()
-
-    def on_redo(self, event):
-        self.webview.Redo()
 
     def on_actual_size(self, event):
         self.webview.SetZoom(html2.WEBVIEW_ZOOM_MEDIUM)
