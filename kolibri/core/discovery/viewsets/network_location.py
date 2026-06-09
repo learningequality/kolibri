@@ -6,23 +6,78 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import DynamicNetworkLocation
-from .models import LocationTypes
-from .models import NetworkLocation
-from .models import PinnedDevice
-from .models import StaticNetworkLocation
-from .serializers import NetworkLocationSerializer
-from .serializers import PinnedDeviceSerializer
-from .utils.network import errors
-from .utils.network.client import NetworkClient
-from .utils.network.connections import capture_connection_state
-from .utils.network.connections import update_network_location
 from kolibri.core.api import BaseValuesViewset
-from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
 from kolibri.core.utils.urls import reverse_path
+
+from ..models import ConnectionStatus
+from ..models import DynamicNetworkLocation
+from ..models import LocationTypes
+from ..models import NetworkLocation
+from ..models import StaticNetworkLocation
+from ..utils.network import errors
+from ..utils.network.client import NetworkClient
+from ..utils.network.connections import capture_connection_state
+from ..utils.network.connections import update_network_location
+
+
+class NetworkLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaticNetworkLocation
+        fields = (
+            "id",
+            "available",
+            "nickname",
+            "base_url",
+            "device_name",
+            "instance_id",
+            "added",
+            "last_accessed",
+            "since_last_accessed",
+            "operating_system",
+            "application",
+            "kolibri_version",
+            "subset_of_users_device",
+            "connection_status",
+            "is_local",
+            "location_type",
+        )
+        read_only_fields = (
+            "available",
+            "device_name",
+            "instance_id",
+            "added",
+            "last_accessed",
+            "since_last_accessed",
+            "operating_system",
+            "application",
+            "kolibri_version",
+            "subset_of_users_device",
+            "connection_status",
+            "is_local",
+            "location_type",
+        )
+
+    def validate(self, data):
+        try:
+            client = NetworkClient.discover_from_address(data["base_url"])
+        except (errors.NetworkClientError, errors.URLParseError) as e:
+            raise serializers.ValidationError(
+                "Error with address {} ({})".format(
+                    data["base_url"], e.__class__.__name__
+                ),
+                code=e.code,
+            )
+        data["base_url"] = client.base_url
+        data["last_known_ip"] = client.remote_ip
+        data["connection_status"] = ConnectionStatus.Okay
+        # Filter out None values so they don't overwrite existing valid model
+        # data — device_info may omit unknown fields as None (commit 7c63b8d)
+        info = {k: v for (k, v) in client.device_info.items() if v is not None}
+        data.update(info)
+        return super().validate(data)
 
 
 class NetworkLocationViewSet(viewsets.ModelViewSet):
@@ -79,6 +134,9 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     @decorators.action(methods=("post",), detail=True)
     def update_connection_status(self, request, pk=None):
         network_location = self.get_object(id_filter=pk)
+        # Swallow NetworkClientError: capture_connection_state updates the
+        # status even on failure, so we always return current state (commit
+        # 7c63b8d — "Refine network device selection")
         try:
             update_network_location(network_location)
         except errors.NetworkClientError:
@@ -151,11 +209,3 @@ class NetworkLocationFacilitiesView(BaseValuesViewset):
                 "facilities": facilities,
             }
         )
-
-
-class PinnedDeviceViewSet(ValuesViewset):
-    serializer_class = PinnedDeviceSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return PinnedDevice.objects.filter(user=self.request.user)

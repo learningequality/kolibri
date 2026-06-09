@@ -35,7 +35,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 # Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
-import kolibri  # noqa: F401
+from kolibri.utils.main import initialize
 
 from django.conf import settings
 from django.db import connection
@@ -121,8 +121,6 @@ def setup_kolibri(inherit_kolibri_home=False):
     if not inherit_kolibri_home:
         os.environ.setdefault("KOLIBRI_HOME", "/tmp/kolibri_benchmark")
 
-    from kolibri.utils.main import initialize
-
     initialize()
 
 
@@ -161,12 +159,30 @@ def get_queryset_for_viewset(viewset_class):
         return queryset.all()
 
     try:
+        from django.contrib.auth.models import AnonymousUser
+
         factory = APIRequestFactory()
         django_request = factory.get("/")
+
+        # Viewsets that filter by request.user (e.g. PinnedDeviceViewSet) need
+        # a real authenticated user. Try to find any user in the DB.
+        try:
+            from kolibri.core.auth.models import FacilityUser
+
+            user = FacilityUser.objects.first()
+        except Exception:
+            user = None
+
+        if user is None:
+            user = AnonymousUser()
+
+        # Force authentication by setting user directly on the DRF request
         drf_request = Request(django_request)
+        drf_request._user = user
         viewset = viewset_class()
         viewset.request = drf_request
         viewset.kwargs = {}
+        viewset.format_kwarg = None
         return viewset.get_queryset()
     except Exception as e:
         logger.error("Could not obtain queryset for %s: %s", viewset_class.__name__, e)
@@ -258,7 +274,6 @@ def _make_synthetic_queryset(flat_items):
 
 def _make_viewset(viewset_class, queryset):
     """Create a viewset instance with a DRF Request for standalone use."""
-    from rest_framework.test import APIRequestFactory
 
     factory = APIRequestFactory()
     django_request = factory.get("/")

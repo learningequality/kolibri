@@ -265,7 +265,9 @@ class NetworkLocationFacilitiesViewTestCase(APITestCase):
     }
 
     def _retrieve(self, payload):
-        with mock.patch("kolibri.core.discovery.api.NetworkClient") as NetworkClient:
+        with mock.patch(
+            "kolibri.core.discovery.viewsets.network_location.NetworkClient"
+        ) as NetworkClient:
             client = NetworkClient.build_from_network_location.return_value.__enter__.return_value
             client.base_url = self.peer.base_url
             client.get.return_value.json.return_value = payload
