@@ -1498,6 +1498,36 @@ class TestDevModeSafeguards(TestCase):
         result = _serialize(V(), [{"id": "a1"}])
         self.assertEqual(result[0]["book_titles"], ["B1", "B2"])
 
+    @override_settings(DEBUG=True)
+    def test_explicit_values_viewset_skips_output_validation(self):
+        """Legacy explicit-values viewsets often pair a write-oriented
+        serializer_class with a different read shape — DEBUG output
+        validation must not apply to them."""
+        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            serializer_class = Ser
+            values = ("id",)
+
+        result = _serialize(V(), [{"id": "a1"}])
+        self.assertEqual(result[0], {"id": "a1"})
+
+    def test_explicit_values_viewset_skips_validation_fallback(self):
+        """Even with no cached schema (class initialized under DEBUG=False),
+        the runtime fallback must not validate explicit-values viewsets."""
+        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            serializer_class = Ser
+            values = ("id",)
+
+        viewset = V()  # initialized with DEBUG=False — no cached schema
+        with override_settings(DEBUG=True):
+            result = _serialize(viewset, [{"id": "a1"}])
+        self.assertEqual(result[0], {"id": "a1"})
+
     @override_settings(DEBUG=False)
     def test_validation_skipped_when_debug_false(self):
         """DEBUG=False — drifting output passes silently."""

@@ -265,6 +265,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     # Cached validation schema for DEBUG mode: (expected_fields, nested_schemas)
     # Built once during _ensure_initialized to avoid per-request recomputation.
     _validation_schema = None
+    # Whether this class derives its values from serializer_class. Legacy
+    # explicit-values viewsets may pair a write-oriented serializer with a
+    # different read shape, so DEBUG output validation only applies when True.
+    _serializer_derived = False
     # Whether _ensure_initialized has run for this class
     _initialized = False
     # Guards _ensure_initialized for this class; each subclass gets its own
@@ -312,6 +316,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
         has_explicit_values = isinstance(getattr(cls, "values", None), tuple)
         serializer_class = getattr(cls, "serializer_class", None)
+        cls._serializer_derived = not has_explicit_values
 
         if has_explicit_values:
             cls._values = tuple(cls.values)
@@ -350,16 +355,12 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         if queryset is not None and hasattr(queryset, "model"):
             cls._pk_getter = operator.itemgetter(queryset.model._meta.pk.name)
 
-        # Cache validation schema for DEBUG mode
-        if settings.DEBUG:
-            serializer = cls._get_own("_cached_serializer")
-            if (
-                serializer is None
-                and getattr(cls, "serializer_class", None) is not None
-            ):
-                serializer = cls.serializer_class()
-            if serializer is not None:
-                cls._validation_schema = cls._build_validation_schema(serializer)
+        # Cache validation schema for DEBUG mode — serializer-derived
+        # viewsets only; the serializer is the read contract for them.
+        if settings.DEBUG and cls._serializer_derived:
+            cls._validation_schema = cls._build_validation_schema(
+                cls._cached_serializer
+            )
 
         cls._initialized = True
 
@@ -610,19 +611,19 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
         Uses the cached _validation_schema when available (built during
         _ensure_initialized), falling back to building from the serializer.
+
+        Only applies to serializer-derived viewsets — legacy explicit-values
+        viewsets may pair a write-oriented serializer with a different read
+        shape, so the serializer is not their read contract.
         """
-        if not items:
+        if not items or not self._serializer_derived:
             return
 
         schema = self._validation_schema
         if schema is None:
-            # Fallback for viewsets without a cached schema
-            if self._cached_serializer is not None:
-                schema = self._build_validation_schema(self._cached_serializer)
-            elif self.serializer_class is not None:
-                schema = self._build_validation_schema(self.serializer_class())
-            else:
-                return
+            # Class was initialized under DEBUG=False; build from the
+            # serializer cached during derivation.
+            schema = self._build_validation_schema(self._cached_serializer)
 
         self._validate_items_against_schema(items, schema)
 
