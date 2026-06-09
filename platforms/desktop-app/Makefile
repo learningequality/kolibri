@@ -1,6 +1,6 @@
 .PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version
 
-PYTHON_EXEC := python
+PYTHON_EXEC := uv run python
 
 ifeq ($(OS),Windows_NT)
     OSNAME := WIN32
@@ -18,8 +18,8 @@ guard-%:
 	fi
 
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell $(PYTHON_EXEC) -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
-	$(eval APP_VERSION ?= $(shell $(PYTHON_EXEC) read_version.py))
+	$(eval KOLIBRI_VERSION ?= $(shell uv run --group build python -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
+	$(eval APP_VERSION ?= $(shell uv run --group build python -m setuptools_scm))
 
 clean:
 	rm -rf build dist
@@ -30,11 +30,11 @@ clean-whl:
 
 install-whl:
 	rm -rf kolibrisrc
-	pip install ${whl} -t kolibrisrc/
+	uv pip install ${whl} -t kolibrisrc/
 	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
 	# Manually install the sqlalchemy version
 	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibrisrc/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
-	pip install sqlalchemy==$$version --no-binary :all:
+	uv pip install sqlalchemy==$$version --no-binary :all:
 	# Delete sqlalchemy from the dist folder
 	rm -rf kolibrisrc/kolibri/dist/sqlalchemy
 	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
@@ -67,17 +67,14 @@ get-whl: clean-whl
 	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
 
 dependencies:
-	PYINSTALLER_COMPILE_BOOTLOADER=1 pip install -r build_requires.txt --no-binary pyinstaller
+	PYINSTALLER_COMPILE_BOOTLOADER=1 uv sync --group build --no-binary-package pyinstaller
 	$(PYTHON_EXEC) -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
 build-mac-app:
-	$(eval LIBPYTHON_FOLDER = $(shell $(PYTHON_EXEC) -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LIBDIR"))'))
-	test -f ${LIBPYTHON_FOLDER}/libpython3.10.dylib || ln -s ${LIBPYTHON_FOLDER}/libpython3.10m.dylib ${LIBPYTHON_FOLDER}/libpython3.10.dylib
 	$(MAKE) pyinstaller
 
 pyinstaller: clean
 	mkdir -p logs
-	pip install .
 	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
 build-dmg: needs-version

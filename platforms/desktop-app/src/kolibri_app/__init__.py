@@ -1,10 +1,9 @@
 import os
 import sys
 
+from kolibri_app._version import __version__
 from kolibri_app.constants import MAC
 from kolibri_app.constants import WINDOWS
-
-__version__ = "0.5.1"
 
 os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 
@@ -18,13 +17,11 @@ if WINDOWS and "KOLIBRI_HOME" not in os.environ:
         # This assumes an installer has set the correct permissions.
         program_data_dir = os.environ.get("PROGRAMDATA", "C:\\ProgramData")
         kolibri_home_path = os.path.join(program_data_dir, "kolibri")
-        os.environ["KOLIBRI_HOME"] = kolibri_home_path
     else:
         # DEVELOPMENT: Running from source, use a local folder in the user's home directory.
         # This is always writable and avoids permission issues.
-        user_home_dir = os.path.expanduser("~")
-        kolibri_home_path = os.path.join(user_home_dir, ".kolibri")
-        os.environ["KOLIBRI_HOME"] = kolibri_home_path
+        kolibri_home_path = os.path.join(os.path.expanduser("~"), ".kolibri")
+    os.environ["KOLIBRI_HOME"] = kolibri_home_path
 
 if MAC:
     os.environ["KOLIBRI_INSTALLATION_TYPE"] = "mac"

@@ -7,6 +7,7 @@ across platform-specific implementations.
 Platform-specific behavior is achieved by adding different plugins to the same
 base process class, rather than having separate wrapper classes per platform.
 """
+
 import secrets
 
 from kolibri.main import initialize

@@ -1,5 +1,4 @@
 name: Build Mac installer
-
 on:
   workflow_dispatch:
     # Inputs the workflow accepts.
@@ -46,7 +45,6 @@ on:
       dmg-file-name:
         description: "DMG file name"
         value: ${{ jobs.build_dmg.outputs.dmg-file-name }}
-
 jobs:
   build_dmg:
     # This seems to be the only way to specify an intel based runner
@@ -54,96 +52,86 @@ jobs:
     outputs:
       dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     env:
-      # We need the official Python, because the GA ones only support newer macOS versions
-      # The deployment target is picked up by the Python build tools automatically
-      PYTHON_VERSION: "3.10.10"
-      MACOSX_DEPLOYMENT_TARGET: "10.9"
+      MACOSX_DEPLOYMENT_TARGET: "12.0"
     steps:
-    - name: Validate whl reference inputs
-      if: ${{ (inputs.whl-file-name && inputs.whl-url) || (!inputs.whl-file-name && !inputs.whl-url) }}
-      run: |
-        echo "Must specify exactly one reference for the whl file to build the DMG with."
-        exit 1
-    - uses: actions/checkout@v6
-      if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v6
-      if: ${{ inputs.ref }}
-      with:
-        repository: learningequality/kolibri-app
-        ref: ${{ inputs.ref }}
-    - name: Cache Python download
-      id: cache-python-download
-      uses: actions/cache@v5
-      with:
-        path: ~/python.pkg
-        key: macOS-Python-${{ env.PYTHON_VERSION }}
-    - name: Download Python ${{ env.PYTHON_VERSION }}
-      if: steps.cache-python-download.outputs.cache-hit != 'true'
-      run: curl https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macos11.pkg -o ~/python.pkg
-    - name: Install Python 3.10
-      run: |
-        sudo installer -pkg ~/python.pkg -target /
-        unlink /usr/local/bin/python || true
-        unlink /usr/local/bin/pip || true
-        unlink /usr/local/bin/pip3 || true
-        ln -s /usr/local/bin/python3 /usr/local/bin/python
-        ln -s /Library/Frameworks/Python.framework/Versions/3.10/bin/pip3 /usr/local/bin/pip
-    - uses: actions/cache@v5
-      with:
-        path: ~/Library/Caches/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt', '.github/workflows/build_mac.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    - name: Install dependencies
-      run: make dependencies
-    - name: Download the whlfile from URL and install
-      if: ${{ inputs.whl-url }}
-      run: make get-whl whl=${{ inputs.whl-url }}
-    - name: Download the whlfile from artifacts
-      if: ${{ inputs.whl-file-name }}
-      uses: actions/download-artifact@v8
-      with:
-        name: ${{ inputs.whl-file-name }}
-        path: whl
-    - name: Install WHL file from artifacts
-      if: ${{ inputs.whl-file-name }}
-      run: make install-whl whl=whl/${{ inputs.whl-file-name }}
-    - name: Setup app signing certificate
-      if: ${{ inputs.release }}
-      env:
-        KEYCHAIN_PASSWORD: ${{ hashFiles('*')}}
-      run: |
-        security create-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
-        security set-keychain-settings -lut 21600 temp.keychain
-        security unlock-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
-        echo -n "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}" | base64 --decode --output=certificate.p12
-        # -A option allows any application to read keys.
-        # This would be insecure if the keychain was retained but GitHub action
-        # VMs are thrown away after use.
-        security import certificate.p12 -k temp.keychain -f pkcs12 -A -T '/usr/bin/codesign' -T '/usr/bin/security' -P "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}"
-        security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" temp.keychain
-        security list-keychains -d user -s temp.keychain login.keychain
-    - name: Build the app
-      run: make build-mac-app
-    - name: Codesign the app
-      if: ${{ inputs.release }}
-      run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-mac-app
-    - name: Build the DMG
-      run: make build-dmg
-    - name: Codesign the DMG
-      if: ${{ inputs.release }}
-      run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-dmg
-    - name: Notarize the DMG
-      if: ${{ inputs.release }}
-      env:
-        MAC_NOTARIZE_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
-        MAC_NOTARIZE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
-        MAC_NOTARIZE_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
-      run: make notarize-dmg
-    - name: Get DMG filename
-      id: get-dmg-filename
-      run: echo "dmg-file-name=$(ls dist | grep .dmg | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v7
-      with:
-        name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
-        path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+      - name: Validate whl reference inputs
+        if: ${{ (inputs.whl-file-name && inputs.whl-url) || (!inputs.whl-file-name && !inputs.whl-url) }}
+        run: |
+          echo "Must specify exactly one reference for the whl file to build the DMG with."
+          exit 1
+      - uses: actions/checkout@v6
+        if: ${{ !inputs.ref }}
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v6
+        if: ${{ inputs.ref }}
+        with:
+          repository: learningequality/kolibri-app
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-python: true
+          python-version: "3.10"
+          cache-dependency-path: uv.lock
+      - name: Install dependencies
+        run: make dependencies
+      - name: Download the whlfile from URL and install
+        if: ${{ inputs.whl-url }}
+        run: make get-whl whl=${{ inputs.whl-url }}
+      - name: Download the whlfile from artifacts
+        if: ${{ inputs.whl-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.whl-file-name }}
+          path: whl
+      - name: Install WHL file from artifacts
+        if: ${{ inputs.whl-file-name }}
+        run: make install-whl whl=whl/${{ inputs.whl-file-name }}
+      - name: Setup app signing certificate
+        if: ${{ inputs.release }}
+        env:
+          KEYCHAIN_PASSWORD: ${{ hashFiles('*')}}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
+          security set-keychain-settings -lut 21600 temp.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
+          echo -n "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}" | base64 --decode --output=certificate.p12
+          # -A option allows any application to read keys.
+          # This would be insecure if the keychain was retained but GitHub action
+          # VMs are thrown away after use.
+          security import certificate.p12 -k temp.keychain -f pkcs12 -A -T '/usr/bin/codesign' -T '/usr/bin/security' -P "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" temp.keychain
+          security list-keychains -d user -s temp.keychain login.keychain
+      - name: Build the app
+        run: make build-mac-app
+      - name: Codesign the app
+        if: ${{ inputs.release }}
+        run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-mac-app
+      - name: Build the DMG
+        run: make build-dmg
+      - name: Codesign the DMG
+        if: ${{ inputs.release }}
+        run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-dmg
+      - name: Notarize the DMG
+        if: ${{ inputs.release }}
+        env:
+          MAC_NOTARIZE_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
+          MAC_NOTARIZE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
+          MAC_NOTARIZE_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
+        run: make notarize-dmg
+      - name: Get DMG filename
+        id: get-dmg-filename
+        run: |
+          shopt -s nullglob
+          dmgs=(dist/*.dmg)
+          if [[ ${#dmgs[@]} -eq 0 ]]; then
+            echo "No DMG found in dist/" >&2
+            exit 1
+          fi
+          echo "dmg-file-name=$(basename "${dmgs[0]}")" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+          path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}

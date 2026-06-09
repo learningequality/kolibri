@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri-app"
+dynamic = ["version"]
+description = "wxPython app for the Kolibri Learning Platform."
+authors = [{name = "Learning Equality", email = "dev@learningequality.org"}]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "wxPython==4.2.2",
+    "cryptography==45.0.7",
+    "cffi==1.14.4",
+    "pywin32==311; sys_platform == 'win32'",
+]
+
+[dependency-groups]
+build = [
+    "wheel",
+    "pkginfo",
+    "pyinstaller==6.20.0",
+    "dmgbuild==1.6.7; sys_platform == 'darwin'",
+    "attrdict==2.0.1",
+    "polib==1.2.0",
+    "setuptools-scm>=8",
+    "setuptools>=64,<71",
+]
+dev = ["prek"]
+
+[tool.setuptools]
+zip-safe = true
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+version_file = "src/kolibri_app/_version.py"
+fallback_version = "0.0.0.dev0"
+
+[tool.uv]
+# Update this date when intentionally pulling in new or updated packages.
+# uv requires an RFC 3339 timestamp here — relative durations like "7 days" are NOT valid.
+exclude-newer = "2026-06-03T00:00:00Z"
+
+[tool.ruff]
+line-length = 88
+src = ["src"]
+target-version = "py310"
+exclude = ["kolibrisrc/"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C90"]
+ignore = ["E203", "E721", "E741"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 160
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

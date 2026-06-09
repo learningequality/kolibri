@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 # Redirect stdout to devnull until we can setup logging.
 devnull = open(os.devnull, "w")
 sys.stdout = devnull

@@ -170,9 +170,7 @@ class KolibriView(object):
             # surface window.print() to a real dialog without help.
             if self.webview.AddScriptMessageHandler(BRIDGE_NAME):
                 self.webview.AddUserScript(
-                    f"window.print = function () {{"
-                    f" window.{BRIDGE_NAME}.postMessage('{BRIDGE_MSG_PRINT}');"
-                    f"}};",
+                    f"window.print = function () {{ window.{BRIDGE_NAME}.postMessage('{BRIDGE_MSG_PRINT}');}};",
                     injectionTime=html2.WEBVIEW_INJECT_AT_DOCUMENT_START,
                 )
                 self.webview.Bind(

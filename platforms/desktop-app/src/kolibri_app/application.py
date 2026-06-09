@@ -13,15 +13,18 @@ from kolibri_app.logger import logging
 from kolibri_app.view import KolibriView
 
 if WINDOWS:
+    import ctypes
+
+    import win32con
+    import win32gui
+
     from kolibri_app.server_manager_windows import WindowsServerManager as ServerManager
     from kolibri_app.taskbar_icon import KolibriTaskBarIcon
     from kolibri_app.windows_registry import is_webview2_installed
-    import win32con
-    import win32gui
-    import ctypes
 else:
-    from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
     from kolibri.core.device.utils import app_initialize_url
+
+    from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
 
 STATE_FILE = "app_state.json"
 
