@@ -1147,24 +1147,23 @@ class MasteryFilter(BaseLogFilter):
         fields = ["content", "user", "complete"]
 
 
-attemptlog_values = (
-    "id",
-    "item",
-    "start_timestamp",
-    "end_timestamp",
-    "completion_timestamp",
-    "time_spent",
-    "complete",
-    "correct",
-    "hinted",
-    "answer",
-    "simple_answer",
-    "interaction_history",
-    "user",
-    "error",
-    "masterylog",
-    "sessionlog",
-)
+class MasteryLogSerializer(serializers.ModelSerializer):
+    # Annotation added by annotate_queryset. output_field=IntegerField() is
+    # required for Postgres compatibility — cf2d54e5b1.
+    correct = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = MasteryLog
+        fields = (
+            "id",
+            "mastery_criterion",
+            "start_timestamp",
+            "end_timestamp",
+            "completion_timestamp",
+            "complete",
+            "correct",
+            "time_spent",
+        )
 
 
 @query_params_required(content=str, user=str)
@@ -1177,16 +1176,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
     queryset = MasteryLog.objects.all().order_by(LOG_ORDER_BY)
     pagination_class = OptionalPageNumberPagination
     filterset_class = MasteryFilter
-    values = (
-        "id",
-        "mastery_criterion",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "complete",
-        "correct",
-        "time_spent",
-    )
+    serializer_class = MasteryLogSerializer
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
@@ -1206,7 +1196,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         tries_queryset = self.annotate_queryset(
             self.filter_queryset(self.get_queryset())
-        ).values(*self.values)[back : back + 2]
+        ).values(*self._values)[back : back + 2]
 
         try:
             target_try = tries_queryset[0]
@@ -1237,7 +1227,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
         target_try["diff"] = diff
         target_try["attemptlogs"] = attempt_logs.values(
-            *(attemptlog_values + ("diff__correct",))
+            *(AttemptLogViewSet.values + ("diff__correct",))
         )
 
         for attempt in target_try["attemptlogs"]:
@@ -1268,7 +1258,24 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     pagination_class = OptionalPageNumberPagination
     filterset_class = AttemptFilter
 
-    values = attemptlog_values
+    values = (
+        "id",
+        "item",
+        "start_timestamp",
+        "end_timestamp",
+        "completion_timestamp",
+        "time_spent",
+        "complete",
+        "correct",
+        "hinted",
+        "answer",
+        "simple_answer",
+        "interaction_history",
+        "user",
+        "error",
+        "masterylog",
+        "sessionlog",
+    )
 
 
 class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
