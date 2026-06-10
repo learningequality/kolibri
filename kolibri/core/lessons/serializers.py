@@ -1,6 +1,5 @@
-from collections import OrderedDict
-
 from rest_framework.serializers import BooleanField
+from rest_framework.serializers import CharField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -11,6 +10,7 @@ from .models import Lesson
 from .models import LessonAssignment
 from kolibri.core import error_constants
 from kolibri.core.api import HexUUIDField
+from kolibri.core.api import ValuesMethodField
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
@@ -24,24 +24,29 @@ class ResourceSerializer(Serializer):
     contentnode_id = HexUUIDField()
 
 
+class ClassroomSerializer(ModelSerializer):
+    parent = CharField(source="parent_id", read_only=True)
+
+    class Meta:
+        model = Collection
+        fields = ("id", "name", "parent")
+
+
 class LessonSerializer(ModelSerializer):
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    assignments = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False, queryset=Collection.objects.all()
-        ),
-        required=False,
-    )
     resources = ListField(child=ResourceSerializer(), required=False)
-    learner_ids = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False, queryset=FacilityUser.objects.all()
-        ),
-        required=False,
-    )
     active = BooleanField(source="is_active", required=False)
+    # Read path: list of assignment collection IDs from the lesson_assignment_collections
+    # annotation added by LessonViewset.annotate_queryset().
+    assignments = ValuesMethodField(sources=("lesson_assignment_collections",))
+    # Read path: default [] overwritten by consolidate() with adhoc-group member IDs.
+    # Write path: popped in to_internal_value and validated with a temporary field.
+    learner_ids = ValuesMethodField(sources=())
+    # source="collection" prefixes child values with "collection__" in the values() query,
+    # so ClassroomSerializer's parent_id becomes "collection__parent_id".
+    classroom = ClassroomSerializer(source="collection", read_only=True)
 
     class Meta:
         model = Lesson
@@ -51,23 +56,35 @@ class LessonSerializer(ModelSerializer):
             "description",
             "resources",
             "active",
-            "collection",  # classroom
+            "collection",
+            "classroom",
             "assignments",
             "learner_ids",
             "created_by",
+            "date_created",
         )
+
+    def get_assignments(self, obj):
+        # obj is a _SourcesProxy over the values() row;
+        # obj.lesson_assignment_collections returns the annotation value.
+        return obj.lesson_assignment_collections or []
+
+    def get_learner_ids(self, obj):
+        # consolidate() overwrites this default with actual adhoc-group member IDs.
+        return []
 
     def validate(self, attrs):
         title = attrs.get("title")
         # first condition is for creating object, second is for updating
         collection = attrs.get("collection") or getattr(self.instance, "collection")
 
-        if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
+        learner_ids = attrs.get("learner_ids")
+        if learner_ids:
             if (
-                len(self.initial_data["learner_ids"])
+                len(learner_ids)
                 != FacilityUser.objects.filter(
                     memberships__collection=collection,
-                    id__in=self.initial_data["learner_ids"],
+                    id__in=[u.id for u in learner_ids],
                 ).count()
             ):
                 raise ValidationError(
@@ -83,16 +100,36 @@ class LessonSerializer(ModelSerializer):
         # and this lesson already has this title, return the data
         if self.instance is not None and lessons.filter(id=self.instance.id).exists():
             return attrs
-        else:
-            raise ValidationError(
-                "The fields title, collection must make a unique set.",
-                code=error_constants.UNIQUE,
-            )
+        raise ValidationError(
+            "The fields title, collection must make a unique set.",
+            code=error_constants.UNIQUE,
+        )
+
+    def _validate_pk_list(self, field_name, queryset, raw_value):
+        field = ListField(child=PrimaryKeyRelatedField(queryset=queryset))
+        field.bind(field_name, self)
+        try:
+            return field.run_validation(raw_value)
+        except ValidationError as exc:
+            raise ValidationError({field_name: exc.detail})
 
     def to_internal_value(self, data):
-        data = OrderedDict(data)
+        data = dict(data)
         data["created_by"] = self.context["request"].user.id
-        return super().to_internal_value(data)
+        # 'assignments' and 'learner_ids' are ValuesMethodFields (read-only), so
+        # DRF's to_internal_value skips them. Extract and validate manually here.
+        raw_assignments = data.pop("assignments", None)
+        raw_learner_ids = data.pop("learner_ids", None)
+        result = super().to_internal_value(data)
+        if raw_assignments is not None:
+            result["assignments"] = self._validate_pk_list(
+                "assignments", Collection.objects.all(), raw_assignments
+            )
+        if raw_learner_ids is not None:
+            result["learner_ids"] = self._validate_pk_list(
+                "learner_ids", FacilityUser.objects.all(), raw_learner_ids
+            )
+        return result
 
     def create(self, validated_data):
         """
@@ -111,7 +148,6 @@ class LessonSerializer(ModelSerializer):
         learners = validated_data.pop("learner_ids", [])
         new_lesson = Lesson.objects.create(**validated_data)
 
-        # Create all of the new LessonAssignments
         for collection in collections:
             self._create_lesson_assignment(lesson=new_lesson, collection=collection)
 
@@ -124,35 +160,35 @@ class LessonSerializer(ModelSerializer):
         return new_lesson
 
     def update(self, instance, validated_data):
-        # Update the scalar fields
         instance.title = validated_data.get("title", instance.title)
         instance.description = validated_data.get("description", instance.description)
         instance.is_active = validated_data.get("is_active", instance.is_active)
         instance.resources = validated_data.get("resources", instance.resources)
 
-        # Add/delete any new/removed Assignments
         if "assignments" in validated_data:
-            collections = validated_data.pop("assignments")
+            collections = [
+                c
+                for c in validated_data.pop("assignments")
+                if c.kind != ADHOCLEARNERSGROUP
+            ]
             current_group_ids = set(
                 instance.lesson_assignments.exclude(
                     collection__kind=ADHOCLEARNERSGROUP
                 ).values_list("collection__id", flat=True)
             )
-            new_group_ids = {x.id for x in collections}
+            new_group_ids = {c.id for c in collections}
 
-            for cid in set(new_group_ids) - set(current_group_ids):
-                collection = Collection.objects.get(id=cid)
-                if collection.kind != ADHOCLEARNERSGROUP:
+            for collection in collections:
+                if collection.id not in current_group_ids:
                     self._create_lesson_assignment(
                         lesson=instance, collection=collection
                     )
 
             LessonAssignment.objects.filter(
                 lesson=instance,
-                collection_id__in=(set(current_group_ids) - set(new_group_ids)),
+                collection_id__in=(current_group_ids - new_group_ids),
             ).exclude(collection__kind=ADHOCLEARNERSGROUP).delete()
 
-        # Update adhoc assignment
         if "learner_ids" in validated_data:
             self._update_learner_ids(instance, validated_data["learner_ids"])
 
@@ -167,36 +203,29 @@ class LessonSerializer(ModelSerializer):
         except LessonAssignment.DoesNotExist:
             adhoc_group_assignment = None
         if not learners:
-            # Setting learner_ids to empty, so only need to do something
-            # if there is already an adhoc_group_assignment defined
             if adhoc_group_assignment is not None:
-                # Adhoc group already exists delete it and the assignment
-                # cascade deletion should also delete the adhoc_group_assignment
                 adhoc_group_assignment.collection.delete()
         else:
             if adhoc_group_assignment is None:
-                # There is no adhoc group right now, so just make a new one
                 adhoc_group = create_adhoc_group_for_learners(
                     instance.collection, learners
                 )
                 self._create_lesson_assignment(lesson=instance, collection=adhoc_group)
             else:
-                # There is an adhoc group, so we need to potentially update its membership
-                original_learner_ids = Membership.objects.filter(
-                    collection=adhoc_group_assignment.collection
-                ).values_list("user_id", flat=True)
-                original_learner_ids_set = set(original_learner_ids)
+                original_learner_ids_set = set(
+                    Membership.objects.filter(
+                        collection=adhoc_group_assignment.collection
+                    ).values_list("user_id", flat=True)
+                )
                 learner_ids_set = {learner.id for learner in learners}
                 if original_learner_ids_set != learner_ids_set:
-                    # Only bother to do anything if these are different
                     new_learner_ids = learner_ids_set - original_learner_ids_set
                     deleted_learner_ids = original_learner_ids_set - learner_ids_set
 
-                    if deleted_learner_ids:
-                        Membership.objects.filter(
-                            collection=adhoc_group_assignment.collection,
-                            user_id__in=deleted_learner_ids,
-                        ).delete()
+                    Membership.objects.filter(
+                        collection=adhoc_group_assignment.collection,
+                        user_id__in=deleted_learner_ids,
+                    ).delete()
 
                     for new_learner_id in new_learner_ids:
                         Membership.objects.create(
