@@ -108,14 +108,13 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
             else None
         )
 
-        target_attempt_logs = AttemptLog.objects.filter(masterylog=target_try["id"])
         attempt_logs = (
             attempts_diff(
-                target_attempt_logs,
+                AttemptLog.objects.filter(masterylog=target_try["id"]),
                 AttemptLog.objects.filter(masterylog=previous_try["id"]),
             )
             if previous_try
-            else target_attempt_logs.annotate(
+            else AttemptLog.objects.filter(masterylog=target_try["id"]).annotate(
                 diff__correct=Value(None, output_field=IntegerField())
             )
         )

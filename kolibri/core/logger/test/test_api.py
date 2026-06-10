@@ -429,7 +429,7 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data)
+        self.assertGreater(len(response.data), 0)
         expected_fields = set(MasteryLogSerializer.Meta.fields)
         self.assertEqual(set(response.data[0].keys()), expected_fields)
         # correct is an annotated aggregate — must be an integer
