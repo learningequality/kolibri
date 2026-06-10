@@ -14,7 +14,7 @@ from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ContentNode
-from kolibri.core.logger.api import MIN_INTEGER
+from kolibri.core.logger.viewsets.progress_tracking import MIN_INTEGER
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 

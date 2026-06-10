@@ -17,13 +17,6 @@ from django.db.models.functions import Coalesce
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from django_filters.rest_framework import CharFilter
-from django_filters.rest_framework import ChoiceFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework import ModelChoiceFilter
-from django_filters.rest_framework import NumberFilter
-from django_filters.rest_framework import UUIDFilter
 from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
@@ -32,17 +25,11 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
-from .models import AttemptLog
-from .models import ContentSessionLog
-from .models import ContentSummaryLog
-from .models import GenerateCSVLogRequest
-from .models import MasteryLog
-from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from ..models import AttemptLog
+from ..models import ContentSessionLog
+from ..models import ContentSummaryLog
+from ..models import MasteryLog
 from kolibri.core.auth.models import dataset_cache
-from kolibri.core.auth.models import Facility
-from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -1114,134 +1101,3 @@ class TotalContentProgressViewSet(viewsets.GenericViewSet):
                 "progress": progress,
             }
         )
-
-
-class BaseLogFilter(FilterSet):
-    facility = UUIDFilter(method="filter_facility")
-    classroom = UUIDFilter(method="filter_classroom")
-    learner_group = UUIDFilter(method="filter_learner_group")
-
-    # Only a superuser can filter by facilities
-    def filter_facility(self, queryset, name, value):
-        return queryset.filter(user__facility=value)
-
-    def filter_classroom(self, queryset, name, value):
-        return queryset.filter(
-            Q(user__memberships__collection_id=value)
-            | Q(user__memberships__collection__parent_id=value)
-        )
-
-    def filter_learner_group(self, queryset, name, value):
-        return queryset.filter(user__memberships__collection_id=value)
-
-
-class AttemptFilter(BaseLogFilter):
-    content = CharFilter(method="filter_content")
-    mastery_level = NumberFilter(field_name="masterylog__mastery_level")
-
-    def filter_content(self, queryset, name, value):
-        return queryset.filter(masterylog__summarylog__content_id=value)
-
-    class Meta:
-        model = AttemptLog
-        fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
-
-
-class AttemptLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AttemptLog
-        fields = (
-            "id",
-            "item",
-            "start_timestamp",
-            "end_timestamp",
-            "completion_timestamp",
-            "time_spent",
-            "complete",
-            "correct",
-            "hinted",
-            "answer",
-            "simple_answer",
-            "interaction_history",
-            "user",
-            "error",
-            "masterylog",
-            "sessionlog",
-        )
-
-
-class AttemptLogViewSet(ReadOnlyValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-    )
-    queryset = AttemptLog.objects.all()
-    pagination_class = OptionalPageNumberPagination
-    filterset_class = AttemptFilter
-    serializer_class = AttemptLogSerializer
-
-
-class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GenerateCSVLogRequest
-        fields = [
-            "facility",
-            "log_type",
-            "selected_start_date",
-            "selected_end_date",
-            "date_requested",
-        ]
-
-
-class GenerateCSVLogRequestFilter(FilterSet):
-    log_type = ChoiceFilter(choices=GenerateCSVLogRequest.LOG_TYPE_CHOICES)
-    facility = ModelChoiceFilter(queryset=Facility.objects.all())
-
-    class Meta:
-        model = GenerateCSVLogRequest
-        fields = ["log_type", "facility"]
-
-
-class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows csv log request data to be created or updated
-    """
-
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = GenerateCSVLogRequest.objects.all()
-    serializer_class = GenerateCSVLogRequestSerializer
-    filterset_class = GenerateCSVLogRequestFilter
-
-    def _get_or_create_logrequest(
-        self,
-        facility,
-        log_type,
-        selected_start_date,
-        selected_end_date,
-        date_requested,
-    ):
-        try:
-            csvlogrequest = GenerateCSVLogRequest.objects.get(
-                facility=facility,
-                log_type=log_type,
-            )
-            updated_fields = (
-                "selected_start_date",
-                "selected_end_date",
-                "date_requested",
-            )
-            csvlogrequest.selected_start_date = selected_start_date
-            csvlogrequest.selected_end_date = selected_end_date
-            csvlogrequest.date_requested = date_requested
-            csvlogrequest.save(update_fields=updated_fields)
-        except GenerateCSVLogRequest.DoesNotExist:
-            csvlogrequest = GenerateCSVLogRequest.objects.create(
-                facility=facility,
-                log_type=log_type,
-                selected_start_date=selected_start_date,
-                selected_end_date=selected_end_date,
-                date_requested=date_requested,
-            )
-            csvlogrequest.save()

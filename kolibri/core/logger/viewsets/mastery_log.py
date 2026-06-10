@@ -1,5 +1,3 @@
-import logging
-
 from django.db.models import IntegerField
 from django.db.models import Sum
 from django.db.models import Value
@@ -11,8 +9,9 @@ from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from ..api import AttemptLogViewSet
-from ..api import BaseLogFilter
+from .attempt_log import AttemptLogDiffSerializer
+from .attempt_log import AttemptLogViewSet
+from .filters import BaseLogFilter
 from ..evaluation import attempts_diff
 from ..evaluation import LOG_ORDER_BY
 from ..models import AttemptLog
@@ -23,7 +22,9 @@ from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.decorators import query_params_required
 
-logger = logging.getLogger(__name__)
+
+class _AttemptLogDiffViewSet(AttemptLogViewSet):
+    serializer_class = AttemptLogDiffSerializer
 
 
 class MasteryFilter(BaseLogFilter):
@@ -119,11 +120,11 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
             )
         )
 
-        target_try["attemptlogs"] = attempt_logs.values(
-            *(AttemptLogViewSet.values + ("diff__correct",))
-        )
-
-        for attempt in target_try["attemptlogs"]:
+        diff_viewset = _AttemptLogDiffViewSet()
+        diff_viewset.request = request
+        attempt_data = list(diff_viewset.serialize_queryset(attempt_logs))
+        for attempt in attempt_data:
             attempt["diff"] = {"correct": attempt.pop("diff__correct")}
+        target_try["attemptlogs"] = attempt_data
 
         return Response(target_try)

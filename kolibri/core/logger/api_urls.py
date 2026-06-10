@@ -1,10 +1,10 @@
 from rest_framework import routers
 
-from .api import AttemptLogViewSet
-from .api import GenerateCSVLogRequestViewSet
-from .api import ProgressTrackingViewSet
-from .api import TotalContentProgressViewSet
+from .viewsets.attempt_log import AttemptLogViewSet
+from .viewsets.csv_log_request import GenerateCSVLogRequestViewSet
 from .viewsets.mastery_log import MasteryLogViewSet
+from .viewsets.progress_tracking import ProgressTrackingViewSet
+from .viewsets.progress_tracking import TotalContentProgressViewSet
 
 router = routers.SimpleRouter()
 
