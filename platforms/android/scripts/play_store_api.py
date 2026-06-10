@@ -11,7 +11,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
-
 # Register mimetypes for aab and apk files
 mimetypes.add_type("application/octet-stream", ".apk")
 mimetypes.add_type("application/octet-stream", ".aab")
@@ -47,7 +46,11 @@ def _get_service():
 
 
 def _create_edit(service):
-    return service.edits().insert(body={}, packageName=package_name()).execute()["id"]
+    return (
+        service.edits()
+        .insert(body={}, packageName=package_name())
+        .execute()["id"]
+    )
 
 
 def get_latest_version_code():
@@ -132,7 +135,9 @@ def upload_dist_aab():
 
     # Commit changes for edit.
     commit_request = (
-        service.edits().commit(editId=edit_id, packageName=package_name()).execute()
+        service.edits()
+        .commit(editId=edit_id, packageName=package_name())
+        .execute()
     )
 
     print("Edit id {} has been committed".format(commit_request["id"]))
@@ -161,7 +166,9 @@ def upload_dist_aab():
             time.sleep(15)
             continue
 
-    print("Universal APK generated with download ID: {}".format(universal_apk_id))
+    print(
+        "Universal APK generated with download ID: {}".format(universal_apk_id)
+    )
 
     downloaded_attempts = 0
 
@@ -176,7 +183,9 @@ def upload_dist_aab():
 
             filename = "kolibri-{}-release-universal.apk".format(apk_version())
 
-            filepath = os.path.join(os.path.dirname(__file__), "../dist", filename)
+            filepath = os.path.join(
+                os.path.dirname(__file__), "../dist", filename
+            )
 
             with open(filepath, "wb") as f:
                 downloader = MediaIoBaseDownload(
@@ -230,11 +239,15 @@ def release_app(version_code):
 
     # Commit changes for edit.
     commit_response = (
-        service.edits().commit(editId=edit_id, packageName=package_name()).execute()
+        service.edits()
+        .commit(editId=edit_id, packageName=package_name())
+        .execute()
     )
 
     print("Edit id {} has been committed".format(commit_response["id"]))
-    print("App version {} has been promoted to open testing.".format(version_code))
+    print(
+        "App version {} has been promoted to open testing.".format(version_code)
+    )
 
 
 if __name__ == "__main__":

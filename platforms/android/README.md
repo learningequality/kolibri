@@ -1,119 +1,245 @@
-# Kolibri Android Installer
+# Kolibri Android
 
-Wraps Kolibri in an android-compatibility layer. Relies on Python-For-Android to build the APK and for compatibility on the Android platform.
+Android application for Kolibri Learning Platform using Chaquopy for Python integration.
 
-## Development Flow
+## Overview
 
-1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
+This project packages [Kolibri](https://learningequality.org/kolibri/) as an Android application using:
+- **Chaquopy** - Runs Python code directly on Android
+- **HTTP Server + Service Worker** - Python runs an HTTP server, WebView loads content, Service Worker handles caching
+- **WorkManager** - Handles background tasks in a separate process
+- **Modern Android Architecture** - Clean package structure, lifecycle-aware components
 
-2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart.html#installing-prerequisites). Ensure you install java version 1.17, `sudo apt install openjdk-17-jdk` ,  and set it as the default java version: `sudo update-alternatives --auto javac` and `sudo update-alternatives --auto java`.
+## Quick Start
 
-3. The `make setup` command will install the Android SDK and Android NDK.
+```bash
+# 1. Ensure JDK 21 is installed
+java -version
 
-N.B. if you would like these to be installed to a different location then you can set an environment variable, e.g.:
-By default it is set to `export ANDROID_SDK_ROOT=./android_root`
+# 2. Setup Python environment (recommended)
+uv sync --extra build
+uv pip install -r requirements.txt
+source .venv/bin/activate
 
-Run `make setup`.
+# 3. Setup Android SDK and emulator
+make setup
 
-4. Install the Python dependencies:
+# 4. Download Kolibri tar file
+make get-tar tar=https://github.com/learningequality/kolibri/releases/download/v0.17.0/kolibri-0.17.0.tar.gz
 
-`pip install -r requirements.txt`
-
-5. Build or download a Kolibri tar file, and place it in the `tar/` directory.
-
-To download a Kolibri WHL file, you can use `make get-tar tar=<URL>` from the command line. It will download it and put it in the correct directory.
-
-6. By default the APK/AAB will be built for most architectures supported by Python for Android. To build for a smaller set of architectures, set the `ARCHES` environment variable. Run `p4a archs` to see the available targets.
-
-7. Run `make p4a_android_project` this will do all of the Python for Android setup up. After, you can run `make kolibri.apk` or `make kolibri.apk.unsigned` if you want to build the apk in the console.
-
-N.B. You will need to rerun this step any time you update the Kolibri WHL file you are using, or any time you update the Python code in this repository.
-
-8. You can now run Android Studio and open the folder `python-for-android/dists/kolibri` as the project folder to work from. You should be able to make updates to Java code, resource files, etc. using Android Studio, and build and run the project using Android Studio, including launching into emulators and real physical devices.
-
-N.B. When you rerun step 7, it will complain loudly and exit early if you have uncommitted changes in the python-for-android folder. Any changes should be committed (even if in a temporary commit) before rerunning this step, as we use git stash to undo any changes in the Android project caused by the Python for Android project bootstrapping process. Also, when rerunning step 5, the Android version will not have incremented, meaning that any emulator or physical device will need to have Kolibri explicitly uninstalled for any changes to Python code to be updated on install.
-
-## Debugging the app
-
-1. When running the app from Android Studio, if you are using an emulator, it is possible that there will be many warning messages due to GPU emulation. In the logcat tab, update the filter to this `package:mine & -tag:eglCodecCommon` to hide those errors from the logcat output.
-
-## Building from the commandline
-
-1. Run `make kolibri.apk.unsigned` to build the development apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
-
-## Installing the apk
-1. Connect your Android device over USB, with USB Debugging enabled.
-
-2. Ensure that `adb devices` brings up your device. Afterward, run `make install` to install onto the device.
-
-
-## Running the apk from the terminal
-
-1. Run `adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity`
-
-### Server Side
-Run `adb logcat -v brief python:D *:F` to get all debug logs from the Kolibri server
-
-### Client side
-1. Start the Kolibri server via Android app
-2. Open a browser and see debug logs
-  - If your device doesn't aggressively kill the server, you can open Chrome and use remote debugging tools to see the logs on your desktop.
-  - You can also leave the app open and port forward the Android device's Kolibri port using [adb](https://developer.android.com/studio/command-line/adb#forwardports):
-  ```
-  adb forward tcp:8080 tcp:8081
-  ```
-  then going into your desktop's browser and accessing `localhost:8081`. Note that you can map to any port on the host machine, the second argument.
-
-Alternatively, you can debug the webview directly. Modern Android versions should let you do so from the developer settings.
-
-You could also do so using [Weinre](https://people.apache.org/~pmuellr/weinre/docs/latest/Home.html). Visit the site to learn how to install and setup. You will have to build a custom Kolibri .whl file that contains the weinre script tag in the [base.html file](https://github.com/learningequality/kolibri/blob/develop/kolibri/core/templates/kolibri/base.html).
-
-
-## Helpful commands
-- [adb](https://developer.android.com/studio/command-line/adb) is pretty helpful. Here are some useful uses:
-  - `adb logcat -b all -c` will clear out the device's log. ([Docs](https://developer.android.com/studio/command-line/logcat))
-    - Logcat also has a large variety of filtering options. Check out the docs for those.
-  - Uninstall from terminal using `adb shell pm uninstall org.learningequality.Kolibri`. ([Docs](https://developer.android.com/studio/command-line/adb#pm))
-- Docker shouldn't be rebuilding very often, so it shouldn't be using that much storage. But if it does, you can run `docker system prune` to clear out all "dangling" images, containers, and layers. If you've been constantly rebuilding, it will likely get you several gigabytes of storage.
-
-## Build on Docker
-
-This project was previously developed on Docker, but this method has not recently been tested.
-
-1. Install [docker](https://www.docker.com/community-edition)
-
-2. Build or download a Kolibri WHL file, and place in the `whl/` directory.
-
-3. Run `make run_docker`.
-
-4. The generated APK will end up in the `bin/` folder.
-
-## Docker Implementation Notes
-The image was optimized to limit rebuilding and to be run in a developer-centric way. `scripts/rundocker.sh` describes the options needed to get the build running properly.
-
-Unless you need to make edits to the build method or are debugging one of the build dependencies and would like to continue using docker, you shouldn't need to modify that script.
-
-## Getting a Python shell within the running app context
-
-We implemented code for an SSH server that allows connecting into a running Kolibri Android app and running code in an interactive Python shell. You can use this for developing, testing, and debugging Python code running inside the Android and Kolibri environments, which is handy especially for testing out Pyjnius code, checking environment variables, etc. This will soon be implemented as an Android service that can be turned on over ADB, but in the meantime you can use it a bit like you might use `import ipdb; ipdb.set_trace()` to get an interactive shell at a particular context in your code, as follows:
-
-- Drop `import remoteshell` at the spot you want to have the shell get dropped in, and build/run the app.
-- Connect the device over ADB, e.g. via USB.
-- Run `adb forward tcp:4242 tcp:4242` (needs to be re-run if you disconnect and reconnect the device)
-- Run `ssh -p 4242 localhost`
-- If the device isn’t provisioned, any username/password will be accepted. Otherwise, use the admin credentials.
-- If you get an error about “ssh-rsa”, you can put the following SSH config in:
+# 5. Build!
+make kolibri.apk.unsigned
 ```
-Host kolibri-android
-    HostName localhost
-    Port 4242
-    PubkeyAcceptedAlgorithms +ssh-rsa
-    HostkeyAlgorithms +ssh-rsa
+
+Output: `dist/kolibri-*.apk`
+
+## Development Setup
+
+### Prerequisites
+
+- **Java Development Kit (JDK) 21**
+  - Fedora/RHEL: `sudo dnf install java-21-openjdk-devel`
+  - Ubuntu/Debian: `sudo apt install openjdk-21-jdk`
+  - macOS / atomic Fedora (Silverblue, Kinoite): `brew install openjdk@21`
+
+- **Python 3.10+** - For build scripts and Chaquopy
+
+### Initial Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/learningequality/kolibri-installer-android.git
+   cd kolibri-installer-android
+   ```
+
+2. **Set up Python virtual environment**
+   ```bash
+   uv venv
+   source .venv/bin/activate
+   uv pip install ".[build]" -r requirements.txt
+   ```
+
+3. **Set up Android SDK** (automatically downloads SDK, NDK, emulator)
+   ```bash
+   make setup
+   ```
+
+4. **Get Kolibri tar file**
+   ```bash
+   make get-tar tar=<URL_TO_KOLIBRI_TAR>
+   ```
+
+5. **Build the APK**
+   ```bash
+   make kolibri.apk.unsigned
+   ```
+
+## Architecture
+
+The app runs Kolibri as an HTTP server in Python, with a WebView displaying the UI:
+
 ```
-Then, you should be able to just do “ssh kolibri-android”
+┌─────────────────────────────────────────────────────────────┐
+│                     Main Process                             │
+│  ┌────────────────┐         ┌──────────────────┐            │
+│  │ WebViewActivity│         │ KolibriServer    │            │
+│  │                │         │ Service          │            │
+│  │  ┌──────────┐  │         │  ┌────────────┐  │            │
+│  │  │ WebView  │──┼─ HTTP ──┼─▶│  Python    │  │            │
+│  │  │          │  │         │  │  HTTP      │  │            │
+│  │  │ Service  │  │         │  │  Server    │  │            │
+│  │  │ Worker   │  │         │  │  (Kolibri) │  │            │
+│  │  └──────────┘  │         │  └────────────┘  │            │
+│  └────────────────┘         └──────────────────┘            │
+└─────────────────────────────────────────────────────────────┘
 
-## Updating Python for Android
+┌─────────────────────────────────────────────────────────────┐
+│                   :task_worker Process                       │
+│  ┌────────────────┐         ┌──────────────────┐            │
+│  │ WorkController │────────▶│   WorkManager    │            │
+│  │ Service        │         │   Workers        │            │
+│  └────────────────┘         └──────────────────┘            │
+└─────────────────────────────────────────────────────────────┘
+```
 
-We maintain a fork of Python for Android that includes various changes we have made to the source code to support our specific needs. As P4A make new releases, we make a branch from the latest release tag, and then replay the commits on top of this tag using an interactive rebase. Sometimes, this allows us to drop commits as new features are merged into P4A. Our naming convention for the branch on our fork is `from_upstream_<tag_name>`. Any time we push new commits to this branch, we must also update the pinned commit in `requirements.txt`, so that we are always building with a completely predictable version of Python for Android.
+### Key Components
 
-By default we stash any updates to our bootstrap coming from Python for Android, because mostly we have overwritten their bootstrap code to make the relevant changes for us. If there are upstream changes to code we have committed in this repo from the bootstraps, then if the diff is small, it is probably simplest to manually copy in these changes to our committed code. If the diff is larger, or the developer fancies exercising some git-fu, then the make command `make update_project_from_p4a` will update the bootstrap from Python for Android, and not stash any changes that introduces. Through judicious change reversion and diffing, the appropriate changes can then be applied. Here be dragons.
+- **KolibriServerService** - Starts Python HTTP server in background
+- **WebViewActivity** - Displays Kolibri UI, requests notification permission
+- **WorkManager** - Runs background tasks (imports, syncs) in separate process
+- **Task Reconciler** - Syncs WorkManager state with Kolibri's job database
+
+## Project Structure
+
+```
+app/src/main/
+├── java/org/learningequality/Kolibri/
+│   ├── App.java                      # Application entry point
+│   ├── WebViewActivity.java          # Main activity with WebView
+│   ├── KolibriServerService.java     # HTTP server service
+│   ├── KolibriServerViewModel.java   # Server state management
+│   ├── KolibriEnvironmentManager.java     # Environment init coordination
+│   ├── KolibriEnvironmentInitializer.java # Environment configuration
+│   ├── WorkController.java           # Task scheduling
+│   ├── WorkControllerService.java    # Worker process IPC
+│   ├── notification/                 # Notification system
+│   ├── task/                         # Task worker interfaces
+│   │   ├── Task.java                 # WorkManager wrapper
+│   │   └── TaskWorkerImpl.java       # Observer pattern for progress
+│   ├── workers/                      # WorkManager workers
+│   │   ├── BaseTaskWorker.java       # Base class with notifications
+│   │   ├── ForegroundWorker.java     # Long-running tasks
+│   │   └── BackgroundWorker.java     # Short tasks
+│   └── util/                         # Utility classes
+└── python/
+    ├── main.py                       # HTTP server entry point
+    ├── android_utils.py              # Android-specific utilities
+    ├── taskworker.py                 # Task execution
+    ├── task_reconciler.py            # Task state reconciliation
+    ├── task_status.py                # Task status updates
+    └── android_app_plugin/           # Kolibri plugin for Android
+        └── kolibri_plugin.py         # StorageHook for task scheduling
+```
+
+## Building
+
+### Debug Build
+
+```bash
+make kolibri.apk.unsigned
+```
+
+Output: `dist/kolibri-*.apk`
+
+### Release Build
+
+```bash
+export RELEASE_KEYSTORE=/path/to/keystore.jks
+export RELEASE_KEYALIAS=key-alias
+export RELEASE_KEYSTORE_PASSWD=keystore-password
+export RELEASE_KEYALIAS_PASSWD=key-password
+make kolibri.apk
+```
+
+### All Make Targets
+
+```bash
+make help                  # Show all available targets
+make setup                 # Setup SDK, NDK, and emulator
+make kolibri.apk.unsigned  # Build debug APK
+make kolibri.apk           # Build release APK (requires signing keys)
+make kolibri.aab           # Build release AAB for Play Store
+make install               # Install to connected device/emulator
+make test                  # Run unit tests
+make lint                  # Run Android linter
+make emulator              # Start the emulator
+make logcat                # View Kolibri-specific logs
+make clean                 # Clean build artifacts
+```
+
+## Testing
+
+```bash
+# Run unit tests
+make test
+
+# Start emulator and install
+make emulator
+make install
+
+# View logs
+make logcat
+```
+
+## Debugging
+
+```bash
+# Kolibri logs
+adb logcat -s Kolibri*:V
+
+# Python logs
+adb logcat -v brief python:D *:F
+
+# Task worker process
+adb logcat --pid=$(adb shell pidof -s org.learningequality.Kolibri:task_worker)
+
+# WebView debugging: Chrome → chrome://inspect
+```
+
+## Common Issues
+
+**Build fails**: Run `make setup` to ensure SDK is configured correctly
+```bash
+make clean && make setup
+```
+
+**No notifications**: Grant notification permission in Android settings (required on Android 13+)
+
+**Tasks not running**: Check WorkManager state
+```bash
+adb logcat -s BaseTaskWorker:V WorkController:V
+```
+
+**Emulator won't start**: Check available AVDs and recreate if needed
+```bash
+make list-avds
+make avd  # Recreate AVD
+```
+
+## Contributing
+
+1. Create feature branch
+2. Make changes
+3. Run linting: `prek run --all-files`
+4. Run tests: `make test`
+5. Submit pull request
+
+## License
+
+See [LICENSE](LICENSE) file.
+
+## Support
+
+- **Issues**: https://github.com/learningequality/kolibri-installer-android/issues
+- **Kolibri Docs**: https://kolibri.readthedocs.io/
+- **Chaquopy Docs**: https://chaquo.com/chaquopy/doc/current/

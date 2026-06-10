@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+        Minimal AppCompat theme - satisfies Android requirements but stays invisible.
+        All visual theming is handled by Kolibri's web interface.
+    -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- White window background for most screens -->
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!--
+        WebView theme with splash screen (splash ImageView lives in the layout).
+        Render in the system window, avoiding the display cutout in both orientations.
+        Note: the edge-to-edge opt-out is ignored once targetSdk is bumped to 36.
+    -->
+    <style name="AppTheme.Fullscreen" parent="AppTheme" tools:targetApi="35">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">never</item>
+    </style>
+</resources>

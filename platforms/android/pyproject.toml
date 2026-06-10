@@ -1,0 +1,37 @@
+[project]
+name = "kolibri-installer-android"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "prek",
+    "websockets>=16.0",
+]
+test = [
+    "pytest",
+    "websockets>=16.0",
+]
+build = [
+    "google-api-python-client==2.96.0",
+    "google-auth==2.22.0",
+    "google-auth-httplib2==0.1.0",
+]
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "T10"]
+ignore = ["E226", "E203", "E501", "E741"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+force-single-line = true
+known-first-party = ["kolibri"]
+
+[tool.pytest.ini_options]
+testpaths = ["scripts/tests"]

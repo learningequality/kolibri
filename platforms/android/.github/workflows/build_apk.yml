@@ -102,50 +102,27 @@ jobs:
       # of whether this is being run from the local repository with workflow_dispatch
       # or from another repository with workflow_call.
       run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v6
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
       with:
-        python-version: 3.9
-    - name: Install Apt Dependencies
-      # Dependencies installed here are taken from the buildozer Dockerfile:
-      # https://github.com/kivy/buildozer/blob/master/Dockerfile#L45
-      # with items that are already installed on the Ubuntu 22.04 image removed:
-      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#installed-apt-packages
-      run: |
-        sudo apt update -qq > /dev/null \
-        && DEBIAN_FRONTEND=noninteractive sudo apt install -qq --yes --no-install-recommends \
-        build-essential \
-        ccache \
-        cmake \
-        gettext \
-        libffi-dev \
-        libltdl-dev \
-        patch \
-        zlib1g-dev
-    - uses: actions/cache@v5
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'gradle'
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
       with:
-        # This is where python for android puts its intermediary build
-        # files - we cache this to improve build performance, but be
-        # aggressive in clearing the cache whenever any file changes
-        # in the repository, especially as we commit files to this folder
-        # too, so we don't want the cache to override these files.
-        # We achieve this by just caching on the currently checked out commit.
-        # Every time we update this repository, this commit will change,
-        # but repeated workflow calls for this commit will use the cache.
-        path: ./python-for-android
-        key: ${{ runner.os }}-python-for-android-${{ steps.get-commit.outputs.sha }}
-    - uses: actions/cache@v5
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        enable-cache: true
+        cache-python: true
     - name: Download the tarfile from URL for workflow_dispatch
       if: ${{ github.event.inputs.tar-url }}
-      run: make get-tar tar=${{ github.event.inputs.tar-url }}
+      env:
+        TAR_URL: ${{ github.event.inputs.tar-url }}
+      run: make get-tar tar="$TAR_URL"
     - name: Download the tarfile from URL for workflow_call
       if: ${{ inputs.tar-url }}
-      run: make get-tar tar=${{ inputs.tar-url }}
+      env:
+        TAR_URL: ${{ inputs.tar-url }}
+      run: make get-tar tar="$TAR_URL"
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
       uses: actions/download-artifact@v8
@@ -153,9 +130,7 @@ jobs:
         name: ${{ inputs.tar-file-name }}
         path: tar
     - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Ensure that Android SDK dependencies are installed
-      run: make setup
+      run: uv sync --extra build && uv pip install -r requirements.txt
     - name: Build the aab
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       env:

@@ -1,0 +1,20 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = "https://chaquo.com/maven" }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.3'
+        classpath 'com.chaquo.python:gradle:17.0.0'
+        classpath 'com.diffplug.spotless:spotless-plugin-gradle:6.25.0'
+    }
+}
+
+// Note: Repository configuration moved to settings.gradle (dependencyResolutionManagement)
+// This is the Gradle 7.0+ recommended approach
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

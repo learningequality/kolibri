@@ -1,8 +1,5 @@
-cython~=0.29
-ifaddr
-virtualenv
-setuptools
-git+https://github.com/learningequality/python-for-android@1b3fff2dd4e9a147551650b2730fcd6e6441f02d#egg=python-for-android
-google-api-python-client==2.96.0
-google-auth==2.22.0
-google-auth-httplib2==0.1.0
+# Chaquopy runtime dependencies — kept as a separate requirements.txt because
+# Chaquopy's Gradle plugin reads this file directly via pip { install "-r" }.
+# Pinned to versions with prebuilt Chaquopy wheels.
+cryptography==42.0.8
+ifaddr==0.2.0
