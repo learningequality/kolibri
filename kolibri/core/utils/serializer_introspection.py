@@ -368,6 +368,21 @@ def _field_matches_inferred_type(
     """
     model_field = _get_model_field_for_source(model, source_path)
     if model_field is None:
+        # Field is likely a queryset annotation (no corresponding model field).
+        # For primitive DRF fields with no explicit default, to_representation
+        # is a trivial type coercion (int, float, bool) that is identity when the
+        # DB annotation already returns the correct Python type via output_field.
+        # Skip to_representation to avoid unnecessary per-row overhead.
+        if declared_field.default is empty and isinstance(
+            declared_field,
+            (
+                drf_serializers.IntegerField,
+                drf_serializers.FloatField,
+                drf_serializers.BooleanField,
+                drf_serializers.CharField,
+            ),
+        ):
+            return True
         return False
 
     # For relation fields, check against the serializer's related field class

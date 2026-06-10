@@ -20,6 +20,7 @@ from ..models import ContentSessionLog
 from ..models import ContentSummaryLog
 from ..models import GenerateCSVLogRequest
 from ..models import MasteryLog
+from ..viewsets.mastery_log import MasteryLogSerializer
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
@@ -411,6 +412,28 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
                     self.assertEqual(
                         self.user_tries[user_index][try_index].id, mastery_log["id"]
                     )
+
+    def test_list_response_fields(self):
+        """Assert the list endpoint returns exactly the documented fields."""
+        # user 2 has two complete tries for content_ids[0] (2 % 2 == 0)
+        user = self.users[2]
+        content_id = self.content_ids[0]
+        self.client.force_login(user)
+        response = self.client.get(
+            reverse("kolibri:core:masterylog-list"),
+            data={
+                "content": content_id,
+                "user": user.id,
+                "complete": True,
+                "quiz": True,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertGreater(len(response.data), 0)
+        expected_fields = set(MasteryLogSerializer.Meta.fields)
+        self.assertEqual(set(response.data[0].keys()), expected_fields)
+        # correct is an annotated aggregate — must be an integer
+        self.assertIsInstance(response.data[0]["correct"], int)
 
     def test_diff(self):
         for user_index, user_tries in enumerate(self.user_tries):

@@ -41,7 +41,6 @@ from django.conf import settings
 from django.db import connection
 from rest_framework import serializers as drf_serializers
 from rest_framework.request import Request
-from rest_framework.test import APIRequestFactory
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +159,7 @@ def get_queryset_for_viewset(viewset_class):
 
     try:
         from django.contrib.auth.models import AnonymousUser
+        from rest_framework.test import APIRequestFactory
 
         factory = APIRequestFactory()
         django_request = factory.get("/")
@@ -274,6 +274,7 @@ def _make_synthetic_queryset(flat_items):
 
 def _make_viewset(viewset_class, queryset):
     """Create a viewset instance with a DRF Request for standalone use."""
+    from rest_framework.test import APIRequestFactory
 
     factory = APIRequestFactory()
     django_request = factory.get("/")
@@ -430,7 +431,7 @@ def capture_data_snapshot(viewset_class, queryset):
     viewset = _make_viewset(viewset_class, queryset)
     result = viewset.serialize(queryset)
 
-    result_json = json.dumps(result, default=str)
+    result_json = json.dumps(result, default=str, sort_keys=True)
     hash_hex = hashlib.sha256(result_json.encode("utf-8")).hexdigest()
 
     sample = result[:5] if isinstance(result, list) else []

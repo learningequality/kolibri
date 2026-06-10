@@ -2,9 +2,9 @@ from rest_framework import routers
 
 from .api import AttemptLogViewSet
 from .api import GenerateCSVLogRequestViewSet
-from .api import MasteryLogViewSet
 from .api import ProgressTrackingViewSet
 from .api import TotalContentProgressViewSet
+from .viewsets.mastery_log import MasteryLogViewSet
 
 router = routers.SimpleRouter()
 

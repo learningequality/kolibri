@@ -17,7 +17,6 @@ from django.db.models.functions import Coalesce
 from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
-from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,7 +28,6 @@ from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from rest_framework import serializers
 from rest_framework import viewsets
-from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
@@ -46,13 +44,10 @@ from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.courses.models import CourseSession
-from kolibri.core.decorators import query_params_required
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.constants import interaction_types
 from kolibri.core.logger.constants.exercise_attempts import MAPPING
-from kolibri.core.logger.evaluation import attempts_diff
-from kolibri.core.logger.evaluation import LOG_ORDER_BY
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.notifications.api import create_summarylog
 from kolibri.core.notifications.api import finish_lesson_resource
@@ -1133,119 +1128,6 @@ class BaseLogFilter(FilterSet):
         return queryset.filter(user__memberships__collection_id=value)
 
 
-class MasteryFilter(BaseLogFilter):
-    content = UUIDFilter(field_name="summarylog__content_id")
-    quiz = BooleanFilter(method="filter_by_quiz")
-
-    def filter_by_quiz(self, queryset, name, value):
-        if value:
-            return queryset.filter(mastery_level__lt=0)
-        return queryset.filter(mastery_level__gte=0)
-
-    class Meta:
-        model = MasteryLog
-        fields = ["content", "user", "complete"]
-
-
-attemptlog_values = (
-    "id",
-    "item",
-    "start_timestamp",
-    "end_timestamp",
-    "completion_timestamp",
-    "time_spent",
-    "complete",
-    "correct",
-    "hinted",
-    "answer",
-    "simple_answer",
-    "interaction_history",
-    "user",
-    "error",
-    "masterylog",
-    "sessionlog",
-)
-
-
-@query_params_required(content=str, user=str)
-class MasteryLogViewSet(ReadOnlyValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-    )
-    queryset = MasteryLog.objects.all().order_by(LOG_ORDER_BY)
-    pagination_class = OptionalPageNumberPagination
-    filterset_class = MasteryFilter
-    values = (
-        "id",
-        "mastery_criterion",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "complete",
-        "correct",
-        "time_spent",
-    )
-
-    def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            correct=Coalesce(
-                Sum("attemptlogs__correct"), Value(0), output_field=IntegerField()
-            )
-        )
-
-    @action(detail=True)
-    def diff(self, request, pk=0):
-        back = pk
-
-        try:
-            back = int(back)
-        except ValueError:
-            return Response("Parameter must be an integer", status=404)
-
-        tries_queryset = self.annotate_queryset(
-            self.filter_queryset(self.get_queryset())
-        ).values(*self.values)[back : back + 2]
-
-        try:
-            target_try = tries_queryset[0]
-        except IndexError:
-            return Response("No mastery log found", status=404)
-
-        try:
-            previous_try = tries_queryset[1]
-        except IndexError:
-            previous_try = None
-
-        diff = None
-        if previous_try:
-            diff = {
-                "correct": target_try["correct"] - previous_try["correct"],
-                "time_spent": target_try["time_spent"] - previous_try["time_spent"],
-            }
-
-        attempt_logs = AttemptLog.objects.filter(masterylog=target_try["id"])
-        if previous_try:
-            attempt_logs = attempts_diff(
-                attempt_logs, AttemptLog.objects.filter(masterylog=previous_try["id"])
-            )
-        else:
-            attempt_logs = attempt_logs.annotate(
-                diff__correct=Value(None, output_field=IntegerField())
-            )
-
-        target_try["diff"] = diff
-        target_try["attemptlogs"] = attempt_logs.values(
-            *(attemptlog_values + ("diff__correct",))
-        )
-
-        for attempt in target_try["attemptlogs"]:
-            attempt["diff"] = {"correct": attempt.pop("diff__correct")}
-
-        return Response(target_try)
-
-
 class AttemptFilter(BaseLogFilter):
     content = CharFilter(method="filter_content")
     mastery_level = NumberFilter(field_name="masterylog__mastery_level")
@@ -1268,7 +1150,24 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     pagination_class = OptionalPageNumberPagination
     filterset_class = AttemptFilter
 
-    values = attemptlog_values
+    values = (
+        "id",
+        "item",
+        "start_timestamp",
+        "end_timestamp",
+        "completion_timestamp",
+        "time_spent",
+        "complete",
+        "correct",
+        "hinted",
+        "answer",
+        "simple_answer",
+        "interaction_history",
+        "user",
+        "error",
+        "masterylog",
+        "sessionlog",
+    )
 
 
 class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
