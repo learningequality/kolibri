@@ -530,3 +530,110 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.lesson.refresh_from_db()
         self.assertFalse(self.lesson.is_active)
+
+
+class LessonReadResponseTestCase(APITestCase):
+    """Verify the exact read-path response shape of the Lesson API."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="ReadFac")
+        cls.admin = FacilityUser.objects.create(
+            username="readAdmin", facility=cls.facility
+        )
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+        cls.classroom = Classroom.objects.create(name="ReadRoom", parent=cls.facility)
+        cls.lesson = models.Lesson.objects.create(
+            title="read title",
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+            resources=[],
+        )
+
+    def _get_lesson(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        return response.data
+
+    def test_response_has_classroom_nested_object(self):
+        data = self._get_lesson()
+        self.assertIn("classroom", data)
+        classroom = data["classroom"]
+        self.assertEqual(classroom["id"], self.classroom.id)
+        self.assertEqual(classroom["name"], self.classroom.name)
+        # parent is the facility id (classroom's parent)
+        self.assertEqual(classroom["parent"], self.facility.id)
+
+    def test_response_has_active_field(self):
+        data = self._get_lesson()
+        self.assertIn("active", data)
+        self.assertTrue(data["active"])
+
+    def test_response_has_collection_field(self):
+        # Both 'collection' (raw FK) and 'classroom' (nested) appear
+        data = self._get_lesson()
+        self.assertIn("collection", data)
+        self.assertEqual(data["collection"], self.classroom.id)
+
+    def test_response_has_assignments_list(self):
+        data = self._get_lesson()
+        self.assertIn("assignments", data)
+        self.assertIsInstance(data["assignments"], list)
+        self.assertEqual(data["assignments"], [])
+
+    def test_response_has_learner_ids_list(self):
+        data = self._get_lesson()
+        self.assertIn("learner_ids", data)
+        self.assertEqual(data["learner_ids"], [])
+
+    def test_response_has_date_created(self):
+        data = self._get_lesson()
+        self.assertIn("date_created", data)
+        self.assertIsNotNone(data["date_created"])
+
+    def test_response_has_resources_list(self):
+        data = self._get_lesson()
+        self.assertIn("resources", data)
+        self.assertEqual(data["resources"], [])
+
+    def test_assignments_excludes_adhoc_group(self):
+        """Assignments list excludes the adhoc-learner-group collection."""
+        learner = FacilityUser.objects.create(
+            username="learner1", facility=self.facility
+        )
+        self.classroom.add_member(learner)
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        # Assign the lesson to a learner group and also directly to a learner
+        group = LearnerGroup.objects.create(name="grp", parent=self.classroom)
+        self.client.put(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id}),
+            {
+                "title": "read title",
+                "active": True,
+                "collection": self.classroom.id,
+                "assignments": [group.id],
+                "created_by": self.admin.id,
+                "learner_ids": [learner.id],
+            },
+            format="json",
+        )
+        response = self.client.get(
+            reverse("kolibri:core:lesson-detail", kwargs={"pk": self.lesson.id})
+        )
+        data = response.data
+        # The adhoc group should NOT appear in assignments
+        adhoc = AdHocGroup.objects.get(parent=self.classroom)
+        self.assertNotIn(adhoc.id, data["assignments"])
+        # The learner group SHOULD appear
+        self.assertIn(group.id, data["assignments"])
+        # learner_ids should contain the learner
+        self.assertIn(learner.id, data["learner_ids"])
