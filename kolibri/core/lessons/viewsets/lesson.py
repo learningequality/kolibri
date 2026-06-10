@@ -48,7 +48,7 @@ class LessonSerializer(ModelSerializer):
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    resources = ListField(child=ResourceSerializer(), required=False)
+    resources = ValuesMethodField(sources=("resources",))
     active = BooleanField(source="is_active", required=False)
     # Read path: list of assignment collection IDs from the lesson_assignment_collections
     # annotation added by LessonViewset.annotate_queryset().
@@ -81,6 +81,11 @@ class LessonSerializer(ModelSerializer):
         # obj.lesson_assignment_collections returns the annotation value.
         return obj.lesson_assignment_collections or []
 
+    def get_resources(self, obj):
+        # Resources are stored in the DB as pre-serialized HexUUID dicts.
+        # Returning the raw value avoids per-row ResourceSerializer.to_representation overhead.
+        return obj.resources or []
+
     def get_learner_ids(self, obj):
         # consolidate() overwrites this default with actual adhoc-group member IDs.
         return []
@@ -104,21 +109,18 @@ class LessonSerializer(ModelSerializer):
                     code=error_constants.INVALID,
                 )
 
-        # if no lessons exist matching this, return data
         lessons = Lesson.objects.filter(title__iexact=title, collection=collection)
-        if not lessons.exists():
-            return attrs
-        # if we are updating object, and this `instance` is a current model
-        # and this lesson already has this title, return the data
-        if self.instance is not None and lessons.filter(id=self.instance.id).exists():
+        if not lessons.exists() or (
+            self.instance is not None and lessons.filter(id=self.instance.id).exists()
+        ):
             return attrs
         raise ValidationError(
             "The fields title, collection must make a unique set.",
             code=error_constants.UNIQUE,
         )
 
-    def _validate_pk_list(self, field_name, queryset, raw_value):
-        field = ListField(child=PrimaryKeyRelatedField(queryset=queryset))
+    def _validate_list_field(self, field_name, child_field, raw_value):
+        field = ListField(child=child_field)
         field.bind(field_name, self)
         try:
             return field.run_validation(raw_value)
@@ -128,18 +130,28 @@ class LessonSerializer(ModelSerializer):
     def to_internal_value(self, data):
         data = dict(data)
         data["created_by"] = self.context["request"].user.id
-        # 'assignments' and 'learner_ids' are ValuesMethodFields (read-only), so
-        # DRF's to_internal_value skips them. Extract and validate manually here.
+        # 'assignments', 'learner_ids', and 'resources' are ValuesMethodFields
+        # (read-only), so DRF's to_internal_value skips them. Extract and validate
+        # manually here.
         raw_assignments = data.pop("assignments", None)
         raw_learner_ids = data.pop("learner_ids", None)
+        raw_resources = data.pop("resources", None)
         result = super().to_internal_value(data)
         if raw_assignments is not None:
-            result["assignments"] = self._validate_pk_list(
-                "assignments", Collection.objects.all(), raw_assignments
+            result["assignments"] = self._validate_list_field(
+                "assignments",
+                PrimaryKeyRelatedField(queryset=Collection.objects.all()),
+                raw_assignments,
             )
         if raw_learner_ids is not None:
-            result["learner_ids"] = self._validate_pk_list(
-                "learner_ids", FacilityUser.objects.all(), raw_learner_ids
+            result["learner_ids"] = self._validate_list_field(
+                "learner_ids",
+                PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
+                raw_learner_ids,
+            )
+        if raw_resources is not None:
+            result["resources"] = self._validate_list_field(
+                "resources", ResourceSerializer(), raw_resources
             )
         return result
 
@@ -239,11 +251,15 @@ class LessonSerializer(ModelSerializer):
                         user_id__in=deleted_learner_ids,
                     ).delete()
 
-                    for new_learner_id in new_learner_ids:
-                        Membership.objects.create(
-                            user_id=new_learner_id,
-                            collection=adhoc_group_assignment.collection,
-                        )
+                    Membership.objects.bulk_create(
+                        [
+                            Membership(
+                                user_id=new_learner_id,
+                                collection=adhoc_group_assignment.collection,
+                            )
+                            for new_learner_id in new_learner_ids
+                        ]
+                    )
 
     def _create_lesson_assignment(self, **params):
         return LessonAssignment.objects.create(
@@ -286,13 +302,13 @@ class LessonViewset(ValuesViewset):
             filter=FacilityUser.get_is_active_q("collection__membership"),
             learner_ids="collection__membership__user_id",
         )
-        adhoc_assignments = {
+        adhoc_by_lesson = {
             a["lesson"]: a
             for a in adhoc_assignments.values("collection", "lesson", "learner_ids")
         }
         for item in items:
-            if item["id"] in adhoc_assignments:
-                adhoc_assignment = adhoc_assignments[item["id"]]
+            if item["id"] in adhoc_by_lesson:
+                adhoc_assignment = adhoc_by_lesson[item["id"]]
                 item["learner_ids"] = adhoc_assignment["learner_ids"]
                 item["assignments"] = [
                     i
