@@ -22,6 +22,11 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
+from kolibri.core.api import ValuesMethodField
+from kolibri.core.device.utils import allow_guest_access as _allow_guest_access
+from kolibri.core.device.utils import (
+    is_full_facility_import as _is_full_facility_import,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -224,6 +229,14 @@ class MembershipSerializer(serializers.ModelSerializer):
 class FacilityDatasetSerializer(serializers.ModelSerializer):
     extra_fields = serializers.JSONField(required=False)
     picture_password_settings = serializers.JSONField(allow_null=True, required=False)
+    allow_guest_access = ValuesMethodField(sources=())
+    is_full_facility_import = ValuesMethodField(sources=("id",))
+
+    def get_allow_guest_access(self, row):
+        return _allow_guest_access()
+
+    def get_is_full_facility_import(self, row):
+        return _is_full_facility_import(row.id)
 
     class Meta:
         model = FacilityDataset
@@ -243,6 +256,8 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "location",
             "registered",
             "preset",
+            "allow_guest_access",
+            "is_full_facility_import",
         )
 
     def validate(self, attrs):

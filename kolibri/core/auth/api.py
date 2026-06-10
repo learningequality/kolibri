@@ -80,10 +80,8 @@ from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedHasPermission
-from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
-from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -188,10 +186,6 @@ class FacilityDatasetFilter(FilterSet):
         fields = ["facility_id"]
 
 
-def _is_full_facility_import(dataset):
-    return is_full_facility_import(dataset["id"])
-
-
 class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
@@ -200,29 +194,6 @@ class FacilityDatasetViewSet(ValuesViewset):
     )
     filterset_class = FacilityDatasetFilter
     serializer_class = FacilityDatasetSerializer
-
-    values = (
-        "id",
-        "learner_can_edit_username",
-        "learner_can_edit_name",
-        "learner_can_edit_password",
-        "learner_can_sign_up",
-        "learner_can_delete_account",
-        "learner_can_login_with_no_password",
-        "show_download_button_in_learn",
-        "enable_mark_attendance",
-        "extra_fields",
-        "picture_password_settings",
-        "description",
-        "location",
-        "registered",
-        "preset",
-    )
-
-    field_map = {
-        "allow_guest_access": lambda x: allow_guest_access(),
-        "is_full_facility_import": _is_full_facility_import,
-    }
 
     def get_queryset(self):
         return FacilityDataset.objects.filter(

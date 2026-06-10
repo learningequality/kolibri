@@ -2303,6 +2303,25 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_response_includes_allow_guest_access_field(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        set_device_settings(allow_guest_access=False)
+        response = self.client.get(reverse("kolibri:core:facilitydataset-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertGreater(len(response.data), 0)
+        self.assertFalse(response.data[0]["allow_guest_access"])
+
+    def test_response_includes_is_full_facility_import_field(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:facilitydataset-list"),
+            {"facility_id": self.facility.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        # Locally-provisioned facilities have a FULL_FACILITY root certificate
+        self.assertIn("is_full_facility_import", response.data[0])
+
     def test_facility_admin_can_reset_settings(self):
         facility = FacilityFactory.create()
         admin = FacilityUserFactory.create(facility=facility)
