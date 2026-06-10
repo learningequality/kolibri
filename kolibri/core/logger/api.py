@@ -369,7 +369,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             test_type = validated_data["test_type"]
             self._check_course_session_permissions(user, course_session_id)
 
-            # Deterministic hash for A/B split
+            # Deterministic hash for A/B split: same user always gets the same version
+            # per unit, but pre and post tests get opposite versions so learners don't
+            # see the same questions on both. Last hex digit parity drives the split.
+            # See PR #14316 (issue #14133) for the pre/post test design rationale.
             raw = "{}:{}:{}".format(user.id, course_session_id, unit_id)
             deterministic_hash = hashlib.md5(raw.encode()).hexdigest()
 
@@ -602,6 +605,10 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             masterylogs = masterylogs.filter(mastery_level__lt=0)
         else:
             masterylogs = masterylogs.filter(mastery_level__gt=0)
+        # complete ascending (False < True) puts incomplete logs first, so we
+        # resume an in-progress attempt before a completed one. Within each
+        # group, most recent timestamp wins. Previously ordered by "-complete"
+        # which incorrectly prioritised completed attempts (commit 91665b3f).
         masterylog = masterylogs.order_by("complete", "-end_timestamp").first()
 
         if masterylog is None or (masterylog.complete and repeat):
