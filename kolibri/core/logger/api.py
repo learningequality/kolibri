@@ -1140,6 +1140,29 @@ class AttemptFilter(BaseLogFilter):
         fields = ["masterylog", "complete", "user", "content", "item", "mastery_level"]
 
 
+class AttemptLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttemptLog
+        fields = (
+            "id",
+            "item",
+            "start_timestamp",
+            "end_timestamp",
+            "completion_timestamp",
+            "time_spent",
+            "complete",
+            "correct",
+            "hinted",
+            "answer",
+            "simple_answer",
+            "interaction_history",
+            "user",
+            "error",
+            "masterylog",
+            "sessionlog",
+        )
+
+
 class AttemptLogViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
@@ -1149,25 +1172,7 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     queryset = AttemptLog.objects.all()
     pagination_class = OptionalPageNumberPagination
     filterset_class = AttemptFilter
-
-    values = (
-        "id",
-        "item",
-        "start_timestamp",
-        "end_timestamp",
-        "completion_timestamp",
-        "time_spent",
-        "complete",
-        "correct",
-        "hinted",
-        "answer",
-        "simple_answer",
-        "interaction_history",
-        "user",
-        "error",
-        "masterylog",
-        "sessionlog",
-    )
+    serializer_class = AttemptLogSerializer
 
 
 class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):
