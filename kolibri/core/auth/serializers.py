@@ -11,7 +11,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
-from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
@@ -22,11 +21,6 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
-from kolibri.core.api import ValuesMethodField
-from kolibri.core.device.utils import allow_guest_access as _allow_guest_access
-from kolibri.core.device.utils import (
-    is_full_facility_import as _is_full_facility_import,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -222,69 +216,6 @@ class MembershipSerializer(serializers.ModelSerializer):
         except InvalidMembershipError as e:
             raise serializers.ValidationError(
                 "Invalid membership",
-                code=error_constants.INVALID,
-            ) from e
-
-
-class FacilityDatasetSerializer(serializers.ModelSerializer):
-    extra_fields = serializers.JSONField(required=False)
-    picture_password_settings = serializers.JSONField(allow_null=True, required=False)
-    allow_guest_access = ValuesMethodField(sources=())
-    is_full_facility_import = ValuesMethodField(sources=("id",))
-
-    def get_allow_guest_access(self, row):
-        return _allow_guest_access()
-
-    def get_is_full_facility_import(self, row):
-        return _is_full_facility_import(row.id)
-
-    class Meta:
-        model = FacilityDataset
-        fields = (
-            "id",
-            "learner_can_edit_username",
-            "learner_can_edit_name",
-            "learner_can_edit_password",
-            "learner_can_sign_up",
-            "learner_can_delete_account",
-            "learner_can_login_with_no_password",
-            "show_download_button_in_learn",
-            "enable_mark_attendance",
-            "extra_fields",
-            "picture_password_settings",
-            "description",
-            "location",
-            "registered",
-            "preset",
-            "allow_guest_access",
-            "is_full_facility_import",
-        )
-
-    def validate(self, attrs):
-        settings = attrs.get("picture_password_settings")
-        if settings is not None:
-            if not isinstance(settings, dict):
-                raise serializers.ValidationError(
-                    {"picture_password_settings": "Must be an object or null"}
-                )
-            if settings.get("icon_style") not in ("standard", "colorful"):
-                raise serializers.ValidationError(
-                    {
-                        "picture_password_settings": "icon_style must be 'standard' or 'colorful'"
-                    }
-                )
-            if not isinstance(settings.get("show_icon_text"), bool):
-                raise serializers.ValidationError(
-                    {"picture_password_settings": "show_icon_text must be a boolean"}
-                )
-        return attrs
-
-    def save(self, **kwargs):
-        try:
-            return super().save(**kwargs)
-        except IncompatibleDeviceSettingError as e:
-            raise serializers.ValidationError(
-                "Incompatible device setting",
                 code=error_constants.INVALID,
             ) from e
 

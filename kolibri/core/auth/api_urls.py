@@ -3,7 +3,7 @@ from rest_framework import routers
 
 from .api import ClassroomViewSet
 from .api import DeleteImportedUserView
-from .api import FacilityDatasetViewSet
+from .viewsets.facility_dataset import FacilityDatasetViewSet
 from .viewsets.facility_user import DeletedFacilityUserViewSet
 from .viewsets.facility_user import FacilityUserViewSet
 from .api import FacilityViewSet
