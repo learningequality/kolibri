@@ -35,11 +35,11 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.query import annotate_array_aggregate
 
-from .models import CourseSession
-from .models import CourseSessionAssignment
-from .models import TestType
-from .models import UnitPhase
-from .models import UnitTestAssignment
+from ..models import CourseSession
+from ..models import CourseSessionAssignment
+from ..models import TestType
+from ..models import UnitPhase
+from ..models import UnitTestAssignment
 
 logger = logging.getLogger(__name__)
 
