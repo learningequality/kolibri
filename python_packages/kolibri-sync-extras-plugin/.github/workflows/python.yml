@@ -14,38 +14,35 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["**.py", "requirements*.txt", ".github/workflows/python.yml"]'
+          paths: '["**.py", "pyproject.toml", "uv.lock", ".github/workflows/python.yml"]'
+
   unit_test:
     name: Python unit tests
     needs: pre_job
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - name: Install dependencies
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          pip install -r requirements-test.txt
-    - name: cache Python env
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: py3.9-${{ hashFiles('requirements*.txt') }}
-    - name: Install and enable kolibri_sync_extras plugin
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      env:
-        KOLIBRI_HOME: .kolibri
-      run: |
-        pip install .
-        kolibri plugin enable kolibri_sync_extras_plugin
-    - name: Run tests
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      run: |
-        python -O -m pytest --reuse-db
+      - uses: actions/checkout@v6.0.2
+        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv
+        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: 3.9
+          enable-cache: true
+
+      - name: Sync dependencies
+        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+        run: uv sync --locked --no-dev --group test
+
+      - name: Install and enable kolibri_sync_extras plugin
+        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+        env:
+          KOLIBRI_HOME: .kolibri
+        run: uv run kolibri plugin enable kolibri_sync_extras_plugin
+
+      - name: Run tests
+        if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+        run: uv run python -O -m pytest --reuse-db

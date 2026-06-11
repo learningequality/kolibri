@@ -1,7 +1,8 @@
-from .base import BaseTestCase
 from kolibri_sync_extras_plugin.kolibri_plugin import SyncExtrasPluginHook
 from kolibri_sync_extras_plugin.sync.operations import BackgroundFinalizeJobOperation
 from kolibri_sync_extras_plugin.sync.operations import BackgroundInitializeJobOperation
+
+from .base import BaseTestCase
 
 
 class SyncExtrasPluginTestCase(BaseTestCase):

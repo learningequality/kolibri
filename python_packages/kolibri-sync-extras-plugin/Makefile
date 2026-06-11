@@ -17,6 +17,7 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr .eggs
 	rm -fr .cache
+	rm -fr .ruff_cache
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -24,10 +25,8 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
+	uv build
 
 release: dist
-	echo "Ensure that you have built the frontend files using Kolibri"
-	echo "Uploading dist/* to PyPi, using twine"
-	twine upload -s dist/*
+	echo "Uploading dist/* to PyPI using uv"
+	uv publish

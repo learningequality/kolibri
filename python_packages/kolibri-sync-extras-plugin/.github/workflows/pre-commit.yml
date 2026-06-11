@@ -15,14 +15,21 @@ jobs:
         with:
           github_token: ${{ github.token }}
           paths_ignore: '["**.po", "**.json"]'
+
   linting:
     name: All file linting
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-    - uses: pre-commit/action@v2.0.0
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: 3.9
+          enable-cache: true
+
+      - name: Run prek
+        run: uvx prek run --all-files

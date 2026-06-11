@@ -39,16 +39,16 @@ BACKGROUND_FINALIZATION_STAGES = "deserializing,cleanup"
 ## Development
 ### Getting started
 ```bash
-$ pip install -r requirements-dev.txt
-$ pre-commit install
-$ KOLIBRI_HOME="$(pwd)/.kolibri" kolibri plugin enable kolibri_sync_extras_plugin
+$ uv sync
+$ uvx prek install
+$ KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_sync_extras_plugin
 ```
 
 ## Testing
 ### Getting started
 ```bash
-$ pip install -r requirements.txt -r requirements-test.txt
-$ KOLIBRI_HOME="$(pwd)/.kolibri" kolibri plugin enable kolibri_sync_extras_plugin
+$ uv sync --group test
+$ KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_sync_extras_plugin
 ```
 
 ### Running them

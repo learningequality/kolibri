@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri-sync-extras-plugin"
+dynamic = ["version"]
+description = "Kolibri plugin that provides extra features for peer-to-peer syncing"
+readme = "README.md"
+requires-python = ">=3.9, <3.15"
+license = "MIT"
+authors = [{ name = "Learning Equality", email = "info@learningequality.org" }]
+keywords = ["kolibri", "syncing", "morango"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "kolibri>=0.15",
+    "morango>=0.6.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/learningequality/kolibri-sync-extras-plugin"
+Repository = "https://github.com/learningequality/kolibri-sync-extras-plugin"
+
+[project.entry-points."kolibri.plugins"]
+kolibri_sync_extras_plugin = "kolibri_sync_extras_plugin"
+
+[dependency-groups]
+dev = [
+    { include-group = "lint" },
+    { include-group = "test" },
+    "prek",
+]
+lint = [
+    "ruff",
+]
+test = [
+    "mock",
+    "pytest",
+    "pytest-django",
+    "pytest-env",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["kolibri_sync_extras_plugin*"]
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
+local_scheme = "no-local-version"
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["test/"]
+norecursedirs = ["dist", "tmp*", ".git", ".*"]
+django_find_project = false
+env = [
+    "DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.test",
+    "KOLIBRI_HOME=.kolibri",
+]
+filterwarnings = [
+    "ignore:::kolibri.*:",
+    "ignore:::django.*:",
+    "ignore:::rest_framework.*:",
+    "ignore:::morango.*:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["kolibri_sync_extras_plugin"]
+force-single-line = true
+order-by-type = false

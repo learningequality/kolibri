@@ -1,2 +1,0 @@
-kolibri>=0.15
-morango>=0.6.13
