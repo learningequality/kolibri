@@ -33,7 +33,6 @@ from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
-from django_filters.rest_framework import UUIDFilter
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import TransferSession
@@ -62,7 +61,6 @@ from .models import Role
 from .serializers import ClassroomSerializer
 from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
-from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
 from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
@@ -73,17 +71,14 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import DenyAll
-from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedHasPermission
-from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
-from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -94,7 +89,6 @@ from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
-from kolibri.core.tasks.main import job_storage
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
@@ -180,169 +174,16 @@ class IsPINValidPermissions(DenyAll):
         return self.has_permission(request, view)
 
 
-class FacilityDatasetFilter(FilterSet):
-    facility_id = UUIDFilter(field_name="collection")
-
-    class Meta:
-        model = FacilityDataset
-        fields = ["facility_id"]
-
-
-def _is_full_facility_import(dataset):
-    return is_full_facility_import(dataset["id"])
-
-
-class FacilityDatasetViewSet(ValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-    )
-    filterset_class = FacilityDatasetFilter
-    serializer_class = FacilityDatasetSerializer
-
-    values = (
-        "id",
-        "learner_can_edit_username",
-        "learner_can_edit_name",
-        "learner_can_edit_password",
-        "learner_can_sign_up",
-        "learner_can_delete_account",
-        "learner_can_login_with_no_password",
-        "show_download_button_in_learn",
-        "enable_mark_attendance",
-        "extra_fields",
-        "picture_password_settings",
-        "description",
-        "location",
-        "registered",
-        "preset",
-    )
-
-    field_map = {
-        "allow_guest_access": lambda x: allow_guest_access(),
-        "is_full_facility_import": _is_full_facility_import,
-    }
-
-    def get_queryset(self):
-        return FacilityDataset.objects.filter(
-            collection__kind=collection_kinds.FACILITY
-        )
-
-    @decorators.action(methods=["post"], detail=True)
-    def resetsettings(self, request, pk):
-        try:
-            dataset = FacilityDataset.objects.get(pk=pk)
-            if not request.user.can_update(dataset):
-                raise PermissionDenied("You cannot reset this facility's settings")
-            dataset.reset_to_default_settings()
-            data = FacilityDatasetSerializer(dataset).data
-            return Response(data)
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility does not exist")
-
-    @decorators.action(methods=["post", "patch"], detail=True, url_path="update-pin")
-    def update_pin(self, request, pk):
-        serializer = ExtraFieldsSerializer(data=request.data)
-        if not serializer.is_valid():
-            return HttpResponseBadRequest("Invalid pin input")
-
-        pin_code = serializer.data.get("pin_code")
-        if request.method == "POST" and not pin_code:
-            return HttpResponseBadRequest("Please provide a pin")
-
-        try:
-            dataset = FacilityDataset.objects.get(pk=pk)
-            if dataset.extra_fields is None:
-                dataset.extra_fields = {}
-            dataset.extra_fields["pin_code"] = pin_code
-            dataset.save()
-            return Response(FacilityDatasetSerializer(dataset).data)
-        except FacilityDataset.DoesNotExist:
-            raise Http404("Facility not found")
-
-    @decorators.action(
-        methods=["patch"],
-        detail=True,
-        url_path="save-facility-login-settings",
-    )
-    def save_facility_login_settings(self, request, pk):
-        dataset = self.get_object()
-        facility = Facility.objects.get(dataset_id=dataset.id)
-
-        new_pps = request.data.get("picture_password_settings")
-        learner_can_login_with_no_password = request.data.get(
-            "learner_can_login_with_no_password"
-        )
-        learner_can_edit_password = request.data.get("learner_can_edit_password")
-
-        currently_enabled = dataset.picture_password_settings is not None
-        enabling = not currently_enabled and new_pps is not None
-
-        if enabling:
-            if are_picture_passwords_exhausted(dataset.id):
-                return Response(
-                    {"detail": "Picture passwords exhausted for this facility."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            dataset.picture_password_settings = new_pps
-            dataset.learner_can_login_with_no_password = True
-            dataset.learner_can_edit_password = False
-            dataset.save()
-
-            job, _ = assign_picture_passwords_to_facility.validate_job_data(
-                request.user,
-                data={"facility_id": facility.id},
-            )
-            job_id = assign_picture_passwords_to_facility.enqueue(job=job)
-            enqueued_job = job_storage.get_job(job_id)
-            return Response(
-                {
-                    "dataset": FacilityDatasetSerializer(dataset).data,
-                    "task": {
-                        "id": enqueued_job.job_id,
-                        "status": enqueued_job.state,
-                        "percentage": enqueued_job.percentage_progress,
-                        "cancellable": enqueued_job.cancellable,
-                        "facility_id": enqueued_job.facility_id,
-                        "extra_metadata": enqueued_job.extra_metadata,
-                    },
-                },
-                status=status.HTTP_202_ACCEPTED,
-            )
-
-        if currently_enabled and new_pps is not None:
-            dataset.picture_password_settings = new_pps
-            dataset.save()
-            return Response(
-                {"dataset": FacilityDatasetSerializer(dataset).data},
-                status=status.HTTP_200_OK,
-            )
-
-        if new_pps is None:
-            dataset.picture_password_settings = None
-            if learner_can_login_with_no_password:
-                dataset.learner_can_login_with_no_password = True
-                dataset.learner_can_edit_password = False
-            else:
-                dataset.learner_can_login_with_no_password = False
-                if learner_can_edit_password is not None:
-                    dataset.learner_can_edit_password = learner_can_edit_password
-            dataset.save()
-            return Response(
-                {"dataset": FacilityDatasetSerializer(dataset).data},
-                status=status.HTTP_200_OK,
-            )
-
-        return Response(
-            {"detail": "Invalid request."}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-
 class IsPINValidView(views.APIView):
     permission_classes = (IsPINValidPermissions,)
 
     def post(self, request, pk):
+        # Inline import: viewsets.facility_dataset imports auth helpers from this module,
+        # creating a circular dependency that is broken by deferring this import.
+        from kolibri.core.auth.viewsets.facility_dataset import (
+            FacilityDatasetSerializer,
+        )
+
         serializer = ExtraFieldsSerializer(data=request.data)
         if not serializer.is_valid() or serializer.data.get("pin_code") is None:
             return HttpResponseBadRequest("Invalid pin input")

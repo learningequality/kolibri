@@ -2303,6 +2303,25 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    def test_response_includes_allow_guest_access_field(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        set_device_settings(allow_guest_access=False)
+        response = self.client.get(reverse("kolibri:core:facilitydataset-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertGreater(len(response.data), 0)
+        self.assertFalse(response.data[0]["allow_guest_access"])
+
+    def test_response_includes_is_full_facility_import_field(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:facilitydataset-list"),
+            {"facility_id": self.facility.id},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        # Locally-provisioned facilities have a FULL_FACILITY root certificate
+        self.assertIn("is_full_facility_import", response.data[0])
+
     def test_facility_admin_can_reset_settings(self):
         facility = FacilityFactory.create()
         admin = FacilityUserFactory.create(facility=facility)
@@ -2591,8 +2610,13 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         mock_enqueued_job.job_id = "test-job-id"
         mock_storage.get_job.return_value = mock_enqueued_job
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch("kolibri.core.auth.api.are_picture_passwords_exhausted", return_value=True)
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.are_picture_passwords_exhausted",
+        return_value=True,
+    )
     def test_enable_rejected_when_exhausted(self, mock_exhausted, mock_task):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.patch(
@@ -2603,8 +2627,10 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
         mock_task.validate_job_data.assert_not_called()
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch("kolibri.core.auth.api.job_storage")
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
+    @patch("kolibri.core.auth.viewsets.facility_dataset.job_storage")
     def test_enable_enqueues_task_and_returns_task_object(
         self, mock_storage, mock_task
     ):
@@ -2630,7 +2656,9 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         self.assertTrue(dataset.learner_can_login_with_no_password)
         self.assertFalse(dataset.learner_can_edit_password)
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
     def test_update_settings_does_not_enqueue_task(self, mock_task):
         dataset = self.facility.dataset
         dataset.picture_password_settings = self._picture_password_settings()
@@ -2649,7 +2677,9 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         dataset.refresh_from_db()
         self.assertEqual(dataset.picture_password_settings, new_settings)
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
     def test_disable_to_username_only(self, mock_task):
         dataset = self.facility.dataset
         dataset.picture_password_settings = self._picture_password_settings()
@@ -2672,7 +2702,9 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         self.assertTrue(dataset.learner_can_login_with_no_password)
         self.assertFalse(dataset.learner_can_edit_password)
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
     def test_disable_to_username_and_password(self, mock_task):
         dataset = self.facility.dataset
         dataset.picture_password_settings = self._picture_password_settings()
@@ -2696,8 +2728,10 @@ class SaveFacilityLoginSettingsAPITestCase(APITestCase):
         self.assertFalse(dataset.learner_can_login_with_no_password)
         self.assertTrue(dataset.learner_can_edit_password)
 
-    @patch("kolibri.core.auth.api.assign_picture_passwords_to_facility")
-    @patch("kolibri.core.auth.api.job_storage")
+    @patch(
+        "kolibri.core.auth.viewsets.facility_dataset.assign_picture_passwords_to_facility"
+    )
+    @patch("kolibri.core.auth.viewsets.facility_dataset.job_storage")
     def test_enable_does_not_assign_inline(self, mock_storage, mock_task):
         self._setup_task_mocks(mock_storage, mock_task)
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
