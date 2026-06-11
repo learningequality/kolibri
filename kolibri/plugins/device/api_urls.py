@@ -2,9 +2,9 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import CalculateImportExportSizeView
-from .api import DeviceChannelMetadataViewSet
-from .api import DeviceChannelOrderView
+from .viewsets.device import CalculateImportExportSizeView
+from .viewsets.device import DeviceChannelMetadataViewSet
+from .viewsets.device import DeviceChannelOrderView
 
 router = routers.SimpleRouter()
 
