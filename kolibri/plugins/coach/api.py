@@ -15,6 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import UUIDFilter
 from rest_framework import permissions
+from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -106,30 +107,36 @@ class ClassroomNotificationsFilter(FilterSet):
         return queryset
 
 
+class ClassroomNotificationsSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source="notification_object", read_only=True)
+    event = serializers.CharField(source="notification_event", read_only=True)
+
+    class Meta:
+        model = LearnerProgressNotification
+        fields = (
+            "id",
+            "timestamp",
+            "user_id",
+            "classroom_id",
+            "lesson_id",
+            "assignment_collections",
+            "reason",
+            "quiz_id",
+            "quiz_num_correct",
+            "quiz_num_answered",
+            "contentnode_id",
+            "object",
+            "event",
+        )
+
+
 @query_params_required(classroom_id=str)
 class ClassroomNotificationsViewset(ValuesViewset):
     permission_classes = (ClassroomNotificationsPermissions,)
 
-    values = (
-        "id",
-        "timestamp",
-        "user_id",
-        "classroom_id",
-        "lesson_id",
-        "assignment_collections",
-        "reason",
-        "quiz_id",
-        "quiz_num_correct",
-        "quiz_num_answered",
-        "contentnode_id",
-        "notification_object",
-        "notification_event",
-    )
-
-    field_map = {"object": "notification_object", "event": "notification_event"}
-
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ClassroomNotificationsFilter
+    serializer_class = ClassroomNotificationsSerializer
 
     def check_limit(self):
         """
