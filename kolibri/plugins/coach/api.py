@@ -1,27 +1,14 @@
-import datetime
-
-from django.db import connections
 from django.db.models import Count
 from django.db.models import F
 from django.db.models import OuterRef
 from django.db.models import Subquery
 from django.db.models import Sum
-from django.db.utils import DatabaseError
-from django.db.utils import OperationalError
 from django.http import Http404
-from django_filters.rest_framework import CharFilter
-from django_filters.rest_framework import DateTimeFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework import UUIDFilter
 from rest_framework import permissions
-from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.response import Response
 
 from .serializers import LessonReportSerializer
-from kolibri.core.api import ValuesViewset
-from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
@@ -30,14 +17,6 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
-from kolibri.core.notifications.models import LearnerProgressNotification
-from kolibri.core.notifications.models import NotificationsLog
-from kolibri.core.sqlite.utils import repair_sqlite_db
-from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
-
-collection_kind_choices = tuple(
-    [choice[0] for choice in collection_kinds.choices] + ["user"]
-)
 
 
 class LessonReportPermissions(permissions.BasePermission):
@@ -67,175 +46,6 @@ class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, LessonReportPermissions)
     serializer_class = LessonReportSerializer
     queryset = Lesson.objects.all()
-
-
-class ClassroomNotificationsPermissions(permissions.BasePermission):
-    """
-    Allow only users with admin/coach permissions on a collection.
-    """
-
-    def has_permission(self, request, view):
-        classroom_id = view.kwargs.get("classroom_id")
-
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-
-        try:
-            return request.user.has_role_for(
-                allowed_roles, Collection.objects.get(pk=classroom_id)
-            )
-        except (Collection.DoesNotExist, ValueError):
-            return False
-
-
-class ClassroomNotificationsFilter(FilterSet):
-    classroom_id = UUIDFilter(field_name="classroom_id")
-    after = DateTimeFilter(field_name="timestamp", lookup_expr="gt")
-    before = DateTimeFilter(
-        field_name="timestamp", lookup_expr="lt", method="filter_before"
-    )
-    learner_id = UUIDFilter(field_name="user_id")
-    group_id = CharFilter(field_name="assignment_collections", lookup_expr="contains")
-
-    class Meta:
-        model = LearnerProgressNotification
-        fields = ["before", "after", "classroom_id", "learner_id", "group_id"]
-
-    def filter_before(self, queryset, name, value):
-        # Don't allow arbitrary backwards lookups
-        if self.request.query_params.get("limit", None):
-            return queryset.filter(timestamp__lt=value)
-        return queryset
-
-
-class ClassroomNotificationsSerializer(serializers.ModelSerializer):
-    object = serializers.CharField(source="notification_object", read_only=True)
-    event = serializers.CharField(source="notification_event", read_only=True)
-
-    class Meta:
-        model = LearnerProgressNotification
-        fields = (
-            "id",
-            "timestamp",
-            "user_id",
-            "classroom_id",
-            "lesson_id",
-            "assignment_collections",
-            "reason",
-            "quiz_id",
-            "quiz_num_correct",
-            "quiz_num_answered",
-            "contentnode_id",
-            "object",
-            "event",
-        )
-
-
-@query_params_required(classroom_id=str)
-class ClassroomNotificationsViewset(ValuesViewset):
-    permission_classes = (ClassroomNotificationsPermissions,)
-
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ClassroomNotificationsFilter
-    serializer_class = ClassroomNotificationsSerializer
-
-    def check_limit(self):
-        """
-        Check if limit parameter must be used for the query
-        """
-        notifications_limit = self.request.query_params.get("limit", None)
-        limit = None
-        if notifications_limit:
-            try:
-                limit = int(notifications_limit)
-            except ValueError:
-                pass  # if limit has not a valid format, let's not use it
-        return limit
-
-    def get_queryset(self):
-        classroom_id = self.kwargs.get("classroom_id", None)
-
-        if classroom_id is None:
-            return LearnerProgressNotification.objects.none()
-
-        return LearnerProgressNotification.objects
-
-    def filter_queryset(self, queryset):
-        queryset = super().filter_queryset(queryset)
-
-        classroom_id = self.kwargs.get("classroom_id", None)
-        if classroom_id is None:
-            return LearnerProgressNotification.objects.none()
-
-        limit = self.check_limit()
-        after = self.request.query_params.get("after", None)
-        before = self.request.query_params.get("before", None) if limit else None
-
-        if not after and not before:
-            try:
-                last_record = queryset.latest("timestamp")
-                # returns all the notifications 24 hours older than the latest
-                last_24h = last_record.timestamp - datetime.timedelta(days=1)
-                queryset = queryset.filter(timestamp__gte=last_24h)
-            except LearnerProgressNotification.DoesNotExist:
-                return LearnerProgressNotification.objects.none()
-            except DatabaseError:
-                repair_sqlite_db(connections[NOTIFICATIONS])
-                return LearnerProgressNotification.objects.none()
-
-        return queryset
-
-    def annotate_queryset(self, queryset):
-        queryset = queryset.order_by("-timestamp")
-        limit = self.check_limit()
-        if limit:
-            return queryset[:limit]
-        return queryset
-
-    def list(self, request, *args, **kwargs):
-        """
-        It provides the list of ClassroomNotificationsViewset from DRF.
-        Then it fetches and saves the needed information to know how many coaches
-        are requesting notifications in the last five minutes
-        """
-        try:
-            queryset = self.filter_queryset(self.get_queryset())
-        except (OperationalError, DatabaseError):
-            if NOTIFICATIONS in connections:
-                repair_sqlite_db(connections[NOTIFICATIONS])
-            queryset = LearnerProgressNotification.objects.none()
-
-        # L
-        logging_interval = datetime.datetime.now() - datetime.timedelta(minutes=5)
-        try:
-            logged_notifications = (
-                NotificationsLog.objects.filter(timestamp__gte=logging_interval)
-                .values("coach_id")
-                .distinct()
-                .count()
-            )
-        except (OperationalError, DatabaseError):
-            logged_notifications = 0
-            repair_sqlite_db(connections[NOTIFICATIONS])
-        # if there are more than 10 notifications we limit the answer to 10
-        if logged_notifications < 10:
-            notification_info = NotificationsLog()
-            notification_info.coach_id = request.user.id
-            notification_info.save()
-            NotificationsLog.objects.filter(timestamp__lt=logging_interval).delete()
-
-        more_results = False
-        limit = self.check_limit()
-        if limit:
-            # If we are limiting responses, check if more results are available
-            more_results = queryset.order_by("-timestamp")[limit:].exists()
-
-        return Response(
-            {
-                "results": self.serialize(queryset),
-                "coaches_polling": logged_notifications,
-                "more_results": more_results,
-            }
-        )
 
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):
