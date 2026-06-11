@@ -41,6 +41,7 @@ from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import app_initialize_url
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
@@ -800,6 +801,15 @@ class UserSyncStatusTestCase(APITestCase):
         content_removal_request.save()
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
         self.assertFalse(response.data[0]["sync_downloads_in_progress"])
+
+    def test_usersyncstatus_list_subset_of_users_device_no_peers_returns_empty(self):
+        NetworkLocation.objects.filter(subset_of_users_device=False).delete()
+        device_settings = DeviceSettings.objects.get()
+        device_settings.subset_of_users_device = True
+        device_settings.save()
+        clear_process_cache()
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(list(response.data), [])
 
 
 class InitializeEndpointTestCase(APITestCase):
