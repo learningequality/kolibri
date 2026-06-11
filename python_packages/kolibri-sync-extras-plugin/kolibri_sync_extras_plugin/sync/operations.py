@@ -14,7 +14,6 @@ from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
 from kolibri_sync_extras_plugin.tasks import get_job_id
 from kolibri_sync_extras_plugin.tasks import set_job_id
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -114,12 +113,8 @@ class BackgroundInitializeJobOperation(BackgroundJobOperation):
         self._assert(ASYNC_OPERATIONS in context.capabilities)
         current_stage = transfer_stages.stage(context.stage)
         # the initialization stage itself cannot be processed in the background
-        self._assert(
-            current_stage > transfer_stages.stage(transfer_stages.INITIALIZING)
-        )
-        self._assert(
-            current_stage < transfer_stages.stage(transfer_stages.TRANSFERRING)
-        )
+        self._assert(current_stage > transfer_stages.stage(transfer_stages.INITIALIZING))
+        self._assert(current_stage < transfer_stages.stage(transfer_stages.TRANSFERRING))
 
         job_state = self._get_or_queue_job(context, context.stage)
 

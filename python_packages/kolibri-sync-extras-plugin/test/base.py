@@ -5,7 +5,6 @@ from morango.models.core import SyncSession
 from morango.models.core import TransferSession
 from morango.sync.context import LocalSessionContext
 
-
 DUMMY_PASSWORD = "password"
 
 

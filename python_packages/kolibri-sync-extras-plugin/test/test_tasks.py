@@ -1,7 +1,8 @@
-from .base import BaseTestCase
 from kolibri_sync_extras_plugin.tasks import get_job_id
 from kolibri_sync_extras_plugin.tasks import get_job_key
 from kolibri_sync_extras_plugin.tasks import set_job_id
+
+from .base import BaseTestCase
 
 
 class TasksTestCase(BaseTestCase):
@@ -14,7 +15,5 @@ class TasksTestCase(BaseTestCase):
 
     def test_set_job_id(self):
         set_job_id(self.context, "xyz789")
-        self.assertEqual(
-            '{"def456_dequeuing_job_id": "xyz789"}', self.sync_session.extra_fields
-        )
+        self.assertEqual('{"def456_dequeuing_job_id": "xyz789"}', self.sync_session.extra_fields)
         self.sync_session.save.assert_called_once()

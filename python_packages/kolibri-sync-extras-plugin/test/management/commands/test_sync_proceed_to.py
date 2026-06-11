@@ -3,9 +3,10 @@ from morango.constants import capabilities
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 
-from ...base import BaseTestCase
 from kolibri_sync_extras_plugin.management.commands import sync_proceed_to
 from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
+
+from ...base import BaseTestCase
 
 
 class SyncProceedToCommandTestCase(BaseTestCase):
@@ -13,26 +14,20 @@ class SyncProceedToCommandTestCase(BaseTestCase):
         super(SyncProceedToCommandTestCase, self).setUp()
         self.transfer_session.pk = "abc123"
 
-        transfer_session_patcher = mock.patch.object(
-            sync_proceed_to.TransferSession, "objects"
-        )
+        transfer_session_patcher = mock.patch.object(sync_proceed_to.TransferSession, "objects")
         self.objects_mock = transfer_session_patcher.start()
         self.addCleanup(transfer_session_patcher.stop)
 
         self.objects_mock.defer.return_value.get.return_value = self.transfer_session
 
-        session_controller_patcher = mock.patch.object(
-            sync_proceed_to, "session_controller"
-        )
+        session_controller_patcher = mock.patch.object(sync_proceed_to, "session_controller")
         self.session_controller_mock = session_controller_patcher.start()
         self.addCleanup(session_controller_patcher.stop)
 
         self.cmd = sync_proceed_to.Command()
 
     def test_pass__async_capable(self):
-        self.session_controller_mock.proceed_to.return_value = (
-            transfer_statuses.COMPLETED
-        )
+        self.session_controller_mock.proceed_to.return_value = transfer_statuses.COMPLETED
         self.cmd.handle(
             id="abc123",
             target_stage=transfer_stages.CLEANUP,
@@ -55,9 +50,7 @@ class SyncProceedToCommandTestCase(BaseTestCase):
 
         self.session_controller_mock.proceed_to.side_effect = _proceed_to
 
-        with self.assertRaisesRegex(
-            sync_proceed_to.SyncProceedToError, "Failed to finalize"
-        ):
+        with self.assertRaisesRegex(sync_proceed_to.SyncProceedToError, "Failed to finalize"):
             self.cmd.handle(
                 id="abc123",
                 target_stage=transfer_stages.CLEANUP,
@@ -65,13 +58,9 @@ class SyncProceedToCommandTestCase(BaseTestCase):
             )
 
     def test_failure__retried(self):
-        self.session_controller_mock.proceed_to.side_effect = [
-            transfer_statuses.PENDING
-        ] * 5
+        self.session_controller_mock.proceed_to.side_effect = [transfer_statuses.PENDING] * 5
 
-        with self.assertRaisesRegex(
-            sync_proceed_to.SyncProceedToError, "Exceeded retry"
-        ):
+        with self.assertRaisesRegex(sync_proceed_to.SyncProceedToError, "Exceeded retry"):
             self.cmd.handle(
                 id="abc123",
                 target_stage=transfer_stages.CLEANUP,

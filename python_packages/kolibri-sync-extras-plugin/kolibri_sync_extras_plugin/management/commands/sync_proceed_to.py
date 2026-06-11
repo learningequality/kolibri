@@ -7,7 +7,6 @@ from morango.models.core import TransferSession
 
 from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,15 +23,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--id", type=str, action="store")
         parser.add_argument("--target-stage", type=str, action="store")
-        parser.add_argument(
-            "--capabilities", type=lambda caps: caps.split(","), action="store"
-        )
+        parser.add_argument("--capabilities", type=lambda caps: caps.split(","), action="store")
 
     def handle(self, *args, **options):
 
-        transfer_session = TransferSession.objects.defer(
-            "client_fsic", "server_fsic"
-        ).get(pk=options.pop("id"))
+        transfer_session = TransferSession.objects.defer("client_fsic", "server_fsic").get(
+            pk=options.pop("id")
+        )
         target_stage = options.pop("target_stage")
         capabilities = options.pop("capabilities")
 
@@ -47,9 +44,7 @@ class Command(BaseCommand):
         # retry in case of transaction rollback errors from transaction isolation
         while status not in transfer_statuses.FINISHED_STATES and tries < MAX_RETRIES:
             if tries > 0:
-                logger.info(
-                    "Retrying {} to {}".format(transfer_session.pk, target_stage)
-                )
+                logger.info("Retrying {} to {}".format(transfer_session.pk, target_stage))
             status = session_controller.proceed_to(
                 target_stage=target_stage,
                 context=context,
@@ -57,9 +52,7 @@ class Command(BaseCommand):
             tries += 1
 
         logger.info(
-            "Proceeded {} to {} with status '{}'".format(
-                transfer_session.pk, target_stage, status
-            )
+            "Proceeded {} to {} with status '{}'".format(transfer_session.pk, target_stage, status)
         )
 
         if status != transfer_statuses.COMPLETED:
@@ -76,6 +69,4 @@ class Command(BaseCommand):
                 )
             else:
                 # this should really never happen
-                raise RuntimeError(
-                    "Unexpected failure finalizing {}".format(transfer_session.pk)
-                )
+                raise RuntimeError("Unexpected failure finalizing {}".format(transfer_session.pk))

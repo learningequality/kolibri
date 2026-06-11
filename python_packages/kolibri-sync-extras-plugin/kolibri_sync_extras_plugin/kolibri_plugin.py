@@ -17,9 +17,7 @@ class SyncExtrasPluginHook(FacilityDataSyncHook):
         Import and cache the operation here to avoid import ordering issues with dependencies
         :rtype: list[kolibri_sync_extras_plugin.sync.operations.BackgroundInitializeJobOperation]
         """
-        from kolibri_sync_extras_plugin.sync.operations import (
-            BackgroundInitializeJobOperation,
-        )
+        from kolibri_sync_extras_plugin.sync.operations import BackgroundInitializeJobOperation
 
         if self._initialize_operations is None:
             self._initialize_operations = [BackgroundInitializeJobOperation()]
@@ -30,9 +28,7 @@ class SyncExtrasPluginHook(FacilityDataSyncHook):
         Import and cache the operation here to avoid import ordering issues with dependencies
         :rtype: list[kolibri_sync_extras_plugin.sync.operations.BackgroundFinalizeJobOperation]
         """
-        from kolibri_sync_extras_plugin.sync.operations import (
-            BackgroundFinalizeJobOperation,
-        )
+        from kolibri_sync_extras_plugin.sync.operations import BackgroundFinalizeJobOperation
 
         if self._finalize_operations is None:
             self._finalize_operations = [BackgroundFinalizeJobOperation()]
