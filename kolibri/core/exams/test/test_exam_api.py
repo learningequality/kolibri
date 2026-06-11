@@ -646,6 +646,38 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
+    def test_instant_report_visibility_null_returns_true(self):
+        """A NULL instant_report_visibility in the DB should come back as True."""
+        self.login_as_admin()
+        # Force a NULL value directly (bypassing the API which doesn't allow null)
+        models.Exam.objects.filter(id=self.exam.id).update(
+            instant_report_visibility=None
+        )
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["instant_report_visibility"])
+
+
+def test_exam_viewset_values_derived_from_serializer():
+    """Values must be derived from ExamSerializer, not explicit tuples."""
+    from kolibri.core.exams.viewsets.exam import ExamSerializer
+    from kolibri.core.exams.viewsets.exam import ExamViewset
+
+    vs = ExamViewset()
+    assert not hasattr(vs, "values"), (
+        "ExamViewset must not have explicit 'values' tuple"
+    )
+    assert not hasattr(vs, "field_map"), (
+        "ExamViewset must not have explicit 'field_map'"
+    )
+    # _values = serializer fields minus deferred fields (populated post-query)
+    expected = frozenset(ExamSerializer.Meta.fields) - frozenset(
+        ExamViewset.deferred_fields
+    )
+    assert frozenset(vs._values) == expected
+
 
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
     class_object = models.DraftExam
