@@ -165,7 +165,9 @@ class CreateUserOnRemoteTestCase(APITestCase):
         clear_process_cache()
 
     def _post(self, upstream_status, upstream_json, json_raises=None):
-        with patch("kolibri.plugins.setup_wizard.api.NetworkClient") as NetworkClient:
+        with patch(
+            "kolibri.plugins.setup_wizard.viewsets.setup_wizard.NetworkClient"
+        ) as NetworkClient:
             client = NetworkClient.build_for_address.return_value
             client.post.return_value.status_code = upstream_status
             if json_raises is not None:
