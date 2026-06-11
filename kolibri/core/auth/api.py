@@ -2,7 +2,6 @@ import logging
 import time
 from collections import OrderedDict
 from datetime import timedelta
-from itertools import groupby
 from uuid import UUID
 from uuid import uuid4
 
@@ -495,20 +494,14 @@ class ClassroomFilter(FilterSet):
 class ClassroomViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = Classroom.objects.all()
+    queryset = Classroom.objects.order_by("id")
     serializer_class = ClassroomSerializer
     filterset_class = ClassroomFilter
 
-    values = (
-        "id",
-        "name",
-        "parent",
-        "learner_count",
-        "role__user__id",
-        "role__user__devicepermissions__is_superuser",
-        "role__user__full_name",
-        "role__user__username",
-    )
+    # coaches is assembled via a separate query in consolidate() — the complex
+    # join path (role__user__*) that existed in the explicit values tuple is
+    # replaced by targeted lookups, keeping the main query lean.
+    deferred_fields = ("coaches",)
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
@@ -519,65 +512,81 @@ class ClassroomViewSet(ValuesViewset):
         )
 
     def consolidate(self, items, queryset):
-        output = []
-        items = sorted(items, key=lambda x: x["id"])
-        coach_ids = list(
-            set(
-                [
-                    item["role__user__id"]
-                    for item in items
-                    if item["role__user__id"] is not None
-                ]
+        if not items:
+            return items
+
+        classroom_ids = [item["id"] for item in items]
+        classroom_parents = {item["id"]: item["parent"] for item in items}
+
+        # Fetch classroom role assignments with user display data in one query,
+        # excluding soft-deleted users via date_deleted — PR #13652.
+        # order_by("user") gives deterministic coach ordering within each classroom.
+        classroom_role_rows = list(
+            Role.objects.filter(
+                collection_id__in=classroom_ids,
+                user__date_deleted__isnull=True,
+            )
+            .order_by("user")
+            .values(
+                "collection",
+                "user",
+                "user__full_name",
+                "user__username",
+                "user__devicepermissions__is_superuser",
             )
         )
-        soft_deleted_user_ids = list(
-            FacilityUser.soft_deleted_objects.all().values_list("id", flat=True)
-        )
-        active_coach_ids = [
-            coach_id for coach_id in coach_ids if coach_id not in soft_deleted_user_ids
-        ]
+
+        coach_user_ids = list({r["user"] for r in classroom_role_rows if r["user"]})
+
+        if not coach_user_ids:
+            for item in items:
+                item["coaches"] = []
+            return items
+
+        # Fetch facility-level roles for active coaches
         facility_roles = {
             obj.pop("user"): obj
             for obj in Role.objects.filter(
-                user_id__in=active_coach_ids, collection__kind=collection_kinds.FACILITY
+                user_id__in=coach_user_ids,
+                collection__kind=collection_kinds.FACILITY,
             ).values("user", "kind", "collection", "id")
         }
 
-        for key, group in groupby(items, lambda x: x["id"]):
-            coaches = []
-            group_list = list(group)
-            base_item = group_list[0]
+        classroom_coaches = {cid: [] for cid in classroom_ids}
+        seen_per_classroom = {cid: set() for cid in classroom_ids}
 
-            for item in group_list:
-                user_id = item.get("role__user__id")
-                if user_id in active_coach_ids:
-                    roles = []
-                    if user_id in facility_roles and facility_roles[user_id][
-                        "collection"
-                    ] == item.get("parent"):
-                        roles.append(facility_roles[user_id])
+        for row in classroom_role_rows:
+            user_id = row["user"]
+            classroom_id = row["collection"]
+            if user_id in seen_per_classroom[classroom_id]:
+                continue
+            seen_per_classroom[classroom_id].add(user_id)
 
-                    coach = {
-                        "id": user_id,
-                        "facility": item.get("parent"),
-                        "is_superuser": bool(
-                            item.get("role__user__devicepermissions__is_superuser")
-                        ),
-                        "full_name": item.get("role__user__full_name"),
-                        "username": item.get("role__user__username"),
-                        "roles": roles,
-                    }
-                    coaches.append(coach)
-            consolidated_item = {
-                "id": base_item.get("id"),
-                "name": base_item.get("name"),
-                "parent": base_item.get("parent"),
-                "learner_count": base_item.get("learner_count"),
-                "coaches": coaches,
-            }
-            output.append(consolidated_item)
+            parent = classroom_parents[classroom_id]
+            roles = []
+            if (
+                user_id in facility_roles
+                and facility_roles[user_id]["collection"] == parent
+            ):
+                roles.append(facility_roles[user_id])
 
-        return output
+            classroom_coaches[classroom_id].append(
+                {
+                    "id": user_id,
+                    "facility": parent,
+                    "is_superuser": bool(
+                        row.get("user__devicepermissions__is_superuser")
+                    ),
+                    "full_name": row["user__full_name"],
+                    "username": row["user__username"],
+                    "roles": roles,
+                }
+            )
+
+        for item in items:
+            item["coaches"] = classroom_coaches[item["id"]]
+
+        return items
 
 
 class LearnerGroupViewSet(ValuesViewset):
