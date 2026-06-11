@@ -14,8 +14,8 @@ from kolibri.core.auth.utils.deprovision import deprovision
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser
-from kolibri.core.device.serializers import DeviceSerializerMixin
-from kolibri.core.device.serializers import NoFacilityFacilityUserSerializer
+from kolibri.core.device.viewsets.device_settings import DeviceSerializerMixin
+from kolibri.core.device.viewsets.initialize_app import NoFacilityFacilityUserSerializer
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
