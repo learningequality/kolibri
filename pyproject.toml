@@ -172,7 +172,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C90", "T20"]
+select = ["E", "F", "W", "C90", "T20", "I"]
 ignore = ["E203", "E721", "E741"]
 # Exclude migrations from linting (auto-generated code) but still format them
 exclude = ["kolibri/*/migrations/*"]
@@ -185,6 +185,10 @@ max-complexity = 10
 
 [tool.ruff.lint.isort]
 known-first-party = ["kolibri"]
+# Match the prior reorder-python-imports style: one import per line,
+# sorted case-insensitively rather than grouped by type.
+force-single-line = true
+order-by-type = false
 
 [tool.coverage.run]
 branch = true
