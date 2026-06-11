@@ -282,10 +282,30 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
         )
 
 
+class CoachRoleSerializer(serializers.Serializer):
+    collection = serializers.CharField()
+    kind = serializers.CharField()
+    id = serializers.CharField()
+
+
+# Demographic fields (birth_year, gender, id_number) are intentionally absent —
+# coaches and learners can see other coaches' data via this endpoint. (#5cb13e50)
+class CoachSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    facility = serializers.CharField()
+    is_superuser = serializers.BooleanField()
+    full_name = serializers.CharField()
+    username = serializers.CharField()
+    roles = CoachRoleSerializer(many=True)
+
+
 class ClassroomSerializer(serializers.ModelSerializer):
+    learner_count = serializers.IntegerField(read_only=True)
+    coaches = CoachSerializer(many=True, read_only=True)
+
     class Meta:
         model = Classroom
-        fields = ("id", "name", "parent")
+        fields = ("id", "name", "parent", "learner_count", "coaches")
         read_only_fields = ("id",)
 
         validators = [
