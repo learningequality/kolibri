@@ -4,7 +4,7 @@ from rest_framework import routers
 from kolibri.core.api import KolibriDataPortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
 
-from .api import ClassroomViewSet
+from .viewsets.classroom import ClassroomViewSet
 from .api import DeleteImportedUserView
 from .api import FacilityViewSet
 from .api import IsPINValidView
