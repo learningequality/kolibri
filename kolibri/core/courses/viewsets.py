@@ -10,16 +10,19 @@ from le_utils.constants import modalities
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
+from rest_framework.serializers import CharField
 from rest_framework.serializers import ChoiceField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
+from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_404_NOT_FOUND
 
 from kolibri.core import error_constants
+from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
@@ -70,18 +73,20 @@ class UnitTestValidationSerializer(Serializer):
         return attrs
 
 
+class CourseSessionClassroomSerializer(ModelSerializer):
+    parent = UUIDField(source="parent_id", read_only=True)
+
+    class Meta:
+        model = Collection
+        fields = ("id", "name", "parent")
+
+
 class CourseSessionSerializer(ModelSerializer):
-    course = PrimaryKeyRelatedField(
-        queryset=ContentNode.objects.filter(modality=modalities.COURSE),
-        required=True,
-    )
-    assignments = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False,
-            queryset=Collection.objects.exclude(kind=ADHOCLEARNERSGROUP),
-        ),
-        required=False,
-    )
+    # UUIDField not PrimaryKeyRelatedField: .to_representation does .pk on raw UUIDs from .values(), failing. ContentNode validation is in to_internal_value.
+    course = UUIDField(format="hex", required=True)
+    classroom = CourseSessionClassroomSerializer(source="collection", read_only=True)
+    # Read-only at field level; write-path validation (Collection PKs, ADHOCLEARNERSGROUP exclusion) is in to_internal_value.
+    assignments = ValuesMethodField(sources=("course_session_assignment_collections",))
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(
             read_only=False, queryset=FacilityUser.objects.all()
@@ -89,16 +94,27 @@ class CourseSessionSerializer(ModelSerializer):
         required=False,
     )
     active = BooleanField(source="is_active", required=False)
+    title = CharField(read_only=True)
+    description = CharField(read_only=True, allow_null=True, allow_blank=True)
+    missing_resource = BooleanField(read_only=True)
+
+    def get_assignments(self, obj):
+        return obj.course_session_assignment_collections
 
     class Meta:
         model = CourseSession
         fields = (
             "id",
-            "active",
+            "title",
+            "description",
             "course",
-            "collection",  # classroom
+            "active",
+            "collection",
+            "classroom",
             "created_by",
+            "date_created",
             "assignments",
+            "missing_resource",
             "learner_ids",
         )
 
@@ -121,14 +137,45 @@ class CourseSessionSerializer(ModelSerializer):
 
         return attrs
 
+    def _validate_list_field(self, field_name, child_field, raw_value):
+        field = ListField(child=child_field)
+        field.bind(field_name, self)
+        try:
+            return field.run_validation(raw_value)
+        except ValidationError as exc:
+            raise ValidationError({field_name: exc.detail})
+
     def to_internal_value(self, data):
         data = OrderedDict(data)
         data["created_by"] = self.context["request"].user.id
+
+        # ValuesMethodField is read-only; pop assignments before super() so
+        # client-supplied values aren't silently discarded without validation.
+        assignment_ids = data.pop("assignments", None)
+
         instance = super().to_internal_value(data)
 
-        # Transform course ContentNode object to its title, description, and version
-        course = instance.get("course")
-        if course:
+        if assignment_ids is not None:
+            instance["assignments"] = self._validate_list_field(
+                "assignments",
+                PrimaryKeyRelatedField(
+                    queryset=Collection.objects.exclude(kind=ADHOCLEARNERSGROUP)
+                ),
+                assignment_ids,
+            )
+
+        # course is a UUIDField on the model (not a FK); validate and resolve
+        # the ContentNode manually to extract title, description, and channel version.
+        course_id = instance.get("course")
+        if course_id:
+            try:
+                course = ContentNode.objects.filter(modality=modalities.COURSE).get(
+                    id=course_id
+                )
+            except (ContentNode.DoesNotExist, ValueError):
+                raise ValidationError(
+                    {"course": [f'Invalid pk "{course_id}" - object does not exist.']}
+                )
             instance["title"] = course.title
             instance["description"] = course.description
             instance["course"] = course.id
@@ -286,14 +333,6 @@ class CourseSessionPermissions(KolibriAuthPermissions):
         return request.user.can_create(model, validated_data)
 
 
-def _map_course_session_classroom(item):
-    return {
-        "id": item.pop("collection__id"),
-        "name": item.pop("collection__name"),
-        "parent": item.pop("collection__parent_id"),
-    }
-
-
 def _activated_by_info(user):
     """Return a dict of user info for the activated_by field, or None."""
     if user:
@@ -380,32 +419,12 @@ def _compute_course_state(course_id, test):
 
 class CourseSessionViewset(ValuesViewset):
     serializer_class = CourseSessionSerializer
+    # learner_ids is populated by consolidate(), not annotated by the queryset.
+    deferred_fields = ("learner_ids",)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filterset_fields = ("collection", "id")
     permission_classes = (CourseSessionPermissions,)
     queryset = CourseSession.objects.all().order_by("-date_created")
-
-    values = (
-        "id",
-        "title",
-        "description",
-        "course",
-        "is_active",
-        "collection",  # classroom
-        "collection__id",
-        "collection__name",
-        "collection__parent_id",
-        "created_by",
-        "date_created",
-        "course_session_assignment_collections",
-        "missing_resource",
-    )
-
-    field_map = {
-        "active": "is_active",
-        "classroom": _map_course_session_classroom,
-        "assignments": "course_session_assignment_collections",
-    }
 
     def consolidate(self, items, queryset):
         if items:
