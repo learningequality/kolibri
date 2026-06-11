@@ -119,7 +119,7 @@ class ClassroomNotificationsTestCase(APITestCase):
         )
 
         with patch(
-            "kolibri.plugins.coach.api.ClassroomNotificationsViewset.filter_queryset",
+            "kolibri.plugins.coach.viewsets.classroom_notifications.ClassroomNotificationsFilter.filter_queryset",
             side_effect=DatabaseError,
         ):
             response = self.client.get(

@@ -2,7 +2,6 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import ClassroomNotificationsViewset
 from .api import ExerciseDifficultQuestionsViewset
 from .api import LessonReportViewset
 from .api import PracticeQuizDifficultQuestionsViewset
@@ -10,6 +9,7 @@ from .api import QuizDifficultQuestionsViewset
 from .class_summary_api import ClassSummaryViewSet
 from .unit_lesson_progress_api import UnitLessonProgressViewSet
 from .unit_report_api import UnitReportViewSet
+from .viewsets.classroom_notifications import ClassroomNotificationsViewset
 
 router = routers.DefaultRouter()
 
