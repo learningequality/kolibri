@@ -24,6 +24,7 @@ from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
 from morango.models import TransferSession
 from rest_framework import mixins
+from rest_framework import serializers
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -43,6 +44,7 @@ from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceSettingsSerializer
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesMethodField
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
@@ -244,36 +246,60 @@ class SyncStatusFilter(FilterSet):
 sync_diff = timedelta(seconds=DELAYED_SYNC)
 
 
-def map_status(record):
-    """
-    Summarize the current state of the sync into a constant for use by
-    the frontend.
-    """
-    transfer_status = record.pop("transfer_status", None)
-    device_status = record.get("device_status")
-    device_status_sentiment = record.get("device_status_sentiment")
-    sync_status = record.pop("status", None)
-    recent = record["last_synced"] and (
-        timezone.now() - record["last_synced"] < sync_diff
+class UserSyncStatusSerializer(serializers.ModelSerializer):
+    status = ValuesMethodField(
+        sources=(
+            "transfer_status",
+            "device_status",
+            "device_status_sentiment",
+            "last_synced",
+            "status",
+        )
     )
-    if transfer_status in transfer_statuses.IN_PROGRESS_STATES:
-        return SYNCING
-    elif transfer_status == transfer_statuses.ERRORED:
-        return UNABLE_TO_SYNC
-    elif recent:
-        # when recent sync was successful, check device status
-        if device_status == DeviceStatus.InsufficientStorage[0]:
-            return INSUFFICIENT_STORAGE
-        # if we receive unknown status, show error if sentiment is negative
-        elif (
-            device_status is not None
-            and device_status_sentiment == StatusSentiment.Negative
-        ):
+    last_synced = serializers.DateTimeField(allow_null=True, read_only=True)
+    device_status = serializers.CharField(allow_null=True, read_only=True)
+    device_status_sentiment = serializers.IntegerField(allow_null=True, read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    has_downloads = serializers.BooleanField(read_only=True)
+    last_download_removed = serializers.DateTimeField(allow_null=True, read_only=True)
+    sync_downloads_in_progress = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = UserSyncStatus
+        fields = (
+            "status",
+            "last_synced",
+            "device_status",
+            "device_status_sentiment",
+            "user",
+            "has_downloads",
+            "last_download_removed",
+            "sync_downloads_in_progress",
+        )
+
+    def get_status(self, obj):
+        transfer_status = obj.transfer_status
+        device_status = obj.device_status
+        device_status_sentiment = obj.device_status_sentiment
+        sync_status = obj.status
+        last_synced = obj.last_synced
+        recent = last_synced and (timezone.now() - last_synced < sync_diff)
+        if transfer_status in transfer_statuses.IN_PROGRESS_STATES:
+            return SYNCING
+        elif transfer_status == transfer_statuses.ERRORED:
             return UNABLE_TO_SYNC
-        return RECENTLY_SYNCED
-    elif sync_status == SyncQueueStatus.Queued:
-        return QUEUED
-    return NOT_RECENTLY_SYNCED
+        elif recent:
+            if device_status == DeviceStatus.InsufficientStorage[0]:
+                return INSUFFICIENT_STORAGE
+            elif (
+                device_status is not None
+                and device_status_sentiment == StatusSentiment.Negative
+            ):
+                return UNABLE_TO_SYNC
+            return RECENTLY_SYNCED
+        elif sync_status == SyncQueueStatus.Queued:
+            return QUEUED
+        return NOT_RECENTLY_SYNCED
 
 
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
@@ -285,21 +311,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     queryset = UserSyncStatus.objects.all()
     filterset_class = SyncStatusFilter
 
-    values = (
-        "status",
-        "last_synced",
-        "transfer_status",
-        "device_status",
-        "device_status_sentiment",
-        "user",
-        "has_downloads",
-        "last_download_removed",
-        "sync_downloads_in_progress",
-    )
-
-    field_map = {
-        "status": map_status,
-    }
+    serializer_class = UserSyncStatusSerializer
 
     def get_queryset(self):
         # If this is a subset of users device, we should just return no data
