@@ -1,5 +1,7 @@
 import datetime
+import logging
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,24 +14,37 @@ from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
+from kolibri.core.auth.permissions import _ensure_raw_dict
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
-from kolibri.core.exams import models
-from kolibri.core.exams import serializers
+from kolibri.core.exams.models import DraftExam
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.exams.serializers import ExamSerializer
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.query import annotate_array_aggregate
+
+logger = logging.getLogger(__name__)
+
+# Sentinel used as sort key for exams/drafts with no date_created.
+_EPOCH_UTC = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+
+# Fields present on Exam but not DraftExam; excluded when querying DraftExam.
+_EXAM_ONLY_FIELDS = frozenset(
+    {"active", "archive", "date_archived", "date_activated", "assignment_collections"}
+)
 
 
 class ExamFilter(FilterSet):
     class Meta:
-        model = models.Exam
+        model = Exam
         fields = ["collection"]
 
 
-def _ensure_raw_dict(d):
-    if hasattr(d, "dict"):
-        d = d.dict()
-    return dict(d)
+class DraftExamFilter(FilterSet):
+    class Meta:
+        model = DraftExam
+        fields = ["collection"]
 
 
 class ExamPermissions(KolibriAuthPermissions):
@@ -49,116 +64,97 @@ class ExamPermissions(KolibriAuthPermissions):
         # Handle data that doesn't come from the serializer but that we need to set
         # in order to instantiate the model for the can_create method
         validated_data["creator"] = request.user
-        validated_data["question_count"] = len(validated_data["question_sources"])
+        validated_data["question_count"] = len(
+            validated_data.get("question_sources", [])
+        )
         validated_data["date_created"] = now()
         return request.user.can_create(model, validated_data)
 
 
 class ExamViewset(ValuesViewset):
-    serializer_class = serializers.ExamSerializer
+    serializer_class = ExamSerializer
     permission_classes = (ExamPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filterset_class = ExamFilter
-
-    common_values = (
-        "id",
-        "title",
-        "question_sources",
-        "seed",
-        "collection",
-        "question_count",
-        "creator",
-        "data_model_version",
-        "learners_see_fixed_order",
-        "instant_report_visibility",
-        "date_created",
-    )
-
-    values = common_values + (
-        "active",
-        "archive",
-        "date_archived",
-        "date_activated",
-        "assignment_collections",
-    )
-
-    draft_values = common_values + ("assignments", "learner_ids")
-
-    field_map = {
-        "assignments": "assignment_collections",
-        "instant_report_visibility": lambda x: True
-        if x["instant_report_visibility"] is None
-        else x["instant_report_visibility"],
-    }
+    deferred_fields = ("assignments", "learner_ids", "draft")
 
     def get_draft_queryset(self):
-        return models.DraftExam.objects.all()
+        return DraftExam.objects.all()
 
     def get_queryset(self):
-        return models.Exam.objects.all()
+        return Exam.objects.all()
 
     def annotate_queryset(self, queryset):
         return annotate_array_aggregate(
             queryset, assignment_collections="assignments__collection"
         )
 
+    def _validate_output(self, items):
+        # consolidate() pops assignment_collections and populates assignments instead,
+        # so the schema (which expects assignment_collections) cannot validate the output.
+        pass
+
     def serialize_draft(self, queryset):
-        objects = queryset.values(*self.draft_values)
+        # Derive the values to fetch for DraftExam from the serializer-derived _values.
+        # Exclude Exam-only fields not present on DraftExam, and the assignment_collections
+        # annotation (not available for DraftExam). Add DraftExam-specific JSONFields.
+        draft_values = tuple(v for v in self._values if v not in _EXAM_ONLY_FIELDS) + (
+            "assignments",
+            "learner_ids",
+        )
+        objects = list(queryset.values(*draft_values))
 
         all_exam_learners_set = {
             learner_id for obj in objects for learner_id in obj.get("learner_ids", [])
         }
-        non_deleted_learners = FacilityUser.objects.filter(
-            id__in=all_exam_learners_set
-        ).values_list("id", flat=True)
+        non_deleted_learners = set(
+            FacilityUser.objects.filter(id__in=all_exam_learners_set).values_list(
+                "id", flat=True
+            )
+        )
 
+        _draft_defaults = {
+            "draft": True,
+            "active": False,
+            "archive": False,
+            "date_archived": None,
+            "date_activated": None,
+        }
         for item in objects:
-            # Set the draft flag to True
-            item["draft"] = True
-            # We need to set these values to match the Exam model
-            item["active"] = False
-            item["archive"] = False
-            item["date_archived"] = None
-            item["date_activated"] = None
+            item.update(_draft_defaults)
             # Filter out any deleted learners
             item["learner_ids"] = [
                 learner_id
                 for learner_id in item.get("learner_ids", [])
                 if learner_id in non_deleted_learners
             ]
+            # Map NULL instant_report_visibility to True (NULL means unrestricted)
+            if item.get("instant_report_visibility") is None:
+                item["instant_report_visibility"] = True
         return objects
 
+    def _is_draft_pk(self, pk):
+        """Return (is_draft, coerced_pk). DraftExam PKs are integers; Exam PKs are UUIDs."""
+        try:
+            return True, int(pk)
+        except (TypeError, ValueError):
+            return False, pk
+
     def filter_querysets(self, exam_queryset, draft_queryset):
-        # Vendored from django-filter rest_framework integration
         for backend in list(self.filter_backends):
-            # Instiate the backend
             instantiated_backend = backend()
-            # Filter the exam_queryset with the usual method
             exam_queryset = instantiated_backend.filter_queryset(
                 self.request, exam_queryset, self
             )
-            # Do some special handling if the backend has a get_filterset_class method
-            # this is required, as the get_filterset_class makes an assertion based on
-            # the model Meta of the FilterSet - which is set to Exam, so this will
-            # fail if we try to use the ExamFilter on the DraftExam queryset
-            # This is a workaround to allow the DraftExam queryset to be filtered
-            if hasattr(instantiated_backend, "get_filterset_class"):
-                # First get the filter class using the exam queryset
-                filter_class = instantiated_backend.get_filterset_class(
-                    self, exam_queryset
-                )
-                # If the filter class is not None, then we can use it to filter the draft_queryset
-                if filter_class:
-                    # We need to pass the queryset to the filter_class to ensure that the
-                    # queryset is filtered correctly
-                    draft_queryset = filter_class(
-                        self.request.query_params,
-                        queryset=draft_queryset,
-                        request=self.request,
-                    ).qs
+            # ExamFilter.Meta.model = Exam, so we cannot pass it a DraftExam queryset.
+            # DraftExamFilter has the same fields but is bound to DraftExam.
+            if isinstance(instantiated_backend, DjangoFilterBackend):
+                draft_queryset = DraftExamFilter(
+                    self.request.query_params,
+                    queryset=draft_queryset,
+                    request=self.request,
+                ).qs
             else:
-                # If the backend doesn't have a get_filterset_class method, then we can just
-                # filter the draft_queryset as normal
                 draft_queryset = instantiated_backend.filter_queryset(
                     self.request, draft_queryset, self
                 )
@@ -175,10 +171,9 @@ class ExamViewset(ValuesViewset):
 
         # Consolidate the exam_queryset and draft_queryset
         # and sort them by reverse date_created
-        dt_utc_aware = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
         all_objects = sorted(
             [*exam_objects, *draft_objects],
-            key=lambda x: x["date_created"] or dt_utc_aware,
+            key=lambda x: x["date_created"] or _EPOCH_UTC,
             reverse=True,
         )
 
@@ -189,19 +184,12 @@ class ExamViewset(ValuesViewset):
         exam_queryset, draft_queryset = self.filter_querysets(
             self.get_queryset(), self.get_draft_queryset()
         )
-        # Get the pk from the kwargs
-        pk = self.kwargs["pk"]
+        is_draft, pk = self._is_draft_pk(self.kwargs["pk"])
         try:
-            try:
-                # The DraftExam pk is an integer
-                # so we try to convert it to an integer
-                pk = int(pk)
-                # if it's an integer, then we try to get the DraftExam instance
-                instance = draft_queryset.get(pk=pk)
-            except ValueError:
-                # If it's not an integer, then we try to get the Exam instance
-                instance = exam_queryset.get(pk=pk)
-        except (IndexError, ValueError, TypeError):
+            instance = (
+                draft_queryset.get(pk=pk) if is_draft else exam_queryset.get(pk=pk)
+            )
+        except (IndexError, ValueError, TypeError, ObjectDoesNotExist):
             raise Http404("No Exam matches the given query.")
 
         # May raise a permission denied
@@ -224,25 +212,19 @@ class ExamViewset(ValuesViewset):
 
     def serialize_object(self, pk=None):
         pk = pk or self.kwargs.get("pk")
+        is_draft, pk = self._is_draft_pk(pk)
         try:
-            try:
-                # The DraftExam pk is an integer
-                # so we try to convert it to an integer
-                pk = int(pk)
-                # if it's an integer, then we try to get the DraftExam instance
-                draft_queryset = self.get_draft_queryset().filter(pk=pk)
-                return self.serialize_draft(draft_queryset)[0]
-            except ValueError:
-                # If it's not an integer, then we try to get the Exam instance
-                exam_queryset = self.get_queryset().filter(pk=pk)
-                return self.serialize(exam_queryset)[0]
+            if is_draft:
+                return self.serialize_draft(self.get_draft_queryset().filter(pk=pk))[0]
+            else:
+                return self.serialize(self.get_queryset().filter(pk=pk))[0]
         except (IndexError, ValueError, TypeError):
             raise Http404("No Exam matches the given query.")
 
     def consolidate(self, items, queryset):
         if items:
             exam_ids = [e["id"] for e in items]
-            adhoc_assignments = models.ExamAssignment.objects.filter(
+            adhoc_assignments = ExamAssignment.objects.filter(
                 exam_id__in=exam_ids, collection__kind=ADHOCLEARNERSGROUP
             )
             adhoc_assignments = annotate_array_aggregate(
@@ -255,23 +237,28 @@ class ExamViewset(ValuesViewset):
                 for a in adhoc_assignments.values("collection", "exam", "learner_ids")
             }
             for item in items:
+                assignment_collections = item.pop("assignment_collections", [])
                 if item["id"] in adhoc_assignments:
                     adhoc_assignment = adhoc_assignments[item["id"]]
-                    item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
+                    item["learner_ids"] = adhoc_assignment["learner_ids"]
                     item["assignments"] = [
                         i
-                        for i in item["assignments"]
+                        for i in assignment_collections
                         if i != adhoc_assignment["collection"]
                     ]
                 else:
                     item["learner_ids"] = []
+                    item["assignments"] = assignment_collections
                 # This is an Exam model, so set the draft flag to False
                 item["draft"] = False
+                # Map NULL instant_report_visibility to True (NULL means unrestricted)
+                if item["instant_report_visibility"] is None:
+                    item["instant_report_visibility"] = True
 
         return items
 
     def perform_update(self, serializer):
-        if isinstance(serializer.instance, models.Exam):
+        if isinstance(serializer.instance, Exam):
             was_active = serializer.instance.active
             was_archived = serializer.instance.archive
         else:
@@ -282,7 +269,7 @@ class ExamViewset(ValuesViewset):
 
         serializer.save()
 
-        if isinstance(serializer.instance, models.Exam):
+        if isinstance(serializer.instance, Exam):
             masterylog_queryset = MasteryLog.objects.filter(
                 summarylog__content_id=serializer.instance.id
             )
@@ -304,13 +291,9 @@ class ExamViewset(ValuesViewset):
         )
         exams_sizes_set = []
         for exam in list(exams) + list(draft_exams):
-            quiz_size = {}
-
             quiz_nodes = ContentNode.objects.filter(
                 id__in=[question["exercise_id"] for question in exam.get_questions()]
             )
-
-            quiz_size[exam.id] = total_file_size(quiz_nodes)
-            exams_sizes_set.append(quiz_size)
+            exams_sizes_set.append({exam.id: total_file_size(quiz_nodes)})
 
         return Response(exams_sizes_set)

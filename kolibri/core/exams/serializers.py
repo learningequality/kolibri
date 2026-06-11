@@ -33,8 +33,8 @@ class QuizSectionSerializer(Serializer):
     description = CharField(required=False, allow_blank=True)
     section_title = CharField(allow_blank=True, required=False)
     learners_see_fixed_order = BooleanField(default=False)
-    questions = ListField(
-        child=QuestionSourceSerializer(),
+    questions = QuestionSourceSerializer(
+        many=True,
         required=False,
         max_length=MAX_QUESTIONS_PER_QUIZ_SECTION,
     )
@@ -42,13 +42,18 @@ class QuizSectionSerializer(Serializer):
 
 class ExamSerializer(ModelSerializer):
     """
-    This serializer is used with a ValuesViewset, so is only used to deserialize data
-    and do create and update operations. As such, anything that is only required for serializing
-    data should be in the ValuesViewset.
+    Serializer for Exam and DraftExam. Used with ValuesViewset: read-path fields
+    are derived by derive_values_from_serializer; write-path (create/update)
+    uses to_internal_value as usual.
     """
 
+    # assignments, learner_ids, and draft are excluded from the DB values() query
+    # via deferred_fields on ExamViewset. They are populated post-query by
+    # consolidate() (for Exam) and serialize_draft() (for DraftExam).
     assignments = ListField(
-        child=PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
+        child=PrimaryKeyRelatedField(
+            read_only=False, queryset=Collection.objects.all()
+        ),
     )
     learner_ids = ListField(
         child=PrimaryKeyRelatedField(
@@ -56,8 +61,13 @@ class ExamSerializer(ModelSerializer):
         ),
         required=False,
     )
-    question_sources = ListField(child=QuizSectionSerializer(), required=False)
+    question_sources = QuizSectionSerializer(many=True, required=False)
     draft = BooleanField(default=True, required=False)
+
+    # Read-only field for the assignment_collections annotation from annotate_queryset.
+    # Named differently from the reverse-FK 'assignments' to avoid _source_crosses_many_relation
+    # treating it as a one-to-many joined field (which would produce nested lists).
+    assignment_collections = ListField(read_only=True)
 
     class Meta:
         model = Exam
@@ -65,6 +75,7 @@ class ExamSerializer(ModelSerializer):
             "id",
             "title",
             "question_sources",
+            "seed",
             "active",
             "collection",
             "archive",
@@ -73,19 +84,32 @@ class ExamSerializer(ModelSerializer):
             "instant_report_visibility",
             "learner_ids",
             "draft",
+            "question_count",
+            "creator",
+            "data_model_version",
+            "date_created",
+            "date_archived",
+            "date_activated",
+            "assignment_collections",
         )
+        extra_kwargs = {
+            "seed": {"read_only": True},
+            "question_count": {"read_only": True},
+            "creator": {"read_only": True},
+            "data_model_version": {"read_only": True},
+            "date_created": {"read_only": True},
+            "date_archived": {"read_only": True},
+            "date_activated": {"read_only": True},
+        }
 
     def _validate_learner_ids(self, collection):
         if "learner_ids" in self.initial_data and self.initial_data["learner_ids"]:
-            # First uniqueify the list of learner_ids
-            self.initial_data["learner_ids"] = list(
-                set(self.initial_data["learner_ids"])
-            )
+            learner_ids = list(set(self.initial_data["learner_ids"]))
             if (
-                len(self.initial_data["learner_ids"])
+                len(learner_ids)
                 != FacilityUser.objects.filter(
                     memberships__collection=collection,
-                    id__in=self.initial_data["learner_ids"],
+                    id__in=learner_ids,
                 ).count()
             ):
                 raise ValidationError(
@@ -94,28 +118,20 @@ class ExamSerializer(ModelSerializer):
                 )
 
     def _validate_disallowed_draft_fields(self, attrs):
-        if (
-            self.instance
-            and isinstance(self.instance, DraftExam)
-            and attrs.get("draft", True)
-        ) or (not self.instance and attrs.get("draft", True)):
+        if (not self.instance or isinstance(self.instance, DraftExam)) and attrs.get(
+            "draft", True
+        ):
             # If we are creating or updating a draft we cannot set active or archive
             # raise validation errors if trying to set to true, otherwise pop the field
             # to ignore it.
-            if "active" in attrs:
-                if attrs["active"]:
-                    raise ValidationError(
-                        "Cannot update active to true on a DraftExam object",
-                        code=error_constants.INVALID,
-                    )
-                attrs.pop("active")
-            if "archive" in attrs:
-                if attrs["archive"]:
-                    raise ValidationError(
-                        "Cannot update archive to true on a DraftExam object",
-                        code=error_constants.INVALID,
-                    )
-                attrs.pop("archive")
+            for field in ("active", "archive"):
+                if field in attrs:
+                    if attrs[field]:
+                        raise ValidationError(
+                            f"Cannot update {field} to true on a DraftExam object",
+                            code=error_constants.INVALID,
+                        )
+                    attrs.pop(field)
 
     def _validate_title_unique_in_collection(self, title, collection):
         # Check that the title is unique in the collection
@@ -145,7 +161,8 @@ class ExamSerializer(ModelSerializer):
 
         self._validate_disallowed_draft_fields(attrs)
 
-        self._validate_title_unique_in_collection(title, collection)
+        if title is not None:
+            self._validate_title_unique_in_collection(title, collection)
 
         if not self.instance and "request" in self.context:
             # If we are creating a new exam, then we need to set the creator to the current user
@@ -217,7 +234,7 @@ class ExamSerializer(ModelSerializer):
             assigned_by=self.context["request"].user, **params
         )
 
-    def update(self, instance, validated_data):  # noqa
+    def update(self, instance, validated_data):
         # Out of an abundance of caution, handle the saving of the new instance and deletion of the old instance
         # in a transaction, so that if an error occurs in either, we don't end up with a mismatched state
         # to make this simpler, we wrap the whole update in a transaction
@@ -233,48 +250,17 @@ class ExamSerializer(ModelSerializer):
                     "Cannot change an Exam to a DraftExam", code=error_constants.INVALID
                 )
             elif instance_is_draft and not new_draft_value:
-                # If this is a draft, but we are updating it to be an exam, then we need to create the new exam
-                # and delete the draft
-                if not instance.question_count:
-                    raise ValidationError(
-                        "Cannot publish a draft exam with no questions",
-                        code=error_constants.INVALID,
-                    )
-                if "assignments" not in validated_data:
-                    # First check if the assignments are being updated, if not, then we need to set them
-                    # to a queryset of collections - this will silently ignore any assignments for collections
-                    # that have been deleted since this draft was created
-                    validated_data["assignments"] = Collection.objects.filter(
-                        id__in=instance.assignments
-                    )
-                if "learner_ids" not in validated_data:
-                    # Now check if the learner_ids are being updated, if not, then we need to set them
-                    # to a queryset of learners - this will silently ignore any learners that have been deleted
-                    # since this draft was created
-                    validated_data["learner_ids"] = FacilityUser.objects.filter(
-                        id__in=instance.learner_ids
-                    )
-                # Create the new Exam object
-                new_instance = instance.to_exam()
-                # Save the new instance
-                new_instance.save()
-                # Delete the old instance
-                instance.delete()
-                # Set the instance to the new instance
-                instance = new_instance
-                # Set the instance_is_draft to False
-                # so that the rest of the update logic is run
-                # as if this was an Exam object (which it now is)
+                instance = self._publish_draft(instance, validated_data)
                 instance_is_draft = False
             # Update the scalar fields
-            instance.title = validated_data.pop("title", instance.title)
-            instance.learners_see_fixed_order = validated_data.pop(
-                "learners_see_fixed_order", instance.learners_see_fixed_order
-            )
-            instance.instant_report_visibility = validated_data.pop(
+            for field in (
+                "title",
+                "learners_see_fixed_order",
                 "instant_report_visibility",
-                instance.instant_report_visibility,
-            )
+            ):
+                setattr(
+                    instance, field, validated_data.pop(field, getattr(instance, field))
+                )
             if not instance_is_draft:
                 # Update the non-draft specific fields
                 instance.active = validated_data.pop("active", instance.active)
@@ -335,6 +321,28 @@ class ExamSerializer(ModelSerializer):
 
         return instance
 
+    def _publish_draft(self, instance, validated_data):
+        """Convert a DraftExam to an Exam, populating any missing assignments/learner_ids from the draft."""
+        if not instance.question_count:
+            raise ValidationError(
+                "Cannot publish a draft exam with no questions",
+                code=error_constants.INVALID,
+            )
+        if "assignments" not in validated_data:
+            # Silently ignores assignments for collections deleted since draft was created
+            validated_data["assignments"] = Collection.objects.filter(
+                id__in=instance.assignments
+            )
+        if "learner_ids" not in validated_data:
+            # Silently ignores learners deleted since draft was created
+            validated_data["learner_ids"] = FacilityUser.objects.filter(
+                id__in=instance.learner_ids
+            )
+        new_instance = instance.to_exam()
+        new_instance.save()
+        instance.delete()
+        return new_instance
+
     def _update_learner_ids(self, instance, learners):
         if isinstance(instance, DraftExam):
             instance.learner_ids = [learner.id for learner in learners]
@@ -361,10 +369,11 @@ class ExamSerializer(ModelSerializer):
                 self._create_exam_assignment(exam=instance, collection=adhoc_group)
             else:
                 # There is an adhoc group, so we need to potentially update its membership
-                original_learner_ids = Membership.objects.filter(
-                    collection=adhoc_group_assignment.collection
-                ).values_list("user_id", flat=True)
-                original_learner_ids_set = set(original_learner_ids)
+                original_learner_ids_set = set(
+                    Membership.objects.filter(
+                        collection=adhoc_group_assignment.collection
+                    ).values_list("user_id", flat=True)
+                )
                 learner_ids_set = {learner.id for learner in learners}
                 if original_learner_ids_set != learner_ids_set:
                     # Only bother to do anything if these are different
@@ -377,8 +386,12 @@ class ExamSerializer(ModelSerializer):
                             user_id__in=deleted_learner_ids,
                         ).delete()
 
-                    for new_learner_id in new_learner_ids:
-                        Membership.objects.create(
-                            user_id=new_learner_id,
-                            collection=adhoc_group_assignment.collection,
-                        )
+                    Membership.objects.bulk_create(
+                        [
+                            Membership(
+                                user_id=new_learner_id,
+                                collection=adhoc_group_assignment.collection,
+                            )
+                            for new_learner_id in new_learner_ids
+                        ]
+                    )
