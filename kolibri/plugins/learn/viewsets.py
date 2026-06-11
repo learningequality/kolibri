@@ -6,6 +6,7 @@ from django.db.models import Sum
 from django.db.models.fields import IntegerField
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
+from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -168,6 +169,73 @@ def _consolidate_courses_data(request, courses):
     return courses
 
 
+class ExamProgressSerializer(serializers.Serializer):
+    closed = serializers.BooleanField(allow_null=True)
+    score = serializers.IntegerField(allow_null=True)
+    answer_count = serializers.IntegerField(allow_null=True)
+    started = serializers.BooleanField()
+
+
+class ExamLearnerSerializer(serializers.Serializer):
+    collection = serializers.CharField()
+    active = serializers.BooleanField()
+    archive = serializers.BooleanField()
+    id = serializers.CharField()
+    question_count = serializers.IntegerField()
+    title = serializers.CharField()
+    data_model_version = serializers.IntegerField()
+    question_sources = serializers.ListField()
+    instant_report_visibility = serializers.BooleanField(allow_null=True)
+    progress = ExamProgressSerializer()
+    missing_resource = serializers.BooleanField()
+
+
+class LessonProgressSerializer(serializers.Serializer):
+    resource_progress = serializers.FloatField()
+    total_resources = serializers.IntegerField()
+
+
+class LessonResourceSerializer(serializers.Serializer):
+    content_id = serializers.CharField()
+    channel_id = serializers.CharField()
+    contentnode_id = serializers.CharField()
+    progress = serializers.FloatField()
+    contentnode = serializers.DictField(allow_null=True)
+
+
+class LessonLearnerSerializer(serializers.Serializer):
+    description = serializers.CharField(allow_blank=True)
+    id = serializers.CharField()
+    active = serializers.BooleanField()
+    title = serializers.CharField()
+    resources = LessonResourceSerializer(many=True, read_only=True)
+    collection = serializers.CharField()
+    progress = LessonProgressSerializer()
+    missing_resource = serializers.BooleanField()
+
+
+class CourseLearnerSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    course_id = serializers.CharField()
+    title = serializers.CharField()
+    description = serializers.CharField(allow_null=True, allow_blank=True)
+    is_active = serializers.BooleanField()
+    collection = serializers.CharField()
+    unit_count = serializers.IntegerField()
+    lesson_count = serializers.IntegerField()
+    progress = serializers.FloatField()
+
+
+class LearnerClassroomSerializer(serializers.ModelSerializer):
+    exams = ExamLearnerSerializer(many=True, read_only=True)
+    lessons = LessonLearnerSerializer(many=True, read_only=True)
+    courses = CourseLearnerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Classroom
+        fields = ("id", "name", "exams", "lessons", "courses")
+
+
 class LearnerClassroomViewset(ReadOnlyValuesViewset):
     """
     Returns all Classrooms for which the requesting User is a member,
@@ -175,8 +243,8 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
     """
 
     permission_classes = (IsAuthenticated,)
-
-    values = ("id", "name")
+    serializer_class = LearnerClassroomSerializer
+    deferred_fields = ("exams", "lessons", "courses")
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
