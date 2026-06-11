@@ -95,6 +95,7 @@ Pipfile
 
 # lock files
 *.lock
+!uv.lock
 
 # node
 node_modules
