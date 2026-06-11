@@ -9,6 +9,10 @@ from django_filters.rest_framework import ModelChoiceFilter
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from kolibri.core import error_constants
+from kolibri.core.api import ValuesViewset
+from kolibri.core.query import SQCount
+
 from ..api import KolibriAuthPermissions
 from ..api import KolibriAuthPermissionsFilter
 from ..constants import collection_kinds
@@ -18,9 +22,6 @@ from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityUser
 from ..models import Role
-from kolibri.core import error_constants
-from kolibri.core.api import ValuesViewset
-from kolibri.core.query import SQCount
 
 logger = logging.getLogger(__name__)
 

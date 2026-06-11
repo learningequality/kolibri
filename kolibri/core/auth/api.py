@@ -46,7 +46,6 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
@@ -74,7 +73,6 @@ from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 
-from .constants import collection_kinds
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
