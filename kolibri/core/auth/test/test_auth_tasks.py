@@ -70,7 +70,7 @@ class dummy_orm_job_data:
     max_retries = 3
 
 
-@patch("kolibri.core.tasks.api.job_storage")
+@patch("kolibri.core.tasks.viewsets.tasks.job_storage")
 class FacilityTasksAPITestCase(APITestCase):
     databases = "__all__"
 
