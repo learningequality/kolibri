@@ -3,17 +3,17 @@ from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import CheckMeteredConnectionView
-from .api import DeviceInfoView
-from .api import DeviceNameView
-from .api import DevicePermissionsViewSet
-from .api import DeviceRestartView
-from .api import DeviceSettingsView
-from .api import DriveInfoViewSet
-from .api import FreeSpaceView
-from .api import InitializeAppView
-from .api import PathPermissionView
-from .api import UserSyncStatusViewSet
+from .viewsets.device_permissions import DevicePermissionsViewSet
+from .viewsets.device_info import DeviceInfoView
+from .viewsets.device_settings import DeviceNameView
+from .viewsets.device_settings import DeviceSettingsView
+from .viewsets.device_restart import DeviceRestartView
+from .viewsets.drive_info import DriveInfoViewSet
+from .viewsets.free_space import FreeSpaceView
+from .viewsets.initialize_app import InitializeAppView
+from .viewsets.metered_connection import CheckMeteredConnectionView
+from .viewsets.path_permission import PathPermissionView
+from .viewsets.user_sync_status import UserSyncStatusViewSet
 
 router = routers.SimpleRouter()
 router.register(

@@ -41,7 +41,7 @@ from .views import RootURLRedirectView
 from .views import set_language
 from .views import StatusCheckView
 from .views import UnsupportedBrowserView
-from kolibri.core.device.api import PluginsViewSet
+from kolibri.core.device.viewsets.plugins import PluginsViewSet
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.utils.urls import get_urls as plugin_urls
 

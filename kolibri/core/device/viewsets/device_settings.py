@@ -1,28 +1,16 @@
+from django.http.response import HttpResponseBadRequest
 from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework import views
+from rest_framework.response import Response
 
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.tasks import automatic_synchronize_content_requests_and_import
-from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.permissions import UserHasAnyDevicePermissions
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
-
-
-class DevicePermissionsSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
-
-    class Meta:
-        model = DevicePermissions
-        fields = ("user", "is_superuser", "can_manage_content")
-
-
-class NoFacilityFacilityUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FacilityUser
-        fields = ("username", "full_name", "password")
 
 
 class DeviceSerializerMixin:
@@ -117,3 +105,36 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                         }
                     )
         return data
+
+
+class DeviceSettingsView(views.APIView):
+    permission_classes = (UserHasAnyDevicePermissions,)
+
+    def get(self, request):
+        settings = DeviceSettings.objects.get()
+        return Response(DeviceSettingsSerializer(settings).data)
+
+    def patch(self, request):
+        settings = DeviceSettings.objects.get()
+
+        serializer = DeviceSettingsSerializer(settings, data=request.data)
+
+        if not serializer.is_valid():
+            return HttpResponseBadRequest(serializer.errors)
+
+        serializer.save()
+        return Response(serializer.data)
+
+
+class DeviceNameView(views.APIView):
+    permission_classes = (UserHasAnyDevicePermissions,)
+
+    def get(self, request):
+        settings = DeviceSettings.objects.get()
+        return Response({"name": settings.name})
+
+    def patch(self, request):
+        settings = DeviceSettings.objects.get()
+        settings.name = request.data["name"]
+        settings.save()
+        return Response({"name": settings.name})
