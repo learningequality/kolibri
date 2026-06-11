@@ -314,6 +314,9 @@ class CourseSessionPermissions(KolibriAuthPermissions):
     # We do this here because if we do it in the serializer,
     # we would lose the assigments and learner_ids fields
     def has_object_permission(self, request, view, obj):
+        # activate_test, close_test, and active_test all mutate or expose
+        # internal session state; restrict to users who can manage the session
+        # (can_update), not just read it.
         if view.action in ["activate_test", "close_test", "active_test"]:
             return request.user.can_update(obj)
         return super().has_object_permission(request, view, obj)
@@ -435,6 +438,7 @@ class CourseSessionViewset(ValuesViewset):
             )
             adhoc_assignments = annotate_array_aggregate(
                 adhoc_assignments,
+                # filter to active members only — deactivated users must not appear in learner_ids
                 filter=FacilityUser.get_is_active_q("collection__membership"),
                 learner_ids="collection__membership__user_id",
             )
