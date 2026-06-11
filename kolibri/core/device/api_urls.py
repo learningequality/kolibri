@@ -13,7 +13,7 @@ from .api import DriveInfoViewSet
 from .api import FreeSpaceView
 from .api import InitializeAppView
 from .api import PathPermissionView
-from .api import UserSyncStatusViewSet
+from .viewsets.user_sync_status import UserSyncStatusViewSet
 
 router = routers.SimpleRouter()
 router.register(
