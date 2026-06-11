@@ -5,7 +5,6 @@ from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.core.utils.validators import NoRepeatedValueJSONArrayValidator
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
-
 MALE = "MALE"
 FEMALE = "FEMALE"
 NOT_SPECIFIED = "NOT_SPECIFIED"

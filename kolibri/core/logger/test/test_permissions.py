@@ -6,11 +6,12 @@ import uuid
 
 from django.test import TestCase
 
+from kolibri.core.auth.test.helpers import create_dummy_facility_data
+
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import GenerateCSVLogRequestFactory
 from .factory_logger import UserSessionLogFactory
-from kolibri.core.auth.test.helpers import create_dummy_facility_data
 
 
 class ContentSessionLogPermissionsTestCase(TestCase):

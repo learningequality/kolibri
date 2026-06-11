@@ -21,7 +21,6 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 
-
 logger = logging.getLogger(__name__)
 
 

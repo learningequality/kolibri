@@ -34,7 +34,6 @@ from logger import section
 from logger import step
 from logger import success
 
-
 # Constants
 HAR_FILES_DIR = os.path.join(os.path.dirname(__file__), "har_files")
 QA_CHANNEL_ID = "95a52b386f2c485cb97dd60901674a98"

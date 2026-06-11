@@ -19,8 +19,6 @@ from le_utils.constants import content_kinds
 from morango.models import InstanceIDModel
 
 import kolibri
-from .constants import nutrition_endpoints
-from .models import PingbackNotification
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Classroom
@@ -43,6 +41,9 @@ from kolibri.core.utils.lock import db_lock
 from kolibri.utils import conf
 from kolibri.utils.server import installation_type
 from kolibri.utils.time_utils import local_now
+
+from .constants import nutrition_endpoints
+from .models import PingbackNotification
 
 logger = logging.getLogger(__name__)
 

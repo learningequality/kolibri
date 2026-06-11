@@ -105,7 +105,8 @@ def test_conditional_backup():
         pass
     os.mkdir(default_path)
 
-    from kolibri.core.deviceadmin.utils import dbbackup, get_backup_files
+    from kolibri.core.deviceadmin.utils import dbbackup
+    from kolibri.core.deviceadmin.utils import get_backup_files
 
     # Making few backups
     dbbackup("0.11.0")

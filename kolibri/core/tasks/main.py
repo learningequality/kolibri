@@ -6,7 +6,6 @@ from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.worker import Worker
 from kolibri.utils import conf
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -3,8 +3,9 @@ import logging
 from django.core.management.base import BaseCommand
 
 import kolibri
-from ...utils import dbbackup
 from kolibri.utils import server
+
+from ...utils import dbbackup
 
 logger = logging.getLogger(__name__)
 

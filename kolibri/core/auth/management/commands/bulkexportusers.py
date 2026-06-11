@@ -12,9 +12,6 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from .bulkimportusers import FILE_WRITE_ERROR
-from .bulkimportusers import MESSAGES
-from .bulkimportusers import NO_FACILITY
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
@@ -28,6 +25,10 @@ from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
 from kolibri.core.utils.csv import validate_open_csv_params
+
+from .bulkimportusers import FILE_WRITE_ERROR
+from .bulkimportusers import MESSAGES
+from .bulkimportusers import NO_FACILITY
 
 try:
     FileNotFoundError

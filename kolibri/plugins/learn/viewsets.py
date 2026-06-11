@@ -27,7 +27,6 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
-
 contentnode_progress_viewset = ContentNodeProgressViewset()
 contentnode_viewset = ContentNodeViewset()
 user_contentnode_viewset = UserContentNodeViewset()

@@ -4,10 +4,11 @@ import tempfile
 from django.test import override_settings
 from django.test import TestCase
 
-from .helpers import create_dummy_facility_data
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.utils.csv import open_csv_for_reading
+
+from .helpers import create_dummy_facility_data
 
 CLASSROOMS = 2
 

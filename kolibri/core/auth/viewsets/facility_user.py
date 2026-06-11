@@ -25,6 +25,15 @@ from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from kolibri.core import error_constants
+from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesViewset
+from kolibri.core.api import ValuesViewsetOrderingFilter
+from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
+from kolibri.core.auth.tasks import cleanup_expired_deleted_users
+from kolibri.core.mixins import BulkDeleteMixin
+from kolibri.core.tasks.exceptions import JobRunning
+
 from ..api import KolibriAuthPermissions
 from ..api import KolibriAuthPermissionsFilter
 from ..api import OptionalPageNumberPagination
@@ -40,14 +49,6 @@ from ..models import validate_username_allowed_chars
 from ..models import validate_username_max_length
 from ..utils.picture_passwords import are_picture_passwords_exhausted
 from ..utils.picture_passwords import assign_picture_password
-from kolibri.core import error_constants
-from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.api import ValuesViewset
-from kolibri.core.api import ValuesViewsetOrderingFilter
-from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
-from kolibri.core.auth.tasks import cleanup_expired_deleted_users
-from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.core.tasks.exceptions import JobRunning
 
 logger = logging.getLogger(__name__)
 

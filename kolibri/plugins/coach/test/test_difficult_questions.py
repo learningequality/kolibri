@@ -4,7 +4,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
 
-from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -20,6 +19,8 @@ from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+
+from . import helpers
 
 DUMMY_PASSWORD = "password"
 

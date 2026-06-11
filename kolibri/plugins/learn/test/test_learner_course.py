@@ -19,7 +19,6 @@ from kolibri.core.courses.models import TestType
 from kolibri.core.courses.models import UnitTestAssignment
 from kolibri.core.logger.models import ContentSummaryLog
 
-
 DUMMY_PASSWORD = "password"
 
 

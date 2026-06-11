@@ -5,7 +5,6 @@ from collections import namedtuple
 
 from kolibri.utils.android import on_android
 
-
 POSIX = os.name == "posix"
 WINDOWS = os.name == "nt"
 LINUX = sys.platform.startswith("linux") and not on_android()

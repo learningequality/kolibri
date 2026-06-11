@@ -24,8 +24,8 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
     ):
         # if we're about to do a single user sync, update SyncQueue status accordingly
         if context.sync_session and single_user_id is not None:
-            from kolibri.core.device.models import SyncQueueStatus
             from kolibri.core.device.models import SyncQueue
+            from kolibri.core.device.models import SyncQueueStatus
 
             instance_id = (
                 context.sync_session.client_instance_id
@@ -54,8 +54,8 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
         # if we're concluding a single user sync, update SyncQueue status accordingly
         if context.sync_session and single_user_id is not None:
             from kolibri.core.auth.models import FacilityUser
-            from kolibri.core.device.models import SyncQueueStatus
             from kolibri.core.device.models import SyncQueue
+            from kolibri.core.device.models import SyncQueueStatus
 
             instance_id = (
                 context.sync_session.client_instance_id

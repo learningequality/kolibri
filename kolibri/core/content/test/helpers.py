@@ -21,7 +21,6 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import renderable_files_presets
 
-
 logger = logging.getLogger(__name__)
 
 

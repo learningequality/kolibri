@@ -16,7 +16,6 @@ from requests.exceptions import RequestException
 from utils import generate_users_csv
 from utils import get_or_generate_lesson_resources
 
-
 TASKS_API_PATH = "/api/tasks/tasks/"
 LESSON_TITLE = "Load Test Lesson"
 LESSON_DESCRIPTION = "Load test lesson with comprehensive content types"

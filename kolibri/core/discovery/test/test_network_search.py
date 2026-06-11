@@ -1,10 +1,11 @@
 import mock
 from django.test import TestCase
 
+from kolibri.core.tasks.job import Priority
+
 from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.search import NetworkLocationListener
-from kolibri.core.tasks.job import Priority
 
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555

@@ -18,7 +18,6 @@ from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
 from kolibri.core.utils.csv import validate_open_csv_params
 
-
 logger = logging.getLogger(__name__)
 
 

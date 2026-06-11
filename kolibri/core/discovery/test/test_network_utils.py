@@ -3,6 +3,7 @@ import requests
 from django.test import TestCase
 
 import kolibri
+
 from ..models import ConnectionStatus
 from ..models import LocationTypes
 from ..models import NetworkLocation

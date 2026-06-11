@@ -35,7 +35,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 # Must import kolibri before Django to apply compat patches (e.g. cgi module on Python 3.13+)
-from kolibri.utils.main import initialize
+from kolibri.utils.main import initialize  # isort: skip
 
 from django.conf import settings
 from django.db import connection

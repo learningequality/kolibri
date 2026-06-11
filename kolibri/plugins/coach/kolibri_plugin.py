@@ -11,7 +11,6 @@ from kolibri.plugins.hooks import register_hook
 from kolibri.utils import translation
 from kolibri.utils.translation import gettext as _
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -16,7 +16,6 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.plugins.hooks import register_hook
 
-
 logger = logging.getLogger(__name__)
 
 

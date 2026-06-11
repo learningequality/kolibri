@@ -4,8 +4,6 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
-from .permissions import UserCanReadExamAssignmentData
-from .permissions import UserCanReadExamData
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
@@ -14,6 +12,9 @@ from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import JSONField
 from kolibri.core.notifications.models import LearnerProgressNotification
+
+from .permissions import UserCanReadExamAssignmentData
+from .permissions import UserCanReadExamData
 
 
 def exam_assignment_lookup(question_sources):

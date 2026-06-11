@@ -7,17 +7,18 @@ import uuid
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import ExamAssignment
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
+
 from ..errors import IncompatibleDeviceSettingError
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
-from kolibri.core.auth.constants import role_kinds
-from kolibri.core.exams.models import Exam
-from kolibri.core.exams.models import ExamAssignment
-from kolibri.core.lessons.models import Lesson
-from kolibri.core.lessons.models import LessonAssignment
 
 
 def _create_classroom_data():

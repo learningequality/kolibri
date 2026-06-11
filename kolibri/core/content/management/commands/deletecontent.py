@@ -3,7 +3,6 @@ import logging
 from kolibri.core.content.utils.content_delete import delete_content
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
-
 logger = logging.getLogger(__name__)
 
 

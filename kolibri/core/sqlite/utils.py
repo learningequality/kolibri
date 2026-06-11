@@ -72,8 +72,8 @@ def check_sqlite_integrity(connection):
 
 
 def repair_sqlite_db(connection):
-    from kolibri.core.deviceadmin.utils import KWARGS_IO_WRITE
     from kolibri.core.deviceadmin.utils import default_backup_folder
+    from kolibri.core.deviceadmin.utils import KWARGS_IO_WRITE
 
     if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
         return

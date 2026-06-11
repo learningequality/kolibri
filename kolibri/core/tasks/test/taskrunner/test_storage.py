@@ -17,7 +17,6 @@ from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.utils.time_utils import local_now
 
-
 QUEUE = "pytest"
 
 

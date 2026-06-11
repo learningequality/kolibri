@@ -3,7 +3,6 @@ import argparse
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
-from ...utils import paths
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
 from kolibri.core.content.utils.resource_import import DiskChannelUpdateManager
@@ -13,6 +12,8 @@ from kolibri.core.content.utils.resource_import import (
 from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
 from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
+
+from ...utils import paths
 
 # constants to specify the transfer method to be used
 DOWNLOAD_METHOD = "download"

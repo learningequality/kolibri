@@ -5,7 +5,6 @@ from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.utils.time_utils import local_now
 
-
 IMPACT_STORIES_KEY = "impact-stories"
 
 ROLLING_WINDOW_DAYS = 90

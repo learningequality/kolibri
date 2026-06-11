@@ -12,7 +12,6 @@ from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
-
 logger = logging.getLogger(__name__)
 
 

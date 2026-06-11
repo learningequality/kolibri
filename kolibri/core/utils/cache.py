@@ -4,7 +4,6 @@ from django.core.cache import caches
 from django.core.cache import InvalidCacheBackendError
 from django.utils.functional import SimpleLazyObject
 
-
 logger = logging.getLogger(__name__)
 
 

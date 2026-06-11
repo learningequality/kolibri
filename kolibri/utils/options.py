@@ -30,15 +30,12 @@ except NotImplementedError:
     psutil = None
 
 
+from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.plugins.utils.options import extend_config_spec
 from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.i18n import KOLIBRI_LANGUAGE_INFO
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
-from kolibri.plugins.utils.options import extend_config_spec
-from kolibri.deployment.default.sqlite_db_names import (
-    ADDITIONAL_SQLITE_DATABASES,
-)
 from kolibri.utils.system import get_fd_limit
-
 
 logger = logging.getLogger(__name__)
 

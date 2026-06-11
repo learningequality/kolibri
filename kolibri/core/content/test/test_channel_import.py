@@ -16,8 +16,6 @@ from mock import Mock
 from mock import patch
 from sqlalchemy import create_engine
 
-from .sqlalchemytesting import django_connection_engine
-from .test_content_app import ContentNodeTestBase
 from kolibri.core.content import models as content
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
@@ -47,6 +45,9 @@ from kolibri.core.content.utils.channel_import import import_channel_from_local_
 from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import load_metadata
+
+from .sqlalchemytesting import django_connection_engine
+from .test_content_app import ContentNodeTestBase
 
 logger = logging.getLogger(__name__)
 

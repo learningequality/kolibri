@@ -2,11 +2,12 @@ from django.db.models.signals import post_save
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
+from kolibri.core.notifications.models import LearnerProgressNotification
+
 from .models import FacilityUser
 from .models import Membership
 from .models import Role
 from .utils.picture_passwords import get_learner_count
-from kolibri.core.notifications.models import LearnerProgressNotification
 
 
 @receiver(pre_delete, sender=Membership)

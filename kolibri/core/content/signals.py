@@ -2,13 +2,14 @@ from django.db.models import F
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from .models import ChannelMetadata
-from .models import ContentNode
 from kolibri.core.auth.models import Facility
 from kolibri.core.content.utils.content_request import create_content_download_requests
 from kolibri.core.content.utils.content_request import create_content_removal_requests
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.notifications.models import LearnerProgressNotification
+
+from .models import ChannelMetadata
+from .models import ContentNode
 
 
 @receiver(pre_delete, sender=ContentNode)

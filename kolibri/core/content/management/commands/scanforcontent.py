@@ -4,6 +4,9 @@ from argparse import SUPPRESS
 from django.core.management.base import BaseCommand
 from sqlalchemy.exc import DatabaseError
 
+from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.utils.paths import get_all_content_dir_paths
+
 from ...utils.annotation import set_content_visibility_from_disk
 from ...utils.channel_import import FutureSchemaError
 from ...utils.channel_import import import_channel_from_local_db
@@ -11,8 +14,6 @@ from ...utils.channel_import import InvalidSchemaVersionError
 from ...utils.channels import get_channel_ids_for_content_dirs
 from ...utils.channels import read_channel_metadata_from_db_file
 from ...utils.paths import get_content_database_file_path
-from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.utils.paths import get_all_content_dir_paths
 
 logger = logging.getLogger(__name__)
 

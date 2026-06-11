@@ -28,7 +28,6 @@ from importlib_resources import files
 
 from kolibri.plugins import hooks
 
-
 IGNORE_PATTERNS = (re.compile(I) for I in [r".+\.hot-update.js", r".+\.map"])
 
 

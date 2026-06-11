@@ -5,6 +5,9 @@ import uuid
 import mock
 from django.test import TestCase
 
+from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.registry import RegisteredTask
+
 from ..models import ConnectionStatus
 from ..models import DynamicNetworkLocation
 from ..models import LocationTypes
@@ -23,8 +26,6 @@ from ..tasks import remove_dynamic_network_location
 from ..tasks import reset_connection_states
 from ..utils.network.broadcast import KolibriInstance
 from .helpers import info as mock_device_info
-from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.registry import RegisteredTask
 
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555

@@ -12,11 +12,6 @@ from django.test import TestCase
 from morango.errors import MorangoResumeSyncError
 from morango.sync.utils import mute_signals
 
-from ..soud import Context
-from ..soud import execute_sync
-from ..soud import execute_syncs
-from ..soud import request_sync_hook
-from ..soud import WINDOW_SEC
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
@@ -24,6 +19,12 @@ from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.discovery.models import StaticNetworkLocation
+
+from ..soud import Context
+from ..soud import execute_sync
+from ..soud import execute_syncs
+from ..soud import request_sync_hook
+from ..soud import WINDOW_SEC
 
 
 class SoudContextTestCase(TestCase):

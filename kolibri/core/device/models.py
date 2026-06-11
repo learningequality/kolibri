@@ -11,8 +11,6 @@ from morango.models import UUIDField
 from morango.models.core import InstanceIDModel
 from morango.models.core import SyncSession
 
-from .utils import LANDING_PAGE_LEARN
-from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.constants.demographics import custom_demographics_schema
 from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
@@ -37,6 +35,9 @@ from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.options import update_options_file
+
+from .utils import LANDING_PAGE_LEARN
+from .utils import LANDING_PAGE_SIGN_IN
 
 device_permissions_fields = ["is_superuser", "can_manage_content"]
 

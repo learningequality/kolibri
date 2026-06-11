@@ -21,7 +21,6 @@ from django.utils.translation.trans_real import DjangoTranslation
 
 import kolibri
 
-
 # Translations are cached in a dictionary for every language.
 # The active translations are stored by threadid to make them thread local.
 _translations = {}

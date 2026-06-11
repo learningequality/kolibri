@@ -34,7 +34,6 @@ from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.utils.file_transfer import RemoteFile
 
-
 logger = logging.getLogger(__name__)
 
 

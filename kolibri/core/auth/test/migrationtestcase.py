@@ -3,7 +3,6 @@ from django.db.migrations.executor import MigrationExecutor
 from django.db.migrations.recorder import MigrationRecorder
 from django.test import TransactionTestCase
 
-
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 
 

@@ -16,10 +16,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import select
 from sqlalchemy.sql import text
 
-from .channels import read_channel_metadata_from_db_file
-from .paths import get_content_database_file_path
-from .sqlalchemybridge import Bridge
-from .sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
@@ -44,6 +40,11 @@ from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.utils.time_utils import local_now
+
+from .channels import read_channel_metadata_from_db_file
+from .paths import get_content_database_file_path
+from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import ClassNotFoundError
 
 logger = logging.getLogger(__name__)
 

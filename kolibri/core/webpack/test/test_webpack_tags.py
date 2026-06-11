@@ -1,7 +1,8 @@
 from django.test.testcases import TestCase
 
-from .base import Hook
 from kolibri.plugins.hooks import register_hook
+
+from .base import Hook
 
 
 class KolibriTagNavigationTestCase(TestCase):

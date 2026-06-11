@@ -14,7 +14,6 @@ from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.validation import JobValidator
 
-
 logger = logging.getLogger(__name__)
 
 

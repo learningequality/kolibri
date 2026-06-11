@@ -5,10 +5,6 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from mock import patch
 
-from ..models import Facility
-from ..models import FacilityUser
-from .helpers import create_superuser
-from .helpers import DUMMY_PASSWORD
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
 from kolibri.core.auth.constants.picture_passwords import SEQUENCE_LENGTH
 from kolibri.core.auth.constants.role_kinds import ADMIN
@@ -19,6 +15,11 @@ from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_all_valid_sequences
 from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+
+from ..models import Facility
+from ..models import FacilityUser
+from .helpers import create_superuser
+from .helpers import DUMMY_PASSWORD
 
 
 class GetAllValidSequencesTestCase(TestCase):

@@ -25,17 +25,6 @@ from morango.models import Store
 from morango.models import syncable_models
 from morango.sync.controller import MorangoProfileController
 
-from ..constants.morango_sync import PROFILE_FACILITY_DATA
-from ..models import AdHocGroup
-from ..models import Classroom
-from ..models import Facility
-from ..models import FacilityDataset
-from ..models import FacilityUser
-from ..models import LearnerGroup
-from ..models import Membership
-from ..models import Role
-from .helpers import DUMMY_PASSWORD
-from .sync_utils import multiple_kolibri_servers
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
@@ -53,6 +42,18 @@ from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
+
+from ..constants.morango_sync import PROFILE_FACILITY_DATA
+from ..models import AdHocGroup
+from ..models import Classroom
+from ..models import Facility
+from ..models import FacilityDataset
+from ..models import FacilityUser
+from ..models import LearnerGroup
+from ..models import Membership
+from ..models import Role
+from .helpers import DUMMY_PASSWORD
+from .sync_utils import multiple_kolibri_servers
 
 
 class FacilityDatasetCertificateTestCase(TestCase):

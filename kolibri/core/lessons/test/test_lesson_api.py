@@ -1,7 +1,6 @@
 from django.urls import reverse
 from rest_framework import status
 
-from .. import models
 from kolibri.core import error_constants
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -15,6 +14,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 
+from .. import models
 
 DUMMY_PASSWORD = "password"
 

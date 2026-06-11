@@ -14,8 +14,6 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.test import APITestCase
 
-from .helpers import clear_process_cache
-from .helpers import provision_device
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.models import Facility
@@ -38,6 +36,8 @@ from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 
+from .helpers import clear_process_cache
+from .helpers import provision_device
 
 DUMMY_PASSWORD = "password"
 

@@ -19,8 +19,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from le_utils.constants import content_kinds
 
-from .models import ContentSessionLog
-from .models import ContentSummaryLog
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Role
 from kolibri.core.content.models import ChannelMetadata
@@ -29,6 +27,8 @@ from kolibri.core.utils.csv import open_csv_for_writing
 from kolibri.core.utils.csv import output_mapper
 from kolibri.core.utils.csv import validate_open_csv_params
 
+from .models import ContentSessionLog
+from .models import ContentSummaryLog
 
 logger = logging.getLogger(__name__)
 

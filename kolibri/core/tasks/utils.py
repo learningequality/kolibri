@@ -23,7 +23,6 @@ from kolibri.utils import conf
 from kolibri.utils.options import FD_PER_THREAD
 from kolibri.utils.system import get_fd_limit
 
-
 logger = logging.getLogger(__name__)
 
 # An object on which to store data about the current job

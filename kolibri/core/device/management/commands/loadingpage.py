@@ -7,7 +7,6 @@ from django.utils.translation import override
 
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
-
 logger = logging.getLogger(__name__)
 
 

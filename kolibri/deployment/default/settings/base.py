@@ -28,7 +28,6 @@ from kolibri.utils import conf
 from kolibri.utils import i18n
 from kolibri.utils.logger import get_logging_config
 
-
 try:
     isolation_level = None
     import psycopg2  # noqa

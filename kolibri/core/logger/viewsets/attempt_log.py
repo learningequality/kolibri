@@ -3,12 +3,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import NumberFilter
 from rest_framework import serializers
 
-from ..models import AttemptLog
-from .filters import BaseLogFilter
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
+
+from ..models import AttemptLog
+from .filters import BaseLogFilter
 
 
 class AttemptLogSerializer(serializers.ModelSerializer):

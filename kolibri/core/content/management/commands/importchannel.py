@@ -2,7 +2,6 @@ import logging
 
 from django.core.management.base import CommandError
 
-from ...utils import paths
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.utils.annotation import set_channel_metadata_fields
@@ -16,6 +15,8 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseT
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
 from kolibri.utils.uuids import is_valid_uuid
+
+from ...utils import paths
 
 logger = logging.getLogger(__name__)
 

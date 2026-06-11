@@ -8,7 +8,6 @@ from django.utils import timezone
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 
-from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
@@ -28,6 +27,8 @@ from kolibri.plugins.coach.unit_report_api import get_test_status
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
 from kolibri.plugins.coach.unit_report_api import TEST_STATUS_OPEN
+
+from . import helpers
 
 DUMMY_PASSWORD = "password"
 

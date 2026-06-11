@@ -18,7 +18,6 @@ from zeroconf import Zeroconf
 from kolibri.core.device.utils import get_device_info
 from kolibri.utils.conf import OPTIONS
 
-
 SERVICE_TYPE = "Kolibri._sub._http._tcp.local."
 LOCAL_DOMAIN = "kolibri.local"
 TRUE = "TRUE"

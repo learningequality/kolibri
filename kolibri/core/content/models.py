@@ -40,7 +40,6 @@ from mptt.managers import TreeManager
 from mptt.querysets import TreeQuerySet
 from sortedm2m.fields import SortedManyToManyField
 
-from .utils import paths
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content import base_models
@@ -54,6 +53,7 @@ from kolibri.core.mixins import FilterByUUIDQuerysetMixin
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
+from .utils import paths
 
 PRESET_LOOKUP = dict(format_presets.choices)
 

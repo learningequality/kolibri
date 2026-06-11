@@ -11,7 +11,6 @@ from kolibri.core.content.utils.paths import get_content_file_name
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.utils import file_transfer as transfer
 
-
 logger = logging.getLogger(__name__)
 
 

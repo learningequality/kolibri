@@ -4,7 +4,6 @@ from unittest.mock import patch
 from django.db.utils import DatabaseError
 from django.urls import reverse
 
-from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
@@ -12,6 +11,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.utils.time_utils import local_now
 
+from . import helpers
 
 DUMMY_PASSWORD = "password"
 

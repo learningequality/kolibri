@@ -39,9 +39,9 @@ from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.utils import app_initialize_url
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
-from kolibri.core.discovery.models import NetworkLocation
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 

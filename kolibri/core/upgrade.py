@@ -8,7 +8,6 @@ from kolibri.utils.version import get_version_and_operator_from_range
 from kolibri.utils.version import normalize_version_to_semver
 from kolibri.utils.version import version_matches_range
 
-
 CURRENT_VERSION = VersionInfo.parse(normalize_version_to_semver(kolibri.__version__))
 
 

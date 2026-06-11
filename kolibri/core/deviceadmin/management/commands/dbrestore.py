@@ -6,11 +6,12 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
 import kolibri
+from kolibri.utils import server
+
 from ...utils import dbrestore
 from ...utils import default_backup_folder
 from ...utils import get_dtm_from_backup_name
 from ...utils import search_latest
-from kolibri.utils import server
 
 logger = logging.getLogger(__name__)
 

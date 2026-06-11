@@ -1,8 +1,9 @@
 import factory
 
-from .. import models
 from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.utils.time_utils import local_now
+
+from .. import models
 
 
 class ContentSessionLogFactory(factory.DjangoModelFactory):

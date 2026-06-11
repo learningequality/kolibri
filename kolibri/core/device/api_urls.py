@@ -3,11 +3,11 @@ from django.urls import path
 from django.urls import re_path
 from rest_framework import routers
 
-from .viewsets.device_permissions import DevicePermissionsViewSet
 from .viewsets.device_info import DeviceInfoView
+from .viewsets.device_permissions import DevicePermissionsViewSet
+from .viewsets.device_restart import DeviceRestartView
 from .viewsets.device_settings import DeviceNameView
 from .viewsets.device_settings import DeviceSettingsView
-from .viewsets.device_restart import DeviceRestartView
 from .viewsets.drive_info import DriveInfoViewSet
 from .viewsets.free_space import FreeSpaceView
 from .viewsets.initialize_app import InitializeAppView

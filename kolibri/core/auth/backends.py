@@ -19,7 +19,6 @@ from kolibri.core.auth.models import Role
 from kolibri.core.auth.models import Session
 from kolibri.core.device.utils import is_full_facility_import
 
-
 FACILITY_CREDENTIAL_KEY = "facility"
 logger = logging.getLogger(__name__)
 

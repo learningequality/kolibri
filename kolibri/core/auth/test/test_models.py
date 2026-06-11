@@ -7,6 +7,11 @@ from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.utils import timezone
 
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.models import DeviceSettings
+from kolibri.utils.time_utils import local_now
+
 from ..constants import collection_kinds
 from ..constants import role_kinds
 from ..errors import InvalidCollectionHierarchy
@@ -24,10 +29,6 @@ from ..models import Membership
 from ..models import Role
 from ..models import Session
 from .helpers import create_superuser
-from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
-from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.models import DeviceSettings
-from kolibri.utils.time_utils import local_now
 
 
 class CollectionRoleMembershipDeletionTestCase(TestCase):
