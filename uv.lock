@@ -15,12 +15,12 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer = "2026-06-05T16:47:18.685377443Z"
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-le-utils = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
-morango = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
+le-utils = { timestamp = "2026-06-12T16:47:18.685389325Z", span = "PT0S" }
+morango = { timestamp = "2026-06-12T16:47:18.685400777Z", span = "PT0S" }
 
 [[package]]
 name = "alabaster"
@@ -2804,7 +2804,7 @@ base = [
     { name = "jsonfield", specifier = "==3.1.0" },
     { name = "le-utils", specifier = "==0.2.17" },
     { name = "magicbus", specifier = "==4.1.2" },
-    { name = "morango", specifier = "==0.8.12" },
+    { name = "morango", specifier = "==0.8.13" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
     { name = "pytz", specifier = "==2024.1" },
     { name = "redis", specifier = "==3.5.3" },
@@ -2849,7 +2849,7 @@ dev = [
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
     { name = "mock", specifier = "==2.0.0" },
-    { name = "morango", specifier = "==0.8.12" },
+    { name = "morango", specifier = "==0.8.13" },
     { name = "nodeenv", specifier = ">=1.3.3" },
     { name = "parameterized", specifier = "==0.8.1" },
     { name = "prek", marker = "python_full_version >= '3.8'" },
@@ -2896,7 +2896,7 @@ docs = [
     { name = "le-utils", specifier = "==0.2.17" },
     { name = "m2r2", marker = "python_full_version >= '3.9'" },
     { name = "magicbus", specifier = "==4.1.2" },
-    { name = "morango", specifier = "==0.8.12" },
+    { name = "morango", specifier = "==0.8.13" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
     { name = "pytz", specifier = "==2024.1" },
     { name = "redis", specifier = "==3.5.3" },
@@ -2938,7 +2938,7 @@ load-test = [
     { name = "le-utils", specifier = "==0.2.17" },
     { name = "locust", marker = "python_full_version >= '3.8'", specifier = ">=2.20" },
     { name = "magicbus", specifier = "==4.1.2" },
-    { name = "morango", specifier = "==0.8.12" },
+    { name = "morango", specifier = "==0.8.13" },
     { name = "playwright", marker = "python_full_version >= '3.8'", specifier = ">=1.40" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
     { name = "pytz", specifier = "==2024.1" },
@@ -2980,7 +2980,7 @@ test = [
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
     { name = "mock", specifier = "==2.0.0" },
-    { name = "morango", specifier = "==0.8.12" },
+    { name = "morango", specifier = "==0.8.13" },
     { name = "parameterized", specifier = "==0.8.1" },
     { name = "pytest", marker = "python_full_version < '3.14'", specifier = "==6.2.5" },
     { name = "pytest", marker = "python_full_version >= '3.14'", specifier = ">=8.0" },
@@ -3492,7 +3492,7 @@ wheels = [
 
 [[package]]
 name = "morango"
-version = "0.8.12"
+version = "0.8.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
@@ -3503,9 +3503,9 @@ dependencies = [
     { name = "requests" },
     { name = "rsa" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/43/ca/5b3af688c40ac6af81e323e80f086f0adc96ae363706e3fe5d78e017e97f/morango-0.8.12.tar.gz", hash = "sha256:790a1f6458bc49cb0ca8e3302690b5ffea2ccfd8ab6e6c0782a782f58b6aa2ef", size = 94144, upload-time = "2026-05-05T18:00:18.216Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/f0/46fae1c102e7400f87461a93eece3328b03984b1e9f7a26620ae431c007a/morango-0.8.13.tar.gz", hash = "sha256:a08d9d57e942ac502af1dc9440377e30ab3822b46b92fcb5e3415e8ae7da7467", size = 94149, upload-time = "2026-06-12T16:32:54.903Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/6e/9fed85634142808b033e5606906a14b2fd03b253a787a9372daedf47ca7b/morango-0.8.12-py2.py3-none-any.whl", hash = "sha256:fe44aec5085b9b693232f0e77d706a96c6563977e56a77d5c68dda92f26e9fe1", size = 116165, upload-time = "2026-05-05T18:00:16.662Z" },
+    { url = "https://files.pythonhosted.org/packages/07/0d/9ad7e28aa98ab8ec4f687d2fa9a652c9b6cfe32d521d8704ea52e0421bf3/morango-0.8.13-py2.py3-none-any.whl", hash = "sha256:b3ec0e241c4d6b3b4c61c7ce230c1ef45991461dd1da9c7b268e3558c9d3c431", size = 116143, upload-time = "2026-06-12T16:32:53.708Z" },
 ]
 
 [[package]]
