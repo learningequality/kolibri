@@ -461,9 +461,8 @@ class LearnerGroupViewSet(ValuesViewset):
 
     filterset_fields = ("parent",)
 
-    values = ("id", "name", "parent", "user_ids")
-
     def annotate_queryset(self, queryset):
+        # See #13759: filter excludes soft-deleted (anonymized) users from user_ids.
         return annotate_array_aggregate(
             queryset,
             filter=FacilityUser.get_is_active_q("membership"),

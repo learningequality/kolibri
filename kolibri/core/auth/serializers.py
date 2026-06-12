@@ -282,9 +282,11 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
+    user_ids = serializers.ListField(child=serializers.UUIDField(), read_only=True)
+
     class Meta:
         model = LearnerGroup
-        fields = ("id", "name", "parent")
+        fields = ("id", "name", "parent", "user_ids")
 
         validators = [
             UniqueTogetherValidator(
