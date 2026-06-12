@@ -153,28 +153,35 @@ def import_viewset_class(dotted_path):
 
 
 def get_queryset_for_viewset(viewset_class):
+    """Return (queryset, user) for the viewset.
+
+    user is a FacilityUser when one is found in the DB, otherwise an
+    AnonymousUser.  The same user is threaded into _make_viewset so that
+    consolidate() runs with the same authentication context as get_queryset().
+    """
     queryset = getattr(viewset_class, "queryset", None)
     if queryset is not None:
-        return queryset.all()
+        return queryset.all(), None
+
+    from django.contrib.auth.models import AnonymousUser
+
+    # Try to find a real authenticated user for viewsets that filter/consolidate
+    # by request.user (e.g. LearnerLessonViewset, PinnedDeviceViewSet).
+    try:
+        from kolibri.core.auth.models import FacilityUser
+
+        user = FacilityUser.objects.first()
+    except Exception:
+        user = None
+
+    if user is None:
+        user = AnonymousUser()
 
     try:
-        from django.contrib.auth.models import AnonymousUser
         from rest_framework.test import APIRequestFactory
 
         factory = APIRequestFactory()
         django_request = factory.get("/")
-
-        # Viewsets that filter by request.user (e.g. PinnedDeviceViewSet) need
-        # a real authenticated user. Try to find any user in the DB.
-        try:
-            from kolibri.core.auth.models import FacilityUser
-
-            user = FacilityUser.objects.first()
-        except Exception:
-            user = None
-
-        if user is None:
-            user = AnonymousUser()
 
         # Force authentication by setting user directly on the DRF request
         drf_request = Request(django_request)
@@ -183,7 +190,7 @@ def get_queryset_for_viewset(viewset_class):
         viewset.request = drf_request
         viewset.kwargs = {}
         viewset.format_kwarg = None
-        return viewset.get_queryset()
+        return viewset.get_queryset(), user
     except Exception as e:
         logger.error("Could not obtain queryset for %s: %s", viewset_class.__name__, e)
         sys.exit(1)
@@ -272,13 +279,21 @@ def _make_synthetic_queryset(flat_items):
     return mock_qs
 
 
-def _make_viewset(viewset_class, queryset):
-    """Create a viewset instance with a DRF Request for standalone use."""
+def _make_viewset(viewset_class, queryset, user=None):
+    """Create a viewset instance with a DRF Request for standalone use.
+
+    Pass the same user returned by get_queryset_for_viewset() so that
+    consolidate() runs with the same authentication context used when
+    fetching the queryset.
+    """
     from rest_framework.test import APIRequestFactory
 
     factory = APIRequestFactory()
     django_request = factory.get("/")
     drf_request = Request(django_request)
+
+    if user is not None:
+        drf_request._user = user
 
     viewset = viewset_class()
     viewset.queryset = queryset
@@ -328,7 +343,7 @@ def calculate_confidence_interval(data):
     return mean - margin, mean + margin, margin
 
 
-def benchmark_timing(viewset_class, queryset, iterations, warmup):
+def benchmark_timing(viewset_class, queryset, iterations, warmup, user=None):
     """
     Benchmark serialize() + JSON encoding.
 
@@ -336,7 +351,7 @@ def benchmark_timing(viewset_class, queryset, iterations, warmup):
     """
     from rest_framework.renderers import JSONRenderer
 
-    viewset = _make_viewset(viewset_class, queryset)
+    viewset = _make_viewset(viewset_class, queryset, user=user)
     renderer = JSONRenderer()
 
     for _ in range(warmup):
@@ -371,13 +386,13 @@ def benchmark_timing(viewset_class, queryset, iterations, warmup):
     }
 
 
-def benchmark_memory(viewset_class, queryset, iterations, warmup):
+def benchmark_memory(viewset_class, queryset, iterations, warmup, user=None):
     """
     Benchmark memory usage of serialize().
 
     Returns dict with mean_bytes, peak_bytes, std_bytes.
     """
-    viewset = _make_viewset(viewset_class, queryset)
+    viewset = _make_viewset(viewset_class, queryset, user=user)
 
     for _ in range(warmup):
         viewset.serialize(queryset)
@@ -405,9 +420,9 @@ def benchmark_memory(viewset_class, queryset, iterations, warmup):
     }
 
 
-def count_queries(viewset_class, queryset):
+def count_queries(viewset_class, queryset, user=None):
     """Count the number of database queries for one serialize() call."""
-    viewset = _make_viewset(viewset_class, queryset)
+    viewset = _make_viewset(viewset_class, queryset, user=user)
 
     old_debug = settings.DEBUG
     settings.DEBUG = True
@@ -422,13 +437,13 @@ def count_queries(viewset_class, queryset):
     return query_count
 
 
-def capture_data_snapshot(viewset_class, queryset):
+def capture_data_snapshot(viewset_class, queryset, user=None):
     """
     Serialize once, compute SHA-256 hash of normalized output, extract sample.
 
     Returns {"output_hash": "sha256:...", "sample": [...]}
     """
-    viewset = _make_viewset(viewset_class, queryset)
+    viewset = _make_viewset(viewset_class, queryset, user=user)
     result = viewset.serialize(queryset)
 
     result_json = json.dumps(result, default=str, sort_keys=True)
@@ -785,7 +800,7 @@ def _run_real_viewset(args):
 
     viewset_class = import_viewset_class(args.viewset)
 
-    queryset = get_queryset_for_viewset(viewset_class)
+    queryset, user = get_queryset_for_viewset(viewset_class)
     record_count = queryset.count()
 
     if record_count == 0:
@@ -815,21 +830,23 @@ def _run_real_viewset(args):
     # Benchmarks
     if not args.quiet:
         logger.info("Running timing benchmark...")
-    timing = benchmark_timing(viewset_class, queryset, args.iterations, args.warmup)
+    timing = benchmark_timing(
+        viewset_class, queryset, args.iterations, args.warmup, user=user
+    )
 
     if not args.quiet:
         logger.info("Running memory benchmark...")
     memory = benchmark_memory(
-        viewset_class, queryset, args.memory_iterations, args.warmup
+        viewset_class, queryset, args.memory_iterations, args.warmup, user=user
     )
 
     if not args.quiet:
         logger.info("Counting queries...")
-    queries = count_queries(viewset_class, queryset)
+    queries = count_queries(viewset_class, queryset, user=user)
 
     if not args.quiet:
         logger.info("Capturing data snapshot...")
-    data_snapshot = capture_data_snapshot(viewset_class, queryset)
+    data_snapshot = capture_data_snapshot(viewset_class, queryset, user=user)
 
     report = build_report(
         viewset_class=viewset_class,
