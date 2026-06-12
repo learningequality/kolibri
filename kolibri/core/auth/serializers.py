@@ -6,6 +6,7 @@ from django.db import transaction
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
+
 from kolibri.core import error_constants
 
 from .constants import collection_kinds

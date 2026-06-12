@@ -450,7 +450,6 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PublicFacilitySerializer
 
 
-
 class BaseSignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
     def get_serializer_class(self):
         # Inline import: viewsets.facility_user imports auth helpers from this module,
