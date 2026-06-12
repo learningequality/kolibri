@@ -28,7 +28,7 @@ on:
 jobs:
   build_zip:
     name: Build Pi image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     outputs:
       zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
     steps:
