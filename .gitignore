@@ -150,7 +150,7 @@ SQLITE_MAX_VARIABLE_NUMBER.cache
 !h5p-core-18.ttf
 
 # static c extensions cache folder
-cext_cache
+.cext_cache
 
 # ignore gzipped files
 *.gz

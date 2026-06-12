@@ -1,0 +1,18 @@
+name: Warm build caches
+# Run the WHL build on every push to develop so its caches (webpack, C
+# extensions, uv, pnpm) are saved in the default-branch scope. Pull requests —
+# including those from forks, which cannot write caches themselves — restore
+# from that scope, so they only recompile their own diff.
+on:
+  push:
+    branches:
+      - develop
+concurrency:
+  group: warm-build-cache
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  warm:
+    name: Warm WHL build caches
+    uses: ./.github/workflows/build_whl.yml
