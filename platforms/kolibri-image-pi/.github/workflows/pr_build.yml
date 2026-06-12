@@ -50,3 +50,17 @@ jobs:
     uses: ./.github/workflows/build_img.yml
     with:
       deb-url: ${{ needs.latest_kolibri_release.outputs.deb-url }}
+
+  smoke_test:
+    name: Smoke test WiFi configuration
+    needs: [build_img]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download zip artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.build_img.outputs.zip-file-name }}
+          path: dist
+      - name: Verify image WiFi configuration
+        run: sudo ./smoke-test-wifi.sh dist/*.zip
