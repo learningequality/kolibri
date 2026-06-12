@@ -38,11 +38,6 @@ jobs:
         uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
-          cache-python: true
-      - name: Install Python
-        run: uv python install 3.11
-      - name: Install dev dependencies
-        run: uv sync --group dev --python 3.11
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js
