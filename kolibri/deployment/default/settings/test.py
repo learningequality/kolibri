@@ -31,3 +31,22 @@ TESTING = True
 # hash there fails to verify - leave the default hashers in that case.
 if not os.environ.get("INTEGRATION_TEST"):
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+# Kolibri's default logging writes to rotating files on disk; in tests that
+# I/O happens on every log record across thousands of tests for no benefit.
+# Keep console output at WARNING (so errors still surface) but drop the file
+# handlers. Tests that specifically exercise logging reinstate the real
+# config locally (see test_handler.py, test_cli.py).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"simple": {"format": "%(levelname)s %(name)s: %(message)s"}},
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "WARNING",
+        }
+    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
+}
