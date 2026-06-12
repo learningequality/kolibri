@@ -66,7 +66,6 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
@@ -77,13 +76,11 @@ from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
 from .models import FacilityUser
-from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilitySerializer
-from .serializers import LearnerGroupSerializer
 from .serializers import MembershipSerializer
 from .serializers import PublicFacilitySerializer
 from .serializers import RoleSerializer
@@ -452,22 +449,6 @@ class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = PublicFacilitySerializer
 
-
-class LearnerGroupViewSet(ValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = LearnerGroup.objects.all()
-    serializer_class = LearnerGroupSerializer
-
-    filterset_fields = ("parent",)
-
-    def annotate_queryset(self, queryset):
-        # See #13759: filter excludes soft-deleted (anonymized) users from user_ids.
-        return annotate_array_aggregate(
-            queryset,
-            filter=FacilityUser.get_is_active_q("membership"),
-            user_ids="membership__user__id",
-        )
 
 
 class BaseSignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):

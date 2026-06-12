@@ -7,7 +7,7 @@ from kolibri.core.routers import BulkDeleteRouter
 from .api import DeleteImportedUserView
 from .api import FacilityViewSet
 from .api import IsPINValidView
-from .api import LearnerGroupViewSet
+from .viewsets.learner_group import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RemoteFacilityUserAuthenticatedViewset
 from .api import RemoteFacilityUserViewset
