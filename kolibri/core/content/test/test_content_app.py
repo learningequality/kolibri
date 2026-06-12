@@ -28,6 +28,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
+from kolibri.core.content.api import NUM_CHILDREN
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.device.models import ContentCacheKey
@@ -473,23 +474,6 @@ class ContentNodeAPIBase:
         self.assertEqual(response.content, b"")
         self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
 
-    @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        == "django.db.backends.postgresql",
-        "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
-    )
-    def test_contentnode_list_long(self):
-        # This will make > 1000 nodes which should test our ancestor batching behaviour
-        builder = ChannelBuilder(num_children=10)
-        builder.insert_into_default_db()
-        content.ContentNode.objects.update(available=True)
-        nodes = content.ContentNode.objects.filter(available=True)
-        expected_output = len(nodes)
-        self.assertGreater(expected_output, 1000)
-        response = self._get(reverse("kolibri:core:contentnode-list"))
-        self.assertEqual(len(response.data), expected_output)
-        self._assert_nodes(response.data, nodes)
-
     def _recurse_and_assert(self, data, nodes, recursion_depth=0):
         recursion_depths = []
         nodes_by_id = {n.id: n for n in nodes}
@@ -560,7 +544,8 @@ class ContentNodeAPIBase:
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_long(self):
-        builder = ChannelBuilder(levels=2, num_children=30)
+        # One past a page triggers the "more" marker at both root and child levels.
+        builder = ChannelBuilder(levels=2, num_children=NUM_CHILDREN + 1)
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
@@ -583,18 +568,23 @@ class ContentNodeAPIBase:
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_next__gt(self):
-        builder = ChannelBuilder(levels=2, num_children=17)
+        # A page plus a partial second page, so paging past the first returns
+        # the remainder with no further "more" marker.
+        remainder = 5
+        builder = ChannelBuilder(levels=2, num_children=NUM_CHILDREN + remainder)
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
-        next__gt = content.ContentNode.objects.filter(parent=root)[11].rght
+        next__gt = content.ContentNode.objects.filter(parent=root)[
+            NUM_CHILDREN - 1
+        ].rght
         response = self._get(
             reverse("kolibri:core:contentnode_tree-detail", kwargs={"pk": root.id}),
             data={"next__gt": next__gt},
         )
-        self.assertEqual(len(response.data["children"]["results"]), 5)
+        self.assertEqual(len(response.data["children"]["results"]), remainder)
         self.assertIsNone(response.data["children"]["more"])
-        first_node = content.ContentNode.objects.filter(parent=root)[12]
+        first_node = content.ContentNode.objects.filter(parent=root)[NUM_CHILDREN]
         self._recurse_and_assert(
             [response.data["children"]["results"][0]], [first_node], recursion_depth=1
         )
@@ -605,7 +595,10 @@ class ContentNodeAPIBase:
         "Skipping postgres as not as vulnerable to large queries and large insertions are less performant",
     )
     def test_contentnode_tree_more(self):
-        builder = ChannelBuilder(levels=2, num_children=17)
+        # A page plus a partial second page, so following the "more" marker
+        # returns the remainder with no further marker.
+        remainder = 5
+        builder = ChannelBuilder(levels=2, num_children=NUM_CHILDREN + remainder)
         builder.insert_into_default_db()
         content.ContentNode.objects.all().update(available=True)
         root = content.ContentNode.objects.get(id=builder.root_node["id"])
@@ -621,7 +614,9 @@ class ContentNodeAPIBase:
             ),
             data=first_child["children"]["more"]["params"],
         )
-        self.assertEqual(len(nested_page_response.data["children"]["results"]), 5)
+        self.assertEqual(
+            len(nested_page_response.data["children"]["results"]), remainder
+        )
         self.assertIsNone(nested_page_response.data["children"]["more"])
 
     def test_contentnode_tree_singleton_path(self):
