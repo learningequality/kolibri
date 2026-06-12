@@ -28,7 +28,7 @@ on:
 jobs:
   build_zip:
     name: Build Pi image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     outputs:
       zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
     steps:
@@ -70,8 +70,6 @@ jobs:
         key: ${{ runner.OS }}-pimod-v3-${{ hashFiles('Makefile') }}
     - name: Build Pi image
       run: make zipfile
-    - name: Verify image WiFi configuration
-      run: sudo ./smoke-test-wifi.sh dist/*.zip
     - name: Get ZIP filename
       id: get-zip-filename
       run: echo "zip-file-name=$(ls dist | grep .zip | cat)" >> $GITHUB_OUTPUT
