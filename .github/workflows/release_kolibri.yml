@@ -5,6 +5,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 jobs:
   latest_release:
     name: Check if this release is the latest release
