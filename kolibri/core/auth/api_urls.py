@@ -7,7 +7,6 @@ from kolibri.core.routers import BulkDeleteRouter
 from .api import DeleteImportedUserView
 from .api import FacilityViewSet
 from .api import IsPINValidView
-from .viewsets.learner_group import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RemoteFacilityUserAuthenticatedViewset
 from .api import RemoteFacilityUserViewset
@@ -20,6 +19,7 @@ from .viewsets.classroom import ClassroomViewSet
 from .viewsets.facility_dataset import FacilityDatasetViewSet
 from .viewsets.facility_user import DeletedFacilityUserViewSet
 from .viewsets.facility_user import FacilityUserViewSet
+from .viewsets.learner_group import LearnerGroupViewSet
 
 router = routers.SimpleRouter()
 

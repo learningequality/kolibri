@@ -1,15 +1,20 @@
+import logging
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from kolibri.core import error_constants
+from kolibri.core.api import ValuesViewset
+from kolibri.core.query import annotate_array_aggregate
 
 from ..api import KolibriAuthPermissions
 from ..api import KolibriAuthPermissionsFilter
 from ..errors import InvalidCollectionHierarchy
 from ..models import FacilityUser
 from ..models import LearnerGroup
-from kolibri.core import error_constants
-from kolibri.core.api import ValuesViewset
-from kolibri.core.query import annotate_array_aggregate
+
+logger = logging.getLogger(__name__)
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):
