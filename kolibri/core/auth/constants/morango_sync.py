@@ -1,7 +1,6 @@
 from kolibri import __version__
 from kolibri.utils import conf
 
-
 PROFILE_FACILITY_DATA = "facilitydata"
 DATA_PORTAL_SYNCING_BASE_URL = conf.OPTIONS["Urls"]["DATA_PORTAL_SYNCING_BASE_URL"]
 CUSTOM_INSTANCE_INFO = {

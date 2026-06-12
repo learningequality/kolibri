@@ -8,13 +8,14 @@ from le_utils.constants import content_kinds
 from mock import call
 from mock import patch
 
-from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.upgrade import fix_multiple_trees_with_tree_id1
 from kolibri.core.content.upgrade import update_num_coach_contents
 from kolibri.core.content.utils.upgrade import diff_stats
+
+from .sqlalchemytesting import django_connection_engine
 
 
 def get_engine(connection_string):

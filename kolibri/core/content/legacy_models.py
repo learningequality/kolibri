@@ -1,7 +1,6 @@
 from django.db import models
 from le_utils.constants import file_formats
 
-
 """
 All models in here must have Meta property abstract = True so that they are available for inspection
 but otherwise have no impact on the content app models

@@ -9,7 +9,6 @@ from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from mock import patch
 
-from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -31,6 +30,8 @@ from kolibri.core.content.utils.annotation import (
 )
 from kolibri.core.content.utils.annotation import set_leaf_nodes_invisible
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
+
+from .sqlalchemytesting import django_connection_engine
 
 
 def get_engine(connection_string):

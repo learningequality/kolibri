@@ -12,7 +12,6 @@ from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.tests.helpers import override_option
 
-
 settings_override_dict = {
     "USE_I18N": True,
     "LANGUAGE_CODE": "en",

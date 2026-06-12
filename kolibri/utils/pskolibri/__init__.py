@@ -52,7 +52,6 @@ from kolibri.utils.pskolibri.common import memoize_when_activated
 from kolibri.utils.pskolibri.common import NoSuchProcess
 from kolibri.utils.pskolibri.common import WINDOWS
 
-
 _TOTAL_PHYMEM = None
 _timer = getattr(time, "monotonic", time.time)
 

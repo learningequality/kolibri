@@ -16,15 +16,6 @@ from django.core.management import call_command
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from ..models import ContentSessionLog
-from ..models import ContentSummaryLog
-from ..models import GenerateCSVLogRequest
-from ..models import MasteryLog
-from ..viewsets.mastery_log import MasteryLogSerializer
-from .factory_logger import ContentSessionLogFactory
-from .factory_logger import ContentSummaryLogFactory
-from .factory_logger import FacilityUserFactory
-from .helpers import EvaluationMixin
 from kolibri.core.auth.management.commands.bulkexportusers import (
     CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
 )
@@ -37,6 +28,16 @@ from kolibri.core.logger.tasks import get_filepath
 from kolibri.core.logger.tasks import log_exports_cleanup
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.utils.time_utils import local_now
+
+from ..models import ContentSessionLog
+from ..models import ContentSummaryLog
+from ..models import GenerateCSVLogRequest
+from ..models import MasteryLog
+from ..viewsets.mastery_log import MasteryLogSerializer
+from .factory_logger import ContentSessionLogFactory
+from .factory_logger import ContentSummaryLogFactory
+from .factory_logger import FacilityUserFactory
+from .helpers import EvaluationMixin
 
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):

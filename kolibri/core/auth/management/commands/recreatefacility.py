@@ -7,7 +7,6 @@ from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.utils.migrate import migrate_facility
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 
-
 logger = logging.getLogger(__name__)
 
 

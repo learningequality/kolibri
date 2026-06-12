@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.test import TestCase
 
-from ..models import DeviceSettings
 from kolibri.core.auth.constants.facility_presets import mappings
 from kolibri.core.auth.constants.facility_presets import presets
 from kolibri.core.auth.models import Facility
@@ -18,6 +17,8 @@ from kolibri.core.device.utils import LANDING_PAGE_LEARN
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_from_file
 from kolibri.core.device.utils import setup_device_and_facility
+
+from ..models import DeviceSettings
 
 
 class DeviceProvisionTestCase(TestCase):

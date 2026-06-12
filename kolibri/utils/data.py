@@ -1,6 +1,5 @@
 import re
 
-
 BYTES_PREFIXES = ("", "K", "M", "G", "T", "P")
 PREFIX_FACTOR_BYTES = 1000.0
 

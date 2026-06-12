@@ -14,11 +14,6 @@ from morango.sync.operations import LocalOperation
 from morango.sync.operations import NetworkInitializeOperation
 from morango.sync.operations import ReceiverDeserializeOperation
 
-from .sync_event_hook_utils import get_dataset_id
-from .sync_event_hook_utils import get_other_side_kolibri_version
-from .sync_event_hook_utils import get_user_id_for_single_user_sync
-from .sync_event_hook_utils import other_side_using_single_user_cert
-from .sync_event_hook_utils import this_side_using_single_user_cert
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
 from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.models import Facility
@@ -29,6 +24,12 @@ from kolibri.core.auth.utils.picture_passwords import get_assigned_sequences
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.upgrade import matches_version
 from kolibri.utils.version import truncate_version
+
+from .sync_event_hook_utils import get_dataset_id
+from .sync_event_hook_utils import get_other_side_kolibri_version
+from .sync_event_hook_utils import get_user_id_for_single_user_sync
+from .sync_event_hook_utils import other_side_using_single_user_cert
+from .sync_event_hook_utils import this_side_using_single_user_cert
 
 logger = logging.getLogger(__name__)
 SORTED_STAGES = sorted(transfer_stages.ALL, key=lambda s: transfer_stages.precedence(s))

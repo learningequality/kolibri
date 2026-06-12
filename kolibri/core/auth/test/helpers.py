@@ -8,14 +8,15 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
 
+from kolibri.core.auth.constants import role_kinds
+from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.utils import provision_device as _provision_device  # noqa
+
 from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityDataset
 from ..models import FacilityUser
 from ..models import LearnerGroup
-from kolibri.core.auth.constants import role_kinds
-from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.utils import provision_device as _provision_device  # noqa
 
 DUMMY_PASSWORD = "password"
 

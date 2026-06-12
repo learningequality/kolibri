@@ -5,9 +5,10 @@ from django.test import TransactionTestCase
 from mock import call
 from mock import patch
 
-from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content import models as content
 from kolibri.core.content.utils.content_delete import delete_content
+
+from .sqlalchemytesting import django_connection_engine
 
 
 def get_engine(connection_string):

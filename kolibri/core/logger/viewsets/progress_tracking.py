@@ -25,10 +25,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
-from ..models import AttemptLog
-from ..models import ContentSessionLog
-from ..models import ContentSummaryLog
-from ..models import MasteryLog
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.exams.models import Exam
@@ -46,6 +42,11 @@ from kolibri.core.notifications.api import quiz_started_notification
 from kolibri.core.notifications.api import start_lesson_resource
 from kolibri.core.notifications.tasks import wrap_to_save_queue
 from kolibri.utils.time_utils import local_now
+
+from ..models import AttemptLog
+from ..models import ContentSessionLog
+from ..models import ContentSummaryLog
+from ..models import MasteryLog
 
 logger = logging.getLogger(__name__)
 

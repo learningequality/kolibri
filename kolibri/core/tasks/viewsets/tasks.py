@@ -18,7 +18,6 @@ from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.validation import EnqueueArgsSerializer
 
-
 logger = logging.getLogger(__name__)
 
 

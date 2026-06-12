@@ -22,11 +22,6 @@ from sqlalchemy import String
 from sqlalchemy.sql.expression import literal
 from sqlalchemy.sql.functions import coalesce
 
-from .paths import get_content_file_name
-from .paths import get_content_storage_file_path
-from .paths import using_remote_storage
-from .sqlalchemybridge import Bridge
-from .sqlalchemybridge import filter_by_uuids
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ChannelMetadata
@@ -39,6 +34,12 @@ from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.utils.lock import db_lock
+
+from .paths import get_content_file_name
+from .paths import get_content_storage_file_path
+from .paths import using_remote_storage
+from .sqlalchemybridge import Bridge
+from .sqlalchemybridge import filter_by_uuids
 
 logger = logging.getLogger(__name__)
 

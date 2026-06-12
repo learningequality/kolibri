@@ -2,7 +2,6 @@ import datetime
 
 from django.urls import reverse
 
-from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
@@ -11,6 +10,8 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSummaryLog
+
+from . import helpers
 
 DUMMY_PASSWORD = "password"
 

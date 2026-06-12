@@ -11,7 +11,6 @@ from kolibri.utils.conf import OPTIONS
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
 from kolibri.utils.time_utils import local_now
 
-
 logger = logging.getLogger(__name__)
 
 # Constant job_id for vacuum task

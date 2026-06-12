@@ -10,10 +10,6 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
-from .. import models
-from ..utils.network import connections
-from .helpers import mock_happy_no_os_request
-from .helpers import mock_request
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
@@ -23,6 +19,11 @@ from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 from kolibri.core.discovery.well_known import DATA_PORTAL_BASE_INSTANCE_ID
 from kolibri.core.discovery.well_known import DATA_PORTAL_SYNCING_BASE_URL
+
+from .. import models
+from ..utils.network import connections
+from .helpers import mock_happy_no_os_request
+from .helpers import mock_request
 
 
 @mock.patch.object(requests.Session, "request", mock_request)

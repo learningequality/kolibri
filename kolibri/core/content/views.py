@@ -4,8 +4,9 @@ from django.http import Http404
 from django.http import HttpResponseRedirect
 from django.views.generic.base import View
 
-from .models import ContentNode
 from kolibri.core.content.hooks import ContentNodeDisplayHook
+
+from .models import ContentNode
 
 logger = logging.getLogger(__name__)
 

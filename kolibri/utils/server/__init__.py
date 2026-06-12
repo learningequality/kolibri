@@ -45,7 +45,6 @@ from kolibri.utils.server.hooks import KolibriProcessHook
 from kolibri.utils.system import become_daemon
 from kolibri.utils.system import pid_exists
 
-
 logger = logging.getLogger(__name__)
 
 # Status codes for kolibri
@@ -261,8 +260,8 @@ class DefaultScheduledTasksPlugin(SimplePlugin):
     def START(self):
         from kolibri.core.analytics.tasks import schedule_local_notification_generation
         from kolibri.core.analytics.tasks import schedule_ping
-        from kolibri.core.deviceadmin.tasks import schedule_vacuum
         from kolibri.core.deviceadmin.tasks import schedule_streamed_cache_cleanup
+        from kolibri.core.deviceadmin.tasks import schedule_vacuum
 
         # schedule the pingback job if not already scheduled
         schedule_ping()
@@ -335,8 +334,8 @@ class ZeroConfPlugin(Monitor):
         # Register the Kolibri zeroconf service so it will be discoverable on the network
         from kolibri.core.discovery.utils.network.broadcast import (
             build_broadcast_instance,
-            KolibriBroadcast,
         )
+        from kolibri.core.discovery.utils.network.broadcast import KolibriBroadcast
         from kolibri.core.discovery.utils.network.search import NetworkLocationListener
 
         instance = build_broadcast_instance(self.port)

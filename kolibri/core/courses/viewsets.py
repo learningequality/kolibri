@@ -19,11 +19,6 @@ from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from .models import CourseSession
-from .models import CourseSessionAssignment
-from .models import TestType
-from .models import UnitPhase
-from .models import UnitTestAssignment
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
@@ -36,6 +31,12 @@ from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.query import annotate_array_aggregate
+
+from .models import CourseSession
+from .models import CourseSessionAssignment
+from .models import TestType
+from .models import UnitPhase
+from .models import UnitTestAssignment
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,6 @@ from kolibri.core.content.zip_wsgi import generate_zip_content_response
 from kolibri.core.content.zip_wsgi import INITIALIZE_SANDBOX_FROM_IFRAME
 from kolibri.utils.tests.helpers import override_option
 
-
 sandbox_injection = '<script type="text/javascript">{}</script>'.format(
     INITIALIZE_SANDBOX_FROM_IFRAME
 )

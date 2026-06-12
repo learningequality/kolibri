@@ -1,6 +1,8 @@
 import mock
 from django.test import TestCase
 
+from kolibri.core.auth.models import Facility
+
 from ..models import ConnectionStatus
 from ..models import LocationTypes
 from ..models import NetworkLocation
@@ -10,7 +12,6 @@ from ..utils.network.connections import capture_connection_state
 from ..utils.network.connections import update_network_location
 from .helpers import info as mock_device_info
 from .helpers import mock_response
-from kolibri.core.auth.models import Facility
 
 
 class BaseTestCase(TestCase):

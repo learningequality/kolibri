@@ -5,11 +5,12 @@ from django.test import TestCase
 from django.utils.timezone import now
 from morango.sync.context import LocalSessionContext
 
-from .helpers import provision_device
 from kolibri.core.auth.kolibri_plugin import AuthSyncHook
 from kolibri.core.auth.kolibri_plugin import CleanUpTaskOperation
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+
+from .helpers import provision_device
 
 
 @mock.patch("kolibri.core.auth.kolibri_plugin.cleanupsync")

@@ -6,7 +6,6 @@ from django.db.models import Q
 
 from kolibri.core.auth.constants import role_kinds
 
-
 ####################################################################################################################
 # This section contains base classes that can be inherited and extended to define more complex permissions behavior.
 ####################################################################################################################

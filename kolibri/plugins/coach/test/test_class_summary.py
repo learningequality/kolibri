@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
 
-from . import helpers
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
@@ -27,6 +26,8 @@ from kolibri.plugins.coach.class_summary_api import HELP_NEEDED
 from kolibri.plugins.coach.class_summary_api import NOT_STARTED
 from kolibri.plugins.coach.class_summary_api import STARTED
 from kolibri.utils.time_utils import local_now
+
+from . import helpers
 
 DUMMY_PASSWORD = "password"
 

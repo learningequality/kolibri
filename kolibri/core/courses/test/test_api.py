@@ -4,7 +4,6 @@ from django.urls import reverse
 from le_utils.constants import modalities
 from rest_framework import status
 
-from .. import models
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -15,6 +14,8 @@ from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+
+from .. import models
 
 DUMMY_PASSWORD = "password"
 

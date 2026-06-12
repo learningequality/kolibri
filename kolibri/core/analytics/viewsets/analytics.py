@@ -3,14 +3,15 @@ from rest_framework import serializers
 from rest_framework import viewsets
 
 import kolibri
-from ..models import LocalNotification
-from ..models import PingbackNotification
-from ..models import PingbackNotificationDismissed
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.utils.version import version_matches_range
+
+from ..models import LocalNotification
+from ..models import PingbackNotification
+from ..models import PingbackNotificationDismissed
 
 
 class PingbackNotificationSerializer(serializers.ModelSerializer):

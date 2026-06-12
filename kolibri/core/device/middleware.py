@@ -9,10 +9,11 @@ from django.urls import Resolver404
 from django.utils import translation
 from django.views.generic.base import RedirectView
 
-from .translation import get_language_from_request_and_is_from_path
 from kolibri.core.device.hooks import SetupHook
 from kolibri.core.device.utils import device_provisioned
 from kolibri.utils.conf import OPTIONS
+
+from .translation import get_language_from_request_and_is_from_path
 
 
 class KolibriLocaleMiddleware:

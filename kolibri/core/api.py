@@ -39,7 +39,6 @@ from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 
-from .utils.portal import registerfacility
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -49,6 +48,8 @@ from kolibri.core.utils.serializer_introspection import derive_values_from_seria
 from kolibri.core.utils.serializer_introspection import normalize_field_map
 from kolibri.core.utils.serializer_introspection import ValuesMethodField  # noqa: F401
 from kolibri.utils import conf
+
+from .utils.portal import registerfacility
 
 
 class KolibriDataPortalViewSet(viewsets.ViewSet):

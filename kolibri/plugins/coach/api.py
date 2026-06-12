@@ -8,7 +8,6 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from .serializers import LessonReportSerializer
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
@@ -17,6 +16,8 @@ from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
+
+from .serializers import LessonReportSerializer
 
 
 class LessonReportPermissions(permissions.BasePermission):

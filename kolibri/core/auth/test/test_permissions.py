@@ -4,6 +4,8 @@ Tests of the permissions on specific models in the auth app. For tests of the pe
 
 from django.test import TestCase
 
+from kolibri.core.device.models import DevicePermissions
+
 from ..constants import role_kinds
 from ..models import Classroom
 from ..models import Facility
@@ -15,7 +17,6 @@ from ..models import Membership
 from ..models import Role
 from .helpers import create_dummy_facility_data
 from .helpers import create_superuser
-from kolibri.core.device.models import DevicePermissions
 
 
 class ImproperUsageIsProperlyHandledTestCase(TestCase):

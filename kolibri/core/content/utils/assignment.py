@@ -10,7 +10,6 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.content.models import ContentRequestPriority
 from kolibri.core.utils.cache import process_cache
 
-
 _CONTENT_ASSIGNMENT_INSTANCE_CACHE_TIMEOUT = 300
 
 _ContentAssignment = namedtuple(

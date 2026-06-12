@@ -15,7 +15,6 @@ from kolibri.core.exams.models import IndividualSyncableExam
 from kolibri.core.lessons.models import IndividualSyncableLesson
 from kolibri.core.lessons.models import Lesson
 
-
 _module = "kolibri.core.content.utils.assignment."
 
 

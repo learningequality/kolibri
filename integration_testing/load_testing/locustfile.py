@@ -29,7 +29,6 @@ from locust import between
 from locust import HttpUser
 from locust import task
 
-
 # Load configuration from environment variables
 HAR_FILE = os.environ["KOLIBRI_HAR_FILE"]
 SERVER_URL = os.environ["KOLIBRI_SERVER_URL"]

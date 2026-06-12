@@ -27,6 +27,19 @@ from morango.sync.controller import MorangoProfileController
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from kolibri.core import error_constants
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
+from kolibri.core.auth.constants import demographics
+from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
+from kolibri.core.auth.errors import NoAvailableSequences
+from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.signals import cascade_delete_user
+from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
+from kolibri.core.device.models import OSUser
+from kolibri.core.device.utils import set_device_settings
+from kolibri.core.tasks.job import Job
+
 from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
@@ -40,18 +53,6 @@ from .helpers import KolibriAPITestCase as APITestCase
 from .helpers import KolibriAPITransactionTestCase as APITransactionTestCase
 from .helpers import provision_device
 from .helpers import setup_device
-from kolibri.core import error_constants
-from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
-from kolibri.core.auth.constants import demographics
-from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
-from kolibri.core.auth.errors import NoAvailableSequences
-from kolibri.core.auth.models import FacilityDataset
-from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.signals import cascade_delete_user
-from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
-from kolibri.core.device.models import OSUser
-from kolibri.core.device.utils import set_device_settings
-from kolibri.core.tasks.job import Job
 
 
 class FacilityFactory(factory.DjangoModelFactory):

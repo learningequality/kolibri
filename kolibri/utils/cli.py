@@ -21,14 +21,13 @@ from kolibri.plugins.utils import enable_default_plugins
 from kolibri.plugins.utils import enable_plugins
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.utils import server
-from kolibri.utils.modules import module_exists
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
 from kolibri.utils.debian_check import check_debian_user
 from kolibri.utils.main import initialize
 from kolibri.utils.main import set_django_settings_and_python_path
 from kolibri.utils.main import setup_logging
-
+from kolibri.utils.modules import module_exists
 
 logger = logging.getLogger(__name__)
 

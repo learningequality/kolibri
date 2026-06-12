@@ -1,10 +1,9 @@
 from sys import version_info
 
 from django.conf import settings
+from morango.models import InstanceIDModel
 from rest_framework import views
 from rest_framework.response import Response
-
-from morango.models import InstanceIDModel
 
 import kolibri
 from kolibri.core.device.permissions import UserHasAnyDevicePermissions

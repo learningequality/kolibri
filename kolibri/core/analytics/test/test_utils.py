@@ -38,7 +38,6 @@ from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.logger.utils import user_data
 
-
 USER_CSV_PATH = "kolibri/core/logger/management/commands/user_data.csv"
 
 

@@ -5,7 +5,6 @@ from django.utils.timezone import now
 from le_utils.constants import content_kinds
 from rest_framework import status
 
-from .. import models
 from kolibri.core import error_constants
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
@@ -17,6 +16,8 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.exams.constants import MAX_QUESTIONS_PER_QUIZ_SECTION
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
+
+from .. import models
 
 DUMMY_PASSWORD = "password"
 

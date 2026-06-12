@@ -49,23 +49,6 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .constants import collection_kinds
-from .constants import role_kinds
-from .models import Classroom
-from .models import Facility
-from .models import FacilityDataset
-from .models import FacilityUser
-from .models import LearnerGroup
-from .models import Membership
-from .models import Role
-from .serializers import ClassroomSerializer
-from .serializers import CreateFacilitySerializer
-from .serializers import ExtraFieldsSerializer
-from .serializers import FacilitySerializer
-from .serializers import LearnerGroupSerializer
-from .serializers import MembershipSerializer
-from .serializers import PublicFacilitySerializer
-from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants import user_kinds
@@ -92,6 +75,24 @@ from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
+
+from .constants import collection_kinds
+from .constants import role_kinds
+from .models import Classroom
+from .models import Facility
+from .models import FacilityDataset
+from .models import FacilityUser
+from .models import LearnerGroup
+from .models import Membership
+from .models import Role
+from .serializers import ClassroomSerializer
+from .serializers import CreateFacilitySerializer
+from .serializers import ExtraFieldsSerializer
+from .serializers import FacilitySerializer
+from .serializers import LearnerGroupSerializer
+from .serializers import MembershipSerializer
+from .serializers import PublicFacilitySerializer
+from .serializers import RoleSerializer
 
 logger = logging.getLogger(__name__)
 

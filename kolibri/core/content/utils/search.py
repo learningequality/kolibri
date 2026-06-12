@@ -25,8 +25,8 @@ from le_utils.constants.labels.learning_activities import LEARNINGACTIVITIESLIST
 from le_utils.constants.labels.levels import LEVELSLIST
 from le_utils.constants.labels.needs import NEEDSLIST
 from le_utils.constants.labels.subjects import SUBJECTSLIST
-from kolibri.core.utils.cache import process_cache as cache
 
+from kolibri.core.utils.cache import process_cache as cache
 
 metadata_lookup = {
     "learning_activities": LEARNINGACTIVITIESLIST,

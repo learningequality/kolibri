@@ -5,14 +5,15 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from morango.models import ScopeDefinition
 
-from ..utils import get_client_and_server_certs
-from ..utils import get_facility_dataset_id
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_facility
 from kolibri.core.auth.management.utils import get_network_connection
 from kolibri.core.auth.management.utils import is_portal_sync
 from kolibri.core.auth.management.utils import MorangoSyncCommand
+
+from ..utils import get_client_and_server_certs
+from ..utils import get_facility_dataset_id
 
 
 class Command(MorangoSyncCommand):

@@ -9,18 +9,19 @@ from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .attempt_log import AttemptLogDiffSerializer
-from .attempt_log import AttemptLogViewSet
-from .filters import BaseLogFilter
-from ..evaluation import attempts_diff
-from ..evaluation import LOG_ORDER_BY
-from ..models import AttemptLog
-from ..models import MasteryLog
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.decorators import query_params_required
+
+from ..evaluation import attempts_diff
+from ..evaluation import LOG_ORDER_BY
+from ..models import AttemptLog
+from ..models import MasteryLog
+from .attempt_log import AttemptLogDiffSerializer
+from .attempt_log import AttemptLogViewSet
+from .filters import BaseLogFilter
 
 
 class _AttemptLogDiffViewSet(AttemptLogViewSet):

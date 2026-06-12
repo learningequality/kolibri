@@ -7,11 +7,6 @@ from django.db.models import Sum
 from django.db.models import When
 from le_utils.constants import content_kinds
 
-from .models import HelpReason
-from .models import LearnerProgressNotification
-from .models import NotificationEventType
-from .models import NotificationObjectType
-from .utils import memoize
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
@@ -25,6 +20,12 @@ from kolibri.core.logger.models import ExamLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.quiz import annotate_response_summary
 from kolibri.core.query import annotate_array_aggregate
+
+from .models import HelpReason
+from .models import LearnerProgressNotification
+from .models import NotificationEventType
+from .models import NotificationObjectType
+from .utils import memoize
 
 NEEDS_HELP_NOTIFICATION_THRESHOLD = 4
 

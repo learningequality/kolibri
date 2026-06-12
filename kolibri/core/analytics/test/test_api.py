@@ -3,14 +3,15 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..constants.nutrition_endpoints import PINGBACK
-from ..models import PingbackNotification
-from ..models import PingbackNotificationDismissed
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+
+from ..constants.nutrition_endpoints import PINGBACK
+from ..models import PingbackNotification
+from ..models import PingbackNotificationDismissed
 
 
 class PingbackNotificationTestCase(APITestCase):

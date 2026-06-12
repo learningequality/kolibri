@@ -41,6 +41,30 @@ from morango.models import SyncableModelQuerySet
 from morango.models import UUIDField
 from mptt.models import TreeForeignKey
 
+from kolibri.core import error_constants
+from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
+from kolibri.core.auth.constants.demographics import custom_demographics_schema
+from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
+from kolibri.core.auth.constants.demographics import EnumValuesValidator
+from kolibri.core.auth.constants.demographics import FacilityUserDemographicValidator
+from kolibri.core.auth.constants.demographics import LabelTranslationValidator
+from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+from kolibri.core.auth.constants.demographics import UniqueIdsValidator
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+from kolibri.core.device.hooks import GetOSUserHook
+from kolibri.core.device.utils import device_provisioned
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import is_full_facility_import
+from kolibri.core.device.utils import set_device_settings
+from kolibri.core.errors import KolibriValidationError
+from kolibri.core.fields import DateTimeTzField
+from kolibri.core.fields import JSONField
+from kolibri.core.utils.model_router import KolibriModelRouter
+from kolibri.core.utils.validators import JSON_Schema_Validator
+from kolibri.deployment.default.sqlite_db_names import SESSIONS
+from kolibri.utils.time_utils import local_now
+
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import morango_sync
@@ -65,29 +89,6 @@ from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
-from kolibri.core import error_constants
-from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
-from kolibri.core.auth.constants.demographics import custom_demographics_schema
-from kolibri.core.auth.constants.demographics import DEFERRED
-from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
-from kolibri.core.auth.constants.demographics import EnumValuesValidator
-from kolibri.core.auth.constants.demographics import FacilityUserDemographicValidator
-from kolibri.core.auth.constants.demographics import LabelTranslationValidator
-from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
-from kolibri.core.auth.constants.demographics import UniqueIdsValidator
-from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
-from kolibri.core.device.hooks import GetOSUserHook
-from kolibri.core.device.utils import device_provisioned
-from kolibri.core.device.utils import get_device_setting
-from kolibri.core.device.utils import is_full_facility_import
-from kolibri.core.device.utils import set_device_settings
-from kolibri.core.errors import KolibriValidationError
-from kolibri.core.fields import DateTimeTzField
-from kolibri.core.fields import JSONField
-from kolibri.core.utils.model_router import KolibriModelRouter
-from kolibri.core.utils.validators import JSON_Schema_Validator
-from kolibri.deployment.default.sqlite_db_names import SESSIONS
-from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 

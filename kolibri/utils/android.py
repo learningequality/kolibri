@@ -1,6 +1,5 @@
 import sys
 
-
 # A constant to be used in place of Python's platform.system()
 # when we know we are on an Android system.
 ANDROID_PLATFORM_SYSTEM_VALUE = "Android"

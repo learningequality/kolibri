@@ -136,8 +136,9 @@ class TestServerDefaultScheduledTasks:
     ):
         with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
             # Schedule two userdefined jobs
-            from kolibri.utils.time_utils import local_now
             from datetime import timedelta
+
+            from kolibri.utils.time_utils import local_now
 
             schedule_time = local_now() + timedelta(hours=1)
             test1 = job_storage.schedule(schedule_time, Job(id))

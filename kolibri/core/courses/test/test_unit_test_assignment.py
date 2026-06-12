@@ -8,14 +8,15 @@ from mock import MagicMock
 from mock import patch
 from morango.models import Filter
 
-from .. import models
-from ..models import TestType
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ContentNode
+
+from .. import models
+from ..models import TestType
 
 DUMMY_PASSWORD = "password"
 

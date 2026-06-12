@@ -60,9 +60,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
-        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
         from kolibri.core.content.models import ContentNode
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 
         courses_exist = ContentNode.objects.filter(
             available=True, modality=modalities.COURSE

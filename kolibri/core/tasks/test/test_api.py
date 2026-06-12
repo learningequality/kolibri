@@ -26,7 +26,6 @@ from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.validation import JobValidator
 
-
 DUMMY_PASSWORD = "password"
 
 fake_job_defaults = dict(

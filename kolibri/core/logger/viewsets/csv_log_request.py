@@ -5,10 +5,11 @@ from django_filters.rest_framework import ModelChoiceFilter
 from rest_framework import serializers
 from rest_framework import viewsets
 
-from ..models import GenerateCSVLogRequest
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Facility
+
+from ..models import GenerateCSVLogRequest
 
 
 class GenerateCSVLogRequestSerializer(serializers.ModelSerializer):

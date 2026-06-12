@@ -8,6 +8,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.validators import UniqueTogetherValidator
 
+from kolibri.core import error_constants
+
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
@@ -20,7 +22,6 @@ from .models import FacilityDataset
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
-from kolibri.core import error_constants
 
 logger = logging.getLogger(__name__)
 

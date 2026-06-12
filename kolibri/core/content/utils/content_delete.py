@@ -16,7 +16,6 @@ from kolibri.core.content.utils.importability_annotation import clear_channel_st
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.utils.lock import db_lock
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -105,8 +105,8 @@ def status_fn(job):
 
 
 def start_soud_sync(user_id):
-    from kolibri.core.device import soud
     from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+    from kolibri.core.device import soud
 
     # This user would not previously have been included in any syncs
     # triggered by a device appearing on the network, so request syncs for them now

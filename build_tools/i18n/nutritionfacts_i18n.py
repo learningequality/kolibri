@@ -12,7 +12,6 @@ import sys
 import click
 import utils
 
-
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.StreamHandler(sys.stdout)
 

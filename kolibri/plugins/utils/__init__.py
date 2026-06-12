@@ -13,12 +13,12 @@ from django.urls import reverse
 from semver import VersionInfo
 
 if sys.version_info < (3, 10):
-    from importlib_metadata import entry_points
     from importlib_metadata import distribution
+    from importlib_metadata import entry_points
     from importlib_metadata import PackageNotFoundError
 else:
-    from importlib.metadata import entry_points
     from importlib.metadata import distribution
+    from importlib.metadata import entry_points
     from importlib.metadata import PackageNotFoundError
 
 import kolibri
@@ -30,8 +30,8 @@ from kolibri.plugins import ConfigDict
 from kolibri.plugins import DEFAULT_PLUGINS
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import KolibriHook
-from kolibri.utils.modules import module_exists
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.modules import module_exists
 from kolibri.utils.version import normalize_version_to_semver
 
 logger = logging.getLogger(__name__)

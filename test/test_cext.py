@@ -29,8 +29,8 @@ def test_cryptography_runs():
     """
     if os.environ.get("GITHUB_JOB") == "cext":
         try:
-            from cryptography.hazmat.primitives.asymmetric import rsa
             from cryptography.hazmat.backends import default_backend
+            from cryptography.hazmat.primitives.asymmetric import rsa
 
             crypto_backend = default_backend()
             rsa.generate_private_key(

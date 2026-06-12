@@ -10,10 +10,12 @@ import tempfile
 # Use modern APIs exclusively, with backports for older Python versions
 try:
     # Python 3.8+ has importlib.metadata
-    from importlib.metadata import distribution, PackageNotFoundError
+    from importlib.metadata import distribution
+    from importlib.metadata import PackageNotFoundError
 except ImportError:
     # Python 3.6-3.7 need the backport
-    from importlib_metadata import distribution, PackageNotFoundError
+    from importlib_metadata import distribution
+    from importlib_metadata import PackageNotFoundError
 
 try:
     # Python 3.9+ has full importlib.resources

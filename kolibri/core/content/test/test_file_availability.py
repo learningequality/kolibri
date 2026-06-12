@@ -7,7 +7,6 @@ from collections import namedtuple
 from django.test import TransactionTestCase
 from mock import patch
 
-from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.file_availability import (
     get_available_checksums_from_disk,
@@ -17,6 +16,8 @@ from kolibri.core.content.utils.file_availability import (
 )
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.utils.cache import process_cache
+
+from .sqlalchemytesting import django_connection_engine
 
 
 def get_engine(connection_string):

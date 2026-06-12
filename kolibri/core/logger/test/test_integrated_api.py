@@ -16,11 +16,6 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
-from ..models import AttemptLog
-from ..models import ContentSessionLog
-from ..models import ContentSummaryLog
-from ..models import MasteryLog
-from .factory_logger import FacilityUserFactory
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import DUMMY_PASSWORD
@@ -41,6 +36,12 @@ from kolibri.core.notifications.api import quiz_answered_notification
 from kolibri.core.notifications.api import quiz_completed_notification
 from kolibri.core.notifications.api import quiz_started_notification
 from kolibri.utils.time_utils import local_now
+
+from ..models import AttemptLog
+from ..models import ContentSessionLog
+from ..models import ContentSummaryLog
+from ..models import MasteryLog
+from .factory_logger import FacilityUserFactory
 
 
 def create_assigned_quiz_for_user(user):

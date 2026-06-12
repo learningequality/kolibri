@@ -10,11 +10,12 @@ from le_utils.constants import file_formats
 from le_utils.constants import format_presets
 from mock import patch
 
-from .sqlalchemytesting import django_connection_engine
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
+
+from .sqlalchemytesting import django_connection_engine
 
 
 def get_engine(connection_string):

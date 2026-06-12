@@ -5,8 +5,9 @@ import shutil
 import subprocess
 import sys
 
-from .constants import drivetypes
 from kolibri.utils.android import on_android
+
+from .constants import drivetypes
 
 logger = logging.getLogger(__name__)
 

@@ -32,7 +32,6 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 
-
 logger = logging.getLogger(__name__)
 WINDOW_SEC = 3
 MAX_ATTEMPTS = 5

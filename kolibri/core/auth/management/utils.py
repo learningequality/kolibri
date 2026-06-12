@@ -40,7 +40,6 @@ from kolibri.core.utils.lock import db_lock_sqlite_only
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.data import bytes_for_humans
 
-
 logger = logging.getLogger(__name__)
 
 

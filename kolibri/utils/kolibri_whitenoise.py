@@ -24,7 +24,6 @@ from whitenoise.string_utils import decode_path_info
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.utils.file_transfer import RemoteFile
 
-
 compressed_file_extensions = ("gz",)
 
 

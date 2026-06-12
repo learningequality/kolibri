@@ -4,7 +4,6 @@ from django.db.models.expressions import F
 from django.db.models.expressions import OuterRef
 from django.db.models.expressions import Subquery
 
-
 LOG_ORDER_BY = F("end_timestamp").desc(nulls_last=True)
 
 

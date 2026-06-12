@@ -27,7 +27,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .. import error_constants
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.middleware import session_exempt
@@ -54,6 +53,8 @@ from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.utils.conf import OPTIONS
+
+from .. import error_constants
 
 
 class InfoViewSet(viewsets.ViewSet):

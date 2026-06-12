@@ -11,13 +11,6 @@ from rest_framework import serializers
 from rest_framework import status
 from rest_framework.response import Response
 
-from ..api import KolibriAuthPermissions
-from ..api import KolibriAuthPermissionsFilter
-from ..constants import collection_kinds
-from ..errors import IncompatibleDeviceSettingError
-from ..models import Facility
-from ..models import FacilityDataset
-from ..serializers import ExtraFieldsSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
@@ -28,6 +21,14 @@ from kolibri.core.device.utils import (
     is_full_facility_import as _is_full_facility_import,
 )
 from kolibri.core.tasks.main import job_storage
+
+from ..api import KolibriAuthPermissions
+from ..api import KolibriAuthPermissionsFilter
+from ..constants import collection_kinds
+from ..errors import IncompatibleDeviceSettingError
+from ..models import Facility
+from ..models import FacilityDataset
+from ..serializers import ExtraFieldsSerializer
 
 logger = logging.getLogger(__name__)
 

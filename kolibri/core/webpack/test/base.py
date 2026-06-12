@@ -2,7 +2,6 @@ import copy
 
 from ..hooks import WebpackBundleHook
 
-
 TEST_STATS_FILE_DATA = {
     "status": "done",
     "chunks": {

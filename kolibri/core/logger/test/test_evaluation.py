@@ -1,8 +1,9 @@
 from django.test import TestCase
 
-from .helpers import EvaluationMixin
 from kolibri.core.logger.evaluation import attempts_diff
 from kolibri.core.logger.models import AttemptLog
+
+from .helpers import EvaluationMixin
 
 
 class EvaluationTestCase(EvaluationMixin, TestCase):

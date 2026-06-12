@@ -14,7 +14,6 @@ import logging
 import subprocess
 import sys
 
-
 LFS_POINTER_HEADER = b"version https://git-lfs.github.com/spec/v1"
 
 

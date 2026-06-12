@@ -5,11 +5,12 @@ from rest_framework import exceptions
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..serializers import ContentDownloadRequestSerializer
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRequestStatus
+
+from ..serializers import ContentDownloadRequestSerializer
 
 
 class ContentDownloadRequestSerializerTestCase(TestCase):

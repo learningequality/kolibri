@@ -6,10 +6,11 @@ from django.core.cache import cache
 from sqlalchemy.exc import DatabaseError
 from sqlalchemy.sql import select
 
-from .paths import get_content_database_dir_path
-from .sqlalchemybridge import Bridge
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
+
+from .paths import get_content_database_dir_path
+from .sqlalchemybridge import Bridge
 
 logger = logging.getLogger(__name__)
 

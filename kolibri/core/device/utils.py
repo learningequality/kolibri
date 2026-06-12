@@ -51,8 +51,9 @@ def get_device_setting(setting):
     :param setting: a string key to the model attribute or property
     :return: the value of the setting
     """
-    from .models import DeviceSettings
     from kolibri.core.auth.models import Facility
+
+    from .models import DeviceSettings
 
     try:
         device_settings = DeviceSettings.objects.get()
@@ -488,6 +489,7 @@ def is_full_facility_import(dataset_id):
     Returns True if this the dataset_id holds a facility that has been fully imported.
     """
     from morango.models.certificates import Certificate
+
     from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 
     return (

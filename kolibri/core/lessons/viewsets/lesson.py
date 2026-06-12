@@ -13,9 +13,9 @@ from kolibri.core import error_constants
 from kolibri.core.api import HexUUIDField
 from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
+from kolibri.core.auth.api import _ensure_raw_dict
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.api import _ensure_raw_dict
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser

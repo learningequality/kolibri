@@ -1,8 +1,9 @@
-from .models import ExamAssignment
-from .models import IndividualSyncableExam
 from kolibri.core.auth.constants import collection_kinds
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+
+from .models import ExamAssignment
+from .models import IndividualSyncableExam
 
 
 def update_individual_syncable_exams_from_assignments(user_id):

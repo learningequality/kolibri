@@ -6,13 +6,6 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..local_notifications import create_impact_stories_notification_if_needed
-from ..local_notifications import IMPACT_STORIES_KEY
-from ..models import LocalNotification
-from ..tasks import _run_local_notification_generation
-from ..tasks import COOLDOWN_DAYS
-from ..tasks import DEFAULT_CADENCE_DAYS
-from ..tasks import schedule_local_notification_generation
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
@@ -20,6 +13,14 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.utils.time_utils import local_now
+
+from ..local_notifications import create_impact_stories_notification_if_needed
+from ..local_notifications import IMPACT_STORIES_KEY
+from ..models import LocalNotification
+from ..tasks import _run_local_notification_generation
+from ..tasks import COOLDOWN_DAYS
+from ..tasks import DEFAULT_CADENCE_DAYS
+from ..tasks import schedule_local_notification_generation
 
 
 class LocalNotificationAPITestCase(APITestCase):
