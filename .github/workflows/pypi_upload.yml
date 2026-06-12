@@ -12,29 +12,14 @@ on:
         description: 'Should this be uploaded to testpypi?'
         required: true
         type: boolean
-    secrets:
-      GPG_SIGNING_KEY:
-        required: true
-      GPG_PASSPHRASE:
-        required: true
-      TESTPYPI_API_TOKEN:
-        required: true
-      PYPI_API_TOKEN:
-        required: true
 permissions:
   contents: read
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/checkout@v6.0.2
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v8.1.0
-        with:
-          enable-cache: true
-          cache-python: true
-      - name: Install twine
-        run: uv pip install --system twine
       - uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.whl-file-name }}
@@ -43,24 +28,11 @@ jobs:
         with:
           name: ${{ inputs.tar-file-name }}
           path: dist
-      - name: Configure GPG Key
-        run: |
-          echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-      - name: Sign wheel
-        run: gpg --batch --pinentry loopback --passphrase "${{ secrets.GPG_PASSPHRASE }}" --detach-sign --armor dist/${{ inputs.whl-file-name }}
-      - name: Sign tarball
-        run: gpg --batch --pinentry loopback --passphrase "${{ secrets.GPG_PASSPHRASE }}" --detach-sign --armor dist/${{ inputs.tar-file-name }}
       - name: Publish to TestPyPi
         if: ${{ inputs.test }}
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TESTPYPI_API_TOKEN }}
-        run: |
-          twine upload -s -r testpypi dist/*
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
       - name: Publish to PyPi
         if: ${{ !inputs.test }}
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          twine upload -s dist/*
+        uses: pypa/gh-action-pypi-publish@release/v1

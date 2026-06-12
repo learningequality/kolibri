@@ -5,6 +5,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 jobs:
   latest_release:
     name: Check if this release is the latest release
@@ -139,15 +140,12 @@ jobs:
     name: Upload to TestPyPi
     needs: [whl]
     uses: ./.github/workflows/pypi_upload.yml
+    permissions:
+      id-token: write
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       test: true
-    secrets:
-      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
   gcs_upload:
     name: Upload to Google Cloud Storage for LE Downloads
     runs-on: ubuntu-latest
@@ -226,15 +224,12 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     needs: [whl, block_release_step]
     uses: ./.github/workflows/pypi_upload.yml
+    permissions:
+      id-token: write
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       test: false
-    secrets:
-      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
-      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
   android_release:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
