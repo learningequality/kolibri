@@ -16,7 +16,6 @@ from .constants import role_kinds
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
-from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
 from .models import LearnerGroup
@@ -280,28 +279,6 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
             "on_my_own_setup",
             "picture_password_settings",
         )
-
-
-class ClassroomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Classroom
-        fields = ("id", "name", "parent")
-        read_only_fields = ("id",)
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Classroom.objects.all(), fields=("parent", "name")
-            )
-        ]
-
-    def save(self, **kwargs):
-        try:
-            return super().save(**kwargs)
-        except InvalidCollectionHierarchy as e:
-            raise serializers.ValidationError(
-                "Invalid collection hierarchy",
-                code=error_constants.INVALID,
-            ) from e
 
 
 class LearnerGroupSerializer(serializers.ModelSerializer):

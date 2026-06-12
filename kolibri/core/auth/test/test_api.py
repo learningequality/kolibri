@@ -419,6 +419,23 @@ class ClassroomAPITestCase(APITestCase):
         # Should return all classrooms
         self.assertEqual(len(response.data), len(self.classrooms))
 
+    def test_soft_deleted_coach_excluded_from_classroom(self):
+        self.login_superuser()
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.classrooms[0].add_coach(coach)
+        # Soft-delete the coach
+        coach.delete()
+        response = self.client.get(
+            reverse(
+                "kolibri:core:classroom-detail",
+                kwargs={"pk": self.classrooms[0].id},
+            ),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        coach_ids = [c["id"] for c in response.data["coaches"]]
+        self.assertNotIn(coach.id, coach_ids)
+
     def test_cannot_create_classroom_same_name(self):
         self.login_superuser()
         classroom_name = self.classrooms[0].name

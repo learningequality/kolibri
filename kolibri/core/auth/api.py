@@ -2,7 +2,6 @@ import logging
 import time
 from collections import OrderedDict
 from datetime import timedelta
-from itertools import groupby
 from uuid import UUID
 from uuid import uuid4
 
@@ -17,7 +16,6 @@ from django.core.validators import RegexValidator
 from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
-from django.db.models import Q
 from django.db.models import Subquery
 from django.db.models import TextField
 from django.db.models import Value
@@ -32,7 +30,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
-from django_filters.rest_framework import ModelChoiceFilter
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import TransferSession
@@ -76,8 +73,6 @@ from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.token_generator import TokenGenerator
 from kolibri.core.utils.urls import reverse_path
 
-from .constants import collection_kinds
-from .constants import role_kinds
 from .models import Classroom
 from .models import Facility
 from .models import FacilityDataset
@@ -85,7 +80,6 @@ from .models import FacilityUser
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
-from .serializers import ClassroomSerializer
 from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilitySerializer
@@ -457,127 +451,6 @@ class FacilityViewSet(ValuesViewset):
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
     serializer_class = PublicFacilitySerializer
-
-
-class ClassroomFilter(FilterSet):
-    role = CharFilter(method="filter_has_role_for")
-    parent = ModelChoiceFilter(queryset=Facility.objects.all())
-
-    def filter_has_role_for(self, queryset, name, value):
-        requesting_user = self.request.user
-        if requesting_user.is_superuser:
-            return queryset
-
-        if requesting_user.is_anonymous:
-            return queryset.none()
-
-        # filter queryset by admin role and coach role
-        roles = requesting_user.roles.exclude(kind=role_kinds.ASSIGNABLE_COACH)
-
-        if roles.filter(
-            collection_id=requesting_user.facility_id, kind=role_kinds.ADMIN
-        ).exists():
-            return queryset
-
-        if value == role_kinds.COACH:
-            roles = roles.filter(kind=value)
-
-        return queryset.filter(
-            Q(id__in=roles.values("collection_id"))
-            | Q(parent_id__in=roles.values("collection_id"))
-        )
-
-    class Meta:
-        model = Classroom
-        fields = ["role", "parent"]
-
-
-class ClassroomViewSet(ValuesViewset):
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    queryset = Classroom.objects.all()
-    serializer_class = ClassroomSerializer
-    filterset_class = ClassroomFilter
-
-    values = (
-        "id",
-        "name",
-        "parent",
-        "learner_count",
-        "role__user__id",
-        "role__user__devicepermissions__is_superuser",
-        "role__user__full_name",
-        "role__user__username",
-    )
-
-    def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            learner_count=SQCount(
-                FacilityUser.objects.filter(memberships__collection=OuterRef("id")),
-                field="id",
-            )
-        )
-
-    def consolidate(self, items, queryset):
-        output = []
-        items = sorted(items, key=lambda x: x["id"])
-        coach_ids = list(
-            set(
-                [
-                    item["role__user__id"]
-                    for item in items
-                    if item["role__user__id"] is not None
-                ]
-            )
-        )
-        soft_deleted_user_ids = list(
-            FacilityUser.soft_deleted_objects.all().values_list("id", flat=True)
-        )
-        active_coach_ids = [
-            coach_id for coach_id in coach_ids if coach_id not in soft_deleted_user_ids
-        ]
-        facility_roles = {
-            obj.pop("user"): obj
-            for obj in Role.objects.filter(
-                user_id__in=active_coach_ids, collection__kind=collection_kinds.FACILITY
-            ).values("user", "kind", "collection", "id")
-        }
-
-        for key, group in groupby(items, lambda x: x["id"]):
-            coaches = []
-            group_list = list(group)
-            base_item = group_list[0]
-
-            for item in group_list:
-                user_id = item.get("role__user__id")
-                if user_id in active_coach_ids:
-                    roles = []
-                    if user_id in facility_roles and facility_roles[user_id][
-                        "collection"
-                    ] == item.get("parent"):
-                        roles.append(facility_roles[user_id])
-
-                    coach = {
-                        "id": user_id,
-                        "facility": item.get("parent"),
-                        "is_superuser": bool(
-                            item.get("role__user__devicepermissions__is_superuser")
-                        ),
-                        "full_name": item.get("role__user__full_name"),
-                        "username": item.get("role__user__username"),
-                        "roles": roles,
-                    }
-                    coaches.append(coach)
-            consolidated_item = {
-                "id": base_item.get("id"),
-                "name": base_item.get("name"),
-                "parent": base_item.get("parent"),
-                "learner_count": base_item.get("learner_count"),
-                "coaches": coaches,
-            }
-            output.append(consolidated_item)
-
-        return output
 
 
 class LearnerGroupViewSet(ValuesViewset):

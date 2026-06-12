@@ -4,7 +4,6 @@ from rest_framework import routers
 from kolibri.core.api import KolibriDataPortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
 
-from .api import ClassroomViewSet
 from .api import DeleteImportedUserView
 from .api import FacilityViewSet
 from .api import IsPINValidView
@@ -17,6 +16,7 @@ from .api import SessionViewSet
 from .api import SetNonSpecifiedPasswordView
 from .api import SignUpViewSet
 from .api import UsernameAvailableView
+from .viewsets.classroom import ClassroomViewSet
 from .viewsets.facility_dataset import FacilityDatasetViewSet
 from .viewsets.facility_user import DeletedFacilityUserViewSet
 from .viewsets.facility_user import FacilityUserViewSet
