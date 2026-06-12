@@ -23,6 +23,7 @@ from kolibri.core.courses.models import CourseSession
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import exam_assignment_lookup
 from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.viewsets.lesson import ClassroomSerializer
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
@@ -108,7 +109,6 @@ def _consolidate_lessons_data(request, lessons):
             )
             missing_resource = missing_resource or not resource["contentnode"]
         lesson["missing_resource"] = missing_resource
-        lesson["active"] = lesson.pop("is_active")
 
 
 def _consolidate_courses_data(request, courses):
@@ -265,6 +265,8 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
             )
         )
         _consolidate_lessons_data(self.request, lessons)
+        for lesson in lessons:
+            lesson["active"] = lesson.pop("is_active")
 
         user_masterylog_content_ids = MasteryLog.objects.filter(
             user=self.request.user
@@ -445,12 +447,25 @@ class LearnHomePageHydrationView(APIView):
         )
 
 
-def _map_lesson_classroom(item):
-    return {
-        "id": item.pop("collection__id"),
-        "name": item.pop("collection__name"),
-        "parent": item.pop("collection__parent_id"),
-    }
+class LearnerLessonSerializer(serializers.ModelSerializer):
+    classroom = ClassroomSerializer(source="collection", read_only=True)
+    active = serializers.BooleanField(source="is_active")
+    progress = serializers.DictField(read_only=True)
+    missing_resource = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Lesson
+        fields = (
+            "id",
+            "title",
+            "description",
+            "resources",
+            "active",
+            "collection",
+            "classroom",
+            "progress",
+            "missing_resource",
+        )
 
 
 class LearnerLessonViewset(ReadOnlyValuesViewset):
@@ -460,20 +475,8 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
     """
 
     permission_classes = (IsAuthenticated,)
-
-    values = (
-        "id",
-        "title",
-        "description",
-        "resources",
-        "is_active",
-        "collection",
-        "collection__id",
-        "collection__name",
-        "collection__parent_id",
-    )
-
-    field_map = {"classroom": _map_lesson_classroom}
+    serializer_class = LearnerLessonSerializer
+    deferred_fields = ("progress", "missing_resource")
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
@@ -481,7 +484,7 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
         return Lesson.objects.filter(
             lesson_assignments__collection__membership__user=self.request.user,
             is_active=True,
-        )
+        ).select_related("collection")
 
     def consolidate(self, items, queryset):
         if not items:
