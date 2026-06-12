@@ -42,7 +42,7 @@ pimod:
 
 install-dependencies:
 	sudo apt-get update -y
-	sudo apt-get install -y fdisk file kpartx qemu-utils unzip p7zip-full wget xz-utils units
+	sudo apt-get install -y fdisk file kpartx qemu-utils qemu-user-static unzip p7zip-full wget xz-utils units
 	$(MAKE) pimod
 
 images/base.img:
