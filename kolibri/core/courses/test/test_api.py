@@ -676,6 +676,121 @@ class CourseSessionAPITestCase(APITestCase):
         session = models.CourseSession.objects.get(id=response.data["id"])
         self.assertIsNone(session.channel_version)
 
+    def _create_and_fetch_session(self, payload):
+        create_resp = self.client.post(
+            reverse("kolibri:core:coursesession-list"),
+            payload,
+            format="json",
+        )
+        self.assertEqual(create_resp.status_code, 201)
+        course_session_id = create_resp.data["id"]
+        response = self.client.get(
+            reverse(
+                "kolibri:core:coursesession-detail", kwargs={"pk": course_session_id}
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        return response.data
+
+    def test_course_session_list_response_shape(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        # Create a session with an assignment so assignments list is non-empty
+        cs = self._create_and_fetch_session(
+            {
+                "active": True,
+                "collection": self.classroom.id,
+                "course": self.course.id,
+                "assignments": [self.classroom.id],
+            }
+        )
+
+        # All top-level fields must be present
+        for field in (
+            "id",
+            "title",
+            "description",
+            "course",
+            "active",
+            "collection",
+            "classroom",
+            "created_by",
+            "date_created",
+            "assignments",
+            "missing_resource",
+            "learner_ids",
+        ):
+            self.assertIn(field, cs, msg=f"Missing field: {field}")
+
+        # 'is_active' must not appear — should be renamed to 'active'
+        self.assertNotIn("is_active", cs)
+
+        # classroom must be a dict with exactly id, name, parent
+        classroom = cs["classroom"]
+        self.assertIsInstance(classroom, dict)
+        self.assertEqual(classroom["id"], self.classroom.id)
+        self.assertEqual(classroom["name"], "Classroom")
+        self.assertEqual(classroom["parent"], self.facility.id)
+
+        # active must reflect True (we created with active=True)
+        self.assertTrue(cs["active"])
+
+        # assignments must contain the classroom id
+        self.assertIn(self.classroom.id, cs["assignments"])
+
+        # missing_resource must be False (self.course has available=True)
+        self.assertFalse(cs["missing_resource"])
+
+        # learner_ids must be a list
+        self.assertIsInstance(cs["learner_ids"], list)
+
+    def test_missing_resource_true_when_course_unavailable(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        unavailable_course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=self.course.channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=self.root_node,
+            available=False,
+            modality=modalities.COURSE,
+            title="Unavailable Course",
+            description="A course",
+        )
+        cs = self._create_and_fetch_session(
+            {
+                "active": True,
+                "collection": self.classroom.id,
+                "course": unavailable_course.id,
+            }
+        )
+        self.assertTrue(cs["missing_resource"])
+
+    def test_learner_ids_populated_in_response(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+        learner_a = FacilityUser.objects.create(
+            username="learner_shape_a", facility=self.facility
+        )
+        learner_b = FacilityUser.objects.create(
+            username="learner_shape_b", facility=self.facility
+        )
+        self.classroom.add_member(learner_a)
+        self.classroom.add_member(learner_b)
+
+        cs = self._create_and_fetch_session(
+            {
+                "active": True,
+                "collection": self.classroom.id,
+                "course": self.course.id,
+                "learner_ids": [learner_a.id, learner_b.id],
+            }
+        )
+        self.assertIn(learner_a.id, cs["learner_ids"])
+        self.assertIn(learner_b.id, cs["learner_ids"])
+        # The ad-hoc group must NOT appear in assignments (consolidate() strips it)
+        self.assertEqual(cs["assignments"], [])
+
 
 """"
 DISCLAIMER:  Some parts of these tests were written with an AI assistance.
