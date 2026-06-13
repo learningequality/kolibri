@@ -107,3 +107,38 @@ class LearnerLessonTestCase(APITestCase):
             reverse(self.basename + "-detail", kwargs={"pk": own_lesson.id})
         )
         self.assertEqual(get_request.status_code, 200)
+
+    def test_response_shape_includes_classroom_nested_object(self):
+        # Lesson.resources has default=[] so it doesn't need to be specified here.
+        own_lesson = Lesson.objects.create(
+            title="Shape Test Lesson",
+            collection=self.classroom,
+            created_by=self.learner_user,
+            is_active=True,
+        )
+        LessonAssignment.objects.create(
+            lesson=own_lesson, assigned_by=self.learner_user, collection=self.classroom
+        )
+        self.client.login(username="learner", password="password")
+        response = self.client.get(
+            reverse(self.basename + "-detail", kwargs={"pk": own_lesson.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        # Top-level fields
+        self.assertEqual(data["id"], own_lesson.id)
+        self.assertEqual(data["title"], "Shape Test Lesson")
+        self.assertIn("description", data)
+        self.assertIn("resources", data)
+        self.assertIn("collection", data)
+        # consolidate() renames is_active → active; is_active must not appear
+        self.assertIn("active", data)
+        self.assertNotIn("is_active", data)
+        # consolidate() adds progress and missing_resource (even with empty resources)
+        self.assertIn("progress", data)
+        self.assertIn("missing_resource", data)
+        # classroom nested object
+        classroom = data["classroom"]
+        self.assertEqual(classroom["id"], str(self.classroom.id))
+        self.assertEqual(classroom["name"], "Own Classroom")
+        self.assertEqual(classroom["parent"], str(self.classroom.parent.id))
