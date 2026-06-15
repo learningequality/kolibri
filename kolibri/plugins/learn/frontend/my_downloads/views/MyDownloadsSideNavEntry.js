@@ -1,8 +1,15 @@
+import { createTranslator } from 'kolibri/utils/i18n';
 import { UserKinds, NavComponentSections } from 'kolibri/constants';
 import { registerNavItem } from 'kolibri/composables/useNav';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import urls from 'kolibri/urls';
 import plugin_data from 'kolibri-plugin-data';
+
+const navStrings = createTranslator('MyDownloadsSideNavEntryStrings', {
+  myDownloadsLabel: {
+    message: 'My downloads',
+    context: "Users can access and see their content downloads via 'my downloads' option.",
+  },
+});
 
 if (plugin_data.allowLearnerDownloads) {
   registerNavItem({
@@ -10,7 +17,7 @@ if (plugin_data.allowLearnerDownloads) {
       return urls['kolibri:kolibri.plugins.learn:my_downloads']();
     },
     get label() {
-      return coreStrings.$tr('myDownloadsLabel');
+      return navStrings.$tr('myDownloadsLabel');
     },
     icon: 'download',
     role: UserKinds.LEARNER,
