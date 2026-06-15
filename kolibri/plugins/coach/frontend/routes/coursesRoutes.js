@@ -5,7 +5,6 @@ import CourseSummaryPage from '../views/courses/CourseSummaryPage.vue';
 import UnitDetailPage from '../views/courses/UnitDetailPage.vue';
 import AssignCourseSidePanel from '../views/courses/sidePanels/AssignCourse/index.vue';
 import CourseDetailsSubpage from '../views/courses/sidePanels/AssignCourse/subpages/CourseDetails.vue';
-import PreviewLearnersSubpage from '../views/courses/sidePanels/AssignCourse/subpages/PreviewLearners.vue';
 import SelectRecipientsSubpage from '../views/courses/sidePanels/AssignCourse/subpages/SelectRecipients.vue';
 import AssignCourseIndexSubpage from '../views/courses/sidePanels/AssignCourse/subpages/AssignCourseIndex.vue';
 import { classIdParamRequiredGuard, RouteSegments, COMPACT_UUID_PATTERN } from './utils';
@@ -149,11 +148,6 @@ export default [
             name: PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
             path: 'select-recipients',
             component: SelectRecipientsSubpage,
-          },
-          {
-            name: PageNames.COURSES_ASSIGN_PREVIEW_LEARNERS,
-            path: 'preview-learners',
-            component: PreviewLearnersSubpage,
           },
         ],
       },
