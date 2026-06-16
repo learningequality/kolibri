@@ -81,7 +81,7 @@ base = [
     "magicbus==4.1.2",
     "le-utils==0.2.17",
     "jsonfield==3.1.0",
-    "morango==0.8.12",
+    "morango==0.8.13",
     "tzlocal==4.2",
     "pytz==2024.1",
     "python-dateutil==2.9.0.post0",
