@@ -1,105 +1,189 @@
+# kolibri-app.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kolibri-app package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: kolibri-mac-app\n"
+"Project-Id-Version: kolibri-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-29 08:54-0700\n"
-"PO-Revision-Date: 2019-12-05 15:41-0800\n"
-"Last-Translator: learningequality\n"
-"Language-Team: English\n"
-"Language: en_US\n"
+"POT-Creation-Date: 2026-06-09 14:59-0700\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Learning Equality <dev@learningequality.org>\n"
+"Language-Team: Learning Equality <dev@learningequality.org>\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.3\n"
 
-#: src/main.py:190
-msgid "File"
-msgstr "File"
+#: src/kolibri_app/taskbar_icon.py:126
+msgid "Kolibri"
+msgstr "Kolibri"
 
-#: src/main.py:191
-msgid "New Window"
-msgstr "New Window"
+#: src/kolibri_app/taskbar_icon.py:126
+msgid "Kolibri is starting... Please wait."
+msgstr "Kolibri is starting... Please wait."
 
-#: src/main.py:192
-msgid "Close Window"
-msgstr "Close Window"
+#: src/kolibri_app/taskbar_icon.py:133
+msgid "Kolibri is running."
+msgstr "Kolibri is running."
 
-#: src/main.py:194
+#: src/kolibri_app/taskbar_icon.py:134
+msgid "Kolibri Ready"
+msgstr "Kolibri Ready"
+
+#: src/kolibri_app/taskbar_icon.py:141
+msgid ""
+"Kolibri failed to start.\n"
+"Check logs at: {}"
+msgstr ""
+"Kolibri failed to start.\n"
+"Check logs at: {}"
+
+#: src/kolibri_app/taskbar_icon.py:142
+msgid "Kolibri Error"
+msgstr "Kolibri Error"
+
+#: src/kolibri_app/taskbar_icon.py:167
+msgid "Open UI"
+msgstr "Open UI"
+
+#: src/kolibri_app/taskbar_icon.py:174
+msgid "Open Kolibri UI on logon"
+msgstr "Open Kolibri UI on logon"
+
+#: src/kolibri_app/taskbar_icon.py:180
+msgid "Run Kolibri service on start"
+msgstr "Run Kolibri service on start"
+
+#: src/kolibri_app/taskbar_icon.py:188
+msgid "Run Kolibri service on start (Unavailable)"
+msgstr "Run Kolibri service on start (Unavailable)"
+
+#: src/kolibri_app/taskbar_icon.py:195
+msgid "Exit"
+msgstr "Exit"
+
+#: src/kolibri_app/taskbar_icon.py:204
+msgid "Kolibri server is not ready yet."
+msgstr "Kolibri server is not ready yet."
+
+#: src/kolibri_app/taskbar_icon.py:205
+msgid "Info"
+msgstr "Info"
+
+#: src/kolibri_app/taskbar_icon.py:236 src/kolibri_app/taskbar_icon.py:303
+msgid "enabled"
+msgstr "enabled"
+
+#: src/kolibri_app/taskbar_icon.py:236 src/kolibri_app/taskbar_icon.py:303
+msgid "disabled"
+msgstr "disabled"
+
+#: src/kolibri_app/taskbar_icon.py:238
+msgid "Kolibri UI Startup Updated"
+msgstr "Kolibri UI Startup Updated"
+
+#: src/kolibri_app/taskbar_icon.py:239
+msgid "Opening the UI on logon has been {}."
+msgstr "Opening the UI on logon has been {}."
+
+#: src/kolibri_app/taskbar_icon.py:245
+msgid "Kolibri UI Startup Error"
+msgstr "Kolibri UI Startup Error"
+
+#: src/kolibri_app/taskbar_icon.py:246
+msgid "Failed to change the UI startup setting."
+msgstr "Failed to change the UI startup setting."
+
+#: src/kolibri_app/taskbar_icon.py:273
+msgid "Administrator rights are required to change this setting."
+msgstr "Administrator rights are required to change this setting."
+
+#: src/kolibri_app/taskbar_icon.py:274 src/kolibri_app/taskbar_icon.py:291
+msgid "Error"
+msgstr "Error"
+
+#: src/kolibri_app/taskbar_icon.py:290
+msgid "An error occurred while changing the service setting: {}"
+msgstr "An error occurred while changing the service setting: {}"
+
+#: src/kolibri_app/taskbar_icon.py:305
+msgid "Kolibri Service Updated"
+msgstr "Kolibri Service Updated"
+
+#: src/kolibri_app/taskbar_icon.py:306
+msgid "Automatic startup has been {}."
+msgstr "Automatic startup has been {}."
+
+#: src/kolibri_app/taskbar_icon.py:319
+msgid "Kolibri Service Error"
+msgstr "Kolibri Service Error"
+
+#: src/kolibri_app/taskbar_icon.py:320
+msgid "Failed to update the service startup setting."
+msgstr "Failed to update the service startup setting."
+
+#: src/kolibri_app/view.py:100
 msgid "Open Kolibri Home Folder"
 msgstr "Open Kolibri Home Folder"
 
-#: src/main.py:198
+#: src/kolibri_app/view.py:105
+msgid "File"
+msgstr "File"
+
+#: src/kolibri_app/view.py:112
+msgid "Cut\tCtrl+X"
+msgstr "Cut\tCtrl+X"
+
+#: src/kolibri_app/view.py:113
+msgid "Copy\tCtrl+C"
+msgstr "Copy\tCtrl+C"
+
+#: src/kolibri_app/view.py:114
+msgid "Paste\tCtrl+V"
+msgstr "Paste\tCtrl+V"
+
+#: src/kolibri_app/view.py:116
+msgid "Select All\tCtrl+A"
+msgstr "Select All\tCtrl+A"
+
+#: src/kolibri_app/view.py:118
 msgid "Edit"
 msgstr "Edit"
 
-#: src/main.py:199
-msgid "Undo"
-msgstr "Undo"
-
-#: src/main.py:200
-msgid "Redo"
-msgstr "Redo"
-
-#: src/main.py:202
-msgid "Cut"
-msgstr "Cut"
-
-#: src/main.py:203
-msgid "Copy"
-msgstr "Copy"
-
-#: src/main.py:204
-msgid "Paste"
-msgstr "Paste"
-
-#: src/main.py:205
-msgid "Select All"
-msgstr "Select All"
-
-#: src/main.py:208
-msgid "View"
-msgstr "View"
-
-#: src/main.py:209
+#: src/kolibri_app/view.py:122
 msgid "Reload"
 msgstr "Reload"
 
-#: src/main.py:210
-msgid "Actual Size"
-msgstr "Actual Size"
+#: src/kolibri_app/view.py:126
+msgid "Actual Size\tCtrl+0"
+msgstr "Actual Size\tCtrl+0"
 
-#: src/main.py:211
-msgid "Zoom In"
-msgstr "Zoom In"
+#: src/kolibri_app/view.py:132
+msgid "Zoom In\tCtrl++"
+msgstr "Zoom In\tCtrl++"
 
-#: src/main.py:212
-msgid "Zoom Out"
-msgstr "Zoom Out"
+#: src/kolibri_app/view.py:138
+msgid "Zoom Out\tCtrl+-"
+msgstr "Zoom Out\tCtrl+-"
 
-#: src/main.py:214
+#: src/kolibri_app/view.py:144
 msgid "Open in Browser"
 msgstr "Open in Browser"
 
-#: src/main.py:217
-msgid "History"
-msgstr "History"
+#: src/kolibri_app/view.py:146
+msgid "View"
+msgstr "View"
 
-#: src/main.py:218
-msgid "Back"
-msgstr "Back"
-
-#: src/main.py:219
-msgid "Forward"
-msgstr "Forward"
-
-#: src/main.py:222
-msgid "Help"
-msgstr "Help"
-
-#: src/main.py:223
+#: src/kolibri_app/view.py:151
 msgid "Documentation"
 msgstr "Documentation"
 
-#: src/main.py:224
+#: src/kolibri_app/view.py:157
 msgid "Community Forums"
 msgstr "Community Forums"
+
+#: src/kolibri_app/view.py:161
+msgid "Help"
+msgstr "Help"
