@@ -201,6 +201,15 @@ wxapp-extract-strings:
 		-e 's/"Language: \\n"/"Language: en\\n"/' \
 		src/kolibri_app/locales/en/LC_MESSAGES/wxapp.po
 
+.PHONY: i18n-upload
+i18n-upload: translations-export-source wxapp-extract-strings
+	crowdin upload sources
+
+.PHONY: i18n-download
+i18n-download:
+	crowdin download
+	$(MAKE) compile-mo
+
 .PHONY: codesign-mac-app
 codesign-mac-app:
 	$(MAKE) guard-MAC_CODESIGN_IDENTITY
