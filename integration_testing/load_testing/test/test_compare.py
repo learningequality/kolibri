@@ -108,6 +108,28 @@ def test_locust_option_differences_are_warned(tmp_path):
     assert "WARNING: retry_delay differs: 5 vs 1" in output
 
 
+def test_bench_device_and_template_differences_are_warned(tmp_path):
+    rows = [("GET", "/a", 1, 0, 1, 1, 1)]
+    base = _write_run(
+        tmp_path / "base", rows, _config(device="local", template_hash="abc")
+    )
+    new = _write_run(tmp_path / "new", rows, _config(device="pi4", template_hash="def"))
+    output = compare_runs(base, new).splitlines()
+    assert "WARNING: device differs: local vs pi4" in output
+    assert "WARNING: template_hash differs: abc vs def" in output
+
+
+def test_bench_build_is_described(tmp_path):
+    rows = [("GET", "/a", 1, 0, 1, 1, 1)]
+    base = _write_run(
+        tmp_path / "base", rows, _config(target="worktree:/w", wheel_sha="abc123")
+    )
+    new = _write_run(tmp_path / "new", rows, _config(target="dev:/d", wheel_sha=None))
+    lines = compare_runs(base, new).splitlines()
+    assert lines[0].endswith(" [build worktree:/w, wheel abc123]")
+    assert lines[1].endswith(" [build dev:/d, wheel -]")
+
+
 def test_missing_run_config_is_noted(tmp_path):
     rows = [("GET", "/a", 1, 0, 1, 1, 1)]
     base = _write_run(tmp_path / "base", rows)

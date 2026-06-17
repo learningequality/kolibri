@@ -24,6 +24,8 @@ CONFIG_WARNING_FIELDS = (
     "max_retries",
     "retry_delay",
     "har",
+    "device",
+    "template_hash",
 )
 
 
@@ -87,7 +89,7 @@ def joined_keys(base_stats, new_stats):
 def _describe_config(label, results_dir, config):
     if config is None:
         return f"{label}: {results_dir} (no run.json; config not checked)"
-    return "{}: {} (kolibri {}, {}u, {}r, {}, {}, {})".format(
+    description = "{}: {} (kolibri {}, {}u, {}r, {}, {}, {})".format(
         label,
         config["name"],
         config["kolibri_version"],
@@ -97,6 +99,10 @@ def _describe_config(label, results_dir, config):
         os.path.basename(config["har"]),
         config["timestamp"],
     )
+    if "target" in config:
+        wheel_sha = config.get("wheel_sha") or "-"
+        description += f" [build {config['target']}, wheel {wheel_sha}]"
+    return description
 
 
 def config_lines(base_dir, new_dir, base_config, new_config):
