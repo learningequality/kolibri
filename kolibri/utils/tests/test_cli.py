@@ -34,6 +34,10 @@ def activate_log_logger(monkeypatch):
     Activates logging everything to ``LOG_LOGGER`` with the monkeypatch pattern
     of py.test (test accepts a ``monkeypatch`` argument)
     """
+    # Capture every record regardless of configured level - the test suite
+    # raises the log level for speed (see settings/test.py), which would
+    # otherwise filter messages out before they reach _log.
+    monkeypatch.setattr(logging.Logger, "isEnabledFor", lambda self, level: True)
     monkeypatch.setattr(logging.Logger, "__log", logging.Logger._log, raising=False)
     monkeypatch.setattr(logging.Logger, "_log", log_logger)
 
