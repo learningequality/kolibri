@@ -6,19 +6,16 @@ from django.db import transaction
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
-from rest_framework.validators import UniqueTogetherValidator
 
 from kolibri.core import error_constants
 
 from .constants import collection_kinds
 from .constants import facility_presets
 from .constants import role_kinds
-from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
 from .errors import InvalidRoleKind
 from .models import Facility
 from .models import FacilityDataset
-from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 
@@ -279,27 +276,6 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
             "on_my_own_setup",
             "picture_password_settings",
         )
-
-
-class LearnerGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LearnerGroup
-        fields = ("id", "name", "parent")
-
-        validators = [
-            UniqueTogetherValidator(
-                queryset=LearnerGroup.objects.all(), fields=("parent", "name")
-            )
-        ]
-
-    def save(self, **kwargs):
-        try:
-            return super().save(**kwargs)
-        except InvalidCollectionHierarchy as e:
-            raise serializers.ValidationError(
-                "Invalid collection hierarchy",
-                code=error_constants.INVALID,
-            ) from e
 
 
 def validate_pin_code(value):
