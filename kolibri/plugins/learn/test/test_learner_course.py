@@ -195,6 +195,47 @@ class LearnerCourseTestCase(APITestCase):
         )
         self.assertEqual(get_request.data["id"], active_own_course.id)
 
+    def _create_assigned_course_session(self):
+        course_session = CourseSession.objects.create(
+            is_active=True,
+            collection=self.classroom,
+            created_by=self.coach,
+            course=self.course_1.id,
+            title=self.course_1.title,
+            description=self.course_1.description,
+        )
+        CourseSessionAssignment.objects.create(
+            course_session=course_session,
+            assigned_by=self.coach,
+            collection=self.classroom,
+        )
+        return course_session
+
+    def test_learner_course_classroom_field_shape(self):
+        active_own_course = self._create_assigned_course_session()
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse(self.basename + "-detail", kwargs={"pk": active_own_course.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        classroom = response.data.get("classroom")
+        self.assertIsNotNone(classroom)
+        self.assertEqual(classroom["id"], self.classroom.id)
+        self.assertEqual(classroom["name"], self.classroom.name)
+        self.assertEqual(classroom["parent"], self.facility.id)
+
+    def test_learner_course_list_classroom_field_shape(self):
+        self._create_assigned_course_session()
+        self.client.login(username="learner", password=DUMMY_PASSWORD)
+        response = self.client.get(reverse(self.basename + "-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        classroom = response.data[0].get("classroom")
+        self.assertIsNotNone(classroom)
+        self.assertEqual(classroom["id"], self.classroom.id)
+        self.assertEqual(classroom["name"], self.classroom.name)
+        self.assertEqual(classroom["parent"], self.facility.id)
+
     def test_learner_cannot_access_not_own_courses(self):
         # Course created in Classroom, but not assigned
         other_classroom = Classroom.objects.create(
