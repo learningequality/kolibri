@@ -20,7 +20,9 @@ from tzlocal.utils import ZoneInfoNotFoundError
 
 import kolibri
 from kolibri.deployment.default.cache import CACHES
-from kolibri.deployment.default.sqlite_db_names import ADDITIONAL_SQLITE_DATABASES
+from kolibri.deployment.default.sqlite_db_names import (
+    get_additional_sqlite_database_names,
+)
 from kolibri.deployment.default.sqlite_db_names import get_sqlite_database_path
 from kolibri.deployment.default.sqlite_db_names import JOB_STORAGE
 from kolibri.plugins.utils.settings import apply_settings
@@ -166,7 +168,10 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         }
     }
 
-    for additional_db in ADDITIONAL_SQLITE_DATABASES:
+    # The plugin registry has already been initialized by the
+    # conf.OPTIONS access above, so any databases registered by
+    # AdditionalSQLiteDatabaseHook hooks are included here.
+    for additional_db in get_additional_sqlite_database_names():
         db_config = {
             "ENGINE": "kolibri.deployment.default.db.backends.sqlite3",
             "NAME": get_sqlite_database_path(additional_db),
@@ -188,6 +193,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
         "kolibri.core.tasks.models.KolibriTasksRouter",
+        "kolibri.core.sqlite.hooks.AdditionalSQLiteDatabaseRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":

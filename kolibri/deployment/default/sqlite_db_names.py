@@ -6,6 +6,7 @@ and our default settings.
 
 import os
 
+from kolibri.core.sqlite.hooks import AdditionalSQLiteDatabaseHook
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 
@@ -29,6 +30,15 @@ ADDITIONAL_SQLITE_DATABASES = (
 )
 
 
+def get_additional_sqlite_database_names():
+    """
+    The names of all additional SQLite databases - the statically defined
+    ones and those registered by plugins via AdditionalSQLiteDatabaseHook.
+    Must only be called after the plugin registry has been initialized.
+    """
+    return ADDITIONAL_SQLITE_DATABASES + AdditionalSQLiteDatabaseHook.database_names()
+
+
 def get_sqlite_database_path(db_name):
     """
     Get the path for a specific SQLite database.
@@ -38,10 +48,10 @@ def get_sqlite_database_path(db_name):
         main_db_name = OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3"
         return os.path.join(KOLIBRI_HOME, main_db_name)
 
-    if db_name not in ADDITIONAL_SQLITE_DATABASES:
+    if db_name not in get_additional_sqlite_database_names():
         raise ValueError(
             f"Unknown database name '{db_name}'. "
-            f"Use 'default' or one of: {', '.join(ADDITIONAL_SQLITE_DATABASES)}"
+            f"Use 'default' or one of: {', '.join(get_additional_sqlite_database_names())}"
         )
 
     if db_name == JOB_STORAGE:

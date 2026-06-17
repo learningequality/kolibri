@@ -7,10 +7,10 @@ import qs from 'qs';
 import heartbeat from 'kolibri/heartbeat';
 import logger from 'kolibri-logging';
 import { get } from '@vueuse/core';
+import useConnection from 'kolibri/composables/useConnection';
 import useUser from 'kolibri/composables/useUser';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import clientFactory from 'kolibri/utils/baseClient';
-import useConnection from './internal/useConnection';
 
 export const logging = logger.getLogger(__filename);
 
