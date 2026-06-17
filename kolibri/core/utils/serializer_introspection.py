@@ -1,5 +1,6 @@
 from abc import ABCMeta
 from abc import abstractmethod
+from collections import Counter
 from typing import Any
 from typing import Callable
 from typing import cast
@@ -12,6 +13,7 @@ from typing import Type
 from typing import Union
 
 from django.core.exceptions import FieldDoesNotExist
+from django.db.models import F
 from django.db.models import Field
 from django.db.models import Model
 from django.db.models.fields.related import ForeignObjectRel
@@ -209,6 +211,24 @@ class _BaseFieldMap(dict, metaclass=ABCMeta):
             for key, entry in self.items()
         )
 
+    def db_column_map(self) -> Dict[str, str]:
+        """
+        ``{api_name: db_column}`` for fields where the DB column differs from
+        the API name. Passthroughs (source == key) are excluded.
+
+        Used by ordering filters to translate API field names to DB columns
+        and to resolve which DB column backs a given value in ``_values``.
+        """
+        return {
+            key: entry.source
+            for key, entry in self.items()
+            if entry.source is not None and entry.source != key
+        }
+
+    def annotate_queryset(self, queryset: Any) -> Any:
+        """No-op default: return queryset unchanged."""
+        return queryset
+
 
 class _FieldMap(_BaseFieldMap):
     """
@@ -219,10 +239,79 @@ class _FieldMap(_BaseFieldMap):
     mutating the input row, so the result contains exactly the declared
     outputs — method-field sources pulled in for invocation never leak into
     output because they're not field_map keys.
+
+    ``_sql_renames`` holds ``{target: source_column}`` pairs precomputed during
+    introspection for plain renames that can be pushed to SQL as F() aliases.
+    ``annotate_queryset`` applies them; no further computation is needed at
+    serialization time.
     """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._sql_renames: Dict[str, str] = {}  # {target_key: source_column}
 
     def map_row(self, row: Row) -> Row:
         return {key: entry.extract(row) for key, entry in self.items()}
+
+    def db_column_map(self) -> Dict[str, str]:
+        """
+        ``{api_name: db_column}`` resolving SQL rename aliases to their
+        original source columns.
+
+        Promoted renames are passthroughs in the entry dict (source == key),
+        so the base implementation excludes them; ``_sql_renames`` patches
+        them back in.
+        """
+        result = super().db_column_map()
+        result.update(self._sql_renames)
+        return result
+
+    def annotate_queryset(self, queryset: Any) -> Any:
+        """Apply pre-computed SQL-level F() aliases to the queryset."""
+        if self._sql_renames:
+            return queryset.annotate(**{t: F(s) for t, s in self._sql_renames.items()})
+        return queryset
+
+    def promote_renames_to_sql_aliases(
+        self, values: List[str], model: Type[Model]
+    ) -> List[str]:
+        """
+        Precompute SQL-level F() aliases for plain source→target renames.
+
+        Promotes a rename when:
+        - source and target differ (not a trivial passthrough)
+        - source is referenced by exactly one entry — removing it from the
+          values() call is safe because no other entry reads that column
+        - target name does not conflict with a model field (Django raises
+          ValueError if an annotation shadows a real column)
+
+        Mutates self in place: updates promoted entries to passthroughs and
+        populates ``_sql_renames`` with ``{target: source_column}``.
+        Returns an updated values list with source names replaced by target names
+        for promoted renames.
+        """
+        model_field_names: Set[str] = {f.name for f in model._meta.get_fields()}  # type: ignore[attr-defined]
+        source_refcount = Counter(
+            entry.source for entry in self.values() if entry.source is not None
+        )
+
+        source_to_target: Dict[str, str] = {}
+        for target_key, map_entry in list(self.items()):
+            if (
+                isinstance(map_entry, SourceFieldEntry)
+                and map_entry.source is not None
+                and map_entry.to_repr is None
+                and map_entry.source != target_key
+                and source_refcount[map_entry.source] == 1
+                and target_key not in model_field_names
+            ):
+                self._sql_renames[target_key] = map_entry.source
+                source_to_target[map_entry.source] = target_key
+                self[target_key] = SourceFieldEntry(target_key)
+
+        if source_to_target:
+            return [source_to_target.get(v, v) for v in values]
+        return values
 
 
 class _LegacyFieldMap(_BaseFieldMap):
@@ -730,11 +819,11 @@ def _introspect_joined_nested(
     return prefixed_values, field_map_updates, nested_entries, joined_many_entries
 
 
-def _introspect_serializer_fields(
+def _introspect_serializer_fields(  # noqa: C901
     serializer: ModelSerializer,
     deferred_fields: Tuple[str, ...] = (),
     _is_nested: bool = False,
-) -> IntrospectionResult:  # noqa: C901
+) -> IntrospectionResult:
     """
     Introspect a serializer to derive values tuple and field transformations.
 
@@ -840,6 +929,12 @@ def _introspect_serializer_fields(
     # Sorted so the column order (and hence the generated SQL) is
     # consistent across runs — set iteration order varies per process.
     values = sorted(set(values))
+
+    # Not applied inside inline-joined nested serializers (_is_nested=True):
+    # their values are fetched with a "{parent}__" prefix and annotation
+    # names cannot contain "__".
+    if not _is_nested and model is not None:
+        values = field_map.promote_renames_to_sql_aliases(values, model)
 
     return values, field_map, tuple(joined_many_fields), nested_cache
 

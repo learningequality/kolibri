@@ -2,9 +2,11 @@ import datetime
 from typing import Type
 from unittest.mock import MagicMock
 
+from django.db import connection
 from django.db.models import Model
 from django.test import override_settings
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from parameterized import parameterized
 from rest_framework import serializers
@@ -28,7 +30,26 @@ def create_mock_queryset(flat_items, model: Type[Model] = Author):
     """Mock queryset that returns flat_items from .values()."""
     mock_qs = MagicMock()
     mock_qs.model = model
-    mock_qs.values.return_value = flat_items
+    annotation_renames = {}  # {target_key: source_key} built up by annotate() calls
+
+    def annotate_side_effect(**kwargs):
+        for target, expr in kwargs.items():
+            annotation_renames[target] = expr.name  # F("source").name == "source"
+        return mock_qs  # support chaining: queryset = queryset.annotate(...)
+
+    def values_side_effect(*fields):
+        # Apply recorded F() annotation renames to flat_items
+        result = []
+        for item in flat_items:
+            row = dict(item)
+            for target, source in annotation_renames.items():
+                if source in row:
+                    row[target] = row.pop(source)
+            result.append(row)
+        return result
+
+    mock_qs.annotate.side_effect = annotate_side_effect
+    mock_qs.values.side_effect = values_side_effect
     return mock_qs
 
 
@@ -210,6 +231,21 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(result[0], {"display_name": "Alice"})
+
+    def test_plain_rename_uses_sql_alias(self):
+        """Plain source-rename (matching type, no to_representation) produces a
+        SQL-level alias so .values() returns the target key directly, avoiding
+        a Python-level dict rename per row."""
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.alice.pk),
+            display_name=serializers.CharField(source="name"),
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            result = self._run(viewset)
+        self.assertEqual(result[0], {"display_name": "Alice"})
+        # With the F() annotation optimization the SQL alias is "display_name",
+        # not "name" (which would require a Python-level rename afterwards).
+        self.assertIn("display_name", ctx[0]["sql"])
 
     def test_mismatched_field_type_applies_transform(self):
         """Declared field type differs from inferred — to_representation is called."""
