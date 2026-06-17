@@ -23,7 +23,6 @@ Usage:
 import glob
 import json
 import os
-import re
 import subprocess
 import threading
 import time
@@ -40,6 +39,7 @@ from logger import section
 from logger import step
 from logger import success
 from logger import warning
+from targets import version_tuple
 
 # Constants
 HAR_FILES_DIR = os.path.join(os.path.dirname(__file__), "har_files")
@@ -68,7 +68,7 @@ def _find_har_file(kolibri_version):
         )
 
     def version_key(path):
-        return tuple(int(n) for n in re.findall(r"\d+", os.path.basename(path)))
+        return version_tuple(os.path.basename(path)[len(prefix) : -len(".har")])
 
     har_path = max(candidates, key=version_key)
     warning(f"No HAR for Kolibri {kolibri_version}; using {har_path}")
