@@ -8,6 +8,7 @@ import sys
 import tempfile
 
 import click
+from agent import prune_subdirs
 from logger import info
 from logger import warning
 from packaging.utils import InvalidWheelFilename
@@ -36,6 +37,7 @@ OUTSIDE_THE_WHEEL = tuple(
 # Written by 0.19.x builds and no longer gitignored on develop.
 UNTRACKED_BUILD_LEFTOVERS = (":(exclude)kolibri/VERSION",)
 DIRTY_PATHS_SHOWN = 5
+WHEELS_KEPT = 8
 
 
 class Target:
@@ -156,8 +158,23 @@ def _single_wheel(directory, what):
     return wheels[0]
 
 
+def _cached_wheel(wheels_dir, subdir):
+    cached = glob.glob(os.path.join(wheels_dir, subdir, "*.whl"))
+    if not cached:
+        return None
+    os.utime(os.path.join(wheels_dir, subdir))
+    return cached[0]
+
+
+def _new_cache_dir(wheels_dir, subdir):
+    prune_subdirs(wheels_dir, subdir, kept=WHEELS_KEPT, log=info)
+    dest_dir = os.path.join(wheels_dir, subdir)
+    os.makedirs(dest_dir, exist_ok=True)
+    return dest_dir
+
+
 def _adopt_wheel(tmp_wheel, wheels_dir, subdir=""):
-    dest_dir = os.path.join(wheels_dir, subdir) if subdir else wheels_dir
+    dest_dir = _new_cache_dir(wheels_dir, subdir) if subdir else wheels_dir
     os.makedirs(dest_dir, exist_ok=True)
     dest = os.path.join(dest_dir, os.path.basename(tmp_wheel))
     shutil.move(tmp_wheel, dest)
@@ -215,9 +232,9 @@ def _resolve_pr(target, wheels_dir):
         f"Looking up PR #{target.source}",
     ).stdout.strip()
     subdir = f"pr-{head_sha[:12]}"
-    cached = glob.glob(os.path.join(wheels_dir, subdir, "*.whl"))
+    cached = _cached_wheel(wheels_dir, subdir)
     if cached:
-        return cached[0]
+        return cached
     run_id = run_checked(
         [
             "gh",
@@ -324,9 +341,9 @@ def _resolve_worktree(target, wheels_dir):
     head, dirty = worktree_identity(target.source)
     subdir = f"worktree-{head}"
     if not dirty:
-        cached = glob.glob(os.path.join(wheels_dir, subdir, "*.whl"))
+        cached = _cached_wheel(wheels_dir, subdir)
         if cached:
-            return cached[0]
+            return cached
     else:
         shown = ", ".join(dirty[:DIRTY_PATHS_SHOWN])
         more = len(dirty) - DIRTY_PATHS_SHOWN
@@ -345,8 +362,7 @@ def _resolve_worktree(target, wheels_dir):
     wheel = _single_wheel(dist, "make dist")
     if dirty:
         return wheel
-    os.makedirs(os.path.join(wheels_dir, subdir), exist_ok=True)
-    dest = os.path.join(wheels_dir, subdir, os.path.basename(wheel))
+    dest = os.path.join(_new_cache_dir(wheels_dir, subdir), os.path.basename(wheel))
     shutil.copy2(wheel, dest)
     return dest
 

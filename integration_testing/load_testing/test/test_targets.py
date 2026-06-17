@@ -7,6 +7,7 @@ import click
 import pytest
 from targets import parse_target
 from targets import resolve
+from targets import WHEELS_KEPT
 from targets import worktree_identity
 
 WHEEL_NAME = "kolibri-0.19.4-py2.py3-none-any.whl"
@@ -133,6 +134,20 @@ def test_worktree_without_a_venv_asks_for_uv_sync(tmp_path, worktree):
         resolve(parse_target(f"fix=worktree:{source}"), wheels_dir=str(tmp_path))
     assert "uv sync" in excinfo.value.message
     assert state["builds"] == 0
+
+
+def test_resolving_a_new_build_keeps_the_most_recent_cached_builds(tmp_path, worktree):
+    source, _ = worktree
+    wheels_dir = tmp_path / "wheels"
+    for age in range(WHEELS_KEPT):
+        cached = wheels_dir / f"pr-{age:012d}"
+        cached.mkdir(parents=True)
+        os.utime(cached, (age + 1, age + 1))
+    resolve(parse_target(f"fix=worktree:{source}"), wheels_dir=str(wheels_dir))
+    assert sorted(os.listdir(wheels_dir)) == sorted(
+        [f"pr-{age:012d}" for age in range(1, WHEELS_KEPT)]
+        + [f"worktree-{HEAD_SHA[:12]}"]
+    )
 
 
 def test_resolve_worktree_ignores_stale_wheels_in_dist(tmp_path, worktree):
