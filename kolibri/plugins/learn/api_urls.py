@@ -2,11 +2,11 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from .viewsets import LearnerClassroomViewset
-from .viewsets import LearnerCourseViewset
-from .viewsets import LearnerLessonViewset
 from .viewsets import LearnHomePageHydrationView
 from .viewsets import LearnStateView
+from .viewsets.classroom import LearnerClassroomViewset
+from .viewsets.course import LearnerCourseViewset
+from .viewsets.lesson import LearnerLessonViewset
 
 router = routers.SimpleRouter()
 router.register(
