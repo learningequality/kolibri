@@ -59,17 +59,6 @@ class AttendanceSessionViewSet(ValuesViewset):
     filterset_class = AttendanceSessionFilter
     pagination_class = OptionalPageNumberPagination
 
-    values = (
-        "id",
-        "collection",
-        "created_by",
-        "session_start_datetime",
-        "date_created",
-        "date_modified",
-        "present_count",
-        "total_count",
-    )
-
     def annotate_queryset(self, queryset):
         return queryset.annotate(
             present_count=Count(
@@ -89,8 +78,7 @@ class AttendanceSessionViewSet(ValuesViewset):
             limit = 5
         queryset = self.filter_queryset(self.get_queryset())
         queryset = self.annotate_queryset(queryset)[:limit]
-        data = queryset.values(*self.values)
-        return Response(list(data))
+        return Response(self.serialize_queryset(queryset))
 
 
 class AttendanceRecordFilter(FilterSet):

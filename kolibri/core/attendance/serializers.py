@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework.serializers import BooleanField
+from rest_framework.serializers import IntegerField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 
@@ -25,6 +26,8 @@ class AttendanceSessionSerializer(ModelSerializer):
     )
     collection = PrimaryKeyRelatedField(queryset=Collection.objects.all())
     session_start_datetime = DateTimeTzField(required=False)
+    present_count = IntegerField(read_only=True)
+    total_count = IntegerField(read_only=True)
 
     class Meta:
         model = AttendanceSession
@@ -34,8 +37,12 @@ class AttendanceSessionSerializer(ModelSerializer):
             "created_by",
             "session_start_datetime",
             "attendance_records",
+            "date_created",
+            "date_modified",
+            "present_count",
+            "total_count",
         )
-        read_only_fields = ("created_by",)
+        read_only_fields = ("created_by", "date_created", "date_modified")
 
     def validate(self, attrs):
         if not self.instance and "request" in self.context:
@@ -55,9 +62,7 @@ class AttendanceSessionSerializer(ModelSerializer):
     def update(self, instance, validated_data):
         records_data = validated_data.pop("attendance_records", None)
         with transaction.atomic():
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
+            instance = super().update(instance, validated_data)
             if records_data is not None:
                 for record_data in records_data:
                     AttendanceRecord.objects.update_or_create(
