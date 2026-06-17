@@ -103,29 +103,31 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         if context is None:
             context = {}
         default_fields = set()
-        # Invert to source -> target for looking up values by their DB name
-        mapped_fields = {v: k for k, v in view._field_map.source_map().items()}
+        db_columns = view._field_map.db_column_map()
+        # Invert to get {db_col: api_name} for non-promoted renames whose DB column
+        # appears in _values rather than the client-facing name.
+        db_col_to_api = {v: k for k, v in db_columns.items()}
         # All the fields of the model
         model_fields = {f.name for f in queryset.model._meta.get_fields()}
         # Loop through every value in the view's values tuple
         for field in view._values:
+            # db_column_map() returns the true DB column for renamed fields; for
+            # SQL-promoted renames _values holds the alias, so we resolve it back.
+            db_source = db_columns.get(field, field)
             # If the value is for a foreign key lookup, we split it here to make sure that the first relation key
             # exists on the model - it's unlikely this would ever not be the case, as otherwise the viewset would
             # be returning 500s.
-            fk_ref = field.split("__")[0]
+            fk_ref = db_source.split("__")[0]
             # Check either if the field is a model field, a currently annotated annotation, or
             # is a foreign key lookup on an FK on this model.
             if (
-                field in model_fields
+                db_source in model_fields
                 or field in queryset.query.annotations
                 or fk_ref in model_fields
             ):
-                # If the field is a mapped field, we store the field name as returned to the client
-                # not the actual internal field - this will later be mapped when we come to do the ordering.
-                if field in mapped_fields:
-                    default_fields.add((mapped_fields[field], mapped_fields[field]))
-                else:
-                    default_fields.add((field, field))
+                # Expose the client-facing name, not the internal DB column.
+                api_name = db_col_to_api.get(field, field)
+                default_fields.add((api_name, api_name))
 
         return default_fields
 
@@ -134,7 +136,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         Modified from https://github.com/encode/django-rest-framework/blob/version-3.12.2/rest_framework/filters.py#L259
         to do filtering based on valuesviewset setup
         """
-        mapped_fields = view._field_map.source_map()
+        db_columns = view._field_map.db_column_map()
         valid_fields = [
             item[0]
             for item in self.get_valid_fields(queryset, view, {"request": request})
@@ -143,11 +145,11 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         for term in fields:
             field_name = term.lstrip("-")
             if field_name in valid_fields:
-                if field_name in mapped_fields:
-                    # In the case that the ordering field is a mapped field on the values viewset
-                    # we substitute the serialized name of the field for the database name.
-                    prefix = "-" if term[0] == "-" else ""
-                    ordering.append(prefix + mapped_fields[field_name])
+                prefix = "-" if term[0] == "-" else ""
+                db_col = db_columns.get(field_name)
+                if db_col is not None:
+                    # Translate the client-facing name to its DB column for ORDER BY.
+                    ordering.append(prefix + db_col)
                 else:
                     ordering.append(term)
         if len(ordering) > 1:
@@ -522,10 +524,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     @staticmethod
     def _serialize_flat(queryset, values, field_map):
         """Base serialization: values() call + field mapping."""
-        items = queryset.values(*values)
-        if field_map and not field_map.is_noop():
-            return [field_map.map_row(item) for item in items]
-        return list(items)
+        queryset = field_map.annotate_queryset(queryset)
+        if field_map.is_noop():
+            return list(queryset.values(*values))
+        return [field_map.map_row(item) for item in queryset.values(*values)]
 
     def serialize_queryset(
         self,

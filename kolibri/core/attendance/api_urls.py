@@ -2,8 +2,8 @@ from django.urls import include
 from django.urls import re_path
 from rest_framework import routers
 
-from .api import AttendanceRecordViewSet
-from .api import AttendanceSessionViewSet
+from .viewsets.attendance_record import AttendanceRecordViewSet
+from .viewsets.attendance_session import AttendanceSessionViewSet
 
 router = routers.SimpleRouter()
 router.register(
