@@ -1,6 +1,5 @@
 from django.db import transaction
 from django.db.models import Count
-from django.db.models import F
 from django.db.models import Q
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ListSerializer
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.serializers import ValidationError
@@ -26,6 +26,7 @@ from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.api import OptionalPageNumberPagination
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.serializers import HexOnlyUUIDField
 
 
 class AttendanceSessionFilter(FilterSet):
@@ -81,6 +82,22 @@ class AttendanceSessionViewSet(ValuesViewset):
         return Response(self.serialize_queryset(queryset))
 
 
+class AttendanceRecordReadSerializer(ModelSerializer):
+    user_name = CharField(source="user__full_name", read_only=True)
+    user_username = CharField(source="user__username", read_only=True)
+
+    class Meta:
+        model = AttendanceRecord
+        fields = (
+            "id",
+            "user",
+            "present",
+            "attendance_session",
+            "user_name",
+            "user_username",
+        )
+
+
 class AttendanceRecordFilter(FilterSet):
     attendance_session = CharFilter(field_name="attendance_session_id")
 
@@ -90,7 +107,7 @@ class AttendanceRecordFilter(FilterSet):
 
 
 class BulkUpdateRecordSerializer(Serializer):
-    user = CharField()
+    user = HexOnlyUUIDField()
     present = BooleanField()
 
 
@@ -106,7 +123,7 @@ class BulkUpdateSerializer(Serializer):
         existing_ids = set(
             FacilityUser.objects.filter(id__in=user_ids).values_list("id", flat=True)
         )
-        missing = user_ids - {str(uid) for uid in existing_ids}
+        missing = user_ids - existing_ids
         if missing:
             raise ValidationError(
                 {"records": f"Invalid user IDs: {', '.join(sorted(missing))}"}
@@ -115,24 +132,10 @@ class BulkUpdateSerializer(Serializer):
 
 
 class AttendanceRecordViewSet(ReadOnlyValuesViewset):
+    serializer_class = AttendanceRecordReadSerializer
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filterset_class = AttendanceRecordFilter
-
-    values = (
-        "id",
-        "user",
-        "present",
-        "attendance_session",
-        "user_name",
-        "user_username",
-    )
-
-    def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            user_name=F("user__full_name"),
-            user_username=F("user__username"),
-        )
 
     def get_queryset(self):
         return AttendanceRecord.objects.all()
@@ -184,9 +187,7 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                     records_to_create.append(record)
             if records_to_create:
                 AttendanceRecord.objects.bulk_create(records_to_create)
-        all_records = self.annotate_queryset(
-            AttendanceRecord.objects.filter(
-                attendance_session=session, user_id__in=user_ids
-            )
-        ).values(*self.values)
-        return Response(list(all_records))
+        all_records = AttendanceRecord.objects.filter(
+            attendance_session=session, user_id__in=user_ids
+        )
+        return Response(self.serialize(all_records))
