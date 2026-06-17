@@ -15,7 +15,7 @@
     "kolibri-plugin-data": "workspace:*",
     "lockr": "0.8.5",
     "lodash": "catalog:",
-    "markdown-it": "14.1.1",
+    "markdown-it": "14.2.0",
     "truncate-utf8-bytes": "^1.0.2",
     "vue": "catalog:",
     "vue-router": "catalog:",
