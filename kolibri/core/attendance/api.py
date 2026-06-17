@@ -41,6 +41,7 @@ class AttendanceSessionFilter(FilterSet):
 
 class AttendanceSessionPermissions(KolibriAuthPermissions):
     def validator(self, request, view, datum):
+        # Guard ensures anonymous users always get 403, not 400 from to_internal_value (#14230)
         if request.user.is_anonymous:
             return False
         model = view.get_serializer_class().Meta.model
@@ -187,8 +188,10 @@ class AttendanceRecordViewSet(ReadOnlyValuesViewset):
                         attendance_session=session,
                         user_id=user_id,
                         present=present,
+                        # bulk_create skips pre_save, so dataset_id must be set explicitly for Morango partitioning (#14242)
                         dataset_id=session.dataset_id,
                     )
+                    # bulk_create skips pre_save, so Morango sync UUID must be generated manually (#14242)
                     record.id = record.calculate_uuid()
                     records_to_create.append(record)
             if records_to_create:

@@ -20,7 +20,9 @@ class AttendanceRecordSerializer(ModelSerializer):
 
 
 class AttendanceSessionSerializer(ModelSerializer):
-    attendance_records = AttendanceRecordSerializer(many=True, required=False)
+    attendance_records = AttendanceRecordSerializer(
+        many=True, required=False, write_only=True
+    )
     collection = PrimaryKeyRelatedField(queryset=Collection.objects.all())
     session_start_datetime = DateTimeTzField(required=False)
 
