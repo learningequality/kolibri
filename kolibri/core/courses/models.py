@@ -320,20 +320,7 @@ class CourseSession(AbstractFacilityDataModel):
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
-
-        is_deserialization = kwargs.get("update_dirty_bit_to") is False
-
-        if not is_deserialization and self.created_by is None:
-            raise IntegrityError(
-                "CourseSession must be saved with a non None created_by field"
-            )
-
-        if self.created_by and self.created_by.dataset_id != self.dataset_id:
-            if not self.created_by.is_superuser:
-                raise IntegrityError(
-                    "CourseSession must have creator in the same dataset"
-                )
-            self.created_by = None
+        self.enforce_authoring_user_field("created_by", **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")
@@ -425,22 +412,7 @@ class CourseSessionAssignment(AbstractFacilityDataModel):
                 "CourseSession assignment foreign models must be in same dataset"
             )
 
-        is_deserialization = kwargs.get("update_dirty_bit_to") is False
-
-        if not is_deserialization and self.assigned_by is None:
-            raise IntegrityError(
-                "CourseSession assignment must be saved with a non None assigned_by field"
-            )
-
-        # validate that datasets match so this would be syncable
-        if self.assigned_by and self.assigned_by.dataset_id != self.dataset_id:
-            # the only time assigned_by can be null is if it's a superuser
-            # and if we set it to none HERE
-            if not self.assigned_by.is_superuser:
-                raise IntegrityError(
-                    "CourseSession assignment must have assigner in the same dataset"
-                )
-            self.assigned_by = None
+        self.enforce_authoring_user_field("assigned_by", **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         # infer from course_session so assignments align with course_sessions
@@ -612,20 +584,7 @@ class UnitTestAssignment(AbstractFacilityDataModel):
                     "UnitTestAssignment collection must be the same as or a child of the CourseSession's collection"
                 )
 
-        is_deserialization = kwargs.get("update_dirty_bit_to") is False
-
-        if not is_deserialization and self.activated_by is None:
-            raise IntegrityError(
-                "UnitTestAssignment must be saved with an non None activated_by field"
-            )
-
-        if self.activated_by and self.activated_by.dataset_id != self.dataset_id:
-            # Only allow null for superusers
-            if not self.activated_by.is_superuser:
-                raise IntegrityError(
-                    "UnitTestAssignment activated_by must be in the same dataset"
-                )
-            self.activated_by = None
+        self.enforce_authoring_user_field("activated_by", **kwargs)
 
     @classmethod
     def deserialize(cls, dict_model, sync_filter=None):

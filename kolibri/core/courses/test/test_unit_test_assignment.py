@@ -449,6 +449,17 @@ class PreSaveKwargsTestMixin:
         instance.refresh_from_db()
         self.assertIsNotNone(getattr(instance, self.user_field_name))
 
+    def test_update_of_existing_record_allows_null_user_field(self):
+        # A record can legitimately have a null authoring field if it synced in
+        # from another dataset (the cross-dataset superuser author was dropped).
+        # Updating such a record locally afterwards must not re-raise; the null
+        # check only applies when the record is first created.
+        instance = self.build_instance(with_user=False)
+        instance.save(update_dirty_bit_to=False)
+        instance.save()
+        instance.refresh_from_db()
+        self.assertIsNone(getattr(instance, self.user_field_name))
+
 
 class CourseSessionPreSaveTestCase(PreSaveKwargsTestMixin, TestCase):
     model_class = models.CourseSession

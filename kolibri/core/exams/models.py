@@ -142,7 +142,7 @@ class AbstractExam(models.Model):
     creator = models.ForeignKey(
         FacilityUser,
         related_name="%(class)ss",
-        blank=False,
+        blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
@@ -267,18 +267,7 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
-
-        # maintain stricter enforcement on when creator is allowed to be null
-        if self._state.adding and self.creator is None:
-            raise IntegrityError("Exam must be saved with an creator")
-
-        # validate that datasets match so this would be syncable
-        if self.creator and self.creator.dataset_id != self.dataset_id:
-            # the only time creator can be null is if it's a superuser
-            # and if we set it to none HERE
-            if not self.creator.is_superuser:
-                raise IntegrityError("Exam must have creator in the same dataset")
-            self.creator = None
+        self.enforce_authoring_user_field("creator", **kwargs)
 
     def save(self, *args, **kwargs):
         # If archive is True during the save op, but there is no date_archived then
@@ -342,7 +331,7 @@ class ExamAssignment(AbstractFacilityDataModel):
     assigned_by = models.ForeignKey(
         FacilityUser,
         related_name="assigned_exams",
-        blank=False,
+        blank=True,
         null=True,
         on_delete=models.CASCADE,
     )
@@ -360,21 +349,7 @@ class ExamAssignment(AbstractFacilityDataModel):
                 "Exam assignment foreign models must be in same dataset"
             )
 
-        # maintain stricter enforcement on when assigned_by is allowed to be null
-        # assignments aren't usually updated, but ensure only during creation
-        if self._state.adding and self.assigned_by is None:
-            raise IntegrityError("Exam assignment must be saved with an assigner")
-
-        # validate that datasets match so this would be syncable
-        if self.assigned_by and self.assigned_by.dataset_id != self.dataset_id:
-            # the only time assigned_by can be null is if it's a superuser
-            # and if we set it to none HERE
-            if not self.assigned_by.is_superuser:
-                # maintain stricter enforcement on when assigned_by is allowed to be null
-                raise IntegrityError(
-                    "Exam assignment must have assigner in the same dataset"
-                )
-            self.assigned_by = None
+        self.enforce_authoring_user_field("assigned_by", **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         # infer from exam so assignments align with exams

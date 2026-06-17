@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.utils import IntegrityError
 
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import AbstractFacilityDataModel
@@ -50,14 +49,7 @@ class AttendanceSession(AbstractFacilityDataModel):
 
     def pre_save(self, **kwargs):
         super().pre_save(**kwargs)
-        if self._state.adding and self.created_by is None:
-            raise IntegrityError("AttendanceSession must be saved with a creator")
-        if self.created_by and self.created_by.dataset_id != self.dataset_id:
-            if not self.created_by.is_superuser:
-                raise IntegrityError(
-                    "AttendanceSession must have creator in the same dataset"
-                )
-            self.created_by = None
+        self.enforce_authoring_user_field("created_by", **kwargs)
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")

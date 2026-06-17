@@ -398,6 +398,40 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         except KolibriValidationError as e:
             raise IntegrityError(str(e))
 
+    def enforce_authoring_user_field(self, field_name, **save_kwargs):
+        """
+        Enforce and sanitize an "authoring" foreign key to a ``FacilityUser`` -- e.g.
+        ``creator``, ``created_by``, ``assigned_by`` or ``activated_by``.
+
+        Null is rejected only on local creation (``_state.adding``). Updates preserve
+        the existing author and deserialization may carry a null (e.g. the author's
+        ``FacilityUser`` has not synced to this device); both leave a null untouched.
+        Morango signals deserialization by passing ``update_dirty_bit_to=False``.
+
+        A cross-dataset superuser reference -- the device's own super admin authoring
+        content in a synced-in facility -- is dropped to keep the record syncable; any
+        other cross-dataset user is rejected.
+
+        The field must be ``blank=True, null=True`` so ``clean_fields`` accepts the
+        nulled value during deserialization.
+        """
+        user = getattr(self, field_name)
+        is_deserialization = save_kwargs.get("update_dirty_bit_to") is False
+        if self._state.adding and not is_deserialization and user is None:
+            raise IntegrityError(
+                "{model}.{field} may not be null".format(
+                    model=type(self).__name__, field=field_name
+                )
+            )
+        if user and user.dataset_id != self.dataset_id:
+            if not user.is_superuser:
+                raise IntegrityError(
+                    "{model}.{field} must belong to the same dataset".format(
+                        model=type(self).__name__, field=field_name
+                    )
+                )
+            setattr(self, field_name, None)
+
     def save(self, *args, **kwargs):
         self.pre_save(**kwargs)
         super().save(*args, **kwargs)
