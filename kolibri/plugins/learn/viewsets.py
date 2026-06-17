@@ -429,6 +429,9 @@ class LearnHomePageHydrationView(APIView):
             classrooms = learner_classroom_viewset.serialize_list(request)
             for classroom in classrooms:
                 courses.extend(classroom.get("courses", []))
+            # Show out-of-course resumable content only when no classroom lesson
+            # resource is actively in-progress (0 < progress < 1); suppressed when
+            # the user has in-progress classroom work to focus on (b6d46e2822).
             if not classrooms or not any(_resumable_resources(classrooms)):
                 resumable_resources = user_contentnode_viewset.serialize_list(
                     request,
@@ -552,6 +555,9 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
     def get_queryset(self):
         if self.request.user.is_anonymous:
             return CourseSession.objects.none()
+        # distinct() needed: a course session can be assigned to multiple
+        # sub-collections the user belongs to (e.g. classroom + learner group),
+        # which would produce duplicate rows without it (a4244f1b8e).
         return CourseSession.objects.filter(
             assignments__collection__membership__user=self.request.user,
             is_active=True,
