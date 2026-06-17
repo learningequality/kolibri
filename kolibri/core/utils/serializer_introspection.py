@@ -240,15 +240,14 @@ class _FieldMap(_BaseFieldMap):
     outputs — method-field sources pulled in for invocation never leak into
     output because they're not field_map keys.
 
-    ``_sql_renames`` holds ``{target: source_column}`` pairs precomputed during
-    introspection for plain renames that can be pushed to SQL as F() aliases.
-    ``annotate_queryset`` applies them; no further computation is needed at
-    serialization time.
+    ``_sql_renames`` holds F() aliases precomputed during introspection for
+    plain source→target renames that can be pushed to SQL. ``annotate_queryset``
+    applies them; no further computation is needed at serialization time.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._sql_renames: Dict[str, str] = {}  # {target_key: source_column}
+        self._sql_renames: Dict[str, Any] = {}  # {target_key: F(source)}
 
     def map_row(self, row: Row) -> Row:
         return {key: entry.extract(row) for key, entry in self.items()}
@@ -258,18 +257,23 @@ class _FieldMap(_BaseFieldMap):
         ``{api_name: db_column}`` resolving SQL rename aliases to their
         original source columns.
 
-        Promoted renames are passthroughs in the entry dict (source == key),
-        so the base implementation excludes them; ``_sql_renames`` patches
-        them back in.
+        For SQL-promoted renames the field_map entry was updated to a
+        passthrough (source == key), so the original column is read from
+        ``_sql_renames`` instead. Non-promoted renames and passthroughs
+        fall back to the base implementation.
         """
-        result = super().db_column_map()
-        result.update(self._sql_renames)
+        result = {}
+        for key, entry in self.items():
+            if key in self._sql_renames:
+                result[key] = self._sql_renames[key].name
+            elif entry.source is not None and entry.source != key:
+                result[key] = entry.source
         return result
 
     def annotate_queryset(self, queryset: Any) -> Any:
         """Apply pre-computed SQL-level F() aliases to the queryset."""
         if self._sql_renames:
-            return queryset.annotate(**{t: F(s) for t, s in self._sql_renames.items()})
+            return queryset.annotate(**self._sql_renames)
         return queryset
 
     def promote_renames_to_sql_aliases(
@@ -286,7 +290,7 @@ class _FieldMap(_BaseFieldMap):
           ValueError if an annotation shadows a real column)
 
         Mutates self in place: updates promoted entries to passthroughs and
-        populates ``_sql_renames`` with ``{target: source_column}``.
+        populates ``_sql_renames`` with ``{target: F(source)}``.
         Returns an updated values list with source names replaced by target names
         for promoted renames.
         """
@@ -295,7 +299,6 @@ class _FieldMap(_BaseFieldMap):
             entry.source for entry in self.values() if entry.source is not None
         )
 
-        source_to_target: Dict[str, str] = {}
         for target_key, map_entry in list(self.items()):
             if (
                 isinstance(map_entry, SourceFieldEntry)
@@ -305,12 +308,14 @@ class _FieldMap(_BaseFieldMap):
                 and source_refcount[map_entry.source] == 1
                 and target_key not in model_field_names
             ):
-                self._sql_renames[target_key] = map_entry.source
-                source_to_target[map_entry.source] = target_key
+                self._sql_renames[target_key] = F(map_entry.source)
                 self[target_key] = SourceFieldEntry(target_key)
 
-        if source_to_target:
-            return [source_to_target.get(v, v) for v in values]
+        if self._sql_renames:
+            promoted_sources = {
+                f_expr.name: target for target, f_expr in self._sql_renames.items()
+            }
+            return [promoted_sources.get(v, v) for v in values]
         return values
 
 
