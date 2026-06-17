@@ -111,11 +111,11 @@ def _consolidate_lessons_data(request, lessons):
         lesson["missing_resource"] = missing_resource
 
 
-def _consolidate_courses_data(request, courses):
+def _consolidate_courses_data(request, courses, *, course_key="course"):
     if not courses:
         return courses
 
-    course_content_ids = {course["course"] for course in courses}
+    course_content_ids = {course[course_key] for course in courses}
 
     course_nodes = ContentNode.objects.filter(id__in=course_content_ids).annotate(
         unit_count=Count(
@@ -171,12 +171,13 @@ def _consolidate_courses_data(request, courses):
         }
 
     for course in courses:
-        course_id = course["course"]
+        course_content_id = course[course_key]
         data = course_data_map.get(
-            course_id, {"unit_count": 0, "lesson_count": 0, "progress": 0}
+            course_content_id, {"unit_count": 0, "lesson_count": 0, "progress": 0}
         )
         course.update(data)
-        course["course_id"] = course.pop("course")
+        if course_key == "course":
+            course["course_id"] = course.pop("course")
 
     return courses
 
@@ -508,31 +509,45 @@ class LearnerLessonViewset(ReadOnlyValuesViewset):
         return items
 
 
+class LearnerCourseClassroomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Classroom
+        fields = ("id", "name", "parent")
+
+
+class LearnerCourseSerializer(serializers.ModelSerializer):
+    classroom = LearnerCourseClassroomSerializer(source="collection", read_only=True)
+    # The serializer renames "course" → "course_id" so the field_map produces
+    # "course_id" before consolidate(); _consolidate_courses_data is called with
+    # course_key="course_id" to match.
+    course_id = serializers.CharField(source="course")
+    unit_count = serializers.IntegerField(read_only=True)
+    lesson_count = serializers.IntegerField(read_only=True)
+    progress = serializers.FloatField(read_only=True)
+
+    class Meta:
+        model = CourseSession
+        fields = (
+            "id",
+            "course_id",
+            "title",
+            "description",
+            "is_active",
+            "classroom",
+            "unit_count",
+            "lesson_count",
+            "progress",
+        )
+
+
 class LearnerCourseViewset(ReadOnlyValuesViewset):
     """
     Special Viewset for Learners to view Course Sessions to which they are assigned.
     """
 
     permission_classes = (IsAuthenticated,)
-
-    values = (
-        "id",
-        "course",
-        "title",
-        "description",
-        "is_active",
-        "collection__id",
-        "collection__name",
-        "collection__parent_id",
-    )
-
-    field_map = {
-        "classroom": lambda item: {
-            "id": item.pop("collection__id"),
-            "name": item.pop("collection__name"),
-            "parent": item.pop("collection__parent_id"),
-        },
-    }
+    serializer_class = LearnerCourseSerializer
+    deferred_fields = ("unit_count", "lesson_count", "progress")
 
     def get_queryset(self):
         if self.request.user.is_anonymous:
@@ -543,12 +558,9 @@ class LearnerCourseViewset(ReadOnlyValuesViewset):
         ).distinct()
 
     def consolidate(self, items, queryset):
-        if not items:
-            return items
-
-        items = _consolidate_courses_data(self.request, items)
-
-        return items
+        # The serializer field_map already renamed "course" → "course_id";
+        # pass course_key so _consolidate_courses_data reads the right key.
+        return _consolidate_courses_data(self.request, items, course_key="course_id")
 
     @action(detail=True, methods=["get"])
     def resume(self, request, pk=None):
