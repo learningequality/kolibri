@@ -8,6 +8,8 @@
       $computedClass({
         '::before': {
           border: `2px solid ${selected ? $themeTokens.textInverted : $themeTokens.annotation}`,
+          backgroundColor: selected ? $themeTokens.primary : $themeTokens.surface,
+          color: selected ? $themeTokens.textInverted : $themePalette.grey.v_400,
         },
         ':focus': coreOutline,
       }),
@@ -27,10 +29,17 @@
 <script>
 
   import { computed, inject } from 'vue';
-  import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
+  import {
+    themeTokens,
+    themeBrand,
+    themePalette,
+    themeOutlineStyle,
+  } from 'kolibri-design-system/lib/styles/theme';
   import { BooleanProp, QTIIdentifierProp } from '../../utils/props';
 
   const $themeTokens = themeTokens();
+  const $themeBrand = themeBrand();
+  const $themePalette = themePalette();
   const coreOutline = themeOutlineStyle();
 
   export default {
@@ -48,18 +57,24 @@
       const selected = computed(() => isSelected(props.identifier));
 
       const extraStyles = computed(() => {
-        if (!selected.value) {
-          return {};
+        if (selected.value) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+            fontWeight: 600,
+          };
         }
+
         return {
-          backgroundColor: $themeTokens.primary,
-          color: $themeTokens.textInverted,
-          borderColor: $themeTokens.primary,
+          backgroundColor: $themeTokens.surface,
+          borderColor: $themeTokens.fineLine,
         };
       });
 
       return {
         $themeTokens,
+        $themePalette,
         coreOutline,
         selected,
         handleClick,
@@ -80,12 +95,17 @@
 
   .qti-simple-choice {
     position: relative;
-    padding: 8px 8px 8px 52px;
-    margin: 4px;
+    min-height: 56px;
+    padding: 12px 16px 12px 64px;
+    margin: 7px 0;
     cursor: pointer;
-    border: 1px solid transparent;
+    border-style: solid;
+    border-width: 1px;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
 
     &::marker {
       content: '';
@@ -94,15 +114,16 @@
     &::before {
       position: absolute;
       top: 50%;
-      left: 8px;
+      left: 16px;
       box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      font-size: 14px;
-      font-weight: bold;
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1;
       border-radius: 50%;
       transform: translateY(-50%);
     }
