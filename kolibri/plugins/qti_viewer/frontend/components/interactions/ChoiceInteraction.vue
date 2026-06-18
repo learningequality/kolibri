@@ -3,6 +3,7 @@
   import get from 'lodash/get';
   import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, provide } from 'vue';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
@@ -15,6 +16,15 @@
   });
 
   const { choiceListLabel$ } = strings;
+
+  const $themeTokens = themeTokens();
+  const $themePalette = themePalette();
+
+  // Exposed as CSS custom properties to use KDS theme colors
+  const choiceInteractionCSSVars = {
+    '--qti-choice-color-annotation': $themePalette.grey.v_400,
+    '--qti-choice-color-primary': $themeTokens.primary,
+  };
 
   function getComponentTag(vnode) {
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
@@ -154,6 +164,7 @@
               'aria-multiselectable': String(multiSelectable.value),
             },
             class: [attrs.class || '', 'qti-choice-interaction'],
+            style: choiceInteractionCSSVars,
           },
           orderedChoices.map(choice => choice.vnode),
         );
@@ -192,6 +203,11 @@
   $choice-horizontal-gap: 1rem;
   $choice-label-spacing: 0.5rem;
 
+  // Control geometry
+  $control-left: 1rem;
+  $control-size-plain: 1.5rem;
+  $label-gap: 0.5rem;
+
   // Define the counter styles map
   $qti-counter-styles: (
     'decimal': decimal,
@@ -207,51 +223,109 @@
   );
 
   .qti-choice-interaction {
+    // The counter always advances: even for qti-labels-none or suffix
+    // modes: since multiple rules below depend on its current value.
+    counter-reset: qti-choice-counter;
+
+    .qti-simple-choice {
+      counter-increment: qti-choice-counter;
+    }
+
     // ========================================
     // Choice Labels
     // ========================================
-    counter-reset: qti-choice-counter;
 
-    // Base setup - always increment counter and set margin
-    &:not(.qti-labels-none) {
-      .qti-simple-choice {
-        counter-increment: qti-choice-counter;
-
-        &::before {
-          margin-right: $choice-label-spacing;
-          // Default content - will be overridden by more specific rules below
-          content: counter(qti-choice-counter, upper-alpha);
-        }
+    // --- "Letter inside the control" mode: the default ---
+    &:not(.qti-labels-suffix-period, .qti-labels-suffix-parenthesis) {
+      .qti-simple-choice::before {
+        content: counter(qti-choice-counter, upper-alpha);
       }
-    }
-
-    // Generate counter style overrides (without suffixes)
-    @each $name, $style in $qti-counter-styles {
-      &.qti-labels-#{$name} {
-        .qti-simple-choice::before {
+      @each $name, $style in $qti-counter-styles {
+        &.qti-labels-#{$name} .qti-simple-choice::before {
           content: counter(qti-choice-counter, $style);
         }
       }
     }
 
-    // Hide labels when explicitly set to none
-    &.qti-labels-none {
-      .qti-simple-choice::before {
-        display: none;
-      }
+    // qti-labels-none never shows a letter. The control stays a blank
+    // circle until selected, when it shows a checkmark instead.
+    &.qti-labels-none .qti-simple-choice::before {
+      content: '';
     }
 
-    // Generate suffix combinations
+    &.qti-labels-none .qti-simple-choice[aria-selected='true']::before {
+      content: '\2713';
+    }
+
+    // --- "Letter beside the control" mode: qti-labels-suffix-period /
+    // qti-labels-suffix-parenthesis. The control becomes a plain, smaller
+    // indicator (blank, or a checkmark once selected) and the counter +
+    // suffix is rendered as its own text next to it. ---
     @each $suffix-name, $suffix-char in $qti-suffixes {
       &.qti-labels-suffix-#{$suffix-name} {
-        // Override for each counter style with this suffix
+        .qti-simple-choice {
+          padding-left: 80px;
+        }
+
+        .qti-simple-choice::before {
+          width: $control-size-plain;
+          height: $control-size-plain;
+          font-size: 14px;
+          content: '';
+          border-width: 2px;
+        }
+
+        .qti-simple-choice[aria-selected='true']::before {
+          content: '\2713';
+        }
+
+        .qti-simple-choice::after {
+          position: absolute;
+          top: 50%;
+          left: $control-left + $control-size-plain + $label-gap;
+          font-weight: 500;
+          color: var(--qti-choice-color-annotation, #999999);
+          transform: translateY(-50%);
+        }
+
+        .qti-simple-choice[aria-selected='true']::after {
+          font-weight: 700;
+          color: var(--qti-choice-color-primary, #4368f3);
+        }
+
         @each $style-name, $style in $qti-counter-styles {
-          &.qti-labels-#{$style-name} .qti-simple-choice::before {
+          &.qti-labels-#{$style-name} .qti-simple-choice::after {
             content: counter(qti-choice-counter, $style) '#{$suffix-char}';
           }
         }
       }
     }
+
+    // ========================================
+    // Hidden Input Control
+    // ========================================
+    &.qti-input-control-hidden {
+      .qti-simple-choice {
+        padding-left: 32px;
+      }
+
+      .qti-simple-choice::before {
+        width: auto;
+        height: auto;
+        content: '';
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .qti-simple-choice[aria-selected='true']::before {
+        color: var(--qti-choice-color-primary, #4368f3);
+        content: '\2713';
+        background: transparent;
+        border: 0;
+      }
+    }
+
     // ========================================
     // Choice Orientation
     // ========================================

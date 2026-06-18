@@ -95,8 +95,7 @@
 
   .qti-simple-choice {
     position: relative;
-    min-height: 56px;
-    padding: 12px 16px 12px 64px;
+    padding: 0.75rem 1rem 0.75rem 64px;
     margin: 7px 0;
     cursor: pointer;
     border-style: solid;
@@ -114,16 +113,13 @@
     &::before {
       position: absolute;
       top: 50%;
-      left: 16px;
+      left: 1rem;
       box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 36px;
-      height: 36px;
-      font-size: 16px;
-      font-weight: 500;
-      line-height: 1;
+      width: 2rem;
+      height: 2rem;
       border-radius: 50%;
       transform: translateY(-50%);
     }
