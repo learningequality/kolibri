@@ -306,23 +306,22 @@
     // ========================================
     &.qti-input-control-hidden {
       .qti-simple-choice {
-        padding-left: 32px;
+        min-height: auto;
+        padding: 10px 16px;
       }
 
       .qti-simple-choice::before {
-        width: auto;
-        height: auto;
-        content: '';
-        background: transparent;
-        border: 0;
-        border-radius: 0;
+        position: static;
+        display: inline;
+        content: none;
       }
 
       .qti-simple-choice[aria-selected='true']::before {
-        color: var(--qti-choice-color-primary, #4368f3);
+        margin-right: 8px;
+        color: var(--qti-choice-color-primary, #4368f3) !important;
         content: '\2714';
-        background: transparent;
-        border: 0;
+        background: transparent !important;
+        border: 0 !important;
       }
     }
 
