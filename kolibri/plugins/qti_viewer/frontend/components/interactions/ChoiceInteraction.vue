@@ -254,7 +254,7 @@
     }
 
     &.qti-labels-none .qti-simple-choice[aria-selected='true']::before {
-      content: '\2713';
+      content: '\2714';
     }
 
     // --- "Letter beside the control" mode: qti-labels-suffix-period /
@@ -276,7 +276,7 @@
         }
 
         .qti-simple-choice[aria-selected='true']::before {
-          content: '\2713';
+          content: '\2714';
         }
 
         .qti-simple-choice::after {
@@ -320,7 +320,7 @@
 
       .qti-simple-choice[aria-selected='true']::before {
         color: var(--qti-choice-color-primary, #4368f3);
-        content: '\2713';
+        content: '\2714';
         background: transparent;
         border: 0;
       }
