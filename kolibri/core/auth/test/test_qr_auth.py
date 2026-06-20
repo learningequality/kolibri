@@ -1,17 +1,16 @@
+import factory
 import mock
 from django.core.exceptions import PermissionDenied
 from django.test import TestCase
 from django.urls import reverse
-
-import factory
 from rest_framework import status
 
 from ..backends import QRTokenAuthScope
 from ..models import Facility
 from ..models import FacilityUser
 from .helpers import create_superuser
-from .helpers import DUMMY_PASSWORD
 from .helpers import disable_qr_login
+from .helpers import DUMMY_PASSWORD
 from .helpers import enable_qr_login
 from .helpers import KolibriAPITestCase as APITestCase
 from .helpers import provision_device
@@ -73,9 +72,7 @@ class QRTokenAuthScopeTestCase(TestCase):
             list(auth_scope.iter_candidate_users())
 
     def test_iter_candidate_users_filters_by_token(self):
-        other = FacilityUser.objects.create(
-            username="other", facility=self.facility
-        )
+        other = FacilityUser.objects.create(username="other", facility=self.facility)
         other.qr_login_token = "b" * 43
         other.save(update_fields=["qr_login_token"])
 
@@ -90,9 +87,7 @@ class QRTokenAuthScopeTestCase(TestCase):
         self.assertFalse(auth_scope.matches_credentials(self.learner))
 
     def test_matches_credentials_returns_false_for_coach(self):
-        coach = FacilityUser.objects.create(
-            username="coach", facility=self.facility
-        )
+        coach = FacilityUser.objects.create(username="coach", facility=self.facility)
         coach.qr_login_token = "c" * 43
         coach.save(update_fields=["qr_login_token"])
         self.facility.add_coach(coach)

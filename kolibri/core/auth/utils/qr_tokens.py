@@ -3,8 +3,6 @@ import secrets
 
 from django.db.utils import IntegrityError
 
-from kolibri.core.auth.models import FacilityUser
-
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +52,7 @@ def assign_qr_login_token(user):
     try:
         user.save(update_fields=["qr_login_token"])
     except IntegrityError:
-        logger.warning(
-            "QR login token collision for user %s, retrying.", user.id
-        )
+        logger.warning("QR login token collision for user %s, retrying.", user.id)
         user.qr_login_token = generate_qr_login_token()
         try:
             user.save(update_fields=["qr_login_token"])

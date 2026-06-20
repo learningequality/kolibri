@@ -32,9 +32,7 @@ class AssignQRLoginTokenTestCase(TestCase):
         cls.learner = FacilityUser.objects.create(
             username="learner", facility=cls.facility
         )
-        cls.coach = FacilityUser.objects.create(
-            username="coach", facility=cls.facility
-        )
+        cls.coach = FacilityUser.objects.create(username="coach", facility=cls.facility)
         cls.facility.add_coach(cls.coach)
         cls.superuser = create_superuser(cls.facility)
 

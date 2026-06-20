@@ -940,9 +940,9 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
             if not isinstance(instances, list):
                 instances = [instances]
             user_ids = [role.user_id for role in instances]
-            affected_users = FacilityUser.objects.filter(
-                id__in=user_ids,
-            ).filter(Q(picture_password__isnull=False) | Q(qr_login_token__isnull=False))
+            affected_users = FacilityUser.objects.filter(id__in=user_ids,).filter(
+                Q(picture_password__isnull=False) | Q(qr_login_token__isnull=False)
+            )
             for user in affected_users:
                 cleared = False
                 if user.picture_password is not None:

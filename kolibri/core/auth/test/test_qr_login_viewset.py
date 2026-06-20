@@ -1,7 +1,6 @@
+import factory
 from django.test import TestCase
 from django.urls import reverse
-
-import factory
 from mock import patch
 from rest_framework import status
 
@@ -9,8 +8,8 @@ from .. import models
 from ..constants import role_kinds
 from ..serializers import PublicFacilitySerializer
 from .helpers import create_superuser
-from .helpers import DUMMY_PASSWORD
 from .helpers import disable_qr_login
+from .helpers import DUMMY_PASSWORD
 from .helpers import enable_qr_login
 from .helpers import KolibriAPITestCase as APITestCase
 from .helpers import provision_device
