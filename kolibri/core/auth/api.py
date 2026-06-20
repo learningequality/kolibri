@@ -86,6 +86,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.auth.tasks import assign_picture_passwords_to_facility
+from kolibri.core.auth.tasks import assign_qr_login_tokens_to_facility
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
@@ -239,6 +240,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         "learner_can_login_with_no_password",
         "show_download_button_in_learn",
         "enable_mark_attendance",
+        "enable_qr_login",
         "extra_fields",
         "picture_password_settings",
         "description",
@@ -304,6 +306,52 @@ class FacilityDatasetViewSet(ValuesViewset):
             "learner_can_login_with_no_password"
         )
         learner_can_edit_password = request.data.get("learner_can_edit_password")
+        new_enable_qr_login = request.data.get("enable_qr_login")
+
+        # QR login enabling. When flipping from disabled to enabled, enqueue
+        # the bulk-assignment task so all existing eligible learners receive a
+        # token. Disabling just flips the flag; we deliberately leave existing
+        # tokens intact so re-enabling later is cheap and idempotent.
+        if (
+            new_enable_qr_login is not None
+            and new_enable_qr_login
+            and not dataset.enable_qr_login
+        ):
+            dataset.enable_qr_login = True
+            dataset.save()
+
+            job, _ = assign_qr_login_tokens_to_facility.validate_job_data(
+                request.user,
+                data={"facility_id": facility.id},
+            )
+            job_id = assign_qr_login_tokens_to_facility.enqueue(job=job)
+            enqueued_job = job_storage.get_job(job_id)
+            return Response(
+                {
+                    "dataset": FacilityDatasetSerializer(dataset).data,
+                    "task": {
+                        "id": enqueued_job.job_id,
+                        "status": enqueued_job.state,
+                        "percentage": enqueued_job.percentage_progress,
+                        "cancellable": enqueued_job.cancellable,
+                        "facility_id": enqueued_job.facility_id,
+                        "extra_metadata": enqueued_job.extra_metadata,
+                    },
+                },
+                status=status.HTTP_202_ACCEPTED,
+            )
+
+        if (
+            new_enable_qr_login is not None
+            and not new_enable_qr_login
+            and dataset.enable_qr_login
+        ):
+            dataset.enable_qr_login = False
+            dataset.save()
+            return Response(
+                {"dataset": FacilityDatasetSerializer(dataset).data},
+                status=status.HTTP_200_OK,
+            )
 
         currently_enabled = dataset.picture_password_settings is not None
         enabling = not currently_enabled and new_pps is not None
@@ -657,6 +705,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "extra_demographics",
         "date_joined",
         "picture_password",
+        "qr_login_token",
     )
 
     ordering_fields = (
@@ -891,11 +940,19 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
             if not isinstance(instances, list):
                 instances = [instances]
             user_ids = [role.user_id for role in instances]
-            for user in FacilityUser.objects.filter(
-                id__in=user_ids, picture_password__isnull=False
-            ):
-                user.picture_password = None
-                user.save(update_fields=["picture_password"])
+            affected_users = FacilityUser.objects.filter(
+                id__in=user_ids,
+            ).filter(Q(picture_password__isnull=False) | Q(qr_login_token__isnull=False))
+            for user in affected_users:
+                cleared = False
+                if user.picture_password is not None:
+                    user.picture_password = None
+                    cleared = True
+                if user.qr_login_token is not None:
+                    user.qr_login_token = None
+                    cleared = True
+                if cleared:
+                    user.save(update_fields=["picture_password", "qr_login_token"])
 
 
 dataset_keys = [
@@ -909,6 +966,7 @@ dataset_keys = [
     "dataset__show_download_button_in_learn",
     "dataset__extra_fields",
     "dataset__picture_password_settings",
+    "dataset__enable_qr_login",
     "dataset__description",
     "dataset__location",
     "dataset__registered",
@@ -1302,6 +1360,17 @@ class CreateSessionSerializer(serializers.Serializer):
             )
         ],
     )
+    qr_login_token = serializers.CharField(
+        required=False,
+        default=None,
+        allow_null=True,
+        allow_blank=False,
+        # `secrets.token_urlsafe(32)` produces ~43 chars; bound the column at
+        # 64 to allow for future format changes. min_length is a fast pre-check
+        # to reject obviously-malformed scans before hitting the DB.
+        min_length=16,
+        max_length=64,
+    )
 
     def validate(self, attrs):
         username = attrs.get("username")
@@ -1310,6 +1379,7 @@ class CreateSessionSerializer(serializers.Serializer):
         user_id = attrs.get("user_id")
         auth_token = attrs.get("auth_token")
         picture_password = attrs.get("picture_password")
+        qr_login_token = attrs.get("qr_login_token")
 
         request = self.context.get("request")
 
@@ -1334,11 +1404,20 @@ class CreateSessionSerializer(serializers.Serializer):
                 request, picture_password=picture_password, facility=facility
             )
 
+        # QR token authentication. Same isolation rule as picture password: if
+        # a qr_login_token was supplied we never fall through to
+        # username/password auth, even on failure.
+        if user is None and qr_login_token is not None and picture_password is None:
+            user = authenticate(
+                request, qr_login_token=qr_login_token, facility=facility
+            )
+
         # username/password authentication — intentionally skipped when
-        # picture_password was supplied (even if picture-password auth failed),
-        # so a failed picture-password attempt cannot fall through to a
-        # username/password login with whatever credentials were also sent.
-        if user is None and picture_password is None:
+        # picture_password or qr_login_token was supplied (even if that auth
+        # failed), so a failed alternative-credential attempt cannot fall
+        # through to a username/password login with whatever credentials were
+        # also sent.
+        if user is None and picture_password is None and qr_login_token is None:
             user = authenticate(
                 request, username=username, password=password, facility=facility
             )
@@ -1348,7 +1427,9 @@ class CreateSessionSerializer(serializers.Serializer):
             return attrs
 
         # Otherwise, throw a meaningful validation error
-        self._throw_validation_error(username, password, facility, picture_password)
+        self._throw_validation_error(
+            username, password, facility, picture_password, qr_login_token
+        )
 
     def _check_os_user(self, request, username):
         app_auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
@@ -1361,7 +1442,12 @@ class CreateSessionSerializer(serializers.Serializer):
                 logger.error(e)
 
     def _throw_validation_error(
-        self, username, password, facility, picture_password=None
+        self,
+        username,
+        password,
+        facility,
+        picture_password=None,
+        qr_login_token=None,
     ):
         """
         Throw a RestValidationError with a helpful error message
@@ -1376,6 +1462,20 @@ class CreateSessionSerializer(serializers.Serializer):
                             "metadata": {
                                 "field": "picture_password",
                                 "message": "No learner found with that picture password.",
+                            },
+                        }
+                    ]
+                }
+            )
+        if qr_login_token is not None:
+            raise RestValidationError(
+                detail={
+                    "qr_login_token": [
+                        {
+                            "id": error_constants.NOT_FOUND,
+                            "metadata": {
+                                "field": "qr_login_token",
+                                "message": "No learner found with that QR code.",
                             },
                         }
                     ]

@@ -28,6 +28,7 @@ from .models import validate_username_allowed_chars
 from .models import validate_username_max_length
 from .utils.picture_passwords import are_picture_passwords_exhausted
 from .utils.picture_passwords import assign_picture_password
+from .utils.qr_tokens import assign_qr_login_token
 from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
@@ -170,8 +171,9 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "birth_year",
             "extra_demographics",
             "picture_password",
+            "qr_login_token",
         )
-        read_only_fields = ("is_superuser", "picture_password")
+        read_only_fields = ("is_superuser", "picture_password", "qr_login_token")
 
     def save(self, **kwargs):
         instance = super().save(**kwargs)
@@ -194,6 +196,8 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                     assign_picture_password(instance, instance.facility)
                 except NoAvailableSequences:
                     pass
+            if facility.dataset.enable_qr_login:
+                assign_qr_login_token(instance)
         return instance
 
     def _validate_extra_demographics(self, attrs, facility):
@@ -351,6 +355,7 @@ class FacilityDatasetSerializer(serializers.ModelSerializer):
             "learner_can_login_with_no_password",
             "show_download_button_in_learn",
             "enable_mark_attendance",
+            "enable_qr_login",
             "extra_fields",
             "picture_password_settings",
             "description",
@@ -421,6 +426,7 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
     learner_can_sign_up = serializers.SerializerMethodField()
     on_my_own_setup = serializers.SerializerMethodField()
     picture_password_settings = serializers.SerializerMethodField()
+    enable_qr_login = serializers.SerializerMethodField()
 
     def get_learner_can_login_with_no_password(self, instance):
         return instance.dataset.learner_can_login_with_no_password
@@ -436,6 +442,9 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
     def get_picture_password_settings(self, instance):
         return instance.dataset.picture_password_settings
 
+    def get_enable_qr_login(self, instance):
+        return instance.dataset.enable_qr_login
+
     class Meta:
         model = Facility
         fields = (
@@ -446,6 +455,7 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
             "learner_can_sign_up",
             "on_my_own_setup",
             "picture_password_settings",
+            "enable_qr_login",
         )
 
 

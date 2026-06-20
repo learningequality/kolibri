@@ -194,6 +194,38 @@ class PicturePasswordAuthScope(FacilityAuthScope):
         )
 
 
+class QRTokenAuthScope(FacilityAuthScope):
+    """Auth scope for QR code (token) authentication"""
+
+    def __init__(self, facility_or_id, qr_login_token=None):
+        super().__init__(facility_or_id)
+        self.qr_login_token = qr_login_token
+
+    def get_queryset(self):
+        # `qr_login_token` is globally unique, but we scope by dataset for
+        # defense-in-depth: a token issued in facility A must not log into
+        # facility B even if it somehow leaked across facilities.
+        return super().get_queryset().filter(qr_login_token=self.qr_login_token)
+
+    def iter_candidate_users(self):
+        """
+        We expect exactly one user with this token (globally unique column).
+        """
+        for user in self.get_queryset():
+            yield user
+
+    def matches_credentials(self, user):
+        """
+        Validates that the user's facility has QR login enabled and that the
+        user is still an eligible learner.
+        """
+        return (
+            user.dataset.enable_qr_login
+            and not user.has_roles
+            and (not user.is_superuser or self.is_full_facility_import)
+        )
+
+
 class FacilityUserBackend:
     """
     A class that implements authentication for FacilityUsers.
@@ -209,10 +241,12 @@ class FacilityUserBackend:
         :param kwargs: a dict of additional credentials (see `keyword`s)
         :keyword facility: a Facility object or facility pk
         :keyword picture_password: a dot-separated picture sequence string
+        :keyword qr_login_token: a QR code login token string
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
         facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
         picture_password = kwargs.get("picture_password", None)
+        qr_login_token = kwargs.get("qr_login_token", None)
 
         scopes = []
 
@@ -224,6 +258,13 @@ class FacilityUserBackend:
                 # we cannot run picture password auth without it
                 raise PermissionDenied("Invalid credentials")
             scopes.append(PicturePasswordAuthScope(facility, picture_password))
+        elif qr_login_token is not None:
+            # QR token authentication path. Same isolation rule as picture
+            # password: a failed QR attempt must never fall through to
+            # username/password. Facility is required for the dataset scope.
+            if not facility:
+                raise PermissionDenied("Invalid credentials")
+            scopes.append(QRTokenAuthScope(facility, qr_login_token))
         else:
             if facility:
                 scopes.append(BasicUserAuthScope(facility, username, password))

@@ -26,6 +26,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.auth.utils.qr_tokens import assign_qr_login_token
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
 from kolibri.core.auth.utils.sync import validate_and_create_sync_credentials
 from kolibri.core.auth.utils.users import get_remote_user_info
@@ -826,5 +827,53 @@ def assign_picture_passwords_to_facility(facility_id):
                     error="No available picture password sequences remaining."
                 )
             raise
+        if job:
+            job.update_progress(i, total)
+
+
+class AssignQRLoginTokensValidator(JobValidator):
+    facility_id = serializers.PrimaryKeyRelatedField(
+        queryset=Facility.objects.all(), source="facility"
+    )
+
+    def validate(self, data):
+        facility = data["facility"]
+        return {
+            "kwargs": {"facility_id": facility.id},
+            "facility_id": facility.id,
+            "extra_metadata": dict(facility_id=facility.id),
+        }
+
+
+@register_task(
+    validator=AssignQRLoginTokensValidator,
+    track_progress=True,
+    cancellable=False,
+    permission_classes=[IsAdminForJob],
+    queue=facility_task_queue,
+)
+def assign_qr_login_tokens_to_facility(facility_id):
+    """
+    Bulk-assign QR login tokens to all learners in a facility that do not
+    already have one. Triggered when an admin enables the QR login facility
+    setting. Unlike picture passwords, the keyspace is 256 bits so there is
+    no exhaustion concern.
+    """
+    facility = Facility.objects.get(id=facility_id)
+    learners = FacilityUser.objects.filter(
+        facility=facility,
+        roles__isnull=True,
+        qr_login_token__isnull=True,
+    ).exclude(devicepermissions__is_superuser=True)
+
+    total = learners.count()
+    job = get_current_job()
+    if job:
+        job.update_progress(0, total)
+
+    for i, learner in enumerate(learners.iterator(), start=1):
+        # assign_qr_login_token is a no-op for ineligible users (defensive),
+        # but the queryset above already filters to eligible learners.
+        assign_qr_login_token(learner)
         if job:
             job.update_progress(i, total)
