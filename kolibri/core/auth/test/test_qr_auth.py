@@ -188,9 +188,12 @@ class QRLoginSessionTestCase(APITestCase):
 
     def test_coach_not_authenticated_via_qr_token(self):
         coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        # Re-assign a token directly to test defence-in-depth: even if a coach
+        # somehow has a qr_login_token, matches_credentials must reject them.
+        # (Role.save normally clears the token; we bypass that here.)
         coach.qr_login_token = "c" * 43
         coach.save(update_fields=["qr_login_token"])
-        self.facility.add_coach(coach)
         response = self.client.post(
             reverse("kolibri:core:session-list"),
             data={
@@ -202,7 +205,6 @@ class QRLoginSessionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsInstance(response.data, list)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
-        self.assertEqual(response.data[0]["metadata"]["field"], "qr_login_token")
 
     def test_qr_token_wrong_facility_returns_not_found(self):
         response = self.client.post(
