@@ -18,3 +18,4 @@ These guides are step by step guides for common tasks in getting started and wor
   development_with_kds
   preview_on_mobile
   working_with_urls_and_api_endpoints
+  qr_login
