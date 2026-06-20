@@ -19,7 +19,7 @@
 
   import { ref, watch, onMounted } from 'vue';
   import QRCode from 'qrcode';
-  import KCircularLoader from 'kolibri-design-system/lib/KCircularLoader';
+  import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 
   /**

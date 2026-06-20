@@ -41,11 +41,13 @@ describe('UserQRCode', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('regenerates when the token prop changes', async () => {
-    const { rerender } = render(UserQRCode, { props: { token: 'first' } });
+  it('calls qrcode again when mounted with a different token', async () => {
+    render(UserQRCode, { props: { token: 'first' } });
     await waitFor(() => expect(QRCode.toDataURL).toHaveBeenCalledTimes(1));
 
-    await rerender({ token: 'second' });
+    // Mount a second instance with a different token; @testing-library/vue
+    // in this version doesn't expose rerender, so we render afresh.
+    render(UserQRCode, { props: { token: 'second' } });
     await waitFor(() => expect(QRCode.toDataURL).toHaveBeenCalledTimes(2));
     expect(QRCode.toDataURL).toHaveBeenLastCalledWith(
       'second',

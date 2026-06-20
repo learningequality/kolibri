@@ -108,8 +108,8 @@
   import { BrowserMultiFormatReader } from '@zxing/browser';
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import KCircularLoader from 'kolibri-design-system/lib/KCircularLoader';
-  import KButton from 'kolibri-design-system/lib/KButton';
+  import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
+  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
 
   /**
    * The set of QR-code-like formats we ask the decoder to accept. We restrict to
