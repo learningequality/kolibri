@@ -9,4 +9,5 @@ export const OptionsForSignIn = {
   USERNAME_PASSWORD: 'username_password',
   USERNAME_ONLY: 'username_only',
   PICTURE_PASSWORD: 'picture_password',
+  QR_LOGIN: 'qr_login',
 };

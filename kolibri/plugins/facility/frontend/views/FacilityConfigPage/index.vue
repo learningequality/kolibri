@@ -68,6 +68,12 @@
               :label="enableMarkAttendance$()"
               data-testid="enable_mark_attendance"
             />
+            <KCheckbox
+              v-if="isQrLoginFeatureEnabled"
+              v-model="settings.enable_qr_login"
+              :label="enableQrLogin$()"
+              data-testid="enable_qr_login"
+            />
             <template v-if="!isPictureLoginFeatureEnabled">
               <KCheckbox
                 :checked="signInOption === OptionsForSignIn.USERNAME_PASSWORD"
@@ -357,6 +363,7 @@
   import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 
   import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/constants/Auth';
   import useFacilityEditor from '../../composables/useFacilityEditor';
@@ -406,10 +413,12 @@
         isPinSet,
         isAttendanceFeatureEnabled,
         isPictureLoginFeatureEnabled,
+        isQrLoginFeatureEnabled,
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
         pictureLoginTaskId,
+        qrLoginTaskId,
         undoSettingsChange,
         saveFacilityName,
         saveFacilityConfig,
@@ -451,6 +460,7 @@
         iconStyle$,
         picturePasswordUnavailableExplanation$,
       } = picturePasswordStrings;
+      const { enableQrLogin$ } = qrLoginStrings;
 
       // state
       const showEditFacilityModal = ref(false);
@@ -626,6 +636,7 @@
         dropdownOptions,
         isAttendanceFeatureEnabled,
         isPictureLoginFeatureEnabled,
+        isQrLoginFeatureEnabled,
         signInOption,
         picturePasswordStyle,
         picturePasswordShowIconText,
@@ -651,6 +662,7 @@
         learnerCanEditName$,
         learnerCanSignUp$,
         enableMarkAttendance$,
+        enableQrLogin$,
         learnerCanEditPassword$,
         learnerNeedPasswordToLogin$,
         showDownloadButtonInLearn$,

@@ -53,6 +53,7 @@ export function useFacilityConfig(facilityId) {
   const _isEnglish = () => currentLanguage === 'en';
   const isAttendanceFeatureEnabled = computed(_isEnglish);
   const isPictureLoginFeatureEnabled = computed(_isEnglish);
+  const isQrLoginFeatureEnabled = computed(_isEnglish);
 
   // computed
   const signInOptions = computed(() => {
@@ -60,6 +61,11 @@ export function useFacilityConfig(facilityId) {
     // If not null, then we have picture password settings
     if (facilityConfig.value.picture_password_settings) {
       options.push(OptionsForSignIn.PICTURE_PASSWORD);
+    }
+    // QR login is an additive option — it coexists with any of the
+    // username-based methods and with picture password.
+    if (facilityConfig.value.enable_qr_login) {
+      options.push(OptionsForSignIn.QR_LOGIN);
     }
     // This can be enabled still, even with picture password enabled
     if (facilityConfig.value.learner_can_login_with_no_password) {
@@ -110,6 +116,7 @@ export function useFacilityConfig(facilityId) {
     facilityConfig,
     isAttendanceFeatureEnabled,
     isPictureLoginFeatureEnabled,
+    isQrLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacilityConfig,
@@ -127,6 +134,7 @@ const {
   fetchFacilityConfig: _fetchFacilityConfig,
   isAttendanceFeatureEnabled,
   isPictureLoginFeatureEnabled,
+  isQrLoginFeatureEnabled,
   signInOptions,
   picturePasswordSettings,
 } = useFacilityConfig(selectedFacilityId);
@@ -191,6 +199,7 @@ export default function useFacility() {
     facilityConfig,
     isAttendanceFeatureEnabled,
     isPictureLoginFeatureEnabled,
+    isQrLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacilities,

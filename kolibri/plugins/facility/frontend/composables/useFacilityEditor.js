@@ -18,6 +18,7 @@ export default function useFacilityEditor() {
     facilityConfig: settings,
     isAttendanceFeatureEnabled,
     isPictureLoginFeatureEnabled,
+    isQrLoginFeatureEnabled,
     signInOptions,
     picturePasswordSettings,
     fetchFacility,
@@ -161,6 +162,7 @@ export default function useFacilityEditor() {
     'picture_password_settings',
     'learner_can_login_with_no_password',
     'learner_can_edit_password',
+    'enable_qr_login',
   ];
 
   async function saveFacilityConfig() {
@@ -196,6 +198,7 @@ export default function useFacilityEditor() {
   }
 
   const pictureLoginTaskId = ref(null);
+  const qrLoginTaskId = ref(null);
 
   async function saveFacilityLoginSettings() {
     const data = pick(settings.value, LOGIN_SETTINGS_FIELDS);
@@ -207,7 +210,14 @@ export default function useFacilityEditor() {
       data,
     });
     if (response.status === 202 && response.data.task?.id) {
-      pictureLoginTaskId.value = response.data.task.id;
+      // The dedicated endpoint returns a task ID both for the picture-password
+      // bulk-assignment task and the QR-token bulk-assignment task. Route the
+      // ID to whichever flag was flipped by inspecting the dataset diff.
+      if (response.data.dataset?.enable_qr_login && !data.picture_password_settings) {
+        qrLoginTaskId.value = response.data.task.id;
+      } else {
+        pictureLoginTaskId.value = response.data.task.id;
+      }
     }
     copySettings();
     return response.data;
@@ -223,12 +233,14 @@ export default function useFacilityEditor() {
     isFacilityPinValid,
     facilityDataLoading,
     pictureLoginTaskId,
+    qrLoginTaskId,
     // Computed
     facility,
     settingsHaveChanged,
     isPinSet,
     isAttendanceFeatureEnabled,
     isPictureLoginFeatureEnabled,
+    isQrLoginFeatureEnabled,
     signInOption,
     signInOptions,
     picturePasswordSettings,

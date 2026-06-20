@@ -120,6 +120,20 @@
                   />
                 </p>
                 <p
+                  v-if="showQRSignInOption"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KRouterLink
+                    :text="signInWithQRCode$()"
+                    :to="qrSignInRoute"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+                <p
                   v-if="showGuestAccess"
                   class="alternative-link small-text"
                   :style="{
@@ -219,6 +233,7 @@
   import themeConfig from 'kolibri/styles/themeConfig';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
@@ -235,11 +250,12 @@
     mixins: [commonCoreStrings, commonUserStrings],
     setup(props) {
       const route = useRoute();
-      const { nextParam, pictureSignInRoute, usernameSignInRoute, signUpRoute } =
+      const { nextParam, pictureSignInRoute, usernameSignInRoute, qrSignInRoute, signUpRoute } =
         useAuthRouter(route);
       const { canSignUp, signInOptions, signInMethod } = useAuthFlow();
       const { isAppContext } = useUser();
       const { enterUsername$, enterPictures$ } = picturePasswordStrings;
+      const { signInWithQRCode$ } = qrLoginStrings;
 
       const allowAccess = computed(() => {
         return plugin_data.allowRemoteAccess || isAppContext.value;
@@ -252,6 +268,15 @@
       });
       const showPictureSignInOption = computed(() => {
         return signInMethod.value !== OptionsForSignIn.PICTURE_PASSWORD;
+      });
+      // QR sign-in is offered as an additional option alongside whatever the
+      // current method is. Hidden when QR is the current method or not enabled.
+      const showQRSignInOption = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          signInOptions.value.includes(OptionsForSignIn.QR_LOGIN) &&
+          signInMethod.value !== OptionsForSignIn.QR_LOGIN
+        );
       });
 
       const showCreateAccountButton = computed(() => {
@@ -282,6 +307,9 @@
         allowAlternateSignIn,
         showCreateAccountButton,
         alternateSignInRoute,
+        showQRSignInOption,
+        qrSignInRoute,
+        signInWithQRCode$,
         deviceUnusableReason,
         showLandscapeLayout,
         signUpRoute,

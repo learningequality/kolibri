@@ -30,7 +30,7 @@
         >
           <KButton
             :text="printAction$()"
-            :disabled="!hasPicturePasswords"
+            :disabled="!hasPrintableCredentials"
             @click="openPrintDialog"
           />
         </KGridItem>
@@ -80,15 +80,25 @@
           <h4 class="print-facility-class">{{ pageTitle }}</h4>
         </div>
 
-        <LearnerPasswordCard
-          v-for="learner in printLearners"
-          :key="learner.id"
-          :learner="learner"
-          :cardStyle="printListCardStyle"
-          :printFormat="printFormat"
-          :showSequenceNumbers="true"
-          :learnerName="learner.full_name"
-        />
+        <template v-if="printFormat === 'qr'">
+          <LearnerQRCard
+            v-for="learner in printLearners"
+            :key="learner.id"
+            :learner="learner"
+            :cardStyle="printListCardStyle"
+          />
+        </template>
+        <template v-else>
+          <LearnerPasswordCard
+            v-for="learner in printLearners"
+            :key="learner.id"
+            :learner="learner"
+            :cardStyle="printListCardStyle"
+            :printFormat="printFormat"
+            :showSequenceNumbers="true"
+            :learnerName="learner.full_name"
+          />
+        </template>
       </section>
     </KPageContainer>
 
@@ -112,6 +122,12 @@
           :label="printWithTextOnly$()"
           buttonValue="text"
         />
+        <KRadioButton
+          v-if="hasQrTokens"
+          v-model="printFormat"
+          :label="printWithQRCodes$()"
+          buttonValue="qr"
+        />
       </KRadioButtonGroup>
 
       <!-- Live preview for example learner -->
@@ -125,7 +141,13 @@
         >
           {{ printFormatPreviewLabel$() }}
         </p>
+        <LearnerQRCard
+          v-if="printFormat === 'qr'"
+          :learner="previewLearner"
+          :cardStyle="cardStyle"
+        />
         <LearnerPasswordCard
+          v-else
           :learner="previewLearner"
           :cardStyle="cardStyle"
           :printFormat="printFormat"
@@ -144,11 +166,13 @@
   import { ref, computed } from 'vue';
   import orderBy from 'lodash/orderBy';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
   import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
+  import LearnerQRCard from 'kolibri-common/components/LearnerQRCard';
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
@@ -157,7 +181,13 @@
     metaInfo() {
       return { title: this.pageTitle };
     },
-    components: { ImmersivePage, UserPicturePassword, NoPasswordInfo, LearnerPasswordCard },
+    components: {
+      ImmersivePage,
+      UserPicturePassword,
+      NoPasswordInfo,
+      LearnerPasswordCard,
+      LearnerQRCard,
+    },
     setup(props) {
       const showPrintDialog = ref(false);
       const printFormat = ref('images');
@@ -182,6 +212,7 @@
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
       } = picturePasswordStrings;
+      const { printWithQRCodes$ } = qrLoginStrings;
 
       // Normalize learners so full_name is always populated regardless of
       // whether the source uses full_name (Facility) or name (Coach classSummary)
@@ -190,12 +221,28 @@
       );
 
       const previewLearner = computed(() => {
+        if (printFormat.value === 'qr') {
+          return normalizedLearners.value.find(learner => learner.qr_login_token) || null;
+        }
         return normalizedLearners.value.find(learner => learner.picture_password) || null;
       });
 
       const hasPicturePasswords = computed(() => {
-        return Boolean(previewLearner.value);
+        return Boolean(
+          normalizedLearners.value.find(learner => learner.picture_password),
+        );
       });
+
+      const hasQrTokens = computed(() => {
+        return Boolean(
+          normalizedLearners.value.find(learner => learner.qr_login_token),
+        );
+      });
+
+      // Print button is enabled whenever there are *any* printable credentials.
+      const hasPrintableCredentials = computed(
+        () => hasPicturePasswords.value || hasQrTokens.value,
+      );
 
       const tableHeaders = computed(() => [
         { label: nameLabel$(), dataType: 'string', columnId: 'full_name', width: '45%' },
@@ -247,6 +294,8 @@
         windowBreakpoint,
         previewLearner,
         hasPicturePasswords,
+        hasQrTokens,
+        hasPrintableCredentials,
         tableHeaders,
         tableRows,
         printLearners,
@@ -259,6 +308,7 @@
         allPasswordsHeader$,
         printWithImages$,
         printWithTextOnly$,
+        printWithQRCodes$,
         printPasswordsDialogHeader$,
         printFormatPreviewLabel$,
         kolibriLabel$,

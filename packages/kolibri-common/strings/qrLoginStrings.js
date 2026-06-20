@@ -1,0 +1,107 @@
+import { createTranslator } from 'kolibri/utils/i18n';
+
+export const qrLoginStrings = createTranslator('QRLoginStrings', {
+  // Sign-in page
+  scanQRCodeTitle: {
+    message: 'Scan your QR code',
+    context: 'Title on the QR sign-in page asking the learner to scan their card.',
+  },
+  scanQRCodeDescription: {
+    message: 'Hold your card so the camera can see the QR code',
+    context: 'Instructions shown beneath the scanner on the QR sign-in page.',
+  },
+  pointCameraAtCode: {
+    message: 'Point the camera at the QR code on your card',
+    context: 'Alternative phrasing of the scanner instruction.',
+  },
+  cameraStarting: {
+    message: 'Starting camera…',
+    context: 'Status message shown while the camera is being initialized.',
+  },
+  cameraPermissionDenied: {
+    message: 'Camera access was blocked. Ask a teacher to enable it, or upload a photo of your QR code.',
+    context: 'Shown when the learner or browser denied camera permission.',
+  },
+  cameraNotFound: {
+    message: 'No camera was found on this device.',
+    context: 'Shown when the device has no camera available.',
+  },
+  cameraUnavailable: {
+    message: 'The camera could not be started. Try uploading a photo of your QR code instead.',
+    context: 'Generic fallback when getUserMedia fails for an unknown reason.',
+  },
+  cameraNotWorking: {
+    message: 'Camera not working?',
+    context: 'Small prompt above the upload-photo button on the QR sign-in page.',
+  },
+  uploadPhoto: {
+    message: 'Upload a photo of the QR code',
+    context: 'Button label for the file-upload fallback path.',
+  },
+  retakePhoto: {
+    message: 'Choose another photo',
+    context: 'Button label to discard the chosen photo and pick another.',
+  },
+  decodeFailed: {
+    message: 'No QR code was found in that image. Try again.',
+    context: 'Shown when the uploaded image did not contain a decodable QR code.',
+  },
+  scanFailed: {
+    message: 'Could not read the QR code. Try holding the card closer or in better light.',
+    context: 'Generic error shown when scanning fails for a transient reason.',
+  },
+  scanning: {
+    message: 'Scanning…',
+    context: 'Status shown while the camera is actively looking for a QR code.',
+  },
+  // Confirmation modal
+  isThisYou: {
+    message: 'Is this you?',
+    context: 'Title of the confirmation modal shown after a successful QR scan, before the session is created.',
+  },
+  yesSignIn: {
+    message: 'Yes, sign in',
+    context: 'Confirmation button in the QR sign-in confirm modal.',
+  },
+  noGoBack: {
+    message: 'No, go back',
+    context: 'Cancellation button in the QR sign-in confirm modal.',
+  },
+  verifyPrompt: {
+    message: 'If this is not you, tap "No, go back" and scan your own card.',
+    context: 'Helper text in the QR sign-in confirm modal.',
+  },
+  // Errors
+  wrongQRCode: {
+    message: 'That QR code was not recognized. Try again.',
+    context: 'Error shown when the scanned token does not match any learner.',
+  },
+  // Auth link / toggle
+  signInWithQRCode: {
+    message: 'Sign in with a QR code',
+    context: 'Link text on AuthBase to switch to the QR sign-in page.',
+  },
+  // Profile / card display
+  myQRCode: {
+    message: 'My QR code',
+    context: 'Label shown next to the QR code on the learner profile page.',
+  },
+  // Facility config
+  enableQrLogin: {
+    message: 'Allow learners to sign in with a QR code (English only)',
+    context: "Option on 'Facility settings' page.",
+  },
+  qrCodesAssigned: {
+    message: 'Generating QR codes for learners…',
+    context: 'Status shown while the bulk-assignment task is running.',
+  },
+  // Printable cards
+  photoPlaceholder: {
+    message: 'Photo',
+    context: 'Label inside the photo placeholder box on printable QR cards.',
+  },
+  printWithQRCodes: {
+    message: 'Print QR codes',
+    context: 'Option in the print-format dialog on the all-passwords page.',
+  },
+});
