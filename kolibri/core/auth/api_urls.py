@@ -4,22 +4,22 @@ from rest_framework import routers
 from kolibri.core.api import KolibriDataPortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
 
-from .api import DeleteImportedUserView
-from .api import FacilityViewSet
-from .api import IsPINValidView
-from .api import MembershipViewSet
-from .api import RemoteFacilityUserAuthenticatedViewset
-from .api import RemoteFacilityUserViewset
-from .api import RoleViewSet
-from .api import SessionViewSet
-from .api import SetNonSpecifiedPasswordView
-from .api import SignUpViewSet
-from .api import UsernameAvailableView
+from .viewsets.auth_views import DeleteImportedUserView
+from .viewsets.auth_views import IsPINValidView
+from .viewsets.auth_views import RemoteFacilityUserAuthenticatedViewset
+from .viewsets.auth_views import RemoteFacilityUserViewset
+from .viewsets.auth_views import SetNonSpecifiedPasswordView
+from .viewsets.auth_views import UsernameAvailableView
 from .viewsets.classroom import ClassroomViewSet
+from .viewsets.facility import FacilityViewSet
 from .viewsets.facility_dataset import FacilityDatasetViewSet
 from .viewsets.facility_user import DeletedFacilityUserViewSet
 from .viewsets.facility_user import FacilityUserViewSet
 from .viewsets.learner_group import LearnerGroupViewSet
+from .viewsets.membership import MembershipViewSet
+from .viewsets.role import RoleViewSet
+from .viewsets.session import SessionViewSet
+from .viewsets.signup import SignUpViewSet
 
 router = routers.SimpleRouter()
 
