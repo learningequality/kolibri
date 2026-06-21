@@ -901,6 +901,79 @@ class FacilityAPITestCase(APITestCase):
         # facility1 has user1 (a learner) plus the superuser (not a learner)
         self.assertEqual(response.data["num_learners"], 1)
 
+    def test_facility_response_has_dataset_nested_object(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data["dataset"], dict)
+
+    def test_dataset_has_exactly_expected_fields(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            set(response.data["dataset"].keys()),
+            {
+                "id",
+                "learner_can_edit_username",
+                "learner_can_edit_name",
+                "learner_can_edit_password",
+                "learner_can_sign_up",
+                "learner_can_delete_account",
+                "learner_can_login_with_no_password",
+                "show_download_button_in_learn",
+                "enable_mark_attendance",
+                "extra_fields",
+                "picture_password_settings",
+                "description",
+                "location",
+                "registered",
+                "preset",
+                "allow_guest_access",
+                "is_full_facility_import",
+            },
+        )
+
+    def test_facility_response_has_num_classrooms(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["num_classrooms"], 0)
+
+    def test_facility_response_has_num_users(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertGreaterEqual(response.data["num_users"], 1)
+
 
 def _add_demographic_schema_to_facility(facility):
     facility.dataset.extra_fields.update(
