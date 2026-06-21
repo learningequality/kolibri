@@ -15,6 +15,25 @@
       >
         <template #default="{ items }">
           <div
+            v-if="facilityConfig && facilityConfig.enable_qr_login && sortedLearners.length > 0"
+            class="scan-row"
+            :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+          >
+            <KButton
+              :text="scanToMarkPresent$()"
+              :primary="true"
+              @click="triggerQrFilePicker"
+            />
+            <input
+              ref="qrFileInputRef"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              class="hidden-file-input"
+              @change="onQrFileSelected"
+            />
+          </div>
+          <div
             v-if="sortedLearners.length > 0"
             class="mark-all-row"
             :style="{
@@ -163,19 +182,25 @@
 
 <script>
 
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
+  import { BrowserMultiFormatReader } from '@zxing/browser';
   import { darken1 } from 'kolibri-design-system/lib/styles/darkenColors';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
+  import useSnackbar from 'kolibri/composables/useSnackbar';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
+  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
   import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 
   export default {
     name: 'AttendanceFormTable',
     components: {
       PaginatedListContainer,
       BottomAppBar,
+      KButton,
     },
     setup(props) {
       const {
@@ -196,6 +221,16 @@
         markAttendanceAction$,
         previouslyEnrolledLabel$,
       } = attendanceStrings;
+
+      const {
+        scanToMarkPresent$,
+        learnerMarkedPresent$,
+        learnerNotInClass$,
+        alreadyMarkedPresent$,
+      } = qrLoginStrings;
+
+      const { createSnackbar } = useSnackbar();
+      const { facilityConfig } = useFacility();
 
       const {
         sortedLearners,
@@ -245,6 +280,54 @@
         return items.map(learner => [learner, learner]);
       }
 
+      // ---- QR scan-to-mark-present (#6) ----
+      const qrFileInputRef = ref(null);
+
+      function triggerQrFilePicker() {
+        if (qrFileInputRef.value) {
+          qrFileInputRef.value.click();
+        }
+      }
+
+      async function onQrFileSelected(event) {
+        const file = event.target.files && event.target.files[0];
+        // Reset so selecting the same file twice fires change again.
+        event.target.value = '';
+        if (!file) return;
+
+        try {
+          const url = URL.createObjectURL(file);
+          let decoded;
+          try {
+            const reader = new BrowserMultiFormatReader();
+            const result = await reader.decodeFromImageUrl(url);
+            decoded = result ? result.getText() : null;
+          } catch (_err) {
+            decoded = null;
+          } finally {
+            URL.revokeObjectURL(url);
+          }
+          if (!decoded) {
+            return;
+          }
+          const match = sortedLearners.value.find(
+            learner => learner.qr_login_token === decoded,
+          );
+          if (!match) {
+            createSnackbar(learnerNotInClass$());
+            return;
+          }
+          if (isPresent(match.id)) {
+            createSnackbar(alreadyMarkedPresent$({ name: match.name }));
+            return;
+          }
+          toggleLearner(match.id);
+          createSnackbar(learnerMarkedPresent$({ name: match.name }));
+        } catch (_err) {
+          // Image load failure or unexpected decode error — ignore silently.
+        }
+      }
+
       return {
         coreString,
         confirmButtonStyles,
@@ -281,6 +364,11 @@
         previouslyEnrolledLabel$,
         tableHeaders,
         getTableRows,
+        facilityConfig,
+        qrFileInputRef,
+        scanToMarkPresent$,
+        triggerQrFilePicker,
+        onQrFileSelected,
       };
     },
     props: {
@@ -326,6 +414,17 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 16px;
+  }
+
+  .scan-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 16px;
+  }
+
+  .hidden-file-input {
+    display: none;
   }
 
   .mark-all-label {

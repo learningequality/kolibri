@@ -47,6 +47,17 @@
             <UserPicturePassword :picturePassword="userPicturePassword" />
           </section>
 
+          <div
+            v-if="canPrintIdCard"
+            class="print-id-card-section"
+          >
+            <KButton
+              :text="printIdCard$()"
+              :disabled="formDisabled"
+              @click="printIdCard"
+            />
+          </div>
+
           <template v-if="editingSuperAdmin">
             <h2 class="header user-type">
               {{ coreString('userTypeLabel') }}
@@ -166,6 +177,13 @@
         @close="isLearnerLimitModalOpen = false"
       />
     </KPageContainer>
+    <!-- Print overlay (visible only during printing) -->
+    <div
+      v-if="printing"
+      class="print-overlay"
+    >
+      <PrintableIdCards :learners="[currentUser]" />
+    </div>
   </ImmersivePage>
 
 </template>
@@ -175,6 +193,7 @@
 
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
+  import { ref } from 'vue';
   import UserType from 'kolibri-common/utils/userType';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import { mapState } from 'vuex';
@@ -194,7 +213,9 @@
   import { handleApiError } from 'kolibri/utils/appError';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword.vue';
+  import PrintableIdCards from 'kolibri-common/components/PrintableIdCards';
   import IdentifierTextbox from './users/sidePanels/UserCreate/IdentifierTextbox.vue';
   import LearnerLimitReachedModal from './LearnerLimitReachedModal.vue';
 
@@ -216,6 +237,7 @@
       ExtraDemographics,
       LearnerLimitReachedModal,
       UserPicturePassword,
+      PrintableIdCards,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -223,12 +245,16 @@
       const { currentUserId, logout } = useUser();
       const { updateFacilityConfig, selectedFacility, facilityConfig } = useFacility();
       const { picturePassword$, learnerCreationDisabled$ } = picturePasswordStrings;
+      const { printIdCard$ } = qrLoginStrings;
+
+      const printing = ref(false);
 
       return {
         // state
         currentUserId,
         facilityConfig,
         selectedFacility,
+        printing,
         // actions
         logout,
         createSnackbar,
@@ -237,6 +263,7 @@
         // strings
         learnerCreationDisabled$,
         picturePassword$,
+        printIdCard$,
       };
     },
     data() {
@@ -259,6 +286,7 @@
         status: '',
         userPicturePassword: null,
         isLearnerLimitModalOpen: false,
+        currentUser: null,
       };
     },
     computed: {
@@ -336,6 +364,9 @@
       willBeLoggedOut() {
         return this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN;
       },
+      canPrintIdCard() {
+        return Boolean(this.currentUser && this.currentUser.qr_login_token);
+      },
     },
     created() {
       const facilityConfigPromise = this.updateFacilityConfig();
@@ -349,6 +380,7 @@
         this.birthYear = user.birth_year;
         this.extraDemographics = user.extra_demographics;
         this.userPicturePassword = user.picture_password;
+        this.currentUser = user;
         this.setKind(user);
         this.makeCopyOfUser(user);
       });
@@ -387,6 +419,15 @@
       },
       goToUserManagementPage() {
         this.$router.push(this.$store.getters.facilityPageLinks.UserPage);
+      },
+      printIdCard() {
+        this.printing = true;
+        const done = () => {
+          this.printing = false;
+          window.removeEventListener('afterprint', done);
+        };
+        window.addEventListener('afterprint', done);
+        setTimeout(() => window.print(), 400);
       },
       usernameIsUnique(value) {
         const match = this.facilityUsers.find(
@@ -568,6 +609,10 @@
     }
   }
 
+  .print-id-card-section {
+    margin: 12px 0 24px;
+  }
+
   .narrow-container {
     max-width: 500px;
     margin: auto;
@@ -578,6 +623,48 @@
     max-width: 400px;
     margin-right: auto;
     margin-left: auto;
+  }
+
+  .print-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: white;
+    overflow: auto;
+  }
+
+</style>
+
+
+<style>
+
+  /*
+   * Global (unscoped) print rules.
+   * Use the visibility trick to hide ALL page content during print
+   * except the print overlay, so only the ID card is printed.
+   */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+
+    .print-overlay,
+    .print-overlay * {
+      visibility: visible;
+    }
+
+    .print-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white;
+    }
+  }
+
+  @page {
+    size: letter;
+    margin: 0.5in;
   }
 
 </style>

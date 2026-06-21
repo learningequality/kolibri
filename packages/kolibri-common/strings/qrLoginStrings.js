@@ -197,4 +197,58 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Logo updated',
     context: 'Success message after a school logo is uploaded.',
   },
+  // QR login info modal (#3)
+  qrLoginInfoTitle: {
+    message: 'About QR code sign-in',
+    context: 'Title of the info modal explaining QR code login.',
+  },
+  qrLoginInfoDescription: {
+    message: 'Learners sign in by scanning a printed QR code card instead of typing a username and password. You can print cards from the ID Cards page. If a card is lost, an admin can generate a new one from the ID Cards page.',
+    context: 'Description in the QR login info modal on the facility settings page.',
+  },
+  // Coach QR view (#4)
+  coachQrCode: {
+    message: 'QR code',
+    context: 'Label for the QR code row in the coach learner detail view.',
+  },
+  // Attendance scanning (#6)
+  scanToMarkPresent: {
+    message: 'Scan to mark present',
+    context: 'Button label for scanning a QR code to mark a learner present.',
+  },
+  learnerMarkedPresent: {
+    message: '{name} marked present',
+    context: 'Success message after scanning a learner QR code for attendance.',
+  },
+  learnerNotInClass: {
+    message: 'This QR code does not belong to a learner in this class.',
+    context: 'Error when a scanned QR code does not match any learner in the class.',
+  },
+  alreadyMarkedPresent: {
+    message: '{name} is already marked present',
+    context: 'Info message when scanning a QR code for a learner already marked present.',
+  },
+  // User edit print (#8)
+  printIdCard: {
+    message: 'Print ID card',
+    context: 'Button label on the user edit page to print a single ID card.',
+  },
+  // Rate limiting (#1)
+  tooManyAttempts: {
+    message: 'Too many sign-in attempts. Please wait a minute and try again.',
+    context: 'Error shown when rate limiting kicks in on the sign-in endpoint.',
+  },
+  // Bulk task progress (#2)
+  generatingQrCodes: {
+    message: 'Generating QR codes…',
+    context: 'Status shown while the QR token bulk-assignment task is running.',
+  },
+  qrCodesGenerated: {
+    message: 'QR codes generated successfully',
+    context: 'Success message after the QR token bulk-assignment task completes.',
+  },
+  qrCodeGenerationFailed: {
+    message: 'QR code generation failed',
+    context: 'Error message if the QR token bulk-assignment task fails.',
+  },
 });

@@ -1,6 +1,8 @@
 import factory
 import mock
+from django.core.cache import caches
 from django.core.exceptions import PermissionDenied
+from django.test import override_settings
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -272,3 +274,95 @@ class QRLoginPrevalidateTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data[0]["id"], error_constants.NOT_FOUND)
+
+
+@override_settings(
+    REST_FRAMEWORK={"DEFAULT_THROTTLE_RATES": {"session_signin": "5/min"}}
+)
+class SessionSigninThrottleTestCase(APITestCase):
+    """
+    The session sign-in endpoint (also used for QR-token prevalidate, which
+    exposes a learner's full name without creating a session) must be rate
+    limited per IP to prevent brute-force token guessing and name enumeration.
+    """
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+        cls.learner.qr_login_token = "a" * 43
+        cls.learner.save(update_fields=["qr_login_token"])
+
+    def setUp(self):
+        enable_qr_login(self.facility)
+        caches["default"].clear()
+        # DRF caches DEFAULT_THROTTLE_RATES on SimpleRateThrottle at import
+        # time, so @override_settings alone does not propagate. Patch the
+        # class attribute directly so the test uses a smaller limit (5/min).
+        self._throttle_rates_patcher = mock.patch(
+            "rest_framework.throttling.ScopedRateThrottle.THROTTLE_RATES",
+            {"session_signin": "5/min"},
+        )
+        self._throttle_rates_patcher.start()
+        self.addCleanup(self._throttle_rates_patcher.stop)
+
+    def _signin_url(self):
+        return reverse("kolibri:core:session-list")
+
+    def _post_signin(self):
+        response = self.client.post(
+            self._signin_url(),
+            data={
+                "qr_login_token": self.learner.qr_login_token,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        # A successful sign-in authenticates the user, which would change the
+        # throttle cache key from IP-based to user-pk-based for the next
+        # request. Logout so every request is counted under the same
+        # (anonymous, IP-based) throttle key.
+        self.client.logout()
+        return response
+
+    def test_first_five_requests_succeed(self):
+        for i in range(5):
+            response = self._post_signin()
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_200_OK,
+                "Request #{} should succeed but returned {}".format(
+                    i + 1, response.status_code
+                ),
+            )
+
+    def test_sixth_request_in_a_minute_is_throttled(self):
+        for _ in range(5):
+            self._post_signin()
+        response = self._post_signin()
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_prevalidate_path_is_also_throttled(self):
+        url = self._signin_url() + "?prevalidate=true"
+        for _ in range(5):
+            response = self.client.post(
+                url,
+                data={
+                    "qr_login_token": self.learner.qr_login_token,
+                    "facility": self.facility.id,
+                },
+                format="json",
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(
+            url,
+            data={
+                "qr_login_token": self.learner.qr_login_token,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

@@ -252,7 +252,9 @@ def serialize_groups(queryset):
 
 def serialize_users(queryset):
     return list(
-        queryset.values("id", "username", "picture_password", name=F("full_name"))
+        queryset.values(
+            "id", "username", "picture_password", "qr_login_token", name=F("full_name")
+        )
     )
 
 

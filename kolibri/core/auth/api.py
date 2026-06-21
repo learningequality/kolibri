@@ -55,6 +55,7 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from .constants import collection_kinds
 from .constants import role_kinds
@@ -1584,6 +1585,14 @@ class CreateSessionSerializer(serializers.Serializer):
 
 @method_decorator([ensure_csrf_cookie], name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "session_signin"
+
+    def get_throttles(self):
+        if self.action == "create":
+            return super().get_throttles()
+        return []
+
     def create(self, request):
         # Only enforce this when running in an app
         if not allow_other_browsers_to_connect() and not valid_app_key_on_request(

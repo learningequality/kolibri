@@ -53,6 +53,19 @@
               <KEmptyPlaceholder v-else />
             </template>
           </HeaderTableRow>
+          <HeaderTableRow v-if="facilityConfig && facilityConfig.enable_qr_login">
+            <template #key>
+              {{ coachQrCode$() }}
+            </template>
+            <template #value>
+              <UserQRCode
+                v-if="learner.qr_login_token"
+                :token="learner.qr_login_token"
+                :size="100"
+              />
+              <KEmptyPlaceholder v-else />
+            </template>
+          </HeaderTableRow>
           <HeaderTableRow>
             <template #key>
               {{ coachString('groupsLabel') }}
@@ -133,7 +146,10 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import useFacility from 'kolibri-common/composables/useFacility';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
+  import UserQRCode from 'kolibri-common/components/UserQRCode';
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import commonCoach from '../../common';
   import ReportsControls from '../../common/ReportsControls';
 
@@ -142,8 +158,14 @@
     components: {
       ReportsControls,
       UserPicturePassword,
+      UserQRCode,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { facilityConfig } = useFacility();
+      const { coachQrCode$ } = qrLoginStrings;
+      return { facilityConfig, coachQrCode$ };
+    },
     // A list of all lessons assigned to the relevant Learner
     props: {
       learnerLessons: {

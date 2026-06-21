@@ -429,6 +429,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
+    "DEFAULT_THROTTLE_RATES": {
+        "session_signin": "30/min",
+    },
 }
 
 # System warnings to disable

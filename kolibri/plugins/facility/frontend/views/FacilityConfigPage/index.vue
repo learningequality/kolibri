@@ -68,12 +68,23 @@
               :label="enableMarkAttendance$()"
               data-testid="enable_mark_attendance"
             />
-            <KCheckbox
+            <div
               v-if="isQrLoginFeatureEnabled"
-              v-model="settings.enable_qr_login"
-              :label="enableQrLogin$()"
-              data-testid="enable_qr_login"
-            />
+              class="checkbox-and-info-wrapper"
+            >
+              <KCheckbox
+                v-model="settings.enable_qr_login"
+                :label="enableQrLogin$()"
+                data-testid="enable_qr_login"
+              />
+              <KIconButton
+                icon="info"
+                size="mini"
+                :color="$themeTokens.primary"
+                :ariaLabel="qrLoginInfoTitle$()"
+                @click.stop="showQrLoginInfoModal = true"
+              />
+            </div>
             <template v-if="!isPictureLoginFeatureEnabled">
               <KCheckbox
                 :checked="signInOption === OptionsForSignIn.USERNAME_PASSWORD"
@@ -261,11 +272,11 @@
               class="save-changes-button"
               :text="coreString('saveChangesAction')"
               name="save-settings"
-              :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+              :disabled="!settingsHaveChanged || pictureLoginTaskLoading || qrLoginTaskLoading"
               @click="saveConfig()"
             />
             <KCircularLoader
-              v-if="pictureLoginTaskLoading"
+              v-if="pictureLoginTaskLoading || qrLoginTaskLoading"
               :size="24"
               data-testid="picture_password_assignment_status"
             />
@@ -321,6 +332,12 @@
         :learnerCount="facilityLearnerCount"
         @close="showPicturePasswordUnavailableModal = false"
       />
+
+      <QrLoginInfoModal
+        v-if="showQrLoginInfoModal"
+        @submit="showQrLoginInfoModal = false"
+        @cancel="showQrLoginInfoModal = false"
+      />
     </KPageContainer>
 
     <BottomAppBar data-testid="bottom-bar">
@@ -329,7 +346,7 @@
         class="bottom-bar-save-group"
       >
         <KCircularLoader
-          v-if="pictureLoginTaskLoading"
+          v-if="pictureLoginTaskLoading || qrLoginTaskLoading"
           :size="24"
           data-testid="picture_password_assignment_status"
         />
@@ -339,7 +356,7 @@
           appearance="raised-button"
           :text="coreString('saveChangesAction')"
           name="save-settings"
-          :disabled="!settingsHaveChanged || pictureLoginTaskLoading"
+          :disabled="!settingsHaveChanged || pictureLoginTaskLoading || qrLoginTaskLoading"
           @click="saveConfig()"
         />
       </div>
@@ -376,6 +393,7 @@
   import PicturePasswordInfoModal from './PicturePasswordInfoModal';
   import ChildFriendlyIconsModal from './ChildFriendlyIconsModal';
   import PicturePasswordUnavailableModal from './PicturePasswordUnavailableModal';
+  import QrLoginInfoModal from './QrLoginInfoModal';
   import facilityConfigPageStrings from './strings';
 
   export default {
@@ -396,6 +414,7 @@
       PicturePasswordInfoModal,
       ChildFriendlyIconsModal,
       PicturePasswordUnavailableModal,
+      QrLoginInfoModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -460,7 +479,13 @@
         iconStyle$,
         picturePasswordUnavailableExplanation$,
       } = picturePasswordStrings;
-      const { enableQrLogin$ } = qrLoginStrings;
+      const {
+        enableQrLogin$,
+        qrCodesGenerated$,
+        qrCodeGenerationFailed$,
+        generatingQrCodes$,
+        qrLoginInfoTitle$,
+      } = qrLoginStrings;
 
       // state
       const showEditFacilityModal = ref(false);
@@ -471,6 +496,7 @@
       const showPicturePasswordInfoModal = ref(false);
       const showChildFriendlyIconsModal = ref(false);
       const showPicturePasswordUnavailableModal = ref(false);
+      const showQrLoginInfoModal = ref(false);
 
       // computed
       const facilityLearnerCount = computed(() => facility.value?.num_learners ?? 0);
@@ -516,10 +542,11 @@
       async function saveConfig() {
         try {
           pictureLoginTaskLoading.value = true;
+          qrLoginTaskLoading.value = true;
           // save login settings first, since config will reset the settings state
           await saveFacilityLoginSettings();
           await saveFacilityConfig();
-          if (!pictureLoginTaskId.value) {
+          if (!pictureLoginTaskId.value && !qrLoginTaskId.value) {
             createSnackbar(saveSuccess$());
           }
         } catch (error) {
@@ -528,6 +555,9 @@
         } finally {
           if (!pictureLoginTaskId.value) {
             pictureLoginTaskLoading.value = false;
+          }
+          if (!qrLoginTaskId.value) {
+            qrLoginTaskLoading.value = false;
           }
         }
       }
@@ -607,6 +637,26 @@
         }
       });
 
+      const qrLoginTaskLoading = ref(false);
+
+      const qrLoginTask = computed(() => {
+        if (!qrLoginTaskId.value) return null;
+        return facilityTasks.value.find(t => t.id === qrLoginTaskId.value) || null;
+      });
+
+      watch(qrLoginTask, task => {
+        if (!task) return;
+        if (task.status === TaskStatuses.FAILED) {
+          qrLoginTaskLoading.value = false;
+          qrLoginTaskId.value = null;
+          createSnackbar(qrCodeGenerationFailed$());
+        } else if (task.status === TaskStatuses.COMPLETED) {
+          qrLoginTaskLoading.value = false;
+          qrLoginTaskId.value = null;
+          createSnackbar(qrCodesGenerated$());
+        }
+      });
+
       return {
         // Constants
         OptionsForSignIn,
@@ -631,6 +681,7 @@
         showPicturePasswordInfoModal,
         showChildFriendlyIconsModal,
         showPicturePasswordUnavailableModal,
+        showQrLoginInfoModal,
         deviceSettingsUrl,
         lastPartId,
         dropdownOptions,
@@ -641,6 +692,7 @@
         picturePasswordStyle,
         picturePasswordShowIconText,
         pictureLoginTaskLoading,
+        qrLoginTaskLoading,
         picturePasswordDisabled,
         facilityLearnerCount,
 
@@ -663,6 +715,8 @@
         learnerCanSignUp$,
         enableMarkAttendance$,
         enableQrLogin$,
+        qrLoginInfoTitle$,
+        generatingQrCodes$,
         learnerCanEditPassword$,
         learnerNeedPasswordToLogin$,
         showDownloadButtonInLearn$,
@@ -762,6 +816,12 @@
     /deep/ .k-radio-button-container {
       width: auto;
     }
+  }
+
+  .checkbox-and-info-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
   }
 
   .radio-description {

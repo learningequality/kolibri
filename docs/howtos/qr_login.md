@@ -125,13 +125,91 @@ HTTPS.
 Android app support
 ===================
 
-The Kolibri Android app wraps Kolibri in a WebView. To use the live-camera QR
-scanner in the Android app, the wrapper repo
-(`learningequality/kolibri-installer-android <https://github.com/learningequality/kolibri-installer-android>`_)
-must declare the ``android.permission.CAMERA`` permission in the
-``AndroidManifest.xml`` and override ``WebChromeClient.onPermissionRequest()``
-to grant ``RESOURCE_VIDEO_CAPTURE``. Without those changes the file-upload
-fallback is used inside the Android app.
+The Kolibri Android app wraps Kolibri in a WebView. The file-upload fallback
+described above works inside the WebView **without any changes** — a learner
+(or coach) can always pick or capture a photo of a QR code and have it
+decoded. However, the **live-camera scanner** does not work out of the box,
+because WebView will not open the device camera unless the host app does two
+things: declare the camera permission, and grant the WebView's permission
+request at runtime.
+
+These changes live in the Android wrapper repo,
+`learningequality/kolibri-installer-android <https://github.com/learningequality/kolibri-installer-android>`_,
+not in this repository.
+
+Manifest declarations
+---------------------
+
+Add the camera permission and a (non-required) hardware feature declaration
+to ``AndroidManifest.xml``:
+
+.. code-block:: xml
+
+   <uses-permission android:name="android.permission.CAMERA"/>
+   <uses-feature android:name="android.hardware.camera" android:required="false"/>
+
+Declaring the hardware feature with ``android:required="false"`` ensures the
+app is still installable on devices without a camera (the file-upload
+fallback is used there).
+
+WebChromeClient override
+------------------------
+
+WebView routes JavaScript permission requests (such as
+``navigator.mediaDevices.getUserMedia()``) through
+``WebChromeClient.onPermissionRequest()``. The default implementation
+**denies** these requests, so the camera never starts. You must override it
+and grant the video-capture resource:
+
+.. code-block:: java
+
+   webView.setWebChromeClient(new WebChromeClient() {
+       @Override
+       public void onPermissionRequest(PermissionRequest request) {
+           request.grant(request.getResources());
+       }
+   });
+
+For a tighter scope, grant only the video-capture resource explicitly:
+
+.. code-block:: java
+
+   @Override
+   public void onPermissionRequest(PermissionRequest request) {
+       for (String resource : request.getResources()) {
+           if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resource)) {
+               request.grant(new String[]{ PermissionRequest.RESOURCE_VIDEO_CAPTURE });
+               return;
+           }
+       }
+       request.deny();
+   }
+
+Runtime permission prompt (Android 6+ / API 23+)
+-------------------------------------------------
+
+Even with the ``WebChromeClient`` override granting the request, on
+**Android 6.0 (API 23) and above** the app must hold the ``CAMERA``
+permission at runtime. The first time a learner opens the QR scanner, the
+system shows the standard "Allow [app] to take pictures and record video?"
+prompt. If the learner grants it, the live camera view starts; if they deny
+it, the page falls back to the **"Upload a photo"** button automatically —
+no extra handling is needed.
+
+The host app should request ``Manifest.permission.CAMERA`` at runtime
+(e.g. via ``ActivityCompat.requestPermissions()``) either proactively at
+launch or lazily when the WebView first asks for the camera. If the app
+targets API 22 or lower, runtime prompts are not shown and the permission
+is granted silently at install time.
+
+Summary
+-------
+
+- Without **any** Android-side changes: file-upload fallback works, live
+  camera does not.
+- With manifest permission + ``WebChromeClient.onPermissionRequest()`` grant
+  + runtime permission prompt accepted: live-camera scanner works inside the
+  WebView.
 
 Rotating a learner's token
 ==========================

@@ -254,6 +254,11 @@ class ClassSummaryTestCase(EvaluationMixin, APITestCase):
         learner_data = response.data["learners"]
         self.assertTrue(all("picture_password" in learner for learner in learner_data))
 
+    def test_learner_data_includes_qr_login_token(self):
+        response = self._get_detail_response()
+        learner_data = response.data["learners"]
+        self.assertTrue(all("qr_login_token" in learner for learner in learner_data))
+
     def test_completed_exercise_with_help_notification_shows_completed(self):
         """Regression test for #14515: progress=1.0 should override help status."""
         learner = self.users[0]
