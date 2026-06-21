@@ -134,6 +134,20 @@
                   />
                 </p>
                 <p
+                  v-if="showUsernameSignInOption"
+                  class="alternative-link small-text"
+                  :style="{
+                    borderColor: $themeTokens.text,
+                  }"
+                >
+                  <KRouterLink
+                    :text="enterUsername$()"
+                    :to="usernameSignInRoute"
+                    :primary="true"
+                    appearance="basic-link"
+                  />
+                </p>
+                <p
                   v-if="showGuestAccess"
                   class="alternative-link small-text"
                   :style="{
@@ -278,6 +292,15 @@
           signInMethod.value !== OptionsForSignIn.QR_LOGIN
         );
       });
+      // When the user is on the QR sign-in page, show a link to switch back
+      // to username/password sign-in. Without this, the user would be stuck
+      // on the QR page with no way to reach username login.
+      const showUsernameSignInOption = computed(() => {
+        return (
+          !props.hideFacilityBasedOptions &&
+          signInMethod.value === OptionsForSignIn.QR_LOGIN
+        );
+      });
 
       const showCreateAccountButton = computed(() => {
         return (
@@ -308,8 +331,11 @@
         showCreateAccountButton,
         alternateSignInRoute,
         showQRSignInOption,
+        showUsernameSignInOption,
         qrSignInRoute,
+        usernameSignInRoute,
         signInWithQRCode$,
+        enterUsername$,
         deviceUnusableReason,
         showLandscapeLayout,
         signUpRoute,
