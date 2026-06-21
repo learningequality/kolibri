@@ -88,7 +88,7 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
   },
   // Facility config
   enableQrLogin: {
-    message: 'Allow learners to sign in with a QR code (English only)',
+    message: 'Allow learners to sign in with a QR code',
     context: "Option on 'Facility settings' page.",
   },
   qrCodesAssigned: {
