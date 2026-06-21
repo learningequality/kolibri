@@ -1,11 +1,23 @@
 <template>
 
   <div class="student-id-card">
-    <!-- Interactive card (screen mode) -->
     <div
       class="card-body"
       :style="{ borderColor: $themeTokens.fineLine }"
     >
+      <!-- Selection checkbox (when selectable) -->
+      <div
+        v-if="selectable"
+        class="select-area"
+      >
+        <KCheckbox
+          :checked="selected"
+          :label="learner.full_name"
+          :showLabel="false"
+          @change="$emit('select', learner.id)"
+        />
+      </div>
+
       <!-- Photo area -->
       <div class="photo-section">
         <div
@@ -81,16 +93,6 @@
         <KButton
           v-if="learner.qr_login_token"
           appearance="basic-link"
-          :text="printCard$()"
-          @click="printCard"
-        >
-          <template #icon>
-            <KIcon icon="print" />
-          </template>
-        </KButton>
-        <KButton
-          v-if="learner.qr_login_token"
-          appearance="basic-link"
           :text="regenerateQR$()"
           @click="showRegenerateModal = true"
         >
@@ -116,42 +118,6 @@
       @confirm="handleRegenerate"
       @cancel="showRegenerateModal = false"
     />
-
-    <!-- Print layout (only visible during printing) -->
-    <div
-      v-if="printing"
-      class="print-badge-layout"
-    >
-      <div class="badge">
-        <div class="badge-photo-area">
-          <img
-            v-if="learner.profile_image"
-            :src="learner.profile_image"
-            :alt="learner.full_name"
-            class="badge-photo"
-          />
-          <div
-            v-else
-            class="badge-photo-placeholder"
-          >
-            <span>{{ photoPlaceholder$() }}</span>
-          </div>
-        </div>
-        <h1 class="badge-name">{{ learner.full_name }}</h1>
-        <p class="badge-username">{{ learner.username }}</p>
-        <div class="badge-qr">
-          <UserQRCode
-            v-if="learner.qr_login_token"
-            :token="learner.qr_login_token"
-            :size="200"
-          />
-        </div>
-        <p
-          v-if="facilityName"
-          class="badge-facility"
-        >{{ facilityName }}</p>
-      </div>
-    </div>
   </div>
 
 </template>
@@ -166,6 +132,7 @@
   import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
   import KIcon from 'kolibri-design-system/lib/KIcon';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
+  import KCheckbox from 'kolibri-design-system/lib/KCheckbox';
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 
   const PHOTO_SIZE = 300;
@@ -199,23 +166,19 @@
 
   export default {
     name: 'StudentIdCard',
-    components: { UserQRCode, RegenerateQRModal, KButton, KIcon, KCircularLoader },
+    components: { UserQRCode, RegenerateQRModal, KButton, KIcon, KCircularLoader, KCheckbox },
     setup(props, { emit }) {
       const {
         uploadPhoto$,
         replacePhoto$,
-        photoUploaded$,
         uploadFailed$,
         regenerateQR$,
-        printCard$,
         noQrCodeAssigned$,
-        photoPlaceholder$,
       } = qrLoginStrings;
 
       const fileInputRef = ref(null);
       const uploading = ref(false);
       const regenerating = ref(false);
-      const printing = ref(false);
       const showRegenerateModal = ref(false);
 
       function triggerFileInput() {
@@ -256,36 +219,19 @@
         }
       }
 
-      function printCard() {
-        printing.value = true;
-        const done = () => {
-          printing.value = false;
-          window.removeEventListener('afterprint', done);
-        };
-        window.addEventListener('afterprint', done);
-        setTimeout(() => {
-          window.print();
-        }, 200);
-      }
-
       return {
         fileInputRef,
         uploading,
         regenerating,
-        printing,
         showRegenerateModal,
         triggerFileInput,
         onFileSelected,
         handleRegenerate,
-        printCard,
         uploadPhoto$,
         replacePhoto$,
-        photoUploaded$,
         uploadFailed$,
         regenerateQR$,
-        printCard$,
         noQrCodeAssigned$,
-        photoPlaceholder$,
       };
     },
     props: {
@@ -297,8 +243,16 @@
         type: String,
         default: '',
       },
+      selectable: {
+        type: Boolean,
+        default: false,
+      },
+      selected: {
+        type: Boolean,
+        default: false,
+      },
     },
-    emits: ['refresh', 'error'],
+    emits: ['refresh', 'error', 'select'],
   };
 
 </script>
@@ -312,12 +266,20 @@
   }
 
   .card-body {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
     padding: 16px;
     border: 2px solid;
     border-radius: 8px;
+  }
+
+  .select-area {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 1;
   }
 
   .photo-section {
@@ -408,76 +370,6 @@
     justify-content: center;
     background-color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
-  }
-
-  // Print badge layout — full page school ID
-  .print-badge-layout {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
-  }
-
-  .badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 48px;
-    text-align: center;
-  }
-
-  .badge-photo-area {
-    width: 200px;
-    height: 200px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 2px solid #ccc;
-  }
-
-  .badge-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .badge-photo-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    color: #999;
-    font-size: 18px;
-    background-color: #f5f5f5;
-  }
-
-  .badge-name {
-    margin: 0;
-    font-size: 32px;
-    font-weight: 700;
-  }
-
-  .badge-username {
-    margin: 0;
-    font-size: 20px;
-    color: #666;
-  }
-
-  .badge-facility {
-    margin: 8px 0 0;
-    font-size: 16px;
-    color: #999;
-  }
-
-  // Screen mode: hide print layout
-  @media screen {
-    .print-badge-layout {
-      display: none;
-    }
   }
 
 </style>

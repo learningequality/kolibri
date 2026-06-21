@@ -169,4 +169,32 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Search learners',
     context: 'Placeholder text for the search input on the ID Cards page.',
   },
+  printSelected: {
+    message: 'Print selected ({count})',
+    context: 'Button label for printing only the selected student ID cards.',
+  },
+  selectAll: {
+    message: 'Select all',
+    context: 'Link text for selecting all learners on the ID Cards page.',
+  },
+  deselectAll: {
+    message: 'Deselect all',
+    context: 'Link text for deselecting all learners on the ID Cards page.',
+  },
+  selectedCount: {
+    message: '{count} selected',
+    context: 'Status text showing how many learners are selected.',
+  },
+  uploadLogo: {
+    message: 'Upload school logo',
+    context: 'Button label for uploading a brand/school logo for printed ID cards.',
+  },
+  replaceLogo: {
+    message: 'Replace logo',
+    context: 'Button label for replacing the existing school logo.',
+  },
+  logoUploaded: {
+    message: 'Logo updated',
+    context: 'Success message after a school logo is uploaded.',
+  },
 });
