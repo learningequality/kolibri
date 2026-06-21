@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/vue';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
+import { answerGuideStrings } from '../../../composables/useAnswerGuide';
 
 // Vue 2 drops aria-selected when bound to boolean false; SimpleChoice coerces to String()
 // so the attribute always renders. This helper accepts either behavior.
@@ -227,5 +228,25 @@ describe('Shuffle', () => {
       .map(el => identifyShuffleChoice(el.textContent));
     expect(renderedOrder).toEqual(shuffleFixture.expectedShuffledOrder);
     expect(renderedOrder).not.toEqual(shuffleFixture.sourceOrder);
+  });
+});
+
+describe('Answer guide', () => {
+  it('shows the single-selection prompt for a single-selection interaction', () => {
+    renderAssessmentItem(items[singleFixture.id].xml);
+    expect(screen.getByText(answerGuideStrings.chooseOne$())).toBeInTheDocument();
+  });
+
+  it('shows different copy for a multi-selection interaction', () => {
+    renderAssessmentItem(items[multiBoundedFixture.id].xml);
+    expect(screen.queryByText(answerGuideStrings.chooseOne$())).not.toBeInTheDocument();
+    expect(screen.getByText(answerGuideStrings.chooseAny$())).toBeInTheDocument();
+  });
+
+  it('renders the prompt before the choice list, not after', () => {
+    renderAssessmentItem(items[singleFixture.id].xml);
+    const prompt = screen.getByText(answerGuideStrings.chooseOne$());
+    const listbox = screen.getByRole('listbox');
+    expect(prompt.compareDocumentPosition(listbox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

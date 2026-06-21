@@ -1,7 +1,7 @@
 import { computed, unref } from 'vue';
 import { createTranslator } from 'kolibri/utils/i18n';
 
-const strings = createTranslator('AnswerGuideStrings', {
+export const answerGuideStrings = createTranslator('AnswerGuideStrings', {
   chooseOne: {
     message: 'Choose 1 answer:',
     context: 'Tells the learner to select exactly one answer (single-selection choice interaction)',
@@ -15,8 +15,8 @@ const strings = createTranslator('AnswerGuideStrings', {
 });
 
 const ANSWER_GUIDES = {
-  'qti-choice-interaction-single': strings.chooseOne$(),
-  'qti-choice-interaction-multiple': strings.chooseAny$(),
+  'qti-choice-interaction-single': answerGuideStrings.chooseOne$(),
+  'qti-choice-interaction-multiple': answerGuideStrings.chooseAny$(),
 };
 
 /**
