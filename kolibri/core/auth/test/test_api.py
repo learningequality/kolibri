@@ -44,7 +44,7 @@ from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
 from ..models import Facility
-from ..serializers import _prepare_for_bulk_create
+from ..viewsets.membership import _prepare_for_bulk_create
 from .helpers import create_superuser
 from .helpers import disable_picture_password
 from .helpers import DUMMY_PASSWORD
