@@ -8,11 +8,11 @@ from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
 from kolibri.core.query import annotate_array_aggregate
 
-from ..api import KolibriAuthPermissions
-from ..api import KolibriAuthPermissionsFilter
 from ..errors import InvalidCollectionHierarchy
 from ..models import FacilityUser
 from ..models import LearnerGroup
+from ..permissions import KolibriAuthPermissions
+from ..permissions import KolibriAuthPermissionsFilter
 
 logger = logging.getLogger(__name__)
 

@@ -17,10 +17,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesMethodField
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason

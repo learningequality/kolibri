@@ -18,9 +18,9 @@ from rest_framework.serializers import ValidationError
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.serializers import HexOnlyUUIDField
 
 logger = logging.getLogger(__name__)

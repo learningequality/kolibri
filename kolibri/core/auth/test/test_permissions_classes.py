@@ -1,10 +1,10 @@
 from django.test import TestCase
 from mock import Mock
 
-from ..api import KolibriAuthPermissions
 from ..models import Facility
 from ..models import FacilityUser
 from ..models import KolibriAnonymousUser
+from ..permissions import KolibriAuthPermissions
 from ..permissions.base import BasePermissions
 from ..permissions.general import AllowAll
 from ..permissions.general import DenyAll

@@ -8,10 +8,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from kolibri.core.api import ValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.annotation import total_file_size
 from kolibri.core.exams import models
