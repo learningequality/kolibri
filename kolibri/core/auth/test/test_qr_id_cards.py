@@ -191,3 +191,101 @@ class RotateQRTokenTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         coach.refresh_from_db()
         self.assertIsNone(coach.qr_login_token)
+
+
+class ProfileImageOnCreateTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def setUp(self):
+        enable_qr_login(self.facility)
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def test_create_user_with_profile_image(self):
+        url = reverse("kolibri:core:facilityuser-list")
+        response = self.client.post(
+            url,
+            {
+                "username": "photouser",
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+                "profile_image": SAMPLE_DATA_URL,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = models.FacilityUser.objects.get(id=response.data["id"])
+        self.assertEqual(user.profile_image, SAMPLE_DATA_URL)
+
+
+class AssignQRLoginTokensToFacilityTaskTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        enable_qr_login(cls.facility)
+
+    def test_assigns_tokens_to_all_eligible_learners(self):
+        learner1 = FacilityUserFactory.create(facility=self.facility)
+        learner2 = FacilityUserFactory.create(facility=self.facility)
+        learner3 = FacilityUserFactory.create(facility=self.facility)
+
+        from kolibri.core.auth.utils.qr_tokens import assign_qr_login_token
+
+        assign_qr_login_token(learner1)
+        learner1.refresh_from_db()
+
+        from kolibri.core.auth.tasks import assign_qr_login_tokens_to_facility
+
+        assign_qr_login_tokens_to_facility(self.facility.id)
+
+        learner1.refresh_from_db()
+        learner2.refresh_from_db()
+        learner3.refresh_from_db()
+        self.assertIsNotNone(learner1.qr_login_token)
+        self.assertIsNotNone(learner2.qr_login_token)
+        self.assertIsNotNone(learner3.qr_login_token)
+        self.assertGreaterEqual(len(learner2.qr_login_token), 16)
+
+    def test_skips_coaches_and_superusers(self):
+        from .helpers import create_superuser
+
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        superuser = create_superuser(self.facility)
+
+        from kolibri.core.auth.tasks import assign_qr_login_tokens_to_facility
+
+        assign_qr_login_tokens_to_facility(self.facility.id)
+
+        coach.refresh_from_db()
+        superuser.refresh_from_db()
+        self.assertIsNone(coach.qr_login_token)
+        self.assertIsNone(superuser.qr_login_token)
+
+    def test_skips_learners_that_already_have_tokens(self):
+        from kolibri.core.auth.utils.qr_tokens import assign_qr_login_token
+
+        learner = FacilityUserFactory.create(facility=self.facility)
+        assign_qr_login_token(learner)
+        learner.refresh_from_db()
+        original_token = learner.qr_login_token
+
+        from kolibri.core.auth.tasks import assign_qr_login_tokens_to_facility
+
+        assign_qr_login_tokens_to_facility(self.facility.id)
+
+        learner.refresh_from_db()
+        self.assertEqual(learner.qr_login_token, original_token)
