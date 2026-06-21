@@ -755,9 +755,16 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         """
         Generates a new QR login token for the user, invalidating any
         previously-printed card. Only facility admins can call this;
-        KolibriAuthPermissions enforces that via self.get_object().
+        learners cannot rotate their own tokens.
         """
-        user = self.get_object()
+        from django.shortcuts import get_object_or_404
+
+        user = get_object_or_404(FacilityUser, pk=pk)
+        if not (
+            request.user.is_superuser
+            or request.user.has_role_for_collection(role_kinds.ADMIN, user.facility)
+        ):
+            raise PermissionDenied("Only facility admins can rotate QR tokens.")
         reassign_qr_login_token(user)
         return Response({"qr_login_token": user.qr_login_token})
 
