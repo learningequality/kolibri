@@ -9,6 +9,17 @@
       :style="{ borderColor: $themeTokens.fineLine }"
     >
       <div
+        v-if="learner.profile_image"
+        class="photo-wrapper"
+      >
+        <img
+          :src="learner.profile_image"
+          :alt="learner.full_name"
+          class="learner-photo"
+        />
+      </div>
+      <div
+        v-else
         class="photo-placeholder"
         :style="{ borderColor: $themeTokens.fineLine }"
       >
@@ -114,6 +125,20 @@
     flex-shrink: 0;
     border: 2px dashed;
     border-radius: 8px;
+  }
+
+  .photo-wrapper {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .learner-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .photo-placeholder-label {

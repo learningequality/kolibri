@@ -15,6 +15,7 @@ import ManageClassPage from './views/ManageClassPage';
 import UsersRootPage from './views/users/UsersRootPage';
 import NewUsersPage from './views/users/NewUsersPage.vue';
 import UserEditPage from './views/UserEditPage';
+import IdCardsPage from './views/idCards/IdCardsPage.vue';
 import AllFacilitiesPage from './views/AllFacilitiesPage';
 import UsersTrashPage from './views/users/UsersTrashPage/index.vue';
 
@@ -128,6 +129,14 @@ export default [
     path: '/:facility_id?/users/:id',
     handler: () => {
       store.dispatch('preparePage', { isAsync: false });
+    },
+  },
+  {
+    name: PageNames.ID_CARDS_PAGE,
+    component: IdCardsPage,
+    path: '/:facility_id?/id-cards',
+    handler: toRoute => {
+      facilityParamRequiredGuard(toRoute, IdCardsPage.name);
     },
   },
   {

@@ -104,4 +104,69 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Print QR codes',
     context: 'Option in the print-format dialog on the all-passwords page.',
   },
+  // ID Cards page
+  idCards: {
+    message: 'ID Cards',
+    context: 'Navigation item label for the student ID cards management page.',
+  },
+  idCardsPageTitle: {
+    message: 'Student ID Cards',
+    context: 'Title of the ID Cards management page.',
+  },
+  idCardsPageDescription: {
+    message: 'View, print, and manage QR code ID cards for learners.',
+    context: 'Description shown below the ID Cards page title.',
+  },
+  uploadPhoto: {
+    message: 'Upload photo',
+    context: 'Button label for uploading a profile photo for a student ID card.',
+  },
+  replacePhoto: {
+    message: 'Replace photo',
+    context: 'Button label for replacing an existing profile photo.',
+  },
+  photoUploaded: {
+    message: 'Photo updated',
+    context: 'Success message after a photo is uploaded.',
+  },
+  uploadFailed: {
+    message: 'Could not upload photo',
+    context: 'Error message when a photo upload fails.',
+  },
+  regenerateQR: {
+    message: 'Regenerate QR code',
+    context: 'Button label for generating a new QR code token.',
+  },
+  regenerateQRConfirmTitle: {
+    message: 'Regenerate QR code',
+    context: 'Title of the confirmation modal for regenerating a QR code.',
+  },
+  regenerateQRConfirm: {
+    message: 'Generate a new QR code for {name}?',
+    context: 'Confirmation message in the regenerate QR modal.',
+  },
+  regenerateQRWarning: {
+    message: 'The current QR code will stop working immediately. Print a new card to replace it.',
+    context: 'Warning text in the regenerate QR confirmation modal.',
+  },
+  printCard: {
+    message: 'Print card',
+    context: 'Button label for printing a single student ID card.',
+  },
+  printAllCards: {
+    message: 'Print all cards',
+    context: 'Button label for printing all student ID cards.',
+  },
+  noQrCodeAssigned: {
+    message: 'No QR code assigned',
+    context: 'Message shown when a learner does not yet have a QR login token.',
+  },
+  noLearnersFound: {
+    message: 'No learners found',
+    context: 'Empty-state message when no learners match the search filter.',
+  },
+  searchLearners: {
+    message: 'Search learners',
+    context: 'Placeholder text for the search input on the ID Cards page.',
+  },
 });

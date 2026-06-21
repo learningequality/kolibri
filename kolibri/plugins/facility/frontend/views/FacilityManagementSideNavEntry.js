@@ -2,6 +2,7 @@ import { UserKinds } from 'kolibri/constants';
 import { registerNavItem } from 'kolibri/composables/useNav';
 import urls from 'kolibri/urls';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 import baseRoutes from '../baseRoutes';
 
 registerNavItem({
@@ -21,6 +22,12 @@ registerNavItem({
         route: baseRoutes.users.path,
         icon: 'people',
         name: baseRoutes.users.name,
+      },
+      {
+        label: qrLoginStrings.idCards$(),
+        route: baseRoutes.idCards.path,
+        icon: 'people',
+        name: baseRoutes.idCards.name,
       },
       {
         label: coreStrings.$tr('settingsLabel'),

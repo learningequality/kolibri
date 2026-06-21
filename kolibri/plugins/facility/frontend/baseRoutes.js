@@ -9,6 +9,10 @@ export default {
     name: PageNames.USER_MGMT_PAGE,
     path: '/:facility_id?/users',
   },
+  idCards: {
+    name: PageNames.ID_CARDS_PAGE,
+    path: '/:facility_id?/id-cards',
+  },
   data: {
     name: PageNames.DATA_EXPORT_PAGE,
     path: '/:facility_id?/data',

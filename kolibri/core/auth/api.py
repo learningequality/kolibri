@@ -91,6 +91,7 @@ from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.auth.utils.qr_tokens import reassign_qr_login_token
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.permissions import NotProvisionedHasPermission
@@ -706,6 +707,7 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "date_joined",
         "picture_password",
         "qr_login_token",
+        "profile_image",
     )
 
     ordering_fields = (
@@ -747,6 +749,17 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         # if the user is updating their own password, ensure they don't get logged out
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
+
+    @decorators.action(detail=True, methods=["post"])
+    def rotate_qr_token(self, request, pk):
+        """
+        Generates a new QR login token for the user, invalidating any
+        previously-printed card. Only facility admins can call this;
+        KolibriAuthPermissions enforces that via self.get_object().
+        """
+        user = self.get_object()
+        reassign_qr_login_token(user)
+        return Response({"qr_login_token": user.qr_login_token})
 
 
 class DeletedFacilityUserViewSet(

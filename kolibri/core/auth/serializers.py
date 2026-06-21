@@ -172,6 +172,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "extra_demographics",
             "picture_password",
             "qr_login_token",
+            "profile_image",
         )
         read_only_fields = ("is_superuser", "picture_password", "qr_login_token")
 

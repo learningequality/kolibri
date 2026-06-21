@@ -959,6 +959,13 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         max_length=64, null=True, blank=True, default=None, unique=True
     )
 
+    # Stores a base64 data URL (e.g. "data:image/jpeg;base64,...") of the
+    # learner's profile photo for display on ID cards. Client-side canvas
+    # resizing keeps payloads to ~20-30 KB. Stored as plaintext TextField
+    # rather than ImageField because Kolibri has minimal media-serving
+    # infrastructure, and a data URL renders directly in <img src="...">.
+    profile_image = models.TextField(null=True, blank=True, default=None)
+
     class Meta:
         unique_together = (("dataset", "picture_password"),)
 
