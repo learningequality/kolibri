@@ -19,3 +19,4 @@ These guides are step by step guides for common tasks in getting started and wor
   preview_on_mobile
   working_with_urls_and_api_endpoints
   qr_login
+  deploy_kolibri_school_fork
