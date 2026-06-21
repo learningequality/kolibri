@@ -4341,7 +4341,9 @@ class RemoteFacilityUserViewsetTestCase(
     valid_item = {"id": "00000000000000000000000000000001", "username": "alice"}
 
     def _call_with_payload(self, payload):
-        with patch("kolibri.core.auth.api.NetworkClient") as NetworkClient:
+        with patch(
+            "kolibri.core.auth.viewsets.auth_views.NetworkClient"
+        ) as NetworkClient:
             client = NetworkClient.build_for_address.return_value
             client.get.return_value.json.return_value = payload
             return self.client.get(
