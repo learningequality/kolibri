@@ -3600,8 +3600,14 @@ class RemoteAccessSessionTestCase(APITestCase):
             format="json",
         )
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=False,
+    )
     def test_login_blocked_when_remote_access_disabled_in_app_context(
         self, mock_allow, mock_app_key
     ):
@@ -3609,24 +3615,41 @@ class RemoteAccessSessionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data[0]["id"], error_constants.INVALID_CREDENTIALS)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=True)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=True,
+    )
     def test_login_allowed_when_remote_access_enabled_in_app_context(
         self, mock_allow, mock_app_key
     ):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=True)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request", return_value=True
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=False,
+    )
     def test_login_allowed_with_app_key_when_remote_access_disabled(
         self, mock_allow, mock_app_key
     ):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=True)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=True,
+    )
     def test_login_allowed_when_not_in_app_context(self, mock_allow, mock_app_key):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
