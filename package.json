@@ -62,6 +62,7 @@
     "kolibri-plugin-data": "workspace:*",
     "kolibri-tools": "workspace:*",
     "rewire": "^6.0.0",
+    "sass": "1.69.0",
     "vue-jest": "^3.0.0",
     "vue-template-compiler": "2.7.16",
     "webpack": "^5.104.0"
@@ -102,6 +103,13 @@
     "overrides": {
       "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0",
       "vue-jest>vue-template-es2015-compiler": "npm:vue-template-babel-compiler@^2.0.0"
+    },
+    "patchedDependencies": {
+      "sass@1.69.0": "patches/sass@1.69.0.patch"
     }
+  },
+  "dependencies": {
+    "@zxing/browser": "0.1.5",
+    "@zxing/library": "0.21.3"
   }
 }

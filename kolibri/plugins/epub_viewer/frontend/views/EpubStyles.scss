@@ -44,14 +44,14 @@ $bottom-bar-height: 54px;
   border-radius: unset;
   transform: translate(-50%, -50%);
 
-  /deep/ .ui-icon-button__focus-ring {
+  ::v-deep .ui-icon-button__focus-ring {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) !important;
   }
 
-  /deep/ svg {
+  ::v-deep svg {
     border: 2px solid;
     border-radius: 50%;
   }

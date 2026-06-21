@@ -81,6 +81,8 @@
   ],
   "dependencies": {
     "@vueuse/core": "catalog:",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
     "axios": "^1.15.2",
     "clipboard": "^2.0.11",
     "fontfaceobserver": "^2.3.0",
