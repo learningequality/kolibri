@@ -92,7 +92,6 @@
     grid-template-rows: auto;
     gap: 0.2in;
     justify-content: center;
-    padding: 0.25in;
   }
 
   .id-card {
@@ -176,12 +175,8 @@
     height: 0.75in !important;
   }
 
-  // Hide on screen
-  @media screen {
-    .printable-id-cards {
-      display: none;
-    }
-  }
+  // No screen-hiding rule needed — the parent (IdCardsPage) controls
+  // visibility via v-if and the @media print visibility trick.
 
   @media print {
     .id-card {

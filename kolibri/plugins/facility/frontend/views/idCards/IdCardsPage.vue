@@ -446,10 +446,39 @@
     overflow: auto;
   }
 
-  @media screen {
-    .print-overlay {
-      display: none;
+</style>
+
+
+<style>
+
+  /*
+   * Global (unscoped) print rules.
+   * Use the visibility trick to hide ALL page content during print
+   * except the print overlay. This prevents bleed from the on-screen
+   * cards grid, header, and search bar appearing in the print output.
+   */
+  @media print {
+    body * {
+      visibility: hidden;
     }
+
+    .print-overlay,
+    .print-overlay * {
+      visibility: visible;
+    }
+
+    .print-overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white;
+    }
+  }
+
+  @page {
+    size: letter;
+    margin: 0.5in;
   }
 
 </style>
