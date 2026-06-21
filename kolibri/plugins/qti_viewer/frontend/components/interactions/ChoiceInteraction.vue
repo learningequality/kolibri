@@ -7,6 +7,8 @@
   import { createTranslator } from 'kolibri/utils/i18n';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
+  import useAnswerGuide from '../../composables/useAnswerGuide';
+  import AnswerGuide from '../AnswerGuide.vue';
 
   const strings = createTranslator('ChoiceInteractionStrings', {
     choiceListLabel: {
@@ -63,6 +65,11 @@
       const multiSelectable = computed(() => {
         return typedProps.maxChoices.value !== 1;
       });
+
+      const answerGuideKey = computed(() =>
+        multiSelectable.value ? 'qti-choice-interaction-multiple' : 'qti-choice-interaction-single',
+      );
+      const answerGuideText = useAnswerGuide(answerGuideKey);
 
       const isSelected = identifier => {
         const variable = responses[typedProps.responseIdentifier.value];
@@ -169,8 +176,11 @@
           orderedChoices.map(choice => choice.vnode),
         );
 
+        const answerGuideVNode = h(AnswerGuide, {
+          props: { text: answerGuideText.value },
+        });
         // Create container with non-choice content first, then choices list
-        return h('div', [...nonChoiceContent, choicesList]);
+        return h('div', [...nonChoiceContent, answerGuideVNode, choicesList]);
       };
     },
     props: {
@@ -223,6 +233,8 @@
   );
 
   .qti-choice-interaction {
+    padding: 0;
+    margin: 0;
     // The counter always advances: even for qti-labels-none or suffix
     // modes: since multiple rules below depend on its current value.
     counter-reset: qti-choice-counter;
