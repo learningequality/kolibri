@@ -95,7 +95,9 @@
 
   .qti-simple-choice {
     position: relative;
-    padding: 0.75rem 1rem 0.75rem 64px;
+    padding-block: 0.75rem;
+    padding-inline-start: 64px;
+    padding-inline-end: 1rem;
     margin: 7px 0;
     cursor: pointer;
     border-style: solid;
@@ -112,8 +114,8 @@
 
     &::before {
       position: absolute;
+      inset-inline-start: 1rem;
       top: 50%;
-      left: 1rem;
       box-sizing: border-box;
       display: flex;
       align-items: center;

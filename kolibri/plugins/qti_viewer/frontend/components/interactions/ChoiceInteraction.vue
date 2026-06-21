@@ -214,7 +214,7 @@
   $choice-label-spacing: 0.5rem;
 
   // Control geometry
-  $control-left: 1rem;
+  $control-inset-start: 1rem;
   $control-size-plain: 1.5rem;
   $label-gap: 0.5rem;
 
@@ -276,7 +276,7 @@
     @each $suffix-name, $suffix-char in $qti-suffixes {
       &.qti-labels-suffix-#{$suffix-name} {
         .qti-simple-choice {
-          padding-left: 80px;
+          padding-inline-start: 80px;
         }
 
         .qti-simple-choice::before {
@@ -293,8 +293,8 @@
 
         .qti-simple-choice::after {
           position: absolute;
+          inset-inline-start: $control-inset-start + $control-size-plain + $label-gap;
           top: 50%;
-          left: $control-left + $control-size-plain + $label-gap;
           font-weight: 500;
           color: var(--qti-choice-color-annotation, #999999);
           transform: translateY(-50%);
@@ -329,7 +329,7 @@
       }
 
       .qti-simple-choice[aria-selected='true']::before {
-        margin-right: 8px;
+        margin-inline-end: 8px;
         color: var(--qti-choice-color-primary, #4368f3) !important;
         content: '\2714';
         background: transparent !important;
@@ -361,10 +361,10 @@
     &.qti-orientation-horizontal {
       .qti-simple-choice {
         display: inline-block;
-        margin-right: $choice-horizontal-gap;
+        margin-inline-end: $choice-horizontal-gap;
 
         &:last-child {
-          margin-right: 0;
+          margin-inline-end: 0;
         }
       }
 
@@ -419,7 +419,7 @@
         // Labels rendered upright
         &::before {
           display: inline-block;
-          margin-right: 0;
+          margin-inline-end: 0;
           margin-bottom: $choice-label-spacing;
           writing-mode: horizontal-tb;
           text-orientation: upright;
@@ -448,7 +448,7 @@
 
         &::before {
           display: inline-block;
-          margin-right: 0;
+          margin-inline-end: 0;
           margin-bottom: $choice-label-spacing;
           writing-mode: horizontal-tb;
           text-orientation: upright;
@@ -461,7 +461,7 @@
       &.qti-writing-orientation-vertical-rl,
       &.qti-writing-orientation-vertical-lr {
         .qti-simple-choice::before {
-          margin-right: 0;
+          margin-inline-end: 0;
           margin-bottom: $choice-label-spacing;
         }
       }
