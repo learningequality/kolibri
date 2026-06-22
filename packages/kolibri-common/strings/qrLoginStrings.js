@@ -34,7 +34,7 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Camera not working?',
     context: 'Small prompt above the upload-photo button on the QR sign-in page.',
   },
-  uploadPhoto: {
+  uploadQrPhoto: {
     message: 'Upload a photo of the QR code',
     context: 'Button label for the file-upload fallback path.',
   },
@@ -165,6 +165,10 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'No learners found',
     context: 'Empty-state message when no learners match the search filter.',
   },
+  couldNotLoadLearners: {
+    message: 'Could not load learners',
+    context: 'Error shown when the list of learners fails to load on the ID Cards page.',
+  },
   searchLearners: {
     message: 'Search learners',
     context: 'Placeholder text for the search input on the ID Cards page.',
@@ -196,6 +200,10 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
   logoUploaded: {
     message: 'Logo updated',
     context: 'Success message after a school logo is uploaded.',
+  },
+  logoUploadFailed: {
+    message: 'Could not upload logo',
+    context: 'Error shown when uploading the school logo fails.',
   },
   // QR login info modal (#3)
   qrLoginInfoTitle: {

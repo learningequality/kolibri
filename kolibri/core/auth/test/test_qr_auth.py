@@ -1,6 +1,6 @@
 import factory
 import mock
-from django.core.cache import caches
+from django.core.cache.backends.locmem import LocMemCache
 from django.core.exceptions import PermissionDenied
 from django.test import override_settings
 from django.test import TestCase
@@ -298,7 +298,18 @@ class SessionSigninThrottleTestCase(APITestCase):
 
     def setUp(self):
         enable_qr_login(self.facility)
-        caches["default"].clear()
+        # The test settings configure the default cache as a DummyCache, which
+        # silently drops everything written to it. DRF's throttle stores request
+        # history in `caches["default"]`, so without a real backend the limiter
+        # never trips and these tests pass vacuously. Patch a fresh in-memory
+        # cache onto the throttle so it actually accumulates history.
+        throttle_cache = LocMemCache("qr-throttle-test", {})
+        throttle_cache.clear()
+        self._cache_patcher = mock.patch(
+            "rest_framework.throttling.ScopedRateThrottle.cache", throttle_cache
+        )
+        self._cache_patcher.start()
+        self.addCleanup(self._cache_patcher.stop)
         # DRF caches DEFAULT_THROTTLE_RATES on SimpleRateThrottle at import
         # time, so @override_settings alone does not propagate. Patch the
         # class attribute directly so the test uses a smaller limit (5/min).

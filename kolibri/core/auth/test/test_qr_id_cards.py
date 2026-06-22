@@ -95,6 +95,39 @@ class ProfileImageTestCase(APITestCase):
         self.learner.refresh_from_db()
         self.assertIsNone(self.learner.profile_image)
 
+    def test_profile_image_rejects_non_data_url(self):
+        url = reverse(
+            "kolibri:core:facilityuser-detail", kwargs={"pk": self.learner.id}
+        )
+        response = self.client.patch(
+            url, {"profile_image": "not-an-image"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_profile_image_rejects_non_image_scheme(self):
+        url = reverse(
+            "kolibri:core:facilityuser-detail", kwargs={"pk": self.learner.id}
+        )
+        response = self.client.patch(
+            url,
+            {"profile_image": "data:text/html;base64,SGVsbG8="},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_profile_image_rejects_oversized_payload(self):
+        # A data URL whose decoded size exceeds the cap is rejected so a hostile
+        # client cannot store a huge blob that then replicates to every device
+        # via Morango. "A" is valid base64; 220000 chars decode to ~165 KB.
+        oversized = "data:image/jpeg;base64," + "A" * 220000
+        url = reverse(
+            "kolibri:core:facilityuser-detail", kwargs={"pk": self.learner.id}
+        )
+        response = self.client.patch(url, {"profile_image": oversized}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.learner.refresh_from_db()
+        self.assertIsNone(self.learner.profile_image)
+
 
 class RotateQRTokenTestCase(APITestCase):
     databases = "__all__"

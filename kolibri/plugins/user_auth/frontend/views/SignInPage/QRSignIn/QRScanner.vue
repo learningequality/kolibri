@@ -78,7 +78,7 @@
         appearance="raised-button"
         @click="triggerFilePicker"
       >
-        {{ uploadPhoto$() }}
+        {{ uploadQrPhoto$() }}
       </KButton>
       <input
         ref="fileInputRef"
@@ -151,7 +151,7 @@
         cameraNotFound$,
         cameraUnavailable$,
         cameraNotWorking$,
-        uploadPhoto$,
+        uploadQrPhoto$,
         decodeFailed$,
       } = qrLoginStrings;
 
@@ -388,7 +388,7 @@
         cameraNotFound$,
         cameraUnavailable$,
         cameraNotWorking$,
-        uploadPhoto$,
+        uploadQrPhoto$,
         decodeFailed$,
         start,
         stop,

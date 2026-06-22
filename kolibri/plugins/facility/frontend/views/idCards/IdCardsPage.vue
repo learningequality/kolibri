@@ -209,10 +209,12 @@
         deselectAll$,
         selectedCount$,
         noLearnersFound$,
+        couldNotLoadLearners$,
         searchLearners$,
         uploadLogo$,
         replaceLogo$,
         logoUploaded$,
+        logoUploadFailed$,
       } = qrLoginStrings;
 
       const learners = ref([]);
@@ -259,7 +261,7 @@
           });
           learners.value = data;
         } catch (err) {
-          createSnackbar({ text: 'Could not load learners', autoDismiss: true });
+          createSnackbar({ text: couldNotLoadLearners$(), autoDismiss: true });
         } finally {
           loading.value = false;
         }
@@ -335,7 +337,7 @@
           await fetchFacilityConfig();
           createSnackbar({ text: logoUploaded$(), autoDismiss: true });
         } catch (err) {
-          createSnackbar({ text: 'Could not upload logo', autoDismiss: true });
+          createSnackbar({ text: logoUploadFailed$(), autoDismiss: true });
         }
       }
 

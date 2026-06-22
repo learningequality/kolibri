@@ -1,4 +1,7 @@
+import base64
+import binascii
 import logging
+import re
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MinLengthValidator
@@ -33,6 +36,19 @@ from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
 logger = logging.getLogger(__name__)
+
+# `profile_image` is a base64 data URL stored verbatim on the (synced) FacilityUser
+# row, so it must be validated server-side: the client resizes to ~20-30 KB, but
+# without these bounds a hostile client could store an arbitrarily large blob that
+# then replicates to every peer device via Morango.
+PROFILE_IMAGE_MAX_BYTES = 150 * 1024  # decoded image bytes
+# Generous outer bound on the raw string so we can reject huge payloads cheaply,
+# before allocating a decode buffer. Base64 inflates by ~4/3 plus the data-URL
+# prefix, so this comfortably covers PROFILE_IMAGE_MAX_BYTES.
+PROFILE_IMAGE_MAX_DATA_URL_CHARS = PROFILE_IMAGE_MAX_BYTES * 2
+PROFILE_IMAGE_DATA_URL_RE = re.compile(
+    r"^data:image/(?:jpeg|png|webp);base64,(.+)$", re.DOTALL
+)
 
 
 def _prepare_for_bulk_create(instance):
@@ -200,6 +216,32 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             if facility.dataset.enable_qr_login:
                 assign_qr_login_token(instance)
         return instance
+
+    def validate_profile_image(self, value):
+        """
+        Ensure `profile_image` is a reasonably-sized base64 image data URL.
+        An empty value (clearing the photo) is allowed.
+        """
+        if not value:
+            return value
+        if len(value) > PROFILE_IMAGE_MAX_DATA_URL_CHARS:
+            raise serializers.ValidationError(
+                "profile_image exceeds the maximum allowed size."
+            )
+        match = PROFILE_IMAGE_DATA_URL_RE.match(value)
+        if not match:
+            raise serializers.ValidationError(
+                "profile_image must be a base64-encoded JPEG, PNG, or WEBP data URL."
+            )
+        try:
+            decoded = base64.b64decode(match.group(1), validate=True)
+        except (binascii.Error, ValueError):
+            raise serializers.ValidationError("profile_image is not valid base64 data.")
+        if len(decoded) > PROFILE_IMAGE_MAX_BYTES:
+            raise serializers.ValidationError(
+                "profile_image exceeds the maximum allowed size."
+            )
+        return value
 
     def _validate_extra_demographics(self, attrs, facility):
         # Validate the extra demographics here, as we need access to the facility dataset
