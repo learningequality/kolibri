@@ -3,6 +3,7 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
@@ -44,9 +45,7 @@ logger = logging.getLogger(__name__)
 _EPOCH_UTC = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
 
 # Fields present on Exam but not DraftExam; excluded when querying DraftExam.
-_EXAM_ONLY_FIELDS = frozenset(
-    {"active", "archive", "date_archived", "date_activated", "assignment_collections"}
-)
+_EXAM_ONLY_FIELDS = frozenset({"active", "archive", "date_archived", "date_activated"})
 
 
 class QuestionSourceSerializer(Serializer):
@@ -78,23 +77,14 @@ class ExamSerializer(ModelSerializer):
     # via deferred_fields on ExamViewset. They are populated post-query by
     # consolidate() (for Exam) and serialize_draft() (for DraftExam).
     assignments = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False, queryset=Collection.objects.all()
-        ),
+        child=PrimaryKeyRelatedField(queryset=Collection.objects.all()),
     )
     learner_ids = ListField(
-        child=PrimaryKeyRelatedField(
-            read_only=False, queryset=FacilityUser.objects.all()
-        ),
+        child=PrimaryKeyRelatedField(queryset=FacilityUser.objects.all()),
         required=False,
     )
     question_sources = QuizSectionSerializer(many=True, required=False)
     draft = BooleanField(default=True, required=False)
-
-    # Read-only field for the assignment_collections annotation from annotate_queryset.
-    # Named differently from the reverse-FK 'assignments' to avoid _source_crosses_many_relation
-    # treating it as a one-to-many joined field (which would produce nested lists).
-    assignment_collections = ListField(read_only=True)
 
     class Meta:
         model = Exam
@@ -117,7 +107,6 @@ class ExamSerializer(ModelSerializer):
             "date_created",
             "date_archived",
             "date_activated",
-            "assignment_collections",
         )
         extra_kwargs = {
             "seed": {"read_only": True},
@@ -473,16 +462,6 @@ class ExamViewset(ValuesViewset):
     def get_queryset(self):
         return Exam.objects.all()
 
-    def annotate_queryset(self, queryset):
-        return annotate_array_aggregate(
-            queryset, assignment_collections="assignments__collection"
-        )
-
-    def _validate_output(self, items):
-        # consolidate() pops assignment_collections and populates assignments instead,
-        # so the schema (which expects assignment_collections) cannot validate the output.
-        pass
-
     def serialize_draft(self, queryset):
         # Derive the values to fetch for DraftExam from the serializer-derived _values.
         # Exclude Exam-only fields not present on DraftExam, and the assignment_collections
@@ -613,32 +592,31 @@ class ExamViewset(ValuesViewset):
     def consolidate(self, items, queryset):
         if items:
             exam_ids = [e["id"] for e in items]
-            adhoc_assignments = ExamAssignment.objects.filter(
-                exam_id__in=exam_ids, collection__kind=ADHOCLEARNERSGROUP
-            )
-            adhoc_assignments = annotate_array_aggregate(
-                adhoc_assignments,
+            all_assignments_qs = ExamAssignment.objects.filter(exam_id__in=exam_ids)
+            all_assignments = annotate_array_aggregate(
+                all_assignments_qs,
                 learner_ids="collection__membership__user_id",
-                filter=FacilityUser.get_is_active_q("collection__membership"),
+                filter=Q(collection__kind=ADHOCLEARNERSGROUP)
+                & FacilityUser.get_is_active_q("collection__membership"),
             )
-            adhoc_assignments = {
-                a["exam"]: a
-                for a in adhoc_assignments.values("collection", "exam", "learner_ids")
-            }
-            for item in items:
-                assignment_collections = item.pop("assignment_collections", [])
-                if item["id"] in adhoc_assignments:
-                    adhoc_assignment = adhoc_assignments[item["id"]]
-                    item["learner_ids"] = adhoc_assignment["learner_ids"]
-                    item["assignments"] = [
-                        i
-                        for i in assignment_collections
-                        if i != adhoc_assignment["collection"]
-                    ]
+            exam_regular = {}
+            exam_adhoc = {}
+            for a in all_assignments.values(
+                "collection", "exam", "collection__kind", "learner_ids"
+            ):
+                if a["collection__kind"] == ADHOCLEARNERSGROUP:
+                    exam_adhoc[a["exam"]] = a
                 else:
-                    item["learner_ids"] = []
-                    item["assignments"] = assignment_collections
-                # This is an Exam model, so set the draft flag to False
+                    exam_regular.setdefault(a["exam"], []).append(a["collection"])
+
+            for item in items:
+                exam_id = item["id"]
+                item["assignments"] = exam_regular.get(exam_id, [])
+                item["learner_ids"] = (
+                    (exam_adhoc[exam_id]["learner_ids"] or [])
+                    if exam_id in exam_adhoc
+                    else []
+                )
                 item["draft"] = False
                 # Map NULL instant_report_visibility to True (NULL means unrestricted)
                 if item["instant_report_visibility"] is None:

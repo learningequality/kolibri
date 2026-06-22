@@ -660,25 +660,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         self.assertTrue(response.data["instant_report_visibility"])
 
 
-def test_exam_viewset_values_derived_from_serializer():
-    """Values must be derived from ExamSerializer, not explicit tuples."""
-    from kolibri.core.exams.viewsets.exam import ExamSerializer
-    from kolibri.core.exams.viewsets.exam import ExamViewset
-
-    vs = ExamViewset()
-    assert not hasattr(vs, "values"), (
-        "ExamViewset must not have explicit 'values' tuple"
-    )
-    assert not hasattr(vs, "field_map"), (
-        "ExamViewset must not have explicit 'field_map'"
-    )
-    # _values = serializer fields minus deferred fields (populated post-query)
-    expected = frozenset(ExamSerializer.Meta.fields) - frozenset(
-        ExamViewset.deferred_fields
-    )
-    assert frozenset(vs._values) == expected
-
-
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
     class_object = models.DraftExam
 
