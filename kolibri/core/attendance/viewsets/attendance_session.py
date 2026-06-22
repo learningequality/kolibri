@@ -16,13 +16,13 @@ from rest_framework.serializers import PrimaryKeyRelatedField
 from kolibri.core.api import ValuesViewset
 from kolibri.core.attendance.models import AttendanceRecord
 from kolibri.core.attendance.models import AttendanceSession
-from kolibri.core.auth.api import _ensure_raw_dict
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.auth.api import OptionalPageNumberPagination
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions import _ensure_raw_dict
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.serializers import DateTimeTzField
+from kolibri.core.utils.pagination import OptionalPageNumberPagination
 
 logger = logging.getLogger(__name__)
 

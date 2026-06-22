@@ -13,8 +13,6 @@ from kolibri.core import error_constants
 from kolibri.core.api import ValuesViewset
 from kolibri.core.query import SQCount
 
-from ..api import KolibriAuthPermissions
-from ..api import KolibriAuthPermissionsFilter
 from ..constants import collection_kinds
 from ..constants import role_kinds
 from ..errors import InvalidCollectionHierarchy
@@ -22,6 +20,8 @@ from ..models import Classroom
 from ..models import Facility
 from ..models import FacilityUser
 from ..models import Role
+from ..permissions import KolibriAuthPermissions
+from ..permissions import KolibriAuthPermissionsFilter
 
 logger = logging.getLogger(__name__)
 

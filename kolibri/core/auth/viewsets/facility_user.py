@@ -33,10 +33,8 @@ from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facilit
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.utils.pagination import OptionalPageNumberPagination
 
-from ..api import KolibriAuthPermissions
-from ..api import KolibriAuthPermissionsFilter
-from ..api import OptionalPageNumberPagination
 from ..constants import role_kinds
 from ..constants.demographics import DEFERRED
 from ..constants.demographics import NOT_SPECIFIED
@@ -47,6 +45,8 @@ from ..models import FacilityUser
 from ..models import Role
 from ..models import validate_username_allowed_chars
 from ..models import validate_username_max_length
+from ..permissions import KolibriAuthPermissions
+from ..permissions import KolibriAuthPermissionsFilter
 from ..utils.picture_passwords import are_picture_passwords_exhausted
 from ..utils.picture_passwords import assign_picture_password
 

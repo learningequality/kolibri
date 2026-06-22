@@ -21,9 +21,9 @@ from rest_framework import routers
 
 from kolibri.core.content.public_api import ImportMetadataViewset
 
-from ..auth.api import PublicFacilityViewSet
-from ..auth.api import PublicSignUpViewSet
+from ..auth.viewsets.facility import PublicFacilityViewSet
 from ..auth.viewsets.facility_user import PublicFacilityUserViewSet
+from ..auth.viewsets.signup import PublicSignUpViewSet
 from .api import FacilitySearchUsernameViewSet
 from .api import get_public_channel_list
 from .api import get_public_channel_lookup

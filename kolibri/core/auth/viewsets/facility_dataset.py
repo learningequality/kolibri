@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import PermissionDenied
+from django.core.validators import MinLengthValidator
 from django.http import Http404
 from django.http import HttpResponseBadRequest
 from django_filters.rest_framework import DjangoFilterBackend
@@ -22,15 +23,29 @@ from kolibri.core.device.utils import (
 )
 from kolibri.core.tasks.main import job_storage
 
-from ..api import KolibriAuthPermissions
-from ..api import KolibriAuthPermissionsFilter
 from ..constants import collection_kinds
 from ..errors import IncompatibleDeviceSettingError
 from ..models import Facility
 from ..models import FacilityDataset
-from ..serializers import ExtraFieldsSerializer
+from ..permissions import KolibriAuthPermissions
+from ..permissions import KolibriAuthPermissionsFilter
 
 logger = logging.getLogger(__name__)
+
+
+def validate_pin_code(value):
+    if not value.isdigit():
+        raise serializers.ValidationError("A Pin must be number")
+
+
+class ExtraFieldsSerializer(serializers.Serializer):
+    facility = serializers.JSONField(required=False)
+    pin_code = serializers.CharField(
+        required=False,
+        max_length=4,
+        validators=[MinLengthValidator(4), validate_pin_code],
+    )
+    on_my_own_setup = serializers.BooleanField(required=False)
 
 
 class FacilityDatasetFilter(FilterSet):

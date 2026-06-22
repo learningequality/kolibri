@@ -24,12 +24,12 @@ from rest_framework.status import HTTP_404_NOT_FOUND
 from kolibri.core import error_constants
 from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode

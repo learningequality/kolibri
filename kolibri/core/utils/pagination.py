@@ -132,6 +132,17 @@ class ValuesViewsetPageNumberPagination(PageNumberPagination):
         }
 
 
+class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
+    """
+    Pagination class that allows for page number-style pagination, when requested.
+    To activate, the `page_size` argument must be set. For example, to request the first 20 records:
+    `?page_size=20&page=1`
+    """
+
+    page_size = None
+    page_size_query_param = "page_size"
+
+
 class CachedListPagination(ValuesViewsetPageNumberPagination):
     django_paginator_class = CachedValuesViewsetPaginator
 

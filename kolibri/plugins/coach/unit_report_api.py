@@ -6,8 +6,8 @@ from le_utils.constants import modalities
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.logger.models import AttemptLog

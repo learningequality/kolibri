@@ -9,8 +9,8 @@ from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.auth.utils.deprovision import deprovision
+from kolibri.core.auth.viewsets.facility import FacilitySerializer
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import OSUser

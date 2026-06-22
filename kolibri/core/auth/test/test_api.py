@@ -44,7 +44,7 @@ from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
 from ..models import Facility
-from ..serializers import _prepare_for_bulk_create
+from ..viewsets.membership import _prepare_for_bulk_create
 from .helpers import create_superuser
 from .helpers import disable_picture_password
 from .helpers import DUMMY_PASSWORD
@@ -900,6 +900,79 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         # facility1 has user1 (a learner) plus the superuser (not a learner)
         self.assertEqual(response.data["num_learners"], 1)
+
+    def test_facility_response_has_dataset_nested_object(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data["dataset"], dict)
+
+    def test_dataset_has_exactly_expected_fields(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            set(response.data["dataset"].keys()),
+            {
+                "id",
+                "learner_can_edit_username",
+                "learner_can_edit_name",
+                "learner_can_edit_password",
+                "learner_can_sign_up",
+                "learner_can_delete_account",
+                "learner_can_login_with_no_password",
+                "show_download_button_in_learn",
+                "enable_mark_attendance",
+                "extra_fields",
+                "picture_password_settings",
+                "description",
+                "location",
+                "registered",
+                "preset",
+                "allow_guest_access",
+                "is_full_facility_import",
+            },
+        )
+
+    def test_facility_response_has_num_classrooms(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["num_classrooms"], 0)
+
+    def test_facility_response_has_num_users(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.get(
+            reverse("kolibri:core:facility-detail", kwargs={"pk": self.facility1.pk}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertGreaterEqual(response.data["num_users"], 1)
 
 
 def _add_demographic_schema_to_facility(facility):
@@ -3527,8 +3600,14 @@ class RemoteAccessSessionTestCase(APITestCase):
             format="json",
         )
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=False,
+    )
     def test_login_blocked_when_remote_access_disabled_in_app_context(
         self, mock_allow, mock_app_key
     ):
@@ -3536,24 +3615,41 @@ class RemoteAccessSessionTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data[0]["id"], error_constants.INVALID_CREDENTIALS)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=True)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=True,
+    )
     def test_login_allowed_when_remote_access_enabled_in_app_context(
         self, mock_allow, mock_app_key
     ):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=True)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=False)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request", return_value=True
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=False,
+    )
     def test_login_allowed_with_app_key_when_remote_access_disabled(
         self, mock_allow, mock_app_key
     ):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch("kolibri.core.auth.api.valid_app_key_on_request", return_value=False)
-    @patch("kolibri.core.auth.api.allow_other_browsers_to_connect", return_value=True)
+    @patch(
+        "kolibri.core.auth.viewsets.session.valid_app_key_on_request",
+        return_value=False,
+    )
+    @patch(
+        "kolibri.core.auth.viewsets.session.allow_other_browsers_to_connect",
+        return_value=True,
+    )
     def test_login_allowed_when_not_in_app_context(self, mock_allow, mock_app_key):
         response = self._login()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -4245,7 +4341,9 @@ class RemoteFacilityUserViewsetTestCase(
     valid_item = {"id": "00000000000000000000000000000001", "username": "alice"}
 
     def _call_with_payload(self, payload):
-        with patch("kolibri.core.auth.api.NetworkClient") as NetworkClient:
+        with patch(
+            "kolibri.core.auth.viewsets.auth_views.NetworkClient"
+        ) as NetworkClient:
             client = NetworkClient.build_for_address.return_value
             client.get.return_value.json.return_value = payload
             return self.client.get(

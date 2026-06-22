@@ -4,8 +4,8 @@ from django_filters.rest_framework import NumberFilter
 from rest_framework import serializers
 
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
 
 from ..models import AttemptLog

@@ -10,8 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.content.api import OptionalPageNumberPagination
 from kolibri.core.decorators import query_params_required
 

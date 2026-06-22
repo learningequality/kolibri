@@ -3,8 +3,8 @@ from rest_framework import serializers
 from rest_framework import viewsets
 
 import kolibri
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.utils.version import version_matches_range

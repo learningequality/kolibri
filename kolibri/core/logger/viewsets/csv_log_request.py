@@ -5,9 +5,9 @@ from django_filters.rest_framework import ModelChoiceFilter
 from rest_framework import serializers
 from rest_framework import viewsets
 
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 
 from ..models import GenerateCSVLogRequest
 
