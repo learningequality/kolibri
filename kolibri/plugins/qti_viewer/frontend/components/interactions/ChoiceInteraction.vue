@@ -170,7 +170,11 @@
               'aria-label': choiceListLabel$(),
               'aria-multiselectable': String(multiSelectable.value),
             },
-            class: [attrs.class || '', 'qti-choice-interaction'],
+            class: [
+              attrs.class || '',
+              'qti-choice-interaction',
+              multiSelectable.value ? 'qti-multiple' : '',
+            ],
             style: choiceInteractionCSSVars,
           },
           orderedChoices.map(choice => choice.vnode),
@@ -241,6 +245,10 @@
 
     .qti-simple-choice {
       counter-increment: qti-choice-counter;
+    }
+
+    &.qti-multiple .qti-simple-choice::before {
+      border-radius: 6px;
     }
 
     // ========================================
