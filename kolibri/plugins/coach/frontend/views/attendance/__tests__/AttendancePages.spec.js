@@ -11,6 +11,7 @@ import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFaci
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
 import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
 import classSummaryModule from '../../../modules/classSummary';
+import ClassSummaryResource from '../../../apiResources/classSummary';
 /* eslint-disable import-x/named */
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
 /* eslint-enable import-x/named */
@@ -25,6 +26,10 @@ jest.mock('@zxing/browser', () => ({
   BrowserMultiFormatReader: jest.fn().mockImplementation(() => ({
     decodeFromImageUrl: jest.fn(),
   })),
+}));
+jest.mock('../../../apiResources/classSummary', () => ({
+  __esModule: true,
+  default: { resolveQr: jest.fn() },
 }));
 jest.mock('kolibri-common/composables/usePageLoading', () => ({
   pageLoading: { value: false },
@@ -472,14 +477,13 @@ describe('AttendanceNewPage', () => {
       });
     });
 
-    it('marks the matching learner present when a valid QR is scanned', async () => {
-      const ALICE_TOKEN = 'token-alice';
-      const learners = [
-        { id: 'learner-a', name: 'Alice', username: 'alice', qr_login_token: ALICE_TOKEN },
-        ...MOCK_LEARNERS.filter(l => l.id !== 'learner-a'),
-      ];
-      mockDecodeResult(ALICE_TOKEN);
-      const { container } = renderNewPage({ enableQrLogin: true, learners });
+    it('resolves the scanned token server-side and marks that learner present', async () => {
+      mockDecodeResult('token-alice');
+      // The browser never holds learner tokens; the server resolves the scan.
+      ClassSummaryResource.resolveQr.mockResolvedValueOnce({
+        data: { id: 'learner-a', name: 'Alice' },
+      });
+      const { container } = renderNewPage({ enableQrLogin: true });
       await waitFor(() => {
         expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
       });
@@ -489,14 +493,17 @@ describe('AttendanceNewPage', () => {
       fireEvent.change(input);
       await global.flushPromises();
 
+      expect(ClassSummaryResource.resolveQr).toHaveBeenCalledWith('test-class', 'token-alice');
       await waitFor(() => {
         expect(getLearnerSwitch('learner-a').checked).toBe(true);
       });
       expect(getLearnerSwitch('learner-b').checked).toBe(false);
     });
 
-    it('shows "not in class" snackbar when the QR token matches no learner', async () => {
+    it('shows "not in class" snackbar when the server cannot resolve the token', async () => {
       mockDecodeResult('unknown-token');
+      // A 404 from the resolve endpoint => token not for a learner in this class.
+      ClassSummaryResource.resolveQr.mockRejectedValueOnce(new Error('404'));
       const { container, createSnackbar } = renderNewPage({ enableQrLogin: true });
       await waitFor(() => {
         expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
@@ -511,13 +518,11 @@ describe('AttendanceNewPage', () => {
     });
 
     it('shows "already marked present" snackbar when scanning a learner already present', async () => {
-      const ALICE_TOKEN = 'token-alice';
-      const learners = [
-        { id: 'learner-a', name: 'Alice', username: 'alice', qr_login_token: ALICE_TOKEN },
-        ...MOCK_LEARNERS.filter(l => l.id !== 'learner-a'),
-      ];
-      mockDecodeResult(ALICE_TOKEN);
-      const { container, createSnackbar } = renderNewPage({ enableQrLogin: true, learners });
+      mockDecodeResult('token-alice');
+      ClassSummaryResource.resolveQr.mockResolvedValueOnce({
+        data: { id: 'learner-a', name: 'Alice' },
+      });
+      const { container, createSnackbar } = renderNewPage({ enableQrLogin: true });
       await waitFor(() => {
         expect(screen.getByText(LEARNER_ALICE.name)).toBeInTheDocument();
       });
@@ -537,7 +542,7 @@ describe('AttendanceNewPage', () => {
       );
     });
 
-    it('does nothing when the image has no decodable QR code', async () => {
+    it('does nothing (and never calls the server) when the image has no decodable QR code', async () => {
       mockDecodeFailure();
       const { container, createSnackbar } = renderNewPage({ enableQrLogin: true });
       await waitFor(() => {
@@ -549,6 +554,7 @@ describe('AttendanceNewPage', () => {
       fireEvent.change(input);
       await global.flushPromises();
 
+      expect(ClassSummaryResource.resolveQr).not.toHaveBeenCalled();
       expect(createSnackbar).not.toHaveBeenCalled();
     });
   });

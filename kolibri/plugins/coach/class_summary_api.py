@@ -8,7 +8,9 @@ from django.db.models import Subquery
 from django.db.utils import OperationalError
 from django.shortcuts import get_object_or_404
 from le_utils.constants import content_kinds
+from rest_framework import decorators
 from rest_framework import permissions
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -251,10 +253,13 @@ def serialize_groups(queryset):
 
 
 def serialize_users(queryset):
+    # NB: `qr_login_token` is deliberately NOT serialized here. It is a bearer
+    # login credential, and this payload is sent in bulk for every learner in
+    # the class. The attendance scanner resolves scanned tokens via the
+    # `resolve_qr` action below instead of matching client-side, and the coach
+    # learner-detail view fetches a single learner's token on demand.
     return list(
-        queryset.values(
-            "id", "username", "picture_password", "qr_login_token", name=F("full_name")
-        )
+        queryset.values("id", "username", "picture_password", name=F("full_name"))
     )
 
 
@@ -325,6 +330,30 @@ class ClassSummaryPermissions(permissions.BasePermission):
 
 class ClassSummaryViewSet(viewsets.ViewSet):
     permission_classes = (permissions.IsAuthenticated, ClassSummaryPermissions)
+
+    @decorators.action(detail=True, methods=["post"])
+    def resolve_qr(self, request, pk):
+        """
+        Resolve a scanned QR login token to a learner in this classroom so the
+        attendance UI can mark them present without the client ever holding the
+        full set of learner login tokens.
+
+        Scoped to classroom membership: a token belonging to a learner outside
+        this class returns 404, matching the prior client-side "not in class"
+        behaviour and preventing a coach from probing tokens beyond their own
+        class. Coach/admin permission is enforced by ClassSummaryPermissions.
+        """
+        classroom = get_object_or_404(auth_models.Classroom, id=pk)
+        token = request.data.get("qr_login_token")
+        if not token:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        learner = FacilityUser.objects.filter(
+            memberships__collection=classroom,
+            qr_login_token=token,
+        ).first()
+        if learner is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"id": learner.id, "name": learner.full_name})
 
     def retrieve(self, request, pk):
         classroom = get_object_or_404(

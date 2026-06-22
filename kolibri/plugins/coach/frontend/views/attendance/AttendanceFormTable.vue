@@ -189,6 +189,8 @@
   import { coreString } from 'kolibri/uiText/commonCoreStrings';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import ClassSummaryResource from '../../apiResources/classSummary';
+  import useCoreCoach from '../../composables/useCoreCoach';
   import BottomAppBar from 'kolibri/components/BottomAppBar';
   import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
   import PaginatedListContainer from 'kolibri-common/components/PaginatedListContainer';
@@ -231,6 +233,7 @@
 
       const { createSnackbar } = useSnackbar();
       const { facilityConfig } = useFacility();
+      const { classId } = useCoreCoach();
 
       const {
         sortedLearners,
@@ -295,37 +298,47 @@
         event.target.value = '';
         if (!file) return;
 
+        // Decode the QR image to a token locally...
+        let decoded;
         try {
           const url = URL.createObjectURL(file);
-          let decoded;
           try {
             const reader = new BrowserMultiFormatReader();
             const result = await reader.decodeFromImageUrl(url);
             decoded = result ? result.getText() : null;
-          } catch (_err) {
-            decoded = null;
           } finally {
             URL.revokeObjectURL(url);
           }
-          if (!decoded) {
-            return;
-          }
-          const match = sortedLearners.value.find(
-            learner => learner.qr_login_token === decoded,
-          );
-          if (!match) {
-            createSnackbar(learnerNotInClass$());
-            return;
-          }
-          if (isPresent(match.id)) {
-            createSnackbar(alreadyMarkedPresent$({ name: match.name }));
-            return;
-          }
-          toggleLearner(match.id);
-          createSnackbar(learnerMarkedPresent$({ name: match.name }));
         } catch (_err) {
           // Image load failure or unexpected decode error — ignore silently.
+          decoded = null;
         }
+        if (!decoded) {
+          return;
+        }
+
+        // ...then resolve the token to a learner server-side, so the full set
+        // of learner login tokens is never shipped to the browser.
+        let resolved;
+        try {
+          const response = await ClassSummaryResource.resolveQr(classId.value, decoded);
+          resolved = response.data;
+        } catch (_err) {
+          // 404 => token does not belong to a learner in this class.
+          createSnackbar(learnerNotInClass$());
+          return;
+        }
+        const match = sortedLearners.value.find(learner => learner.id === resolved.id);
+        if (!match) {
+          createSnackbar(learnerNotInClass$());
+          return;
+        }
+        if (isPresent(match.id)) {
+          createSnackbar(alreadyMarkedPresent$({ name: match.name }));
+          return;
+        }
+        toggleLearner(match.id);
+        createSnackbar(learnerMarkedPresent$({ name: match.name }));
       }
 
       return {

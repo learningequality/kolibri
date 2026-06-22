@@ -59,8 +59,8 @@
             </template>
             <template #value>
               <UserQRCode
-                v-if="learner.qr_login_token"
-                :token="learner.qr_login_token"
+                v-if="qrLoginToken"
+                :token="qrLoginToken"
                 :size="100"
               />
               <KEmptyPlaceholder v-else />
@@ -145,8 +145,11 @@
 
 <script>
 
+  import { ref, watch } from 'vue';
+  import { useRoute } from 'vue-router/composables';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import UserQRCode from 'kolibri-common/components/UserQRCode';
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
@@ -162,9 +165,41 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const route = useRoute();
       const { facilityConfig } = useFacility();
       const { coachQrCode$ } = qrLoginStrings;
-      return { facilityConfig, coachQrCode$ };
+
+      // QR login tokens are bearer credentials, so they are deliberately left
+      // out of the bulk class-summary payload. Fetch this single learner's
+      // token on demand for display when QR login is enabled.
+      const qrLoginToken = ref(null);
+
+      function refreshQrToken() {
+        const learnerId = route.params.learnerId;
+        const enabled = Boolean(facilityConfig.value && facilityConfig.value.enable_qr_login);
+        if (!learnerId || !enabled) {
+          qrLoginToken.value = null;
+          return;
+        }
+        FacilityUserResource.fetchModel({ id: learnerId, force: true })
+          .then(user => {
+            qrLoginToken.value = (user && user.qr_login_token) || null;
+          })
+          .catch(() => {
+            qrLoginToken.value = null;
+          });
+      }
+
+      watch(
+        () => [
+          route.params.learnerId,
+          Boolean(facilityConfig.value && facilityConfig.value.enable_qr_login),
+        ],
+        refreshQrToken,
+        { immediate: true },
+      );
+
+      return { facilityConfig, coachQrCode$, qrLoginToken };
     },
     // A list of all lessons assigned to the relevant Learner
     props: {
