@@ -47,7 +47,7 @@ REST_FRAMEWORK = {
         "kolibri.deployment.default.renderers.LightBrowsableAPIRenderer",
     ),
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
-    "DEFAULT_THROTTLE_RATES": {"session_signin": "30/min"},
+    "DEFAULT_THROTTLE_RATES": {"session_signin": "120/min"},
 }
 
 SWAGGER_SETTINGS = {"DEFAULT_INFO": "kolibri.deployment.default.dev_urls.api_info"}

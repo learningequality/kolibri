@@ -429,8 +429,12 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_CONTENT_NEGOTIATION_CLASS": "kolibri.core.negotiation.LimitContentNegotiation",
     "EXCEPTION_HANDLER": "kolibri.core.utils.exception_handler.custom_exception_handler",
+    # Keyed by client IP for anonymous requests, so this caps all sign-in
+    # methods together. Kept high enough that a classroom of learners signing
+    # in at once (potentially behind a shared NAT/proxy) is not falsely locked
+    # out; brute-force is not the concern for QR login given 256-bit tokens.
     "DEFAULT_THROTTLE_RATES": {
-        "session_signin": "30/min",
+        "session_signin": "120/min",
     },
 }
 
