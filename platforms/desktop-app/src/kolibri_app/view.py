@@ -76,6 +76,7 @@ class KolibriView(object):
         self.webview = html2.WebView.New(self.view, backend=backend)
         self.webview.Bind(html2.EVT_WEBVIEW_NAVIGATING, self.OnBeforeLoad)
         self.webview.Bind(html2.EVT_WEBVIEW_LOADED, self.OnLoadComplete)
+        self.webview.Bind(html2.EVT_WEBVIEW_TITLE_CHANGED, self.OnTitleChanged)
 
         self._print_pending = False
 
@@ -258,6 +259,9 @@ class KolibriView(object):
         if self.is_showing_loader:
             self.clear_history()
             self.is_showing_loader = False
+
+    def OnTitleChanged(self, event):
+        self.view.SetTitle(event.GetString())
 
     def on_documentation(self, event):
         webbrowser.open("https://kolibri.readthedocs.io/en/latest/")
