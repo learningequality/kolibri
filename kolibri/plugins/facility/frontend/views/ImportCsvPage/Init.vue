@@ -33,17 +33,17 @@
       {{ $tr('beforeCommitting') }}
     </p>
     <p>
-      <label for="csv-file"> {{ $tr('proceed') }}</label>
-    </p>
-    <p>
-      <input
-        id="csv-file"
-        ref="fileInput"
-        type="file"
-        accept=".csv"
-        name="csv-file"
-        @change="filesChanged"
-      >
+      <label for="csv-file">
+        {{ $tr('proceed') }}
+        <input
+          id="csv-file"
+          ref="fileInput"
+          type="file"
+          accept=".csv"
+          name="csv-file"
+          @change="filesChanged"
+        >
+      </label>
     </p>
     <!-- Temporarily remove this functionality for MVP -->
     <p v-if="false">
