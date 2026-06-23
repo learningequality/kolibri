@@ -7,42 +7,46 @@ import tempfile
 import unittest
 from unittest.mock import MagicMock
 
-# Mock all modules that require a display, wx installation, or kolibri runtime.
+# Mock modules that require a display, wx installation, or kolibri runtime.
 # These must be set before importing kolibri_app.view.
 _logger_mock = MagicMock()
 _logger_mock.logging = logging.getLogger("test_kolibri_app")
 sys.modules.setdefault("kolibri_app.logger", _logger_mock)
 sys.modules.setdefault("wx", MagicMock())
 sys.modules.setdefault("wx.html2", MagicMock())
-sys.modules.setdefault("django", MagicMock())
-sys.modules.setdefault("django.utils", MagicMock())
-sys.modules.setdefault("django.utils.translation", MagicMock())
+# Mock only the leaf submodule view.py imports; mocking the top-level "django"
+# package triggers pytest-django's setup path and causes collection errors.
 sys.modules.setdefault("django.utils.translation.trans_real", MagicMock())
 
 from kolibri_app import view  # noqa: E402
 
 
 class TestKolibriHomeReadable(unittest.TestCase):
-    def _remove_kolibri_home(self):
+    def tearDown(self):
         os.environ.pop("KOLIBRI_HOME", None)
 
     def test_returns_false_when_kolibri_home_not_set(self):
-        self._remove_kolibri_home()
+        os.environ.pop("KOLIBRI_HOME", None)
         self.assertFalse(view._kolibri_home_readable())
 
     def test_returns_true_for_readable_directory(self):
         with tempfile.TemporaryDirectory() as tmp:
             os.environ["KOLIBRI_HOME"] = tmp
-            try:
-                result = view._kolibri_home_readable()
-            finally:
-                self._remove_kolibri_home()
-        self.assertTrue(result)
+            self.assertTrue(view._kolibri_home_readable())
 
     def test_returns_false_for_nonexistent_path(self):
         os.environ["KOLIBRI_HOME"] = "/nonexistent/path/kolibri_home_test"
-        try:
-            result = view._kolibri_home_readable()
-        finally:
-            self._remove_kolibri_home()
-        self.assertFalse(result)
+        self.assertFalse(view._kolibri_home_readable())
+
+    @unittest.skipUnless(
+        hasattr(os, "getuid") and os.getuid() != 0,
+        "requires Unix and non-root",
+    )
+    def test_returns_false_for_unreadable_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.chmod(tmp, 0o000)
+            os.environ["KOLIBRI_HOME"] = tmp
+            try:
+                self.assertFalse(view._kolibri_home_readable())
+            finally:
+                os.chmod(tmp, 0o700)

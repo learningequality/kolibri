@@ -98,21 +98,23 @@ class KolibriView(object):
 
         menu_bar = wx.MenuBar()
 
+        primary_menu = wx.Menu()
+        self.add_menu_item(
+            primary_menu,
+            _("Open Kolibri in Browser"),
+            handler=self.on_open_in_browser,
+        )
+        open_home_item = self.add_menu_item(
+            primary_menu,
+            _("Open Kolibri Home Folder"),
+            handler=self.on_open_kolibri_home,
+        )
+        open_home_item.Enable(_kolibri_home_readable())
+
         if MAC:
             # Items in a menu named with the app name appear in the macOS
             # Application menu, before wx-provided Services / Hide / Quit.
-            app_menu = wx.Menu()
-            self.add_menu_item(
-                app_menu,
-                _("Open Kolibri in Browser"),
-                handler=self.on_open_in_browser,
-            )
-            open_home_item = self.add_menu_item(
-                app_menu,
-                _("Open Kolibri Home Folder"),
-                handler=self.on_open_kolibri_home,
-            )
-            menu_bar.Append(app_menu, APP_NAME)
+            menu_bar.Append(primary_menu, APP_NAME)
 
             edit_menu = wx.Menu()
             self.add_menu_item(edit_menu, _("Cut\tCtrl+X"), item_id=wx.ID_CUT)
@@ -123,19 +125,7 @@ class KolibriView(object):
             )
             menu_bar.Append(edit_menu, _("Edit"))
         else:
-            file_menu = wx.Menu()
-            self.add_menu_item(
-                file_menu,
-                _("Open Kolibri in Browser"),
-                handler=self.on_open_in_browser,
-            )
-            open_home_item = self.add_menu_item(
-                file_menu,
-                _("Open Kolibri Home Folder"),
-                handler=self.on_open_kolibri_home,
-            )
-            menu_bar.Append(file_menu, _("File"))
-        open_home_item.Enable(_kolibri_home_readable())
+            menu_bar.Append(primary_menu, _("File"))
 
         view_menu = wx.Menu()
         self.add_menu_item(
