@@ -178,6 +178,38 @@ update-translations:
 compile-mo:
 	find src/kolibri_app/locales -name LC_MESSAGES -exec msgfmt {}/wxapp.po -o {}/wxapp.mo \;
 
+.PHONY: wxapp-extract-strings
+wxapp-extract-strings:
+	xgettext \
+		--language=Python \
+		--keyword=_ \
+		--from-code=UTF-8 \
+		--add-comments=i18n \
+		--no-wrap \
+		--package-name=kolibri-app \
+		--output=- \
+		src/kolibri_app/*.py \
+	| msgen \
+		--no-wrap \
+		--output=src/kolibri_app/locales/en/LC_MESSAGES/wxapp.po \
+		-
+	sed -i \
+		-e '1s/# SOME DESCRIPTIVE TITLE\./# kolibri-app./' \
+		-e 's/PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE/PO-Revision-Date: /' \
+		-e 's/Last-Translator: FULL NAME <EMAIL@ADDRESS>/Last-Translator: Learning Equality <dev@learningequality.org>/' \
+		-e 's/Language-Team: LANGUAGE <LL@li.org>/Language-Team: Learning Equality <dev@learningequality.org>/' \
+		-e 's/"Language: \\n"/"Language: en\\n"/' \
+		src/kolibri_app/locales/en/LC_MESSAGES/wxapp.po
+
+.PHONY: i18n-upload
+i18n-upload: translations-export-source wxapp-extract-strings
+	crowdin upload sources
+
+.PHONY: i18n-download
+i18n-download:
+	crowdin download
+	$(MAKE) compile-mo
+
 .PHONY: codesign-mac-app
 codesign-mac-app:
 	$(MAKE) guard-MAC_CODESIGN_IDENTITY
