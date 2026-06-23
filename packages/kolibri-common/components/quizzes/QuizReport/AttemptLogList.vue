@@ -320,9 +320,10 @@
         const listOption = this.$refs.attemptListOption[questionNumber];
         if (listOption) {
           listOption.focus();
-          this.$emit('select', questionNumber);
-          this.scrollToSelectedAttemptLog(questionNumber);
         }
+
+        this.$emit('select', questionNumber);
+        this.scrollToSelectedAttemptLog(questionNumber);
       },
       isSelected(questionNumber) {
         return Number(this.selectedQuestionNumber) === questionNumber;

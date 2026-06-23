@@ -91,8 +91,8 @@
         if (item) {
           item.focus();
           this.scrollToSelectedLearner(item, learnerNumber);
-          this.$emit('select', learnerNumber);
         }
+        this.$emit('select', learnerNumber);
       },
       isSelected(learnerNumber) {
         return Number(this.selectedLearnerNumber) === learnerNumber;
