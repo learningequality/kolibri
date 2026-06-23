@@ -11,7 +11,7 @@ function createCssInsert(bundleId) {
   return new Function(
     'linkTag',
     `linkTag.setAttribute("data-webpack-bundle", ${JSON.stringify(bundleId)});
-    document.head.appendChild(linkTag);`
+    document.head.appendChild(linkTag);`,
   );
 }
 

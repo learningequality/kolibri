@@ -7,6 +7,7 @@ import pluginKolibri from 'eslint-plugin-kolibri';
 import pluginN from 'eslint-plugin-n';
 import pluginSmallImport from 'eslint-plugin-small-import';
 import pluginVue from 'eslint-plugin-vue';
+import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
 import globals from 'globals';
 
 const OFF = 0;
@@ -18,6 +19,28 @@ export default [
   pluginImportX.flatConfigs.errors,
   pluginImportX.flatConfigs.warnings,
   pluginJestDom.configs['flat/recommended'],
+  ...pluginVueA11y.configs['flat/recommended'],
+  {
+    rules: {
+      // Kolibri design-system components that always render accessible text content
+      // (e.g. via :text prop). The rule cannot see through component boundaries, so
+      // we declare them here to prevent false positives on headings that wrap these.
+      'vuejs-accessibility/heading-has-content': [
+        'error',
+        {
+          accessibleChildren: ['KButton', 'KLabeledIcon', 'KRouterLink', 'KTextTruncator'],
+        },
+      ],
+      // Kolibri intentionally uses autofocus for accessibility (focus management on modal
+      // open, wizard step transitions). Suppress false positives on non-DOM components only.
+      'vuejs-accessibility/no-autofocus': ['error', { ignoreNonDOM: true }],
+      // Accept either nesting (label wraps input) or id (for/id association) — not both required.
+      'vuejs-accessibility/label-has-for': [
+        'error',
+        { required: { some: ['nesting', 'id'] } },
+      ],
+    },
+  },
   eslintConfigPrettier,
   {
     plugins: {

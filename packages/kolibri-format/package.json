@@ -1,6 +1,6 @@
 {
   "name": "kolibri-format",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "A module for formatting frontend code to Kolibri standards",
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
     "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-small-import": "^1.0.0",
     "eslint-plugin-vue": "^9.33.0",
+    "eslint-plugin-vuejs-accessibility": "^2.5.0",
     "fast-glob": "3.3.3",
     "globals": "^17.6.0",
     "kolibri-glob": "workspace:*",
