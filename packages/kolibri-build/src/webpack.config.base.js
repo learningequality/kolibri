@@ -20,7 +20,16 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
     loader: require.resolve('postcss-loader'),
     options: {
       postcssOptions: {
-        plugins: [[require.resolve('autoprefixer')]],
+        plugins: [
+          // Flatten Perseus/math-input @layer rules (unsupported across our
+          // browserslist) to specificity-equivalent selectors. Must run before
+          // autoprefixer. onImportLayerRule is off: the plugin warns on any
+          // @import whose URL contains "layer" (e.g. pdf.js's
+          // text_layer_builder.css), which is a false positive we can't act on
+          // (css-loader resolves @import, not postcss-import).
+          [require.resolve('@csstools/postcss-cascade-layers'), { onImportLayerRule: false }],
+          [require.resolve('autoprefixer')],
+        ],
       },
       sourceMap: !production,
     },

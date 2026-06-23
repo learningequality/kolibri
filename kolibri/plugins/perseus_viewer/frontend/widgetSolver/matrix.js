@@ -3,11 +3,7 @@ export default (widget, rubric) => {
     row.map(cell => (typeof cell === 'number' ? cell.toString() : '')),
   );
 
-  widget.props.onChange(
-    {
-      answers,
-    },
-    null, // cb
-    false, // silent
-  );
+  widget.props.handleUserInput({
+    answers,
+  });
 };

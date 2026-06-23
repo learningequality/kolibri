@@ -526,6 +526,7 @@
     // Make the content wrapper the full height of the parent content attempts wrapper
     // minus the height of the attempts container below: 111px.
     height: calc(100% - 111px);
+    overflow: auto;
   }
 
   .attempts-container {

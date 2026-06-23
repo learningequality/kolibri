@@ -1,17 +1,7 @@
-export default widget => {
-  const newStates = widget.props.choices.map(choice => ({
-    correctnessShown: false,
-    rationaleShown: false,
-    readOnly: false,
-    selected: choice.correct,
-    highlighted: true,
-  }));
+export default (widget, rubric) => {
+  const correctIds = rubric.choices.filter(choice => choice.correct).map(choice => choice.id);
 
-  widget.props.onChange(
-    {
-      choiceStates: newStates,
-    },
-    null, // cb
-    false, // silent
-  );
+  widget.props.handleUserInput({
+    selectedChoiceIds: correctIds,
+  });
 };
