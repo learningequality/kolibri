@@ -119,7 +119,7 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: 'https://wus2.codesigning.azure.net/'
-          trusted-signing-account-name: 'LE-Trusted-Signing-Acct'
+          signing-account-name: 'LE-Trusted-Signing-Acct'
           certificate-profile-name: 'LE-Windows-Certificates'
           files-folder: installer/dist-installer
           files-folder-filter: ${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}
