@@ -3,6 +3,7 @@
   <div
     ref="sideNav"
     class="side-nav-wrapper"
+    role="presentation"
     tabindex="0"
     @keyup.esc="toggleNav"
   >

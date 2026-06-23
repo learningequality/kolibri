@@ -19,6 +19,7 @@
         <textarea
           v-model="selectedXml"
           class="qti-xml-editor"
+          :aria-label="$tr('qtiXmlEditorLabel')"
           placeholder="Select a QTI item from the side panel or paste XML here..."
         >
         </textarea>
@@ -108,27 +109,29 @@
               <div v-if="category.items">
                 <template v-for="item in category.items">
                   <div :key="item.identifier || item.title">
-                    <div
+                    <button
                       v-if="item.identifier"
+                      type="button"
                       class="qti-item"
                       @click="selectItem(item)"
                     >
-                      <h4>{{ item.title }}</h4>
-                    </div>
+                      {{ item.title }}
+                    </button>
                     <AccordionItem
                       v-else-if="item.items"
                       :title="item.title"
                       class="nested-accordion"
                     >
                       <template #content>
-                        <div
+                        <button
                           v-for="nestedItem in item.items"
                           :key="nestedItem.identifier"
+                          type="button"
                           class="nested-item qti-item"
                           @click="selectItem(nestedItem)"
                         >
-                          <h5>{{ nestedItem.title }}</h5>
-                        </div>
+                          {{ nestedItem.title }}
+                        </button>
                       </template>
                     </AccordionItem>
                   </div>
@@ -216,6 +219,14 @@
           ...this.answerState,
           [key]: value,
         };
+      },
+    },
+
+    $trs: {
+      qtiXmlEditorLabel: {
+        message: 'QTI XML editor',
+        context:
+          'Accessible label for the QTI XML code editor textarea in the QTI sandbox developer tool',
       },
     },
   };
@@ -365,9 +376,18 @@
   }
 
   .qti-item {
+    display: block;
+    width: 100%;
     padding: 0.75rem;
     margin-bottom: 0.5rem;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: inherit;
+    text-align: start;
     cursor: pointer;
+    background: transparent;
     border: 1px solid #dddddd;
     border-radius: 4px;
     transition: background-color 0.2s;
@@ -379,30 +399,14 @@
     &.nested-item {
       padding: 0.5rem;
       margin-left: 1rem;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #555555;
       background-color: #fafafa;
 
       &:hover {
         background-color: #f0f0f0;
       }
-    }
-
-    h3,
-    h4,
-    h5 {
-      margin: 0;
-      font-size: 0.9rem;
-      line-height: 1.3;
-    }
-
-    h4 {
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    h5 {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: #555555;
     }
 
     p {

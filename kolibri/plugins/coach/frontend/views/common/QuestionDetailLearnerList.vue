@@ -8,16 +8,28 @@
     <ul
       ref="learnerList"
       class="history-list"
+      role="listbox"
+      tabindex="0"
+      :aria-label="coreString('learnersLabel')"
+      @keydown.home.prevent="setSelectedLearner(0)"
+      @keydown.end.prevent="setSelectedLearner(learners.length - 1)"
+      @keydown.up.prevent="setSelectedLearner(previousLearner(selectedLearnerNumber))"
+      @keydown.down.prevent="setSelectedLearner(nextLearner(selectedLearnerNumber))"
     >
       <template v-for="(learner, index) in learners">
         <li
           :key="index"
           class="clickable learner-item"
+          role="option"
+          :aria-selected="isSelected(index).toString()"
+          tabindex="-1"
           :style="{
             borderBottom: `2px solid ${$themeTokens.textDisabled}`,
             backgroundColor: isSelected(index) ? $themeTokens.textDisabled : '',
           }"
           @click="setSelectedLearner(index)"
+          @keydown.enter="setSelectedLearner(index)"
+          @keydown.space.prevent="setSelectedLearner(index)"
         >
           <div class="title">
             <KIcon
@@ -69,23 +81,32 @@
     },
     mounted() {
       this.$nextTick(() => {
-        this.scrollToSelectedLearner(this.selectedLearnerNumber);
+        const n = this.selectedLearnerNumber;
+        this.scrollToSelectedLearner(this.$refs.learnerList.children[n], n);
       });
     },
     methods: {
       setSelectedLearner(learnerNumber) {
-        this.$emit('select', learnerNumber);
-        this.scrollToSelectedLearner(learnerNumber);
+        const item = this.$refs.learnerList.children[learnerNumber];
+        if (item) {
+          item.focus();
+          this.scrollToSelectedLearner(item, learnerNumber);
+          this.$emit('select', learnerNumber);
+        }
       },
       isSelected(learnerNumber) {
         return Number(this.selectedLearnerNumber) === learnerNumber;
       },
-      scrollToSelectedLearner(learnerNumber) {
-        const selectedElement = this.$refs.learnerList.children[learnerNumber];
-        if (selectedElement) {
+      previousLearner(learnerNumber) {
+        return (learnerNumber - 1 + this.learners.length) % this.learners.length;
+      },
+      nextLearner(learnerNumber) {
+        return (learnerNumber + 1) % this.learners.length;
+      },
+      scrollToSelectedLearner(el, learnerNumber) {
+        if (el) {
           const parent = this.$el.parentElement;
-          parent.scrollTop =
-            selectedElement.offsetHeight * (learnerNumber + 1) - parent.offsetHeight / 2;
+          parent.scrollTop = el.offsetHeight * (learnerNumber + 1) - parent.offsetHeight / 2;
         }
       },
     },

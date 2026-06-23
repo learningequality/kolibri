@@ -6,6 +6,7 @@
   >
     <div
       class="modal-overlay"
+      role="presentation"
       @keyup.esc.stop="emitCloseEvent"
       @keyup.enter="goToNextContentNode"
     >

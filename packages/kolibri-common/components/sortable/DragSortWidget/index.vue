@@ -2,6 +2,7 @@
 
   <div
     class="sort-widget"
+    role="presentation"
     :class="{ focused: hasFocus, 'not-focused': !hasFocus }"
     @mousedown="e => $emit('mousedown', e)"
   >

@@ -1,6 +1,9 @@
 <template>
 
-  <div @keyup.esc="closePanel">
+  <div
+    role="presentation"
+    @keyup.esc="closePanel"
+  >
     <KFocusTrap
       @shouldFocusFirstEl="focusFirstEl"
       @shouldFocusLastEl="focusLastEl"
