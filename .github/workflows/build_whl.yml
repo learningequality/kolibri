@@ -42,6 +42,26 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Python dependencies
         run: uv sync --group dev
+      # Restore the webpack filesystem cache so PR builds only recompile their
+      # own diff. The unique key always misses (forcing a fresh save at job end),
+      # while restore-keys pulls the most recent cache for the same lockfile —
+      # primed on `develop` by warm_build_cache.yml so fork PRs get a hit too.
+      - name: Cache webpack build
+        uses: actions/cache@v6.0.0
+        with:
+          path: node_modules/.cache/webpack
+          key: webpack-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            webpack-${{ hashFiles('pnpm-lock.yaml') }}-
+      # The bundled C extensions are pinned wheels that change only when the
+      # cext requirements change, so an exact-match key is enough — no re-download
+      # once `develop` has primed it. `.cext_cache` is the pip cache dir that the
+      # `staticdeps-cext` Makefile target writes to (via --cache-path).
+      - name: Cache C extension downloads
+        uses: actions/cache@v6.0.0
+        with:
+          path: .cext_cache
+          key: cext-${{ hashFiles('requirements/cext.txt', 'requirements/cext_noarch.txt') }}
       - name: Build Kolibri
         run: make dist
       - name: Get WHL filename

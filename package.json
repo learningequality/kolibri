@@ -7,7 +7,7 @@
     "test-jest": "jest --config ./jest.conf.js",
     "test-jest-cov": "pnpm run test-jest --coverage",
     "coverage": "pnpm run test-jest-cov",
-    "build": "pnpm run sandbox-build && kolibri-build prod --file ./build_tools/build_plugins.txt --transpile",
+    "build": "pnpm run sandbox-build && kolibri-build prod --file ./build_tools/build_plugins.txt --transpile --cache",
     "makemessages": "kolibri-i18n extract-messages --pluginFile ./build_tools/build_plugins.txt --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "createprofiles": "kolibri-i18n profile --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/strings.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
     "auditdittostrings": "kolibri-i18n audit --pluginFile ./build_tools/build_plugins.txt --output-file ./kolibri/locale/en/LC_MESSAGES/profiles/ditto.csv --namespace kolibri-common --searchPath ./packages/kolibri-common --namespace kolibri-core --searchPath ./packages/kolibri",
