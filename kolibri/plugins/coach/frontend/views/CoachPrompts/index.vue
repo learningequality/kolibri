@@ -122,14 +122,24 @@
             <p>Station 1</p>
             <p>Kolibri learning</p>
           </th>
-          <td><img src="./kolibri.png" ></td>
+          <td>
+            <img
+              src="./kolibri.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Station 2</p>
             <p>Guided practice</p>
           </th>
-          <td><img src="./guided.png" ></td>
+          <td>
+            <img
+              src="./guided.png"
+              alt=""
+            >
+          </td>
         </tr>
       </table>
     </div>
@@ -146,21 +156,36 @@
             <p>Station 1</p>
             <p>Kolibri learning</p>
           </th>
-          <td><img src="./kolibri.png" ></td>
+          <td>
+            <img
+              src="./kolibri.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Station 2</p>
             <p>Guided practice</p>
           </th>
-          <td><img src="./guided.png" ></td>
+          <td>
+            <img
+              src="./guided.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Station 3</p>
             <p>Independent activity</p>
           </th>
-          <td><img src="./independent.png" ></td>
+          <td>
+            <img
+              src="./independent.png"
+              alt=""
+            >
+          </td>
         </tr>
       </table>
     </div>
@@ -364,14 +389,24 @@
             <p>Option 1</p>
             <p>Next to each other</p>
           </th>
-          <td><img src="./pair.png" ></td>
+          <td>
+            <img
+              src="./pair.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a triangle</p>
           </th>
-          <td><img src="./triangle.png" ></td>
+          <td>
+            <img
+              src="./triangle.png"
+              alt=""
+            >
+          </td>
         </tr>
       </table>
     </div>
@@ -400,28 +435,48 @@
             <p>Option 1</p>
             <p>In a square</p>
           </th>
-          <td><img src="./square.png" ></td>
+          <td>
+            <img
+              src="./square.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a rectangle</p>
           </th>
-          <td><img src="./rectangle.png" ></td>
+          <td>
+            <img
+              src="./rectangle.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a circle</p>
           </th>
-          <td><img src="./circle.png" ></td>
+          <td>
+            <img
+              src="./circle.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a horseshoe</p>
           </th>
-          <td><img src="./horseshoe.png" ></td>
+          <td>
+            <img
+              src="./horseshoe.png"
+              alt=""
+            >
+          </td>
         </tr>
       </table>
     </div>
@@ -448,14 +503,24 @@
             <p>Option 2</p>
             <p>In a circle</p>
           </th>
-          <td><img src="./circle.png" ></td>
+          <td>
+            <img
+              src="./circle.png"
+              alt=""
+            >
+          </td>
         </tr>
         <tr>
           <th>
             <p>Option 2</p>
             <p>In a horseshoe</p>
           </th>
-          <td><img src="./horseshoe.png" ></td>
+          <td>
+            <img
+              src="./horseshoe.png"
+              alt=""
+            >
+          </td>
         </tr>
       </table>
     </div>
