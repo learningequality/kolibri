@@ -34,7 +34,7 @@ describe('SafeHtmlImage', () => {
     user = userEvent.setup();
     renderComponent();
     img = screen.getByAltText(sampleAlt);
-    expandButton = screen.getByLabelText(expandImage$());
+    expandButton = screen.getByRole('button', { name: expandImage$() });
   });
 
   describe('first render', () => {

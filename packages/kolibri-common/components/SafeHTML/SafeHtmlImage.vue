@@ -5,19 +5,25 @@
     data-testid="image-container"
   >
     <div class="img-wrapper">
-      <img
-        :src="src"
-        :alt="alt"
-        :style="imageStyle"
-        v-bind="$attrs"
+      <button
+        class="img-button"
+        :aria-label="$tr('expandImage')"
+        aria-haspopup="dialog"
         @click="openLightbox"
       >
+        <img
+          :src="src"
+          :alt="alt"
+          :style="imageStyle"
+          v-bind="$attrs"
+        >
+      </button>
       <KIconButton
         class="expand-btn expand-btn-transition"
         icon="expand"
         appearance="raised-button"
-        :aria-label="$tr('expandImage')"
-        aria-haspopup="dialog"
+        aria-hidden="true"
+        tabindex="-1"
         :tooltip="$tr('expandImage')"
         @click="openLightbox"
       />
@@ -88,6 +94,14 @@
   .img-wrapper {
     max-width: 900px;
     max-height: 584px;
+  }
+
+  .img-button {
+    display: block;
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
   }
 
 </style>
