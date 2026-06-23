@@ -17,7 +17,7 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentNode
-from kolibri.core.exams.api import ExamViewset
+from kolibri.core.exams.viewsets.exam import ExamViewset
 from kolibri.core.lessons.viewsets.lesson import LessonViewset
 from kolibri.core.logger import models as logger_models
 from kolibri.core.logger.utils.quiz import annotate_response_summary

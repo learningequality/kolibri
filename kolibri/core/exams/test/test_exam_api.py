@@ -646,6 +646,19 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 400)
 
+    def test_instant_report_visibility_null_returns_true(self):
+        """A NULL instant_report_visibility in the DB should come back as True."""
+        self.login_as_admin()
+        # Force a NULL value directly (bypassing the API which doesn't allow null)
+        models.Exam.objects.filter(id=self.exam.id).update(
+            instant_report_visibility=None
+        )
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data["instant_report_visibility"])
+
 
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
     class_object = models.DraftExam

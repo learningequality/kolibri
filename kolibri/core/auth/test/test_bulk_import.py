@@ -235,7 +235,7 @@ class ImportTestCase(TestCase):
         assert len(per_line_errors) == 1
         assert (
             per_line_errors[0]["message"]
-            == "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"  # noqa: W503
+            == "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
         )
         out_log = StringIO()
         call_command(
