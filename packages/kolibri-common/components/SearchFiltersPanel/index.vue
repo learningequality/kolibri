@@ -1,7 +1,6 @@
 <template>
 
   <section
-    role="region"
     :closeButtonIconType="closeButtonIcon"
     :aria-label="filterAndSearchLabel$()"
     :ariaLabel="filterAndSearchLabel$()"

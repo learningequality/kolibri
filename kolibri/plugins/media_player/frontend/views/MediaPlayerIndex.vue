@@ -37,23 +37,21 @@
         ref="player"
         class="custom-skin video-js vjs-big-play-centered vjs-show-big-play-button-on-pause"
       >
-        <template v-for="video in videoSources">
-          <source
-            :key="video.storage_url"
-            :src="video.storage_url"
-            :type="`video/${video.extension}`"
-          >
-        </template>
-        <template v-for="track in trackSources">
-          <track
-            :key="track.storage_url"
-            kind="captions"
-            :src="track.storage_url"
-            :srclang="track.lang.id"
-            :label="track.lang.lang_name"
-            :default="isDefaultTrack(track.lang.id)"
-          >
-        </template>
+        <source
+          v-for="video in videoSources"
+          :key="video.storage_url"
+          :src="video.storage_url"
+          :type="`video/${video.extension}`"
+        >
+        <track
+          v-for="track in trackSources"
+          :key="track.storage_url"
+          kind="captions"
+          :src="track.storage_url"
+          :srclang="track.lang.id"
+          :label="track.lang.lang_name"
+          :default="isDefaultTrack(track.lang.id)"
+        >
       </video>
 
       <audio
@@ -61,23 +59,21 @@
         ref="player"
         class="custom-skin video-js"
       >
-        <template v-for="audio in audioSources">
-          <source
-            :key="audio.storage_url"
-            :src="audio.storage_url"
-            :type="audioSourceType(audio.extension)"
-          >
-        </template>
-        <template v-for="track in trackSources">
-          <track
-            :key="track.storage_url"
-            kind="captions"
-            :src="track.storage_url"
-            :srclang="track.lang.id"
-            :label="track.lang.lang_name"
-            :default="isDefaultTrack(track.lang.id)"
-          >
-        </template>
+        <source
+          v-for="audio in audioSources"
+          :key="audio.storage_url"
+          :src="audio.storage_url"
+          :type="audioSourceType(audio.extension)"
+        >
+        <track
+          v-for="track in trackSources"
+          :key="track.storage_url"
+          kind="captions"
+          :src="track.storage_url"
+          :srclang="track.lang.id"
+          :label="track.lang.lang_name"
+          :default="isDefaultTrack(track.lang.id)"
+        >
       </audio>
 
       <MediaPlayerTranscript
