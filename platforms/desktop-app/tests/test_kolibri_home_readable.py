@@ -1,5 +1,6 @@
-"""Tests for _kolibri_home_readable helper in view.py."""
+"""Tests for _kolibri_home_readable in view.py."""
 
+import importlib
 import logging
 import os
 import sys
@@ -18,7 +19,7 @@ sys.modules.setdefault("wx.html2", MagicMock())
 # package triggers pytest-django's setup path and causes collection errors.
 sys.modules.setdefault("django.utils.translation.trans_real", MagicMock())
 
-from kolibri_app import view  # noqa: E402
+view = importlib.import_module("kolibri_app.view")
 
 
 class TestKolibriHomeReadable(unittest.TestCase):

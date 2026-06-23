@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri-app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-23 10:31-0700\n"
+"POT-Creation-Date: 2026-06-23 11:03-0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Learning Equality <dev@learningequality.org>\n"
 "Language-Team: Learning Equality <dev@learningequality.org>\n"
@@ -124,66 +124,66 @@ msgstr "Kolibri Service Error"
 msgid "Failed to update the service startup setting."
 msgstr "Failed to update the service startup setting."
 
-#: src/kolibri_app/view.py:107 src/kolibri_app/view.py:130
+#: src/kolibri_app/view.py:104
 msgid "Open Kolibri in Browser"
 msgstr "Open Kolibri in Browser"
 
-#: src/kolibri_app/view.py:112 src/kolibri_app/view.py:135
+#: src/kolibri_app/view.py:109
 msgid "Open Kolibri Home Folder"
 msgstr "Open Kolibri Home Folder"
 
-#: src/kolibri_app/view.py:119
+#: src/kolibri_app/view.py:120
 msgid "Cut\tCtrl+X"
 msgstr "Cut\tCtrl+X"
 
-#: src/kolibri_app/view.py:120
+#: src/kolibri_app/view.py:121
 msgid "Copy\tCtrl+C"
 msgstr "Copy\tCtrl+C"
 
-#: src/kolibri_app/view.py:121
+#: src/kolibri_app/view.py:122
 msgid "Paste\tCtrl+V"
 msgstr "Paste\tCtrl+V"
 
-#: src/kolibri_app/view.py:123
+#: src/kolibri_app/view.py:124
 msgid "Select All\tCtrl+A"
 msgstr "Select All\tCtrl+A"
 
-#: src/kolibri_app/view.py:125
+#: src/kolibri_app/view.py:126
 msgid "Edit"
 msgstr "Edit"
 
-#: src/kolibri_app/view.py:139
+#: src/kolibri_app/view.py:128
 msgid "File"
 msgstr "File"
 
-#: src/kolibri_app/view.py:143
+#: src/kolibri_app/view.py:132
 msgid "Reload"
 msgstr "Reload"
 
-#: src/kolibri_app/view.py:147
+#: src/kolibri_app/view.py:136
 msgid "Actual Size\tCtrl+0"
 msgstr "Actual Size\tCtrl+0"
 
-#: src/kolibri_app/view.py:153
+#: src/kolibri_app/view.py:142
 msgid "Zoom In\tCtrl++"
 msgstr "Zoom In\tCtrl++"
 
-#: src/kolibri_app/view.py:159
+#: src/kolibri_app/view.py:148
 msgid "Zoom Out\tCtrl+-"
 msgstr "Zoom Out\tCtrl+-"
 
-#: src/kolibri_app/view.py:163
+#: src/kolibri_app/view.py:152
 msgid "View"
 msgstr "View"
 
-#: src/kolibri_app/view.py:168
+#: src/kolibri_app/view.py:157
 msgid "Documentation"
 msgstr "Documentation"
 
-#: src/kolibri_app/view.py:174
+#: src/kolibri_app/view.py:163
 msgid "Community Forums"
 msgstr "Community Forums"
 
-#: src/kolibri_app/view.py:178
+#: src/kolibri_app/view.py:167
 msgid "Help"
 msgstr "Help"
