@@ -17,37 +17,6 @@ from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 
-from .serializers import LessonReportSerializer
-
-
-class LessonReportPermissions(permissions.BasePermission):
-    """
-    List - check if requester has coach/admin permissions on whole facility.
-    Detail - check if requester has permissions on the Classroom.
-    """
-
-    def has_permission(self, request, view):
-        report_pk = view.kwargs.get("pk", None)
-        if report_pk is None:
-            collection_id = request.user.facility_id
-        else:
-            collection_id = Lesson.objects.get(pk=report_pk).collection.id
-
-        allowed_roles = [role_kinds.ADMIN, role_kinds.COACH]
-
-        try:
-            return request.user.has_role_for(
-                allowed_roles, Collection.objects.get(pk=collection_id)
-            )
-        except (Collection.DoesNotExist, ValueError):
-            return False
-
-
-class LessonReportViewset(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, LessonReportPermissions)
-    serializer_class = LessonReportSerializer
-    queryset = Lesson.objects.all()
-
 
 class ExerciseDifficultiesPermissions(permissions.BasePermission):
     # check if requesting user has permission for collection or user
@@ -118,8 +87,7 @@ class ExerciseDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewset):
                     user__memberships__collection_id__in=collection_ids
                 )
         if group_id is not None:
-            collection_id = group_id or classroom_id
-            queryset = queryset.filter(user__memberships__collection_id=collection_id)
+            queryset = queryset.filter(user__memberships__collection_id=group_id)
 
         data = (
             # Use a subquery to prevent duplication of attempt logs due to the double JOIN
@@ -237,9 +205,8 @@ class PracticeQuizDifficultQuestionsViewset(BaseExerciseDifficultQuestionsViewse
                     user__memberships__collection_id__in=collection_ids
                 )
         if group_id is not None:
-            collection_id = group_id or classroom_id
             masterylog_queryset = masterylog_queryset.filter(
-                user__memberships__collection_id=collection_id
+                user__memberships__collection_id=group_id
             )
 
         masterylog_queryset = masterylog_queryset.filter(

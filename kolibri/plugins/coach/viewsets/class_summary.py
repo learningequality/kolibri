@@ -76,7 +76,7 @@ def _get_quiz_status(queryset):
     )
     seen = set()
     for item in statuses:
-        key = "{}-{}".format(item["learner_id"], item["summarylog__content_id"])
+        key = (item["learner_id"], item["summarylog__content_id"])
         if key not in seen:
             items.append(item)
             seen.add(key)
@@ -163,7 +163,7 @@ def fetch_notification_maps(**scope_filter):
     return needs_help, completed
 
 
-def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C901
+def content_status_serializer(lesson_data, learners_data, classroom):
     # First generate a unique set of content node ids from all the lessons
     lesson_node_ids = set()
     for lesson in lesson_data:
@@ -190,7 +190,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
     )
 
     practice_quiz_data = {
-        "{}-{}".format(s.pop("learner_id"), s.pop("summarylog__content_id")): s
+        (s.pop("learner_id"), s.pop("summarylog__content_id")): s
         for s in _get_quiz_status(masterylog_queryset)
     }
 
@@ -214,7 +214,7 @@ def content_status_serializer(lesson_data, learners_data, classroom):  # noqa C9
             "time_spent": log["time_spent"],
             "tries": log["tries"],
         }
-        key = "{}-{}".format(log["user_id"], log["content_id"])
+        key = (log["user_id"], log["content_id"])
         if key in practice_quiz_data:
             output.update(practice_quiz_data[key])
         return output
@@ -256,12 +256,9 @@ def serialize_users(queryset):
 
 
 def _map_lesson(item):
-    if item["resources"]:
-        item["node_ids"] = [
-            resource["contentnode_id"] for resource in item["resources"]
-        ]
-    else:
-        item["node_ids"] = []
+    item["node_ids"] = [
+        resource["contentnode_id"] for resource in item["resources"] or []
+    ]
     return item
 
 

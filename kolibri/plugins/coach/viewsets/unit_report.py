@@ -8,23 +8,16 @@ from rest_framework.response import Response
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
+from kolibri.core.auth.utils.delete import chunk as _chunked
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
-# Conservative upper bound for SQL IN-clause list lengths.  SQLite's default
-# SQLITE_MAX_VARIABLE_NUMBER is 999; staying under 900 leaves headroom for
-# other bind parameters in the same query (e.g. _fetch_mastery_logs uses 900
-# user IDs + 2 content_ids = 902 bind vars per chunk).
+# SQLite SQLITE_MAX_VARIABLE_NUMBER is 999; 900 leaves headroom for ~2 extra
+# content_id bind params (e.g. _fetch_mastery_logs: 900 user IDs + 2 content_ids).
 _IN_CHUNK_SIZE = 900
-
-
-def _chunked(lst, size):
-    """Yield successive sublists of at most *size* items."""
-    for i in range(0, len(lst), size):
-        yield lst[i : i + size]
 
 
 # Status strings returned by get_test_status and surfaced in the API response.
@@ -291,21 +284,18 @@ class UnitReportViewSet(viewsets.ViewSet):
         pre_scores = all_scores["pre"]
         post_scores = all_scores["post"]
 
-        # Sort learners ascending by total score (pre + post combined), so that
-        # learners who need the most help appear first.  Tie-break on id for
-        # a deterministic, stable ordering.
+        for learner in learners:
+            learner["id"] = str(learner["id"])
+
+        # Lowest scorers first so coaches see who needs the most help.
         def _sort_key(learner):
-            lid = str(learner["id"])
+            lid = learner["id"]
             total = sum(pre_scores.get(lid, {}).values()) + sum(
                 post_scores.get(lid, {}).values()
             )
             return (total, lid)
 
         learners_sorted = sorted(learners, key=_sort_key)
-
-        # Ensure learner IDs are plain strings in the output.
-        for learner in learners_sorted:
-            learner["id"] = str(learner["id"])
 
         return Response(
             {

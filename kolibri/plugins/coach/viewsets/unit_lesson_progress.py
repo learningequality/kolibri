@@ -7,9 +7,10 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions import KolibriAuthPermissions
 from kolibri.core.content.models import ContentNode
 from kolibri.core.courses.models import CourseSession
-from kolibri.plugins.coach.class_summary_api import fetch_notification_maps
-from kolibri.plugins.coach.class_summary_api import get_content_log_values
-from kolibri.plugins.coach.class_summary_api import get_log_status
+
+from .class_summary import fetch_notification_maps
+from .class_summary import get_content_log_values
+from .class_summary import get_log_status
 
 
 def _build_content_status(content_id_to_node_ids, learner_ids, course_session):
