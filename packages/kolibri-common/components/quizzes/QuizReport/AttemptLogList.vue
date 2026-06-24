@@ -112,6 +112,7 @@
               "
               @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
               @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+              @focus="handleListFocus"
             >
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -133,6 +134,7 @@
                       questionNumber: section.startQuestionNumber + qIndex + 1,
                     })
                   "
+                  data-focus="true"
                   tabindex="-1"
                   @click="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
                   @keydown.enter="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
@@ -316,6 +318,15 @@
       });
     },
     methods: {
+      handleListFocus(event) {
+        const fromChild = event.relatedTarget && event.currentTarget.contains(event.relatedTarget);
+        if (!fromChild) {
+          const option = this.$refs.attemptListOption?.[this.selectedQuestionNumber];
+          if (option) {
+            option.focus();
+          }
+        }
+      },
       setSelectedAttemptLog(questionNumber) {
         const listOption = this.$refs.attemptListOption[questionNumber];
         if (listOption) {

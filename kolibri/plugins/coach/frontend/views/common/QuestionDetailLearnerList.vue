@@ -15,12 +15,14 @@
       @keydown.end.prevent="setSelectedLearner(learners.length - 1)"
       @keydown.up.prevent="setSelectedLearner(previousLearner(selectedLearnerNumber))"
       @keydown.down.prevent="setSelectedLearner(nextLearner(selectedLearnerNumber))"
+      @focus="handleListFocus"
     >
       <template v-for="(learner, index) in learners">
         <li
           :key="index"
           class="clickable learner-item"
           role="option"
+          data-focus="true"
           :aria-selected="isSelected(index).toString()"
           tabindex="-1"
           :style="{
@@ -86,12 +88,24 @@
       });
     },
     methods: {
-      setSelectedLearner(learnerNumber) {
+      handleListFocus(event) {
+        // When Shift+Tab moves focus from an li back to the ul, relatedTarget is the li.
+        // In that case, don't redirect — let the user Shift+Tab out of the widget naturally.
+        const fromChild =
+          event.relatedTarget && this.$refs.learnerList.contains(event.relatedTarget);
+        if (!fromChild) {
+          this.focusLearner(this.selectedLearnerNumber);
+        }
+      },
+      focusLearner(learnerNumber) {
         const item = this.$refs.learnerList.children[learnerNumber];
         if (item) {
           item.focus();
           this.scrollToSelectedLearner(item, learnerNumber);
         }
+      },
+      setSelectedLearner(learnerNumber) {
+        this.focusLearner(learnerNumber);
         this.$emit('select', learnerNumber);
       },
       isSelected(learnerNumber) {
