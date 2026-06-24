@@ -120,6 +120,7 @@
                 type: Array,
                 spec: {
                   type: Function,
+                  required: true,
                 },
                 default: () => [],
               },
@@ -142,6 +143,7 @@
                 type: Array,
                 spec: {
                   type: Function,
+                  required: true,
                 },
                 default: () => [],
               },

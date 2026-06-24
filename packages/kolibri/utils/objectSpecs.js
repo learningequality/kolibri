@@ -32,6 +32,11 @@
     In situations where objects are nested, this property can be used to define
     a "sub-spec" for objects within objects recursively. Note that either a spec
     or a validator function can be provided for nested objects, but not both.
+
+    For Array types, `spec` describes each element and takes one of two forms:
+      - an options descriptor with its own `type`, e.g. { type: String } or
+        { type: Object, spec: {...} }
+      - a bare field-spec (no `type`), applied to each element as an object
 */
 
 import logger from 'kolibri-logging';
@@ -48,6 +53,8 @@ import isSymbol from 'lodash/isSymbol';
 import isUndefined from 'lodash/isUndefined';
 
 const logging = logger.getLogger(__filename);
+
+const KNOWN_TYPES = [Array, Boolean, Date, Function, Object, Number, String, Symbol];
 
 function _fail(msg, dataKey, data) {
   logging.error(`Problem with key '${dataKey}': ${msg}`);
@@ -79,11 +86,14 @@ function _validateObjectData(data, options, dataKey) {
       return _fail('Only objects or arrays can have sub-specs', dataKey, data);
     }
 
-    // If it is an array, we will validate each item in the array
     if (isArray(data)) {
+      // Legacy bare field-specs (no own `type`) describe object elements
+      const itemOptions = KNOWN_TYPES.includes(options.spec.type)
+        ? options.spec
+        : { type: Object, required: true, spec: options.spec };
       for (const item of data) {
-        if (!validateObject(item, options.spec.spec)) {
-          return _fail('Object in Array sub-spec failed', dataKey, item);
+        if (!_validateObjectData(item, itemOptions, dataKey)) {
+          return _fail('Item in Array sub-spec failed', dataKey, item);
         }
       }
     }
@@ -96,7 +106,6 @@ function _validateObjectData(data, options, dataKey) {
   }
 
   // Check types
-  const KNOWN_TYPES = [Array, Boolean, Date, Function, Object, Number, String, Symbol];
   if (isUndefined(options.type)) {
     return _fail('No type information provided', dataKey, data);
   } else if (!KNOWN_TYPES.includes(options.type)) {
