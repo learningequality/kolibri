@@ -25,34 +25,33 @@ class LessonReportSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         self._learners = instance.get_all_learners()
+        self._learner_count = self._learners.count()
         return super().to_representation(instance)
 
     def get_progress(self, instance):
-        if not self._learners.exists():
+        if not self._learner_count:
             return []
-        return [self._resource_progress(r) for r in instance.resources]
-
-    def get_total_learners(self, instance):
-        return self._learners.count()
-
-    def _resource_progress(self, resource):
-        response = {
-            "contentnode_id": resource["contentnode_id"],
-            "num_learners_completed": 0,
-        }
-        result = (
+        content_ids = [r["content_id"] for r in instance.resources]
+        counts = dict(
             ContentSummaryLog.objects.filter(
-                content_id=resource["content_id"],
+                content_id__in=content_ids,
                 user__in=self._learners,
                 progress=1.0,
             )
             .values("content_id")
             .annotate(total=Count("pk"))
-            .first()
+            .values_list("content_id", "total")
         )
-        if result:
-            response["num_learners_completed"] = result["total"]
-        return response
+        return [
+            {
+                "contentnode_id": r["contentnode_id"],
+                "num_learners_completed": counts.get(r["content_id"], 0),
+            }
+            for r in instance.resources
+        ]
+
+    def get_total_learners(self, instance):
+        return self._learner_count
 
 
 class LessonReportPermissions(permissions.BasePermission):
@@ -62,7 +61,7 @@ class LessonReportPermissions(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        report_pk = view.kwargs.get("pk", None)
+        report_pk = view.kwargs.get("pk")
         if report_pk is None:
             collection_id = request.user.facility_id
         else:
