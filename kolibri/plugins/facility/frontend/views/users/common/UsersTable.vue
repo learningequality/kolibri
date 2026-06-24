@@ -53,9 +53,17 @@
             <KLabeledIcon
               class="user-type-icon"
               icon="person"
-              :label="content"
               :style="{ color: $themeTokens.text }"
-            />
+            >
+              <KButton
+                appearance="basic-link"
+                :text="content"
+                class="user-name-link"
+                :style="{ color: $themeTokens.text }"
+                :title="viewIdCard$()"
+                @click="openIdCard(row[0])"
+              />
+            </KLabeledIcon>
             <UserTypeDisplay
               aria-hidden="true"
               :userType="row[0].kind"
@@ -122,6 +130,12 @@
       :onChange="event => $emit('change', event)"
       @close="closeModal"
     />
+
+    <UserIdCardModal
+      v-if="idCardUserId"
+      :userId="idCardUserId"
+      @close="closeIdCardModal"
+    />
   </div>
 
 </template>
@@ -149,9 +163,11 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 
+  import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import { Modals } from '../../../constants';
   import MoveToTrashModal from './MoveToTrashModal.vue';
   import ResetUserPasswordModal from './ResetUserPasswordModal';
+  import UserIdCardModal from './UserIdCardModal.vue';
 
   const SELECTION_COLUMN_ID = 'selection';
 
@@ -169,6 +185,7 @@
       GenderDisplayText,
       BirthYearDisplayText,
       ResetUserPasswordModal,
+      UserIdCardModal,
     },
     setup(props, { emit }) {
       const route = useRoute();
@@ -182,6 +199,8 @@
       const modalShown = ref(null);
       const userToChange = ref(null);
       const activeRowId = ref(null);
+      const idCardUserId = ref(null);
+      const { viewIdCard$ } = qrLoginStrings;
 
       const { selectAllLabel$ } = enhancedQuizManagementStrings;
       const {
@@ -475,6 +494,14 @@
         activeRowId.value = id;
       };
 
+      const openIdCard = user => {
+        idCardUserId.value = user.id;
+      };
+
+      const closeIdCardModal = () => {
+        idCardUserId.value = null;
+      };
+
       const handleManageUserAction = (action, user) => {
         if (action.value === Modals.EDIT_USER) {
           const link = cloneDeep(store.getters.facilityPageLinks.UserEditPage);
@@ -504,6 +531,7 @@
         userToChangeSet,
         stickyColumns,
         activeRowId,
+        idCardUserId,
 
         // Methods
         handleSelectedButtonState,
@@ -517,11 +545,14 @@
         closeModal,
         getManageUserOptions,
         handleManageUserAction,
+        openIdCard,
+        closeIdCardModal,
 
         // Strings
         coreStrings,
         selectLabel$,
         selectAllLabel$,
+        viewIdCard$,
       };
     },
     props: {
@@ -573,6 +604,16 @@
 
   .user-type-icon {
     width: auto;
+  }
+
+  .user-name-link {
+    padding: 0;
+    font-weight: inherit;
+    vertical-align: baseline;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .screen-reader-only {

@@ -165,6 +165,18 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Print card',
     context: 'Button label for printing a single student ID card.',
   },
+  viewIdCard: {
+    message: 'View ID card',
+    context: "Tooltip/label for a link that opens a learner's student ID card preview.",
+  },
+  idCardLabel: {
+    message: 'ID card',
+    context: "Title used for a single learner's ID card preview.",
+  },
+  couldNotLoadIdCard: {
+    message: 'Could not load ID card',
+    context: "Error shown when a learner's ID card fails to load.",
+  },
   printAllCards: {
     message: 'Print all cards',
     context: 'Button label for printing all student ID cards.',
