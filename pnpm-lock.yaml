@@ -95,7 +95,7 @@ importers:
         version: 8.2.2
       jest:
         specifier: ^30.2.0
-        version: 30.2.0(@types/node@25.0.9)
+        version: 30.2.0(@types/node@25.7.0)
       jest-environment-jsdom:
         specifier: ^30.2.0
         version: 30.2.0
@@ -991,6 +991,9 @@ importers:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 11.3.0(vue@2.7.16)
+      '@zxing/browser':
+        specifier: 0.1.5
+        version: 0.1.5(@zxing/library@0.21.3)
       kolibri:
         specifier: workspace:*
         version: link:../../../packages/kolibri
@@ -1589,7 +1592,7 @@ importers:
         version: 1.2.5
       jest:
         specifier: ^30.2.0
-        version: 30.2.0(@types/node@25.7.0)
+        version: 30.2.0(@types/node@25.0.9)
       jest-environment-jsdom:
         specifier: ^30.2.0
         version: 30.2.0

@@ -3,8 +3,7 @@
   <div class="qr-scanner">
     <!--
       Live camera view. Rendered only when getUserMedia is available (HTTPS or
-      localhost). On non-secure LAN deployments we render only the file-upload
-      fallback, which works in any context.
+      localhost). On non-secure LAN deployments the camera pane is not shown.
     -->
     <div
       v-if="canUseCamera"
@@ -63,40 +62,6 @@
     >
       {{ cameraUnavailable$() }}
     </UiAlert>
-
-    <!-- File-upload fallback (always available; primary path on non-HTTPS) -->
-    <div class="upload-pane">
-      <p
-        v-if="canUseCamera"
-        class="upload-hint"
-        :style="{ color: $themeTokens.annotation }"
-      >
-        {{ cameraNotWorking$() }}
-      </p>
-      <KButton
-        :primary="!canUseCamera"
-        appearance="raised-button"
-        @click="triggerFilePicker"
-      >
-        {{ uploadQrPhoto$() }}
-      </KButton>
-      <input
-        ref="fileInputRef"
-        type="file"
-        accept="image/*"
-        capture="environment"
-        class="hidden-file-input"
-        @change="onFileSelected"
-      />
-      <UiAlert
-        v-if="decodeError"
-        class="status-alert"
-        type="error"
-        :dismissible="false"
-      >
-        {{ decodeFailed$() }}
-      </UiAlert>
-    </div>
   </div>
 
 </template>
@@ -109,7 +74,6 @@
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
-  import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
 
   /**
    * The set of QR-code-like formats we ask the decoder to accept. We restrict to
@@ -130,7 +94,7 @@
   /**
    * A secure context (HTTPS or localhost) is required for getUserMedia. Kolibri is
    * frequently deployed over plain HTTP on a LAN, so we expose this so the host
-   * page can decide whether to emphasise the camera UI or the file-upload fallback.
+   * page can decide whether to show the camera UI.
    */
   export const cameraSupported = () =>
     typeof window !== 'undefined' &&
@@ -141,22 +105,17 @@
 
   export default {
     name: 'QRScanner',
-    components: { UiAlert, KCircularLoader, KButton },
+    components: { UiAlert, KCircularLoader },
     setup(props, { emit }) {
       const {
         cameraStarting$,
-        scanning$,
         pointCameraAtCode$,
         cameraPermissionDenied$,
         cameraNotFound$,
         cameraUnavailable$,
-        cameraNotWorking$,
-        uploadQrPhoto$,
-        decodeFailed$,
       } = qrLoginStrings;
 
       const videoRef = ref(null);
-      const fileInputRef = ref(null);
       /**
        * Scanner lifecycle status:
        *   idle | starting | streaming | scanning
@@ -164,7 +123,6 @@
        * The 'scanning' state is used while a frame-loop is actively decoding.
        */
       const status = ref('idle');
-      const decodeError = ref(false);
 
       let nativeDetector = null;
       let nativeLoopActive = false;
@@ -183,8 +141,6 @@
 
       async function start() {
         if (!canUseCamera.value) {
-          // No camera available; leave status idle and let the template show only
-          // the upload fallback.
           status.value = 'unavailable';
           return;
         }
@@ -232,15 +188,11 @@
             delayBetweenScanAttempts: 120,
           });
           status.value = 'scanning';
-          zxingControls = await zxingReader.decodeFromVideoDevice(
-            undefined,
-            videoEl,
-            (result, _err, _controls) => {
-              if (result) {
-                emit('decoded', result.getText());
-              }
-            },
-          );
+          zxingControls = await zxingReader.decodeFromVideoDevice(undefined, videoEl, result => {
+            if (result) {
+              emit('decoded', result.getText());
+            }
+          });
         } catch (err) {
           handleCameraError(err);
         }
@@ -307,93 +259,22 @@
         teardownStream();
       }
 
-      // ---- File-upload fallback ----
-
-      function triggerFilePicker() {
-        decodeError.value = false;
-        if (fileInputRef.value) fileInputRef.value.click();
-      }
-
-      async function onFileSelected(event) {
-        const file = event.target.files && event.target.files[0];
-        // Reset so selecting the same file twice fires change again.
-        event.target.value = '';
-        if (!file) return;
-        decodeError.value = false;
-        try {
-          const img = await loadImage(file);
-          const value = await decodeImage(img);
-          if (value) {
-            emit('decoded', value);
-          } else {
-            decodeError.value = true;
-          }
-        } catch (err) {
-          decodeError.value = true;
-        }
-      }
-
-      function loadImage(file) {
-        return new Promise((resolve, reject) => {
-          const url = URL.createObjectURL(file);
-          const img = new Image();
-          img.onload = () => {
-            URL.revokeObjectURL(url);
-            resolve(img);
-          };
-          img.onerror = err => {
-            URL.revokeObjectURL(url);
-            reject(err);
-          };
-          img.src = url;
-        });
-      }
-
-      async function decodeImage(img) {
-        // Prefer native BarcodeDetector when available (Chrome desktop/Android).
-        const NativeCtor = getNativeBarcodeDetectorConstructor();
-        if (NativeCtor) {
-          try {
-            const detector = new NativeCtor({ formats: QR_HINT_FORMATS });
-            const codes = await detector.detect(img);
-            if (codes && codes.length > 0 && codes[0].rawValue) {
-              return codes[0].rawValue;
-            }
-          } catch (err) {
-            // fall through to zxing
-          }
-        }
-        // Fallback: zxing, which works on Safari/Firefox and in non-secure contexts.
-        try {
-          const reader = new BrowserMultiFormatReader();
-          const result = await reader.decodeFromImageElement(img);
-          return result ? result.getText() : null;
-        } catch (err) {
-          return null;
-        }
-      }
-
       onBeforeUnmount(() => {
         stop();
       });
 
       return {
         videoRef,
-        fileInputRef,
         status,
-        decodeError,
         canUseCamera,
         statusMessage$,
         cameraPermissionDenied$,
         cameraNotFound$,
         cameraUnavailable$,
-        cameraNotWorking$,
-        uploadQrPhoto$,
-        decodeFailed$,
+        // eslint-disable-next-line vue/no-unused-properties -- called by parent via template ref
         start,
+        // eslint-disable-next-line vue/no-unused-properties -- called by parent via template ref
         stop,
-        triggerFilePicker,
-        onFileSelected,
       };
     },
   };
@@ -406,8 +287,8 @@
   .qr-scanner {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 16px;
+    align-items: center;
     width: 100%;
   }
 
@@ -416,9 +297,9 @@
     width: 100%;
     max-width: 360px;
     aspect-ratio: 1 / 1;
+    overflow: hidden;
     background-color: black;
     border-radius: 8px;
-    overflow: hidden;
   }
 
   .camera-video {
@@ -450,13 +331,13 @@
 
   .camera-status {
     position: absolute;
+    right: 0;
     bottom: 8px;
     left: 0;
-    right: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 8px;
+    align-items: center;
     padding: 0 16px;
     text-align: center;
     pointer-events: none;
@@ -466,25 +347,6 @@
       font-size: 13px;
       color: rgba(255, 255, 255, 0.95);
     }
-  }
-
-  .upload-pane {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 360px;
-  }
-
-  .upload-hint {
-    margin: 0;
-    font-size: 13px;
-    text-align: center;
-  }
-
-  .hidden-file-input {
-    display: none;
   }
 
   .status-alert {
