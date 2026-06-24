@@ -288,9 +288,9 @@
       const arrowBouncing = ref(false);
 
       /**
-       * @public
        * Plays the success animation bouncing each selected icon in sequence,
        * then the submit arrow. Returns a Promise that resolves when complete.
+       * @public
        */
       const playSuccessAnimation = () => {
         const STAGGER = 150;
@@ -323,10 +323,10 @@
       }));
 
       /**
-       * @public
        * Returns focus to the form element, e.g. after a failed sign-in attempt
        * so that screen reader users land back inside the grid instead of on
        * the now-disabled submit button.
+       * @public
        */
       const focus = () => {
         if (formRef.value) {
@@ -335,10 +335,10 @@
       };
 
       /**
-       * @public
        * Moves focus to the visually-hidden sentinel at the top of the form,
        * e.g. after a failed sign-in attempt, so that screen readers land
        * inside the grid without announcing every picture password icon.
+       * @public
        */
       const focusSentinel = () => {
         if (sentinelRef.value) {

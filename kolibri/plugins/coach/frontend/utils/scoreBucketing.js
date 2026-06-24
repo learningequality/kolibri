@@ -3,10 +3,9 @@ import { MasteryThreshold, ScoreBucket } from '../constants/courseConstants';
 /**
  * Classifies a learner's mastery for a learning objective based on their
  * correct count and total questions.
- *
- * @param {number} correctCount - number of questions answered correctly
- * @param {number} numQuestions - total questions for this LO
- * @returns {string} ScoreBucket.LOW, ScoreBucket.MID, or ScoreBucket.HIGH
+ * @param {number} correctCount - Number of questions answered correctly.
+ * @param {number} numQuestions - Total questions for this LO.
+ * @returns {string} ScoreBucket.LOW, ScoreBucket.MID, or ScoreBucket.HIGH.
  */
 export function classifyLearnerMastery(correctCount, numQuestions) {
   const ratio = numQuestions > 0 ? correctCount / numQuestions : 0;
@@ -17,11 +16,11 @@ export function classifyLearnerMastery(correctCount, numQuestions) {
 
 /**
  * Buckets learner scores for a single learning objective into low/mid/high counts.
- *
- * @param {Object} scores - { learnerId: { loId: correctCount, ... }, ... }
- * @param {string} loId - the learning objective ID
- * @param {number} numQuestions - total questions for this LO
- * @returns {{ lowCount: number, midCount: number, highCount: number }}
+ * @param {object} scores - Map of learner IDs to their correct counts, keyed by learning
+ * objective ID.
+ * @param {string} loId - The learning objective ID to bucket scores for.
+ * @param {number} numQuestions - Total number of questions for the learning objective.
+ * @returns {{lowCount: number, midCount: number, highCount: number}} Counts per bucket.
  */
 export function bucketScoresForObjective(scores, loId, numQuestions) {
   let lowCount = 0;
@@ -46,11 +45,11 @@ export function bucketScoresForObjective(scores, loId, numQuestions) {
 
 /**
  * Maps over an array of learning objectives and returns bucketed results for each.
- *
- * @param {Array<{ id: string, text: string, num_questions: number }>} learningObjectives
- * @param {Object} scores - { learnerId: { loId: correctCount, ... }, ... }
- * @returns {Array<Object>} Array of { id, text, numQuestions,
- *   lowCount, midCount, highCount }
+ * @param {Array<{id: string, text: string, num_questions: number}>} learningObjectives - The
+ * learning objectives to bucket.
+ * @param {object} scores - Map of learner IDs to their correct counts, keyed by learning
+ * objective ID.
+ * @returns {Array<object>} Array of `{id, text, numQuestions, lowCount, midCount, highCount}`.
  */
 export function bucketAllObjectives(learningObjectives, scores) {
   return learningObjectives.map(lo => {
@@ -71,12 +70,11 @@ export function bucketAllObjectives(learningObjectives, scores) {
 }
 
 /**
- * Given raw unit report API data, determines the active test and buckets
- * the learning objectives by learner mastery.
- *
- * @param {Object} reportData - raw response from UnitReportResource.fetchReport
- * @returns {{ activeTestType: string|null, activeTestStatus: string,
- *   bucketedObjectives: Array<Object> }}
+ * Given raw unit report API data, determines the active test and buckets the learning
+ * objectives by learner mastery.
+ * @param {object} reportData - Raw response from `UnitReportResource.fetchReport`.
+ * @returns {{activeTestType: string|null, activeTestStatus: string,
+ *   bucketedObjectives: Array<object>}} Derived unit report summary.
  */
 export function deriveUnitReportInfo(reportData) {
   const { post_test, pre_test, learning_objectives } = reportData;

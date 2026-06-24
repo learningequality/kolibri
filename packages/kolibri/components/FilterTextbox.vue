@@ -60,14 +60,14 @@
         default: null,
       },
       /**
-       * Placeholder
+       * Placeholder text shown when the input is empty.
        */
       placeholder: {
         type: String,
         required: true,
       },
       /**
-       * Whether to autofocus
+       * Whether the input should grab keyboard focus on mount.
        */
       autofocus: {
         type: Boolean,
@@ -135,6 +135,7 @@
         this.$refs.searchinput.focus();
       },
       /**
+       * Move keyboard focus into the search input.
        * @public
        */
       focus() {

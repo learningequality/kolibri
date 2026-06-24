@@ -19,7 +19,7 @@ export default {
       /**
        * Used as a Learn-global state to allow communication about whether this modal is shown
        * or not at any time. It should be set as `false` whenever the content page is loaded.
-       **/
+       */
       showCompleteContentModal: false,
     };
   },

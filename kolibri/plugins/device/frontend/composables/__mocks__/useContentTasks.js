@@ -17,9 +17,9 @@
  * jest.mock('<useContentTasks file path>')
  *
  * it('test', () => {
- *   useContentTasks.mockImplementation(
- *    () => useContentTasksMock({ channels: [{ id: 'channel-1' }] })
- *   );
+ * useContentTasks.mockImplementation(
+ * () => useContentTasksMock({ channels: [{ id: 'channel-1' }] })
+ * );
  * })
  * ```
  *

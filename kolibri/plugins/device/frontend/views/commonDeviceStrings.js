@@ -70,9 +70,10 @@ export const deviceStrings = createTranslator('CommonDeviceStrings', {
 });
 
 /**
- * @param {string} key Key mapped to a string above
- * @param {args} Args that would be passed to a string deviced with ICU message syntax
- * @returns {string}
+ * Returns a translated device string for the given key and optional arguments.
+ * @param {string} key - The translation key from CommonDeviceStrings.
+ * @param {object} args - Optional interpolation arguments for the translation.
+ * @returns {string} The translated string.
  */
 export function deviceString(key, args) {
   return deviceStrings.$tr(key, args);

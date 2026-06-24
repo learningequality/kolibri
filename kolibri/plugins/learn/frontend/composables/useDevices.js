@@ -16,8 +16,8 @@ import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
 
 /**
- * The ref is defined in the outer scope so it can be used as a shared store
- * @type {Ref<NetworkLocation|null>}
+ * The ref is defined in the outer scope so it can be used as a shared store.
+ * @type {import('vue').Ref<?object>}
  */
 const currentDevice = ref(null);
 
@@ -78,9 +78,12 @@ export function setCurrentDevice(id) {
 }
 
 /**
- * @param {string|null} routingDeviceId
- * @param {function(NetworkLocation):*} callback
- * @return {ComputedRef<*|null>}
+ * Build a computed ref that runs `callback` against the current device only when
+ * the device's `instance_id` matches the routed device id.
+ * @param {import('vue').Ref<?string>} routingDeviceId - Reactive device id from the route.
+ * @param {(device: object) => unknown} callback - Selector applied to the matching device.
+ * @returns {import('vue').ComputedRef<unknown>} Computed ref returning the selector's
+ * result, or undefined when the current device is not the routed device.
  */
 function computedDevice(routingDeviceId, callback) {
   return computed(() => {

@@ -39,8 +39,8 @@
    * 1. For audio and video - time is displayed
    * 2. For read - 'Reference' is displayed
    * 3. For all other learning activities - 'Short activity' is displayed
-   *    for activities no longer than 30 minutes and 'Long activity'
-   *    is displayed for activities longer than 30 minutes
+   * for activities no longer than 30 minutes and 'Long activity'
+   * is displayed for activities longer than 30 minutes
    */
   export default {
     name: 'LearningActivityDuration',

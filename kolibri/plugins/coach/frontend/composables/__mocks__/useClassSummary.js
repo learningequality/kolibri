@@ -17,9 +17,9 @@
  * jest.mock('<useClassSummary file path>')
  *
  * it('test', () => {
- *   useClassSummary.mockImplementation(
- *     () => useClassSummaryMock({ getRecipientNamesForCourseSession: jest.fn(() => ['Alice']) })
- *   );
+ * useClassSummary.mockImplementation(
+ * () => useClassSummaryMock({ getRecipientNamesForCourseSession: jest.fn(() => ['Alice']) })
+ * );
  * })
  * ```
  */

@@ -116,7 +116,7 @@
   import ExploreChannels from './ExploreChannels';
 
   /**
-   * Home page contains useful suggestions for a learner, e.g. their
+   * Home page contains useful suggestions for a learner, such as their
    * resources and quizzes in progress, classes, resources to explore, etc.
    * What sections are displayed depends on whether a learner
    * is signed in and also if they're a member of classes.

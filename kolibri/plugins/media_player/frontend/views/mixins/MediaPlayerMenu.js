@@ -9,27 +9,31 @@ export default {
   },
   methods: {
     /**
+     * Forward to the underlying menu's `contentEl()` for direct DOM access.
+     * @returns {Element} The menu's content element.
      * @public
-     * @return {Element}
      */
     contentEl() {
       return this.menu.contentEl();
     },
     /**
+     * Show the underlying menu.
      * @public
      */
     show() {
       this.menu.show();
     },
     /**
+     * Hide the underlying menu.
      * @public
      */
     hide() {
       this.menu.hide();
     },
     /**
+     * Whether the underlying menu is currently showing.
+     * @returns {boolean} True when the menu is visible.
      * @public
-     * @return {boolean}
      */
     showing() {
       return this.menu.showing();

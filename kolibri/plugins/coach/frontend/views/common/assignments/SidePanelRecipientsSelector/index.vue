@@ -194,7 +194,8 @@
         }
       },
       /**
-       * Validates the selected recipients and sets the error message if invalid
+       * Validates the selected recipients and sets the error message if invalid.
+       * @returns {string} The validation error message, or empty string when valid.
        * @public
        */
       validate() {
@@ -206,6 +207,8 @@
         return this.assignmentInvalidText;
       },
       /**
+       * Announce the recipients validation error and refocus the radio button so
+       * a screen reader user is alerted after a failed submission.
        * @public
        */
       async handleSubmitRecipientsFailure() {

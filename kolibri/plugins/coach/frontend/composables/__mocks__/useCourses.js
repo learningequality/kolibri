@@ -17,15 +17,15 @@
  *
  * jest.mock('<useCourses file path>')
  * describe('describe test', function () {
- *   let courses = { courses: ref([]) }
+ * let courses = { courses: ref([]) }
  *
- *   beforeAll(() => {
- *     useCourses.mockImplementation(() => useCoursesMock(courses))
- *   })
+ * beforeAll(() => {
+ * useCourses.mockImplementation(() => useCoursesMock(courses))
+ * })
  *
- *   it('the test', () => {
- *     expect(courses.courses.value).toEqual([]);
- *   })
+ * it('the test', () => {
+ * expect(courses.courses.value).toEqual([]);
+ * })
  * })
  * ```
  */

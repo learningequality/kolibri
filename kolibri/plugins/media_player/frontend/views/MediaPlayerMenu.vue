@@ -29,27 +29,31 @@
     },
     methods: {
       /**
+       * Accessible via parent component refs.
+       * @returns {Element} The content element.
        * @public
-       * @return {Element}
        */
       contentEl() {
         return this.$refs.contentEl;
       },
       /**
+       * Accessible via parent component refs.
        * @public
        */
       show() {
         this.open = true;
       },
       /**
+       * Accessible via parent component refs.
        * @public
        */
       hide() {
         this.open = false;
       },
       /**
+       * Accessible via parent component refs.
+       * @returns {boolean} Whether the menu is shown.
        * @public
-       * @return {boolean}
        */
       showing() {
         return this.open;

@@ -34,6 +34,7 @@
     methods: {
       ...mapActions('mediaPlayer/captions', ['toggleTranscript']),
       /**
+       * Accessible via parent component refs.
        * @public
        */
       focus() {

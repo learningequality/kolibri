@@ -4,8 +4,9 @@ export const MODE_DISABLED = 'disabled';
 
 export default {
   /**
-   * @param {String} mode
-   * @return {boolean}
+   * Check whether a track mode counts as enabled (showing or hidden).
+   * @param {string} mode - The TextTrack mode string to check
+   * @returns {boolean} True if the mode is showing or hidden
    */
   isEnabledMode(mode) {
     return mode === MODE_SHOWING || mode === MODE_HIDDEN;
@@ -14,10 +15,9 @@ export default {
   /**
    * Setting mode can cause events, which could cause loop if we don't make sure that the mode
    * isn't already the mode we're going to set
-   *
-   * @param {TextTrack} track
-   * @param {Boolean} enabled
-   * @param {Boolean} [hidden]
+   * @param {TextTrack} track - The track to update
+   * @param {boolean} enabled - Whether the track should be enabled
+   * @param {boolean} [hidden] - If enabled, whether to hide the track's cues
    */
   setMode(track, enabled, hidden = false) {
     let mode = MODE_DISABLED;
@@ -32,8 +32,9 @@ export default {
   },
 
   /**
-   * @param {TextTrack} track
-   * @return {boolean}
+   * Check whether a track is currently enabled.
+   * @param {TextTrack} track - The track to check
+   * @returns {boolean} True if the track's mode is showing or hidden
    */
   isEnabled(track) {
     return this.isEnabledMode(track.mode);
@@ -42,9 +43,8 @@ export default {
   /**
    * Text track lists do not implement all array-like features, so this will convert it into an
    * array
-   *
-   * @param {TextTrackList|TextTrackCueList} list
-   * @return {TextTrack[]|TextTrackCue[]}
+   * @param {TextTrackList|TextTrackCueList} list - The list-like object to convert
+   * @returns {TextTrack[]|TextTrackCue[]} A plain array of the list's entries
    */
   listToArray(list) {
     return Array.prototype.slice.call(list, 0);

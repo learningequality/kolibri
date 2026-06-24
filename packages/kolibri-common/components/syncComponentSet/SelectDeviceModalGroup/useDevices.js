@@ -10,11 +10,22 @@ import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } f
 const logging = logger.getLogger(__filename);
 
 /**
- * @param {{}} apiParams
- * @return {{
- *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<bool>, isFetching: Ref<bool>,
- *  filterFailed: Ref<bool>, forceFetch: (function(): Promise<void>)
- * }}
+ * @typedef {import('vue').Ref} Ref
+ */
+/**
+ * @typedef {Record<string, unknown>} NetworkLocation
+ */
+/**
+ * @typedef {Record<string, unknown>} ApiParams
+ */
+
+/**
+ * Poll the discovery API and expose reactive device state.
+ * @param {ApiParams} [apiParams] - Query parameters forwarded to the devices endpoint
+ * @returns {{
+ *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<boolean>, isFetching: Ref<boolean>,
+ *  filterFailed: Ref<boolean>, forceFetch: (function(): Promise<void>)
+ * }} - Reactive state and a handle to force an immediate refetch
  */
 export default function useDevices(apiParams = {}) {
   const devices = ref([]);
@@ -58,15 +69,15 @@ export default function useDevices(apiParams = {}) {
 }
 
 /**
- *
- * @param {{}} apiParams
+ * Poll for devices and additionally apply one or more async predicates to filter them.
+ * @param {ApiParams} apiParams - Query parameters forwarded to the devices endpoint
  * @param {
- *  function(NetworkLocation): Promise<bool>|[function(NetworkLocation): Promise<bool>]
- * } filterFunctionOrFunctions
- * @return {{
- *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<bool>, isFetching: Ref<bool>,
- *  filterFailed: Ref<bool>, forceFetch: (function(): Promise<void>)
- * }}
+ *  function(NetworkLocation): Promise<boolean>|[function(NetworkLocation): Promise<boolean>]
+ * } filterFunctionOrFunctions - Predicate or array of predicates each device must satisfy
+ * @returns {{
+ *  devices: Ref<NetworkLocation[]>, hasFetched: Ref<boolean>, isFetching: Ref<boolean>,
+ *  filterFailed: Ref<boolean>, forceFetch: (function(): Promise<void>)
+ * }} - Reactive filtered state plus a handle to force a refetch
  */
 export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
   const isFiltering = ref(false);
@@ -146,9 +157,8 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
 /**
  * Produces a memoized function that returns a Promise resolving with a boolean for filtering
  * devices, and automatically clears memoized result if it fails, unless it is a 404
- *
- * @param {function(NetworkLocation): Promise<boolean>} filterFunction
- * @return {(function(NetworkLocation): Promise<boolean>)}
+ * @param {function(NetworkLocation): Promise<boolean>} filterFunction - Async predicate to memoize
+ * @returns {(function(NetworkLocation): Promise<boolean>)} - Memoized wrapper with failure eviction
  */
 function useAsyncDeviceFilter(filterFunction) {
   const memoized = useMemoize(filterFunction, { getKey: device => device.id });
@@ -170,10 +180,11 @@ function useAsyncDeviceFilter(filterFunction) {
 
 /**
  * Produces a function that resolves with a boolean for a device that has the specified facility
- * @param {string|null} [id]
- * @param {bool|null} [learner_can_sign_up]
- * @param {bool|null} [on_my_own_setup]
- * @return {function(NetworkLocation): Promise<boolean>}
+ * @param {object} params - Facility filter options
+ * @param {string|null} [params.id] - Restrict to a specific facility id
+ * @param {boolean|null} [params.learner_can_sign_up] - Require matching sign-up policy
+ * @param {boolean|null} [params.on_my_own_setup] - Require matching on-my-own flag
+ * @returns {function(NetworkLocation): Promise<boolean>} - Predicate for use with the filter hook
  */
 export function useDeviceFacilityFilter({
   id = null,
@@ -202,8 +213,9 @@ export function useDeviceFacilityFilter({
 
 /**
  * Produces a function that resolves with a boolean for a device that has the specified channel
- * @param {string|null} id
- * @return {function(NetworkLocation): Promise<boolean>}
+ * @param {object} params - Channel filter options
+ * @param {string|null} [params.id] - Channel id that the device must host
+ * @returns {function(NetworkLocation): Promise<boolean>} - Predicate for use with the filter hook
  */
 export function useDeviceChannelFilter({ id = null }) {
   if (!id) {
@@ -217,10 +229,10 @@ export function useDeviceChannelFilter({ id = null }) {
 
 /**
  * Produces a function that resolves with a boolean if Kolibri version is at least the specified
- * @param {number} major
- * @param {number} minor
- * @param {number} patch
- * @return {function(NetworkLocation): Promise<boolean>}
+ * @param {number} major - Minimum major version component
+ * @param {number} minor - Minimum minor version component
+ * @param {number} patch - Minimum patch version component
+ * @returns {function(NetworkLocation): Promise<boolean>} - Predicate for use with the filter hook
  */
 export function useDeviceMinimumVersionFilter(major, minor, patch) {
   const { isMinimumKolibriVersion } = useMinimumKolibriVersion(major, minor, patch);

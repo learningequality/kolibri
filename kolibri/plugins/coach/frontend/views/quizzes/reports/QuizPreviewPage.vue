@@ -95,6 +95,8 @@
     },
     methods: {
       /**
+       * Called by the router guard after page data is fetched successfully to populate the view.
+       * @param {object} data - Page data returned by the API, including exam and exercise nodes.
        * @public
        */
       setData(data) {
@@ -105,6 +107,8 @@
         pageLoading.value = false;
       },
       /**
+       * Called by the router guard when page data fetching fails to surface the error.
+       * @param {object} error - The error returned by the failed API request.
        * @public
        */
       setError(error) {

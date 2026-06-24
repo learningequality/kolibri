@@ -32,11 +32,11 @@ export function setContentNodeProgress(progress) {
 export default function useContentNodeProgress() {
   /**
    * Fetches content node progress data
-   * and saves data to this composable's store
-   *
-   * @param {Object} getParams Parameters to filter by, should be the same as
+   * and saves data to this composable's store.
+   * @param {object} getParams - Parameters to filter by, should be the same as
    * the contentnodes fetched that we want the progress for.
-   * @returns {Promise}
+   * @returns {Promise<void>} Resolves once the progress data has been merged into
+   * the shared store.
    * @public
    */
   function fetchContentNodeProgress(getParams) {
@@ -52,12 +52,15 @@ export default function useContentNodeProgress() {
   }
 
   /**
-   * Fetches content node progress data
-   * and saves data to this composable's store
-   *
-   * @param {Object} getParams Parameters to filter by, should be the same as
+   * Fetches content node tree progress data and saves data to this composable's store.
+   * @param {object} getParams - Parameters to filter by, should be the same as
    * the contentnodes fetched that we want the progress for.
-   * @returns {Promise}
+   * @param {string} getParams.id - The id of the parent content node whose tree progress
+   * should be fetched.
+   * @param {object} getParams.params - GET parameters forwarded to the tree progress
+   * endpoint (e.g. pagination state).
+   * @returns {Promise<void>} Resolves once the progress data has been merged into
+   * the shared store.
    * @public
    */
   function fetchContentNodeTreeProgress({ id, params }) {

@@ -64,6 +64,10 @@
   import UpdatedResourceSelection from '../../../../../common/resourceSelection/UpdatedResourceSelection.vue';
   import QuizResourceSelectionHeader from '../../../../../common/resourceSelection/QuizResourceSelectionHeader.vue';
 
+  /**
+   * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
+   */
+
   export default {
     name: 'SelectFromQuizSearchResults',
     components: {

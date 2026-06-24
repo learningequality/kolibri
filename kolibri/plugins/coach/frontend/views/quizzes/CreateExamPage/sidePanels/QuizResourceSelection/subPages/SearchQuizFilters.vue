@@ -22,6 +22,10 @@
   import { useGoBack } from 'kolibri-common/composables/usePreviousRoute.js';
   import { PageNames } from '../../../../../../constants';
 
+  /**
+   * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
+   */
+
   export default {
     name: 'SearchQuizFilters',
     components: {

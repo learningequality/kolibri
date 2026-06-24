@@ -227,6 +227,8 @@
         return this.transcript && !this.loading && this.captionTracks.length > 0;
       },
       /**
+       * Returns the total duration of the currently loaded media in seconds.
+       * @returns {number} Duration in seconds.
        * @public
        */
       defaultDuration() {

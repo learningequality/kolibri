@@ -12,11 +12,9 @@ function isDescendantOrSelf(testNode, selfNode) {
 }
 
 /**
- * Queries the server for the current total file size and resource count
- * and then sets it to the store.
- *
- * @returns {Promise}
- *
+ * Fetches and commits the file size and resource count for the current transfer selection.
+ * @param {object} store - The Vuex store instance with transfer state.
+ * @returns {Promise<void>} Resolves when the transfer size has been updated in the store.
  */
 function setImportExportFileSizeAndResourceCount(store) {
   const { transferredChannel, nodesForTransfer } = store.state;
@@ -59,11 +57,10 @@ function setImportExportFileSizeAndResourceCount(store) {
 }
 
 /**
- * Adds a new node to the transfer list.
- *
- * @param node {Node} - Node to be added
- * @param node.path {Array<String>} - path (via ids) from channel root to the Node
- *
+ * Adds a content node to the transfer include list and updates the transfer size.
+ * @param {object} store - The Vuex store instance with transfer state.
+ * @param {object} node - The content node to add to the transfer.
+ * @returns {Promise<void>} Resolves when the node has been added and transfer size updated.
  */
 export function addNodeForTransfer(store, node) {
   const { included, omitted } = store.state.nodesForTransfer;
@@ -84,10 +81,10 @@ export function addNodeForTransfer(store, node) {
 }
 
 /**
- * Removes node from transfer list
- *
- * @param node {Node} - node to be removed
- *
+ * Removes a content node from the transfer include list and updates the transfer size.
+ * @param {object} store - The Vuex store instance with transfer state.
+ * @param {object} node - The content node to remove from the transfer.
+ * @returns {Promise<void>} Resolves when the node has been removed and transfer size updated.
  */
 export function removeNodeForTransfer(store, node) {
   const forImport = !store.getters.inExportMode;

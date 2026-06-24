@@ -9,7 +9,7 @@
  * or if you need to inspect the state of the refs during tests,
  * you can import a helper function `useTotalProgressMock` that accepts
  * an object with values to be overriden and use it together
- * with  `mockImplementation` as follows:
+ * with  `mockImplementation`, as shown in the example below.
  *
  * ```
  * // eslint-disable-next-line import-x/named
@@ -17,15 +17,15 @@
  *
  * jest.mock('<useTotalProgress file path>')
  * describe('describe test', function () {
- *   let totalProgressMock = { totalProgress: ref(null) }
+ * let totalProgressMock = { totalProgress: ref(null) }
  *
- *   beforeAll(() => {
- *     useTotalProgress.mockImplementation(() => useTotalProgressMock(totalProgressMock)
- *   })
+ * beforeAll(() => {
+ * useTotalProgress.mockImplementation(() => useTotalProgressMock(totalProgressMock)
+ * })
  *
- *   it('the test', () => {
- *     expect(get(totalProgressMock.totalProgress)).toEqual(null);
- *   )
+ * it('the test', () => {
+ * expect(get(totalProgressMock.totalProgress)).toEqual(null);
+ * )
  * })
  * ```
  */

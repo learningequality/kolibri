@@ -245,7 +245,7 @@
      * - `viewResourceList` on 'View lesson plan'/'View topic resources' click
      * - `toggleBookmark` on 'Save to bookmarks'/ 'Remove from bookmarks' click
      * - `markComplete` on 'Mark resource as finished' click. Only when
-     *                  a resource can be marked as complete.
+     * a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
      * - `download` on 'Download' click
      */
@@ -265,7 +265,7 @@
       /**
        * Is the bar used in the context of a lesson?
        * There are slight differences in rendering
-       * related to the context, e.g. action buttons labels.
+       * related to the context, such as action button labels.
        */
       isLessonContext: {
         type: Boolean,
@@ -289,67 +289,67 @@
         default: false,
       },
       /**
-    The progress of the currently viewed content to determine
-    if and which progress icon should be shown (none/started/complete)
-    */
+         The progress of the currently viewed content to determine
+         if and which progress icon should be shown (none/started/complete).
+       */
       contentProgress: {
         type: Number,
         required: false,
         default: 0,
       },
       /**
-    A 1/0 Boolean check whether we should show the Coach Content icon
-    to be passed to the CoachContentLabel component
-    */
+         A 1/0 Boolean check whether we should show the Coach Content icon
+         to be passed to the CoachContentLabel component.
+       */
       isCoachContent: {
         type: Number,
         required: false,
         default: 0,
       },
       /**
-    The ContentNodeKinds kind of the content being viewed
-    */
+         The ContentNodeKinds kind of the content being viewed.
+       */
       contentKind: {
         type: String,
         required: false,
         default: null,
       },
       /**
-    Is this a practice quiz?
-    */
+         Is this a practice quiz?
+       */
       isQuiz: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
-    Is the post-quiz report what is currently displayed?
-    */
+         Is the post-quiz report what is currently displayed?
+       */
       showingReportState: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
-    Suggested time in seconds
-    */
+         Suggested time in seconds.
+       */
       duration: {
         type: Number,
         required: false,
         default: null,
       },
       /**
-    Actual time spent in seconds
-    */
+         Actual time spent in seconds.
+       */
       timeSpent: {
         type: Number,
         required: false,
         default: null,
       },
       /**
-    A Boolean check whether we should show the Bookmark Icon
-    what should not happen if the user is not logged in
-    */
+         A Boolean check whether we should show the Bookmark Icon
+         what should not happen if the user is not logged in.
+       */
       showBookmark: {
         type: Boolean,
         required: false,
@@ -571,6 +571,7 @@
         });
       },
       /**
+       * Trigger the next-steps animation; called from TopicsContentPage via $refs.
        * @public
        */
       animateNextSteps() {

@@ -220,7 +220,10 @@
       },
     },
     computed: {
-      /** Overrides some default styles in KRouterLink */
+      /**
+       * Overrides some default styles in KRouterLink.
+       * @returns {object} The CSS style overrides applied to KRouterLink.
+       */
       linkStyles() {
         return {
           color: this.$themeTokens.text + '!important',

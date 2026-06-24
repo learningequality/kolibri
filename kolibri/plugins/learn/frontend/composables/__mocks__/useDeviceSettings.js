@@ -17,9 +17,9 @@
  * jest.mock('<useDeviceSettings file path>')
  *
  * it('test', () => {
- *   useDeviceSettings.mockImplementation(
- *    () => useDeviceSettingsMock({ allowGuestAccess: true })
- *   );
+ * useDeviceSettings.mockImplementation(
+ * () => useDeviceSettingsMock({ allowGuestAccess: true })
+ * );
  * })
  * ```
  *

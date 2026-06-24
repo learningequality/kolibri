@@ -17,9 +17,9 @@
  * jest.mock('<useGroups file path>')
  *
  * it('test', () => {
- *   useGroups.mockImplementation(
- *     () => useGroupsMock({ groupsAreLoading: true })
- *   );
+ * useGroups.mockImplementation(
+ * () => useGroupsMock({ groupsAreLoading: true })
+ * );
  * })
  * ```
  *

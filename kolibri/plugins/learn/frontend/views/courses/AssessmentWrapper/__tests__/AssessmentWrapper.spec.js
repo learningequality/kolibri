@@ -43,6 +43,15 @@ function buildProps(overrides = {}) {
  *
  * By default `checkAnswer` returns null (no answer given).
  * Override by providing a different stub via the `stubs` option.
+ * @param {object} [config] - Stub configuration.
+ * @param {?Function} [config.checkAnswerFn] - Replaces the default `checkAnswer`
+ * implementation when provided.
+ * @param {number} [config.availableHints] - Initial value for the stub's `availableHints`
+ * data property.
+ * @param {number} [config.totalHints] - Initial value for the stub's `totalHints` data
+ * property.
+ * @returns {object} A Vue component definition suitable for use as a Vue Testing
+ * Library stub.
  */
 function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints = 0 } = {}) {
   return {
@@ -91,6 +100,13 @@ function makeContentViewerStub({ checkAnswerFn, availableHints = 0, totalHints =
 
 const DefaultStub = makeContentViewerStub();
 
+/**
+ * Render `AssessmentWrapper` with merged props and the default `ContentViewer` stub.
+ * @param {object} [props] - Prop overrides merged on top of `buildProps` defaults.
+ * @param {object} [options] - Additional render options.
+ * @param {object} [options.stubs] - Extra stubs to merge into the render call.
+ * @returns {ReturnType<typeof render>} The Testing Library render result.
+ */
 function renderComponent(props = {}, { stubs, ...restOptions } = {}) {
   const mergedProps = buildProps(props);
   return render(AssessmentWrapper, {
@@ -107,12 +123,18 @@ function renderComponent(props = {}, { stubs, ...restOptions } = {}) {
   });
 }
 
-/** Helper to read the current-status text content. */
+/**
+ * Helper to read the current-status text content.
+ * @returns {string} The trimmed text inside the `current-status` test node.
+ */
 function getStatusText() {
   return screen.getByTestId('current-status').textContent.trim();
 }
 
-/** Helper to get the displayed item id from the content viewer stub. */
+/**
+ * Helper to get the displayed item id from the content viewer stub.
+ * @returns {string} The trimmed text inside the `content-viewer-item-id` test node.
+ */
 function getDisplayedItemId() {
   return screen.getByTestId('content-viewer-item-id').textContent.trim();
 }

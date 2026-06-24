@@ -11,11 +11,13 @@ const NAME_DEFAULTS = {
 
 class CSVExporter {
   /**
-   * @param {Object[]} columns
-   * @param {String} columns[].name The title of the column
-   * @param {String} columns[].key The key of the column
-   * @param {Function} [columns[].format] A function that will produce the value for a row
-   * @param {String} [baseFilename]
+   * Construct a CSV exporter for a fixed set of columns.
+   * @param {object[]} columns - Column descriptors, in output order.
+   * @param {string} columns[].name - The title of the column.
+   * @param {string} columns[].key - The key of the column (supports `dot.notation` for
+   * nested fields).
+   * @param {Function} [columns[].format] - A function that will produce the value for a row.
+   * @param {string} [baseFilename] - Optional prefix for the generated filename.
    */
   constructor(columns, baseFilename = '') {
     this._columns = columns;
@@ -26,7 +28,8 @@ class CSVExporter {
   }
 
   /**
-   * @param {Object} names
+   * Merge `names` into the names used to build the output filename.
+   * @param {object} names - Map of name parts (e.g. `{lesson, resource, group, learner}`).
    */
   addNames(names) {
     this._names = {
@@ -36,7 +39,8 @@ class CSVExporter {
   }
 
   /**
-   * @return {String}
+   * Compose the sanitised CSV filename from the configured base and name parts.
+   * @returns {string} The filename, including the `.csv` extension.
    */
   buildFilename() {
     const filenameParts = [this._filename];
@@ -70,8 +74,11 @@ class CSVExporter {
   }
 
   /**
-   * @param {Object[]} dataArray
-   * @return {mixed[]}
+   * Apply each column's `format` function (or extract the value at `column.key`) to
+   * every row, prepending a header row of column names.
+   * @param {object[]} dataArray - Rows of source data.
+   * @returns {Array<Array<unknown>>} Two-dimensional array suitable for CSV generation,
+   * with column names as the first row.
    */
   formatData(dataArray) {
     return [
@@ -90,7 +97,8 @@ class CSVExporter {
   }
 
   /**
-   * @param {Object[]} dataArray
+   * Trigger a CSV download in the browser for the given rows.
+   * @param {object[]} dataArray - Rows of source data, formatted using `formatData`.
    */
   export(dataArray) {
     csvGenerator.download({

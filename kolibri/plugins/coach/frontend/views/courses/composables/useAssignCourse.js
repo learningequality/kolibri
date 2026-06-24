@@ -13,10 +13,10 @@ import { useCourses } from '../../../composables/useCourses';
  *
  * This is instantiated in the root component of the Assign Course side panel
  * and its state and methods will be passed down to child components through provide/inject.
- *
- * @param {Object} options **Required** Configuration options for the composable.
- * @param {import('vue').Ref<string>} options.classId **Required** The id of the class to which
- *                                                    the course will be assigned.
+ * @param {object} options - **Required** Configuration options for the composable.
+ * @param {import('vue').Ref<string>} options.classId - **Required** The id of the class to which
+ * the course will be assigned.
+ * @returns {AssignCourseInjectObject} The assign-course composable API.
  */
 export default function useAssignCourse({ classId }) {
   const searchKeywords = ref('');
@@ -69,7 +69,7 @@ export default function useAssignCourse({ classId }) {
 
   /**
    * Set existing course assignment data for editing
-   * @param {Object} courseSession - The course session object from CoursesRootPage
+   * @param {object} courseSession - The course session object from CoursesRootPage
    */
   const setExistingAssignment = courseSession => {
     courseSessionId.value = courseSession.id;
@@ -162,32 +162,34 @@ export default function useAssignCourse({ classId }) {
 
 /**
  * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
- *
- * @typedef {Object} AssignCourseInjectObject
- * @property {import('vue').Ref<string>} classId The id of the class to which the course will
- *                                               be assigned.
- * @property {import('vue').Ref<string>} searchKeywords The keywords used to search for courses.
- * @property {FetchObject} coursesFetch The useFetch object for fetching courses.
- * @property {import('vue').Ref<Object|null>} selectedCourse The currently selected course.
- * @property {import('vue').Ref<string|null>} courseSessionId The id of the course session being
- *                                                            edited, or null when creating a new
- *                                                            assignment.
- * @property {import('vue').Ref<Array<string>>} selectedGroupIds The ids of the selected groups
- *                                                               to assign the course to.
- * @property {import('vue').Ref<Array<string>>} selectedLearnerIds The ids of the selected learners
- *                                                                 to assign the course to.
- * @property {import('vue').ComputedRef<boolean>} hasRecipientChanges True when selected recipients
- *                                                                     differ from the snapshot
- *                                                                     taken at edit-session start.
- * @property {(course: Object) => void} selectCourse Method to set the `selectedCourse` ref.
- * @property {(courseSession: Object) => void} setExistingAssignment Populate state from an existing
- *                                                                   course session for editing.
- * @property {() => void} resetAssignment Reset all assignment state to initial empty values.
- * @property {() => Promise<Object>} assignCourse Method to assign the selected course to the
- *                                                selected learners and groups.
- *
- * @returns {AssignCourseInjectObject} An object with properties and methods for managing
- *                                     the fetch process.
+ */
+
+/**
+ * @typedef {object} AssignCourseInjectObject
+ * @property {import('vue').Ref<string>} classId - The id of the class to which the course will
+ * be assigned.
+ * @property {import('vue').Ref<string>} searchKeywords - The keywords used to search for courses.
+ * @property {FetchObject} coursesFetch - The useFetch object for fetching courses.
+ * @property {import('vue').Ref<?object>} selectedCourse - The currently selected course.
+ * @property {import('vue').Ref<string|null>} courseSessionId - The id of the course session being
+ * edited, or null when creating a new assignment.
+ * @property {import('vue').Ref<Array<string>>} selectedGroupIds - The ids of the selected groups
+ * to assign the course to.
+ * @property {import('vue').Ref<Array<string>>} selectedLearnerIds - The ids of the selected
+ * learners to assign the course to.
+ * @property {import('vue').ComputedRef<boolean>} hasRecipientChanges - True when selected
+ * recipients differ from the snapshot taken at edit-session start.
+ * @property {(course: object) => void} selectCourse - Method to set the `selectedCourse` ref.
+ * @property {(courseSession: object) => void} setExistingAssignment - Populate state from an
+ * existing course session for editing.
+ * @property {() => void} resetAssignment - Reset all assignment state to initial empty values.
+ * @property {() => Promise<object>} assignCourse - Method to assign the selected course to
+ * the selected learners and groups.
+ */
+
+/**
+ * Inject the assign-course composable API provided by an ancestor `useAssignCourse` call.
+ * @returns {AssignCourseInjectObject} The injected composable API.
  */
 export function injectAssignCourse() {
   return {

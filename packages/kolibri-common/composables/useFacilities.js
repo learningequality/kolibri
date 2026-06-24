@@ -3,23 +3,28 @@ import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
 import useUser from 'kolibri/composables/useUser';
 
 /**
- * @typedef {Object} UseFacilitiesReturn
- * @property {import('vue').ComputedRef<Object[]>} facilities
- * @property {import('vue').ComputedRef<boolean>} hasMultipleFacilities
- * @property {import('vue').ComputedRef<boolean>} userIsMultiFacilityAdmin
- * @property {() => Promise<void>} fetchFacilities
- * @property {(facilityId: import('vue').Ref<string>|string) => Promise<void>} fetchFacility
- * @property {(facilityId: import('vue').Ref<string>|string) => Object|undefined} getFacility
+ * @typedef {object} UseFacilitiesReturn
+ * @property {import('vue').ComputedRef<object[]>} facilities - The cached list of facilities.
+ * @property {import('vue').ComputedRef<boolean>} hasMultipleFacilities - Whether more than one
+ * facility is cached.
+ * @property {import('vue').ComputedRef<boolean>} userIsMultiFacilityAdmin - Whether the user is a
+ * superuser with access to multiple facilities.
+ * @property {() => Promise<void>} fetchFacilities - Fetches all facilities from the backend.
+ * @property {(facilityId: import('vue').Ref<string>|string) => Promise<void>} fetchFacility -
+ * Fetches a single facility from the backend and caches it.
+ * @property {(facilityId: import('vue').Ref<string> | string) => object | undefined} getFacility -
+ * Returns a cached facility by ID.
  */
 
 /**
- * @type {import('vue').Ref<Object[]>}
+ * @type {import('vue').Ref<object[]>}
  * @private
  */
 const _facilities = ref([]);
 
 /**
- * @return {UseFacilitiesReturn}
+ * Composable for the set of facilities known to this device.
+ * @returns {UseFacilitiesReturn} The cached facilities and helpers to read and refresh them.
  */
 export default function useFacilities() {
   const { isSuperuser } = useUser();
@@ -35,8 +40,8 @@ export default function useFacilities() {
 
   /**
    * Get a particular facility from the cache
-   * @param {import('vue').Ref<string>|string} facilityId
-   * @return {Object|null}
+   * @param {import('vue').Ref<string>|string} facilityId - The ID of the facility to look up.
+   * @returns {object | null} The cached facility, or undefined when not cached.
    */
   function getFacility(facilityId) {
     return _facilities.value.find(f => f.id === unref(facilityId));
@@ -45,7 +50,7 @@ export default function useFacilities() {
   // actions
   /**
    * Fetch all facilities from the backend
-   * @return {Promise<void>}
+   * @returns {Promise<void>}
    */
   async function fetchFacilities() {
     _facilities.value = await FacilityResource.fetchCollection({ force: true });
@@ -53,8 +58,8 @@ export default function useFacilities() {
 
   /**
    * Fetch a single facility from the backend
-   * @param {import('vue').Ref<string>|string} facilityId
-   * @return {Promise<void>}
+   * @param {import('vue').Ref<string>|string} facilityId - The ID of the facility to fetch.
+   * @returns {Promise<void>}
    */
   async function fetchFacility(facilityId) {
     const facility = await FacilityResource.fetchModel({ id: unref(facilityId), force: true });

@@ -316,8 +316,8 @@
         this.shownModal = null;
       },
       /**
+       * Refreshes the page data after a watched content task completes, handling channel deletion.
        * @public
-       * Used by the taskNotificationMixin to handle the completion of the task
        */
       onWatchedTaskFinished() {
         // clear out the nodeCache

@@ -217,9 +217,10 @@ export default {
       }
     },
     /**
-     * @param {Object[]} statuses
-     * @param {Date|null} statuses[].last_activity
-     * @return {Date|null}
+     * Find the most recent `last_activity` timestamp in a list of statuses.
+     * @param {object[]} statuses - Status objects to scan.
+     * @param {?Date} statuses[].last_activity - The activity timestamp for that status.
+     * @returns {?Date} The latest non-null timestamp, or null when none is available.
      */
     maxLastActivity(statuses) {
       const max = this._.maxBy(statuses, 'last_activity');

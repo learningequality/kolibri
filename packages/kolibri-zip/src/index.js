@@ -21,11 +21,14 @@ configure({
 });
 
 /**
+ * @typedef {import('./fileUtils').Mapper} Mapper
+ */
+
+/**
  * A map of file extensions to Mapper subclasses that handle path replacement
  * for that file type. Each key is an extension (without dot, e.g. 'css', 'html')
  * and each value is a class extending {@link Mapper} from fileUtils.
- *
- * @typedef {Object<string, typeof import('./fileUtils').Mapper>} FilePathMappers
+ * @typedef {{[key: string]: typeof Mapper}} FilePathMappers
  */
 
 const DEFAULT_MAX_FULL_LOAD_SIZE = 2.5 * 1024 * 1024; // 2.5MB
@@ -39,6 +42,7 @@ const DEFAULT_LARGE_MEDIA_THRESHOLD = 500 * 1024; // 500KB
  */
 class ExtractedFile {
   /**
+   * Construct an ExtractedFile from a name and either extracted bytes or a URL generator.
    * @param {string} name - Full path of the file within the ZIP
    * @param {Uint8Array|null} obj - Extracted file data, or null for URL-generated files
    * @param {Function|null} [urlGenerator=null] - Function `(filename) => url` for large files
@@ -51,6 +55,7 @@ class ExtractedFile {
   }
 
   /**
+   * Lowercased extension of the file, taken from the characters after the final dot.
    * @returns {string} File extension in lowercase (e.g. 'css', 'html')
    */
   get fileNameExt() {
@@ -58,6 +63,8 @@ class ExtractedFile {
   }
 
   /**
+   * MIME type derived from the file extension, with overrides applied for types
+   * that zip.js mishandles.
    * @returns {string} MIME type based on file extension
    */
   get mimeType() {
@@ -69,7 +76,6 @@ class ExtractedFile {
 
   /**
    * Returns the file contents as a decoded UTF-8 string.
-   *
    * @returns {string} File contents
    * @throws {Error} If the file uses a URL generator (large media files have no extracted data)
    */
@@ -83,7 +89,6 @@ class ExtractedFile {
   /**
    * Returns a URL for this file. For extracted files, creates and caches a blob URL.
    * For URL-generated files, returns the generated URL. Result is cached.
-   *
    * @returns {string} Blob URL or generated URL
    */
   toUrl() {
@@ -118,16 +123,18 @@ class ExtractedFile {
  */
 export default class ZipFile {
   /**
-   * @param {string} url - URL of the ZIP file
-   * @param {Object} [options]
+   * Construct a ZipFile. The ZIP is fetched and parsed asynchronously; call any
+   * extraction method and await the returned promise.
+   * @param {string} url - URL from which the ZIP archive will be fetched
+   * @param {object} [options] - Configuration for loading, chunking and path replacement
    * @param {FilePathMappers} [options.filePathMappers] - Map of file extension to Mapper
-   *   subclass for path replacement. Pass `{}` to disable replacement entirely.
+   * subclass for path replacement. Pass `{}` to disable replacement entirely.
    * @param {number} [options.maxFullLoadSize=2.5MB] - ZIP files larger than this are loaded
-   *   lazily via range requests instead of downloading entirely
+   * lazily via range requests instead of downloading entirely
    * @param {Function} [options.largeFileUrlGenerator] - Function `(filename) => url` for serving
-   *   large audio/video files directly. Required for largeMediaThreshold to have effect.
+   * large audio/video files directly. Required for largeMediaThreshold to have effect.
    * @param {number} [options.largeMediaThreshold] - Audio/video files larger than this use
-   *   largeFileUrlGenerator instead of being extracted. Defaults to 500KB.
+   * largeFileUrlGenerator instead of being extracted. Defaults to 500KB.
    * @param {number} [options.chunkSize] - Target size for grouped range requests
    */
   constructor(
@@ -205,9 +212,9 @@ export default class ZipFile {
 
   /**
    * Extract a file from the zip by path
-   * @param {Object} entry - zip.js entry object
-   * @param {Object} visitedPaths - Paths already visited (for cycle detection)
-   * @returns {Promise<ExtractedFile>}
+   * @param {object} entry - zip.js entry object
+   * @param {object} visitedPaths - Paths already visited (for cycle detection)
+   * @returns {Promise<ExtractedFile>} The cached or freshly extracted file
    */
   async _extractFile(entry, visitedPaths = {}) {
     // Check cache first
@@ -236,9 +243,8 @@ export default class ZipFile {
   /**
    * Replace internal file references (CSS url(), HTML src/href, etc.) with URLs.
    * Tracks visited paths to prevent infinite loops from circular references.
-   *
    * @param {ExtractedFile} file - The file to carry out replacement of references in
-   * @param {Object} visitedPaths - A map of paths that have already been visited to prevent a loop
+   * @param {object} visitedPaths - A map of paths that have already been visited to prevent a loop
    * @returns {Promise<ExtractedFile>} The file with references replaced
    * @private
    */
@@ -283,10 +289,9 @@ export default class ZipFile {
 
   /**
    * Find and extract all files matching a predicate.
-   *
    * @param {Function} filterPredicate - Called with `{name, filename}` for each entry;
-   *   return truthy to include
-   * @param {Object} [visitedPaths={}] - Paths already visited (for cycle detection)
+   * return truthy to include
+   * @param {object} [visitedPaths={}] - Paths already visited (for cycle detection)
    * @returns {Promise<ExtractedFile[]>} Matching extracted files
    * @private
    */
@@ -316,7 +321,6 @@ export default class ZipFile {
 
   /**
    * Extract a single file by exact path.
-   *
    * @param {string} filename - Full path within the ZIP (e.g. 'assets/style.css')
    * @returns {Promise<ExtractedFile|undefined>} The extracted file, or undefined if not found
    */
@@ -342,7 +346,6 @@ export default class ZipFile {
 
   /**
    * Extract all files whose paths start with the given prefix.
-   *
    * @param {string} path - Path prefix to match (e.g. 'assets/')
    * @returns {Promise<ExtractedFile[]>} Matching extracted files
    */
@@ -355,7 +358,6 @@ export default class ZipFile {
 
   /**
    * Extract all files with the given extension.
-   *
    * @param {string} extension - Extension to match, including dot (e.g. '.css')
    * @returns {Promise<ExtractedFile[]>} Matching extracted files
    */

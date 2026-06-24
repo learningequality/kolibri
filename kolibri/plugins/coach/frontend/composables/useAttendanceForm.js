@@ -7,16 +7,15 @@ import useCoreCoach from './useCoreCoach';
 
 /**
  * Shared attendance form logic used by both AttendanceNewPage and AttendanceEditPage.
- *
- * @param {Object} options
+ * @param {object} options - Options object.
  * @param {import('vue').Ref<boolean>|import('vue').ComputedRef<boolean>} options.hasChanges
- *   Reactive flag indicating whether the form has unsaved changes.
- * @param {Function} options.markClean
- *   Called when the user confirms leaving without saving.
+ * Reactive flag indicating whether the form has unsaved changes.
+ * @param {Function} options.markClean - Called when the user confirms leaving without saving.
  * @param {import('vue').Ref<boolean>} options.submitting
- *   Reactive flag for whether a submit/save is in progress.
- * @param {Function} [options.onChange]
- *   Optional callback fired whenever the attendance map changes (toggle or mark-all).
+ * Reactive flag for whether a submit/save is in progress.
+ * @param {Function} [options.onChange] - Optional callback fired whenever the attendance map
+ * changes (toggle or mark-all).
+ * @returns {object} Attendance form state and methods.
  */
 export default function useAttendanceForm({ hasChanges, markClean, submitting, onChange }) {
   const router = useRouter();

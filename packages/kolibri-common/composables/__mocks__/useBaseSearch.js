@@ -17,9 +17,9 @@
  * jest.mock('<useBaseSearch file path>')
  *
  * it('test', () => {
- *   useBaseSearch.mockImplementation(
- *     () => useBaseSearch({ classes: [{ id: 'class-1' }] })
- *   );
+ * useBaseSearch.mockImplementation(
+ * () => useBaseSearch({ classes: [{ id: 'class-1' }] })
+ * );
  * })
  * ```
  *

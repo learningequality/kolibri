@@ -35,8 +35,8 @@ export default function useLearningActivities(contentNode) {
   };
 
   /**
-   * @returns {Boolean} Does the content node have exactly
-   *                    one learning activity associated with it?
+   * @returns {boolean} Does the content node have exactly
+   * one learning activity associated with it?
    */
   const hasSingleActivity = computed(() => {
     return (
@@ -45,9 +45,9 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {String,null} A constant of the first learning activity
-   *                        associated with the content node.
-   *
+   * @returns {?string} A constant of the first learning activity
+   * associated with the content node, or null when none
+   * are available.
    */
   const firstActivity = computed(() => {
     if (
@@ -61,8 +61,8 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {Boolean} `true` if the content node has completion criterion
-   *                   set to reference.
+   * @returns {boolean} `true` if the content node has completion criterion
+   * set to reference.
    */
   const isReference = computed(() => {
     return (
@@ -72,7 +72,7 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {Boolean} Does the content node have truthy duration?
+   * @returns {boolean} Does the content node have truthy duration?
    */
   const hasDuration = computed(() => {
     return contentNode && contentNode.duration;
@@ -80,9 +80,8 @@ export default function useLearningActivities(contentNode) {
 
   /**
    * Should we display precise time duration for the content node?
-   *
-   * @returns {Boolean} `true` when the content node has a duration and the time
-   *                    completion criterion.
+   * @returns {boolean} `true` when the content node has a duration and the time
+   * completion criterion.
    */
   const displayPreciseDuration = computed(() => {
     return (
@@ -94,9 +93,8 @@ export default function useLearningActivities(contentNode) {
 
   /**
    * Should we display an estimated duration for the content node?
-   *
-   * @returns {Boolean} `true` when the content node has a duration and the approx_time
-   *                    completion criterion.
+   * @returns {boolean} `true` when the content node has a duration and the approx_time
+   * completion criterion.
    */
   const displayEstimatedDuration = computed(() => {
     return (
@@ -112,16 +110,16 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {Number}
+   * @returns {number}
    */
   const durationInSeconds = computed(() => {
     return contentNode && contentNode.duration ? contentNode.duration : 0;
   });
 
   /**
-   * @returns {String} Returns the translated 'Short activity' label when duration is less
-   *                   than or equal to 30 minutes.
-   *                   Otherwise returns the translated 'Long activity' label.
+   * @returns {string} Returns the translated 'Short activity' label when duration is less
+   * than or equal to 30 minutes.
+   * Otherwise returns the translated 'Long activity' label.
    */
   const durationEstimation = computed(() => {
     if (!get(hasDuration)) {
@@ -133,7 +131,7 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @returns {String} Returns the translated exercise type(Practice Quiz or other)
+   * @returns {string} Returns the translated exercise type(Practice Quiz or other)
    */
   const exerciseDescription = computed(() => {
     const isPracticeQuiz = lodashGet(contentNode, ['options', 'modality'], false) === 'QUIZ';
@@ -158,16 +156,18 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
-   * @param {String} learningActivity A learning activity constant
-   * @returns {String} A translated label for the learning activity
+   * Look up the translated label for a learning activity constant.
+   * @param {string} learningActivity - A learning activity constant.
+   * @returns {string} A translated label for the learning activity.
    */
   function getLearningActivityLabel(learningActivity) {
     return _LearningActivityToLabelMap[learningActivity];
   }
 
   /**
-   * @param {String} learningActivity A learning activity constant
-   * @returns {String} An icon for the learning activity
+   * Look up the icon name for a learning activity constant.
+   * @param {string} learningActivity - A learning activity constant.
+   * @returns {string} An icon name for the learning activity.
    */
   function getLearningActivityIcon(learningActivity) {
     return _LearningActivityToIconMap[learningActivity];

@@ -4,18 +4,18 @@ import { coerceNumber, validateNumber, validateBoolean } from './qti/values';
 const QTI_IDENTIFIER_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_-]{0,31}$/;
 
 /**
- * Validates QTI identifier format
- * @param {string|null} value - The value to validate
- * @returns {boolean} - True if valid QTI identifier or null
+ * Validates QTI identifier format.
+ * @param {string|null} value - The value to validate.
+ * @returns {boolean} - True if valid QTI identifier or null.
  */
 const validateQTIIdentifier = value => {
   return QTI_IDENTIFIER_PATTERN.test(value);
 };
 
 /**
- * Validates non-negative integer
- * @param {string|number|null} value - The value to validate
- * @returns {boolean} - True if non-negative integer or null
+ * Validates non-negative integer.
+ * @param {string|number|null} value - The value to validate.
+ * @returns {boolean} - True if non-negative integer or null.
  */
 const validateNonNegativeInt = value => {
   value = coerceNumber(value);
@@ -23,9 +23,9 @@ const validateNonNegativeInt = value => {
 };
 
 /**
- * Creates an enum validator function
- * @param {Object} enumObject - The enum object to validate against
- * @returns {Function} Validator function
+ * Creates an enum validator function.
+ * @param {object} enumObject - The enum object to validate against.
+ * @returns {Function} Validator function.
  */
 const createEnumValidator = enumObject => {
   return value => Object.values(enumObject).includes(value);
@@ -48,11 +48,11 @@ const validateOrientation = createEnumValidator(Orientation);
 
 // Common factory function for creating props
 /**
- * Creates a Vue prop configuration from a base prop object
- * @param {Object} baseProp - Base prop configuration (type, validator, etc.)
- * @param {boolean} required - Whether the prop is required (default: true)
- * @param {*} defaultValue - Default value (default: null when not required)
- * @returns {Object} Vue prop configuration
+ * Creates a Vue prop configuration from a base prop object.
+ * @param {object} baseProp - Base prop configuration (type, validator, etc.).
+ * @param {boolean} required - Whether the prop is required (default: true).
+ * @param {unknown} defaultValue - Default value (default: null when not required).
+ * @returns {object} Vue prop configuration.
  */
 const createProp = (baseProp, required = true, defaultValue) => {
   const prop = { ...baseProp };

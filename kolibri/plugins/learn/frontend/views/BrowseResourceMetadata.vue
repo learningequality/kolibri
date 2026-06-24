@@ -288,15 +288,15 @@
     computed: {
       /**
        * Returns whether or not the LearnerNeeds.FOR_BEGINNERS constant is present in
-       * this.content.learner_needs
-       * @returns {Boolean}
+       * this.content.learner_needs.
+       * @returns {boolean} True if the content is flagged for beginners.
        */
       forBeginners() {
         return get(this.content, 'learner_needs', []).includes(LearnerNeeds.FOR_BEGINNERS);
       },
       /**
-       * Returns a list of this.content.learner_needs without the FOR_BEGINNERS key, if present
-       * @returns {string[]}
+       * Returns a list of this.content.learner_needs without the FOR_BEGINNERS key, if present.
+       * @returns {string[]} Learner needs with FOR_BEGINNERS filtered out.
        */
       learnerNeeds() {
         // Remove FOR_BEGINNERS in this list because it is indicated separately, above, if present
@@ -305,15 +305,15 @@
         );
       },
       /**
-       * Joins this.content.accessibility_labels with a comma & space for display purposes
-       * @returns {string}
+       * Joins this.content.accessibility_labels with a comma & space for display purposes.
+       * @returns {string} The comma-separated accessibility labels.
        */
       accessibilityLabels() {
         return this.content.accessibility_labels.map(label => this.coreString(label)).join(', ');
       },
       /**
-       * Joins this.learnerNeeds with a comma & space for display purposes
-       * @returns {string}
+       * Joins this.learnerNeeds with a comma & space for display purposes.
+       * @returns {string} The comma-separated learner needs labels.
        */
       learnerNeedsLabels() {
         return this.learnerNeeds.map(label => this.coreString(label)).join(', ');
@@ -407,8 +407,8 @@
         }
       },
       /**
+       * Determines and calls first focusable element for FocusTrap.
        * @public
-       * Determines and calls first focusable element for FocusTrap
        */
       focusFirstEl() {
         this.$refs.resourceButton.$el.focus();

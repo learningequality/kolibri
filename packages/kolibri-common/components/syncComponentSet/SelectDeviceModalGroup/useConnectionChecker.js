@@ -21,15 +21,19 @@ function useMemoizeWithExpiry(asyncFunction, options = {}) {
 }
 
 /**
- *
- * @param {Ref<NetworkLocation[]>} devices
- * @param {Number} threshold - minimum `since_last_accessed` needed to perform check
- * @param {Number} interval - time between running individual checks
- * @param {Number} concurrency - the number of simultaneous connection checks
- * @return {{
- *  checkFailed: Ref<bool>, isChecking: Ref<bool>, hasChecked: Ref<bool>,
- *  doCheck: (function(id: string): Promise<NetworkLocation>),
- * }}
+ * Continuously check the connection status of the devices in `devices`, refreshing the
+ * least-recently-accessed entries first.
+ * @param {import('vue').Ref<Array<object>>} devices - Reactive list of network location
+ * descriptors to monitor.
+ * @param {object} [options] - Polling options.
+ * @param {number} [options.threshold] - Minimum `since_last_accessed` needed to perform a
+ * check.
+ * @param {number} [options.interval] - Time between individual checks, in seconds.
+ * @param {number} [options.concurrency] - The number of simultaneous connection checks.
+ * @returns {{
+ *   isChecking: import('vue').Ref<boolean>,
+ *   doCheck: (id: string) => Promise<object>|undefined,
+ * }} The polling state and a method for ad-hoc checks.
  */
 export default function useConnectionChecker(
   devices,

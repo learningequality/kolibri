@@ -64,9 +64,9 @@
       }
 
       /**
-       * Validate a PIN code against a facility dataset
-       * @param {string} pinCode - The 4-digit PIN to validate
-       * @returns {Promise<boolean>} - True if PIN is valid, false otherwise
+       * Validate a PIN code against a facility dataset.
+       * @param {string} pinCode - The 4-digit PIN to validate.
+       * @returns {Promise<boolean>} - True if PIN is valid, false otherwise.
        */
       async function validatePin(pinCode) {
         const response = await client({
@@ -78,8 +78,8 @@
       }
 
       /**
-       * Submit pin for validation and handle response
-       * @return {Promise<void>}
+       * Submit pin for validation and handle response.
+       * @returns {Promise<void>}
        */
       async function submit() {
         if (!pin.value) {

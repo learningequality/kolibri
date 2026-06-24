@@ -18,9 +18,9 @@
  * jest.mock('<useUserManegement file path>')
  *
  * it('test', () => {
- *   useUserManagement.mockImplementation(
- *    () => useUserManagementMock({ channels: [{ id: 'channel-1' }] })
- *   );
+ * useUserManagement.mockImplementation(
+ * () => useUserManagementMock({ channels: [{ id: 'channel-1' }] })
+ * );
  * })
  * ```
  *

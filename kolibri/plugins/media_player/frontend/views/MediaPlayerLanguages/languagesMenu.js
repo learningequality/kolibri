@@ -3,8 +3,8 @@ import languagesMenu from './LanguagesMenu.vue';
 
 class LanguagesMenu extends mixin(languagesMenu) {
   /**
-   * Set focus child to the currently selected child when about to show the menu
-   * @param {Boolean} lock
+   * Set focus child to the currently selected child when about to show the menu.
+   * @param {boolean} [lock] - When true, lock the menu open.
    */
   doShow(lock = false) {
     this.focusedChild_ = this.children().findIndex(child => child.selected());

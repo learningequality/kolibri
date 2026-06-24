@@ -23,6 +23,9 @@
   /**
    * Safely normalizes a response value to an array.
    * Handles null, undefined, scalars, and arrays uniformly.
+   * @param {string|number|Array<string|number>|null|undefined} value - The QTI response
+   * value, which may be a single identifier, an array of identifiers, or empty.
+   * @returns {Array<string|number>} An array of selected identifiers (empty when value is empty).
    */
   function getSelectionsArray(value) {
     if (value === null || value === undefined) {

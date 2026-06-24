@@ -29,6 +29,7 @@
     methods: {
       ...mapActions('mediaPlayer/captions', ['toggleSubtitles']),
       /**
+       * Accessible via parent component refs.
        * @public
        */
       focus() {

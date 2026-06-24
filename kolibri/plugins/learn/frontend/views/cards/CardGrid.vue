@@ -31,16 +31,16 @@
        * be displayed on one row:
        *
        * Grid type `1`
-       *   Level 3+: 3 cards
-       *   Level 2: 2 cards
-       *   Level 1: 1 cards
-       *   Level 0: 1 card
+       * Level 3+: 3 cards
+       * Level 2: 2 cards
+       * Level 1: 1 cards
+       * Level 0: 1 card
        *
        * Grid type `2`
-       *   Level 3+: 4 cards
-       *   Level 2: 3 cards
-       *   Level 1: 2 cards
-       *   Level 0: 1 card
+       * Level 3+: 4 cards
+       * Level 2: 3 cards
+       * Level 1: 2 cards
+       * Level 0: 1 card
        */
       gridType: {
         type: Number,

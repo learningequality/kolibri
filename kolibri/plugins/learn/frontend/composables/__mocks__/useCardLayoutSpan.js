@@ -17,9 +17,9 @@
  * jest.mock('<useCardLayoutSpan file path>')
  *
  * it('test', () => {
- *   useCardLayoutSpan.mockImplementation(
- *    () => useCardLayoutSpanMock({})
- *   );
+ * useCardLayoutSpan.mockImplementation(
+ * () => useCardLayoutSpanMock({})
+ * );
  * })
  * ```
  *

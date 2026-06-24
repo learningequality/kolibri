@@ -356,9 +356,9 @@
     },
     methods: {
       /**
-       * @public
        * Triggers shake animation and returns a Promise that resolves when complete.
        * Duration matches CSS animation: 800ms normally, 1ms with prefers-reduced-motion.
+       * @public
        */
       shake() {
         this.shaking = true;

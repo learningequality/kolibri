@@ -10,11 +10,12 @@ const casing = require('eslint-plugin-vue/lib//utils/casing');
 // -----------------------------------------------------------------------------
 
 /**
- * Report a forbidden class casing
- * @param {string} className
- * @param {*} node
- * @param {RuleContext} context
- * @param {Set<string>} forbiddenClasses
+ * Report a forbidden class casing.
+ * @param {string} className - The class name to check.
+ * @param {object} node - AST node to report on.
+ * @param {object} context - ESLint rule context.
+ * @param {string} caseType - The required casing type.
+ * @returns {void}
  */
 const reportForbiddenClassCasing = (className, node, context, caseType) => {
   if (!casing.getChecker(caseType)(className)) {
@@ -32,9 +33,10 @@ const reportForbiddenClassCasing = (className, node, context, caseType) => {
 };
 
 /**
- * @param {Expression} node
- * @param {boolean} [textOnly]
- * @returns {IterableIterator<{ className:string, reportNode: ESNode }>}
+ * Extracts class name strings and their report nodes from an AST expression.
+ * @param {object} node - AST expression node to extract class names from.
+ * @param {boolean} [textOnly] - Whether to only extract text literals.
+ * @yields {{ className: string, reportNode: object }} Class name and associated report node.
  */
 function* extractClassNames(node, textOnly) {
   if (node.type === 'Literal') {
@@ -103,12 +105,18 @@ module.exports = {
     },
     fixable: null,
   },
-  /** @param {RuleContext} context */
+  /**
+   * Creates the rule's visitor object.
+   * @param {object} context - ESLint rule context.
+   * @returns {object} Visitor object with node handlers.
+   */
   create(context) {
     const caseType = 'kebab-case';
     return utils.defineTemplateBodyVisitor(context, {
       /**
-       * @param {VAttribute & { value: VLiteral } } node
+       * Check static class attributes for casing violations.
+       * @param {object} node - VAttribute AST node with a VLiteral value.
+       * @returns {void}
        */
       'VAttribute[directive=false][key.name="class"]'(node) {
         node.value.value
@@ -116,7 +124,11 @@ module.exports = {
           .forEach(className => reportForbiddenClassCasing(className, node, context, caseType));
       },
 
-      /** @param {VExpressionContainer} node */
+      /**
+       * Check dynamic class bindings for casing violations.
+       * @param {object} node - VExpressionContainer AST node.
+       * @returns {void}
+       */
       "VAttribute[directive=true][key.name.name='bind'][key.argument.name='class'] > VExpressionContainer.value"(
         node,
       ) {
@@ -124,9 +136,7 @@ module.exports = {
           return;
         }
 
-        for (const { className, reportNode } of extractClassNames(
-          /** @type {Expression} */ (node.expression),
-        )) {
+        for (const { className, reportNode } of extractClassNames(node.expression)) {
           reportForbiddenClassCasing(className, reportNode, context, caseType);
         }
       },

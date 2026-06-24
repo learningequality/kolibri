@@ -7,74 +7,74 @@ import Mediator from './mediator';
 import { events, nameSpace, DataTypes } from './base';
 
 /**
- * Type definition for Language metadata
- * @typedef {Object} Language
- * @property {string} id - an IETF language tag
- * @property {string} lang_code - the ISO 639‑1 language code
- * @property {string} lang_subcode - the regional identifier
- * @property {string} lang_name - the name of the language in that language
- * @property {('ltr'|'rtl'|)} lang_direction - Direction of the language's script,
- * top to bottom is not supported currently
+ * Type definition for Language metadata.
+ * @typedef {object} Language
+ * @property {string} id - An IETF language tag.
+ * @property {string} lang_code - The ISO 639‑1 language code.
+ * @property {string} lang_subcode - The regional identifier.
+ * @property {string} lang_name - The name of the language in that language.
+ * @property {('ltr'|'rtl')} lang_direction - Direction of the language's script; top to bottom
+ * is not supported currently.
  */
 
 /**
- * Type definition for ContentNode metadata
- * @typedef {Object} ContentNode
- * @property {string} id - unique id of the ContentNode
- * @property {string} channel_id - unique channel_id of the channel that the ContentNode is in
- * @property {string} content_id - identifier that is common across all instances of this resource
- * @property {string} title - A title that summarizes this ContentNode for the user
- * @property {string} description - detailed description of the ContentNode
- * @property {string} author - author of the ContentNode
+ * Type definition for ContentNode metadata.
+ * @typedef {object} ContentNode
+ * @property {string} id - Unique id of the ContentNode.
+ * @property {string} channel_id - Unique channel_id of the channel that the ContentNode is in.
+ * @property {string} content_id - Identifier that is common across all instances of this resource.
+ * @property {string} title - A title that summarizes this ContentNode for the user.
+ * @property {string} description - Detailed description of the ContentNode.
+ * @property {string} author - Author of the ContentNode.
  * @property {string} thumbnail_url - URL for the thumbnail for this ContentNode,
- * this may be any valid URL format including base64 encoded or blob URL
- * @property {boolean} available - Whether the ContentNode has all necessary files for rendering
- * @property {boolean} coach_content - Whether the ContentNode is intended only for coach users
- * @property {Language} lang - The primary language of the ContentNode
- * @property {string} license_description - The description of the license, which may be localized
- * @property {string} license_name - The human readable name of the license, localized
- * @property {string} license_owner - The name of the person or organization that holds copyright
- * @property {number} num_coach_contents - Number of coach contents that are descendants of this
- * @property {string} parent - The unique id of the parent of this ContentNode
+ * this may be any valid URL format including base64 encoded or blob URL.
+ * @property {boolean} available - Whether the ContentNode has all necessary files for rendering.
+ * @property {boolean} coach_content - Whether the ContentNode is intended only for coach users.
+ * @property {Language} lang - The primary language of the ContentNode.
+ * @property {string} license_description - The description of the license, which may be localized.
+ * @property {string} license_name - The human readable name of the license, localized.
+ * @property {string} license_owner - The name of the person or organization that holds copyright.
+ * @property {number} num_coach_contents - Number of coach contents that are descendants of this.
+ * @property {string} parent - The unique id of the parent of this ContentNode.
  * @property {number} sort_order - The order of display for this node in its channel
  * if depth recursion was not deep enough
  */
 
 /**
- * Type definition for pagination more object
- * @typedef {Object} MoreObject
- * @property {string} cursor - the cursor object to request more
+ * Type definition for pagination more object.
+ * @typedef {object} MoreObject
+ * @property {string} cursor - The cursor object to request more.
  */
 
 /**
- * Type definition for pagination object
- * @typedef {Object} PageResult
- * @property {MoreObject} more - the context object to query more
- * @property {number} maxResults - the maximum number of nodes per request
- * @property {ContentNode[]} results - the array of ContentNodes for this page
+ * Type definition for pagination object.
+ * @typedef {object} PageResult
+ * @property {MoreObject} more - The context object to query more.
+ * @property {number} maxResults - The maximum number of nodes per request.
+ * @property {ContentNode[]} results - The array of ContentNodes for this page.
  */
 
 /**
- * Type definition for channel metadata object
- * @typedef {Object} ChannelMetadata
- * @property {string} id - the channel id
- * @property {string} title - the channel title
- * @property {string} description - the channel description
- * @property {string} thumbnail - the channel thumbnail
+ * Type definition for channel metadata object.
+ * @typedef {object} ChannelMetadata
+ * @property {string} id - The channel id.
+ * @property {string} title - The channel title.
+ * @property {string} description - The channel description.
+ * @property {string} thumbnail - The channel thumbnail.
  */
 
 /**
- * Type definition for channel filter options object
- * @typedef {Object} ChannelFilterOptions
- * @property {string[]} availableAuthors - list of authors on this channel
- * @property {string[]} availableTags - list of tags in this channel
- * @property {string[]} availableKinds - list of kinds in this channel
+ * Type definition for channel filter options object.
+ * @typedef {object} ChannelFilterOptions
+ * @property {string[]} availableAuthors - List of authors on this channel.
+ * @property {string[]} availableTags - List of tags in this channel.
+ * @property {string[]} availableKinds - List of kinds in this channel.
  */
 
 /**
- * Type definition for Theme options
- * properties TBD
- * @typedef {Object} Theme
+ * Type definition for Theme options. Concrete properties TBD; tracked at the embedding-app
+ * spec layer rather than in the sandbox shim.
+ * @typedef {Record<string, unknown>} Theme
  */
 
 /**
@@ -82,8 +82,8 @@ import { events, nameSpace, DataTypes } from './base';
  * This can have arbitrary properties as defined
  * by the navigating app that it uses to resume its state
  * Should be able to be encoded down to <1600 characters using
- * an encoding function something like 'encode context' above
- * @typedef {Object} NavigationContext
+ * an encoding function something like 'encode context' above.
+ * @typedef {object} NavigationContext
  * @property {string} node_id - The current node_id that is being displayed,
  * custom apps should handle this as it may be used to
  * generate links externally to jump to this state

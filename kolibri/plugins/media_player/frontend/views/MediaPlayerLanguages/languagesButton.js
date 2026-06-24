@@ -13,9 +13,11 @@ class LanguageIcon extends vueMixin('Component', languagesIcon) {}
  */
 class LanguagesButton extends buttonMixin('TextTrackButton') {
   /**
-   * @param player
-   * @param options
-   * @param ready
+   * Construct the button and inject the languages icon into its DOM, sidestepping
+   * video.js's built-in icon class so that we can render a Vue component.
+   * @param {object} player - The video.js player instance.
+   * @param {object} [options] - Component options forwarded to videojs.
+   * @param {Function} [ready] - Optional ready callback forwarded to videojs.
    */
   constructor(player, options, ready) {
     super(player, options, ready);
@@ -29,7 +31,7 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
 
   /**
    * @override
-   * @return {LanguagesMenu}
+   * @returns {LanguagesMenu} The languages menu instance attached to this button.
    */
   buildMenu() {
     return new LanguagesMenu(this.player(), {
@@ -48,7 +50,7 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
 
   /**
    * @override
-   * @return {string}
+   * @returns {string} The CSS class for the button element.
    */
   buildCSSClass() {
     return this.removePopupClass(`vjs-languages-button ${super.buildCSSClass()}`);
@@ -56,16 +58,16 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
 
   /**
    * @override
-   * @return {string}
+   * @returns {string} The CSS class for the wrapping element.
    */
   buildWrapperCSSClass() {
     return this.removePopupClass(`vjs-languages-button ${super.buildWrapperCSSClass()}`);
   }
 
   /**
-   * @see https://github.com/videojs/video.js/blob/v7.4.1/src/js/control-bar/text-track-controls/text-track-button.js#L40
    * @override
-   * @returns {LanguagesMenuItem[]}
+   * @returns {LanguagesMenuItem[]} One menu item per text track on the player.
+   * @see https://github.com/videojs/video.js/blob/v7.4.1/src/js/control-bar/text-track-controls/text-track-button.js#L40
    */
   createItems() {
     const player = this.player();

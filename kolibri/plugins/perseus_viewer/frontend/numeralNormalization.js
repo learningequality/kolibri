@@ -25,6 +25,8 @@ const singleNdRegex = /\p{Nd}/u;
  * Unicode guarantees that decimal digits 0-9 are contiguous in every
  * script. We find the block's "zero" by walking backwards (at most 9
  * steps), then subtract to get the digit value.
+ * @param {string} str - String that may contain non-Western digits
+ * @returns {string} The string with non-Western digits converted to ASCII
  */
 function normalizeNumerals(str) {
   if (typeof str !== 'string') {
@@ -45,6 +47,9 @@ function normalizeNumerals(str) {
 /**
  * Recursively apply a string transformation to all string values in
  * a nested object/array structure. Non-string leaves pass through unchanged.
+ * @param {unknown} input - Object, array, or leaf to recurse through
+ * @param {(s: string) => string} fn - Transform applied to each string leaf
+ * @returns {unknown} A copy of input with fn applied to every string leaf
  */
 function deepMapStrings(input, fn) {
   if (typeof input === 'string') {
@@ -66,13 +71,15 @@ function deepMapStrings(input, fn) {
 /**
  * Recursively normalize all string values in a user input object.
  * Handles the nested structures returned by getUserInput(), e.g.:
- *   { "numeric-input 1": { currentValue: "٤٢" } }
- *   { "expression 1": "٢x+٣" }
- *   { "radio 1": { selectedChoiceIds: ["radio-choice-1"] } }
+ * { "numeric-input 1": { currentValue: "٤٢" } }
+ * { "expression 1": "٢x+٣" }
+ * { "radio 1": { selectedChoiceIds: ["radio-choice-1"] } }
  *
  * Non-string values (numbers, booleans, arrays of non-strings) pass through
  * unchanged. Choice IDs like "radio-choice-1" contain only ASCII so they
  * are unaffected by normalization.
+ * @param {object} input - User-input object from getUserInput()
+ * @returns {object} The input with string values normalized
  */
 function normalizeUserInput(input) {
   return deepMapStrings(input, normalizeNumerals);
@@ -87,6 +94,8 @@ const _digitCache = {};
  * (meaning no character remapping is needed for display or input).
  * Otherwise returns an array of 10 strings representing digits 0-9.
  * Results are cached per locale.
+ * @param {string} locale - BCP 47 locale code
+ * @returns {string[]|null} Locale digits 0-9; null for ASCII
  */
 function getLocalizedDigits(locale) {
   if (!locale) {
@@ -115,6 +124,9 @@ function getLocalizedDigits(locale) {
  * Convert ASCII digits in a string to localized digits for a given locale.
  * The reverse of normalizeNumerals: "42" → "٤٢" for Arabic.
  * Returns the string unchanged if the locale's digits match ASCII.
+ * @param {string} str - String whose ASCII digits to localize
+ * @param {string} locale - BCP 47 locale code
+ * @returns {string} Localized string
  */
 function localizeNumerals(str, locale) {
   if (typeof str !== 'string') {
@@ -134,6 +146,9 @@ function localizeNumerals(str, locale) {
  *
  * Used when restoring saved answer state so that users see their
  * answers in their native numeral format, not as ASCII digits.
+ * @param {object} input - User-input object to localize
+ * @param {string} locale - BCP 47 locale code
+ * @returns {object} Input with string values localized
  */
 function localizeUserInput(input, locale) {
   if (!getLocalizedDigits(locale)) {

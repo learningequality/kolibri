@@ -54,9 +54,11 @@ const worseDiff = {
 /**
  * Returns defaultProps but you can pass overrides. If you want to override try only, pass
  * an empty object in the first param position.
- * @param propOverrides - will take precence
- * @param tryOverrides - will override defaultTry (but propOverrides with a currentTry key
- *  will override *that*
+ * @param {object} [propOverrides] - Component prop overrides; takes precedence over the
+ * defaults.
+ * @param {object} [tryOverrides] - Overrides applied to `defaultTry`. A `currentTry` key
+ * on `propOverrides` will override the merged try.
+ * @returns {object} Merged props ready to pass to the component under test.
  */
 function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
   return Object.assign(

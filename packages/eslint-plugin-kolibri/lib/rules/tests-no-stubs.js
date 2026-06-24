@@ -1,5 +1,5 @@
 /**
- * @fileoverview Don't allow stubs in Testing Library tests.
+ * @file Don't allow stubs in Testing Library tests.
  */
 
 'use strict';

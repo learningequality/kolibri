@@ -5,7 +5,10 @@ import keys from 'lodash/keys';
 
 /**
  * Validation for vue router "location descriptor objects".
- * See e.g. https://router.vuejs.org/en/api/router-link.html
+ * See e.g. https://router.vuejs.org/en/api/router-link.html.
+ * @param {object} object - The candidate route descriptor.
+ * @returns {boolean} True when every key on `object` is a recognised route
+ * descriptor key (`name`, `path`, `params`, `query`).
  */
 export function validateLinkObject(object) {
   const validKeys = ['name', 'path', 'params', 'query'];

@@ -165,6 +165,7 @@
         this.handleResourcesOrderChange({ newArray });
       },
       /**
+       * Triggers a CSV download of the resource progress data currently displayed in the table.
        * @public
        */
       exportCSV() {

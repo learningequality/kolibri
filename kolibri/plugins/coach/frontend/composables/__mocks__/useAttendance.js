@@ -17,9 +17,9 @@
  * jest.mock('<useAttendance file path>')
  *
  * it('test', () => {
- *   useAttendance.mockImplementation(
- *     () => useAttendanceMock({ recentSessions: ref([...]) })
- *   );
+ * useAttendance.mockImplementation(
+ * () => useAttendanceMock({ recentSessions: ref([...]) })
+ * );
  * })
  * ```
  */

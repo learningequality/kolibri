@@ -17,9 +17,9 @@
  * jest.mock('<useCourseSession file path>')
  *
  * it('test', () => {
- *   useCourseSession.mockImplementation(
- *     () => useCourseSessionMock({ courseSession: ref({ active: true }) })
- *   );
+ * useCourseSession.mockImplementation(
+ * () => useCourseSessionMock({ courseSession: ref({ active: true }) })
+ * );
  * })
  * ```
  */

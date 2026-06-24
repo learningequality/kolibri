@@ -315,6 +315,15 @@ export default function useProgressTracking() {
   /**
    * Initialize a content session for progress tracking
    * To be called on page load for content viewers
+   * @param {object} [params] - Session parameters
+   * @param {object} [params.node] - ContentNode being tracked
+   * @param {string} [params.lessonId] - Owning lesson id
+   * @param {string} [params.quizId] - Quiz id when tracking a quiz session
+   * @param {boolean} [params.repeat] - Force a new session even if one exists
+   * @param {string} [params.courseSessionId] - Identifier for a course session
+   * @param {string} [params.courseTest] - Identifier for a course test session
+   * @returns {Promise<object>|undefined} - Resolves with session payload; undefined if resumed
+   * @throws {TypeError} - When no strategy-identifying parameter is provided
    */
   function initContentSession({
     node,
@@ -491,6 +500,16 @@ export default function useProgressTracking() {
 
   /**
    * Update a content session for progress tracking
+   * @param {object} [params] - Update parameters
+   * @param {number} [params.progressDelta] - Incremental progress to add
+   * @param {number} [params.progress] - Absolute progress value in [0, 1]
+   * @param {object} [params.contentState] - Serialisable content-state payload
+   * @param {object} [params.interaction] - Attempt/interaction record
+   * @param {boolean} [params.immediate] - Flush immediately rather than debouncing
+   * @param {boolean} [params.force] - Send update even if nothing would otherwise change
+   * @returns {Promise<object>} - Resolves once the debounced update round-trips
+   * @throws {ReferenceError} - When no session has been initialised
+   * @throws {TypeError} - When arguments are invalid or mutually exclusive
    */
   function updateContentSession({
     progressDelta,
@@ -607,7 +626,6 @@ export default function useProgressTracking() {
 
   /**
    * Start interval timer and set start time
-   * @param {int} interval
    */
   function startTrackingProgress() {
     timeCheckIntervalTimer = setInterval(updateContentSession, intervalTime);
@@ -617,6 +635,9 @@ export default function useProgressTracking() {
   /**
    * Stop interval timer and update latest times
    * Must be called after startTrackingProgress
+   * @returns {Promise<object>|undefined} - Resolves with final session payload;
+   * undefined when no session is active
+   * @throws {Error} - Re-throws unexpected errors not caused by a missing session
    */
   function stopTrackingProgress() {
     clearTrackingInterval();

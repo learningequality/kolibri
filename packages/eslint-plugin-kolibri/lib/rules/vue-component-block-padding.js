@@ -1,5 +1,5 @@
 /**
- * @fileoverview Require padding lines between blocks
+ * @file Require padding lines between blocks
  * Vendored and modified from:
  * https://github.com/vuejs/eslint-plugin-vue/blob/9b55f3c18403b0a77808ba758ec3a8e72a884036/lib/rules/padding-line-between-blocks.js
  * Modified for two padded lines.
@@ -9,8 +9,16 @@ const utils = require('eslint-plugin-vue/lib/utils');
 const kolibriUtils = require('../utils');
 
 /**
+ * @typedef {import('eslint').Rule.RuleContext} RuleContext
+ * @typedef {import('vue-eslint-parser').AST.VElement} VElement
+ * @typedef {import('vue-eslint-parser').AST.Token} Token
+ * @typedef {import('vue-eslint-parser').AST.ESLintProgram} Program
+ * @typedef {import('estree').Node} ASTNode
+ */
+
+/**
  * Split the source code into multiple lines based on the line delimiters.
- * @param {string} text Source code as a string.
+ * @param {string} text - Source code as a string.
  * @returns {string[]} Array of source code lines.
  */
 function splitLines(text) {
@@ -18,12 +26,11 @@ function splitLines(text) {
 }
 
 /**
- * Check and report blocks.
- * This autofix inserts two blank lines between the given 2 blocks.
- * @param {RuleContext} context The rule context to report.
- * @param {VElement} prevBlock The previous block to check.
- * @param {VElement} nextBlock The next block to check.
- * @param {Token[]} betweenTokens The array of tokens between blocks.
+ * Check and report blocks. This autofix inserts two blank lines between the given 2 blocks.
+ * @param {RuleContext} context - The rule context to report.
+ * @param {VElement} prevBlock - The previous block to check.
+ * @param {VElement} nextBlock - The next block to check.
+ * @param {Token[]} betweenTokens - The array of tokens between blocks.
  * @returns {void}
  * @private
  */
@@ -87,7 +94,11 @@ module.exports = {
       always: 'Expected two blank lines before this block.',
     },
   },
-  /** @param {RuleContext} context */
+  /**
+   * Build the rule's visitor map for the given ESLint context.
+   * @param {RuleContext} context - The ESLint rule context
+   * @returns {object} Visitor map consumed by ESLint
+   */
   create(context) {
     const parserServices = kolibriUtils.getParserServices(context);
     if (!parserServices || !parserServices.getDocumentFragment) {
@@ -104,15 +115,18 @@ module.exports = {
     /** @type {Token[]} */
     let tokens;
     /**
-     * @returns {VElement[]}
+     * Return all top-level HTML elements in the document fragment.
+     * @returns {VElement[]} Array of top-level VElement nodes.
      */
     function getTopLevelHTMLElements() {
       return documentFragment.children.filter(utils.isVElement);
     }
 
     /**
-     * @param {VElement} prev
-     * @param {VElement} next
+     * Get the tokens and comments between two block elements.
+     * @param {VElement} prev - The previous element.
+     * @param {VElement} next - The next element.
+     * @returns {Token[]} Tokens between the two elements.
      */
     function getTokenAndCommentsBetween(prev, next) {
       // When there is no <template>, tokenStore.getTokensBetween cannot be used.
@@ -148,7 +162,10 @@ module.exports = {
       context,
       {},
       {
-        /** @param {Program} node */
+        /**
+         * Walk top-level blocks of the document fragment and verify padding between them.
+         * @param {Program} node - The ESLint Program node for the document
+         */
         Program(node) {
           if (utils.hasInvalidEOF(node)) {
             return;

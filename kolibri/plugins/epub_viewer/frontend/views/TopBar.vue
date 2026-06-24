@@ -84,18 +84,21 @@
     },
     methods: {
       /**
+       * Moves keyboard focus to the table of contents button.
        * @public
        */
       focusOnTocButton() {
         this.$refs.tocButton.$el.focus();
       },
       /**
+       * Moves keyboard focus to the settings button.
        * @public
        */
       focusOnSettingsButton() {
         this.$refs.settingsButton.$el.focus();
       },
       /**
+       * Moves keyboard focus to the search button.
        * @public
        */
       focusOnSearchButton() {

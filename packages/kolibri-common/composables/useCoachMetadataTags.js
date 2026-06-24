@@ -5,10 +5,11 @@ import { coreString, coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import { coursesStrings } from '../strings/coursesStrings';
 
 /**
- * Create a tag Object that can be used to display metadata
- * @param {string} label - text to display
- * @param {string} key - unique key for the tag - should map to le-utils constants
- * @param {string} icon - icon to display (mapping to KIcon)
+ * Create a tag Object that can be used to display metadata.
+ * @param {string} label - Text to display.
+ * @param {string} key - Unique key for the tag - should map to le-utils constants.
+ * @param {string} icon - Icon to display (mapping to KIcon).
+ * @returns {{label: string, key: string, icon: string}} The tag object.
  */
 function createTag(label, key, icon) {
   return {

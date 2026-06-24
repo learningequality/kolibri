@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow string method syntax in watchers.
+ * @file Disallow string method syntax in watchers.
  */
 
 'use strict';

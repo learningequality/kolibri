@@ -27,9 +27,9 @@
     },
     methods: {
       /**
+       * Focuses on the correct first element for FocusTrap depending on content rendered in
+       * the search modal.
        * @public
-       * Focuses on correct first element for FocusTrap depending on content
-       * rendered in the search modal.
        */
       focusFirstEl() {
         this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();

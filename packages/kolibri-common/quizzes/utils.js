@@ -79,6 +79,8 @@ function convertExamQuestionSourcesV1V2(questionSources) {
 /**
  * This function applies an `item` field to each question in the array which is similar to
  * where we elsewhere use `exercise_id:question_id` to uniquely identify a question.
+ * @param {Array<object>} questions - Question source entries to annotate in place.
+ * @returns {Array<object>} The same array, with each entry's `item` field set.
  */
 function annotateQuestionsWithItem(questions) {
   return questions.map(question => {
@@ -87,12 +89,16 @@ function annotateQuestionsWithItem(questions) {
   });
 }
 
-/* Given a V2 question_sources, return V3 structure with those questions within one new section */
 /**
- * @param {Exam} learners_see_fixed_order - whether the questions should be randomized or not
- *                         - a V2 quiz will have this value on itself, but a V3 quiz will have it
- *                         on each section, so it should be passed in here
- * @returns V3 formatted question_sources
+ * Given a V2 question_sources, return a V3 structure with those questions split into
+ * one or more new sections.
+ * @param {object} examPayload - The V2 exam payload.
+ * @param {Array<object>} examPayload.question_sources - V2 question_sources entries (questions).
+ * @param {boolean} examPayload.learners_see_fixed_order - Whether the questions should be
+ * randomised. A V2 quiz holds this on the exam itself, but a V3 quiz holds it per section,
+ * so it must be passed in.
+ * @returns {Array<object>} V3-formatted question_sources, one section per
+ * `MAX_QUESTIONS_PER_QUIZ_SECTION` chunk of questions.
  */
 export function convertExamQuestionSourcesV2toV3({ question_sources, learners_see_fixed_order }) {
   // In V2, question_sources are questions so we add them
@@ -127,7 +133,7 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
  *
  * data_model_version 1 (V1):
  * - question_sources is changed to now refer to the questions themselves by including the
- *   exercise_id and question_id along with a title
+ * exercise_id and question_id along with a title
  *
  * data_model_version 2 (V2):
  * - The objects in question_sources are now annotated with a counter_in_exercise field
@@ -179,7 +185,11 @@ export async function convertExamQuestionSources(exam) {
 }
 
 /**
- * @returns {Promise} - resolves to an object with the exam and the exercises
+ * Convert an exam to the latest data model and fetch the exercise nodes for the
+ * questions it references.
+ * @param {object} exam - The exam to be hydrated; mutated to the latest schema.
+ * @returns {Promise<{exam: object, exercises: Array<object>}>} Resolves to an object
+ * containing the converted exam and the fetched exercise content nodes.
  */
 export async function fetchExamWithContent(exam) {
   return convertExamQuestionSources(exam).then(converted => {

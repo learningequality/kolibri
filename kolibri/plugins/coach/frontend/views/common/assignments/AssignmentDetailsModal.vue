@@ -217,9 +217,8 @@
     },
     props: {
       /**
-       * The assignment object to be edited
-       * @type {Object}
-       * @required
+       * The assignment object to be edited.
+       * @type {object}
        * @example
        * {
        *  title: 'Assignment Title',
@@ -410,6 +409,8 @@
         }
       },
       /**
+       * Re-enable the form and surface the generic server-error notice after a
+       * failed save.
        * @public
        */
       handleSubmitFailure() {
@@ -427,6 +428,8 @@
         this.showServerError = true;
       },
       /**
+       * Surface the title validation error and move focus back to the title
+       * field after a failed save.
        * @public
        */
       handleSubmitTitleFailure() {
@@ -437,6 +440,8 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       /**
+       * Clear the displayed validation and server-error notices after a
+       * successful save.
        * @public
        */
       handleSubmitSuccess() {
@@ -445,6 +450,10 @@
         this.showDeletedUsersError = false;
       },
       /**
+       * Validate the title and recipients fields and return the first error.
+       * @param {boolean} [handleFailure] - When true (default), invoke the
+       * matching `handleSubmit*Failure` for any error encountered.
+       * @returns {string} The validation error message, or empty string when valid.
        * @public
        */
       validate(handleFailure = true) {

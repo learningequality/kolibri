@@ -24,7 +24,6 @@ const STAGE_ATTACH = 10;
 
 /**
  * Generate the runtime code for RTL CSS dynamic loading.
- *
  * @param {string} bundleId - The webpack bundle identifier
  * @param {string} rtlManagerAccess - JS expression that evaluates to the rtlcss module
  * @returns {string} The runtime JavaScript code
@@ -76,6 +75,8 @@ class RTLCSSRuntimeModule extends RuntimeModule {
   /**
    * Find the webpack-assigned module ID for kolibri/rtlcss.
    * Called during generate(), which runs after module ID optimization.
+   * @returns {number|string|null} The webpack module ID, or null when the
+   * `kolibri/rtlcss` module cannot be found in the compilation.
    */
   _findRtlModuleId() {
     for (const module of this.compilation.modules) {
@@ -114,7 +115,8 @@ class WebpackRTLPlugin {
   }
 
   /**
-   * Generate .rtl.css files for all CSS assets
+   * Generate .rtl.css files for all CSS assets.
+   * @param {import('webpack').Compilation} compilation - The active webpack compilation.
    */
   _setupRTLCSSGeneration(compilation) {
     compilation.hooks.processAssets.tap(
@@ -141,7 +143,8 @@ class WebpackRTLPlugin {
   }
 
   /**
-   * Inject runtime module for dynamic RTL CSS loading
+   * Inject runtime module for dynamic RTL CSS loading.
+   * @param {import('webpack').Compilation} compilation - The active webpack compilation.
    */
   _setupRuntimeModule(compilation) {
     const { isCoreBundle } = this.options;

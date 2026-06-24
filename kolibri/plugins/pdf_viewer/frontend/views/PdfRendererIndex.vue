@@ -527,6 +527,8 @@
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L237
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L176
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/base_viewer.js#L1175
+       * @param {string|Array} dest - A named destination string or an explicit
+       * destination array as defined by the PDF specification.
        */
       goToDestination(dest) {
         if (!this.pdfDocument) {
@@ -602,7 +604,11 @@
         );
       },
       /**
-       * Focus a given pdf page and return true if the page was already rendered
+       * Focus a given pdf page and return true if the page was already rendered.
+       * @param {number} pageNumber - 1-based index of the page to focus.
+       * @param {HTMLElement} bookmark - The bookmark element to return focus to
+       * when the user shift-enters out of the page.
+       * @returns {boolean} True if the page was rendered and successfully focused.
        */
       focusPage(pageNumber, bookmark) {
         const page = document.querySelector('#pdf-page-' + pageNumber);
@@ -630,6 +636,11 @@
        * Get the page number from the explicit destination array.
        * Adaptation of the original function from pdf.js:
        * - https://github.com/mozilla/pdf.js/blob/v2.14.305/web/pdf_link_service.js#L181
+       * @param {Array} explicitDest - Explicit destination array as defined by the
+       * PDF specification; the first element is either a page reference object or
+       * a numeric page index.
+       * @returns {Promise<number|undefined>} Resolves to the 1-based page number,
+       * or undefined when it cannot be determined.
        */
       getDestinationPageNumber(explicitDest) {
         return new Promise(resolve => {

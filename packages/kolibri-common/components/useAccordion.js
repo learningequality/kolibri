@@ -2,12 +2,21 @@ import uniq from 'lodash/uniq';
 import { isRef, ref, computed } from 'vue';
 
 /**
- * @param {Object} options
- * @param {Array<Ref>} options.items - array of items in accordion
- * @param {Function: int => bool} options.collapseGuard - function to determine if collapse is
- *    allowed - when true, collapse is blocked
- * @param {Function: int => bool} options.expandGuard - function to determine if expand is allowed
- *  - when true, expand is blocked
+ * Manage expand/collapse state for an accordion-style list of items.
+ * @param {import('vue').Ref<Array>} items - A reactive ref whose value is the list of
+ * accordion items. Required and must be a Vue ref so that the composable can react to
+ * changes in the underlying list.
+ * @returns {{
+ *   canExpandAll: import('vue').ComputedRef<boolean>,
+ *   canCollapseAll: import('vue').ComputedRef<boolean>,
+ *   collapse: (index: number) => void,
+ *   collapseAll: () => void,
+ *   expand: (index: number) => void,
+ *   expandAll: () => void,
+ *   isExpanded: (index: number) => boolean,
+ *   toggle: (index: number) => void,
+ * }} The accordion state and the actions for mutating it.
+ * @throws {Error} If `items` is not a Vue ref.
  */
 export default function useAccordion(items) {
   if (!isRef(items)) {
@@ -63,19 +72,3 @@ export default function useAccordion(items) {
     toggle,
   };
 }
-
-/**
- * <KAccordion>
- *   <KAccordionItem
- *      v-for="(item, index) in items"
- *      :isExpanded="isExpanded(index)"
- *   >
- *      <template #heading>
- *        <h3 @click="toggle(index)">{{ item.title }}</h3>
- *      </template>
- *      <template #content>
- *        <p v-if="isExpanded(index)">{{ item.content }}</p>
- *      </template>
- *   </KAccordionItem>
- * </KAccordion>
- */

@@ -4,6 +4,13 @@ import sumBy from 'lodash/fp/sumBy';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { selectContentTopicLink } from '../ManageContentPage/manageContentLinks';
 
+/**
+ * @typedef {{included: object[], omitted: object[]}} SelectedNodes
+ */
+/**
+ * @typedef {object & {message: string, disabled: boolean, checkboxType: string}} AnnotatedNode
+ */
+
 const translator = createTranslator('TreeViewRowMessages', {
   alreadyOnYourDevice: {
     message: 'Already on your device',
@@ -98,15 +105,13 @@ function unselectedNode(node) {
 }
 
 /**
- * Takes a Node, plus contextual data from store, then annotates them with info
- * needed to correctly display it on tree view.
- *
- * @param node {Node}
- * @param selectedNodes {SelectedNodes}
- * @param selectedNodes.omitted {Array<Node>}
- * @param selectedNodes.included {Array<Node>}
- * @returns {AnnotatedNode} - annotations are message, disabled, and checkboxType
- *
+ * Takes a Node, plus contextual data from store, then annotates it with the info needed to
+ * correctly display it on tree view.
+ * @param {Node} node - The content node to annotate.
+ * @param {SelectedNodes} selectedNodes - Selection state containing `included` and `omitted`
+ * arrays of nodes.
+ * @param {boolean} forImport - Whether the tree is being used for import (vs export/manage).
+ * @returns {AnnotatedNode} Annotated node; annotations are message, disabled, and checkboxType.
  */
 export function annotateNode(node, selectedNodes, forImport = true) {
   const { on_device_resources, total_resources } = node;
@@ -202,9 +207,12 @@ export function annotateNode(node, selectedNodes, forImport = true) {
 }
 
 /**
- * Takes an array of breadcrumb { id, title } objects in state, and converts them
- * into a form that can be used in k-breadcrumbs props.items { text, link: LinkObject }.
- *
+ * Transforms a content node into a breadcrumb link object for the tree view.
+ * @param {object} node - The content node to transform.
+ * @param {object} route - Route context object.
+ * @param {object} route.query - The current route query parameters.
+ * @param {object} route.params - The current route params including channel_id.
+ * @returns {object} Breadcrumb object with text and link properties.
  */
 export function transformBreadrumb(node, { query, params }) {
   return {

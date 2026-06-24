@@ -5,17 +5,24 @@ import { ContentNodeKinds } from 'kolibri/constants';
 import logging from 'kolibri-logging';
 import useFetchTree from './useFetchTree';
 
+/**
+ * @typedef {import('kolibri-common/apiResources/ContentNodeResource').ContentNode} ContentNode
+ * @typedef {ContentNode} ExerciseResource
+ */
+
 const logger = logging.getLogger(__filename);
 const _loadingMore = ref(false);
 /**
- * @typedef {Object} QuizResourcesConfig
+ * @typedef {object} QuizResourcesConfig
  * @property { computed <string|null|undefined> } topicId - The id of the root node to fetch the
  * children for
  */
 
 /**
+ * Composable for fetching and managing quiz-eligible resources from a content topic.
  * @module useQuizResources
- * @param {QuizResourcesConfig} config
+ * @param {QuizResourcesConfig} config - Configuration object.
+ * @returns {object} Resource list, loading state, and fetch methods.
  */
 export default function useQuizResources({ topicId, practiceQuiz = false } = {}) {
   const params = {
@@ -39,18 +46,20 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     params,
   });
 
-  /** @type {ref<ExerciseResource[]>} All resources which have been fetched that are the children of
-   * the given topicId annotated with assessment metadata */
+  /**
+   * @type {ref<ExerciseResource[]>} All resources which have been fetched that are the children of
+   * the given topicId annotated with assessment metadata
+   */
   const _resources = ref([]);
 
-  /** @type {ref<Boolean>} Whether we are currently fetching/processing the child nodes */
+  /** @type {ref<boolean>} Whether we are currently fetching/processing the child nodes */
   const _loading = ref(false);
 
   /**
    * Annotates the child TOPIC nodes with the number of assessments that are contained within them
    * @param {ContentNode[]} results - The array of results from a content API call
    * @returns {Promise<ContentNode[]>} - A promise that resolves when the annotations have been
-   *   made and returns the annotated results
+   * made and returns the annotated results
    */
   async function annotateTopicsWithDescendantCounts(results) {
     const topicIds = results
@@ -97,9 +106,10 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   }
 
   /**
-   *  @affects _resources - Sets the _resources to the results of the fetchTree call
-   *  @affects _loading
-   *  @returns {Promise<null>} - A promise that resolves when the annotations have been made and
+   * Fetches the initial set of quiz resources for the current topic.
+   * @returns {Promise<void>} Resolves when resources have been fetched and annotated.
+   * @affects _resources - Sets the _resources to the results of the fetchTree call
+   * @affects _loading
    */
   async function fetchQuizResources() {
     set(_loading, true);
@@ -112,9 +122,11 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   }
 
   /**
-   *  @affects _resources - Appends the results of the fetchMore call to the _resources
-   *    and annotates any new topics with descendant counts
-   *  @affects _loading - fetchMore & annotateTopicsWithDescendantCounts update the loading states
+   * Fetches the next page of quiz resources and appends them to the current list.
+   * @returns {Promise<void>} Resolves when additional resources have been fetched and annotated.
+   * @affects _resources - Appends the results of the fetchMore call to the _resources
+   *   and annotates any new topics with descendant counts
+   * @affects _loading - fetchMore & annotateTopicsWithDescendantCounts update the loading states
    */
   async function fetchMoreQuizResources() {
     set(_loading, true);

@@ -16,9 +16,9 @@ export default class KolibriModule {
   }
   /**
    * The constructor function for the base KolibriModule object.
-   * @param {object} options - an options hash to set properties of the object.
-   * @param {Array} args - any additional arguments that will be passed to initialize.
-   * @constructor
+   * @class
+   * @param {object} options - An options hash to set properties of the object.
+   * @param {Array} args - Any additional arguments that will be passed to initialize.
    */
   constructor(options, ...args) {
     /* eslint-disable no-undef */

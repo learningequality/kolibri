@@ -9,7 +9,58 @@ import { OptionsForSignIn, PicturePasswordIconStyle } from 'kolibri-common/const
 import useFacility from 'kolibri-common/composables/useFacility';
 
 /**
- * A composable for editing facility settings and configuration
+ * @typedef {object} UseFacilityEditorReturn
+ * @property {import('vue').ComputedRef<string>} facilityId - The id of the facility being edited
+ * @property {import('vue').Ref<string>} facilityDatasetId - The dataset id used when saving
+ * config and PIN changes
+ * @property {import('vue').Ref<string>} facilityName - The editable facility name
+ * @property {import('vue').Ref<object>} settings - The live facility config being edited
+ * @property {import('vue').Ref<object>} settingsCopy - A snapshot of settings used to detect
+ * unsaved changes
+ * @property {import('vue').Ref<boolean>} isFacilityPinValid - Whether the entered facility PIN is
+ * valid
+ * @property {import('vue').Ref<boolean>} facilityDataLoading - Whether facility data is loading
+ * @property {import('vue').Ref<string|null>} pictureLoginTaskId - The id of the in-progress picture
+ * login settings task, or null
+ * @property {import('vue').ComputedRef<object>} facility - The selected facility
+ * @property {import('vue').ComputedRef<boolean>} settingsHaveChanged - Whether settings differ from
+ * the saved snapshot
+ * @property {import('vue').ComputedRef<string|null>} isPinSet - The configured PIN code, or null
+ * when none is set
+ * @property {import('vue').ComputedRef<boolean>} isAttendanceFeatureEnabled - Whether the
+ * attendance feature is enabled
+ * @property {import('vue').ComputedRef<boolean>} isPictureLoginFeatureEnabled - Whether picture
+ * login is enabled
+ * @property {import('vue').WritableComputedRef<string>} signInOption - The selected sign-in option
+ * @property {import('vue').ComputedRef<string[]>} signInOptions - The available sign-in options
+ * @property {import('vue').ComputedRef<object|null>} picturePasswordSettings - The picture password
+ * settings, or null when not enabled
+ * @property {import('vue').WritableComputedRef<string|undefined>} picturePasswordStyle - The
+ * picture password icon style
+ * @property {import('vue').WritableComputedRef<boolean|undefined>} picturePasswordShowIconText -
+ * Whether picture password icons show their text labels
+ * @property {() => Promise<void>} fetchFacility - Refetches the facility and its config
+ * @property {(name: string, value: unknown) => void} modifySetting - Sets a facility config field
+ * @property {(value: string) => void} modifySignInOption - Applies the chosen sign-in option
+ * @property {(name: string, value: unknown) => void} modifyPicturePasswordSetting - Sets a picture
+ * password setting field
+ * @property {(newExtraFields: object) => void} modifyExtraFields - Replaces the config's
+ * extra_fields
+ * @property {() => void} copySettings - Snapshots the current settings into settingsCopy
+ * @property {() => void} undoSettingsChange - Restores settings from the snapshot
+ * @property {() => void} resetState - Resets all editor state to initial values
+ * @property {(name: string) => Promise<object>} saveFacilityName - Saves a new facility name
+ * @property {() => Promise<void>} saveFacilityConfig - Persists the facility config
+ * @property {(payload: object) => Promise<void>} setPin - Sets the facility PIN
+ * @property {() => Promise<void>} unsetPin - Clears the facility PIN
+ * @property {(loading: boolean) => void} setLoading - Sets the facility data loading flag
+ * @property {() => Promise<object>} saveFacilityLoginSettings - Persists the login and picture
+ * password settings
+ */
+
+/**
+ * Composable providing facility editor state and actions for the facility settings page.
+ * @returns {UseFacilityEditorReturn} Facility editor state, computed properties, and action methods
  */
 export default function useFacilityEditor() {
   const {
@@ -140,9 +191,9 @@ export default function useFacilityEditor() {
   }
 
   /**
-   * Updates the facility's name
-   * @param {string} name
-   * @return {Promise<*>}
+   * Saves a new facility name to the backend and refreshes the facilities list.
+   * @param {string} name - The new facility name to save.
+   * @returns {Promise<object>} Resolves with the updated facility model.
    */
   async function saveFacilityName(name) {
     const facility = await FacilityResource.saveModel({

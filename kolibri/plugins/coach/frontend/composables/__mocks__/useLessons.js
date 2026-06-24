@@ -17,9 +17,9 @@
  * jest.mock('<useLessons file path>')
  *
  * it('test', () => {
- *   useLessons.mockImplementation(
- *     () => useLessonsMock({ lessonsAreLoading: true })
- *   );
+ * useLessons.mockImplementation(
+ * () => useLessonsMock({ lessonsAreLoading: true })
+ * );
  * })
  * ```
  *

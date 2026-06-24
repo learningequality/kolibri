@@ -1,5 +1,5 @@
 /**
- * @fileoverview Disallow destructuring undefined keys from createTranslator objects.
+ * @file Disallow destructuring undefined keys from createTranslator objects.
  */
 
 'use strict';
@@ -13,9 +13,9 @@ const espree = require('espree');
 const translatorCache = new Map();
 
 /**
- * Checks if a node is a call to createTranslator
- * @param {Object} node - AST node
- * @returns {boolean}
+ * Checks if a node is a call to createTranslator.
+ * @param {object} node - AST node to check.
+ * @returns {boolean} True if the node is a createTranslator call.
  */
 function isCreateTranslatorCall(node) {
   return (
@@ -27,9 +27,9 @@ function isCreateTranslatorCall(node) {
 }
 
 /**
- * Extracts message keys from a createTranslator call's second argument
- * @param {Object} node - AST CallExpression node
- * @returns {Set<string>|null} Set of message keys or null if extraction fails
+ * Extracts message keys from a createTranslator call's second argument.
+ * @param {object} node - AST CallExpression node.
+ * @returns {Set<string>|null} Set of message keys or null if extraction fails.
  */
 function extractMessageKeys(node) {
   if (!isCreateTranslatorCall(node)) {
@@ -54,9 +54,9 @@ function extractMessageKeys(node) {
 }
 
 /**
- * Gets the variable name that a createTranslator call is assigned to
- * @param {Object} node - AST CallExpression node
- * @returns {string|null} Variable name or null
+ * Gets the variable name that a createTranslator call is assigned to.
+ * @param {object} node - AST CallExpression node.
+ * @returns {string|null} Variable name or null.
  */
 function getVariableName(node) {
   // Handle: const translator = createTranslator(...)
@@ -67,9 +67,9 @@ function getVariableName(node) {
 }
 
 /**
- * Gets the object variable name and property name for a createTranslator in an object
- * @param {Object} node - AST CallExpression node
- * @returns {{objectName: string, propertyName: string}|null}
+ * Gets the object variable name and property name for a createTranslator in an object.
+ * @param {object} node - AST CallExpression node.
+ * @returns {{objectName: string, propertyName: string}|null} Object/property name pair or null.
  */
 function getObjectPropertyInfo(node) {
   // Handle: const obj = { prop: createTranslator(...) }
@@ -90,9 +90,9 @@ function getObjectPropertyInfo(node) {
 }
 
 /**
- * Gets the variable name that a createTranslator call is exported as
- * @param {Object} node - AST CallExpression node
- * @returns {string|null} Export name or null
+ * Gets the variable name that a createTranslator call is exported as.
+ * @param {object} node - AST CallExpression node.
+ * @returns {string|null} Export name or null.
  */
 function getExportName(node) {
   // Handle: export const translator = createTranslator(...)
@@ -108,9 +108,9 @@ function getExportName(node) {
 }
 
 /**
- * Gets the source variable name from a destructuring assignment
- * @param {Object} node - AST node (the init part of VariableDeclarator)
- * @returns {string|null} Source variable name or null
+ * Gets the source variable name from a destructuring assignment.
+ * @param {object} node - AST node (the init part of VariableDeclarator).
+ * @returns {string|null} Source variable name or null.
  */
 function getSourceVariableName(node) {
   if (node.type === 'Identifier') {
@@ -120,9 +120,9 @@ function getSourceVariableName(node) {
 }
 
 /**
- * Gets member expression information for destructuring from object.property
- * @param {Object} node - AST node (the init part of VariableDeclarator)
- * @returns {{objectName: string, propertyName: string}|null}
+ * Gets member expression information for destructuring from object.property.
+ * @param {object} node - AST node (the init part of VariableDeclarator).
+ * @returns {{objectName: string, propertyName: string}|null} Object/property name pair or null.
  */
 function getMemberExpressionInfo(node) {
   // Handle: const { key$ } = obj.prop
@@ -141,9 +141,9 @@ function getMemberExpressionInfo(node) {
 }
 
 /**
- * Checks if a file path exists and is a file
- * @param {string} filePath - Path to check
- * @returns {boolean}
+ * Checks if a file path exists and is a file.
+ * @param {string} filePath - Path to check.
+ * @returns {boolean} True if the path exists and is a file.
  */
 function isFile(filePath) {
   try {
@@ -154,10 +154,10 @@ function isFile(filePath) {
 }
 
 /**
- * Tries to resolve a path with various extensions
- * @param {string} basePath - Base path to try
- * @param {Array<string>} extensions - Extensions to try
- * @returns {string|null} Resolved path or null
+ * Tries to resolve a path with various extensions.
+ * @param {string} basePath - Base path to try.
+ * @param {Array<string>} extensions - Extensions to try.
+ * @returns {string|null} Resolved path or null.
  */
 function tryResolveWithExtensions(basePath, extensions) {
   // Try without extension first
@@ -177,10 +177,10 @@ function tryResolveWithExtensions(basePath, extensions) {
 }
 
 /**
- * Resolves an import path to an absolute file path using Node.js resolution
- * @param {string} importPath - The import path (e.g., './strings' or 'kolibri/utils/i18n')
- * @param {string} currentFile - The absolute path of the current file
- * @returns {string|null} Absolute path to the imported file or null if not found
+ * Resolves an import path to an absolute file path using Node.js resolution.
+ * @param {string} importPath - The import path (e.g., './strings' or 'kolibri/utils/i18n').
+ * @param {string} currentFile - The absolute path of the current file.
+ * @returns {string|null} Absolute path to the imported file or null if not found.
  */
 function resolveImportPath(importPath, currentFile) {
   const currentDir = path.dirname(currentFile);
@@ -202,9 +202,9 @@ function resolveImportPath(importPath, currentFile) {
 }
 
 /**
- * Walks an AST to find all createTranslator exports and declarations
- * @param {Object} ast - Parsed AST
- * @returns {Map<string, Set<string>>} Map of export name to Set of message keys
+ * Walks an AST to find all createTranslator exports and declarations.
+ * @param {object} ast - Parsed AST.
+ * @returns {Map<string, Set<string>>} Map of export name to Set of message keys.
  */
 function findTranslatorsInAST(ast) {
   const translators = new Map();
@@ -302,10 +302,10 @@ function findTranslatorsInAST(ast) {
 }
 
 /**
- * Parses a file and extracts translator keys for a specific export
- * @param {string} filePath - Absolute path to the file
- * @param {string} exportedName - Name of the exported translator
- * @returns {Set<string>|null} Set of message keys or null if not found
+ * Parses a file and extracts translator keys for a specific export.
+ * @param {string} filePath - Absolute path to the file.
+ * @param {string} exportedName - The export identifier to look up in the file.
+ * @returns {Set<string>|null} The translator's message keys, or null when parsing fails.
  */
 function getTranslatorKeysFromFile(filePath, exportedName) {
   try {
@@ -342,11 +342,12 @@ function getTranslatorKeysFromFile(filePath, exportedName) {
 }
 
 /**
- * Validates destructuring against defined translator keys
- * @param {Object} node - AST VariableDeclarator node
- * @param {Object} translatorInfo - Object with keys: Set<string>
- * @param {Object} context - ESLint context
- * @param {string} translatorName - Name of the translator variable
+ * Validates destructuring against defined translator keys.
+ * @param {object} node - AST VariableDeclarator node.
+ * @param {object} translatorInfo - Object with keys: Set<string>.
+ * @param {object} context - ESLint context.
+ * @param {string} translatorName - Name of the translator variable.
+ * @returns {void}
  */
 function validateDestructuring(node, translatorInfo, context, translatorName) {
   const { keys } = translatorInfo;

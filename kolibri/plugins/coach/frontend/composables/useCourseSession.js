@@ -19,12 +19,33 @@ const {
 const { defaultErrorMessage$ } = coreStrings;
 
 /**
+ * @typedef {object} CourseSession
+ * @property {import('vue').Ref<boolean>} pageLoading - UI-blocking load state
+ * @property {import('vue').Ref<boolean>} dataLoading - Background load state
+ * @property {import('vue').Ref<boolean>} contentMissing - Course content deleted from device
+ * @property {import('vue').Ref<object>} courseSession - Session record
+ * @property {import('vue').Ref<object>} course - Course content tree
+ * @property {import('vue').Ref<object>} lastUnitTest - Most recent unit test
+ * @property {import('vue').ComputedRef<object>} activeTest - Open test, or null
+ * @property {import('vue').ComputedRef<object[]>} units - Units with numbered titles
+ * @property {import('vue').ComputedRef<object>} activeUnit - Unit in progress, or null
+ * @property {import('vue').ComputedRef<number>} activeUnitIndex - Index of activeUnit, or -1
+ * @property {import('vue').ComputedRef<object[]>} completedUnits - Units before the active one
+ * @property {import('vue').ComputedRef<object[]>} upcomingUnits - Units after the active one
+ * @property {import('vue').ComputedRef<boolean>} isCourseComplete - All units finished
+ * @property {import('vue').ComputedRef<string>} unitPhase - Active unit's lifecycle phase
+ * @property {(testType: string) => Promise<void>} activateTest - Start a unit's pre/post test
+ * @property {() => Promise<void>} closeTest - Close the active test
+ * @property {() => Promise<void>} toggleCourseActive - Flip the session's active flag
+ * @property {() => Promise<void>} refreshCourseSessionData - Silently re-fetch the session
+ */
+
+/**
  * A composable for managing course session state.
  * Handles fetching course session data, course content, active tests, and test history.
  * Provides derived state for units and unit phase.
- *
- * @param {Ref<string>} courseSessionId - The ID of the course session to load
- * @returns {Object} Reactive state and methods for managing the course session
+ * @param {import('vue').Ref<string>} courseSessionId - Refetches on change
+ * @returns {CourseSession} Reactive session state, derived units, and test actions
  */
 export default function useCourseSession(courseSessionId) {
   const { createSnackbar } = useSnackbar();
@@ -177,7 +198,6 @@ export default function useCourseSession(courseSessionId) {
 
   /**
    * Activates a test for the current active unit.
-   *
    * @param {string} testType - Either 'pre' or 'post'
    * @returns {Promise} Resolves when the test is activated
    */
@@ -209,7 +229,6 @@ export default function useCourseSession(courseSessionId) {
   /**
    * Closes the currently active test.
    * Moves the closed test to history and clears activeTest.
-   *
    * @returns {Promise} Resolves when the test is closed
    */
   function closeTest() {
@@ -244,7 +263,6 @@ export default function useCourseSession(courseSessionId) {
   /**
    * Toggles the active state of the course session.
    * Updates the courseSession ref with the new state on success.
-   *
    * @returns {Promise} Resolves with the updated course session
    */
   function toggleCourseActive() {
@@ -279,6 +297,7 @@ export default function useCourseSession(courseSessionId) {
   /**
    * Silently re-fetches the course session to pick up changes (e.g. recipient edits)
    * without triggering the full-page loading state.
+   * @returns {Promise<void>}
    */
   function refreshCourseSessionData() {
     if (!courseSessionId.value) return Promise.resolve();

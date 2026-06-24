@@ -272,7 +272,7 @@ describe('processJSFiles', function () {
   });
 });
 
-/** Utils */
+/* Utils */
 
 // Given a Vue file, this function will load that file, create an AST and will
 // pass every $trs object property to the given callback.
