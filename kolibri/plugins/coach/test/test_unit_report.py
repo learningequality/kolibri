@@ -22,11 +22,11 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
-from kolibri.plugins.coach.unit_report_api import compute_all_test_scores
-from kolibri.plugins.coach.unit_report_api import get_test_status
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_CLOSED
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_NOT_ACTIVATED
-from kolibri.plugins.coach.unit_report_api import TEST_STATUS_OPEN
+from kolibri.plugins.coach.viewsets.unit_report import compute_all_test_scores
+from kolibri.plugins.coach.viewsets.unit_report import get_test_status
+from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_CLOSED
+from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_NOT_ACTIVATED
+from kolibri.plugins.coach.viewsets.unit_report import TEST_STATUS_OPEN
 
 from . import helpers
 

@@ -21,11 +21,11 @@ from kolibri.core.logger.models import MasteryLog
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.core.notifications.models import NotificationEventType
 from kolibri.core.notifications.models import NotificationObjectType
-from kolibri.plugins.coach.class_summary_api import COMPLETED
-from kolibri.plugins.coach.class_summary_api import HELP_NEEDED
-from kolibri.plugins.coach.class_summary_api import NOT_STARTED
-from kolibri.plugins.coach.class_summary_api import STARTED
 from kolibri.plugins.coach.test import helpers
+from kolibri.plugins.coach.viewsets.class_summary import COMPLETED
+from kolibri.plugins.coach.viewsets.class_summary import HELP_NEEDED
+from kolibri.plugins.coach.viewsets.class_summary import NOT_STARTED
+from kolibri.plugins.coach.viewsets.class_summary import STARTED
 
 DUMMY_PASSWORD = "password"
 
