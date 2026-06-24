@@ -1,5 +1,6 @@
 import uuid
 
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from le_utils.constants import content_kinds
@@ -519,6 +520,55 @@ class BaseExamTest:
 
 class ExamAPITestCase(BaseExamTest, APITestCase):
     class_object = models.Exam
+
+    @override_settings(DEBUG=True)
+    def test_retrieve_serializes_section_missing_optional_fields(self):
+        # DEBUG-only output-shape validator regression. section_title, description
+        # and questions are required=False on QuizSectionSerializer, so DRF omits
+        # them (SkipField) when a stored section lacks them, leaving only the
+        # defaulted learners_see_fixed_order. Synced/legacy facility data holds
+        # such sections, and the derived engine raised OutputValidationError on
+        # them until required_fields was narrowed to required=True fields. Written
+        # via update() to bypass Exam.save(), which strips questionless sections;
+        # the bare section is first because the nested validator inspects the
+        # first element.
+        exercise_id = uuid.uuid4().hex
+        question_id = uuid.uuid4().hex
+        full_section = {
+            "section_title": "Full Section",
+            "description": "Every field present",
+            "learners_see_fixed_order": True,
+            "questions": [
+                {
+                    "exercise_id": exercise_id,
+                    "question_id": question_id,
+                    "title": "Q1",
+                    "counter_in_exercise": 0,
+                }
+            ],
+        }
+        exam = models.Exam.objects.create(
+            title="optional-section-fields",
+            collection=self.classroom,
+            creator=self.admin,
+            active=True,
+            question_sources=[full_section],
+        )
+        models.Exam.objects.filter(pk=exam.id).update(
+            question_sources=[{"learners_see_fixed_order": False}, full_section]
+        )
+
+        self.login_as_admin()
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": exam.id}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        sections = response.data["question_sources"]
+        # Absent optionals are omitted, not null-filled.
+        self.assertEqual(sections[0], {"learners_see_fixed_order": False})
+        # A fully populated section round-trips its exact content.
+        self.assertEqual(sections[1], full_section)
 
     def test_complete_mastery_logs_when_exam_is_closed(self):
         self.login_as_admin()

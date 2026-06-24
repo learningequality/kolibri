@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.query import SQCount
-from kolibri.core.utils.serializer_introspection import ValuesMethodField
+from kolibri.core.utils.values_viewset import ValuesMethodField
 
 from ..constants import facility_presets
 from ..models import Classroom

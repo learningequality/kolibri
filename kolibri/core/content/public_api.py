@@ -82,26 +82,26 @@ class ImportMetadataViewset(GenericViewSet):
 
     def _serialize(self, nodes, node, content_schema):
         data = {}
-        # Materialise FK lists and use `__uuidin` (inlines as SQL literals) instead of
-        # `__in=<queryset>`, which gave postgres correlated subqueries it sometimes
+        # Materialise FK lists and use `__inline_in` (inlines as SQL literals) instead
+        # of `__in=<queryset>`, which gave postgres correlated subqueries it sometimes
         # mis-planned into multi-hour query times on a fresh test database.
         node_ids = list(nodes.values_list("id", flat=True))
 
-        files = models.File.objects.filter(contentnode_id__uuidin=node_ids)
+        files = models.File.objects.filter(contentnode_id__inline_in=node_ids)
         through_tags = models.ContentNode.tags.through.objects.filter(
-            contentnode_id__uuidin=node_ids
+            contentnode_id__inline_in=node_ids
         )
         assessmentmetadata = models.AssessmentMetaData.objects.filter(
-            contentnode_id__uuidin=node_ids
+            contentnode_id__inline_in=node_ids
         )
 
         file_ids = list(files.values_list("id", flat=True))
         localfiles = models.LocalFile.objects.filter(
-            files__id__uuidin=file_ids
+            files__id__inline_in=file_ids
         ).distinct()
 
         contenttag_ids = list(through_tags.values_list("contenttag_id", flat=True))
-        tags = models.ContentTag.objects.filter(id__uuidin=contenttag_ids).distinct()
+        tags = models.ContentTag.objects.filter(id__inline_in=contenttag_ids).distinct()
 
         # Lang codes are short strings (not UUIDs) and the distinct set across a
         # channel is tiny — dedupe and use a literal IN.
@@ -112,12 +112,12 @@ class ImportMetadataViewset(GenericViewSet):
         languages = models.Language.objects.filter(id__in=lang_ids)
 
         prerequisites = models.ContentNode.has_prerequisite.through.objects.filter(
-            from_contentnode_id__uuidin=node_ids,
-            to_contentnode_id__uuidin=node_ids,
+            from_contentnode_id__inline_in=node_ids,
+            to_contentnode_id__inline_in=node_ids,
         )
         related = models.ContentNode.related.through.objects.filter(
-            from_contentnode_id__uuidin=node_ids,
-            to_contentnode_id__uuidin=node_ids,
+            from_contentnode_id__inline_in=node_ids,
+            to_contentnode_id__inline_in=node_ids,
         )
         channel_metadata = models.ChannelMetadata.objects.filter(id=node.channel_id)
 
@@ -153,7 +153,7 @@ class ImportMetadataViewset(GenericViewSet):
             try:
                 sql, params = qs.query.sql_with_params()
             except EmptyResultSet:
-                # `__uuidin=[]` raises EmptyResultSet rather than emitting an empty IN.
+                # `__inline_in=[]` raises EmptyResultSet rather than emitting an empty IN.
                 data[table_name] = []
                 continue
             cursor.execute(sql, params)

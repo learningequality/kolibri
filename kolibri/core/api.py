@@ -10,15 +10,8 @@ See kolibri/core/public/api_urls.py for the public API definitions.
 For more information, see: docs/backend_architecture/index.rst
 """
 
-import operator
 import threading
 import uuid
-from collections import defaultdict
-from contextlib import contextmanager
-from itertools import groupby
-from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
 
 from django.conf import settings
@@ -45,9 +38,9 @@ from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
-from kolibri.core.utils.serializer_introspection import derive_values_from_serializer
-from kolibri.core.utils.serializer_introspection import normalize_field_map
-from kolibri.core.utils.serializer_introspection import ValuesMethodField  # noqa: F401
+from kolibri.core.utils.values_viewset import TOP_LEVEL_PATH
+from kolibri.core.utils.values_viewset import ValuesEngine
+from kolibri.core.utils.values_viewset import ValuesMethodField  # noqa: F401
 from kolibri.utils import conf
 
 from .utils.portal import registerfacility
@@ -136,14 +129,14 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         if context is None:
             context = {}
         default_fields = set()
-        db_columns = view._field_map.db_column_map()
+        db_columns = view._engine.db_column_map
         # Invert to get {db_col: api_name} for non-promoted renames whose DB column
         # appears in _values rather than the client-facing name.
         db_col_to_api = {v: k for k, v in db_columns.items()}
         # All the fields of the model
         model_fields = {f.name for f in queryset.model._meta.get_fields()}
         # Loop through every value in the view's values tuple
-        for field in view._values:
+        for field in view._engine.values:
             # db_column_map() returns the true DB column for renamed fields; for
             # SQL-promoted renames _values holds the alias, so we resolve it back.
             db_source = db_columns.get(field, field)
@@ -169,7 +162,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         Modified from https://github.com/encode/django-rest-framework/blob/version-3.12.2/rest_framework/filters.py#L259
         to do filtering based on valuesviewset setup
         """
-        db_columns = view._field_map.db_column_map()
+        db_columns = view._engine.db_column_map
         valid_fields = [
             item[0]
             for item in self.get_valid_fields(queryset, view, {"request": request})
@@ -188,68 +181,6 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         if len(ordering) > 1:
             raise ValidationError("Can only define a single ordering field")
         return ordering
-
-
-class _ThreadLocalContext(threading.local):
-    """
-    A dict-like context whose contents are thread-local — writes by one
-    thread don't leak to others. Used as the ``context`` on a shared cached
-    serializer so the same instance can safely carry per-request context
-    (``request``, ``view``, ``format``) on each worker thread without
-    per-request allocation.
-
-    Inheriting from ``threading.local`` gives every thread its own
-    ``self.__dict__``; the dict-like protocol proxies straight to it.
-
-    ``BaseValuesViewset.serialize()`` populates this from
-    ``get_serializer_context()`` before running the pipeline and clears it
-    on exit.
-    """
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
-
-    def __delitem__(self, key):
-        del self.__dict__[key]
-
-    def __contains__(self, key):
-        return key in self.__dict__
-
-    def __iter__(self):
-        return iter(self.__dict__)
-
-    def __len__(self):
-        return len(self.__dict__)
-
-    def __repr__(self):
-        return repr(self.__dict__)
-
-    def get(self, key, default=None):
-        return self.__dict__.get(key, default)
-
-    def keys(self):
-        return self.__dict__.keys()
-
-    def values(self):
-        return self.__dict__.values()
-
-    def items(self):
-        return self.__dict__.items()
-
-    def update(self, *args, **kwargs):
-        self.__dict__.update(*args, **kwargs)
-
-    def setdefault(self, key, default=None):
-        return self.__dict__.setdefault(key, default)
-
-    def pop(self, key, *args):
-        return self.__dict__.pop(key, *args)
-
-    def clear(self):
-        self.__dict__.clear()
 
 
 class BaseValuesViewset(viewsets.GenericViewSet):
@@ -282,29 +213,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     # rather than joined in the main query. These fields are handled in consolidate().
     deferred_fields = ()
 
-    # Cached itemgetter for pk_field, used in _auto_consolidate for fast groupby
-    _pk_getter = None
-    # Cached many=True nested info for groupby consolidation
-    _joined_many = ()
-    # Cached serializer instance used for introspection and for invoking
-    # ``ValuesMethodField`` bound methods. The instance is shared across
-    # requests; its ``context`` is a ``_ThreadLocalContext`` so per-request
-    # values don't leak between threads.
-    _cached_serializer = None
-    # Thread-local context object attached to ``_cached_serializer.context``.
-    # ``serialize()`` populates it from ``get_serializer_context()`` and
-    # clears it on exit.
-    _serializer_context = None
-    # Cached derived info for deferred fields, keyed by serializer_path.
-    # Defaults to None; set per-class by _ensure_initialized.
-    _nested_derived_cache = None
-    # Cached validation schema for DEBUG mode: (expected_fields, nested_schemas)
-    # Built once during _ensure_initialized to avoid per-request recomputation.
-    _validation_schema = None
-    # Whether this class derives its values from serializer_class. Legacy
-    # explicit-values viewsets may pair a write-oriented serializer with a
-    # different read shape, so DEBUG output validation only applies when True.
-    _serializer_derived = False
     # Whether _ensure_initialized has run for this class
     _initialized = False
     # Guards _ensure_initialized for this class; each subclass gets its own
@@ -348,56 +256,21 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
     @classmethod
     def _do_initialize(cls):
-        cls._serializer_context = _ThreadLocalContext()
-
         has_explicit_values = isinstance(getattr(cls, "values", None), tuple)
         serializer_class = getattr(cls, "serializer_class", None)
-        cls._serializer_derived = not has_explicit_values
-
         if has_explicit_values:
-            cls._values = tuple(cls.values)
-            if not hasattr(cls, "field_map"):
-                cls.field_map = {}
-            # Normalize legacy str/callable entries to canonical entry
-            # objects (SourceFieldEntry/CallableFieldEntry). Produces a
-            # fresh _LegacyFieldMap so post-init mutation of cls.field_map
-            # doesn't leak into instance serialization.
-            cls._field_map = normalize_field_map(cls.field_map)
-        elif serializer_class is not None:
-            cls._cached_serializer = serializer_class(context=cls._serializer_context)
-            (
-                cls._values,
-                cls._field_map,
-                cls._joined_many,
-                cls._nested_derived_cache,
-            ) = derive_values_from_serializer(
-                cls._cached_serializer,
-                deferred_fields=cls.deferred_fields,
-                check_constraints=settings.DEBUG,
+            # TODO(#14302): remove with the legacy explicit values/field_map path.
+            cls._engine = ValuesEngine.from_explicit(
+                cls.values, getattr(cls, "field_map", {})
             )
-            # Auto-derived: keep _values/_field_map only on cls. Writing to
-            # ``cls.values`` here would expose the tuple to subclasses via MRO
-            # so ``has_explicit_values`` would mis-detect it as user-supplied,
-            # routing the child into the explicit-values path and skipping
-            # serializer derivation against its own ``serializer_class``.
-            cls._values = tuple(cls._values)
+        elif serializer_class is not None:
+            cls._engine = ValuesEngine.from_serializer(
+                serializer_class, cls.deferred_fields
+            )
         else:
             raise TypeError(
                 "Either 'values' tuple or 'serializer_class' must be defined"
             )
-
-        # Cache pk itemgetter from queryset
-        queryset = getattr(cls, "queryset", None)
-        if queryset is not None and hasattr(queryset, "model"):
-            cls._pk_getter = operator.itemgetter(queryset.model._meta.pk.name)
-
-        # Cache validation schema for DEBUG mode — serializer-derived
-        # viewsets only; the serializer is the read contract for them.
-        if settings.DEBUG and cls._serializer_derived:
-            cls._validation_schema = cls._build_validation_schema(
-                cls._cached_serializer
-            )
-
         cls._initialized = True
 
     def __init__(self, *args, **kwargs):
@@ -418,24 +291,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             "format": getattr(self, "format_kwarg", None),
         }
 
-    @contextmanager
-    def _serializer_context_scope(self):
-        """
-        Populate the thread-local serializer context for the duration of a
-        serialization pipeline, clearing it on exit. Re-entrant: nested
-        scopes (e.g. ``serialize_queryset`` invoked from ``consolidate``)
-        are no-ops, so the outer scope's context survives until its own
-        exit.
-        """
-        already_set = bool(self._serializer_context)
-        if not already_set:
-            self._serializer_context.update(self.get_serializer_context())
-        try:
-            yield
-        finally:
-            if not already_set:
-                self._serializer_context.clear()
-
     def generate_serializer(self):
         queryset = getattr(self, "queryset", None)
         if queryset is None:
@@ -448,10 +303,10 @@ class BaseValuesViewset(viewsets.GenericViewSet):
             return Serializer
         # {source: target} for plain renames, so values can be exposed
         # under the declared name.
-        mapped_fields = self._field_map.plain_renames() if self._field_map else {}
+        mapped_fields = self._engine.plain_renames
         fields = []
         extra_kwargs = {}
-        for value in self._values:
+        for value in self._engine.values:
             try:
                 model._meta.get_field(value)
                 if value in mapped_fields:
@@ -508,287 +363,6 @@ class BaseValuesViewset(viewsets.GenericViewSet):
     def annotate_queryset(self, queryset):
         return queryset
 
-    def get_nested_serializer(self, path: str):
-        """
-        Resolve a dotted path to a nested serializer.
-
-        Args:
-            path: Dotted path like 'roles' or 'children__grandchildren'
-
-        Returns:
-            The nested serializer instance
-
-        Raises:
-            KeyError: If path doesn't resolve to a valid nested serializer
-        """
-        if self._cached_serializer is None:
-            raise AttributeError(
-                "get_nested_serializer requires serializer-derived values"
-            )
-        serializer = self._cached_serializer
-        for part in path.split("__"):
-            field = serializer.fields[part]
-            # Handle many=True (ListSerializer wraps the actual serializer)
-            if hasattr(field, "child"):
-                serializer = field.child
-            else:
-                serializer = field
-
-        return serializer
-
-    def _group_items(
-        self, items: List[Dict[str, Any]], group_by: str
-    ) -> Dict[Any, List[Dict[str, Any]]]:
-        """
-        Group items by a field value.
-
-        Args:
-            items: List of dictionaries
-            group_by: Field name to group by
-
-        Returns:
-            Dict mapping group_by values to lists of items
-        """
-        result: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
-        for item in items:
-            result[item.get(group_by)].append(item)
-        return dict(result)
-
-    @staticmethod
-    def _serialize_flat(queryset, values, field_map):
-        """Base serialization: values() call + field mapping."""
-        queryset = field_map.annotate_queryset(queryset)
-        if field_map.is_noop():
-            return list(queryset.values(*values))
-        return [field_map.map_row(item) for item in queryset.values(*values)]
-
-    def serialize_queryset(
-        self,
-        queryset,
-        serializer_path: Optional[str] = None,
-        *,
-        group_by: Optional[str] = None,
-    ):
-        """
-        Serialize any queryset using a serializer's field definitions.
-
-        Args:
-            queryset: Any Django queryset
-            serializer_path: Dotted path to nested serializer (e.g., 'roles'
-                or 'files'); ``None`` selects the viewset's own top-level
-                serializer.
-            group_by: Optional field to group results by (returns dict of key -> [items])
-
-        Returns:
-            List of serialized items, or Dict {group_key: [items]} if group_by specified
-        """
-        if serializer_path is None:
-            values = self._values
-            field_map = self._field_map
-            joined_many = self._joined_many
-            pk_getter = self._pk_getter
-            if pk_getter is None:
-                # Class-level queryset wasn't resolvable at init time
-                # (viewset uses get_queryset()); cache it now so subsequent
-                # calls skip the lookup.
-                pk_getter = operator.itemgetter(queryset.model._meta.pk.name)
-                self.__class__._pk_getter = pk_getter
-        else:
-            if self._nested_derived_cache is None:
-                raise AttributeError(
-                    "serialize_queryset requires serializer-derived values"
-                )
-            values, field_map, joined_many = self._nested_derived_cache[serializer_path]
-            pk_getter = operator.itemgetter(queryset.model._meta.pk.name)
-
-        with self._serializer_context_scope():
-            items = self._serialize_flat(queryset, values, field_map)
-            items = self._auto_consolidate(items, joined_many, pk_getter)
-
-        # Group if requested
-        if group_by is not None:
-            return self._group_items(items, group_by)
-
-        return items
-
-    @staticmethod
-    def _build_validation_schema(serializer):
-        """
-        Build a cached validation schema from a serializer.
-
-        Returns (expected_fields, nested_schemas) where:
-        - expected_fields: frozenset of field names (excluding write_only)
-        - nested_schemas: dict mapping field_name to nested schema tuples
-        """
-        expected_fields = set()
-        nested_schemas = {}
-
-        for field_name, field in serializer.fields.items():
-            if getattr(field, "write_only", False):
-                continue
-            expected_fields.add(field_name)
-            if hasattr(field, "child") and isinstance(field.child, Serializer):
-                nested_schemas[field_name] = BaseValuesViewset._build_validation_schema(
-                    field.child
-                )
-            elif isinstance(field, Serializer):
-                nested_schemas[field_name] = BaseValuesViewset._build_validation_schema(
-                    field
-                )
-
-        return (frozenset(expected_fields), nested_schemas)
-
-    def _validate_output(self, items: List[Dict[str, Any]]) -> None:
-        """
-        Validate serialized output matches serializer contract.
-
-        Only intended for use in DEBUG mode to catch drift between
-        consolidate() implementation and serializer declarations.
-
-        Uses the cached _validation_schema when available (built during
-        _ensure_initialized), falling back to building from the serializer.
-
-        Only applies to serializer-derived viewsets — legacy explicit-values
-        viewsets may pair a write-oriented serializer with a different read
-        shape, so the serializer is not their read contract.
-        """
-        if not items or not self._serializer_derived:
-            return
-
-        schema = self._validation_schema
-        if schema is None:
-            # Class was initialized under DEBUG=False; build from the
-            # serializer cached during derivation.
-            schema = self._build_validation_schema(self._cached_serializer)
-
-        self._validate_items_against_schema(items, schema)
-
-    @staticmethod
-    def _validate_items_against_schema(
-        items: List[Dict[str, Any]],
-        schema,
-    ) -> None:
-        """
-        Validate items against a cached validation schema.
-
-        Only checks the first item since all rows from values() have
-        uniform keys — one item is enough to catch schema drift.
-        Recurses into nested schemas.
-        """
-        if not items:
-            return
-
-        expected_fields, nested_schemas = schema
-        item = items[0]
-        item_keys = set(item.keys())
-
-        missing = expected_fields - item_keys
-        if missing:
-            raise ValueError(
-                "Missing fields in output: {}. Expected: {}, Got: {}".format(
-                    missing, expected_fields, item_keys
-                )
-            )
-
-        extra = item_keys - expected_fields
-        if extra:
-            raise ValueError(
-                "Unexpected fields in output: {}. Expected: {}, Got: {}".format(
-                    extra, expected_fields, item_keys
-                )
-            )
-
-        for field_name, nested_schema in nested_schemas.items():
-            nested_value = item.get(field_name)
-            if nested_value is None:
-                continue
-            if isinstance(nested_value, dict):
-                nested_value = [nested_value]
-            if isinstance(nested_value, list):
-                BaseValuesViewset._validate_items_against_schema(
-                    nested_value, nested_schema
-                )
-
-    @staticmethod
-    def _get_nested_child_pk(field_name, nested_pk, val):
-        """Extract a nested child's PK, raising on missing keys.
-
-        When nested_pk is None the field is a scalar from a one-to-many
-        relation (e.g. roles__kind); the value itself is the dedup key.
-        """
-        if nested_pk is None:
-            return val
-        try:
-            return val[nested_pk]
-        except KeyError:
-            raise KeyError(
-                "_auto_consolidate: nested field '{}' has no key "
-                "'{}' for deduplication. Available keys: {}. "
-                "Check that _resolve_nested_pk_output_name matches "
-                "the field_map output.".format(field_name, nested_pk, list(val.keys()))
-            )
-
-    def _auto_consolidate(
-        self,
-        items: List[Dict[str, Any]],
-        joined_many,
-        pk_getter,
-    ) -> List[Dict[str, Any]]:
-        """
-        Consolidate many=True nested fields using groupby.
-
-        Nested extraction is already done by field_map callables during
-        _serialize_flat. This method only handles groupby + list collection
-        for many=True fields (converting per-row dicts to lists and deduplicating).
-
-        Items must be sorted by PK for groupby, but original queryset
-        ordering is restored afterwards.
-
-        ``joined_many`` and ``pk_getter`` are passed by the caller so the
-        same routine handles top-level and nested-path consolidation
-        (``serialize_queryset`` reads them from the cache entry / nested
-        queryset's model).
-        """
-        if not items or not joined_many:
-            return items
-
-        # dict.fromkeys deduplicates while preserving insertion order (a set
-        # would not), so consolidated items can be returned in the original
-        # queryset order.
-        original_pk_order = list(dict.fromkeys(pk_getter(item) for item in items))
-        # groupby only groups *consecutive* equal keys, so items must be
-        # sorted by PK first or a custom queryset ordering could split one
-        # PK's rows into multiple groups.
-        items = sorted(items, key=pk_getter)
-        consolidated: Dict[Any, Dict[str, Any]] = {}
-
-        for pk, group in groupby(items, pk_getter):
-            group_iter = iter(group)
-            consolidated_item = next(group_iter)
-            seen_child_pks: Dict[str, set] = {fn: set() for fn, _ in joined_many}
-
-            # Convert per-row nested dicts to lists for the first item
-            for field_name, nested_pk in joined_many:
-                val = consolidated_item[field_name]
-                if val is not None:
-                    child_pk = self._get_nested_child_pk(field_name, nested_pk, val)
-                    seen_child_pks[field_name].add(child_pk)
-                    consolidated_item[field_name] = [val]
-                else:
-                    consolidated_item[field_name] = []
-
-            for item in group_iter:
-                for field_name, nested_pk in joined_many:
-                    val = item[field_name]
-                    if val is not None:
-                        child_pk = self._get_nested_child_pk(field_name, nested_pk, val)
-                        if child_pk not in seen_child_pks[field_name]:
-                            seen_child_pks[field_name].add(child_pk)
-                            consolidated_item[field_name].append(val)
-            consolidated[pk] = consolidated_item
-
-        return [consolidated[pk] for pk in original_pk_order]
-
     def consolidate(self, items, queryset):
         """
         Override point for custom consolidation logic.
@@ -797,15 +371,35 @@ class BaseValuesViewset(viewsets.GenericViewSet):
 
     def serialize(self, queryset):
         queryset = self.annotate_queryset(queryset)
-        with self._serializer_context_scope():
-            items = self.serialize_queryset(queryset)
-            result = self.consolidate(items, queryset)
+        items = self._engine.serialize(queryset, context=self.get_serializer_context())
+        result = self.consolidate(items, queryset)
+        if settings.DEBUG:
+            self._engine.validate_output(result)
+        return result
 
-            # Dev-mode validation: check output matches serializer contract
-            if settings.DEBUG:
-                self._validate_output(result)
+    def serialize_queryset(
+        self,
+        queryset,
+        serializer_path: Optional[str] = None,
+        *,
+        group_by: Optional[str] = None,
+    ):
+        """Serialize any queryset using this viewset's serializer field definitions.
 
-            return result
+        Public seam for custom ``consolidate()`` and composite callers.
+
+        :param serializer_path: dotted-underscore nested-serializer path (e.g.
+            ``'roles'``, ``'files__metadata'``); ``None`` selects the top-level
+            serializer.
+        :param group_by: if set, return a ``{value: [items]}`` dict keyed by that
+            field instead of a flat list.
+        """
+        return self._engine.serialize(
+            queryset,
+            path=serializer_path or TOP_LEVEL_PATH,
+            group_by=group_by,
+            context=self.get_serializer_context(),
+        )
 
     def serialize_object(self, **filter_kwargs):
         try:

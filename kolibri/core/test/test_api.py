@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Type
 from unittest.mock import MagicMock
 
@@ -8,7 +9,6 @@ from django.test import override_settings
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
-from parameterized import parameterized
 from rest_framework import serializers
 
 from kolibri.core.api import BaseValuesViewset
@@ -17,13 +17,20 @@ from kolibri.core.api import ValuesMethodField
 from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.test.test_app.models import Author
+from kolibri.core.test.test_app.models import Award
 from kolibri.core.test.test_app.models import Book
 from kolibri.core.test.test_app.models import Classroom
+from kolibri.core.test.test_app.models import Country
 from kolibri.core.test.test_app.models import DateTimeTzModel
 from kolibri.core.test.test_app.models import Enrollment
+from kolibri.core.test.test_app.models import Hideable
+from kolibri.core.test.test_app.models import HideableAccount
+from kolibri.core.test.test_app.models import HideableOwner
 from kolibri.core.test.test_app.models import Profile
 from kolibri.core.test.test_app.models import Publisher
+from kolibri.core.test.test_app.models import Review
 from kolibri.core.test.test_app.models import Tag
+from kolibri.core.utils.values_viewset import OutputValidationError
 
 
 def create_mock_queryset(flat_items, model: Type[Model] = Author):
@@ -108,6 +115,18 @@ TagSerializer = make_serializer(
 ClassroomSerializer = make_serializer(
     model=Classroom, id=serializers.CharField(), name=serializers.CharField()
 )
+AwardSerializer = make_serializer(
+    model=Award, id=serializers.CharField(), name=serializers.CharField()
+)
+ReviewSerializer = make_serializer(
+    model=Review, id=serializers.CharField(), rating=serializers.IntegerField()
+)
+CountrySerializer = make_serializer(
+    model=Country, id=serializers.CharField(), name=serializers.CharField()
+)
+PublisherSerializer = make_serializer(
+    model=Publisher, id=serializers.CharField(), name=serializers.CharField()
+)
 
 
 def author_books_viewset(deferred=False, **extra_author_fields):
@@ -132,9 +151,9 @@ def _serialize(viewset, flat_items, **kwargs):
 
 
 def _assert_serialize_raises(test_case, viewset, flat_items, expected_substr):
-    """Assert that serialize() raises ValueError containing expected_substr."""
+    """Assert serialize() raises OutputValidationError containing expected_substr."""
     mock_qs = create_mock_queryset(flat_items)
-    with test_case.assertRaises(ValueError) as ctx:
+    with test_case.assertRaises(OutputValidationError) as ctx:
         viewset.serialize(mock_qs)
     test_case.assertIn(expected_substr, str(ctx.exception))
 
@@ -151,18 +170,28 @@ class TestDataSerialization(TestCase):
 
     A shared ``setUpTestData`` fixture covers every relation type:
 
-    - ``alice`` — publisher + profile + 3 books (``book_a3`` has null
-      description) + 2 classrooms via Enrollment
-    - ``bob`` — publisher + profile + 1 book, no classrooms
-    - ``carol`` — orphan: no publisher, no profile, no books, no classrooms
-    - Tags ``fiction`` + ``classic`` (``book_a1`` has both, ``book_a2`` has
-      ``fiction``)
-    - Alice's books × classrooms produces the cartesian needed for dedup tests
+    - Authors: alice/bob (main_publisher), carol (no publisher).
+    - Profiles: alice_profile (verified), bob_profile (unverified) — OneToOne rev.
+    - Books: book_a1/book_a2/book_a3 (alice), book_b1 (bob) — reverse FK many.
+    - Tags: tag_fiction, tag_classic — M2M fwd (book_a1 has both, book_a2 fiction).
+    - Classrooms/Enrollments: classroom_101/102, alice in both — M2M-through.
+    - Awards: award_alice_best/award_alice_honorable (alice), award_bob (bob) — second reverse FK many on Author.
+    - Reviews: review_a1_1/review_a1_2 on book_a1, review_a2_1 on book_a2, none on book_a3 — grandchild reverse FK many on Book.
+    - Publisher countries: main_publisher→country_uk (UK), indie_publisher→country_us (US).
+    - Book publishers: book_a1/book_a2→main_publisher, book_b1→indie_publisher, book_a3→None.
     """
 
     @classmethod
     def setUpTestData(cls):
-        cls.main_publisher = Publisher.objects.create(name="Main House")
+        cls.country_uk = Country.objects.create(name="UK")
+        cls.country_us = Country.objects.create(name="US")
+
+        cls.main_publisher = Publisher.objects.create(
+            name="Main House", country=cls.country_uk
+        )
+        cls.indie_publisher = Publisher.objects.create(
+            name="Indie", country=cls.country_us
+        )
 
         cls.alice = Author.objects.create(
             name="Alice",
@@ -187,12 +216,18 @@ class TestDataSerialization(TestCase):
             author=cls.bob, bio="Poet", is_verified=False
         )
 
-        cls.book_a1 = Book.objects.create(author=cls.alice, title="Alice Book 1")
-        cls.book_a2 = Book.objects.create(author=cls.alice, title="Alice Book 2")
-        cls.book_a3 = Book.objects.create(
-            author=cls.alice, title="Alice Book 3", description=None
+        cls.book_a1 = Book.objects.create(
+            author=cls.alice, title="Alice Book 1", publisher=cls.main_publisher
         )
-        cls.book_b1 = Book.objects.create(author=cls.bob, title="Bob Book 1")
+        cls.book_a2 = Book.objects.create(
+            author=cls.alice, title="Alice Book 2", publisher=cls.main_publisher
+        )
+        cls.book_a3 = Book.objects.create(
+            author=cls.alice, title="Alice Book 3", description=None, publisher=None
+        )
+        cls.book_b1 = Book.objects.create(
+            author=cls.bob, title="Bob Book 1", publisher=cls.indie_publisher
+        )
 
         cls.tag_fiction = Tag.objects.create(name="fiction")
         cls.tag_classic = Tag.objects.create(name="classic")
@@ -203,6 +238,16 @@ class TestDataSerialization(TestCase):
         cls.classroom_102 = Classroom.objects.create(name="Room 102")
         Enrollment.objects.create(author=cls.alice, classroom=cls.classroom_101)
         Enrollment.objects.create(author=cls.alice, classroom=cls.classroom_102)
+
+        cls.award_alice_best = Award.objects.create(author=cls.alice, name="Best")
+        cls.award_alice_honorable = Award.objects.create(
+            author=cls.alice, name="Honorable"
+        )
+        cls.award_bob = Award.objects.create(author=cls.bob, name="Notable")
+
+        cls.review_a1_1 = Review.objects.create(book=cls.book_a1, rating=5)
+        cls.review_a1_2 = Review.objects.create(book=cls.book_a1, rating=4)
+        cls.review_a2_1 = Review.objects.create(book=cls.book_a2, rating=3)
 
     def _run(self, viewset):
         """Run the viewset's own queryset through serialize()."""
@@ -427,20 +472,6 @@ class TestDataSerialization(TestCase):
         result = self._run(viewset)
         self.assertEqual(result[0]["author_id"], self.alice.pk)
 
-    def test_hex_uuid_field_on_char_model_field_is_passthrough(self):
-        """HexOnlyUUIDField(format='hex') on a CharField model field (e.g. morango
-        UUID storage) is a no-op: the DB already returns hex strings, so
-        to_representation adds no transformation. The field_map.is_noop()
-        must return True so _serialize_flat can skip dict creation."""
-        # Author.email and Author.name are both CharField — simulates morango UUID
-        viewset = make_viewset(
-            queryset=Author.objects.none(),
-            name=serializers.CharField(),
-            email=HexOnlyUUIDField(),
-        )
-        field_map = viewset._field_map
-        self.assertTrue(field_map.is_noop())
-
     def test_plain_serializer_method_field_rejected(self):
         """Plain ``SerializerMethodField`` is not supported on ValuesViewset;
         class init raises ``TypeError`` pointing at ``ValuesMethodField``."""
@@ -570,6 +601,7 @@ class TestDataSerialization(TestCase):
 
     def test_fk_single_nested(self):
         viewset = make_viewset(
+            model=Book,
             queryset=Book.objects.filter(pk=self.book_a1.pk),
             id=serializers.IntegerField(),
             title=serializers.CharField(),
@@ -674,6 +706,113 @@ class TestDataSerialization(TestCase):
         names = sorted(c["name"] for c in result[0]["classrooms"])
         self.assertEqual(names, ["Room 101", "Room 102"])
 
+    def test_m2m_through_duplicate_rows_yield_one_child(self):
+        """Two through-rows for the same pair return the child twice from the
+        join; it must still appear once under its parent."""
+        Enrollment.objects.create(author=self.alice, classroom=self.classroom_101)
+
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.alice.pk),
+            id=serializers.UUIDField(),
+            classrooms=make_nested(
+                model=Classroom,
+                many=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        names = sorted(c["name"] for c in result[0]["classrooms"])
+        self.assertEqual(names, ["Room 101", "Room 102"])
+
+    # Manager choice: auto-fetch must mirror Django's relation descriptors —
+    # to-one relations (forward FK, reverse O2O) load through the target's base
+    # manager, to-many relations (reverse FK, M2M) through its default manager.
+
+    def test_forward_fk_fetches_hidden_target_via_base_manager(self):
+        """A forward FK is loaded through the base manager (Django's
+        ForwardManyToOneDescriptor), so a soft-delete-style default-manager
+        filter on the target model can't null out a referenced row."""
+        hidden = Hideable.objects.create(name="secret", hidden=True)
+        owner = HideableOwner.objects.create(name="owner", featured=hidden)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            featured=make_nested(
+                model=Hideable,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNotNone(result[0]["featured"])
+        self.assertEqual(result[0]["featured"]["name"], "secret")
+
+    def test_reverse_o2o_fetches_hidden_target_via_base_manager(self):
+        """Reverse OneToOne loads through the base manager (Django's
+        ReverseOneToOneDescriptor), so a hidden target still serializes."""
+        owner = HideableOwner.objects.create(name="owner")
+        Hideable.objects.create(name="secret", hidden=True, solo_owner=owner)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            solo_hideable=make_nested(
+                model=Hideable,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        self.assertIsNotNone(result[0]["solo_hideable"])
+        self.assertEqual(result[0]["solo_hideable"]["name"], "secret")
+
+    def test_reverse_fk_many_excludes_hidden_via_default_manager(self):
+        """Reverse FK many uses the target's default manager (matching the
+        related manager Django builds), so hidden children are excluded."""
+        owner = HideableOwner.objects.create(name="owner")
+        Hideable.objects.create(name="visible", owner=owner)
+        Hideable.objects.create(name="secret", hidden=True, owner=owner)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            hideables=make_nested(
+                model=Hideable,
+                many=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        names = sorted(h["name"] for h in result[0]["hideables"])
+        self.assertEqual(names, ["visible"])
+
+    def test_m2m_excludes_hidden_via_default_manager(self):
+        """M2M uses the target's default manager, so hidden children are
+        excluded (matching Django's M2M related manager)."""
+        owner = HideableOwner.objects.create(name="owner")
+        visible = Hideable.objects.create(name="visible")
+        secret = Hideable.objects.create(name="secret", hidden=True)
+        owner.tagged.add(visible, secret)
+        viewset = make_viewset(
+            model=HideableOwner,
+            queryset=HideableOwner.objects.filter(pk=owner.pk),
+            id=serializers.IntegerField(),
+            tagged=make_nested(
+                model=Hideable,
+                many=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        result = self._run(viewset)
+        names = sorted(h["name"] for h in result[0]["tagged"])
+        self.assertEqual(names, ["visible"])
+
     def test_scalar_many_via_reverse_fk(self):
         viewset = make_viewset(
             queryset=Author.objects.filter(pk=self.alice.pk),
@@ -705,6 +844,39 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(sorted(result[0]["classroom_names"]), ["Room 101", "Room 102"])
+
+    def test_scalar_many_via_to_one_then_to_many(self):
+        """Scalar source crossing a to-one *then* a to-many
+        (``publisher.books.title``)."""
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.alice.pk),
+            id=serializers.UUIDField(),
+            publisher_book_titles=serializers.CharField(source="publisher.books.title"),
+        )
+        with self.assertNumQueries(2):
+            result = self._run(viewset)
+        self.assertEqual(
+            sorted(result[0]["publisher_book_titles"]),
+            ["Alice Book 1", "Alice Book 2"],
+        )
+
+    def test_scalar_many_via_to_one_then_to_many_excludes_hidden(self):
+        """Scalar source crossing a to-one then a to-many onto a filtered model
+        (``owner.hideables.name``): the to-many's default manager applies, so a
+        hidden row's value drops out. Still one fetch query."""
+        owner = HideableOwner.objects.create(name="owner")
+        Hideable.objects.create(name="visible", owner=owner)
+        Hideable.objects.create(name="secret", hidden=True, owner=owner)
+        account = HideableAccount.objects.create(name="acct", owner=owner)
+        viewset = make_viewset(
+            model=HideableAccount,
+            queryset=HideableAccount.objects.filter(pk=account.pk),
+            id=serializers.IntegerField(),
+            hideable_names=serializers.CharField(source="owner.hideables.name"),
+        )
+        with self.assertNumQueries(2):
+            result = self._run(viewset)
+        self.assertEqual(result[0]["hideable_names"], ["visible"])
 
     # Consolidation invariants
 
@@ -755,6 +927,31 @@ class TestDataSerialization(TestCase):
         result = self._run(viewset)
         self.assertIsNone(result[0]["publisher_info"])
 
+    def test_forward_fk_source_column_not_leaked_when_undeclared(self):
+        """A forward-FK nested serializer whose source column isn't itself a
+        declared field must not leak that FK column into the output.
+
+        The FK column is fetched only to key the deferred fetch. On the
+        all-passthrough (noop) path map_row returned the raw row untouched, so
+        the undeclared source column ("publisher") survived alongside the nested
+        field ("publisher_info").
+        """
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=self.alice.pk),
+            id=serializers.UUIDField(),
+            name=serializers.CharField(),
+            publisher_info=make_nested(
+                model=Publisher,
+                source="publisher",
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        with self.assertNumQueries(2):
+            result = self._run(viewset)
+        self.assertEqual(set(result[0].keys()), {"id", "name", "publisher_info"})
+        self.assertEqual(result[0]["publisher_info"]["name"], "Main House")
+
     def test_nullable_first_field_in_nested_not_dropped(self):
         """Nested row with null first declared field but non-null PK is kept.
 
@@ -778,12 +975,8 @@ class TestDataSerialization(TestCase):
         self.assertIsNone(book_a3["description"])
 
     def test_duplicate_child_rows_deduplicated(self):
-        """Cartesian rows (books × classrooms) collapse to actual child counts.
-
-        Alice has 3 books × 2 classrooms = 6 rows via the cartesian, but
-        the nested list must dedupe to 3 books and the scalar-many to 2
-        classroom names.
-        """
+        """A nested many and a scalar-many on the same parent each resolve to
+        their own child count via independent batched queries."""
         viewset = make_viewset(
             queryset=Author.objects.filter(pk=self.alice.pk),
             id=serializers.UUIDField(),
@@ -813,21 +1006,18 @@ class TestDataSerialization(TestCase):
         )
 
     def test_scalar_many_deduplicates_values(self):
-        """Duplicates from a cartesian collapse to unique scalar entries.
-
-        Joining both books and classrooms for Alice creates a cartesian
-        where each book title appears twice (once per classroom). Scalar-many
-        dedup collapses back to 3 unique titles.
-        """
+        """Repeated scalar values collapse to unique entries."""
+        Book.objects.create(author=self.alice, title="Alice Book 1")
         viewset = make_viewset(
             queryset=Author.objects.filter(pk=self.alice.pk),
             id=serializers.UUIDField(),
             book_titles=serializers.CharField(source="books.title"),
-            classroom_names=serializers.CharField(source="classrooms.name"),
         )
         result = self._run(viewset)
-        self.assertEqual(len(result[0]["book_titles"]), 3)
-        self.assertEqual(len(result[0]["classroom_names"]), 2)
+        self.assertEqual(
+            sorted(result[0]["book_titles"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
 
     def test_scalar_many_null_produces_empty_list(self):
         """Scalar-many with no related rows yields []."""
@@ -838,6 +1028,625 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(result[0]["book_titles"], [])
+
+    # Auto-defer behaviour tests
+
+    def test_auto_defer_multi_many_two_reverse_fk(self):
+        """Two many=True reverse-FK nested serializers auto-defer; parent+books+awards = 3 queries."""
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookSerializer(many=True),
+            awards=AwardSerializer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        alice, bob = result
+        self.assertEqual(
+            sorted(b["title"] for b in alice["books"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
+        self.assertEqual(
+            sorted(a["name"] for a in alice["awards"]), ["Best", "Honorable"]
+        )
+        self.assertEqual([a["name"] for a in bob["awards"]], ["Notable"])
+
+    def test_auto_defer_multi_many_hex_uuid_parent_pk(self):
+        """HexOnlyUUIDField parent: bucket on the raw (hyphenated) pk, not the
+        rendered 32-char hex, or every child comes back [].
+        parent + books + awards + classrooms = 4 queries."""
+        Ser = make_serializer(
+            id=HexOnlyUUIDField(),
+            books=BookSerializer(many=True),
+            awards=AwardSerializer(many=True),
+            classrooms=ClassroomSerializer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        with self.assertNumQueries(4):
+            result = viewset.serialize(viewset.get_queryset())
+        alice, bob = result
+        self.assertEqual(
+            sorted(b["title"] for b in alice["books"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
+        self.assertEqual(
+            sorted(a["name"] for a in alice["awards"]), ["Best", "Honorable"]
+        )
+        self.assertEqual(
+            sorted(c["name"] for c in alice["classrooms"]),
+            ["Room 101", "Room 102"],
+        )
+        self.assertEqual([b["title"] for b in bob["books"]], ["Bob Book 1"])
+        self.assertEqual([a["name"] for a in bob["awards"]], ["Notable"])
+        self.assertEqual(bob["classrooms"], [])
+
+    def test_auto_defer_multi_many_with_m2m(self):
+        """One reverse-FK + one M2M-through nested serializer auto-defer; parent+books+classrooms = 3 queries."""
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookSerializer(many=True),
+            classrooms=ClassroomSerializer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(len(result), 1)
+        alice = result[0]
+        self.assertEqual(
+            sorted(b["title"] for b in alice["books"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
+        self.assertEqual(
+            sorted(c["name"] for c in alice["classrooms"]),
+            ["Room 101", "Room 102"],
+        )
+
+    def test_auto_defer_multi_many_without_pk_in_output(self):
+        """Reverse-FK/M2M children bucket correctly when the serializer omits
+        the parent pk from its output."""
+        Ser = make_serializer(
+            name=serializers.CharField(),
+            books=BookSerializer(many=True),
+            awards=AwardSerializer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        alice, bob = result
+        # pk is not declared output: stripped, but bucketing still works.
+        self.assertEqual(set(alice), {"name", "books", "awards"})
+        self.assertEqual(
+            sorted(b["title"] for b in alice["books"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
+        self.assertEqual(
+            sorted(a["name"] for a in alice["awards"]), ["Best", "Honorable"]
+        )
+        self.assertEqual([a["name"] for a in bob["awards"]], ["Notable"])
+
+    def test_auto_defer_forward_fk_target_without_pk_in_output(self):
+        """A deferred forward-FK target serializer that omits its pk resolves."""
+        PublisherNoId = make_serializer(
+            model=Publisher,
+            name=serializers.CharField(),
+            country=CountrySerializer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=PublisherNoId(allow_null=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        pub = result[0]["publisher"]
+        self.assertEqual(set(pub), {"name", "country"})
+        self.assertEqual(pub["name"], "Main House")
+        self.assertEqual(pub["country"]["name"], "UK")
+
+    def test_auto_defer_forward_fk_leaf_target_without_pk(self):
+        """A pk-less leaf forward-FK target resolves when reached as a
+        forward-need target inside a deferred subtree."""
+        PublisherLeaf = make_serializer(model=Publisher, name=serializers.CharField())
+        BookWithPub = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            publisher=PublisherLeaf(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookWithPub(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        books = result[0]["books"]
+        pub_names = {b["publisher"]["name"] for b in books if b["publisher"]}
+        self.assertIn("Main House", pub_names)
+        self.assertTrue(
+            all(set(b["publisher"]) == {"name"} for b in books if b["publisher"])
+        )
+
+    def test_auto_defer_reverse_children_without_pk_in_output(self):
+        """Reverse-FK/M2M child serializers that omit their pk still bucket."""
+        TagNoId = make_serializer(model=Tag, name=serializers.CharField())
+        ReviewNoId = make_serializer(model=Review, rating=serializers.IntegerField())
+        Ser = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            tags=TagNoId(many=True),
+            reviews=ReviewNoId(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Book.objects.filter(pk=self.book_a1.pk),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        book = result[0]
+        self.assertEqual(
+            sorted(t["name"] for t in book["tags"]), ["classic", "fiction"]
+        )
+        self.assertEqual(sorted(r["rating"] for r in book["reviews"]), [4, 5])
+        self.assertTrue(all(set(t) == {"name"} for t in book["tags"]))
+
+    def test_auto_defer_many_without_pk_in_output(self):
+        """An auto-deferred many=True populates even when the parent omits its pk."""
+        Ser = make_serializer(
+            name=serializers.CharField(),
+            books=BookSerializer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        alice = result[0]
+        self.assertEqual(set(alice), {"name", "books"})
+        self.assertEqual(
+            sorted(b["title"] for b in alice["books"]),
+            ["Alice Book 1", "Alice Book 2", "Alice Book 3"],
+        )
+
+    def test_auto_defer_deep_nesting_many_outer(self):
+        """Deep nesting: books(many){tags(many)} both auto-defer; authors+books+tags = 3 queries."""
+        BookWithTagsSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            tags=TagSerializer(many=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookWithTagsSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        alice = result[0]
+        books_by_id = {b["id"]: b for b in alice["books"]}
+        self.assertEqual(
+            sorted(t["name"] for t in books_by_id[self.book_a1.pk]["tags"]),
+            ["classic", "fiction"],
+        )
+        self.assertEqual(books_by_id[self.book_a3.pk]["tags"], [])
+
+    def test_auto_defer_single_fk_deep_nesting(self):
+        """Forward-FK with nested forward-FK auto-defers; authors+publishers+countries = 3 queries."""
+        PublisherWithCountrySer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            country=CountrySerializer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=PublisherWithCountrySer(allow_null=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk, self.carol.pk]
+            ).order_by("name"),
+        )
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        alice_row = next(
+            r
+            for r in result
+            if r["publisher"] and r["publisher"]["name"] == "Main House"
+        )
+        self.assertEqual(alice_row["publisher"]["country"]["name"], "UK")
+        carol_row = next(r for r in result if r["publisher"] is None)
+        self.assertIsNone(carol_row["publisher"])
+
+    def test_auto_defer_does_not_bind_a_parameter_per_parent(self):
+        """A deferred fetch must not bind one parameter per parent, or an
+        unpaginated list blows SQLite's statement variable cap.
+
+        Asserted on parameter counts, not an ``OperationalError``: only a SQLite
+        older than 3.32 raises at 999.
+        """
+        authors = Author.objects.bulk_create(
+            Author(name="Bulk {:04d}".format(i), publisher=self.main_publisher)
+            for i in range(1200)
+        )
+        Book.objects.bulk_create(
+            Book(author=author, title="Bulk book {}".format(author.name))
+            for author in authors
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=make_nested(
+                model=Book,
+                many=True,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+            publisher=make_nested(
+                model=Publisher,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+            ),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(name__startswith="Bulk").order_by("name"),
+        )
+        bound = []
+
+        def record_params(execute, sql, params, many, context):
+            bound.append(len(params or ()))
+            return execute(sql, params, many, context)
+
+        with connection.execute_wrapper(record_params):
+            with self.assertNumQueries(3):
+                result = viewset.serialize(viewset.get_queryset())
+
+        self.assertLess(max(bound), 999)
+        self.assertEqual(len(result), 1200)
+        self.assertEqual(result[0]["books"][0]["title"], "Bulk book Bulk 0000")
+        self.assertEqual(result[-1]["publisher"]["name"], "Main House")
+
+    def test_auto_defer_shared_forward_target_merged(self):
+        """Shared Publisher FK on Author + Book deduplicates to one Publisher query + one Country query = 4 total."""
+        PublisherWithCountrySer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            country=CountrySerializer(allow_null=True),
+        )
+        BookWithPublisherSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            publisher=PublisherWithCountrySer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=PublisherWithCountrySer(allow_null=True),
+            books=BookWithPublisherSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        with self.assertNumQueries(4):
+            result = viewset.serialize(viewset.get_queryset())
+        alice = result[0]
+        self.assertEqual(alice["publisher"]["name"], "Main House")
+        book_a1 = next(b for b in alice["books"] if b["title"] == "Alice Book 1")
+        self.assertEqual(book_a1["publisher"]["country"]["name"], "UK")
+        bob = result[1]
+        self.assertEqual(bob["publisher"]["name"], "Main House")
+        book_a2 = next(b for b in alice["books"] if b["title"] == "Alice Book 2")
+        self.assertEqual(book_a2["publisher"]["name"], "Main House")
+
+    def test_auto_defer_same_model_different_shapes_one_fetch_no_leak(self):
+        """Two forward FKs to one model with different field selections. One
+        fetch (keyed by model), serialized per shape (keyed by child_path). Rich
+        (id, name, country) and lean (id) selections don't leak. Budget: 1
+        Publisher + 1 Country."""
+        RichPublisherSer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            country=CountrySerializer(allow_null=True),
+        )
+        LeanPublisherSer = make_serializer(
+            model=Publisher, id=serializers.IntegerField()
+        )
+        BookLeanPublisherSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            publisher=LeanPublisherSer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=RichPublisherSer(allow_null=True),
+            books=BookLeanPublisherSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            result = viewset.serialize(viewset.get_queryset())
+        # One fetch per model, despite the two distinct serializers.
+        self.assertEqual(
+            len(
+                [q for q in ctx.captured_queries if "core_tests_publisher" in q["sql"]]
+            ),
+            1,
+        )
+        self.assertEqual(
+            len([q for q in ctx.captured_queries if "core_tests_country" in q["sql"]]),
+            1,
+        )
+        alice = result[0]
+        # Author.publisher keeps the rich shape.
+        self.assertEqual(alice["publisher"]["name"], "Main House")
+        self.assertEqual(alice["publisher"]["country"]["name"], "UK")
+        # Book.publisher keeps the lean shape — no name/country leak.
+        book_with_pub = next(b for b in alice["books"] if b["publisher"])
+        self.assertEqual(set(book_with_pub["publisher"].keys()), {"id"})
+
+    def test_auto_defer_same_model_different_nested_not_mismerged(self):
+        """Two forward FKs to one model whose serializers differ only in nested
+        children must not merge. Author.publisher nests books; books' publisher
+        nests authors. They share flat columns (id, name), so a nesting-blind
+        merge key would serialize one under the other's shape."""
+        AuthorMiniSer = make_serializer(
+            model=Author, id=serializers.CharField(), name=serializers.CharField()
+        )
+        PublisherWithBooksSer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            books=BookSerializer(many=True),
+        )
+        PublisherWithAuthorsSer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            authors=AuthorMiniSer(many=True),
+        )
+        BookWithPublisherSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            publisher=PublisherWithAuthorsSer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=PublisherWithBooksSer(allow_null=True),
+            books=BookWithPublisherSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        alice = result[0]
+        # Author.publisher keeps its books-nesting shape.
+        self.assertIn("books", alice["publisher"])
+        self.assertNotIn("authors", alice["publisher"])
+        # Book.publisher keeps its authors-nesting shape — not mismerged to books.
+        book_with_pub = next(b for b in alice["books"] if b["publisher"])
+        self.assertIn("authors", book_with_pub["publisher"])
+        self.assertNotIn("books", book_with_pub["publisher"])
+
+    def test_auto_defer_scalar_subfetch_runs_once_per_path(self):
+        """Fetch/serialize split: the model fetch is shared, a nested level's own
+        sub-fetches are not. One Publisher serializer (with a ``book_titles``
+        scalar-many) sits at Author.publisher and books' publisher. Publisher is
+        fetched once (by model), but ``book_titles`` runs per child_path. Budget:
+        author + books + merged Publisher + 2 book_titles = 5."""
+        PublisherWithTitlesSer = make_serializer(
+            model=Publisher,
+            id=serializers.IntegerField(),
+            name=serializers.CharField(),
+            book_titles=serializers.CharField(source="books.title"),
+        )
+        BookWithPublisherSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            publisher=PublisherWithTitlesSer(allow_null=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=PublisherWithTitlesSer(allow_null=True),
+            books=BookWithPublisherSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(
+                pk__in=[self.alice.pk, self.bob.pk]
+            ).order_by("name"),
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(len(ctx.captured_queries), 5)
+        # Publisher fetched once (model-keyed)...
+        self.assertEqual(
+            len(
+                [q for q in ctx.captured_queries if "core_tests_publisher" in q["sql"]]
+            ),
+            1,
+        )
+        # ...but the book_titles scalar fetch (filtered on publisher_id) runs
+        # per path — twice, not deduped across shapes.
+        self.assertEqual(
+            len([q for q in ctx.captured_queries if 'publisher_id" IN' in q["sql"]]),
+            2,
+        )
+        alice = result[0]
+        self.assertEqual(alice["publisher"]["name"], "Main House")
+        self.assertCountEqual(
+            alice["publisher"]["book_titles"], ["Alice Book 1", "Alice Book 2"]
+        )
+
+    def test_auto_defer_explicit_deferred_left_to_dev(self):
+        """Dev-deferred field is untouched by auto-fetch; auto-deferred authored is fetched = 3 queries."""
+        BookWithTagsSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            tags=TagSerializer(many=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookSerializer(many=True),
+            authored=BookWithTagsSer(many=True, source="books"),
+        )
+
+        class DevDeferViewset(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.filter(pk__in=[self.alice.pk, self.bob.pk])
+            serializer_class = Ser
+            deferred_fields = ("books",)
+
+            def consolidate(self, items, queryset):
+                for item in items:
+                    item["books"] = ["dev-handled"]
+                return items
+
+        viewset = DevDeferViewset()
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        for row in result:
+            self.assertEqual(row["books"], ["dev-handled"])
+            self.assertIsInstance(row["authored"], list)
+
+    def test_auto_defer_emits_debug_log(self):
+        """Auto-defer engine emits DEBUG logs naming the deferred fields."""
+        # Logs fire at viewset construction; build inside the capture block.
+        with self.assertLogs(
+            "kolibri.core.utils.values_viewset.introspect", level="DEBUG"
+        ) as log:
+            Ser = make_serializer(
+                id=serializers.CharField(),
+                books=BookSerializer(many=True),
+                awards=AwardSerializer(many=True),
+            )
+            viewset = make_viewset(
+                serializer_class=Ser,
+                queryset=Author.objects.filter(pk=self.alice.pk),
+            )
+            viewset.serialize(viewset.get_queryset())
+        joined = "\n".join(log.output)
+        self.assertIn("books", joined)
+        self.assertIn("awards", joined)
+
+    def test_auto_defer_null_forward_target(self):
+        """No stray query for null forward FK: carol has no publisher, so only the parent query runs."""
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            publisher=make_nested(
+                model=Publisher,
+                allow_null=True,
+                id=serializers.IntegerField(),
+                name=serializers.CharField(),
+                country=make_nested(
+                    model=Country,
+                    allow_null=True,
+                    id=serializers.IntegerField(),
+                    name=serializers.CharField(),
+                ),
+            ),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.carol.pk),
+        )
+        with self.assertNumQueries(1):
+            result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(len(result), 1)
+        self.assertIsNone(result[0]["publisher"])
+
+    def test_auto_defer_honours_deep_explicit_defer(self):
+        """A forward FK explicitly deferred 3 levels deep is NOT auto-fetched.
+
+        Framework auto-fetches author_data + publisher, leaves country to the
+        dev = 3 queries. If the deep explicit path leaks, country is
+        auto-fetched (4 queries) and overwrites the dev's value.
+        """
+        Ser = make_serializer(
+            model=Profile,
+            id=serializers.IntegerField(),
+            author_data=make_nested(
+                model=Author,
+                source="author",
+                id=serializers.CharField(),
+                name=serializers.CharField(),
+                publisher=make_nested(
+                    model=Publisher,
+                    allow_null=True,
+                    id=serializers.IntegerField(),
+                    name=serializers.CharField(),
+                    country=make_nested(
+                        model=Country,
+                        allow_null=True,
+                        id=serializers.IntegerField(),
+                        name=serializers.CharField(),
+                    ),
+                ),
+            ),
+        )
+
+        class DeepDeferViewset(BaseValuesViewset, ListModelMixin):
+            queryset = Profile.objects.filter(
+                author__in=[self.alice.pk, self.bob.pk]
+            ).order_by("pk")
+            serializer_class = Ser
+            deferred_fields = ("author_data__publisher__country",)
+
+            def consolidate(self, items, queryset):
+                for item in items:
+                    publisher = item["author_data"]["publisher"]
+                    if publisher is not None:
+                        publisher["country"] = "dev-handled"
+                return items
+
+        viewset = DeepDeferViewset()
+        with self.assertNumQueries(3):
+            result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(len(result), 2)
+        for row in result:
+            self.assertEqual(row["author_data"]["publisher"]["name"], "Main House")
+            self.assertEqual(row["author_data"]["publisher"]["country"], "dev-handled")
 
     def test_method_field_excludes_unshared_source(self):
         """A source referenced only by ``ValuesMethodField`` is fetched into
@@ -884,6 +1693,30 @@ class TestDataSerialization(TestCase):
         )
         result = self._run(viewset)
         self.assertEqual(result[0]["name"], "Alice")
+        self.assertEqual(result[0]["label"], "label: Alice")
+
+    def test_method_field_source_shared_with_renamed_field(self):
+        """A source read by both a rename and a method field is not promoted to
+        a SQL alias: that would drop the column the method still reads."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            display_name = serializers.CharField(source="name")
+            label = ValuesMethodField(sources=("name",))
+
+            def get_label(self, obj):
+                return "label: {}".format(obj.name)
+
+            class Meta:
+                model = Author
+                fields = ("id", "display_name", "label")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        result = self._run(viewset)
+        self.assertEqual(result[0]["display_name"], "Alice")
         self.assertEqual(result[0]["label"], "label: Alice")
 
     def test_method_field_reads_dotted_source_from_fk(self):
@@ -955,6 +1788,67 @@ class TestDataSerialization(TestCase):
         self.assertEqual(len(result[self.alice.pk]), 3)
         self.assertEqual(len(result[self.bob.pk]), 1)
 
+    def test_serialize_queryset_group_by_unknown_field_raises(self):
+        """``group_by`` naming no output field raises, not a silent None bucket."""
+        viewset = make_viewset(
+            id=serializers.UUIDField(),
+            books=make_nested(
+                model=Book,
+                many=True,
+                id=serializers.IntegerField(),
+                title=serializers.CharField(),
+            ),
+            deferred_fields=("books",),
+        )
+        with self.assertRaises(KeyError):
+            viewset.serialize_queryset(Book.objects.all(), "books", group_by="author")
+
+    def test_auto_defer_two_level_reverse_recursion(self):
+        """Books auto-defer; inside that deferred subtree the two grandchild
+        many=True fields — reviews (reverse FK) + tags (M2M) — each auto-defer
+        into their own batched query instead of cartesian-joining. Budget is
+        authors + books + reviews + tags = 4, not the 2-query cartesian."""
+        BookWithReviewsAndTagsSer = make_serializer(
+            model=Book,
+            id=serializers.IntegerField(),
+            title=serializers.CharField(),
+            reviews=ReviewSerializer(many=True),
+            tags=TagSerializer(many=True),
+        )
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookWithReviewsAndTagsSer(many=True),
+        )
+        viewset = make_viewset(
+            serializer_class=Ser,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+        with self.assertNumQueries(4):
+            result = viewset.serialize(viewset.get_queryset())
+        alice = result[0]
+        books_by_id = {b["id"]: b for b in alice["books"]}
+        # book_a1: 2 reviews, 2 tags
+        self.assertEqual(
+            sorted(r["rating"] for r in books_by_id[self.book_a1.pk]["reviews"]),
+            [4, 5],
+        )
+        self.assertEqual(
+            sorted(t["name"] for t in books_by_id[self.book_a1.pk]["tags"]),
+            ["classic", "fiction"],
+        )
+        # book_a2: 1 review, 1 tag
+        self.assertEqual(
+            [r["rating"] for r in books_by_id[self.book_a2.pk]["reviews"]],
+            [3],
+        )
+        self.assertEqual(
+            [t["name"] for t in books_by_id[self.book_a2.pk]["tags"]],
+            ["fiction"],
+        )
+        # book_a3: no reviews, no tags
+        self.assertEqual(books_by_id[self.book_a3.pk]["reviews"], [])
+        self.assertEqual(books_by_id[self.book_a3.pk]["tags"], [])
+
     def test_serialize_queryset_consolidates_grand_nested_many(self):
         """``serialize_queryset`` for a path whose nested serializer itself
         has a ``many=True`` child must merge the JOIN-multiplied rows into
@@ -1000,10 +1894,9 @@ class TestDataSerialization(TestCase):
     def test_serialize_queryset_passes_context_to_nested_method_field(self):
         """A ``ValuesMethodField`` on a nested serializer must read
         per-request context via ``self.context`` when reached through
-        ``serialize_queryset``. The context flows in through the cached
-        parent's threading-local ``_context``: ``Field.context`` walks
-        ``self.root._context``, so the nested bound method sees the same
-        dict the scope manager populated for this request.
+        ``serialize_queryset``. The per-call ``_MethodContext`` carrier
+        threads down to the nested ``map_row``, so the method sees this
+        request's context dict.
         """
 
         class BookSer(serializers.ModelSerializer):
@@ -1032,6 +1925,34 @@ class TestDataSerialization(TestCase):
             Book.objects.filter(pk=self.book_a1.pk), "books"
         )
         self.assertEqual(result[0]["title_with_hint"], "Alice Book 1/yo")
+
+    def test_method_field_reads_per_request_context_without_leak(self):
+        """A top-level ``ValuesMethodField`` must not cache request context
+        between calls on the shared (class-attribute) engine."""
+
+        class S(serializers.ModelSerializer):
+            id = serializers.UUIDField()
+            tagged = ValuesMethodField(sources=("name",))
+
+            def get_tagged(self, obj):
+                return "{}/{}".format(obj.name, self.context["request"].tag)
+
+            class Meta:
+                model = Author
+                fields = ("id", "tagged")
+
+        viewset = make_viewset(
+            serializer_class=S,
+            queryset=Author.objects.filter(pk=self.alice.pk),
+        )
+
+        viewset.request = MagicMock(tag="req1")
+        first = viewset.serialize(viewset.get_queryset())
+        viewset.request = MagicMock(tag="req2")
+        second = viewset.serialize(viewset.get_queryset())
+
+        self.assertEqual(first[0]["tagged"], "Alice/req1")
+        self.assertEqual(second[0]["tagged"], "Alice/req2")
 
     def test_nested_path_deferred_with_consolidate(self):
         """Full pipeline: ``Publisher`` → ``authors`` (deferred at top),
@@ -1311,111 +2232,8 @@ class TestDevModeSafeguards(TestCase):
     """
 
     @override_settings(DEBUG=True)
-    def test_multiple_joined_many_nested_raises_error(self):
-        """Two many=True nested serializers without deferring raise (cartesian product)."""
-        Ser = make_serializer(
-            id=serializers.CharField(),
-            books=BookSerializer(many=True),
-            classrooms=ClassroomSerializer(many=True),
-        )
-        with self.assertRaises(TypeError) as ctx:
-            make_viewset(serializer_class=Ser)
-        self.assertIn("books", str(ctx.exception))
-        self.assertIn("classrooms", str(ctx.exception))
-
-    def test_multiple_joined_many_with_one_deferred_is_fine(self):
-        """Deferring one of two many-nested serializers avoids the cartesian error."""
-        Ser = make_serializer(
-            id=serializers.CharField(),
-            books=BookSerializer(many=True),
-            classrooms=ClassroomSerializer(many=True),
-        )
-        with override_settings(DEBUG=True):
-            viewset = make_viewset(
-                serializer_class=Ser, deferred_fields=("classrooms",)
-            )
-        result = _serialize(
-            viewset,
-            [{"id": "a1", "books__id": "b1", "books__title": "B1"}],
-        )
-        self.assertEqual(len(result[0]["books"]), 1)
-        self.assertNotIn("classrooms", result[0])
-
-    @override_settings(DEBUG=True)
-    def test_multiple_many_inside_deferred_raises_error(self):
-        """A deferred nested serializer whose own children include 2+
-        un-deferred many=True nested serializers must raise: otherwise
-        ``serialize_queryset`` for that path would silently emit cartesian
-        rows (auto-consolidate dedupes but the SQL is over-fetched).
-        """
-        GcA = make_serializer(id=serializers.CharField())
-        GcB = make_serializer(id=serializers.CharField())
-        InnerSer = make_serializer(
-            id=serializers.CharField(),
-            tags=GcA(many=True),
-            co_authors=GcB(many=True),
-        )
-        Ser = make_serializer(
-            id=serializers.CharField(),
-            books=InnerSer(many=True),
-        )
-        with self.assertRaises(TypeError) as ctx:
-            make_viewset(serializer_class=Ser, deferred_fields=("books",))
-        self.assertIn("tags", str(ctx.exception))
-        self.assertIn("co_authors", str(ctx.exception))
-
-    @parameterized.expand(
-        [
-            ("non_many_child_many_gc", False, True, "book"),
-            ("many_child_many_gc", True, True, "books_outer"),
-            ("non_many_child_non_many_gc", False, False, "book"),
-            ("many_child_non_many_gc", True, False, "books_outer"),
-        ]
-    )
-    @override_settings(DEBUG=True)
-    def test_deep_nesting_raises_error(
-        self, _name, child_many, grandchild_many, expected_field
-    ):
-        """All deep-nesting shapes (nested-in-nested) raise at viewset instantiation."""
-        GC = make_serializer(id=serializers.CharField())
-        gc_field = "grandchildren" if grandchild_many else "grandchild"
-        gc_kwargs = {"many": True} if grandchild_many else {}
-        ChildSer = make_serializer(
-            id=serializers.CharField(), **{gc_field: GC(**gc_kwargs)}
-        )
-        child_field = "books_outer" if child_many else "book"
-        child_kwargs = (
-            {"many": True, "source": "books"} if child_many else {"source": "books"}
-        )
-        ParentSer = make_serializer(
-            id=serializers.CharField(),
-            **{child_field: ChildSer(**child_kwargs)},
-        )
-        with self.assertRaises(TypeError) as ctx:
-            make_viewset(serializer_class=ParentSer)
-        self.assertIn(expected_field, str(ctx.exception))
-
-    def test_deep_nesting_with_deferred_avoids_error(self):
-        """Deferring the deeply-nested field lets derivation succeed."""
-        GC = make_serializer(id=serializers.CharField())
-        ChildSer = make_serializer(
-            id=serializers.CharField(), grandchildren=GC(many=True)
-        )
-        ParentSer = make_serializer(
-            id=serializers.CharField(),
-            books_outer=ChildSer(many=True, source="books"),
-        )
-        with override_settings(DEBUG=True):
-            viewset = make_viewset(
-                serializer_class=ParentSer,
-                deferred_fields=("books_outer",),
-            )
-        result = _serialize(viewset, [{"id": "a1"}])
-        self.assertNotIn("books_outer", result[0])
-
-    @override_settings(DEBUG=True)
     def test_validate_raises_on_drift_in_flat_output(self):
-        """consolidate() adding a field not on the serializer raises ValueError."""
+        """consolidate() adding a field not on the serializer raises."""
         Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
 
         class V(BaseValuesViewset, ListModelMixin):
@@ -1432,6 +2250,25 @@ class TestDevModeSafeguards(TestCase):
         )
 
     @override_settings(DEBUG=True)
+    def test_serialize_object_does_not_mask_drift_as_404(self):
+        """Drift in a retrieve path propagates, not swallowed into Http404 by
+        the lookup-error handler."""
+        author = Author.objects.create(name="A", email="a@example.com")
+        Ser = make_serializer(id=serializers.CharField(), name=serializers.CharField())
+
+        class V(BaseValuesViewset):
+            queryset = Author.objects.all()
+            serializer_class = Ser
+
+            def consolidate(self, items, queryset):
+                for item in items:
+                    item["unexpected"] = "oops"
+                return items
+
+        with self.assertRaises(OutputValidationError):
+            V().serialize_object(pk=author.pk)
+
+    @override_settings(DEBUG=True)
     def test_validate_raises_on_drift_in_nested_many_output(self):
         """consolidate() producing a nested many item missing a field raises."""
         Ser = make_serializer(
@@ -1441,18 +2278,14 @@ class TestDevModeSafeguards(TestCase):
         class V(BaseValuesViewset, ListModelMixin):
             queryset = Author.objects.none()
             serializer_class = Ser
+            deferred_fields = ("books",)
 
             def consolidate(self, items, queryset):
                 for item in items:
                     item["books"] = [{"id": "b1"}]  # missing 'title'
                 return items
 
-        _assert_serialize_raises(
-            self,
-            V(),
-            [{"id": "a1", "books__id": "b1", "books__title": "B1"}],
-            "title",
-        )
+        _assert_serialize_raises(self, V(), [{"id": "a1"}], "title")
 
     @override_settings(DEBUG=True)
     def test_validate_raises_on_drift_in_nested_single_output(self):
@@ -1477,10 +2310,7 @@ class TestDevModeSafeguards(TestCase):
                 return items
 
         _assert_serialize_raises(
-            self,
-            V(),
-            [{"id": "b1", "author__id": "a1", "author__name": "Alice"}],
-            "name",
+            self, V(), [{"id": "b1", "author": str(uuid.uuid4())}], "name"
         )
 
     @override_settings(DEBUG=True)
@@ -1500,6 +2330,27 @@ class TestDevModeSafeguards(TestCase):
         _assert_serialize_raises(self, V(), [{"id": "a1", "name": "Alice"}], "name")
 
     @override_settings(DEBUG=True)
+    def test_validate_catches_consolidate_omitting_read_only_deferred_field(self):
+        """A ``read_only`` nested field is ``required=False`` in DRF, but
+        ``consolidate()`` owns filling it — omitting it is drift, not an
+        optional key.
+        """
+        Ser = make_serializer(
+            id=serializers.CharField(),
+            books=BookSerializer(many=True, read_only=True),
+        )
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            serializer_class = Ser
+            deferred_fields = ("books",)
+
+            def consolidate(self, items, queryset):
+                return items  # never populates "books"
+
+        _assert_serialize_raises(self, V(), [{"id": "a1"}], "books")
+
+    @override_settings(DEBUG=True)
     def test_validate_ignores_write_only_fields(self):
         """write_only fields missing from output don't trigger validation errors."""
         viewset = make_viewset(
@@ -1508,6 +2359,31 @@ class TestDevModeSafeguards(TestCase):
         )
         result = _serialize(viewset, [{"id": "a1"}])
         self.assertEqual(result[0], {"id": "a1"})
+
+    @override_settings(DEBUG=True)
+    def test_validate_allows_absent_optional_nested_fields(self):
+        """A nested plain ``Serializer`` over a JSON column may declare
+        ``required=False`` fields. DRF omits them from output (SkipField) when
+        the stored data lacks them, so the validator must not flag them missing.
+        """
+
+        class SectionSerializer(serializers.Serializer):
+            learners_see_fixed_order = serializers.BooleanField(default=False)
+            section_title = serializers.CharField(required=False)
+            description = serializers.CharField(required=False)
+
+        a1 = Author.objects.create(
+            name="A1",
+            email="a1@example.com",
+            metadata=[{"learners_see_fixed_order": True}],
+        )
+        viewset = make_viewset(
+            queryset=Author.objects.filter(pk=a1.pk),
+            id=serializers.UUIDField(),
+            metadata=SectionSerializer(many=True),
+        )
+        result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(result[0]["metadata"], [{"learners_see_fixed_order": True}])
 
     @override_settings(DEBUG=True)
     def test_validate_does_not_crash_on_listfield_child(self):
@@ -1584,34 +2460,79 @@ class TestDevModeSafeguards(TestCase):
     @override_settings(DEBUG=True)
     def test_scalar_many_passes_validation(self):
         """Scalar-many fields should not trip DEBUG validation (flat list, not dict)."""
+        a1 = Author.objects.create(name="A1", email="a1@example.com")
+        Book.objects.create(author=a1, title="B1")
+        Author.objects.create(name="A2", email="a2@example.com")
         viewset = make_viewset(
-            id=serializers.CharField(),
+            queryset=Author.objects.order_by("name"),
+            id=serializers.UUIDField(),
             book_titles=serializers.CharField(source="books.title"),
         )
-        result = _serialize(
-            viewset,
-            [
-                {"id": "a1", "books__title": "B1"},
-                {"id": "a2", "books__title": None},
-            ],
+        result = viewset.serialize(viewset.get_queryset())
+        self.assertEqual(result[0]["book_titles"], ["B1"])
+        self.assertEqual(result[1]["book_titles"], [])
+
+    @override_settings(DEBUG=True)
+    def test_shared_forward_target_rejects_in_place_mutation(self):
+        """Parents share one dict per forward target, so mutating it is refused."""
+        publisher = Publisher.objects.create(name="Shared")
+        for i in range(2):
+            Author.objects.create(
+                name="A{}".format(i), email="a{}@e.com".format(i), publisher=publisher
+            )
+        viewset = make_viewset(
+            queryset=Author.objects.order_by("name"),
+            id=serializers.UUIDField(),
+            publisher=PublisherSerializer(),
         )
-        self.assertEqual(len(result), 2)
 
-    def test_missing_nested_pk_raises_descriptive_error(self):
-        """Missing nested-pk key in a row raises with field + key identification."""
-        viewset = author_books_viewset()
-        viewset.__class__._joined_many = (("books", "nonexistent_pk"),)
+        items = viewset.serialize(viewset.get_queryset())
 
-        flat_items = [
-            {"id": "a1", "books__id": "b1", "books__title": "B1"},
-            {"id": "a1", "books__id": "b2", "books__title": "B2"},
-        ]
-        with self.assertRaises(KeyError) as ctx:
-            viewset.serialize(create_mock_queryset(flat_items))
-        msg = str(ctx.exception)
-        self.assertIn("books", msg)
-        self.assertIn("nonexistent_pk", msg)
-        self.assertIn("_auto_consolidate", msg)
+        self.assertIs(items[0]["publisher"], items[1]["publisher"])
+        with self.assertRaises(TypeError):
+            items[0]["publisher"]["name"] = "Mutated"
+        # Replacing the field, rather than mutating it, stays allowed.
+        items[0]["publisher"] = dict(items[0]["publisher"], name="Mutated")
+        self.assertEqual(items[1]["publisher"]["name"], "Shared")
+
+    @override_settings(DEBUG=False)
+    def test_fetched_children_are_plain_dicts_when_debug_false(self):
+        """The guard is a dev aid — production pays nothing for it."""
+        publisher = Publisher.objects.create(name="Shared")
+        Author.objects.create(name="A", email="a@e.com", publisher=publisher)
+        viewset = make_viewset(
+            queryset=Author.objects.all(),
+            id=serializers.UUIDField(),
+            publisher=PublisherSerializer(),
+        )
+
+        items = viewset.serialize(viewset.get_queryset())
+
+        items[0]["publisher"]["name"] = "Mutated"
+        self.assertEqual(items[0]["publisher"]["name"], "Mutated")
+
+    @override_settings(DEBUG=True)
+    def test_deferred_fields_are_not_frozen(self):
+        """consolidate() owns what it builds, so those nested dicts stay mutable."""
+        Author.objects.create(name="A", email="a@e.com")
+        Ser = make_serializer(
+            id=serializers.CharField(), books=BookSerializer(many=True)
+        )
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.all()
+            serializer_class = Ser
+            deferred_fields = ("books",)
+
+            def consolidate(self, items, queryset):
+                for item in items:
+                    item["books"] = [{"id": "b1", "title": "B1"}]
+                return items
+
+        items = V().serialize(V.queryset)
+
+        items[0]["books"][0]["title"] = "Renamed"
+        self.assertEqual(items[0]["books"][0]["title"], "Renamed")
 
     def test_missing_source_key_raises_key_error(self):
         """A field_map entry pointing at a source absent from the row fails fast.
@@ -1631,54 +2552,17 @@ class TestDevModeSafeguards(TestCase):
 
 
 class TestAuxiliaryAPIs(TestCase):
-    """Surfaces beyond ``serialize()``: nested serializer lookup,
-    separate-queryset serialization (``serialize_queryset``), deferred-field
-    filtering, and lazy queryset resolution when no class-level ``queryset``
-    is defined.
+    """Surfaces beyond ``serialize()``: separate-queryset serialization
+    (``serialize_queryset``), deferred-field filtering, and lazy queryset
+    resolution when no class-level ``queryset`` is defined.
     """
-
-    def test_get_nested_serializer_direct_path(self):
-        """Direct nested path returns the corresponding child serializer."""
-        viewset = author_books_viewset()
-        nested = viewset.get_nested_serializer("books")
-        self.assertIn("id", nested.fields)
-        self.assertIn("title", nested.fields)
-
-    def test_get_nested_serializer_doubly_nested_path(self):
-        """Dotted path (e.g., 'books__tags') resolves through deferred nested serializers."""
-        TagSer = make_serializer(
-            model=Tag,
-            id=serializers.CharField(),
-            name=serializers.CharField(),
-        )
-        BookSer = make_serializer(
-            model=Book,
-            id=serializers.CharField(),
-            tags=TagSer(many=True),
-        )
-        viewset = make_viewset(
-            serializer_class=make_serializer(
-                id=serializers.CharField(), books=BookSer(many=True)
-            ),
-            deferred_fields=("books",),
-        )
-        nested = viewset.get_nested_serializer("books__tags")
-        self.assertEqual(set(nested.fields), {"id", "name"})
-
-    def test_get_nested_serializer_invalid_path_raises(self):
-        """A path that doesn't resolve raises KeyError."""
-        viewset = make_viewset(id=serializers.CharField())
-        with self.assertRaises(KeyError):
-            viewset.get_nested_serializer("nonexistent")
 
     def test_serialize_queryset_returns_list_of_items(self):
         """serialize_queryset without group_by returns a flat list."""
         viewset = author_books_viewset(deferred=True)
-        qs = MagicMock()
-        qs.values.return_value = [
-            {"id": "b1", "title": "B1"},
-            {"id": "b2", "title": "B2"},
-        ]
+        qs = create_mock_queryset(
+            [{"id": "b1", "title": "B1"}, {"id": "b2", "title": "B2"}], model=Book
+        )
         result = viewset.serialize_queryset(qs, "books")
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]["title"], "B1")
@@ -1695,27 +2579,32 @@ class TestAuxiliaryAPIs(TestCase):
         self.assertNotIn("books__title", values_args)
         self.assertNotIn("books", result[0])
 
-    def test_auto_consolidate_works_without_class_level_queryset(self):
-        """Viewsets using get_queryset() (no class queryset) still resolve PK lazily."""
+    def test_scalar_fetch_resolves_pk_without_class_level_queryset(self):
+        """A scalar cross-many fetch resolves the parent PK lazily via
+        get_queryset() when no class-level queryset is defined."""
+        author = Author.objects.create(name="A", email="a@example.com")
+        Book.objects.create(author=author, title="B1")
+        Book.objects.create(author=author, title="B2")
         Ser = make_serializer(
             id=serializers.CharField(),
-            books=make_nested(
-                model=Book,
-                many=True,
-                id=serializers.CharField(),
-                title=serializers.CharField(),
-            ),
+            book_titles=serializers.CharField(source="books.title"),
         )
 
         class V(BaseValuesViewset, ListModelMixin):
             serializer_class = Ser
 
             def get_queryset(self):
-                return Author.objects.none()
+                return Author.objects.all()
 
-        flat_items = [
-            {"id": "a1", "books__id": "b1", "books__title": "B1"},
-            {"id": "a1", "books__id": "b2", "books__title": "B2"},
-        ]
-        result = _serialize(V(), flat_items)
-        self.assertEqual(len(result[0]["books"]), 2)
+        result = V().serialize(V().get_queryset())
+        self.assertEqual(sorted(result[0]["book_titles"]), ["B1", "B2"])
+
+    def test_serialize_queryset_raises_on_explicit_values_viewset(self):
+        """serialize_queryset on an explicit-values engine raises ValueError."""
+
+        class V(BaseValuesViewset, ListModelMixin):
+            queryset = Author.objects.none()
+            values = ("id", "name")
+
+        with self.assertRaises(ValueError):
+            V().serialize_queryset(Author.objects.none(), "somepath")

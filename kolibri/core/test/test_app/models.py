@@ -44,21 +44,32 @@ class DateTimeTzModel(models.Model):
     default_timestamp = DateTimeTzField(default=aware_datetime)
 
 
-# Synthetic relation zoo for test_api.py.
-#
-# Author is the primary outer model (UUID pk + scalar fields covering the
-# types exercised by type-inference tests). The surrounding models provide
-# every relation shape the introspection code distinguishes:
-#
-# - Publisher:   FK target (nullable, for flat FK-traversal + null FK tests)
-# - Profile:     OneToOne to Author (single-nested + reverse 1:1)
-# - Book:        reverse FK many (via Author.books) + direct M2M (Book.tags)
-# - Tag:         M2M target (reverse M2M via Tag.books)
-# - Enrollment:  through-model for Author↔Classroom M2M (Author.classrooms)
+# Synthetic relation zoo for test_api.py. Author is the primary outer model
+# (UUID pk + scalar fields for type-inference tests); surrounding models cover
+# every relation shape introspection distinguishes:
+# - Country:    FK target for Publisher (nullable, deep FK-traversal tests)
+# - Publisher:  FK target (nullable, flat FK-traversal + null FK tests)
+# - Profile:    OneToOne to Author (single-nested + reverse 1:1)
+# - Book:       reverse FK many via Author.books
+# - Tag:        M2M target; Book.tags is the forward M2M
+# - Enrollment: through-model for Author↔Classroom M2M (Author.classrooms)
+# - Award:      second reverse-FK many on Author (Author.awards)
+# - Review:     grandchild reverse-FK many on Book (Book.reviews)
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=128, default="")
 
 
 class Publisher(models.Model):
     name = models.CharField(max_length=128, default="")
+    country = models.ForeignKey(
+        Country,
+        related_name="publishers",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
 
 class Author(models.Model):
@@ -105,6 +116,13 @@ class Book(models.Model):
     title = models.CharField(max_length=128, default="")
     description = models.CharField(max_length=255, null=True, blank=True)
     tags = models.ManyToManyField(Tag, related_name="books")
+    publisher = models.ForeignKey(
+        Publisher,
+        related_name="books",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
 
 class Enrollment(models.Model):
@@ -113,4 +131,75 @@ class Enrollment(models.Model):
     )
     classroom = models.ForeignKey(
         Classroom, related_name="author_enrollments", on_delete=models.CASCADE
+    )
+
+
+class Award(models.Model):
+    author = models.ForeignKey(Author, related_name="awards", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128, default="")
+
+
+class Review(models.Model):
+    book = models.ForeignKey(Book, related_name="reviews", on_delete=models.CASCADE)
+    rating = models.IntegerField(default=0)
+
+
+# Manager-semantics fixture: Hideable's default manager filters out hidden rows
+# (soft-delete style), reachable from HideableOwner four ways, so auto-fetch's
+# base-vs-default manager choice can be pinned per relation direction:
+# - featured:      forward FK   -> base manager (a referenced row is never hidden)
+# - solo_hideable: reverse O2O  -> base manager
+# - hideables:     reverse FK   -> default manager (hidden rows excluded)
+# - tagged:        M2M          -> default manager
+
+
+class VisibleHideableManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(hidden=False)
+
+
+class HideableOwner(models.Model):
+    name = models.CharField(max_length=128, default="")
+    featured = models.ForeignKey(
+        "Hideable",
+        related_name="featured_for",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    tagged = models.ManyToManyField("Hideable", related_name="tagged_by")
+
+
+class Hideable(models.Model):
+    name = models.CharField(max_length=128, default="")
+    hidden = models.BooleanField(default=False)
+    owner = models.ForeignKey(
+        HideableOwner,
+        related_name="hideables",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    solo_owner = models.OneToOneField(
+        HideableOwner,
+        related_name="solo_hideable",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    objects = VisibleHideableManager()
+
+
+class HideableAccount(models.Model):
+    # to-one FK onto HideableOwner, so a scalar source can cross a to-one then a
+    # to-many onto Hideable (``owner.hideables.name``) — exercising the reversed
+    # relation-path fetch and the to-many's default-manager filtering.
+    name = models.CharField(max_length=128, default="")
+    owner = models.ForeignKey(
+        HideableOwner,
+        related_name="accounts",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
     )

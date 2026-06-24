@@ -133,7 +133,7 @@ def _MPTT_descendant_ids_queryset(channel_id, node_ids, min_boundary, max_bounda
     if non_topic_node_ids:
         # The raw lookup rather than filter_by_uuids, because this has to OR with the
         # MPTT constraints below, and the mixin returns a queryset, not a Q.
-        or_queries.append(Q(id__uuidin=non_topic_node_ids))
+        or_queries.append(Q(id__inline_in=non_topic_node_ids))
 
     # Now get the relevant MPTT values from the database for the specified node_ids
     # for topic nodes in the specified lft/rght range.
