@@ -62,7 +62,7 @@ class ProfileImageTestCase(APITestCase):
         self.learner.refresh_from_db()
         self.assertEqual(self.learner.profile_image, SAMPLE_DATA_URL)
 
-    def test_profile_image_returned_in_list_response(self):
+    def test_profile_image_not_in_list_response(self):
         self.learner.profile_image = SAMPLE_DATA_URL
         self.learner.save()
 
@@ -70,7 +70,20 @@ class ProfileImageTestCase(APITestCase):
         response = self.client.get(url, format="json")
         found = [u for u in response.data if u["id"] == self.learner.id]
         self.assertEqual(len(found), 1)
-        self.assertEqual(found[0]["profile_image"], SAMPLE_DATA_URL)
+        # profile_image is deliberately excluded from the bulk list response
+        # to avoid transferring large base64 payloads for every user on every
+        # roster load; it is only returned for single-object (detail) requests.
+        self.assertNotIn("profile_image", found[0])
+
+    def test_profile_image_returned_in_detail_response(self):
+        self.learner.profile_image = SAMPLE_DATA_URL
+        self.learner.save()
+
+        url = reverse(
+            "kolibri:core:facilityuser-detail", kwargs={"pk": self.learner.id}
+        )
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.data["profile_image"], SAMPLE_DATA_URL)
 
     def test_profile_image_defaults_to_none(self):
         url = reverse(

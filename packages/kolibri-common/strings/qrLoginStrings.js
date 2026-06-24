@@ -18,9 +18,13 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Starting camera…',
     context: 'Status message shown while the camera is being initialized.',
   },
-  cameraPermissionDenied: {
+  secureContextRequired: {
     message:
-      'Camera access was blocked. Ask a teacher to enable it, or upload a photo of your QR code.',
+      'QR sign-in requires a secure (HTTPS) connection. Please ask a teacher or administrator for help, or sign in with your username.',
+    context: 'Shown on non-secure (HTTP) deployments where the browser blocks camera access.',
+  },
+  cameraPermissionDenied: {
+    message: 'Camera access was blocked. Ask a teacher or administrator to enable it.',
     context: 'Shown when the learner or browser denied camera permission.',
   },
   cameraNotFound: {
@@ -28,32 +32,8 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     context: 'Shown when the device has no camera available.',
   },
   cameraUnavailable: {
-    message: 'The camera could not be started. Try uploading a photo of your QR code instead.',
+    message: 'The camera could not be started. Please ask a teacher or administrator for help.',
     context: 'Generic fallback when getUserMedia fails for an unknown reason.',
-  },
-  cameraNotWorking: {
-    message: 'Camera not working?',
-    context: 'Small prompt above the upload-photo button on the QR sign-in page.',
-  },
-  uploadQrPhoto: {
-    message: 'Upload a photo of the QR code',
-    context: 'Button label for the file-upload fallback path.',
-  },
-  retakePhoto: {
-    message: 'Choose another photo',
-    context: 'Button label to discard the chosen photo and pick another.',
-  },
-  decodeFailed: {
-    message: 'No QR code was found in that image. Try again.',
-    context: 'Shown when the uploaded image did not contain a decodable QR code.',
-  },
-  scanFailed: {
-    message: 'Could not read the QR code. Try holding the card closer or in better light.',
-    context: 'Generic error shown when scanning fails for a transient reason.',
-  },
-  scanning: {
-    message: 'Scanning…',
-    context: 'Status shown while the camera is actively looking for a QR code.',
   },
   // Confirmation modal
   isThisYou: {

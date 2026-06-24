@@ -1428,7 +1428,6 @@ class UserRetrieveTestCase(APITestCase):
             "extra_demographics": None,
             "picture_password": user.picture_password,
             "qr_login_token": user.qr_login_token,
-            "profile_image": user.profile_image,
         }
         roles = []
         user_roles = user.roles.all()

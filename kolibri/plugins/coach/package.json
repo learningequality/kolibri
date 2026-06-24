@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@vueuse/core": "catalog:",
+    "@zxing/browser": "0.1.5",
     "csv-generator-client": "^2.1.1",
     "kolibri": "workspace:*",
     "kolibri-app": "workspace:*",

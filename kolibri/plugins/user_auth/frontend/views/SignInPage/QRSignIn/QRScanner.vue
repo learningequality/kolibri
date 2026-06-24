@@ -39,7 +39,15 @@
 
     <!-- Error states -->
     <UiAlert
-      v-if="status === 'permission-denied'"
+      v-if="!canUseCamera"
+      class="status-alert"
+      type="error"
+      :dismissible="false"
+    >
+      {{ secureContextRequired$() }}
+    </UiAlert>
+    <UiAlert
+      v-else-if="status === 'permission-denied'"
       class="status-alert"
       type="error"
       :dismissible="false"
@@ -110,6 +118,7 @@
       const {
         cameraStarting$,
         pointCameraAtCode$,
+        secureContextRequired$,
         cameraPermissionDenied$,
         cameraNotFound$,
         cameraUnavailable$,
@@ -268,6 +277,7 @@
         status,
         canUseCamera,
         statusMessage$,
+        secureContextRequired$,
         cameraPermissionDenied$,
         cameraNotFound$,
         cameraUnavailable$,

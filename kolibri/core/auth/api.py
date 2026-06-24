@@ -25,9 +25,9 @@ from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
 from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -710,8 +710,14 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         "date_joined",
         "picture_password",
         "qr_login_token",
-        "profile_image",
     )
+
+    # Fields that are too large or sensitive for the unpaginated bulk list
+    # response, but are included when a single object is serialized (retrieve,
+    # create, update). ``profile_image`` can be up to ~150 KB of base64 per
+    # user, so returning it for every member of a large facility would bloat
+    # the roster response by tens of megabytes on every page load.
+    detail_only_values = ("profile_image",)
 
     ordering_fields = (
         "id",
@@ -726,6 +732,14 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
     field_map = {
         "is_superuser": lambda x: bool(x.pop("devicepermissions__is_superuser"))
     }
+
+    def serialize_object(self, **filter_kwargs):
+        original_values = self._values
+        self._values = original_values + self.detail_only_values
+        try:
+            return super().serialize_object(**filter_kwargs)
+        finally:
+            self._values = original_values
 
     def destroy(self, request, *args, **kwargs):
         if kwargs.get("pk"):

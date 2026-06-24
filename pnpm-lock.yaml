@@ -217,6 +217,9 @@ importers:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 11.3.0(vue@2.7.16)
+      '@zxing/browser':
+        specifier: 0.1.5
+        version: 0.1.5(@zxing/library@0.21.3)
       csv-generator-client:
         specifier: ^2.1.1
         version: 2.1.1

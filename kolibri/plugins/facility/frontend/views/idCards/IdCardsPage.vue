@@ -158,7 +158,7 @@
   import KButton from 'kolibri-design-system/lib/buttons-and-links/KButton';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
   import KTextbox from 'kolibri-design-system/lib/KTextbox';
-  import KCheckbox from 'kolibri-design-system/lib/KCheckbox';
+
   import KGrid from 'kolibri-design-system/lib/grids/KGrid';
   import KGridItem from 'kolibri-design-system/lib/grids/KGridItem';
   import KPageContainer from 'kolibri-design-system/lib/KPageContainer';
@@ -211,7 +211,6 @@
       KButton,
       KCircularLoader,
       KTextbox,
-      KCheckbox,
       KGrid,
       KGridItem,
       KPageContainer,
@@ -336,7 +335,7 @@
 
       function onCardRefresh(updatedLearner) {
         const idx = learners.value.findIndex(l => l.id === updatedLearner.id);
-        if (idx !== -1) learners.value[idx] = updatedLearner;
+        if (idx !== -1) learners.value.splice(idx, 1, updatedLearner);
       }
 
       function onCardError(message) {
@@ -418,6 +417,7 @@
 
       return {
         facilityName,
+        // eslint-disable-next-line vue/no-unused-properties
         learners,
         filteredLearners,
         loading,
@@ -452,6 +452,7 @@
         searchLearners$,
         uploadLogo$,
         replaceLogo$,
+        // eslint-disable-next-line vue/no-unused-properties
         logoUploaded$,
         generateQrCodes$,
         generatingQrCodes$,

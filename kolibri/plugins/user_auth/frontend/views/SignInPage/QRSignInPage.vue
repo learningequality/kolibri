@@ -94,17 +94,9 @@
       const route = useRoute();
       const { login } = useUser();
       const { createSnackbar } = useSnackbar();
-      const {
-        scanQRCodeTitle$,
-        scanQRCodeDescription$,
-        wrongQRCode$,
-      } = qrLoginStrings;
+      const { scanQRCodeTitle$, scanQRCodeDescription$, wrongQRCode$ } = qrLoginStrings;
       const { nextParam, defaultRoute, getFacilitySelectionRoute } = useAuthRouter(route);
-      const {
-        hasMultipleFacilities,
-        facilityId,
-        signInOptions,
-      } = useAuthFlow();
+      const { hasMultipleFacilities, facilityId, signInOptions } = useAuthFlow();
       const { watchForFacilityChange, watchForFacilityConfigChange } = useAuthWatcher();
       const { setSelectedFacilityId } = useFacilitySelect();
 
@@ -209,6 +201,9 @@
             confirmedLearnerName.value = '';
             await authBaseRef.value.shake();
             wrongQRCode.value = true;
+            if (scannerRef.value && scannerRef.value.start) {
+              scannerRef.value.start();
+            }
           } else {
             showConfirmModal.value = false;
             redirectBrowser(nextParam.value || undefined);
@@ -218,6 +213,9 @@
             text: coreString('defaultErrorMessage'),
             autoDismiss: true,
           });
+          if (scannerRef.value && scannerRef.value.start) {
+            scannerRef.value.start();
+          }
         } finally {
           busy.value = false;
         }

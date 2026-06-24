@@ -102,16 +102,12 @@ describe('QRSignInPage', () => {
   it('renders the page heading and description', () => {
     renderComponent();
     expect(screen.getByText(qrLoginStrings.scanQRCodeTitle$())).toBeInTheDocument();
-    expect(
-      screen.getByText(qrLoginStrings.scanQRCodeDescription$()),
-    ).toBeInTheDocument();
+    expect(screen.getByText(qrLoginStrings.scanQRCodeDescription$())).toBeInTheDocument();
   });
 
-  it('renders the file-upload fallback button', () => {
+  it('renders the secure-context message when camera is not available', () => {
     renderComponent();
-    expect(
-      screen.getByRole('button', { name: 'Upload a photo of the QR code' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(qrLoginStrings.secureContextRequired$())).toBeInTheDocument();
   });
 
   it('does not render the confirm modal on initial render', () => {
