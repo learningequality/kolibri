@@ -43,6 +43,9 @@ logger = logging.getLogger(__name__)
 CACHE_SHARDS = 8
 
 # file descriptors per thread
+# Note: this is computed at module import, before the plugin registry has
+# been initialized, so any databases registered by plugins via
+# AdditionalSQLiteDatabaseHook are not counted here.
 FD_PER_THREAD = sum(
     (
         5,  # minimum allowance

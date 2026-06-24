@@ -1,0 +1,12 @@
+{
+  "name": "kolibri-error-reports-plugin",
+  "description": "Error Reports Plugin for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "@vueuse/core": "catalog:",
+    "kolibri": "workspace:*",
+    "kolibri-logging": "workspace:*",
+    "vue": "catalog:"
+  }
+}
