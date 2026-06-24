@@ -27,6 +27,7 @@ from django.http import Http404
 from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -92,6 +93,7 @@ from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.utils.delete import delete_imported_user
 from kolibri.core.auth.utils.picture_passwords import are_picture_passwords_exhausted
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.auth.utils.qr_tokens import assign_qr_login_token
 from kolibri.core.auth.utils.qr_tokens import reassign_qr_login_token
 from kolibri.core.auth.utils.users import get_remote_users_info
 from kolibri.core.device.permissions import IsSuperuser
@@ -758,8 +760,6 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
         previously-printed card. Only facility admins can call this;
         learners cannot rotate their own tokens.
         """
-        from django.shortcuts import get_object_or_404
-
         user = get_object_or_404(FacilityUser, pk=pk)
         if not (
             request.user.is_superuser
@@ -768,6 +768,65 @@ class FacilityUserViewSet(FacilityUserConsolidateMixin, ValuesViewset, BulkDelet
             raise PermissionDenied("Only facility admins can rotate QR tokens.")
         reassign_qr_login_token(user)
         return Response({"qr_login_token": user.qr_login_token})
+
+    @decorators.action(detail=True, methods=["post"])
+    def assign_qr_token(self, request, pk):
+        """
+        Assigns a QR login token to the user if they are eligible and don't
+        already have one. Idempotent: a no-op (returning the existing token)
+        if the user already has one. Only facility admins can call this.
+        """
+        user = get_object_or_404(FacilityUser, pk=pk)
+        if not (
+            request.user.is_superuser
+            or request.user.has_role_for_collection(role_kinds.ADMIN, user.facility)
+        ):
+            raise PermissionDenied("Only facility admins can assign QR tokens.")
+        assign_qr_login_token(user)
+        return Response({"qr_login_token": user.qr_login_token})
+
+    @decorators.action(
+        detail=False, methods=["post"], permission_classes=[IsAuthenticated]
+    )
+    def assign_qr_tokens(self, request):
+        """
+        Bulk-assign QR login tokens to the given learners, only for those that
+        do not already have one. Enqueues a background task and returns its job
+        info so the client can display progress. Only facility admins can call
+        this. Expects a non-empty ``user_ids`` list in the request body; the
+        facility is resolved from the users themselves.
+        """
+        user_ids = request.data.get("user_ids")
+        if not isinstance(user_ids, list) or not user_ids:
+            raise RestValidationError("A non-empty 'user_ids' list is required.")
+
+        first_user = get_object_or_404(FacilityUser, pk=user_ids[0])
+        facility = first_user.facility
+        if not (
+            request.user.is_superuser
+            or request.user.has_role_for_collection(role_kinds.ADMIN, facility)
+        ):
+            raise PermissionDenied("Only facility admins can assign QR tokens.")
+
+        job, _ = assign_qr_login_tokens_to_facility.validate_job_data(
+            request.user,
+            data={"facility_id": facility.id, "user_ids": user_ids},
+        )
+        job_id = assign_qr_login_tokens_to_facility.enqueue(job=job)
+        enqueued_job = job_storage.get_job(job_id)
+        return Response(
+            {
+                "task": {
+                    "id": enqueued_job.job_id,
+                    "status": enqueued_job.state,
+                    "percentage": enqueued_job.percentage_progress,
+                    "cancellable": enqueued_job.cancellable,
+                    "facility_id": enqueued_job.facility_id,
+                    "extra_metadata": enqueued_job.extra_metadata,
+                }
+            },
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class DeletedFacilityUserViewSet(

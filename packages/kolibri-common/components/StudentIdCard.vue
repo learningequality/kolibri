@@ -28,7 +28,7 @@
             :src="learner.profile_image"
             :alt="learner.full_name"
             class="learner-photo"
-          />
+          >
         </div>
         <div
           v-else
@@ -54,7 +54,7 @@
           capture="user"
           class="hidden-input"
           @change="onFileSelected"
-        />
+        >
       </div>
 
       <!-- Name + QR section -->
@@ -100,11 +100,21 @@
             <KIcon icon="refresh" />
           </template>
         </KButton>
+        <KButton
+          v-else
+          appearance="basic-link"
+          :text="generateQrCode$()"
+          @click="handleAssign"
+        >
+          <template #icon>
+            <KIcon icon="add" />
+          </template>
+        </KButton>
       </div>
 
       <!-- Loading overlay -->
       <div
-        v-if="uploading || regenerating"
+        v-if="uploading || regenerating || assigning"
         class="loading-overlay"
       >
         <KCircularLoader :delay="false" />
@@ -173,12 +183,14 @@
         replacePhoto$,
         uploadFailed$,
         regenerateQR$,
+        generateQrCode$,
         noQrCodeAssigned$,
       } = qrLoginStrings;
 
       const fileInputRef = ref(null);
       const uploading = ref(false);
       const regenerating = ref(false);
+      const assigning = ref(false);
       const showRegenerateModal = ref(false);
 
       function triggerFileInput() {
@@ -208,9 +220,7 @@
         showRegenerateModal.value = false;
         regenerating.value = true;
         try {
-          const { data } = await FacilityUserResource.rotateQrToken(
-            props.learner.id,
-          );
+          const { data } = await FacilityUserResource.rotateQrToken(props.learner.id);
           emit('refresh', { ...props.learner, qr_login_token: data.qr_login_token });
         } catch (err) {
           emit('error', uploadFailed$());
@@ -219,18 +229,33 @@
         }
       }
 
+      async function handleAssign() {
+        assigning.value = true;
+        try {
+          const { data } = await FacilityUserResource.assignQrToken(props.learner.id);
+          emit('refresh', { ...props.learner, qr_login_token: data.qr_login_token });
+        } catch (err) {
+          emit('error', uploadFailed$());
+        } finally {
+          assigning.value = false;
+        }
+      }
+
       return {
         fileInputRef,
         uploading,
         regenerating,
+        assigning,
         showRegenerateModal,
         triggerFileInput,
         onFileSelected,
         handleRegenerate,
+        handleAssign,
         uploadPhoto$,
         replacePhoto$,
         uploadFailed$,
         regenerateQR$,
+        generateQrCode$,
         noQrCodeAssigned$,
       };
     },
@@ -285,17 +310,17 @@
   .photo-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 4px;
+    align-items: center;
   }
 
   .photo-wrapper,
   .photo-placeholder {
+    flex-shrink: 0;
     width: 100px;
     height: 100px;
-    border-radius: 8px;
     overflow: hidden;
-    flex-shrink: 0;
+    border-radius: 8px;
   }
 
   .photo-placeholder {

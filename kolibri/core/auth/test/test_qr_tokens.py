@@ -106,6 +106,28 @@ class ReassignQRLoginTokenTestCase(TestCase):
         coach.refresh_from_db()
         self.assertIsNone(coach.qr_login_token)
 
+    def test_reassign_token_does_not_collide_with_other_users(self):
+        # Populate several other users with distinct tokens.
+        for i in range(5):
+            other = FacilityUser.objects.create(
+                username="other%d" % i, facility=self.facility
+            )
+            other.qr_login_token = generate_qr_login_token()
+            other.save(update_fields=["qr_login_token"])
+        assign_qr_login_token(self.learner)
+        existing_tokens = set(
+            FacilityUser.objects.exclude(id=self.learner.id).values_list(
+                "qr_login_token", flat=True
+            )
+        )
+
+        reassign_qr_login_token(self.learner)
+
+        self.learner.refresh_from_db()
+        # The freshly-rotated token is globally unique — no other user holds it.
+        self.assertIsNotNone(self.learner.qr_login_token)
+        self.assertNotIn(self.learner.qr_login_token, existing_tokens)
+
 
 class ClearQRLoginTokenTestCase(TestCase):
     @classmethod

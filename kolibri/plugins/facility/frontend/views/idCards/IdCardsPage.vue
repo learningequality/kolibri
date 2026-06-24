@@ -35,21 +35,40 @@
             accept="image/*"
             class="hidden-input"
             @change="onLogoSelected"
+          >
+          <KButton
+            :text="generateQrCodes$()"
+            :disabled="learnersMissingTokenCount === 0 || generating"
+            class="generate-btn"
+            @click="generateQrCodes"
           />
           <KButton
             :text="printSelected$({ count: selectedCount })"
-            :disabled="selectedCount === 0"
+            :disabled="selectedCount === 0 || generating"
             class="print-btn"
             @click="printSelected"
           />
           <KButton
             :text="printAllCards$()"
-            :disabled="filteredLearners.length === 0"
+            :disabled="filteredLearners.length === 0 || generating"
             :primary="true"
             @click="printAll"
           />
         </KGridItem>
       </KGrid>
+
+      <!-- Bulk generate progress -->
+      <div
+        v-if="generating"
+        class="generate-status"
+        :style="{ color: $themeTokens.annotation }"
+      >
+        <KCircularLoader
+          :size="16"
+          :delay="false"
+        />
+        <span>{{ generatingQrCodes$() }}</span>
+      </div>
 
       <!-- Select controls -->
       <div class="select-controls">
@@ -131,8 +150,7 @@
 
 <script>
 
-  import { computed, onMounted, ref } from 'vue';
-  import FacilityAppBarPage from '../FacilityAppBarPage';
+  import { computed, onMounted, ref, watch } from 'vue';
   import FacilityUserResource from 'kolibri-common/apiResources/FacilityUserResource';
   import FacilityDatasetResource from 'kolibri-common/apiResources/FacilityDatasetResource';
   import StudentIdCard from 'kolibri-common/components/StudentIdCard';
@@ -147,7 +165,10 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import useTaskPolling from 'kolibri-common/composables/useTaskPolling';
+  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
   import { qrLoginStrings } from 'kolibri-common/strings/qrLoginStrings';
+  import FacilityAppBarPage from '../FacilityAppBarPage';
 
   const LOGO_WIDTH = 200;
   const LOGO_HEIGHT = 60;
@@ -215,6 +236,10 @@
         replaceLogo$,
         logoUploaded$,
         logoUploadFailed$,
+        generateQrCodes$,
+        generatingQrCodes$,
+        qrCodesGenerated$,
+        qrCodeGenerationFailed$,
       } = qrLoginStrings;
 
       const learners = ref([]);
@@ -226,9 +251,7 @@
       const cardBrandImage = ref(null);
       const logoInputRef = ref(null);
 
-      const facilityName = computed(
-        () => facilityConfig.value?.description || '',
-      );
+      const facilityName = computed(() => facilityConfig.value?.description || '');
 
       const filteredLearners = computed(() => {
         if (!searchQuery.value.trim()) return learners.value;
@@ -241,6 +264,35 @@
       });
 
       const selectedCount = computed(() => selectedIds.value.size);
+
+      const { tasks: facilityTasks } = useTaskPolling('facility_task');
+      const generateTaskId = ref(null);
+      const generating = ref(false);
+
+      // Learners in the current filtered view that don't yet have a QR token;
+      // these are the only ones the bulk-assign task will act on.
+      const learnersMissingTokenCount = computed(
+        () => filteredLearners.value.filter(l => !l.qr_login_token).length,
+      );
+
+      const generateTask = computed(() => {
+        if (!generateTaskId.value) return null;
+        return facilityTasks.value.find(t => t.id === generateTaskId.value) || null;
+      });
+
+      watch(generateTask, task => {
+        if (!task) return;
+        if (task.status === TaskStatuses.FAILED) {
+          generating.value = false;
+          generateTaskId.value = null;
+          createSnackbar({ text: qrCodeGenerationFailed$(), autoDismiss: true });
+        } else if (task.status === TaskStatuses.COMPLETED) {
+          generating.value = false;
+          generateTaskId.value = null;
+          createSnackbar({ text: qrCodesGenerated$(), autoDismiss: true });
+          fetchLearners();
+        }
+      });
 
       const gridStyle = computed(() => {
         let cols = 1;
@@ -303,14 +355,32 @@
       }
 
       function printSelected() {
-        const selected = learners.value.filter(l =>
-          selectedIds.value.has(l.id),
-        );
+        const selected = learners.value.filter(l => selectedIds.value.has(l.id));
         doPrint(selected);
       }
 
       function printAll() {
         doPrint(filteredLearners.value);
+      }
+
+      async function generateQrCodes() {
+        // Assign is idempotent and only affects learners missing a token, so we
+        // pass every learner in the current filtered view; those that already
+        // have a token are no-ops. The work runs as a background task.
+        const ids = filteredLearners.value.filter(l => !l.qr_login_token).map(l => l.id);
+        if (ids.length === 0) return;
+        generating.value = true;
+        try {
+          const { data } = await FacilityUserResource.assignQrTokens(ids);
+          if (data && data.task && data.task.id) {
+            generateTaskId.value = data.task.id;
+          } else {
+            generating.value = false;
+          }
+        } catch (err) {
+          generating.value = false;
+          createSnackbar({ text: qrCodeGenerationFailed$(), autoDismiss: true });
+        }
       }
 
       // ---- Logo upload ----
@@ -342,8 +412,7 @@
       }
 
       onMounted(async () => {
-        cardBrandImage.value =
-          facilityConfig.value?.extra_fields?.card_brand_image || null;
+        cardBrandImage.value = facilityConfig.value?.extra_fields?.card_brand_image || null;
         await fetchLearners();
       });
 
@@ -355,6 +424,8 @@
         searchQuery,
         selectedIds,
         selectedCount,
+        learnersMissingTokenCount,
+        generating,
         printing,
         printLearners,
         cardBrandImage,
@@ -367,6 +438,7 @@
         onCardError,
         printSelected,
         printAll,
+        generateQrCodes,
         triggerLogoInput,
         onLogoSelected,
         idCardsPageTitle$,
@@ -381,6 +453,8 @@
         uploadLogo$,
         replaceLogo$,
         logoUploaded$,
+        generateQrCodes$,
+        generatingQrCodes$,
       };
     },
   };
@@ -404,6 +478,18 @@
   }
 
   .logo-btn {
+    font-size: 13px;
+  }
+
+  .generate-btn {
+    font-size: 13px;
+  }
+
+  .generate-status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 8px 0;
     font-size: 13px;
   }
 
@@ -444,8 +530,8 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background-color: white;
     overflow: auto;
+    background-color: white;
   }
 
 </style>
@@ -471,8 +557,8 @@
 
     .print-overlay {
       position: absolute;
-      left: 0;
       top: 0;
+      left: 0;
       width: 100%;
       background: white;
     }

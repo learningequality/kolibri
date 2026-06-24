@@ -835,11 +835,25 @@ class AssignQRLoginTokensValidator(JobValidator):
     facility_id = serializers.PrimaryKeyRelatedField(
         queryset=Facility.objects.all(), source="facility"
     )
+    user_ids = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        allow_empty=False,
+    )
 
     def validate(self, data):
         facility = data["facility"]
+        kwargs = {"facility_id": facility.id}
+        if "user_ids" in data:
+            # Restrict to users that actually belong to this facility; any
+            # ids that don't are silently ignored. Coerce to strings so the
+            # value survives job (de)serialization as JSON.
+            valid_ids = FacilityUser.objects.filter(
+                facility=facility, id__in=data["user_ids"]
+            ).values_list("id", flat=True)
+            kwargs["user_ids"] = [str(uid) for uid in valid_ids]
         return {
-            "kwargs": {"facility_id": facility.id},
+            "kwargs": kwargs,
             "facility_id": facility.id,
             "extra_metadata": dict(facility_id=facility.id),
         }
@@ -852,12 +866,15 @@ class AssignQRLoginTokensValidator(JobValidator):
     permission_classes=[IsAdminForJob],
     queue=facility_task_queue,
 )
-def assign_qr_login_tokens_to_facility(facility_id):
+def assign_qr_login_tokens_to_facility(facility_id, user_ids=None):
     """
-    Bulk-assign QR login tokens to all learners in a facility that do not
-    already have one. Triggered when an admin enables the QR login facility
-    setting. Unlike picture passwords, the keyspace is 256 bits so there is
-    no exhaustion concern.
+    Bulk-assign QR login tokens to learners in a facility that do not already
+    have one. Triggered when an admin enables the QR login facility setting,
+    or on demand from the ID Cards page. When ``user_ids`` is provided the
+    assignment is restricted to that subset (e.g. the currently-filtered list
+    on the ID Cards page); otherwise every eligible learner in the facility
+    is processed. Unlike picture passwords, the keyspace is 256 bits so there
+    is no exhaustion concern.
     """
     facility = Facility.objects.get(id=facility_id)
     learners = FacilityUser.objects.filter(
@@ -865,6 +882,9 @@ def assign_qr_login_tokens_to_facility(facility_id):
         roles__isnull=True,
         qr_login_token__isnull=True,
     ).exclude(devicepermissions__is_superuser=True)
+
+    if user_ids is not None:
+        learners = learners.filter(id__in=user_ids)
 
     total = learners.count()
     job = get_current_job()

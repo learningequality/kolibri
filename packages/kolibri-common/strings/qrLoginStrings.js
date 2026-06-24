@@ -19,7 +19,8 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     context: 'Status message shown while the camera is being initialized.',
   },
   cameraPermissionDenied: {
-    message: 'Camera access was blocked. Ask a teacher to enable it, or upload a photo of your QR code.',
+    message:
+      'Camera access was blocked. Ask a teacher to enable it, or upload a photo of your QR code.',
     context: 'Shown when the learner or browser denied camera permission.',
   },
   cameraNotFound: {
@@ -57,7 +58,8 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
   // Confirmation modal
   isThisYou: {
     message: 'Is this you?',
-    context: 'Title of the confirmation modal shown after a successful QR scan, before the session is created.',
+    context:
+      'Title of the confirmation modal shown after a successful QR scan, before the session is created.',
   },
   yesSignIn: {
     message: 'Yes, sign in',
@@ -137,6 +139,16 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     message: 'Regenerate QR code',
     context: 'Button label for generating a new QR code token.',
   },
+  generateQrCode: {
+    message: 'Generate QR code',
+    context:
+      'Button label on a student ID card for assigning a QR code token to a learner who does not yet have one.',
+  },
+  generateQrCodes: {
+    message: 'Generate QR codes',
+    context:
+      'Button label on the ID Cards page for bulk-assigning QR codes to learners who do not yet have one.',
+  },
   regenerateQRConfirmTitle: {
     message: 'Regenerate QR code',
     context: 'Title of the confirmation modal for regenerating a QR code.',
@@ -211,7 +223,8 @@ export const qrLoginStrings = createTranslator('QRLoginStrings', {
     context: 'Title of the info modal explaining QR code login.',
   },
   qrLoginInfoDescription: {
-    message: 'Learners sign in by scanning a printed QR code card instead of typing a username and password. You can print cards from the ID Cards page. If a card is lost, an admin can generate a new one from the ID Cards page.',
+    message:
+      'Learners sign in by scanning a printed QR code card instead of typing a username and password. You can print cards from the ID Cards page. If a card is lost, an admin can generate a new one from the ID Cards page.',
     context: 'Description in the QR login info modal on the facility settings page.',
   },
   // Coach QR view (#4)

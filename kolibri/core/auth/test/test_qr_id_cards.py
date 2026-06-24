@@ -225,6 +225,128 @@ class RotateQRTokenTestCase(APITestCase):
         coach.refresh_from_db()
         self.assertIsNone(coach.qr_login_token)
 
+    def test_rotate_produces_token_unique_within_facility(self):
+        # Give several other learners distinct, pre-existing tokens so we can
+        # prove the rotated token collides with none of them.
+        other_tokens = []
+        for i in range(5):
+            other = FacilityUserFactory.create(facility=self.facility)
+            token = ("other%d" % i) + ("x" * 40)
+            other.qr_login_token = token
+            other.save(update_fields=["qr_login_token"])
+            other_tokens.append(token)
+        existing_tokens = set(other_tokens) | {self.original_token}
+
+        response = self.client.post(self._rotate_url(self.learner.id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.learner.refresh_from_db()
+        new_token = self.learner.qr_login_token
+
+        # The regenerated token differs from the original...
+        self.assertNotEqual(new_token, self.original_token)
+        # ...is distinct from every other learner's token in the facility...
+        self.assertNotIn(new_token, existing_tokens)
+        # ...and is globally unique (no other user holds it).
+        self.assertFalse(
+            models.FacilityUser.objects.filter(qr_login_token=new_token)
+            .exclude(id=self.learner.id)
+            .exists()
+        )
+
+    def test_repeated_rotation_produces_distinct_tokens(self):
+        seen = {self.learner.qr_login_token}
+        for _ in range(10):
+            response = self.client.post(
+                self._rotate_url(self.learner.id), format="json"
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.learner.refresh_from_db()
+            # Every regeneration yields a token that has never been issued
+            # before for this learner.
+            self.assertNotIn(self.learner.qr_login_token, seen)
+            seen.add(self.learner.qr_login_token)
+        self.assertEqual(len(seen), 11)
+
+
+class AssignQRTokenTestCase(APITestCase):
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+        cls.learner = FacilityUserFactory.create(facility=cls.facility)
+
+    def setUp(self):
+        enable_qr_login(self.facility)
+        self.client.login(
+            username=self.admin.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _assign_url(self, user_id):
+        return reverse(
+            "kolibri:core:facilityuser-assign-qr-token",
+            kwargs={"pk": user_id},
+        )
+
+    def test_admin_can_assign_qr_token_to_missing(self):
+        self.learner.qr_login_token = None
+        self.learner.save(update_fields=["qr_login_token"])
+
+        response = self.client.post(self._assign_url(self.learner.id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.learner.refresh_from_db()
+        self.assertIsNotNone(self.learner.qr_login_token)
+        self.assertEqual(response.data["qr_login_token"], self.learner.qr_login_token)
+
+    def test_assign_is_idempotent(self):
+        from kolibri.core.auth.utils.qr_tokens import assign_qr_login_token
+
+        assign_qr_login_token(self.learner)
+        self.learner.refresh_from_db()
+        existing_token = self.learner.qr_login_token
+        self.assertIsNotNone(existing_token)
+
+        response = self.client.post(self._assign_url(self.learner.id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.learner.refresh_from_db()
+        # Token is unchanged — assign never rotates an existing token.
+        self.assertEqual(self.learner.qr_login_token, existing_token)
+        self.assertEqual(response.data["qr_login_token"], existing_token)
+
+    def test_learner_cannot_assign_own_token(self):
+        self.learner.qr_login_token = None
+        self.learner.save(update_fields=["qr_login_token"])
+
+        learner_client = self.client_class()
+        learner_client.login(
+            username=self.learner.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        response = learner_client.post(self._assign_url(self.learner.id), format="json")
+        self.assertIn(
+            response.status_code,
+            (status.HTTP_403_FORBIDDEN, status.HTTP_401_UNAUTHORIZED),
+        )
+        self.learner.refresh_from_db()
+        self.assertIsNone(self.learner.qr_login_token)
+
+    def test_assign_on_coach_does_not_assign(self):
+        coach = FacilityUserFactory.create(facility=self.facility)
+        self.facility.add_coach(coach)
+        self.assertIsNone(coach.qr_login_token)
+
+        response = self.client.post(self._assign_url(coach.id), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        coach.refresh_from_db()
+        # Coaches are ineligible; no token is ever assigned.
+        self.assertIsNone(coach.qr_login_token)
+
 
 class ProfileImageOnCreateTestCase(APITestCase):
     databases = "__all__"
