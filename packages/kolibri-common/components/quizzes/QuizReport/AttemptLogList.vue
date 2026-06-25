@@ -102,14 +102,17 @@
               ref="attemptList"
               class="history-list"
               role="listbox"
-              @keydown.home="setSelectedAttemptLog(0)"
-              @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
+              tabindex="0"
+              aria-labelledby="answer-history-label"
+              @keydown.home.prevent="setSelectedAttemptLog(0)"
+              @keydown.end.prevent="setSelectedAttemptLog(attemptLogs.length - 1)"
               @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
               @keydown.left.prevent="
                 setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))
               "
               @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
               @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+              @focus="handleListFocus"
             >
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -121,13 +124,19 @@
                     : '',
                 }"
               >
-                <a
+                <div
                   ref="attemptListOption"
                   role="option"
                   class="attempt-item-anchor"
                   :aria-selected="isSelected(section.startQuestionNumber + qIndex).toString()"
-                  :tabindex="isSelected(section.startQuestionNumber + qIndex) ? 0 : -1"
-                  @click.prevent="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
+                  :aria-label="
+                    questionNumberLabel$({
+                      questionNumber: section.startQuestionNumber + qIndex + 1,
+                    })
+                  "
+                  data-focus="true"
+                  tabindex="-1"
+                  @click="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
                   @keydown.enter="setSelectedAttemptLog(section.startQuestionNumber + qIndex)"
                   @keydown.space.prevent="
                     setSelectedAttemptLog(section.startQuestionNumber + qIndex)
@@ -140,7 +149,7 @@
                     :questionNumber="qIndex + 1"
                     displayTag="p"
                   />
-                </a>
+                </div>
               </li>
             </ul>
           </div>
@@ -256,6 +265,7 @@
         displaySectionTitle,
         quizSectionsLabel$,
         questionsLabel$,
+        questionNumberLabel$,
         expand,
         isExpanded,
         toggle,
@@ -308,9 +318,20 @@
       });
     },
     methods: {
+      handleListFocus(event) {
+        const fromChild = event.relatedTarget && event.currentTarget.contains(event.relatedTarget);
+        if (!fromChild) {
+          const option = this.$refs.attemptListOption?.[this.selectedQuestionNumber];
+          if (option) {
+            option.focus();
+          }
+        }
+      },
       setSelectedAttemptLog(questionNumber) {
         const listOption = this.$refs.attemptListOption[questionNumber];
-        listOption.focus();
+        if (listOption) {
+          listOption.focus();
+        }
 
         this.$emit('select', questionNumber);
         this.scrollToSelectedAttemptLog(questionNumber);

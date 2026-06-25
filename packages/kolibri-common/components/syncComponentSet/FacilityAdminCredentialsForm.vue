@@ -1,6 +1,6 @@
 <template>
 
-  <form @keydown.enter="submitForm">
+  <form @submit.prevent="submitForm">
     <p
       v-if="singleFacility && facility.name"
       class="facility-name"
@@ -23,10 +23,10 @@
 
     <UsernameTextbox
       ref="username"
+      :autofocus="true"
       :value.sync="username"
       :isValid.sync="usernameValid"
       :shouldValidate="shouldValidate"
-      :autofocus="true"
       :disabled="$attrs.disabled"
     />
     <PasswordTextbox
@@ -37,6 +37,13 @@
       :showConfirmationInput="false"
       :disabled="$attrs.disabled"
     />
+    <button
+      type="submit"
+      tabindex="-1"
+      class="visuallyhidden"
+    >
+      {{ coreString('continueAction') }}
+    </button>
   </form>
 
 </template>

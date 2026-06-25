@@ -8,6 +8,8 @@
     :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
+    @focus="hovering = true"
+    @blur="hovering = false"
   >
     <div
       v-show="!cues.length"

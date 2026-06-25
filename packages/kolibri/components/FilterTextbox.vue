@@ -8,6 +8,7 @@
       <KIcon icon="search" />
     </UiIcon>
 
+    <!-- eslint-disable vuejs-accessibility/no-autofocus -- intentional: a11y autofocus -->
     <input
       ref="searchinput"
       v-model.trim="model"
@@ -23,6 +24,7 @@
       :aria-controls="ariaControls"
       @keyup="throttledEmitInput($event.target.value)"
     >
+    <!-- eslint-enable vuejs-accessibility/no-autofocus -->
 
     <KIconButton
       size="small"

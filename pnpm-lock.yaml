@@ -1427,6 +1427,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.33.0
         version: 9.33.0(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-vuejs-accessibility:
+        specifier: ^2.5.0
+        version: 2.5.0(eslint@9.39.4(jiti@2.6.1))(globals@17.6.0)
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
@@ -5448,6 +5451,13 @@ packages:
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.2.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
+
+  eslint-plugin-vuejs-accessibility@2.5.0:
+    resolution: {integrity: sha512-oZ2fL4tS91Cm/ezH3BueNP+FtpbbeS627OSqqgp9/lsN//glmoPcLBT6D53xwGocLtyBybaT99tX4ThBh8+ytA==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
+      globals: '>= 13.12.1'
 
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -13969,6 +13979,15 @@ snapshots:
       semver: 7.7.3
       vue-eslint-parser: 9.4.3(eslint@9.39.4(jiti@2.6.1))
       xml-name-validator: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  eslint-plugin-vuejs-accessibility@2.5.0(eslint@9.39.4(jiti@2.6.1))(globals@17.6.0):
+    dependencies:
+      aria-query: 5.3.2
+      eslint: 9.39.4(jiti@2.6.1)
+      globals: 17.6.0
+      vue-eslint-parser: 9.4.3(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 

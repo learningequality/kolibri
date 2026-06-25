@@ -2,7 +2,8 @@
 
   <div
     ref="sidePanel"
-    :tabindex="0"
+    tabindex="-1"
+    role="presentation"
     :class="{ 'is-rtl': isRtl, 'is-mobile': isMobile }"
     @keyup.esc="closePanel"
   >
@@ -13,11 +14,9 @@
       >
         <section
           class="side-panel"
-          role="region"
           :style="sidePanelStyles"
           :aria-label="ariaLabel"
         >
-          <!-- Fixed header -->
           <div
             ref="fixedHeader"
             :class="{

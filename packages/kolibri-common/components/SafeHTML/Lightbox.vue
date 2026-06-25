@@ -8,65 +8,69 @@
     class="lightbox-dialog"
     data-testid="lightbox-dialog"
     @close="closeLightbox"
-    @keydown="onKeyDown"
   >
-    <KFocusTrap
-      @shouldFocusFirstEl="focusFirstEl"
-      @shouldFocusLastEl="focusLastEl"
+    <div
+      role="presentation"
+      class="lightbox-inner"
+      @keydown="onKeyDown"
+      @mousedown="onMouseDown"
+      @wheel="onWheel"
+      @dragstart.prevent
     >
-      <div
-        class="action-bar"
-        :style="{ backgroundColor: $themePalette.grey.v_900 }"
+      <KFocusTrap
+        @shouldFocusFirstEl="focusFirstEl"
+        @shouldFocusLastEl="focusLastEl"
       >
-        <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
-          <KIconButton
-            icon="remove"
-            :color="$themeTokens.surface"
-            size="small"
-            :aria-label="coreString('zoomOut')"
-            :tooltip="coreString('zoomOut')"
-            :disabled="scale === minScale"
-            @click="zoomImage('out')"
-          />
+        <div
+          class="action-bar"
+          :style="{ backgroundColor: $themePalette.grey.v_900 }"
+        >
+          <div :class="scale !== minScale ? $computedClass(btnHoverStyle) : ''">
+            <KIconButton
+              icon="remove"
+              :color="$themeTokens.surface"
+              size="small"
+              :aria-label="coreString('zoomOut')"
+              :tooltip="coreString('zoomOut')"
+              :disabled="scale === minScale"
+              @click="zoomImage('out')"
+            />
+          </div>
+          <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
+            <KIconButton
+              icon="add"
+              :color="$themeTokens.surface"
+              size="small"
+              :aria-label="coreString('zoomIn')"
+              :tooltip="coreString('zoomIn')"
+              :disabled="scale === maxScale"
+              @click="zoomImage('in')"
+            />
+          </div>
+          <div :class="$computedClass(btnHoverStyle)">
+            <KIconButton
+              ref="closeButton"
+              icon="close"
+              :color="$themeTokens.surface"
+              size="small"
+              :aria-label="coreString('closeAction')"
+              :tooltip="coreString('closeAction')"
+              @click="closeLightbox"
+            />
+          </div>
         </div>
-        <div :class="scale !== maxScale ? $computedClass(btnHoverStyle) : ''">
-          <KIconButton
-            icon="add"
-            :color="$themeTokens.surface"
-            size="small"
-            :aria-label="coreString('zoomIn')"
-            :tooltip="coreString('zoomIn')"
-            :disabled="scale === maxScale"
-            autofocus
-            @click="zoomImage('in')"
-          />
-        </div>
-        <div :class="$computedClass(btnHoverStyle)">
-          <KIconButton
-            ref="closeButton"
-            icon="close"
-            :color="$themeTokens.surface"
-            size="small"
-            :aria-label="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
-            @click="closeLightbox"
-          />
-        </div>
-      </div>
 
-      <img
-        ref="imageRef"
-        :src="src"
-        :alt="alt"
-        tabindex="-1"
-        class="expanded-image"
-        :style="imgStyle"
-        @load="calculateSize"
-        @mousedown="onMouseDown"
-        @wheel="onWheel"
-        @dragstart.prevent
-      >
-    </KFocusTrap>
+        <img
+          ref="imageRef"
+          :src="src"
+          :alt="alt"
+          tabindex="-1"
+          class="expanded-image"
+          :style="imgStyle"
+          @load="calculateSize"
+        >
+      </KFocusTrap>
+    </div>
   </dialog>
 
 </template>
@@ -161,6 +165,7 @@
             dialogPolyfill.registerDialog(dlg);
 
             dlg.showModal();
+            this.focusFirstEl();
 
             if (!supportsDialogClosedBy()) {
               dlg.addEventListener('mousedown', this.onBackdropMouseDown);
@@ -271,12 +276,10 @@
         this.delta.y = clamp(this.delta.y, -DeltaLimitY, DeltaLimitY);
       },
       onMouseDown(e) {
-        if (this.scale <= 1) return; // No reposition if not zoomed
+        if (this.scale <= 1 || !this.$refs.imageRef || e.target !== this.$refs.imageRef) return;
         e.preventDefault();
         this.isDragging = true;
-        if (this.$refs.imageRef) {
-          this.$refs.imageRef.classList.remove('with-transition');
-        }
+        this.$refs.imageRef.classList.remove('with-transition');
         this.dragStart = { x: e.clientX, y: e.clientY };
         this.origin = { x: this.delta.x, y: this.delta.y };
         window.addEventListener('mousemove', this.onMouseMove);

@@ -19,6 +19,7 @@
     <KGridItem :layout4="{ span: 1 }">
       <img
         :src="topic.thumbnail"
+        alt=""
         class="channel-logo"
         loading="lazy"
       >

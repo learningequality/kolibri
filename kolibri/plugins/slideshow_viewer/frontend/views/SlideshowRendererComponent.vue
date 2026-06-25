@@ -45,15 +45,9 @@
         >
           <img
             :src="slide.storage_url"
-            :aria-labelledby="slideTextId(slide.id)"
+            :alt="slide.descriptive_text || slide.caption || ''"
             class="slideshow-slide-image"
           >
-        </div>
-        <div
-          :id="slideTextId(slide.id)"
-          class="visuallyhidden"
-        >
-          {{ slide.descriptive_text || slide.caption }}
         </div>
         <div
           :ref="slide.id"
@@ -239,9 +233,6 @@
         if (this.currentSlideIndex >= this.slides.length - 1) {
           this.$emit('finished');
         }
-      },
-      slideTextId(id) {
-        return 'descriptive-text-' + id;
       },
       storeVisitedSlide(currentSlideNum) {
         const visited = this.savedVisitedSlides;

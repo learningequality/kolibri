@@ -291,6 +291,14 @@ describe('PictureSignInPage', () => {
   });
 
   describe('error handling and accessibility', () => {
+    it('focuses the sentinel inside the grid on mount so screen readers do not announce all icons', async () => {
+      const { container } = renderComponent();
+      await waitFor(() => {
+        const sentinel = container.querySelector('form [aria-hidden="true"]');
+        expect(sentinel).toHaveFocus();
+      });
+    });
+
     it('returns focus to the error sentinel inside the grid after a failed prevalidate', async () => {
       const user = createUser();
       mockLogin.mockResolvedValue({ data: null, error: LoginErrors.INVALID_CREDENTIALS });

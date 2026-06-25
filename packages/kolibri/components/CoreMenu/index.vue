@@ -1,6 +1,9 @@
 <template>
 
-  <div @keyup.esc="$emit('close')">
+  <div
+    role="presentation"
+    @keyup.esc="$emit('close')"
+  >
     <ul
       role="menu"
       class="ui-menu"

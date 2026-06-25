@@ -21,14 +21,10 @@
           :itemValue="x => x.id"
         />
 
-        <label
-          class="select-button-label"
-          for="select-address-button"
-        >
+        <span class="select-button-label">
           {{ selectDifferentDeviceLabel$() }}
-        </label>
+        </span>
         <KButton
-          id="select-address-button"
           appearance="basic-link"
           :text="getCommonSyncString('addNewAddressAction')"
           @click="showSelectAddressModal = true"

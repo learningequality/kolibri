@@ -1,6 +1,9 @@
 <template>
 
-  <div @keydown.esc="hideSnackbar">
+  <div
+    role="presentation"
+    @keydown.esc="hideSnackbar"
+  >
     <template v-if="backdrop">
       <Backdrop class="snackbar-backdrop" />
       <!-- Prevent focus from leaving the this container -->
