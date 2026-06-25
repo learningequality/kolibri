@@ -2,7 +2,7 @@ name: Build
 on:
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   latest_kolibri_release:
     name: Resolve newest Kolibri release wheel
