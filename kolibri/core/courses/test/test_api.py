@@ -1,6 +1,8 @@
 import uuid
 
 from django.urls import reverse
+from django.utils import timezone
+from le_utils.constants import content_kinds
 from le_utils.constants import modalities
 from rest_framework import status
 
@@ -14,8 +16,14 @@ from kolibri.core.auth.test.helpers import KolibriAPITestCase as APITestCase
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.logger.models import ContentSummaryLog
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 
 from .. import models
+from ..models import TestType
+from ..models import UnitPhase
+from ..models import UnitTestAssignment
 
 DUMMY_PASSWORD = "password"
 
@@ -792,6 +800,272 @@ class CourseSessionAPITestCase(APITestCase):
         self.assertEqual(cs["assignments"], [])
 
 
+class CourseSessionProgressAPITestCase(APITestCase):
+    """Tests for unit_phase, active_unit_number, active_unit_title, test_learner_progress."""
+
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="ProgressFac")
+        cls.admin = FacilityUser.objects.create(
+            username="progressadmin", facility=cls.facility
+        )
+        cls.admin.set_password(DUMMY_PASSWORD)
+        cls.admin.save()
+        cls.facility.add_admin(cls.admin)
+
+        cls.learner1 = cls._create_learner("learner1")
+        cls.learner2 = cls._create_learner("learner2")
+
+        cls.classroom = Classroom.objects.create(
+            name="ProgressClass", parent=cls.facility
+        )
+        cls.classroom.add_member(cls.learner1)
+        cls.classroom.add_member(cls.learner2)
+
+        channel_id = uuid.uuid4().hex
+        cls.root_node = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            available=True,
+            title="Channel Root",
+        )
+        cls.channel = ChannelMetadata.objects.create(
+            id=channel_id,
+            name="Progress Test Channel",
+            version=1,
+            root=cls.root_node,
+            min_schema_version="1",
+        )
+        cls.course = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.root_node,
+            available=True,
+            modality=modalities.COURSE,
+            title="Test Course",
+        )
+        cls.unit = ContentNode.objects.create(
+            id=uuid.uuid4().hex,
+            channel_id=channel_id,
+            content_id=uuid.uuid4().hex,
+            parent=cls.course,
+            available=True,
+            modality=modalities.UNIT,
+            title="Unit One",
+        )
+        # Rebuild MPTT tree so lft/rght/level values are consistent
+        ContentNode.objects.rebuild()
+
+        cls.course_session = models.CourseSession.objects.create(
+            is_active=True,
+            collection=cls.classroom,
+            created_by=cls.admin,
+            course=cls.course.id,
+            title=cls.course.title,
+        )
+        # Assign the classroom as a recipient
+        models.CourseSessionAssignment.objects.create(
+            course_session=cls.course_session,
+            collection=cls.classroom,
+            assigned_by=cls.admin,
+        )
+
+    def setUp(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+
+    @classmethod
+    def _create_learner(cls, username):
+        user = FacilityUser.objects.create(username=username, facility=cls.facility)
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        return user
+
+    def _create_test_assignment(self, test_type, closed):
+        return UnitTestAssignment.objects.create(
+            course_session=self.course_session,
+            unit_contentnode_id=self.unit.id,
+            collection=self.classroom,
+            test_type=test_type,
+            activated_by=self.admin,
+            closed=closed,
+        )
+
+    def _make_learner_log(self, user, content_id, complete):
+        sl = ContentSummaryLog.objects.create(
+            user=user,
+            content_id=content_id,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+            start_timestamp=timezone.now(),
+        )
+        MasteryLog.objects.create(
+            user=user,
+            summarylog=sl,
+            complete=complete,
+            mastery_level=-1,
+            start_timestamp=timezone.now(),
+        )
+
+    def _get_session_data(self):
+        """Return the first (and only) item from the list endpoint."""
+        resp = self.client.get(
+            reverse("kolibri:core:coursesession-list"),
+            {"collection": self.classroom.id},
+        )
+        self.assertEqual(resp.status_code, 200)
+        items = [i for i in resp.data if str(i["id"]) == str(self.course_session.id)]
+        self.assertEqual(len(items), 1)
+        return items[0]
+
+    def test_no_test_returns_pre_test_pending_and_null_progress(self):
+        data = self._get_session_data()
+        self.assertEqual(data["unit_phase"], UnitPhase.PreTestPending)
+        self.assertIsNone(data["test_learner_progress"])
+        self.assertIsNotNone(data["active_unit_number"])
+        self.assertEqual(data["active_unit_number"], 1)
+        self.assertEqual(data["active_unit_title"], self.unit.title)
+
+    def test_pre_test_active_returns_correct_progress(self):
+        self._create_test_assignment(TestType.Pre, closed=False)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Pre
+        )
+        self._make_learner_log(self.learner1, synthetic_cid, True)
+        self._make_learner_log(self.learner2, synthetic_cid, False)
+
+        data = self._get_session_data()
+        self.assertEqual(data["unit_phase"], UnitPhase.PreTestActive)
+        self.assertEqual(data["active_unit_number"], 1)
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress["completed"], 1)
+        self.assertEqual(progress["started"], 1)
+        self.assertEqual(progress["notStarted"], 0)
+        self.assertEqual(progress["total"], 2)
+
+    def test_post_test_active_returns_correct_progress(self):
+        self._create_test_assignment(TestType.Pre, closed=True)
+        self._create_test_assignment(TestType.Post, closed=False)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Post
+        )
+        self._make_learner_log(self.learner1, synthetic_cid, True)
+
+        data = self._get_session_data()
+        self.assertEqual(data["unit_phase"], UnitPhase.PostTestActive)
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress["completed"], 1)
+        self.assertEqual(progress["started"], 0)
+        self.assertEqual(progress["notStarted"], 1)
+        self.assertEqual(progress["total"], 2)
+
+    def test_complete_phase_returns_post_test_progress(self):
+        self._create_test_assignment(TestType.Pre, closed=True)
+        self._create_test_assignment(TestType.Post, closed=True)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Post
+        )
+        self._make_learner_log(self.learner1, synthetic_cid, True)
+        self._make_learner_log(self.learner2, synthetic_cid, True)
+
+        data = self._get_session_data()
+        self.assertEqual(data["unit_phase"], UnitPhase.Complete)
+        self.assertIsNone(data["active_unit_number"])
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress["completed"], 2)
+        self.assertEqual(progress["started"], 0)
+        self.assertEqual(progress["notStarted"], 0)
+        self.assertEqual(progress["total"], 2)
+
+    def test_post_test_pending_returns_correct_phase_and_progress(self):
+        # Pre-test closed, post-test not yet activated: PostTestPending
+        self._create_test_assignment(TestType.Pre, closed=True)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Pre
+        )
+        self._make_learner_log(self.learner1, synthetic_cid, True)
+        self._make_learner_log(self.learner2, synthetic_cid, False)
+
+        data = self._get_session_data()
+        self.assertEqual(data["unit_phase"], UnitPhase.PostTestPending)
+        self.assertEqual(data["active_unit_number"], 1)
+        # Progress reflects the closed pre-test (last test for the unit)
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress["completed"], 1)
+        self.assertEqual(progress["started"], 1)
+        self.assertEqual(progress["notStarted"], 0)
+        self.assertEqual(progress["total"], 2)
+
+    def test_duplicate_mastery_log_complete_wins(self):
+        # A learner with both complete=True and complete=False MasteryLog rows for
+        # the same ContentSummaryLog should be counted as completed (dedup rule).
+        self._create_test_assignment(TestType.Pre, closed=False)
+        synthetic_cid = get_synthetic_content_id(
+            str(self.course_session.id), str(self.unit.id), TestType.Pre
+        )
+        # learner1: one ContentSummaryLog, two MasteryLog rows (incomplete then complete)
+        sl = ContentSummaryLog.objects.create(
+            user=self.learner1,
+            content_id=synthetic_cid,
+            channel_id=None,
+            kind=content_kinds.QUIZ,
+            start_timestamp=timezone.now(),
+        )
+        MasteryLog.objects.create(
+            user=self.learner1,
+            summarylog=sl,
+            complete=False,
+            mastery_level=-1,
+            start_timestamp=timezone.now(),
+        )
+        MasteryLog.objects.create(
+            user=self.learner1,
+            summarylog=sl,
+            complete=True,
+            mastery_level=-2,
+            start_timestamp=timezone.now(),
+        )
+        # learner2: not started
+        data = self._get_session_data()
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        self.assertEqual(progress["completed"], 1)
+        self.assertEqual(progress["started"], 0)
+        self.assertEqual(progress["notStarted"], 1)
+        self.assertEqual(progress["total"], 2)
+
+    def test_deleted_group_member_excluded_from_total(self):
+        # A learner who is a classroom member but has date_deleted set must not
+        # inflate total/notStarted — _fetch_group_memberships filters on
+        # FacilityUser.get_is_active_q().
+        deleted_learner = FacilityUser.objects.create(
+            username="deletedlearner", facility=self.facility
+        )
+        self.classroom.add_member(deleted_learner)
+        # Soft-delete via update() to leave the Membership row intact so the
+        # filter in _fetch_group_memberships is what excludes the user.
+        FacilityUser.objects.filter(pk=deleted_learner.pk).update(
+            date_deleted=timezone.now()
+        )
+
+        self._create_test_assignment(TestType.Pre, closed=False)
+
+        data = self._get_session_data()
+        progress = data["test_learner_progress"]
+        self.assertIsNotNone(progress)
+        # Only learner1 and learner2 are active; deleted_learner must not count.
+        self.assertEqual(progress["total"], 2)
+        self.assertEqual(progress["notStarted"], 2)
+
+
 """"
 DISCLAIMER:  Some parts of these tests were written with an AI assistance.
  I have reviewed and validated the generated tests
@@ -1349,15 +1623,12 @@ class LastUnitTestAPITestCase(APITestCase):
             (self.unit3, "pre"),
             (self.unit3, "post"),
         ]
-        result = None
         for step_unit, step_type in steps:
-            is_target = step_unit == unit and step_type == test_type
-            result = self._create_test(
-                step_unit, step_type, False if is_target else True
-            )
-            if is_target:
-                break
-        return result
+            closed = not (step_unit == unit and step_type == test_type)
+            result = self._create_test(step_unit, step_type, closed)
+            if not closed:
+                return result
+        return None
 
     # --- Permission tests ---
 
