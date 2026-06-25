@@ -61,7 +61,7 @@
 
 <script>
 
-  import { computed, nextTick, ref } from 'vue';
+  import { computed, nextTick, onMounted, ref } from 'vue';
   import useUser from 'kolibri/composables/useUser';
   import redirectBrowser from 'kolibri/utils/redirectBrowser';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
@@ -132,6 +132,10 @@
         // Only show the landscape layout if the window is wide enough and it's a touch device.
         // So that we don't change the layout for desktop users.
         return windowIsLandscape.value && isTouchDevice;
+      });
+
+      onMounted(() => {
+        nextTick(() => passwordGridRef.value?.focusSentinel());
       });
 
       watchForFacilityChange((newFacilityId, oldFacilityId) => {
