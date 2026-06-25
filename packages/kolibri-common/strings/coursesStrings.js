@@ -574,6 +574,25 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     context:
       'Subtitle below the individual performance heading explaining the sort order of learner scores',
   },
+  learnerProgressLabel: {
+    message: 'Learner Progress',
+    context: 'Column header for the learner progress tally on the Courses list page',
+  },
+  unitInProgressLabel: {
+    message: 'Unit {num, number} in progress',
+    context:
+      'Status label on the Courses list page when learners are working on lessons between the pre- and post-tests; {num} is the 1-based unit number',
+  },
+  preTestRunningLabel: {
+    message: 'Pre-test running · Unit {num, number}',
+    context:
+      'Status label on the Courses list page when a pre-test is active; {num} is the 1-based unit number',
+  },
+  postTestRunningLabel: {
+    message: 'Post-test running · Unit {num, number}',
+    context:
+      'Status label on the Courses list page when a post-test is active; {num} is the 1-based unit number',
+  },
   allCoursesForClass: {
     message: "All courses for class '{className}'",
     context: 'Accessible caption for the courses table, read by screen readers',
