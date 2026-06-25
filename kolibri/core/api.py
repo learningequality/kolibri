@@ -39,10 +39,11 @@ from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
 
+from kolibri.core import error_constants
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.serializer_introspection import derive_values_from_serializer
 from kolibri.core.utils.serializer_introspection import normalize_field_map
@@ -51,6 +52,37 @@ from kolibri.utils import conf
 
 from .utils.portal import registerfacility
 
+# Error constants the portal returns that the frontend matches on - the only
+# parts of a portal error body that are reflected to the client.
+PORTAL_REFLECTED_ERRORS = (
+    error_constants.INVALID_KDP_REGISTRATION_TOKEN,
+    error_constants.ALREADY_REGISTERED_FOR_COMMUNITY,
+)
+
+
+def _portal_error_response(response):
+    """
+    Build the response to return to the client for an error response from the
+    portal, reflecting only recognized error constants from the body. No
+    response, or a non-JSON body (e.g. a CDN error page), is treated as a
+    network-level failure.
+    """
+    offline = Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
+    if response is None:
+        return offline
+    try:
+        data = response.json()
+    except ValueError:
+        return offline
+    if not isinstance(data, list):
+        data = []
+    errors = [
+        {"id": error["id"]}
+        for error in data
+        if isinstance(error, dict) and error.get("id") in PORTAL_REFLECTED_ERRORS
+    ]
+    return Response(errors, status=response.status_code)
+
 
 class KolibriDataPortalViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["post"])
@@ -58,8 +90,10 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
         facility = Facility.objects.get(id=request.data.get("facility_id"))
         try:
             response = registerfacility(request.data.get("token"), facility)
-        except NetworkLocationResponseFailure as e:  # bubble up any response error
-            return Response(e.response.json(), status=e.response.status_code)
+        except NetworkLocationResponseFailure as e:
+            return _portal_error_response(e.response)
+        except NetworkClientError:
+            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
         enqueue_automatic_kdp_sync(facility)
         return Response(status=response.status_code)
 
@@ -73,17 +107,16 @@ class KolibriDataPortalViewSet(viewsets.ViewSet):
                 "portal/api/public/v1/registerfacility/validate_token",
                 params=request.query_params,
             )
-        except NetworkLocationConnectionFailure:
-            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
         except NetworkLocationResponseFailure as e:
-            # bubble up for any other response error
-            response = e.response
-        # handle any invalid json type responses
+            return _portal_error_response(e.response)
+        except NetworkClientError:
+            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
         try:
             data = response.json()
         except ValueError:
-            data = response.content
-        return Response(data, status=response.status_code)
+            return Response({"status": "offline"}, status=HTTP_503_SERVICE_UNAVAILABLE)
+        name = data.get("name") if isinstance(data, dict) else None
+        return Response({"name": name})
 
 
 class ValuesViewsetOrderingFilter(OrderingFilter):

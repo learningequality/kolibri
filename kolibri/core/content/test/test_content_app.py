@@ -38,6 +38,7 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
@@ -2646,6 +2647,117 @@ class KolibriStudioAPITestCase(APITestCase):
         response = self.client.get(
             reverse("kolibri:core:remotechannel-list"), format="json"
         )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=None),
+    )
+    def test_channel_list_response_failure_without_response(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-list"), format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=None),
+    )
+    def test_channel_retrieve_response_failure_without_response(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=mock.Mock(status_code=502)),
+    )
+    def test_channel_list_upstream_error(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-list"), format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(
+        NetworkClient,
+        "get",
+        side_effect=NetworkLocationResponseFailure(response=mock.Mock(status_code=502)),
+    )
+    def test_channel_retrieve_upstream_error(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(NetworkClient, "get", side_effect=NetworkLocationResponseTimeout)
+    def test_channel_list_timeout(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-list"), format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    @mock.patch.object(NetworkClient, "get", side_effect=NetworkLocationResponseTimeout)
+    def test_channel_retrieve_timeout(self, mock_get):
+        response = self.client.get(
+            reverse("kolibri:core:remotechannel-detail", kwargs={"pk": "abc"}),
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    def _create_community_channel(self):
+        builder = ChannelBuilder()
+        builder.insert_into_default_db()
+        channel = content.ChannelMetadata.objects.get(id=builder.channel["id"])
+        channel.library = library_constants.COMMUNITY
+        channel.save()
+        return channel.id
+
+    def test_community_channel_retrieve_response_failure_without_response(self):
+        channel_id = self._create_community_channel()
+        with mock.patch.object(
+            NetworkClient,
+            "get",
+            side_effect=NetworkLocationResponseFailure(response=None),
+        ):
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": str(channel_id)},
+                ),
+                format="json",
+            )
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json()["status"], "offline")
+
+    def test_community_channel_retrieve_upstream_error(self):
+        channel_id = self._create_community_channel()
+        with mock.patch.object(
+            NetworkClient,
+            "get",
+            side_effect=NetworkLocationResponseFailure(
+                response=mock.Mock(status_code=502)
+            ),
+        ):
+            response = self.client.get(
+                reverse(
+                    "kolibri:core:remotechannel-detail",
+                    kwargs={"pk": str(channel_id)},
+                ),
+                format="json",
+            )
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(response.json()["status"], "offline")
 

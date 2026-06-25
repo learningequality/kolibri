@@ -94,6 +94,7 @@ from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectionFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
@@ -160,7 +161,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
             response = cache.get(cache_key)
         if response is None:
             response = view_func(*args, **kwargs)
-            if response.status_code == 200:
+            if response.status_code == status.HTTP_200_OK:
                 if key_prefix is None:
                     key_prefix = cache_key_func(request)
                 if (
@@ -264,7 +265,7 @@ class RemoteMixin:
                 headers=headers,
             )
         except NetworkLocationResponseFailure as e:
-            if e.response.status_code == 404:
+            if e.response.status_code == status.HTTP_404_NOT_FOUND:
                 raise Http404("Remote resource not found")
             raise ResourceGoneError
 
@@ -1914,15 +1915,17 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         )
         try:
             resp = client.get(url)
-            # map the channel list into the format the Kolibri client-side expects
-            channels = list(map(self._studio_response_to_kolibri_response, resp.json()))
-
-            return channels
         except NetworkLocationResponseFailure as e:
-            if e.response.status_code == 404:
+            if (
+                e.response is not None
+                and e.response.status_code == status.HTTP_404_NOT_FOUND
+            ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
                 )
+            raise
+        # map the channel list into the format the Kolibri client-side expects
+        return list(map(self._studio_response_to_kolibri_response, resp.json()))
 
     @staticmethod
     def _get_lang_native_name(code):
@@ -1986,7 +1989,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             channels = self._make_channel_endpoint_request(
                 identifier=token, baseurl=baseurl, keyword=keyword, language=language
             )
-        except NetworkLocationConnectionFailure:
+        except NetworkClientError:
             return Response(
                 {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
@@ -1998,17 +2001,29 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         url = get_v2_channel_lookup_url(channel_id)
         try:
             resp = client.get(url)
-            return Response(self._studio_response_to_kolibri_response(resp.json()))
         except NetworkLocationResponseFailure as e:
-            if e.response.status_code == 404:
+            if (
+                e.response is not None
+                and e.response.status_code == status.HTTP_404_NOT_FOUND
+            ):
                 raise Http404(
                     "The requested channel does not exist on the content server"
                 )
             raise
-        except NetworkLocationConnectionFailure:
-            return Response(
-                {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+        return Response(self._studio_response_to_kolibri_response(resp.json()))
+
+    @staticmethod
+    def _is_community_channel(channel_id):
+        try:
+            library = (
+                models.ChannelMetadata.objects.filter(id=channel_id)
+                .values_list("library", flat=True)
+                .first()
             )
+        except ValueError:
+            # an unparseable id cannot correspond to an installed channel
+            return False
+        return library == library_constants.COMMUNITY
 
     def retrieve(self, request, pk=None):
         """
@@ -2019,29 +2034,19 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         language = request.GET.get("language", None)
         token = request.GET.get("token", None)
 
-        # Use v2 only for installed community library channels queried through
-        # the default Studio base URL (v2 is Studio-specific). Skip when a token
-        # is provided — token lookups are for draft channels, not community library.
-        if baseurl is None and token is None:
-            try:
-                library = (
-                    models.ChannelMetadata.objects.filter(id=pk)
-                    .values_list("library", flat=True)
-                    .first()
-                )
-                if library == library_constants.COMMUNITY:
-                    return self._retrieve_from_v2(pk)
-            except ValueError:
-                pass
-
         try:
+            # Use v2 only for installed community library channels queried through
+            # the default Studio base URL (v2 is Studio-specific). Skip when a token
+            # is provided — token lookups are for draft channels, not community library.
+            if baseurl is None and token is None and self._is_community_channel(pk):
+                return self._retrieve_from_v2(pk)
             channels = self._make_channel_endpoint_request(
                 identifier=token or pk,
                 baseurl=baseurl,
                 keyword=keyword,
                 language=language,
             )
-        except NetworkLocationConnectionFailure:
+        except NetworkClientError:
             return Response(
                 {"status": "offline"}, status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
