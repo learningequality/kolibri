@@ -1,10 +1,16 @@
+import itertools
 import logging
+import types
 from collections import OrderedDict
 
 from django.db import transaction
+from django.db.models import Case
 from django.db.models import Exists
+from django.db.models import IntegerField
 from django.db.models import OuterRef
 from django.db.models import Subquery
+from django.db.models import Value
+from django.db.models import When
 from django_filters.rest_framework import DjangoFilterBackend
 from le_utils.constants import modalities
 from rest_framework.decorators import action
@@ -12,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import ChoiceField
+from rest_framework.serializers import IntegerField as SerializerIntegerField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -33,6 +40,8 @@ from kolibri.core.auth.permissions import KolibriAuthPermissionsFilter
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.pre_post_test import get_synthetic_content_id
 from kolibri.core.query import annotate_array_aggregate
 
 from ..models import CourseSession
@@ -73,6 +82,13 @@ class UnitTestValidationSerializer(Serializer):
         return attrs
 
 
+class TestLearnerProgressSerializer(Serializer):
+    completed = SerializerIntegerField(read_only=True)
+    started = SerializerIntegerField(read_only=True)
+    notStarted = SerializerIntegerField(read_only=True)
+    total = SerializerIntegerField(read_only=True)
+
+
 class CourseSessionClassroomSerializer(ModelSerializer):
     parent = UUIDField(source="parent_id", read_only=True)
 
@@ -97,6 +113,16 @@ class CourseSessionSerializer(ModelSerializer):
     title = CharField(read_only=True)
     description = CharField(read_only=True, allow_null=True, allow_blank=True)
     missing_resource = BooleanField(read_only=True)
+    unit_phase = ChoiceField(choices=UnitPhase.choices(), read_only=True)
+    active_unit_number = SerializerIntegerField(
+        read_only=True, allow_null=True, required=False
+    )
+    active_unit_title = CharField(
+        read_only=True, allow_null=True, allow_blank=True, required=False
+    )
+    test_learner_progress = TestLearnerProgressSerializer(
+        read_only=True, required=False
+    )
 
     def get_assignments(self, obj):
         return obj.course_session_assignment_collections
@@ -116,6 +142,10 @@ class CourseSessionSerializer(ModelSerializer):
             "assignments",
             "missing_resource",
             "learner_ids",
+            "unit_phase",
+            "active_unit_number",
+            "active_unit_title",
+            "test_learner_progress",
         )
 
     def validate(self, attrs):
@@ -347,7 +377,7 @@ def _activated_by_info(user):
     return None
 
 
-def _compute_course_state(course_id, test):
+def _compute_course_state(course_id, test, units=None):
     """
     Compute the unit phase and active unit ID from the most recent test
     and the course's unit structure.
@@ -355,33 +385,30 @@ def _compute_course_state(course_id, test):
     Args:
         course_id: UUID of the course ContentNode
         test: The most recent UnitTestAssignment, or None
+        units: Optional pre-fetched ordered list of unit ContentNode ID strings for
+               the course (ascending lft order). When None, queries the database.
+               Pass from _fetch_unit_info to eliminate per-item DB queries.
 
     Returns:
         dict with 'unit_phase' and 'active_unit_id'
     """
-    unit_qs = ContentNode.objects.filter(
-        parent_id=course_id,
-        modality=modalities.UNIT,
-    )
+    if units is None:
+        units = [
+            str(uid)
+            for uid in ContentNode.objects.filter(
+                parent_id=course_id,
+                modality=modalities.UNIT,
+            )
+            .order_by("lft")
+            .values_list("id", flat=True)
+        ]
 
-    first_unit_id = unit_qs.order_by("lft").values_list("id", flat=True).first()
-
-    initial_state = {
-        "unit_phase": UnitPhase.PreTestPending,
-        "active_unit_id": str(first_unit_id) if first_unit_id else None,
-    }
+    first_unit_id = units[0] if units else None
 
     if not test:
-        return initial_state
+        return {"unit_phase": UnitPhase.PreTestPending, "active_unit_id": first_unit_id}
 
-    # Look up the unit's tree position for ordering
-    unit_lft = (
-        ContentNode.objects.filter(id=test.unit_contentnode_id)
-        .values_list("lft", flat=True)
-        .first()
-    )
-
-    if test.closed is False:
+    if not test.closed:
         unit_phase = (
             UnitPhase.PreTestActive
             if test.test_type == TestType.Pre
@@ -400,13 +427,13 @@ def _compute_course_state(course_id, test):
             "active_unit_id": str(test.unit_contentnode_id),
         }
 
-    # Post-test ended = unit complete
-    next_unit_id = (
-        unit_qs.filter(lft__gt=unit_lft)
-        .order_by("lft")
-        .values_list("id", flat=True)
-        .first()
-    )
+    # Post-test ended = advance to next unit
+    active_uid = str(test.unit_contentnode_id)
+    try:
+        active_idx = units.index(active_uid)
+        next_unit_id = units[active_idx + 1] if active_idx + 1 < len(units) else None
+    except ValueError:
+        next_unit_id = None
 
     if not next_unit_id:
         return {
@@ -416,49 +443,233 @@ def _compute_course_state(course_id, test):
 
     return {
         "unit_phase": UnitPhase.PreTestPending,
-        "active_unit_id": str(next_unit_id),
+        "active_unit_id": next_unit_id,
+    }
+
+
+def _fetch_most_recent_tests(session_ids):
+    tests_by_session = {}
+    for t in (
+        UnitTestAssignment.objects.filter(course_session_id__in=session_ids)
+        .annotate(
+            unit_lft=Subquery(
+                ContentNode.objects.filter(id=OuterRef("unit_contentnode_id")).values(
+                    "lft"
+                )[:1]
+            ),
+            test_type_rank=Case(
+                When(test_type=TestType.Post, then=Value(0)),
+                When(test_type=TestType.Pre, then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            ),
+        )
+        # closed=False (open) sorts first; among closed, latest unit (highest lft) wins;
+        # for the same unit, post-test (rank 0) beats pre-test (rank 1).
+        .order_by("course_session_id", "closed", "-unit_lft", "test_type_rank")
+        .values(
+            "course_session_id",
+            "unit_contentnode_id",
+            "test_type",
+            "closed",
+        )
+    ):
+        sid = t["course_session_id"]
+        tests_by_session.setdefault(
+            sid,
+            types.SimpleNamespace(
+                unit_contentnode_id=t["unit_contentnode_id"],
+                test_type=t["test_type"],
+                closed=t["closed"],
+            ),
+        )
+    return tests_by_session
+
+
+def _fetch_unit_info(course_ids):
+    unit_info = {}
+    units_by_course = {}
+    rows = (
+        ContentNode.objects.filter(parent_id__in=course_ids, modality=modalities.UNIT)
+        .order_by("parent_id", "lft")
+        .values("id", "title", "parent_id")
+    )
+    for cid, group in itertools.groupby(rows, key=lambda u: u["parent_id"]):
+        course_units = []
+        for number, unit in enumerate(group, start=1):
+            uid = str(unit["id"])
+            unit_info[uid] = {"number": number, "title": unit["title"]}
+            course_units.append(uid)
+        units_by_course[str(cid)] = course_units
+    return unit_info, units_by_course
+
+
+def _fetch_group_memberships(group_ids):
+    memberships_by_group = {}
+    if not group_ids:
+        return memberships_by_group
+    for m in (
+        Membership.objects.filter(collection_id__in=group_ids)
+        .filter(FacilityUser.get_is_active_q())
+        .values("collection_id", "user_id")
+    ):
+        gid = str(m["collection_id"])
+        memberships_by_group.setdefault(gid, set()).add(m["user_id"])
+    return memberships_by_group
+
+
+def _assemble_learners(item, memberships_by_group):
+    group_members = set()
+    for gid in item.get("assignments", []):
+        group_members.update(memberships_by_group.get(str(gid), set()))
+    return group_members | set(item["learner_ids"])
+
+
+def _fetch_mastery_logs_batch(items, tests_by_session, learners_by_session):
+    content_ids = set()
+    all_learner_ids = set()
+    for item in items:
+        test = tests_by_session.get(item["id"])
+        if not test:
+            continue
+        content_ids.add(
+            get_synthetic_content_id(
+                str(item["id"]), str(test.unit_contentnode_id), test.test_type
+            )
+        )
+        all_learner_ids.update(learners_by_session[item["id"]])
+
+    if not content_ids:
+        return {}
+
+    mastery_by_content = {}
+    for ml in MasteryLog.objects.filter(
+        summarylog__content_id__in=content_ids,
+        summarylog__user_id__in=all_learner_ids,
+    ).values("summarylog__content_id", "summarylog__user_id", "complete"):
+        cid = ml["summarylog__content_id"]
+        uid = ml["summarylog__user_id"]
+        if uid not in mastery_by_content.setdefault(cid, {}) or ml["complete"]:
+            mastery_by_content[cid][uid] = ml["complete"]
+
+    return mastery_by_content
+
+
+def _compute_learner_progress(
+    item, test, unit_info, all_learners, mastery_by_content, units_by_course
+):
+    units = units_by_course.get(str(item["course"]), [])
+    course_state = _compute_course_state(str(item["course"]), test, units=units)
+
+    item["unit_phase"] = course_state["unit_phase"]
+    active_unit_id = course_state["active_unit_id"]
+
+    item["active_unit_number"] = None
+    item["active_unit_title"] = None
+    if active_unit_id and active_unit_id in unit_info:
+        info = unit_info[active_unit_id]
+        item["active_unit_number"] = info["number"]
+        item["active_unit_title"] = info["title"]
+
+    total = len(all_learners)
+
+    if course_state["unit_phase"] == UnitPhase.PreTestPending:
+        item["test_learner_progress"] = None
+        return
+
+    content_id = get_synthetic_content_id(
+        str(item["id"]),
+        str(test.unit_contentnode_id),
+        test.test_type,
+    )
+    learner_status = {
+        uid: complete
+        for uid, complete in mastery_by_content.get(content_id, {}).items()
+        if uid in all_learners
+    }
+
+    completed = sum(1 for c in learner_status.values() if c)
+    started = len(learner_status) - completed
+    item["test_learner_progress"] = {
+        "completed": completed,
+        "started": started,
+        "notStarted": total - completed - started,
+        "total": total,
     }
 
 
 class CourseSessionViewset(ValuesViewset):
     serializer_class = CourseSessionSerializer
-    # learner_ids is populated by consolidate(), not annotated by the queryset.
-    deferred_fields = ("learner_ids",)
+    # These fields are populated by consolidate(), not annotated by the queryset.
+    deferred_fields = (
+        "learner_ids",
+        "unit_phase",
+        "active_unit_number",
+        "active_unit_title",
+        "test_learner_progress",
+    )
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     filterset_fields = ("collection", "id")
     permission_classes = (CourseSessionPermissions,)
     queryset = CourseSession.objects.all().order_by("-date_created")
 
     def consolidate(self, items, queryset):
-        if items:
-            course_session_ids = [l["id"] for l in items]
-            adhoc_assignments = CourseSessionAssignment.objects.filter(
-                course_session_id__in=course_session_ids,
-                collection__kind=ADHOCLEARNERSGROUP,
+        if not items:
+            return items
+
+        course_session_ids = [item["id"] for item in items]
+
+        adhoc_assignments = CourseSessionAssignment.objects.filter(
+            course_session_id__in=course_session_ids,
+            collection__kind=ADHOCLEARNERSGROUP,
+        )
+        adhoc_assignments = annotate_array_aggregate(
+            adhoc_assignments,
+            # filter to active members only — deactivated users must not appear in learner_ids
+            filter=FacilityUser.get_is_active_q("collection__membership"),
+            learner_ids="collection__membership__user_id",
+        )
+        adhoc_assignments = {
+            a["course_session"]: a
+            for a in adhoc_assignments.values(
+                "collection", "course_session", "learner_ids"
             )
-            adhoc_assignments = annotate_array_aggregate(
-                adhoc_assignments,
-                # filter to active members only — deactivated users must not appear in learner_ids
-                filter=FacilityUser.get_is_active_q("collection__membership"),
-                learner_ids="collection__membership__user_id",
+        }
+        for item in items:
+            if item["id"] in adhoc_assignments:
+                adhoc_assignment = adhoc_assignments[item["id"]]
+                item["learner_ids"] = adhoc_assignment["learner_ids"]
+                item["assignments"] = [
+                    i
+                    for i in item["assignments"]
+                    if i != adhoc_assignment["collection"]
+                ]
+            else:
+                item["learner_ids"] = []
+
+        tests_by_session = _fetch_most_recent_tests(course_session_ids)
+        course_ids = {str(item["course"]) for item in items}
+        unit_info, units_by_course = _fetch_unit_info(course_ids)
+        all_group_ids = set()
+        for item in items:
+            all_group_ids.update(str(gid) for gid in item.get("assignments", []))
+        memberships_by_group = _fetch_group_memberships(all_group_ids)
+        learners_by_session = {
+            item["id"]: _assemble_learners(item, memberships_by_group) for item in items
+        }
+        mastery_by_content = _fetch_mastery_logs_batch(
+            items, tests_by_session, learners_by_session
+        )
+
+        for item in items:
+            _compute_learner_progress(
+                item,
+                tests_by_session.get(item["id"]),
+                unit_info,
+                learners_by_session[item["id"]],
+                mastery_by_content,
+                units_by_course,
             )
-            adhoc_assignments = {
-                a["course_session"]: a
-                for a in adhoc_assignments.values(
-                    "collection", "course_session", "learner_ids"
-                )
-            }
-            for item in items:
-                if item["id"] in adhoc_assignments:
-                    adhoc_assignment = adhoc_assignments[item["id"]]
-                    item["learner_ids"] = adhoc_assignments[item["id"]]["learner_ids"]
-                    item["assignments"] = [
-                        i
-                        for i in item["assignments"]
-                        if i != adhoc_assignment["collection"]
-                    ]
-                else:
-                    item["learner_ids"] = []
 
         return items
 
@@ -504,12 +715,13 @@ class CourseSessionViewset(ValuesViewset):
                 unit_contentnode_id=unit_contentnode_id,
                 test_type=test_type,
                 collection=course_session.collection,
-                defaults={"activated_by": request.user},
+                defaults={"activated_by": request.user, "closed": False},
             )
 
-            unit_test_assignment.closed = False
-            unit_test_assignment.activated_by = request.user
-            unit_test_assignment.save()
+            if not created:
+                unit_test_assignment.closed = False
+                unit_test_assignment.activated_by = request.user
+                unit_test_assignment.save()
 
         course_state = _compute_course_state(
             course_session.course, unit_test_assignment
@@ -616,13 +828,7 @@ class CourseSessionViewset(ValuesViewset):
             unit_title = None
 
         # then get the details about the user who activated the test
-        activated_by_info = None
-        if active_test.activated_by:
-            activated_by_info = {
-                "id": active_test.activated_by.id,
-                "username": active_test.activated_by.username,
-                "full_name": active_test.activated_by.full_name,
-            }
+        activated_by_info = _activated_by_info(active_test.activated_by)
 
         return Response(
             {
@@ -639,9 +845,10 @@ class CourseSessionViewset(ValuesViewset):
     @action(detail=True, methods=["get"])
     def last_unit_test(self, request, pk=None):
         """
-        Returns the most recent test for the given course session, ordered by
-        unit tree position descending (latest unit first), then by test_type
-        ascending (pre before post within the same unit).
+        Returns the most recent test for the given course session. Priority:
+        open tests first (closed=False < True), then unit tree position
+        descending (latest unit first), then test_type ascending (post before
+        pre within the same unit, because "post" < "pre" alphabetically).
         """
         course_session = self.get_object()
 
@@ -652,9 +859,16 @@ class CourseSessionViewset(ValuesViewset):
                     ContentNode.objects.filter(
                         id=OuterRef("unit_contentnode_id")
                     ).values("lft")[:1]
-                )
+                ),
+                test_type_rank=Case(
+                    When(test_type=TestType.Post, then=Value(0)),
+                    When(test_type=TestType.Pre, then=Value(1)),
+                    default=Value(2),
+                    output_field=IntegerField(),
+                ),
             )
-            .order_by("-b_lft", "test_type")
+            # open tests first (closed=False < True), then latest unit, post-test (rank 0) before pre
+            .order_by("closed", "-b_lft", "test_type_rank")
             .first()
         )
 
