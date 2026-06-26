@@ -67,5 +67,59 @@ describe('ChannelTokenModal component', () => {
         expect(screen.getByText(/check whether you entered/i)).toBeInTheDocument();
       });
     });
+
+    it('emits a "submit" event if token lookup is successful', async () => {
+      renderComponent();
+      const tokenPayload = { token: 'valid-token-123', channels: [{ id: 'channel-1' }] };
+      getRemoteChannelBundleByToken.mockResolvedValue(tokenPayload.channels);
+
+      const textbox = screen.getByDisplayValue('');
+      await fireEvent.update(textbox, 'valid-token-123');
+      
+      const submitButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token-123');
+        expect(mockSubmit).toHaveBeenCalledWith({
+          token: 'valid-token-123',
+          channels: tokenPayload.channels,
+        });
+      });
+    });
+
+    it('if the token does not point to a channel (404 code), shows a validation message', async () => {
+      renderComponent();
+      const error = { response: { status: 404 } };
+      getRemoteChannelBundleByToken.mockRejectedValue(error);
+
+      const textbox = screen.getByDisplayValue('');
+      await fireEvent.update(textbox, 'invalid-token');
+      
+      const submitButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('invalid-token');
+        expect(screen.getByText(/check whether you entered/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
+      renderComponent();
+      const error = { response: { status: 500 } };
+      getRemoteChannelBundleByToken.mockRejectedValue(error);
+
+      const textbox = screen.getByDisplayValue('');
+      await fireEvent.update(textbox, 'valid-token');
+      
+      const submitButton = screen.getByRole('button', { name: /continue/i });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token');
+        expect(screen.getByText(/unable to connect/i)).toBeInTheDocument();
+      });
+    });
   });
 });
