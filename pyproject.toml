@@ -134,7 +134,7 @@ docs = [
     "sphinx-intl; python_version >= '3.9'",
     "sphinx-rtd-theme~=3.0; python_version >= '3.9'",
     "sphinx-autobuild; python_version >= '3.9'",
-    "m2r2; python_version >= '3.9'",
+    "myst-parser; python_version >= '3.9'",
     "sphinx-notfound-page; python_version >= '3.9'",
     "sphinx-llm[gen]==0.4.1; python_version >= '3.9'",
 ]

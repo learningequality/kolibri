@@ -500,7 +500,7 @@ const response = await MyResource.accessDetailEndpoint(
 
 ## Related Documentation
 
-- Frontend Architecture: [Core Functionality](/docs/frontend_architecture/core.rst)
-- Backend Architecture: [Plugins](/docs/backend_architecture/plugins.rst)
+- Frontend Architecture: [Core Functionality](../frontend_architecture/core.rst)
+- Backend Architecture: [Plugins](../backend_architecture/plugins.rst)
 - Django Documentation: [URL namespaces](https://docs.djangoproject.com/en/stable/topics/http/urls/#url-namespaces)
 - Django REST Framework: [Routers](https://www.django-rest-framework.org/api-guide/routers/)
