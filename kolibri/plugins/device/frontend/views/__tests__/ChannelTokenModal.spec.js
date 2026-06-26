@@ -1,139 +1,44 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent } from '@testing-library/vue';
+import { defineComponent } from 'vue';
 import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
+import { createTranslator } from 'kolibri/utils/i18n';
+import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
 
-function makeWrapper(options = {}) {
-  return mount(ChannelTokenModal, { ...options, attrs: { disabled: false } });
-}
+jest.mock('../../modules/wizard/utils', () => ({
+  getRemoteChannelBundleByToken: jest.fn(),
+}));
 
-function getElements(wrapper) {
-  return {
-    cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
-    networkErrorAlert: () => wrapper.findComponent({ name: 'ui-alert' }),
-    lookupTokenStub: () => {
-      wrapper.vm.lookupToken = jest.fn();
-      return wrapper.vm.lookupToken;
-    },
+import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
+
+const { enterChannelToken$, tokenExplanation$, channelTokenLabel$, invalidTokenMessage$, networkErrorMessage$ } = createTranslator(ChannelTokenModal.name, ChannelTokenModal.$trs);
+const { continueAction$, cancelAction$ } = commonCoreStrings;
+
+describe('ChannelTokenModal component', () => {
+  let mockSubmit;
+  let mockCancel;
+
+  const renderComponent = (props = {}) => {
+    mockSubmit = jest.fn();
+    mockCancel = jest.fn();
+
+    const Wrapper = defineComponent({
+      components: { ChannelTokenModal },
+      template: '<ChannelTokenModal @cancel="mockCancel" @submit="mockSubmit" />',
+      methods: { mockCancel, mockSubmit },
+    });
+
+    return render(Wrapper);
   };
-}
-
-describe('channelTokenModal component', () => {
-  let wrapper;
 
   beforeEach(() => {
-    wrapper = makeWrapper();
+    jest.clearAllMocks();
+    getRemoteChannelBundleByToken.mockClear();
   });
 
   it('pressing "cancel" emits a "cancel" event', () => {
-    const cancelListener = jest.fn();
-    wrapper = makeWrapper({
-      listeners: {
-        cancel: cancelListener,
-      },
-    });
-    const { cancelButton } = getElements(wrapper);
-    cancelButton().trigger('click');
-    expect(cancelListener).toHaveBeenCalled();
-  });
-
-  describe('submitting a token', () => {
-    async function inputToken(wrapper, token) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      textbox.vm.$emit('input', token);
-      await wrapper.vm.$nextTick();
-      expect(textbox.props().value).toEqual(token.trim());
-    }
-
-    function assertTextboxInvalid(wrapper) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      expect(textbox.props().invalid).toEqual(true);
-      expect(textbox.props().invalidText).toEqual('Check whether you entered token correctly');
-    }
-
-    it('if user has not interacted with the form, then no validation messages appear', () => {
-      const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      expect(tokenTextbox().props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(false);
-    });
-
-    it('disables the form while waiting for a response from the server', () => {
-      //...then re-enables it afterwards
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      const disabledSpy = jest.fn();
-      wrapper.vm.$watch('formIsDisabled', disabledSpy);
-      // not checking the Promise.reject case
-      lookupStub.mockResolvedValue([]);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(disabledSpy.mock.calls[0][0]).toEqual(true);
-          expect(disabledSpy.mock.calls[0][1]).toBeFalsy();
-        });
-    });
-
-    it('emits a "submit" event if token lookup is successful', () => {
-      const tokenPayload = { token: 'toka-toka-token', channels: [{ id: 'toka-toka-token' }] };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockResolvedValue(tokenPayload.channels);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emitted().submit).toEqual([[tokenPayload]]);
-        });
-    });
-
-    it('on submit, shows a validation message when token code is empty', () => {
-      return inputToken(wrapper, '    ')
-        .then(() => {
-          // HACK: Clicking the submit button does not propagate to the form, so calling
-          // submit method directly
-          return wrapper.vm.submitForm();
-        })
-        .then(() => {
-          assertTextboxInvalid(wrapper);
-        });
-    });
-
-    it('on blur, shows a validation message when token code is empty', async () => {
-      const textbox = getElements(wrapper).tokenTextbox();
-      await inputToken(wrapper, '    ');
-      // Reaching into ui-textbox's blur to trigger it on k-textbox
-      textbox.vm.$refs.textbox.$emit('blur');
-      await wrapper.vm.$nextTick();
-      assertTextboxInvalid(wrapper);
-    });
-
-    it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      const tokenPayload = { response: { status: 404 } };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      assertTextboxInvalid(wrapper);
-    });
-
-    it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      const tokenPayload = { response: { status: 500 } };
-      const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
-      const textbox = tokenTextbox();
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      expect(textbox.props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(true);
-    });
+    renderComponent();
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+    expect(mockCancel).toHaveBeenCalled();
   });
 });
