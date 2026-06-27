@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-import { defineComponent } from 'vue';
 import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
 
 import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
@@ -13,35 +13,27 @@ const { invalidTokenMessage$, networkErrorMessage$ } = createTranslator(
   ChannelTokenModal.name,
   ChannelTokenModal.$trs,
 );
+const { cancelAction$, continueAction$ } = coreStrings;
 
 describe('ChannelTokenModal component', () => {
-  let mockSubmit;
-  let mockCancel;
-
   const renderComponent = () => {
-    mockSubmit = jest.fn();
-    mockCancel = jest.fn();
-
-    const Wrapper = defineComponent({
-      components: { ChannelTokenModal },
-      methods: { mockCancel, mockSubmit },
-      template: '<ChannelTokenModal @cancel="mockCancel" @submit="mockSubmit" />',
+    return render(ChannelTokenModal, {
+      listeners: {
+        cancel: jest.fn(),
+        submit: jest.fn(),
+      },
     });
-
-    return render(Wrapper);
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    getRemoteChannelBundleByToken.mockClear();
   });
 
   it('pressing "cancel" emits a "cancel" event', () => {
-    renderComponent();
-    const buttons = screen.getAllByRole('button');
-    const cancelButton = buttons[0];
+    const { emitted } = renderComponent();
+    const cancelButton = screen.getByRole('button', { name: cancelAction$() });
     fireEvent.click(cancelButton);
-    expect(mockCancel).toHaveBeenCalled();
+    expect(emitted().cancel).toBeTruthy();
   });
 
   describe('submitting a token', () => {
@@ -53,8 +45,7 @@ describe('ChannelTokenModal component', () => {
 
     it('on submit, shows a validation message when token code is empty', async () => {
       renderComponent();
-      const buttons = screen.getAllByRole('button');
-      const submitButton = buttons[1];
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
       fireEvent.click(submitButton);
       await waitFor(() => {
         expect(screen.getByText(invalidTokenMessage$())).toBeInTheDocument();
@@ -71,21 +62,40 @@ describe('ChannelTokenModal component', () => {
       });
     });
 
-    it('emits a "submit" event if token lookup is successful', async () => {
+    it('disables submit and cancel while token lookup is in progress', async () => {
+      let resolvePromise;
+      getRemoteChannelBundleByToken.mockReturnValue(
+        new Promise(r => {
+          resolvePromise = r;
+        }),
+      );
       renderComponent();
+      const textbox = screen.getByRole('textbox');
+      await fireEvent.update(textbox, 'some-token');
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: cancelAction$() })).toBeDisabled();
+        expect(submitButton).toBeDisabled();
+      });
+      resolvePromise([]);
+    });
+
+    it('emits a "submit" event if token lookup is successful', async () => {
+      const { emitted } = renderComponent();
       const tokenPayload = { token: 'valid-token-123', channels: [{ id: 'channel-1' }] };
       getRemoteChannelBundleByToken.mockResolvedValue(tokenPayload.channels);
 
       const textbox = screen.getByRole('textbox');
       await fireEvent.update(textbox, 'valid-token-123');
 
-      const buttons = screen.getAllByRole('button');
-      const submitButton = buttons[1];
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
         expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token-123');
-        expect(mockSubmit).toHaveBeenCalledWith({
+        expect(emitted().submit).toBeTruthy();
+        expect(emitted().submit[0][0]).toEqual({
           token: 'valid-token-123',
           channels: tokenPayload.channels,
         });
@@ -93,38 +103,38 @@ describe('ChannelTokenModal component', () => {
     });
 
     it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      renderComponent();
+      const { emitted } = renderComponent();
       const error = { response: { status: 404 } };
       getRemoteChannelBundleByToken.mockRejectedValue(error);
 
       const textbox = screen.getByRole('textbox');
       await fireEvent.update(textbox, 'invalid-token');
 
-      const buttons = screen.getAllByRole('button');
-      const submitButton = buttons[1];
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
         expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('invalid-token');
         expect(screen.getByText(invalidTokenMessage$())).toBeInTheDocument();
+        expect(emitted().submit).toBeFalsy();
       });
     });
 
     it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      renderComponent();
+      const { emitted } = renderComponent();
       const error = { response: { status: 500 } };
       getRemoteChannelBundleByToken.mockRejectedValue(error);
 
       const textbox = screen.getByRole('textbox');
       await fireEvent.update(textbox, 'valid-token');
 
-      const buttons = screen.getAllByRole('button');
-      const submitButton = buttons[1];
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
         expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token');
         expect(screen.getByText(networkErrorMessage$())).toBeInTheDocument();
+        expect(emitted().submit).toBeFalsy();
       });
     });
   });
