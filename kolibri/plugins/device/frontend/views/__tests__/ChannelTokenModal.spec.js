@@ -9,7 +9,7 @@ jest.mock('../../modules/wizard/utils', () => ({
   getRemoteChannelBundleByToken: jest.fn(),
 }));
 
-const { invalidTokenMessage$, networkErrorMessage$ } = createTranslator(
+const { invalidTokenMessage$, networkErrorMessage$, channelTokenLabel$ } = createTranslator(
   ChannelTokenModal.name,
   ChannelTokenModal.$trs,
 );
@@ -54,7 +54,7 @@ describe('ChannelTokenModal component', () => {
 
     it('on blur, shows a validation message when token code is empty', async () => {
       renderComponent();
-      const textbox = screen.getByRole('textbox');
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
       fireEvent.focus(textbox);
       fireEvent.blur(textbox);
       await waitFor(() => {
@@ -70,7 +70,7 @@ describe('ChannelTokenModal component', () => {
         }),
       );
       renderComponent();
-      const textbox = screen.getByRole('textbox');
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
       await fireEvent.update(textbox, 'some-token');
       const submitButton = screen.getByRole('button', { name: continueAction$() });
       fireEvent.click(submitButton);
@@ -86,7 +86,7 @@ describe('ChannelTokenModal component', () => {
       const tokenPayload = { token: 'valid-token-123', channels: [{ id: 'channel-1' }] };
       getRemoteChannelBundleByToken.mockResolvedValue(tokenPayload.channels);
 
-      const textbox = screen.getByRole('textbox');
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
       await fireEvent.update(textbox, 'valid-token-123');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
@@ -107,7 +107,7 @@ describe('ChannelTokenModal component', () => {
       const error = { response: { status: 404 } };
       getRemoteChannelBundleByToken.mockRejectedValue(error);
 
-      const textbox = screen.getByRole('textbox');
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
       await fireEvent.update(textbox, 'invalid-token');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
@@ -125,7 +125,7 @@ describe('ChannelTokenModal component', () => {
       const error = { response: { status: 500 } };
       getRemoteChannelBundleByToken.mockRejectedValue(error);
 
-      const textbox = screen.getByRole('textbox');
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
       await fireEvent.update(textbox, 'valid-token');
 
       const submitButton = screen.getByRole('button', { name: continueAction$() });
