@@ -1,4 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "click",
+#     "requests",
+#     "locust",
+#     "le-utils",
+#     "playwright",
+# ]
+# ///
 """
 Kolibri Load Testing Tool
 
@@ -7,16 +17,16 @@ Orchestrates device provisioning, user import, content setup, flow capture, and 
 
 Usage:
     # Full automated workflow
-    python loadtest.py
+    ./loadtest.py
 
     # Step-by-step
-    python loadtest.py provision
-    python loadtest.py setup-facility
-    python loadtest.py import-users
-    python loadtest.py import-channel
-    python loadtest.py create-lesson
-    python loadtest.py capture
-    python loadtest.py run --users 50 --duration 5m
+    ./loadtest.py provision
+    ./loadtest.py setup-facility
+    ./loadtest.py import-users
+    ./loadtest.py import-channel
+    ./loadtest.py create-lesson
+    ./loadtest.py capture
+    ./loadtest.py run --users 50 --duration 5m
 
 """
 
