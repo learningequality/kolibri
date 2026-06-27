@@ -5,7 +5,9 @@ Provides methods for device provisioning, user management, content import, and l
 
 import io
 import os
+import re
 import time
+from urllib.parse import urlparse
 
 import requests
 from logger import info
@@ -19,6 +21,7 @@ from utils import get_or_generate_lesson_resources
 TASKS_API_PATH = "/api/tasks/tasks/"
 LESSON_TITLE = "Load Test Lesson"
 LESSON_DESCRIPTION = "Load test lesson with comprehensive content types"
+ZIP_CONTENT_SETTING_RE = re.compile(r'"__zipContent(Origin|Port)":"([^"]*)"')
 
 
 class CSRFAdapter(HTTPAdapter):
@@ -522,3 +525,41 @@ class KolibriClient:
         """
         job = self.create_task(**kwargs)
         return self.wait_for_job(job["id"])
+
+
+def static_bundle_version(base_url, version):
+    # Wheels from `make dist` before a15675103c report a `.dYYYYMMDD` version
+    # but name their bundles without it; dirty `uv sync` installs keep it in both.
+    clean = re.sub(r"\.d\d+$", "", version)
+    if clean == version:
+        return version
+    bundle = (
+        f"{base_url.rstrip('/')}/static/kolibri.core.default_frontend/"
+        f"kolibri.core.default_frontend-{version}.js"
+    )
+    with requests.get(bundle, stream=True, timeout=10) as response:
+        return clean if response.status_code == 404 else version
+
+
+def missing_paths(base_url, paths):
+    missing = set()
+    for path in paths:
+        url = f"{base_url.rstrip('/')}{path}"
+        with requests.get(url, stream=True, timeout=10) as response:
+            if response.status_code == 404:
+                missing.add(path)
+    return missing
+
+
+def zip_content_origin(base_url):
+    # Mirrors generateUrl in packages/kolibri/urls.js: the page's
+    # __zipContentOrigin (or the page's own origin) with __zipContentPort.
+    response = requests.get(f"{base_url.rstrip('/')}/", timeout=10)
+    response.raise_for_status()
+    settings = dict(ZIP_CONTENT_SETTING_RE.findall(response.text))
+    if not settings:
+        return None
+    parsed = urlparse(settings.get("Origin") or base_url)
+    port = settings.get("Port")
+    netloc = f"{parsed.hostname}:{port}" if port else parsed.netloc
+    return f"{parsed.scheme}://{netloc}"

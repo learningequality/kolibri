@@ -17,21 +17,27 @@ Usage:
 
 import itertools
 import json
+import logging
 import os
 import random
 import re
 import time
-from datetime import datetime
 from typing import ClassVar
-from urllib.parse import unquote
-from urllib.parse import urlparse
 
+import requests
 from grouping import group_name
+from grouping import not_found_key
+from har import drop_unreplayable
+from har import parse_har
 from kolibri_client import CSRFAdapter
+from kolibri_client import static_bundle_version
+from kolibri_client import zip_content_origin
 from locust import between
 from locust import HttpUser
 from locust import task
 from users import user_number
+
+logger = logging.getLogger(__name__)
 
 # Load configuration from environment variables
 HAR_FILE = os.environ["KOLIBRI_HAR_FILE"]
@@ -42,115 +48,42 @@ LESSON_ID = os.environ["KOLIBRI_LESSON_ID"]
 NUM_USERS = int(os.environ.get("KOLIBRI_NUM_USERS", 50))
 KOLIBRI_VERSION = os.environ["KOLIBRI_VERSION"]
 
+STATIC_FILENAME_VERSION = static_bundle_version(SERVER_URL, KOLIBRI_VERSION)
+
 # Retry configuration for 503 errors on trackprogress endpoints
 # These match frontend behavior by default but can be tuned for load testing
 MAX_RETRIES = int(os.environ.get("KOLIBRI_MAX_RETRIES", 5))
 DEFAULT_RETRY_DELAY = float(os.environ.get("KOLIBRI_RETRY_DELAY", 5.0))
 
+ENDPOINT_REMAP = {
+    # Moved to the user_auth plugin in #14823.
+    "/api/auth/facilityusername/": "/auth/api/facilityusername/",
+}
+
+
+def _resolve_endpoint_remap():
+    active = {}
+    for old, new in ENDPOINT_REMAP.items():
+        try:
+            if requests.get(SERVER_URL + new, timeout=10).status_code != 404:
+                active[old] = new
+        except requests.RequestException:
+            pass
+    return active
+
+
+ACTIVE_ENDPOINT_REMAP = _resolve_endpoint_remap()
+
+_reported_404_paths = set()
+
+
+CONTENT_ORIGIN = zip_content_origin(SERVER_URL)
 
 # Load HAR file at module level (before worker processes fork)
 # This prevents blocking I/O in on_start() which can cause worker heartbeat failures
-def _load_and_parse_har(har_path):
-    """
-    Load and parse HAR file at module level into request list.
-
-    This is called once before worker processes fork, so all workers share
-    the same parsed data structure without blocking I/O during spawn.
-
-    Args:
-        har_path: Path to HAR file
-        server_url: Server URL to filter requests
-
-    Returns:
-        list: Parsed request list ready for replay
-    """
-    with open(har_path) as f:
-        har = json.load(f)
-
-    entries = har["log"]["entries"]
-
-    # Filter to requests to the Kolibri server only
-    # Extract the original server URL from the first Kolibri API request in the HAR
-    original_server_url = None
-    for entry in entries:
-        url = entry["request"]["url"]
-        if "/api/" in url or "/static/" in url:
-            parsed = urlparse(url)
-            original_server_url = f"{parsed.scheme}://{parsed.netloc}"
-            break
-
-    if not original_server_url:
-        raise ValueError("Could not determine original server URL from HAR file")
-
-    # Build request list with delays
-    # HAR spec: https://w3c.github.io/web-performance/specs/HAR/Overview.html
-    requests = []
-    for i, req in enumerate(entries):
-        har_request = req["request"]
-        method = har_request["method"].lower()
-        full_url = har_request["url"]
-
-        # Filter to requests from the original Kolibri server
-        if not full_url.startswith(original_server_url):
-            continue
-
-        # Parse URL to extract path
-        parsed = urlparse(full_url)
-        url_path = parsed.path or "/"
-
-        # Decode URL-encoded characters (e.g., %2B → +) for easier pattern matching
-        url_path = unquote(url_path)
-
-        # Replace version strings in static file filenames to match target Kolibri version
-        # Webpack generates filenames like:
-        # - JS files: filename-0.18.4.js (with dash)
-        # - CSS files: filename0.19.0b1.dev0+git.27.g9908774d.css (NO dash before version)
-        # Pattern matches version like: 0.18.4, 0.19.0b0.dev0+git.70.gb72619fc, etc.
-        url_path = re.sub(
-            r"\d+\.\d+\.\d+[a-zA-Z0-9+.]*\.(js|css)",
-            rf"{KOLIBRI_VERSION}.\1",
-            url_path,
-        )
-
-        request_info = {"method": method, "path": url_path}
-
-        # Extract POST/PUT/PATCH body if present (HAR spec: postData object)
-        post_data = har_request.get("postData", {})
-        if post_data.get("mimeType") == "application/json" and post_data.get("text"):
-            try:
-                body = json.loads(post_data["text"])
-                request_info["body"] = body
-            except (json.JSONDecodeError, KeyError):
-                pass
-
-        # Extract query parameters (HAR spec: queryString is array of {name, value})
-        query_string = har_request.get("queryString", [])
-        if query_string:
-            request_info["params"] = {
-                item["name"]: item["value"] for item in query_string
-            }
-
-        # Calculate delay until next request (with jitter)
-        if i < len(entries) - 1:
-            curr_time = datetime.fromisoformat(
-                req["startedDateTime"].replace("Z", "+00:00")
-            )
-            next_time = datetime.fromisoformat(
-                entries[i + 1]["startedDateTime"].replace("Z", "+00:00")
-            )
-            delay = (next_time - curr_time).total_seconds()
-
-            # Apply jitter (±20%)
-            request_info["delay_min"] = delay * 0.8
-            request_info["delay_max"] = delay * 1.2
-
-        requests.append(request_info)
-
-    return requests
-
-
-# Parse HAR file once at module load time
-_HAR_REQUESTS = _load_and_parse_har(HAR_FILE)
+_HAR_REQUESTS = drop_unreplayable(
+    parse_har(HAR_FILE, STATIC_FILENAME_VERSION), SERVER_URL, CONTENT_ORIGIN
+)
 
 
 class LessonUser(HttpUser):
@@ -210,7 +143,7 @@ class LessonUser(HttpUser):
         self.client.mount("http://", csrf_adapter)
         self.client.mount("https://", csrf_adapter)
 
-    def _make_request_with_retry(self, method, path, **kwargs):
+    def _make_request_with_retry(self, method, path, content=False, **kwargs):
         """
         Make HTTP request with retry logic for 503 errors on trackprogress endpoints.
 
@@ -223,16 +156,19 @@ class LessonUser(HttpUser):
         Args:
             method: HTTP method ('get', 'post', 'put', etc.)
             path: URL path
+            content: Send the request to the content origin, not the server
             **kwargs: Additional arguments to pass to the request
 
         Returns:
             Response object
         """
         is_trackprogress = "/api/logger/trackprogress" in path
+        origin = CONTENT_ORIGIN if content else ""
+        name = group_name(path, content=content)
 
         for attempt in range(MAX_RETRIES):
             method_func = getattr(self.client, method)
-            response = method_func(path, name=group_name(path), **kwargs)
+            response = method_func(origin + path, name=name, **kwargs)
 
             # Only retry trackprogress requests with 503 status
             if (
@@ -331,6 +267,18 @@ class LessonUser(HttpUser):
 
         return True
 
+    def _remap_endpoint(self, path):
+        for old, new in ACTIVE_ENDPOINT_REMAP.items():
+            if path.startswith(old):
+                return new + path[len(old) :]
+        return path
+
+    def _note_404(self, path):
+        key = not_found_key(path)
+        if key not in _reported_404_paths:
+            _reported_404_paths.add(key)
+            logger.warning("404 (moved/renamed, not remapped?): %s", key)
+
     def _parameterize_url(self, path):
         """
         Replace dynamic IDs in URL path with actual values.
@@ -386,9 +334,6 @@ class LessonUser(HttpUser):
 
         Args:
             req: Request dict with 'method', 'path', 'body', 'params', etc.
-
-        Returns:
-            bool: True if request was executed, False if skipped
         """
         # Build request kwargs
         kwargs = {}
@@ -402,7 +347,7 @@ class LessonUser(HttpUser):
             self._swap_params(kwargs["params"])
 
         # Identify request type
-        path = req["path"]
+        path = self._remap_endpoint(req["path"])
         method = req["method"]
         is_trackprogress_post = (
             path == "/api/logger/trackprogress/" and method == "post"
@@ -423,10 +368,18 @@ class LessonUser(HttpUser):
         if is_trackprogress_update and not self._ensure_trackprogress_session(
             req["method"]
         ):
-            return False
+            return
 
         # Execute request with retry logic
-        response = self._make_request_with_retry(req["method"], path, **kwargs)
+        response = self._make_request_with_retry(
+            req["method"],
+            path,
+            content=req.get("content", False),
+            **kwargs,
+        )
+
+        if response.status_code == 404:
+            self._note_404(path)
 
         # Extract session data from responses
         self._extract_session_data(path, req["method"], response)
@@ -434,8 +387,6 @@ class LessonUser(HttpUser):
         # Extract trackprogress session ID from POST response
         if is_trackprogress_post:
             self._extract_trackprogress_session_id(response)
-
-        return True
 
     @task
     def lesson_flow(self):
@@ -450,11 +401,7 @@ class LessonUser(HttpUser):
         """
         for req in _HAR_REQUESTS:
             # Execute the request
-            executed = self._execute_request(req)
-
-            # If request was skipped, don't wait
-            if not executed:
-                continue
+            self._execute_request(req)
 
             # Wait with jitter before next request
             if "delay_min" in req:
