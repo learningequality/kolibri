@@ -1,4 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "click",
+#     "requests",
+#     "locust",
+#     "le-utils",
+#     "packaging",
+#     "zeroconf",
+# ]
+# ///
 import errno
 import json
 import os
