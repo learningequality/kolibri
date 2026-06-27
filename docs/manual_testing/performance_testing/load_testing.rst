@@ -8,11 +8,8 @@ Prerequisites
 -------------
 Before running load tests:
 
-1. **Install dependencies**:
-
-   .. code-block:: bash
-
-      pip install -r requirements/load_test.txt
+1. **Install uv**: ``loadtest.py`` declares its dependencies inline (PEP 723) and runs
+   under ``uv run --script`` in its own environment, separate from Kolibri's venv.
 
 2. **Start Kolibri server** (NOT development server):
 
@@ -34,9 +31,8 @@ Help
 ----
 .. code-block:: bash
 
-   python loadtest.py --help
-   python loadtest.py --help
-   python loadtest.py run --help
+   ./loadtest.py --help
+   ./loadtest.py run --help
 
 See the help for available flags (e.g., users, spawn rate, duration, headless, retries).
 
@@ -56,7 +52,7 @@ Then opens a browser for **manual capture** → saves a versioned HAR → execut
 
 .. code-block:: bash
 
-   python loadtest.py
+   ./loadtest.py
 
 Full run using an existing HAR (skip capture)
 ---------------------------------------------
@@ -64,7 +60,7 @@ Use a pre-recorded HAR to skip the manual capture step. With a file in ``har_fil
 
 .. code-block:: bash
 
-   python loadtest.py --har har_files/lesson_flow_kolibri_testing_high_latency.har
+   ./loadtest.py --har har_files/lesson_flow_kolibri_testing_high_latency.har
 
 Other flags
 -----------
@@ -73,13 +69,13 @@ Non-interactive server and credentials:
 
 .. code-block:: bash
 
-   python loadtest.py --server http://127.0.0.1:8080 --username admin --password sosecure
+   ./loadtest.py --server http://127.0.0.1:8080 --username admin --password sosecure
 
 Headless 10‑minute run at modest scale:
 
 .. code-block:: bash
 
-   python loadtest.py --headless -u 100 -r 50 -t 10m run
+   ./loadtest.py --headless -u 100 -r 50 -t 10m run
 
 HAR Files
 ---------
@@ -111,9 +107,9 @@ Comparing builds with bench.py
 
 .. code-block:: bash
 
-   python bench.py run --baseline base=release:0.19.4 fix=pr:14770 \
+   uv run --script bench.py run --baseline base=release:0.19.4 fix=pr:14770 \
        --suffix r1 --username admin --password admin
-   python loadtest.py compare base_r1 fix_r1
+   ./loadtest.py compare base_r1 fix_r1
 
 Targets are ``name=spec``:
 
@@ -135,7 +131,7 @@ To run the servers on another device (e.g. a Raspberry Pi) while load comes from
 
    .. code-block:: bash
 
-      python bench.py listen
+      uv run --script bench.py listen
 
 2. On the device, run the printed command:
 
@@ -145,12 +141,14 @@ To run the servers on another device (e.g. a Raspberry Pi) while load comes from
 
    The agent needs Python 3.6+ with ``venv`` and ``pip``, and no other packages. It registers under its hostname, keeps state under ``~/.kolibri_bench/``, and reconnects whenever a hub restarts.
 
+   The hub also advertises itself over mDNS as ``kolibri-bench.local`` and prints a command using that name. Use the IP form if the device cannot resolve it.
+
 3. Pass the device's hostname to ``run``:
 
    .. code-block:: bash
 
-      python bench.py devices
-      python bench.py run --device pi4 --baseline base=release:0.19.4 fix=pr:14770 \
+      uv run --script bench.py devices
+      uv run --script bench.py run --device pi4 --baseline base=release:0.19.4 fix=pr:14770 \
           --suffix r1 --username admin --password admin
 
 The hub ships each wheel and the template to the device. ``dev:`` targets cannot run remotely. Use ``--hub-host`` if the address the hub prints is not reachable from the device.
