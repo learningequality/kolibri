@@ -12,9 +12,6 @@ if (typeof setImmediate === 'undefined') {
   global.clearImmediate = (id) => clearTimeout(id);
 }
 
-/**
- * Helper to compile a webpack bundle and return the output
- */
 function compileBundle(config) {
   return new Promise((resolve, reject) => {
     const compiler = webpack(config);
@@ -32,9 +29,6 @@ function compileBundle(config) {
   });
 }
 
-/**
- * Helper to create test files for webpack compilation
- */
 function createTestFiles(tempDir) {
   const entryFile = path.join(tempDir, 'entry.js');
   const cssFile = path.join(tempDir, 'styles.css');
@@ -60,6 +54,9 @@ describe('WebpackRTLPlugin', () => {
 
   describe('RTL CSS file generation', () => {
     it('should generate .rtl.css files with RTL-transformed styles', async () => {
+      // This test triggers swc-compiler's browserslist import, which warns about
+      // version staleness. Silence it — the version check is irrelevant here.
+      jest.spyOn(console, 'warn').mockImplementation();
       const testDir = path.join(tempDir, 'rtl-generation');
       fs.mkdirSync(testDir, { recursive: true });
       const { entryFile } = createTestFiles(testDir);
