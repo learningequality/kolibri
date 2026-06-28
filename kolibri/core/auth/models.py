@@ -232,7 +232,7 @@ class FacilityDataset(FacilityDataSyncableModel):
     learner_can_login_with_no_password = models.BooleanField(default=False)
     show_download_button_in_learn = models.BooleanField(default=True)
     enable_mark_attendance = models.BooleanField(default=False)
-    enable_qr_login = models.BooleanField(default=False)
+    enable_qr_login = models.BooleanField(default=True)
     picture_password_settings = JSONField(
         null=True,
         blank=True,

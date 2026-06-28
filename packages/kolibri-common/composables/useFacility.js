@@ -53,10 +53,9 @@ export function useFacilityConfig(facilityId) {
   const _isEnglish = () => currentLanguage === 'en';
   const isAttendanceFeatureEnabled = computed(_isEnglish);
   const isPictureLoginFeatureEnabled = computed(_isEnglish);
-  // Gated to English until community translations land on Crowdin, mirroring
-  // the picture-password and attendance features. The QR strings carry
-  // translation context so they are ready to enable per-locale later.
-  const isQrLoginFeatureEnabled = computed(_isEnglish);
+  // QR login is available in all languages. English strings display until
+  // community translations are provided via Crowdin.
+  const isQrLoginFeatureEnabled = computed(() => true);
 
   // computed
   const signInOptions = computed(() => {
