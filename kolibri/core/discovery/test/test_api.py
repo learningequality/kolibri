@@ -45,15 +45,19 @@ class NetworkLocationAPITestCase(APITestCase):
         cls.existing_sad_netloc = models.NetworkLocation.objects.create(
             base_url="https://sadurl.qqq/"
         )
-        cls.kdp_reserved_location = models.NetworkLocation.objects.create(
+        cls.kdp_reserved_location, _ = models.NetworkLocation.objects.get_or_create(
             id=DATA_PORTAL_BASE_INSTANCE_ID,
-            base_url=DATA_PORTAL_SYNCING_BASE_URL,
-            location_type=models.LocationTypes.Reserved,
+            defaults={
+                "base_url": DATA_PORTAL_SYNCING_BASE_URL,
+                "location_type": models.LocationTypes.Reserved,
+            },
         )
-        cls.studio_reserved_location = models.NetworkLocation.objects.create(
+        cls.studio_reserved_location, _ = models.NetworkLocation.objects.get_or_create(
             id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
-            base_url=CENTRAL_CONTENT_BASE_URL,
-            location_type=models.LocationTypes.Reserved,
+            defaults={
+                "base_url": CENTRAL_CONTENT_BASE_URL,
+                "location_type": models.LocationTypes.Reserved,
+            },
         )
         cls.dynamic_location = models.DynamicNetworkLocation.objects.create(
             id="a" * 32,
