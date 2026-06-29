@@ -65,6 +65,24 @@ def _exit_with_error(message):
     raise exception
 
 
+def _wait_for_version(client, version, timeout=1500, poll_interval=15):
+    info(f"Waiting for the server to report version {version}...")
+    deadline = time.time() + timeout
+    last = None
+    while time.time() < deadline:
+        try:
+            last = client.get_device_info().get("kolibri_version")
+        except Exception:
+            last = None
+        if last == version:
+            success(f"Server is serving {version}")
+            return
+        time.sleep(poll_interval)
+    _exit_with_error(
+        f"Server did not report version {version} within {timeout}s (last saw: {last})"
+    )
+
+
 def _find_har_file(kolibri_version):
     prefix = "lesson_flow_kolibri_"
     exact = os.path.join(HAR_FILES_DIR, f"{prefix}{kolibri_version}.har")
@@ -159,6 +177,12 @@ def _resolve_results_dir(ctx, kolibri_version, users, spawn_rate, duration):
     "Single process handles hundreds of concurrent users; only raise this for "
     "very high load on a multi-core host.",
 )
+@click.option(
+    "--wait-for-version",
+    default=None,
+    help="Before running, poll the server until it reports this version "
+    "(use after deploying a new build that is still rolling out)",
+)
 @click.pass_context
 def cli(
     ctx,
@@ -175,6 +199,7 @@ def cli(
     results_dir,
     name,
     processes,
+    wait_for_version,
 ):
     """Kolibri Load Testing Tool"""
     _validate_results_options(name, results_dir)
@@ -192,6 +217,7 @@ def cli(
     ctx.obj["results_dir"] = results_dir
     ctx.obj["name"] = name
     ctx.obj["processes"] = processes
+    ctx.obj["wait_for_version"] = wait_for_version
 
     # If no subcommand provided, run full workflow
     if ctx.invoked_subcommand is None:
@@ -306,6 +332,9 @@ def run(ctx):
     """Run Locust load test"""
     _ensure_credentials(ctx)
     client = KolibriClient(ctx.obj["server"], ctx.obj["username"], ctx.obj["password"])
+
+    if ctx.obj["wait_for_version"]:
+        _wait_for_version(client, ctx.obj["wait_for_version"])
 
     # Get Kolibri version to find the right HAR file
     device_info = client.get_device_info()
