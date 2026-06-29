@@ -40,9 +40,11 @@ import time
 import webbrowser
 
 import click
+import requests
 from compare import compare_runs
 from compare import RUN_CONFIG_FILENAME
 from compare import STATS_FILENAME
+from kolibri_client import fetch_device_info
 from kolibri_client import KolibriClient
 from logger import info
 from logger import plain
@@ -58,12 +60,46 @@ RESULTS_DIR = os.path.join(os.path.dirname(__file__), "generated", "results")
 QA_CHANNEL_ID = "95a52b386f2c485cb97dd60901674a98"
 FACILITY_NAME = "Load Test Facility"
 CLASS_NAME = "Load Test Class"
+VERSION_POLL_INTERVAL = 15
+VERSION_MATCHES_REQUIRED = 3
 
 
 def _exit_with_error(message):
     exception = click.ClickException(message)
     exception.exit_code = 2
     raise exception
+
+
+def _wait_for_version(server, version, timeout=1500):
+    info(f"Waiting for the server to report version {version}...")
+    deadline = time.time() + timeout
+    last = None
+    matches = 0
+    while time.time() < deadline:
+        try:
+            last = fetch_device_info(server, timeout=10).get("kolibri_version")
+        except (
+            requests.ConnectionError,
+            requests.exceptions.ChunkedEncodingError,
+            requests.Timeout,
+            requests.HTTPError,
+            requests.JSONDecodeError,
+        ):
+            last = None
+        matches = matches + 1 if last == version else 0
+        if matches == VERSION_MATCHES_REQUIRED:
+            success(f"Server is serving {version}")
+            return
+        time.sleep(VERSION_POLL_INTERVAL)
+    _exit_with_error(
+        f"Server did not report version {version} within {timeout}s (last saw: {last})"
+    )
+
+
+def _wait_for_requested_version(ctx):
+    if ctx.obj["wait_for_version"]:
+        _wait_for_version(ctx.obj["server"], ctx.obj["wait_for_version"])
+        ctx.obj["wait_for_version"] = None
 
 
 def _find_har_file(kolibri_version):
@@ -111,6 +147,7 @@ def _ensure_credentials(ctx):
         ctx.obj["username"] = click.prompt("Admin username")
     if ctx.obj["password"] is None:
         ctx.obj["password"] = click.prompt("Admin password", hide_input=True)
+    _wait_for_requested_version(ctx)
 
 
 def _validate_results_options(name, results_dir):
@@ -180,6 +217,13 @@ def _resolve_results_dir(ctx, kolibri_version, users, spawn_rate, duration):
     "Single process handles hundreds of concurrent users; only raise this for "
     "very high load on a multi-core host.",
 )
+@click.option(
+    "--wait-for-version",
+    default=None,
+    help="Before running, poll the server until it reports this version on "
+    "3 consecutive polls (use after deploying a new build that is still "
+    "rolling out)",
+)
 @click.pass_context
 def cli(
     ctx,
@@ -196,6 +240,7 @@ def cli(
     results_dir,
     name,
     processes,
+    wait_for_version,
 ):
     """Kolibri Load Testing Tool"""
     _validate_results_options(name, results_dir)
@@ -217,6 +262,7 @@ def cli(
     ctx.obj["results_dir"] = results_dir
     ctx.obj["name"] = name
     ctx.obj["processes"] = processes
+    ctx.obj["wait_for_version"] = wait_for_version
 
     # If no subcommand provided, run full workflow
     if ctx.invoked_subcommand is None:
@@ -496,6 +542,8 @@ def full(ctx):
     section("=" * 70)
 
     total_steps = 6 if ctx.obj["har"] else 7
+
+    _ensure_credentials(ctx)
 
     # Run each step with step numbering
     step(1, total_steps, "Checking device provisioning...")

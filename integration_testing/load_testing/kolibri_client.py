@@ -44,6 +44,14 @@ class CSRFAdapter(HTTPAdapter):
                 request.headers["X-CSRFToken"] = csrf_token
 
 
+def fetch_device_info(base_url, timeout=None):
+    r = requests.get(
+        f"{base_url.rstrip('/')}/api/public/info/", params={"v": "3"}, timeout=timeout
+    )
+    r.raise_for_status()
+    return r.json()
+
+
 class KolibriClient:
     """Client for interacting with Kolibri REST APIs"""
 
@@ -83,9 +91,7 @@ class KolibriClient:
         Returns:
             dict: Device info with kolibri_version, application, etc.
         """
-        r = self.session.get(self._url("/api/public/info/"), params={"v": "3"})
-        r.raise_for_status()
-        return r.json()
+        return fetch_device_info(self.base_url)
 
     # Device Management
 
