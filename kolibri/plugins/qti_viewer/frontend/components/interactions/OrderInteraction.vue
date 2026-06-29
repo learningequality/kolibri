@@ -1,0 +1,271 @@
+<script>
+
+  import get from 'lodash/get';
+  import shuffled from 'kolibri-common/utils/shuffled';
+  import { computed, h, inject, watch } from 'vue';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import AnswerGuide from '../AnswerGuide.vue';
+  import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
+  import { Orientation } from '../../constants';
+
+  const strings = createTranslator('OrderInteractionStrings', {
+    orderListLabel: {
+      message: 'Answer choices to reorder',
+      context:
+        'Accessible label for the reorderable list of answer choices in an order interaction',
+    },
+    reorderInstructions: {
+      message: 'Drag to reorder, or use the up/down buttons for keyboard navigation:',
+      context: 'Tells the learner how to reorder the answer choices',
+    },
+  });
+
+  const { orderListLabel$, reorderInstructions$ } = strings;
+
+  const $themeTokens = themeTokens();
+
+  function getComponentTag(vnode) {
+    return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
+  }
+
+  export default {
+    name: 'QtiOrderInteraction',
+    tag: 'qti-order-interaction',
+
+    setup(props, { slots, attrs }) {
+      const QTI_CONTEXT = inject('QTI_CONTEXT');
+      const responses = inject('responses');
+      const interactive = inject('interactive');
+      const shuffle = computed(() => props.shuffle === true || props.shuffle === 'true');
+      const orientation = computed(() => props.orientation || Orientation.VERTICAL);
+      const responseIdentifier = computed(() => props.responseIdentifier);
+      const isHorizontal = computed(() => orientation.value === Orientation.HORIZONTAL);
+
+      const allContent = slots.default();
+      const nonChoiceContent = allContent.filter(
+        vnode => getComponentTag(vnode) !== 'qti-simple-choice',
+      );
+      const choiceVNodes = allContent.filter(
+        vnode => getComponentTag(vnode) === 'qti-simple-choice',
+      );
+
+      const contentByIdentifier = {};
+      choiceVNodes.forEach(vnode => {
+        contentByIdentifier[vnode.componentOptions.propsData.identifier] =
+          vnode.componentOptions.children;
+      });
+      const allIdentifiers = choiceVNodes.map(vnode => vnode.componentOptions.propsData.identifier);
+
+      function getVariable() {
+        return responses[responseIdentifier.value];
+      }
+
+      const currentOrder = computed(() => {
+        const variable = getVariable();
+        return variable && Array.isArray(variable.value) ? variable.value : [];
+      });
+
+      function isValidOrder(order) {
+        return (
+          order.length === allIdentifiers.length && allIdentifiers.every(id => order.includes(id))
+        );
+      }
+
+      function deriveInitialOrder() {
+        return shuffle.value
+          ? shuffled([...allIdentifiers], QTI_CONTEXT.value.candidateIdentifier)
+          : [...allIdentifiers];
+      }
+
+      // Self-healing: runs once at setup (immediate), and again any time
+      // the underlying response value becomes invalid — e.g. after an
+      // external setAnswerState({}) reset clears it — so the learner
+      // always sees a complete, valid list instead of an empty one.
+      // ASSUMPTION (unverified against QTIVariable's actual source): a
+      // reset Ordered-cardinality variable's .value becomes something
+      // that fails isValidOrder (e.g. null/[]), which is what triggers
+      // re-derivation here.
+      watch(
+        currentOrder,
+        order => {
+          if (!isValidOrder(order)) {
+            const variable = getVariable();
+            if (variable) {
+              variable.value = deriveInitialOrder();
+            }
+          }
+        },
+        { immediate: true },
+      );
+
+      function handleSort({ newArray }) {
+        if (!interactive.value) {
+          return;
+        }
+        const variable = getVariable();
+        if (variable) {
+          variable.value = newArray.map(item => item.identifier);
+        }
+      }
+
+      function moveItem(identifier, direction) {
+        if (!interactive.value) {
+          return;
+        }
+        const order = [...currentOrder.value];
+        const index = order.indexOf(identifier);
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= order.length) {
+          return;
+        }
+        [order[index], order[newIndex]] = [order[newIndex], order[index]];
+        const variable = getVariable();
+        if (variable) {
+          variable.value = order;
+        }
+      }
+
+      return () => {
+        const items = currentOrder.value.map(identifier => ({ identifier }));
+        if (items.length === 0) {
+          return;
+        }
+
+        const rowStyle = {
+          backgroundColor: $themeTokens.surface,
+          borderColor: $themeTokens.fineLine,
+        };
+
+        if (!interactive.value) {
+          // Report/review mode: no drag handles or move buttons
+          return h('div', [
+            ...nonChoiceContent,
+            h(AnswerGuide, { props: { text: reorderInstructions$() } }),
+            h(
+              'ol',
+              {
+                class: [
+                  'qti-order-interaction',
+                  'qti-order-interaction-readonly',
+                  { 'qti-orientation-horizontal': isHorizontal.value },
+                ],
+              },
+              items.map(item =>
+                h(
+                  'li',
+                  { key: item.identifier, class: 'qti-order-row', style: rowStyle },
+                  contentByIdentifier[item.identifier],
+                ),
+              ),
+            ),
+          ]);
+        }
+
+        return h('div', [
+          ...nonChoiceContent,
+          h(AnswerGuide, { props: { text: reorderInstructions$() } }),
+          h(
+            DragContainer,
+            {
+              props: { items },
+              on: { sort: handleSort },
+            },
+            [
+              h(
+                'ul',
+                {
+                  attrs: { 'aria-label': orderListLabel$() },
+                  class: [
+                    attrs.class || '',
+                    'qti-order-interaction',
+                    { 'qti-orientation-horizontal': isHorizontal.value },
+                  ],
+                },
+                items.map((item, index) =>
+                  h(Draggable, { key: item.identifier }, [
+                    h('li', { class: 'qti-order-row', style: rowStyle }, [
+                      h(DragHandle, [
+                        h(DragSortWidget, {
+                          props: {
+                            isFirst: index === 0,
+                            isLast: index === items.length - 1,
+                          },
+                          on: {
+                            moveUp: () => moveItem(item.identifier, -1),
+                            moveDown: () => moveItem(item.identifier, 1),
+                            mousedown: e => e.preventDefault(),
+                          },
+                        }),
+                      ]),
+                      h(
+                        'div',
+                        { class: 'qti-order-row-content' },
+                        contentByIdentifier[item.identifier],
+                      ),
+                    ]),
+                  ]),
+                ),
+              ),
+            ],
+          ),
+        ]);
+      };
+    },
+    props: {
+      shuffle: BooleanProp(false, false),
+      orientation: OrientationProp(false, Orientation.VERTICAL),
+      responseIdentifier: QTIIdentifierProp(true),
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  .qti-order-interaction {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .qti-order-interaction.qti-orientation-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .qti-order-row {
+      margin-block-end: 0;
+    }
+  }
+
+  .qti-order-row {
+    display: flex;
+    align-items: center;
+    padding-block: 12px;
+    padding-inline: 16px;
+    margin-block-end: 8px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+
+    &:last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  .qti-order-row-content {
+    flex: 1;
+    margin-inline-start: 12px;
+  }
+
+  .qti-order-interaction-readonly .qti-order-row {
+    cursor: default;
+  }
+
+</style>
