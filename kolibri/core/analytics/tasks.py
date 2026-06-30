@@ -13,7 +13,8 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
-from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.schedules import EnqueueIn
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 
@@ -25,8 +26,25 @@ DEFAULT_PING_CHECKRATE = 15
 DEFAULT_PING_INTERVAL = 24 * 60
 
 
-@register_task(job_id=DEFAULT_PING_JOB_ID)
-def _ping(started, server, checkrate):
+class PingAtStartup(EnqueueIn):
+    def apply(self, task):
+        self.kwargs = dict(self.kwargs, started=local_now().isoformat())
+        super().apply(task)
+
+
+@register_task(
+    job_id=DEFAULT_PING_JOB_ID,
+    schedule=PingAtStartup(
+        timedelta(0),
+        interval=DEFAULT_PING_INTERVAL * 60,
+        repeat=None,
+        retry_interval=DEFAULT_PING_CHECKRATE * 60,
+    ),
+)
+def _ping(started, server=DEFAULT_SERVER_URL, checkrate=DEFAULT_PING_CHECKRATE):
+    if conf.OPTIONS["Deployment"]["DISABLE_PING"]:
+        get_current_job().stop_repeating()
+        return
     try:
         ping_once(started, server=server)
     except NetworkLocationConnectionFailure:
@@ -57,23 +75,18 @@ def schedule_ping(
     checkrate=DEFAULT_PING_CHECKRATE,
     interval=DEFAULT_PING_INTERVAL,
 ):
-    # If pinging is not disabled by the environment
-    if not conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-        # Scheduler needs datetime object, but job needs (serializable) string
-        now = local_now()
-        started = now.isoformat()
-        try:
-            _ping.enqueue_at(
-                now,
-                interval=interval * 60,
-                retry_interval=checkrate * 60,
-                repeat=None,
-                kwargs=dict(started=started, server=server, checkrate=checkrate),
-            )
-        except JobRunning:
-            pass
-    elif conf.OPTIONS["Deployment"]["DISABLE_PING"]:
-        job_storage.clear(job_id=DEFAULT_PING_JOB_ID)
+    # Scheduler needs a datetime object, but the job needs a serializable string.
+    now = local_now()
+    try:
+        _ping.enqueue_at(
+            now,
+            interval=interval * 60,
+            repeat=None,
+            retry_interval=checkrate * 60,
+            kwargs=dict(started=now.isoformat(), server=server, checkrate=checkrate),
+        )
+    except JobRunning:
+        pass
 
 
 LOCAL_NOTIFICATION_JOB_ID = "local-notifications"
@@ -93,13 +106,9 @@ def _run_local_notification_generation():
         _generate_local_notifications.enqueue_in(next_run)
 
 
-@register_task(job_id=LOCAL_NOTIFICATION_JOB_ID)
+@register_task(
+    job_id=LOCAL_NOTIFICATION_JOB_ID,
+    schedule=EnqueueIn(timedelta(days=DEFAULT_CADENCE_DAYS)),
+)
 def _generate_local_notifications():
     _run_local_notification_generation()
-
-
-def schedule_local_notification_generation():
-    try:
-        _generate_local_notifications.enqueue_in(timedelta(days=DEFAULT_CADENCE_DAYS))
-    except JobRunning:
-        pass

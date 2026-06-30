@@ -797,3 +797,28 @@ class TestBackend:
         assert requeued_orm_job.priority == priority
         assert requeued_orm_job.repeat == repeat - 1
         assert requeued_orm_job.retry_interval == retry_interval
+
+    def test_update_job_repeat_zero_prevents_reschedule(
+        self, defaultbackend, simplejob
+    ):
+        # Enqueue a forever-repeating job, complete it, then persist repeat=0 via
+        # _update_job and confirm reschedule_finished_job_if_needed does not re-arm it.
+        job_id = defaultbackend.schedule(
+            defaultbackend._now(), simplejob, queue=QUEUE, repeat=None, interval=1
+        )
+        defaultbackend.complete_job(job_id)
+
+        # Persist repeat=0 directly on the orm row (the new _update_job param).
+        defaultbackend._update_job(job_id, repeat=0)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        assert orm_job.repeat == 0
+
+        defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+        final_orm_job = defaultbackend.get_orm_job(job_id)
+        final_job = defaultbackend.get_job(job_id)
+
+        # The job must stay completed — not re-queued.
+        assert final_job.state == State.COMPLETED
+        assert final_orm_job.repeat == 0

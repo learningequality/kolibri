@@ -20,7 +20,6 @@ from ..models import LocalNotification
 from ..tasks import _run_local_notification_generation
 from ..tasks import COOLDOWN_DAYS
 from ..tasks import DEFAULT_CADENCE_DAYS
-from ..tasks import schedule_local_notification_generation
 
 
 class LocalNotificationAPITestCase(APITestCase):
@@ -188,9 +187,4 @@ class LocalNotificationTaskTests(TestCase):
         self, mock_create, mock_enqueue
     ):
         _run_local_notification_generation()
-        mock_enqueue.assert_called_once_with(timedelta(days=DEFAULT_CADENCE_DAYS))
-
-    @mock.patch("kolibri.core.analytics.tasks._generate_local_notifications.enqueue_in")
-    def test_schedule_helper_enqueues_default_cadence(self, mock_enqueue):
-        schedule_local_notification_generation()
         mock_enqueue.assert_called_once_with(timedelta(days=DEFAULT_CADENCE_DAYS))

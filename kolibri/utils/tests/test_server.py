@@ -8,8 +8,6 @@ from unittest import TestCase
 import mock
 import pytest
 
-from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.storage import Storage
 from kolibri.utils import server
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
@@ -80,16 +78,7 @@ class TestServerInstallation:
         )
 
 
-@pytest.fixture
-def job_storage():
-    s = Storage()
-    s.clear()
-    yield s
-    s.clear()
-
-
 class TestServerServices:
-    @mock.patch("kolibri.core.deviceadmin.tasks.schedule_vacuum")
     @mock.patch("kolibri.core.analytics.tasks.schedule_ping")
     @mock.patch("kolibri.core.tasks.main.initialize_workers")
     @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
@@ -98,7 +87,6 @@ class TestServerServices:
         mock_kolibri_broadcast,
         initialize_workers,
         schedule_ping,
-        schedule_vacuum,
     ):
         # Start server services
         services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
@@ -129,57 +117,20 @@ class TestServerServices:
         ]
 
 
-@pytest.mark.django_db(databases="__all__", transaction=True)
-class TestServerDefaultScheduledTasks:
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
-    def test_scheduled_jobs_persist_on_restart(
-        self,
-        mock_kolibri_broadcast,
-        job_storage,
-    ):
-        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
-            # Schedule two userdefined jobs
-            from datetime import timedelta
+class TestProcessHookWiring:
+    @mock.patch("kolibri.utils.server.KolibriProcessHook")
+    def test_hooks_subscribe_on_services_bus(self, mock_process_hook, tmp_path):
+        # Process hooks must wire onto the services bus, not only the full server
+        # bus, so plugins like task scheduling run under `kolibri services` too.
+        plugin = mock.MagicMock()
+        hook = mock.MagicMock()
+        hook.MagicBusPluginClass.return_value = plugin
+        mock_process_hook.registered_hooks = [hook]
 
-            from kolibri.utils.time_utils import local_now
+        bus = server.KolibriServicesProcessBus(pid_file=str(tmp_path / "pid"))
 
-            schedule_time = local_now() + timedelta(hours=1)
-            test1 = job_storage.schedule(schedule_time, Job(id))
-            test2 = job_storage.schedule(schedule_time, Job(id))
-
-            # Now, start services plugin
-            default_scheduled_tasks_plugin = server.DefaultScheduledTasksPlugin(
-                mock.MagicMock(name="bus")
-            )
-            default_scheduled_tasks_plugin.START()
-
-            # We must have exactly six scheduled jobs: the two user-defined
-            # jobs above plus four server-defined jobs (pingback, local
-            # notifications, vacuum, and streamed cache cleanup).
-            from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
-            from kolibri.core.analytics.tasks import LOCAL_NOTIFICATION_JOB_ID
-            from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
-            from kolibri.core.deviceadmin.tasks import STREAMED_CACHE_CLEANUP_JOB_ID
-
-            assert len(job_storage) == 6
-            assert job_storage.get_job(test1) is not None
-            assert job_storage.get_job(test2) is not None
-            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert job_storage.get_job(LOCAL_NOTIFICATION_JOB_ID) is not None
-            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
-            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
-
-            # Restart services
-            default_scheduled_tasks_plugin.START()
-
-            # Make sure all scheduled jobs persist after restart
-            assert len(job_storage) == 6
-            assert job_storage.get_job(test1) is not None
-            assert job_storage.get_job(test2) is not None
-            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert job_storage.get_job(LOCAL_NOTIFICATION_JOB_ID) is not None
-            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
-            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
+        hook.MagicBusPluginClass.assert_called_once_with(bus)
+        plugin.subscribe.assert_called_once_with()
 
 
 class TestZeroConfPlugin:

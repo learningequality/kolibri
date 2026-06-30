@@ -1,11 +1,18 @@
 import json
 import zlib
+from datetime import timedelta
 
 import mock
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 from requests.models import Response
+
+from kolibri.core.analytics.tasks import _ping
+from kolibri.core.analytics.tasks import DEFAULT_PING_CHECKRATE
+from kolibri.core.analytics.tasks import DEFAULT_SERVER_URL
+from kolibri.core.analytics.tasks import PingAtStartup
+from kolibri.utils import conf
 
 from .test_utils import BaseDeviceSetupMixin
 
@@ -36,6 +43,43 @@ def mocked_network_client_post_wrapper(json_data, status_code):
         return MockResponse()
 
     return mocked_network_client_post
+
+
+DEFAULT_PING_INTERVAL_SECONDS = 24 * 60 * 60
+
+
+class PingTaskTestCase(TestCase):
+    def test_ping_at_startup_apply_stamps_started(self):
+        fake_now_str = "2026-01-01T00:00:00+00:00"
+        task = mock.MagicMock()
+        schedule = PingAtStartup(
+            timedelta(0),
+            interval=DEFAULT_PING_INTERVAL_SECONDS,
+            repeat=None,
+            retry_interval=DEFAULT_PING_CHECKRATE * 60,
+        )
+        with mock.patch("kolibri.core.analytics.tasks.local_now") as mock_local_now:
+            mock_local_now.return_value.isoformat.return_value = fake_now_str
+            schedule.apply(task)
+        task.enqueue_in.assert_called_once()
+        _, call_kwargs = task.enqueue_in.call_args
+        assert call_kwargs["kwargs"]["started"] == fake_now_str
+
+    @mock.patch("kolibri.core.analytics.tasks.ping_once")
+    @mock.patch("kolibri.core.analytics.tasks.get_current_job")
+    def test_ping_disabled_stops_repeating(self, mock_get_job, mock_ping_once):
+        with mock.patch.dict(conf.OPTIONS["Deployment"], {"DISABLE_PING": True}):
+            _ping("t", DEFAULT_SERVER_URL, DEFAULT_PING_CHECKRATE)
+        mock_get_job.return_value.stop_repeating.assert_called_once()
+        mock_ping_once.assert_not_called()
+
+    @mock.patch("kolibri.core.analytics.tasks.ping_once")
+    @mock.patch("kolibri.core.analytics.tasks.get_current_job")
+    def test_ping_enabled_calls_ping_once(self, mock_get_job, mock_ping_once):
+        with mock.patch.dict(conf.OPTIONS["Deployment"], {"DISABLE_PING": False}):
+            _ping("t", DEFAULT_SERVER_URL, DEFAULT_PING_CHECKRATE)
+        mock_get_job.return_value.stop_repeating.assert_not_called()
+        mock_ping_once.assert_called_once()
 
 
 class PingCommandTestCase(BaseDeviceSetupMixin, TestCase):

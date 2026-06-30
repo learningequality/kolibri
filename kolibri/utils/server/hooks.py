@@ -6,7 +6,8 @@ from kolibri.plugins.hooks import KolibriHook
 
 @define_hook
 class KolibriProcessHook(KolibriHook):
-    # A hook to add a magicbus plugin to the full server lifecycle
+    # A hook to add a magicbus plugin to every Kolibri process bus lifecycle
+    # (the services-only bus as well as the full server)
 
     @property
     @abstractmethod
