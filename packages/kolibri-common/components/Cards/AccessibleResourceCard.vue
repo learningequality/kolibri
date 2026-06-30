@@ -36,6 +36,7 @@
     <template #footer>
       <div class="default-icon">
         <KIconButton
+          v-if="showBookmarkButton"
           :icon="isBookmarked ? 'bookmark' : 'bookmarkEmpty'"
           size="mini"
           :color="$themePalette.grey.v_700"
@@ -96,6 +97,10 @@
       isBookmarked: {
         type: Boolean,
         default: false,
+      },
+      showBookmarkButton: {
+        type: Boolean,
+        default: true,
       },
       headingLevel: {
         type: Number,

@@ -7,6 +7,7 @@ import AssignCourseSidePanel from '../views/courses/sidePanels/AssignCourse/inde
 import CourseDetailsSubpage from '../views/courses/sidePanels/AssignCourse/subpages/CourseDetails.vue';
 import SelectRecipientsSubpage from '../views/courses/sidePanels/AssignCourse/subpages/SelectRecipients.vue';
 import AssignCourseIndexSubpage from '../views/courses/sidePanels/AssignCourse/subpages/AssignCourseIndex.vue';
+import CoursePreviewSidePanel from '../views/courses/sidePanels/AssignCourse/subpages/CoursePreviewSidePanel.vue';
 import { classIdParamRequiredGuard, RouteSegments, COMPACT_UUID_PATTERN } from './utils';
 
 const { OPTIONAL_CLASS, ALL_COURSES, CLASS, COURSE_SESSION } = RouteSegments;
@@ -77,6 +78,11 @@ export default [
             component: CourseDetailsSubpage,
           },
           {
+            name: PageNames.COURSE_SUMMARY_ASSIGN_COURSE_PREVIEW,
+            path: ':courseId/preview',
+            component: CoursePreviewSidePanel,
+          },
+          {
             name: PageNames.COURSE_SUMMARY_ASSIGN_SELECT_RECIPIENTS,
             path: 'select-recipients',
             component: SelectRecipientsSubpage,
@@ -143,6 +149,11 @@ export default [
             name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
             path: ':courseId/course-details',
             component: CourseDetailsSubpage,
+          },
+          {
+            name: PageNames.COURSES_ASSIGN_COURSE_PREVIEW,
+            path: ':courseId/preview',
+            component: CoursePreviewSidePanel,
           },
           {
             name: PageNames.COURSES_ASSIGN_SELECT_RECIPIENTS,
