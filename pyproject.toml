@@ -62,7 +62,7 @@ kolibri = "kolibri.utils.cli:main"
 "kolibri.plugins.safe_html5_viewer" = "kolibri.plugins.safe_html5_viewer"
 
 [project.optional-dependencies]
-postgres = ["psycopg2-binary==2.9.10; python_version >= '3.8' and python_version < '3.14'"]
+postgres = ["psycopg2-binary==2.9.11; python_version >= '3.9' and python_version <= '3.14'"]
 storages = ["django-storages[google]==1.14.5; python_version >= '3.8'", "google-auth==2.38.0; python_version >= '3.8'"]
 
 [dependency-groups]
