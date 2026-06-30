@@ -156,6 +156,9 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.14']
     services:
       postgres:
         image: postgres:16
@@ -178,10 +181,10 @@ jobs:
         with:
           enable-cache: true
           cache-python: true
-      - name: Install Python 3.9
-        run: uv python install 3.9
+      - name: Install Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
-        run: uv sync --group test --extra postgres --python 3.9
+        run: uv sync --group test --extra postgres --python ${{ matrix.python-version }}
       - name: Test with SSL enabled (require mode)
         run: uv run python -O -m pytest kolibri/core/public/test/test_api.py -k SyncQueueViewSetDeletedUsersTestCase --color=no
         env:
