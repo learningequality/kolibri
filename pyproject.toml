@@ -107,7 +107,7 @@ test = [
     "setuptools-scm>=8,<10; python_version >= '3.8'",
     "beautifulsoup4==4.8.2",
     "factory-boy==2.7.0",
-    "fake-factory==0.5.7",
+    "fake-factory==9999.9.9",
     "mock==2.0.0",
     "mixer==6.0.1",
     "pytest==6.2.5; python_version < '3.14'",
