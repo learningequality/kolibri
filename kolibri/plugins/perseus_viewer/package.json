@@ -40,7 +40,7 @@
     "@khanacademy/wonder-stuff-core": "^3.0.0",
     "@phosphor-icons/core": "^2.1.1",
     "@popperjs/core": "^2.10.2",
-    "@swc/helpers": "^0.5.18",
+    "@swc/helpers": "^0.5.23",
     "aphrodite": "https://github.com/learningequality/aphrodite/",
     "classnames": "^1.1.4",
     "fractional": "^1.0.0",
