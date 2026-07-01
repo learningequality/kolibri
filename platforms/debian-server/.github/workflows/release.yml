@@ -10,7 +10,7 @@ jobs:
       version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Extract version from changelog
         id: changelog_version
         run: |
@@ -42,7 +42,7 @@ jobs:
     needs: check_version
     steps:
       - name: checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Set changelog distribution to runner series
         run: |
           SERIES=$(. /etc/os-release && echo "$VERSION_CODENAME")
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install build dependencies
         run: make install-build-deps
       - name: Install Kolibri
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -166,7 +166,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -203,7 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: |
           sudo apt-get update
