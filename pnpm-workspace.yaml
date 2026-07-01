@@ -20,7 +20,7 @@ catalog:
   lodash: ^4.17.23
   vue: 2.7.16
   vue-meta: ^2.4.0
-  vue-router: ^3.6.5
+  vue-router: ^5.1.0
   vuex: ^3.6.2
   xstate: ^4.38.3
 onlyBuiltDependencies:
