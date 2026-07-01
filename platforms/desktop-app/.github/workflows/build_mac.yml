@@ -59,11 +59,11 @@ jobs:
         run: |
           echo "Must specify exactly one reference for the whl file to build the DMG with."
           exit 1
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
         with:
           fetch-depth: 0
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-app

@@ -52,12 +52,12 @@ jobs:
           echo "Must specify exactly one reference for the whl file to build the EXE with."
           exit 1
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
         with:
           fetch-depth: 0
       - name: Check out specific ref
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-app
