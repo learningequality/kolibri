@@ -46,7 +46,7 @@ jobs:
     needs: build_exe
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download Windows installer
         uses: actions/download-artifact@v8
         with:
@@ -62,7 +62,7 @@ jobs:
     needs: build_dmg
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Download macOS DMG
         uses: actions/download-artifact@v8
         with:
