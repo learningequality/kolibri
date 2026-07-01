@@ -1157,9 +1157,9 @@ class UserUpdateTestCase(APITestCase):
         provision_device()
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
-        self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -1286,9 +1286,9 @@ class UserDeleteTestCase(APITestCase):
         provision_device()
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
-        self.user = FacilityUserFactory.create(facility=self.facility)
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -3382,12 +3382,13 @@ class CSRFProtectedAuthTestCase(APITestCase):
 
 
 class SetNonSpecifiedPasswordViewTestCase(APITestCase):
-    def setUp(self):
-        self.url = reverse("kolibri:core:setnonspecifiedpassword")
-        self.facility = FacilityFactory.create()
-        self.user = models.FacilityUser.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse("kolibri:core:setnonspecifiedpassword")
+        cls.facility = FacilityFactory.create()
+        cls.user = models.FacilityUser.objects.create(
             username="testuser",
-            facility=self.facility,
+            facility=cls.facility,
             password=demographics.NOT_SPECIFIED,
         )
 
@@ -3681,8 +3682,11 @@ class RemoteAccessSessionTestCase(APITestCase):
 class KolibriDataPortalViewSetTestCase(APITestCase):
     databases = "__all__"
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility, cls.superuser = setup_device()
+
     def setUp(self):
-        self.facility, self.superuser = setup_device()
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
 
     @patch("kolibri.core.api.enqueue_automatic_kdp_sync")
