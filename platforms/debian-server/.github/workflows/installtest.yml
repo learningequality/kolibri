@@ -14,7 +14,7 @@ jobs:
       ppa_series: ${{ steps.detect_series.outputs.PPA_SERIES }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Detect runner series
         id: detect_series
         run: |
@@ -46,7 +46,7 @@ jobs:
         runner: ['ubuntu-latest', 'ubuntu-24.04-arm']
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup environment
         run: |
           apt-get update
