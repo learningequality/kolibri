@@ -41,9 +41,7 @@ version_file = "src/kolibri_app/_version.py"
 fallback_version = "0.0.0.dev0"
 
 [tool.uv]
-# Update this date when intentionally pulling in new or updated packages.
-# uv requires an RFC 3339 timestamp here — relative durations like "7 days" are NOT valid.
-exclude-newer = "2026-06-03T00:00:00Z"
+exclude-newer = "7 days"
 
 [tool.ruff]
 line-length = 88
