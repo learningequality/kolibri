@@ -1,6 +1,11 @@
 import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
-import { deriveUserInputFromSerializedState } from '@khanacademy/perseus';
+import { deriveUserInputFromSerializedState, init } from '@khanacademy/perseus';
 import sorterItem from './fixtures/sorter-item.json';
+
+// deriveUserInputFromSerializedState reads the widget registry, which Perseus
+// requires be populated first. Production does this via perseus.init() (see
+// PerseusRendererIndex.vue); mirror it here.
+init();
 
 function migrateItem(rawItem) {
   const result = parseAndMigratePerseusItem(rawItem);
