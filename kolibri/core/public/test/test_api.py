@@ -2,7 +2,6 @@ import platform
 import time
 import uuid
 
-import factory
 import mock
 from django.urls import reverse
 from django.utils import timezone
@@ -38,32 +37,39 @@ from kolibri.core.device.utils import set_device_settings
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
 from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
+from kolibri.core.test.model_factory import ModelFactory
+from kolibri.core.test.model_factory import sequence
 
 
-class ContentNodeFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = ContentNode
+class ContentNodeFactory(ModelFactory):
+    model = ContentNode
+    _title = sequence("contentnode%d")
 
-    id = factory.LazyFunction(uuid.uuid4)
-    content_id = factory.LazyFunction(uuid.uuid4)
-    title = factory.Sequence(lambda n: "contentnode%d" % n)
-    available = True
-    lang_id = "en"
-
-
-class FileFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = File
-
-    id = factory.LazyFunction(uuid.uuid4)
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "id": uuid.uuid4,
+            "content_id": uuid.uuid4,
+            "title": cls._title,
+            "available": True,
+            "lang_id": "en",
+        }
 
 
-class LocalFileFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = LocalFile
+class FileFactory(ModelFactory):
+    model = File
 
-    available = True
-    file_size = 10
+    @classmethod
+    def field_defaults(cls):
+        return {"id": uuid.uuid4}
+
+
+class LocalFileFactory(ModelFactory):
+    model = LocalFile
+
+    @classmethod
+    def field_defaults(cls):
+        return {"available": True, "file_size": 10}
 
 
 def create_mini_channel(
