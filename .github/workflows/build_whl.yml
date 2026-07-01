@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get -y -qq update
           sudo apt-get install -y gettext sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
           lfs: true
@@ -47,7 +47,7 @@ jobs:
       # while restore-keys pulls the most recent cache for the same lockfile —
       # primed on `develop` by warm_build_cache.yml so fork PRs get a hit too.
       - name: Cache webpack build
-        uses: actions/cache@v6.0.0
+        uses: actions/cache@v6.1.0
         with:
           path: node_modules/.cache/webpack
           key: webpack-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
@@ -58,7 +58,7 @@ jobs:
       # once `develop` has primed it. `.cext_cache` is the pip cache dir that the
       # `staticdeps-cext` Makefile target writes to (via --cache-path).
       - name: Cache C extension downloads
-        uses: actions/cache@v6.0.0
+        uses: actions/cache@v6.1.0
         with:
           path: .cext_cache
           key: cext-${{ hashFiles('requirements/cext.txt', 'requirements/cext_noarch.txt') }}
