@@ -10,12 +10,12 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_path_to_callable
-from kolibri.core.tasks.worker import Worker
+from kolibri.core.tasks.worker import WorkerSupervisor
 
 
 @pytest.fixture
 def storage_fixture():
-    e = Worker()
+    e = WorkerSupervisor()
     b = e.storage
     b.clear(force=True)
     yield b

@@ -112,9 +112,11 @@ class TestServerServices:
         # Initialize and ready services plugin for testing
         services_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
 
-        from kolibri.core.tasks.worker import Worker
+        from kolibri.core.tasks.worker import WorkerSupervisor
 
-        services_plugin.worker = mock.MagicMock(name="worker", spec_set=Worker)
+        services_plugin.worker = mock.MagicMock(
+            name="worker", spec_set=WorkerSupervisor
+        )
 
         # Now, let us stop services plugin
         services_plugin.STOP()

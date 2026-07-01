@@ -6,8 +6,7 @@ from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy
-from kolibri.core.tasks.worker import Worker
-from kolibri.utils import conf
+from kolibri.core.tasks.worker import WorkerSupervisor
 
 QUEUE = "pytest"
 
@@ -40,7 +39,7 @@ def toggle_flag(flag_id):
 
 @pytest.fixture
 def worker():
-    b = Worker(regular_workers=1, high_workers=1)
+    b = WorkerSupervisor(regular_workers=1, high_workers=1)
     b.storage.clear(force=True)
     yield b
     b.storage.clear(force=True)
@@ -103,20 +102,19 @@ class TestWorker:
         assert job.state == State.COMPLETED
 
     def test_enqueue_job_runs_job_once(self, worker, flag):
-        # Do conditional check in here, as it seems to not work properly
-        # inside a pytest.mark.skipIf
-        if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
-            b = Worker(regular_workers=1, high_workers=1)
-            job = Job(toggle_flag, args=(flag.event_id,))
-            worker.storage.enqueue_job(job, QUEUE)
+        # Two concurrent supervisors must not both pick up the same job -
+        # if the job runs twice, the flag toggles back off.
+        b = WorkerSupervisor(regular_workers=1, high_workers=1)
+        job = Job(toggle_flag, args=(flag.event_id,))
+        worker.storage.enqueue_job(job, QUEUE)
 
-            while job.state != State.COMPLETED:
-                job = worker.storage.get_job(job.job_id)
-                time.sleep(0.5)
+        while job.state != State.COMPLETED:
+            job = worker.storage.get_job(job.job_id)
+            time.sleep(0.5)
 
-            assert job.state == State.COMPLETED
-            assert flag.is_set()
-            b.shutdown()
+        assert job.state == State.COMPLETED
+        assert flag.is_set()
+        b.shutdown()
 
     def test_can_handle_unicode_exceptions(self, worker):
         # Make sure task exception info is not an object, but is either a string or None.
@@ -171,6 +169,13 @@ class TestWorker:
         assert job is None
 
     def test_high_tasks_dont_wait_when_regular_workers_busy(self, worker):
+        # Stop the supervisor thread first - with the fake busy mapping below
+        # it too becomes eligible to claim the HIGH job, and on postgres its
+        # skip_locked claim makes this test's own claim return None. We are
+        # testing get_next_job's priority logic directly, not the loop.
+        worker.supervisor_thread.stop()
+        worker.supervisor_thread.join()
+
         # We have one task running right now.
         worker.future_job_mapping = {"job_id": "future"}
 

@@ -5,6 +5,7 @@ import traceback
 import uuid
 from collections import namedtuple
 
+from kolibri.core.tasks.constants import NO_VALUE
 from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
     Priority,
 )
@@ -69,11 +70,20 @@ class State:
         PENDING,
         SCHEDULED,
         QUEUED,
+        SELECTED,
         RUNNING,
         FAILED,
         CANCELING,
         CANCELED,
         COMPLETED,
+    }
+
+    # States in which a supervisor may hold the job - ownership only exists
+    # while the job is in one of these states.
+    SUPERVISED_STATES = {
+        SELECTED,
+        RUNNING,
+        CANCELING,
     }
 
 
@@ -110,8 +120,16 @@ class Job:
     to the workers.
     """
 
-    UPDATEABLE_KEYS = {
+    # Stored in their own ORM column (the source of truth), not in saved_job;
+    # restored from the row on inflation. See Storage._orm_to_job.
+    PROJECTED_KEYS = {
+        "job_id",
+        "func",
         "state",
+    }
+
+    # Mutable fields a storage update may write through _update_job's kwargs.
+    UPDATEABLE_KEYS = {
         "exception",
         "traceback",
         "track_progress",
@@ -124,10 +142,9 @@ class Job:
         "kwargs",
     }
 
+    # Fields with no column of their own, persisted only in the saved_job JSON.
     JSON_KEYS = UPDATEABLE_KEYS | {
-        "job_id",
         "facility_id",
-        "func",
         "long_running",
     }
 
@@ -152,13 +169,23 @@ class Job:
         return string_result
 
     @classmethod
-    def from_json(cls, json_string):
-        working_dictionary = json.loads(json_string)
+    def from_orm(cls, orm_job):
+        """
+        Reconstruct a Job from an ORM row: PROJECTED_KEYS come from their
+        columns, the rest from the saved_job JSON. Stale copies of the
+        projected keys in legacy payloads are dropped.
+        """
+        working_dictionary = json.loads(orm_job.saved_job)
 
-        # func is required for a Job so it will always be in working_dictionary
-        func = working_dictionary.pop("func")
+        for projected in cls.PROJECTED_KEYS:
+            working_dictionary.pop(projected, None)
 
-        return Job(func, **working_dictionary)
+        return cls(
+            orm_job.func,
+            job_id=orm_job.id,
+            state=orm_job.state,
+            **working_dictionary,
+        )
 
     @classmethod
     def from_job(cls, job, **kwargs):
@@ -230,6 +257,10 @@ class Job:
         self.args = args
         self.kwargs = kwargs or {}
         self._storage = None
+        # This execution's fence token (see execute) - the no-check sentinel
+        # outside of execution, so that instances inflated from storage (e.g.
+        # in API code) can update an owned job freely.
+        self._supervisor_id = NO_VALUE
         self.func = callable_to_import_path(func)
 
     def _check_storage_attached(self):
@@ -248,7 +279,7 @@ class Job:
         self._storage = value
 
     def save_meta(self):
-        self.storage.save_job_meta(self)
+        self.storage.save_job_meta(self, expected_supervisor_id=self._supervisor_id)
 
     def _update_meta(self, **kwargs):
         for key, value in kwargs.items():
@@ -286,6 +317,7 @@ class Job:
                 progress,
                 total_progress,
                 extra_metadata=self.extra_metadata,
+                expected_supervisor_id=self._supervisor_id,
             )
             self._last_saved_progress = self.progress
             self._last_saved_total_progress = self.total_progress
@@ -301,11 +333,14 @@ class Job:
             process=process,
             thread=thread,
             extra=extra,
+            expected_supervisor_id=self._supervisor_id,
         )
 
     def check_for_cancel(self):
         if self.cancellable:
-            if self.storage.check_job_canceled(self.job_id):
+            if self.storage.check_job_canceled(
+                self.job_id, expected_supervisor_id=self._supervisor_id
+            ):
                 raise UserCancelledError()
 
     def is_cancelled(self):
@@ -320,7 +355,11 @@ class Job:
         if self.cancellable == cancellable:
             return
         self.cancellable = cancellable
-        self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
+        self.storage.save_job_as_cancellable(
+            self.job_id,
+            cancellable=cancellable,
+            expected_supervisor_id=self._supervisor_id,
+        )
 
     def retry_in(self, dt, **kwargs):
         if getattr(current_state_tracker, "job", None) is not self:
@@ -348,10 +387,19 @@ class Job:
 
         self._retry_in_kwargs = kwargs
 
-    def execute(self):
+    def execute(self, supervisor_id=None):
         self._check_storage_attached()
 
-        self.storage.mark_job_as_running(self.job_id)
+        # This execution's fence token, carried as the expected owner on every
+        # write back to storage. None means unowned direct execution, not a
+        # no-check.
+        self._supervisor_id = supervisor_id
+
+        # Mark RUNNING for worker contexts that call execute() directly (e.g.
+        # Android's WorkManager); preserves an owner set by a dispatcher.
+        self.storage.mark_job_as_running(
+            self.job_id, expected_supervisor_id=self._supervisor_id
+        )
 
         setattr(current_state_tracker, "job", self)
 
@@ -368,9 +416,13 @@ class Job:
             # First check whether the job has been cancelled
             self.check_for_cancel()
             result = func(*args, **kwargs)
-            self.storage.complete_job(self.job_id, result=result)
+            accepted = self.storage.complete_job(
+                self.job_id, result=result, expected_supervisor_id=self._supervisor_id
+            )
         except UserCancelledError:
-            self.storage.mark_job_as_canceled(self.job_id)
+            accepted = self.storage.mark_job_as_canceled(
+                self.job_id, expected_supervisor_id=self._supervisor_id
+            )
         except Exception as e:
             exception = e
             # If any error occurs, mark the job as failed and save the exception
@@ -379,13 +431,21 @@ class Job:
             logger.error(
                 "Job {} raised an exception: {}".format(self.job_id, traceback_str)
             )
-            self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
-        self.storage.reschedule_finished_job_if_needed(
-            self.job_id,
-            delay=self._retry_in_delay,
-            exception=exception,
-            **self._retry_in_kwargs,
-        )
+            accepted = self.storage.mark_job_as_failed(
+                self.job_id,
+                e,
+                traceback_str,
+                expected_supervisor_id=self._supervisor_id,
+            )
+        if accepted:
+            # A rejected terminal write means another worker now supervises
+            # this job; don't requeue.
+            self.storage.reschedule_finished_job_if_needed(
+                self.job_id,
+                delay=self._retry_in_delay,
+                exception=exception,
+                **self._retry_in_kwargs,
+            )
         setattr(current_state_tracker, "job", None)
 
     @property
