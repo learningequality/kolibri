@@ -50,7 +50,7 @@ jobs:
               print(f"changed={'true' if has_changed else 'false'}", file=f)
         shell: python
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
@@ -126,7 +126,7 @@ jobs:
       - name: Install dev dependencies
         run: uv sync --group dev --python 3.11
       - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.8
+        uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
