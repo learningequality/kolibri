@@ -868,11 +868,10 @@ wheels = [
 
 [[package]]
 name = "django-sortedm2m"
-version = "3.1.1"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/1c/72/d406ef54c2b111374f6e1be40744a01be73279ea8aa38a09dd2f08bee568/django-sortedm2m-3.1.1.tar.gz", hash = "sha256:136f3d4e0820b351608a7141d88ac3ba7fafcd37a9b8361ad00ffe616a790be5", size = 41344, upload-time = "2021-09-30T06:08:50.431Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/08/90ecda8de2f64c1016adddaa613b4dc247151dbe781e4e350af5a90386e7/django_sortedm2m-3.1.1-py2.py3-none-any.whl", hash = "sha256:c67ae0757e8e60ded15a9ba04d0862fe39fba3d5b865899c2472166ff0050f2c", size = 38245, upload-time = "2021-09-30T06:09:52.525Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/59/368d68a415b2818dcf95044a14caa435d0140960be3b23ea8b264c8afda7/django_sortedm2m-4.0.0-py2.py3-none-any.whl", hash = "sha256:7e76f3f3ea3184b4ca1d4043ec75316c606d00f5534fc71e69981d8b2198ff33", size = 37782, upload-time = "2024-08-11T23:33:44.926Z" },
 ]
 
 [[package]]
@@ -2794,7 +2793,7 @@ base = [
     { name = "django-js-reverse", specifier = "==0.10.2" },
     { name = "django-mptt", specifier = "==0.14.0" },
     { name = "django-redis-cache", specifier = "==3.0.1" },
-    { name = "django-sortedm2m", specifier = "==3.1.1" },
+    { name = "django-sortedm2m", specifier = "==4.0.0" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "idna", specifier = "==3.7" },
@@ -2833,7 +2832,7 @@ dev = [
     { name = "django-mptt", specifier = "==0.14.0" },
     { name = "django-redis-cache", specifier = "==3.0.1" },
     { name = "django-silk", marker = "python_full_version >= '3.8'" },
-    { name = "django-sortedm2m", specifier = "==3.1.1" },
+    { name = "django-sortedm2m", specifier = "==4.0.0" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "drf-yasg", marker = "python_full_version >= '3.8'", specifier = "==1.21.7" },
     { name = "factory-boy", specifier = "==2.7.0" },
@@ -2885,7 +2884,7 @@ docs = [
     { name = "django-js-reverse", specifier = "==0.10.2" },
     { name = "django-mptt", specifier = "==0.14.0" },
     { name = "django-redis-cache", specifier = "==3.0.1" },
-    { name = "django-sortedm2m", specifier = "==3.1.1" },
+    { name = "django-sortedm2m", specifier = "==4.0.0" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "idna", specifier = "==3.7" },
@@ -2927,7 +2926,7 @@ load-test = [
     { name = "django-js-reverse", specifier = "==0.10.2" },
     { name = "django-mptt", specifier = "==0.14.0" },
     { name = "django-redis-cache", specifier = "==3.0.1" },
-    { name = "django-sortedm2m", specifier = "==3.1.1" },
+    { name = "django-sortedm2m", specifier = "==4.0.0" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "html5lib", specifier = "==1.1" },
     { name = "idna", specifier = "==3.7" },
@@ -2966,7 +2965,7 @@ test = [
     { name = "django-js-reverse", specifier = "==0.10.2" },
     { name = "django-mptt", specifier = "==0.14.0" },
     { name = "django-redis-cache", specifier = "==3.0.1" },
-    { name = "django-sortedm2m", specifier = "==3.1.1" },
+    { name = "django-sortedm2m", specifier = "==4.0.0" },
     { name = "djangorestframework", specifier = "==3.14.0" },
     { name = "factory-boy", specifier = "==2.7.0" },
     { name = "fake-factory", specifier = "==0.5.7" },

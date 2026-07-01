@@ -99,7 +99,7 @@ base = [
     "importlib-metadata==4.8.3",
     "importlib_resources==5.4.0",
     "json-schema-validator==2.4.1",
-    "django-sortedm2m==3.1.1",
+    "django-sortedm2m==4.0.0",
 ]
 test = [
     {include-group = "base"},
