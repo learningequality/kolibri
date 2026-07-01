@@ -117,7 +117,7 @@ jobs:
           ref: develop
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           cache-python: true
