@@ -49,7 +49,7 @@ jobs:
       contents: read # Required for npm provenance attestation
       id-token: write # Required for npm OIDC trusted publishing
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.0
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
