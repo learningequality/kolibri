@@ -216,3 +216,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Rajesh Vinod Uchil | rajeshuchil |
 | Aadarsh Mahesh K | AadarshM07 |
 | Nitya Jain | curiouscoder-cmd |
+| Shoaib Ahmad | soaebhasan12 |
+| Soumyadip  Das Mahapatra | Divinesoumyadip |
+| Aaditya Singh | aadityasingh9601 |
+| withme | devswithme |
