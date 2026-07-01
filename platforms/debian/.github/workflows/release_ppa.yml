@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: learningequality/kolibri-installer-debian
           ref: ${{ github.ref }}
@@ -80,7 +80,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: learningequality/kolibri-installer-debian
           ref: ${{ github.ref }}
