@@ -46,6 +46,8 @@ from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.core.mixins import FilterByChecksumQuerysetMixin
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
+from kolibri.core.utils.model_router import KolibriModelRouter
+from kolibri.deployment.default.sqlite_db_names import VIRTUAL_CONTENTNODE
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
@@ -594,3 +596,29 @@ class ContentRemovalRequest(ContentRequest):
 
     class Meta:
         proxy = True
+
+
+class VirtualContentNode(models.Model):
+    id = UUIDField(primary_key=True)
+    root_id = UUIDField()
+    channel_id = UUIDField()
+    title = models.CharField(max_length=200, blank=True)
+    kind = models.CharField(max_length=200, choices=content_kinds.choices, blank=True)
+    options = JSONField(default={}, blank=True, null=True)
+
+    class Meta:
+        app_label = "content"
+
+
+class VirtualContentRoot(models.Model):
+    root_id = UUIDField(primary_key=True)
+    channel_id = UUIDField()
+    local_file_id = UUIDField()
+
+    class Meta:
+        app_label = "content"
+
+
+class VirtualContentNodeRouter(KolibriModelRouter):
+    MODEL_CLASSES: ClassVar[set] = {VirtualContentNode, VirtualContentRoot}
+    DB_NAME = VIRTUAL_CONTENTNODE
