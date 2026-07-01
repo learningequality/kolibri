@@ -39,7 +39,7 @@
     "kolibri-zip": "workspace:*",
     "lodash": "catalog:",
     "toposort-class": "^1.0.1",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.1"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"

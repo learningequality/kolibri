@@ -26,7 +26,7 @@
     "lodash": "catalog:",
     "qrcode": "^1.5.4",
     "screenfull": "^5.2.0",
-    "uuid": "^11.1.0",
+    "uuid": "^14.0.1",
     "vue-router": "catalog:",
     "vuex": "catalog:",
     "xstate": "catalog:"
