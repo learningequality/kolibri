@@ -641,11 +641,11 @@ wheels = [
 
 [[package]]
 name = "colorama"
-version = "0.4.5"
+version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2b/65/24d033a9325ce42ccbfa3ca2d0866c7e89cc68e5b9d92ecaba9feef631df/colorama-0.4.5.tar.gz", hash = "sha256:e6c6b4334fc50988a639d9b98aa429a0b57da6e17b9a44f0451f930b6967b7a4", size = 27469, upload-time = "2022-06-16T12:34:47.78Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44", size = 27697, upload-time = "2022-10-25T02:36:22.414Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/77/8b/7550e87b2d308a1b711725dfaddc19c695f8c5fa413c640b2be01662f4e6/colorama-0.4.5-py2.py3-none-any.whl", hash = "sha256:854bf444933e37f5824ae7bfc1e98d5bce2ebe4160d46b5edf346a89358e99da", size = 16204, upload-time = "2022-06-16T12:34:45.998Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
 ]
 
 [[package]]
@@ -2784,7 +2784,7 @@ provides-extras = ["postgres", "storages"]
 base = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
-    { name = "colorama", specifier = "==0.4.5" },
+    { name = "colorama", specifier = "==0.4.6" },
     { name = "colorlog", specifier = "==6.10.1" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
@@ -2821,7 +2821,7 @@ dev = [
     { name = "beautifulsoup4", specifier = "==4.8.2" },
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
-    { name = "colorama", specifier = "==0.4.5" },
+    { name = "colorama", specifier = "==0.4.6" },
     { name = "colorlog", specifier = "==6.10.1" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "coreapi", marker = "python_full_version >= '3.8'", specifier = "==2.3.3" },
@@ -2875,7 +2875,7 @@ dev = [
 docs = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
-    { name = "colorama", specifier = "==0.4.5" },
+    { name = "colorama", specifier = "==0.4.6" },
     { name = "colorlog", specifier = "==6.10.1" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
@@ -2917,7 +2917,7 @@ docs = [
 load-test = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
-    { name = "colorama", specifier = "==0.4.5" },
+    { name = "colorama", specifier = "==0.4.6" },
     { name = "colorlog", specifier = "==6.10.1" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
@@ -2956,7 +2956,7 @@ test = [
     { name = "beautifulsoup4", specifier = "==4.8.2" },
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
-    { name = "colorama", specifier = "==0.4.5" },
+    { name = "colorama", specifier = "==0.4.6" },
     { name = "colorlog", specifier = "==6.10.1" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
