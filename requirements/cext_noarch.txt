@@ -3,4 +3,4 @@
 # arch/OS/pyVesion
 pyOpenSSL==23.2.0
 asn1crypto==1.5.1
-pycparser==2.21
+pycparser==3.0
