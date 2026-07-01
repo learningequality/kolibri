@@ -689,7 +689,7 @@ def map_file(file):
 contentnode_previously_omitted_fields = {
     "learner_needs": [],
     "on_device_resources": None,
-    "modality": lambda resource: (resource.get("options", {}).get("modality", None)),
+    "modality": lambda resource: resource.get("options", {}).get("modality", None),
 }
 
 

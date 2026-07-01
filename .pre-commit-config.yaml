@@ -1,7 +1,7 @@
 exclude: (\.git/|\.tox/|\.venv/|build/|static/(?!assets/fonts)|dist/|node_modules/|kolibripip\.pex)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: check-yaml
@@ -12,7 +12,7 @@ repos:
       - id: end-of-file-fixer
         exclude: '^.+?(\.json|\.po)$'
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.2
+    rev: 0.11.26
     hooks:
       - id: uv-lock
   - repo: https://github.com/google/yamlfmt
@@ -21,11 +21,11 @@ repos:
       - id: yamlfmt
         exclude: '^pnpm-lock\.yaml$'
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.11
+    rev: v1.7.12
     hooks:
       - id: actionlint
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.4
+    rev: v0.15.20
     hooks:
       - id: ruff
         args: [--fix]
