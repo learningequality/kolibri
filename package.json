@@ -43,7 +43,7 @@
   "devDependencies": {
     "@crowdin/cli": "^4.14.1",
     "@types/jest": "^30.0.0",
-    "@vueuse/shared": "^11.3.0",
+    "@vueuse/shared": "^14.3.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^30.3.0",
     "browserslist-config-kolibri": "workspace:*",
