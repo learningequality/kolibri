@@ -20,6 +20,9 @@ updates:
       khanacademy:
         patterns:
           - "@khanacademy/*"
+      jest:
+        patterns:
+          - "jest*"
   # Maintain dependencies for Python (uv)
   - package-ecosystem: "uv"
     directory: "/"
