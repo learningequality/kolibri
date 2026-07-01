@@ -298,7 +298,7 @@ jobs:
           reprepro -b repo includedeb stable "${{ steps.deb.outputs.path }}"
           gpg --armor --export "${{ steps.gpg.outputs.key-id }}" > repo/pubkey.asc
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: repo
       - name: Deploy to GitHub Pages
