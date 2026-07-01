@@ -6,7 +6,6 @@ from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
 
-import factory
 from django.conf import settings
 from django.db import connection
 from django.db.models.signals import pre_delete
@@ -44,6 +43,8 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationConnectio
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
 from kolibri.core.tasks.job import Job
+from kolibri.core.test.model_factory import ModelFactory
+from kolibri.core.test.model_factory import sequence
 
 from .. import models
 from ..constants import role_kinds
@@ -60,34 +61,51 @@ from .helpers import provision_device
 from .helpers import setup_device
 
 
-class FacilityFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = models.Facility
+class FacilityFactory(ModelFactory):
+    model = models.Facility
+    _name = sequence("Rock N' Roll High School #%d")
 
-    name = factory.Sequence(lambda n: "Rock N' Roll High School #%d" % n)
-
-
-class ClassroomFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = models.Classroom
-
-    name = factory.Sequence(lambda n: "Basic Rock Theory #%d" % n)
+    @classmethod
+    def field_defaults(cls):
+        return {"name": cls._name}
 
 
-class LearnerGroupFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = models.LearnerGroup
+class ClassroomFactory(ModelFactory):
+    model = models.Classroom
+    _name = sequence("Basic Rock Theory #%d")
 
-    name = factory.Sequence(lambda n: "Group #%d" % n)
+    @classmethod
+    def field_defaults(cls):
+        return {"name": cls._name}
 
 
-class FacilityUserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = models.FacilityUser
+class LearnerGroupFactory(ModelFactory):
+    model = models.LearnerGroup
+    _name = sequence("Group #%d")
 
-    facility = factory.SubFactory(FacilityFactory)
-    username = factory.Sequence(lambda n: "user%d" % n)
-    password = factory.PostGenerationMethodCall("set_password", DUMMY_PASSWORD)
+    @classmethod
+    def field_defaults(cls):
+        return {"name": cls._name}
+
+
+class FacilityUserFactory(ModelFactory):
+    model = models.FacilityUser
+    _username = sequence("user%d")
+
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "facility": FacilityFactory.create,
+            "username": cls._username,
+        }
+
+    @classmethod
+    def create(cls, **kwargs):
+        password = kwargs.pop("password", DUMMY_PASSWORD)
+        user = super().create(**kwargs)
+        user.set_password(password)
+        user.save()
+        return user
 
 
 class LearnerGroupAPITestCase(APITestCase):
