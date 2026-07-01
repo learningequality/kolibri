@@ -46,14 +46,14 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-installer-debian
           ref: ${{ inputs.ref }}
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6.1.0
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
@@ -133,9 +133,9 @@ jobs:
     needs: build_source_and_upload
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-installer-debian
@@ -169,9 +169,9 @@ jobs:
       - wait_for_source_published
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-installer-debian
@@ -200,9 +200,9 @@ jobs:
       - copy_to_other_series
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-installer-debian
