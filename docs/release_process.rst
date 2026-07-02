@@ -57,3 +57,32 @@ Every publish includes an SLSA provenance attestation linking the npm version to
 .. code-block:: bash
 
    ./scripts/npm_provenance.sh <package-name> [version]
+
+
+Python packages
+===============
+
+Packages in ``python_packages/`` are published to PyPI independently of Kolibri releases and independently of each other. Only publishable packages are published; everything else is workspace-only. A package is publishable if it's listed in ``pypi_packages_publish.yml``'s ``paths:`` filter and ``workflow_dispatch`` options.
+
+Automatic publishing
+--------------------
+
+When code merging to ``develop`` changes a listed package's ``pyproject.toml``, the ``pypi_packages_publish.yml`` workflow compares that package's version against PyPI and publishes it if newer.
+
+Authentication uses PyPI OIDC trusted publishing (no API tokens).
+
+The workflow can also be triggered manually from the Actions tab — either for a specific package or for all packages — and can target TestPyPI instead of PyPI via the ``target`` input.
+
+Bumping a version
+-----------------
+
+.. code-block:: bash
+
+   uv version --package <package-name> --bump patch
+
+Or set an exact version: ``uv version --package <package-name> <new-version>``. Commit the resulting ``pyproject.toml``/``uv.lock`` change and merge to ``develop``.
+
+First publish of a new package
+------------------------------
+
+PyPI and TestPyPI support registering a *pending* trusted publisher for a project that doesn't exist yet. Before merging the PR that adds the package, register a pending publisher on both `pypi.org <https://pypi.org/manage/account/publishing/>`__ and `test.pypi.org <https://test.pypi.org/manage/account/publishing/>`__ for the new project name, with owner ``learningequality``, repository ``kolibri``, and workflow ``pypi_packages_publish.yml``.
