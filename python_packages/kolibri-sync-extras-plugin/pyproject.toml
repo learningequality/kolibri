@@ -1,13 +1,17 @@
 [build-system]
-requires = ["setuptools>=80", "setuptools-scm>=8"]
+requires = ["setuptools>=80"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "kolibri-sync-extras-plugin"
-dynamic = ["version"]
+version = "0.2.2"
 description = "Kolibri plugin that provides extra features for peer-to-peer syncing"
 readme = "README.md"
-requires-python = ">=3.9, <3.15"
+# Matches root Kolibri's floor, not this plugin's own tested range (see the
+# "Programming Language :: Python" classifiers below) — kept in sync with root
+# so `uv sync --python <version>` at the repo root doesn't fail workspace-wide
+# on this member's requires-python. The plugin's own CI only ever runs on 3.9+.
+requires-python = ">=3.6, <3.15"
 license = "MIT"
 authors = [{ name = "Learning Equality", email = "info@learningequality.org" }]
 keywords = ["kolibri", "syncing", "morango"]
@@ -35,7 +39,7 @@ kolibri_sync_extras_plugin = "kolibri_sync_extras_plugin"
 dev = [
     { include-group = "lint" },
     { include-group = "test" },
-    "prek",
+    "prek; python_version >= '3.8'",
 ]
 lint = [
     "ruff",
@@ -54,9 +58,8 @@ zip-safe = false
 [tool.setuptools.packages.find]
 include = ["kolibri_sync_extras_plugin*"]
 
-[tool.setuptools_scm]
-fallback_version = "0.0.0"
-local_scheme = "no-local-version"
+[tool.uv.sources]
+kolibri = { workspace = true }
 
 [tool.uv]
 default-groups = ["dev"]
@@ -75,16 +78,3 @@ filterwarnings = [
     "ignore:::rest_framework.*:",
     "ignore:::morango.*:",
 ]
-
-[tool.ruff]
-line-length = 100
-target-version = "py39"
-
-[tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["kolibri_sync_extras_plugin"]
-force-single-line = true
-order-by-type = false

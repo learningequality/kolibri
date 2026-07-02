@@ -150,7 +150,7 @@ exclude-newer = "7 days"
 exclude-newer-package = {le-utils = "0 seconds", morango = "0 seconds"}
 
 [tool.uv.workspace]
-members = ["."]
+members = [".", "python_packages/*"]
 
 [tool.setuptools]
 packages = ["kolibri"]
