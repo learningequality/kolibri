@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
-import useScrollContainer from '../composables/useScrollContainer';
+import useScrollContainer from '../useScrollContainer';
 
 // Mounts a harness modelling the Perseus DOM: an outer scroll viewport
 // (like .column-pane) wrapping an inner scrollable card (like KPageContainer)

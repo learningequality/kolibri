@@ -1,6 +1,6 @@
 import { parseAndMigratePerseusItem, isFailure } from '@khanacademy/perseus-core';
 import { scorePerseusItem, emptyWidgetsFunctional } from '@khanacademy/perseus-score';
-import { normalizeUserInput } from '../numeralNormalization';
+import { normalizeUserInput } from 'kolibri-common/utils/numeralNormalization';
 
 function migrateItem(rawItem) {
   const result = parseAndMigratePerseusItem(rawItem);

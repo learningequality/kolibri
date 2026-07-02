@@ -132,8 +132,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { injectKeypad } from '../../composables/useKeypad';
   import useScrollContainer from '../../composables/useScrollContainer';
-  import translator from '../../translator';
-  import { getLocalizedDigits } from '../../numeralNormalization';
+  import translator from '../../strings/numericKeypadStrings';
+  import { getLocalizedDigits } from '../../utils/numeralNormalization';
   import { fractionLayout, expressionLayout } from './keys';
 
   export default {
