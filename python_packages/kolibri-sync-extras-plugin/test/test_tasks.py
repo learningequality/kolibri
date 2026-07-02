@@ -15,5 +15,7 @@ class TasksTestCase(BaseTestCase):
 
     def test_set_job_id(self):
         set_job_id(self.context, "xyz789")
-        self.assertEqual('{"def456_dequeuing_job_id": "xyz789"}', self.sync_session.extra_fields)
+        self.assertEqual(
+            '{"def456_dequeuing_job_id": "xyz789"}', self.sync_session.extra_fields
+        )
         self.sync_session.save.assert_called_once()

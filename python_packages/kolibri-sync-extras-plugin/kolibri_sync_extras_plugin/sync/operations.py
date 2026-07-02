@@ -1,15 +1,15 @@
 import logging
 
 from django.core.management import call_command
-from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import State
-from kolibri.core.tasks.main import job_storage
-from kolibri.utils.conf import OPTIONS
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.constants.capabilities import ASYNC_OPERATIONS
 from morango.sync.operations import LocalOperation
 
+from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
+from kolibri.utils.conf import OPTIONS
 from kolibri_sync_extras_plugin.sync.context import BackgroundSessionContext
 from kolibri_sync_extras_plugin.tasks import get_job_id
 from kolibri_sync_extras_plugin.tasks import set_job_id
@@ -72,9 +72,10 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
             return job.state
 
         # get certificate so we can attach the dataset_id
-        cert = context.sync_session.client_certificate
         if context.is_server:
             cert = context.sync_session.server_certificate
+        else:
+            cert = context.sync_session.client_certificate
 
         job = Job(
             call_command,
@@ -93,6 +94,17 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
         set_job_id(context, job_id)
         logger.info("Enqueued sync_proceed_to: {}".format(job_id))
         return State.QUEUED
+
+    def _handle_job_state(self, context, target_stage):
+        job_state = self._get_or_queue_job(context, target_stage)
+        if job_state == State.COMPLETED:
+            return transfer_statuses.COMPLETED
+        if job_state in (State.FAILED, State.CANCELED):
+            return transfer_statuses.ERRORED
+
+        # returning PENDING will cause this operation to be called again, so we can then report on
+        # the progress of the background job
+        return transfer_statuses.PENDING
 
 
 class BackgroundInitializeJobOperation(BackgroundJobOperation):
@@ -113,20 +125,14 @@ class BackgroundInitializeJobOperation(BackgroundJobOperation):
         self._assert(ASYNC_OPERATIONS in context.capabilities)
         current_stage = transfer_stages.stage(context.stage)
         # the initialization stage itself cannot be processed in the background
-        self._assert(current_stage > transfer_stages.stage(transfer_stages.INITIALIZING))
-        self._assert(current_stage < transfer_stages.stage(transfer_stages.TRANSFERRING))
+        self._assert(
+            current_stage > transfer_stages.stage(transfer_stages.INITIALIZING)
+        )
+        self._assert(
+            current_stage < transfer_stages.stage(transfer_stages.TRANSFERRING)
+        )
 
-        job_state = self._get_or_queue_job(context, context.stage)
-
-        # Return status of the job when in a finished state
-        if job_state == State.COMPLETED:
-            return transfer_statuses.COMPLETED
-        if job_state in (State.FAILED, State.CANCELED):
-            return transfer_statuses.ERRORED
-
-        # returning PENDING will cause this operation to be called again, so we can then report on
-        # the progress of the background job
-        return transfer_statuses.PENDING
+        return self._handle_job_state(context, context.stage)
 
 
 class BackgroundFinalizeJobOperation(BackgroundJobOperation):
@@ -149,14 +155,4 @@ class BackgroundFinalizeJobOperation(BackgroundJobOperation):
         )
 
         # we'll jump straight to cleanup if in compatibility mode
-        job_state = self._get_or_queue_job(context, context.stage)
-
-        # Return status of the job when in a finished state
-        if job_state == State.COMPLETED:
-            return transfer_statuses.COMPLETED
-        if job_state in (State.FAILED, State.CANCELED):
-            return transfer_statuses.ERRORED
-
-        # returning PENDING will cause this operation to be called again, so we can then report on
-        # the progress of the background job
-        return transfer_statuses.PENDING
+        return self._handle_job_state(context, context.stage)

@@ -1,10 +1,10 @@
 import mock
-from kolibri.core.tasks.job import State
 from morango.constants import capabilities
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.errors import MorangoSkipOperation
 
+from kolibri.core.tasks.job import State
 from kolibri_sync_extras_plugin.sync.operations import BackgroundFinalizeJobOperation
 from kolibri_sync_extras_plugin.sync.operations import BackgroundInitializeJobOperation
 from kolibri_sync_extras_plugin.sync.operations import BackgroundJobOperation
@@ -52,13 +52,17 @@ class BackgroundJobOperationTestCase(BaseTestCase):
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.set_job_id")
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.job_storage")
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.get_job_id")
-    def test_get_or_queue_job__new(self, mock_get_job_id, mock_job_storage, mock_set_job_id):
+    def test_get_or_queue_job__new(
+        self, mock_get_job_id, mock_job_storage, mock_set_job_id
+    ):
         mock_get_job_id.return_value = None
         mock_job_storage.enqueue_job.return_value = "xyz789"
         self.context.sync_session.server_certificate.get_root.return_value.id = "123abc"
 
         operation = BackgroundJobOperation()
-        self.assertEqual(State.QUEUED, operation._get_or_queue_job(self.context, "other"))
+        self.assertEqual(
+            State.QUEUED, operation._get_or_queue_job(self.context, "other")
+        )
         mock_get_job_id.assert_called_once_with(self.context)
         mock_job_storage.get_job.assert_not_called()
 
@@ -72,7 +76,9 @@ class BackgroundJobOperationTestCase(BaseTestCase):
                 "capabilities": [],
             },
         )
-        self.assertEqual(job.extra_metadata, {"type": "SYNCPROCEEDTO", "dataset_id": "123abc"})
+        self.assertEqual(
+            job.extra_metadata, {"type": "SYNCPROCEEDTO", "dataset_id": "123abc"}
+        )
         mock_set_job_id.assert_called_once_with(self.context, "xyz789")
 
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.job_storage")
@@ -143,7 +149,9 @@ class BackgroundInitializeJobOperationTestCase(BaseTestCase):
 
         with mock.patch.object(operation, "_get_or_queue_job") as mock_job:
             mock_job.return_value = State.COMPLETED
-            self.assertEqual(transfer_statuses.COMPLETED, operation.handle(self.context))
+            self.assertEqual(
+                transfer_statuses.COMPLETED, operation.handle(self.context)
+            )
             mock_job.assert_called_once_with(self.context, self.context.stage)
 
     def test_handle__completed_incompletely(self):
@@ -208,7 +216,9 @@ class BackgroundFinalizeJobOperationTestCase(BaseTestCase):
 
         with mock.patch.object(operation, "_get_or_queue_job") as mock_job:
             mock_job.return_value = State.COMPLETED
-            self.assertEqual(transfer_statuses.COMPLETED, operation.handle(self.context))
+            self.assertEqual(
+                transfer_statuses.COMPLETED, operation.handle(self.context)
+            )
             mock_job.assert_called_once_with(self.context, self.context.stage)
 
     def test_handle__completed_incompletely(self):
