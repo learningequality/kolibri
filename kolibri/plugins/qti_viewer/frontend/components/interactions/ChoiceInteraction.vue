@@ -7,8 +7,7 @@
   import { createTranslator } from 'kolibri/utils/i18n';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
-  import useAnswerGuide from '../../composables/useAnswerGuide';
-  import AnswerGuide from '../AnswerGuide.vue';
+  import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
 
   const strings = createTranslator('ChoiceInteractionStrings', {
     choiceListLabel: {
@@ -66,10 +65,9 @@
         return typedProps.maxChoices.value !== 1;
       });
 
-      const answerGuideKey = computed(() =>
-        multiSelectable.value ? 'qti-choice-interaction-multiple' : 'qti-choice-interaction-single',
+      const answerGuideText = computed(() =>
+        multiSelectable.value ? answerGuideStrings.chooseAny$() : answerGuideStrings.chooseOne$(),
       );
-      const answerGuideText = useAnswerGuide(answerGuideKey);
 
       const isSelected = identifier => {
         const variable = responses[typedProps.responseIdentifier.value];

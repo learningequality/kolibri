@@ -15,9 +15,23 @@
 
   import { computed } from 'vue';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { createTranslator } from 'kolibri/utils/i18n';
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
+
+  export const answerGuideStrings = createTranslator('AnswerGuideStrings', {
+    chooseOne: {
+      message: 'Choose 1 answer:',
+      context:
+        'Tells the learner to select exactly one answer (single-selection choice interaction)',
+    },
+    chooseAny: {
+      message: 'Choose all answers that apply:',
+      context:
+        'Tells the learner they may select any number of answers (multi-selection choice interaction)',
+    },
+  });
 
   export default {
     name: 'AnswerGuide',

@@ -1,7 +1,7 @@
 import { fireEvent, screen } from '@testing-library/vue';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
-import { answerGuideStrings } from '../../../composables/useAnswerGuide';
+import { answerGuideStrings } from '../../AnswerGuide.vue';
 
 // Vue 2 drops aria-selected when bound to boolean false; SimpleChoice coerces to String()
 // so the attribute always renders. This helper accepts either behavior.
