@@ -71,12 +71,10 @@ module.exports = (
     return;
   }
   const configData = require(data.config_path);
-  let webpackConfig;
-  if (data.index !== null) {
-    webpackConfig = configData[data.index].webpack_config;
-  } else {
-    webpackConfig = configData.webpack_config;
-  }
+  // The bundle's own buildConfig.js entry, alongside its webpack_config, may set
+  // `skipMessageRegistration` to opt out of the frontend message registration bootstrap below.
+  const configEntry = data.index !== null ? configData[data.index] : configData;
+  let webpackConfig = configEntry.webpack_config;
   if (typeof webpackConfig.entry === 'string') {
     webpackConfig.entry = {
       [data.name]: path.join(data.plugin_path, webpackConfig.entry),
@@ -165,6 +163,16 @@ module.exports = (
         __version: JSON.stringify(data.version),
         __copyrightYear: new Date().getFullYear(),
       }),
+      // Add custom messages per bundle.
+      new WebpackMessages({
+        name: data.name,
+        logger: str => logging.info(str),
+      }),
+    ],
+  };
+
+  if (!configEntry.skipMessageRegistration) {
+    bundle.plugins.push(
       // Inject code to register frontend messages
       new MessageRegistrationPlugin({
         // For the core plugin, because it sets up the i18n
@@ -173,13 +181,8 @@ module.exports = (
         injectAfterBundle: isCoreBundle,
         moduleName: data.name,
       }),
-      // Add custom messages per bundle.
-      new WebpackMessages({
-        name: data.name,
-        logger: str => logging.info(str),
-      }),
-    ],
-  };
+    );
+  }
 
   if (isCoreBundle && mode === 'production') {
     bundle.plugins.push(
