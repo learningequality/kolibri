@@ -26,16 +26,42 @@ jobs:
         uses: fkirc/skip-duplicate-actions@master
         with:
           github_token: ${{ github.token }}
-          paths: '["**.py", ".github/workflows/tox.yml", "pyproject.toml", "uv.lock"]'
-  unit_test:
-    name: Python unit tests for uv-supported Python versions
+          paths: '["**.py", ".github/workflows/tox.yml", "pyproject.toml", "uv.lock", "python_packages/**"]'
+  unit_test_stage1:
+    name: Python unit tests (Python 3.10)
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.10
+        run: uv python install 3.10
+      - name: Install dependencies
+        run: uv sync --group test --python 3.10
+      - name: Check migrations
+        run: uv run kolibri manage makemigrations --check
+        env:
+          KOLIBRI_HOME: ${{ runner.temp }}/.kolibri
+      - name: Run tests
+        run: |
+          uv run python -O -m pytest kolibri --color=no
+          uv run python -O -m pytest --color=no -p no:django test
+  unit_test_stage2:
+    name: Python unit tests for uv-supported Python versions
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.8', '3.9', '3.11', '3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v7.0.0
         with:
@@ -59,8 +85,8 @@ jobs:
           uv run python -O -m pytest --color=no -p no:django test
   unit_test_no_uv:
     name: Python unit tests for Python versions without uv support
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
@@ -153,8 +179,8 @@ jobs:
           KOLIBRI_DATABASE_PORT: "5432"
   postgres_ssl:
     name: Python postgres SSL smoke tests
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -197,8 +223,8 @@ jobs:
           KOLIBRI_DATABASE_SSL_MODE: require
   macos:
     name: Python unit tests on Mac OS
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: macos-14
     strategy:
       max-parallel: 5
@@ -223,8 +249,8 @@ jobs:
           uv run python -O -m pytest --color=no -p no:django test
   windows:
     name: Python unit tests on Windows Server
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: windows-latest
     strategy:
       max-parallel: 5
@@ -249,19 +275,65 @@ jobs:
         run: |
           uv run python -O -m pytest kolibri --color=no
           uv run python -O -m pytest --color=no -p no:django test
+  sync_extras_plugin_tests:
+    name: kolibri-sync-extras-plugin tests
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.10
+        run: uv python install 3.10
+      - name: Install dependencies
+        # --all-packages is required: a plain `uv sync` scopes to this
+        # subproject alone and drops root kolibri's own runtime deps
+        # (Django, Click, etc.) from the shared venv.
+        working-directory: python_packages/kolibri-sync-extras-plugin
+        run: uv sync --group test --python 3.10 --all-packages
+      - name: Enable kolibri_sync_extras_plugin
+        working-directory: python_packages/kolibri-sync-extras-plugin
+        env:
+          KOLIBRI_HOME: .kolibri
+        run: uv run kolibri plugin enable kolibri_sync_extras_plugin
+      - name: Run tests
+        working-directory: python_packages/kolibri-sync-extras-plugin
+        env:
+          KOLIBRI_HOME: .kolibri
+        run: uv run python -O -m pytest --reuse-db
   # Single stable check for branch protection. Skipped matrix jobs don't
   # produce per-version check runs, so matrix-suffixed required checks hang
-  # as "Expected" on PRs that skip the tests; require this job instead.
-  required_checks:
-    name: Python tests
+  # as "Expected" on PRs that skip the tests; require these jobs instead.
+  # Stage 1: fast, blocking feedback.
+  stage1_required_checks:
+    name: Python tests (stage 1)
     needs:
       - pre_job
-      - unit_test
-      - unit_test_no_uv
+      - unit_test_stage1
       - postgres
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any needed job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+  # Stage 2: rest of the Python version matrix plus per-member-package tests.
+  stage2_required_checks:
+    name: Python tests
+    needs:
+      - stage1_required_checks
+      - unit_test_stage2
+      - unit_test_no_uv
       - postgres_ssl
       - macos
       - windows
+      - sync_extras_plugin_tests
     if: always()
     runs-on: ubuntu-latest
     steps:

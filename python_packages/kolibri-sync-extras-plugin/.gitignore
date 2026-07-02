@@ -1,0 +1,4 @@
+# Kolibri's root .gitignore already covers standard Python/IDE artifacts;
+# this file only needs entries specific to this package.
+.kolibri/*
+!.kolibri/options.ini

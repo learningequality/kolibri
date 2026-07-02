@@ -79,7 +79,7 @@ jobs:
           run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           {
             echo "text<<SLACKEOF"
-            echo ":package: *npm packages published* (<${run_url}|workflow run>)"
+            echo ":package: *npm package published* (<${run_url}|workflow run>)"
             sed -n 's#^| *\[\([^]]*\)\](\([^)]*\)) *| *\([^ |]*\) *|$#• <\2|\1> v\3#p' publish_summary.md
             echo "SLACKEOF"
           } >> "$GITHUB_OUTPUT"

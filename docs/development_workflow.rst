@@ -95,6 +95,9 @@ First, all automated checks need to pass before merging. Then...
 * The reviewer might approve the PR, but also request minor changes such as a typo fix or variable name update. The submitter can then make the change and merge it themselves, with the understanding that the new changes will be limited in scope
 * Stale reviews should be dismissed by the PR submitter when the feedback has been addressed
 
+.. note::
+  Python tests run in a two-stage cascade (Stage 1: Python 3.10 + Postgres required before Stage 2). See :doc:`/howtos/python_monorepo`.
+
 
 Copyright and licensing
 ~~~~~~~~~~~~~~~~~~~~~~~
