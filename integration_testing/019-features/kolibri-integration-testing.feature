@@ -1512,6 +1512,46 @@ Feature: Kolibri integration testing scenarios
 			And I click *Save changes*
 		Then I can see a *Settings have been updated* snackbar message
 
+  Scenario: Super admin can see the Device permissions user table when there are multiple facilities on the device
+  	Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+    When I go to the *Device > Permissions* page
+    Then I see the *Permissions*, *User type* and *Facility* filters
+    	And the default value of each filter is *All*
+      And I see a *Search for a user* field
+      And I see the users table with a *Full name*, *Username* and *Facility* columns
+      And I see all of the available users
+      And I see a *View permissions* or an *Edit permissions* option for each user
+
+  Scenario: Super admin can filter by each or combination of the available filters at Device > Permissions
+    Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+  		And I am at the *Device > Permissions* page
+    When I click on a filter
+    	And I select a value from the filter
+    Then I see only results matching the applied filter
+    When there are no results matching the applied filter
+    Then I see a *No users match the selected filter* message
+    When I apply a combination of filters
+    Then I see only results matching the applied filters
+    When there are no results matching the applied filters
+    Then I see a *No users match the selected filters* message
+
+  Scenario: Super admin can search for a user at Device > Permissions
+  	Given I am signed in as a super admin
+  		And there are multiple facilities on the device
+  		And in each facility there are users of all types
+  		And I am at the *Device > Permissions* page
+  	When I enter the name or the username of a user in the *Search for a user* field
+  	Then I see only results matching the entered keyword
+  	When there are no results matching the entered keyword
+  	Then I see a *No users match the selected filters* message
+  	When I click the *X* icon next to the entered keyword
+  	Then the keyword is cleared
+  		And I see the default state of the table with all of the available users
+
   Scenario: Super admin can change the device permissions
   	Given I am signed in as a super admin
 			And I am at *Device > Permissions*
