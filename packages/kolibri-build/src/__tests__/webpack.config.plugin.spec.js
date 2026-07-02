@@ -25,6 +25,21 @@ jest.mock(
   { virtual: true },
 );
 
+jest.mock(
+  'test_skip_message_registration',
+  () => ({
+    webpack_config: {
+      entry: 'test',
+    },
+    skipMessageRegistration: true,
+  }),
+  { virtual: true },
+);
+
+function hasMessageRegistrationPlugin(config) {
+  return config.plugins.some(plugin => plugin.constructor.name === 'MessageRegistrationPlugin');
+}
+
 const baseData = {
   name: 'kolibri.plugin.test.test_plugin',
   bundle_id: 'test_plugin',
@@ -127,6 +142,16 @@ describe('webpackConfigPlugin', function () {
     it('should be undefined', function () {
       delete data.version;
       expectParsedDataIsUndefined(data);
+    });
+  });
+
+  describe('message registration', function () {
+    it('should include MessageRegistrationPlugin by default', function () {
+      expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(true);
+    });
+    it('should exclude MessageRegistrationPlugin when the bundle config sets skipMessageRegistration', function () {
+      data.config_path = 'test_skip_message_registration';
+      expect(hasMessageRegistrationPlugin(webpackConfigPlugin(data))).toBe(false);
     });
   });
 });
