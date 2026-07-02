@@ -39,15 +39,18 @@ BACKGROUND_FINALIZATION_STAGES = "deserializing,cleanup"
 ## Development
 ### Getting started
 ```bash
-$ uv sync
+$ uv sync --all-packages
 $ uvx prek install
 $ KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_sync_extras_plugin
 ```
 
+Run these from this directory. `--all-packages` is required; otherwise the
+shared venv drops root Kolibri's own runtime dependencies (Django, Click, etc.).
+
 ## Testing
 ### Getting started
 ```bash
-$ uv sync --group test
+$ uv sync --group test --all-packages
 $ KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_sync_extras_plugin
 ```
 
