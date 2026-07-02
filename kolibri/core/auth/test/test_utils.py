@@ -2,7 +2,6 @@ import datetime
 import random
 import uuid
 
-import factory
 import mock
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -25,6 +24,8 @@ from kolibri.core.auth.utils.delete import get_delete_group_for_facility
 from kolibri.core.auth.utils.migrate import fork_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.logger import models as log_models
+from kolibri.core.test.model_factory import ModelFactory
+from kolibri.core.test.model_factory import sequence
 
 from ..models import Facility
 
@@ -69,56 +70,74 @@ class GetFacilityFailureTestCase(TestCase):
             utils.get_facility()
 
 
-class ContentSessionLogFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = log_models.ContentSessionLog
+class ContentSessionLogFactory(ModelFactory):
+    model = log_models.ContentSessionLog
+    _start_timestamp = datetime.datetime.now()
 
-    user = factory.SubFactory(FacilityUserFactory)
-    start_timestamp = datetime.datetime.now()
-    content_id = factory.LazyFunction(lambda: uuid.uuid4().hex)
-    channel_id = factory.LazyFunction(lambda: uuid.uuid4().hex)
-    progress = factory.LazyFunction(random.random)
-
-
-class ContentSummaryLogFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = log_models.ContentSummaryLog
-
-    user = factory.SubFactory(FacilityUserFactory)
-    start_timestamp = datetime.datetime.now()
-    content_id = factory.LazyFunction(lambda: uuid.uuid4().hex)
-    channel_id = factory.LazyFunction(lambda: uuid.uuid4().hex)
-    progress = factory.LazyFunction(random.random)
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "user": FacilityUserFactory.create,
+            "start_timestamp": cls._start_timestamp,
+            "content_id": lambda: uuid.uuid4().hex,
+            "channel_id": lambda: uuid.uuid4().hex,
+            "progress": random.random,
+        }
 
 
-class UserSessionLogFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = log_models.UserSessionLog
+class ContentSummaryLogFactory(ModelFactory):
+    model = log_models.ContentSummaryLog
+    _start_timestamp = datetime.datetime.now()
 
-    user = factory.SubFactory(FacilityUserFactory)
-
-
-class MasteryLogFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = log_models.MasteryLog
-
-    user = factory.SubFactory(FacilityUserFactory)
-    summarylog = factory.SubFactory(ContentSummaryLogFactory)
-    start_timestamp = datetime.datetime.now()
-    mastery_level = factory.LazyFunction(lambda: random.randint(1, 10))
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "user": FacilityUserFactory.create,
+            "start_timestamp": cls._start_timestamp,
+            "content_id": lambda: uuid.uuid4().hex,
+            "channel_id": lambda: uuid.uuid4().hex,
+            "progress": random.random,
+        }
 
 
-class AttemptLogFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = log_models.AttemptLog
+class UserSessionLogFactory(ModelFactory):
+    model = log_models.UserSessionLog
 
-    user = factory.SubFactory(FacilityUserFactory)
-    masterylog = factory.SubFactory(MasteryLogFactory)
-    sessionlog = factory.SubFactory(ContentSessionLogFactory)
-    start_timestamp = datetime.datetime.now()
-    end_timestamp = datetime.datetime.now()
-    correct = False
-    time_spent = factory.LazyFunction(random.random)
+    @classmethod
+    def field_defaults(cls):
+        return {"user": FacilityUserFactory.create}
+
+
+class MasteryLogFactory(ModelFactory):
+    model = log_models.MasteryLog
+    _start_timestamp = datetime.datetime.now()
+
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "user": FacilityUserFactory.create,
+            "summarylog": ContentSummaryLogFactory.create,
+            "start_timestamp": cls._start_timestamp,
+            "mastery_level": lambda: random.randint(1, 10),
+        }
+
+
+class AttemptLogFactory(ModelFactory):
+    model = log_models.AttemptLog
+    _start_timestamp = datetime.datetime.now()
+    _end_timestamp = datetime.datetime.now()
+
+    @classmethod
+    def field_defaults(cls):
+        return {
+            "user": FacilityUserFactory.create,
+            "masterylog": MasteryLogFactory.create,
+            "sessionlog": ContentSessionLogFactory.create,
+            "start_timestamp": cls._start_timestamp,
+            "end_timestamp": cls._end_timestamp,
+            "correct": False,
+            "time_spent": random.random,
+        }
 
 
 class TeleportUserTestCase(TestCase):
@@ -495,11 +514,13 @@ class MergeUsersTestCase(TestCase):
             )
 
 
-class AdHocGroupFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = AdHocGroup
+class AdHocGroupFactory(ModelFactory):
+    model = AdHocGroup
+    _name = sequence("AdHoc Group #%d")
 
-    name = factory.Sequence(lambda n: "AdHoc Group #%d" % n)
+    @classmethod
+    def field_defaults(cls):
+        return {"name": cls._name}
 
 
 class ForkFacilityTestCase(TestCase):

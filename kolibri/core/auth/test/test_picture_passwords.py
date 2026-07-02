@@ -1,9 +1,9 @@
-import factory
 import mock
 from django.db.models.signals import post_save
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from mock import patch
+from morango.sync.utils import mute_signals
 
 from kolibri.core.auth.constants.picture_passwords import PICTURE_PASSWORD_SET
 from kolibri.core.auth.constants.picture_passwords import SEQUENCE_LENGTH
@@ -250,7 +250,7 @@ class PicturePasswordsExhaustionTestCase(TestCase):
         self.facility.add_role(admin, ADMIN)
         self.assertEqual(get_learner_count(self.facility.dataset_id), 1)
 
-    @factory.django.mute_signals(post_save)
+    @mute_signals(post_save)
     def test_get_learner_count__cache_and_clear(self):
         get_learner_count.clear(self.facility.dataset_id)
         self._create_user()
