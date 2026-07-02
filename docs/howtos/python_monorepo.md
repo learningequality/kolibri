@@ -13,7 +13,8 @@ Kolibri's Python code is organized as a [uv workspace](https://docs.astral.sh/uv
 3. No change is needed to the root `pyproject.toml` — its `[tool.uv.workspace]` `members` list already includes the glob `python_packages/*`, so any new package directory under it is picked up automatically.
 4. Run `uv sync --group dev` at the repo root to update the shared lockfile.
 5. Run `uv sync --group dev --all-packages` to install the new package into the shared workspace venv. `--all-packages` is required — a plain `uv sync` (or `uv sync --package <package-name>`) scopes the sync to a single project and drops root Kolibri's own runtime dependencies (Django, Click, etc.) from the shared venv.
-6. Add a test job for it in `.github/workflows/tox.yml`, in the Stage 2 section (see "CI cascade" below) — model it on the `sync_extras_plugin_tests` job.
+6. Add a test job for it in `.github/workflows/tox.yml`, in the Stage 2 section (see "CI cascade" below) — model it on the `sync_extras_plugin_tests` job, and add the new job's id to `stage2_required_checks`'s `needs:` list in the same file. A job left out of that list can fail without blocking merge, since branch protection only requires `stage2_required_checks` itself to pass.
+7. Add the package's import name to `known-first-party` in root `pyproject.toml`'s `[tool.ruff.lint.isort]` table, so ruff sorts its own imports as first-party rather than third-party.
 
 Member package versions are independent of each other and of the main `kolibri` package — there's no enforcement linking them. Use a static `version = "x.y.z"` field, not `setuptools-scm`-derived dynamic versioning: this repo's git tags are Kolibri's own release tags, so dynamic versioning inside the workspace would report Kolibri's version instead of the package's own.
 
