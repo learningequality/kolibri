@@ -21,10 +21,10 @@ const ANSWER_GUIDES = {
 
 /**
  * Looks up the constant, learner-facing answer-guide text for a given key.
- *
  * @param {string} key - e.g. 'qti-choice-interaction-single',
- *   or just the interaction tag itself for types with one fixed message
- *   (e.g. 'qti-gap-match-interaction')
+ * or just the interaction tag itself for types with one fixed message
+ * (e.g. 'qti-gap-match-interaction')
+ * @returns {string} - the answer-guide text, or an empty string if no guide is defined for the key
  */
 export default function useAnswerGuide(key) {
   return computed(() => ANSWER_GUIDES[unref(key)] || '');
