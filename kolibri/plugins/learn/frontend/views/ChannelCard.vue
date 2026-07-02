@@ -190,6 +190,9 @@
     bottom: $margin;
     left: $margin;
     display: inline-block;
+    // Stay within the card; without this the label's intrinsic width can spill
+    // past the right edge and drag out a page-level horizontal scrollbar.
+    max-width: calc(100% - #{2 * $margin});
   }
 
   .card-main-wrapper {
