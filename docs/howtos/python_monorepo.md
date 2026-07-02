@@ -11,8 +11,9 @@ Kolibri's Python code is organized as a [uv workspace](https://docs.astral.sh/uv
    kolibri = { workspace = true }
    ```
 3. No change is needed to the root `pyproject.toml` — its `[tool.uv.workspace]` `members` list already includes the glob `python_packages/*`, so any new package directory under it is picked up automatically.
-4. Run `uv sync --group dev` at the repo root to install it into the shared workspace environment and lockfile.
-5. Add a test job for it in `.github/workflows/tox.yml`, in the Stage 2 section (see "CI cascade" below) — model it on the `sync_extras_plugin_tests` job.
+4. Run `uv sync --group dev` at the repo root to update the shared lockfile.
+5. Run `uv sync --group dev --all-packages` to install the new package alongside every other workspace member, or `uv sync --group dev --package <package-name>` to install just that one.
+6. Add a test job for it in `.github/workflows/tox.yml`, in the Stage 2 section (see "CI cascade" below) — model it on the `sync_extras_plugin_tests` job.
 
 Member package versions are independent of each other and of the main `kolibri` package — there's no enforcement linking them. Use a static `version = "x.y.z"` field, not `setuptools-scm`-derived dynamic versioning: this repo's git tags are Kolibri's own release tags, so dynamic versioning inside the workspace would report Kolibri's version instead of the package's own.
 
