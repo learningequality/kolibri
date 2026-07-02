@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/learningequality/kolibri-sync-extras-plugin/issues.
+Report bugs at https://github.com/learningequality/kolibri/issues.
 
 If you are reporting a bug, please include:
 
@@ -33,7 +33,7 @@ Other Contributions
 
 Most other contributions are best targeted at the main Kolibri project.
 
-Please see https://github.com/learningequality/kolibri/CONTRIBUTING.rst for details.
+Please see https://github.com/learningequality/kolibri/tree/develop/docs/contributing for details.
 
 .. _prtemplate:
 
