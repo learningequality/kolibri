@@ -234,13 +234,21 @@ describe('Shuffle', () => {
 describe('Answer guide', () => {
   it('shows the single-selection prompt for a single-selection interaction', () => {
     renderAssessmentItem(items[singleFixture.id].xml);
-    expect(screen.getByText(answerGuideStrings.chooseOne$())).toBeInTheDocument();
+    expect(
+      screen.getByText(answerGuideStrings.chooseOne$(), {
+        selector: 'p.qti-selection-instructions',
+      }),
+    ).toBeVisible();
   });
 
   it('shows different copy for a multi-selection interaction', () => {
     renderAssessmentItem(items[multiBoundedFixture.id].xml);
     expect(screen.queryByText(answerGuideStrings.chooseOne$())).not.toBeInTheDocument();
-    expect(screen.getByText(answerGuideStrings.chooseAny$())).toBeInTheDocument();
+    expect(
+      screen.getByText(answerGuideStrings.chooseAny$(), {
+        selector: 'p.qti-selection-instructions',
+      }),
+    ).toBeVisible();
   });
 
   it('renders the prompt before the choice list, not after', () => {
