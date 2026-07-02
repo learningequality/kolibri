@@ -46,6 +46,20 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             for hook in NavigationHook.registered_hooks
         ]
 
+    @staticmethod
+    def _first_js_url(hook):
+        return next(
+            chunk["url"] for chunk in hook.bundle if chunk["name"].endswith(".js")
+        )
+
+    def _polyfill_loader_tag(self):
+        polyfill_url = self._first_js_url(FrontEndPolyfillAssetHook())
+        loader_url = self._first_js_url(FrontEndPolyfillLoaderHook())
+        return (
+            f'<script type="text/javascript" src="{loader_url}"'
+            f' data-polyfill-url="{polyfill_url}"></script>'
+        )
+
     def render_to_page_load_sync_html(self):
         """
         Don't render the frontend message files in the usual way
@@ -54,6 +68,7 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
         """
         tags = (
             self.plugin_data_tag()
+            + [self._polyfill_loader_tag()]
             + list(self.js_and_css_tags())
             + self.navigation_tags()
         )
@@ -134,6 +149,16 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "languageDir": lang_dir,
             "languages": languages,
         }
+
+
+@register_hook
+class FrontEndPolyfillAssetHook(WebpackBundleHook):
+    bundle_id = "polyfills"
+
+
+@register_hook
+class FrontEndPolyfillLoaderHook(WebpackBundleHook):
+    bundle_id = "polyfill_loader"
 
 
 @register_hook

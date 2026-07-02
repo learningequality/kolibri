@@ -12,14 +12,22 @@ module.exports = [
         libraryExport: 'default',
         libraryTarget: 'window',
       },
+    },
+  },
+  // The polyfills and polyfill_loader bundles below load and run before
+  // default_frontend, so window.kolibriCoreAppGlobal does not exist yet;
+  // both set skipMessageRegistration to opt out of that bootstrap.
+  {
+    bundle_id: 'polyfills',
+    skipMessageRegistration: true,
+    webpack_config: {
+      entry: './frontend/polyfills.js',
       module: {
         rules: [
           {
-            // Use babel-loader only for the entry file that imports core-js,
-            // so that @babel/preset-env can expand `import 'core-js'` into
-            // granular polyfill imports based on the browserslist targets.
+            // Expand `import 'core-js'` into per-target polyfill imports.
             test: /\.(js|mjs)$/,
-            include: [path.resolve(__dirname, 'frontend/index.js')],
+            include: [path.resolve(__dirname, 'frontend/polyfills.js')],
             loader: 'babel-loader',
             options: {
               presets: [
@@ -36,6 +44,13 @@ module.exports = [
           },
         ],
       },
+    },
+  },
+  {
+    bundle_id: 'polyfill_loader',
+    skipMessageRegistration: true,
+    webpack_config: {
+      entry: './frontend/polyfillLoader.js',
     },
   },
 ];
