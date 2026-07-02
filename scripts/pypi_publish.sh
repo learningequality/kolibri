@@ -35,19 +35,13 @@ else
     # but PyPI/TestPyPI support registering a *pending* trusted publisher for
     # a project that doesn't exist yet, so the first publish can go out
     # through this same automated path.
-    published_version=$(curl -sf "$JSON_HOST/$name/json" | python3 -c "import json,sys; print(json.load(sys.stdin)['info']['version'])" 2>/dev/null) || {
+    published_version=$(curl -sf "$JSON_HOST/$name/json" | jq -r '.info.version') || published_version=""
+
+    if [ -z "$published_version" ]; then
       echo "Will publish $name: first publish ($repo_version)"
       TO_PUBLISH+=("$name:$repo_version")
-      continue
-    }
-
-    # Assumes plain X.Y.Z versions, matching this workspace's packages.
-    is_newer=$(python3 -c "
-a = tuple(int(x) for x in '$repo_version'.split('.')[:3])
-b = tuple(int(x) for x in '$published_version'.split('.')[:3])
-print(a > b)
-")
-    if [ "$is_newer" = "True" ]; then
+    elif [ "$repo_version" != "$published_version" ] &&
+      [ "$(printf '%s\n%s\n' "$repo_version" "$published_version" | sort -V | tail -1)" = "$repo_version" ]; then
       echo "Will publish $name: $published_version → $repo_version"
       TO_PUBLISH+=("$name:$repo_version")
     else
