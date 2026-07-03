@@ -1,139 +1,141 @@
-import { mount } from '@vue/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
+import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
 
-function makeWrapper(options = {}) {
-  return mount(ChannelTokenModal, { ...options, attrs: { disabled: false } });
-}
+import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 
-function getElements(wrapper) {
-  return {
-    cancelButton: () => wrapper.find('button[name="cancel"]'),
-    tokenTextbox: () => wrapper.findComponent({ name: 'KTextbox' }),
-    networkErrorAlert: () => wrapper.findComponent({ name: 'ui-alert' }),
-    lookupTokenStub: () => {
-      wrapper.vm.lookupToken = jest.fn();
-      return wrapper.vm.lookupToken;
-    },
+jest.mock('../../modules/wizard/utils', () => ({
+  getRemoteChannelBundleByToken: jest.fn(),
+}));
+
+const { invalidTokenMessage$, networkErrorMessage$, channelTokenLabel$ } = createTranslator(
+  ChannelTokenModal.name,
+  ChannelTokenModal.$trs,
+);
+const { cancelAction$, continueAction$ } = coreStrings;
+
+describe('ChannelTokenModal component', () => {
+  const renderComponent = () => {
+    return render(ChannelTokenModal, {
+      listeners: {
+        cancel: jest.fn(),
+        submit: jest.fn(),
+      },
+    });
   };
-}
-
-describe('channelTokenModal component', () => {
-  let wrapper;
 
   beforeEach(() => {
-    wrapper = makeWrapper();
+    jest.clearAllMocks();
   });
 
   it('pressing "cancel" emits a "cancel" event', () => {
-    const cancelListener = jest.fn();
-    wrapper = makeWrapper({
-      listeners: {
-        cancel: cancelListener,
-      },
-    });
-    const { cancelButton } = getElements(wrapper);
-    cancelButton().trigger('click');
-    expect(cancelListener).toHaveBeenCalled();
+    const { emitted } = renderComponent();
+    const cancelButton = screen.getByRole('button', { name: cancelAction$() });
+    fireEvent.click(cancelButton);
+    expect(emitted().cancel).toBeTruthy();
   });
 
   describe('submitting a token', () => {
-    async function inputToken(wrapper, token) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      textbox.vm.$emit('input', token);
-      await wrapper.vm.$nextTick();
-      expect(textbox.props().value).toEqual(token.trim());
-    }
-
-    function assertTextboxInvalid(wrapper) {
-      const textbox = getElements(wrapper).tokenTextbox();
-      expect(textbox.props().invalid).toEqual(true);
-      expect(textbox.props().invalidText).toEqual('Check whether you entered token correctly');
-    }
-
     it('if user has not interacted with the form, then no validation messages appear', () => {
-      const { tokenTextbox, networkErrorAlert } = getElements(wrapper);
-      expect(tokenTextbox().props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(false);
+      renderComponent();
+      expect(screen.queryByText(invalidTokenMessage$())).not.toBeInTheDocument();
+      expect(screen.queryByText(networkErrorMessage$())).not.toBeInTheDocument();
     });
 
-    it('disables the form while waiting for a response from the server', () => {
-      //...then re-enables it afterwards
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      const disabledSpy = jest.fn();
-      wrapper.vm.$watch('formIsDisabled', disabledSpy);
-      // not checking the Promise.reject case
-      lookupStub.mockResolvedValue([]);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(disabledSpy.mock.calls[0][0]).toEqual(true);
-          expect(disabledSpy.mock.calls[0][1]).toBeFalsy();
-        });
-    });
-
-    it('emits a "submit" event if token lookup is successful', () => {
-      const tokenPayload = { token: 'toka-toka-token', channels: [{ id: 'toka-toka-token' }] };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockResolvedValue(tokenPayload.channels);
-      return inputToken(wrapper, 'toka-toka-token')
-        .then(() => {
-          wrapper.vm.submitForm();
-        })
-        .then(() => {
-          expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-          expect(wrapper.emitted().submit).toEqual([[tokenPayload]]);
-        });
-    });
-
-    it('on submit, shows a validation message when token code is empty', () => {
-      return inputToken(wrapper, '    ')
-        .then(() => {
-          // HACK: Clicking the submit button does not propagate to the form, so calling
-          // submit method directly
-          return wrapper.vm.submitForm();
-        })
-        .then(() => {
-          assertTextboxInvalid(wrapper);
-        });
+    it('on submit, shows a validation message when token code is empty', async () => {
+      renderComponent();
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+      await waitFor(() => {
+        expect(screen.getByText(invalidTokenMessage$())).toBeInTheDocument();
+      });
     });
 
     it('on blur, shows a validation message when token code is empty', async () => {
-      const textbox = getElements(wrapper).tokenTextbox();
-      await inputToken(wrapper, '    ');
-      // Reaching into ui-textbox's blur to trigger it on k-textbox
-      textbox.vm.$refs.textbox.$emit('blur');
-      await wrapper.vm.$nextTick();
-      assertTextboxInvalid(wrapper);
+      renderComponent();
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+      fireEvent.focus(textbox);
+      fireEvent.blur(textbox);
+      await waitFor(() => {
+        expect(screen.getByText(invalidTokenMessage$())).toBeInTheDocument();
+      });
+    });
+
+    it('disables submit and cancel while token lookup is in progress', async () => {
+      let resolvePromise;
+      getRemoteChannelBundleByToken.mockReturnValue(
+        new Promise(r => {
+          resolvePromise = r;
+        }),
+      );
+      renderComponent();
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'some-token');
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: cancelAction$() })).toBeDisabled();
+        expect(submitButton).toBeDisabled();
+      });
+      resolvePromise([]);
+    });
+
+    it('emits a "submit" event if token lookup is successful', async () => {
+      const { emitted } = renderComponent();
+      const tokenPayload = { token: 'valid-token-123', channels: [{ id: 'channel-1' }] };
+      getRemoteChannelBundleByToken.mockResolvedValue(tokenPayload.channels);
+
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'valid-token-123');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token-123');
+        expect(emitted().submit).toBeTruthy();
+        expect(emitted().submit[0][0]).toEqual({
+          token: 'valid-token-123',
+          channels: tokenPayload.channels,
+        });
+      });
     });
 
     it('if the token does not point to a channel (404 code), shows a validation message', async () => {
-      const tokenPayload = { response: { status: 404 } };
-      const { lookupTokenStub } = getElements(wrapper);
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      assertTextboxInvalid(wrapper);
+      const { emitted } = renderComponent();
+      const error = { response: { status: 404 } };
+      getRemoteChannelBundleByToken.mockRejectedValue(error);
+
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'invalid-token');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('invalid-token');
+        expect(screen.getByText(invalidTokenMessage$())).toBeInTheDocument();
+        expect(emitted().submit).toBeFalsy();
+      });
     });
 
     it('shows an ui-alert error if there is a generic network error (other error code)', async () => {
-      const tokenPayload = { response: { status: 500 } };
-      const { tokenTextbox, networkErrorAlert, lookupTokenStub } = getElements(wrapper);
-      const textbox = tokenTextbox();
-      const lookupStub = lookupTokenStub();
-      lookupStub.mockRejectedValue(tokenPayload);
-      await inputToken(wrapper, 'toka-toka-token');
-      await wrapper.vm.submitForm();
-      expect(lookupStub).toHaveBeenCalledWith('toka-toka-token');
-      expect(wrapper.emitted().submit).toBeUndefined();
-      expect(textbox.props().invalid).toEqual(false);
-      expect(networkErrorAlert().exists()).toEqual(true);
+      const { emitted } = renderComponent();
+      const error = { response: { status: 500 } };
+      getRemoteChannelBundleByToken.mockRejectedValue(error);
+
+      const textbox = screen.getByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'valid-token');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(getRemoteChannelBundleByToken).toHaveBeenCalledWith('valid-token');
+        expect(screen.getByText(networkErrorMessage$())).toBeInTheDocument();
+        expect(emitted().submit).toBeFalsy();
+      });
     });
   });
 });
