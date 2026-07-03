@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -226,23 +225,6 @@ public class WebViewActivity extends AppCompatActivity {
     webView.setWebViewClient(
         new WebViewClient() {
           @Override
-          public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            super.onPageStarted(view, url, favicon);
-            // DownloadListener isn't passed the triggering <a download> attribute, so capture it
-            // here — otherwise blob: downloads fall back to a UUID filename guessed from the URL.
-            view.evaluateJavascript(
-                "window.print = () => window.Kolibri.print();"
-                    + "if (!window.__kolibriDownloadNameHook) {"
-                    + "window.__kolibriDownloadNameHook = true;"
-                    + "document.addEventListener('click', function(e) {"
-                    + "var a = e.target.closest && e.target.closest('a[download]');"
-                    + "if (a) { window.Kolibri.notePendingDownloadName(a.getAttribute('download')); }"
-                    + "}, true);"
-                    + "}",
-                null);
-          }
-
-          @Override
           public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
             String host = uri.getHost();
@@ -260,6 +242,20 @@ public class WebViewActivity extends AppCompatActivity {
 
           @Override
           public void onPageFinished(WebView view, String url) {
+            // Injecting from onPageStarted doesn't reliably land in the new document on older
+            // WebView builds (the script can still run against the outgoing page), which drops
+            // the download-name hook and loses filenames on blob: downloads. onPageFinished
+            // guarantees the new document is committed before the script runs.
+            view.evaluateJavascript(
+                "if (!window.__kolibriDownloadNameHook) {"
+                    + "window.__kolibriDownloadNameHook = true;"
+                    + "window.print = () => window.Kolibri.print();"
+                    + "document.addEventListener('click', function(e) {"
+                    + "var a = e.target.closest && e.target.closest('a[download]');"
+                    + "if (a) { window.Kolibri.notePendingDownloadName(a.getAttribute('download')); }"
+                    + "}, true);"
+                    + "}",
+                null);
             if (shouldClearHistory) {
               view.clearHistory();
               shouldClearHistory = false;
