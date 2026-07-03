@@ -1,4 +1,3 @@
-from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -9,6 +8,7 @@ from kolibri.core.auth.middleware import clear_user_cache_on_delete
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
+from kolibri.core.auth.tasks import run_peer_user_sync
 from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device import soud
@@ -170,7 +170,7 @@ def mergeuser(
     # Sync with the server to get the remote user:
     kwargs["no_push"] = True
     try:
-        call_command(command, **kwargs)
+        run_peer_user_sync(command, **kwargs)
     except MorangoError:
         # error syncing with the server, probably a networking issue
         raise
@@ -183,7 +183,7 @@ def mergeuser(
     del kwargs["no_push"]
 
     try:
-        call_command(command, **kwargs)
+        run_peer_user_sync(command, **kwargs)
     except MorangoError:
         # error syncing with the server, probably a networking issue
         # the rest of the merge cannot be completed here, so we raise

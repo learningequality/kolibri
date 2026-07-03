@@ -2,6 +2,7 @@
 Subset of Users Device (SOUD) tests
 """
 
+import json
 import time
 import uuid
 from functools import partial
@@ -12,8 +13,10 @@ from django.test import TestCase
 from morango.errors import MorangoResumeSyncError
 from morango.sync.utils import mute_signals
 
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.discovery.models import ConnectionStatus
@@ -375,7 +378,6 @@ class SoudExecuteSyncsTestCase(TestCase):
             )
 
 
-@mute_signals(post_save)
 class SoudExecuteSyncTestCase(TestCase):
     databases = "__all__"
 
@@ -384,55 +386,88 @@ class SoudExecuteSyncTestCase(TestCase):
         self.user_id = uuid.uuid4().hex
         self.instance_id = uuid.uuid4().hex
 
-        self.facility = Facility.objects.create(name="Test")
-        self.user = FacilityUser.objects.get_or_create(
-            id=self.user_id,
-            defaults={
-                "username": self.user_id,
-                "facility": self.facility,
-            },
-        )
-
-        self.network_location = StaticNetworkLocation.objects.create(
-            base_url="https://kolibrihappyurl.qqq/",
-            connection_status=ConnectionStatus.Okay,
-            application="kolibri",
-            instance_id=self.instance_id,
-        )
+        with mute_signals(post_save):
+            self.facility = Facility.objects.create(name="Test")
+            FacilityUser.objects.create(
+                id=self.user_id, username=self.user_id, facility=self.facility
+            )
+            self.network_location = StaticNetworkLocation.objects.create(
+                base_url="https://kolibrihappyurl.qqq/",
+                connection_status=ConnectionStatus.Okay,
+                application="kolibri",
+                instance_id=self.instance_id,
+            )
+            self.sync_queue = SyncQueue.objects.create(
+                user_id=self.user_id,
+                instance_id=self.instance_id,
+                status=SyncQueueStatus.Ready,
+                updated=time.time(),
+                keep_alive=0,
+            )
         self.context = Context(self.user_id, self.instance_id)
 
-        self.sync = mock.patch("kolibri.core.device.soud.call_command")
-        self.mock_sync = self.sync.start()
-        self.addCleanup(self.sync.stop)
-
-        self.sync_queue = SyncQueue.objects.create(
-            user_id=self.user_id,
-            instance_id=self.instance_id,
-            status=SyncQueueStatus.Ready,
-            updated=time.time(),
-            keep_alive=0,
+        discover = mock.patch(
+            "kolibri.core.auth.utils.sync.NetworkClient.discover_from_address"
         )
+        client = discover.start().return_value
+        self.addCleanup(discover.stop)
+        client.base_url = self.network_location.base_url
+        client.get.return_value.json.return_value = [
+            {"id": self.facility.id, "dataset": self.facility.dataset_id}
+        ]
+
+        create_connection = mock.patch(
+            "kolibri.core.auth.utils.sync.MorangoProfileController.create_network_connection"
+        )
+        self.mock_create_connection = create_connection.start()
+        self.addCleanup(create_connection.stop)
+        self.connection = self.mock_create_connection.return_value
+        self.connection.base_url = self.network_location.base_url
+        self.connection.server_info = {"instance_id": self.instance_id}
+        self.connection.get_remote_certificates.return_value = [
+            mock.Mock(
+                scope_definition_id=ScopeDefinitions.SINGLE_USER,
+                scope_params=json.dumps(
+                    {"dataset_id": self.facility.dataset_id, "user_id": self.user_id}
+                ),
+            )
+        ]
+        client_cert = (
+            self.facility.dataset.get_owned_certificates()
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+            .first()
+        )
+        for session_client in (
+            self.connection.create_sync_session.return_value,
+            self.connection.resume_sync_session.return_value,
+        ):
+            session_client.sync_session.client_certificate = client_cert
+            session_client.sync_connection = self.connection
+            session_client.get_pull_client.return_value.context = mock.MagicMock(
+                name="pull_context"
+            )
+            session_client.get_push_client.return_value.context = mock.MagicMock(
+                name="push_context"
+            )
+
+    def assertSessionKeptAliveWithoutProvisioning(self):
+        self.connection.close_sync_session.assert_not_called()
+        self.assertFalse(DevicePermissions.objects.exists())
+
+    def _assert_syncing(self, *args, **kwargs):
+        self.sync_queue.refresh_from_db()
+        self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
+        return mock.DEFAULT
 
     def test_success(self):
         queue_updated = self.sync_queue.updated
-
-        def _side_effect(*args, **kwargs):
-            """Assert the sync queue is updated to Syncing when calling the sync command."""
-            self.sync_queue.refresh_from_db()
-            self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
-
-        self.mock_sync.side_effect = _side_effect
+        self.connection.create_sync_session.side_effect = self._assert_syncing
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "sync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-        )
+        self.connection.create_sync_session.assert_called_once()
+        self.connection.resume_sync_session.assert_not_called()
+        self.assertSessionKeptAliveWithoutProvisioning()
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
         self.assertGreaterEqual(self.sync_queue.updated, queue_updated)
@@ -442,25 +477,15 @@ class SoudExecuteSyncTestCase(TestCase):
         queue_updated = self.sync_queue.updated
         self.sync_queue.sync_session_id = uuid.uuid4().hex
         self.sync_queue.save()
-
-        def _side_effect(*args, **kwargs):
-            """Assert the sync queue is updated to Syncing when calling the sync command."""
-            self.sync_queue.refresh_from_db()
-            self.assertEqual(self.sync_queue.status, SyncQueueStatus.Syncing)
-
-        self.mock_sync.side_effect = _side_effect
+        self.connection.resume_sync_session.side_effect = self._assert_syncing
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "resumesync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-            id=self.sync_queue.sync_session_id,
+        self.connection.resume_sync_session.assert_called_once_with(
+            self.sync_queue.sync_session_id, chunk_size=500
         )
+        self.connection.create_sync_session.assert_not_called()
+        self.assertSessionKeptAliveWithoutProvisioning()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
@@ -473,7 +498,7 @@ class SoudExecuteSyncTestCase(TestCase):
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_not_called()
+        self.mock_create_connection.assert_not_called()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)
@@ -486,18 +511,14 @@ class SoudExecuteSyncTestCase(TestCase):
         self.sync_queue.sync_session_id = uuid.uuid4().hex
         self.sync_queue.save()
 
-        self.mock_sync.side_effect = MorangoResumeSyncError("Some error")
+        self.connection.resume_sync_session.side_effect = MorangoResumeSyncError(
+            "Some error"
+        )
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "resumesync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-            id=self.sync_queue.sync_session_id,
+        self.connection.resume_sync_session.assert_called_once_with(
+            self.sync_queue.sync_session_id, chunk_size=500
         )
 
         self.sync_queue.refresh_from_db()
@@ -510,18 +531,11 @@ class SoudExecuteSyncTestCase(TestCase):
     def test_failure(self):
         queue_updated = self.sync_queue.updated
 
-        self.mock_sync.side_effect = RuntimeError("Some error")
+        self.connection.create_sync_session.side_effect = RuntimeError("Some error")
 
         execute_sync(self.context)
 
-        self.mock_sync.assert_called_once_with(
-            "sync",
-            user=self.user_id,
-            facility=self.facility.id,
-            baseurl=self.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-        )
+        self.connection.create_sync_session.assert_called_once()
 
         self.sync_queue.refresh_from_db()
         self.assertEqual(self.sync_queue.status, SyncQueueStatus.Pending)

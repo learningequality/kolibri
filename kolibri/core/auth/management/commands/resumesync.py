@@ -1,9 +1,16 @@
+from django.core.management.base import BaseCommand
+
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
-from kolibri.core.auth.management.utils import get_network_connection
-from kolibri.core.auth.management.utils import MorangoSyncCommand
+from kolibri.core.auth.management.utils import InteractiveSyncMixin
+from kolibri.core.auth.management.utils import sync_errors_as_command_errors
+from kolibri.core.auth.utils.sync import ResumeSyncManager
 
 
-class Command(MorangoSyncCommand):
+class InteractiveResumeSyncManager(InteractiveSyncMixin, ResumeSyncManager):
+    pass
+
+
+class Command(BaseCommand):
     help = "Allow the syncing of facility data with Kolibri Data Portal or another Kolibri device."
 
     def add_arguments(self, parser):
@@ -42,20 +49,22 @@ class Command(MorangoSyncCommand):
             help="do not close the sync session",
         )
 
-    def handle_async(self, *args, **options):
-        (
-            baseurl,
-            sync_session_id,
-            chunk_size,
-        ) = (
-            options["baseurl"],
+    def handle(self, *args, **options):
+        manager_class = (
+            ResumeSyncManager
+            if options["noninteractive"]
+            else InteractiveResumeSyncManager
+        )
+        manager = manager_class(
             options["id"],
-            options["chunk_size"],
+            baseurl=options["baseurl"],
+            chunk_size=options["chunk_size"],
+            noninteractive=options["noninteractive"],
+            no_push=options["no_push"],
+            no_pull=options["no_pull"],
+            no_provision=options["no_provision"],
+            user_id=options["user"],
+            keep_alive=options["keep_alive"],
         )
-
-        # try to connect to server
-        network_connection = get_network_connection(baseurl)
-        sync_session_client = network_connection.resume_sync_session(
-            sync_session_id, chunk_size=chunk_size
-        )
-        self._sync(sync_session_client, **options)
+        with sync_errors_as_command_errors(options["baseurl"]):
+            manager.run()
