@@ -11,20 +11,29 @@ appId: org.learningequality.Kolibri
 # On API 24-28 the app also requests WRITE_EXTERNAL_STORAGE at startup, for
 # the legacy (pre-MediaStore) download write path. Unlike POST_NOTIFICATIONS,
 # Maestro's auto-grant doesn't take for this permission on the API 24 image —
-# the dialog still appears and, left undismissed, sits on top of onboarding
-# for the rest of the flow. Dismiss it if it shows; on API 29+ it never
-# appears since the permission isn't requested there.
-- extendedWaitUntil:
-    visible: "Allow Kolibri to access photos, media, and files on your device?"
-    timeout: 30000
-    optional: true
-- tapOn:
-    text: "ALLOW"
-    optional: true
+# the dialog still appears. Its timing isn't deterministic: it has been
+# observed appearing after "How are you using Kolibri?" has already
+# rendered underneath it. While the dialog's Activity is in the foreground,
+# the WebView's accessibility tree isn't queryable. So a wait issued before
+# the dialog appears can time out even though the text is already on
+# screen. Loop dismissing the dialog whenever it shows, between short
+# checks for onboarding, so it's caught no matter when it appears. On API
+# 29+ neither the permission nor its dialog exist, so the loop exits on the
+# first check.
+- repeat:
+    times: 60
+    while:
+      notVisible: "How are you using Kolibri?"
+    commands:
+      - tapOn:
+          text: "ALLOW"
+          optional: true
+      - extendedWaitUntil:
+          visible: "How are you using Kolibri?"
+          timeout: 3000
+          optional: true
 
-- extendedWaitUntil:
-    visible: "How are you using Kolibri?"
-    timeout: 180000
+- assertVisible: "How are you using Kolibri?"
 
 # Step 1: "How are you using Kolibri?" — "On my own" is pre-selected
 - tapOn: "CONTINUE"
