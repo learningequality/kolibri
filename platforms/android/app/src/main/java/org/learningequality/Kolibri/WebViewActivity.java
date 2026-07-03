@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -34,6 +35,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
 import java.util.Arrays;
+import org.json.JSONObject;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -44,6 +46,7 @@ import java.util.Arrays;
 public class WebViewActivity extends AppCompatActivity {
   private static final String TAG = "WebViewActivity";
   private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
+  private static final int REQUEST_STORAGE_PERMISSION = 1002;
   private static final String PREFS_NAME = "kolibri_webview";
   private static final String PREF_LAST_PATH = "last_path";
   private static final String LOOPBACK_IP = "127.0.0.1";
@@ -64,6 +67,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     applyEdgeToEdgeInsets();
     requestNotificationPermission();
+    requestLegacyStoragePermission();
     setupSplash();
     setupWebView();
     setupBackNavigation();
@@ -106,6 +110,22 @@ public class WebViewActivity extends AppCompatActivity {
             new String[] {Manifest.permission.POST_NOTIFICATIONS},
             REQUEST_NOTIFICATION_PERMISSION);
       }
+    }
+  }
+
+  /**
+   * Request WRITE_EXTERNAL_STORAGE on API 24-28, needed for downloads below MediaStore's API 29
+   * floor.
+   */
+  private void requestLegacyStoragePermission() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+        && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+      Log.d(TAG, "Requesting WRITE_EXTERNAL_STORAGE permission");
+      ActivityCompat.requestPermissions(
+          this,
+          new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+          REQUEST_STORAGE_PERMISSION);
     }
   }
 
@@ -208,7 +228,18 @@ public class WebViewActivity extends AppCompatActivity {
           @Override
           public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            view.evaluateJavascript("window.print = () => window.Kolibri.print();", null);
+            // DownloadListener isn't passed the triggering <a download> attribute, so capture it
+            // here — otherwise blob: downloads fall back to a UUID filename guessed from the URL.
+            view.evaluateJavascript(
+                "window.print = () => window.Kolibri.print();"
+                    + "if (!window.__kolibriDownloadNameHook) {"
+                    + "window.__kolibriDownloadNameHook = true;"
+                    + "document.addEventListener('click', function(e) {"
+                    + "var a = e.target.closest && e.target.closest('a[download]');"
+                    + "if (a) { window.Kolibri.notePendingDownloadName(a.getAttribute('download')); }"
+                    + "}, true);"
+                    + "}",
+                null);
           }
 
           @Override
@@ -240,6 +271,67 @@ public class WebViewActivity extends AppCompatActivity {
             saveLastPath(url);
           }
         });
+
+    webView.setDownloadListener(this::handleDownload);
+  }
+
+  private void handleDownload(
+      String url,
+      String userAgent,
+      String contentDisposition,
+      String mimetype,
+      long contentLength) {
+    Uri uri = Uri.parse(url);
+    String scheme = uri.getScheme();
+    String filename = resolveFilename(url, contentDisposition, mimetype);
+    if ("blob".equals(scheme) || "data".equals(scheme)) {
+      saveBlobDownload(url, filename, mimetype);
+      return;
+    }
+    if (!"http".equals(scheme) && !"https".equals(scheme)) {
+      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
+      return;
+    }
+    String cookie = CookieManager.getInstance().getCookie(url);
+    new Thread(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype)).start();
+  }
+
+  /**
+   * Prefers the filename captured from the triggering {@code <a download>} click — the
+   * DownloadListener callback isn't passed it, and for blob: URLs {@link URLUtil#guessFileName}
+   * falls back to the blob URL's UUID.
+   */
+  private String resolveFilename(String url, String contentDisposition, String mimetype) {
+    String pending = bridge.consumePendingDownloadFilename();
+    if (pending != null && !pending.isEmpty()) {
+      return pending;
+    }
+    return URLUtil.guessFileName(url, contentDisposition, mimetype);
+  }
+
+  /**
+   * blob:/data: URLs only exist in the renderer's memory, so they can't be fetched from native code
+   * directly. Fetch and base64-encode the content in JS, then hand it to the native bridge to write
+   * out — the same MediaStore-backed path used for http(s) downloads.
+   */
+  private void saveBlobDownload(String url, String filename, String mimetype) {
+    String script =
+        "fetch("
+            + JSONObject.quote(url)
+            + ").then(function(r) { return r.blob(); }).then(function(blob) {"
+            + "var reader = new FileReader();"
+            + "reader.onload = function() {"
+            + "var result = reader.result;"
+            + "var base64 = result.substring(result.indexOf(',') + 1);"
+            + "Kolibri.saveBlob(base64, "
+            + JSONObject.quote(filename)
+            + ", blob.type || "
+            + JSONObject.quote(mimetype)
+            + ");"
+            + "};"
+            + "reader.readAsDataURL(blob);"
+            + "});";
+    webView.evaluateJavascript(script, null);
   }
 
   private void loadKolibri() {

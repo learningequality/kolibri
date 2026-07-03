@@ -2,6 +2,7 @@ package org.learningequality.Kolibri.notification;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
@@ -24,6 +25,16 @@ public class Manager {
       String notificationText,
       int notificationProgress,
       int notificationTotal) {
+    return prepare(
+        notificationTitle, notificationText, notificationProgress, notificationTotal, null);
+  }
+
+  public Notification prepare(
+      String notificationTitle,
+      String notificationText,
+      int notificationProgress,
+      int notificationTotal,
+      PendingIntent contentIntent) {
     if (ref == null) {
       return null;
     }
@@ -37,6 +48,10 @@ public class Manager {
     if (notificationProgress != -1 && notificationTotal != -1) {
       builder.setProgress(notificationTotal, notificationProgress, false);
     }
+    if (contentIntent != null) {
+      builder.setContentIntent(contentIntent);
+      builder.setAutoCancel(true);
+    }
     return builder.build();
   }
 
@@ -45,6 +60,15 @@ public class Manager {
       String notificationText,
       int notificationProgress,
       int notificationTotal) {
+    return send(notificationTitle, notificationText, notificationProgress, notificationTotal, null);
+  }
+
+  public Notification send(
+      String notificationTitle,
+      String notificationText,
+      int notificationProgress,
+      int notificationTotal,
+      PendingIntent contentIntent) {
     if (ref == null) {
       Log.w("Notification.Manager", "NotificationRef is null, cannot send notification");
       return null;
@@ -58,7 +82,12 @@ public class Manager {
     }
     Log.d("Notification.Manager", "Sending notification: " + notificationTitle);
     Notification notification =
-        prepare(notificationTitle, notificationText, notificationProgress, notificationTotal);
+        prepare(
+            notificationTitle,
+            notificationText,
+            notificationProgress,
+            notificationTotal,
+            contentIntent);
     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
     notificationManager.notify(ref.getTag(), ref.getId(), notification);
     return notification;
