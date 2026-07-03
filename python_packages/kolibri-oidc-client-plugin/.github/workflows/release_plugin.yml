@@ -1,0 +1,48 @@
+name: Release Plugin
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  whl:
+    name: Build WHL file
+    uses: ./.github/workflows/build_whl.yml
+  test_pypi_upload:
+    name: Upload to TestPyPi
+    needs: whl
+    uses: ./.github/workflows/pypi_upload.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      test: true
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+  block_release_step:
+  # This step ties to the release environment which requires manual approval
+  # before it can execute. Once manual approval has been granted, the release is
+  # unblocked and all the subsequent steps in this workflow will happen.
+    name: Job to block publish of a release until it has been manually approved
+    if: ${{ !github.event.release.prerelease }}
+    needs: [whl, test_pypi_upload]
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - run: echo "Release now publishing!"
+  pypi_upload:
+    name: Upload to PyPi
+    if: ${{ !github.event.release.prerelease }}
+    needs: [whl, block_release_step]
+    uses: ./.github/workflows/pypi_upload.yml
+    with:
+      whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      test: false
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      TESTPYPI_API_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
