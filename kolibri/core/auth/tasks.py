@@ -25,6 +25,7 @@ from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.bulk_export import bulk_export_users
+from kolibri.core.auth.utils.bulk_import import bulk_import_users
 from kolibri.core.auth.utils.delete_facility import delete_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
@@ -189,8 +190,7 @@ def importusersfromcsv(
     """
 
     try:
-        call_command(
-            "bulkimportusers",
+        bulk_import_users(
             filepath,
             use_storage=True,
             facility=facility,

@@ -27,6 +27,7 @@ from kolibri.core.auth.tasks import deletefacility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import exportuserstocsv
+from kolibri.core.auth.tasks import importusersfromcsv
 from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
@@ -1153,3 +1154,31 @@ class ExportUsersToCSVTaskTestCase(TestCase):
             use_storage=True,
             overwrite=True,
         )
+
+
+class ImportUsersFromCSVTaskTestCase(TestCase):
+    filepath = "temp/test.csv"
+    facility_id = "a" * 32
+
+    @patch("kolibri.core.auth.tasks.bulk_import_users")
+    @patch("kolibri.core.auth.tasks.default_storage")
+    def test_deletes_file_on_command_error(self, mock_storage, mock_fn):
+        mock_fn.side_effect = CommandError("import failed")
+        mock_storage.exists.return_value = True
+        with self.assertRaises(CommandError):
+            importusersfromcsv(self.filepath, facility=self.facility_id)
+        mock_storage.delete.assert_called_with(self.filepath)
+
+    @patch("kolibri.core.auth.tasks.bulk_import_users")
+    @patch("kolibri.core.auth.tasks.default_storage")
+    def test_deletes_file_on_wetrun_success(self, mock_storage, mock_fn):
+        mock_storage.exists.return_value = True
+        importusersfromcsv(self.filepath, facility=self.facility_id)
+        mock_storage.delete.assert_called_with(self.filepath)
+
+    @patch("kolibri.core.auth.tasks.bulk_import_users")
+    @patch("kolibri.core.auth.tasks.default_storage")
+    def test_no_delete_on_dryrun(self, mock_storage, mock_fn):
+        mock_storage.exists.return_value = True
+        importusersfromcsv(self.filepath, facility=self.facility_id, dryrun=True)
+        mock_storage.delete.assert_not_called()
