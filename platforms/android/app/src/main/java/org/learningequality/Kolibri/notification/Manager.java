@@ -24,15 +24,6 @@ public class Manager {
       String notificationTitle,
       String notificationText,
       int notificationProgress,
-      int notificationTotal) {
-    return prepare(
-        notificationTitle, notificationText, notificationProgress, notificationTotal, null);
-  }
-
-  public Notification prepare(
-      String notificationTitle,
-      String notificationText,
-      int notificationProgress,
       int notificationTotal,
       PendingIntent contentIntent) {
     if (ref == null) {

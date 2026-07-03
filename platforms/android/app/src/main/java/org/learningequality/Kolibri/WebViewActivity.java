@@ -34,6 +34,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.json.JSONObject;
 
 /**
@@ -58,6 +60,7 @@ public class WebViewActivity extends AppCompatActivity {
   private boolean shouldClearHistory;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
   private ActivityResultLauncher<String[]> filePickerLauncher;
+  private final ExecutorService downloadExecutor = Executors.newCachedThreadPool();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -289,7 +292,7 @@ public class WebViewActivity extends AppCompatActivity {
       return;
     }
     String cookie = CookieManager.getInstance().getCookie(url);
-    new Thread(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype)).start();
+    downloadExecutor.execute(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype));
   }
 
   /**
@@ -418,5 +421,6 @@ public class WebViewActivity extends AppCompatActivity {
       webView.destroy();
       webView = null;
     }
+    downloadExecutor.shutdown();
   }
 }

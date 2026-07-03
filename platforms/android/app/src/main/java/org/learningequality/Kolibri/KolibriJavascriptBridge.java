@@ -37,20 +37,28 @@ public class KolibriJavascriptBridge implements Notifier {
 
   private final Activity activity;
   private final WebView webView;
-  private volatile String pendingDownloadFilename;
-  private volatile long pendingDownloadFilenameSetAt;
+  private volatile PendingDownloadName pendingDownloadName;
 
   public KolibriJavascriptBridge(Activity activity, WebView webView) {
     this.activity = activity;
     this.webView = webView;
   }
 
+  private static final class PendingDownloadName {
+    final String filename;
+    final long setAt;
+
+    PendingDownloadName(String filename, long setAt) {
+      this.filename = filename;
+      this.setAt = setAt;
+    }
+  }
+
   /** Called from JS when a click on an {@code <a download>} element is observed. */
   @JavascriptInterface
   @Keep
   public void notePendingDownloadName(String filename) {
-    pendingDownloadFilename = filename;
-    pendingDownloadFilenameSetAt = System.currentTimeMillis();
+    pendingDownloadName = new PendingDownloadName(filename, System.currentTimeMillis());
   }
 
   /**
@@ -58,13 +66,13 @@ public class KolibriJavascriptBridge implements Notifier {
    * older than {@link #PENDING_DOWNLOAD_FILENAME_TTL_MS} are discarded.
    */
   String consumePendingDownloadFilename() {
-    String filename = pendingDownloadFilename;
-    long setAt = pendingDownloadFilenameSetAt;
-    pendingDownloadFilename = null;
-    if (filename == null || System.currentTimeMillis() - setAt > PENDING_DOWNLOAD_FILENAME_TTL_MS) {
+    PendingDownloadName pending = pendingDownloadName;
+    pendingDownloadName = null;
+    if (pending == null
+        || System.currentTimeMillis() - pending.setAt > PENDING_DOWNLOAD_FILENAME_TTL_MS) {
       return null;
     }
-    return filename;
+    return pending.filename;
   }
 
   @Override
@@ -162,8 +170,13 @@ public class KolibriJavascriptBridge implements Notifier {
         out = item != null ? activity.getContentResolver().openOutputStream(item) : null;
       } else {
         File file = uniqueLegacyDownloadFile(filename);
-        item = file != null ? legacyFileUri(file) : null;
-        out = file != null ? new FileOutputStream(file) : null;
+        if (file != null) {
+          item = legacyFileUri(file);
+          out = new FileOutputStream(file);
+        } else {
+          item = null;
+          out = null;
+        }
       }
     } catch (IOException e) {
       Log.w(TAG, "Failed to open destination for " + filename, e);
