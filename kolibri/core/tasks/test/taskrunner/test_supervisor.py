@@ -6,7 +6,9 @@ from unittest import mock
 
 import pytest
 from django.db import connections
+from django.db import DatabaseError
 
+from kolibri.core.tasks.constants import POLL_INTERVAL
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -56,6 +58,13 @@ def _reclaimed_mid_run(new_supervisor_id, token):
     _simulate_peer_reclaim(new_supervisor_id)
     get_current_job().check_for_cancel()
     _record_token(token)
+
+
+_release_blocking_job = threading.Event()
+
+
+def _block_until_released():
+    _release_blocking_job.wait(timeout=10)
 
 
 @pytest.fixture
@@ -1176,6 +1185,73 @@ class TestWorkerSupervisor:
             finally:
                 w.storage.clear(force=True)
                 w.shutdown()
+
+    def test_loop_interval_defaults_to_heartbeat_interval(self):
+        w = WorkerSupervisor(regular_workers=1, high_workers=1)
+        try:
+            assert w.loop_interval == w._heartbeat_interval
+        finally:
+            w.storage.clear(force=True)
+            w.shutdown()
+
+    def test_near_future_job_runs_before_the_idle_interval(self, worker):
+        assert worker.loop_interval > 1
+        job_id = worker.storage.enqueue_in(
+            datetime.timedelta(seconds=0.3), Job(id, args=(9,)), QUEUE
+        )
+
+        deadline = time.time() + 3
+        while worker.storage.get_job(job_id).state != State.COMPLETED:
+            assert time.time() < deadline, (
+                "Scheduled job did not run before the interval"
+            )
+            time.sleep(0.05)
+
+    def test_queued_job_starts_when_a_worker_slot_frees(self, worker):
+        assert worker.loop_interval > 1
+        _release_blocking_job.clear()
+        try:
+            blocker_id = worker.storage.enqueue_job(Job(_block_until_released), QUEUE)
+            deadline = time.time() + 3
+            while worker.storage.get_job(blocker_id).state != State.RUNNING:
+                assert time.time() < deadline, "Blocking job did not start"
+                time.sleep(0.05)
+
+            waiting_id = worker.storage.enqueue_job(Job(id, args=(9,)), QUEUE)
+            time.sleep(0.3)
+            assert worker.storage.get_job(waiting_id).state == State.QUEUED
+
+            _release_blocking_job.set()
+            deadline = time.time() + 3
+            while worker.storage.get_job(waiting_id).state != State.COMPLETED:
+                assert time.time() < deadline, (
+                    "Queued job did not start when the worker slot freed"
+                )
+                time.sleep(0.05)
+        finally:
+            _release_blocking_job.set()
+
+    def test_due_unclaimed_job_rechecks_at_poll_interval(self, worker):
+        with mock.patch.object(
+            worker.storage, "seconds_until_next_queued_job", return_value=0
+        ):
+            assert worker._next_wait() == POLL_INTERVAL
+
+    def test_wait_ends_by_the_next_heartbeat(self, worker):
+        worker._last_heartbeat = time.monotonic() - worker._heartbeat_interval + 1
+
+        assert worker._next_wait() <= 1
+
+    def test_failing_lookahead_does_not_spin(self, worker):
+        with mock.patch.object(
+            worker.storage,
+            "seconds_until_next_queued_job",
+            side_effect=DatabaseError,
+        ) as lookahead:
+            worker.notifier.notify()
+            time.sleep(1)
+
+        assert 2 <= lookahead.call_count <= 1 / POLL_INTERVAL + 1
 
     def test_supervisor_unregisters_on_shutdown(self):
         w = WorkerSupervisor(regular_workers=1, high_workers=1)
