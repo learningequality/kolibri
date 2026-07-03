@@ -1,5 +1,11 @@
-__version__ = "0.0.4"
 import os
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version
+
+try:
+    __version__ = version("kolibri-oidc-provider-plugin")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 
 
 def kolibri_userinfo(claims, user):

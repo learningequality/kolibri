@@ -1,19 +1,14 @@
-
-
 # Kolibri OpenID Connect Provider plugin
 
 ## What is this?
 
 Kolibri is a Learning Management System / Learning App designed to run on low-power devices, targeting the needs of learners and teachers in contexts with limited infrastructure. See [learningequality.org/kolibri](https://learningequality.org/kolibri/) for more info.
 
-OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol. It allows Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner.). See [openid.net/connect/faq](https://openid.net/connect/faq/) for more info.
+OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol. It allows Clients to verify the identity of the End-User based on the authentication performed by an Authorization Server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner). See [openid.net/connect/faq](https://openid.net/connect/faq/) for more info.
 
-This package provides a plugin to convert a  Kolibri server into a OIDC provider that can be use by external applications to authenticate, thus Kolibri becomes the source of truth when integrating it with another applications needing a single-sign-on (SSO) authentication.
-
+This package provides a plugin to convert a Kolibri server into an OIDC provider that can be used by external applications to authenticate, thus Kolibri becomes the source of truth when integrating it with other applications needing a single-sign-on (SSO) authentication.
 
 ## How can I install this plugin?
-
-**For this to work, kolibri >= 0.14 must be installed**
 
 1. Inside your Kolibri virtual environment: `pip install kolibri-oidc-provider-plugin`
 
@@ -21,8 +16,26 @@ This package provides a plugin to convert a  Kolibri server into a OIDC provider
 
 3. Restart Kolibri
 
-4. Create server RSA Keys and  authorization clients that will use the provider, as explained below
+4. Create server RSA Keys and authorization clients that will use the provider, as explained below
 
+## How can I install this plugin for development?
+
+1. From the root of the `kolibri` monorepo, install the Python dependencies:
+
+   `uv sync --all-packages`
+
+   `uvx prek install`
+
+2. Activate the plugin:
+
+   `KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_oidc_provider_plugin`
+
+## How to publish to PyPI?
+
+Publishing is automated by the `pypi_packages_publish.yml` GitHub Actions workflow.
+
+- It lives in the monorepo root's `.github/workflows/` directory.
+- It runs when this plugin's `pyproject.toml` version is bumped.
 
 ## Creating server RSA Keys
 Previously to use the server authentication, an internal RSA Key must be created using the commands:
@@ -38,7 +51,7 @@ The command has these options:
 * `clientsecret`: OIDC secret. If the command is executed without providing one, it will generate it and output it in the system prompt. It must be a 32 chars hexadecimal value (It's recommended not to provide one and use the secret this commands generates as it's created according to the [best practices](https://www.oauth.com/oauth2-servers/client-registration/client-id-secret/))
 
 Usage examples:
-`kolibri manage oidccreateclient  --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/openidconnect/api/callback/"`
+`kolibri manage oidccreateclient --name=myapp --clientid=myclient.app --redirect-uri="http://localhost:9000/openidconnect/api/callback/"`
 
 or, if the site needs to use different redirect uris in the client server:
 
@@ -48,8 +61,6 @@ http://localhost:9000/oidc/callback
 https://mysite.com/auth/
 http://mysite.com/auth/"
 ```
-
-
 
 ### Created clients parameters
 
@@ -63,13 +74,9 @@ Clients created using the `oidccreateclient` command will have these settings (i
 
 All the server endpoints are available via the `OpenID Provider Discovery` url in the server provider address http://server/.well-known/openid-configuration , for example, if running Kolibri locally, at http://localhost:8080/.well-known/openid-configuration
 
-
 ## Plugin configuration
 
-This plugin is based on the [Django OpenID Connect Provider library](https://github.com/juanifioren/django-oidc-provider/).
-
-that can set to work as a standard OpenID Connect provider, so most of the library options have already been set and are not optional.
-
+This plugin is based on the [Django OpenID Connect Provider library](https://github.com/juanifioren/django-oidc-provider/), which can be set to work as a standard OpenID Connect provider, so most of the library options have already been set and are not optional.
 
 ### Require consent setting
 
@@ -81,4 +88,4 @@ Either add it to `$KOLIBRI_HOME/options.ini` a new section:
 [OIDCProvider]
 REQUIRE_CONSENT = False
 ```
-Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_REQUIRE_CONSENT`.
+Or supply the `REQUIRE_CONSENT` option setting in an environment variable called `KOLIBRI_OIDC_PROVIDER_REQUEST_CONSENT`.
