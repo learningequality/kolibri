@@ -7,6 +7,7 @@ from le_utils.constants import content_kinds
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.models import VirtualContentRoot
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
@@ -14,6 +15,7 @@ from kolibri.core.content.utils.channel_transfer import get_job
 from kolibri.core.content.utils.content_request import propagate_contentnode_removal
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
+from kolibri.core.content.utils.virtual_content_build import delete_virtual_contentnodes
 from kolibri.core.utils.lock import db_lock
 
 logger = logging.getLogger(__name__)
@@ -79,6 +81,23 @@ def delete_metadata(
 
     if update_content_requests and removed_resources:
         propagate_contentnode_removal(list(removed_resources))
+
+    if delete_all_metadata:
+        delete_virtual_contentnodes(channel.id)
+    else:
+        virtual_root_ids = set(
+            VirtualContentRoot.objects.filter(channel_id=channel.id).values_list(
+                "root_id", flat=True
+            )
+        )
+        still_available_root_ids = set(
+            ContentNode.objects.filter(
+                channel_id=channel.id, id__in=virtual_root_ids, available=True
+            ).values_list("id", flat=True)
+        )
+        removed_virtual_root_ids = virtual_root_ids - still_available_root_ids
+        if removed_virtual_root_ids:
+            delete_virtual_contentnodes(channel.id, root_ids=removed_virtual_root_ids)
 
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
