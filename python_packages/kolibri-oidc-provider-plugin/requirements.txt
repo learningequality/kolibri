@@ -1,2 +1,0 @@
-kolibri>=0.14
-django-oidc-provider==0.7.0
