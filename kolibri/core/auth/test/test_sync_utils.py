@@ -1,14 +1,18 @@
 import uuid
 from unittest.mock import Mock
+from unittest.mock import patch
 
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
+from morango.models import Certificate
 from morango.models import Filter
 from morango.sync.utils import SyncSignalGroup
 
 from kolibri.core.auth.constants.morango_sync import PARTITION_CLASSROOM
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_COACH_RW
 from kolibri.core.auth.constants.morango_sync import PARTITION_SUFFIX_LEARNER_RW
-from kolibri.core.auth.management.utils import MorangoSyncCommand
+from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Collection
@@ -18,6 +22,7 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.utils.sync import ClassroomPartitionFactory
 from kolibri.core.auth.utils.sync import ClassroomPartitionFilterFactory
 from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
+from kolibri.core.auth.utils.sync import SyncManager
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
 from kolibri.core.lessons.models import Lesson
@@ -30,7 +35,7 @@ from .helpers import provision_device
 class TestProgressTracking(TestCase):
     def test_transfer_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
@@ -61,7 +66,7 @@ class TestProgressTracking(TestCase):
 
     def test_queueing_tracker_adapter(self):
         # Create an instance of the class you're testing
-        instance = MorangoSyncCommand()
+        instance = SyncManager()
 
         # Mock the relevant methods
         instance.start_progress = Mock()
@@ -454,3 +459,72 @@ class ClassroomPartitionFilterFactoryTestCase(TestCase):
         self.assertFilterHas(
             test_filter, self.classroom_b.id, expected_suffix=PARTITION_SUFFIX_COACH_RW
         )
+
+
+class SyncCommandTestCase(TestCase):
+    databases = "__all__"
+
+    def test_unreachable_baseurl_raises_command_error(self):
+        for command, options in (
+            ("sync", {}),
+            ("resumesync", {"id": uuid.uuid4().hex}),
+        ):
+            with self.subTest(command=command):
+                with self.assertRaisesMessage(
+                    CommandError, "Unable to connect to: http://127.0.0.1:1/"
+                ):
+                    call_command(
+                        command,
+                        baseurl="http://127.0.0.1:1/",
+                        noninteractive=True,
+                        **options,
+                    )
+
+    @patch(
+        "kolibri.core.auth.utils.sync.MorangoProfileController.create_network_connection"
+    )
+    @patch("kolibri.core.auth.utils.sync.NetworkClient.discover_from_address")
+    @patch("kolibri.core.auth.management.utils.getpass.getpass", return_value="pw")
+    @patch("builtins.input")
+    def test_prompted_server_credentials_do_not_pick_superuser(
+        self,
+        mock_input,
+        mock_getpass,
+        mock_discover_from_address,
+        mock_create_network_connection,
+    ):
+        facility = Facility.objects.create(name="facility")
+        FacilityUser.objects.create(username="server_admin", facility=facility)
+        learner = FacilityUser.objects.create(username="learner", facility=facility)
+        client_cert = (
+            facility.dataset.get_owned_certificates()
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+            .first()
+        )
+        # without an owned certificate, the server credentials are needed for a CSR
+        Certificate.objects.filter(id=facility.dataset_id).update(_private_key=None)
+        client = mock_discover_from_address.return_value
+        client.base_url = "http://peer.test/"
+        client.get.return_value.json.return_value = [
+            {"id": facility.id, "dataset": facility.dataset_id}
+        ]
+        network_connection = mock_create_network_connection.return_value
+        network_connection.base_url = "http://peer.test/"
+        network_connection.server_info = {"instance_id": uuid.uuid4().hex}
+        network_connection.get_remote_certificates.return_value = [Mock()]
+        network_connection.certificate_signing_request.return_value = client_cert
+        sync_session = network_connection.create_sync_session.return_value.sync_session
+        sync_session.client_certificate = client_cert
+        mock_input.side_effect = ["server_admin", "learner"]
+
+        call_command("sync", baseurl="http://peer.test/", no_pull=True, no_push=True)
+
+        network_connection.get_remote_certificates.assert_called_once()
+        csr_kwargs = network_connection.certificate_signing_request.call_args[1]
+        self.assertEqual(csr_kwargs["userargs"]["username"], "server_admin")
+        self.assertEqual(csr_kwargs["password"], "pw")
+        mock_input.assert_called_with(
+            "Please enter username of account that will become the superuser on this device: "
+        )
+        learner.refresh_from_db()
+        self.assertTrue(learner.is_superuser)

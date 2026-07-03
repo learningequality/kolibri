@@ -794,11 +794,6 @@ class GetRemoteUserInfoErrorPathsTestCase(TestCase):
         with self.assertRaises(ResourceGoneError):
             self._call()
 
-    def test_command_error_raises_resource_gone(self):
-        self.client.get.side_effect = CommandError("command failed")
-        with self.assertRaises(ResourceGoneError):
-            self._call()
-
 
 class GetRemoteUsersInfoErrorPathsTestCase(TestCase):
     """
