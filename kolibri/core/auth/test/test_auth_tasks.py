@@ -32,11 +32,14 @@ from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
+from kolibri.core.auth.tasks import peeruserimport
+from kolibri.core.auth.tasks import soud_sync_cleanup
 from kolibri.core.auth.tasks import soud_sync_processing
 from kolibri.core.auth.tasks import SyncJobValidator
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.tasks.exceptions import JobRunning
@@ -932,15 +935,14 @@ class CleanUpSyncsTaskTestCase(TestCase):
         )
         mock_validator.is_valid.assert_called_with(raise_exception=True)
 
-    @patch("kolibri.core.auth.tasks.call_command")
-    def test_calls_command(self, mock_call_command):
+    @patch("kolibri.core.auth.tasks.cleanup_sync_sessions")
+    def test_calls_cleanup_sync_sessions(self, mock_fn):
         cleanupsync(**self.kwargs)
-        mock_call_command.assert_called_with(
-            "cleanupsyncs",
+        mock_fn.assert_called_once_with(
+            sync_filter=str(self.kwargs["sync_filter"]),
             expiration=1,
             push=self.kwargs["push"],
             pull=self.kwargs["pull"],
-            sync_filter=self.kwargs["sync_filter"],
             client_instance_id=self.kwargs["client_instance_id"],
         )
 
@@ -1143,19 +1145,6 @@ class DeleteFacilityTaskExecutionTestCase(TestCase):
         )
 
 
-class ExportUsersToCSVTaskTestCase(TestCase):
-    @patch("kolibri.core.auth.tasks.bulk_export_users")
-    def test_delegates_to_bulk_export_users(self, mock_fn):
-        facility_id = "b" * 32
-        exportuserstocsv(facility=facility_id, locale="en")
-        mock_fn.assert_called_once_with(
-            facility_id=facility_id,
-            locale="en",
-            use_storage=True,
-            overwrite=True,
-        )
-
-
 class ImportUsersFromCSVTaskTestCase(TestCase):
     filepath = "temp/test.csv"
     facility_id = "a" * 32
@@ -1182,3 +1171,52 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
         mock_storage.exists.return_value = True
         importusersfromcsv(self.filepath, facility=self.facility_id, dryrun=True)
         mock_storage.delete.assert_not_called()
+
+
+class ExportUsersToCSVTaskTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.bulk_export_users")
+    def test_delegates_to_bulk_export_users(self, mock_fn):
+        facility_id = "b" * 32
+        exportuserstocsv(facility=facility_id, locale="en")
+        mock_fn.assert_called_once_with(
+            facility_id=facility_id,
+            locale="en",
+            use_storage=True,
+            overwrite=True,
+        )
+
+
+class SoudSyncCleanupTaskTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.cleanup_sync_sessions")
+    @patch("kolibri.core.auth.tasks.find_soud_sync_sessions")
+    def test_calls_cleanupsyncs_when_sessions_exist(self, mock_find, mock_fn):
+        mock_find.return_value.values_list.return_value = ["abc123", "def456"]
+        soud_sync_cleanup(pk__in=["abc123", "def456"])
+        mock_fn.assert_called_once_with(ids=["abc123", "def456"], expiration=0)
+
+    @patch("kolibri.core.auth.tasks.cleanup_sync_sessions")
+    @patch("kolibri.core.auth.tasks.find_soud_sync_sessions")
+    def test_no_call_when_no_sessions(self, mock_find, mock_fn):
+        mock_find.return_value.values_list.return_value = []
+        soud_sync_cleanup(pk__in=[])
+        mock_fn.assert_not_called()
+
+
+class PeerUserImportTaskTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.perform_sync")
+    def test_translates_unable_to_connect_command_error(self, mock_perform):
+        mock_perform.side_effect = CommandError("Unable to connect to server")
+        with self.assertRaises(NetworkClientError):
+            peeruserimport("sync", baseurl="http://example.com/")
+
+    @patch("kolibri.core.auth.tasks.perform_sync")
+    def test_reraises_other_command_errors(self, mock_perform):
+        mock_perform.side_effect = CommandError("some other error")
+        with self.assertRaises(CommandError):
+            peeruserimport("sync", baseurl="http://example.com/")
+
+    @patch("kolibri.core.auth.tasks.perform_sync")
+    def test_network_error_propagates_directly(self, mock_perform):
+        mock_perform.side_effect = NetworkClientError()
+        with self.assertRaises(NetworkClientError):
+            peeruserimport("sync", baseurl="http://example.com/")
