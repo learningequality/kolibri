@@ -24,6 +24,7 @@ from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.delete_facility import delete_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
@@ -757,11 +758,7 @@ def deletefacility(facility):
     """
     Initiate a task to delete a facility
     """
-    call_command(
-        "deletefacility",
-        facility=facility,
-        noninteractive=True,
-    )
+    delete_facility(facility_id=facility, noninteractive=True)
 
 
 class CleanUpSyncsValidator(JobValidator):
