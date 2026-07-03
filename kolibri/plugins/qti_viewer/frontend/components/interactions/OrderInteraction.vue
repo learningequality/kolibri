@@ -33,6 +33,13 @@
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
   }
 
+  // qti-choices-top/bottom/left/right are intentional no-ops
+  const LABEL_FNS = {
+    'qti-labels-decimal': i => String(i + 1),
+    'qti-labels-upper-alpha': i => String.fromCharCode(65 + i), // A, B, C...
+    'qti-labels-lower-alpha': i => String.fromCharCode(97 + i), // a, b, c...
+  };
+
   export default {
     name: 'QtiOrderInteraction',
     tag: 'qti-order-interaction',
@@ -45,6 +52,15 @@
       const orientation = computed(() => props.orientation || Orientation.VERTICAL);
       const responseIdentifier = computed(() => props.responseIdentifier);
       const isHorizontal = computed(() => orientation.value === Orientation.HORIZONTAL);
+
+      const getLabelFn = computed(() => {
+        const cls = attrs.class || '';
+        const classes = typeof cls === 'string' ? cls.split(' ') : cls;
+        for (const [key, fn] of Object.entries(LABEL_FNS)) {
+          if (classes.includes(key)) return fn;
+        }
+        return null;
+      });
 
       const allContent = slots.default();
       const nonChoiceContent = allContent.filter(
@@ -82,14 +98,8 @@
           : [...allIdentifiers];
       }
 
-      // Self-healing: runs once at setup (immediate), and again any time
-      // the underlying response value becomes invalid — e.g. after an
-      // external setAnswerState({}) reset clears it — so the learner
-      // always sees a complete, valid list instead of an empty one.
-      // ASSUMPTION (unverified against QTIVariable's actual source): a
-      // reset Ordered-cardinality variable's .value becomes something
-      // that fails isValidOrder (e.g. null/[]), which is what triggers
-      // re-derivation here.
+      // Ensure that the variable is initialized to a valid order on first render
+      // may be a useless check
       watch(
         currentOrder,
         order => {
@@ -155,13 +165,21 @@
                   { 'qti-orientation-horizontal': isHorizontal.value },
                 ],
               },
-              items.map(item =>
-                h(
+              items.map((item, index) => {
+                const labelFn = getLabelFn.value;
+                return h(
                   'li',
-                  { key: item.identifier, class: 'qti-order-row', style: rowStyle },
-                  contentByIdentifier[item.identifier],
-                ),
-              ),
+                  { key: item.identifier, class: 'qti-order-row-wrapper' },
+                  [
+                    labelFn ? h('span', { class: 'qti-order-label' }, labelFn(index)) : null,
+                    h(
+                      'div',
+                      { class: 'qti-order-row', style: rowStyle },
+                      contentByIdentifier[item.identifier],
+                    ),
+                  ].filter(Boolean),
+                );
+              }),
             ),
           ]);
         }
@@ -186,30 +204,39 @@
                     { 'qti-orientation-horizontal': isHorizontal.value },
                   ],
                 },
-                items.map((item, index) =>
-                  h(Draggable, { key: item.identifier }, [
-                    h('li', { class: 'qti-order-row', style: rowStyle }, [
-                      h(DragHandle, [
-                        h(DragSortWidget, {
-                          props: {
-                            isFirst: index === 0,
-                            isLast: index === items.length - 1,
-                          },
-                          on: {
-                            moveUp: () => moveItem(item.identifier, -1),
-                            moveDown: () => moveItem(item.identifier, 1),
-                            mousedown: e => e.preventDefault(),
-                          },
-                        }),
-                      ]),
-                      h(
-                        'div',
-                        { class: 'qti-order-row-content' },
-                        contentByIdentifier[item.identifier],
-                      ),
-                    ]),
-                  ]),
-                ),
+                items.map((item, index) => {
+                  const labelFn = getLabelFn.value;
+                  return h(Draggable, { key: item.identifier }, [
+                    h(
+                      'li',
+                      { class: 'qti-order-row-wrapper' },
+                      [
+                        // Label sits outside the card, updates reactively
+                        labelFn ? h('span', { class: 'qti-order-label' }, labelFn(index)) : null,
+                        h('div', { class: 'qti-order-row', style: rowStyle }, [
+                          h(DragHandle, [
+                            h(DragSortWidget, {
+                              props: {
+                                isFirst: index === 0,
+                                isLast: index === items.length - 1,
+                              },
+                              on: {
+                                moveUp: () => moveItem(item.identifier, -1),
+                                moveDown: () => moveItem(item.identifier, 1),
+                                mousedown: e => e.preventDefault(),
+                              },
+                            }),
+                          ]),
+                          h(
+                            'div',
+                            { class: 'qti-order-row-content' },
+                            contentByIdentifier[item.identifier],
+                          ),
+                        ]),
+                      ].filter(Boolean),
+                    ),
+                  ]);
+                }),
               ),
             ],
           ),
@@ -234,34 +261,57 @@
     list-style: none;
   }
 
-  .qti-order-interaction.qti-orientation-horizontal {
+  .qti-order-row-wrapper {
     display: flex;
-    flex-wrap: wrap;
     gap: 8px;
-
-    .qti-order-row {
-      margin-block-end: 0;
-    }
-  }
-
-  .qti-order-row {
-    display: flex;
     align-items: center;
-    padding-block: 12px;
-    padding-inline: 16px;
     margin-block-end: 8px;
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 8px;
 
     &:last-child {
       margin-block-end: 0;
     }
   }
 
+  .qti-order-label {
+    flex-shrink: 0;
+    min-width: 1.5rem;
+    font-weight: 600;
+    text-align: end;
+  }
+
+  // the card itself
+  .qti-order-row {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding-block: 12px;
+    padding-inline: 16px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
   .qti-order-row-content {
     flex: 1;
     margin-inline-start: 12px;
+  }
+
+  // Horizontal
+  .qti-order-interaction.qti-orientation-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .qti-order-row-wrapper {
+      // Label goes above the card in horizontal mode
+      flex-direction: column;
+      align-items: center;
+      margin-block-end: 0;
+    }
+
+    .qti-order-label {
+      text-align: center;
+    }
   }
 
   .qti-order-interaction-readonly .qti-order-row {
