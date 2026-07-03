@@ -18,7 +18,7 @@ from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.core.utils.csv import open_csv_for_writing
 
 from ..management.commands import bulkimportusers as b
-from ..management.commands.bulkexportusers import labels
+from ..utils.bulk_export import labels
 from .helpers import create_dummy_facility_data
 
 CLASSROOMS = 2
