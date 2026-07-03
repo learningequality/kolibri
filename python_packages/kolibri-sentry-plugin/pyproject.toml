@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri-sentry-plugin"
+version = "0.3.0"
+description = "A plugin to provide sentry integration for Kolibri"
+readme = "README.rst"
+# Matches root Kolibri's floor, not this plugin's own tested range (see the
+# "Programming Language :: Python" classifiers below) — kept in sync with root
+# so `uv sync --python <version>` at the repo root doesn't fail workspace-wide
+# on this member's requires-python. The plugin's own CI only ever ran on 3.9+.
+requires-python = ">=3.6, <3.15"
+license = "MIT"
+authors = [{ name = "Learning Equality", email = "info@learningequality.org" }]
+keywords = ["kolibri", "sentry", "monitoring"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "kolibri>=0.15",
+    "sentry-sdk==2.45.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/learningequality/kolibri"
+Repository = "https://github.com/learningequality/kolibri"
+
+[project.entry-points."kolibri.plugins"]
+kolibri_sentry_plugin = "kolibri_sentry_plugin"
+
+[dependency-groups]
+dev = [
+    { include-group = "lint" },
+    "prek; python_version >= '3.8'",
+]
+lint = [
+    "ruff",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["kolibri_sentry_plugin*"]
+
+[tool.uv.sources]
+kolibri = { workspace = true }
+
+[tool.uv]
+default-groups = ["dev"]
