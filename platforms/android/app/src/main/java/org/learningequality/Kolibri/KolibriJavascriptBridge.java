@@ -1,6 +1,7 @@
 package org.learningequality.Kolibri;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -237,11 +238,17 @@ public class KolibriJavascriptBridge implements Notifier {
     Intent viewIntent = new Intent(Intent.ACTION_VIEW);
     viewIntent.setDataAndType(contentUri, mimeType);
     viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    // Fall back to "show in folder" when no app handles the file's MIME (e.g. a bare image with
+    // no viewer installed) — otherwise the notification tap would resolve to nothing.
+    Intent tapIntent =
+        viewIntent.resolveActivity(activity.getPackageManager()) != null
+            ? viewIntent
+            : new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
     PendingIntent contentIntent =
         PendingIntent.getActivity(
             activity,
             contentUri.hashCode(),
-            viewIntent,
+            tapIntent,
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     notifyDownload(
         activity.getString(R.string.notification_download_complete_title), filename, contentIntent);
