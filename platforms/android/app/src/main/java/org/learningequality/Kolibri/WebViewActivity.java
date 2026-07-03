@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -21,6 +23,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,6 +32,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
+import java.util.Arrays;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -47,6 +52,8 @@ public class WebViewActivity extends AppCompatActivity {
   private FrameLayout fullscreenContainer;
   private View splashContainer;
   private boolean shouldClearHistory;
+  private ValueCallback<Uri[]> pendingFilePickerCallback;
+  private ActivityResultLauncher<String[]> filePickerLauncher;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +144,17 @@ public class WebViewActivity extends AppCompatActivity {
   }
 
   private void setupWebView() {
+    filePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+              ValueCallback<Uri[]> callback = pendingFilePickerCallback;
+              pendingFilePickerCallback = null;
+              if (callback != null) {
+                callback.onReceiveValue(uri != null ? new Uri[] {uri} : null);
+              }
+            });
+
     if (BuildConfig.DEBUG) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
@@ -161,8 +179,24 @@ public class WebViewActivity extends AppCompatActivity {
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
 
-    // Set WebChromeClient for fullscreen video
-    webView.setWebChromeClient(new KolibriWebChromeClient(this, fullscreenContainer));
+    webView.setWebChromeClient(
+        new KolibriWebChromeClient(this, fullscreenContainer) {
+          @Override
+          public boolean onShowFileChooser(
+              WebView wv, ValueCallback<Uri[]> callback, WebChromeClient.FileChooserParams params) {
+            if (pendingFilePickerCallback != null) {
+              pendingFilePickerCallback.onReceiveValue(null);
+            }
+            pendingFilePickerCallback = callback;
+            String[] accepted = params.getAcceptTypes();
+            String[] mimeTypes =
+                Arrays.stream(accepted != null ? accepted : new String[0])
+                    .filter(t -> t != null && !t.isEmpty())
+                    .toArray(String[]::new);
+            filePickerLauncher.launch(mimeTypes.length == 0 ? new String[] {"*/*"} : mimeTypes);
+            return true;
+          }
+        });
 
     // Open external URLs in the system browser, keep local URLs in the WebView
     webView.setWebViewClient(
