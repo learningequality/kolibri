@@ -27,7 +27,6 @@ From the root of the `kolibri` monorepo:
 ```bash
 uv sync --all-packages
 uvx prek install
-pnpm install
 KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_oidc_client_plugin
 ```
 
