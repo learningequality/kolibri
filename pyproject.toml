@@ -182,7 +182,7 @@ max-line-length = 160
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin"]
+known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin", "kolibri_oidc_client_plugin"]
 # Match the prior reorder-python-imports style: one import per line,
 # sorted case-insensitively rather than grouped by type.
 force-single-line = true

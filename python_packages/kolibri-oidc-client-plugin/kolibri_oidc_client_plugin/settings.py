@@ -1,0 +1,29 @@
+import os
+
+from kolibri.utils.conf import OPTIONS
+
+INSTALLED_APPS = ["mozilla_django_oidc"]
+AUTHENTICATION_BACKENDS = [
+    "kolibri_oidc_client_plugin.auth.OIDCKolibriAuthenticationBackend"
+]
+OIDC_OPTIONS = OPTIONS["OIDCClient"]
+OIDC_URL = OIDC_OPTIONS["PROVIDER_URL"]
+OIDC_RP_CLIENT_ID = os.environ.get("CLIENT_ID", "kolibri.app")
+OIDC_RP_CLIENT_SECRET = os.environ.get("CLIENT_SECRET", "kolibri.app")
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_AUTHENTICATION_CALLBACK_URL = "oidc_client:oidc_authentication_callback"
+OIDC_OP_AUTHORIZATION_ENDPOINT = OIDC_OPTIONS[
+    "AUTHORIZATION_ENDPOINT"
+] or "{}/authorize".format(OIDC_URL)
+OIDC_OP_JWKS_ENDPOINT = OIDC_OPTIONS["JWKS_URI"] or "{}/jwks".format(OIDC_URL)
+OIDC_OP_TOKEN_ENDPOINT = OIDC_OPTIONS["TOKEN_ENDPOINT"] or "{}/token".format(OIDC_URL)
+OIDC_OP_USER_ENDPOINT = OIDC_OPTIONS["USERINFO_ENDPOINT"] or "{}/userinfo".format(
+    OIDC_URL
+)
+OIDC_OP_LOGOUT_ENDPOINT = OIDC_OPTIONS["ENDSESSION_ENDPOINT"]
+OIDC_CLIENT_URL = OIDC_OPTIONS["CLIENT_URL"]
+OIDC_VERIFY_SSL = False
+OIDC_TOKEN_USE_BASIC_AUTH = True
+OIDC_RP_SCOPES = "openid profile email"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/"
