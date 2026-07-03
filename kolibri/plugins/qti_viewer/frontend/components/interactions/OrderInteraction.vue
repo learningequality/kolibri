@@ -219,6 +219,7 @@
                               props: {
                                 isFirst: index === 0,
                                 isLast: index === items.length - 1,
+                                horizontal: isHorizontal.value,
                               },
                               on: {
                                 moveUp: () => moveItem(item.identifier, -1),
