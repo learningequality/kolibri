@@ -4,6 +4,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytz
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -18,6 +19,7 @@ from rest_framework.test import APITestCase
 
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
+from kolibri.core.auth.errors import BulkUserImportError
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
@@ -29,6 +31,7 @@ from kolibri.core.auth.tasks import deletefacility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import exportuserstocsv
+from kolibri.core.auth.tasks import importusersfromcsv
 from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
@@ -1173,3 +1176,51 @@ class ExportUsersToCSVTaskTestCase(TestCase):
 
         with default_storage.open(filename) as f:
             self.assertIn(b"learner1", f.read())
+
+
+class ImportUsersFromCSVTaskTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility = Facility.objects.create(name="facility")
+        self.filepath = default_storage.save(
+            f"temp/{uuid4().hex}.csv",
+            ContentFile(
+                "UUID,USERNAME,PASSWORD,FULL_NAME,USER_TYPE,IDENTIFIER,BIRTH_YEAR,GENDER,ENROLLED_IN,ASSIGNED_TO\n"
+                ",learner1,password,Learner,LEARNER,,,,,\n"
+            ),
+        )
+
+    def _save_csv(self, content):
+        filepath = default_storage.save(f"temp/{uuid4().hex}.csv", ContentFile(content))
+        self.addCleanup(
+            lambda: (
+                default_storage.exists(filepath) and default_storage.delete(filepath)
+            )
+        )
+        return filepath
+
+    def test_deletes_file_on_import_error(self):
+        self.filepath = self._save_csv("not,a,header\n")
+        with self.assertRaises(BulkUserImportError):
+            importusersfromcsv(self.filepath, facility=self.facility.id)
+        self.assertFalse(default_storage.exists(self.filepath))
+
+    def test_deletes_file_when_no_default_facility(self):
+        with self.assertRaises(BulkUserImportError):
+            importusersfromcsv(self.filepath)
+        self.assertFalse(default_storage.exists(self.filepath))
+
+    def test_imports_users_and_deletes_file_on_wetrun(self):
+        importusersfromcsv(self.filepath, facility=self.facility.id)
+        self.assertTrue(
+            FacilityUser.objects.filter(
+                username="learner1", facility=self.facility
+            ).exists()
+        )
+        self.assertFalse(default_storage.exists(self.filepath))
+
+    def test_keeps_file_on_dryrun(self):
+        importusersfromcsv(self.filepath, facility=self.facility.id, dryrun=True)
+        self.assertFalse(FacilityUser.objects.filter(username="learner1").exists())
+        self.assertTrue(default_storage.exists(self.filepath))
