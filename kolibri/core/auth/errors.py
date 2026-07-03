@@ -36,3 +36,37 @@ class NoAvailableSequences(KolibriError):
 
 class SequenceAlreadyAssigned(KolibriError):
     pass
+
+
+class FacilityLookupError(KolibriError):
+    pass
+
+
+class MultipleFacilitiesError(FacilityLookupError):
+    def __init__(self, message, facilities):
+        super().__init__(message)
+        self.facilities = facilities
+
+
+class SyncError(KolibriError):
+    pass
+
+
+class MissingSyncCredentialsError(SyncError):
+    pass
+
+
+class DeviceNotProvisionedError(KolibriError):
+    pass
+
+
+class BulkUserImportError(KolibriError):
+    pass
+
+
+class BulkUserExportError(KolibriError):
+    pass
+
+
+class FacilityDeletionCountMismatch(KolibriError):
+    pass
