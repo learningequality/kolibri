@@ -4,6 +4,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytz
+from django.core.files.storage import default_storage
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
@@ -27,12 +28,16 @@ from kolibri.core.auth.tasks import DataPortalSyncJobValidator
 from kolibri.core.auth.tasks import deletefacility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+from kolibri.core.auth.tasks import exportuserstocsv
 from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
 from kolibri.core.auth.tasks import soud_sync_processing
 from kolibri.core.auth.tasks import SyncJobValidator
+from kolibri.core.auth.utils.bulk_export import (
+    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
+)
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.discovery.models import NetworkLocation
@@ -1153,3 +1158,18 @@ class DeleteFacilityTaskExecutionTestCase(TestCase):
         self.assertFalse(
             Facility.objects.filter(id=self.facility_to_delete.id).exists()
         )
+
+
+class ExportUsersToCSVTaskTestCase(TestCase):
+    def test_writes_csv_to_storage(self):
+        facility = Facility.objects.create(name="facility")
+        FacilityUser.objects.create(username="learner1", facility=facility)
+        filename = USER_CSV_EXPORT_FILENAMES["user"].format(
+            facility.name, facility.id[:4]
+        )
+        self.addCleanup(default_storage.delete, filename)
+
+        exportuserstocsv(facility=facility.id)
+
+        with default_storage.open(filename) as f:
+            self.assertIn(b"learner1", f.read())

@@ -16,20 +16,6 @@ CLASSROOMS = 2
 @override_settings(LANGUAGE_CODE="en")
 class UserExportTestCase(TestCase):
     @classmethod
-    def setUpClass(cls):
-        # Import inside the settings decorator to ensure that the locale is controlled
-        # Do this inside setUpClass rather than setUpTestData as setUpTestData requires
-        # assigned objects to be compatible with copy.deepcopy - we do not need to copy
-        # the management commands as they will not be modified by the tests, unlike the
-        # models.
-        from ..management.commands import bulkexportusers as b  # noqa: PLC0415
-
-        cls.b = b
-        # Run it before setUpClass super call, because this will then execute setUpTestData
-        # which requires cls.b to be defined.
-        super().setUpClass()
-
-    @classmethod
     def setUpTestData(cls):
         cls.data = create_dummy_facility_data(
             classroom_count=CLASSROOMS, learnergroup_count=1
