@@ -20,6 +20,12 @@ appId: org.learningequality.Kolibri
 # checks for onboarding, so it's caught no matter when it appears. On API
 # 29+ neither the permission nor its dialog exist, so the loop exits on the
 # first check.
+#
+# On the heavier API 35 CI emulator, a system "Pixel Launcher isn't
+# responding" ANR dialog has also been observed overlaying onboarding —
+# resource contention on the runner during cold boot, unrelated to Kolibri.
+# It blocks the same accessibility tree as above, so dismiss it the same
+# way: tap "Wait" to let the launcher recover rather than closing it.
 - repeat:
     times: 60
     while:
@@ -27,6 +33,9 @@ appId: org.learningequality.Kolibri
     commands:
       - tapOn:
           text: "ALLOW"
+          optional: true
+      - tapOn:
+          text: "Wait"
           optional: true
       - extendedWaitUntil:
           visible: "How are you using Kolibri?"
