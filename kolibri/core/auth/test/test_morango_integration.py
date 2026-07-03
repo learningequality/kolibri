@@ -27,8 +27,8 @@ from morango.sync.controller import MorangoProfileController
 
 from kolibri.core.attendance.models import AttendanceSession
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.management.utils import get_client_and_server_certs
 from kolibri.core.auth.utils.sync import find_soud_sync_session_for_resume
+from kolibri.core.auth.utils.sync import get_client_and_server_certs
 from kolibri.core.courses.models import CourseSession
 from kolibri.core.courses.models import CourseSessionAssignment
 from kolibri.core.courses.models import TestType
@@ -272,7 +272,6 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
             facility_1.dataset_id,
             network_connection,
             facility_id=facility_1.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)
@@ -284,7 +283,6 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
             facility_2.dataset_id,
             network_connection,
             facility_id=facility_2.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)
@@ -324,7 +322,6 @@ class CertificateAuthenticationTestCase(MultipleServerTestCase):
             network_connection,
             user_id=learner.pk,
             facility_id=facility.id,
-            noninteractive=True,
         )
         self.assertIsNotNone(client_cert)
         self.assertIsNotNone(server_cert)

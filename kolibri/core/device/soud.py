@@ -3,7 +3,6 @@ import json
 import logging
 import time
 
-from django.core.management import call_command
 from django.db import transaction
 from django.db.models import F
 from django.db.models import Q
@@ -21,6 +20,8 @@ from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.sync import ResumeSyncManager
+from kolibri.core.auth.utils.sync import SyncManager
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.utils import is_full_facility_import
@@ -385,25 +386,6 @@ def execute_sync(context):
     sync_queue = context.sync_queue
     sync_session_id = sync_queue.sync_session_id
     cleanup = False
-    command = "sync"
-    kwargs = {
-        "user": context.user_id,
-        "baseurl": context.network_location.base_url,
-        "keep_alive": True,
-        "noninteractive": True,
-        "no_provision": True,
-    }
-
-    if sync_session_id:
-        command = "resumesync"
-        kwargs["id"] = sync_session_id
-    else:
-        kwargs["facility"] = (
-            context.user.facility_id
-            if context.user
-            else Facility.get_default_facility().id
-        )
-
     sync_queue.status = SyncQueueStatus.Syncing
     sync_queue.save()
 
@@ -412,7 +394,27 @@ def execute_sync(context):
         if not context.network_location:
             raise NetworkLocation.DoesNotExist
 
-        call_command(command, **kwargs)
+        kwargs = {
+            "user_id": context.user_id,
+            "baseurl": context.network_location.base_url,
+            "keep_alive": True,
+            "noninteractive": True,
+            "no_provision": True,
+        }
+
+        if sync_session_id:
+            manager = ResumeSyncManager(sync_session_id, **kwargs)
+        else:
+            manager = SyncManager(
+                facility_id=(
+                    context.user.facility_id
+                    if context.user
+                    else Facility.get_default_facility().id
+                ),
+                **kwargs,
+            )
+
+        manager.run()
     except NetworkLocation.DoesNotExist:
         cleanup = True
         logger.debug("%s Network location unavailable", context)
