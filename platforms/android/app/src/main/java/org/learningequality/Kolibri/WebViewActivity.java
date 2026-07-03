@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -49,6 +50,7 @@ public class WebViewActivity extends AppCompatActivity {
   private static final String LOCALHOST = "localhost";
 
   private WebView webView;
+  private KolibriJavascriptBridge bridge;
   private FrameLayout fullscreenContainer;
   private View splashContainer;
   private boolean shouldClearHistory;
@@ -198,9 +200,17 @@ public class WebViewActivity extends AppCompatActivity {
           }
         });
 
-    // Open external URLs in the system browser, keep local URLs in the WebView
+    bridge = new KolibriJavascriptBridge(this, webView);
+    webView.addJavascriptInterface(bridge, "Kolibri");
+
     webView.setWebViewClient(
         new WebViewClient() {
+          @Override
+          public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            view.evaluateJavascript("window.print = () => window.Kolibri.print();", null);
+          }
+
           @Override
           public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
