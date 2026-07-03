@@ -1,9 +1,9 @@
-import kolibri
 import sentry_sdk
-from kolibri.utils import conf
-from kolibri.utils.server import installation_type
 from sentry_sdk.integrations.django import DjangoIntegration
 
+import kolibri
+from kolibri.utils import conf
+from kolibri.utils.server import installation_type
 
 sentry_sdk.init(
     dsn=conf.OPTIONS["Debug"]["SENTRY_BACKEND_DSN"],

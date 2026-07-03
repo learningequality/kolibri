@@ -1,13 +1,13 @@
 
-Kolibri External Plugin Template
-=================================
+Kolibri Sentry Plugin
+======================
 
 
 How can I install this plugin?
 ------------------------------
 
 1. Inside your Kolibri virtual environment:
-    ``pip install kolibri_sentry_plugin``
+    ``pip install kolibri-sentry-plugin``
 
 2. Activate the plugin:
 
@@ -16,33 +16,25 @@ How can I install this plugin?
 3. Restart Kolibri.
 
 How can I install this plugin for development?
-------------------------------
+------------------------------------------------
 
-1. Download this repo.
+1. From the root of the ``kolibri`` monorepo, install the Python and frontend dependencies:
 
-2. Open terminal in your Kolibri repo.
+    ``uv sync --all-packages``
 
-3. run the following commands:
+    ``uvx prek install``
 
-    ``pip install -e <LOCAL-PATH-TO-REPO>``
+    ``pnpm install``
 
-    ``kolibri plugin enable kolibri_sentry_plugin``
+2. Activate the plugin:
 
-
-4. Then run the commands to install frontend packages in Kolibri, this plugin will have its dependencies recursively installed.
+    ``KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_sentry_plugin``
 
 
 How to publish to PyPi?
 ------------------------------
 
-1. Follow the instructions above to install the plugin for development.
+Publishing is automated by the ``pypi_packages_publish.yml`` GitHub Actions workflow.
 
-
-2. From the Kolibri directory run the frontend build command.
-
-
-3. Update `setup.py` to a newer version.
-
-4. In the terminal move to the root level of repo dir and run the following command to publish to PyPi:
-
-    ``make release``
+- It lives in the monorepo root's ``.github/workflows/`` directory.
+- It runs when this plugin's ``pyproject.toml`` version is bumped.
