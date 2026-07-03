@@ -26,6 +26,7 @@ from kolibri.core.auth.tasks import DataPortalSyncJobValidator
 from kolibri.core.auth.tasks import deletefacility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+from kolibri.core.auth.tasks import exportuserstocsv
 from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
@@ -1138,4 +1139,17 @@ class DeleteFacilityTaskExecutionTestCase(TestCase):
         deletefacility(self.facility_to_delete.id)
         self.assertFalse(
             Facility.objects.filter(id=self.facility_to_delete.id).exists()
+        )
+
+
+class ExportUsersToCSVTaskTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.bulk_export_users")
+    def test_delegates_to_bulk_export_users(self, mock_fn):
+        facility_id = "b" * 32
+        exportuserstocsv(facility=facility_id, locale="en")
+        mock_fn.assert_called_once_with(
+            facility_id=facility_id,
+            locale="en",
+            use_storage=True,
+            overwrite=True,
         )

@@ -16,10 +16,10 @@ from django.views.generic.base import TemplateView
 from le_utils.constants import content_kinds
 
 from kolibri.core.auth.constants import role_kinds
-from kolibri.core.auth.management.commands.bulkexportusers import (
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.utils.bulk_export import (
     CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
 )
-from kolibri.core.auth.models import Facility
 from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.logger.csv_export import (
     CSV_EXPORT_FILENAMES as LOGGER_CSV_EXPORT_FILENAMES,

@@ -24,6 +24,7 @@ from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.bulk_export import bulk_export_users
 from kolibri.core.auth.utils.delete_facility import delete_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
@@ -242,12 +243,8 @@ def exportuserstocsv(facility=None, locale=None):
     :returns: An object with the job information
     """
 
-    call_command(
-        "bulkexportusers",
-        use_storage=True,
-        facility=facility,
-        locale=locale,
-        overwrite="true",
+    bulk_export_users(
+        facility_id=facility, locale=locale, use_storage=True, overwrite=True
     )
 
 
