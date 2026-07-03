@@ -9,7 +9,7 @@
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
-  import AnswerGuide from '../AnswerGuide.vue';
+  import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
   import { Orientation } from '../../constants';
 
@@ -19,13 +19,9 @@
       context:
         'Accessible label for the reorderable list of answer choices in an order interaction',
     },
-    reorderInstructions: {
-      message: 'Drag to reorder, or use the up/down buttons for keyboard navigation:',
-      context: 'Tells the learner how to reorder the answer choices',
-    },
   });
 
-  const { orderListLabel$, reorderInstructions$ } = strings;
+  const { orderListLabel$ } = strings;
 
   const $themeTokens = themeTokens();
 
@@ -52,6 +48,9 @@
       const orientation = computed(() => props.orientation || Orientation.VERTICAL);
       const responseIdentifier = computed(() => props.responseIdentifier);
       const isHorizontal = computed(() => orientation.value === Orientation.HORIZONTAL);
+      const orderGuideText = computed(() =>
+        isHorizontal.value ? answerGuideStrings.orderKeyboard$() : answerGuideStrings.order$(),
+      );
 
       const getLabelFn = computed(() => {
         const cls = attrs.class || '';
@@ -155,7 +154,7 @@
           // Report/review mode: no drag handles or move buttons
           return h('div', [
             ...nonChoiceContent,
-            h(AnswerGuide, { props: { text: reorderInstructions$() } }),
+            h(AnswerGuide, { props: { text: orderGuideText.value } }),
             h(
               'ol',
               {
@@ -186,7 +185,7 @@
 
         return h('div', [
           ...nonChoiceContent,
-          h(AnswerGuide, { props: { text: reorderInstructions$() } }),
+          h(AnswerGuide, { props: { text: orderGuideText.value } }),
           h(
             DragContainer,
             {

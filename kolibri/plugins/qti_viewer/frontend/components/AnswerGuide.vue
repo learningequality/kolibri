@@ -31,6 +31,14 @@
       context:
         'Tells the learner they may select any number of answers (multi-selection choice interaction)',
     },
+    order: {
+      message: 'Drag to reorder, or use the up/down buttons for keyboard navigation:',
+      context: 'Tells the learner how to reorder the answer choices',
+    },
+    orderKeyboard: {
+      message: 'Use the right/left buttons to reorder:',
+      context: 'Tells the learner how to reorder the answer choices using the keyboard',
+    },
   });
 
   export default {
