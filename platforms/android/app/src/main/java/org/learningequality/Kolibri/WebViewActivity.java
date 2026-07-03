@@ -13,6 +13,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.URLUtil;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -21,6 +24,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,6 +33,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.json.JSONObject;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -38,15 +47,20 @@ import com.chaquo.python.Python;
 public class WebViewActivity extends AppCompatActivity {
   private static final String TAG = "WebViewActivity";
   private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
+  private static final int REQUEST_STORAGE_PERMISSION = 1002;
   private static final String PREFS_NAME = "kolibri_webview";
   private static final String PREF_LAST_PATH = "last_path";
   private static final String LOOPBACK_IP = "127.0.0.1";
   private static final String LOCALHOST = "localhost";
 
   private WebView webView;
+  private KolibriJavascriptBridge bridge;
   private FrameLayout fullscreenContainer;
   private View splashContainer;
   private boolean shouldClearHistory;
+  private ValueCallback<Uri[]> pendingFilePickerCallback;
+  private ActivityResultLauncher<String[]> filePickerLauncher;
+  private final ExecutorService downloadExecutor = Executors.newCachedThreadPool();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +69,7 @@ public class WebViewActivity extends AppCompatActivity {
 
     applyEdgeToEdgeInsets();
     requestNotificationPermission();
+    requestLegacyStoragePermission();
     setupSplash();
     setupWebView();
     setupBackNavigation();
@@ -100,6 +115,22 @@ public class WebViewActivity extends AppCompatActivity {
     }
   }
 
+  /**
+   * Request WRITE_EXTERNAL_STORAGE on API 24-28, needed for downloads below MediaStore's API 29
+   * floor.
+   */
+  private void requestLegacyStoragePermission() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+        && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+      Log.d(TAG, "Requesting WRITE_EXTERNAL_STORAGE permission");
+      ActivityCompat.requestPermissions(
+          this,
+          new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+          REQUEST_STORAGE_PERMISSION);
+    }
+  }
+
   /** Start the animated splash screen and set version text. */
   private void setupSplash() {
     splashContainer = findViewById(R.id.splash_container);
@@ -137,6 +168,17 @@ public class WebViewActivity extends AppCompatActivity {
   }
 
   private void setupWebView() {
+    filePickerLauncher =
+        registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(),
+            uri -> {
+              ValueCallback<Uri[]> callback = pendingFilePickerCallback;
+              pendingFilePickerCallback = null;
+              if (callback != null) {
+                callback.onReceiveValue(uri != null ? new Uri[] {uri} : null);
+              }
+            });
+
     if (BuildConfig.DEBUG) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
@@ -161,10 +203,28 @@ public class WebViewActivity extends AppCompatActivity {
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
 
-    // Set WebChromeClient for fullscreen video
-    webView.setWebChromeClient(new KolibriWebChromeClient(this, fullscreenContainer));
+    webView.setWebChromeClient(
+        new KolibriWebChromeClient(this, fullscreenContainer) {
+          @Override
+          public boolean onShowFileChooser(
+              WebView wv, ValueCallback<Uri[]> callback, WebChromeClient.FileChooserParams params) {
+            if (pendingFilePickerCallback != null) {
+              pendingFilePickerCallback.onReceiveValue(null);
+            }
+            pendingFilePickerCallback = callback;
+            String[] accepted = params.getAcceptTypes();
+            String[] mimeTypes =
+                Arrays.stream(accepted != null ? accepted : new String[0])
+                    .filter(t -> t != null && !t.isEmpty())
+                    .toArray(String[]::new);
+            filePickerLauncher.launch(mimeTypes.length == 0 ? new String[] {"*/*"} : mimeTypes);
+            return true;
+          }
+        });
 
-    // Open external URLs in the system browser, keep local URLs in the WebView
+    bridge = new KolibriJavascriptBridge(this, webView);
+    webView.addJavascriptInterface(bridge, "Kolibri");
+
     webView.setWebViewClient(
         new WebViewClient() {
           @Override
@@ -185,6 +245,20 @@ public class WebViewActivity extends AppCompatActivity {
 
           @Override
           public void onPageFinished(WebView view, String url) {
+            // Injecting from onPageStarted doesn't reliably land in the new document on older
+            // WebView builds (the script can still run against the outgoing page), which drops
+            // the download-name hook and loses filenames on blob: downloads. onPageFinished
+            // guarantees the new document is committed before the script runs.
+            view.evaluateJavascript(
+                "if (!window.__kolibriDownloadNameHook) {"
+                    + "window.__kolibriDownloadNameHook = true;"
+                    + "window.print = () => window.Kolibri.print();"
+                    + "document.addEventListener('click', function(e) {"
+                    + "var a = e.target.closest && e.target.closest('a[download]');"
+                    + "if (a) { window.Kolibri.notePendingDownloadName(a.getAttribute('download')); }"
+                    + "}, true);"
+                    + "}",
+                null);
             if (shouldClearHistory) {
               view.clearHistory();
               shouldClearHistory = false;
@@ -196,6 +270,73 @@ public class WebViewActivity extends AppCompatActivity {
             saveLastPath(url);
           }
         });
+
+    webView.setDownloadListener(this::handleDownload);
+  }
+
+  private void handleDownload(
+      String url,
+      String userAgent,
+      String contentDisposition,
+      String mimetype,
+      long contentLength) {
+    Uri uri = Uri.parse(url);
+    String scheme = uri.getScheme();
+    String filename = resolveFilename(url, contentDisposition, mimetype);
+    if ("blob".equals(scheme) || "data".equals(scheme)) {
+      saveBlobDownload(url, filename, mimetype);
+      return;
+    }
+    if (!"http".equals(scheme) && !"https".equals(scheme)) {
+      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
+      return;
+    }
+    String cookie = CookieManager.getInstance().getCookie(url);
+    downloadExecutor.execute(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype));
+  }
+
+  /**
+   * Prefers the filename captured from the triggering {@code <a download>} click — the
+   * DownloadListener callback isn't passed it, and for blob: URLs {@link URLUtil#guessFileName}
+   * falls back to the blob URL's UUID.
+   */
+  private String resolveFilename(String url, String contentDisposition, String mimetype) {
+    String pending = bridge.consumePendingDownloadFilename();
+    if (pending != null && !pending.isEmpty()) {
+      return pending;
+    }
+    return URLUtil.guessFileName(url, contentDisposition, mimetype);
+  }
+
+  /**
+   * blob:/data: URLs only exist in the renderer's memory, so they can't be fetched from native code
+   * directly. Fetch and base64-encode the content in JS, then hand it to the native bridge to write
+   * out — the same MediaStore-backed path used for http(s) downloads.
+   */
+  private void saveBlobDownload(String url, String filename, String mimetype) {
+    String quotedFilename = JSONObject.quote(filename);
+    String script =
+        "fetch("
+            + JSONObject.quote(url)
+            + ").then(function(r) { return r.blob(); }).then(function(blob) {"
+            + "var reader = new FileReader();"
+            + "reader.onload = function() {"
+            + "var result = reader.result;"
+            + "var base64 = result.substring(result.indexOf(',') + 1);"
+            + "Kolibri.saveBlob(base64, "
+            + quotedFilename
+            + ", blob.type || "
+            + JSONObject.quote(mimetype)
+            + ");"
+            + "};"
+            + "reader.onerror = function() { Kolibri.notifyBlobDownloadFailed("
+            + quotedFilename
+            + "); };"
+            + "reader.readAsDataURL(blob);"
+            + "}).catch(function() { Kolibri.notifyBlobDownloadFailed("
+            + quotedFilename
+            + "); });";
+    webView.evaluateJavascript(script, null);
   }
 
   private void loadKolibri() {
@@ -280,5 +421,6 @@ public class WebViewActivity extends AppCompatActivity {
       webView.destroy();
       webView = null;
     }
+    downloadExecutor.shutdown();
   }
 }

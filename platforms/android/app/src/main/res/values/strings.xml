@@ -9,5 +9,7 @@
     <string name="notification_default_channel_title">Tasks</string>
     <string name="notification_task_title">Kolibri Task Running</string>
     <string name="notification_task_text">Processing task in background…</string>
+    <string name="notification_download_complete_title">Download complete</string>
+    <string name="notification_download_failed_title">Download failed</string>
     <string name="os_user_name">Learner</string>
 </resources>

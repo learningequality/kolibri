@@ -28,6 +28,21 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        />
+
+    <!-- Downloaded files can be any MIME type, so resolveActivity() needs visibility into
+         every ACTION_VIEW handler on API 30+ to correctly pick "open with viewer" vs.
+         "show in folder" for a completed download's notification. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/icon"
