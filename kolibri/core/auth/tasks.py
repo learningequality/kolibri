@@ -24,6 +24,7 @@ from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.utils.bulk_export import BulkUserExportManager
 from kolibri.core.auth.utils.delete_facility import FacilityDeleteManager
 from kolibri.core.auth.utils.facility import get_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
@@ -243,13 +244,7 @@ def exportuserstocsv(facility=None, locale=None):
     :returns: An object with the job information
     """
 
-    call_command(
-        "bulkexportusers",
-        use_storage=True,
-        facility=facility,
-        locale=locale,
-        overwrite="true",
-    )
+    BulkUserExportManager(facility_id=facility, locale=locale, use_storage=True).run()
 
 
 class SyncJobValidator(JobValidator):
