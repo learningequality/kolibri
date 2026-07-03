@@ -8,6 +8,20 @@ appId: org.learningequality.Kolibri
 # POST_NOTIFICATIONS is already granted and no permission dialog appears.
 - launchApp
 
+# On API 24-28 the app also requests WRITE_EXTERNAL_STORAGE at startup, for
+# the legacy (pre-MediaStore) download write path. Unlike POST_NOTIFICATIONS,
+# Maestro's auto-grant doesn't take for this permission on the API 24 image —
+# the dialog still appears and, left undismissed, sits on top of onboarding
+# for the rest of the flow. Dismiss it if it shows; on API 29+ it never
+# appears since the permission isn't requested there.
+- extendedWaitUntil:
+    visible: "Allow Kolibri to access photos, media, and files on your device?"
+    timeout: 30000
+    optional: true
+- tapOn:
+    text: "ALLOW"
+    optional: true
+
 - extendedWaitUntil:
     visible: "How are you using Kolibri?"
     timeout: 180000
