@@ -315,6 +315,7 @@ public class WebViewActivity extends AppCompatActivity {
    * out — the same MediaStore-backed path used for http(s) downloads.
    */
   private void saveBlobDownload(String url, String filename, String mimetype) {
+    String quotedFilename = JSONObject.quote(filename);
     String script =
         "fetch("
             + JSONObject.quote(url)
@@ -324,13 +325,18 @@ public class WebViewActivity extends AppCompatActivity {
             + "var result = reader.result;"
             + "var base64 = result.substring(result.indexOf(',') + 1);"
             + "Kolibri.saveBlob(base64, "
-            + JSONObject.quote(filename)
+            + quotedFilename
             + ", blob.type || "
             + JSONObject.quote(mimetype)
             + ");"
             + "};"
+            + "reader.onerror = function() { Kolibri.notifyBlobDownloadFailed("
+            + quotedFilename
+            + "); };"
             + "reader.readAsDataURL(blob);"
-            + "});";
+            + "}).catch(function() { Kolibri.notifyBlobDownloadFailed("
+            + quotedFilename
+            + "); });";
     webView.evaluateJavascript(script, null);
   }
 

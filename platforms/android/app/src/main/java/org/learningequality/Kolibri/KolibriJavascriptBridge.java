@@ -107,6 +107,17 @@ public class KolibriJavascriptBridge implements Notifier {
     saveAndNotify(new ByteArrayInputStream(bytes), filename, mimeType);
   }
 
+  /**
+   * Called from JS when the fetch()/FileReader step of a blob:/data: download fails (e.g. the blob
+   * URL was revoked before the fetch completed) — {@link #saveBlob} is never reached in that case,
+   * so nothing else surfaces the failure.
+   */
+  @JavascriptInterface
+  @Keep
+  public void notifyBlobDownloadFailed(String filename) {
+    notifyDownloadFailed(filename);
+  }
+
   /** Fetch an http(s) download on a background thread and save it via the same path as a blob. */
   void downloadHttp(String url, String userAgent, String cookie, String filename, String mimeType) {
     HttpURLConnection connection = null;
