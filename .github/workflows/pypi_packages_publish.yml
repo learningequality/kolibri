@@ -5,6 +5,8 @@ on:
       - develop
     paths:
       - 'python_packages/kolibri-sync-extras-plugin/pyproject.toml'
+      - 'python_packages/kolibri-sentry-plugin/pyproject.toml'
+      - 'python_packages/kolibri-oidc-client-plugin/pyproject.toml'
   workflow_dispatch:
     inputs:
       pypi_package:
@@ -15,6 +17,8 @@ on:
         options:
           - 'all'
           - 'kolibri-sync-extras-plugin'
+          - 'kolibri-sentry-plugin'
+          - 'kolibri-oidc-client-plugin'
       target:
         description: 'Index to publish to'
         required: true
