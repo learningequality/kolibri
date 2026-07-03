@@ -6,7 +6,6 @@ from uuid import uuid4
 import pytz
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -20,6 +19,10 @@ from rest_framework.test import APITestCase
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.errors import BulkUserImportError
+from kolibri.core.auth.errors import DeviceNotProvisionedError
+from kolibri.core.auth.errors import FacilityLookupError
+from kolibri.core.auth.errors import MissingSyncCredentialsError
+from kolibri.core.auth.errors import SyncError
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
@@ -36,6 +39,7 @@ from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
+from kolibri.core.auth.tasks import peeruserimport
 from kolibri.core.auth.tasks import soud_sync_processing
 from kolibri.core.auth.tasks import SyncJobValidator
 from kolibri.core.auth.utils.bulk_export import (
@@ -44,6 +48,7 @@ from kolibri.core.auth.utils.bulk_export import (
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.tasks.exceptions import JobRunning
@@ -589,7 +594,7 @@ class FacilityTaskHelperTestCase(TestCase):
         )
 
         get_facility_dataset_id.assert_called_with(
-            "https://some.server.test/", identifier=facility_id, noninteractive=True
+            "https://some.server.test/", identifier=facility_id
         )
 
         get_client_and_server_certs.assert_called_with(
@@ -599,7 +604,6 @@ class FacilityTaskHelperTestCase(TestCase):
             network_connection,
             user_id=None,
             facility_id=facility_id,
-            noninteractive=True,
         )
 
     @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
@@ -697,7 +701,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller = MorangoProfileController.return_value
         controller.create_network_connection.return_value = network_connection
 
-        get_facility_dataset_id.side_effect = CommandError()
+        get_facility_dataset_id.side_effect = FacilityLookupError()
         with self.assertRaises(AuthenticationFailed):
             PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
 
@@ -744,7 +748,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller.create_network_connection.return_value = network_connection
 
         get_facility_dataset_id.return_value = (facility_id, 456)
-        get_client_and_server_certs.side_effect = CommandError()
+        get_client_and_server_certs.side_effect = SyncError()
 
         with self.assertRaises(AuthenticationFailed):
             PeerFacilityImportJobValidator(data=data).is_valid(raise_exception=True)
@@ -776,7 +780,7 @@ class FacilityTaskHelperTestCase(TestCase):
         controller.create_network_connection.return_value = network_connection
 
         get_facility_dataset_id.return_value = (facility_id, 456)
-        get_client_and_server_certs.side_effect = CommandError()
+        get_client_and_server_certs.side_effect = MissingSyncCredentialsError()
 
         with self.assertRaises(PermissionDenied):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
@@ -952,21 +956,11 @@ class CleanUpSyncsTaskTestCase(TestCase):
         )
         mock_validator.is_valid.assert_called_with(raise_exception=True)
 
-    @patch("kolibri.core.auth.tasks.call_command")
-    def test_calls_command(self, mock_call_command):
-        cleanupsync(**self.kwargs)
-        mock_call_command.assert_called_with(
-            "cleanupsyncs",
-            expiration=1,
-            push=self.kwargs["push"],
-            pull=self.kwargs["pull"],
-            sync_filter=self.kwargs["sync_filter"],
-            client_instance_id=self.kwargs["client_instance_id"],
-        )
-
     def test_actual_run__not_provisioned(self):
         clear_process_cache()
-        with self.assertRaisesRegex(CommandError, "Kolibri is unprovisioned"):
+        with self.assertRaisesRegex(
+            DeviceNotProvisionedError, "Kolibri is unprovisioned"
+        ):
             cleanupsync(**self.kwargs)
 
     def _create_sync(self, last_activity_timestamp=None, client_instance_id=None):
@@ -1163,32 +1157,14 @@ class DeleteFacilityTaskExecutionTestCase(TestCase):
         )
 
 
-class ExportUsersToCSVTaskTestCase(TestCase):
-    def test_writes_csv_to_storage(self):
-        facility = Facility.objects.create(name="facility")
-        FacilityUser.objects.create(username="learner1", facility=facility)
-        filename = USER_CSV_EXPORT_FILENAMES["user"].format(
-            facility.name, facility.id[:4]
-        )
-        self.addCleanup(default_storage.delete, filename)
-
-        exportuserstocsv(facility=facility.id)
-
-        with default_storage.open(filename) as f:
-            self.assertIn(b"learner1", f.read())
-
-
 class ImportUsersFromCSVTaskTestCase(TestCase):
     databases = "__all__"
 
     def setUp(self):
         self.facility = Facility.objects.create(name="facility")
-        self.filepath = default_storage.save(
-            f"temp/{uuid4().hex}.csv",
-            ContentFile(
-                "UUID,USERNAME,PASSWORD,FULL_NAME,USER_TYPE,IDENTIFIER,BIRTH_YEAR,GENDER,ENROLLED_IN,ASSIGNED_TO\n"
-                ",learner1,password,Learner,LEARNER,,,,,\n"
-            ),
+        self.filepath = self._save_csv(
+            "UUID,USERNAME,PASSWORD,FULL_NAME,USER_TYPE,IDENTIFIER,BIRTH_YEAR,GENDER,ENROLLED_IN,ASSIGNED_TO\n"
+            ",learner1,password,Learner,LEARNER,,,,,\n"
         )
 
     def _save_csv(self, content):
@@ -1224,3 +1200,28 @@ class ImportUsersFromCSVTaskTestCase(TestCase):
         importusersfromcsv(self.filepath, facility=self.facility.id, dryrun=True)
         self.assertFalse(FacilityUser.objects.filter(username="learner1").exists())
         self.assertTrue(default_storage.exists(self.filepath))
+
+
+class ExportUsersToCSVTaskTestCase(TestCase):
+    def test_writes_csv_to_storage(self):
+        facility = Facility.objects.create(name="facility")
+        FacilityUser.objects.create(username="learner1", facility=facility)
+        filename = USER_CSV_EXPORT_FILENAMES["user"].format(
+            facility.name, facility.id[:4]
+        )
+        self.addCleanup(default_storage.delete, filename)
+
+        exportuserstocsv(facility=facility.id)
+
+        with default_storage.open(filename) as f:
+            self.assertIn(b"learner1", f.read())
+
+
+class PeerUserImportTaskTestCase(TestCase):
+    @patch(
+        "kolibri.core.auth.utils.sync.NetworkClient.discover_from_address",
+        side_effect=NetworkLocationNotFound(),
+    )
+    def test_unreachable_peer_raises_network_client_error(self, mock_discover):
+        with self.assertRaises(NetworkClientError):
+            peeruserimport("sync", baseurl="http://example.com/")

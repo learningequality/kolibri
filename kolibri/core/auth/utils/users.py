@@ -1,4 +1,3 @@
-from django.core.management.base import CommandError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotFound
@@ -64,10 +63,7 @@ def get_remote_users_info(baseurl, facility_id, username, password, client=None)
         )
     except NetworkLocationConnectionFailure as e:
         raise ResourceGoneError() from e
-    except (
-        CommandError,
-        NetworkLocationResponseFailure,
-    ) as err:
+    except NetworkLocationResponseFailure as err:
         if password == NOT_SPECIFIED or not password:
             facility_info_url = reverse_path(
                 "kolibri:core:publicfacility-detail",
@@ -147,6 +143,4 @@ def get_remote_user_info(client, facility_id, adminUsername, adminPassword, user
                 detail="Authentication failed",
                 code=error_constants.AUTHENTICATION_FAILED,
             ) from e
-        raise ResourceGoneError() from e
-    except CommandError as e:
         raise ResourceGoneError() from e

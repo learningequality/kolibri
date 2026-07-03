@@ -4,8 +4,6 @@ import ntpath
 
 from django.conf import settings
 from django.core.files.storage import default_storage
-from django.core.management import call_command
-from django.core.management.base import CommandError
 from django.db.utils import OperationalError
 from django.utils import timezone
 from morango.errors import MorangoError
@@ -31,7 +29,10 @@ from kolibri.core.auth.utils.delete_facility import FacilityDeleteManager
 from kolibri.core.auth.utils.facility import get_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
 from kolibri.core.auth.utils.picture_passwords import get_learner_count
+from kolibri.core.auth.utils.sync import cleanup_sync_sessions
 from kolibri.core.auth.utils.sync import find_soud_sync_sessions
+from kolibri.core.auth.utils.sync import ResumeSyncManager
+from kolibri.core.auth.utils.sync import SyncManager
 from kolibri.core.auth.utils.sync import validate_and_create_sync_credentials
 from kolibri.core.auth.utils.users import get_remote_user_info
 from kolibri.core.auth.utils.users import get_remote_users_info
@@ -342,6 +343,16 @@ class DataPortalSyncJobValidator(SyncJobValidator):
 facility_task_queue = "facility_task"
 
 
+def _run_sync(command, user=None, **kwargs):
+    if command == "resumesync":
+        manager = ResumeSyncManager(kwargs.pop("id"), user_id=user, **kwargs)
+    else:
+        manager = SyncManager(
+            facility_id=kwargs.pop("facility", None), user_id=user, **kwargs
+        )
+    manager.run()
+
+
 @register_task(
     validator=DataPortalSyncJobValidator,
     permission_classes=[IsAdminForJob],
@@ -355,7 +366,7 @@ def dataportalsync(command, **kwargs):
     """
     Initiate a PUSH sync with Kolibri Data Portal.
     """
-    call_command(command, **kwargs)
+    _run_sync(command, **kwargs)
 
 
 # 24 hours in seconds
@@ -477,7 +488,7 @@ def peerfacilitysync(command, **kwargs):
     """
     Initiate a SYNC (PULL + PUSH) of a specific facility from another device.
     """
-    call_command(command, **kwargs)
+    _run_sync(command, **kwargs)
 
 
 class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
@@ -513,7 +524,7 @@ def peerfacilityimport(command, **kwargs):
     """
     Initiate a PULL of a specific facility from another device.
     """
-    call_command(command, **kwargs)
+    _run_sync(command, **kwargs)
 
 
 class DeleteFacilityValidator(JobValidator):
@@ -608,7 +619,7 @@ def soud_sync_cleanup(**filters):
     clean_up_ids = sync_sessions.values_list("id", flat=True)
 
     if clean_up_ids:
-        call_command("cleanupsyncs", ids=clean_up_ids, expiration=0)
+        cleanup_sync_sessions(ids=clean_up_ids, expiration=0)
 
 
 def queue_soud_sync_cleanup(*sync_session_ids):
@@ -734,12 +745,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     ],
 )
 def peeruserimport(command, **kwargs):
-    try:
-        call_command(command, **kwargs)
-    except CommandError as e:
-        if "Unable to connect" in str(e):
-            raise NetworkClientError() from e
-        raise
+    _run_sync(command, **kwargs)
 
 
 @register_task(
@@ -804,7 +810,7 @@ def cleanupsync(**kwargs):
     validator.is_valid(raise_exception=True)
 
     sync_filter = kwargs.pop("sync_filter")
-    call_command("cleanupsyncs", sync_filter=str(sync_filter), expiration=1, **kwargs)
+    cleanup_sync_sessions(sync_filter=str(sync_filter), expiration=1, **kwargs)
 
 
 @register_task(

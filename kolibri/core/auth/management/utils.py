@@ -2,45 +2,28 @@
 Utility methods for syncing.
 """
 
-import copy
 import getpass
-import json
 import logging
 import sys
 from contextlib import contextmanager
-from functools import wraps
 
 from django.core.management.base import CommandError
-from morango.models import Certificate
-from morango.models import InstanceIDModel
-from morango.models import ScopeDefinition
-from morango.sync.controller import MorangoProfileController
-from morango.sync.controller import SessionControllerSignals
 
-from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
-from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
-from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
-from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
-from kolibri.core.auth.constants.morango_sync import State
-from kolibri.core.auth.models import dataset_cache
-from kolibri.core.auth.models import Facility
+from kolibri.core.auth.errors import FacilityLookupError
+from kolibri.core.auth.errors import MissingSyncCredentialsError
+from kolibri.core.auth.errors import MultipleFacilitiesError
+from kolibri.core.auth.errors import SyncError
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler
-from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler
+from kolibri.core.auth.utils import facility as facility_utils
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.utils import device_provisioned
-from kolibri.core.device.utils import provision_device
-from kolibri.core.device.utils import provision_single_user_device
-from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import URLParseError
-from kolibri.core.tasks.exceptions import UserCancelledError
-from kolibri.core.tasks.management.commands.base import AsyncCommand
-from kolibri.core.utils.lock import db_lock_sqlite_only
-from kolibri.core.utils.urls import reverse_path
-from kolibri.utils.data import bytes_for_humans
 
 logger = logging.getLogger(__name__)
+
+MULTIPLE_FACILITIES_HINT = (
+    "Please pass in a facility ID by passing in --facility {ID} after the command."
+)
 
 
 def confirm_or_exit(message):
@@ -52,8 +35,7 @@ def confirm_or_exit(message):
         sys.exit(1)
 
 
-def _interactive_client_facility_selection():
-    facilities = Facility.objects.all().order_by("name")
+def _interactive_client_facility_selection(facilities):
     message = "Please choose a facility:\n"
     for idx, facility in enumerate(facilities):
         message += f"{idx + 1}. {facility.name}\n"
@@ -81,637 +63,70 @@ def _interactive_server_facility_selection(facilities):
 
 
 def get_facility(facility_id=None, noninteractive=False):
-    # try to get a valid facility from id
-    if facility_id:
-        try:
-            facility = Facility.objects.get(id=facility_id)
-        except Facility.DoesNotExist as e:
-            raise CommandError(f"Facility with ID {facility_id} does not exist") from e
-    # if no id passed in, assume only one facility on device
-    else:
-        try:
-            facility = Facility.objects.get()
-        except Facility.DoesNotExist as e:
-            raise CommandError(
-                "There are no facilities on this device. "
-                "Please initialize your Kolibri installation by starting the server, loading Kolibri in the browser, "
-                "and completing the setup instructions. "
-            ) from e
-        except Facility.MultipleObjectsReturned as e:
-            if noninteractive:
-                raise CommandError(
-                    "There are multiple facilities on this device. "
-                    "Please pass in a facility ID by passing in --facility {ID} after the command."
-                ) from e
-            # in interactive mode, allow user to select facility
-            facility = _interactive_client_facility_selection()
-
-    return facility
-
-
-def get_facility_dataset_id(baseurl, identifier=None, noninteractive=False):
-    # get list of facilities and if more than 1, display all choices to user
-    client = NetworkClient.discover_from_address(baseurl)
-    facility_url = reverse_path("kolibri:core:publicfacility-list")
-    response = client.get(facility_url)
-    facilities = response.json()
-    if not facilities:
-        raise CommandError(f"There are no facilities available at: {baseurl}")
-    # if provided, look up identifier in list of dataset and facility ids
-    if identifier:
-        for obj in facilities:
-            if identifier == obj["dataset"] or identifier == obj.get("id"):
-                return identifier, obj["dataset"]
-        raise CommandError(f"Facility with ID {identifier} does not exist on server")
-
-    if noninteractive and len(facilities) > 1:
-        raise CommandError(
-            "There are multiple facilities on the server. "
-            "Please pass in a facility ID by passing in --facility {ID} after the command."
-        )
-
-    facility = (
-        _interactive_server_facility_selection(facilities)
-        if len(facilities) > 1
-        else facilities[0]
-    )
-    return facility["id"], facility["dataset"]
-
-
-def is_portal_sync(baseurl):
-    return baseurl == DATA_PORTAL_SYNCING_BASE_URL
-
-
-def get_baseurl(address):
-    # if url matches data portal, no need to validate it
-    if is_portal_sync(address):
-        return address
-
-    # validate base url
     try:
-        return NetworkClient.discover_from_address(address).base_url
+        return facility_utils.get_facility(facility_id=facility_id)
+    except MultipleFacilitiesError as e:
+        if noninteractive:
+            raise CommandError(f"{e} {MULTIPLE_FACILITIES_HINT}") from e
+        # in interactive mode, allow user to select facility
+        return _interactive_client_facility_selection(e.facilities)
+    except FacilityLookupError as e:
+        raise CommandError(str(e)) from e
+
+
+@contextmanager
+def sync_errors_as_command_errors(baseurl):
+    try:
+        yield
     except URLParseError as e:
         raise CommandError(
-            f"Base URL/IP: {address} is not valid. Please retry command and enter a valid URL/IP."
+            f"Base URL/IP: {baseurl} is not valid. Please retry command and enter a valid URL/IP."
         ) from e
     except NetworkLocationNotFound as e:
-        raise CommandError(f"Unable to connect to: {address}") from e
+        raise CommandError(f"Unable to connect to: {baseurl}") from e
+    except MultipleFacilitiesError as e:
+        raise CommandError(f"{e} {MULTIPLE_FACILITIES_HINT}") from e
+    except (FacilityLookupError, SyncError) as e:
+        raise CommandError(str(e)) from e
 
 
-def get_network_connection(address):
-    controller = MorangoProfileController(PROFILE_FACILITY_DATA)
-    network_connection = controller.create_network_connection(get_baseurl(address))
+class InteractiveSyncMixin:
+    """
+    Prompts the CLI user for what a noninteractive sync manager raises on or defaults
+    """
 
-    # validate instance IDs are differemt, which would mean this device is trying to sync with itself
-    if (
-        InstanceIDModel.get_or_create_current_instance()[0].id
-        == network_connection.server_info["instance_id"]
-    ):
-        raise CommandError(
-            "Device can not sync with itself. Please recheck base URL and try again."
-        )
+    def get_facility(self, facility_id):
+        try:
+            return super().get_facility(facility_id)
+        except MultipleFacilitiesError as e:
+            return _interactive_client_facility_selection(e.facilities)
 
-    return network_connection
+    def get_facility_dataset_id(self, baseurl, facility_id):
+        try:
+            return super().get_facility_dataset_id(baseurl, facility_id)
+        except MultipleFacilitiesError as e:
+            facility = _interactive_server_facility_selection(e.facilities)
+            return facility["id"], facility["dataset"]
 
+    def get_client_and_server_certs(self, *args, **kwargs):
+        try:
+            return super().get_client_and_server_certs(*args, **kwargs)
+        except MissingSyncCredentialsError:
+            self.username = input("Please enter username: ")
+            self.password = getpass.getpass("Please enter password: ")
+            return super().get_client_and_server_certs(*args, **kwargs)
 
-def get_client_and_server_certs(
-    username,
-    password,
-    dataset_id,
-    nc,
-    user_id=None,
-    facility_id=None,
-    noninteractive=False,
-):
-    # get any full-facility certificates we have for the facility
-    owned_certs = (
-        Certificate.objects.filter(id=dataset_id)
-        .get_descendants(include_self=True)
-        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
-        .exclude(_private_key=None)
-    )
-
-    if not user_id:  # it's a full-facility sync
-        csr_scope_params = {"dataset_id": dataset_id}
-
-        client_scope = ScopeDefinitions.FULL_FACILITY
-        server_scope = ScopeDefinitions.FULL_FACILITY
-
-    else:  # it's a single-user sync
-        csr_scope_params = {"dataset_id": dataset_id, "user_id": user_id}
-
-        if owned_certs:
-            # client is the one with a full-facility cert
-            client_scope = ScopeDefinitions.FULL_FACILITY
-            server_scope = ScopeDefinitions.SINGLE_USER
-        else:
-            # server must be the one with the full-facility cert
-            client_scope = ScopeDefinitions.SINGLE_USER
-            server_scope = ScopeDefinitions.FULL_FACILITY
-
-            # check for certs we own for the specific user_id for single-user syncing
-            owned_certs = (
-                Certificate.objects.filter(id=dataset_id)
-                .get_descendants(include_self=True)
-                .filter(scope_definition_id=ScopeDefinitions.SINGLE_USER)
-                .filter(scope_params__contains=user_id)
-                .exclude(_private_key=None)
-            )
-
-    # get server certificates that server has a private key for
-    server_certs = nc.get_remote_certificates(dataset_id, scope_def_id=server_scope)
-
-    # filter down to the single-user certificates for this specific user, if needed
-    if server_scope == ScopeDefinitions.SINGLE_USER:
-        server_certs = [cert for cert in server_certs if user_id in cert.scope_params]
-
-    if not server_certs:
-        raise CommandError(
-            f"Server does not have needed certificate with scope '{server_scope}'"
-        )
-    server_cert = server_certs[0]
-
-    # if we don't own any certs, do a csr request
-    if not owned_certs:
-        # prompt user for creds if not already specified
-        if not username or not password:
-            if noninteractive:
-                raise CommandError("Server username and/or password not specified")
-            username = input("Please enter username: ")
-            password = getpass.getpass("Please enter password: ")
-
-        userargs = username
-        if facility_id:
-            # add facility so `FacilityUserBackend` can validate
-            userargs = {
-                FacilityUser.USERNAME_FIELD: username,
-                FACILITY_CREDENTIAL_KEY: facility_id,
-            }
-        client_cert = nc.certificate_signing_request(
-            server_cert,
-            client_scope,
-            csr_scope_params,
-            userargs=userargs,
-            password=password,
-        )
-    else:
-        client_cert = owned_certs[0]
-
-    return client_cert, server_cert, username
-
-
-def create_superuser_and_provision_device(username, dataset_id, noninteractive=False):
-    facility = Facility.objects.get(dataset_id=dataset_id)
-    # if device has not been provisioned, set it up
-    if not device_provisioned():
-        provision_device(default_facility=facility)
-
-    # Prompt user to pick a superuser if one does not currently exist
-    while not DevicePermissions.objects.filter(is_superuser=True).exists():
-        # specify username of account that will become a superuser
-        if not username:
-            if noninteractive:  # we don't want to setup a device without a superuser, so create a temporary one
-                superuser = FacilityUser.objects.create(
-                    username="superuser", facility=facility
+    def get_superuser_username(self, username):
+        if DevicePermissions.objects.filter(is_superuser=True).exists():
+            return username
+        # Prompt user to pick a superuser if one does not currently exist
+        while not FacilityUser.objects.filter(username=username).exists():
+            if username:
+                logger.error(
+                    "User with username `%s` does not exist on this device", username
                 )
-                superuser.set_password("password")
-                superuser.save()
-                DevicePermissions.objects.create(
-                    user=superuser, is_superuser=True, can_manage_content=True
-                )
-                logger.info(
-                    "Temporary superuser with username: `superuser` and password: `password` created"
-                )
-                return
+            # specify username of account that will become a superuser
             username = input(
                 "Please enter username of account that will become the superuser on this device: "
             )
-        if not FacilityUser.objects.filter(username=username).exists():
-            logger.error(
-                "User with username `%s` does not exist on this device", username
-            )
-            username = None
-            continue
-
-        # make the user with the given credentials, a superuser for this device
-        user = FacilityUser.objects.get(username=username, dataset_id=dataset_id)
-
-        # create permissions for the authorized user
-        DevicePermissions.objects.update_or_create(
-            user=user, defaults={"is_superuser": True, "can_manage_content": True}
-        )
-
-
-def is_single_user_scoped(cert):
-    """
-    :type cert: Certificate
-    :rtype: bool
-    """
-    return cert.scope_definition_id == ScopeDefinitions.SINGLE_USER
-
-
-def get_sync_filter_scope(client_cert, user_id=None):
-    """
-    :type client_cert: Certificate
-    :type user_id: str|None
-    :return: (Scope, dict)
-    """
-    scope = client_cert.get_scope()
-    params = json.loads(client_cert.scope_params)
-
-    # when a user_id has been passed in, but the sync cert isn't a single user cert, we want to
-    # use the same filters as a single user cert would, so we manually create a scope and to use
-    # the same filters for the single user scope definition
-    if user_id is not None and not is_single_user_scoped(client_cert):
-        params.update(user_id=user_id)
-        scope_def = ScopeDefinition.objects.get(id=ScopeDefinitions.SINGLE_USER)
-        scope = scope_def.get_scope(params)
-
-    return scope, params
-
-
-def run_once(f):
-    """
-    Runs a function once, useful for connection once to a signal
-    :type f: function
-    :rtype: function
-    """
-
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if not wrapper.has_run:
-            result = f(*args, **kwargs)
-            wrapper.has_run = True
-            return result
-        return None
-
-    wrapper.has_run = False
-    return wrapper
-
-
-class MorangoSyncCommand(AsyncCommand):
-    """
-    Common methods for Morango sync commands
-    """
-
-    TRANSFER_MESSAGE = "{records_transferred}/{records_total}, {transfer_total}"
-
-    def _sync(self, sync_session_client, **options):  # noqa: C901
-        """
-        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
-        :param options: Command arguments
-        :return:
-        """
-        username = options.get("username")
-        (no_push, no_pull, noninteractive, no_provision, keep_alive, user_id) = (
-            options["no_push"],
-            options["no_pull"],
-            options["noninteractive"],
-            options["no_provision"],
-            options["keep_alive"],
-            options["user"],
-        )
-
-        client_cert = sync_session_client.sync_session.client_certificate
-        # we create a custom signals, so we can fire them outside of transaction blocks
-        custom_signals = SessionControllerSignals()
-        custom_signals.initializing.started.connect(pre_sync_transfer_handler)
-        custom_signals.cleanup.completed.connect(post_sync_transfer_handler)
-
-        filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
-        dataset_id = scope_params.get("dataset_id")
-        pull_filter = filter_scope.read_filter
-        push_filter = filter_scope.write_filter
-
-        # when given a user ID but the cert isn't a single user cert, we'll flip the read and write
-        # filters such that this performs a single user sync with the perspective that the instance
-        # we're syncing with is the SoUD
-        if user_id is not None and not is_single_user_scoped(client_cert):
-            pull_filter = filter_scope.write_filter
-            push_filter = filter_scope.read_filter
-
-        dataset_cache.clear()
-        dataset_cache.activate()
-
-        if not noninteractive:
-            # output session ID for CLI user
-            logger.info("Session ID: %s", sync_session_client.sync_session.id)
-            logger.info(
-                "Session instance info: %s",
-                sync_session_client.sync_session.client_instance_data,
-            )
-
-        try:
-            # pull from server
-            if not no_pull:
-                self._pull(
-                    sync_session_client,
-                    noninteractive,
-                    pull_filter,
-                    custom_signals,
-                )
-                # and push our own data to server
-            if not no_push:
-                self._push(
-                    sync_session_client,
-                    noninteractive,
-                    push_filter,
-                    custom_signals,
-                )
-
-            if not no_provision:
-                with self._lock():
-                    try:
-                        user = FacilityUser.all_objects.get(id=user_id)
-                    except FacilityUser.DoesNotExist:
-                        user = None
-                    if user:
-                        provision_single_user_device(user)
-                    else:
-                        create_superuser_and_provision_device(
-                            username, dataset_id, noninteractive=noninteractive
-                        )
-
-        except UserCancelledError:
-            if self.job:
-                self.job.extra_metadata.update(sync_state=State.CANCELLED)
-                self.job.save_meta()
-            logger.info("Syncing has been cancelled.")
-            return
-
-        conn = sync_session_client.sync_connection
-
-        # if not keeping the sync session alive, close it!
-        if not keep_alive:
-            conn.close_sync_session(sync_session_client.sync_session)
-
-        # close network connection
-        conn.close()
-
-        if self.job:
-            self.job.extra_metadata.update(sync_state=State.COMPLETED)
-            self.job.save_meta()
-
-        dataset_cache.deactivate()
-        if not noninteractive:
-            logger.info("Syncing has been completed.")
-
-    @contextmanager
-    def _lock(self):
-        cancellable = False
-        # job can't be cancelled while locked
-        if self.job:
-            cancellable = self.job.cancellable
-            self.job.save_as_cancellable(cancellable=False)
-
-        with db_lock_sqlite_only():
-            yield
-
-        if self.job:
-            self.job.save_as_cancellable(cancellable=cancellable)
-
-    def _raise_cancel(self, *args, **kwargs):
-        if self.is_cancelled() and (not self.job or self.job.cancellable):
-            raise UserCancelledError()
-
-    def _fire_signal_with_context_clone(self, signal, context, sync_filter=None):
-        """
-        Adding the sync_filter more than once raises an error
-
-        :type signal: morango.sync.utils.SyncSignal
-        :type context: morango.sync.context.CompositeSessionContext
-        :type sync_filter: Filter|str
-        """
-        context_clone = copy.deepcopy(context)
-        if sync_filter:
-            # context_clone.filter = sync_filter
-            context_clone._update_attrs(sync_filter=sync_filter)
-        signal.fire(context=context_clone)
-
-    def _pull(
-        self,
-        sync_session_client,
-        noninteractive,
-        sync_filter,
-        custom_signals,
-    ):
-        """
-        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
-        :type noninteractive: bool
-        :type sync_filter: Filter
-        :type custom_signals: SessionControllerSignals
-        """
-        sync_client = sync_session_client.get_pull_client()
-        sync_client.signals.queuing.connect(self._raise_cancel)
-        sync_client.signals.transferring.connect(self._raise_cancel)
-
-        self._queueing_tracker_adapter(
-            sync_client.signals.queuing,
-            "Remotely preparing data",
-            State.REMOTE_QUEUING,
-            noninteractive,
-        )
-        self._transfer_tracker_adapter(
-            sync_client.signals.transferring,
-            f"Receiving data ({self.TRANSFER_MESSAGE})",
-            State.PULLING,
-            noninteractive,
-        )
-        self._queueing_tracker_adapter(
-            sync_client.signals.dequeuing,
-            "Locally integrating received data",
-            State.LOCAL_DEQUEUING,
-            noninteractive,
-        )
-
-        self._session_tracker_adapter(
-            sync_client.signals.session,
-            noninteractive,
-        )
-
-        # update sync filter manually because sync hooks connected to signals need it,
-        # see how `sync_client.initialize` does this
-        self._fire_signal_with_context_clone(
-            custom_signals.initializing.started, sync_client.context, sync_filter
-        )
-        sync_client.initialize(sync_filter)
-
-        sync_client.run()
-        with self._lock():
-            sync_client.finalize()
-        # fire completed signal outside of transaction block
-        custom_signals.cleanup.completed.fire(context=sync_client.context)
-
-    def _push(
-        self,
-        sync_session_client,
-        noninteractive,
-        sync_filter,
-        custom_signals,
-    ):
-        """
-        :type sync_session_client: morango.sync.syncsession.SyncSessionClient
-        :type noninteractive: bool
-        :type sync_filter: Filter
-        :type custom_signals: SessionControllerSignals
-        """
-        sync_client = sync_session_client.get_push_client()
-        sync_client.signals.transferring.connect(self._raise_cancel)
-
-        self._queueing_tracker_adapter(
-            sync_client.signals.queuing,
-            "Locally preparing data to send",
-            State.LOCAL_QUEUING,
-            noninteractive,
-        )
-        self._transfer_tracker_adapter(
-            sync_client.signals.transferring,
-            f"Sending data ({self.TRANSFER_MESSAGE})",
-            State.PUSHING,
-            noninteractive,
-        )
-        self._queueing_tracker_adapter(
-            sync_client.signals.dequeuing,
-            "Remotely integrating data",
-            State.REMOTE_DEQUEUING,
-            noninteractive,
-        )
-
-        self._session_tracker_adapter(
-            sync_client.signals.session,
-            noninteractive,
-        )
-
-        # update sync filter manually because sync hooks connected to signals need it,
-        # see how `sync_client.initialize` does this
-        # fire signal outside of transaction block
-        self._fire_signal_with_context_clone(
-            custom_signals.initializing.started, sync_client.context, sync_filter
-        )
-
-        with self._lock():
-            sync_client.initialize(sync_filter)
-
-        sync_client.run()
-
-        # we can't cancel remotely integrating data
-        if self.job:
-            self.job.save_as_cancellable(cancellable=False)
-
-        # allow server timeout since remotely integrating data can take a while and the request
-        # could timeout. In that case, we'll assume everything is good.
-        sync_client.finalize()
-        # fire completed signal
-        custom_signals.cleanup.completed.fire(context=sync_client.context)
-
-    def _session_tracker_adapter(self, signal_group, noninteractive):
-        """
-        Attaches a signal handler to session creation signals
-
-        :type signal_group: morango.sync.syncsession.SyncSignalGroup
-        :type noninteractive: bool
-        """
-
-        @run_once
-        def session_creation(transfer_session):
-            """
-            A session is created individually for pushing and pulling
-            """
-            if self.job:
-                self.job.extra_metadata.update(sync_state=State.SESSION_CREATION)
-
-        @run_once
-        def session_destruction(transfer_session):
-            if not noninteractive and transfer_session.records_total == 0:
-                logger.info("There are no records to transfer")
-
-        signal_group.started.connect(session_creation)
-        signal_group.completed.connect(session_destruction)
-
-    def _transfer_tracker_adapter(
-        self, signal_group, message, sync_state, noninteractive
-    ):
-        """
-        Attaches a signal handler to pushing/pulling signals
-
-        :type signal_group: morango.sync.syncsession.SyncSignalGroup
-        :type message: str
-        :type sync_state: str
-        :type noninteractive: bool
-        """
-
-        def stats_msg(transfer_session):
-            transfer_total = (
-                transfer_session.bytes_sent + transfer_session.bytes_received
-            )
-            return message.format(
-                records_transferred=transfer_session.records_transferred,
-                records_total=transfer_session.records_total,
-                transfer_total=bytes_for_humans(transfer_total),
-            )
-
-        def stats(transfer_session):
-            if (
-                noninteractive or self.progresstracker.progressbar is None
-            ) and transfer_session.records_total > 0:
-                logger.info(stats_msg(transfer_session))
-
-        def started(transfer_session):
-            stats(transfer_session)
-            self.start_progress(total=transfer_session.records_total or 100)
-
-        def handler(transfer_session):
-            """
-            :type transfer_session: morango.models.core.TransferSession
-            """
-            if transfer_session.records_total > 0:
-                progress = transfer_session.records_transferred
-            else:
-                progress = 100
-
-            self.update_progress(
-                current_progress=progress,
-                message=stats_msg(transfer_session),
-                extra_data={
-                    "bytes_sent": transfer_session.bytes_sent,
-                    "bytes_received": transfer_session.bytes_received,
-                    "sync_state": sync_state,
-                },
-            )
-
-        signal_group.started.connect(started)
-        signal_group.started.connect(handler)
-        signal_group.in_progress.connect(stats)
-        signal_group.in_progress.connect(handler)
-        signal_group.completed.connect(handler)
-
-    def _queueing_tracker_adapter(
-        self, signal_group, message, sync_state, noninteractive
-    ):
-        """
-        Attaches a signal handler to queuing/dequeuing signals
-
-        :type signal_group: morango.sync.syncsession.SyncSignalGroup
-        :type message: str
-        :type sync_state: str
-        :type noninteractive: bool
-        """
-
-        def started(transfer_session):
-            self.start_progress(total=1)
-            dataset_cache.clear()
-            if noninteractive or self.progresstracker.progressbar is None:
-                if (
-                    not sync_state.endswith("DEQUEUING")
-                    or transfer_session.records_total > 0
-                ):
-                    logger.info(message)
-                else:
-                    logger.info("No records transferred")
-
-        def handler(transfer_session):
-            self.update_progress(message=message, extra_data={"sync_state": sync_state})
-
-        signal_group.started.connect(started)
-        signal_group.started.connect(handler)
-        signal_group.completed.connect(handler)
+        return username
