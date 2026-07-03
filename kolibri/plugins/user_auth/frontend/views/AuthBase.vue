@@ -94,11 +94,23 @@
               </p>
 
               <div>
-                <component
-                  :is="component"
-                  v-for="component in loginOptions"
-                  :key="component.name"
-                />
+                <KExternalLink
+                  v-for="item in loginItems"
+                  :key="item.url"
+                  :text="item.label"
+                  :href="item.url"
+                  :appearance="item.appearance"
+                  style="width: 100%"
+                >
+                  <template #icon>
+                    <img
+                      :src="item.icon"
+                      alt=""
+                      width="24"
+                      height="24"
+                    >
+                  </template>
+                </KExternalLink>
               </div>
               <div
                 :class="{
@@ -219,7 +231,6 @@
   import themeConfig from 'kolibri/styles/themeConfig';
   import { OptionsForSignIn } from 'kolibri-common/constants/Auth';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
-  import loginComponents from 'kolibri-common/utils/loginComponents';
   import urls from 'kolibri/urls';
   import plugin_data from 'kolibri-plugin-data';
   import useUser from 'kolibri/composables/useUser';
@@ -332,9 +343,8 @@
       guestURL() {
         return urls['kolibri:core:guest']();
       },
-      loginOptions() {
-        // POC, in the future sorting of different login options can be implemented
-        return [...loginComponents];
+      loginItems() {
+        return plugin_data.loginItems;
       },
       logoText() {
         return this.themeConfig.signIn.title

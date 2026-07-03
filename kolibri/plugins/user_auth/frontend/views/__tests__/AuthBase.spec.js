@@ -24,6 +24,7 @@ jest.mock('kolibri-plugin-data', () => ({
     oidcProviderEnabled: false,
     allowGuestAccess: false,
     deviceUnusableReason: null,
+    loginItems: [],
   },
 }));
 
@@ -47,8 +48,9 @@ useAuthRouter.mockReturnValue(
   }),
 );
 
-function renderComponent({ allowRemoteAccess = true, isAppContext = false } = {}) {
+function renderComponent({ allowRemoteAccess = true, isAppContext = false, loginItems = [] } = {}) {
   pluginData.allowRemoteAccess = allowRemoteAccess;
+  pluginData.loginItems = loginItems;
   useUser.mockImplementation(() => useUserMock({ isAppContext }));
   return render(AuthBase, {
     routes,
@@ -75,6 +77,28 @@ describe('auth base component', () => {
     renderComponent();
     const link = screen.getByRole('link', { name: userString('createAccountAction') });
     expect(link).toHaveAttribute('href', '#/signup');
+  });
+
+  const exampleLoginItemLabel = 'Sign in with Example';
+
+  it('renders a link for each entry in loginItems', () => {
+    renderComponent({
+      loginItems: [
+        {
+          label: exampleLoginItemLabel,
+          url: '/example/login/',
+          icon: '/static/icon.svg',
+          appearance: 'raised-button',
+        },
+      ],
+    });
+    const link = screen.getByRole('link', { name: exampleLoginItemLabel });
+    expect(link).toHaveAttribute('href', '/example/login/');
+  });
+
+  it('renders no login options when loginItems is empty', () => {
+    renderComponent();
+    expect(screen.queryByRole('link', { name: exampleLoginItemLabel })).not.toBeInTheDocument();
   });
 
   describe('shaking animation', () => {
