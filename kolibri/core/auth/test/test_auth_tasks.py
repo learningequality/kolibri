@@ -27,6 +27,7 @@ from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.tasks import cleanupsync
 from kolibri.core.auth.tasks import CleanUpSyncsValidator
 from kolibri.core.auth.tasks import DataPortalSyncJobValidator
+from kolibri.core.auth.tasks import deletefacility
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import ImportUsersFromCSVValidator
@@ -1172,3 +1173,22 @@ class KDPSyncDedupAPITestCase(APITestCase):
 
         dp_jobs = self._dataportalsync_jobs(facility)
         self.assertEqual(len(dp_jobs), 1)
+
+
+class DeleteFacilityTaskExecutionTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.facility_to_delete = Facility.objects.create(name="delete_me")
+        Facility.objects.create(name="keep_me")
+
+    def test_deletefacility_removes_the_facility(self):
+        with self.assertLogs("kolibri", level="INFO") as logs:
+            deletefacility(self.facility_to_delete.id)
+        self.assertIn(
+            f"Found facility {self.facility_to_delete.id} <{self.facility_to_delete.dataset_id}> for deletion",
+            "\n".join(logs.output),
+        )
+        self.assertFalse(
+            Facility.objects.filter(id=self.facility_to_delete.id).exists()
+        )
