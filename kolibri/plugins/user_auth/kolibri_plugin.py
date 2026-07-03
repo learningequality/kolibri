@@ -10,6 +10,7 @@ from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
+from kolibri.plugins.user_auth.hooks import LoginItemHook
 
 
 class UserAuth(KolibriPluginBase):
@@ -33,6 +34,7 @@ class UserAuthAsset(webpack_hooks.WebpackBundleHook):
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowRemoteAccess": allow_other_browsers_to_connect(),
             "deviceUnusableReason": get_device_unusable_reason(),
+            "loginItems": [hook.data for hook in LoginItemHook.registered_hooks],
         }
 
 
