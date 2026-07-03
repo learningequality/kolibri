@@ -9,15 +9,17 @@ from django.core.management import call_command
 from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
+from django.utils import translation
 
 from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.errors import BulkUserImportError
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.core.utils.csv import open_csv_for_writing
 
-from ..management.commands import bulkimportusers as b
+from ..utils import bulk_import as b
 from ..utils.bulk_export import labels
 from .helpers import create_dummy_facility_data
 
@@ -155,11 +157,10 @@ class ImportTestCase(TestCase):
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
-        cmd = b.Command()
 
         with open_csv_for_reading(local_filepath=self.filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, classes, users, roles = cmd.csv_values_validation(
+            per_line_errors, classes, users, roles = b.csv_values_validation(
                 reader, header_translation, self.facility
             )
 
@@ -225,11 +226,10 @@ class ImportTestCase(TestCase):
         header_translation = {
             lbl.partition("(")[2].partition(")")[0]: lbl for lbl in header
         }
-        cmd = b.Command()
 
         with open_csv_for_reading(local_filepath=new_filename) as source:
             reader = csv.DictReader(source, strict=True)
-            per_line_errors, _classes, _users, _roles = cmd.csv_values_validation(
+            per_line_errors, _classes, _users, _roles = b.csv_values_validation(
                 reader, header_translation, self.facility
             )
         assert len(per_line_errors) == 1
@@ -682,3 +682,12 @@ class ImportTestCase(TestCase):
         self.assertIsNone(imported_user.date_deleted)
         self.assertEqual(imported_user.username, "testuser")
         self.assertTrue(imported_user.check_password("newpassword"))
+
+    def test_failed_import_restores_language(self):
+        manager = b.BulkUserImportManager(
+            "nonexistent.csv", facility_id=self.facility.id, locale="fr-fr"
+        )
+        with translation.override("en"):
+            with self.assertRaises(BulkUserImportError):
+                manager.run()
+            self.assertEqual(translation.get_language(), "en")
