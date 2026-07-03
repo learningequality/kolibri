@@ -5,6 +5,10 @@ build:
   tools:
     python: "3.11"
   jobs:
+    post_checkout:
+      # setuptools-scm needs git tag history to compute kolibri's version;
+      # ReadTheDocs' default shallow clone can leave no tag reachable.
+      - git fetch --unshallow || true
     post_system_dependencies:
       - asdf plugin add uv
       - asdf install uv latest
