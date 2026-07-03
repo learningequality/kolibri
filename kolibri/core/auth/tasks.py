@@ -21,10 +21,12 @@ from kolibri.core.auth.constants.user_kinds import ADMIN
 from kolibri.core.auth.constants.user_kinds import ASSIGNABLE_COACH
 from kolibri.core.auth.constants.user_kinds import COACH
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
+from kolibri.core.auth.errors import BulkUserImportError
 from kolibri.core.auth.errors import NoAvailableSequences
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.utils.bulk_export import BulkUserExportManager
+from kolibri.core.auth.utils.bulk_import import BulkUserImportManager
 from kolibri.core.auth.utils.delete_facility import FacilityDeleteManager
 from kolibri.core.auth.utils.facility import get_facility
 from kolibri.core.auth.utils.picture_passwords import assign_picture_password
@@ -190,17 +192,16 @@ def importusersfromcsv(
     """
 
     try:
-        call_command(
-            "bulkimportusers",
+        BulkUserImportManager(
             filepath,
             use_storage=True,
-            facility=facility,
+            facility_id=facility,
             userid=userid,
             locale=locale,
             dryrun=dryrun,
             delete=delete,
-        )
-    except (CommandError, serializers.ValidationError):
+        ).run()
+    except (BulkUserImportError, serializers.ValidationError):
         # There was an error in the command so we need to delete the file since they
         # need to fix and re-upload.
         default_storage.delete(filepath)
