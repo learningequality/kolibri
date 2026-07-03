@@ -53,7 +53,7 @@ class Command(BaseCommand):
         )
         client_secret = options["client_secret"]
         if not client_secret:
-            client_secret = binascii.hexlify(os.urandom(16))
+            client_secret = binascii.hexlify(os.urandom(16)).decode("utf-8")
         allowed_responses = ("code", "id_token", "id_token token")
         response_codes = ResponseType.objects.filter(value__in=allowed_responses)
 
@@ -69,8 +69,7 @@ class Command(BaseCommand):
                 _redirect_uris=options["redirect_uri"],
                 _scope="openid profile email",
             )
-            new_client.save()
-            new_client.response_types = response_codes
+            new_client.response_types.set(response_codes)
 
             logger.warn(
                 "Client {id} created with client secret {secret}".format(
@@ -86,6 +85,6 @@ class Command(BaseCommand):
         except Exception as e:
             logger.error(
                 "Client {id} could not be created. There was an error {error}".format(
-                    id=client_id, error=e.message
+                    id=client_id, error=str(e)
                 )
             )
