@@ -71,7 +71,7 @@ class Command(BaseCommand):
             )
             new_client.response_types.set(response_codes)
 
-            logger.warn(
+            self.stdout.write(
                 "Client {id} created with client secret {secret}".format(
                     id=client_id, secret=client_secret
                 )
