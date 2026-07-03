@@ -6,6 +6,10 @@ DEFAULT_QUEUE = "kolibri"
 # unowned job's supervisor_id), so "not provided" needs a distinct marker.
 NO_VALUE = object()
 
+JOB_NOTIFICATION_CHANNEL = "kolibri_job_queue"
+
+POLL_INTERVAL = 0.2
+
 
 class Priority:
     """
