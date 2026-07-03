@@ -9,10 +9,13 @@ from concurrent.futures import ThreadPoolExecutor
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.constants import Priority
+from kolibri.core.tasks.notifiers import JobNotifier
 from kolibri.core.tasks.utils import InfiniteLoopThread
 from kolibri.utils.conf import OPTIONS
 
 logger = logging.getLogger(__name__)
+
+POLL_INTERVAL = 0.2
 
 
 def execute_job(
@@ -119,6 +122,8 @@ class WorkerSupervisor:
 
         self.storage = job_storage
 
+        self.notifier = JobNotifier()
+
         # Register this supervisor in the registry, keeping the identity
         # so that the heartbeat can re-register if a peer wrongly declares
         # this supervisor dead and removes its record.
@@ -139,6 +144,8 @@ class WorkerSupervisor:
         # before a peer declares this supervisor dead.
         self._heartbeat_interval = self.supervisor_stale_threshold / 3
         self._last_heartbeat = time.monotonic()
+
+        self.loop_interval = self._heartbeat_interval
         # Set during shutdown to stop claiming new jobs while the loop keeps
         # heartbeating until in-flight jobs drain.
         self._draining = threading.Event()
@@ -153,17 +160,31 @@ class WorkerSupervisor:
         Returns: the Thread object.
         """
         t = InfiniteLoopThread(
-            self._supervise, thread_name="SUPERVISOR", wait_between_runs=0.2
+            self._supervise,
+            thread_name="SUPERVISOR",
+            wait_between_runs=0,
         )
         t.start()
         return t
 
     def _supervise(self):
+        self.notifier.wait_for_job(timeout=self._next_wait())
         # While draining (shutdown), stop claiming but keep heartbeating so a
         # peer does not declare us dead and requeue our still-running jobs.
         if not self._draining.is_set():
             self.check_jobs()
         self._maybe_heartbeat()
+
+    def _next_wait(self):
+        priority = self._claimable_priority()
+        if priority is None:
+            return self.loop_interval
+        seconds = self.storage.seconds_until_next_queued_job(priority=priority)
+        if seconds is None:
+            return self.loop_interval
+        if seconds <= 0:
+            return POLL_INTERVAL
+        return min(self.loop_interval, seconds)
 
     def _maybe_heartbeat(self):
         now = time.monotonic()
@@ -210,6 +231,7 @@ class WorkerSupervisor:
             # Clean up tracking of this job and its future
             del self.job_future_mapping[future]
             del self.future_job_mapping[job.job_id]
+            self.notifier.notify()
 
             try:
                 future.result()
@@ -231,9 +253,11 @@ class WorkerSupervisor:
         self.shutdown_workers(wait=wait)
         # Drained - stop the loop and deregister.
         self.supervisor_thread.stop()
+        self.notifier.notify()
         if wait:
             self.supervisor_thread.join()
         self.storage.unregister_supervisor(self.supervisor_id)
+        JobNotifier.reset()
 
     def check_jobs(self):
         """
@@ -274,20 +298,21 @@ class WorkerSupervisor:
 
         Returns the job object if a job is available based on the above algorithm else None.
         """
-        job = None
-        workers_currently_busy = len(self.future_job_mapping)
-
-        if workers_currently_busy < self.regular_workers:
-            job = self.storage.get_next_queued_job(supervisor_id=self.supervisor_id)
-        elif workers_currently_busy < self.max_workers:
-            job = self.storage.get_next_queued_job(
-                priority=Priority.HIGH, supervisor_id=self.supervisor_id
-            )
-        else:
+        priority = self._claimable_priority()
+        if priority is None:
             logger.debug("All workers busy.")
             return None
+        return self.storage.get_next_queued_job(
+            priority=priority, supervisor_id=self.supervisor_id
+        )
 
-        return job
+    def _claimable_priority(self):
+        workers_currently_busy = len(self.future_job_mapping)
+        if workers_currently_busy < self.regular_workers:
+            return Priority.REGULAR
+        if workers_currently_busy < self.max_workers:
+            return Priority.HIGH
+        return None
 
     def start_next_job(self, job):
         """
