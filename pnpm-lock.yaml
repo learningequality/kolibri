@@ -1761,31 +1761,6 @@ importers:
         specifier: 'catalog:'
         version: 2.5.1
 
-  python_packages/kolibri-oidc-client-plugin:
-    dependencies:
-      browserslist-config-kolibri:
-        specifier: workspace:*
-        version: link:../../packages/browserslist-config-kolibri
-      kolibri:
-        specifier: workspace:*
-        version: link:../../packages/kolibri
-      kolibri-common:
-        specifier: workspace:*
-        version: link:../../packages/kolibri-common
-      kolibri-design-system:
-        specifier: 'catalog:'
-        version: 5.7.0
-      vue:
-        specifier: 'catalog:'
-        version: 2.7.16
-    devDependencies:
-      kolibri-build:
-        specifier: workspace:*
-        version: link:../../packages/kolibri-build
-      kolibri-format:
-        specifier: workspace:*
-        version: link:../../packages/kolibri-format
-
   python_packages/kolibri-sentry-plugin:
     dependencies:
       '@sentry/vue':
