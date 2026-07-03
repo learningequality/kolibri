@@ -20,6 +20,23 @@ After installing kolibri normally,
 4. Restart Kolibri
 
 
+## How can I install this plugin for development?
+
+From the root of the `kolibri` monorepo:
+
+```bash
+uv sync --all-packages
+uvx prek install
+pnpm install
+KOLIBRI_HOME="$(pwd)/.kolibri" uv run kolibri plugin enable kolibri_oidc_client_plugin
+```
+
+
+## How to publish to PyPi?
+
+Publishing is automated by the `pypi_packages_publish.yml` GitHub Actions workflow, and runs when this plugin's `pyproject.toml` version is bumped.
+
+
 ## Used claims
 
 This plugin will create a new user in the Kolibri database after it authenticates using the OIDC provider.
@@ -62,7 +79,7 @@ Either add it to `$KOLIBRI_HOME/options.ini` a new section:
 PROVIDER_URL=url of the OIDC provider
 ```
 
-Or supply the `PROVIDER_URL` option setting in an environment variable called `KOLIBRI_OIDC_CLIENT_URL`.
+Or supply the `PROVIDER_URL` option setting in an environment variable called `KOLIBRI_OIDC_PROVIDER_URL`.
 
 
 ### OIDC endpoints

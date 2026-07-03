@@ -1,8 +1,10 @@
 import logging
 from uuid import uuid4
-from kolibri.core.auth.errors import InvalidRoleKind
+
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from mozilla_django_oidc.auth import SuspiciousOperation
+
+from kolibri.core.auth.errors import InvalidRoleKind
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +78,8 @@ class OIDCKolibriAuthenticationBackend(OIDCAuthenticationBackend):
         # Kolibri doesn't allow an empty password. This isn't going to be used:
         password = uuid4().hex
         # birthdate format is [ISO8601‑2004] YYYY-MM-DD
-        birthdate = (
-            claims.get("birthdate")[:4] if "birthdate" in claims else "NOT_SPECIFIED"
-        )
+        birthdate = claims.get("birthdate")
+        birthdate = birthdate[:4] if birthdate else "NOT_SPECIFIED"
         gender = claims.get("gender", "NOT_SPECIFIED").upper()
         user = self.UserModel.objects.create_user(
             username,
