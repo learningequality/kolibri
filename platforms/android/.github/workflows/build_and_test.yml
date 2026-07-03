@@ -157,6 +157,12 @@ jobs:
           adb shell am set-debug-app --persistent org.learningequality.Kolibri
           adb wait-for-device
           until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done
+          # Pre-grant so the WRITE_EXTERNAL_STORAGE dialog (API 24-28) never appears.
+          # `|| true`: the permission doesn't exist on API 29+.
+          adb shell pm grant org.learningequality.Kolibri android.permission.WRITE_EXTERNAL_STORAGE || true
+          # Let the launcher settle before app launch, to avoid the "Pixel Launcher
+          # isn't responding" ANR seen on the API 35 runner under cold-boot contention.
+          sleep 15
           make smoke-test-with-retry
     - name: Upload Maestro debug output
       if: always()

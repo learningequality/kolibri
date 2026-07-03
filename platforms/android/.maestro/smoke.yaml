@@ -6,43 +6,15 @@ appId: org.learningequality.Kolibri
 ---
 # Maestro auto-grants every manifest-declared permission during launchApp, so
 # POST_NOTIFICATIONS is already granted and no permission dialog appears.
+# WRITE_EXTERNAL_STORAGE (API 24-28 only) is pre-granted by the CI harness
+# via `adb shell pm grant` before launch — see build_and_test.yml.
 - launchApp
 
-# On API 24-28 the app also requests WRITE_EXTERNAL_STORAGE at startup, for
-# the legacy (pre-MediaStore) download write path. Unlike POST_NOTIFICATIONS,
-# Maestro's auto-grant doesn't take for this permission on the API 24 image —
-# the dialog still appears. Its timing isn't deterministic: it has been
-# observed appearing after "How are you using Kolibri?" has already
-# rendered underneath it. While the dialog's Activity is in the foreground,
-# the WebView's accessibility tree isn't queryable. So a wait issued before
-# the dialog appears can time out even though the text is already on
-# screen. Loop dismissing the dialog whenever it shows, between short
-# checks for onboarding, so it's caught no matter when it appears. On API
-# 29+ neither the permission nor its dialog exist, so the loop exits on the
-# first check.
-#
-# On the heavier API 35 CI emulator, a system "Pixel Launcher isn't
-# responding" ANR dialog has also been observed overlaying onboarding —
-# resource contention on the runner during cold boot, unrelated to Kolibri.
-# It blocks the same accessibility tree as above, so dismiss it the same
-# way: tap "Wait" to let the launcher recover rather than closing it.
-- repeat:
-    times: 60
-    while:
-      notVisible: "How are you using Kolibri?"
-    commands:
-      - tapOn:
-          text: "ALLOW"
-          optional: true
-      - tapOn:
-          text: "Wait"
-          optional: true
-      - extendedWaitUntil:
-          visible: "How are you using Kolibri?"
-          timeout: 3000
-          optional: true
-
-- assertVisible: "How are you using Kolibri?"
+# The API 35 CI runner's Pixel Launcher ANR is handled at the emulator
+# provisioning level (build_and_test.yml), not here.
+- extendedWaitUntil:
+    visible: "How are you using Kolibri?"
+    timeout: 180000
 
 # Step 1: "How are you using Kolibri?" — "On my own" is pre-selected
 - tapOn: "CONTINUE"
