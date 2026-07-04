@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri-oidc-provider-plugin"
+version = "0.0.4"
+description = "Kolibri plugin to convert Kolibri into an OpenID Connect provider"
+readme = "README.md"
+requires-python = ">=3.7, <3.15"
+license = "MIT"
+authors = [{ name = "Learning Equality", email = "info@learningequality.org" }]
+keywords = ["kolibri", "oidc", "openid-connect"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "kolibri>=0.15",
+    "django-oidc-provider==0.9.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/learningequality/kolibri"
+Repository = "https://github.com/learningequality/kolibri"
+
+[project.entry-points."kolibri.plugins"]
+kolibri_oidc_provider_plugin = "kolibri_oidc_provider_plugin"
+
+[dependency-groups]
+dev = [
+    { include-group = "lint" },
+    "prek; python_version >= '3.8'",
+]
+lint = [
+    "ruff",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["kolibri_oidc_provider_plugin*"]
+
+[tool.setuptools.package-data]
+kolibri_oidc_provider_plugin = ["templates/oidc_provider/*.html"]
+
+[tool.uv.sources]
+kolibri = { workspace = true }
+
+[tool.uv]
+default-groups = ["dev"]
