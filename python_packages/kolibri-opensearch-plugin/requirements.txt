@@ -1,2 +1,0 @@
-kolibri>=0.14.0
-feedparser==6.0.10
