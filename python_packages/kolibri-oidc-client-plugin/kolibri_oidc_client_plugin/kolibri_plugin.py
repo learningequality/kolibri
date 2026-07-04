@@ -1,8 +1,9 @@
 from django.conf import settings
+from django.templatetags.static import static
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from kolibri.core.hooks import LogoutRedirectHook
-from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.plugins.user_auth import hooks
@@ -15,13 +16,16 @@ class OpenIDConnect(KolibriPluginBase):
 
 
 @register_hook
-class LoginItem(webpack_hooks.WebpackBundleHook):
-    bundle_id = "openid_login_item"
+class OIDCLoginItem(hooks.LoginItemHook):
+    label = _("Sign in with OpenID Connect")
 
+    @property
+    def url(self):
+        return reverse("oidc_client:oidc_authentication_init")
 
-@register_hook
-class LoginItemInclusionHook(hooks.UserAuthSyncHook):
-    bundle_class = LoginItem
+    @property
+    def icon_url(self):
+        return static("assets/kolibri_oidc_client_plugin/icon.svg")
 
 
 @register_hook

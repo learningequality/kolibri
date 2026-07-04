@@ -29,7 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "kolibri>=0.15",
+    "kolibri>=0.20.0",
     "mozilla-django-oidc==1.2.4",
 ]
 
@@ -53,6 +53,9 @@ zip-safe = false
 
 [tool.setuptools.packages.find]
 include = ["kolibri_oidc_client_plugin*"]
+
+[tool.setuptools.package-data]
+kolibri_oidc_client_plugin = ["static/**/*.svg"]
 
 [tool.uv.sources]
 kolibri = { workspace = true }
