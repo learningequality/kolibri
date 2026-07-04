@@ -28,6 +28,7 @@ members = [
     "kolibri",
     "kolibri-oidc-client-plugin",
     "kolibri-oidc-provider-plugin",
+    "kolibri-opensearch-plugin",
     "kolibri-sentry-plugin",
     "kolibri-sync-extras-plugin",
 ]
@@ -1188,6 +1189,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b8/2d/af4902aa0077a4cff6b52a3f93a84a467cae9cfab443b80dae53a5179da9/Faker-0.8.8.tar.gz", hash = "sha256:e928cf853ef69d7471421f2a3716a1239e43de0fa9855f4016ee0c9f1057328a", size = 680636, upload-time = "2017-12-19T15:59:48.362Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1b/80/7f22f9338e87f1fd822d572ee822778ca1f62a48cd33aa65d7ea5502a147/Faker-0.8.8-py2.py3-none-any.whl", hash = "sha256:2f6ccc9da046d4cd20401734cf6a1ac73a4e4d8256e7b283496ee6827ad2eb60", size = 707965, upload-time = "2017-12-19T15:59:39.401Z" },
+]
+
+[[package]]
+name = "feedgenerator"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/69/67/ee0bbc3fd0a2e9e0c02e3bcb3105302c6c88951f3f8e9d86ea81e4f8f293/feedgenerator-2.0.0.tar.gz", hash = "sha256:6836d456b8b0edbc5b6d3a42d1be852cebd43d2f28af4ff51789eb295f1860e2", size = 23093, upload-time = "2021-09-28T11:46:33.344Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/02/768e44bc18f207aeb8e4c03797f862c82463b3160dd0a3de2924ae5a90b7/feedgenerator-2.0.0-py3-none-any.whl", hash = "sha256:fc4a1e557f56b072d4f9a1b062cc98ea3691133bbd966d85707a7d5629b2e32e", size = 21801, upload-time = "2021-09-28T11:46:31.86Z" },
 ]
 
 [[package]]
@@ -3237,6 +3250,37 @@ lint = [
 [package.metadata]
 requires-dist = [
     { name = "django-oidc-provider", specifier = "==0.9.0" },
+    { name = "kolibri", editable = "." },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "ruff" },
+]
+lint = [{ name = "ruff" }]
+
+[[package]]
+name = "kolibri-opensearch-plugin"
+version = "0.0.3"
+source = { editable = "python_packages/kolibri-opensearch-plugin" }
+dependencies = [
+    { name = "feedgenerator" },
+    { name = "kolibri" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "ruff" },
+]
+lint = [
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "feedgenerator", specifier = "==2.0.0" },
     { name = "kolibri", editable = "." },
 ]
 
