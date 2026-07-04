@@ -8,6 +8,7 @@ on:
       - 'python_packages/kolibri-sentry-plugin/pyproject.toml'
       - 'python_packages/kolibri-oidc-client-plugin/pyproject.toml'
       - 'python_packages/kolibri-oidc-provider-plugin/pyproject.toml'
+      - 'python_packages/kolibri-opensearch-plugin/pyproject.toml'
   workflow_dispatch:
     inputs:
       pypi_package:
@@ -21,6 +22,7 @@ on:
           - 'kolibri-sentry-plugin'
           - 'kolibri-oidc-client-plugin'
           - 'kolibri-oidc-provider-plugin'
+          - 'kolibri-opensearch-plugin'
       target:
         description: 'Index to publish to'
         required: true
