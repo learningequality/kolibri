@@ -53,6 +53,18 @@ check_file() {
   fi
 }
 
+check() {
+  local description="$1" fail_msg="$2"
+  shift 2
+  echo "=== Checking $description ==="
+  if "$@"; then
+    echo "PASS: $description"
+  else
+    echo "FAIL: $fail_msg"
+    fail=1
+  fi
+}
+
 check_file "$MNT/boot/firmware/cmdline.txt" \
   'cfg80211.ieee80211_regdom=US' 'regulatory domain set on kernel cmdline'
 
@@ -67,41 +79,25 @@ check_file "$NM_CONN" \
 check_file "$MNT/var/lib/NetworkManager/NetworkManager.state" \
   'WirelessEnabled=true' 'NetworkManager WirelessEnabled=true'
 
-echo "=== Checking NM connection file ownership/permissions ==="
 NM_PERMS=$(sudo stat -c '%U:%G %a' "$NM_CONN")
 echo "Ownership/perms: $NM_PERMS"
-if [ "$NM_PERMS" = "root:root 600" ]; then
-  echo "PASS: NM connection file ownership and permissions correct"
-else
-  echo "FAIL: expected root:root 600, got $NM_PERMS"
-  fail=1
-fi
+check "NM connection file ownership and permissions correct" \
+  "expected root:root 600, got $NM_PERMS" \
+  [ "$NM_PERMS" = "root:root 600" ]
 
-echo "=== Checking NetworkManager service is enabled ==="
 NM_SYMLINK="$MNT/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
-if sudo test -L "$NM_SYMLINK"; then
-  echo "PASS: NetworkManager service is enabled"
-else
-  echo "FAIL: NetworkManager service is not enabled (symlink missing: $NM_SYMLINK)"
-  fail=1
-fi
+check "NetworkManager service is enabled" \
+  "NetworkManager service is not enabled (symlink missing: $NM_SYMLINK)" \
+  sudo test -L "$NM_SYMLINK"
 
-echo "=== Checking wpa_supplicant is installed ==="
-if sudo test -x "$MNT/usr/sbin/wpa_supplicant"; then
-  echo "PASS: wpa_supplicant binary present"
-else
-  echo "FAIL: wpa_supplicant binary not found (required by NM for WiFi AP mode)"
-  fail=1
-fi
+check "wpa_supplicant binary present" \
+  "wpa_supplicant binary not found (required by NM for WiFi AP mode)" \
+  sudo test -x "$MNT/usr/sbin/wpa_supplicant"
 
-echo "=== Checking wpa_supplicant D-Bus service file ==="
 WPA_DBUS="$MNT/usr/share/dbus-1/system-services/fi.w1.wpa_supplicant1.service"
-if sudo test -f "$WPA_DBUS"; then
-  echo "PASS: wpa_supplicant D-Bus service file present (NM can activate wpa_supplicant)"
-else
-  echo "FAIL: wpa_supplicant D-Bus service file missing (NM cannot start wpa_supplicant for AP mode)"
-  fail=1
-fi
+check "wpa_supplicant D-Bus service file present (NM can activate wpa_supplicant)" \
+  "wpa_supplicant D-Bus service file missing (NM cannot start wpa_supplicant for AP mode)" \
+  sudo test -f "$WPA_DBUS"
 
 echo "=== Checking hostapd is NOT installed ==="
 if sudo test -f "$MNT/etc/hostapd/hostapd.conf"; then
