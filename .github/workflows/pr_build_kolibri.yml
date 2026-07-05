@@ -46,10 +46,9 @@ jobs:
   zip:
     name: Build Raspberry Pi Image
     needs: deb
-    uses: learningequality/kolibri-image-pi/.github/workflows/build_img.yml@v1.1.1
+    uses: ./.github/workflows/platform-pi-build_img.yml
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
-      ref: v1.1.1
   browser_smoke_test:
     name: Browser smoke test
     needs: whl
