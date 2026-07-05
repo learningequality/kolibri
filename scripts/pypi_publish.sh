@@ -67,9 +67,9 @@ for entry in "${TO_PUBLISH[@]}"; do
   name="${entry%:*}"
   version="${entry##*:}"
   echo "Building $name $version"
-  uv build --package "$name" -o "dist/$name"
+  make -C "python_packages/$name" dist
   echo "Publishing $name $version"
-  uv publish "${PUBLISH_ARGS[@]}" "dist/$name"/*
+  uv publish "${PUBLISH_ARGS[@]}" "python_packages/$name/dist"/*
   echo "| [$name](https://pypi.org/project/$name/) | $version |" >> "$SUMMARY_FILE"
 done
 
