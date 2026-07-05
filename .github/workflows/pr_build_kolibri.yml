@@ -49,6 +49,20 @@ jobs:
     uses: ./.github/workflows/platform-pi-build_img.yml
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+  pi_smoke_test:
+    name: Pi image smoke test
+    needs: zip
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Download zip artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.zip.outputs.zip-file-name }}
+          path: dist
+      - name: Verify image WiFi configuration
+        run: sudo ./platforms/kolibri-image-pi/smoke-test-wifi.sh dist/*.zip
   browser_smoke_test:
     name: Browser smoke test
     needs: whl
