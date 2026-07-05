@@ -83,7 +83,10 @@ uv automatically creates and manages a virtual environment in the ``.venv`` dire
 
 .. code-block:: bash
 
-  uv sync --group dev          # Creates venv, installs Python, installs all dev deps
+  uv sync --group dev --all-packages          # Creates venv, installs Python, installs all dev deps
+
+.. note::
+  ``--all-packages`` installs every workspace member under ``python_packages/`` alongside root Kolibri's own dependencies in the shared virtual environment. See :doc:`/howtos/python_monorepo` for details on the workspace layout and why the flag is required.
 
 Your virtual environment is now ready. Use ``uv run`` to execute commands within it:
 
@@ -135,11 +138,11 @@ There are two environment variables you should plan to set:
 Install Python dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python dependencies are installed automatically by ``uv sync --group dev`` above. To update dependencies after pulling new changes:
+Python dependencies are installed automatically by ``uv sync --group dev --all-packages`` above. To update dependencies after pulling new changes:
 
 .. code-block:: bash
 
-  uv sync --group dev
+  uv sync --group dev --all-packages
 
 Install Node.js, pnpm and other dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -350,7 +353,7 @@ Pre-commit hooks
 
 `prek <https://github.com/pre-commit/prek>`__ (a faster drop-in replacement for pre-commit) is used to apply a full set of checks and formatting automatically each time that ``git commit`` runs. If there are errors, the Git commit is aborted and you are asked to fix the error and run ``git commit`` again.
 
-prek is already installed as a development dependency (via ``uv sync --group dev``), but you also need to enable it:
+prek is already installed as a development dependency (via ``uv sync --group dev --all-packages``), but you also need to enable it:
 
 .. code-block:: bash
 

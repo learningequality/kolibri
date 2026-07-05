@@ -9,7 +9,7 @@
 ## Quick Start
 
 ```bash
-uv sync --group dev                   # Python deps + venv
+uv sync --group dev --all-packages    # Python deps + venv (all workspace member packages included)
 pnpm install                          # Node deps
 prek install                          # Required — commits fail without this
 export KOLIBRI_RUN_MODE=dev
