@@ -54,6 +54,7 @@ jobs:
     needs: zip
     continue-on-error: true
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.0
       - name: Download zip artifact

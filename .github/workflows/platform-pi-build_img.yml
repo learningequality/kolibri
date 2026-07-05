@@ -24,6 +24,8 @@ jobs:
   build_zip:
     name: Build Pi image
     runs-on: ubuntu-24.04-arm
+    env:
+      CACHE_VERSION: v3
     outputs:
       zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
     steps:
@@ -47,17 +49,17 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: 'platforms/kolibri-image-pi/images/source.img'
-          key: ${{ runner.OS }}-image-pi-source-v3-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
+          key: ${{ runner.OS }}-image-pi-source-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
       - name: Cache base image
         uses: actions/cache@v6.1.0
         with:
           path: 'platforms/kolibri-image-pi/images/base.img'
-          key: ${{ runner.OS }}-image-pi-base-v3-${{ hashFiles('platforms/kolibri-image-pi/base.Pifile', 'platforms/kolibri-image-pi/files/*') }}
+          key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/base.Pifile', 'platforms/kolibri-image-pi/files/*') }}
       - name: Cache pimod
         uses: actions/cache@v6.1.0
         with:
           path: platforms/kolibri-image-pi/pimod
-          key: ${{ runner.OS }}-image-pi-pimod-v3-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
+          key: ${{ runner.OS }}-image-pi-pimod-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
       - name: Build Pi image
         working-directory: platforms/kolibri-image-pi
         run: make zipfile
