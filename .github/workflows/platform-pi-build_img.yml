@@ -24,21 +24,18 @@ jobs:
   build_zip:
     name: Build Pi image
     runs-on: ubuntu-24.04-arm
-    defaults:
-      run:
-        working-directory: platforms/kolibri-image-pi
     outputs:
       zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
     steps:
       - name: Validate deb reference inputs
         if: ${{ (inputs.deb-file-name && inputs.deb-url) || (!inputs.deb-file-name && !inputs.deb-url) }}
-        working-directory: .
         run: |
           echo "Must specify only one reference for the deb file to build the image with."
           exit 1
       - uses: actions/checkout@v7.0.0
       - name: Download the debfile from URL and install
         if: ${{ inputs.deb-url }}
+        working-directory: platforms/kolibri-image-pi
         run: make get-deb deb=${{ inputs.deb-url }}
       - name: Download the debfile from artifacts
         if: ${{ inputs.deb-file-name }}
@@ -62,9 +59,11 @@ jobs:
           path: platforms/kolibri-image-pi/pimod
           key: ${{ runner.OS }}-image-pi-pimod-v3-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
       - name: Build Pi image
+        working-directory: platforms/kolibri-image-pi
         run: make zipfile
       - name: Get ZIP filename
         id: get-zip-filename
+        working-directory: platforms/kolibri-image-pi
         run: echo "zip-file-name=$(basename dist/*.zip)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         with:
