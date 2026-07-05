@@ -22,9 +22,10 @@ Member package versions are independent of each other and of the main `kolibri` 
 
 By default, a package under `python_packages/` is workspace-only — nothing publishes it. To publish it to PyPI:
 
-1. Add its `pyproject.toml` path to the `paths:` filter in `.github/workflows/pypi_packages_publish.yml`'s `push` trigger.
-2. Add its name to the `workflow_dispatch.inputs.pypi_package.options` list in the same file.
-3. Register a pending trusted publisher on PyPI and TestPyPI (see the "Python packages" section of [the release process docs](../release_process.rst)) before merging.
+1. Add a `Makefile` with a `dist` target that builds the wheel: `uv build -o dist` for a backend-only package, or (for a package with a frontend bundle) `pnpm run build && pnpm run compress && uv build -o dist` — see `python_packages/kolibri-sentry-plugin/Makefile` for the frontend case. `scripts/pypi_publish.sh` calls `make -C python_packages/<name> dist` and publishes whatever lands in that member's own `dist/`.
+2. Add its `pyproject.toml` path to the `paths:` filter in `.github/workflows/pypi_packages_publish.yml`'s `push` trigger.
+3. Add its name to the `workflow_dispatch.inputs.pypi_package.options` list in the same file.
+4. Register a pending trusted publisher on PyPI and TestPyPI (see the "Python packages" section of [the release process docs](../release_process.rst)) before merging.
 
 ## CI cascade
 
