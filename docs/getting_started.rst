@@ -86,7 +86,7 @@ uv automatically creates and manages a virtual environment in the ``.venv`` dire
   uv sync --group dev --all-packages          # Creates venv, installs Python, installs all dev deps
 
 .. note::
-  ``--all-packages`` installs every workspace member under ``python_packages/`` into the shared virtual environment, in addition to root Kolibri's own dependencies. Omitting it drops root Kolibri's own runtime dependencies (Django, Click, etc.) from the shared venv if run from inside a member package's directory. See :doc:`/howtos/python_monorepo` for details on the workspace layout.
+  ``--all-packages`` installs every workspace member under ``python_packages/`` alongside root Kolibri's own dependencies in the shared virtual environment. See :doc:`/howtos/python_monorepo` for details on the workspace layout and why the flag is required.
 
 Your virtual environment is now ready. Use ``uv run`` to execute commands within it:
 
