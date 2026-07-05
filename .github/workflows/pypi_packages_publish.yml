@@ -51,6 +51,15 @@ jobs:
           cache-python: true
       - name: Install Python
         run: uv python install 3.10
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: 'package.json'
+          cache: 'pnpm'
+      - name: Install Javascript dependencies
+        run: pnpm install --frozen-lockfile
       - name: Publish
         id: publish
         run: |
