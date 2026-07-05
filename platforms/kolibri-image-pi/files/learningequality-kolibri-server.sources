@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://learningequality.github.io/kolibri-server/
+Suites: stable
+Components: main
+Signed-By: /etc/apt/keyrings/learningequality.asc

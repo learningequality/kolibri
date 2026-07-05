@@ -1,0 +1,16 @@
+# Automatically update versions for github actions
+
+version: 2
+updates:
+
+  # Maintain dependencies for Github Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "00:00"
+    groups:
+      github:
+        patterns:
+          - "actions/*"
