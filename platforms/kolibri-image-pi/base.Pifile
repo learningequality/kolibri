@@ -75,10 +75,7 @@ EOF
 
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN systemctl enable NetworkManager
-RUN systemctl enable dnsmasq
-RUN systemctl enable nginx
-RUN systemctl enable ssh
+RUN systemctl enable NetworkManager dnsmasq nginx ssh
 
 
 # Set kolibryfly password for specified user (pi by default)

@@ -8,12 +8,9 @@ ENV DEBIAN_FRONTEND noninteractive
 echo "--- Using Kolibri deb"
 
 # Preseeding package config
-RUN sh -c '
-echo "kolibri kolibri/init boolean false" | debconf-set-selections; \
-echo "kolibri kolibri/user string pi" | debconf-set-selections; \
-echo "kolibri-server kolibri-server/port select 80" | debconf-set-selections; \
-echo "kolibri-server kolibri-server/zip_content_port select 81" | debconf-set-selections
-'
+RUN debconf-set-selections <<EOF
+$(cat files/debconf)
+EOF
 
 
 # Free space from base image build before installing Kolibri
