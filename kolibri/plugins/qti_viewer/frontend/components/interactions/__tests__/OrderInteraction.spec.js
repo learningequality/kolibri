@@ -64,7 +64,7 @@ describe('Reordering', () => {
     ]);
 
     await fireEvent.click(
-      within(rowsBefore[1]).getByRole('button', { name: coreStrings.moveUpLabel$() }),
+      within(rowsBefore[1]).getByRole('button', { name: coreStrings.moveLeftLabel$() }),
     );
 
     await waitFor(() => {

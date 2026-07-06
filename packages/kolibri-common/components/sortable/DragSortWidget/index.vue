@@ -15,7 +15,7 @@
       :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
       class="btn up"
       size="mini"
-      :ariaLabel="moveUpLabel$()"
+      :ariaLabel="moveUpOrLeftLabel$()"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -36,7 +36,7 @@
       :icon="horizontal ? 'chevronRight' : 'chevronDown'"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveDownLabel$()"
+      :ariaLabel="moveDownOrRightLabel$()"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -52,9 +52,11 @@
 
   export default {
     name: 'DragSortWidget',
-    setup() {
-      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
-      return { moveUpLabel$, moveDownLabel$ };
+    setup(props) {
+      const { moveUpLabel$, moveDownLabel$, moveLeftLabel$, moveRightLabel$ } = coreStrings;
+      const moveUpOrLeftLabel$ = props.horizontal ? moveLeftLabel$ : moveUpLabel$;
+      const moveDownOrRightLabel$ = props.horizontal ? moveRightLabel$ : moveDownLabel$;
+      return { moveUpOrLeftLabel$, moveDownOrRightLabel$ };
     },
     props: {
       isFirst: {
