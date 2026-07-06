@@ -18,6 +18,7 @@
         <DragContainer
           class="container"
           :items="channels"
+          :getItemLabel="channel => channel.name"
           @sort="handleOrderChange"
         >
           <transition-group
@@ -37,6 +38,9 @@
                 >
                   <DragSortWidget
                     class="sort-widget"
+                    :itemLabel="channel.name"
+                    :position="index + 1"
+                    :total="channels.length"
                     :isFirst="index === 0"
                     :isLast="index === channels.length - 1"
                     @moveUp="shiftOne(index, -1)"
