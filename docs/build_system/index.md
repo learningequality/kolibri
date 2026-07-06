@@ -57,7 +57,7 @@ Both PR and release workflows follow a similar orchestration pattern but with di
    - **DEB** (Debian/Ubuntu package): `learningequality/kolibri-installer-debian`
    - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
    - **APK** (Android app package): `learningequality/kolibri-installer-android`
-   - **ZIP** (Raspberry Pi disk image): built locally from `platforms/kolibri-image-pi/` via `platform-pi-build_img.yml`
+   - **ZIP** (Raspberry Pi disk image): built locally from `platforms/raspberry-pi/` via `platform-pi-build_img.yml`
 
 ### How external workflows are called
 

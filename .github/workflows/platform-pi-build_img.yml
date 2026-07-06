@@ -37,37 +37,37 @@ jobs:
       - uses: actions/checkout@v7.0.0
       - name: Download the debfile from URL and install
         if: ${{ inputs.deb-url }}
-        working-directory: platforms/kolibri-image-pi
+        working-directory: platforms/raspberry-pi
         run: make get-deb deb=${{ inputs.deb-url }}
       - name: Download the debfile from artifacts
         if: ${{ inputs.deb-file-name }}
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.deb-file-name }}
-          path: platforms/kolibri-image-pi/dist
+          path: platforms/raspberry-pi/dist
       - name: Cache source image
         uses: actions/cache@v6.1.0
         with:
-          path: 'platforms/kolibri-image-pi/images/source.img'
-          key: ${{ runner.OS }}-image-pi-source-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
+          path: 'platforms/raspberry-pi/images/source.img'
+          key: ${{ runner.OS }}-image-pi-source-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/Makefile') }}
       - name: Cache base image
         uses: actions/cache@v6.1.0
         with:
-          path: 'platforms/kolibri-image-pi/images/base.img'
-          key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/base.Pifile', 'platforms/kolibri-image-pi/files/*') }}
+          path: 'platforms/raspberry-pi/images/base.img'
+          key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/base.Pifile', 'platforms/raspberry-pi/files/*') }}
       - name: Cache pimod
         uses: actions/cache@v6.1.0
         with:
-          path: platforms/kolibri-image-pi/pimod
-          key: ${{ runner.OS }}-image-pi-pimod-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/kolibri-image-pi/Makefile') }}
+          path: platforms/raspberry-pi/pimod
+          key: ${{ runner.OS }}-image-pi-pimod-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/Makefile') }}
       - name: Build Pi image
-        working-directory: platforms/kolibri-image-pi
+        working-directory: platforms/raspberry-pi
         run: make zipfile
       - name: Get ZIP filename
         id: get-zip-filename
-        working-directory: platforms/kolibri-image-pi
+        working-directory: platforms/raspberry-pi
         run: echo "zip-file-name=$(basename dist/*.zip)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
-          path: platforms/kolibri-image-pi/dist/${{ steps.get-zip-filename.outputs.zip-file-name }}
+          path: platforms/raspberry-pi/dist/${{ steps.get-zip-filename.outputs.zip-file-name }}
