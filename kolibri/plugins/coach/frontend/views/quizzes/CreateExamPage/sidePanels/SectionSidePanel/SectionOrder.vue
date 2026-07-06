@@ -7,6 +7,7 @@
     <DragContainer
       v-if="sectionOrderList.length > 0"
       :items="sectionOrderList"
+      :getItemLabel="section => sectionOrderingTitle(section)"
       @sort="handleSectionSort"
     >
       <transition-group>
@@ -27,6 +28,9 @@
                 :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
+                :itemLabel="sectionOrderingTitle(section)"
+                :position="index + 1"
+                :total="sectionOrderList.length"
                 @moveUp="() => handleKeyboardDragUp(index, sectionOrderList)"
                 @moveDown="() => handleKeyboardDragDown(index, sectionOrderList)"
               />
