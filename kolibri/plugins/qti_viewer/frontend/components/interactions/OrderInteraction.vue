@@ -84,6 +84,30 @@
       }, {});
       const allIdentifiers = choiceVNodes.map(vnode => vnode.componentOptions.propsData.identifier);
 
+      // Plain-text label per choice, used for move-button and full-order a11y announcements.
+      function vnodeToText(vnode) {
+        if (!vnode) {
+          return '';
+        }
+        if (vnode.text) {
+          return vnode.text.trim();
+        }
+        if (vnode.children) {
+          return vnode.children.map(vnodeToText).join(' ').trim();
+        }
+        return '';
+      }
+
+      const textByIdentifier = {};
+      choiceVNodes.forEach(vnode => {
+        const identifier = vnode.componentOptions.propsData.identifier;
+        textByIdentifier[identifier] = vnode.componentOptions.children
+          .map(vnodeToText)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      });
+
       function getVariable() {
         return responses[responseIdentifier.value];
       }
@@ -208,7 +232,10 @@
           h(
             DragContainer,
             {
-              props: { items },
+              props: {
+                items,
+                getItemLabel: item => textByIdentifier[item.identifier],
+              },
               on: { sort: handleSort },
             },
             [
@@ -233,6 +260,9 @@
                                 isFirst: index === 0,
                                 isLast: index === items.length - 1,
                                 horizontal: isHorizontal.value,
+                                itemLabel: textByIdentifier[item.identifier],
+                                position: index + 1,
+                                total: items.length,
                               },
                               on: {
                                 moveUp: () => moveItem(item.identifier, -1),

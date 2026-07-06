@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
-import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { dragSortStrings } from 'kolibri-common/components/sortable/dragSortStrings';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
@@ -9,6 +9,8 @@ const smokeFixtures = [
   ['q15-order-example-3', 3],
   ['q15-order-example-4', 9],
 ];
+
+const { moveItemLeftLabel$ } = dragSortStrings;
 
 describe('Smoke', () => {
   it.each(smokeFixtures)('%s renders %d ordered choices', (id, choiceCount) => {
@@ -64,7 +66,9 @@ describe('Reordering', () => {
     ]);
 
     await fireEvent.click(
-      within(rowsBefore[1]).getByRole('button', { name: coreStrings.moveLeftLabel$() }),
+      within(rowsBefore[1]).getByRole('button', {
+        name: moveItemLeftLabel$({ item: 'Jenson Button' }),
+      }),
     );
 
     await waitFor(() => {
