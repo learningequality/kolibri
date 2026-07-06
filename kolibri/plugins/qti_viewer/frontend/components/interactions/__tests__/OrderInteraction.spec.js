@@ -76,6 +76,20 @@ describe('Reordering', () => {
     });
   });
 
+  it('restores order from injected answerState on mount', () => {
+    renderAssessmentItem(items['q15-order-example-2'].xml, {
+      answerState: {
+        RESPONSE: ['DriverC', 'DriverA', 'DriverB'],
+      },
+    });
+
+    expect(screen.getAllByRole('listitem').map(row => row.textContent.trim())).toEqual([
+      'Michael Schumacher',
+      'Rubens Barrichello',
+      'Jenson Button',
+    ]);
+  });
+
   it('renders a shuffled initial order when shuffle is enabled', () => {
     renderAssessmentItem(items['q15-order-example-4'].xml, {
       candidateIdentifier: 'shuffle-seed-001',
@@ -92,5 +106,42 @@ describe('Reordering', () => {
       'lazy',
       'dog',
     ]);
+  });
+});
+
+describe('Labels', () => {
+  const getList = index => screen.getAllByRole('list')[index];
+  // RESPONSE1: labels-none, RESPONSE2: decimal, RESPONSE3: lower-alpha, RESPONSE4: upper-alpha
+  beforeEach(() => {
+    renderAssessmentItem(items['q15-order-interaction-sv-1'].xml);
+  });
+
+  it('renders no label for qti-labels-none', () => {
+    within(getList(0))
+      .getAllByRole('listitem')
+      .forEach(row => {
+        expect(row.querySelector('.qti-order-label')).toBeNull();
+      });
+  });
+
+  it('renders decimal labels', () => {
+    const labels = within(getList(1))
+      .getAllByRole('listitem')
+      .map(row => row.querySelector('.qti-order-label').textContent);
+    expect(labels).toEqual(['1', '2', '3']);
+  });
+
+  it('renders lower-alpha labels', () => {
+    const labels = within(getList(2))
+      .getAllByRole('listitem')
+      .map(row => row.querySelector('.qti-order-label').textContent);
+    expect(labels).toEqual(['a', 'b', 'c']);
+  });
+
+  it('renders upper-alpha labels', () => {
+    const labels = within(getList(3))
+      .getAllByRole('listitem')
+      .map(row => row.querySelector('.qti-order-label').textContent);
+    expect(labels).toEqual(['A', 'B', 'C']);
   });
 });
