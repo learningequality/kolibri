@@ -159,6 +159,7 @@
               'ol',
               {
                 class: [
+                  attrs.class || '',
                   'qti-order-interaction',
                   'qti-order-interaction-readonly',
                   { 'qti-orientation-horizontal': isHorizontal.value },
