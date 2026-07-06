@@ -15,7 +15,7 @@
       :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
       class="btn up"
       size="mini"
-      :ariaLabel="moveForward$()"
+      :ariaLabel="moveUpAriaLabel"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -36,7 +36,7 @@
       :icon="horizontal ? 'chevronRight' : 'chevronDown'"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveBackward$()"
+      :ariaLabel="moveDownAriaLabel"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -51,11 +51,21 @@
   import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import { dragSortStrings } from '../dragSortStrings';
 
   export default {
     name: 'DragSortWidget',
     setup(props) {
       const { moveUpLabel$, moveDownLabel$, moveLeftLabel$, moveRightLabel$ } = coreStrings;
+      const {
+        moveItemUpLabel$,
+        moveItemDownLabel$,
+        moveItemLeftLabel$,
+        moveItemRightLabel$,
+        itemMovedToPosition$,
+      } = dragSortStrings;
+      const { sendPoliteMessage } = useKLiveRegion();
 
       const isRtlValue = isRtl(currentLanguage);
 
@@ -75,7 +85,32 @@
         return isRtlValue ? moveLeftLabel$ : moveRightLabel$;
       });
 
-      return { moveForward$, moveBackward$ };
+      // Item-specific labels, Direction-aware
+      const moveUpAriaLabel = computed(() => {
+        if (!props.itemLabel) {
+          return moveUpOrLeftLabel$.value();
+        }
+        if (!props.horizontal) {
+          return moveItemUpLabel$({ item: props.itemLabel });
+        }
+        return isRtlValue
+          ? moveItemRightLabel$({ item: props.itemLabel })
+          : moveItemLeftLabel$({ item: props.itemLabel });
+      });
+
+      const moveDownAriaLabel = computed(() => {
+        if (!props.itemLabel) {
+          return moveDownOrRightLabel$.value();
+        }
+        if (!props.horizontal) {
+          return moveItemDownLabel$({ item: props.itemLabel });
+        }
+        return isRtlValue
+          ? moveItemLeftLabel$({ item: props.itemLabel })
+          : moveItemRightLabel$({ item: props.itemLabel });
+      });
+
+      return { moveUpAriaLabel, moveDownAriaLabel, itemMovedToPosition$, sendPoliteMessage };
     },
     props: {
       isFirst: {
@@ -90,6 +125,21 @@
       horizontal: {
         type: Boolean,
         default: false,
+      },
+      // Human-readable name of this item
+      itemLabel: {
+        type: String,
+        default: null,
+      },
+      // indexed current position of this item in the list
+      // 1-based
+      position: {
+        type: Number,
+        default: null,
+      },
+      total: {
+        type: Number,
+        default: null,
       },
     },
     data() {
@@ -114,8 +164,21 @@
           document.activeElement,
         );
       },
+      announceMove(newPosition) {
+        if (!this.itemLabel || this.total == null) {
+          return;
+        }
+        this.sendPoliteMessage(
+          this.itemMovedToPosition$({
+            item: this.itemLabel,
+            position: newPosition,
+            total: this.total,
+          }),
+        );
+      },
       clickDown() {
         this.$emit('moveDown');
+        this.announceMove(this.position + 1);
         this.$nextTick(() => {
           if (this.isLast) {
             this.$refs.upBtn.$el.focus();
@@ -126,6 +189,7 @@
       },
       clickUp() {
         this.$emit('moveUp');
+        this.announceMove(this.position - 1);
         this.$nextTick(() => {
           if (this.isFirst) {
             this.$refs.dnBtn.$el.focus();
