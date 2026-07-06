@@ -52,7 +52,6 @@ jobs:
   pi_smoke_test:
     name: Pi image smoke test
     needs: zip
-    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

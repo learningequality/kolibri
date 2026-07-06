@@ -45,21 +45,18 @@ jobs:
         with:
           name: ${{ inputs.deb-file-name }}
           path: platforms/raspberry-pi/dist
-      - name: Cache source image
+      - name: Cache source image and pimod
         uses: actions/cache@v6.1.0
         with:
-          path: 'platforms/raspberry-pi/images/source.img'
+          path: |
+            platforms/raspberry-pi/images/source.img
+            platforms/raspberry-pi/pimod
           key: ${{ runner.OS }}-image-pi-source-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/Makefile') }}
       - name: Cache base image
         uses: actions/cache@v6.1.0
         with:
           path: 'platforms/raspberry-pi/images/base.img'
           key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/base.Pifile', 'platforms/raspberry-pi/files/*') }}
-      - name: Cache pimod
-        uses: actions/cache@v6.1.0
-        with:
-          path: platforms/raspberry-pi/pimod
-          key: ${{ runner.OS }}-image-pi-pimod-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/Makefile') }}
       - name: Build Pi image
         working-directory: platforms/raspberry-pi
         run: make zipfile
