@@ -164,6 +164,7 @@
             h(
               'ol',
               {
+                attrs: { 'aria-label': orderListLabel$() },
                 class: [
                   attrs.class || '',
                   'qti-order-interaction',

@@ -48,14 +48,33 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
 
   export default {
     name: 'DragSortWidget',
     setup(props) {
       const { moveUpLabel$, moveDownLabel$, moveLeftLabel$, moveRightLabel$ } = coreStrings;
-      const moveUpOrLeftLabel$ = props.horizontal ? moveLeftLabel$ : moveUpLabel$;
-      const moveDownOrRightLabel$ = props.horizontal ? moveRightLabel$ : moveDownLabel$;
+
+      const isRtlValue = isRtl(currentLanguage);
+
+      const moveUpOrLeftLabel$ = computed(() => {
+        if (!props.horizontal) {
+          return moveUpLabel$;
+        }
+
+        return isRtlValue ? moveRightLabel$ : moveLeftLabel$;
+      });
+
+      const moveDownOrRightLabel$ = computed(() => {
+        if (!props.horizontal) {
+          return moveDownLabel$;
+        }
+
+        return isRtlValue ? moveLeftLabel$ : moveRightLabel$;
+      });
+
       return { moveUpOrLeftLabel$, moveDownOrRightLabel$ };
     },
     props: {
