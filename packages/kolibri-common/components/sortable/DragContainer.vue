@@ -8,14 +8,26 @@
     Plugins,
     Draggable,
   } from '@shopify/draggable/lib/es5/draggable.bundle.legacy.js';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { SORTABLE_CLASS, HANDLE_CLASS } from './classDefinitions';
+  import { dragSortStrings } from './dragSortStrings';
 
   export default {
     name: 'DragContainer',
+    setup() {
+      const { sendPoliteMessage } = useKLiveRegion();
+      const { itemMovedToPosition$ } = dragSortStrings;
+      return { sendPoliteMessage, itemMovedToPosition$ };
+    },
     props: {
       items: {
         type: Array,
         required: true,
+      },
+      // (item) => String, used to announce full order when focus leaves the list
+      getItemLabel: {
+        type: Function,
+        default: null,
       },
     },
     data() {
@@ -29,6 +41,7 @@
     },
     beforeDestroy() {
       this.sortable.destroy();
+      this.$el.removeEventListener('focusout', this.handleFocusOut);
     },
     methods: {
       initialize() {
@@ -54,6 +67,8 @@
         this.sortable.on('sortable:stop', this.handleStop);
         this.sortable.on('sortable:moveDown', this.moveDownOne);
         this.sortable.on('sortable:moveUp', this.moveUpOne);
+
+        this.$el.addEventListener('focusout', this.handleFocusOut);
       },
       handleStart() {
         // handle cancelation of drags
@@ -77,6 +92,21 @@
         ];
         this.$emit('sort', { newArray, oldIndex, newIndex });
         // document.removeEventListener('keyup', this.triggerMouseUpOnESC);
+      },
+      handleFocusOut(event) {
+        // focus moved to another row inside this container: not a list-exit, don't announce
+        if (event.relatedTarget && this.$el.contains(event.relatedTarget)) {
+          return;
+        }
+        if (!this.getItemLabel) {
+          return;
+        }
+        const order = this.items
+          .map((item, index) => `${index + 1}. ${this.getItemLabel(item)}`)
+          .join(', ');
+        this.sendPoliteMessage(
+          this.itemMovedToPosition$({ item: order, position: 0, total: this.items.length }),
+        );
       },
     },
     triggerMouseUpOnESC(event) {
