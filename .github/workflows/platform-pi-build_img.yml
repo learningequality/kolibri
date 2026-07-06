@@ -1,0 +1,70 @@
+name: Build Pi image
+on:
+  workflow_dispatch:
+    inputs:
+      deb-url:
+        description: 'URL for Kolibri deb file'
+        required: true
+  workflow_call:
+    inputs:
+      deb-file-name:
+        required: false
+        type: string
+      deb-url:
+        description: 'URL for Kolibri deb file'
+        required: false
+        type: string
+    outputs:
+      zip-file-name:
+        description: "ZIP file name"
+        value: ${{ jobs.build_zip.outputs.zip-file-name }}
+permissions:
+  contents: read
+jobs:
+  build_zip:
+    name: Build Pi image
+    runs-on: ubuntu-24.04-arm
+    env:
+      CACHE_VERSION: v3
+    outputs:
+      zip-file-name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
+    steps:
+      - name: Validate deb reference inputs
+        if: ${{ (inputs.deb-file-name && inputs.deb-url) || (!inputs.deb-file-name && !inputs.deb-url) }}
+        run: |
+          echo "Must specify only one reference for the deb file to build the image with."
+          exit 1
+      - uses: actions/checkout@v7.0.0
+      - name: Download the debfile from URL and install
+        if: ${{ inputs.deb-url }}
+        working-directory: platforms/raspberry-pi
+        run: make get-deb deb=${{ inputs.deb-url }}
+      - name: Download the debfile from artifacts
+        if: ${{ inputs.deb-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.deb-file-name }}
+          path: platforms/raspberry-pi/dist
+      - name: Cache source image and pimod
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            platforms/raspberry-pi/images/source.img
+            platforms/raspberry-pi/pimod
+          key: ${{ runner.OS }}-image-pi-source-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/Makefile') }}
+      - name: Cache base image
+        uses: actions/cache@v6.1.0
+        with:
+          path: 'platforms/raspberry-pi/images/base.img'
+          key: ${{ runner.OS }}-image-pi-base-${{ env.CACHE_VERSION }}-${{ hashFiles('platforms/raspberry-pi/base.Pifile', 'platforms/raspberry-pi/files/*') }}
+      - name: Build Pi image
+        working-directory: platforms/raspberry-pi
+        run: make zipfile
+      - name: Get ZIP filename
+        id: get-zip-filename
+        working-directory: platforms/raspberry-pi
+        run: echo "zip-file-name=$(basename dist/*.zip)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.get-zip-filename.outputs.zip-file-name }}
+          path: platforms/raspberry-pi/dist/${{ steps.get-zip-filename.outputs.zip-file-name }}

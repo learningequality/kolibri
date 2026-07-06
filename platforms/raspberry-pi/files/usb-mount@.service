@@ -1,0 +1,10 @@
+[Unit]
+Description=Mount USB Device
+After=dev-%i.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/usb-mount.sh %I
+
+[Install]
+WantedBy=multi-user.target

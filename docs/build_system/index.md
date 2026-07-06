@@ -44,7 +44,6 @@ Each external repository specializes in one platform:
 - **kolibri-installer-debian**: .deb packages for Debian/Ubuntu
 - **kolibri-installer-windows**: .exe with Windows code signing
 - **kolibri-installer-android**: .apk with Google Play Store publishing
-- **kolibri-image-pi**: Raspberry Pi disk images
 
 ## Workflow orchestration
 
@@ -53,12 +52,12 @@ Both PR and release workflows follow a similar orchestration pattern but with di
 ### Common build sequence:
 1. **Python Package Build**: Creates WHL (Python wheel - a built package format) and TAR (source archive) files using `build_whl.yml`
 2. **PEX Build**: Creates a PEX (Python EXecutable - a self-contained Python application) using the WHL
-3. **Platform Builds**: Triggers external repository workflows:
+3. **Platform Builds**: Triggers platform-specific build workflows:
    - **DMG** (macOS disk image): `learningequality/kolibri-app`
    - **DEB** (Debian/Ubuntu package): `learningequality/kolibri-installer-debian`
    - **EXE** (Windows installer): `learningequality/kolibri-installer-windows`
    - **APK** (Android app package): `learningequality/kolibri-installer-android`
-   - **ZIP** (Raspberry Pi disk image): `learningequality/kolibri-image-pi`
+   - **ZIP** (Raspberry Pi disk image): built locally from `platforms/raspberry-pi/` via `platform-pi-build_img.yml`
 
 ### How external workflows are called
 
