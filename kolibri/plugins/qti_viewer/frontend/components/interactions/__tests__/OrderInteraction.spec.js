@@ -144,4 +144,12 @@ describe('Labels', () => {
       .map(row => row.querySelector('.qti-order-label').textContent);
     expect(labels).toEqual(['A', 'B', 'C']);
   });
+
+  it('renders suffix characters when a qti-labels-suffix-* class is present', () => {
+    const decimalPeriod = within(getList(5))
+      .getAllByRole('listitem')
+      .map(row => row.querySelector('.qti-order-label').textContent);
+
+    expect(decimalPeriod).toEqual(['1.', '2.', '3.']);
+  });
 });

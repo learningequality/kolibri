@@ -32,8 +32,13 @@
   // qti-choices-top/bottom/left/right are intentional no-ops
   const LABEL_FNS = {
     'qti-labels-decimal': i => String(i + 1),
-    'qti-labels-upper-alpha': i => String.fromCharCode(65 + i), // A, B, C...
-    'qti-labels-lower-alpha': i => String.fromCharCode(97 + i), // a, b, c...
+    'qti-labels-upper-alpha': i => String.fromCharCode(65 + i),
+    'qti-labels-lower-alpha': i => String.fromCharCode(97 + i),
+  };
+
+  const LABEL_SUFFIXES = {
+    'qti-labels-suffix-period': '.',
+    'qti-labels-suffix-parenthesis': ')',
   };
 
   export default {
@@ -55,10 +60,11 @@
       const getLabelFn = computed(() => {
         const cls = attrs.class || '';
         const classes = typeof cls === 'string' ? cls.split(' ') : cls;
-        for (const [key, fn] of Object.entries(LABEL_FNS)) {
-          if (classes.includes(key)) return fn;
-        }
-        return null;
+        const baseKey = Object.keys(LABEL_FNS).find(key => classes.includes(key));
+        if (!baseKey) return null;
+        const suffix = Object.keys(LABEL_SUFFIXES).find(key => classes.includes(key));
+        const suffixChar = suffix ? LABEL_SUFFIXES[suffix] : '';
+        return i => LABEL_FNS[baseKey](i) + suffixChar;
       });
 
       const allContent = slots.default();
