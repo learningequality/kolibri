@@ -15,7 +15,7 @@
       :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
       class="btn up"
       size="mini"
-      :ariaLabel="moveUpOrLeftLabel$()"
+      :ariaLabel="moveForward$()"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -36,7 +36,7 @@
       :icon="horizontal ? 'chevronRight' : 'chevronDown'"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveDownOrRightLabel$()"
+      :ariaLabel="moveBackward$()"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -59,7 +59,7 @@
 
       const isRtlValue = isRtl(currentLanguage);
 
-      const moveUpOrLeftLabel$ = computed(() => {
+      const moveForward$ = computed(() => {
         if (!props.horizontal) {
           return moveUpLabel$;
         }
@@ -67,7 +67,7 @@
         return isRtlValue ? moveRightLabel$ : moveLeftLabel$;
       });
 
-      const moveDownOrRightLabel$ = computed(() => {
+      const moveBackward$ = computed(() => {
         if (!props.horizontal) {
           return moveDownLabel$;
         }
@@ -75,7 +75,7 @@
         return isRtlValue ? moveLeftLabel$ : moveRightLabel$;
       });
 
-      return { moveUpOrLeftLabel$, moveDownOrRightLabel$ };
+      return { moveForward$, moveBackward$ };
     },
     props: {
       isFirst: {
