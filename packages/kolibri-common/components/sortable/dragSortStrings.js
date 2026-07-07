@@ -18,7 +18,7 @@ export const dragSortStrings = createTranslator('DragSortStrings', {
     context: 'Button label to move a specific item right in a horizontal reorderable list',
   },
   itemMovedToPosition: {
-    message: '{item} moved to position {position} of {total}',
+    message: '{item} moved to position {position, number} of {total, number}',
     context: 'Live region announcement after moving an item in a reorderable list',
   },
   currentOrder: {

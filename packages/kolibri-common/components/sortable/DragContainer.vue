@@ -16,8 +16,8 @@
     name: 'DragContainer',
     setup() {
       const { sendPoliteMessage } = useKLiveRegion();
-      const { itemMovedToPosition$ } = dragSortStrings;
-      return { sendPoliteMessage, itemMovedToPosition$ };
+      const { currentOrder$ } = dragSortStrings;
+      return { sendPoliteMessage, currentOrder$ };
     },
     props: {
       items: {
@@ -94,6 +94,10 @@
         // document.removeEventListener('keyup', this.triggerMouseUpOnESC);
       },
       handleFocusOut(event) {
+        // window/tab blur: relatedTarget is null but focus hasn't actually left
+        if (!document.hasFocus()) {
+          return;
+        }
         // focus moved to another row inside this container: not a list-exit, don't announce
         if (event.relatedTarget && this.$el.contains(event.relatedTarget)) {
           return;
@@ -104,9 +108,7 @@
         const order = this.items
           .map((item, index) => `${index + 1}. ${this.getItemLabel(item)}`)
           .join(', ');
-        this.sendPoliteMessage(
-          this.itemMovedToPosition$({ item: order, position: 0, total: this.items.length }),
-        );
+        this.sendPoliteMessage(this.currentOrder$({ order }));
       },
     },
     triggerMouseUpOnESC(event) {
