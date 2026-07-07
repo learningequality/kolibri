@@ -57,3 +57,30 @@ def enqueue_kdp_sync_for_registered_facilities():
     """
     for facility in Facility.objects.filter(dataset__registered=True):
         enqueue_automatic_kdp_sync(facility)
+
+
+@version_upgrade(old_version="<0.19.5")
+def make_foreign_keys_deferrable():
+    """
+    Prior to Django 2.0, SQLite tables were created with immediate foreign key constraints, e.g.::
+
+        "parent_id" char(32) NULL REFERENCES "kolibriauth_collection" ("id")
+
+    Since Kolibri upgraded to Django 3.2 (straight from 1.11) the same column is created as::
+
+        "parent_id" char(32) NULL REFERENCES "kolibriauth_collection" ("id") DEFERRABLE INITIALLY DEFERRED
+
+    Django relies on deferred constraint checking for correct cascade-deletion ordering. Databases
+    created before Kolibri 0.17 (Django 1.11) therefore retain immediate constraints, which can
+    raise ``IntegrityError: FOREIGN KEY constraint failed`` during operations such as sync
+    deserialization once foreign key enforcement is enabled at the database level (the default since
+    Django 2.0).
+
+    Kolibri 0.17 saw the Django upgrade, but for this version upgrade, we apply it based on the
+    version of its release, so we can ensure all databases are migrated properly.
+    """
+    from morango.deferrable_foreign_keys import MakeForeignKeysDeferrable
+
+    # morango takes care of itself, through its own migration
+    op = MakeForeignKeysDeferrable(exclude_app_labels=["morango"])
+    op.run()
