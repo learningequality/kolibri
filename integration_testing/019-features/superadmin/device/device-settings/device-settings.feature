@@ -22,6 +22,20 @@ Feature: Device settings
 		Then I can see the unlisted channel
 			And I can import the unlisted channel
 
+	Scenario: Allow others in the network to access Kolibri on this device using a browser
+		Given I'm using the Mac app
+			And *Allow others in the network to access Kolibri on this device using a browser* is unchecked
+	When I attempt to access Kolibri in a browser
+	Then I see the following message: *Access to Kolibri has been restricted for external devices. To change this, sign in as a super admin and update the Device network access settings.*
+	When I sign in in the Mac app
+		And I go to *Device > Settings*
+		And I check the *Allow others in the network to access Kolibri on this device using a browser* option
+		And I click the *Save changes* button
+	Then I see a *Settings have been updated* snackbar message
+		When I attempt to access Kolibri in a browser
+	Then I am at the sign in page
+		And I can access Kolibri
+
 	Scenario: Set the default landing page to *Learn page*
     When I select *Learn page* as the *Default landing page*
     Then I see that the *Sign-in page* option is no longer selected

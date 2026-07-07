@@ -1,5 +1,5 @@
 Feature: Super admin imports granular resources from peer
-    Super admin needs to be able to import resources granularlly with peer import
+    Super admin needs to be able to import resources granularly with peer import
 
     # Use the "Khan Academy (English)" for testing because it takes a long time to load the channel listing.
 
