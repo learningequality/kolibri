@@ -11,6 +11,7 @@
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
+  import useTypedProps from '../../composables/useTypedProps';
   import { Orientation } from '../../constants';
 
   const strings = createTranslator('OrderInteractionStrings', {
@@ -49,15 +50,17 @@
       const QTI_CONTEXT = inject('QTI_CONTEXT');
       const responses = inject('responses');
       const interactive = inject('interactive');
-      const shuffle = computed(() => props.shuffle === true || props.shuffle === 'true');
-      const orientation = computed(() => props.orientation || Orientation.VERTICAL);
-      const responseIdentifier = computed(() => props.responseIdentifier);
+      const typedProps = useTypedProps(props);
+
+      const shuffle = typedProps.shuffle;
+      const orientation = computed(() => typedProps.orientation.value || Orientation.VERTICAL);
+      const responseIdentifier = typedProps.responseIdentifier;
       const isHorizontal = computed(() => orientation.value === Orientation.HORIZONTAL);
       const orderGuideText = computed(() =>
         isHorizontal.value ? answerGuideStrings.orderKeyboard$() : answerGuideStrings.order$(),
       );
 
-      const getLabelFn = computed(() => {
+      const labelFn = computed(() => {
         const cls = attrs.class || '';
         const classes = typeof cls === 'string' ? cls.split(' ') : cls;
         const baseKey = Object.keys(LABEL_FNS).find(key => classes.includes(key));
@@ -75,11 +78,10 @@
         vnode => getComponentTag(vnode) === 'qti-simple-choice',
       );
 
-      const contentByIdentifier = {};
-      choiceVNodes.forEach(vnode => {
-        contentByIdentifier[vnode.componentOptions.propsData.identifier] =
-          vnode.componentOptions.children;
-      });
+      const contentByIdentifier = choiceVNodes.reduce((acc, vnode) => {
+        acc[vnode.componentOptions.propsData.identifier] = vnode.componentOptions.children;
+        return acc;
+      }, {});
       const allIdentifiers = choiceVNodes.map(vnode => vnode.componentOptions.propsData.identifier);
 
       function getVariable() {
@@ -145,6 +147,21 @@
         }
       }
 
+      // shared pieces between interactive/read-only rendering
+      function renderLabel(index) {
+        const fn = labelFn.value;
+        return fn ? h('span', { class: 'qti-order-label' }, fn(index)) : null;
+      }
+
+      function listClasses(extra) {
+        return [
+          attrs.class || '',
+          'qti-order-interaction',
+          { 'qti-orientation-horizontal': isHorizontal.value },
+          ...(extra || []),
+        ];
+      }
+
       return () => {
         const items = currentOrder.value.map(identifier => ({ identifier }));
         if (items.length === 0) {
@@ -165,28 +182,22 @@
               'ol',
               {
                 attrs: { 'aria-label': orderListLabel$() },
-                class: [
-                  attrs.class || '',
-                  'qti-order-interaction',
-                  'qti-order-interaction-readonly',
-                  { 'qti-orientation-horizontal': isHorizontal.value },
-                ],
+                class: listClasses(['qti-order-interaction-readonly']),
               },
-              items.map((item, index) => {
-                const labelFn = getLabelFn.value;
-                return h(
+              items.map((item, index) =>
+                h(
                   'li',
                   { key: item.identifier, class: 'qti-order-row-wrapper' },
                   [
-                    labelFn ? h('span', { class: 'qti-order-label' }, labelFn(index)) : null,
+                    renderLabel(index),
                     h(
                       'div',
                       { class: 'qti-order-row', style: rowStyle },
                       contentByIdentifier[item.identifier],
                     ),
                   ].filter(Boolean),
-                );
-              }),
+                ),
+              ),
             ),
           ]);
         }
@@ -205,21 +216,16 @@
                 'ul',
                 {
                   attrs: { 'aria-label': orderListLabel$() },
-                  class: [
-                    attrs.class || '',
-                    'qti-order-interaction',
-                    { 'qti-orientation-horizontal': isHorizontal.value },
-                  ],
+                  class: listClasses(),
                 },
-                items.map((item, index) => {
-                  const labelFn = getLabelFn.value;
-                  return h(Draggable, { key: item.identifier }, [
+                items.map((item, index) =>
+                  h(Draggable, { key: item.identifier }, [
                     h(
                       'li',
                       { class: 'qti-order-row-wrapper' },
                       [
                         // Label sits outside the card, updates reactively
-                        labelFn ? h('span', { class: 'qti-order-label' }, labelFn(index)) : null,
+                        renderLabel(index),
                         h('div', { class: 'qti-order-row', style: rowStyle }, [
                           h(DragHandle, [
                             h(DragSortWidget, {
@@ -243,8 +249,8 @@
                         ]),
                       ].filter(Boolean),
                     ),
-                  ]);
-                }),
+                  ]),
+                ),
               ),
             ],
           ),
@@ -252,9 +258,11 @@
       };
     },
     props: {
+      /* eslint-disable vue/no-unused-properties */
       shuffle: BooleanProp(false, false),
       orientation: OrientationProp(false, Orientation.VERTICAL),
       responseIdentifier: QTIIdentifierProp(true),
+      /* eslint-enable */
     },
   };
 
