@@ -1,19 +1,22 @@
 <template>
 
   <div
-    class="sort-widget"
     role="presentation"
-    :class="{ focused: hasFocus, 'not-focused': !hasFocus }"
+    class="sort-widget"
+    :class="[
+      hasFocus ? 'focused' : 'not-focused',
+      horizontal ? 'sort-widget-horizontal' : 'sort-widget-vertical',
+    ]"
     @mousedown="e => $emit('mousedown', e)"
   >
     <KIconButton
       v-show="!isFirst"
       ref="upBtn"
-      icon="chevronUp"
+      :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
       class="btn up"
       size="mini"
-      :ariaLabel="moveUpLabel$()"
-      :class="{ visuallyhidden: !hasFocus }"
+      :ariaLabel="moveForward$()"
+      :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickUp"
       @keyup.space="clickUp"
     />
@@ -22,6 +25,7 @@
       See https://github.com/google/material-design-icons/issues/786
      -->
     <KIcon
+      v-if="!horizontal"
       icon="dragHorizontal"
       class="grip"
       style="top: 0; width: 24px; height: 24px"
@@ -29,11 +33,11 @@
     <KIconButton
       v-show="!isLast"
       ref="dnBtn"
-      icon="chevronDown"
+      :icon="horizontal ? 'chevronRight' : 'chevronDown'"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveDownLabel$()"
-      :class="{ visuallyhidden: !hasFocus }"
+      :ariaLabel="moveBackward$()"
+      :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickDown"
       @keyup.space="clickDown"
     />
@@ -44,13 +48,34 @@
 
 <script>
 
+  import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
 
   export default {
     name: 'DragSortWidget',
-    setup() {
-      const { moveUpLabel$, moveDownLabel$ } = coreStrings;
-      return { moveUpLabel$, moveDownLabel$ };
+    setup(props) {
+      const { moveUpLabel$, moveDownLabel$, moveLeftLabel$, moveRightLabel$ } = coreStrings;
+
+      const isRtlValue = isRtl(currentLanguage);
+
+      const moveForward$ = computed(() => {
+        if (!props.horizontal) {
+          return moveUpLabel$;
+        }
+
+        return isRtlValue ? moveRightLabel$ : moveLeftLabel$;
+      });
+
+      const moveBackward$ = computed(() => {
+        if (!props.horizontal) {
+          return moveDownLabel$;
+        }
+
+        return isRtlValue ? moveLeftLabel$ : moveRightLabel$;
+      });
+
+      return { moveForward$, moveBackward$ };
     },
     props: {
       isFirst: {
@@ -61,6 +86,11 @@
         type: Boolean,
         required: true,
       },
+      // When true, renders left/right chevrons instead of up/down
+      horizontal: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -68,10 +98,15 @@
       };
     },
     mounted() {
-      window.addEventListener('focus', this.updateFocus, true);
+      // no need to track focus for horizontal mode, since the buttons are always visible
+      if (!this.horizontal) {
+        window.addEventListener('focus', this.updateFocus, true);
+      }
     },
     destroyed() {
-      window.removeEventListener('focus', this.updateFocus, true);
+      if (!this.horizontal) {
+        window.removeEventListener('focus', this.updateFocus, true);
+      }
     },
     methods: {
       updateFocus() {
@@ -111,9 +146,13 @@
 
   .sort-widget {
     position: relative;
+    width: 24px;
+    height: 24px;
   }
 
   .grip {
+    width: 24px;
+    height: 24px;
     transition: opacity $core-time ease;
     transform: rotate(90deg);
   }
@@ -124,24 +163,40 @@
     transition: opacity $core-time ease;
   }
 
-  // only dim the grip when the keyboard is being used
+  .sort-widget-vertical {
+    .up {
+      inset-inline-start: 0;
+      top: -16px;
+    }
+
+    .dn {
+      inset-inline-start: 0;
+      top: 4px;
+    }
+  }
+
+  // .up = "move toward start" = left in LTR, right in RTL.
+  // .dn = "move toward end"   = right in LTR, left in RTL.
+  .sort-widget-horizontal {
+    width: 28px;
+
+    .up {
+      inset-inline-start: -12px;
+      top: 0;
+    }
+
+    .dn {
+      inset-inline-end: -12px;
+      top: 0;
+    }
+  }
+
   .focused .grip {
     opacity: 0.08;
   }
 
-  // also hide the buttons when the keyboard is not being used
-  .not-focused .btn {
+  .sort-widget-vertical.not-focused .btn {
     opacity: 0;
-  }
-
-  .up {
-    top: -16px;
-  }
-
-  .dn {
-    top: 4px;
-    // Why do I have to do this? I do not know.
-    left: 0;
   }
 
 </style>
