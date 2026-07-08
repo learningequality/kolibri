@@ -88,7 +88,7 @@
       // Item-specific labels, Direction-aware
       const moveUpAriaLabel = computed(() => {
         if (!props.itemLabel) {
-          return moveUpOrLeftLabel$.value();
+          return moveForward$.value();
         }
         if (!props.horizontal) {
           return moveItemUpLabel$({ item: props.itemLabel });
@@ -100,7 +100,7 @@
 
       const moveDownAriaLabel = computed(() => {
         if (!props.itemLabel) {
-          return moveDownOrRightLabel$.value();
+          return moveBackward$.value();
         }
         if (!props.horizontal) {
           return moveItemDownLabel$({ item: props.itemLabel });
