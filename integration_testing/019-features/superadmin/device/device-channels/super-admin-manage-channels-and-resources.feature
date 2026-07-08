@@ -155,6 +155,12 @@ Feature: Super admin can manage channels and resources
       And I see the *content* subfolder inside
       And I see the *databases* and *storage* subfolders inside the *content* folder
 
+  Scenario: Super admin cannot export content if studio is not available
+    Given there is no internet connection available
+    When I click the *Import* button
+    Then I see the *Select a source* modal
+    	And I see that the *Kolibri Studio (online)* option is disabled
+
   Scenario: Super admin cannot export content if there are no writable drives
     Given I am at *Export channels* modal
     	And I have selected either a channel or resources for export
