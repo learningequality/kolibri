@@ -48,10 +48,17 @@ describe('DragContainer', () => {
     return wrapper;
   }
 
+  function registerItems(wrapper, labeledItems) {
+    labeledItems.forEach((item, index) => {
+      wrapper.vm.registerSortItem(index, item.title, index + 1);
+    });
+  }
+
   describe('full-order announcement on focus-exit', () => {
     it('announces the full current order when focus moves outside the container', async () => {
       document.hasFocus = jest.fn(() => true);
-      const wrapper = await makeWrapper({ getItemLabel: item => item.title });
+      const wrapper = await makeWrapper();
+      registerItems(wrapper, items);
       const outsideEl = document.createElement('button');
       document.body.appendChild(outsideEl);
 
@@ -65,16 +72,31 @@ describe('DragContainer', () => {
 
     it('announces the full order even when relatedTarget is null, provided the window is still focused', async () => {
       document.hasFocus = jest.fn(() => true);
-      const wrapper = await makeWrapper({ getItemLabel: item => item.title });
+      const wrapper = await makeWrapper();
+      registerItems(wrapper, items);
 
       await wrapper.trigger('focusout', { relatedTarget: null });
 
       expect(sendPoliteMessage).toHaveBeenCalledWith(expect.stringContaining('Current order:'));
     });
 
-    it('does not announce anything when getItemLabel is not provided', async () => {
+    it('does not announce anything when no items are registered', async () => {
       document.hasFocus = jest.fn(() => true);
       const wrapper = await makeWrapper();
+      const outsideEl = document.createElement('button');
+      document.body.appendChild(outsideEl);
+
+      await wrapper.trigger('focusout', { relatedTarget: outsideEl });
+
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
+      document.body.removeChild(outsideEl);
+    });
+
+    it('does not announce anything for items that have been unregistered', async () => {
+      document.hasFocus = jest.fn(() => true);
+      const wrapper = await makeWrapper();
+      registerItems(wrapper, items);
+      items.forEach((item, index) => wrapper.vm.unregisterSortItem(index));
       const outsideEl = document.createElement('button');
       document.body.appendChild(outsideEl);
 
@@ -88,7 +110,8 @@ describe('DragContainer', () => {
   describe('no announcement on row-to-row focus movement', () => {
     it('does not announce when focus moves to another row inside the container', async () => {
       document.hasFocus = jest.fn(() => true);
-      const wrapper = await makeWrapper({ getItemLabel: item => item.title });
+      const wrapper = await makeWrapper();
+      registerItems(wrapper, items);
       const rowB = wrapper.find('[data-test="row-1"]').element;
 
       await wrapper.trigger('focusout', { relatedTarget: rowB });
@@ -100,7 +123,8 @@ describe('DragContainer', () => {
   describe('window/tab blur', () => {
     it('does not announce on window blur, even with a null relatedTarget', async () => {
       document.hasFocus = jest.fn(() => false);
-      const wrapper = await makeWrapper({ getItemLabel: item => item.title });
+      const wrapper = await makeWrapper();
+      registerItems(wrapper, items);
 
       await wrapper.trigger('focusout', { relatedTarget: null });
 
