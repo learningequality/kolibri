@@ -8,10 +8,23 @@
     Plugins,
     Draggable,
   } from '@shopify/draggable/lib/es5/draggable.bundle.legacy.js';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
   import { SORTABLE_CLASS, HANDLE_CLASS } from './classDefinitions';
+  import { dragSortStrings } from './dragSortStrings';
 
   export default {
     name: 'DragContainer',
+    setup() {
+      const { sendPoliteMessage } = useKLiveRegion();
+      const { currentOrder$ } = dragSortStrings;
+      return { sendPoliteMessage, currentOrder$ };
+    },
+    provide() {
+      return {
+        registerSortItem: this.registerSortItem,
+        unregisterSortItem: this.unregisterSortItem,
+      };
+    },
     props: {
       items: {
         type: Array,
@@ -23,12 +36,17 @@
         sortable: null,
       };
     },
+    created() {
+      // doesn't need reactivity tracking.
+      this.registeredItems = {};
+    },
     mounted() {
       // next tick just to be safe
       this.$nextTick(this.initialize);
     },
     beforeDestroy() {
       this.sortable.destroy();
+      this.$el.removeEventListener('focusout', this.handleFocusOut);
     },
     methods: {
       initialize() {
@@ -54,6 +72,8 @@
         this.sortable.on('sortable:stop', this.handleStop);
         this.sortable.on('sortable:moveDown', this.moveDownOne);
         this.sortable.on('sortable:moveUp', this.moveUpOne);
+
+        this.$el.addEventListener('focusout', this.handleFocusOut);
       },
       handleStart() {
         // handle cancelation of drags
@@ -77,6 +97,31 @@
         ];
         this.$emit('sort', { newArray, oldIndex, newIndex });
         // document.removeEventListener('keyup', this.triggerMouseUpOnESC);
+      },
+      registerSortItem(uid, label, position) {
+        this.registeredItems[uid] = { label, position };
+      },
+      unregisterSortItem(uid) {
+        delete this.registeredItems[uid];
+      },
+      handleFocusOut(event) {
+        // window/tab blur: relatedTarget is null but focus hasn't actually left
+        if (!document.hasFocus()) {
+          return;
+        }
+        // focus moved to another row inside this container: not a list-exit, don't announce
+        if (event.relatedTarget && this.$el.contains(event.relatedTarget)) {
+          return;
+        }
+        const entries = Object.values(this.registeredItems);
+        if (!entries.length) {
+          return;
+        }
+        const order = entries
+          .sort((a, b) => a.position - b.position)
+          .map((entry, index) => `${index + 1}. ${entry.label}`)
+          .join(', ');
+        this.sendPoliteMessage(this.currentOrder$({ order }));
       },
     },
     triggerMouseUpOnESC(event) {

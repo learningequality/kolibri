@@ -29,6 +29,9 @@
                       class="sort-widget"
                       :isFirst="index === 0"
                       :isLast="index === entries.length - 1"
+                      :itemLabel="tableRow.title"
+                      :position="index + 1"
+                      :total="entries.length"
                       @moveUp="moveUpOne(index)"
                       @moveDown="moveDownOne(index)"
                       @mousedown.prevent

@@ -15,7 +15,7 @@
       :icon="horizontal ? 'chevronLeft' : 'chevronUp'"
       class="btn up"
       size="mini"
-      :ariaLabel="moveForward$()"
+      :ariaLabel="moveUpAriaLabel"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickUp"
       @keyup.space="clickUp"
@@ -36,7 +36,7 @@
       :icon="horizontal ? 'chevronRight' : 'chevronDown'"
       class="btn dn"
       size="mini"
-      :ariaLabel="moveBackward$()"
+      :ariaLabel="moveDownAriaLabel"
       :class="{ visuallyhidden: !hasFocus && !horizontal }"
       @click="clickDown"
       @keyup.space="clickDown"
@@ -51,11 +51,25 @@
   import { computed } from 'vue';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { currentLanguage, isRtl } from 'kolibri/utils/i18n';
+  import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import { dragSortStrings } from '../dragSortStrings';
 
   export default {
     name: 'DragSortWidget',
+    inject: {
+      registerSortItem: { default: null },
+      unregisterSortItem: { default: null },
+    },
     setup(props) {
       const { moveUpLabel$, moveDownLabel$, moveLeftLabel$, moveRightLabel$ } = coreStrings;
+      const {
+        moveItemUpLabel$,
+        moveItemDownLabel$,
+        moveItemLeftLabel$,
+        moveItemRightLabel$,
+        itemMovedToPosition$,
+      } = dragSortStrings;
+      const { sendPoliteMessage } = useKLiveRegion();
 
       const isRtlValue = isRtl(currentLanguage);
 
@@ -75,7 +89,32 @@
         return isRtlValue ? moveLeftLabel$ : moveRightLabel$;
       });
 
-      return { moveForward$, moveBackward$ };
+      // Item-specific labels, Direction-aware
+      const moveUpAriaLabel = computed(() => {
+        if (!props.itemLabel) {
+          return moveForward$.value();
+        }
+        if (!props.horizontal) {
+          return moveItemUpLabel$({ item: props.itemLabel });
+        }
+        return isRtlValue
+          ? moveItemRightLabel$({ item: props.itemLabel })
+          : moveItemLeftLabel$({ item: props.itemLabel });
+      });
+
+      const moveDownAriaLabel = computed(() => {
+        if (!props.itemLabel) {
+          return moveBackward$.value();
+        }
+        if (!props.horizontal) {
+          return moveItemDownLabel$({ item: props.itemLabel });
+        }
+        return isRtlValue
+          ? moveItemLeftLabel$({ item: props.itemLabel })
+          : moveItemRightLabel$({ item: props.itemLabel });
+      });
+
+      return { moveUpAriaLabel, moveDownAriaLabel, itemMovedToPosition$, sendPoliteMessage };
     },
     props: {
       isFirst: {
@@ -91,31 +130,77 @@
         type: Boolean,
         default: false,
       },
+      // Human-readable name of this item
+      itemLabel: {
+        type: String,
+        default: null,
+      },
+      // indexed current position of this item in the list
+      // 1-based
+      position: {
+        type: Number,
+        default: null,
+      },
+      total: {
+        type: Number,
+        default: null,
+      },
     },
     data() {
       return {
         hasFocus: false,
       };
     },
+    watch: {
+      itemLabel() {
+        this.syncRegistration();
+      },
+      position() {
+        this.syncRegistration();
+      },
+    },
     mounted() {
       // no need to track focus for horizontal mode, since the buttons are always visible
       if (!this.horizontal) {
         window.addEventListener('focus', this.updateFocus, true);
       }
+      this.syncRegistration();
     },
     destroyed() {
       if (!this.horizontal) {
         window.removeEventListener('focus', this.updateFocus, true);
       }
+      if (this.unregisterSortItem) {
+        this.unregisterSortItem(this._uid);
+      }
     },
     methods: {
+      // Registers this item's label/position
+      syncRegistration() {
+        if (this.registerSortItem && this.itemLabel != null && this.position != null) {
+          this.registerSortItem(this._uid, this.itemLabel, this.position);
+        }
+      },
       updateFocus() {
         this.hasFocus = [this.$refs.dnBtn.$el, this.$refs.upBtn.$el].includes(
           document.activeElement,
         );
       },
+      announceMove(newPosition) {
+        if (!this.itemLabel || this.total == null) {
+          return;
+        }
+        this.sendPoliteMessage(
+          this.itemMovedToPosition$({
+            item: this.itemLabel,
+            position: newPosition,
+            total: this.total,
+          }),
+        );
+      },
       clickDown() {
         this.$emit('moveDown');
+        this.announceMove(this.position + 1);
         this.$nextTick(() => {
           if (this.isLast) {
             this.$refs.upBtn.$el.focus();
@@ -126,6 +211,7 @@
       },
       clickUp() {
         this.$emit('moveUp');
+        this.announceMove(this.position - 1);
         this.$nextTick(() => {
           if (this.isFirst) {
             this.$refs.dnBtn.$el.focus();

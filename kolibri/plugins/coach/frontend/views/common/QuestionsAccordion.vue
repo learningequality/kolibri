@@ -67,6 +67,11 @@
                     :noDrag="true"
                     :isFirst="index === 0"
                     :isLast="index === questions.length - 1"
+                    :itemLabel="
+                      getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
+                    "
+                    :position="index + 1"
+                    :total="questions.length"
                     @moveUp="() => handleKeyboardDragUp(index)"
                     @moveDown="() => handleKeyboardDragDown(index)"
                   />
