@@ -18,7 +18,6 @@
         <DragContainer
           class="container"
           :items="channels"
-          :getItemLabel="channel => channel.name"
           @sort="handleOrderChange"
         >
           <transition-group

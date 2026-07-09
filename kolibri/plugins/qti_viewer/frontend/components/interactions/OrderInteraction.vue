@@ -234,7 +234,6 @@
             {
               props: {
                 items,
-                getItemLabel: item => textByIdentifier[item.identifier],
               },
               on: { sort: handleSort },
             },

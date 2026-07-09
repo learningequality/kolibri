@@ -10,7 +10,6 @@
     <template #tbody>
       <DragContainer
         :items="entries"
-        :getItemLabel="tableRow => tableRow.title"
         @sort="handleResourcesOrderChange"
       >
         <transition-group

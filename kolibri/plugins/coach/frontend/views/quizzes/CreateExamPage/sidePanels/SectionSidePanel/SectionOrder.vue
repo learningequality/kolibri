@@ -7,7 +7,6 @@
     <DragContainer
       v-if="sectionOrderList.length > 0"
       :items="sectionOrderList"
-      :getItemLabel="section => sectionOrderingTitle(section)"
       @sort="handleSectionSort"
     >
       <transition-group>

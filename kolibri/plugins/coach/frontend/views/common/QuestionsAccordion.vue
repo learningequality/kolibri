@@ -37,9 +37,6 @@
     <DragContainer
       key="drag-container"
       :items="questions"
-      :getItemLabel="
-        question => getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
-      "
       @sort="handleQuestionOrderChange"
       @dragStart="handleDragStart"
     >
