@@ -18,6 +18,7 @@ const csvToJSON = require('./csvToJSON');
 const untranslatedMessages = require('./untranslatedMessages');
 const profileStrings = require('./ProfileStrings');
 const auditStrings = require('./auditMessages');
+const { stripEnLcMessages } = require('./utils');
 
 const cliLogging = logger.getLogger('Kolibri I18N CLI');
 
@@ -133,6 +134,9 @@ function _generatePathInfo({
           entry,
           aliases,
           isCoreBundle,
+          // webpack_json.py appends `en/LC_MESSAGES`; strip it back to the base
+          // locale dir so each bundle's strings route to its own folder.
+          localeDataFolder: stripEnLcMessages(bundle.locale_data_folder),
         };
       }),
     );

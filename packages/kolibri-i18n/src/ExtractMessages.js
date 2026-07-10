@@ -111,6 +111,9 @@ function toCSV(csvPath, namespace, messages) {
 module.exports = function (pathInfo, ignore, localeDataFolder, verbose) {
   // An object for storing our messages.
   const extractedMessages = {};
+  // The base locale folder each namespace's CSV should be written to. Bundle-derived
+  // entries carry their own `localeDataFolder`; the rest fall back to the passed one.
+  const namespaceFolders = {};
   forEachPathInfo(pathInfo, pathData => {
     const namespace = pathData.namespace;
     if (!extractedMessages[namespace]) {
@@ -124,18 +127,15 @@ module.exports = function (pathInfo, ignore, localeDataFolder, verbose) {
         }
       }
       extractedMessages[namespace] = filePathMessages;
+      namespaceFolders[namespace] = pathData.localeDataFolder || localeDataFolder;
     }
   });
 
-  const csvPath = path.join(localeDataFolder, 'en', 'LC_MESSAGES');
-
-  // Now we go through each namespace and write a CSV for it
+  // Now we go through each namespace and write a CSV to its own locale folder
   const PromisesToWriteCSVs = Object.keys(extractedMessages).map(namespace => {
+    const csvPath = path.join(namespaceFolders[namespace], 'en', 'LC_MESSAGES');
     return toCSV(csvPath, namespace, extractedMessages[namespace]);
   });
-  Promise.all(PromisesToWriteCSVs).then(() =>
-    logging.info('Messages successfully written to CSV files.'),
-  );
 
   let messageCount = 0;
   Object.keys(extractedMessages).forEach(
@@ -143,4 +143,8 @@ module.exports = function (pathInfo, ignore, localeDataFolder, verbose) {
   );
 
   logging.info(`Successfully extracted ${messageCount} messages!`);
+
+  return Promise.all(PromisesToWriteCSVs).then(() =>
+    logging.info('Messages successfully written to CSV files.'),
+  );
 };
