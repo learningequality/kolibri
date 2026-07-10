@@ -1,30 +1,32 @@
 <template>
 
-  <input
-    v-if="interactive"
-    ref="inputEl"
-    v-bind="inputAttrs"
-    :value="rawValue"
-    :class="['qti-text-entry-interaction', attrsClass, $computedClass({ ':focus': coreOutline })]"
-    :aria-label="textEntryLabel$()"
-    :placeholder="placeholder"
-    :inputmode="inputMode"
-    :style="{
-      minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
-      maxWidth: '90%',
-      border: `1px solid ${$themeTokens.fineLine}`,
-    }"
-    type="text"
-    autocomplete="off"
-    @input="onInput"
-    @focus="onFocus"
-    @blur="onBlur"
-  >
-  <div
-    v-else
-    :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
-  >
-    {{ reportDisplayValue || placeholder }}
+  <div class="qti-text-entry-interaction-wrapper">
+    <AnswerGuide :text="answerGuideText" />
+    <input
+      v-if="interactive"
+      ref="inputEl"
+      v-bind="inputAttrs"
+      :value="rawValue"
+      :class="['qti-text-entry-interaction', attrsClass, $computedClass({ ':focus': coreOutline })]"
+      :aria-label="textEntryLabel$()"
+      :placeholder="placeholder"
+      :inputmode="inputMode"
+      :style="{
+        minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
+        border: `1px solid ${$themeTokens.fineLine}`,
+      }"
+      type="text"
+      autocomplete="off"
+      @input="onInput"
+      @focus="onFocus"
+      @blur="onBlur"
+    >
+    <div
+      v-else
+      :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
+    >
+      {{ reportDisplayValue || placeholder }}
+    </div>
   </div>
 
 </template>
@@ -46,6 +48,7 @@
     FormatProp,
   } from '../../utils/props';
   import { BASE_TYPE } from '../../constants';
+  import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
 
   const $themeTokens = themeTokens();
 
@@ -70,6 +73,9 @@
   export default {
     name: 'TextEntryInteraction',
     tag: 'qti-text-entry-interaction',
+    components: {
+      AnswerGuide,
+    },
     inheritAttrs: false,
 
     setup(props, context) {
@@ -308,6 +314,7 @@
       return {
         $themeTokens,
         textEntryLabel$,
+        answerGuideText: answerGuideStrings.shortAnswer$(),
         rawValue,
         reportDisplayValue,
         placeholder: typedProps.placeholderText,
@@ -342,6 +349,7 @@
 
   .qti-text-entry-interaction {
     display: block;
+    width: 100%;
     padding: 4px 8px;
     border-radius: 4px;
   }
