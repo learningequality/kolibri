@@ -24,7 +24,6 @@
             >
               <DragSortWidget
                 class="drag-title"
-                :noDrag="true"
                 :isFirst="index === 0"
                 :isLast="index === sectionOrderList.length - 1"
                 :itemLabel="sectionOrderingTitle(section)"
