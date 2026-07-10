@@ -22,14 +22,9 @@ import json
 import os
 
 from kolibri.utils.plugin_scaffold.entrypoint import find_enclosing_file
+from kolibri.utils.plugin_scaffold.entrypoint import unquote
 
 WORKSPACE_FILE = "pnpm-workspace.yaml"
-
-
-def _unquote(text):
-    if len(text) >= 2 and text[0] in "\"'" and text[-1] == text[0]:
-        return text[1:-1]
-    return text
 
 
 def _parse_workspace(workspace_path):
@@ -54,11 +49,11 @@ def _parse_workspace(workspace_path):
                 # A new top-level key resets the current section.
                 section = stripped.split(":", 1)[0].strip()
             elif section == "packages" and stripped.startswith("-"):
-                glob_pattern = _unquote(stripped[1:].strip())
+                glob_pattern = unquote(stripped[1:].strip())
                 if glob_pattern:
                     packages.append(glob_pattern)
             elif section == "catalog":
-                name = _unquote(stripped.split(":", 1)[0].strip())
+                name = unquote(stripped.split(":", 1)[0].strip())
                 if name:
                     catalog.add(name)
     return packages, catalog

@@ -79,6 +79,7 @@ def scaffold_plugin(
     # Locate the enclosing pyproject up front (module mode uses it both to
     # derive the entry-point name and to register into).
     enclosing_pyproject = None
+    outer_dir = None
     if mode == MODE_PACKAGE:
         outer_dir = os.path.join(target_dir, names.package_dir)
         plugin_root = os.path.join(outer_dir, names.package_module)
@@ -114,7 +115,7 @@ def scaffold_plugin(
         context["dependencies_json"] = _format_dependencies(
             resolve_dependencies(FRONTEND_DEPENDENCIES[surface], target_dir)
         )
-        package_json_dir = outer_dir if mode == MODE_PACKAGE else plugin_root
+        package_json_dir = outer_dir or plugin_root
         files_written += render_tree([PACKAGE_JSON], context, package_json_dir)
 
     registration_note = None

@@ -17,6 +17,13 @@ import os
 ENTRY_POINT_HEADER = '[project.entry-points."kolibri.plugins"]'
 
 
+def unquote(text):
+    """Strip a matching pair of surrounding single or double quotes, if any."""
+    if len(text) >= 2 and text[0] in "\"'" and text[-1] == text[0]:
+        return text[1:-1]
+    return text
+
+
 def find_enclosing_file(start_dir, filename):
     """
     Walk parents upward from ``start_dir`` to the nearest ``filename``.
@@ -118,7 +125,4 @@ def _entry_key(line):
     stripped = line.strip()
     if not stripped or stripped.startswith("#") or "=" not in stripped:
         return None
-    left = stripped.split("=", 1)[0].strip()
-    if len(left) >= 2 and left[0] in "\"'" and left[-1] == left[0]:
-        return left[1:-1]
-    return left
+    return unquote(stripped.split("=", 1)[0].strip())

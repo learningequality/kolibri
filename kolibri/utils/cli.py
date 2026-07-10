@@ -506,9 +506,12 @@ class ScaffoldCommand(KolibriCommand):
 
     def parse_args(self, ctx, args):
         if "--no-input" in args:
-            prompted = [p for p in self.get_params(ctx) if getattr(p, "prompt", None)]
-            saved = [(p, p.prompt) for p in prompted]
-            for param in prompted:
+            saved = [
+                (p, p.prompt)
+                for p in self.get_params(ctx)
+                if getattr(p, "prompt", None)
+            ]
+            for param, _ in saved:
                 param.prompt = None
             try:
                 return super().parse_args(ctx, args)

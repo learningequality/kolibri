@@ -38,6 +38,12 @@ FRONTEND_SURFACES = [CONTENT_VIEWER, SINGLE_PAGE_APP, GLOBAL_INJECTOR]
 ALL_SURFACES = [BACKEND_ONLY] + FRONTEND_SURFACES
 
 
+def _scaffold(target, mode, surface, name="My Thing"):
+    """Scaffold a plugin with placeholder metadata, so each test shows only its
+    varying axis (mode/surface/name)."""
+    return scaffold_plugin(name, str(target), mode, surface, "Desc", "Auth", "e@x")
+
+
 def _load_kolibri_plugin(path, unique):
     """
     Import a generated ``kolibri_plugin.py`` under a unique module name.
@@ -105,9 +111,7 @@ def plugins():
 
 @pytest.mark.parametrize("surface", ALL_SURFACES)
 def test_package_mode_plugin_imports_and_registers_entry_point(tmp_path, surface):
-    result = scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_PACKAGE, surface, "Desc", "Auth", "e@x"
-    )
+    result = _scaffold(tmp_path, MODE_PACKAGE, surface)
     outer = tmp_path / "kolibri-my-thing-plugin"
     pkg = outer / "kolibri_my_thing_plugin"
     assert (pkg / "__init__.py").is_file()
@@ -148,9 +152,7 @@ def test_module_mode_plugin_discoverable_and_enableable(tmp_path, plugins, surfa
     (tmp_path / "pyproject.toml").write_text(
         '[project.entry-points."kolibri.plugins"]\n"aaa" = "aaa"\n"zzz" = "zzz"\n'
     )
-    result = scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_MODULE, surface, "Desc", "Auth", "e@x"
-    )
+    result = _scaffold(tmp_path, MODE_MODULE, surface)
     import_path = result.entry_point_name
     assert import_path == "my_thing"
 
@@ -190,9 +192,7 @@ def test_module_mode_plugin_discoverable_and_enableable(tmp_path, plugins, surfa
 def test_module_mode_without_enclosing_pyproject_returns_registration_note(tmp_path):
     # No enclosing pyproject.toml: the plugin is still created, and the result
     # carries the entry-point line the author must add manually.
-    result = scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_MODULE, BACKEND_ONLY, "Desc", "Auth", "e@x"
-    )
+    result = _scaffold(tmp_path, MODE_MODULE, BACKEND_ONLY)
     assert (tmp_path / "my_thing" / "kolibri_plugin.py").is_file()
     assert result.entry_point_name == "my_thing"
     assert result.registration_note is not None
@@ -200,13 +200,9 @@ def test_module_mode_without_enclosing_pyproject_returns_registration_note(tmp_p
 
 
 def test_scaffold_refuses_to_overwrite_existing_plugin(tmp_path):
-    scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_PACKAGE, BACKEND_ONLY, "Desc", "Auth", "e@x"
-    )
+    _scaffold(tmp_path, MODE_PACKAGE, BACKEND_ONLY)
     with pytest.raises(FileExistsError):
-        scaffold_plugin(
-            "My Thing", str(tmp_path), MODE_PACKAGE, BACKEND_ONLY, "Desc", "Auth", "e@x"
-        )
+        _scaffold(tmp_path, MODE_PACKAGE, BACKEND_ONLY)
 
 
 # ---------------------------------------------------------------------------
@@ -215,9 +211,7 @@ def test_scaffold_refuses_to_overwrite_existing_plugin(tmp_path):
 
 
 def test_single_page_app_frontend_and_api_files(tmp_path):
-    scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_PACKAGE, SINGLE_PAGE_APP, "Desc", "Auth", "e@x"
-    )
+    _scaffold(tmp_path, MODE_PACKAGE, SINGLE_PAGE_APP)
     pkg = tmp_path / "kolibri-my-thing-plugin" / "kolibri_my_thing_plugin"
     for rel in (
         "api_urls.py",
@@ -291,9 +285,7 @@ def test_package_json_uses_workspace_and_catalog_inside_a_workspace(tmp_path):
     target = tmp_path / "plugins"
     target.mkdir()
 
-    scaffold_plugin(
-        "My Thing", str(target), MODE_PACKAGE, CONTENT_VIEWER, "Desc", "Auth", "e@x"
-    )
+    _scaffold(target, MODE_PACKAGE, CONTENT_VIEWER)
     outer = target / "kolibri-my-thing-plugin"
     deps = json.loads((outer / "package.json").read_text())["dependencies"]
     # Member packages -> workspace:*, catalog entries -> catalog:.
@@ -305,9 +297,7 @@ def test_package_json_uses_workspace_and_catalog_inside_a_workspace(tmp_path):
 
 def test_package_json_falls_back_to_pins_outside_a_workspace(tmp_path):
     # No enclosing pnpm-workspace.yaml: every specifier is a pinned version.
-    scaffold_plugin(
-        "My Thing", str(tmp_path), MODE_PACKAGE, CONTENT_VIEWER, "Desc", "Auth", "e@x"
-    )
+    _scaffold(tmp_path, MODE_PACKAGE, CONTENT_VIEWER)
     outer = tmp_path / "kolibri-my-thing-plugin"
     deps = json.loads((outer / "package.json").read_text())["dependencies"]
     assert deps["kolibri"] == "^0.18.0"
