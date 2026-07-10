@@ -13,6 +13,7 @@
       >
         <SafeHTML :html="itemBodyMarkup" />
       </div>
+      <NumericKeypad :lang="lang" />
     </template>
   </div>
 
@@ -21,13 +22,15 @@
 
 <script>
 
-  import { computed, inject, provide, watch } from 'vue';
+  import { computed, inject, provide, ref, watch } from 'vue';
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { useQTIContext } from '../composables/useQTIContext';
   import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
   import AnswerGuide from './AnswerGuide.vue';
+  import useKeypad from 'kolibri-common/composables/useKeypad';
+  import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
@@ -66,6 +69,7 @@
     components: {
       AnswerGuide,
       SafeHTML,
+      NumericKeypad,
     },
     setup(props) {
       const itemBody = computed(() => {
@@ -97,6 +101,12 @@
       });
 
       const { responses, processResponses } = qtiContext;
+
+      const lang = inject('lang', ref(null));
+      // Hosts the shared keypad state
+      useKeypad();
+
+      const responses = {};
 
       function setFromAnswerState() {
         for (const [id, variable] of Object.entries(responses.value)) {
@@ -150,6 +160,7 @@
         itemBodyMarkup,
         guides,
         passageStyles,
+        lang,
       };
     },
     props: {

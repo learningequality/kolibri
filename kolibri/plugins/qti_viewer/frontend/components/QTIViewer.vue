@@ -215,6 +215,8 @@
               environmentIdentifier: __version,
             },
         ),
+        'lang',
+        computed(() => props.lang),
       );
 
       provide(
