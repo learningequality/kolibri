@@ -68,15 +68,15 @@ export default class KolibriApp extends KolibriModule {
       mutations: this.pluginModule.mutations || {},
     });
 
-    if (typeof this.pluginModule.state !== 'function') {
-      throw TypeError('pluginModule.state must be a function returning a state object');
+    // Add the plugin state to the initial core module state, if any is provided.
+    // Vuex is deprecated, so pluginModule.state is optional — plugins should prefer
+    // setup()/composables for component state.
+    if (typeof this.pluginModule.state === 'function') {
+      this.store.replaceState({
+        ...this.store.state,
+        ...this.pluginModule.state(),
+      });
     }
-
-    // Add the plugin state to the initial core module state
-    this.store.replaceState({
-      ...this.store.state,
-      ...this.pluginModule.state(),
-    });
 
     // Register plugin sub-modules
     for (const [name, module] of Object.entries(this.pluginModule?.modules || {})) {
