@@ -1,8 +1,11 @@
 import json
 import logging
+import re
 import socket
 import time
 import uuid
+from collections import namedtuple
+from ipaddress import ip_address
 
 from magicbus.base import Bus
 from magicbus.plugins import SimplePlugin
@@ -26,12 +29,31 @@ DEFAULT_PORT = 8080
 SERVICE_RENAME_ATTEMPTS = 100
 SERVICE_TTL = 60
 
+LOCAL_TLD = "local"
+# Registered under a private subtype (not SERVICE_TYPE), so these aliases
+# stay invisible to Kolibri's own peer-discovery ServiceBrowser.
+# Two distinct subtypes, so a device name that slugifies to "kolibri" gets
+# its own `self.services` entry rather than overwriting the bare alias.
+LOCAL_ALIAS_TYPE_BARE = "KolibriLocalBare._sub._http._tcp.local."
+LOCAL_ALIAS_TYPE_DEVICE = "KolibriLocalDevice._sub._http._tcp.local."
+BARE_LOCAL_LABEL = "kolibri"
+LOCAL_NAME_BARE = "bare"
+LOCAL_NAME_DEVICE = "device_name"
+
+# The label the alias advertises (e.g. "kolibri" for the bare name, or the
+# slugified device name) and the ServiceInfo registered for it. The label is
+# kept so a device rename can be detected without re-parsing the hostname.
+LocalName = namedtuple("LocalName", ["label", "service"])
+
 EVENT_REGISTER_INSTANCE = (
     "register_instance"  # our local instance is registered on the network
 )
 EVENT_RENEW_INSTANCE = "renew_instance"  # our local instance is updated on the network
 EVENT_UNREGISTER_INSTANCE = (
     "unregister_instance"  # our local instance is unregistered from network
+)
+EVENT_UPDATE_LOCAL_NAMES = (
+    "update_local_names"  # the `.local` hostnames we own have changed
 )
 EVENT_ADD_INSTANCE = "add_instance"  # a network instance is registered on the network
 EVENT_UPDATE_INSTANCE = (
@@ -50,6 +72,7 @@ LOCAL_EVENTS = {
     EVENT_REGISTER_INSTANCE,
     EVENT_RENEW_INSTANCE,
     EVENT_UNREGISTER_INSTANCE,
+    EVENT_UPDATE_LOCAL_NAMES,
 }
 NETWORK_EVENTS = {
     EVENT_ADD_SERVICE,
@@ -61,6 +84,63 @@ NETWORK_EVENTS = {
 }
 
 logger = logging.getLogger(__name__)
+
+# zeroconf-py2compat's service_type_name() rejects a claimed name whose
+# "<label>.<subtype>" portion exceeds 63 bytes (see LOCAL_ALIAS_TYPE_DEVICE
+# in the local-name registration code); this cap keeps every slug safely
+# under that ceiling.
+MAX_DEVICE_NAME_LABEL_LENGTH = 32
+
+
+def slugify_device_name(device_name):
+    """
+    Converts a free-form device name into a valid DNS label for a
+    `<device-name>.local` hostname. Returns "" if nothing survives (e.g. an
+    all-whitespace or non-ASCII name), signalling that no alias should be
+    published.
+    """
+    slug = re.sub(r"[^a-z0-9-]", "", device_name.lower())
+    return slug[:MAX_DEVICE_NAME_LABEL_LENGTH]
+
+
+def filter_lan_addresses(addresses):
+    """
+    Filters `addresses` down to ones reachable from other devices on the
+    same LAN, excluding loopback, link-local, and CGNAT/VPN ranges (e.g.
+    Tailscale's 100.64.0.0/10) that a LAN peer can't reach.
+    """
+    lan_addresses = []
+    for address in addresses:
+        parsed = ip_address(address)
+        if parsed.is_private and not parsed.is_loopback and not parsed.is_link_local:
+            lan_addresses.append(address)
+    return lan_addresses
+
+
+def _packed_lan_address(lan_address):
+    """Converts a LAN address string to the packed bytes Zeroconf wants, or None."""
+    return socket.inet_aton(lan_address) if lan_address else None
+
+
+def get_outgoing_interface_address():
+    """
+    Returns the source address the kernel would use to reach an off-subnet
+    destination — i.e. this host's default-route ("outgoing") interface
+    address — or `None` when there is no default route (e.g. an isolated LAN
+    with no gateway). Connecting a UDP socket sends no packets; it just asks
+    the routing table which local address a datagram to that destination
+    would use.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # 203.0.113.0/24 is TEST-NET-3 (RFC 5737): a globally-routed-looking
+        # destination that matches the default route without being contacted.
+        s.connect(("203.0.113.1", 9))
+        return s.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        s.close()
 
 
 class KolibriInstance:
@@ -301,6 +381,8 @@ class KolibriBroadcastEvents(Bus):
                 EVENT_ADD_INSTANCE,
                 EVENT_UPDATE_INSTANCE,
                 EVENT_REMOVE_INSTANCE,
+                # this receives a list[str] of the `.local` hostnames we own
+                EVENT_UPDATE_LOCAL_NAMES,
                 # these receive a str name of the service
                 EVENT_ADD_SERVICE,
                 EVENT_UPDATE_SERVICE,
@@ -347,6 +429,7 @@ class KolibriBroadcast:
         "events",
         "other_instances",
         "zeroconf",
+        "local_names",
     )
 
     def __init__(self, instance, interfaces=InterfaceChoice.All):
@@ -360,6 +443,7 @@ class KolibriBroadcast:
         self.events = KolibriBroadcastEvents()
         self.other_instances = {}
         self.zeroconf = None
+        self.local_names = {}
 
         # handle events from zeroconf, registered at broadcast start
         self.events.subscribe(EVENT_ADD_SERVICE, self.add_service)
@@ -378,6 +462,18 @@ class KolibriBroadcast:
         if not self.is_broadcasting:
             return set()
         return set(self.zeroconf.interfaces)
+
+    @property
+    def local_hostnames(self):
+        """
+        The `.local` hostnames this instance is advertising via mDNS, e.g.
+        ["kolibri.local", "tonyslaptop.local"], for display as bookmarkable
+        URLs.
+        """
+        return [
+            local_name.service.server.rstrip(".")
+            for local_name in self.local_names.values()
+        ]
 
     def start_broadcast(self):
         """
@@ -487,6 +583,8 @@ class KolibriBroadcast:
         # also does `check_service` internally, but it should pass by this point
         self.zeroconf.register_service(service, ttl=service.ttl)
         self.instance.set_broadcasting(service, is_self=True)
+        self._register_local_names(self._lan_alias_address())
+        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
 
     def renew(self, do_broadcast=True):
         """
@@ -503,24 +601,17 @@ class KolibriBroadcast:
             )
         )
         service = self.instance.to_service_info()
-        service.ttl = SERVICE_TTL
         # very important to publish the event first, to avoid race conditions
         self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
 
-        if do_broadcast:
-            # `update_service` does 2 things:
-            # 1. updates the service info in the cache
-            # 2. sends out a new broadcast
-            self.zeroconf.update_service(service, ttl=SERVICE_TTL)
-        else:
-            # if we weren't explicitly told to broadcast, we still need to update the cache
-            # assuming something else will trigger the broadcast, like `update_interfaces` which
-            # internally calls the same broadcast method in `update_service`
-            service.ttl = SERVICE_TTL
-            self.zeroconf.services[service.name.lower()] = service
+        self._announce(service, do_broadcast)
 
         # even though may not have actually broadcast, we still set that we're broadcasting
         self.instance.set_broadcasting(service, is_self=True)
+        lan_address = self._lan_alias_address()
+        self._update_device_name_alias(lan_address)
+        self._broadcast_local_names(do_broadcast, lan_address)
+        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
 
     def unregister(self):
         """
@@ -533,7 +624,112 @@ class KolibriBroadcast:
         self.events.publish(EVENT_UNREGISTER_INSTANCE, self.instance)
         if self.instance.service_info is not None:
             self.zeroconf.unregister_service(self.instance.service_info)
+        for local_name in self.local_names.values():
+            self.zeroconf.unregister_service(local_name.service)
+        self.local_names = {}
+        self.events.publish(EVENT_UPDATE_LOCAL_NAMES, self.local_hostnames)
         self.instance.reset_broadcasting()
+
+    def _announce(self, service, do_broadcast):
+        """Broadcasts `service`, or just updates the local cache if `do_broadcast` is False."""
+        service.ttl = SERVICE_TTL
+        if do_broadcast:
+            # update_service both updates the cache and broadcasts.
+            self.zeroconf.update_service(service, ttl=SERVICE_TTL)
+        else:
+            self.zeroconf.services[service.name.lower()] = service
+
+    def _lan_alias_address(self):
+        """
+        Returns a LAN-reachable address to advertise for the `.local` name
+        aliases, or `None` if this host has none.
+
+        Unlike the primary per-instance hostname — which relies on Zeroconf
+        substituting each broadcast interface's own address (including non-LAN
+        ones, e.g. a Tailscale CGNAT address) at send time via
+        `USE_IP_OF_OUTGOING_INTERFACE` — these aliases are unique records that
+        resolve to a single address, so a non-LAN interface address could be
+        handed to a LAN peer that can't reach it.
+
+        On a multi-homed host more than one RFC1918 address can survive the
+        LAN filter (e.g. a real LAN address alongside a Docker/Hyper-V bridge),
+        so we prefer the default-route (outgoing) interface's address — the
+        same "primary interface" the per-instance hostname gets for free — and
+        fall back to any other LAN-reachable address when the outgoing one
+        isn't LAN-reachable (e.g. a VPN default route) or can't be determined
+        (e.g. an isolated LAN with no gateway).
+        """
+        lan_addresses = filter_lan_addresses(get_all_addresses())
+        # The outgoing-interface lookup opens a socket only to disambiguate a
+        # multi-homed host; with 0 or 1 LAN address the result is identical
+        # without it, so skip the syscall in that common case.
+        if len(lan_addresses) > 1:
+            outgoing_address = get_outgoing_interface_address()
+            if outgoing_address in lan_addresses:
+                return outgoing_address
+        return min(lan_addresses, default=None)
+
+    def _register_local_name(self, key, type_, label, lan_address):
+        """
+        Registers `<label>.local` as an A-record alias pointing at
+        `lan_address`, under the alias `type_` rather than `SERVICE_TYPE`,
+        storing it in `local_names` under `key` on success. These names are a
+        best-effort convenience shortcut, not a unique identity: we make no
+        attempt to keep them unique, so if a peer already advertises the same
+        name we simply skip ours rather than renaming or contending for it.
+        """
+        server = ".".join([label, LOCAL_TLD, ""])
+        service = ServiceInfo(
+            type_,
+            ".".join([label, type_]),
+            server=server,
+            address=_packed_lan_address(lan_address),
+            port=self.instance.port or DEFAULT_PORT,
+            properties={},
+        )
+        service.ttl = SERVICE_TTL
+        try:
+            self.zeroconf.register_service(service, ttl=service.ttl)
+        except NonUniqueNameException:
+            logger.info(
+                "Local name '%s' is already claimed on the network; not advertising it",
+                server.rstrip("."),
+            )
+            return
+        self.local_names[key] = LocalName(label, service)
+
+    def _register_local_names(self, lan_address):
+        """Registers the bare `kolibri.local` name and the device-name alias."""
+        self._register_local_name(
+            LOCAL_NAME_BARE, LOCAL_ALIAS_TYPE_BARE, BARE_LOCAL_LABEL, lan_address
+        )
+        self._update_device_name_alias(lan_address)
+
+    def _update_device_name_alias(self, lan_address):
+        """
+        Registers `<slugified-device-name>.local`, re-registering under a new
+        label whenever the desired slug changes (e.g. after a device rename).
+        Unregisters the alias entirely when the slug is empty.
+        """
+        slug = slugify_device_name(self.instance.device_info.get("device_name") or "")
+        current = self.local_names.get(LOCAL_NAME_DEVICE)
+        if current is not None:
+            if current.label == slug:
+                return
+            self.zeroconf.unregister_service(current.service)
+            del self.local_names[LOCAL_NAME_DEVICE]
+        if slug:
+            self._register_local_name(
+                LOCAL_NAME_DEVICE, LOCAL_ALIAS_TYPE_DEVICE, slug, lan_address
+            )
+
+    def _broadcast_local_names(self, do_broadcast, lan_address):
+        """Re-announces already-claimed local names, e.g. after a port or LAN address change."""
+        address = _packed_lan_address(lan_address)
+        for local_name in self.local_names.values():
+            local_name.service.port = self.instance.port or DEFAULT_PORT
+            local_name.service.address = address
+            self._announce(local_name.service, do_broadcast)
 
     def add_listener(self, listener_cls):
         """

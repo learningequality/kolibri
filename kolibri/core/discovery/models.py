@@ -218,13 +218,35 @@ class DynamicNetworkLocation(NetworkLocation):
             )
 
 
+class LocalHostname(models.Model):
+    """
+    Stores a `.local` mDNS hostname (e.g. "kolibri.local",
+    "tonyslaptop.local") that this instance's Zeroconf broadcast is
+    advertising. Kept in the database, rather than only in the running
+    broadcast process's memory, so it can be read by `get_urls()` from any
+    process - including a separate CLI process that isn't running the live
+    broadcast - the same way discovered peers are made available across
+    processes via `NetworkLocation`.
+    """
+
+    hostname = models.CharField(primary_key=True, max_length=100)
+
+    class Meta:
+        ordering = ["hostname"]
+
+
 class NetworkLocationRouter(KolibriModelRouter):
     """
     Determine how to route database calls for the Network Location models.
     All other models will be routed to the default database.
     """
 
-    MODEL_CLASSES = {NetworkLocation, StaticNetworkLocation, DynamicNetworkLocation}
+    MODEL_CLASSES = {
+        NetworkLocation,
+        StaticNetworkLocation,
+        DynamicNetworkLocation,
+        LocalHostname,
+    }
     DB_NAME = NETWORK_LOCATION
 
 

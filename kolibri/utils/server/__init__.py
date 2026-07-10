@@ -336,6 +336,9 @@ class ZeroConfPlugin(Monitor):
             build_broadcast_instance,
         )
         from kolibri.core.discovery.utils.network.broadcast import KolibriBroadcast
+        from kolibri.core.discovery.utils.network.local_hostnames import (
+            LocalHostnameListener,
+        )
         from kolibri.core.discovery.utils.network.search import NetworkLocationListener
 
         instance = build_broadcast_instance(self.port)
@@ -343,6 +346,7 @@ class ZeroConfPlugin(Monitor):
         if self.broadcast is None:
             self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
             self.broadcast.add_listener(NetworkLocationListener)
+            self.broadcast.add_listener(LocalHostnameListener)
             self.broadcast.start_broadcast()
         else:
             # `interfaces` should only be passed to update when there is a change to the interfaces,
@@ -369,6 +373,20 @@ class ZeroConfPlugin(Monitor):
                 "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
             self.broadcast.update_broadcast(interfaces=self.interfaces)
+
+
+def get_local_hostnames():
+    """
+    Returns the `.local` hostnames (e.g. ["kolibri.local", "tonyslaptop.local"])
+    this device's Zeroconf broadcast is advertising, for display as
+    bookmarkable URLs. Backed by the database, so this works even when
+    called from a separate CLI process that isn't running the broadcast.
+    Returns an empty list when zeroconf isn't broadcasting (disabled or not
+    yet started).
+    """
+    from kolibri.core.discovery.models import LocalHostname
+
+    return list(LocalHostname.objects.values_list("hostname", flat=True))
 
 
 status_map = {
@@ -1157,6 +1175,8 @@ def get_urls(listen_port=None):
                     urls.append("http://{}:{}/".format(ip, port))
             except RuntimeError:
                 logger.error("Error retrieving network interface list!")
+            for hostname in get_local_hostnames():
+                urls.append("http://{}:{}/".format(hostname, port))
         return STATUS_RUNNING, urls
     except NotRunning as e:
         return e.status_code, []

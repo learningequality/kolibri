@@ -11,6 +11,7 @@ import pytest
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.storage import Storage
 from kolibri.utils import server
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.constants import installation_types
 
 
@@ -216,6 +217,55 @@ class TestZeroConfPlugin:
 
         # Do we unregister ourselves from zeroconf network?
         broadcast.stop_broadcast.assert_called_once()
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+class TestGetLocalHostnames:
+    def test_no_hostnames_stored(self):
+        assert server.get_local_hostnames() == []
+
+    def test_returns_stored_hostnames(self):
+        from kolibri.core.discovery.models import LocalHostname
+
+        LocalHostname.objects.create(hostname="kolibri.local")
+        LocalHostname.objects.create(hostname="tonyslaptop.local")
+        assert set(server.get_local_hostnames()) == {
+            "kolibri.local",
+            "tonyslaptop.local",
+        }
+
+
+class GetUrlsTestCase(TestCase):
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "_get_local_ips")
+    def test_get_urls__includes_local_hostnames(self, mock_ips, mock_hostnames):
+        mock_ips.return_value = ["10.0.0.5"]
+        mock_hostnames.return_value = ["kolibri.local", "tonyslaptop.local"]
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}):
+            status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(server.STATUS_RUNNING, status)
+        self.assertIn("http://10.0.0.5:1234/", urls)
+        self.assertIn("http://kolibri.local:1234/", urls)
+        self.assertIn("http://tonyslaptop.local:1234/", urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
+    def test_get_urls__no_local_hostnames(self, mock_hostnames):
+        mock_hostnames.return_value = []
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "127.0.0.1"}):
+            status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(["http://127.0.0.1:1234/"], urls)
+
+    @mock.patch.object(server, "get_local_hostnames")
+    @mock.patch.object(server, "_get_local_ips")
+    def test_get_urls__local_hostnames_survive_ip_enumeration_failure(
+        self, mock_ips, mock_hostnames
+    ):
+        mock_ips.side_effect = RuntimeError()
+        mock_hostnames.return_value = ["kolibri.local"]
+        with mock.patch.dict(OPTIONS["Deployment"], {"LISTEN_ADDRESS": "0.0.0.0"}):
+            status, urls = server.get_urls(listen_port=1234)
+        self.assertEqual(server.STATUS_RUNNING, status)
+        self.assertEqual(["http://kolibri.local:1234/"], urls)
 
 
 @mock.patch(

@@ -8,16 +8,29 @@ from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
 from zeroconf import Zeroconf
 
+from ..utils.network.broadcast import BARE_LOCAL_LABEL
+from ..utils.network.broadcast import filter_lan_addresses
+from ..utils.network.broadcast import get_outgoing_interface_address
 from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.broadcast import KolibriInstanceListener
 from ..utils.network.broadcast import LOCAL_DOMAIN
 from ..utils.network.broadcast import LOCAL_EVENTS
+from ..utils.network.broadcast import LOCAL_NAME_BARE
+from ..utils.network.broadcast import LOCAL_NAME_DEVICE
 from ..utils.network.broadcast import NETWORK_EVENTS
 from ..utils.network.broadcast import SERVICE_TTL
 from ..utils.network.broadcast import SERVICE_TYPE
+from ..utils.network.broadcast import slugify_device_name
 
 MOCK_INTERFACE_IP = "111.222.111.222"
+MOCK_LAN_IP = "192.168.1.5"
+# A second RFC1918 address on a different subnet, e.g. a Docker/Hyper-V bridge,
+# not reachable from LAN peers. Sorts *before* MOCK_LAN_IP as a string, so a
+# naive min() over the LAN-filtered addresses would wrongly pick it.
+MOCK_SECONDARY_LAN_IP = "172.27.63.113"
+MOCK_CGNAT_IP = "100.64.0.5"  # Tailscale-style CGNAT address, not LAN-reachable
+MOCK_LINK_LOCAL_IP = "169.254.1.1"
 MOCK_PORT = 555
 MOCK_ID = "abba"
 MOCK_PROPERTIES = {
@@ -30,6 +43,65 @@ MOCK_PROPERTIES = {
 BROADCAST_MODULE = "kolibri.core.discovery.utils.network.broadcast."
 ZEROCONF_NEEDS_UPDATE = getattr(Zeroconf, "update_interfaces", None) is None
 ALL_EVENTS = NETWORK_EVENTS.union(LOCAL_EVENTS)
+
+
+class SlugifyDeviceNameTestCase(SimpleTestCase):
+    def test_lowercases_and_strips_punctuation(self):
+        self.assertEqual("tonyslaptop", slugify_device_name("Tony's Laptop"))
+
+    def test_keeps_digits_and_hyphens(self):
+        self.assertEqual("device-42", slugify_device_name("Device-42"))
+
+    def test_all_whitespace_yields_empty(self):
+        self.assertEqual("", slugify_device_name("   "))
+
+    def test_non_ascii_yields_empty(self):
+        self.assertEqual("", slugify_device_name("日本語"))
+
+    def test_mixed_ascii_and_non_ascii_keeps_ascii_remainder(self):
+        self.assertEqual("caf", slugify_device_name("Café"))
+
+    def test_long_name_truncated_to_max_label_length(self):
+        self.assertEqual("a" * 32, slugify_device_name("a" * 64))
+
+
+class FilterLanAddressesTestCase(SimpleTestCase):
+    def test_keeps_rfc1918_addresses(self):
+        self.assertEqual([MOCK_LAN_IP], filter_lan_addresses([MOCK_LAN_IP]))
+
+    def test_excludes_cgnat_addresses(self):
+        self.assertEqual([], filter_lan_addresses([MOCK_CGNAT_IP]))
+
+    def test_excludes_link_local_addresses(self):
+        self.assertEqual([], filter_lan_addresses([MOCK_LINK_LOCAL_IP]))
+
+    def test_excludes_loopback_addresses(self):
+        self.assertEqual([], filter_lan_addresses(["127.0.0.1"]))
+
+    def test_excludes_public_addresses(self):
+        self.assertEqual([], filter_lan_addresses(["8.8.8.8"]))
+
+    def test_mixed_addresses_keeps_only_lan(self):
+        self.assertEqual(
+            [MOCK_LAN_IP],
+            filter_lan_addresses([MOCK_CGNAT_IP, MOCK_LINK_LOCAL_IP, MOCK_LAN_IP]),
+        )
+
+
+class GetOutgoingInterfaceAddressTestCase(SimpleTestCase):
+    @mock.patch(BROADCAST_MODULE + "socket.socket")
+    def test_returns_routing_table_source_address(self, mock_socket):
+        sock = mock_socket.return_value
+        sock.getsockname.return_value = (MOCK_LAN_IP, 9)
+        self.assertEqual(MOCK_LAN_IP, get_outgoing_interface_address())
+        sock.close.assert_called_once_with()
+
+    @mock.patch(BROADCAST_MODULE + "socket.socket")
+    def test_returns_none_when_no_default_route(self, mock_socket):
+        sock = mock_socket.return_value
+        sock.connect.side_effect = OSError()
+        self.assertIsNone(get_outgoing_interface_address())
+        sock.close.assert_called_once_with()
 
 
 class KolibriInstanceTestCase(SimpleTestCase):
@@ -193,6 +265,9 @@ class KolibriTestInstanceListener(KolibriInstanceListener):
     def remove_instance(self, instance):
         self.mock.remove_instance(instance)
 
+    def update_local_names(self, hostnames):
+        self.mock.update_local_names(hostnames)
+
 
 @pytest.mark.parametrize(
     "event_name",
@@ -232,9 +307,33 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.instance = mock.Mock(spec_set=KolibriInstance)(
             MOCK_ID, ip=MOCK_INTERFACE_IP, port=MOCK_PORT
         )
+        self.instance.ip = MOCK_INTERFACE_IP
+        self.instance.port = MOCK_PORT
+        self.instance.device_info = {}
         self.zeroconf = mock.MagicMock(spec_set=Zeroconf)()
         self.broadcast = KolibriBroadcast(self.instance)
         self.listener = self.broadcast.add_listener(KolibriTestInstanceListener)
+        get_all_addresses_patcher = mock.patch(
+            BROADCAST_MODULE + "get_all_addresses", return_value=[MOCK_LAN_IP]
+        )
+        get_all_addresses_patcher.start()
+        self.addCleanup(get_all_addresses_patcher.stop)
+        # Default to "no default route" so tests don't open a real socket and
+        # address selection falls back to the LAN-filtered addresses. Tests
+        # exercising the outgoing-interface preference override this.
+        outgoing_patcher = mock.patch(
+            BROADCAST_MODULE + "get_outgoing_interface_address", return_value=None
+        )
+        self.mock_outgoing_interface_address = outgoing_patcher.start()
+        self.addCleanup(outgoing_patcher.stop)
+
+    def _register_with_device_name(self, device_name):
+        self.broadcast.zeroconf = self.zeroconf
+        self.instance.device_info = {"device_name": device_name}
+        self.instance.to_service_info.return_value = mock.Mock(spec_set=ServiceInfo)(
+            "primary"
+        )
+        self.broadcast.register()
 
     def test_is_broadcasting(self):
         self.assertFalse(self.broadcast.is_broadcasting)
@@ -315,12 +414,13 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.broadcast.register()
         mock_logger.assert_called_once()
         self.instance.to_service_info.assert_called_once_with(self.instance.zeroconf_id)
-        self.zeroconf.check_service.assert_called_once_with(service_info, False)
-        self.zeroconf.register_service.assert_called_once_with(service_info, ttl=60)
+        self.zeroconf.check_service.assert_any_call(service_info, False)
+        self.zeroconf.register_service.assert_any_call(service_info, ttl=60)
         self.instance.set_broadcasting.assert_called_once_with(
             service_info, is_self=True
         )
         self.listener.mock.register_instance.assert_called_once_with(self.instance)
+        self.listener.mock.update_local_names.assert_called_once_with(["kolibri.local"])
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
     def test_register__rename(self, mock_logger):
@@ -333,7 +433,11 @@ class KolibriBroadcastTestCase(SimpleTestCase):
             service_info_not_unique,
             service_info_unique,
         ]
-        self.zeroconf.check_service.side_effect = [NonUniqueNameException(), None]
+        self.zeroconf.check_service.side_effect = [
+            NonUniqueNameException(),
+            None,
+            None,
+        ]
         self.broadcast.register()
         mock_logger.assert_called_once()
         self.instance.to_service_info.assert_any_call(self.instance.zeroconf_id)
@@ -341,10 +445,8 @@ class KolibriBroadcastTestCase(SimpleTestCase):
             self.instance.zeroconf_id + "-1"
         )
         self.zeroconf.check_service.assert_any_call(service_info_not_unique, False)
-        self.zeroconf.check_service.assert_called_with(service_info_unique, False)
-        self.zeroconf.register_service.assert_called_once_with(
-            service_info_unique, ttl=60
-        )
+        self.zeroconf.check_service.assert_any_call(service_info_unique, False)
+        self.zeroconf.register_service.assert_any_call(service_info_unique, ttl=60)
         self.instance.set_broadcasting.assert_called_once_with(
             service_info_unique, is_self=True
         )
@@ -369,6 +471,114 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         mock_logger.assert_not_called()
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__local_names(self, mock_logger):
+        self.broadcast.zeroconf = self.zeroconf
+        service_info = mock.Mock(spec_set=ServiceInfo)("test")
+        self.instance.to_service_info.return_value = service_info
+        self.broadcast.register()
+        bare_label, bare_service = self.broadcast.local_names[LOCAL_NAME_BARE]
+        self.assertEqual(BARE_LOCAL_LABEL, bare_label)
+        self.assertEqual("kolibri.local.", bare_service.server)
+        self.assertEqual(socket.inet_aton(MOCK_LAN_IP), bare_service.address)
+        self.assertNotIn(LOCAL_NAME_DEVICE, self.broadcast.local_names)
+
+    @mock.patch(BROADCAST_MODULE + "get_all_addresses")
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__local_names_lan_address_selection(
+        self, mock_logger, mock_get_all_addresses
+    ):
+        self.broadcast.zeroconf = self.zeroconf
+        service_info = mock.Mock(spec_set=ServiceInfo)("test")
+        self.instance.to_service_info.return_value = service_info
+        cases = [
+            (
+                [MOCK_CGNAT_IP, MOCK_LINK_LOCAL_IP, MOCK_LAN_IP],
+                socket.inet_aton(MOCK_LAN_IP),
+            ),
+            ([MOCK_CGNAT_IP], None),
+        ]
+        for addresses, expected_address in cases:
+            mock_get_all_addresses.return_value = addresses
+            self.broadcast.register()
+            _, bare_service = self.broadcast.local_names[LOCAL_NAME_BARE]
+            self.assertEqual(expected_address, bare_service.address)
+
+    @mock.patch(BROADCAST_MODULE + "get_all_addresses")
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__prefers_outgoing_interface_address(
+        self, mock_logger, mock_get_all_addresses
+    ):
+        # On a multi-homed host both RFC1918 addresses survive the LAN filter,
+        # so we must advertise the default-route interface, not whichever one
+        # sorts first. Reproduces the QA-reported case where a Docker-bridge
+        # address was handed to LAN peers that couldn't reach it.
+        self.broadcast.zeroconf = self.zeroconf
+        self.instance.to_service_info.return_value = mock.Mock(spec_set=ServiceInfo)(
+            "primary"
+        )
+        mock_get_all_addresses.return_value = [MOCK_SECONDARY_LAN_IP, MOCK_LAN_IP]
+        self.mock_outgoing_interface_address.return_value = MOCK_LAN_IP
+        self.broadcast.register()
+        _, bare_service = self.broadcast.local_names[LOCAL_NAME_BARE]
+        self.assertEqual(socket.inet_aton(MOCK_LAN_IP), bare_service.address)
+
+    @mock.patch(BROADCAST_MODULE + "get_all_addresses")
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__falls_back_when_outgoing_not_lan_reachable(
+        self, mock_logger, mock_get_all_addresses
+    ):
+        # If the outgoing interface isn't LAN-reachable (e.g. a VPN default
+        # route filtered out as CGNAT), fall back to a LAN-filtered address
+        # rather than advertising the unreachable one.
+        self.broadcast.zeroconf = self.zeroconf
+        self.instance.to_service_info.return_value = mock.Mock(spec_set=ServiceInfo)(
+            "primary"
+        )
+        mock_get_all_addresses.return_value = [MOCK_CGNAT_IP, MOCK_LAN_IP]
+        self.mock_outgoing_interface_address.return_value = MOCK_CGNAT_IP
+        self.broadcast.register()
+        _, bare_service = self.broadcast.local_names[LOCAL_NAME_BARE]
+        self.assertEqual(socket.inet_aton(MOCK_LAN_IP), bare_service.address)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__device_name_alias(self, mock_logger):
+        self._register_with_device_name("Tony's Laptop")
+        device_label, device_service = self.broadcast.local_names[LOCAL_NAME_DEVICE]
+        self.assertEqual("tonyslaptop", device_label)
+        self.assertEqual("tonyslaptop.local.", device_service.server)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__device_name_alias_empty_slug(self, mock_logger):
+        self._register_with_device_name("   ")
+        self.assertNotIn(LOCAL_NAME_DEVICE, self.broadcast.local_names)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_register__local_name_conflict_skipped(self, mock_logger):
+        # These aliases make no attempt to stay unique: if the name is already
+        # claimed on the network, we skip ours rather than renaming or crashing
+        # the whole broadcast.
+        self.broadcast.zeroconf = self.zeroconf
+        self.instance.to_service_info.return_value = mock.Mock(spec_set=ServiceInfo)(
+            "primary"
+        )
+        # primary registers fine; the bare alias is already claimed
+        self.zeroconf.register_service.side_effect = [None, NonUniqueNameException()]
+        self.broadcast.register()  # must not raise
+        self.assertNotIn(LOCAL_NAME_BARE, self.broadcast.local_names)
+        self.assertEqual([], self.broadcast.local_hostnames)
+
+    def test_local_hostnames(self):
+        self._register_with_device_name("My Device")
+        self.assertEqual(
+            {"kolibri.local", "mydevice.local"},
+            set(self.broadcast.local_hostnames),
+        )
+        self.assertEqual(
+            {"kolibri.local", "mydevice.local"},
+            set(self.listener.mock.update_local_names.call_args[0][0]),
+        )
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
     def test_renew(self, mock_logger):
         self.broadcast.zeroconf = self.zeroconf
         service_info = mock.Mock(spec_set=ServiceInfo)("test")
@@ -381,11 +591,66 @@ class KolibriBroadcastTestCase(SimpleTestCase):
             service_info, is_self=True
         )
         self.listener.mock.renew_instance.assert_called_once_with(self.instance)
+        self.listener.mock.update_local_names.assert_called_once_with([])
 
     @mock.patch(BROADCAST_MODULE + "logger.info")
     def test_renew__not_broadcasting(self, mock_logger):
         self.broadcast.renew()
         mock_logger.assert_not_called()
+
+    @mock.patch(BROADCAST_MODULE + "get_all_addresses")
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_renew__local_names_follow_lan_address_change(
+        self, mock_logger, mock_get_all_addresses
+    ):
+        mock_get_all_addresses.return_value = [MOCK_LAN_IP]
+        self._register_with_device_name("Some Name")
+
+        new_lan_ip = "192.168.1.9"
+        mock_get_all_addresses.return_value = [new_lan_ip]
+        self.broadcast.renew()
+
+        _, bare_service = self.broadcast.local_names[LOCAL_NAME_BARE]
+        self.assertEqual(socket.inet_aton(new_lan_ip), bare_service.address)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_renew__device_name_changed(self, mock_logger):
+        self._register_with_device_name("Old Name")
+        old_service = self.broadcast.local_names[LOCAL_NAME_DEVICE][1]
+
+        self.instance.device_info = {"device_name": "New Name"}
+        self.broadcast.renew()
+
+        self.zeroconf.unregister_service.assert_any_call(old_service)
+        new_label, new_service = self.broadcast.local_names[LOCAL_NAME_DEVICE]
+        self.assertEqual("newname", new_label)
+        self.assertEqual("newname.local.", new_service.server)
+        self.zeroconf.register_service.assert_any_call(new_service, ttl=new_service.ttl)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_renew__device_name_changed_to_empty_slug(self, mock_logger):
+        self._register_with_device_name("Old Name")
+        old_service = self.broadcast.local_names[LOCAL_NAME_DEVICE][1]
+
+        self.instance.device_info = {"device_name": "   "}
+        self.broadcast.renew()
+
+        self.zeroconf.unregister_service.assert_any_call(old_service)
+        self.assertNotIn(LOCAL_NAME_DEVICE, self.broadcast.local_names)
+
+    @mock.patch(BROADCAST_MODULE + "logger.info")
+    def test_renew__device_name_unchanged(self, mock_logger):
+        self._register_with_device_name("Same Name")
+        self.zeroconf.register_service.reset_mock()
+        self.zeroconf.unregister_service.reset_mock()
+
+        self.broadcast.renew()
+
+        self.zeroconf.unregister_service.assert_not_called()
+        self.zeroconf.register_service.assert_not_called()
+        # 1 for the primary instance (pre-existing, unchanged renew() logic)
+        # + 2 for the bare and device aliases, both re-announced with fresh port/ttl
+        self.assertEqual(3, self.zeroconf.update_service.call_count)
 
     def test_unregister(self):
         self.broadcast.zeroconf = self.zeroconf
@@ -396,10 +661,24 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         )
         self.instance.reset_broadcasting.assert_called_once_with()
         self.listener.mock.unregister_instance.assert_called_once_with(self.instance)
+        self.listener.mock.update_local_names.assert_called_once_with([])
 
     def test_unregister__not_broadcasting(self):
         self.broadcast.unregister()
         self.zeroconf.unregister_service.assert_not_called()
+
+    def test_unregister__local_names(self):
+        self.instance.service_info = mock.Mock(spec_set=ServiceInfo)("test")
+        self._register_with_device_name("Some Name")
+        bare_service = self.broadcast.local_names[LOCAL_NAME_BARE][1]
+        device_service = self.broadcast.local_names[LOCAL_NAME_DEVICE][1]
+
+        self.broadcast.unregister()
+
+        self.zeroconf.unregister_service.assert_any_call(bare_service)
+        self.zeroconf.unregister_service.assert_any_call(device_service)
+        self.assertEqual({}, self.broadcast.local_names)
+        self.listener.mock.update_local_names.assert_called_with([])
 
     @mock.patch(__name__ + ".KolibriTestInstanceListener.subscribe")
     def test_add_listener(self, mock_subscribe):

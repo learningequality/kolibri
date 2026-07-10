@@ -10,6 +10,7 @@ from kolibri.core.tasks.registry import RegisteredTask
 
 from ..models import ConnectionStatus
 from ..models import DynamicNetworkLocation
+from ..models import LocalHostname
 from ..models import LocationTypes
 from ..models import NetworkLocation
 from ..models import StaticNetworkLocation
@@ -24,6 +25,7 @@ from ..tasks import hydrate_instance
 from ..tasks import perform_network_location_update
 from ..tasks import remove_dynamic_network_location
 from ..tasks import reset_connection_states
+from ..tasks import sync_local_hostnames
 from ..utils.network.broadcast import KolibriInstance
 from .helpers import info as mock_device_info
 
@@ -355,6 +357,33 @@ class ResetConnectionStatesTestCase(TestCase):
             job_id="4a5f6088c8c0e5e22fde5945a7f91789",
             args=(self.static_network_location.id,),
         )
+
+
+class SyncLocalHostnamesTestCase(TestCase):
+    databases = "__all__"
+
+    def setUp(self):
+        self.task = unwrap(sync_local_hostnames)
+
+    def test_creates_new_hostnames(self):
+        self.task(["kolibri.local", "tonyslaptop.local"])
+        self.assertEqual(
+            {"kolibri.local", "tonyslaptop.local"},
+            set(LocalHostname.objects.values_list("hostname", flat=True)),
+        )
+
+    def test_removes_stale_hostnames(self):
+        LocalHostname.objects.create(hostname="oldname.kolibri.local")
+        self.task(["kolibri.local"])
+        self.assertEqual(
+            ["kolibri.local"],
+            list(LocalHostname.objects.values_list("hostname", flat=True)),
+        )
+
+    def test_empty_list_clears_all_hostnames(self):
+        LocalHostname.objects.create(hostname="kolibri.local")
+        self.task([])
+        self.assertEqual(0, LocalHostname.objects.count())
 
 
 class TaskUtilitiesTestCase(TestCase):
