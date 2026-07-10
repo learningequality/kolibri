@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{ package_dir }}"
+version = "0.1.0"
+description = "{{ description }}"
+requires-python = ">=3.6, <3.15"
+license = "MIT"
+authors = [{ name = "{{ author }}", email = "{{ email }}" }]
+dependencies = [
+    "kolibri>=0.20",
+]
+
+[project.entry-points."kolibri.plugins"]
+{{ package_module }} = "{{ package_module }}"
+
+[tool.setuptools.packages.find]
+include = ["{{ package_module }}*"]

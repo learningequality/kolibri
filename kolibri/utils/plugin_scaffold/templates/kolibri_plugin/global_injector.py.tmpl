@@ -1,0 +1,25 @@
+from kolibri.core.hooks import FrontEndBaseSyncHook
+from kolibri.core.webpack.hooks import WebpackBundleHook
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
+
+
+class {{ class_name }}(KolibriPluginBase):
+    pass
+
+
+@register_hook
+class {{ pascal }}Asset(WebpackBundleHook):
+    bundle_id = "main"
+
+    # Expose data to the frontend bundle, read there via
+    # ``import plugin_data from 'kolibri-plugin-data'``. Uncomment and return a
+    # JSON-serializable dict.
+    # @property
+    # def plugin_data(self):
+    #     return {}
+
+
+@register_hook
+class {{ pascal }}InclusionHook(FrontEndBaseSyncHook):
+    bundle_class = {{ pascal }}Asset

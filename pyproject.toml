@@ -156,6 +156,12 @@ packages = ["kolibri"]
 [tool.setuptools.package-dir]
 kolibri = "kolibri"
 
+[tool.setuptools.package-data]
+# The plugin scaffolder reads its *.tmpl sources at runtime via __file__, so
+# they must ship inside the installed wheel (MANIFEST.in only governs the sdist,
+# and setuptools excludes data files from the wheel by default).
+kolibri = ["utils/plugin_scaffold/templates/**/*.tmpl"]
+
 [tool.setuptools_scm]
 tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+)(-(?P<pre>alpha|beta|rc)(?P<pre_n>\\d+))?$"
 version_file = "kolibri/_version.py"

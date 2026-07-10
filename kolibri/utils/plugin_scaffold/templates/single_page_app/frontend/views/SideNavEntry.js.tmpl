@@ -1,0 +1,38 @@
+import { createTranslator } from 'kolibri/utils/i18n';
+import { UserKinds } from 'kolibri/constants';
+import { registerNavItem } from 'kolibri/composables/useNav';
+import urls from 'kolibri/urls';
+
+const navStrings = createTranslator('{{ pascal }}SideNavEntryStrings', {
+  label: {
+    message: '{{ readable }}',
+    context: 'Label for the side navigation entry.',
+  },
+  // Add a string per sub-nav item you enable below.
+  // section: {
+  //   message: 'Section',
+  //   context: 'Label for a sub-navigation entry.',
+  // },
+});
+
+registerNavItem({
+  get url() {
+    return urls['kolibri:{{ entry_point_name }}:{{ snake }}']();
+  },
+  get label() {
+    return navStrings.$tr('label');
+  },
+  icon: 'info',
+  role: UserKinds.LEARNER,
+  // Sub-navigation items appear nested under this entry. Each ``route`` is a
+  // path from your ``routes.js`` and ``name`` its route name; uncomment and
+  // extend to expose more of the app in the side nav.
+  // routes: [
+  //   {
+  //     label: navStrings.$tr('section'),
+  //     route: '/section',
+  //     name: '{{ pascal }}Section',
+  //     icon: 'info',
+  //   },
+  // ],
+});

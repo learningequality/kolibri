@@ -1,0 +1,30 @@
+from kolibri.core.hooks import NavigationHook
+from kolibri.core.webpack import hooks as webpack_hooks
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
+from kolibri.utils import translation
+from kolibri.utils.translation import gettext as _
+
+
+class {{ class_name }}(KolibriPluginBase):
+    untranslated_view_urls = "api_urls"
+    translated_view_urls = "urls"
+    can_manage_while_running = True
+
+    @property
+    def url_slug(self):
+        return "{{ url_slug }}"
+
+    def name(self, lang):
+        with translation.override(lang):
+            return _("{{ readable }}")
+
+
+@register_hook
+class {{ pascal }}Asset(webpack_hooks.WebpackBundleHook):
+    bundle_id = "app"
+
+
+@register_hook
+class {{ pascal }}NavAction(NavigationHook):
+    bundle_id = "{{ snake }}_side_nav"

@@ -1,0 +1,7 @@
+from django.urls import re_path
+
+from .viewsets import {{ pascal }}Viewset
+
+urlpatterns = [
+    re_path(r"^{{ snake }}", {{ pascal }}Viewset.as_view(), name="{{ snake }}_data"),
+]
