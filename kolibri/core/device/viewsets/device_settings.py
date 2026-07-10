@@ -11,6 +11,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.permissions import UserHasAnyDevicePermissions
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
+from kolibri.utils.server import update_zeroconf_broadcast
 
 
 class DeviceSerializerMixin:
@@ -137,4 +138,7 @@ class DeviceNameView(views.APIView):
         settings = DeviceSettings.objects.get()
         settings.name = request.data["name"]
         settings.save()
+
+        update_zeroconf_broadcast()
+
         return Response({"name": settings.name})

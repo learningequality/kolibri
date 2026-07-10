@@ -356,6 +356,15 @@ class DeviceNameTestCase(APITestCase):
             InstanceIDModel.get_or_create_current_instance()[0].hostname[:50],
         )
 
+    @mock.patch(
+        "kolibri.core.device.viewsets.device_settings.update_zeroconf_broadcast"
+    )
+    def test_patch_triggers_zeroconf_update(self, mock_update_zeroconf):
+        self.client.patch(
+            reverse("kolibri:core:devicename"), self.device_name, format="json"
+        )
+        mock_update_zeroconf.assert_called_once_with()
+
     def test_device_name_max_length(self):
         with self.assertRaises(ValidationError):
             exceeds_max_length_name = {"name": "a" * 60}
