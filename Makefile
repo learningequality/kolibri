@@ -230,9 +230,11 @@ pex:
 # <dist>/<module> dir (the importable package). kolibri_plugin.py marks a real
 # plugin module, so test/ dirs are excluded. build_plugins.txt is intentionally
 # NOT used here — it also drives the webpack build.
-# NOTE: discovery here is automatic, but Crowdin sync is not — a new plugin with
-# translatable strings also needs a hand-written source/translation entry in
-# crowdin.yml, or its strings extract locally but never sync (see crowdin.yml).
+# NOTE: discovery here is automatic. A new plugin's FRONTEND strings sync via the
+# python_packages/** wildcard entry in crowdin.yml (no edit needed). A new plugin's
+# first BACKEND string, however, needs a hand-written PO entry in crowdin.yml — its
+# django.po basename collides otherwise — or its strings extract locally but never
+# sync (see crowdin.yml).
 I18N_PLUGIN_DIRS := $(shell find python_packages -mindepth 3 -maxdepth 3 -name kolibri_plugin.py -printf '%h ')
 # Subset that ship a frontend bundle; only these are valid for --plugins extraction
 # (webpack_json.py raises ImportError for a --plugins module with no buildConfig.js).
