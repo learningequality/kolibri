@@ -3,13 +3,15 @@
   // Implemention inspired by an excellent demo at:
   // https://github.com/adamwathan/vue-shopify-sortable-demo
 
-  import {
-    Sortable,
-    Plugins,
-    Draggable,
-  } from '@shopify/draggable/lib/es5/draggable.bundle.legacy.js';
+  import Sortable from 'sortablejs';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
-  import { SORTABLE_CLASS, HANDLE_CLASS } from './classDefinitions';
+  import {
+    SORTABLE_CLASS,
+    HANDLE_CLASS,
+    MIRROR_CLASS,
+    GHOST_CLASS,
+    PLACED_CLASS,
+  } from './classDefinitions';
   import { dragSortStrings } from './dragSortStrings';
 
   export default {
@@ -53,35 +55,27 @@
         this.sortable = new Sortable(this.$el, {
           draggable: `.${SORTABLE_CLASS}`,
           handle: `.${HANDLE_CLASS}`,
-          delay: 250,
-          mirror: {
-            constrainDimensions: true,
-            xAxis: false,
-          },
-          plugins: [Plugins.SwapAnimation],
+          delay: 250, // matches the previous 250ms press-delay before a drag begins
+          forceFallback: true, // consistent DOM mirror across browsers + reliable touch dragging
+          fallbackClass: MIRROR_CLASS, // the clone that follows the pointer
+          // Leave fallbackOnBody at its default (false): the clone is appended to the
+          // sortable root (this.$el), inside this component's scoped subtree, so the
+          // scoped `/deep/ .sortable-item--mirror` styles (here and in
+          // LessonResourcesTable) still match. fallbackOnBody: true would move the
+          // clone to <body> and break those selectors.
+          ghostClass: GHOST_CLASS, // the source left in the list, hidden via CSS during drag
+          animation: 150, // reorder animation, replacing Shopify's SwapAnimation plugin
+          onStart: this.handleStart,
+          onEnd: this.handleStop,
         });
-
-        // Remove default focusable plugin and undo damage.
-        // ref: https://github.com/Shopify/draggable/issues/317
-        this.sortable.removePlugin(Draggable.Plugins.Focusable);
-        this.$el.tabIndex = -1;
-        Array.from(this.$el.children).forEach(child => (child.tabIndex = -1));
-
-        // hook up event listeners
-        this.sortable.on('sortable:start', this.handleStart);
-        this.sortable.on('sortable:stop', this.handleStop);
-        this.sortable.on('sortable:moveDown', this.moveDownOne);
-        this.sortable.on('sortable:moveUp', this.moveUpOne);
 
         this.$el.addEventListener('focusout', this.handleFocusOut);
       },
       handleStart() {
-        // handle cancelation of drags
-        // document.addEventListener('keyup', this.triggerMouseUpOnESC);
         this.$emit('dragStart');
       },
       handleStop(event) {
-        const { oldIndex, newIndex } = event.data;
+        const { oldIndex, newIndex, item } = event;
         // Do nothing if the item hasn't been moved
         if (oldIndex === newIndex) {
           return;
@@ -96,7 +90,14 @@
           ...itemRemovedArray.slice(newIndex, itemRemovedArray.length),
         ];
         this.$emit('sort', { newArray, oldIndex, newIndex });
-        // document.removeEventListener('keyup', this.triggerMouseUpOnESC);
+
+        // Hand-rolled drop "bounce" — SortableJS has no --placed equivalent.
+        // The moved DOM node persists across Vue's re-render because callsites key
+        // their items stably, so the animation lands on the settled element.
+        item.classList.add(PLACED_CLASS);
+        item.addEventListener('animationend', () => item.classList.remove(PLACED_CLASS), {
+          once: true,
+        });
       },
       registerSortItem(uid, label, position) {
         this.registeredItems[uid] = { label, position };
@@ -124,14 +125,6 @@
         this.sendPoliteMessage(this.currentOrder$({ order }));
       },
     },
-    triggerMouseUpOnESC(event) {
-      if (event.key === 'Escape' || event.key === 'Esc') {
-        // this.sortable.cancel();
-        // const clickEvent = document.createEvent("MouseEvents");
-        // clickEvent.initEvent("mouseup", true, true);
-        // document.dispatchEvent(clickEvent);
-      }
-    },
     // render the first element passed in without a wrapper node
     render() {
       return this.$slots.default[0];
@@ -145,7 +138,7 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  /deep/ .draggable-mirror {
+  /deep/ .sortable-item--mirror {
     @extend %dropshadow-6dp;
 
     z-index: 8;
@@ -153,11 +146,11 @@
     border-radius: $radius;
   }
 
-  /deep/ .draggable-source--is-dragging {
+  /deep/ .sortable-item--ghost {
     visibility: hidden;
   }
 
-  /deep/ .draggable-source--placed {
+  /deep/ .sortable-item--placed {
     animation-name: bounce-in;
     animation-duration: $core-time;
   }
