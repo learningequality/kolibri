@@ -14,6 +14,7 @@ from kolibri.core.discovery.hooks import NetworkLocationBroadcastHook
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.discovery.models import LocalHostname
 from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.models import StaticNetworkLocation
@@ -31,6 +32,7 @@ from kolibri.core.tasks.utils import get_current_job
 logger = logging.getLogger(__name__)
 
 CONNECTION_RESET_JOB_ID = "1000"
+SYNC_LOCAL_HOSTNAMES_JOB_ID = "1001"
 CONNECTION_FAULT_LIMIT = 10
 
 TYPE_CONNECT = "connect"
@@ -408,3 +410,20 @@ def reset_connection_states(broadcast_id):
             job_id=generate_job_id(TYPE_CONNECT, static_location_id),
             args=(static_location_id,),
         )
+
+
+@register_task(
+    job_id=SYNC_LOCAL_HOSTNAMES_JOB_ID, priority=Priority.HIGH, status_fn=status_fn
+)
+def sync_local_hostnames(hostnames):
+    """
+    Persists the given `.local` hostnames, replacing whatever was
+    previously stored.
+    :param hostnames: A list of str hostnames, e.g. ["kolibri.local"]
+    """
+    current = set(LocalHostname.objects.values_list("hostname", flat=True))
+    desired = set(hostnames)
+    LocalHostname.objects.filter(hostname__in=current - desired).delete()
+    LocalHostname.objects.bulk_create(
+        LocalHostname(hostname=hostname) for hostname in desired - current
+    )
