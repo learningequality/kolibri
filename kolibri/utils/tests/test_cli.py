@@ -235,3 +235,88 @@ def test_list_plugins_disabled(echo_mock, plugins):
             echo_mock.call_args_list,
         )
     )
+
+
+# ---------------------------------------------------------------------------
+# kolibri plugin create — scaffolder subcommand
+# ---------------------------------------------------------------------------
+
+
+def test_plugin_create_full_cli_run(tmp_path):
+    # A full CLI invocation with every option supplied runs non-interactively
+    # (no prompt fires) and scaffolds a real, importable plugin.
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(
+            [
+                "plugin",
+                "create",
+                "--name",
+                "My Thing",
+                "--target-dir",
+                str(tmp_path),
+                "--surface",
+                "backend-only",
+                "--description",
+                "d",
+                "--author",
+                "a",
+                "--email",
+                "e@x",
+                "--mode",
+                "package",
+            ],
+            prog_name="kolibri",
+        )
+    assert excinfo.value.code == 0
+    assert (tmp_path / "kolibri-my-thing-plugin" / "kolibri_my_thing_plugin").is_dir()
+
+
+@patch("kolibri.utils.cli.scaffold_plugin")
+def test_plugin_create_no_input_missing_name_errors(scaffold_mock):
+    # Under --no-input the prompts are disabled, so a missing required option is
+    # a clear click error rather than a hung prompt — and scaffolding never runs.
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["plugin", "create", "--no-input"], prog_name="kolibri")
+    assert excinfo.value.code != 0
+    assert not scaffold_mock.called
+
+
+@patch("kolibri.utils.cli.scaffold_plugin")
+def test_plugin_create_no_input_missing_target_errors(scaffold_mock):
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(
+            ["plugin", "create", "--no-input", "--name", "My Thing"],
+            prog_name="kolibri",
+        )
+    assert excinfo.value.code != 0
+    assert not scaffold_mock.called
+
+
+@patch("kolibri.utils.cli.scaffold_plugin")
+def test_plugin_create_invalid_mode_errors(scaffold_mock, tmp_path):
+    # --mode is a click.Choice, so an unknown value is rejected during parsing
+    # and scaffolding never runs.
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(
+            [
+                "plugin",
+                "create",
+                "--name",
+                "X",
+                "--target-dir",
+                str(tmp_path),
+                "--surface",
+                "backend-only",
+                "--description",
+                "d",
+                "--author",
+                "a",
+                "--email",
+                "e",
+                "--mode",
+                "bogus",
+            ],
+            prog_name="kolibri",
+        )
+    assert excinfo.value.code != 0
+    assert not scaffold_mock.called
