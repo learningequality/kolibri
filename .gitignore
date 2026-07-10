@@ -50,6 +50,8 @@ kolibrihome_test/
 kolibri/locale/**/LC_MESSAGES/*.csv
 kolibri/locale/en/LC_MESSAGES/profiles/*
 kolibri/locale/.crowdin-download-marker
+# Same transient Crowdin-upload CSVs, for plugins packaged under python_packages/.
+python_packages/*/*/locale/**/LC_MESSAGES/*.csv
 
 # Mr Developer
 .mr.developer.cfg
