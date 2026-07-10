@@ -67,6 +67,20 @@ function toLocale(language) {
   return lang + '_' + country;
 }
 
+// webpack_json.py appends `en/LC_MESSAGES` to every bundle's locale_data_folder.
+// ExtractMessages/csvToJSON re-append `en/LC_MESSAGES` (and per-locale variants)
+// themselves, so recover the bundle's base locale dir by stripping that suffix.
+// Returns the path unchanged if it does not end with `en/LC_MESSAGES`.
+function stripEnLcMessages(localeDataFolder) {
+  if (
+    path.basename(localeDataFolder) === 'LC_MESSAGES' &&
+    path.basename(path.dirname(localeDataFolder)) === 'en'
+  ) {
+    return path.dirname(path.dirname(localeDataFolder));
+  }
+  return localeDataFolder;
+}
+
 function forEachPathInfo(pathInfo, callback) {
   for (const pathData of pathInfo) {
     if (pathData.aliases) {
@@ -82,4 +96,5 @@ module.exports = {
   toLocale,
   forEachPathInfo,
   checkForDuplicateIds,
+  stripEnLcMessages,
 };

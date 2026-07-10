@@ -226,11 +226,44 @@ dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps b
 pex:
 	ls dist/*.whl | while read whlfile; do version=$$(uv run --script ./build_tools/read_whl_version.py $$whlfile); uvx --from "pex==2.1.153" pex $$whlfile --disable-cache -o dist/kolibri-`echo $$version | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
 
+# Kolibri plugins packaged under python_packages/. Each entry is the inner
+# <dist>/<module> dir (the importable package). kolibri_plugin.py marks a real
+# plugin module, so test/ dirs are excluded. build_plugins.txt is intentionally
+# NOT used here — it also drives the webpack build.
+# NOTE: discovery here is automatic. A new plugin's FRONTEND strings sync via the
+# python_packages/** wildcard entry in crowdin.yml (no edit needed). A new plugin's
+# first BACKEND string, however, needs a hand-written PO entry in crowdin.yml — its
+# django.po basename collides otherwise — or its strings extract locally but never
+# sync (see crowdin.yml).
+I18N_PLUGIN_DIRS := $(shell find python_packages -mindepth 3 -maxdepth 3 -name kolibri_plugin.py -printf '%h ')
+# Subset that ship a frontend bundle; only these are valid for --plugins extraction
+# (webpack_json.py raises ImportError for a --plugins module with no buildConfig.js).
+I18N_PLUGIN_FRONTEND_DIRS := $(shell find python_packages -mindepth 3 -maxdepth 3 -name buildConfig.js -not -path '*/node_modules/*' -printf '%h ')
+
 i18n-extract-backend:
 	cd kolibri && uv run python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*' --all
+	@for dir in $(I18N_PLUGIN_DIRS); do \
+		echo "Extracting backend messages for $$dir"; \
+		mkdir -p $$dir/locale; \
+		( cd $$dir && PYTHONPATH="$(CURDIR):$$PYTHONPATH" uv run --project "$(CURDIR)" python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' ) || exit 1; \
+	done
 
 i18n-extract-frontend:
 	pnpm run makemessages
+	# Extract each frontend plugin's messages to its own locale/. --plugins resolves
+	# buildConfig.js via the *installed* package (webpack_json.py files(module)), so
+	# skip any plugin whose package is not importable here — e.g. `make dist`, which
+	# installs only the root project, not the python_packages/* members. Where the
+	# members are installed (uv sync --all-packages) they extract normally.
+	@for dir in $(I18N_PLUGIN_FRONTEND_DIRS); do \
+		module=$$(basename $$dir); \
+		if ! python -c "import $$module" >/dev/null 2>&1; then \
+			echo "Skipping frontend messages for $$module (package not installed)"; \
+			continue; \
+		fi; \
+		echo "Extracting frontend messages for $$module"; \
+		pnpm exec kolibri-i18n extract-messages --plugins $$module || exit 1; \
+	done
 
 i18n-extract: i18n-extract-frontend i18n-extract-backend
 
@@ -241,6 +274,14 @@ i18n-django-compilemessages:
 	# Change working directory to kolibri/ such that compilemessages
 	# finds only the .po files nested there.
 	cd kolibri && PYTHONPATH="..:$$PYTHONPATH" uv run python -m kolibri manage compilemessages --skip-update
+	# Compile each python_packages/* plugin's .po from inside its own dir so
+	# compilemessages finds only that plugin's catalog. A plugin with no locale/
+	# (or a header-only .po) is a harmless no-op. --project/PYTHONPATH pin the root
+	# uv project so uv does not pick up the member pyproject.toml (same as extract).
+	@for dir in $(I18N_PLUGIN_DIRS); do \
+		echo "Compiling messages for $$dir"; \
+		( cd $$dir && PYTHONPATH="$(CURDIR):$$PYTHONPATH" uv run --project "$(CURDIR)" python -m kolibri manage compilemessages --skip-update ) || exit 1; \
+	done
 
 i18n-upload: i18n-extract
 	pnpm exec crowdin upload sources --branch ${CROWDIN_BRANCH}
@@ -266,6 +307,19 @@ i18n-download-translations: i18n-extract-frontend
 	pnpm exec kolibri-i18n code-gen --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
 	pnpm exec kolibri-i18n create-message-files --pluginFile ./build_tools/build_plugins.txt --ignore '**/node_modules/!(kolibri-common)/**','**/static/**'
+	# Generate each frontend plugin's <namespace>-messages.json into its own locale/.
+	# Frontend plugins only: create-message-files --plugins routes through plugin_data,
+	# which raises ImportError for a module with no buildConfig.js. Skip plugins whose
+	# package is not importable here (same reason as i18n-extract-frontend).
+	@for dir in $(I18N_PLUGIN_FRONTEND_DIRS); do \
+		module=$$(basename $$dir); \
+		if ! python -c "import $$module" >/dev/null 2>&1; then \
+			echo "Skipping message files for $$module (package not installed)"; \
+			continue; \
+		fi; \
+		echo "Creating message files for $$module"; \
+		pnpm exec kolibri-i18n create-message-files --plugins $$module --ignore '**/node_modules/!(kolibri-common)/**','**/static/**' || exit 1; \
+	done
 
 i18n-download-source-fonts:
 	uv run --script build_tools/i18n/fonts.py download-source-fonts
