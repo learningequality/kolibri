@@ -11,8 +11,11 @@ from mock import patch
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import File
+from kolibri.core.content.upgrade import file_included_presets_annotation
 from kolibri.core.content.upgrade import fix_multiple_trees_with_tree_id1
 from kolibri.core.content.upgrade import update_num_coach_contents
+from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.upgrade import diff_stats
 
 from .sqlalchemytesting import django_connection_engine
@@ -294,6 +297,48 @@ class UpdateNumCoachContents(TransactionTestCase):
     def tearDown(self):
         call_command("flush", interactive=False)
         super().tearDown()
+
+
+class FileIncludedPresetsAnnotationTestCase(TestCase):
+    """
+    Verifies the upgrade task backfills File.included_presets for rows that
+    predate the column, using each file's own preset bit.
+    """
+
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super().setUp()
+        # Simulate rows imported before the included_presets column existed.
+        File.objects.all().update(included_presets=None)
+
+    def _assert_all_backfilled(self):
+        for f in File.objects.all():
+            expected = renderable_preset_bits.get(f.preset)
+            self.assertEqual(f.included_presets, expected)
+
+    def test_renderable_files_backfilled_from_own_preset(self):
+        file_included_presets_annotation()
+        self._assert_all_backfilled()
+
+    def test_only_null_values_are_backfilled(self):
+        # A file that already carries a value must not be overwritten.
+        preset = "high_res_video"
+        existing = File.objects.filter(preset=preset).first()
+        existing.included_presets = renderable_preset_bits[preset] | 1024
+        existing.save()
+        file_included_presets_annotation()
+        existing.refresh_from_db()
+        self.assertEqual(
+            existing.included_presets, renderable_preset_bits[preset] | 1024
+        )
+
+    @patch("kolibri.core.content.upgrade.INCLUDED_PRESETS_BACKFILL_BATCH_SIZE", 1)
+    def test_backfill_batches_until_exhausted(self):
+        # With a batch size smaller than the number of matching rows, the loop
+        # must keep going until every unbackfilled row is set.
+        file_included_presets_annotation()
+        self._assert_all_backfilled()
 
 
 @patch("kolibri.core.content.utils.upgrade.channel_import.initialize_import_manager")
