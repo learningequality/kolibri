@@ -1,0 +1,27 @@
+<template>
+
+  {% verbatim %}<div>{{ heading$() }}</div>{% endverbatim %}
+
+</template>
+
+
+<script>
+
+  import { createTranslator } from 'kolibri/utils/i18n';
+
+  const strings = createTranslator('{{ translator_namespace }}', {
+    heading: {
+      message: '{{ readable }}',
+      context: 'Heading shown by the content renderer.',
+    },
+  });
+
+  export default {
+    name: '{{ pascal }}Index',
+    setup() {
+      const { heading$ } = strings;
+      return { heading$ };
+    },
+  };
+
+</script>

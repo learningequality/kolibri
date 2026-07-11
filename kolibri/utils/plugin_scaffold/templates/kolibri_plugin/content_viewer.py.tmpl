@@ -1,0 +1,16 @@
+from kolibri.core.content import hooks as content_hooks
+from kolibri.plugins import KolibriPluginBase
+from kolibri.plugins.hooks import register_hook
+
+
+class {{ class_name }}(KolibriPluginBase):
+    pass
+
+
+@register_hook
+class {{ pascal }}Asset(content_hooks.ContentRendererHook):
+    bundle_id = "main"
+    # Declare the content formats this renderer handles, e.g.:
+    #     from le_utils.constants import format_presets
+    #     presets = (format_presets.VIDEO_HIGH_RES, format_presets.AUDIO)
+    presets = ()

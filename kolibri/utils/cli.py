@@ -28,6 +28,11 @@ from kolibri.utils.main import initialize
 from kolibri.utils.main import set_django_settings_and_python_path
 from kolibri.utils.main import setup_logging
 from kolibri.utils.modules import module_exists
+from kolibri.utils.plugin_scaffold import BACKEND_ONLY
+from kolibri.utils.plugin_scaffold import MODE_CHOICES
+from kolibri.utils.plugin_scaffold import MODE_PACKAGE
+from kolibri.utils.plugin_scaffold import scaffold_plugin
+from kolibri.utils.plugin_scaffold import SURFACE_CHOICES
 
 logger = logging.getLogger(__name__)
 
@@ -488,6 +493,107 @@ def list():
             + " " * (max_module_path_len - len(plugin.module_path) + 4)
             + ("ENABLED" if plugin.enabled else "DISABLED")
         )
+
+
+class ScaffoldCommand(KolibriCommand):
+    """
+    ``KolibriCommand`` variant that honours ``--no-input`` for the scaffold's
+    option prompts. click resolves ``prompt=`` options during argument parsing;
+    when ``--no-input`` is set we disable those prompts so a missing required
+    value produces a clear "Missing option" error instead of blocking on an
+    interactive prompt.
+    """
+
+    def parse_args(self, ctx, args):
+        if "--no-input" in args:
+            saved = [
+                (p, p.prompt)
+                for p in self.get_params(ctx)
+                if getattr(p, "prompt", None)
+            ]
+            for param, _ in saved:
+                param.prompt = None
+            try:
+                return super().parse_args(ctx, args)
+            finally:
+                for param, prompt in saved:
+                    param.prompt = prompt
+        return super().parse_args(ctx, args)
+
+
+@plugin.command(cls=ScaffoldCommand, help="Scaffold a new Kolibri plugin")
+@click.option(
+    "--name",
+    prompt="Plugin name",
+    required=True,
+    help='Human-readable plugin name, e.g. "My Thing"',
+)
+@click.option(
+    "--target-dir",
+    "target_dir",
+    prompt="Parent directory to create the plugin folder in",
+    required=True,
+    type=click.Path(file_okay=False),
+    help="Parent directory the plugin folder is created inside",
+)
+@click.option(
+    "--mode",
+    type=click.Choice(MODE_CHOICES),
+    prompt="Plugin mode",
+    default=MODE_PACKAGE,
+    help=(
+        "package: a self-contained package with its own pyproject.toml (default); "
+        "module: a bare module registered in the nearest enclosing pyproject.toml"
+    ),
+)
+@click.option(
+    "--surface",
+    type=click.Choice(SURFACE_CHOICES),
+    prompt="Plugin surface",
+    default=BACKEND_ONLY,
+    help="Plugin surface to generate",
+)
+@click.option(
+    "--description", prompt="Description", default="", help="Plugin description"
+)
+@click.option("--author", prompt="Author", required=True, help="Plugin author")
+@click.option(
+    "--email", prompt="Author email", required=True, help="Plugin author email"
+)
+@click.option(
+    "--url-slug",
+    "url_slug",
+    default=None,
+    help="URL slug for the single-page-app surface (defaults to the plugin name)",
+)
+def create(name, target_dir, mode, surface, description, author, email, url_slug):
+    # Expand ``~`` and environment variables so a prompted or flagged path like
+    # ``~/plugins`` resolves rather than creating a literal ``~`` directory.
+    target_dir = os.path.expanduser(os.path.expandvars(target_dir))
+    if not description:
+        description = "{} plugin for Kolibri".format(name)
+
+    try:
+        result = scaffold_plugin(
+            name,
+            target_dir,
+            mode,
+            surface,
+            description,
+            author,
+            email,
+            url_slug=url_slug,
+        )
+    except (FileExistsError, LookupError, ValueError) as e:
+        exception = click.ClickException(str(e))
+        exception.exit_code = 2
+        raise exception
+
+    click.echo("Created {} plugin at {}".format(surface, result.plugin_root))
+    for path in result.files_written:
+        click.echo("  {}".format(path))
+    if result.registration_note:
+        click.echo(result.registration_note)
 
 
 @main.command(cls=KolibriGroupCommand, help="Configure Kolibri and enabled plugins")

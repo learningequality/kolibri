@@ -67,6 +67,13 @@ repos:
         language: pygrep
         exclude: (^packages/kolibri-common/|moduleMapping\.js|(__tests__|__fixtures__))
         files: ^packages/.*\.(js|vue)$
+      - id: sync-scaffold-versions
+        name: Sync plugin scaffolder fallback version pins
+        description: Keeps FRONTEND_DEPENDENCIES pins in manifest.py in sync with the pnpm workspace/catalog versions
+        entry: python .pre-commit-hooks/sync_scaffold_versions.py
+        language: system
+        pass_filenames: false
+        files: ^(pnpm-workspace\.yaml|packages/[^/]+/package\.json|kolibri/utils/plugin_scaffold/manifest\.py)$
       - id: check-lfs-pointers
         name: Check LFS files are pointers not binary data
         description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)

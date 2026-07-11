@@ -1,0 +1,13 @@
+import {{ pascal }}Page from './views/{{ pascal }}Page';
+
+export default [
+  {
+    path: '/',
+    name: '{{ class_name }}',
+    component: {{ pascal }}Page,
+  },
+  {
+    path: '*',
+    redirect: '/',
+  },
+];

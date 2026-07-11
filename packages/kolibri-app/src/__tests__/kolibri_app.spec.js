@@ -102,6 +102,12 @@ describe('KolibriApp', function () {
     expect(app.store.getters.countGetter).toEqual(2);
   });
 
+  it('boots when pluginModule provides no state (Vuex is optional)', async function () {
+    // The default pluginModule getter returns {} with no state() — an app that
+    // does not use Vuex should still boot without error.
+    await expect(new KolibriApp().ready()).resolves.toBeUndefined();
+  });
+
   describe('pageshow session refresh', () => {
     let getEntriesByTypeMock;
     let originalGetEntriesByType;

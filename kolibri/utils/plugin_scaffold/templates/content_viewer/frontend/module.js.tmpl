@@ -1,0 +1,10 @@
+import ContentViewerModule from 'kolibri-viewer';
+import {{ pascal }}Index from './views/{{ pascal }}Index';
+
+class {{ pascal }}Module extends ContentViewerModule {
+  get viewerComponent() {
+    return {{ pascal }}Index;
+  }
+}
+
+export default new {{ pascal }}Module();
