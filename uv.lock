@@ -3004,7 +3004,7 @@ base = [
     { name = "importlib-resources", specifier = "==5.4.0" },
     { name = "json-schema-validator", specifier = "==2.4.1" },
     { name = "jsonfield", specifier = "==3.1.0" },
-    { name = "le-utils", specifier = "==0.2.17" },
+    { name = "le-utils", specifier = "==0.2.18" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "morango", specifier = "==0.8.13" },
     { name = "python-dateutil", specifier = "==2.9.0.post0" },
@@ -3045,7 +3045,7 @@ dev = [
     { name = "ipdb", marker = "python_full_version >= '3.8'" },
     { name = "json-schema-validator", specifier = "==2.4.1" },
     { name = "jsonfield", specifier = "==3.1.0" },
-    { name = "le-utils", specifier = "==0.2.17" },
+    { name = "le-utils", specifier = "==0.2.18" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
     { name = "mock", specifier = "==2.0.0" },
@@ -3093,7 +3093,7 @@ docs = [
     { name = "importlib-resources", specifier = "==5.4.0" },
     { name = "json-schema-validator", specifier = "==2.4.1" },
     { name = "jsonfield", specifier = "==3.1.0" },
-    { name = "le-utils", specifier = "==0.2.17" },
+    { name = "le-utils", specifier = "==0.2.18" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "morango", specifier = "==0.8.13" },
     { name = "myst-parser", marker = "python_full_version >= '3.9'" },
@@ -3135,7 +3135,7 @@ load-test = [
     { name = "importlib-resources", specifier = "==5.4.0" },
     { name = "json-schema-validator", specifier = "==2.4.1" },
     { name = "jsonfield", specifier = "==3.1.0" },
-    { name = "le-utils", specifier = "==0.2.17" },
+    { name = "le-utils", specifier = "==0.2.18" },
     { name = "locust", marker = "python_full_version >= '3.8'", specifier = ">=2.20" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "morango", specifier = "==0.8.13" },
@@ -3174,7 +3174,7 @@ test = [
     { name = "importlib-resources", specifier = "==5.4.0" },
     { name = "json-schema-validator", specifier = "==2.4.1" },
     { name = "jsonfield", specifier = "==3.1.0" },
-    { name = "le-utils", specifier = "==0.2.17" },
+    { name = "le-utils", specifier = "==0.2.18" },
     { name = "magicbus", specifier = "==4.1.2" },
     { name = "mixer", specifier = "==6.0.1" },
     { name = "mock", specifier = "==2.0.0" },
@@ -3527,11 +3527,11 @@ wheels = [
 
 [[package]]
 name = "le-utils"
-version = "0.2.17"
+version = "0.2.18"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e5/e6/68978027ef59db2e2928c902b61b16ebd189a768ad8fe3851d4acca42e6f/le_utils-0.2.17.tar.gz", hash = "sha256:c6b8166a05e77a89e07e9b0f4733fcc73241b19d6fb535687dbee2b7f25b4996", size = 145449, upload-time = "2026-04-13T20:00:06.671Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/64/bf764159a3ac1424edebc299e95d61b99bb9970afd6654e99de625498c66/le_utils-0.2.18.tar.gz", hash = "sha256:e864a491413369d1770246332c9854ee97ef930814757423995434b53f76672c", size = 146985, upload-time = "2026-07-03T03:41:16.592Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/aa/6a7519a78d43b699d89868721bdbb60ad59c7d905ab05d8d81aaea868f5f/le_utils-0.2.17-py3-none-any.whl", hash = "sha256:a859d5413de0533d10b2961302ca56c2db6b1ed136df5941be010a34ec3c3a63", size = 40655, upload-time = "2026-04-13T20:00:05.182Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/9d/dc3ce84fd072f5411335c4c5221ddb23341837d1ab61197a16a1d4313890/le_utils-0.2.18-py3-none-any.whl", hash = "sha256:7275a8c8fd9ba9cb9deb100befd8799159075725e1f3c5b6ee01b2f1e170b2dc", size = 42336, upload-time = "2026-07-03T03:41:15.04Z" },
 ]
 
 [[package]]
