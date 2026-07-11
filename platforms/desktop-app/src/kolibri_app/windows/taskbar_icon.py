@@ -1,24 +1,39 @@
 """
 Windows taskbar icon implementation for Kolibri App.
 
+Windows-only: imports pywin32/Win32 APIs at import time. Only import this module
+when ``kolibri_app.constants.WINDOWS`` is true.
+
 Provides system tray functionality:
 - Service and UI startup configuration
 - Server status notifications
 - Right-click context menu for common actions
 - Integration with Windows registry for startup settings
+
+The tray icon is driven directly through ``Shell_NotifyIcon`` rather than
+``wx.adv.TaskBarIcon``. wxPython's ``ShowBalloon`` cannot pass a balloon icon,
+so Windows falls back to XOR-drawing the tray ``HICON`` for the notification,
+which inverts the colours in light theme and looks low-res. Owning the
+``NOTIFYICONDATA`` lets us send ``NIIF_USER | NIIF_LARGE_ICON`` with a proper
+alpha icon, which the shell alpha-blends at full resolution (see issue #184).
+pywin32's ``Shell_NotifyIcon`` tuple stops at ``hIcon`` and cannot carry
+``hBalloonIcon``, so the notification is sent through a ctypes struct.
 """
 
 import ctypes
 import os
 import sys
 import webbrowser
+from ctypes import wintypes
 from importlib.resources import files
 
 import pywintypes
+import win32api
+import win32con
+import win32gui
 import win32service
 import winerror
 import wx
-from wx.adv import TaskBarIcon
 
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import SERVICE_NAME
@@ -33,6 +48,66 @@ DEFAULT_NOTIFICATION_TIMEOUT = 5
 
 VERIFICATION_MAX_RETRIES = 15
 VERIFICATION_RETRY_INTERVAL_MS = 1000
+
+# Callback message the shell posts to our window for mouse events on the icon.
+WM_TRAY_CALLBACK = win32con.WM_USER + 20
+# Stable per-window identifier for our single tray icon.
+TRAY_ICON_ID = 1
+# Source size for the balloon icon; larger than the tray icon so the shell has a
+# high-res source to alpha-blend into the notification.
+BALLOON_ICON_SIZE = 128
+
+# NOTIFYICONDATA.uFlags
+NIF_MESSAGE = 0x01
+NIF_ICON = 0x02
+NIF_TIP = 0x04
+NIF_INFO = 0x10
+
+# Shell_NotifyIcon messages
+NIM_ADD = 0x00
+NIM_MODIFY = 0x01
+NIM_DELETE = 0x02
+
+# NOTIFYICONDATA.dwInfoFlags
+NIIF_USER = 0x04
+NIIF_LARGE_ICON = 0x20
+
+
+class _NOTIFYICONDATAW(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("hWnd", wintypes.HWND),
+        ("uID", wintypes.UINT),
+        ("uFlags", wintypes.UINT),
+        ("uCallbackMessage", wintypes.UINT),
+        ("hIcon", wintypes.HICON),
+        ("szTip", wintypes.WCHAR * 128),
+        ("dwState", wintypes.DWORD),
+        ("dwStateMask", wintypes.DWORD),
+        ("szInfo", wintypes.WCHAR * 256),
+        ("uVersion", wintypes.UINT),
+        ("szInfoTitle", wintypes.WCHAR * 64),
+        ("dwInfoFlags", wintypes.DWORD),
+        # guidItem is unused (icon is identified by uID); it only reserves the
+        # 16 bytes so cbSize spans through hBalloonIcon, the field that carries
+        # the Vista+ balloon icon.
+        ("guidItem", ctypes.c_byte * 16),
+        ("hBalloonIcon", wintypes.HICON),
+    ]
+
+
+_shell_notify_icon = ctypes.windll.shell32.Shell_NotifyIconW
+_shell_notify_icon.argtypes = [wintypes.DWORD, ctypes.POINTER(_NOTIFYICONDATAW)]
+_shell_notify_icon.restype = wintypes.BOOL
+
+
+def _new_nid(hwnd):
+    """Build a NOTIFYICONDATAW targeting our single icon."""
+    nid = _NOTIFYICONDATAW()
+    nid.cbSize = ctypes.sizeof(_NOTIFYICONDATAW)
+    nid.hWnd = hwnd
+    nid.uID = TRAY_ICON_ID
+    return nid
 
 
 def get_service_start_type():
@@ -75,31 +150,87 @@ def get_service_start_type():
             win32service.CloseServiceHandle(scm_handle)
 
 
-class KolibriTaskBarIcon(TaskBarIcon):
+class KolibriTaskBarIcon:
     def __init__(self, app):
-        super(KolibriTaskBarIcon, self).__init__()
         self.app = app
         self.server_starting_notified = (
             False  # Track if we've shown the starting notification
         )
+        self._added = False
+        self._old_wndproc = None
+        self._tray_hicon = None
+        self._balloon_hicon = None
 
-        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DOWN, self.on_left_click)
+        # Hidden window that owns the tray icon and receives its callback
+        # messages. Never shown; FRAME_NO_TASKBAR keeps it off the taskbar.
+        self.frame = wx.Frame(None, title=f"{APP_NAME}_Tray", style=wx.FRAME_NO_TASKBAR)
+        self.hwnd = self.frame.GetHandle()
 
-        self.set_icon(TRAY_ICON_ICO, f"{APP_NAME}")
+        # Subclass the frame's window proc to intercept tray callbacks, chaining
+        # to wx's original proc so menus and other wx messages keep working.
+        self._old_wndproc = win32gui.SetWindowLong(
+            self.hwnd, win32con.GWL_WNDPROC, self._wndproc
+        )
 
-    def set_icon(self, path, tooltip):
-        """Sets the icon and tooltip for the taskbar icon."""
+        self._load_icons()
+        self._add_icon()
 
-        # 'path' is expected to be 'icons/kolibri.ico'
+    def _load_icon(self, path, size):
+        """Load the app icon from `path` at the requested pixel size."""
+        return win32gui.LoadImage(
+            0, path, win32con.IMAGE_ICON, size, size, win32con.LR_LOADFROMFILE
+        )
+
+    def _load_icons(self):
+        """Load the small tray icon and the larger balloon icon."""
         try:
-            # We need the absolute path for wx.Icon, so resolve() is necessary
-            icon_resource_path = files("kolibri_app") / path
-            final_path = str(icon_resource_path.resolve())
+            icon_path = str((files("kolibri_app") / TRAY_ICON_ICO).resolve())
+            small = win32api.GetSystemMetrics(win32con.SM_CXSMICON)
+            self._tray_hicon = self._load_icon(icon_path, small)
+            self._balloon_hicon = self._load_icon(icon_path, BALLOON_ICON_SIZE)
+        except (OSError, pywintypes.error) as e:
+            logging.error(f"Error loading tray icons: {e}")
 
-            icon = wx.Icon(final_path, wx.BITMAP_TYPE_ICO)
-            self.SetIcon(icon, tooltip)
-        except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
-            logging.error(f"Error setting icon from path '{final_path}': {e}")
+    def _add_icon(self):
+        """Register the tray icon with the shell."""
+        nid = _new_nid(self.hwnd)
+        nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP
+        nid.uCallbackMessage = WM_TRAY_CALLBACK
+        nid.hIcon = self._tray_hicon or 0
+        nid.szTip = APP_NAME
+        if _shell_notify_icon(NIM_ADD, ctypes.byref(nid)):
+            self._added = True
+        else:
+            logging.error("Shell_NotifyIcon NIM_ADD failed for the tray icon.")
+
+    def _remove_icon(self):
+        """Remove the tray icon from the shell."""
+        if not self._added:
+            return
+        _shell_notify_icon(NIM_DELETE, ctypes.byref(_new_nid(self.hwnd)))
+        self._added = False
+
+    def _wndproc(self, hwnd, msg, wparam, lparam):
+        """Window proc for the hidden tray window."""
+        if msg == WM_TRAY_CALLBACK:
+            # In classic (non-versioned) mode lParam is the mouse message.
+            if lparam == win32con.WM_LBUTTONUP:
+                wx.CallAfter(self.on_left_click)
+            elif lparam == win32con.WM_RBUTTONUP:
+                self._show_menu()
+            return 0
+        if msg == win32con.WM_DESTROY:
+            self._remove_icon()
+        return win32gui.CallWindowProc(self._old_wndproc, hwnd, msg, wparam, lparam)
+
+    def _show_menu(self):
+        """Show the right-click context menu at the cursor."""
+        # SetForegroundWindow is required so the menu dismisses when the user
+        # clicks elsewhere (see the TrackPopupMenu docs).
+        win32gui.SetForegroundWindow(self.hwnd)
+        menu = self.CreatePopupMenu()
+        self.frame.PopupMenu(menu)
+        menu.Destroy()
 
     def show_notification(self, title, message, timeout=DEFAULT_NOTIFICATION_TIMEOUT):
         """
@@ -111,10 +242,22 @@ class KolibriTaskBarIcon(TaskBarIcon):
             timeout: How long to show the notification (in seconds)
         """
         try:
-            # Create notification
-            self.ShowBalloon(title, message, timeout * 1000)
-
-        except (ImportError, AttributeError, OSError) as e:
+            nid = _new_nid(self.hwnd)
+            nid.uFlags = NIF_INFO
+            # szInfo/szInfoTitle are fixed WCHAR buffers (256/64); an over-long
+            # string raises ValueError, which the except below doesn't catch.
+            nid.szInfo = message[:255]
+            nid.szInfoTitle = title[:63]
+            nid.uVersion = timeout * 1000  # Ignored on Vista+, harmless to set.
+            # NIIF_USER + hBalloonIcon makes the shell alpha-blend our icon
+            # instead of XOR-drawing the tray icon (which inverts in light
+            # theme); NIIF_LARGE_ICON renders it at full resolution.
+            if self._balloon_hicon:
+                nid.dwInfoFlags = NIIF_USER | NIIF_LARGE_ICON
+                nid.hBalloonIcon = self._balloon_hicon
+            if not _shell_notify_icon(NIM_MODIFY, ctypes.byref(nid)):
+                raise OSError("Shell_NotifyIcon NIM_MODIFY failed")
+        except (OSError, pywintypes.error) as e:
             logging.error(f"Failed to show notification: {e}")
             # Fallback to a simple message box if notifications fail
             wx.CallAfter(wx.MessageBox, message, title, wx.OK | wx.ICON_INFORMATION)
@@ -141,23 +284,25 @@ class KolibriTaskBarIcon(TaskBarIcon):
         message = _("Kolibri failed to start.\nCheck logs at: {}").format(log_path)
         self.show_notification(_("Kolibri Error"), message, timeout=10)
 
-    def on_left_click(self, event):
+    def _show_window(self, main_window):
+        """Un-minimize, show, and raise the given main window."""
+        view = main_window.view
+        # If window is minimized, make it non-minimized.
+        if view.IsIconized():
+            view.Iconize(False)
+        # If the window is closed, show it.
+        if not view.IsShown():
+            view.Show()
+        # Always bring the window to the foreground.
+        view.Raise()
+
+    def on_left_click(self):
         """
         Handles left-click on the taskbar icon.
         """
         main_window = self.app.view
         if main_window:
-            view = main_window.view
-            # If window is minimized, make it non-minimized.
-            if view.IsIconized():
-                view.Iconize(False)
-
-            # If the window is closed, show it.
-            if not view.IsShown():
-                view.Show()
-
-            # Always bring the window to the foreground.
-            view.Raise()
+            self._show_window(main_window)
 
     def CreatePopupMenu(self):
         """Create and return the right-click menu."""
@@ -166,14 +311,14 @@ class KolibriTaskBarIcon(TaskBarIcon):
         # 1. Open UI
         open_item = menu.Append(wx.ID_ANY, _("Open UI"))
         open_item.Enable(bool(self.app.kolibri_url))
-        self.Bind(wx.EVT_MENU, self.on_open_ui, open_item)
+        self.frame.Bind(wx.EVT_MENU, self.on_open_ui, open_item)
 
         menu.AppendSeparator()
 
         # 2. Open kolibri UI on logon (Toggle) - Per-user setting
         startup_ui_item = menu.AppendCheckItem(wx.ID_ANY, _("Open Kolibri UI on logon"))
         startup_ui_item.Check(is_ui_startup_enabled())
-        self.Bind(wx.EVT_MENU, self.on_toggle_startup_ui, startup_ui_item)
+        self.frame.Bind(wx.EVT_MENU, self.on_toggle_startup_ui, startup_ui_item)
 
         # 3. Run Kolibri service on start (Toggle) - System-wide setting
         self.run_on_start_item = menu.AppendCheckItem(
@@ -187,13 +332,15 @@ class KolibriTaskBarIcon(TaskBarIcon):
             self.run_on_start_item.SetItemLabel(
                 _("Run Kolibri service on start (Unavailable)")
             )
-        self.Bind(wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item)
+        self.frame.Bind(
+            wx.EVT_MENU, self.on_toggle_service_startup, self.run_on_start_item
+        )
 
         menu.AppendSeparator()
 
         # 4. Exit
         exit_item = menu.Append(wx.ID_EXIT, _("Exit"))
-        self.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+        self.frame.Bind(wx.EVT_MENU, self.on_exit, exit_item)
 
         return menu
 
@@ -211,17 +358,7 @@ class KolibriTaskBarIcon(TaskBarIcon):
             # WebView2 is available, show/create the main window
             main_window = self.app.view
             if main_window:
-                view = main_window.view
-                # If window is minimized, make it non-minimized.
-                if view.IsIconized():
-                    view.Iconize(False)
-
-                # If the window is closed, show it.
-                if not view.IsShown():
-                    view.Show()
-
-                # Always bring the window to the foreground.
-                view.Raise()
+                self._show_window(main_window)
             else:
                 # Create new window
                 self.app.create_kolibri_window()
@@ -345,3 +482,22 @@ class KolibriTaskBarIcon(TaskBarIcon):
 
         # Exit the main loop
         self.app.ExitMainLoop()
+
+    def Destroy(self):
+        """Remove the tray icon, restore the window proc, and destroy the frame."""
+        self._remove_icon()
+        for hicon in (self._tray_hicon, self._balloon_hicon):
+            if hicon:
+                win32gui.DestroyIcon(hicon)
+        self._tray_hicon = self._balloon_hicon = None
+        if self._old_wndproc is not None:
+            try:
+                win32gui.SetWindowLong(
+                    self.hwnd, win32con.GWL_WNDPROC, self._old_wndproc
+                )
+            except pywintypes.error:
+                pass
+            self._old_wndproc = None
+        if self.frame:
+            self.frame.Destroy()
+            self.frame = None
