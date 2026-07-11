@@ -26,6 +26,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_1
 from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
+from kolibri.core.content.constants.schema_versions import VERSION_5
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -43,6 +44,7 @@ from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import topological_sort
+from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import load_metadata
 
@@ -766,6 +768,21 @@ class NaiveImportTestBase(ContentNodeTestBase):
             1,
         )
 
+    def test_included_presets_set(self):
+        # Skip on schema versions that already publish included_presets.
+        try:
+            if int(self.name) >= 6:
+                return
+        except ValueError:
+            pass
+
+        # A pre-V6 source lacks the column, so the backfill must set each
+        # renderable file's own-preset bit and leave every other file NULL.
+        self.assertTrue(File.objects.exists())
+        for f in File.objects.all():
+            expected = renderable_preset_bits.get(f.preset)
+            self.assertEqual(f.included_presets, expected)
+
     def test_existing_localfiles_are_not_overwritten(self):
         with patch(
             "kolibri.core.content.utils.sqlalchemybridge.get_engine",
@@ -871,6 +888,15 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         """
         imported_tag = ContentTag.objects.get(id=self.utf_tag_id)
         assert len(imported_tag.tag_name) == len(self.utf_tag_name)
+
+
+class Version5ImportTestCase(NaiveImportTestCase):
+    """
+    Test case for importing a version 5 channel database.
+    """
+
+    name = VERSION_5
+    legacy_schema = VERSION_5
 
 
 class Version4ImportTestCase(NaiveImportTestCase):

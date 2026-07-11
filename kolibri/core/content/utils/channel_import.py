@@ -8,6 +8,7 @@ from django.apps import apps
 from django.core.management.base import CommandError
 from django.db.models.fields.related import ForeignKey
 from sqlalchemy import and_
+from sqlalchemy import case
 from sqlalchemy import or_
 from sqlalchemy import String as sa_String
 from sqlalchemy.dialects.postgresql import insert
@@ -27,6 +28,7 @@ from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.constants.schema_versions import VERSION_5
+from kolibri.core.content.constants.schema_versions import VERSION_6
 from kolibri.core.content.legacy_models import License
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -36,6 +38,7 @@ from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import update_channel_version_to_assignments
+from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.errors import KolibriUpgradeError
@@ -1045,7 +1048,48 @@ class ChannelImport:
         self.destination.end()
 
 
-class NoLearningActivitiesChannelImport(ChannelImport):
+class NoIncludedPresetsChannelImport(ChannelImport):
+    """
+    Schema mapping for importing content databases published before the
+    included_presets bitmask (schema < 6). Backfills it from each file's own preset.
+    """
+
+    schema_mapping = {
+        ContentNode: {
+            "per_row": {
+                "tree_id": "available_tree_id",
+                "available": "default_to_not_available",
+            }
+        },
+        LocalFile: {"per_row": {"available": "default_to_not_available"}},
+        File: {
+            "per_row": {"available": "default_to_not_available"},
+            "post": ["set_included_presets_from_preset"],
+        },
+    }
+
+    def set_included_presets_from_preset(self, FileTable):
+        ContentNodeTable = self.destination.get_table(ContentNode)
+        channel_nodes = select(ContentNodeTable.c.id).where(
+            ContentNodeTable.c.channel_id == self.channel_id
+        )
+        # A single UPDATE mapping each preset to its bit via CASE, so the
+        # channel's files are scanned once rather than once per preset.
+        self.destination.execute(
+            FileTable.update()
+            .where(
+                and_(
+                    FileTable.c.preset.in_(renderable_preset_bits.keys()),
+                    FileTable.c.contentnode_id.in_(channel_nodes),
+                )
+            )
+            .values(
+                included_presets=case(renderable_preset_bits, value=FileTable.c.preset)
+            )
+        )
+
+
+class NoLearningActivitiesChannelImport(NoIncludedPresetsChannelImport):
     """
     Class defining the schema mapping for importing content databases before learning activities metadata was added
     """
@@ -1059,7 +1103,10 @@ class NoLearningActivitiesChannelImport(ChannelImport):
             "post": ["set_learning_activities_from_kind"],
         },
         LocalFile: {"per_row": {"available": "default_to_not_available"}},
-        File: {"per_row": {"available": "default_to_not_available"}},
+        File: {
+            "per_row": {"available": "default_to_not_available"},
+            "post": ["set_included_presets_from_preset"],
+        },
     }
 
     def set_learning_activities_from_kind(self, ContentNodeTable):
@@ -1107,7 +1154,8 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
                 # attname in order to set it.
                 File._meta.get_field("local_file").attname: "checksum",
                 "available": "get_none",
-            }
+            },
+            "post": ["set_included_presets_from_preset"],
         },
         LocalFile: {
             # Because LocalFile does not exist on old content databases, we have to override the table that
@@ -1193,7 +1241,8 @@ mappings = {
     VERSION_2: NoLearningActivitiesChannelImport,
     VERSION_3: NoLearningActivitiesChannelImport,
     VERSION_4: NoLearningActivitiesChannelImport,
-    VERSION_5: ChannelImport,
+    VERSION_5: NoIncludedPresetsChannelImport,
+    VERSION_6: ChannelImport,
 }
 
 
