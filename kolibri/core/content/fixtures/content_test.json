@@ -288,6 +288,7 @@
       "local_file": "6bdfea4a01830fdd4a585181c0b8068c",
       "thumbnail": false,
       "preset": "high_res_video",
+      "included_presets": 1,
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
@@ -300,6 +301,7 @@
       "local_file": "211523265f53825b82f70ba19218a02e",
       "thumbnail": false,
       "preset": "low_res_video",
+      "included_presets": 2,
       "contentnode": "32a941fb77c2576e8f6b294cde4c3b0c",
       "supplementary": false
     },
@@ -324,6 +326,7 @@
       "local_file": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "thumbnail": false,
       "preset": "low_res_video",
+      "included_presets": 2,
       "contentnode": "2b6926ed22025518a8b9da91745b51d3",
       "supplementary": false
     },
