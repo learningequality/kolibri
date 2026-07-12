@@ -1,0 +1,43 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kolibri-server package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-server\n"
+"Report-Msgid-Bugs-To: kolibri-server@packages.debian.org\n"
+"POT-Creation-Date: 2019-01-30 19:48+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: select
+#. Description
+#: ../templates:1001
+msgid "TCP Port where Kolibri will be available"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:1001
+msgid ""
+"The default is 8080, other possible options are 80 and 8008. For example, if "
+"Kolibri is installed and started on a computer with the IP address "
+"192.168.0.104, you can access it from an Android tablet connected to the "
+"same network by opening the browser on the tablet and typing the address "
+"http://192.168.0.104:8080."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:1001
+msgid ""
+"Entering a port that is already in use in the server will make Kolibri can't "
+"start."
+msgstr ""

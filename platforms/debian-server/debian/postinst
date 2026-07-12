@@ -1,0 +1,85 @@
+#!/bin/bash
+set -e
+
+. /usr/share/debconf/confmodule
+
+case "$1" in
+  configure)
+    service kolibri stop || true
+
+    # get KOLIBRI_USER from kolibri installer package:
+    . /etc/default/kolibri
+
+    # perhaps some day the group name will be set by the kolibri package
+    KOLIBRI_GROUP=`id $KOLIBRI_USER -gn`
+
+    # to avoid problems with previous installations of kolibri-server beta versions:
+    rm -f /etc/kolibri/nginx.d/port.conf
+
+    if which runuser > /dev/null
+    then
+        SU_COMMAND="runuser"
+    else
+        SU_COMMAND="su"
+    fi
+
+    if [ ! -e "$KOLIBRI_HOME/options.ini" ]; then
+        # initialize Kolibri and the options.ini file
+        $SU_COMMAND $KOLIBRI_USER -w KOLIBRI_HOME -c "kolibri configure setup"
+    elif [ ! -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+        # do a backup of the previous options.ini
+        $SU_COMMAND $KOLIBRI_USER -c "cp -f $KOLIBRI_HOME/options.ini $KOLIBRI_HOME/options.ini.kolibri-server-backup"
+    fi
+
+    # create nginx configurations:
+    ln -sf /etc/kolibri/dist/nginx.conf /etc/nginx/conf.d/kolibri.conf
+    db_get kolibri-server/port
+    PORT=$RET
+    db_get kolibri-server/zip_content_port
+    ZIPCONTENTPORT=$RET
+    $SU_COMMAND $KOLIBRI_USER -c "/usr/share/kolibri-server/kolibri_server_setup.py -d $PORT -z $ZIPCONTENTPORT"
+
+    if [ -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" = "80" ] ;then
+        rm  /etc/nginx/sites-enabled/default
+        touch /etc/kolibri/nginx_default
+    elif [ ! -L "/etc/nginx/sites-enabled/default" ] && [ "$PORT" != "80" ]  && [ -f "/etc/kolibri/nginx_default" ] ;then
+        ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+        rm -f /etc/kolibri/nginx_default
+    fi
+    echo "include $KOLIBRI_HOME/nginx.conf;" > /etc/kolibri/nginx.d/099-user.conf
+
+    # Write logrotate configuration if it's not already written
+    LOGROTATE_CONF="/etc/logrotate.d/kolibri"
+    if [ -e "/etc/logrotate.d" ] # && ! [ -e "$LOGROTATE_CONF" ]
+    then
+        # Issues with string substitution for "\n" caused this pattern
+        echo "\"${KOLIBRI_HOME}/logs/uwsgi.log\" {" > "$LOGROTATE_CONF"
+        echo "  copytruncate" >> "$LOGROTATE_CONF"
+        echo "  weekly" >> "$LOGROTATE_CONF"
+        echo "  rotate 150" >> "$LOGROTATE_CONF"
+        echo "  size 2M" >> "$LOGROTATE_CONF"
+        echo "  compress" >> "$LOGROTATE_CONF"
+        echo "  delaycompress" >> "$LOGROTATE_CONF"
+        echo "  missingok" >> "$LOGROTATE_CONF"
+        echo "  notifempty" >> "$LOGROTATE_CONF"
+        echo "  create 0644 $KOLIBRI_USER $KOLIBRI_GROUP" >> "$LOGROTATE_CONF"
+        echo "}" >> "$LOGROTATE_CONF"
+    fi
+
+    service nginx reload || true
+    service kolibri-server force-reload || true
+    ;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+
+exit 0
