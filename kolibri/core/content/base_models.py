@@ -190,6 +190,7 @@ class File(models.Model):
     supplementary = models.BooleanField(default=False)
     thumbnail = models.BooleanField(default=False)
     priority = models.IntegerField(blank=True, null=True, db_index=True)
+    included_presets = models.IntegerField(blank=True, null=True)
 
     class Meta:
         abstract = True

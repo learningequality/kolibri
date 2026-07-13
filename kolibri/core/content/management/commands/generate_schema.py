@@ -146,7 +146,7 @@ class Command(BaseCommand):
         # Only do this if we are generating a new export schema version
         if not no_export_schema:
             # Load fixture data into the test database with Django
-            call_command("loaddata", "content_import_test.json", interactive=False)
+            call_command("loaddata", "content_import_test.json")
 
             data = {}
 

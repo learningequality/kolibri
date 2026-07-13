@@ -21,6 +21,7 @@ from kolibri.core.content.constants.kind_to_learningactivity import kind_activit
 from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import File
 from kolibri.core.content.tasks import backfill_content_request_priority
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.utils.annotation import calculate_included_languages
@@ -32,6 +33,7 @@ from kolibri.core.content.utils.channel_import import FutureSchemaError
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import InvalidSchemaVersionError
 from kolibri.core.content.utils.channels import get_channel_ids_for_content_dirs
+from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.paths import get_all_content_dir_paths
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.search import annotate_label_bitmasks
@@ -386,3 +388,27 @@ def populate_channel_library_field():
     ChannelMetadata.objects.filter(public=True, library__isnull=True).update(
         library=library_constants.KOLIBRI
     )
+
+
+# Cap each backfill UPDATE so a channel library with millions of file rows does
+# not produce a single long-running statement that could time out.
+INCLUDED_PRESETS_BACKFILL_BATCH_SIZE = 10000
+
+
+@version_upgrade(old_version="<0.20.0")
+def file_included_presets_annotation():
+    """
+    Backfill File.included_presets for rows imported before the column existed,
+    setting each renderable file's own-preset bit and leaving others null.
+    """
+    for preset, bit in renderable_preset_bits.items():
+        # Loop until no still-null rows remain: each pass sets its matched rows
+        # non-null, shrinking the set the next pass can match.
+        updated = True
+        while updated:
+            batch = File.objects.filter(
+                preset=preset, included_presets__isnull=True
+            ).values("pk")[:INCLUDED_PRESETS_BACKFILL_BATCH_SIZE]
+            updated = bool(
+                File.objects.filter(pk__in=batch).update(included_presets=bit)
+            )
