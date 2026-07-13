@@ -27,6 +27,7 @@ morango = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
 members = [
     "kolibri",
     "kolibri-context-translation-plugin",
+    "kolibri-demo-server-plugin",
     "kolibri-oidc-client-plugin",
     "kolibri-oidc-provider-plugin",
     "kolibri-opensearch-plugin",
@@ -3225,6 +3226,17 @@ dev = [
     { name = "ruff" },
 ]
 lint = [{ name = "ruff" }]
+
+[[package]]
+name = "kolibri-demo-server-plugin"
+version = "0.1.0"
+source = { editable = "python_packages/kolibri-demo-server-plugin" }
+dependencies = [
+    { name = "kolibri" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kolibri", editable = "." }]
 
 [[package]]
 name = "kolibri-oidc-client-plugin"

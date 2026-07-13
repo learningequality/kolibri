@@ -1,0 +1,24 @@
+{
+  "name": "kolibri-demo-server-plugin",
+  "description": "Demo Server Plugin for Kolibri",
+  "private": true,
+  "scripts": {
+    "build": "kolibri-build prod --plugins kolibri_demo_server_plugin",
+    "clean": "kolibri-build clean --plugins kolibri_demo_server_plugin",
+    "compress": "kolibri-build compress 'kolibri_demo_server_plugin/static/**/*.{html,js,css,svg,map,eot,ttf}'",
+    "dev": "kolibri-build dev --plugins kolibri_demo_server_plugin",
+    "lint-frontend": "kolibri-format --pattern 'kolibri_demo_server_plugin/**/*.{js,vue,scss,less,css}' --ignore '**/dist/**' '**/node_modules/**' '**/static/**'",
+    "lint-frontend:format": "pnpm run lint-frontend --write"
+  },
+  "dependencies": {
+    "browserslist-config-kolibri": "workspace:*",
+    "kolibri": "workspace:*",
+    "kolibri-module": "workspace:*",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "kolibri-build": "workspace:*",
+    "kolibri-format": "workspace:*"
+  },
+  "browserslist": ["extends browserslist-config-kolibri"]
+}
