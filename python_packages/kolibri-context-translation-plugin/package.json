@@ -1,0 +1,10 @@
+{
+  "name": "kolibri-context-translation-plugin",
+  "private": true,
+  "scripts": {
+    "build": "kolibri-build compress 'kolibri_context_translation_plugin/static/**/*.{html,js,css,svg,map,eot,ttf}'"
+  },
+  "devDependencies": {
+    "kolibri-build": "workspace:*"
+  }
+}
