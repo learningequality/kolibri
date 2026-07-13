@@ -26,6 +26,7 @@ morango = { timestamp = "0001-01-01T00:00:00Z", span = "PT0S" }
 [manifest]
 members = [
     "kolibri",
+    "kolibri-context-translation-plugin",
     "kolibri-oidc-client-plugin",
     "kolibri-oidc-provider-plugin",
     "kolibri-opensearch-plugin",
@@ -3197,6 +3198,33 @@ test = [
     { name = "whitenoise", specifier = "==5.3.0" },
     { name = "zeroconf-py2compat", specifier = "==0.19.17" },
 ]
+
+[[package]]
+name = "kolibri-context-translation-plugin"
+version = "0.1.0"
+source = { editable = "python_packages/kolibri-context-translation-plugin" }
+dependencies = [
+    { name = "kolibri" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "ruff" },
+]
+lint = [
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "kolibri", editable = "." }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "ruff" },
+]
+lint = [{ name = "ruff" }]
 
 [[package]]
 name = "kolibri-oidc-client-plugin"
