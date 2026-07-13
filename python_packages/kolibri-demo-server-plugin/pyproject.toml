@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolibri-demo-server-plugin"
+version = "0.1.0"
+description = "Demo Server Plugin for Kolibri"
+requires-python = ">=3.6, <3.15"
+license = "MIT"
+authors = [{ name = "Learning Equality", email = "info@learningequality.org" }]
+dependencies = [
+    "kolibri>=0.20",
+]
+
+[project.entry-points."kolibri.plugins"]
+kolibri_demo_server_plugin = "kolibri_demo_server_plugin"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["kolibri_demo_server_plugin*"]
+
+[tool.uv.sources]
+kolibri = { workspace = true }

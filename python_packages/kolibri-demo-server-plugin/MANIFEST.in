@@ -1,0 +1,2 @@
+recursive-include kolibri_demo_server_plugin/static *.*
+recursive-include kolibri_demo_server_plugin/locale *.json

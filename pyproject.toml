@@ -41,7 +41,6 @@ kolibri = "kolibri.utils.cli:main"
 "kolibri.plugins.app" = "kolibri.plugins.app"
 "kolibri.plugins.coach" = "kolibri.plugins.coach"
 "kolibri.plugins.default_theme" = "kolibri.plugins.default_theme"
-"kolibri.plugins.demo_server" = "kolibri.plugins.demo_server"
 "kolibri.plugins.device" = "kolibri.plugins.device"
 "kolibri.plugins.epub_viewer" = "kolibri.plugins.epub_viewer"
 "kolibri.plugins.html5_viewer" = "kolibri.plugins.html5_viewer"
@@ -187,7 +186,7 @@ max-line-length = 160
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin", "kolibri_oidc_client_plugin", "kolibri_oidc_provider_plugin", "kolibri_opensearch_plugin", "kolibri_context_translation_plugin"]
+known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin", "kolibri_oidc_client_plugin", "kolibri_oidc_provider_plugin", "kolibri_opensearch_plugin", "kolibri_context_translation_plugin", "kolibri_demo_server_plugin"]
 # Match the prior reorder-python-imports style: one import per line,
 # sorted case-insensitively rather than grouped by type.
 force-single-line = true

@@ -257,24 +257,6 @@ importers:
         specifier: 'catalog:'
         version: 1.3.6(vue-template-compiler@2.7.16)(vue@2.7.16)
 
-  kolibri/plugins/demo_server:
-    dependencies:
-      kolibri:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri
-      kolibri-common:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri-common
-      kolibri-module:
-        specifier: workspace:*
-        version: link:../../../packages/kolibri-module
-      lodash:
-        specifier: 'catalog:'
-        version: 4.17.23
-      vue:
-        specifier: 'catalog:'
-        version: 2.7.16
-
   kolibri/plugins/device:
     dependencies:
       '@vueuse/core':
@@ -1766,6 +1748,28 @@ importers:
       kolibri-build:
         specifier: workspace:*
         version: link:../../packages/kolibri-build
+
+  python_packages/kolibri-demo-server-plugin:
+    dependencies:
+      browserslist-config-kolibri:
+        specifier: workspace:*
+        version: link:../../packages/browserslist-config-kolibri
+      kolibri:
+        specifier: workspace:*
+        version: link:../../packages/kolibri
+      kolibri-module:
+        specifier: workspace:*
+        version: link:../../packages/kolibri-module
+      vue:
+        specifier: 'catalog:'
+        version: 2.7.16
+    devDependencies:
+      kolibri-build:
+        specifier: workspace:*
+        version: link:../../packages/kolibri-build
+      kolibri-format:
+        specifier: workspace:*
+        version: link:../../packages/kolibri-format
 
   python_packages/kolibri-sentry-plugin:
     dependencies:
