@@ -40,7 +40,6 @@ kolibri = "kolibri.utils.cli:main"
 [project.entry-points."kolibri.plugins"]
 "kolibri.plugins.app" = "kolibri.plugins.app"
 "kolibri.plugins.coach" = "kolibri.plugins.coach"
-"kolibri.plugins.context_translation" = "kolibri.plugins.context_translation"
 "kolibri.plugins.default_theme" = "kolibri.plugins.default_theme"
 "kolibri.plugins.demo_server" = "kolibri.plugins.demo_server"
 "kolibri.plugins.device" = "kolibri.plugins.device"
