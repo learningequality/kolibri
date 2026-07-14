@@ -31,7 +31,7 @@ set +x
 declare -A QUERY_MATRIX
 QUERY_MATRIX["select count(*) from morango_databaseidmodel;"]="db.sqlite3"
 QUERY_MATRIX["select count(*) from morango_instanceidmodel;"]="db.sqlite3"
-QUERY_MATRIX["select count(*) from discovery_networklocation;"]="networklocation.sqlite3"
+QUERY_MATRIX["select count(*) from discovery_networklocation where location_type != 'reserved';"]="networklocation.sqlite3"
 QUERY_MATRIX["select count(*) from jobs;"]="job_storage.sqlite3"
 
 echo "Verifying databases..."

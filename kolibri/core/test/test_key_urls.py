@@ -18,14 +18,19 @@ from kolibri.core.discovery.test.helpers import mock_response
 
 def mock_external_request(session, method, url, *args, **kwargs):
     """
-    Give any outbound HTTP request a successful empty response, so that views
+    Give any outbound HTTP request a successful response, so that views
     proxying to external services (the Kolibri Data Portal token validation,
     the Studio remote channel lookup) can be smoke tested without depending
     on those services.
+
+    The device-info endpoint returns an object, which NetworkClient.connect()
+    parses when validating a reserved peer like Studio; every other proxied
+    endpoint returns a list.
     """
     response = mock_response(200)
     response.url = url
-    response.json.return_value = []
+    if "api/public/info" not in url:
+        response.json.return_value = []
     return response
 
 
