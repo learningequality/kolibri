@@ -1,15 +1,10 @@
 from django.views.generic.base import TemplateView
 
-from kolibri.core.views import RootURLRedirectView
+from kolibri.core.decorators import cache_no_user_data
 
 
+@cache_no_user_data
 class UserAuthView(TemplateView):
-    template_name = "user_auth/user_auth.html"
+    """Authenticated users are redirected away on the frontend, in app.js."""
 
-    def get(self, request):
-        """
-        When authenticated, redirect to the appropriate view
-        """
-        if request.user.is_authenticated:
-            return RootURLRedirectView.as_view()(request)
-        return super().get(request)
+    template_name = "user_auth/user_auth.html"

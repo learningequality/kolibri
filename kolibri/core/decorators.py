@@ -2,16 +2,30 @@
 Modified and extended from https://github.com/camsaul/django-rest-params/blob/master/django_rest_params/decorators.py
 """
 
+import functools
 import hashlib
-from threading import local
+import logging
+import random
+import re
+import threading
+import time
+from copy import deepcopy
+from io import BytesIO
 
-from django.core.cache import cache
+from django.core.handlers.wsgi import WSGIRequest
+from django.db import connections
+from django.utils import translation
+from django.utils.cache import add_never_cache_headers
+from django.utils.cache import get_conditional_response
 from django.utils.cache import patch_response_headers
-from django.views.decorators.http import etag
+from django.utils.text import compress_string
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 
 from kolibri import __version__ as kolibri_version
+from kolibri.core.utils.cache import process_cache
+
+logger = logging.getLogger(__name__)
 
 TRUE_VALUES = ("1", "true")
 FALSE_VALUES = ("0", "false")
@@ -311,62 +325,199 @@ def query_params_required(**kwargs):  # noqa: C901
     return _params
 
 
-def cache_no_user_data(view_func):
+# Seconds a freshly stored body is served before a refresh is triggered.
+BODY_CACHE_REFRESH = 15
+# Refresh deadlines are jittered back by up to this much, so the bodies warming
+# stores in one burst do not all come due in the same instant.
+BODY_CACHE_REFRESH_JITTER = 5
+# How long the refresh election is held before another request may take it over,
+# in case the elected refresher dies mid-render.
+BODY_CACHE_LOCK_TIMEOUT = 30
+
+
+def _spawn(target):
+    # Seam for the background refresh, so tests can run it synchronously.
+    threading.Thread(target=target, daemon=True).start()
+
+
+_GZIP_RE = re.compile(r"\bgzip\b")
+
+
+def _accepts_gzip(request):
+    # No Accept-Encoding means no preference, so it gets the gzip like everyone
+    # else; only an explicit header without gzip gets the plain body. Mirrors the
+    # negotiation kolibri.utils.kolibri_whitenoise does for static assets.
+    accept_encoding = request.META.get("HTTP_ACCEPT_ENCODING", "*")
+    return accept_encoding == "*" or bool(_GZIP_RE.search(accept_encoding))
+
+
+# Carried from a live request into its off-thread refresh so the refreshed body
+# matches what the request renders. Excludes cookies and other per-user headers -
+# the cached body must stay user-independent.
+_CARRIED_ENVIRON_KEYS = (
+    "SERVER_NAME",
+    "SERVER_PORT",
+    "HTTP_HOST",
+    "wsgi.url_scheme",
+)
+
+
+def _build_request(path, base_environ=None):
+    # Bare GET request for rendering a cached view outside the request cycle.
+    environ = {
+        "REQUEST_METHOD": "GET",
+        "PATH_INFO": path,
+        "SCRIPT_NAME": "",
+        "SERVER_NAME": "localhost",
+        "SERVER_PORT": "80",
+        "SERVER_PROTOCOL": "HTTP/1.1",
+        "QUERY_STRING": "",
+        "wsgi.url_scheme": "http",
+        "wsgi.input": BytesIO(b""),
+    }
+    if base_environ is not None:
+        for key in _CARRIED_ENVIRON_KEYS:
+            if key in base_environ:
+                environ[key] = base_environ[key]
+    request = WSGIRequest(environ)
+    # The decorator drops the session; give it one to drop.
+    request.session = {}
+    return request
+
+
+class _CachedBody:
     """
-    Set appropriate Vary on headers on a view that specify there is
-    no user specific data being rendered in the view.
-    In order to ensure that the correct Vary headers are set,
-    the session is deleted from the request, as otherwise Vary cookies
-    will always be set by the Django session middleware.
-    This should not be used on any view that bootstraps user specific
-    data into it - this will remove the headers that will make this vary
-    on a per user basis.
+    Serve one view's rendered body from a shared cross-process cache, since the
+    view renders no user-specific data.
     """
 
-    CACHE_TIMEOUT = 15
-    CACHE_KEY_TEMPLATE = "SPA_ETAG_CACHE_{}"
-    _response = local()
+    def __init__(self, view_class):
+        self._view_class = view_class
+        self._dispatch = view_class.dispatch
 
-    def render_and_cache(response, cache_key):
-        if hasattr(response, "render") and callable(response.render):
-            response.render()
-        if response.content:
-            etag = hashlib.md5(
-                kolibri_version.encode("utf-8") + str(response.content).encode("utf-8")
-            ).hexdigest()
-            cache.set(cache_key, etag, CACHE_TIMEOUT)
-            return etag
-        else:
-            return None
-
-    def calculate_spa_etag(*args, **kwargs):
-        # Clear the local thread 'response' property
-        setattr(_response, "response", None)
-
-        request = args[0]
-        etag = cache.get(CACHE_KEY_TEMPLATE.format(request.path))
-
-        # Doing this here - will also be the same in inner_func
-        # required to delete the session for this to work as expected
+    def __call__(self, view, request, *args, **kwargs):
+        # Drop the session so the session middleware does not add Vary: Cookie,
+        # which would split the cache per user.
         del request.session
+        body_key, lock_key = self._keys(request.path)
+        entry = process_cache.get(body_key)
+        if entry is not None:
+            variants, refresh_at = entry
+            if time.time() >= refresh_at and process_cache.add(
+                lock_key, True, BODY_CACHE_LOCK_TIMEOUT
+            ):
+                self._refresh_in_background(request, body_key, lock_key)
+            return self._conditional(request, self._pick(request, variants))
+        # Cold miss: render inline, since there is nothing to serve stale.
+        return self._conditional(
+            request, self._render_and_store(view, request, args, kwargs, body_key)
+        )
 
-        if not etag:
-            response = view_func(*args, **kwargs)
-            setattr(_response, "response", response)
-            etag = render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
-        return etag
+    @staticmethod
+    def _keys(path):
+        # One entry per path; language is carried by the path's i18n prefix.
+        # The entry holds both encodings, so the key does not vary on
+        # Accept-Encoding - it is negotiated at serve time instead.
+        digest = hashlib.md5(
+            "{}:{}".format(kolibri_version, path).encode("utf-8")
+        ).hexdigest()
+        return "VIEW_BODY_CACHE_{}".format(digest), "VIEW_BODY_LOCK_{}".format(digest)
 
-    @etag(calculate_spa_etag)
-    def inner_func(*args, **kwargs):
-        request = args[0]
+    @staticmethod
+    def _conditional(request, response):
+        # Honour If-None-Match so a client past the browser-cache window
+        # revalidates instead of re-fetching the whole body.
+        return (
+            get_conditional_response(
+                request, etag=response.headers.get("ETag"), response=response
+            )
+            or response
+        )
 
-        response = getattr(_response, "response", None)
-        if not response:
-            response = view_func(*args, **kwargs)
+    @staticmethod
+    def _pick(request, variants):
+        plain, gzipped = variants
+        return gzipped if _accepts_gzip(request) else plain
 
-        render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
-        patch_response_headers(response, cache_timeout=CACHE_TIMEOUT)
-        response.headers["Vary"] = "accept-encoding, accept"
+    @staticmethod
+    def _finalize(response, content, encoding=None):
+        response.content = content
+        if encoding:
+            response.headers["Content-Encoding"] = encoding
+        response.headers["Content-Length"] = str(len(content))
+        patch_response_headers(response, cache_timeout=BODY_CACHE_REFRESH)
+        response.headers["Vary"] = "Accept-Encoding"
+        # Content-based ETag, so conditional GETs 304. Distinct per encoding,
+        # since the two representations are different bytes.
+        response.headers["ETag"] = '"{}"'.format(
+            hashlib.md5(kolibri_version.encode("utf-8") + content).hexdigest()
+        )
         return response
 
-    return inner_func
+    def _render_and_store(self, view, request, args, kwargs, body_key):
+        response = self._dispatch(view, request, *args, **kwargs)
+        if hasattr(response, "render") and callable(response.render):
+            response.render()
+        if response.status_code != 200 or not response.content:
+            add_never_cache_headers(response)
+            return response
+        # Both encodings are compressed and stored once here rather than per
+        # request - that drag is what retired the global gzip middleware.
+        gzipped = self._finalize(
+            deepcopy(response), compress_string(response.content), "gzip"
+        )
+        variants = (self._finalize(response, response.content), gzipped)
+        refresh_at = (
+            time.time()
+            + BODY_CACHE_REFRESH
+            - random.uniform(0, BODY_CACHE_REFRESH_JITTER)
+        )
+        # timeout=None: the body never hard-expires, so a stale copy is always
+        # available to serve while one request refreshes it.
+        process_cache.set(body_key, (variants, refresh_at), None)
+        return self._pick(request, variants)
+
+    def _refresh_in_background(self, request, body_key, lock_key):
+        # Off-thread so no request blocks on the render. Build a fresh view and
+        # request rather than sharing the live ones across threads - the view
+        # renders from its own ``request`` attribute, so it needs its own view
+        # instance. Translation is thread-local, so carry the language over.
+        language = translation.get_language()
+        path = request.path
+        base_environ = {
+            key: request.environ[key]
+            for key in _CARRIED_ENVIRON_KEYS
+            if key in request.environ
+        }
+
+        def run():
+            try:
+                with translation.override(language):
+                    fresh_request = _build_request(path, base_environ)
+                    fresh_view = self._view_class()
+                    fresh_view.setup(fresh_request)
+                    self._render_and_store(fresh_view, fresh_request, (), {}, body_key)
+            # Best effort: a thread has no caller to propagate to, and a failed
+            # refresh just means the stale body serves until the next attempt.
+            except Exception:
+                logger.warning("Failed to refresh cached view body", exc_info=True)
+            finally:
+                process_cache.delete(lock_key)
+                connections.close_all()
+
+        _spawn(run)
+
+
+def cache_no_user_data(view_class):
+    """
+    View-class decorator: serve the view's body from a shared cache (see
+    ``_SpaBodyCache``). Must not be used on a view that renders user data.
+    """
+    cache = _CachedBody(view_class)
+
+    @functools.wraps(view_class.dispatch)
+    def dispatch(self, request, *args, **kwargs):
+        return cache(self, request, *args, **kwargs)
+
+    view_class.dispatch = dispatch
+    return view_class
