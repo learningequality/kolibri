@@ -41,6 +41,7 @@ class TestTaskDecorators(TestCase):
             long_running=False,
             status_fn=status_fn,
             retry_on=[],
+            schedule=None,
         )
 
     def test_register_decorator_registers_without_args(self):

@@ -1,15 +1,13 @@
 import logging
-from datetime import timedelta
 
 from django import db
 from django.apps import apps
 
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.tasks.schedules import Cron
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
-from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +15,7 @@ logger = logging.getLogger(__name__)
 SCH_VACUUM_JOB_ID = "1"
 
 
-@register_task(job_id=SCH_VACUUM_JOB_ID)
+@register_task(job_id=SCH_VACUUM_JOB_ID, schedule=Cron(hour=3))
 def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
     connection = db.connections[database]
     if connection.vendor == "sqlite":
@@ -59,33 +57,11 @@ def perform_vacuum(database=db.DEFAULT_DB_ALIAS, full=False):
         connection.close()
 
 
-def schedule_vacuum():
-    current_dt = local_now()
-    vacuum_time = current_dt.replace(hour=3, minute=0, second=0, microsecond=0)
-    if vacuum_time < current_dt:
-        # If it is past 3AM, change the day to tomorrow.
-        vacuum_time = vacuum_time + timedelta(days=1)
-    # Repeat indefinitely
-    try:
-        perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)
-    except JobRunning:
-        pass
-
-
 # Constant job id for streamed cache cleanup task
 STREAMED_CACHE_CLEANUP_JOB_ID = "streamed_cache_cleanup"
 
 
-@register_task(job_id=STREAMED_CACHE_CLEANUP_JOB_ID)
+@register_task(job_id=STREAMED_CACHE_CLEANUP_JOB_ID, schedule=Cron(minute=0))
 def streamed_cache_cleanup():
     manager = ChunkedFileDirectoryManager(OPTIONS["Paths"]["CONTENT_DIR"])
     manager.limit_files(OPTIONS["Cache"]["STREAMED_FILE_CACHE_SIZE"])
-
-
-def schedule_streamed_cache_cleanup():
-    try:
-        streamed_cache_cleanup.enqueue_in(
-            timedelta(hours=1), repeat=None, interval=60 * 60
-        )
-    except JobRunning:
-        pass

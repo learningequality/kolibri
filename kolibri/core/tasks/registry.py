@@ -8,9 +8,11 @@ from rest_framework.exceptions import PermissionDenied
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.constants import Priority
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
+from kolibri.core.tasks.schedules import Schedule
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.validation import JobValidator
 
@@ -120,6 +122,15 @@ class _registry(dict):
             )
         return self[task]
 
+    def apply_schedules(self):
+        self._initialize()
+        for task in list(self.values()):
+            if task.schedule is not None:
+                try:
+                    task.schedule.apply(task)
+                except JobRunning:
+                    pass
+
 
 TaskRegistry = _registry()
 
@@ -155,6 +166,7 @@ class RegisteredTask:
         long_running=False,
         status_fn=None,
         retry_on=None,
+        schedule=None,
     ):
         """
         :param func: Function to be wrapped as a Registered task
@@ -185,6 +197,8 @@ class RegisteredTask:
         text describing the status of the job to an end user. Should use string wrapping, as it will
         usually be invoked in a context where internationalization is being used.
         :type status_fn: function
+        :param schedule: Schedule to apply at startup, defaults to None
+        :type schedule: Schedule or None
         """
         if permission_classes is None:
             permission_classes = []
@@ -202,6 +216,8 @@ class RegisteredTask:
             raise TypeError("track_progress must be of bool type.")
         if not isinstance(long_running, bool):
             raise TypeError("long_running must be of bool type.")
+        if schedule is not None and not isinstance(schedule, Schedule):
+            raise TypeError("schedule must be a Schedule instance or None.")
         if status_fn is not None and not callable(status_fn):
             raise TypeError("status_fn must be callable.")
         if long_running and status_fn is None:
@@ -226,6 +242,7 @@ class RegisteredTask:
         self.long_running = long_running
         self._status_fn = status_fn
         self.retry_on = self._validate_retry_on(retry_on)
+        self.schedule = schedule
 
         # Make this wrapper object look seamlessly like the wrapped function
         update_wrapper(self, func)

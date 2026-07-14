@@ -791,6 +791,7 @@ class Storage:
         state=None,
         supervisor_id=None,
         expected_supervisor_id=NO_VALUE,
+        repeat=NO_VALUE,
         **kwargs,
     ):
         """
@@ -814,7 +815,7 @@ class Storage:
             if handled:
                 return result
 
-            self._write_job_update(job, orm_job, state, supervisor_id, kwargs)
+            self._write_job_update(job, orm_job, state, supervisor_id, kwargs, repeat)
             for hook in self._hooks:
                 hook.update(job, orm_job, state=state, **kwargs)
             return True
@@ -842,7 +843,9 @@ class Storage:
             return True, False
         return False, None
 
-    def _write_job_update(self, job, orm_job, state, supervisor_id, kwargs):
+    def _write_job_update(
+        self, job, orm_job, state, supervisor_id, kwargs, repeat=NO_VALUE
+    ):
         if state is not None:
             orm_job.state = job.state = state
             # Ownership exists only in supervised states; a bare re-mark
@@ -852,6 +855,9 @@ class Storage:
                     orm_job.supervisor_id = supervisor_id
             else:
                 orm_job.supervisor_id = None
+        # repeat is nullable, so None is a real value; NO_VALUE means "leave it".
+        if repeat is not NO_VALUE:
+            orm_job.repeat = repeat
         for kwarg in kwargs:
             if kwarg in Job.UPDATEABLE_KEYS:
                 setattr(job, kwarg, kwargs[kwarg])

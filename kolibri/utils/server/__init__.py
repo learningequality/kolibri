@@ -256,26 +256,6 @@ class ZipContentServerPlugin(ServerPlugin):
     START.priority = 75
 
 
-class DefaultScheduledTasksPlugin(SimplePlugin):
-    def START(self):
-        from kolibri.core.analytics.tasks import schedule_local_notification_generation
-        from kolibri.core.analytics.tasks import schedule_ping
-        from kolibri.core.deviceadmin.tasks import schedule_streamed_cache_cleanup
-        from kolibri.core.deviceadmin.tasks import schedule_vacuum
-
-        # schedule the pingback job if not already scheduled
-        schedule_ping()
-
-        # schedule the local-notification generator (impact-stories) if not already scheduled
-        schedule_local_notification_generation()
-
-        # schedule the vacuum job if not already scheduled
-        schedule_vacuum()
-
-        # schedule the streamed cache cleanup job if not already scheduled
-        schedule_streamed_cache_cleanup()
-
-
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
@@ -788,8 +768,10 @@ class BaseKolibriProcessBus(ProcessBus):
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
 
-        default_scheduled_tasks_plugin = DefaultScheduledTasksPlugin(self)
-        default_scheduled_tasks_plugin.subscribe()
+        # Subscribe process hooks on the base bus so they run under the
+        # services-only bus (e.g. task scheduling) as well as the full server.
+        for process_hook in KolibriProcessHook.registered_hooks:
+            process_hook.MagicBusPluginClass(self).subscribe()
 
     def run(self):
         self.graceful()
@@ -909,10 +891,6 @@ class KolibriProcessBus(KolibriServicesProcessBus):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for process_hook in KolibriProcessHook.registered_hooks:
-            process_plugin = process_hook.MagicBusPluginClass(self)
-            process_plugin.subscribe()
 
         kolibri_server = KolibriServerPlugin(
             self,

@@ -442,6 +442,10 @@ class JobTest(TestCase):
         )
         self.assertEqual(self.job.extra_metadata["step"], 4)
 
+    def test_job_stop_repeating_not_running(self):
+        with self.assertRaises(JobNotRunning):
+            self.job.stop_repeating()
+
     # End of generated tests
 
 

@@ -361,6 +361,13 @@ class Job:
             expected_supervisor_id=self._supervisor_id,
         )
 
+    def stop_repeating(self):
+        if getattr(current_state_tracker, "job", None) is not self:
+            raise JobNotRunning(
+                "stop_repeating can only be called from within a running job about the currently running job"
+            )
+        self.storage._update_job(self.job_id, repeat=0)
+
     def retry_in(self, dt, **kwargs):
         if getattr(current_state_tracker, "job", None) is not self:
             raise JobNotRunning(
