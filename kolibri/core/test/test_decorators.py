@@ -6,14 +6,23 @@ from django.template import engines
 from django.template.response import TemplateResponse
 from django.test import RequestFactory
 from django.test import SimpleTestCase
+from django.test import TestCase
+from django.urls import reverse
+from django.utils import translation
 from django.views.generic.base import View
 
+from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.decorators import _cached_view_targets
 from kolibri.core.decorators import _CachedBody
 from kolibri.core.decorators import BODY_CACHE_REFRESH
 from kolibri.core.decorators import cache_no_user_data
 from kolibri.core.decorators import InvalidQueryParamsException
 from kolibri.core.decorators import ParamValidator
+from kolibri.core.decorators import warm_cached_views
 from kolibri.core.utils.cache import process_cache
+from kolibri.plugins.user_auth.views import UserAuthView
+
+USER_AUTH_VIEW_NAME = "kolibri:kolibri.plugins.user_auth:user_auth"
 
 
 def run_inline(target):
@@ -191,3 +200,80 @@ class CacheNoUserDataTestCase(SimpleTestCase):
         # A gzip client holding the plain ETag must get the body, not a 304.
         self.assertEqual(crossed.status_code, 200)
         self.assertEqual(gzip.decompress(crossed.content), b"body-1")
+
+
+class CachedViewTargetsTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+
+    def test_discovers_registered_views_from_the_urlconf(self):
+        targets = dict(_cached_view_targets())
+
+        # Decorated views across plugins must be discoverable for warming.
+        for name in (
+            USER_AUTH_VIEW_NAME,
+            "kolibri:kolibri.plugins.learn:learn",
+            "kolibri:kolibri.plugins.device:device_management",
+        ):
+            self.assertIn(name, targets)
+        self.assertIs(targets[USER_AUTH_VIEW_NAME].view_class, UserAuthView)
+
+    def test_every_discovered_name_is_reversible(self):
+        # Bad namespace assembly would make reverse() raise and silently skip the
+        # view at warm time.
+        with translation.override("en"):
+            for name, _callback in _cached_view_targets():
+                reverse(name)
+
+
+class WarmCachedViewsTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+
+    def setUp(self):
+        process_cache.clear()
+
+    def test_warms_each_view_once_in_the_device_language(self):
+        calls = []
+
+        def callback(request):
+            calls.append((request.path, translation.get_language()))
+            return HttpResponse("shell")
+
+        def fake_reverse(name):
+            return "/{}/{}/".format(translation.get_language(), name)
+
+        with mock.patch(
+            "kolibri.core.decorators._cached_view_targets",
+            return_value=[("learn", callback), ("auth", callback)],
+        ), mock.patch("kolibri.core.decorators.reverse", fake_reverse), mock.patch(
+            "kolibri.core.decorators.get_device_language", return_value="es-es"
+        ), mock.patch("kolibri.core.decorators.connections"):
+            warm_cached_views()
+
+        # Each cached view is warmed exactly once, in the device language.
+        # Other languages are not warmed at startup; they load lazily.
+        self.assertEqual(calls, [("/es-es/learn/", "es-es"), ("/es-es/auth/", "es-es")])
+
+    def test_falls_back_to_settings_language_when_device_language_missing(self):
+        calls = []
+
+        def callback(request):
+            calls.append(translation.get_language())
+            return HttpResponse("shell")
+
+        with mock.patch(
+            "kolibri.core.decorators._cached_view_targets",
+            return_value=[("learn", callback)],
+        ), mock.patch(
+            "kolibri.core.decorators.reverse", return_value="/x/"
+        ), mock.patch(
+            "kolibri.core.decorators.get_device_language", return_value=None
+        ), mock.patch(
+            "kolibri.core.decorators.get_settings_language", return_value="ar"
+        ), mock.patch("kolibri.core.decorators.connections"):
+            warm_cached_views()
+
+        self.assertEqual(calls, ["ar"])

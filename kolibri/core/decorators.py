@@ -14,6 +14,9 @@ from io import BytesIO
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import connections
+from django.urls import get_resolver
+from django.urls import reverse
+from django.urls import URLResolver
 from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.cache import get_conditional_response
@@ -23,6 +26,8 @@ from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 
 from kolibri import __version__ as kolibri_version
+from kolibri.core.device.translation import get_device_language
+from kolibri.core.device.translation import get_settings_language
 from kolibri.core.utils.cache import process_cache
 
 logger = logging.getLogger(__name__)
@@ -511,7 +516,8 @@ class _CachedBody:
 def cache_no_user_data(view_class):
     """
     View-class decorator: serve the view's body from a shared cache (see
-    ``_SpaBodyCache``). Must not be used on a view that renders user data.
+    ``_CachedBody``) and register it so the body is warmed in the device
+    language at startup. Must not be used on a view that renders user data.
     """
     cache = _CachedBody(view_class)
 
@@ -520,4 +526,45 @@ def cache_no_user_data(view_class):
         return cache(self, request, *args, **kwargs)
 
     view_class.dispatch = dispatch
+    # Marks the class as opted in, for the resolver walk in _cached_view_targets.
+    view_class._cache_no_user_data = True
     return view_class
+
+
+def _cached_view_targets():
+    # (url name, view callback) for every URL that serves a registered cached view.
+    def walk(resolver, namespaces):
+        for pattern in resolver.url_patterns:
+            if isinstance(pattern, URLResolver):
+                nested = namespaces
+                if pattern.namespace:
+                    nested = namespaces + (pattern.namespace,)
+                yield from walk(pattern, nested)
+            elif pattern.name:
+                yield ":".join(namespaces + (pattern.name,)), pattern.callback
+
+    for name, callback in walk(get_resolver(), ()):
+        view_class = getattr(callback, "view_class", None)
+        if getattr(view_class, "_cache_no_user_data", False):
+            yield name, callback
+
+
+def warm_cached_views():
+    """
+    Render and store every registered cached view for the device's configured
+    language, so the first real request to each is a hit. Runs once at startup.
+
+    Device language only - warming every supported language would render
+    hundreds of bodies, stealing CPU from the startup request burst on
+    low-power targets. Other languages warm lazily on first request.
+    """
+    language = get_device_language() or get_settings_language()
+    try:
+        with translation.override(language):
+            for name, callback in _cached_view_targets():
+                try:
+                    callback(_build_request(reverse(name)))
+                except Exception:
+                    logger.warning("Failed to warm %s", name, exc_info=True)
+    finally:
+        connections.close_all()
