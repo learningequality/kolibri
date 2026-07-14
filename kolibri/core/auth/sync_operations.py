@@ -124,7 +124,7 @@ class KolibriNetworkInitializeOperation(NetworkInitializeOperation):
             # session and context objects to reflect the change
             context.update(sync_filter=response_filter)
             context.transfer_session.filter = str(response_filter)
-            context.transfer_session.save()
+            context.transfer_session.save(update_fields=["filter"])
 
         return response_data
 
@@ -203,7 +203,7 @@ class KolibriSyncOperationMixin(BaseOperation):
         extra_fields = self._get_storage(context)
         extra_fields.update(**storage)
         context.sync_session.extra_fields = json.dumps(extra_fields)
-        context.sync_session.save()
+        context.sync_session.save(update_fields=["extra_fields"])
 
     def has_handled(self, context):
         """

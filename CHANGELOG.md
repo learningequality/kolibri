@@ -2,6 +2,18 @@
 
 List of the most important changes for each release.
 
+## 0.19.5
+
+### High-level overview
+
+A maintenance patch focused on database and sync reliability, with no user-facing changes.
+
+### Changed
+* Migrate pre-0.17 FKs to have deferrable flags by @bjester in https://github.com/learningequality/kolibri/pull/14981
+* Scoped field updates in custom Morango sync ops by @bjester in https://github.com/learningequality/kolibri/pull/14985
+* Seed reserved NetworkLocation rows via post_migrate in DiscoveryConfig by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14887
+* Standardize pnpm CI pattern: action-setup@v6.0.8 before setup-node with cache: pnpm by @rtibblesbot in https://github.com/learningequality/kolibri/pull/14764
+
 ## 0.19.4
 
 ### High-level overview

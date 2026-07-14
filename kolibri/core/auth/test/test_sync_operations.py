@@ -112,7 +112,9 @@ class KolibriSyncOperationMixinTestCase(SimpleTestCase):
         self.operation._update_storage(self.context, {"appended": 1})
         actual_json = json.loads(self.context.sync_session.extra_fields)
         self.assertEqual({"test": True, "appended": 1}, actual_json)
-        self.context.sync_session.save.assert_called_once_with()
+        self.context.sync_session.save.assert_called_once_with(
+            update_fields=["extra_fields"]
+        )
 
     @mock.patch(
         "kolibri.core.auth.sync_operations.KolibriSyncOperationMixin._get_storage"
