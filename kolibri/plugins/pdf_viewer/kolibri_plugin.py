@@ -13,3 +13,4 @@ class DocumentPDFRenderPlugin(KolibriPluginBase):
 class DocumentPDFRenderAsset(content_hooks.ContentRendererHook):
     bundle_id = "main"
     presets = (format_presets.DOCUMENT,)
+    allow_object_tag = True

@@ -10,11 +10,10 @@
     <ContentViewer
       v-if="content.available"
       class="content-viewer"
+      :contentNode="content"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
-      :files="content.files"
-      :extraFields="content.extra_fields"
       :interactive="false"
     />
     <MissingResourceAlert

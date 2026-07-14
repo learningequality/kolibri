@@ -17,3 +17,5 @@ class MediaPlayerAsset(content_hooks.ContentRendererHook):
         format_presets.VIDEO_HIGH_RES,
         format_presets.VIDEO_LOW_RES,
     )
+    css_selectors = ("video", "audio")
+    allow_object_tag = True  # Media player can handle object tags for audio/video

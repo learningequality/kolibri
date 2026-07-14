@@ -211,7 +211,7 @@ const domParser = new DOMParser();
 
 const domSerializer = new XMLSerializer();
 
-const urlAttributes = ['src', 'href'];
+const urlAttributes = ['src', 'href', 'data', 'poster'];
 
 const queryParamRegex = /([^?)]+)?(\?.*)/g;
 

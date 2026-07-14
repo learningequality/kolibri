@@ -173,7 +173,7 @@
   import FocusLock from 'vue-focus-lock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import useContentViewer, { contentViewerProps } from 'kolibri/composables/useContentViewer';
+  import useContentViewer from 'kolibri/composables/useContentViewer';
   import { ref, computed } from 'vue';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
@@ -239,16 +239,18 @@
       });
       const {
         defaultFile,
+        extraFields,
         forceDurationBasedProgress,
         durationBasedProgress,
         contentDirection,
         contentIsRtl,
         reportLoadingError,
-      } = useContentViewer(props, context, { defaultDuration });
+      } = useContentViewer(context, { defaultDuration });
       return {
         windowIsSmall,
         locations,
         defaultFile,
+        extraFields,
         forceDurationBasedProgress,
         durationBasedProgress,
         contentDirection,
@@ -256,7 +258,6 @@
         reportLoadingError,
       };
     },
-    props: contentViewerProps,
     data() {
       return {
         book: null,

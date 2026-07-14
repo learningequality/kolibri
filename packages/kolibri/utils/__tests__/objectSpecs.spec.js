@@ -184,15 +184,26 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  it('A specced array rejects an array even if any value is bad', () => {
+  it('rejects array with wrong-type primitives', () => {
     const badNumArrayObj = {
+      str1: 'A',
       arrayOfNum: [1, 2, 3, 4, 5, 'A'],
     };
     expect(validateObject(badNumArrayObj, simpleSpec)).toBe(false);
+  });
+  it('rejects array with bad object element', () => {
     const badObjArrayObj = {
-      arrayOfObj: [{ foo: 'bar', prop_c: 'val_c' }],
+      str1: 'A',
+      arrayOfObj: [{ prop_C: 123 }],
     };
     expect(validateObject(badObjArrayObj, simpleSpec)).toBe(false);
+  });
+  it('accepts array of valid primitives', () => {
+    const goodNumArrayObj = {
+      str1: 'A',
+      arrayOfNum: [1, 2, 3, 4, 5],
+    };
+    expect(validateObject(goodNumArrayObj, simpleSpec)).toBe(true);
   });
 });
 

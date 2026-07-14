@@ -24,6 +24,7 @@ from le_utils.constants.file_formats import BLOOMD
 from le_utils.constants.file_formats import BLOOMPUB
 from le_utils.constants.file_formats import H5P
 from le_utils.constants.file_formats import HTML5
+from le_utils.constants.file_formats import HTML5_ARTICLE
 from le_utils.constants.file_formats import PERSEUS
 from whitenoise.responders import StaticFile
 
@@ -269,7 +270,7 @@ def get_embedded_file(
         return response
 
 
-archive_file_types = (HTML5, H5P, BLOOMPUB, BLOOMD, PERSEUS)
+archive_file_types = (HTML5, H5P, BLOOMPUB, BLOOMD, PERSEUS, HTML5_ARTICLE)
 archive_file_extension_match = "|".join(archive_file_types)
 
 # Allows a base url to be passed in the main

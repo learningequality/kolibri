@@ -1,28 +1,24 @@
-import Vue from 'vue';
-import { VIEWER_SUFFIX } from 'kolibri/constants';
-import { canRenderContent, getRenderableFiles, getDefaultFile, getFilePreset } from '../utils';
+// Mock kolibri before importing utils that depend on it
+import kolibri from 'kolibri';
+import { getRenderableFiles, getDefaultFile, getFilePreset } from '../utils';
 
-// Add a component to the Vue instance that can be used to test the utility functions
+jest.mock('kolibri', () => ({
+  default: { presetViewerComponent: jest.fn() },
+  __esModule: true,
+}));
+
+// Mock the preset viewer components so they can be used to test the utility functions
 const addRegisterableComponents = (...presets) => {
-  presets.forEach(preset => {
-    Vue.component(preset + VIEWER_SUFFIX, { template: '<div></div>' });
-  });
+  kolibri.presetViewerComponent.mockImplementation(preset =>
+    presets.includes(preset) ? { template: '<div></div>' } : null,
+  );
 };
 
 describe('Utility Functions', () => {
   beforeEach(() => {
-    Vue.options.components = {};
-  });
-
-  describe('canRenderContent', () => {
-    it('returns true if preset viewer component is registered', () => {
-      addRegisterableComponents('preset1');
-      expect(canRenderContent('preset1')).toBe(true);
-    });
-
-    it('returns false if preset viewer component is not registered', () => {
-      expect(canRenderContent('preset2')).toBe(false);
-    });
+    jest.clearAllMocks();
+    // Reset mock to return null by default (no viewer registered)
+    kolibri.presetViewerComponent.mockReturnValue(null);
   });
 
   describe('getRenderableFiles', () => {

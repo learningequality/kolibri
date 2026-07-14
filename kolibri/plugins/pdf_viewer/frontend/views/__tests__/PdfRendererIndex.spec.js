@@ -1,14 +1,18 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import * as mockPDFJS from '../__mocks__/pdfjsMock';
+// eslint-disable-next-line import-x/named
+import useContentViewer, { useContentViewerMock } from 'kolibri/composables/useContentViewer';
 import PdfRendererIndex from '../PdfRendererIndex';
+import * as mockPDFJS from '../__mocks__/pdfjsMock';
 
-const { zoomIn$, zoomOut$ } = coreStrings;
+jest.mock('kolibri/composables/useContentViewer');
 
 jest.mock('kolibri/urls');
-jest.mock('pdfjs-dist/legacy/build/pdf', () => mockPDFJS);
+jest.mock('pdfjs-dist/legacy/build/pdf', () => require('../__mocks__/pdfjsMock'));
 jest.mock('lodash/debounce', () => fn => fn);
 jest.mock('lodash/throttle', () => fn => fn);
+
+const { zoomIn$, zoomOut$ } = coreStrings;
 
 const DUMMY_PDF_URL = 'http://localhost:8000/test.pdf';
 
@@ -19,8 +23,7 @@ function makeWrapper(options = {}) {
     ...options,
     data: () => ({
       defaultFile: { storage_url: DUMMY_PDF_URL },
-      forceDurationBasedProgress: null,
-      ...(options.data ? options.data() : {}),
+      ...options.data,
     }),
     mixins: [
       {
@@ -123,11 +126,12 @@ describe('PdfRendererIndex', () => {
       it('should load the proper page when there is a saved location', async () => {
         const savedLocation = 0.2;
         mockPDFJS.PdfDocument.numPages = 10;
-        await loadPdfContainer({
-          props: {
-            extraFields: { contentState: { savedLocation } },
-          },
-        });
+        useContentViewer.mockImplementationOnce(() =>
+          useContentViewerMock({
+            extraFields: { contentState: { savedLocation, savedVisitedPages: {} } },
+          }),
+        );
+        await loadPdfContainer();
         expect(mockPDFJS.PdfDocument.getPage).toHaveBeenCalledWith(3);
       });
     });
