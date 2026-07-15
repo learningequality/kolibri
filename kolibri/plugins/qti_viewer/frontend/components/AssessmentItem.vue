@@ -21,6 +21,8 @@
   import SimpleChoice from './interactions/SimpleChoice.vue';
   import TextEntryInteraction from './interactions/TextEntryInteraction.vue';
   import OrderInteraction from './interactions/OrderInteraction.vue';
+  import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
+  import InlineChoice from './interactions/InlineChoice.vue';
 
   const SafeHTML = createSafeHTML({
     [ChoiceInteraction.tag]: ChoiceInteraction,
@@ -28,6 +30,8 @@
     [SimpleChoice.tag]: SimpleChoice,
     [TextEntryInteraction.tag]: TextEntryInteraction,
     [OrderInteraction.tag]: OrderInteraction,
+    [InlineChoiceInteraction.tag]: InlineChoiceInteraction,
+    [InlineChoice.tag]: InlineChoice,
   });
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
