@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/vue';
 import shuffled from 'kolibri-common/utils/shuffled';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
+import { answerGuideStrings } from '../../AnswerGuide.vue';
 import { inlineChoiceStrings } from '../InlineChoiceInteraction.vue';
 
 const smokeFixtures = [
@@ -42,6 +43,18 @@ describe('Smoke', () => {
   it.each(smokeFixtures)('%s renders %d inline-choice trigger(s)', (id, gapCount) => {
     renderAssessmentItem(items[id].xml);
     expect(screen.getAllByRole('button')).toHaveLength(gapCount);
+  });
+});
+
+describe('Answer guide', () => {
+  it('renders the inline-choice guide once above the passage', () => {
+    renderAssessmentItem(items['shakespeare-biography'].xml);
+    expect(screen.getAllByText(answerGuideStrings.inlineChoice$())).toHaveLength(1);
+  });
+
+  it('wraps the passage in a bordered box', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml);
+    expect(container.querySelector('.qti-passage')).toBeInTheDocument();
   });
 });
 

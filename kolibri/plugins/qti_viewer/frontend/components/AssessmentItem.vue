@@ -1,10 +1,23 @@
 <template>
 
   <div>
-    <SafeHTML
-      v-if="itemBody"
-      :html="itemBodyMarkup"
-    />
+    <template v-if="itemBody">
+      <AnswerGuide
+        v-if="hasInlineChoice"
+        :text="inlineChoiceGuideText"
+      />
+      <div
+        v-if="hasInlineChoice"
+        class="qti-passage"
+        :style="passageStyles"
+      >
+        <SafeHTML :html="itemBodyMarkup" />
+      </div>
+      <SafeHTML
+        v-else
+        :html="itemBodyMarkup"
+      />
+    </template>
   </div>
 
 </template>
@@ -16,6 +29,9 @@
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import { useQTIContext } from '../composables/useQTIContext';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import { QTIVariable } from '../utils/qti/declarations';
+  import AnswerGuide, { answerGuideStrings } from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
@@ -23,6 +39,35 @@
   import OrderInteraction from './interactions/OrderInteraction.vue';
   import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
   import InlineChoice from './interactions/InlineChoice.vue';
+
+  /**
+   * Extract QTI declarations of a specific type from an XML document.
+   * @param {Document} xmlDocument - The QTI XML document.
+   * @param {string} declarationType - 'response', 'outcome', or 'context'.
+   * @param {Function} interactionHandler - A function called when a variable value is set.
+   * @returns {object} Map of identifier to QTIVariable.
+   */
+  function getQTIDeclarations(xmlDocument, declarationType, interactionHandler) {
+    const declarations = {};
+
+    const selector = `qti-${declarationType}-declaration`;
+
+    const nodes = xmlDocument.querySelectorAll(selector);
+
+    for (const node of nodes) {
+      const variable = new QTIVariable(node, interactionHandler);
+      declarations[variable.identifier] = variable;
+    }
+    return declarations;
+  }
+
+  function clearObject(obj) {
+    for (const key in obj) {
+      delete obj[key];
+    }
+  }
+
+  const $themeTokens = themeTokens();
 
   const SafeHTML = createSafeHTML({
     [ChoiceInteraction.tag]: ChoiceInteraction,
@@ -50,6 +95,7 @@
   export default {
     name: 'AssessmentItem',
     components: {
+      AnswerGuide,
       SafeHTML,
     },
     setup(props) {
@@ -61,6 +107,17 @@
       const itemBodyMarkup = computed(() => {
         return itemBody.value?.innerHTML || '';
       });
+
+      // Inline-choice gaps are inline within the passage, so a single guide is shown once
+      // above the whole passage rather than per gap.
+      const hasInlineChoice = computed(() =>
+        Boolean(itemBody.value?.querySelector('qti-inline-choice-interaction')),
+      );
+      const inlineChoiceGuideText = computed(() => answerGuideStrings.inlineChoice$());
+      const passageStyles = computed(() => ({
+        borderColor: $themeTokens.fineLine,
+        color: $themeTokens.text,
+      }));
 
       const { interaction, registerCheckAnswer } = inject('handlers');
       const QTI_CONTEXT = inject('QTI_CONTEXT');
@@ -125,6 +182,9 @@
       return {
         itemBody,
         itemBodyMarkup,
+        hasInlineChoice,
+        inlineChoiceGuideText,
+        passageStyles,
       };
     },
     props: {
@@ -136,3 +196,16 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .qti-passage {
+    padding: 1rem 1.125rem;
+    line-height: 2.25;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
+</style>
