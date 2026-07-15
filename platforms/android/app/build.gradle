@@ -80,7 +80,9 @@ tasks.register('streamlineKolibriTar', StreamlineKolibriTask) {
 
 // Determine which Python to use for build scripts
 def buildPythonExecutable = 'python3'  // Default
-def venvPython = file('../.venv/bin/python3')
+// ../../../.venv climbs from app/ out to the monorepo root: this member shares
+// the workspace .venv (uv sync --group dev --all-packages) as its buildPython.
+def venvPython = file('../../../.venv/bin/python3')
 if (venvPython.exists()) {
 	buildPythonExecutable = venvPython.absolutePath
 }
@@ -106,10 +108,9 @@ if (extractedKolibriDir.exists() && extractedKolibriDir.isDirectory()) {
 	}
 
 	def kolibriVersion = kolibriVersionFile.text.trim()
-	def androidInstallerVersion = "0.2.0"
 	def buildType = System.getenv("RELEASE_KEYALIAS") == "LE_RELEASE_KEY" ? "official" :
 			System.getenv("RELEASE_KEYALIAS") == "LE_DEV_KEY" ? "dev" : "debug"
-	calculatedVersionName = "${kolibriVersion}-${androidInstallerVersion}-${buildType}"
+	calculatedVersionName = "${kolibriVersion}-${buildType}"
 
 	// Get VERSION_CODE
 	if (buildType == "official") {
