@@ -24,4 +24,4 @@ CREDS_FILE = os.environ.get("LP_CREDENTIALS_FILE", "launchpad.credentials")
 
 
 Launchpad.login_with(APP_NAME, "production", credentials_file=CREDS_FILE)
-print(f"Credentials saved to: {CREDS_FILE}")
+print(f"Credentials saved to: {CREDS_FILE}")  # noqa: T201

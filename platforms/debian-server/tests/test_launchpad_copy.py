@@ -1,21 +1,17 @@
 """Tests for scripts/launchpad_copy.py."""
 
 import logging
-import os
 import shutil
-import sys
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
 
-# Add scripts/ to path so we can import launchpad_copy
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
-
-from launchpad_copy import LaunchpadWrapper
+# scripts/ is put on sys.path by tests/conftest.py
 from launchpad_copy import build_parser
 from launchpad_copy import configure_logging
 from launchpad_copy import get_current_series
+from launchpad_copy import LaunchpadWrapper
 from launchpad_copy import log
 
 # --- Argparse tests ---
@@ -51,7 +47,9 @@ class TestBuildParser:
 
     def test_wait_for_published_subcommand_parsed(self):
         parser = build_parser()
-        args = parser.parse_args(["wait-for-published", "--package", "kolibri-server", "--version", "1.0"])
+        args = parser.parse_args(
+            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0"]
+        )
         assert args.command == "wait-for-published"
 
     def test_wait_for_published_package_required(self):
@@ -66,28 +64,45 @@ class TestBuildParser:
 
     def test_wait_for_published_ppa_defaults_to_kolibri_proposed(self):
         parser = build_parser()
-        args = parser.parse_args(["wait-for-published", "--package", "kolibri-server", "--version", "1.0"])
+        args = parser.parse_args(
+            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0"]
+        )
         assert args.ppa == "kolibri-proposed"
 
     def test_wait_for_published_timeout_defaults_to_1800(self):
         parser = build_parser()
-        args = parser.parse_args(["wait-for-published", "--package", "kolibri-server", "--version", "1.0"])
+        args = parser.parse_args(
+            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0"]
+        )
         assert args.timeout == 1800
 
     def test_wait_for_published_interval_defaults_to_60(self):
         parser = build_parser()
-        args = parser.parse_args(["wait-for-published", "--package", "kolibri-server", "--version", "1.0"])
+        args = parser.parse_args(
+            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0"]
+        )
         assert args.interval == 60
 
     def test_wait_for_published_series_defaults_to_none(self):
         parser = build_parser()
-        args = parser.parse_args(["wait-for-published", "--package", "kolibri-server", "--version", "1.0"])
+        args = parser.parse_args(
+            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0"]
+        )
         assert args.series is None
 
     def test_wait_for_published_series_accepts_multiple(self):
         parser = build_parser()
         args = parser.parse_args(
-            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0", "--series", "noble", "jammy"]
+            [
+                "wait-for-published",
+                "--package",
+                "kolibri-server",
+                "--version",
+                "1.0",
+                "--series",
+                "noble",
+                "jammy",
+            ]
         )
         assert args.series == ["noble", "jammy"]
 
@@ -112,7 +127,15 @@ class TestBuildParser:
     def test_wait_for_published_custom_ppa(self):
         parser = build_parser()
         args = parser.parse_args(
-            ["wait-for-published", "--package", "kolibri-server", "--version", "1.0", "--ppa", "kolibri"]
+            [
+                "wait-for-published",
+                "--package",
+                "kolibri-server",
+                "--version",
+                "1.0",
+                "--ppa",
+                "kolibri",
+            ]
         )
         assert args.ppa == "kolibri"
 
@@ -132,7 +155,9 @@ class TestBuildParser:
 has_lsb_release = shutil.which("lsb_release") is not None
 
 
-@pytest.mark.skipif(not has_lsb_release, reason="lsb_release not available on this system")
+@pytest.mark.skipif(
+    not has_lsb_release, reason="lsb_release not available on this system"
+)
 class TestGetCurrentSeries:
     """Test system series detection using real lsb_release."""
 
@@ -155,12 +180,18 @@ class TestLaunchpadWrapper:
 
     def test_queue_copy_accumulates_packages(self):
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "focal", "Release")
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release"
+        )
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "jammy", "focal", "Release"
+        )
 
         assert ("jammy", "noble", "Release") in wrapper.queue
         assert ("jammy", "focal", "Release") in wrapper.queue
-        assert ("kolibri-server", "0.5.1-0ubuntu1") in wrapper.queue[("jammy", "noble", "Release")]
+        assert ("kolibri-server", "0.5.1-0ubuntu1") in wrapper.queue[
+            ("jammy", "noble", "Release")
+        ]
 
     def test_queue_starts_empty(self):
         wrapper = LaunchpadWrapper()
@@ -168,7 +199,9 @@ class TestLaunchpadWrapper:
 
     def test_perform_queued_copies_calls_sync_sources(self):
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release"
+        )
 
         mock_ppa = MagicMock()
         wrapper.perform_queued_copies(mock_ppa)
@@ -191,7 +224,9 @@ class TestLaunchpadWrapper:
     def test_perform_queued_copies_handles_already_published(self):
         """Idempotency: syncSources errors for already-copied packages are handled gracefully."""
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release"
+        )
 
         class MockBadRequest(Exception):
             pass
@@ -210,8 +245,12 @@ class TestLaunchpadWrapper:
     def test_perform_queued_copies_continues_on_failure(self):
         """One series failing doesn't block others."""
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "noble", "questing", "Release")
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "noble", "jammy", "Release")
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "noble", "questing", "Release"
+        )
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "noble", "jammy", "Release"
+        )
 
         class MockBadRequest(Exception):
             pass
@@ -237,7 +276,9 @@ class TestLaunchpadWrapper:
     def test_perform_queued_copies_logs_already_published(self, caplog):
         """Idempotency: logs a message when syncSources finds package already exists."""
         wrapper = LaunchpadWrapper()
-        wrapper.queue_copy("kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release")
+        wrapper.queue_copy(
+            "kolibri-server", "0.5.1-0ubuntu1", "jammy", "noble", "Release"
+        )
 
         class MockBadRequest(Exception):
             pass
@@ -270,7 +311,9 @@ class TestLaunchpadWrapper:
         src_bad.source_package_version = "2.0"
         src_bad.status = "Published"
 
-        with patch.object(wrapper, "get_published_sources", return_value=[src_good, src_bad]):
+        with patch.object(
+            wrapper, "get_published_sources", return_value=[src_good, src_bad]
+        ):
             result = wrapper.get_usable_sources(mock_ppa, ("kolibri-server",), "jammy")
 
         assert len(result) == 1
@@ -480,7 +523,9 @@ class TestWaitForPublished:
     def _make_binary(self, series="noble", status="Published"):
         b = MagicMock()
         b.status = status
-        b.distro_arch_series_link = f"https://api.launchpad.net/1.0/ubuntu/{series}/amd64"
+        b.distro_arch_series_link = (
+            f"https://api.launchpad.net/1.0/ubuntu/{series}/amd64"
+        )
         return b
 
     def _make_source(self, series="noble", status="Published"):
@@ -499,15 +544,23 @@ class TestWaitForPublished:
             patch("launchpad_copy.time") as mock_time,
         ):
             mock_time.time.side_effect = [0, 0]
-            result = wrapper.wait_for_published("kolibri-server", "1.0", series=["noble"])
+            result = wrapper.wait_for_published(
+                "kolibri-server", "1.0", series=["noble"]
+            )
 
         assert result == 0
 
     def test_auto_discovers_series_from_sources(self):
         wrapper = LaunchpadWrapper()
         mock_ppa = MagicMock()
-        mock_ppa.getPublishedSources.return_value = [self._make_source("noble"), self._make_source("jammy")]
-        mock_ppa.getPublishedBinaries.return_value = [self._make_binary("noble"), self._make_binary("jammy")]
+        mock_ppa.getPublishedSources.return_value = [
+            self._make_source("noble"),
+            self._make_source("jammy"),
+        ]
+        mock_ppa.getPublishedBinaries.return_value = [
+            self._make_binary("noble"),
+            self._make_binary("jammy"),
+        ]
 
         with (
             patch.object(wrapper, "get_ppa", return_value=mock_ppa),
@@ -547,7 +600,9 @@ class TestWaitForPublished:
         ):
             mock_time.time.side_effect = [0, 0, 0, 100, 100]
             mock_time.sleep = MagicMock()
-            result = wrapper.wait_for_published("kolibri-server", "1.0", series=["noble", "jammy"])
+            result = wrapper.wait_for_published(
+                "kolibri-server", "1.0", series=["noble", "jammy"]
+            )
 
         assert result == 0
         mock_time.sleep.assert_called()
@@ -564,7 +619,9 @@ class TestWaitForPublished:
         ):
             mock_time.time.side_effect = [0, 0, 0, 1801]
             mock_time.sleep = MagicMock()
-            result = wrapper.wait_for_published("kolibri-server", "1.0", series=["noble"], timeout=1800)
+            result = wrapper.wait_for_published(
+                "kolibri-server", "1.0", series=["noble"], timeout=1800
+            )
 
         assert result == 1
 
@@ -579,7 +636,9 @@ class TestWaitForPublished:
         ):
             mock_time.time.side_effect = [0, 0]
             # Pass explicit series to skip auto-discovery
-            wrapper.wait_for_published("kolibri-server", "1.0", ppa_name="kolibri", series=["noble"])
+            wrapper.wait_for_published(
+                "kolibri-server", "1.0", ppa_name="kolibri", series=["noble"]
+            )
 
         mock_get_ppa.assert_called_with("kolibri")
 
@@ -599,7 +658,9 @@ class TestWaitForPublished:
         class MockBadRequest(Exception):
             pass
 
-        mock_dest_ppa.syncSources.side_effect = MockBadRequest("xenial is obsolete and will not accept new uploads")
+        mock_dest_ppa.syncSources.side_effect = MockBadRequest(
+            "xenial is obsolete and will not accept new uploads"
+        )
 
         with (
             patch.object(

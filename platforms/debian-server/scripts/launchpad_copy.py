@@ -45,7 +45,9 @@ def get_supported_series(distribution, source_series):
     """Discover supported Ubuntu series from Launchpad, excluding source_series."""
     supported_statuses = ("Supported", "Current Stable Release")
     series = [
-        s.name for s in distribution.series if s.active and s.status in supported_statuses and s.name != source_series
+        s.name
+        for s in distribution.series
+        if s.active and s.status in supported_statuses and s.name != source_series
     ]
     log.info("Dynamic series discovery:")
     log.info("  Target series (will copy to): %s", ", ".join(series))
@@ -247,6 +249,46 @@ class LaunchpadWrapper:
             return 1
         return 0
 
+    def _inspect_target_series(
+        self, ppa, name, version, source_series, target_series_name
+    ):
+        """Inspect one target series, queueing a copy when the package is missing.
+
+        Returns ``(mentioned, notice)`` where ``mentioned`` is True when the
+        package is absent from the target series and ``notice`` is an explanatory
+        string to log (or None).
+        """
+        source = self.get_source_for(ppa, name, version, target_series_name)
+        if source is None:
+            log.info("%s %s missing from %s", name, version, target_series_name)
+            if self.has_published_binaries(ppa, name, version, source_series):
+                self.queue_copy(
+                    name, version, source_series, target_series_name, POCKET
+                )
+            else:
+                builds = self.get_builds_for(ppa, name, version, source_series)
+                if builds:
+                    log.info(
+                        "  but it isn't built yet (state: %s) - %s",
+                        builds[0].buildstate,
+                        builds[0].web_link,
+                    )
+            return True, None
+        if source.status != "Published":
+            return False, "  but it is %s in %s" % (
+                source.status.lower(),
+                target_series_name,
+            )
+        if not self.has_published_binaries(ppa, name, version, target_series_name):
+            builds = self.get_builds_for(ppa, name, version, target_series_name)
+            if builds:
+                return False, "  but it isn't built yet for %s (state: %s) - %s" % (
+                    target_series_name,
+                    builds[0].buildstate,
+                    builds[0].web_link,
+                )
+        return False, None
+
     def copy_to_series(self, source_series=None):
         """Copy packages from source series to all other supported Ubuntu series."""
         source_series = source_series or get_current_series()
@@ -258,38 +300,19 @@ class LaunchpadWrapper:
 
         ppa = self.proposed_ppa
 
-        for name, version in self.get_usable_sources(ppa, tuple(PACKAGE_WHITELIST), source_series):
+        for name, version in self.get_usable_sources(
+            ppa, tuple(PACKAGE_WHITELIST), source_series
+        ):
             mentioned = False
             notices = []
             target_series_names = get_supported_series(ppa.distribution, source_series)
             for target_series_name in target_series_names:
-                source = self.get_source_for(ppa, name, version, target_series_name)
-                if source is None:
-                    mentioned = True
-                    log.info("%s %s missing from %s", name, version, target_series_name)
-                    if self.has_published_binaries(ppa, name, version, source_series):
-                        self.queue_copy(name, version, source_series, target_series_name, POCKET)
-                    else:
-                        builds = self.get_builds_for(ppa, name, version, source_series)
-                        if builds:
-                            log.info(
-                                "  but it isn't built yet (state: %s) - %s",
-                                builds[0].buildstate,
-                                builds[0].web_link,
-                            )
-                elif source.status != "Published":
-                    notices.append("  but it is %s in %s" % (source.status.lower(), target_series_name))
-                elif not self.has_published_binaries(ppa, name, version, target_series_name):
-                    builds = self.get_builds_for(ppa, name, version, target_series_name)
-                    if builds:
-                        notices.append(
-                            "  but it isn't built yet for %s (state: %s) - %s"
-                            % (
-                                target_series_name,
-                                builds[0].buildstate,
-                                builds[0].web_link,
-                            )
-                        )
+                was_mentioned, notice = self._inspect_target_series(
+                    ppa, name, version, source_series, target_series_name
+                )
+                mentioned = mentioned or was_mentioned
+                if notice:
+                    notices.append(notice)
             if not mentioned or notices:
                 log.info("%s %s", name, version)
                 for notice in notices:
@@ -310,14 +333,26 @@ class LaunchpadWrapper:
             version=version,
             order_by_date=True,
         )
-        active = [s for s in published if s.status not in ("Deleted", "Superseded", "Obsolete")]
+        active = [
+            s
+            for s in published
+            if s.status not in ("Deleted", "Superseded", "Obsolete")
+        ]
         if active:
-            log.info("%s %s already exists in %s (status: %s)", package, version, ppa_name, active[0].status)
+            log.info(
+                "%s %s already exists in %s (status: %s)",
+                package,
+                version,
+                ppa_name,
+                active[0].status,
+            )
             return 0
         log.info("%s %s not found in %s", package, version, ppa_name)
         return 1
 
-    def wait_for_published(self, package, version, ppa_name=None, series=None, timeout=1800, interval=60):
+    def wait_for_published(
+        self, package, version, ppa_name=None, series=None, timeout=1800, interval=60
+    ):
         """Wait for published binaries to appear for a package.
 
         If series is given, waits for those specific series to have published binaries.
@@ -358,7 +393,11 @@ class LaunchpadWrapper:
                     time.sleep(interval)
                     continue
                 expected = source_series
-                log.info("Discovered %d series with sources: %s", len(expected), ", ".join(sorted(expected)))
+                log.info(
+                    "Discovered %d series with sources: %s",
+                    len(expected),
+                    ", ".join(sorted(expected)),
+                )
 
             # Check published binaries
             bins = ppa.getPublishedBinaries(
@@ -375,7 +414,11 @@ class LaunchpadWrapper:
 
             missing = expected - published_series
             if not missing:
-                log.info("All %d series published: %s", len(expected), ", ".join(sorted(published_series)))
+                log.info(
+                    "All %d series published: %s",
+                    len(expected),
+                    ", ".join(sorted(published_series)),
+                )
                 return 0
             log.info(
                 "Published in %d/%d series. Missing: %s",
@@ -393,12 +436,16 @@ class LaunchpadWrapper:
 
     def promote(self, version):
         """Promote published packages from kolibri-proposed to kolibri PPA."""
-        log.info("Promoting packages from %s to %s", PROPOSED_PPA_NAME, RELEASE_PPA_NAME)
+        log.info(
+            "Promoting packages from %s to %s", PROPOSED_PPA_NAME, RELEASE_PPA_NAME
+        )
 
         source_ppa = self.proposed_ppa
         dest_ppa = self.release_ppa
 
-        packages = source_ppa.getPublishedSources(status="Published", order_by_date=True)
+        packages = source_ppa.getPublishedSources(
+            status="Published", order_by_date=True
+        )
 
         # Group packages by series for syncSources calls
         by_series = defaultdict(list)
@@ -417,7 +464,12 @@ class LaunchpadWrapper:
         failures = []
         for series_name, pkgs in by_series.items():
             names = sorted(set(p.source_package_name for p in pkgs))
-            log.info("Promoting %s from %s to %s", ", ".join(names), series_name, RELEASE_PPA_NAME)
+            log.info(
+                "Promoting %s from %s to %s",
+                ", ".join(names),
+                series_name,
+                RELEASE_PPA_NAME,
+            )
             try:
                 dest_ppa.syncSources(
                     from_archive=source_ppa,
@@ -448,7 +500,9 @@ class LaunchpadWrapper:
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="Launchpad PPA copy tool for kolibri-server packages.")
+    parser = argparse.ArgumentParser(
+        description="Launchpad PPA copy tool for kolibri-server packages."
+    )
     parser.add_argument(
         "-v",
         "--verbose",
@@ -456,15 +510,23 @@ def build_parser():
         default=0,
         help="Increase verbosity (use -vv for debug).",
     )
-    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress info output.")
-    parser.add_argument("--debug", action="store_true", help="Enable HTTP debug output.")
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", help="Suppress info output."
+    )
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable HTTP debug output."
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     copy_parser = subparsers.add_parser(
         "copy-to-series",
         help="Copy packages from source series to all other supported series within a PPA.",
     )
-    copy_parser.add_argument("--series", default=None, help="Source series override (default: auto-detect from OS).")
+    copy_parser.add_argument(
+        "--series",
+        default=None,
+        help="Source series override (default: auto-detect from OS).",
+    )
 
     promote_parser = subparsers.add_parser(
         "promote",
@@ -477,21 +539,43 @@ def build_parser():
         help="Wait for published binaries to appear for a source package.",
     )
     wait_parser.add_argument("--package", required=True, help="Source package name.")
-    wait_parser.add_argument("--version", required=True, help="Expected version string.")
-    wait_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to poll (default: %(default)s).")
-    wait_parser.add_argument("--timeout", type=int, default=1800, help="Max wait in seconds (default: %(default)s).")
     wait_parser.add_argument(
-        "--interval", type=int, default=60, help="Polling interval in seconds (default: %(default)s)."
+        "--version", required=True, help="Expected version string."
     )
-    wait_parser.add_argument("--series", nargs="+", default=None, help="Series to wait for (default: any).")
+    wait_parser.add_argument(
+        "--ppa",
+        default=PROPOSED_PPA_NAME,
+        help="PPA name to poll (default: %(default)s).",
+    )
+    wait_parser.add_argument(
+        "--timeout",
+        type=int,
+        default=1800,
+        help="Max wait in seconds (default: %(default)s).",
+    )
+    wait_parser.add_argument(
+        "--interval",
+        type=int,
+        default=60,
+        help="Polling interval in seconds (default: %(default)s).",
+    )
+    wait_parser.add_argument(
+        "--series", nargs="+", default=None, help="Series to wait for (default: any)."
+    )
 
     check_parser = subparsers.add_parser(
         "check-source",
         help="Check if a source package version already exists in a PPA.",
     )
     check_parser.add_argument("--package", required=True, help="Source package name.")
-    check_parser.add_argument("--version", required=True, help="Expected version string.")
-    check_parser.add_argument("--ppa", default=PROPOSED_PPA_NAME, help="PPA name to check (default: %(default)s).")
+    check_parser.add_argument(
+        "--version", required=True, help="Expected version string."
+    )
+    check_parser.add_argument(
+        "--ppa",
+        default=PROPOSED_PPA_NAME,
+        help="PPA name to check (default: %(default)s).",
+    )
 
     return parser
 

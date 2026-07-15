@@ -1,28 +1,34 @@
 [project]
 name = "kolibri-server"
 version = "0.0.0"
-requires-python = ">=3.10"
+# Floored to root Kolibri's range, not this member's own tested Python (3.10),
+# so a workspace-wide `uv sync --python <version>` never narrows the lock or
+# fails on this member. The real tested Python (3.10) is pinned in the tox
+# platform_tests job, not here. Matches python_packages/kolibri-sentry-plugin.
+requires-python = ">=3.6, <3.15"
 dependencies = [
+    "kolibri",
     "launchpadlib",
     "keyring",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 test = [
     "pytest",
-    "vcrpy",
 ]
 
+[tool.uv.sources]
+kolibri = { workspace = true }
+
+[tool.uv]
+# Not a wheel — the deliverable is a .deb, so there is no build-system and uv
+# manages only this member's deps in the shared lock/venv (never builds it).
+package = false
+
 [tool.ruff]
+# Inherit root ruff (select, isort first-party list, force-single-line) so this
+# member is linted like the rest of the monorepo; only override target-version:
+# the release tooling and its tests use Python 3.9+ syntax (parenthesized
+# `with`), whereas root Kolibri stays py37 for 3.6 compatibility.
+extend = "../../pyproject.toml"
 target-version = "py310"
-line-length = 120
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "PLC0415"]
-ignore = ["E501"]
-
-[tool.ruff.lint.isort]
-force-single-line = true
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["E501"]

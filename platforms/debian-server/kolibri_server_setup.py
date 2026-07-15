@@ -4,8 +4,8 @@ import os
 import subprocess
 
 import kolibri.utils.pskolibri as psutil
-from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.core.utils.cache import process_cache
+from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.options import update_options_file
@@ -51,7 +51,9 @@ def set_debconf_ports(port, zip_content_port):
     """
     dccomm = start_debconf_dialog()
     dccomm.stdin.write("SET kolibri-server/port {}\n".format(port))
-    dccomm.stdin.write("SET kolibri-server/zip_content_port {}\n".format(zip_content_port))
+    dccomm.stdin.write(
+        "SET kolibri-server/zip_content_port {}\n".format(zip_content_port)
+    )
     dccomm.stdin.flush()
     stop_debconf_dialog(dccomm)
 
@@ -210,7 +212,9 @@ if __name__ == "__main__":
         help="Port to run hashi iframes used when installing/reconfiguring kolibri-server package",
     )
     args = parser.parse_args()
-    if args.debconfport:  # To be executed only when installing/reconfiguring the Debian package
+    if (
+        args.debconfport
+    ):  # To be executed only when installing/reconfiguring the Debian package
         set_port(args.debconfport)
         if args.debconfzipport:
             set_zip_content_port(args.debconfzipport)
