@@ -59,7 +59,7 @@ images: install-dependencies
 
 zipfile: images
 # Get the version based on the debian file name kolibri_<version>-Xubuntu1_all.deb
-	$(eval VERSION=$(shell ls ${DIST_DIR} | grep kolibri | sed -r 's/kolibri_(.*)-[0-9]+ubuntu1_all.deb/\1/'))
+	$(eval VERSION=$(shell ls ${DIST_DIR} | grep '^kolibri_' | sed -r 's/kolibri_(.*)-[0-9]+ubuntu1_all.deb/\1/'))
 # Rename the image file to include the version
 	mv images/Kolibri.img images/kolibri-pi-image-$(VERSION).img
 # Zip the image file

@@ -17,14 +17,19 @@ EOF
 RUN apt-get clean
 
 # All files copied at build stage to /pi-gen
-INSTALL dist/*.deb /tmp/kolibri.deb
+INSTALL dist/kolibri_*.deb /tmp/kolibri.deb
 
 RUN apt-get install -y /tmp/kolibri.deb
 RUN rm /tmp/kolibri.deb
 
 RUN ls -la /home/pi/.kolibri/options.ini
 
-RUN apt-get install -y kolibri-server
+# Install the kolibri-server deb built for this Kolibri from the PR build. The
+# released APT source is still added in base.Pifile, so it is upgraded from there
+# on later apt updates, the same as the kolibri deb.
+INSTALL dist/kolibri-server_*.deb /tmp/kolibri-server.deb
+RUN apt-get install -y /tmp/kolibri-server.deb
+RUN rm /tmp/kolibri-server.deb
 
 RUN systemctl enable kolibri-server
 

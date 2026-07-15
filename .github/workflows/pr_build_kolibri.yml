@@ -51,10 +51,11 @@ jobs:
       ref: v0.2.0
   zip:
     name: Build Raspberry Pi Image
-    needs: deb
+    needs: [deb, server_deb]
     uses: ./.github/workflows/platform-pi-build_img.yml
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+      server-deb-file-name: ${{ needs.server_deb.outputs.deb-file-name }}
   pi_smoke_test:
     name: Pi image smoke test
     needs: zip
