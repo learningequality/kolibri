@@ -1,0 +1,64 @@
+# Generated source files
+app/src/main/python/strings.py
+app/src/main/res/values-*/strings.xml
+
+# Temporary files
+tmpenv
+tmphome/
+
+# Kolibri tar files and extracted source
+tar/
+tar/extracted/
+
+# File format for signing keys
+*.jks
+*.keystore
+
+# Output folder
+dist/
+
+# Version code file
+.version-code
+
+# Python
+__pycache__
+*.pyc
+
+# Android build artifacts
+android_root/
+*.apk
+bin/
+build/
+.gradle/
+.cxx
+.externalNativeBuild
+captures/
+local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Claude Code sandbox artifacts
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.gitconfig
+.ripgreprc
+.mcp.json
+.claude/
+HEAD
+config
+hooks/
+objects/
+refs/
+
+# Environment
+.env
+.envrc
+build_docker
+build.log

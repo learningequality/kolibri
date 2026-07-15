@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/kolibri_logo">
+
+    <target
+        android:name="right_wing_inner"
+        android:animation="@animator/wing_flap_inner" />
+    <target
+        android:name="right_wing_middle"
+        android:animation="@animator/wing_flap_middle" />
+    <target
+        android:name="right_wing_outer"
+        android:animation="@animator/wing_flap_outer" />
+
+    <target
+        android:name="left_wing_inner"
+        android:animation="@animator/wing_flap_inner" />
+    <target
+        android:name="left_wing_middle"
+        android:animation="@animator/wing_flap_middle" />
+    <target
+        android:name="left_wing_outer"
+        android:animation="@animator/wing_flap_outer" />
+
+</animated-vector>
