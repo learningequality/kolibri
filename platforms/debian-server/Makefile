@@ -48,8 +48,12 @@ changelog:
 
 release: changelog  error-pages orig
 
+# Extra dpkg-buildpackage flags. The PR CI build passes -d to skip the Debian
+# build-dependency check, since it builds against the workspace Kolibri (resolved
+# by uv) rather than an apt-installed kolibri package. Empty by default.
+DPKG_BUILDPACKAGE_FLAGS ?=
 deb: changelog error-pages orig
-	dpkg-buildpackage -b -us -uc
+	dpkg-buildpackage -b -us -uc $(DPKG_BUILDPACKAGE_FLAGS)
 
 dist: error-pages orig
 	@mkdir -p dist
