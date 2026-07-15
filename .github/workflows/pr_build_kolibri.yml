@@ -70,6 +70,51 @@ jobs:
           path: dist
       - name: Verify image WiFi configuration
         run: sudo ./platforms/raspberry-pi/smoke-test-wifi.sh dist/*.zip
+  server_smoke_test:
+    name: kolibri-server serving smoke test
+    needs: [deb, server_deb]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Single source for the served port: preseeded into debconf below and read
+      # by serving_smoke_test.sh (via $KOLIBRI_SERVER_PORT) when it curls nginx.
+      KOLIBRI_SERVER_PORT: "8080"
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Download the Kolibri deb
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.deb.outputs.deb-file-name }}
+          path: debs
+      - name: Download the kolibri-server deb
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.server_deb.outputs.deb-file-name }}
+          path: debs
+      - name: Preseed debconf selections
+        run: |
+          echo "kolibri kolibri/init boolean false" | sudo debconf-set-selections
+          echo "kolibri kolibri/user string kolibri" | sudo debconf-set-selections
+          echo "kolibri-server kolibri-server/port select ${KOLIBRI_SERVER_PORT}" | sudo debconf-set-selections
+          echo "kolibri-server kolibri-server/zip_content_port select 8081" | sudo debconf-set-selections
+      - name: Install the Kolibri and kolibri-server debs
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            "./debs/${{ needs.deb.outputs.deb-file-name }}" \
+            "./debs/${{ needs.server_deb.outputs.deb-file-name }}"
+      - name: Start kolibri-server
+        run: sudo service kolibri-server restart
+      - name: Assert Kolibri is served through nginx
+        run: ./platforms/debian-server/tests/serving_smoke_test.sh
+      - name: Dump service logs on failure
+        if: failure()
+        run: |
+          sudo journalctl -u kolibri-server --no-pager || true
+          sudo journalctl -u nginx --no-pager || true
+          sudo cat /home/kolibri/.kolibri/logs/uwsgi.log 2>/dev/null || true
   browser_smoke_test:
     name: Browser smoke test
     needs: whl
