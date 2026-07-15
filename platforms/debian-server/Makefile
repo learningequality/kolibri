@@ -1,4 +1,4 @@
-.PHONY: help error-pages deb dist config-nginx orig \
+.PHONY: help changelog error-pages release deb dist sign-and-upload orig \
        setup-ppa install-build-deps install-upload-deps install-kolibri
 
 # Auto-detect sudo: empty in containers (root), "sudo" on dev machines
@@ -39,12 +39,16 @@ error-pages:
 	rm -Rf $(CURDIR)/error_pages
 	kolibri manage loadingpage --reload --output-dir $(CURDIR)/error_pages --version-text $(shell dpkg-parsechangelog -SVersion)
 
+# Generate debian/changelog with the .deb version bound to the Kolibri version.
+# Set KOLIBRI_VERSION=<pep440> (the PR build parses it from the whl artifact);
+# make exports it into the recipe env, where the generator reads it. Unset, the
+# generator falls back to the installed kolibri (release/local).
 changelog:
-	dch -i
+	uv run python scripts/generate_changelog.py
 
 release: changelog  error-pages orig
 
-deb: error-pages orig
+deb: changelog error-pages orig
 	dpkg-buildpackage -b -us -uc
 
 dist: error-pages orig
