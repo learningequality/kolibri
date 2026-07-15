@@ -62,6 +62,21 @@ get-tar: clean-tar
 	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
 
+.PHONY: stage-workspace-tar
+stage-workspace-tar: clean-tar
+# Build the Kolibri tar from the monorepo workspace and stage it into tar/,
+# replacing the manual `make get-tar tar=<URL>` download for local dev. The
+# lookup runs after the build (in a single shell block, not make's parse-time
+# eval) so it sees the freshly built tar; the freshest match is staged.
+	$(MAKE) -C ../.. dist
+	@WORKSPACE_TAR="$$(ls -t ../../dist/kolibri-*.tar.gz 2>/dev/null | head -1)"; \
+	if [ -z "$$WORKSPACE_TAR" ]; then \
+		echo "Monorepo 'make dist' produced no kolibri-*.tar.gz in ../../dist"; \
+		exit 1; \
+	fi; \
+	rm -f tar/kolibri-*.tar.gz; \
+	cp "$$WORKSPACE_TAR" tar/
+
 # Build debug APK
 .PHONY: kolibri.apk.unsigned
 kolibri.apk.unsigned:
@@ -286,6 +301,7 @@ help:
 	@echo ""
 	@echo "Kolibri Source:"
 	@echo "  get-tar               - Download Kolibri tar (use: make get-tar tar=URL)"
+	@echo "  stage-workspace-tar   - Build & stage the workspace Kolibri tar into tar/ (no download)"
 	@echo "  clean-tar             - Remove extracted Kolibri directory"
 	@echo ""
 	@echo "Environment Variables:"

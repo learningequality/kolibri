@@ -10,6 +10,29 @@ This project packages [Kolibri](https://learningequality.org/kolibri/) as an And
 - **WorkManager** - Handles background tasks in a separate process
 - **Modern Android Architecture** - Clean package structure, lifecycle-aware components
 
+## Monorepo & Android Studio
+
+This project lives in the Kolibri monorepo at `platforms/android/` as a `uv`
+workspace member. Open **`platforms/android/`** (not the monorepo root) as the
+Android Studio project — Android Studio maps the enclosing monorepo as the VCS
+root above it, so history and `git blame` still work.
+
+The build consumes the shared workspace rather than a standalone checkout, so in
+the monorepo prefer these over the standalone commands shown below:
+
+- **Python / `buildPython`:** resolves to the shared root `.venv`. Create it from
+  the monorepo root with `uv sync --group dev --all-packages` (not a standalone
+  `uv venv`).
+- **Kolibri tar:** stage the workspace-built tar with `make stage-workspace-tar`
+  — it builds `kolibri-*.tar.gz` from the monorepo and copies it into `tar/`,
+  replacing the `make get-tar tar=<URL>` download.
+- **Chaquopy runtime:** the embedded runtime (`requirements.txt`) stays
+  Chaquopy-resolved and out of the workspace lock — install it into the shared
+  `.venv` with `uv pip install -r requirements.txt` as before.
+
+The nested `AGENTS.md` / `CLAUDE.md` in this directory remain the
+Android-specific developer docs.
+
 ## Quick Start
 
 ```bash
@@ -225,21 +248,3 @@ adb logcat -s BaseTaskWorker:V WorkController:V
 make list-avds
 make avd  # Recreate AVD
 ```
-
-## Contributing
-
-1. Create feature branch
-2. Make changes
-3. Run linting: `prek run --all-files`
-4. Run tests: `make test`
-5. Submit pull request
-
-## License
-
-See [LICENSE](LICENSE) file.
-
-## Support
-
-- **Issues**: https://github.com/learningequality/kolibri-installer-android/issues
-- **Kolibri Docs**: https://kolibri.readthedocs.io/
-- **Chaquopy Docs**: https://chaquo.com/chaquopy/doc/current/
