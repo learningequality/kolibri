@@ -1,0 +1,34 @@
+appId: org.learningequality.Kolibri
+
+# Don't add `androidWebViewHierarchy: devtools`. Modern Chrome WebView exposes
+# DOM text via Android's accessibility tree, so we don't need it — and on slow
+# CI emulators (API 35 in particular) the CDP queries hang past Maestro's
+# websocket timeout while the WebView is still booting, failing the flow.
+---
+# Maestro auto-grants every manifest-declared permission during launchApp, so
+# POST_NOTIFICATIONS is already granted and no permission dialog appears.
+# WRITE_EXTERNAL_STORAGE (API 24-28 only) is pre-granted by the CI harness
+# via `adb shell pm grant` before launch — see pr_build_kolibri.yml.
+- launchApp
+# The API 35 CI runner's Pixel Launcher ANR is handled at the emulator
+# provisioning level (pr_build_kolibri.yml), not here.
+- extendedWaitUntil:
+    visible: "How are you using Kolibri?"
+    timeout: 180000
+# Step 1: "How are you using Kolibri?" — "On my own" is pre-selected
+- tapOn: "CONTINUE"
+# Step 2: "Please select the default language" — English is pre-selected
+- extendedWaitUntil:
+    visible: "Please select the default language for Kolibri"
+    timeout: 10000
+- tapOn: "CONTINUE"
+# Verify we reach the main app. Kolibri shows a "Welcome to Kolibri!" modal on
+# first entry to the library — we key on its presence because the library page
+# heading varies with viewport ("Your library" on wide screens, "No resources
+# available" on the 320x640 CI emulator) and the rest of the page is marked
+# aria-hidden by the modal.
+- extendedWaitUntil:
+    visible: "Welcome to Kolibri!"
+    timeout: 30000
+# Dismiss the modal so we leave the app in a clean state for follow-up flows.
+- tapOn: "CONTINUE"

@@ -1,0 +1,319 @@
+plugins {
+	id 'com.android.application'
+	id 'com.chaquo.python'
+	id 'com.diffplug.spotless'
+}
+
+// Pin compilation to JDK 21 regardless of which JDK launches Gradle.
+// Gradle auto-detects installed JDKs; install JDK 21 if this fails to resolve.
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+spotless {
+	java {
+		target 'src/*/java/**/*.java'
+		googleJavaFormat('1.19.2')
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+	groovyGradle {
+		target '*.gradle'
+		greclipse()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}
+
+import org.gradle.api.tasks.*
+import javax.inject.Inject
+
+// Task to extract Kolibri tar file, stripping unnecessary packages
+abstract class StreamlineKolibriTask extends DefaultTask {
+	@InputFile
+	abstract RegularFileProperty getTarFile()
+
+	@OutputDirectory
+	abstract DirectoryProperty getExtractedDir()
+
+	@Inject
+	abstract ExecOperations getExecOperations()
+
+	/** Extract Kolibri tar, cleaning the output directory and stripping unnecessary packages. */
+	static void extract(File tarFile, File extractedDir, def execOps) {
+		println "Extracting Kolibri from ${tarFile.name}"
+
+		if (extractedDir.exists()) {
+			extractedDir.deleteDir()
+		}
+		extractedDir.mkdirs()
+
+		execOps.exec {
+			commandLine 'tar', 'xzf', tarFile.absolutePath,
+					'--exclude=kolibri/dist/cext/*',
+					'--exclude=kolibri/dist/ifaddr*',
+					'--directory=' + extractedDir.absolutePath,
+					'--strip-components=1'
+		}
+
+		println "Kolibri extracted successfully at ${extractedDir.absolutePath}"
+	}
+
+	@TaskAction
+	void streamlineKolibri() {
+		def tarFile = getTarFile().get().asFile
+		if (!tarFile.exists()) {
+			throw new GradleException("Kolibri tar file not found: ${tarFile}")
+		}
+		extract(tarFile, getExtractedDir().get().asFile, execOperations)
+	}
+}
+
+tasks.register('streamlineKolibriTar', StreamlineKolibriTask) {
+	def tarFile = file('../tar').listFiles()?.find { it.name.endsWith('.tar.gz') && it.name.startsWith('kolibri') }
+	getTarFile().set(tarFile)
+	getExtractedDir().set(file('../tar/extracted'))
+}
+
+// Determine which Python to use for build scripts
+def buildPythonExecutable = 'python3'  // Default
+// ../../../.venv climbs from app/ out to the monorepo root: this member shares
+// the workspace .venv (uv sync --group dev --all-packages) as its buildPython.
+def venvPython = file('../../../.venv/bin/python3')
+if (venvPython.exists()) {
+	buildPythonExecutable = venvPython.absolutePath
+}
+
+// Ensure Kolibri tar is extracted during configuration phase
+// This is necessary so version can be calculated before tasks run
+def extractedKolibriDir = file('../tar/extracted')
+def tarFile = file('../tar').listFiles()?.find { it.name.endsWith('.tar.gz') && it.name.startsWith('kolibri') }
+
+if (tarFile != null && tarFile.exists() && !new File(extractedKolibriDir, 'kolibri/VERSION').exists()) {
+	StreamlineKolibriTask.extract(tarFile, extractedKolibriDir, this)
+}
+
+// Calculate version name and code
+def calculatedVersionName
+def calculatedVersionCode
+
+if (extractedKolibriDir.exists() && extractedKolibriDir.isDirectory()) {
+	// Read VERSION_NAME from Kolibri's VERSION file
+	def kolibriVersionFile = new File(extractedKolibriDir, 'kolibri/VERSION')
+	if (!kolibriVersionFile.exists()) {
+		throw new GradleException("Kolibri VERSION file not found at: ${kolibriVersionFile}")
+	}
+
+	def kolibriVersion = kolibriVersionFile.text.trim()
+	def buildType = System.getenv("RELEASE_KEYALIAS") == "LE_RELEASE_KEY" ? "official" :
+			System.getenv("RELEASE_KEYALIAS") == "LE_DEV_KEY" ? "dev" : "debug"
+	calculatedVersionName = "${kolibriVersion}-${buildType}"
+
+	// Get VERSION_CODE
+	if (buildType == "official") {
+		// Production builds: MUST use Python script to query Play Store API
+		println "Official build: getting version code from Play Store API..."
+		def output = new ByteArrayOutputStream()
+		exec {
+			workingDir projectDir.parent
+			commandLine 'bash', '-c', "${buildPythonExecutable} scripts/version.py"
+			standardOutput = output
+		}
+		calculatedVersionCode = output.toString().trim() as int
+	} else {
+		// Dev/debug builds: use timestamp-based version code
+		def buildBaseNumber = 2008998000L
+		def now = new Date()
+		def timestamp = now.format('yyMMddHHmm') as long
+		calculatedVersionCode = (timestamp - buildBaseNumber) as int
+	}
+
+	println "Generated version: ${calculatedVersionName} (code: ${calculatedVersionCode})"
+
+	// Write version code to file for CI pipeline consumption
+	new File(projectDir.parent, '.version-code').text = "${calculatedVersionCode}"
+} else {
+	// Patched Kolibri doesn't exist yet - use defaults for initial Gradle sync
+	calculatedVersionName = '0.0.1-dev'
+	calculatedVersionCode = 1
+	println "Using default version (build Kolibri tar first for correct version)"
+}
+
+// Task to generate Android resource strings from Kolibri translations
+abstract class GenerateKolibriStringsTask extends DefaultTask {
+	@InputFile
+	abstract RegularFileProperty getScriptFile()
+
+	@Input
+	abstract Property<String> getPythonExecutable()
+
+	@OutputDirectory
+	abstract DirectoryProperty getResDir()
+
+	@Inject
+	abstract ExecOperations getExecOperations()
+
+	@TaskAction
+	void generateStrings() {
+		println "Generating Kolibri strings..."
+
+		def projectRoot = getScriptFile().get().asFile.parentFile.parentFile
+		def pythonExe = getPythonExecutable().get()
+
+		execOperations.exec {
+			workingDir projectRoot
+			commandLine pythonExe, 'scripts/create_strings.py'
+		}
+
+		println "Kolibri strings generated successfully"
+	}
+}
+
+tasks.register('generateKolibriStrings', GenerateKolibriStringsTask) {
+	dependsOn streamlineKolibriTar
+	getScriptFile().set(file('../scripts/create_strings.py'))
+	getResDir().set(file('src/main/res'))
+	getPythonExecutable().set(buildPythonExecutable)
+}
+
+// Make sure Kolibri is extracted before Python requirements are generated
+afterEvaluate {
+	tasks.matching { task ->
+		task.name.contains('PythonRequirements') ||
+				task.name.contains('extractPythonBuildPackages')
+	}.all { task ->
+		task.dependsOn streamlineKolibriTar
+	}
+
+	// Generate strings before resources are processed or mapped
+	tasks.matching { task ->
+		task.name.contains('generateDebugResources') ||
+				task.name.contains('generateReleaseResources') ||
+				task.name.contains('mergeDebugResources') ||
+				task.name.contains('mergeReleaseResources') ||
+				task.name.contains('mapDebugSourceSetPaths') ||
+				task.name.contains('mapReleaseSourceSetPaths') ||
+				task.name.contains('extractDeepLinksDebug') ||
+				task.name.contains('extractDeepLinksRelease')
+	}.all { task ->
+		task.dependsOn generateKolibriStrings
+	}
+}
+
+android {
+	namespace = 'org.learningequality.Kolibri'
+	compileSdk = 35
+	buildToolsVersion = "35.0.0"
+
+	// Use calculated version from configuration phase
+	def code = calculatedVersionCode
+	def name = calculatedVersionName
+
+	// Strip -debug-debug for debug builds
+	def nameNoDebug = name.replace("-debug", "")
+
+	defaultConfig {
+		applicationId = "org.learningequality.Kolibri"
+		minSdk = 24  // Chaquopy requires API 24+
+		targetSdk = 35
+		versionCode = code
+		versionName = name
+		multiDexEnabled = true
+		base.archivesName = "kolibri-$nameNoDebug"
+
+		ndk {
+			// ARM for mobile devices, x86_64 for Chromebooks and emulators
+			// x86 (32-bit) dropped - legacy emulators only
+			abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+		}
+
+		python {
+			version = "3.10"
+
+			// Use the same Python as our build scripts (venv if available, else system)
+			buildPython buildPythonExecutable
+
+			pip {
+				// Install Kolibri from patched tar file
+				// The streamlineKolibriTar task extracts the tar before this runs
+				install "../tar/extracted"
+				install "-r", "../requirements.txt"
+			}
+		}
+	}
+
+	packagingOptions {
+		jniLibs {
+			useLegacyPackaging = true
+		}
+		resources {
+			excludes += [
+				'lib/**/gdbserver',
+				'lib/**/gdb.setup'
+			]
+		}
+	}
+
+	signingConfigs {
+		release {
+			storeFile file(System.getenv("RELEASE_KEYSTORE") ?: "empty")
+			keyAlias System.getenv("RELEASE_KEYALIAS") ?: ""
+			storePassword System.getenv("RELEASE_KEYSTORE_PASSWD") ?: ""
+			keyPassword System.getenv("RELEASE_KEYALIAS_PASSWD") ?: ""
+		}
+	}
+
+	buildTypes {
+		debug {
+			debuggable = true
+		}
+		release {
+			signingConfig = signingConfigs.release
+			minifyEnabled false
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
+	}
+
+	testOptions {
+		unitTests {
+			returnDefaultValues = true
+		}
+	}
+
+	buildFeatures {
+		buildConfig = true
+	}
+
+	androidResources {
+		noCompress 'tflite'
+	}
+
+	sourceSets {
+		main {
+			python {
+				srcDir "src/main/python"
+			}
+		}
+	}
+}
+
+dependencies {
+	implementation 'androidx.appcompat:appcompat:1.7.1'
+	implementation 'androidx.annotation:annotation:1.9.1'
+	implementation 'androidx.concurrent:concurrent-futures:1.3.0'
+	implementation 'androidx.work:work-runtime:2.11.0'
+	implementation 'androidx.work:work-multiprocess:2.11.0'
+	implementation 'androidx.lifecycle:lifecycle-service:2.10.0'
+	implementation 'androidx.multidex:multidex:2.0.1'
+
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation 'org.robolectric:robolectric:4.16.1'
+	testImplementation 'org.mockito:mockito-core:4.11.0'
+}

@@ -45,10 +45,9 @@ jobs:
   apk:
     name: Build APK file
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.2.0
+    uses: ./.github/workflows/platform-android-build_apk.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.2.0
   zip:
     name: Build Raspberry Pi Image
     needs: [deb, server_deb]
@@ -115,6 +114,87 @@ jobs:
           sudo journalctl -u kolibri-server --no-pager || true
           sudo journalctl -u nginx --no-pager || true
           sudo cat /home/kolibri/.kolibri/logs/uwsgi.log 2>/dev/null || true
+  android_smoke_test:
+    name: Android smoke test (API ${{ matrix.api-level }})
+    needs: apk
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api-level: 24
+            target: default
+          - api-level: 30
+            target: google_apis
+          - api-level: 35
+            target: google_apis
+            experimental: true
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Install Maestro CLI
+        working-directory: platforms/android
+        run: make maestro-install
+      - name: Add Maestro to PATH
+        run: echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Download APK artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.apk.outputs.apk-file-name }}
+          path: platforms/android/dist
+      - name: Run smoke test
+        # The API 35 emulator intermittently drops to `device offline` mid-test on
+        # the hosted runner (software-rendered, no snapshot) — a crash the
+        # Maestro-level retry can't recover from, since the emulator itself is gone.
+        # This job is advisory (not in the required `smoke_tests` gate), so mark the
+        # flaky axis experimental to keep its coverage without red-X'ing the PR;
+        # 24/30 stay hard signals. `continue-on-error` must sit on the step, not the
+        # job: job-level only spares the overall run, leaving the matrix leg's own
+        # check red — step-level flips the leg's conclusion to success.
+        continue-on-error: ${{ matrix.experimental || false }}
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          target: ${{ matrix.target }}
+          force-avd-creation: false
+          disable-animations: true
+          # Hardened emulator flags. Snapshot save/restore + accelerated GPU have been
+          # the root cause of intermittent "bad color buffer handle" and "device offline"
+          # crashes mid-test on CI — `-no-snapshot` skips both load and save, and
+          # `swiftshader_indirect` forces software rendering.
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          # NOTE: reactivecircus runs each line of this script as a separate `sh -c` call,
+          # so multi-line shell constructs (until/while/case) must live in the Makefile
+          # or a script file, not here, and directory changes do not persist between
+          # lines — reference platforms/android explicitly.
+          script: |
+            adb install -r platforms/android/dist/*.apk
+            adb shell am set-debug-app --persistent org.learningequality.Kolibri
+            adb wait-for-device
+            until adb shell pm path org.learningequality.Kolibri >/dev/null 2>&1; do sleep 1; done
+            # Pre-grant so the WRITE_EXTERNAL_STORAGE dialog (API 24-28) never appears.
+            # `|| true`: the permission doesn't exist on API 29+.
+            adb shell pm grant org.learningequality.Kolibri android.permission.WRITE_EXTERNAL_STORAGE || true
+            # Let the launcher settle before app launch, to avoid the "Pixel Launcher
+            # isn't responding" ANR seen on the API 35 runner under cold-boot contention.
+            sleep 15
+            make -C platforms/android smoke-test-with-retry
+      - name: Upload Maestro debug output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: maestro-debug-output-api-${{ matrix.api-level }}
+          path: ~/.maestro/tests/
   browser_smoke_test:
     name: Browser smoke test
     needs: whl

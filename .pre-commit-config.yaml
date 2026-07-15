@@ -5,7 +5,14 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: check-yaml
-        exclude: '^pnpm-lock\.yaml$'
+        exclude: '^(pnpm-lock\.yaml|platforms/android/\.maestro/.*\.ya?ml)$'
+      - id: check-yaml
+        # Maestro flows (platforms/android/.maestro/*.yaml) are multi-document
+        # YAML — an appId config document followed by the flow steps document.
+        # Scope the relaxation here so the rest of the repo stays single-document.
+        name: check-yaml (multi-document Maestro flows)
+        args: [--allow-multiple-documents]
+        files: '^platforms/android/\.maestro/.*\.ya?ml$'
       - id: check-added-large-files
         exclude: '^(pnpm-lock\.yaml|uv\.lock)$'
       - id: debug-statements

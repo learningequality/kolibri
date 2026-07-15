@@ -1,0 +1,31 @@
+name: Release Android App
+on:
+  workflow_dispatch:
+    inputs:
+      version-code:
+        description: 'The version code to promote to the open testing track'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  release_apk:
+    name: Release Android App
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platforms/android
+    env:
+      SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install dependencies
+        working-directory: ${{ github.workspace }}
+        run: uv sync --package kolibri-installer-android --extra build
+      - name: Release APK
+        run: uv run python scripts/play_store_api.py release "${{ inputs.version-code }}"

@@ -1,0 +1,54 @@
+[project]
+name = "kolibri-installer-android"
+version = "0.1.0"
+requires-python = ">=3.7"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "prek; python_version >= '3.8'",
+    "websockets>=16.0; python_version >= '3.10'",
+]
+test = [
+    "pytest",
+    "websockets>=16.0; python_version >= '3.10'",
+]
+build = [
+    "google-api-python-client==2.161.0; python_version >= '3.8'",
+    "google-auth==2.38.0; python_version >= '3.8'",
+    "google-auth-httplib2==0.2.0; python_version >= '3.8'",
+]
+
+[tool.ruff]
+line-length = 80
+# The host scripts and Chaquopy embedded runtime both run on Python 3.10
+# (see .python-version). requires-python is held at >=3.7 only so this
+# workspace member does not raise the shared lock's Python floor, so pin the
+# lint target explicitly rather than let ruff infer py37 from requires-python.
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I", "T10"]
+ignore = ["E226", "E203", "E501", "E741"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+force-single-line = true
+known-first-party = ["kolibri"]
+
+[tool.ruff.lint.per-file-ignores]
+# Django settings module assembled from Kolibri's base settings via a star
+# import — the wildcard and the names it pulls in are intentional.
+"app/src/main/python/kolibri_app_settings.py" = ["F403", "F405"]
+# `import kolibri` is a side-effect import (it puts Kolibri's vendored zeroconf
+# on sys.path) that must precede `import zeroconf`, so it is neither unused (F401)
+# nor safe to reorder (I001).
+"app/src/main/python/monkey_patch_zeroconf.py" = ["F401", "I001"]
+# create_resource_files walks the locale tree inline; splitting it up would not
+# make the string-generation flow any clearer.
+"scripts/create_strings.py" = ["C901"]
+
+[tool.pytest.ini_options]
+testpaths = ["scripts/tests"]
