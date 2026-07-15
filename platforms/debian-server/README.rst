@@ -92,7 +92,17 @@ All copy and promote steps are idempotent, so if a release fails partway through
 Launchpad copy script
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with three subcommands:
+The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with four subcommands:
+
+``check-source``
+  Checks whether a source package version already exists in a PPA::
+
+    python3 scripts/launchpad_copy.py check-source --package kolibri-server --version 0.19.0
+
+``wait-for-published``
+  Polls Launchpad until published binaries appear for a source package::
+
+    python3 scripts/launchpad_copy.py wait-for-published --package kolibri-server --version 0.19.0
 
 ``copy-to-series``
   Copies packages from the source Ubuntu series to all other supported series within the ``kolibri-proposed`` PPA::
@@ -102,12 +112,7 @@ The ``scripts/launchpad_copy.py`` script manages Launchpad PPA operations with t
 ``promote``
   Promotes all published packages from ``kolibri-proposed`` to the ``kolibri`` PPA::
 
-    python3 scripts/launchpad_copy.py promote
-
-``wait-for-builds``
-  Polls Launchpad until all builds for a source package reach a terminal state::
-
-    python3 scripts/launchpad_copy.py wait-for-builds --package kolibri-server --version 1.0.0
+    python3 scripts/launchpad_copy.py promote --version 0.19.0
 
 All subcommands are idempotent — rerunning them after a partial success safely skips packages that were already copied or promoted.
 
