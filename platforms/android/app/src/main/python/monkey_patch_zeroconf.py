@@ -1,7 +1,7 @@
 import sys
 
 # kolibri import must come first: it puts its dist folder (zeroconf) on sys.path
-import kolibri  # noqa: F401  # isort: skip
+import kolibri
 import zeroconf
 from java import jclass
 

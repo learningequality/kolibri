@@ -27,10 +27,11 @@ DEFAULT_LANGUAGE = "en"
 
 
 def _find_string(lang, string):
-    from kolibri.main import initialize  # isort: skip  # noqa: E402
-    from django.utils.translation import gettext as _  # noqa: E402
-    from django.utils.translation import override  # noqa: E402
-    from django.utils.translation import to_locale  # noqa: E402
+    from django.utils.translation import gettext as _
+    from django.utils.translation import override
+    from django.utils.translation import to_locale
+
+    from kolibri.main import initialize
 
     initialize(skip_update=True)
 
@@ -81,7 +82,7 @@ def _find_string(lang, string):
 PYTHON_ONLY_STRINGS = []
 
 
-def create_resource_files():  # noqa: C901
+def create_resource_files():
     """
     Read each language directory and create resource files in the corresponding Android values folder.
     """
@@ -94,7 +95,7 @@ def create_resource_files():  # noqa: C901
 
     en_strings_root = en_strings_tree.getroot()
 
-    from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES  # noqa: E402
+    from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
     all_langs = sorted(KOLIBRI_SUPPORTED_LANGUAGES)
 
