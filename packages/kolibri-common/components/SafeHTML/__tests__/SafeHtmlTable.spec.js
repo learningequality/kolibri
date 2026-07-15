@@ -55,13 +55,10 @@ const createSampleNode = (m, n) => {
   return table;
 };
 
-const sampleAttributes = { class: 'safe-html' };
-
 const renderComponent = (m, n) => {
   const node = createSampleNode(m, n);
   return render(SafeHtmlTable, {
     props: { node },
-    attrs: sampleAttributes,
     slots: { default: node.innerHTML },
   });
 };

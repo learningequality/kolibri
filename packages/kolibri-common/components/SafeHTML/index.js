@@ -137,8 +137,6 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
             props[propName] = attr.value;
           }
 
-          attrs.class = attrs.class ? `${attrs.class} safe-html` : 'safe-html';
-
           // Check if this is a custom element
           const component =
             customComponents[tagName] ||
@@ -146,6 +144,8 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
             (kolibri.canHandleElement(node) ? 'ContentViewer' : null);
 
           if (component) {
+            // Components opt into safe-html themselves; setting it here would
+            // overwrite the class they render on their own root.
             const childProps = { ...props };
             // ContentViewer expects the DOM element as `element`, not `node`
             if (component === 'ContentViewer') {
@@ -165,6 +165,7 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
             return childVNode;
           }
 
+          attrs.class = attrs.class ? `${attrs.class} safe-html` : 'safe-html';
           return h(tagName, { attrs }, mapChildren(node.childNodes));
         }
 
