@@ -1,0 +1,24 @@
+# Launchpad OAuth credentials (owner-only, never committed)
+launchpad.credentials
+
+# Build artifacts
+debian/files
+debian/.debhelper
+debian/*debhelper*
+debian/kolibri-server.substvars
+debian/kolibri-server/
+error_pages/
+dist/
+*.deb
+*.build
+*.buildinfo
+*.changes
+
+# GPG / keyring material emitted by the packaging tooling
+*.gpg
+*.asc
+
+# IDE
+.idea
+/*.iml
+.vscode

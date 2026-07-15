@@ -1,0 +1,16 @@
+# This provides the Kolibri server service, started by invoking the old
+# style /etc/init.d/kolibri-server service for backwards-compatibility.
+
+[Unit]
+Description=A high performance web server setup for Kolibri
+After=redis.service nginx.service
+Wants=network-online.target
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/kolibri-server start
+ExecStop=/etc/init.d/kolibri-server stop
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target

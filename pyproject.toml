@@ -146,7 +146,10 @@ exclude-newer = "7 days"
 exclude-newer-package = {le-utils = "0 seconds", morango = "0 seconds"}
 
 [tool.uv.workspace]
-members = [".", "python_packages/*"]
+members = [".", "python_packages/*", "platforms/*"]
+# platforms/ also holds non-Python members (raspberry-pi has no pyproject.toml);
+# the glob would otherwise error on them, so exclude those without a project.
+exclude = ["platforms/raspberry-pi"]
 
 [tool.setuptools]
 packages = ["kolibri"]
@@ -186,7 +189,7 @@ max-line-length = 160
 max-complexity = 10
 
 [tool.ruff.lint.isort]
-known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin", "kolibri_oidc_client_plugin", "kolibri_oidc_provider_plugin", "kolibri_opensearch_plugin", "kolibri_context_translation_plugin", "kolibri_demo_server_plugin"]
+known-first-party = ["kolibri", "kolibri_sync_extras_plugin", "kolibri_sentry_plugin", "kolibri_oidc_client_plugin", "kolibri_oidc_provider_plugin", "kolibri_opensearch_plugin", "kolibri_context_translation_plugin", "kolibri_demo_server_plugin", "kolibri_server_setup", "launchpad_copy", "generate_changelog"]
 # Match the prior reorder-python-imports style: one import per line,
 # sorted case-insensitively rather than grouped by type.
 force-single-line = true

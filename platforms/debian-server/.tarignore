@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.idea
+.tarignore
+.vscode
+*.iml
+*.egg-info
+__pycache__
+.venv
+test
+tests

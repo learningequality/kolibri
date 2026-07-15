@@ -1,0 +1,5 @@
+Configuration of Kolibri's UWSGI workers
+
+All files in /etc/kolibri/uwsgi.d/ with the extension .ini will be read
+by the kolibri daemon after loading defaults defined in
+/etc/kolibri/dist/uwsgi.ini (don't change this)

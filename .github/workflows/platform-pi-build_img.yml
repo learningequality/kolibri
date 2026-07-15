@@ -14,6 +14,10 @@ on:
         description: 'URL for Kolibri deb file'
         required: false
         type: string
+      server-deb-file-name:
+        description: 'Artifact name of the kolibri-server deb to install into the image'
+        required: false
+        type: string
     outputs:
       zip-file-name:
         description: "ZIP file name"
@@ -44,6 +48,14 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.deb-file-name }}
+          path: platforms/raspberry-pi/dist
+      # The kolibri-server deb is only built in the PR (workflow_call) path; the
+      # workflow_dispatch path has no such artifact, so guard on the input.
+      - name: Download the kolibri-server debfile from artifacts
+        if: ${{ inputs.server-deb-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.server-deb-file-name }}
           path: platforms/raspberry-pi/dist
       - name: Cache source image and pimod
         uses: actions/cache@v6.1.0

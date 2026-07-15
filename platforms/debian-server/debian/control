@@ -1,0 +1,21 @@
+Source: kolibri-server
+Section: education
+Priority: extra
+Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
+Uploaders: José L. Redrejo Rodríguez <jredrejo@debian.org>
+           Benjamin Bach <benjamin@learningequality.org>
+Build-Depends: debhelper (>=10), unzip, kolibri (>=0.16)
+Standards-Version: 4.3.0.1
+Homepage: https://learningequality.org/kolibri
+
+Package: kolibri-server
+Architecture: all
+Recommends: anacron
+Depends: kolibri (>= 0.16.0~alpha1), nginx-full, uwsgi (>= 2.0.12), uwsgi-plugin-python3, redis-server (>=4.0), python3 (>= 3.6)
+Enhances: kolibri
+Description: Improve Kolibri server network configuration
+ This package automates uwsgi and nginx configuration for
+ Kolibri to take all the benefits from the multicore
+ processors most servers have.
+ It also uses nginx caching capabilities to improve static
+ files requests.

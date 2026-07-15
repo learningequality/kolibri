@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  remove|purge)
+    # get KOLIBRI_HOME from kolibri installer package:
+    . /etc/default/kolibri
+    if which runuser > /dev/null
+    then
+      SU_COMMAND="runuser"
+    else
+      SU_COMMAND="su"
+    fi
+
+    # restore previous options.ini backup
+    if [ -e "$KOLIBRI_HOME/options.ini.kolibri-server-backup" ]; then
+        $SU_COMMAND $KOLIBRI_USER -c "mv -f $KOLIBRI_HOME/options.ini.kolibri-server-backup $KOLIBRI_HOME/options.ini"
+    fi
+
+    ;;
+
+
+  upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+  *)
+    echo "prerm called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

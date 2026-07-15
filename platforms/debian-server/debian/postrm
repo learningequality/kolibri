@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  remove|purge)
+    rm -f /etc/nginx/conf.d/kolibri.conf
+    rm -Rf /etc/kolibri/nginx.d
+    if [ ! -L "/etc/nginx/sites-enabled/default" ] && [ -f "/etc/kolibri/nginx_default" ] ;then
+        ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+        rm -f /etc/kolibri/nginx_default
+    fi
+    service nginx reload || true
+    service kolibri restart || true
+    ;;
+
+
+  upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+
+  *)
+    echo "postrm called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
