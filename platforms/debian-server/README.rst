@@ -137,6 +137,8 @@ You can configure the main Nginx site and overwrite defaults by adding ``.conf``
 Testing
 -------
 
-To run a build and installation test, you can use the following command to do so with docker::
+Run the Launchpad-tooling unit tests from ``platforms/debian-server`` with::
 
-  docker build --build-arg TARGET_IMAGE=ubuntu:22.04 -f test/Dockerfile --target test .
+  uv run python -O -m pytest
+
+The ``pr_build_kolibri.yml`` PR build also builds the ``.deb`` and runs ``tests/serving_smoke_test.sh`` against it, asserting Kolibri is served behind Nginx/UWSGI after installation.
