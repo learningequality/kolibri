@@ -2,7 +2,7 @@
 
   <span
     class="qti-inline-choice-interaction"
-    :style="{ color: $themeTokens.text }"
+    :style="rootStyles"
   >
     <button
       v-if="interactive"
@@ -143,6 +143,7 @@
         isAnswered.value ? answered$({ selection: selectedText.value }) : notAnswered$(),
       );
 
+      const rootStyles = computed(() => ({ color: $themeTokens.text }));
       const triggerStyles = computed(() => ({
         color: $themeTokens.text,
         backgroundColor: $themeTokens.surface,
@@ -160,13 +161,13 @@
       }
 
       return {
-        $themeTokens,
         coreOutline: themeOutlineStyle(),
         interactive,
         options,
         isAnswered,
         triggerLabel,
         triggerAriaLabel,
+        rootStyles,
         triggerStyles,
         onSelect,
       };

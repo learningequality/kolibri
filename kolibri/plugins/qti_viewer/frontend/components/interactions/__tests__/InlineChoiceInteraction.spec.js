@@ -9,6 +9,7 @@ const smokeFixtures = [
   ['q12-inline-choice-interaction', 1],
   ['shakespeare-biography', 2],
   ['vertical-inlinechoice-16', 1],
+  ['q12-inline-choice-sv-1', 17],
 ];
 
 // tippy-based popovers do not open in jsdom, so the option list is never rendered to
