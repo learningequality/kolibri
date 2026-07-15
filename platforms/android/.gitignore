@@ -50,7 +50,9 @@ local.properties
 .gitconfig
 .ripgreprc
 .mcp.json
-.claude/
+# Ignore transient Claude Code sandbox artifacts, but keep committed commands.
+.claude/*
+!.claude/commands/
 HEAD
 config
 hooks/
