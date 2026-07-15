@@ -1,0 +1,175 @@
+name: Build Android App
+on:
+  workflow_dispatch:
+    inputs:
+      tar-url:
+        description: 'URL for Kolibri tar file'
+        required: true
+      signed:
+        description: 'Should this be signed with the development key? (mutually exclusive with release)'
+        required: false
+        type: boolean
+        default: false
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      tar-file-name:
+        required: false
+        type: string
+      signed:
+        description: 'Should this be signed with the development key? (mutually exclusive with release)'
+        required: false
+        type: boolean
+        default: false
+      release:
+        description: 'Is this a release asset?'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      # A base64-encoded keystore that contains the key used to sign the app
+      # for development builds.
+      KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE:
+        required: false
+      # The password for the keystore.
+      KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE_PASSWORD:
+        required: false
+      # The password for the key in the keystore.
+      KOLIBRI_ANDROID_APP_DEVELOPER_KEYALIAS_PASSWORD:
+        required: false
+      # A base64-encoded keystore that contains the key used to sign the app
+      # for production builds.
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE:
+        required: false
+      # The password for the keystore.
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD:
+        required: false
+      # The password for the key in the keystore.
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD:
+        required: false
+      KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON:
+        required: false
+    outputs:
+      apk-file-name:
+        description: "APK file name"
+        value: ${{ jobs.build_apk.outputs.apk-file-name }}
+      version-code:
+        description: "Version code"
+        value: ${{ jobs.build_apk.outputs.version-code }}
+permissions:
+  contents: read
+jobs:
+  build_apk:
+    name: Build Android App
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platforms/android
+    env:
+      SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
+    outputs:
+      apk-file-name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
+      version-code: ${{ steps.get-version-code.outputs.version-code }}
+    steps:
+      - name: Validate release flag inputs
+        if: ${{ inputs.release && inputs.signed }}
+        run: |
+          echo "Cannot build a release and signed development APK at the same time."
+          exit 1
+      - name: Validate tar reference inputs
+        # Only workflow_call passes tar-file-name; workflow_dispatch requires
+        # tar-url, so this only fires when a workflow_call omits tar-file-name.
+        if: ${{ !inputs.tar-file-name && !inputs.tar-url }}
+        run: |
+          echo "Must specify a tar reference (URL for dispatch, artifact name for call) to build the APK with."
+          exit 1
+      - uses: actions/checkout@v7.0.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      # tar-url is a workflow_dispatch-only input; the `inputs` context is
+      # populated for both triggers, so this single step covers dispatch and
+      # stays inert on workflow_call (which supplies the tar as an artifact).
+      - name: Download the tarfile from URL
+        if: ${{ inputs.tar-url }}
+        env:
+          TAR_URL: ${{ inputs.tar-url }}
+        run: make get-tar tar="$TAR_URL"
+      - name: Download the tarfile from artifacts
+        if: ${{ inputs.tar-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.tar-file-name }}
+          path: platforms/android/tar
+      # Install the member's Play Store build tooling from the shared workspace
+      # lock into the root .venv that Gradle's buildPython targets, then add the
+      # Chaquopy cext deps (kept out of the lock) that create_strings.py needs.
+      # Pin the venv to Python 3.10 so it matches Chaquopy's embedded runtime
+      # (app/build.gradle `python { version = "3.10" }`); buildPython must be the
+      # same minor version or `installDebugPythonRequirements` rejects it.
+      - name: Install dependencies
+        working-directory: ${{ github.workspace }}
+        run: |
+          uv sync --package kolibri-installer-android --extra build --python 3.10
+          uv pip install -r platforms/android/requirements.txt
+      - name: Build the aab
+        if: ${{ inputs.release }}
+        env:
+          RELEASE_KEYALIAS: LE_RELEASE_KEY
+          RELEASE_KEYSTORE_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD }}
+          RELEASE_KEYALIAS_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD }}
+        run: |
+          echo -n "${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}" | base64 --decode > production.keystore
+          RELEASE_KEYSTORE=$(realpath production.keystore)
+          export RELEASE_KEYSTORE
+          make kolibri.aab
+      - name: Get AAB filename
+        if: ${{ inputs.release }}
+        id: get-aab-filename
+        run: echo "aab-file-name=$(basename dist/*.aab)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        if: ${{ inputs.release }}
+        with:
+          name: ${{ steps.get-aab-filename.outputs.aab-file-name }}
+          path: platforms/android/dist/${{ steps.get-aab-filename.outputs.aab-file-name }}
+      - name: Upload the AAB to the Play Store and download the signed Universal APK
+        if: ${{ inputs.release }}
+        env:
+          RELEASE_KEYALIAS: LE_RELEASE_KEY
+        run: make playstore-upload
+      - name: Build the apk
+        if: ${{ inputs.signed }}
+        env:
+          RELEASE_KEYALIAS: LE_DEV_KEY
+          RELEASE_KEYSTORE_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE_PASSWORD }}
+          RELEASE_KEYALIAS_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYALIAS_PASSWORD }}
+        run: |
+          echo -n "${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE }}" | base64 --decode > development.keystore
+          RELEASE_KEYSTORE=$(realpath development.keystore)
+          export RELEASE_KEYSTORE
+          make kolibri.apk
+      - name: Build the debug apk
+        if: ${{ !inputs.signed && !inputs.release }}
+        run: make kolibri.apk.unsigned
+      - name: Get APK filename
+        id: get-apk-filename
+        run: echo "apk-file-name=$(basename dist/*.apk)" >> "$GITHUB_OUTPUT"
+      - name: Get versionCode
+        id: get-version-code
+        run: echo "version-code=$(cat .version-code)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
+          path: platforms/android/dist/${{ steps.get-apk-filename.outputs.apk-file-name }}
