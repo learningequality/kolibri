@@ -100,6 +100,11 @@ against any abstract KolibriHook descendants that it inherits from. In this case
 being registered inherits from NavigationHook, so any hook registered will be available on
 the ``NavigationHook.registered_hooks`` property.
 
+For an ``only_one_registered`` hook, ``@register_hook(as_default=True)`` marks the wrapped
+class as a built-in default: it does not count toward the single-registration limit, is
+overridden by any non-default registration, and is resolved via the ``registered_hook``
+accessor (which returns the non-default registration if present, else the default, else None).
+
 Here is the definition of the abstract NavigationHook in kolibri.core.hooks:
 
 .. code-block:: python
@@ -220,12 +225,20 @@ def define_hook(subclass=None, only_one_registered=False):
     return subclass
 
 
-def register_hook(subclass):
+def register_hook(subclass=None, as_default=False):
     """
     This method must be used as a decorator to register a hook against this hook
     class and all parent abstract classes - can only be called on an abstract
     base class.
+
+    Pass ``as_default=True`` to mark the hook as a built-in default for an
+    ``only_one_registered`` hook: it does not count toward the single
+    registration limit and is overridden by any non-default registration.
     """
+    # Allow optional arguments to be passed to register_hook when used as a decorator
+    if subclass is None:
+        return partial(register_hook, as_default=as_default)
+
     if not any(
         hasattr(base, "_registered_hooks")
         and base.abstract
@@ -240,7 +253,7 @@ def register_hook(subclass):
             "register_hook decorator invoked outside of a kolibri_plugin.py module - this hook will not be initialized"
         )
     attrs = dict(subclass.__dict__)
-    attrs.update({"_not_abstract": True})
+    attrs.update({"_not_abstract": True, "_is_default": as_default})
     subclass = type(subclass.__name__, subclass.__bases__, attrs)
     subclass._registered = True
 
@@ -298,6 +311,20 @@ class KolibriHookMeta(SingletonMeta):
             yield hook
 
     @property
+    def registered_hook(cls):
+        """
+        The single effective registered hook: a non-default registration if one
+        exists, otherwise a hook registered with ``as_default=True``, otherwise None.
+        """
+        default = None
+        for hook in cls.registered_hooks:
+            if hook._is_default:
+                default = hook
+            else:
+                return hook
+        return default
+
+    @property
     def is_registered(cls):
         """
         Check if any instances of the class have been registered or not.
@@ -335,8 +362,11 @@ class KolibriHookMeta(SingletonMeta):
             raise TypeError("add_hook_to_registry method used on a non-abstract hook")
         if (
             cls._only_one_registered
-            and cls._registered_hooks
-            and hook not in cls.registered_hooks
+            and not hook._is_default
+            and any(
+                registered is not hook and not registered._is_default
+                for registered in cls._registered_hooks.values()
+            )
         ):
             for parent in cls.__mro__:
                 if (
@@ -398,6 +428,11 @@ class KolibriHookMeta(SingletonMeta):
 
 
 class KolibriHook(metaclass=KolibriHookMeta):
+    # : Set to True by register_hook(as_default=True). Marks a built-in fallback
+    # : that does not count toward only_one_registered and loses to any
+    # : non-default registration.
+    _is_default = False
+
     @property
     @abstractmethod
     def _not_abstract(self):
