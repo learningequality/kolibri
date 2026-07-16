@@ -20,6 +20,11 @@ class AboutDialog(wx.Dialog):
         )
         sizer = wx.BoxSizer(wx.VERTICAL)
 
+        def add_centered_text(label, top):
+            sizer.Add(
+                wx.StaticText(self, label=label), 0, wx.ALIGN_CENTER | wx.TOP, top
+            )
+
         try:
             icon_path = files("kolibri_app") / "icons" / "kolibri-icon.png"
             image = wx.Image(str(icon_path), wx.BITMAP_TYPE_PNG).Scale(
@@ -30,23 +35,9 @@ class AboutDialog(wx.Dialog):
         except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
             logging.error(f"Error loading About dialog icon: {e}")
 
-        sizer.Add(
-            wx.StaticText(
-                self, label=_("App version: %(version)s") % {"version": app_version}
-            ),
-            0,
-            wx.ALIGN_CENTER | wx.TOP,
-            8,
-        )
-        sizer.Add(
-            wx.StaticText(
-                self,
-                label=_("Kolibri version: %(version)s")
-                % {"version": kolibri.__version__},
-            ),
-            0,
-            wx.ALIGN_CENTER | wx.TOP,
-            4,
+        add_centered_text(_("App version: %(version)s") % {"version": app_version}, 8)
+        add_centered_text(
+            _("Kolibri version: %(version)s") % {"version": kolibri.__version__}, 4
         )
 
         docs_link = wx.adv.HyperlinkCtrl(self, label=_("Documentation"), url=DOCS_URL)
@@ -62,14 +53,8 @@ class AboutDialog(wx.Dialog):
         link_sizer.Add(forums_link)
         sizer.Add(link_sizer, 0, wx.ALIGN_CENTER | wx.TOP, 12)
 
-        sizer.Add(
-            wx.StaticText(
-                self,
-                label=_("© %(year)s Learning Equality") % {"year": date.today().year},
-            ),
-            0,
-            wx.ALIGN_CENTER | wx.TOP,
-            12,
+        add_centered_text(
+            _("© %(year)s Learning Equality") % {"year": date.today().year}, 12
         )
 
         close_btn = wx.Button(self, wx.ID_OK, _("Close"))
