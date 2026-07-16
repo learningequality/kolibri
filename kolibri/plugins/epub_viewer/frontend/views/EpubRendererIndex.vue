@@ -73,6 +73,7 @@
           @decreaseFontSize="handleChangeFontSize(-1)"
           @increaseFontSize="handleChangeFontSize(+1)"
           @setTheme="setTheme"
+          @closeSideBar="handleSettingToggle"
         />
       </FocusLock>
 
@@ -166,7 +167,6 @@
   import Epub from 'epubjs/src/epub';
   import { EVENTS } from 'epubjs/src/utils/constants';
   import Mark from 'mark.js';
-  import isEqual from 'lodash/isEqual';
   import get from 'lodash/get';
   import clamp from 'lodash/clamp';
   import Lockr from 'lockr';
@@ -189,7 +189,7 @@
   import SettingsButton from './SettingsButton';
   import SearchButton from './SearchButton';
 
-  import { THEMES, darkThemeNames } from './EpubConstants';
+  import { THEMES, isDarkColor, DEFAULT_LINK_COLOR, resolveTheme } from './EpubConstants';
 
   const FONT_SIZE_MIN = 8;
   const FONT_SIZE_MAX = 32;
@@ -312,6 +312,9 @@
       textColor() {
         return this.theme.textColor;
       },
+      linkColor() {
+        return this.theme.linkColor || DEFAULT_LINK_COLOR;
+      },
       themeStyle() {
         const colorStyle = {
           'background-color': `${this.backgroundColor}!important`,
@@ -350,6 +353,7 @@
           // help media not overflow their columns
           video: { 'max-width': '100%' },
           img: { 'max-width': '100%' },
+          a: { color: `${this.linkColor}!important` },
         };
       },
       tocSideBarIsOpen() {
@@ -367,9 +371,9 @@
         };
       },
       navigationButtonColor() {
-        return darkThemeNames.some(themeName => isEqual(this.theme.name, themeName))
-          ? 'white'
-          : 'black';
+        // Choose arrow color from the actual background luminance so custom themes
+        // (which aren't in the fixed set) get legible arrows on dark backgrounds too.
+        return isDarkColor(this.backgroundColor) ? 'white' : 'black';
       },
       bottomBarHeading() {
         if (this.currentSection) {
@@ -438,7 +442,9 @@
 
       const { theme = this.theme, fontSize = this.fontSize } =
         Lockr.get(EPUB_RENDERER_SETTINGS_KEY) || {};
-      this.theme = theme;
+      // resolveTheme re-resolves fixed themes to their live definition so a saved
+      // selection picks up an id (for matching) and current colors (e.g. link color).
+      this.theme = resolveTheme(theme);
       this.fontSize = fontSize;
     },
     mounted() {
