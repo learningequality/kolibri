@@ -9,7 +9,7 @@ class DefaultThemePlugin(KolibriPluginBase):
     pass
 
 
-@register_hook
+@register_hook(as_default=True)
 class DefaultThemeHook(theme_hook.ThemeHook):
     @property
     def theme(self):
