@@ -64,7 +64,6 @@
               <DragHandle v-if="isSortable">
                 <div>
                   <DragSortWidget
-                    :noDrag="true"
                     :isFirst="index === 0"
                     :isLast="index === questions.length - 1"
                     :itemLabel="

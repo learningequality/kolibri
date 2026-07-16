@@ -4,17 +4,13 @@ import DragContainer from '../DragContainer.vue';
 
 jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 
-// Real @shopify/draggable manipulates mouse/pointer events in ways jsdom doesn't
-// support; only its constructor shape matters for these tests.
-jest.mock('@shopify/draggable/lib/es5/draggable.bundle.legacy.js', () => ({
-  Sortable: jest.fn().mockImplementation(() => ({
-    on: jest.fn(),
-    removePlugin: jest.fn(),
+// Real SortableJS manipulates pointer events in ways jsdom doesn't support;
+// only its constructor shape matters for these tests.
+jest.mock('sortablejs', () =>
+  jest.fn().mockImplementation(() => ({
     destroy: jest.fn(),
   })),
-  Plugins: { SwapAnimation: 'SwapAnimation' },
-  Draggable: { Plugins: { Focusable: 'Focusable' } },
-}));
+);
 
 describe('DragContainer', () => {
   let sendPoliteMessage;

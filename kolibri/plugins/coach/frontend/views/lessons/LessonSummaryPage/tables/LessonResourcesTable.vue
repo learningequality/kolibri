@@ -200,7 +200,7 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .draggable-mirror {
+  /deep/ .sortable-item--mirror {
     /* Styles to fix styles errors for having a draggable tr with fixed position */
     height: auto !important;
 
