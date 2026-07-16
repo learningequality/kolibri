@@ -72,14 +72,24 @@ while [ ! -f "$KOLIBRI_LOG" ]; do
     fi
 done
 
-sleep 2
-PORT=$(grep -oE "localhost:[0-9]+" "$KOLIBRI_LOG" | head -1 | cut -d: -f2)
+# Poll for the real serving port. The app first logs the configured port,
+# which is "0" (auto-select) — the OS assigns a real port only once the server
+# reaches the SERVING state and logs "localhost:<port>". On a slow first launch
+# (DB migrations) that line can lag, so wait for a non-zero localhost port
+# rather than grabbing the "port 0" placeholder.
+PORT=""
+PORT_TIMEOUT=60
+ELAPSED=0
+while [ $ELAPSED -lt $PORT_TIMEOUT ]; do
+    PORT=$(grep -oE "localhost:[0-9]+" "$KOLIBRI_LOG" | cut -d: -f2 | grep -vx "0" | head -1)
+    if [ -n "$PORT" ]; then
+        break
+    fi
+    sleep 2
+    ELAPSED=$((ELAPSED + 2))
+done
 if [ -z "$PORT" ]; then
-    # Try alternative pattern
-    PORT=$(grep -oE "port [0-9]+" "$KOLIBRI_LOG" | head -1 | awk '{print $2}')
-fi
-if [ -z "$PORT" ]; then
-    echo "ERROR: Could not detect port from logs"
+    echo "ERROR: Could not detect a valid server port from logs after ${PORT_TIMEOUT}s"
     echo "=== Log contents ==="
     cat "$KOLIBRI_LOG"
     pkill -f "Kolibri.app" || true
@@ -89,7 +99,19 @@ echo "✓ Detected port: $PORT"
 
 # 5. Check API endpoint
 echo "[5/6] Checking API endpoint..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$PORT/api/public/info/" || echo "000")
+# Retry briefly: the server may need a moment after logging its port before it
+# accepts connections.
+HTTP_CODE="000"
+API_TIMEOUT=30
+ELAPSED=0
+while [ $ELAPSED -lt $API_TIMEOUT ]; do
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:$PORT/api/public/info/" || echo "000")
+    if [ "$HTTP_CODE" = "200" ]; then
+        break
+    fi
+    sleep 2
+    ELAPSED=$((ELAPSED + 2))
+done
 if [ "$HTTP_CODE" != "200" ]; then
     echo "ERROR: API endpoint returned HTTP $HTTP_CODE (expected 200)"
     echo "=== Log contents ==="
