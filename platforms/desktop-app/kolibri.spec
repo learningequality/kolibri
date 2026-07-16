@@ -65,13 +65,13 @@ metadata.entry_points = monkey_patched_entry_points
 
 datas_list = [
     ('src/kolibri_app/assets', 'kolibri_app/assets'),
+    ('src/kolibri_app/icons', 'kolibri_app/icons'),
 ] + locale_datas
 
 if sys.platform == "win32":
-    datas_list.extend([
-        ('src/kolibri_app/icons', 'kolibri_app/icons'),
+    datas_list.append(
         (os.path.join('installer', 'nssm', 'nssm.exe'), 'nssm')
-    ])
+    )
 
 binaries_list = []
 if sys.platform == "win32":

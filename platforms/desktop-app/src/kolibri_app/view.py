@@ -7,6 +7,7 @@ import wx
 from django.utils.translation.trans_real import to_language
 from wx import html2
 
+from kolibri_app.about_dialog import AboutDialog
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX
 from kolibri_app.constants import MAC
@@ -113,6 +114,13 @@ class KolibriView(object):
         open_home_item.Enable(_kolibri_home_readable())
 
         if MAC:
+            self.add_menu_item(
+                primary_menu,
+                _("About Kolibri…"),
+                handler=self.on_about,
+                item_id=wx.ID_ABOUT,
+            )
+
             # Items in a menu named with the app name appear in the macOS
             # Application menu, before wx-provided Services / Hide / Quit.
             menu_bar.Append(primary_menu, APP_NAME)
@@ -165,6 +173,12 @@ class KolibriView(object):
             handler=self.on_forums,
             item_id=wx.ID_HELP_SEARCH,
         )
+        if not MAC:
+            self.add_menu_item(
+                help_menu,
+                _("About Kolibri…"),
+                handler=self.on_about,
+            )
         menu_bar.Append(help_menu, _("Help"))
 
         self.view.SetMenuBar(menu_bar)
@@ -274,6 +288,11 @@ class KolibriView(object):
 
     def on_forums(self, event):
         webbrowser.open("https://community.learningequality.org/")
+
+    def on_about(self, event):
+        dlg = AboutDialog(self.view)
+        dlg.ShowModal()
+        dlg.Destroy()
 
     def on_open_in_browser(self, event):
         webbrowser.open(self.get_url())
