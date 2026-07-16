@@ -33,7 +33,7 @@ class AboutDialog(wx.Dialog):
             bitmap = wx.StaticBitmap(self, bitmap=wx.Bitmap(image))
             sizer.Add(bitmap, 0, wx.ALIGN_CENTER | wx.TOP, 16)
         except (FileNotFoundError, wx.wxAssertionError, OSError) as e:
-            logging.error(f"Error loading About dialog icon: {e}")
+            logging.warning(f"Error loading About dialog icon: {e}")
 
         add_centered_text(_("App version: %(version)s") % {"version": app_version}, 8)
         add_centered_text(
