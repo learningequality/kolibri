@@ -7,9 +7,9 @@ from importlib.resources import files
 
 import wx
 from django.utils.translation.trans_real import to_language
-from kolibri.utils.conf import LOG_ROOT
 from wx import html2
 
+from kolibri.utils.conf import LOG_ROOT
 from kolibri_app.about_dialog import AboutDialog
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX

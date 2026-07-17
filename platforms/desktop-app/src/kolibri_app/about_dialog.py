@@ -2,10 +2,10 @@ import logging
 from datetime import date
 from importlib.resources import files
 
-import kolibri
 import wx
 import wx.adv
 
+import kolibri
 from kolibri_app._version import __version__ as app_version
 from kolibri_app.i18n import _
 

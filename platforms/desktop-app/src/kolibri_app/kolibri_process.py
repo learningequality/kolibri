@@ -13,7 +13,6 @@ import secrets
 from kolibri.main import initialize
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
-
 from kolibri_app.kolibri_plugin import KolibriAppGetOSUserHook
 from kolibri_app.logger import logging
 

@@ -37,7 +37,6 @@ if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     sys.path.insert(0, os.path.join(sys._MEIPASS, "kolibrisrc", "kolibri", "dist"))
 
 from kolibri.core.device.utils import app_initialize_url
-
 from kolibri_app.kolibri_process import KolibriProcess
 from kolibri_app.logger import logging
 

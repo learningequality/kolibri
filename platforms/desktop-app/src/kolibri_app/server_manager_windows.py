@@ -34,9 +34,9 @@ import win32pipe
 import win32service
 import winerror
 import wx
+
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.server import stop as kolibri_stop
-
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.logger import logging
 

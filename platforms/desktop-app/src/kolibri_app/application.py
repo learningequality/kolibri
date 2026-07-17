@@ -4,9 +4,9 @@ import os
 import webbrowser
 
 import wx
+
 from kolibri.main import enable_plugin
 from kolibri.utils.conf import KOLIBRI_HOME
-
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import WINDOWS
 from kolibri_app.logger import logging
@@ -23,7 +23,6 @@ if WINDOWS:
     from kolibri_app.windows_registry import is_webview2_installed
 else:
     from kolibri.core.device.utils import app_initialize_url
-
     from kolibri_app.server_manager_posix import PosixKolibriProcess as ServerManager
 
 STATE_FILE = "app_state.json"
