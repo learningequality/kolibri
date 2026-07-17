@@ -83,12 +83,16 @@ jobs:
         run: |
           # Create a junction to shorten the workspace path.
           # Dev version strings like "0.19.1a0.dev0+git.99.gbfca81cd" make
-          # some file paths exceed Windows' 260-char MAX_PATH limit. The Makefile
-          # lives in the member dir, so point the junction there (not the
-          # workspace root) — D:\a\kolibri\kolibri\platforms\desktop-app -> D:\b.
+          # some file paths exceed Windows' 260-char MAX_PATH limit. Point the
+          # junction at the workspace *root* (not the member dir): uv discovers
+          # the workspace and its shared .venv by walking up from the member
+          # dir, so D:\b must expose the root pyproject.toml and D:\b\.venv.
+          # Junctioning the member dir instead makes uv treat it as a standalone
+          # project and build a fresh venv without the `build` extra (no polib).
+          # D:\a\kolibri\kolibri -> D:\b, then run make from D:\b\platforms\desktop-app.
           if (Test-Path "D:\b") { Remove-Item "D:\b" -Force }
-          New-Item -ItemType Junction -Path "D:\b" -Target "$env:GITHUB_WORKSPACE\platforms\desktop-app" | Out-Null
-          Push-Location "D:\b"
+          New-Item -ItemType Junction -Path "D:\b" -Target "$env:GITHUB_WORKSPACE" | Out-Null
+          Push-Location "D:\b\platforms\desktop-app"
           make build-installer-windows
           Pop-Location
       - name: Get EXE filenames
