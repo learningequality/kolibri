@@ -1,4 +1,4 @@
-.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version
+.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version write-version
 
 PYTHON_EXEC := uv run python
 
@@ -18,8 +18,14 @@ guard-%:
 	fi
 
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell uv run --group build python -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
-	$(eval APP_VERSION ?= $(shell uv run --group build python -m setuptools_scm))
+	$(eval KOLIBRI_VERSION ?= $(shell uv run --extra build python -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
+	$(eval APP_VERSION := $(KOLIBRI_VERSION))
+
+# Write the app version to _version.py so PyInstaller bundles it and
+# kolibri_app.__init__ can `from kolibri_app._version import __version__`.
+# Replaces the setuptools-scm-generated file; still gitignored.
+write-version: needs-version
+	printf "__version__ = version = '%s'\n" "$(APP_VERSION)" > src/kolibri_app/_version.py
 
 clean:
 	rm -rf build dist
@@ -49,9 +55,9 @@ install-whl:
 loading-pages: needs-version
 	# -X utf8 ensures Python uses UTF-8 for I/O, fixing UnicodeEncodeError on Windows.
 ifeq ($(OS),Windows_NT)
-	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}"
 else
-	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	$(PYTHON_EXEC_WITH_PATH) -X utf8 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}"
 endif
 
 get-whl: clean-whl
@@ -67,13 +73,13 @@ get-whl: clean-whl
 	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
 
 dependencies:
-	PYINSTALLER_COMPILE_BOOTLOADER=1 uv sync --group build --no-binary-package pyinstaller
+	PYINSTALLER_COMPILE_BOOTLOADER=1 uv sync --extra build --no-binary-package pyinstaller
 	$(PYTHON_EXEC) -c "import PyInstaller; import os; os.truncate(os.path.join(PyInstaller.__path__[0], 'hooks', 'rthooks', 'pyi_rth_django.py'), 0)"
 
 build-mac-app:
 	$(MAKE) pyinstaller
 
-pyinstaller: clean
+pyinstaller: clean write-version
 	mkdir -p logs
 	$(PYTHON_EXEC) -OO -m PyInstaller kolibri.spec
 
@@ -99,7 +105,7 @@ webview2:
 
 # Windows Installer Build
 .PHONY: build-installer-windows
-build-installer-windows: translations-compile needs-version webview2
+build-installer-windows: translations-compile write-version webview2
 ifeq ($(OS),Windows_NT)
 	# Assumes Inno Setup is installed in the default location.
 	# MSYS_NO_PATHCONV=1 prevents Git Bash/MINGW from converting the /D flag into a file path.
