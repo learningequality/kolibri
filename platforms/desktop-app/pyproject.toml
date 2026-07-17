@@ -90,3 +90,11 @@ target-version = "py310"
 # to the inherited ignore list) rather than fail the pre-commit gate on ~22
 # intentional print() calls. `extend-ignore` keeps root's E203/E721/E741 ignores.
 extend-ignore = ["T20"]
+
+[tool.ruff.lint.per-file-ignores]
+# django_app_settings.py re-exports Kolibri's base Django settings via a star
+# import so PyInstaller bundles the full settings namespace; the wildcard is
+# intentional (F403) and downstream names resolve from it (F405). Scoped here
+# as a per-file ignore rather than an inline suppression, matching
+# platforms/android.
+"src/kolibri_app/django_app_settings.py" = ["F403", "F405"]
