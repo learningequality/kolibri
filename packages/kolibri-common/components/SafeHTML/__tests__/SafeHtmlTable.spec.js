@@ -1,5 +1,8 @@
 import { render, screen } from '@testing-library/vue';
 import SafeHtmlTable from '../SafeHtmlTable.vue';
+import { createSafeHTML } from '../index';
+
+const CELL_TEXT = 'Cell';
 
 // Create a table element with m rows and n columns
 const createSampleNode = (m, n) => {
@@ -112,5 +115,31 @@ describe('SafeHtmlTable', () => {
       renderComponent(5, 4);
       expect(screen.getByRole('table')).toHaveStyle('width: 800px;');
     });
+  });
+});
+
+describe('SafeHtmlTable carries allowlisted inline styles through SafeHTML', () => {
+  const SafeHTML = createSafeHTML();
+
+  it('renders an allowlisted style on a table cell', () => {
+    render(SafeHTML, {
+      props: {
+        html: `<table><tr><td style="text-align: center;">${CELL_TEXT}</td></tr></table>`,
+      },
+    });
+    expect(screen.getByText(CELL_TEXT)).toHaveStyle({ 'text-align': 'center' });
+  });
+
+  it('merges an allowlisted style on the table with the component style', () => {
+    render(SafeHTML, {
+      props: {
+        html: `<table style="text-align: center; background-color: yellow;"><tr><td>${CELL_TEXT}</td></tr></table>`,
+      },
+    });
+    const table = screen.getByRole('table');
+    // Carried allowlisted styles survive...
+    expect(table).toHaveStyle({ 'text-align': 'center', 'background-color': 'rgb(255, 255, 0)' });
+    // ...alongside the component's own tableStyle width (merge must not clobber it).
+    expect(table).toHaveStyle('width: 640px;');
   });
 });

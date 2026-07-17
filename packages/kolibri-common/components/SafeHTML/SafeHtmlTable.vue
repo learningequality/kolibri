@@ -6,7 +6,7 @@
   >
     <table
       v-bind="$attrs"
-      :style="tableStyle"
+      :style="[contentStyle, tableStyle]"
     >
       <slot></slot>
     </table>
@@ -16,6 +16,8 @@
 
 
 <script>
+
+  import parseStyleString from './parseStyleString';
 
   export default {
     name: 'SafeHtmlTable',
@@ -29,6 +31,12 @@
     },
 
     computed: {
+      // The allowlisted style carried through from the sanitized <table>. Merged
+      // ahead of tableStyle so the component's own width/border win on any future
+      // key overlap while the carried alignment/colour still apply.
+      contentStyle() {
+        return parseStyleString(this.$attrs.style);
+      },
       tableStyle() {
         const firstRow = this.node.querySelector('tr');
         const colCount = firstRow ? firstRow.children.length : 0;

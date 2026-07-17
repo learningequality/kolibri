@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import SafeHtmlImage from '../SafeHtmlImage.vue';
+import { createSafeHTML } from '../index';
 
 const { closeAction$ } = coreStrings;
 
@@ -86,5 +87,23 @@ describe('SafeHtmlImage', () => {
 
     await user.click(screen.getByLabelText(closeAction$()));
     expect(screen.queryByTestId('lightbox-dialog')).not.toBeInTheDocument();
+  });
+});
+
+describe('SafeHtmlImage carries allowlisted inline styles through SafeHTML', () => {
+  const SafeHTML = createSafeHTML();
+  const carriedAlt = 'carried';
+
+  it('merges an allowlisted style on the image with the component style', () => {
+    render(SafeHTML, {
+      props: {
+        html: `<img src="./pic.png" alt="${carriedAlt}" style="background-color: yellow;">`,
+      },
+    });
+    const img = screen.getByAltText(carriedAlt);
+    // Carried allowlisted style survives...
+    expect(img).toHaveStyle({ 'background-color': 'rgb(255, 255, 0)' });
+    // ...alongside the component's own imageStyle border (merge must not clobber it).
+    expect(img).toHaveStyle({ 'border-style': 'solid', 'border-width': '1px' });
   });
 });
