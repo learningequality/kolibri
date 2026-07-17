@@ -14,7 +14,7 @@
         <img
           :src="src"
           :alt="alt"
-          :style="imageStyle"
+          :style="[contentStyle, imageStyle]"
           v-bind="$attrs"
         >
       </button>
@@ -42,6 +42,7 @@
 <script>
 
   import Lightbox from './Lightbox.vue';
+  import parseStyleString from './parseStyleString';
 
   export default {
     name: 'SafeHtmlImage',
@@ -59,6 +60,12 @@
       };
     },
     computed: {
+      // The allowlisted style carried through from the sanitized <img>. Merged
+      // ahead of imageStyle so the component's own border wins on any future key
+      // overlap while the carried colour/alignment still apply.
+      contentStyle() {
+        return parseStyleString(this.$attrs.style);
+      },
       imageStyle() {
         return {
           border: `1px solid ${this.$themeTokens.fineLine}`,
