@@ -35,11 +35,12 @@ class ThemeHook(hooks.KolibriHook):
 
     @classmethod
     def get_theme(cls):
-        try:
-            theme = next(cls.registered_hooks).theme
-        except StopIteration:
+        hook = cls.registered_hook
+        if hook is None:
             logger.warning("No theme hooks registered, using default theme")
             theme = {}
+        else:
+            theme = hook.theme
         _initFields(theme)
         return theme
 
