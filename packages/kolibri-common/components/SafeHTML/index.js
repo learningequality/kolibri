@@ -7,7 +7,11 @@ import SafeHtmlImage from './SafeHtmlImage.vue';
 
 const DEFAULT_ALLOWED_URI_REGEXP = /^(?:(?:blob:https?|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 const FORBID_TAGS = ['style', 'link'];
-const FORBID_ATTR = ['style', 'width', 'height'];
+const FORBID_ATTR = ['width', 'height'];
+// Inline style properties SafeHTML retains. Hand-synced with the ricecooker /
+// le_utils KPUB ingest allowlist (learningequality/ricecooker#685) — the
+// frontend does not consume le_utils, so keep these in sync by hand.
+const ALLOWED_STYLE_PROPS = ['text-align', 'color', 'background-color'];
 const ADD_TAGS = ['object', 'semantics'];
 const ADD_ATTR = ['data'];
 const HTMLComponents = {
@@ -37,6 +41,29 @@ function buildAllowedUriRegexp(allowedOrigins) {
     'i',
   );
 }
+
+// Filter each style= down to the allowlisted properties, re-parsing the value
+// through the CSSOM so the browser validates/normalises it and rejects malformed
+// input. Registered once at module level: addHook is global on the shared
+// DOMPurify singleton, and SafeHTML's sanitize call is the only one in the app.
+DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+  if (data.attrName !== 'style') {
+    return;
+  }
+  const probe = document.createElement('span');
+  probe.style.cssText = data.attrValue;
+  const kept = ALLOWED_STYLE_PROPS.map(prop => {
+    const value = probe.style.getPropertyValue(prop);
+    return value ? `${prop}: ${value}` : null;
+  })
+    .filter(Boolean)
+    .join('; ');
+  if (kept) {
+    data.attrValue = kept;
+  } else {
+    data.keepAttr = false;
+  }
+});
 
 // Factory function to create SafeHTML with custom component support
 export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {

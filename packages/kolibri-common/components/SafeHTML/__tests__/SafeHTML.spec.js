@@ -78,14 +78,113 @@ describe('SafeHTML', () => {
       expect(container.querySelector('style')).not.toBeInTheDocument();
     });
 
-    it('strips forbidden attributes like style', () => {
+    it('retains an allowlisted style attribute', () => {
       render(SafeHTML, {
         props: {
           html: `<div style="color: red;">${CONTENT_TEXT}</div>`,
         },
       });
       const div = screen.getByText(CONTENT_TEXT);
-      expect(div).not.toHaveAttribute('style');
+      expect(div).toHaveStyle({ color: 'rgb(255, 0, 0)' });
+    });
+  });
+
+  describe('inline style allowlist', () => {
+    it('retains text-align', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="text-align: center;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ 'text-align': 'center' });
+    });
+
+    it('retains color', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="color: rgb(0, 128, 0);">${CONTENT_TEXT}</div>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({ color: 'rgb(0, 128, 0)' });
+    });
+
+    it('retains background-color', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="background-color: yellow;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).toHaveStyle({
+        'background-color': 'rgb(255, 255, 0)',
+      });
+    });
+
+    it('retains multiple allowlisted properties on one element', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="color: red; text-align: right;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      const div = screen.getByText(CONTENT_TEXT);
+      expect(div).toHaveStyle({ color: 'rgb(255, 0, 0)', 'text-align': 'right' });
+    });
+
+    it('drops non-allowlisted properties while keeping allowlisted ones', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="position: absolute; display: none; color: blue;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      const div = screen.getByText(CONTENT_TEXT);
+      expect(div).toHaveStyle({ color: 'rgb(0, 0, 255)' });
+      const styleAttr = div.getAttribute('style') || '';
+      expect(styleAttr).not.toContain('position');
+      expect(styleAttr).not.toContain('display');
+    });
+
+    it('removes the style attribute entirely when nothing is allowlisted', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="position: absolute; display: none;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      expect(screen.getByText(CONTENT_TEXT)).not.toHaveAttribute('style');
+    });
+
+    it('never surfaces a dangerous value on a non-allowlisted property', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="background: url(javascript:alert(1)); color: green;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      const div = screen.getByText(CONTENT_TEXT);
+      expect(div).toHaveStyle({ color: 'rgb(0, 128, 0)' });
+      const styleAttr = div.getAttribute('style') || '';
+      expect(styleAttr).not.toContain('javascript');
+      expect(styleAttr).not.toContain('url(');
+    });
+
+    it('rejects an invalid value on an allowlisted property via the CSSOM', () => {
+      render(SafeHTML, {
+        props: {
+          html: `<div style="color: not-a-real-color; text-align: center;">${CONTENT_TEXT}</div>`,
+        },
+      });
+      const div = screen.getByText(CONTENT_TEXT);
+      expect(div).toHaveStyle({ 'text-align': 'center' });
+      // The invalid value resolves to '' in the CSSOM, so color is dropped entirely.
+      const styleAttr = div.getAttribute('style') || '';
+      expect(styleAttr).not.toContain('color');
+      expect(styleAttr).not.toContain('not-a-real-color');
+    });
+
+    it('still strips a <style> block', () => {
+      const { container } = render(SafeHTML, {
+        props: {
+          html: '<div>Content<style>.foo { color: red; }</style></div>',
+        },
+      });
+      expect(container.querySelector('style')).not.toBeInTheDocument();
     });
   });
 
