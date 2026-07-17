@@ -18,10 +18,9 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.5.1
+    uses: ./.github/workflows/platform-macos-app-build_dmg.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v0.5.1
   deb:
     name: Build DEB file
     needs: whl
@@ -38,10 +37,9 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.9
+    uses: ./.github/workflows/platform-windows-app-build_exe.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v1.6.9
   apk:
     name: Build APK file
     needs: whl
@@ -195,6 +193,37 @@ jobs:
         with:
           name: maestro-debug-output-api-${{ matrix.api-level }}
           path: ~/.maestro/tests/
+  mac_smoke_test:
+    name: macOS DMG smoke test
+    needs: dmg
+    # The DMG is built on macos-15-intel; smoke-test the Intel binary on an Intel
+    # runner so a Rosetta shim on an arm64 runner can't mask a broken build.
+    runs-on: macos-15-intel
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.dmg.outputs.dmg-file-name }}
+          path: artifacts
+      - name: Run smoke test
+        run: ./platforms/desktop-app/scripts/smoke_test_macos.sh "./artifacts/${{ needs.dmg.outputs.dmg-file-name }}"
+  windows_smoke_test:
+    name: Windows EXE smoke test
+    needs: exe
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Download Windows installer
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.exe.outputs.exe-file-name }}
+          path: artifacts
+      - name: Run smoke test
+        shell: bash
+        run: ./platforms/desktop-app/scripts/smoke_test_windows.sh "./artifacts/${{ needs.exe.outputs.exe-file-name }}"
   browser_smoke_test:
     name: Browser smoke test
     needs: whl

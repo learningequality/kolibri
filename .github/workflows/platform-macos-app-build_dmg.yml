@@ -19,10 +19,6 @@ on:
       whl-url:
         required: false
         type: string
-      ref:
-        description: 'A ref for this workflow to check out its own repo'
-        required: false
-        type: string
       release:
         description: 'Is this a release asset?'
         required: false
@@ -45,10 +41,15 @@ on:
       dmg-file-name:
         description: "DMG file name"
         value: ${{ jobs.build_dmg.outputs.dmg-file-name }}
+permissions:
+  contents: read
 jobs:
   build_dmg:
     # This seems to be the only way to specify an intel based runner
     runs-on: macos-15-intel
+    defaults:
+      run:
+        working-directory: platforms/desktop-app
     outputs:
       dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     env:
@@ -59,22 +60,13 @@ jobs:
         run: |
           echo "Must specify exactly one reference for the whl file to build the DMG with."
           exit 1
-      - uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-        with:
-          fetch-depth: 0
-      - uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
-        with:
-          repository: learningequality/kolibri-app
-          ref: ${{ inputs.ref }}
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v8.3.2
+      - uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           cache-python: true
           python-version: "3.10"
-          cache-dependency-path: uv.lock
+          cache-dependency-path: ${{ github.workspace }}/uv.lock
       - name: Install dependencies
         run: make dependencies
       - name: Download the whlfile from URL and install
@@ -85,7 +77,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.whl-file-name }}
-          path: whl
+          path: platforms/desktop-app/whl
       - name: Install WHL file from artifacts
         if: ${{ inputs.whl-file-name }}
         run: make install-whl whl=whl/${{ inputs.whl-file-name }}
@@ -134,4 +126,4 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
-          path: dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}
+          path: platforms/desktop-app/dist/${{ steps.get-dmg-filename.outputs.dmg-file-name }}

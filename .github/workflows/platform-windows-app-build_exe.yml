@@ -19,10 +19,6 @@ on:
       whl-url:
         required: false
         type: string
-      ref:
-        description: 'A ref for this workflow to check out its own repo'
-        required: false
-        type: string
       release:
         description: 'Is this a release asset?'
         required: false
@@ -39,10 +35,15 @@ on:
       exe-file-name:
         description: "EXE file name"
         value: ${{ jobs.build_exe.outputs.exe-file-name }}
+permissions:
+  contents: read
 jobs:
   build_exe:
     name: Build EXE file
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: platforms/desktop-app
     outputs:
       exe-file-name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
     steps:
@@ -52,23 +53,13 @@ jobs:
           echo "Must specify exactly one reference for the whl file to build the EXE with."
           exit 1
       - name: Check out code
-        uses: actions/checkout@v7
-        if: ${{ !inputs.ref }}
-        with:
-          fetch-depth: 0
-      - name: Check out specific ref
-        uses: actions/checkout@v7
-        if: ${{ inputs.ref }}
-        with:
-          repository: learningequality/kolibri-app
-          ref: ${{ inputs.ref }}
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v8.3.2
+        uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           cache-python: true
           python-version: "3.10"
-          cache-dependency-path: uv.lock
+          cache-dependency-path: ${{ github.workspace }}/uv.lock
       - name: Install build dependencies
         run: make dependencies
       - name: Install wget and Inno Setup
@@ -81,7 +72,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.whl-file-name }}
-          path: whl
+          path: platforms/desktop-app/whl
       - name: Install whl from artifacts
         if: ${{ inputs.whl-file-name }}
         run: make install-whl whl=whl/${{ inputs.whl-file-name }}
@@ -92,10 +83,11 @@ jobs:
         run: |
           # Create a junction to shorten the workspace path.
           # Dev version strings like "0.19.1a0.dev0+git.99.gbfca81cd" make
-          # some file paths exceed Windows' 260-char MAX_PATH limit.
-          # D:\a\kolibri-app\kolibri-app (30 chars) -> D:\b (3 chars) saves 27 chars.
+          # some file paths exceed Windows' 260-char MAX_PATH limit. The Makefile
+          # lives in the member dir, so point the junction there (not the
+          # workspace root) — D:\a\kolibri\kolibri\platforms\desktop-app -> D:\b.
           if (Test-Path "D:\b") { Remove-Item "D:\b" -Force }
-          New-Item -ItemType Junction -Path "D:\b" -Target $env:GITHUB_WORKSPACE | Out-Null
+          New-Item -ItemType Junction -Path "D:\b" -Target "$env:GITHUB_WORKSPACE\platforms\desktop-app" | Out-Null
           Push-Location "D:\b"
           make build-installer-windows
           Pop-Location
@@ -121,7 +113,7 @@ jobs:
           endpoint: 'https://wus2.codesigning.azure.net/'
           signing-account-name: 'LE-Trusted-Signing-Acct'
           certificate-profile-name: 'LE-Windows-Certificates'
-          files-folder: installer/dist-installer
+          files-folder: platforms/desktop-app/installer/dist-installer
           files-folder-filter: ${{ steps.get-exe-filename.outputs.unsigned-exe-file-name }}
           file-digest: SHA256
           timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
@@ -135,4 +127,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.get-exe-filename.outputs.final-exe-file-name }}
-          path: installer/dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}
+          path: platforms/desktop-app/installer/dist-installer/${{ steps.get-exe-filename.outputs.final-exe-file-name }}
