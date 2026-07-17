@@ -17,6 +17,14 @@ kolibri_version = kolibri.__version__
 
 name = "Kolibri-{}".format(kolibri_version)
 
+# The COLLECT output directory is version-less. Dev version strings can be very
+# long (e.g. "0.19.6.dev2246+g38a4b57d7.d20260717"), and that folder name
+# prefixes every deeply nested bundled frontend asset. Once the app lives under
+# platforms/desktop-app/, embedding the version there pushes the longest paths
+# past Windows' 260-char MAX_PATH limit, breaking the Inno Setup file scan. The
+# shipped executable keeps the versioned name below.
+dist_name = "Kolibri"
+
 locale_datas = [
     (mo_file, os.path.sep.join(os.path.dirname(mo_file).split(os.path.sep)[1:]))
     for mo_file in glob('src/kolibri_app/locales/**/LC_MESSAGES/*.mo')
@@ -132,7 +140,7 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name=name
+    name=dist_name
 )
 
 if sys.platform == 'darwin':

@@ -7,7 +7,9 @@
 #ifndef AppVersion
   #error "The AppVersion definition must be passed to the compiler via the command line, e.g., /DAppVersion=x.y.z"
 #endif
-#define SourceDir "..\dist\" + AppName + "-" + AppVersion
+; The PyInstaller COLLECT directory is version-less (see kolibri.spec) to keep
+; the deeply nested bundled asset paths within Windows' 260-char MAX_PATH limit.
+#define SourceDir "..\dist\" + AppName
 #define KolibriDataDir "{commonappdata}\kolibri"
 #define NssmExePath "{app}\nssm\nssm.exe"
 #define TaskkillExePath "{sys}\taskkill.exe"
