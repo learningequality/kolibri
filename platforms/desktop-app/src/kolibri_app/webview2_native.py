@@ -2,7 +2,9 @@
 Direct COM access to the WebView2 control underlying ``wx.html2.WebView``
 on Windows. Used to call ``ICoreWebView2_16::ShowPrintUI`` since
 wxPython 4.2.2's ``WebView.Print()`` is a no-op on the Edge backend (it
-predates the SDK version that introduced ShowPrintUI).
+predates the SDK version that introduced ShowPrintUI).  Also used to call
+``ICoreWebView2::OpenDevToolsWindow`` for the Troubleshooting devtools menu
+item.
 
 We use raw ctypes against the COM vtable rather than comtypes to keep the
 dependency surface minimal. The vtable layout below was extracted from
@@ -59,6 +61,11 @@ SHOWPRINTUI_VTBL_INDEX = 114
 # COREWEBVIEW2_PRINT_DIALOG_KIND
 PRINT_DIALOG_KIND_BROWSER = 0  # WebView2's in-page print preview overlay
 PRINT_DIALOG_KIND_SYSTEM = 1  # OS print dialog (separate window)
+
+# ICoreWebView2::OpenDevToolsWindow — slot verified via scripts/extract_webview2_iids.py.
+OPENDEVTOOLSWINDOW_VTBL_INDEX = 51
+
+_PFN_OpenDevToolsWindow = ctypes.WINFUNCTYPE(HRESULT, LPVOID)
 
 
 # Function prototypes for raw vtable invocation. WINFUNCTYPE = stdcall.
@@ -118,3 +125,20 @@ def show_print_ui(native_backend_ptr, dialog_kind=PRINT_DIALOG_KIND_BROWSER):
             raise OSError(f"ShowPrintUI failed (hr=0x{hr & 0xFFFFFFFF:08X})")
     finally:
         _release(iface16)
+
+
+def open_devtools_window(native_backend_ptr):
+    """Open the WebView2 developer tools window for the given native backend pointer.
+
+    ``native_backend_ptr`` is the integer returned by
+    ``wx.html2.WebView.GetNativeBackend()`` on the Edge backend.
+    ``OpenDevToolsWindow`` lives on the base ``ICoreWebView2`` interface so no
+    QueryInterface is required.
+    """
+    ptr = int(native_backend_ptr) if native_backend_ptr else 0
+    if not ptr:
+        raise ValueError("native_backend_ptr is null")
+    fn = _PFN_OpenDevToolsWindow(_vtable_slot(ptr, OPENDEVTOOLSWINDOW_VTBL_INDEX))
+    hr = fn(ptr)
+    if hr != 0:
+        raise OSError(f"OpenDevToolsWindow failed (hr=0x{hr & 0xFFFFFFFF:08X})")
