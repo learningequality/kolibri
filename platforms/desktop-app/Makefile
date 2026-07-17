@@ -19,13 +19,13 @@ guard-%:
 
 needs-version:
 	$(eval KOLIBRI_VERSION ?= $(shell uv run --extra build python -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
-	$(eval APP_VERSION := $(KOLIBRI_VERSION))
 
-# Write the app version to _version.py so PyInstaller bundles it and
-# kolibri_app.__init__ can `from kolibri_app._version import __version__`.
+# Write the app version (= the bundled Kolibri version) to _version.py so
+# PyInstaller bundles it and kolibri_app.__init__ can
+# `from kolibri_app._version import __version__`.
 # Replaces the setuptools-scm-generated file; still gitignored.
 write-version: needs-version
-	printf "__version__ = version = '%s'\n" "$(APP_VERSION)" > src/kolibri_app/_version.py
+	printf "__version__ = version = '%s'\n" "$(KOLIBRI_VERSION)" > src/kolibri_app/_version.py
 
 clean:
 	rm -rf build dist
