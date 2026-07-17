@@ -3607,10 +3607,20 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "pytest", version = "6.2.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "pytest", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14'" },
+    { name = "pytest-django" },
+    { name = "pytest-env" },
     { name = "ruff" },
 ]
 lint = [
     { name = "ruff" },
+]
+test = [
+    { name = "pytest", version = "6.2.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.14'" },
+    { name = "pytest", version = "9.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14'" },
+    { name = "pytest-django" },
+    { name = "pytest-env" },
 ]
 
 [package.metadata]
@@ -3622,9 +3632,17 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "prek", marker = "python_full_version >= '3.8'" },
+    { name = "pytest" },
+    { name = "pytest-django" },
+    { name = "pytest-env" },
     { name = "ruff" },
 ]
 lint = [{ name = "ruff" }]
+test = [
+    { name = "pytest" },
+    { name = "pytest-django" },
+    { name = "pytest-env" },
+]
 
 [[package]]
 name = "kolibri-sentry-plugin"

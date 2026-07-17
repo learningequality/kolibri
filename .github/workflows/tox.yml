@@ -307,6 +307,38 @@ jobs:
         env:
           KOLIBRI_HOME: .kolibri
         run: uv run python -O -m pytest --reuse-db
+  opensearch_plugin_tests:
+    name: kolibri-opensearch-plugin tests
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.10
+        run: uv python install 3.10
+      - name: Install dependencies
+        # --all-packages is required: a plain `uv sync` scopes to this
+        # subproject alone and drops root kolibri's own runtime deps
+        # (Django, Click, etc.) from the shared venv.
+        working-directory: python_packages/kolibri-opensearch-plugin
+        run: uv sync --group test --python 3.10 --all-packages
+      - name: Enable kolibri_opensearch_plugin
+        working-directory: python_packages/kolibri-opensearch-plugin
+        env:
+          KOLIBRI_HOME: .kolibri
+        run: uv run kolibri plugin enable kolibri_opensearch_plugin
+      - name: Run tests
+        working-directory: python_packages/kolibri-opensearch-plugin
+        env:
+          KOLIBRI_HOME: .kolibri
+        run: uv run python -O -m pytest --reuse-db
   # debian-server pins Python 3.10 (the member floors requires-python to root's
   # range, so its real tested version is set explicitly here) and needs the
   # distro-info system package. A single job until a second platforms/ member
@@ -366,6 +398,7 @@ jobs:
       - macos
       - windows
       - sync_extras_plugin_tests
+      - opensearch_plugin_tests
       - debian_server_tests
     if: always()
     runs-on: ubuntu-latest

@@ -1,0 +1,3 @@
+# .kolibri is the KOLIBRI_HOME used by the pytest suite (see
+# [tool.pytest.ini_options] env in pyproject.toml); it is runtime state.
+.kolibri/
