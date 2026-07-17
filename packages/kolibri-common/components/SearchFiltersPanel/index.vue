@@ -1,7 +1,6 @@
 <template>
 
   <section
-    :closeButtonIconType="closeButtonIcon"
     :aria-label="filterAndSearchLabel$()"
     :ariaLabel="filterAndSearchLabel$()"
     :style="
@@ -13,111 +12,9 @@
         }
         : {}
     "
-    @closePanel="currentCategory ? (currentCategory = null) : $emit('close')"
-    @shouldFocusFirstEl="focusFirstEl()"
   >
-    <div
-      v-if="windowIsLarge || !currentCategory"
-      :class="windowIsLarge ? '' : 'drawer-panel'"
-    >
-      <div v-if="!accordion">
-        <KLinearLoader
-          v-if="searchLoading"
-          class="linear-loader"
-        />
-        <!-- search by keyword -->
-        <h2 class="title">
-          {{ $tr('keywords') }}
-        </h2>
-        <SearchBox
-          key="channel-search"
-          ref="searchBox"
-          :placeholder="coreString('findSomethingToLearn')"
-          :disabled="searchLoading"
-          :value="value.keywords || ''"
-          @change="val => $emit('input', { ...value, keywords: val })"
-        />
-        <div v-if="Object.keys(availableLibraryCategories).length">
-          <h2 class="section title">
-            {{ $tr('categories') }}
-          </h2>
-          <!-- list of category metadata - clicking prompts a filter modal -->
-          <div
-            v-for="(category, key) in availableLibraryCategories"
-            :key="key"
-            span="4"
-            class="category-list-item"
-          >
-            <KButton
-              :text="coreString(category.value)"
-              appearance="flat-button"
-              :appearanceOverrides="
-                isCategoryActive(category.value)
-                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                  : categoryListItemStyles
-              "
-              :disabled="
-                searchLoading ||
-                  (availableRootCategories &&
-                    !availableRootCategories[category.value] &&
-                    !isCategoryActive(category.value))
-              "
-              :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
-              @click="handleCategory(key)"
-            />
-          </div>
-          <div
-            span="4"
-            class="category-list-item"
-          >
-            <KButton
-              :text="coreString('uncategorized')"
-              appearance="flat-button"
-              :disabled="searchLoading"
-              :appearanceOverrides="
-                isCategoryActive('no_categories')
-                  ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-                  : categoryListItemStyles
-              "
-              @click="noCategories"
-            />
-          </div>
-        </div>
-        <ActivityButtonsGroup
-          v-if="showActivities"
-          class="section"
-          @input="handleActivity"
-        />
-        <!-- Filter results by learning activity, displaying all options -->
-        <SelectGroup
-          v-model="inputValue"
-          :showChannels="showChannels"
-          class="section"
-        />
-        <div
-          v-if="Object.keys(availableResourcesNeeded).length"
-          class="section"
-        >
-          <h2 class="title">
-            {{ coreString('showResources') }}
-          </h2>
-          <div
-            v-for="(val, activity) in availableResourcesNeeded"
-            :key="activity"
-            span="4"
-            alignment="center"
-          >
-            <KCheckbox
-              :checked="value.learner_needs[val]"
-              :label="coreString(activity)"
-              :disabled="searchLoading || (availableNeeds && !availableNeeds[val])"
-              @change="handleNeed(val)"
-            />
-          </div>
-        </div>
-      </div>
-      <div v-if="accordion && !currentCategory">
-        <!-- search by keyword -->
+    <div v-if="!currentCategory">
+      <template v-if="!hideKeywords">
         <h2 class="title">
           {{ title || $tr('keywords') }}
         </h2>
@@ -127,42 +24,32 @@
           style="margin-bottom: 1em"
           :disabled="searchLoading"
           :placeholder="coreString('searchByKeyword')"
-          :value="value.keywords || ''"
-          @change="val => $emit('input', { ...value, keywords: val })"
+          :value="activeSearchTerms.keywords || ''"
+          @change="val => (activeSearchTerms = { ...activeSearchTerms, keywords: val })"
         />
+      </template>
 
-        <ActivityButtonsGroup
-          v-if="showActivities"
-          class="section"
-          @input="handleActivity"
-        />
+      <ActivityButtonsGroup
+        v-if="showActivities"
+        class="section"
+        @input="handleActivity"
+      />
 
-        <AccordionSelectGroup
-          v-model="inputValue"
-          :showChannels="showChannels"
-          :activeCategories="activeCategories"
-          :handleCategory="handleCategory"
-          style="margin-top: 1em"
-        />
-      </div>
+      <AccordionSelectGroup
+        v-model="inputValue"
+        :showChannels="showChannels"
+        :activeCategories="activeCategories"
+        :handleCategory="handleCategory"
+        style="margin-top: 1em"
+      />
     </div>
-    <!-- When accordion mode is NOT activated, show as KModal, otherwise, just a div -->
-    <component
-      :is="accordion || !windowIsLarge ? 'div' : 'KModal'"
-      v-if="currentCategory"
-      appendToOverlay
-      :title="$tr('chooseACategory')"
-      :cancelText="coreString('closeAction')"
-      size="large"
-      @cancel="currentCategory = null"
-    >
+    <div v-if="currentCategory">
       <CategorySearchModal
         ref="searchModal"
-        :class="windowIsLarge ? '' : 'drawer-panel'"
         :selectedCategory="currentCategory"
         @input="selectCategory"
       />
-    </component>
+    </div>
   </section>
 
 </template>
@@ -180,7 +67,6 @@
   //   in https://github.com/learningequality/kolibri/blob/develop/kolibri/plugins/learn/frontend/views/TopicsPage/index.vue#L366-L378
   //
 
-  import { NoCategories } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -189,7 +75,6 @@
   import SearchBox from '../SearchBox';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
   import CategorySearchModal from './CategorySearchModal';
-  import SelectGroup from './SelectGroup';
   import AccordionSelectGroup from './AccordionSelectGroup';
 
   export default {
@@ -197,55 +82,25 @@
     components: {
       SearchBox,
       ActivityButtonsGroup,
-      SelectGroup,
       CategorySearchModal,
       AccordionSelectGroup,
     },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      const {
-        availableLibraryCategories,
-        availableResourcesNeeded,
-        searchableLabels,
-        activeSearchTerms,
-        searchLoading,
-      } = injectBaseSearch();
+      const { availableLibraryCategories, activeSearchTerms, searchLoading } = injectBaseSearch();
       const currentCategory = ref(null);
       const { filterAndSearchLabel$ } = searchAndFilterStrings;
       return {
         filterAndSearchLabel$,
         availableLibraryCategories,
-        availableResourcesNeeded,
         currentCategory,
-        searchableLabels,
         activeSearchTerms,
         searchLoading,
         windowIsLarge,
       };
     },
     props: {
-      /**
-       * When true, options are presented using accordions rather than buttons & dropdowns
-       */
-      accordion: {
-        type: Boolean,
-        default: false,
-      },
-      value: {
-        type: Object,
-        required: true,
-        validator(value) {
-          const inputKeys = [
-            'learning_activities',
-            'learner_needs',
-            'accessibility_labels',
-            'languages',
-            'grade_levels',
-          ];
-          return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
-        },
-      },
       width: {
         type: [Number, String],
         required: false,
@@ -259,67 +114,23 @@
         type: Boolean,
         default: true,
       },
+      hideKeywords: {
+        type: Boolean,
+        default: false,
+      },
       title: {
         type: String,
         default: null,
       },
     },
     computed: {
-      closeButtonIcon() {
-        return this.currentCategory ? 'back' : 'close';
-      },
       inputValue: {
         get() {
-          return this.value;
+          return this.activeSearchTerms;
         },
         set(value) {
-          this.$emit('input', value);
+          this.activeSearchTerms = value;
         },
-      },
-      categoryListItemStyles() {
-        return {
-          color: this.$themeTokens.text,
-          width: '100%',
-          border: '2px solid transparent',
-          textAlign: this.isRtl ? 'right' : 'left',
-          fontWeight: 'normal',
-          textTransform: 'none',
-          position: 'relative',
-          transition: 'none',
-          ':hover': this.categoryListItemActiveStyles,
-        };
-      },
-      categoryListItemActiveStyles() {
-        return {
-          backgroundColor: this.$themeBrand.primary.v_100,
-          border: '2px',
-          borderColor: this.$themeTokens.primary,
-          borderStyle: 'solid',
-          borderRadius: '4px',
-        };
-      },
-      availableRootCategories() {
-        if (this.searchableLabels) {
-          const roots = {};
-          for (const key of this.searchableLabels.categories) {
-            const root = key.split('.')[0];
-            roots[root] = true;
-          }
-          return roots;
-        }
-        return null;
-      },
-      availableNeeds() {
-        if (this.searchableLabels) {
-          const needs = {};
-          for (const key of this.searchableLabels.learner_needs) {
-            const root = key.split('.')[0];
-            needs[root] = true;
-            needs[key] = true;
-          }
-          return needs;
-        }
-        return null;
       },
       activeCategories() {
         return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
@@ -327,64 +138,37 @@
     },
     watch: {
       currentCategory(val) {
-        const isCategorySearchOpen = val != null;
-        this.$emit('categorySearchOpen', isCategorySearchOpen);
+        this.$emit('categorySearchOpen', val != null);
       },
     },
     methods: {
-      isCategoryActive(categoryValue) {
-        // Takes the dot separated category value and checks if it is active
-        return this.activeCategories.some(k => k.includes(categoryValue));
-      },
-      noCategories() {
-        this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
-      },
-      hasNestedCategories(category) {
-        return Object.keys(this.availableLibraryCategories[category].nested).length > 0;
-      },
       handleActivity(activity) {
-        if (activity && !this.value.learning_activities[activity]) {
+        if (activity && !this.activeSearchTerms.learning_activities[activity]) {
           const learning_activities = {
             [activity]: true,
-            ...this.value.learning_activities,
+            ...this.activeSearchTerms.learning_activities,
           };
-          this.$emit('input', { ...this.value, learning_activities });
-        } else if (activity && this.value.learning_activities[activity]) {
-          const learning_activities = { ...this.value.learning_activities };
+          this.activeSearchTerms = { ...this.activeSearchTerms, learning_activities };
+        } else if (activity && this.activeSearchTerms.learning_activities[activity]) {
+          const learning_activities = { ...this.activeSearchTerms.learning_activities };
           delete learning_activities[activity];
-          this.$emit('input', { ...this.value, learning_activities });
-        }
-      },
-      handleNeed(need) {
-        if (this.value.learner_needs[need]) {
-          const learner_needs = {};
-          for (const n in this.value.learner_needs) {
-            if (n !== need) {
-              learner_needs[n] = true;
-            }
-          }
-          this.$emit('input', { ...this.value, learner_needs });
-        } else {
-          this.$emit('input', {
-            ...this.value,
-            learner_needs: { ...this.value.learner_needs, [need]: true },
-          });
+          this.activeSearchTerms = { ...this.activeSearchTerms, learning_activities };
         }
       },
       setCategory(category) {
-        if (this.value.categories[category]) {
-          const categories = { ...this.value.categories };
+        if (this.activeSearchTerms.categories[category]) {
+          const categories = { ...this.activeSearchTerms.categories };
           delete categories[category];
-          this.$emit('input', { ...this.value, categories });
+          this.activeSearchTerms = { ...this.activeSearchTerms, categories };
         } else {
           const categories = { [category]: true };
-          for (const c in this.value.categories) {
+          for (const c in this.activeSearchTerms.categories) {
             // Filter out any subcategories of the selected category
             if (!c.startsWith(category)) {
               categories[c] = true;
             }
           }
-          this.$emit('input', { ...this.value, categories });
+          this.activeSearchTerms = { ...this.activeSearchTerms, categories };
         }
       },
       handleCategory(category) {
@@ -428,14 +212,6 @@
         message: 'Keywords',
         context: 'Section header label in the Library page sidebar.',
       },
-      categories: {
-        message: 'Categories',
-        context: 'Section header label in the Library page sidebar.',
-      },
-      chooseACategory: {
-        message: 'Choose a category',
-        context: 'Title of the category selection window',
-      },
     },
   };
 
@@ -445,10 +221,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .drawer-panel {
-    padding-bottom: 60px;
-  }
 
   .side-panel-folder-link {
     margin-top: 12px;
@@ -461,11 +233,10 @@
 
   .section {
     margin-top: 40px;
-  }
 
-  .card-grid {
-    margin-top: 40px;
-    margin-left: 20px;
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
   .title {

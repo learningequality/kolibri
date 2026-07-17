@@ -44,6 +44,7 @@
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
+  import { getLearningActivityIcon } from 'kolibri-common/utils/learningActivityIcon';
 
   export default {
     name: 'ActivityButtonsGroup',
@@ -62,8 +63,8 @@
       activityStyles() {
         return {
           color: this.$themeTokens.text,
-          width: '120px',
-          height: '120px',
+          width: '80px',
+          height: '80px',
           border: '2px solid transparent',
           textTransform: 'capitalize',
           fontWeight: 'normal',
@@ -100,13 +101,7 @@
       camelCase(id) {
         return camelCase(id);
       },
-      activityIcon(activity) {
-        if (activity == 'EXPLORE') {
-          return 'interactShaded';
-        } else {
-          return `${camelCase(activity) + 'Shaded'}`;
-        }
-      },
+      activityIcon: getLearningActivityIcon,
       isKeyActive(key) {
         return key !== null && !!this.activeKeys.filter(k => k.includes(key)).length;
       },

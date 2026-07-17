@@ -12,15 +12,37 @@
 
 <script>
 
+  import { computed, provide } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   const GRID_TYPE_1 = 1;
   const GRID_TYPE_2 = 2;
 
+  // Keep in sync with the per-row widths in the <style> block below.
+  function cardsPerRow(gridType, breakpoint) {
+    if (gridType === GRID_TYPE_2) {
+      if (breakpoint <= 0) return 1;
+      if (breakpoint === 1) return 2;
+      if (breakpoint === 2) return 3;
+      if (breakpoint === 3) return 4;
+      return 5;
+    }
+    if (breakpoint <= 1) return 1;
+    if (breakpoint === 2) return 2;
+    if (breakpoint === 3) return 3;
+    return 4;
+  }
+
   export default {
     name: 'CardGrid',
-    setup() {
+    setup(props) {
       const { windowBreakpoint } = useKResponsiveWindow();
+      // Provide the width that KCard expects via inject, matching the
+      // calc applied to direct children by the scoped styles.
+      const gridItemStyle = computed(() => ({
+        width: `calc((100% / ${cardsPerRow(props.gridType, windowBreakpoint.value)}) - 16px)`,
+      }));
+      provide('gridItemStyle', gridItemStyle);
       return { windowBreakpoint };
     },
     props: {
@@ -31,16 +53,18 @@
        * be displayed on one row:
        *
        * Grid type `1`
-       * Level 3+: 3 cards
-       * Level 2: 2 cards
-       * Level 1: 1 cards
-       * Level 0: 1 card
+       *   Level 4+: 4 cards
+       *   Level 3: 3 cards
+       *   Level 2: 2 cards
+       *   Level 1: 1 cards
+       *   Level 0: 1 card
        *
        * Grid type `2`
-       * Level 3+: 4 cards
-       * Level 2: 3 cards
-       * Level 1: 2 cards
-       * Level 0: 1 card
+       *   Level 4+: 5 cards
+       *   Level 3: 4 cards
+       *   Level 2: 3 cards
+       *   Level 1: 2 cards
+       *   Level 0: 1 card
        */
       gridType: {
         type: Number,
@@ -87,7 +111,11 @@
   }
 
   .grid-type-1 {
-    @include per-row(3);
+    @include per-row(4);
+
+    &.level-3 {
+      @include per-row(3);
+    }
 
     &.level-2 {
       @include per-row(2);
@@ -100,7 +128,11 @@
   }
 
   .grid-type-2 {
-    @include per-row(4);
+    @include per-row(5);
+
+    &.level-3 {
+      @include per-row(4);
+    }
 
     &.level-2 {
       @include per-row(3);

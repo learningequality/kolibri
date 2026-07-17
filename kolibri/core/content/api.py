@@ -4,7 +4,6 @@ import re
 from base64 import urlsafe_b64decode
 from collections import defaultdict
 from collections import OrderedDict
-from functools import reduce
 from random import sample
 from uuid import UUID
 
@@ -22,6 +21,8 @@ from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
+from django.utils.text import smart_split
+from django.utils.text import unescape_string_literal
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
@@ -90,7 +91,6 @@ from kolibri.core.content.utils.paths import get_local_content_storage_file_url
 from kolibri.core.content.utils.paths import get_v2_channel_lookup_url
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.stopwords import stopwords_set
-from kolibri.core.decorators import query_params_required
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.permissions import FromAppContextPermission
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -109,6 +109,7 @@ from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.version import version_matches_range
 
 logger = logging.getLogger(__name__)
 
@@ -230,6 +231,13 @@ class RemoteMixin:
     def update_data(self, response_data, baseurl):
         return response_data
 
+    def update_request_params(self, params, device_info):
+        # Hook for subclasses that proxy to a remote peer: rewrite query params
+        # so a request keeps working regardless of the Kolibri version exposing
+        # the endpoint being proxied to (e.g. remapping renamed params).
+        # Default is a no-op; device_info describes the peer being queried.
+        return params
+
     def _hande_proxied_request(self, request):
         full_path = request.get_full_path().split("?")[0]
         remote_path = full_path.replace(
@@ -245,6 +253,7 @@ class RemoteMixin:
             client = NetworkClient.build_for_address(baseurl)
         except NetworkLocationNotFound:
             raise Http404("Remote resource not found")
+        qs = self.update_request_params(qs, client.device_info)
         remote_url = remote_path
         try:
             response = client.get(
@@ -481,7 +490,6 @@ contentnode_filter_fields = [
     "accessibility_labels",
     "categories",
     "learner_needs",
-    "keywords",
     "channels",
     "languages",
     "tree_id",
@@ -509,10 +517,8 @@ class ContentNodeFilter(FilterSet):
     accessibility_labels = CharFilter(method="bitmask_contains_and")
     categories = CharFilter(method="bitmask_contains_and")
     learner_needs = CharFilter(method="bitmask_contains_and")
-    keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(field_name="channel_id")
     languages = CharInFilter(field_name="lang_id")
-    categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
     authors = CharFilter(method="filter_by_authors")
@@ -636,25 +642,58 @@ class ContentNodeFilter(FilterSet):
             )
         return queryset
 
-    def filter_keywords(self, queryset, name, value):
-        # all words with punctuation removed
-        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
-        # words in all_words that are not stopwords
-        critical_words = [w for w in all_words if w not in stopwords_set]
-        words = critical_words if critical_words else all_words
-        query = union(
-            [
-                # all critical words in title
-                intersection([Q(title__icontains=w) for w in words]),
-                # all critical words in description
-                intersection([Q(description__icontains=w) for w in words]),
-            ]
-        )
-
-        return queryset.filter(query)
-
     def bitmask_contains_and(self, queryset, name, value):
         return queryset.has_all_labels(name, value.split(","))
+
+
+def search_smart_split(search_terms):
+    """
+    Returns sanitized search terms as a list.
+    Vendored and modified from https://github.com/encode/django-rest-framework/blob/main/rest_framework/filters.py#L23
+    to add splitting by more punctuation types.
+    """
+    split_terms = []
+    for term in smart_split(search_terms):
+        # trim commas to avoid bad matching for quoted phrases
+        term = term.strip(",")
+        if term.startswith(('"', "'")) and term[0] == term[-1]:
+            # quoted phrases are kept together without any other split
+            split_terms.append(unescape_string_literal(term))
+        else:
+            # non-quoted tokens are split by ?.,!;, keeping only non-empty ones
+            for sub_term in re.split("[?.,!;:]", term):
+                if sub_term:
+                    split_terms.append(sub_term.strip())
+    return split_terms
+
+
+class ContentNodeSearchFilter(filters.SearchFilter):
+    search_param = "search"
+
+    def get_search_fields(self, view, request):
+        return ["title", "description"]
+
+    def get_cleaned_search_value(self, request):
+        value = request.query_params.get(
+            self.search_param,
+            request.query_params.get(
+                "question", request.query_params.get("keywords", "")
+            ),
+        )
+        field = CharField(trim_whitespace=False, allow_blank=True)
+        return field.run_validation(value)
+
+    def get_search_terms(self, request):
+        """
+        Search terms are set by a ?search=... query parameter,
+        and may be whitespace delimited.
+        For backwards compatibility, we also allow the question and keywords
+        parameters, but search will take precedence.
+        """
+        cleaned_value = self.get_cleaned_search_value(request)
+        split_terms = search_smart_split(cleaned_value)
+        critical_terms = [w for w in split_terms if w not in stopwords_set]
+        return critical_terms if critical_terms else split_terms
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
@@ -692,6 +731,20 @@ contentnode_previously_omitted_fields = {
     "modality": lambda resource: resource.get("options", {}).get("modality", None),
 }
 
+# The request-side counterpart to contentnode_previously_omitted_fields: query
+# parameters whose name changed, mapped to the name older remotes understand
+# and the version range whose public endpoint accepts the current name. When we
+# proxy a request to a remote that predates the change, we rewrite the parameter
+# so the remote's keyword search keeps working. The SearchFilter added ?search=
+# (autocomplete) and ?question= (full-text search) in 0.20.0; older remotes only
+# match on the ?keywords= filter, so both rewrite to ?keywords= there. The
+# SearchFilter still accepts ?keywords= as a fallback, so the rewrite is safe
+# even when the remote version cannot be determined.
+contentnode_previously_renamed_params = {
+    "search": ("keywords", ">=0.20.0"),
+    "question": ("keywords", ">=0.20.0"),
+}
+
 
 class BaseContentNodeMixin:
     """
@@ -700,7 +753,7 @@ class BaseContentNodeMixin:
     Also used for public ContentNode endpoints!
     """
 
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, ContentNodeSearchFilter)
     filterset_class = ContentNodeFilter
 
     values = (
@@ -901,6 +954,34 @@ class InternalContentNodeMixin(BaseContentNodeMixin):
                     response_data[key] = default_value(response_data)
                 else:
                     response_data[key] = default_value
+
+    def update_request_params(self, params, device_info):
+        # As we evolve the contentnode public API, we use this to rewrite
+        # renamed query params so that a request keeps working regardless of
+        # the version of Kolibri exposing the endpoint we are proxying to.
+        device_info = device_info or {}
+        version = device_info.get("kolibri_version")
+        is_kolibri = device_info.get("application") == "kolibri"
+        for current, (
+            legacy,
+            supported_range,
+        ) in contentnode_previously_renamed_params.items():
+            if current not in params:
+                continue
+            try:
+                supported = (
+                    is_kolibri
+                    and version
+                    and version_matches_range(version, supported_range)
+                )
+            except (ValueError, AttributeError):
+                # An unparseable version (e.g. a development build) falls back
+                # to the legacy param rather than 500ing.
+                supported = False
+            if not supported:
+                params[legacy] = params[current]
+                del params[current]
+        return params
 
     def add_base_url_to_node(self, node, baseurl):
         baseurl_querystring = "?{}={}".format(REMOTE_URL_PARAM, baseurl)
@@ -1270,132 +1351,6 @@ class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
                 self.locally_admin_imported_ids = set()
             return self._hande_proxied_request(request)
         return super().retrieve(request, pk=pk)
-
-
-# return the result of and-ing a list of queries
-def intersection(queries):
-    if queries:
-        return reduce(lambda x, y: x & y, queries)
-    return None
-
-
-def union(queries):
-    if queries:
-        return reduce(lambda x, y: x | y, queries)
-    return None
-
-
-@query_params_required(search=str, max_results=int, max_results__default=30)
-class ContentNodeSearchViewset(ContentNodeViewset):
-    def search(self, value, max_results, filter=True):
-        """
-        Implement various filtering strategies in order to get a wide range of search results.
-        When filter is used, this object must have a request attribute having
-        a 'query_params' QueryDict containing the filters to be applied
-        """
-        if filter:
-            queryset = self.filter_queryset(self.get_queryset())
-        else:
-            queryset = self.get_queryset()
-        # all words with punctuation removed
-        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
-        # words in all_words that are not stopwords
-        critical_words = [w for w in all_words if w not in stopwords_set]
-        # queries ordered by relevance priority
-        all_queries = [
-            # all words in title
-            intersection([Q(title__icontains=w) for w in all_words]),
-            # all critical words in title
-            intersection([Q(title__icontains=w) for w in critical_words]),
-            # all words in description
-            intersection([Q(description__icontains=w) for w in all_words]),
-            # all critical words in description
-            intersection([Q(description__icontains=w) for w in critical_words]),
-        ]
-        # any critical word in title, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(title__icontains=w))
-        # any critical word in description, reverse-sorted by word length
-        for w in sorted(critical_words, key=len, reverse=True):
-            all_queries.append(Q(description__icontains=w))
-
-        # only execute if query is meaningful
-        all_queries = [query for query in all_queries if query]
-
-        results = []
-        content_ids = set()
-        BUFFER_SIZE = max_results * 2  # grab some extras, but not too many
-
-        # iterate over each query type, and build up search results
-        for query in all_queries:
-            # in each pass, don't take any items already in the result set
-            matches = (
-                queryset.exclude_by_content_ids(list(content_ids), validate=False)
-                .filter(query)
-                .values("content_id", "id")[:BUFFER_SIZE]
-            )
-
-            for match in matches:
-                # filter the dupes
-                if match["content_id"] in content_ids:
-                    continue
-                # add new, unique results
-                content_ids.add(match["content_id"])
-                results.append(match["id"])
-
-                # bail out as soon as we reach the quota
-                if len(results) >= max_results:
-                    break
-            # bail out as soon as we reach the quota
-            if len(results) >= max_results:
-                break
-
-        results = queryset.filter_by_uuids(results, validate=False)
-
-        # If no queries, just use an empty Q.
-        all_queries_filter = union(all_queries) or Q()
-
-        total_results = (
-            queryset.filter(all_queries_filter)
-            .values_list("content_id", flat=True)
-            .distinct()
-            .count()
-        )
-
-        # Use unfiltered queryset to collect channel_ids and kinds metadata.
-        unfiltered_queryset = self.get_queryset()
-
-        channel_ids = (
-            unfiltered_queryset.filter(all_queries_filter)
-            .values_list("channel_id", flat=True)
-            .order_by("channel_id")
-            .distinct()
-        )
-
-        content_kinds = (
-            unfiltered_queryset.filter(all_queries_filter)
-            .values_list("kind", flat=True)
-            .order_by("kind")
-            .distinct()
-        )
-
-        return (results, channel_ids, content_kinds, total_results)
-
-    def list(self, request, **kwargs):
-        value = self.kwargs["search"]
-        max_results = self.kwargs["max_results"]
-        results, channel_ids, content_kinds, total_results = self.search(
-            value, max_results
-        )
-        data = self.serialize(results)
-        return Response(
-            {
-                "channel_ids": channel_ids,
-                "content_kinds": content_kinds,
-                "results": data,
-                "total_results": total_results,
-            }
-        )
 
 
 class BookmarkFilter(FilterSet):

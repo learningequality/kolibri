@@ -8,49 +8,56 @@
         appearance="basic-link"
         :disabled="availablePaths && !availablePaths[topLevelCategory.value]"
         @click="$emit('input', topLevelCategory.value)"
-      />
-    </h2>
-    <KGrid>
-      <KGridItem
-        v-for="(nestedObject, key) in displaySelectedCategories"
-        :key="key"
-        :layout4="{ span: 4 }"
-        :layout8="{ span: 8 }"
-        :layout12="{ span: 4 }"
-        class="category-item"
       >
-        <div class="filter-list-title">
+        <template #icon>
           <KIcon
-            :icon="icon(key)"
+            :icon="icon(selectedCategory)"
             class="category-icon"
-            size="large"
             :color="$themeTokens.primary"
           />
-          <h3>
-            <KButton
-              :text="coreString(camelCase(key))"
-              appearance="basic-link"
-              class="larger-text"
-              :appearanceOverrides="appearanceOverrides(nestedObject.value, true)"
-              :disabled="availablePaths && !availablePaths[nestedObject.value]"
-              @click="$emit('input', nestedObject.value)"
+        </template>
+      </KButton>
+    </h2>
+    <div
+      v-for="(nestedObject, key) in displaySelectedCategories"
+      :key="key"
+      :class="[
+        'category-item',
+        { 'category-item-with-subitems': Object.keys(nestedObject.nested).length > 0 },
+      ]"
+    >
+      <h3 class="category-heading">
+        <KButton
+          :text="coreString(camelCase(key))"
+          appearance="basic-link"
+          :appearanceOverrides="appearanceOverrides(nestedObject.value, true)"
+          :disabled="availablePaths && !availablePaths[nestedObject.value]"
+          @click="$emit('input', nestedObject.value)"
+        >
+          <template #icon>
+            <KIcon
+              :icon="icon(key)"
+              class="category-icon"
+              :color="$themeTokens.primary"
             />
-          </h3>
-        </div>
-        <div
+          </template>
+        </KButton>
+      </h3>
+      <div
+        v-if="Object.keys(nestedObject.nested).length"
+        class="subcategory-list"
+      >
+        <KButton
           v-for="(item, nestedKey) in nestedObject.nested"
           :key="item.value"
-        >
-          <KButton
-            :text="coreString(camelCase(nestedKey))"
-            :appearanceOverrides="appearanceOverrides(item.value)"
-            appearance="basic-link"
-            :disabled="availablePaths && !availablePaths[item.value]"
-            @click="$emit('input', item.value)"
-          />
-        </div>
-      </KGridItem>
-    </KGrid>
+          :text="coreString(camelCase(nestedKey))"
+          :appearanceOverrides="appearanceOverrides(item.value)"
+          appearance="basic-link"
+          :disabled="availablePaths && !availablePaths[item.value]"
+          @click="$emit('input', item.value)"
+        />
+      </div>
+    </div>
   </div>
 
 </template>
@@ -61,6 +68,7 @@
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
+  import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
 
   export default {
     name: 'CategorySearchOptions',
@@ -140,26 +148,7 @@
       camelCase(val) {
         return camelCase(val);
       },
-      icon(key) {
-        // 'language' icon is already in use and it doesn't follow the
-        // same naming pattern for category resources, so set separate
-        // case to return the correct icon
-        if (camelCase(key) === 'languageLearning') {
-          return 'language';
-        } else if (
-          camelCase(key) === 'technicalAndVocationalTraining' ||
-          camelCase(key) === 'professionalSkills'
-        ) {
-          // similarly, 'skills' icon is used for both of these resources
-          // and doesn't follow same pattern
-          return 'skillsResource';
-        } else if (camelCase(key) === 'foundationsLogicAndCriticalThinking') {
-          // naming mismatch
-          return 'logicCriticalThinkingResource';
-        } else {
-          return `${camelCase(key)}Resource`;
-        }
-      },
+      icon: getCategoryIcon,
     },
   };
 
@@ -169,37 +158,31 @@
 <style lang="scss" scoped>
 
   .top-category {
+    margin-top: 0;
     margin-bottom: 4px;
     font-size: 24px;
   }
 
-  .larger-text {
-    margin-top: 4px;
-    margin-bottom: 4px;
+  .category-item {
+    margin-bottom: 0;
+  }
+
+  .category-item-with-subitems {
+    margin-bottom: 16px;
+  }
+
+  .category-heading {
+    margin: 0;
     font-size: 20px;
   }
 
-  /deep/ .link-text {
-    text-decoration: none !important;
-    transition: none !important;
-  }
-
-  .category-item {
-    margin-bottom: 32px;
-  }
-
-  h3 {
-    margin-top: 0;
-    margin-bottom: 8px;
+  .subcategory-list {
+    padding-left: 24px;
   }
 
   .category-icon {
-    margin-left: 8px;
-  }
-
-  /deep/ svg {
-    width: 2.5em;
-    height: 2.5em;
+    top: 0;
+    margin-right: 4px;
   }
 
 </style>

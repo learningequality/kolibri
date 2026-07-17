@@ -31,7 +31,6 @@
   import { now } from 'kolibri/utils/serverClock';
   import ChannelResource from 'kolibri-common/apiResources/ChannelResource';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-  import ContentNodeSearchResource from 'kolibri-common/apiResources/ContentNodeSearchResource';
   import router from 'kolibri/router';
   import { ContentNodeKinds } from 'kolibri/constants';
   import { events, nameSpace, MessageStatuses } from 'kolibri-sandbox/src/base';
@@ -229,10 +228,10 @@
         } else {
           // limit to channel, defaults to true
           const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
-          searchPromise = ContentNodeSearchResource.fetchCollection({
+          searchPromise = ContentNodeResource.fetchCollection({
             getParams: {
               search: keyword,
-              channel_id: limitToChannel ? this.topic.channel_id : undefined,
+              channels: limitToChannel ? this.topic.channel_id : undefined,
               max_results: options.maxResults ? options.maxResults : 50,
             },
           }).then(searchResults => {

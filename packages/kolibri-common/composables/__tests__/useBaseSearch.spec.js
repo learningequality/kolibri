@@ -1,12 +1,13 @@
 import { get, set } from '@vueuse/core';
-import Vue, { nextTick, ref } from 'vue';
+import Vue, { nextTick, ref, defineComponent, h } from 'vue';
+import { render } from '@testing-library/vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import { coreStoreFactory } from 'kolibri/store';
-import { AllCategories, ContentNodeKinds, NoCategories } from 'kolibri/constants';
+import { ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
-import useBaseSearch from '../useBaseSearch';
+import useBaseSearch, { injectBaseSearch } from '../useBaseSearch';
 import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
@@ -30,6 +31,37 @@ function prep(query = {}, descendant = null, filters = null) {
     store,
     mockRoute,
   };
+}
+
+// injectBaseSearch's helpers are provide-only, so drive them from a child of
+// a component that called useBaseSearch, with a router that updates the route.
+function mountSearch() {
+  const mockRoute = Vue.observable({ query: {}, name });
+  const mockRouter = {
+    push: jest.fn(next => {
+      mockRoute.query = { ...next.query };
+      return Promise.resolve();
+    }),
+  };
+  useRoute.mockReturnValue(mockRoute);
+  useRouter.mockReturnValue(mockRouter);
+  const store = coreStoreFactory({});
+  store.registerModule('core', coreModule);
+  let api = null;
+  const Child = defineComponent({
+    setup() {
+      api = injectBaseSearch();
+      return () => h('div');
+    },
+  });
+  const Parent = defineComponent({
+    setup() {
+      useBaseSearch({});
+      return () => h(Child);
+    },
+  });
+  const utils = render(Parent, { store });
+  return { getApi: () => api, ...utils };
 }
 
 describe(`useBaseSearch`, () => {
@@ -275,41 +307,13 @@ describe(`useBaseSearch`, () => {
         },
       });
     });
-    it('should ignore other categories when AllCategories is set and search for isnull false', () => {
-      const { search } = prep({ categories: `test1,test2,${NoCategories},${AllCategories}` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories__isnull: false,
-          max_results: 25,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
-      });
-    });
-    it('should ignore other categories when NoCategories is set and search for isnull true', () => {
-      const { search } = prep({ categories: `test1,test2,${NoCategories}` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
-      search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories__isnull: true,
-          max_results: 25,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
-      });
-    });
     it('should set keywords when defined', () => {
       const { search } = prep({ keywords: `this is just a test` });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       search();
       expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
         getParams: {
-          keywords: `this is just a test`,
+          question: `this is just a test`,
           max_results: 25,
           include_coach_content: false,
           exclude_modalities: Modalities.COURSE,
@@ -367,7 +371,7 @@ describe(`useBaseSearch`, () => {
       expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
     });
     it('should pass the more object directly to getParams', () => {
-      const { more, searchMore } = prep({ categories: `test1,test2,${NoCategories}` });
+      const { more, searchMore } = prep({ categories: 'test1,test2,test3' });
       ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
       const moreExpected = { test: 'this', not: 'that' };
       set(more, moreExpected);
@@ -376,7 +380,7 @@ describe(`useBaseSearch`, () => {
     });
     it('should set results, more and labels', async () => {
       const { labels, more, results, searchMore, search } = prep({
-        categories: `test1,test2,${NoCategories}`,
+        categories: 'test1,test2,test3',
       });
       const expectedLabels = {
         available: ['labels'],
@@ -461,6 +465,169 @@ describe(`useBaseSearch`, () => {
         name,
         query: {},
       });
+    });
+  });
+
+  describe('selectFilterCombination', () => {
+    it('applies every filter and strips all matched words', async () => {
+      ContentNodeResource.fetchCollection.mockReturnValue(
+        Promise.resolve({ results: [], labels: {} }),
+      );
+      const api = mountSearch().getApi();
+      api.setKeywords('watch math');
+      await nextTick();
+      ContentNodeResource.fetchCollection.mockClear();
+      api.selectFilterCombination([
+        {
+          filterKey: 'learning_activities',
+          filterValue: 'WATCHVAL',
+          label: 'Watch',
+          type: 'activity',
+          key: 'WATCH',
+        },
+        { filterKey: 'categories', filterValue: 'MATHVAL', label: 'Mathematics', type: 'category' },
+      ]);
+      await nextTick();
+      await nextTick();
+      const calls = ContentNodeResource.fetchCollection.mock.calls.filter(
+        c => c[0] && c[0].getParams && c[0].getParams.max_results === 25,
+      );
+      const params = calls[calls.length - 1][0].getParams;
+      expect(params.learning_activities).toEqual(['WATCHVAL']);
+      expect(params.categories).toEqual(['MATHVAL']);
+      expect(params.question).toBeUndefined();
+    });
+  });
+
+  describe('global labels', () => {
+    const remoteBaseurl = 'https://remote.example.org/';
+
+    // The device's baseurl resolves asynchronously, so the setup-time fetch of the
+    // label catalog goes out before it is known and races the one the baseurl
+    // watcher starts. Drive both by hand to pin down which response wins.
+    function mountWithBaseurl(baseurl) {
+      const mockRoute = Vue.observable({ query: {}, name });
+      useRoute.mockReturnValue(mockRoute);
+      useRouter.mockReturnValue({ push: jest.fn().mockReturnValue(Promise.resolve()) });
+      const store = coreStoreFactory({});
+      store.registerModule('core', coreModule);
+      let api = null;
+      const Child = defineComponent({
+        setup() {
+          api = injectBaseSearch();
+          return () => h('div');
+        },
+      });
+      const Parent = defineComponent({
+        setup() {
+          useBaseSearch({ baseurl });
+          return () => h(Child);
+        },
+      });
+      const utils = render(Parent, { store });
+      return { getApi: () => api, ...utils };
+    }
+
+    async function flush() {
+      await Promise.resolve();
+      await Promise.resolve();
+    }
+
+    it('discards a label response for a baseurl that is no longer current', async () => {
+      const resolvers = {};
+      ContentNodeResource.fetchCollection = jest.fn(
+        ({ getParams }) =>
+          new Promise(resolve => {
+            resolvers[getParams.baseurl || 'local'] = resolve;
+          }),
+      );
+      const baseurl = ref(undefined);
+      const { getApi } = mountWithBaseurl(baseurl);
+
+      // Fetched at setup, before the device is known, so this is the local catalog.
+      expect(Object.keys(resolvers)).toEqual(['local']);
+
+      set(baseurl, remoteBaseurl);
+      await nextTick();
+      expect(Object.keys(resolvers)).toEqual(['local', remoteBaseurl]);
+
+      // The device's labels arrive first...
+      resolvers[remoteBaseurl]({ labels: { learning_activities: [LearningActivities.CREATE] } });
+      await flush();
+      // ...then the local ones land late and must not replace them.
+      resolvers.local({ labels: { learning_activities: [LearningActivities.WATCH] } });
+      await flush();
+
+      expect(get(getApi().availableLearningActivities)).toEqual({
+        CREATE: LearningActivities.CREATE,
+      });
+    });
+
+    it("does not leave another device's labels on display when the fetch fails", async () => {
+      let rejectRemote;
+      ContentNodeResource.fetchCollection = jest.fn(({ getParams }) =>
+        getParams.baseurl
+          ? new Promise((resolve, reject) => {
+              rejectRemote = reject;
+            })
+          : Promise.resolve({ labels: { learning_activities: [LearningActivities.WATCH] } }),
+      );
+      const baseurl = ref(undefined);
+      const { getApi } = mountWithBaseurl(baseurl);
+      await flush();
+      expect(get(getApi().availableLearningActivities)).toEqual({
+        WATCH: LearningActivities.WATCH,
+      });
+
+      set(baseurl, remoteBaseurl);
+      await nextTick();
+      rejectRemote(new Error('device unreachable'));
+      await flush();
+
+      expect(get(getApi().availableLearningActivities)).toEqual({});
+    });
+  });
+
+  describe('keyword autocomplete', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('discards a slower, older autocomplete response that resolves after a newer one', async () => {
+      const api = mountSearch().getApi();
+      const resolvers = [];
+      ContentNodeResource.fetchCollection.mockImplementation(
+        () => new Promise(resolve => resolvers.push(resolve)),
+      );
+
+      api.keyWordAutoCompleteHandler('first query');
+      jest.advanceTimersByTime(300);
+      api.keyWordAutoCompleteHandler('second query');
+      jest.advanceTimersByTime(300);
+      expect(resolvers).toHaveLength(2);
+
+      // Newer request resolves first...
+      resolvers[1]({ results: [{ id: 'second-result' }] });
+      await Promise.resolve();
+      await Promise.resolve();
+      // ...then the stale older request resolves late and must not clobber it.
+      resolvers[0]({ results: [{ id: 'first-result' }] });
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(get(api.autoCompleteSuggestions).map(s => s.id)).toEqual(['second-result']);
+    });
+
+    it('cancels the pending debounced fetch on unmount', () => {
+      const { getApi, unmount } = mountSearch();
+      ContentNodeResource.fetchCollection.mockClear();
+      getApi().keyWordAutoCompleteHandler('fraction');
+      unmount();
+      jest.advanceTimersByTime(300);
+      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
     });
   });
 });

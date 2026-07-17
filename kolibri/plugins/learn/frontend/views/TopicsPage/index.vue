@@ -29,7 +29,7 @@
       />
 
       <div v-else>
-        <!-- Header with thumbail and tagline -->
+        <!-- Header with thumbail, tagline, and search -->
         <TopicsHeader
           v-if="!windowIsSmall"
           ref="header"
@@ -40,34 +40,20 @@
           :thumbnail="topic && topic.thumbnail"
           :breadcrumbs="breadcrumbs"
         >
-          <template #sticky-sidebar>
-            <ToggleHeaderTabs
-              v-if="!!windowIsLarge && topic"
-              :topic="topic"
-              :topics="topics"
-              :width="sidePanelWidth"
+          <div
+            class="search-header"
+            :style="{ backgroundColor: $themeTokens.surface }"
+          >
+            <LibrarySearchBar
+              data-testid="library-search-bar"
+              :placeholder="searchPlaceholder"
             />
-            <SearchFiltersPanel
-              v-if="!!windowIsLarge && searchActive"
-              ref="sidePanel"
-              v-model="searchTerms"
-              class="side-panel"
-              :width="`${sidePanelWidth}px`"
-              :showChannels="false"
-              :style="sidePanelStyleOverrides"
+            <HorizontalFilterPills
+              v-if="!loading"
+              data-testid="horizontal-filter-pills"
+              @openFilters="showFilterModal = true"
             />
-            <TopicsPanelModal
-              v-else-if="!!windowIsLarge"
-              ref="sidePanel"
-              class="side-panel"
-              :topics="topics"
-              :topicMore="Boolean(topicMore)"
-              :topicsLoading="topicMoreLoading"
-              :width="`${sidePanelWidth}px`"
-              :style="sidePanelStyleOverrides"
-              @loadMoreTopics="handleLoadMoreInTopic"
-            />
-          </template>
+          </div>
         </TopicsHeader>
 
         <!-- mobile tabs (different alignment and interactions) -->
@@ -76,39 +62,57 @@
           :topic="topic"
         />
 
-        <main
-          class="main-content-grid"
-          :style="gridStyle"
+        <KBreadcrumbs
+          v-if="breadcrumbs.length && windowIsSmall"
+          data-testid="mobile-breadcrumbs"
+          class="mobile-breadcrumbs"
+          :items="breadcrumbs"
+          :ariaLabel="learnString('channelAndFoldersLabel')"
+        />
+
+        <!-- Search header for small screens, where TopicsMobileHeader
+             replaces the header that normally contains it -->
+        <div
+          v-if="windowIsSmall"
+          class="mobile-search-header search-header"
+          :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <KBreadcrumbs
-            v-if="breadcrumbs.length && windowIsSmall"
-            data-testid="mobile-breadcrumbs"
-            :items="breadcrumbs"
-            :ariaLabel="learnString('channelAndFoldersLabel')"
+          <LibrarySearchBar
+            data-testid="library-search-bar"
+            :placeholder="searchPlaceholder"
+          />
+          <HorizontalFilterPills
+            v-if="!loading"
+            data-testid="horizontal-filter-pills"
+            @openFilters="showFilterModal = true"
+          />
+        </div>
+
+        <main class="main-content-grid">
+          <TopicsPanelModal
+            v-if="!!windowIsLarge && topics.length"
+            ref="sidePanel"
+            class="folders-sidebar"
+            :topics="topics"
+            :topicMore="Boolean(topicMore)"
+            :topicsLoading="topicMoreLoading"
+            :width="`${sidePanelWidth}px`"
+            @loadMoreTopics="handleLoadMoreInTopic"
           />
 
           <div class="card-grid">
-            <!-- Filter buttons - shown when not sidebar not visible -->
+            <!-- Folders button on mobile / non-large screens, only when there are folders -->
             <div
-              v-if="!windowIsLarge"
+              v-if="!windowIsLarge && topics.length"
               data-testid="tab-buttons"
             >
               <KButton
-                v-if="topics.length"
                 icon="topic"
                 data-testid="folders-button"
                 class="overlay-toggle-button"
                 :text="coreString('folders')"
                 :primary="false"
-                @click="handleFoldersButton"
-              />
-              <KButton
-                icon="filter"
-                class="overlay-toggle-button"
-                data-testid="filter-button"
-                :text="coreString('filter')"
-                :primary="false"
-                @click="handleSearchButton"
+                @click="sidePanelIsOpen = true"
               />
             </div>
 
@@ -173,11 +177,8 @@
               :currentCardViewStyle="currentSearchCardViewStyle"
               :hideCardViewToggle="true"
               :results="results"
-              :removeFilterTag="removeFilterTag"
-              :clearSearch="clearSearch"
               :moreLoading="moreLoading"
               :searchMore="searchMore"
-              :searchTerms="searchTerms"
               :searchLoading="searchLoading"
               :more="more"
               @setCardStyle="style => (currentSearchCardViewStyle = style)"
@@ -186,27 +187,24 @@
           </div>
         </main>
 
-        <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-        <template v-if="!windowIsLarge && sidePanelIsOpen">
-          <SidePanelModal @closePanel="sidePanelIsOpen = false">
-            <SearchFiltersPanel
-              v-if="searchActive"
-              ref="embeddedPanel"
-              v-model="searchTerms"
-              :showChannels="false"
-              :style="sidePanelStyleOverrides"
-            />
-            <TopicsPanelModal
-              v-else
-              ref="embeddedPanel"
-              :topics="topics"
-              :topicMore="Boolean(topicMore)"
-              :topicsLoading="topicMoreLoading"
-              :style="sidePanelStyleOverrides"
-              @loadMoreTopics="handleLoadMoreInTopic"
-            />
-          </SidePanelModal>
-        </template>
+        <!-- Mobile/non-large folders overlay: TopicsPanelModal is itself a
+             SidePanelModal at this breakpoint, so render it directly -->
+        <TopicsPanelModal
+          v-if="!windowIsLarge && sidePanelIsOpen && topics.length"
+          ref="embeddedPanel"
+          :topics="topics"
+          :topicMore="Boolean(topicMore)"
+          :topicsLoading="topicMoreLoading"
+          @loadMoreTopics="handleLoadMoreInTopic"
+          @close="sidePanelIsOpen = false"
+        />
+
+        <!-- All filters side panel -->
+        <SearchFiltersSidePanel
+          v-if="showFilterModal"
+          :showChannels="false"
+          @close="showFilterModal = false"
+        />
       </div>
 
       <!-- Side panel for showing the information of selected content with a link to view it -->
@@ -267,15 +265,15 @@
   import { ContentNodeKinds } from 'kolibri/constants';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import Modalities from 'kolibri-constants/Modalities';
-  import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
   import samePageCheckGenerator from 'kolibri-common/utils/samePageCheckGenerator';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import plugin_data from 'kolibri-plugin-data';
   import LearningActivityChip from 'kolibri-common/components/ResourceDisplayAndSearch/LearningActivityChip.vue';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import SearchFiltersPanel from 'kolibri-common/components/SearchFiltersPanel';
   import useChannels from 'kolibri-common/composables/useChannels';
+  import { searchAndFilterStrings } from 'kolibri-common/strings/searchAndFilterStrings';
+  import SearchFiltersSidePanel from '../SearchFiltersSidePanel';
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
@@ -289,8 +287,9 @@
   import SearchResultsGrid from '../SearchResultsGrid';
   import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
   import commonLearnStrings from '../commonLearnStrings';
+  import LibrarySearchBar from '../LibraryPage/LibrarySearchBar';
+  import HorizontalFilterPills from '../LibraryPage/HorizontalFilterPills';
   import TopicsHeader from './TopicsHeader';
-  import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
   import TopicsPanelModal from './TopicsPanelModal';
@@ -341,14 +340,15 @@
     components: {
       KBreadcrumbs,
       TopicsHeader,
-      ToggleHeaderTabs,
       LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
-      SearchFiltersPanel,
+      SearchFiltersSidePanel,
       SidePanelModal,
       LearningActivityChip,
       BrowseResourceMetadata,
       SearchResultsGrid,
+      LibrarySearchBar,
+      HorizontalFilterPills,
       TopicsMobileHeader,
       TopicSubsection,
       TopicsPanelModal,
@@ -370,8 +370,6 @@
         results,
         more,
         searchMore,
-        removeFilterTag,
-        clearSearch,
         currentRoute,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
@@ -526,6 +524,8 @@
       watch([() => props.id, () => props.deviceId], showTopicsTopic);
       showTopicsTopic();
 
+      const { searchInFolder$ } = searchAndFilterStrings;
+
       return {
         fetchRemoteBrowsingContentNodeUserData,
         canAddDownloads,
@@ -537,8 +537,7 @@
         results,
         more,
         searchMore,
-        removeFilterTag,
-        clearSearch,
+        searchInFolder$,
         back,
         genContentLinkKeepCurrentBackLink,
         windowBreakpoint,
@@ -573,12 +572,12 @@
     },
     data: function () {
       return {
-        sidePanelStyleOverrides: {},
         metadataSidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
         currentSearchCardViewStyle: 'card',
+        showFilterModal: false,
       };
     },
     computed: {
@@ -610,9 +609,6 @@
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
-      searchActive() {
-        return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
-      },
       channelTitle() {
         return this.channel ? this.channel.name : '';
       },
@@ -620,7 +616,7 @@
         return this.windowBreakpoint === 2 || this.windowBreakpoint > 4 ? 4 : 3;
       },
       gridType() {
-        return this.windowBreakpoint > 4 ? 2 : 1;
+        return 1;
       },
       topics() {
         return this.contents
@@ -721,71 +717,19 @@
         return false;
       },
       sidePanelWidth() {
-        if (!this.windowIsLarge) {
+        if (!this.windowIsLarge || !this.topics.length) {
           return 0;
-        } else if (this.windowBreakpoint < 5) {
-          return 234;
-        } else {
-          return 346;
         }
+        return 234;
       },
-      gridStyle() {
-        let style = {};
-        /*
-          Fixes jumping scrollbar when reaching the bottom of the page
-          for certain page heights and when side bar is present.
-          The issue is caused by the document scroll height being changed
-          by the sidebar's switching position from absolute to fixed in
-          the sticky calculation, resulting in an endless cycle
-          of the calculation being called and the sidepanel alternating between
-          fixed and absolute position over and over. Setting min height prevents
-          this by making sure that the document scroll height won't change
-          on the sidebar positioning updates.
-        */
-        if (this.windowIsLarge) {
-          style = {
-            minHeight: '900px',
-          };
-        } else {
-          style.top = '60px';
+      searchPlaceholder() {
+        if (this.topic && this.topic.title) {
+          return this.searchInFolder$({ folder: this.topic.title });
         }
-        if (this.isRtl) {
-          style.marginRight = `${this.sidePanelWidth + 24}px`;
-        } else {
-          style.marginLeft = `${this.sidePanelWidth + 24}px`;
-        }
-        return style;
-      },
-      throttledStickyCalculation() {
-        return throttle(this.stickyCalculation);
+        return '';
       },
       topicMore() {
         return this.topic && this.topic.children && this.topic.children.more;
-      },
-      foldersLink() {
-        if (this.topic) {
-          return {
-            name: PageNames.TOPICS_TOPIC,
-            params: {
-              ...this.$route.params,
-            },
-          };
-        }
-        return {};
-      },
-      searchTabLink() {
-        // navigates the main page to the search view
-        if (this.topic) {
-          const query = { ...this.$route.query };
-          return {
-            name: PageNames.TOPICS_TOPIC_SEARCH,
-            params: {
-              ...this.$route.params,
-            },
-            query: query,
-          };
-        }
-        return {};
       },
     },
     watch: {
@@ -795,14 +739,11 @@
         }
       },
       searchTerms(newVal, oldVal) {
-        // When there are search terms and the Folders link is clicked,
-        // this ensures that we don't close the side panel when the
-        // user wanted to go to the Folders page.
-        if (this.$route.name === PageNames.TOPICS_TOPIC) {
-          return;
-        }
-        if (!isEqual(newVal, oldVal)) {
-          this.sidePanelIsOpen = false;
+        // On small screens the filter panel fills the viewport, hiding the
+        // results it affects, so collapse it once a filter is applied. On
+        // larger screens it sits beside the results and stays open.
+        if (this.windowIsSmall && !isEqual(newVal, oldVal)) {
+          this.showFilterModal = false;
         }
       },
       metadataSidePanelContent() {
@@ -815,57 +756,18 @@
       },
     },
     beforeDestroy() {
-      window.removeEventListener('scroll', this.throttledHandleScroll);
       // Unsetting possible change in metadataSidePanelContent watcher
       // to avoid leaving `fixed` position
       document.documentElement.style.position = '';
     },
     created() {
-      window.addEventListener('scroll', this.throttledHandleScroll);
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
       }
     },
     methods: {
-      throttledHandleScroll() {
-        this.throttledStickyCalculation();
-      },
       toggleInfoPanel(content) {
         this.metadataSidePanelContent = content;
-      },
-      handleFoldersButton() {
-        this.sidePanelIsOpen = true;
-        if (this.searchActive) {
-          this.$router.push(this.foldersLink);
-        }
-      },
-      handleSearchButton() {
-        this.sidePanelIsOpen = true;
-        if (!this.searchActive) {
-          this.$router.push(this.searchTabLink);
-        }
-      },
-      // Stick the side panel to top. That can be on the very top of the viewport
-      // or right under the 'Browse channel' toolbar, depending on whether the toolbar
-      // is visible or no (the toolbar hides on smaller resolutions when scrolling
-      // down and appears again when scrolling up).
-      // Takes effect only when the side panel is not displayed full-screen.
-      stickyCalculation() {
-        const header = this.$refs.header && this.$refs.header.$el;
-        const topbar = document.querySelector('.scrolling-header');
-
-        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-        const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-
-        if (header && headerBottom < Math.max(topbarBottom, 0)) {
-          this.sidePanelStyleOverrides = {
-            position: 'fixed',
-            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-            height: '100%',
-          };
-        } else {
-          this.sidePanelStyleOverrides = {};
-        }
       },
       handleShowMore(topicId) {
         this.expandedTopics = {
@@ -960,9 +862,7 @@
 
 <style lang="scss" scoped>
 
-  $header-height: 324px;
   $toolbar-height: 70px;
-  $total-height: 324px;
 
   .page {
     position: relative;
@@ -970,20 +870,29 @@
     min-height: calc(100vh - #{$toolbar-height});
   }
 
-  .side-panel {
-    position: absolute;
-    top: $total-height;
-    left: 0;
-    min-height: calc(100vh - #{$toolbar-height});
-    // Padding & scroll to ensure user can scroll all the way down
-    padding: 1em 1em 6em;
-    overflow-y: scroll;
+  .folders-sidebar {
+    flex-shrink: 0;
   }
 
   .main-content-grid {
     position: relative;
-    top: 120px;
-    margin: 24px;
+    top: 70px;
+    display: flex;
+    gap: 24px;
+  }
+
+  .card-grid {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 24px 96px 0;
+  }
+
+  .main-content-grid > .card-grid:only-child {
+    padding-left: 24px;
+  }
+
+  .mobile-breadcrumbs {
+    margin: 16px 24px 0;
   }
 
   .text {
@@ -1014,14 +923,6 @@
     margin: 16px 16px 16px 0;
   }
 
-  .full-screen-side-panel {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    z-index: 12;
-    width: 100vw;
-  }
-
   .end-button-block {
     width: 100%;
     padding-bottom: 16px;
@@ -1049,6 +950,20 @@
 
   .divider {
     margin-bottom: 24px;
+  }
+
+  .search-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .mobile-search-header {
+    // Same app-bar offset as TopicsMobileHeader and .main-content-grid
+    position: relative;
+    top: 70px;
+    padding: 16px;
   }
 
   /deep/ .activities-wrapper {

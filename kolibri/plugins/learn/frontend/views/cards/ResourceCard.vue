@@ -143,4 +143,30 @@
     font-size: 40%;
   }
 
+  // KCard's footer slot lays out content in normal flow, but the
+  // HybridLearningFooter passed in is designed to absolutely overlay
+  // HybridLearningContentCard. Override its positioning so the icons
+  // sit inline within the card's footer area.
+  .progress-section {
+    /deep/ .footer {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      padding: 0;
+      margin: 0;
+    }
+
+    /deep/ .footer-icons {
+      position: relative;
+      right: auto;
+      bottom: auto;
+    }
+
+    /deep/ .progress-bar {
+      position: relative;
+      bottom: auto;
+      left: auto;
+    }
+  }
+
 </style>

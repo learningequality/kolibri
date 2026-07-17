@@ -1,9 +1,12 @@
 from django.http import HttpResponse
+from django.http import QueryDict
 from django.urls import reverse
 from django.views.generic import View
 from feedgenerator.django.utils import feedgenerator
+from rest_framework.request import Request
 
-from kolibri.core.content.api import ContentNodeSearchViewset
+from kolibri.core.content.api import ContentNodeSearchFilter
+from kolibri.core.content.api import ContentNodeViewset
 
 
 class Descriptor(View):
@@ -37,9 +40,17 @@ class Search(View):
                 "The parameter 'q' is missing and is required", status=412
             )
 
-        search_set = ContentNodeSearchViewset()
-        search_set.request = request
-        results, _, _, _ = search_set.search(value, 100, filter=False)
+        # Drive the shared ContentNodeSearchFilter, which reads the keyword
+        # term from a `search` query parameter, over the available content.
+        params = QueryDict(mutable=True)
+        params["search"] = value
+        request.GET = params
+
+        viewset = ContentNodeViewset()
+        viewset.request = Request(request)
+        results = ContentNodeSearchFilter().filter_queryset(
+            viewset.request, viewset.get_queryset(), viewset
+        )[:100]
 
         feed = feedgenerator.Atom1Feed(
             title="Kolibri search results",

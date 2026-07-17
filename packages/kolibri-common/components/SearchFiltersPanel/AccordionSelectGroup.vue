@@ -55,24 +55,6 @@
               class="category-icon-after"
             />
           </KButton>
-          <KButton
-            :text="coreString('otherCategories')"
-            class="category-button"
-            :class="$computedClass({ ':hover': { background: selectedHighlightColor } })"
-            :style="{
-              background: isCategoryActive('no_categories') ? selectedHighlightColor : '',
-            }"
-            appearance="flat-button"
-            @click="noCategories"
-          >
-            <template #icon>
-              <KIcon
-                class="category-icon"
-                icon="optionsCircle"
-                :color="$themeTokens.primary"
-              />
-            </template>
-          </KButton>
         </template>
       </AccordionItem>
       <AccordionItem
@@ -83,10 +65,6 @@
           accordionHeaderStyles(anySelectedFor('languages', languageOptionsList))
         "
         :disabled="searchLoading || languageOptionsList.every(opt => opt.disabled)"
-        :contentAppearanceOverrides="{
-          maxHeight: '256px',
-          overflowY: 'scroll',
-        }"
         :style="accordionItemStyles"
       >
         <template #content>
@@ -108,10 +86,6 @@
         :headerAppearanceOverrides="
           accordionHeaderStyles(anySelectedFor('grade_levels', contentLevelOptions))
         "
-        :contentAppearanceOverrides="{
-          maxHeight: '256px',
-          overflowY: 'scroll',
-        }"
         :style="accordionItemStyles"
       >
         <template #content>
@@ -133,10 +107,6 @@
           accordionHeaderStyles(anySelectedFor('accessibility_labels', accessibilityOptionsList))
         "
         :disabled="searchLoading || accessibilityOptionsList.every(opt => opt.disabled)"
-        :contentAppearanceOverrides="{
-          maxHeight: '256px',
-          overflowY: 'scroll',
-        }"
         :style="accordionItemStyles"
       >
         <template #content>
@@ -157,10 +127,6 @@
           accordionHeaderStyles(anySelectedFor('learner_needs', needsOptionsList))
         "
         :disabled="searchLoading || needsOptionsList.every(opt => opt.disabled)"
-        :contentAppearanceOverrides="{
-          maxHeight: '256px',
-          overflowY: 'scroll',
-        }"
         :style="accordionItemStyles"
       >
         <template #content>
@@ -182,12 +148,13 @@
 
 <script>
 
-  import { NoCategories, ContentLevels, AccessibilityCategories } from 'kolibri/constants';
+  import { ContentLevels, AccessibilityCategories } from 'kolibri/constants';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import { injectBaseSearch } from 'kolibri-common/composables/useBaseSearch';
+  import { getCategoryIcon } from 'kolibri-common/utils/categoryIcon';
 
   export default {
     name: 'AccordionSelectGroup',
@@ -306,16 +273,6 @@
       },
     },
     methods: {
-      noCategories() {
-        if (this.isCategoryActive(NoCategories)) {
-          // NoCategories is it's own key for the "Uncategorized" category
-          const categories = this.value.categories;
-          delete categories[NoCategories];
-          this.$emit('input', { ...this.value, categories });
-        } else {
-          this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
-        }
-      },
       anySelectedFor(inputKey, values) {
         return values.some(value => this.isSelected(inputKey, value));
       },
@@ -330,32 +287,22 @@
         };
       },
       handleChange(field, value) {
-        const prevFieldValue = this.value[field];
+        // Copy rather than mutate: `value` is the cached value of the searchTerms
+        // computed, which the search watcher also holds as its `oldValue` — editing
+        // it in place makes the subsequent equality check a no-op and skips the search.
+        const nextFieldValue = { ...this.value[field] };
         if (value && this.isSelected(field, value)) {
-          delete prevFieldValue[value.value];
-          this.$emit('input', { ...this.value, [field]: prevFieldValue });
+          delete nextFieldValue[value.value];
         } else {
-          this.$emit('input', {
-            ...this.value,
-            [field]: { ...prevFieldValue, [value.value]: true },
-          });
+          nextFieldValue[value.value] = true;
         }
+        this.$emit('input', { ...this.value, [field]: nextFieldValue });
       },
       isCategoryActive(categoryValue) {
         // Takes the dot separated category value and checks if it is active
         return this.activeCategories.some(k => k.includes(categoryValue));
       },
-      categoryIcon(category) {
-        if (category === 'WORK') {
-          return 'skillsResource';
-        } else if (category === 'FOUNDATIONS') {
-          return 'basicSkillsResource';
-        }
-        // for those with a clearer 1:1 match with the category and icon
-        else {
-          return camelCase(category) + 'Resource';
-        }
-      },
+      categoryIcon: getCategoryIcon,
     },
     $trs: {
       categoryLabel: {

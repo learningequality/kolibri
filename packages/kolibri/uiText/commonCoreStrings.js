@@ -505,7 +505,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   findSomethingToLearn: {
     message: 'Find something to learn',
-    context: 'Suggestion located inside the the keyword search field.',
+    context: 'Suggestion located inside the keyword search field.',
   },
   startSearchButtonLabel: {
     message: 'Start search',
@@ -930,11 +930,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   uncategorized: {
     message: 'Uncategorized',
     context: 'A label to indicate that no category label has been applied to the resource.',
-  },
-
-  otherCategories: {
-    message: 'Other',
-    context: 'A label to indicate that the resource belongs to a category not listed.',
   },
 
   // Resources Needed Categories = {
@@ -1730,6 +1725,14 @@ export function coreString(key, args) {
 
   if (nonconformingKeys[metadataKey]) {
     return coreStrings.$tr(nonconformingKeys[metadataKey], args);
+  }
+
+  if (nonconformingKeys[camelCase(key)]) {
+    return coreStrings.$tr(nonconformingKeys[camelCase(key)], args);
+  }
+
+  if (coreStrings.hasKey(camelCase(key))) {
+    return coreStrings.$tr(camelCase(key), args);
   }
 
   return coreStrings.$tr(key, args);

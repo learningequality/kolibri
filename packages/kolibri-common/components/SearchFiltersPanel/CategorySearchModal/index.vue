@@ -32,7 +32,7 @@
        * @public
        */
       focusFirstEl() {
-        this.$refs.searchOptions.$el.querySelector('.filter-list-title > h2 > a').focus();
+        this.$refs.searchOptions.$el.querySelector('.top-category a').focus();
       },
     },
   };

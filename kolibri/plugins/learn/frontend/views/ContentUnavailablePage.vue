@@ -15,6 +15,7 @@
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
   import LearnAppBarPage from './LearnAppBarPage';
   import NoResourcePage from './LibraryPage/NoResourcePage.vue';
+  import { learnString } from './commonLearnStrings';
 
   export default {
     name: 'ContentUnavailablePage',
@@ -24,7 +25,7 @@
       NoResourcePage,
     },
     setup() {
-      return { pageLoading };
+      return { pageLoading, learnString };
     },
   };
 

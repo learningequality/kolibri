@@ -186,6 +186,9 @@ class Translator {
   $formatPlural(plural, options = {}) {
     return Vue.prototype.$formatPlural(plural, options);
   }
+  hasKey(messageId) {
+    return Boolean(this._defaultMessages[messageId]);
+  }
 }
 
 /**

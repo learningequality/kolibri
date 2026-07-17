@@ -4,7 +4,6 @@
     :is="windowIsLarge ? 'div' : 'SidePanelModal'"
     alignment="left"
     role="region"
-    :class="windowIsLarge ? 'side-panel' : ''"
     :aria-label="learnString('filterAndSearchLabel')"
     :ariaLabel="learnString('filterAndSearchLabel')"
     :style="
@@ -19,7 +18,13 @@
     @closePanel="$emit('close')"
     @shouldFocusFirstEl="focusFirstEl()"
   >
-    <div :class="windowIsLarge ? '' : 'drawer-panel'">
+    <div :class="windowIsLarge ? 'panel-content' : 'drawer-panel'">
+      <h2
+        v-if="windowIsLarge"
+        class="panel-heading"
+      >
+        {{ coreString('folders') }}
+      </h2>
       <div
         v-for="t in topics || []"
         :key="t.id"
@@ -28,7 +33,7 @@
           ref="folders"
           :text="t.title"
           class="side-panel-folder-link"
-          :appearanceOverrides="{ color: $themeTokens.text }"
+          :appearanceOverrides="{ color: $themeTokens.primary }"
           :to="genContentLinkKeepCurrentBackLink(t.id, false)"
         />
       </div>
@@ -107,34 +112,19 @@
     padding-bottom: 60px;
   }
 
-  .side-panel {
-    @extend %dropshadow-2dp;
-
-    position: fixed;
-    top: 60px;
-    left: 0;
-    height: 100%;
-    padding: 24px 24px 0;
-    overflow-y: scroll;
-    font-size: 14px;
+  .panel-content {
+    padding: 24px 24px 48px;
   }
 
-  /*
-* Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
-*/
-  .side-panel::after {
-    display: block;
-    padding-bottom: 70px;
-    content: '';
+  .panel-heading {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: bold;
   }
 
   .side-panel-folder-link {
     margin-top: 12px;
     margin-bottom: 12px;
-
-    /deep/ .link-text {
-      text-decoration: none !important;
-    }
   }
 
   /deep/ .prop-icon {
