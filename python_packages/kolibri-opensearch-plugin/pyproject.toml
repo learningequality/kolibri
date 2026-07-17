@@ -43,10 +43,16 @@ kolibri_opensearch_plugin = "kolibri_opensearch_plugin"
 [dependency-groups]
 dev = [
     { include-group = "lint" },
+    { include-group = "test" },
     "prek; python_version >= '3.8'",
 ]
 lint = [
     "ruff",
+]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-env",
 ]
 
 [tool.setuptools]
@@ -61,3 +67,17 @@ kolibri = { workspace = true }
 
 [tool.uv]
 default-groups = ["dev"]
+
+[tool.pytest.ini_options]
+testpaths = ["test/"]
+norecursedirs = ["dist", "tmp*", ".git", ".*"]
+django_find_project = false
+env = [
+    "DJANGO_SETTINGS_MODULE=kolibri.deployment.default.settings.test",
+    "KOLIBRI_HOME=.kolibri",
+]
+filterwarnings = [
+    "ignore:::kolibri.*:",
+    "ignore:::django.*:",
+    "ignore:::rest_framework.*:",
+]
