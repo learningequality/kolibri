@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Korean\n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: ko\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "파일"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "새 창"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "Close Window"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "Kolibri 홈 폴더 열기"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "편집"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "실행 취소"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "다시 실행"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "잘라내기"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "복사"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "붙여넣기"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "모두 선택"
+
+#: src/main.py:208
+msgid "View"
+msgstr "보기"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "다시 불러오기"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "실제 크기"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "확대"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "줌 아웃"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "브라우저에서 열기"
+
+#: src/main.py:217
+msgid "History"
+msgstr "지난 기록"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "뒤로가기"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "앞으로가기"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "도움말"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "문서"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "커뮤니티 포럼"
+

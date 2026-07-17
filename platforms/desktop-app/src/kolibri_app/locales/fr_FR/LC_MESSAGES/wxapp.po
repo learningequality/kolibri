@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "Fichier"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "Nouvelle fenêtre"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "Fermer la fenêtre"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "Ouvrir le dossier accueil de Kolibri"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "Modifier"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "Annuler"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "Refaire"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "Couper"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "Copier"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "Coller"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "Selectionner tout"
+
+#: src/main.py:208
+msgid "View"
+msgstr "Afficher"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "Recharger"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "Taille actuelle"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "Zoom Avant"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "Zoom Arrière"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "Ouvrir dans le navigateur"
+
+#: src/main.py:217
+msgid "History"
+msgstr "Histoire"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "Retour"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "Faire suivre"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "Aide"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "Documentation"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "Forums de la communauté"
+

@@ -1,0 +1,24 @@
+project_id: 201933
+api_token_env: "CROWDIN_API_KEY"
+files:
+  - source: /installer/translations/locale/en/messages.po
+    translation: /installer/translations/locale/%locale%/messages.po
+  - source: /src/kolibri_app/locales/en/LC_MESSAGES/wxapp.po
+    translation: /src/kolibri_app/locales/%locale_with_underscore%/LC_MESSAGES/wxapp.po
+languages_mapping:
+  locale:
+    "bg-BG": "bg-bg"
+    "bn-BD": "bn-bd"
+    "es-ES": "es-es"
+    "ff-CM": "ff-cm"
+    "fr-FR": "fr-fr"
+    "gu-IN": "gu-in"
+    "hi-IN": "hi-in"
+    "pa-IN": "pa"
+    "pt-BR": "pt-br"
+    "pt-MZ": "pt-mz"
+    "sw-TZ": "sw-tz"
+    "ur-PK": "ur-pk"
+    "zh-CN": "zh-hans"
+  locale_with_underscore:
+    "zh-CN": "zh_Hans"

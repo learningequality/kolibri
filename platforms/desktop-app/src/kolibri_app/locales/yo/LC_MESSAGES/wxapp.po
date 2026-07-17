@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-17 04:35\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Yoruba\n"
+"Language: yo_NG\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: yo\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "Fáìlì"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "Ìlujá túntún"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "Pá ìlujá dé"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "Ṣí fáìlì Kolibri Home"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "Ṣàtúnṣe"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "Dàa padà"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "Tun ṣe"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "Gé"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "Dàákọ"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "Lẹ"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "Yán gbogbo ẹ"
+
+#: src/main.py:208
+msgid "View"
+msgstr "Wo"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "Tun ki"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "Dede iwọn"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "Fàá si inu"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "Fàá si ita"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "Ṣíi ninu browser"
+
+#: src/main.py:217
+msgid "History"
+msgstr "Ìtàn"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "Padà"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "Wáju"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "Ìrànlọ́wọ́"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "Kikọ sí inu iwe"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "Awujọ apero"
+
