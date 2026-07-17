@@ -1,63 +1,92 @@
-[build-system]
-requires = ["setuptools>=64", "setuptools-scm>=8"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "kolibri-app"
-dynamic = ["version"]
-description = "wxPython app for the Kolibri Learning Platform."
-authors = [{name = "Learning Equality", email = "dev@learningequality.org"}]
-license = {text = "MIT"}
-requires-python = ">=3.10"
-dependencies = [
-    "wxPython==4.2.2",
-    "cryptography==45.0.7",
-    "cffi==1.14.4",
-    "pywin32==311; sys_platform == 'win32'",
+# Static metadata version only — never published (the member isn't built,
+# package = false). The *app* version shipped in the .dmg/.exe is the bundled
+# Kolibri version, written to _version.py at build time (Phase 3), unrelated to
+# this field. Required because we drop the source's `dynamic = ["version"]` and
+# PEP 621 needs exactly one of `version`/`dynamic`. Siblings carry one too
+# (debian-server 0.0.0, android 0.1.0).
+version = "0.0.0"
+description = "wxPython app for the Kolibri Learning Platform"
+# Floored to root Kolibri's range so a workspace-wide `uv sync --python <v>`
+# never narrows the shared lock; the real build/test Python (3.10) is pinned in
+# CI, not here. Matches platforms/debian-server.
+requires-python = ">=3.6, <3.15"
+# Empty on purpose. Unlike debian-server (which depends on workspace `kolibri`),
+# the app bundles a *passed-in* Kolibri whl (unpacked into kolibrisrc/ by
+# `make install-whl`) — it must not pull workspace kolibri into its build env.
+# The source's runtime deps (wxPython, cryptography, cffi, pywin32) move into the
+# `build` extra below so a plain `uv sync --all-packages` on Linux stays light.
+dependencies = []
+
+[project.optional-dependencies]
+# Everything PyInstaller must import to bundle the app, installed in CI via
+# `uv sync --package kolibri-app --extra build`. Kept out of the default
+# `dependencies` so a plain dev `uv sync --all-packages` on Linux stays light
+# and these heavy platform wheels don't reach non-build environments.
+#
+# Every entry carries `python_version >= '3.10'`: the app is built and run only
+# on Python 3.10 (pinned in CI), but the workspace floor is 3.7 (root Kolibri),
+# and pinned build wheels like `dmgbuild==1.6.7` require >=3.10 — without the
+# marker the universal resolver has no solution for the 3.7–3.9 splits and
+# `uv lock` fails. Mirrors platforms/android, whose build extra gates on
+# `python_version >= '3.8'` for the same reason. (Flag for PR: this is the
+# scope-noted heavy-dep resolution constraint.)
+build = [
+    "wxPython==4.2.2; python_version >= '3.10'",
+    "cryptography==45.0.7; python_version >= '3.10'",
+    # Source pinned cffi==1.14.4 exactly, but that release predates Python 3.10
+    # (no cp310 wheel), and pinning it here re-resolved the workspace-shared
+    # cryptography→cffi chain (kolibri-oidc-provider-plugin uses the same
+    # cryptography 45.0.7) down to 1.14.4, forcing a from-source build that fails
+    # and breaking `uv sync --all-packages`. cffi is a pure transitive dep of
+    # cryptography (which requires cffi>=1.14) — not imported by app code, only
+    # bundled via the `_cffi_backend` PyInstaller hiddenimport — so we drop the
+    # explicit pin entirely and let cryptography pull the same py3.10 cffi the
+    # rest of the workspace already resolves. (Flag for PR.)
+    "pywin32==311; sys_platform == 'win32' and python_version >= '3.10'",
+    "pyinstaller==6.20.0; python_version >= '3.10'",
+    "dmgbuild==1.6.7; sys_platform == 'darwin' and python_version >= '3.10'",
+    "wheel; python_version >= '3.10'",
+    "pkginfo; python_version >= '3.10'",
+    "attrdict==2.0.1; python_version >= '3.10'",
+    "polib==1.2.0; python_version >= '3.10'",
+    # PyInstaller's pkg_resources hooks need setuptools at bundle time; the
+    # source build group pinned <71 deliberately (setuptools 71 broke
+    # pkg_resources). setuptools-scm is dropped (Phase 3 replaces it), but this
+    # pin must stay unless a build proves it unnecessary.
+    "setuptools>=64,<71; python_version >= '3.10'",
 ]
 
 [dependency-groups]
-build = [
-    "wheel",
-    "pkginfo",
-    "pyinstaller==6.20.0",
-    "dmgbuild==1.6.7; sys_platform == 'darwin'",
-    "attrdict==2.0.1",
-    "polib==1.2.0",
-    "setuptools-scm>=8",
-    "setuptools>=64,<71",
-]
-dev = ["prek"]
-
-[tool.setuptools]
-zip-safe = true
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools_scm]
-version_file = "src/kolibri_app/_version.py"
-fallback_version = "0.0.0.dev0"
+test = ["pytest"]
+dev = ["prek; python_version >= '3.8'"]
 
 [tool.uv]
-exclude-newer = "7 days"
+# Not a wheel — the deliverables are a .dmg and a .exe, so there is no
+# build-system and uv manages only this member's deps in the shared lock/venv.
+package = false
+
+[tool.pytest.ini_options]
+# kolibri_app lives under src/ and the member isn't installed (package = false);
+# tests/conftest.py puts src/ on sys.path before collection (matching
+# platforms/debian-server), so no pytest-pythonpath plugin dependency is needed.
+testpaths = ["tests"]
 
 [tool.ruff]
-line-length = 88
-src = ["src"]
+# Inherit root ruff (select, isort first-party list, force-single-line); only
+# override target-version — the app targets 3.10, root stays py37. Matches
+# platforms/debian-server.
+extend = "../../pyproject.toml"
 target-version = "py310"
-exclude = ["kolibrisrc/"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "C90"]
-ignore = ["E203", "E721", "E741"]
-
-[tool.ruff.lint.isort]
-force-single-line = true
-
-[tool.ruff.lint.pycodestyle]
-max-line-length = 160
-
-[tool.ruff.lint.mccabe]
-max-complexity = 10
+# Root ruff selects T20 (flake8-print); the source repo's ruff did not. The app
+# ships CLI/build tooling that writes to stdout by design — the installer
+# translation scripts (installer/translations/*.py), the WebView2 IID extractor
+# (scripts/extract_webview2_iids.py), the PyInstaller hook (hooks/hook-kolibri.py),
+# plus a diagnostic print in src/kolibri_app/windows_utils.py. Rewriting these to
+# logging is out of scope for a migration, so drop T20 for this member (additive
+# to the inherited ignore list) rather than fail the pre-commit gate on ~22
+# intentional print() calls. `extend-ignore` keeps root's E203/E721/E741 ignores.
+extend-ignore = ["T20"]
