@@ -36,12 +36,14 @@ import winerror
 import wx
 
 from kolibri_app.constants import APP_NAME
+from kolibri_app.constants import APP_USER_MODEL_ID
 from kolibri_app.constants import SERVICE_NAME
 from kolibri_app.constants import TRAY_ICON_ICO
 from kolibri_app.i18n import _
 from kolibri_app.logger import logging
 from kolibri_app.windows_registry import is_ui_startup_enabled
 from kolibri_app.windows_registry import is_webview2_installed
+from kolibri_app.windows_registry import register_app_user_model_id
 from kolibri_app.windows_registry import set_ui_startup_enabled
 
 DEFAULT_NOTIFICATION_TIMEOUT = 5
@@ -161,6 +163,15 @@ class KolibriTaskBarIcon:
         self._tray_hicon = None
         self._balloon_hicon = None
 
+        # Give the process an explicit, registered AppUserModelID before the
+        # tray icon exists, so notification toasts are attributed to "Kolibri"
+        # with the icon rendered from the .ico file. The shell's fallback — an
+        # auto-generated identity with an icon extracted from the tray HICON —
+        # titles toasts "KolibriApp.exe" and can render the cached icon with
+        # swapped colours (issue #184).
+        self._icon_path = self._resolve_icon_path()
+        self._set_app_identity()
+
         # Hidden window that owns the tray icon and receives its callback
         # messages. Never shown; FRAME_NO_TASKBAR keeps it off the taskbar.
         self.frame = wx.Frame(None, title=f"{APP_NAME}_Tray", style=wx.FRAME_NO_TASKBAR)
@@ -175,6 +186,28 @@ class KolibriTaskBarIcon:
         self._load_icons()
         self._add_icon()
 
+    def _resolve_icon_path(self):
+        """Return the absolute path of the app icon, or None if unavailable."""
+        try:
+            return str((files("kolibri_app") / TRAY_ICON_ICO).resolve())
+        except OSError as e:
+            logging.error(f"Error resolving tray icon path: {e}")
+            return None
+
+    def _set_app_identity(self):
+        """Register and adopt the explicit AppUserModelID for this process."""
+        if not self._icon_path:
+            return
+        if not register_app_user_model_id(self._icon_path):
+            return
+        result = ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            APP_USER_MODEL_ID
+        )
+        if result != 0:
+            logging.error(
+                f"SetCurrentProcessExplicitAppUserModelID failed with HRESULT {result:#x}"
+            )
+
     def _load_icon(self, path, size):
         """Load the app icon from `path` at the requested pixel size."""
         return win32gui.LoadImage(
@@ -183,11 +216,12 @@ class KolibriTaskBarIcon:
 
     def _load_icons(self):
         """Load the small tray icon and the larger balloon icon."""
+        if not self._icon_path:
+            return
         try:
-            icon_path = str((files("kolibri_app") / TRAY_ICON_ICO).resolve())
             small = win32api.GetSystemMetrics(win32con.SM_CXSMICON)
-            self._tray_hicon = self._load_icon(icon_path, small)
-            self._balloon_hicon = self._load_icon(icon_path, BALLOON_ICON_SIZE)
+            self._tray_hicon = self._load_icon(self._icon_path, small)
+            self._balloon_hicon = self._load_icon(self._icon_path, BALLOON_ICON_SIZE)
         except (OSError, pywintypes.error) as e:
             logging.error(f"Error loading tray icons: {e}")
 

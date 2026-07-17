@@ -11,10 +11,14 @@ import sys
 import winreg
 
 from kolibri_app.constants import APP_NAME
+from kolibri_app.constants import APP_USER_MODEL_ID
 from kolibri_app.constants import WEBVIEW2_RUNTIME_GUID
 
 # Path for current user's startup programs
 REG_KEY_STARTUP_CURRENT_USER = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Per-user registration of the app's AppUserModelID for notifications
+REG_KEY_APP_USER_MODEL_ID = rf"Software\Classes\AppUserModelId\{APP_USER_MODEL_ID}"
 
 # Path for system-wide startup programs
 REG_KEY_STARTUP_ALL_USERS = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
@@ -45,6 +49,25 @@ def is_webview2_installed():
         except (FileNotFoundError, OSError):
             continue
     return False
+
+
+def register_app_user_model_id(icon_path):
+    """Register the app's AppUserModelID with a display name and icon file.
+
+    Notification toasts attributed to this AUMID show DisplayName and render
+    IconUri straight from the file, instead of the shell's auto-generated
+    identity ("KolibriApp.exe" plus a cached tray-icon bitmap).
+    """
+    try:
+        with winreg.CreateKey(
+            winreg.HKEY_CURRENT_USER, REG_KEY_APP_USER_MODEL_ID
+        ) as key:
+            winreg.SetValueEx(key, "DisplayName", 0, winreg.REG_SZ, APP_NAME)
+            winreg.SetValueEx(key, "IconUri", 0, winreg.REG_SZ, icon_path)
+        return True
+    except OSError as e:
+        logging.error(f"Failed to register AppUserModelId: {e}")
+        return False
 
 
 def is_ui_startup_enabled():
