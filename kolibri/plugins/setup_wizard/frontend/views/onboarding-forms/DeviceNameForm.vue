@@ -15,6 +15,7 @@
       :invalidText="invalidText"
       @blur="shouldValidate = true"
     />
+    <DeviceUrlPreview :deviceName="value" />
   </OnboardingStepBase>
 
 </template>
@@ -23,11 +24,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import DeviceUrlPreview from 'kolibri-common/components/DeviceUrlPreview';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
     name: 'DeviceNameForm',
     components: {
+      DeviceUrlPreview,
       OnboardingStepBase,
     },
     mixins: [commonCoreStrings],

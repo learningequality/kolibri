@@ -21,6 +21,7 @@
       :maxlength="50"
       @blur="nameBlurred = true"
     />
+    <DeviceUrlPreview :deviceName="name" />
   </KModal>
 
 </template>
@@ -29,9 +30,13 @@
 <script>
 
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import DeviceUrlPreview from 'kolibri-common/components/DeviceUrlPreview';
 
   export default {
     name: 'DeviceNameModal',
+    components: {
+      DeviceUrlPreview,
+    },
     mixins: [commonCoreStrings],
     props: {
       deviceName: {
