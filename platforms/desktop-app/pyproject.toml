@@ -80,17 +80,6 @@ testpaths = ["tests"]
 extend = "../../pyproject.toml"
 target-version = "py310"
 
-[tool.ruff.lint]
-# Root ruff selects T20 (flake8-print); the source repo's ruff did not. The app
-# ships CLI/build tooling that writes to stdout by design — the installer
-# translation scripts (installer/translations/*.py), the WebView2 IID extractor
-# (scripts/extract_webview2_iids.py), the PyInstaller hook (hooks/hook-kolibri.py),
-# plus a diagnostic print in src/kolibri_app/windows_utils.py. Rewriting these to
-# logging is out of scope for a migration, so drop T20 for this member (additive
-# to the inherited ignore list) rather than fail the pre-commit gate on ~22
-# intentional print() calls. `extend-ignore` keeps root's E203/E721/E741 ignores.
-extend-ignore = ["T20"]
-
 [tool.ruff.lint.per-file-ignores]
 # django_app_settings.py re-exports Kolibri's base Django settings via a star
 # import so PyInstaller bundles the full settings namespace; the wildcard is
@@ -98,3 +87,14 @@ extend-ignore = ["T20"]
 # as a per-file ignore rather than an inline suppression, matching
 # platforms/android.
 "src/kolibri_app/django_app_settings.py" = ["F403", "F405"]
+# Root ruff selects T20 (flake8-print), which the source repo's ruff did not.
+# These build/CLI tools write to stdout by design: the installer translation
+# scripts, the WebView2 IID extractor, the PyInstaller hook, and a diagnostic
+# print in windows_utils. Rewriting them to logging is out of scope for a
+# migration, so scope the T20 exemption to just these paths rather than
+# blanket-disabling flake8-print for the whole member (which would blind the
+# linter to accidental prints in the wx runtime source).
+"installer/translations/*.py" = ["T20"]
+"scripts/extract_webview2_iids.py" = ["T20"]
+"hooks/hook-kolibri.py" = ["T20"]
+"src/kolibri_app/windows_utils.py" = ["T20"]
