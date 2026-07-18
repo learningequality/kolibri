@@ -1,28 +1,33 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useEventListener, useResizeObserver } from '@vueuse/core';
 
 /**
- * Finds the outermost scrollable ancestor of the given element.
+ * Finds a scrollable ancestor of the given element.
  *
- * Walks up the DOM tree and returns the *last* ancestor with overflow-y
- * auto/scroll before reaching the document element. We want the outermost
- * rather than the nearest because the content is often wrapped in inner
- * scrollable cards (e.g. KPageContainer's overflow-y: auto) that scroll
- * within* the real layout viewport; it's that outer, viewport-fixed region
- * we want to position against. Falls back to the document element if there is
- * no scrollable ancestor.
+ * Walks up the DOM tree looking for ancestors with overflow-y auto/scroll,
+ * stopping at the document element. The `strategy` picks which match to
+ * return:
+ * - `'nearest'` — the first scrollable ancestor (default). Correct when the
+ *   element sits directly inside the region you want to position against.
+ * - `'outermost'` — the last scrollable ancestor before the document element.
+ *   Correct when the content is wrapped in inner scrollable cards (e.g.
+ *   KPageContainer's overflow-y: auto) that scroll *within* the real layout
+ *   viewport; it's that outer, viewport-fixed region we want.
  *
- * NB: this diverges from the media_player copy of this composable, which
- * returns the nearest scrollable ancestor — the Perseus content has an
- * intermediate scrollable card that the media player layout does not.
+ * Falls back to the document element if there is no scrollable ancestor.
  * @param {HTMLElement} el - Start point to search upward from
- * @returns {HTMLElement} Outermost scrollable ancestor, or the document element
+ * @param {'nearest'|'outermost'} strategy - Which scrollable ancestor to pick
+ * @returns {HTMLElement} Matching scrollable ancestor, or the document element
  */
-function findScrollableAncestor(el) {
+function findScrollableAncestor(el, strategy) {
   let current = el.parentElement;
   let outermost = null;
   while (current && current !== document.documentElement) {
     const overflowY = getComputedStyle(current).overflowY;
     if (overflowY === 'auto' || overflowY === 'scroll') {
+      if (strategy === 'nearest') {
+        return current;
+      }
       outermost = current;
     }
     current = current.parentElement;
@@ -31,10 +36,11 @@ function findScrollableAncestor(el) {
 }
 
 /**
- * Composable that detects the outermost scrollable ancestor of an element
- * and tracks its viewport position. Useful for positioning fixed elements
- * (like the numeric keypad) relative to a scroll container without coupling
- * to any specific layout context.
+ * Composable that detects a scrollable ancestor of an element and tracks its
+ * viewport position. Useful for positioning fixed elements (like the numeric
+ * keypad or the audio sticky player) relative to a scroll container without
+ * coupling to any specific layout context. Pass `strategy` to pick the nearest
+ * (default) or outermost scrollable ancestor — see findScrollableAncestor.
  *
  * The container is (re)detected and its rect recalculated when:
  * - The component mounts
@@ -47,49 +53,32 @@ function findScrollableAncestor(el) {
  * @typedef {object} ContainerRect
  * @typedef {object} ScrollContainerApi
  * @param {import('vue').Ref<HTMLElement>} elementRef - Ref to the DOM element to start from
+ * @param {object} [options] - Optional configuration
+ * @param {'nearest'|'outermost'} [options.strategy] - Which scrollable ancestor
+ * to track (default `'nearest'`)
  * @property {number} top Distance from viewport top to the container's visible top.
  * @property {number} bottom Distance from viewport top to the container's visible bottom.
  * @property {number} left Distance from viewport left to the container's left edge.
  * @property {number} width Container width in pixels.
  * @property {import('vue').Ref<ContainerRect>} containerRect Reactive rect of the
- * outermost scrollable ancestor, clamped to the viewport.
+ * detected scrollable ancestor, clamped to the viewport.
  * @property {() => void} updateRect Force a re-detection and recalculation of
  * containerRect (useful when layout changes outside of resize/ResizeObserver).
  * @returns {ScrollContainerApi} Reactive container rect and an updateRect trigger
  */
-export default function useScrollContainer(elementRef) {
+export default function useScrollContainer(elementRef, { strategy = 'nearest' } = {}) {
   const containerRect = ref({ top: 0, bottom: 0, left: 0, width: 0 });
 
-  let scrollContainer = null;
-  let resizeObserver = null;
-
-  function observe(container) {
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-      resizeObserver = null;
-    }
-    if (
-      typeof ResizeObserver !== 'undefined' &&
-      container &&
-      container !== document.documentElement
-    ) {
-      resizeObserver = new ResizeObserver(updateRect);
-      resizeObserver.observe(container);
-    }
-  }
+  const scrollContainer = ref(null);
 
   function updateRect() {
     if (!elementRef.value) {
       return;
     }
 
-    const detected = findScrollableAncestor(elementRef.value);
-    if (detected !== scrollContainer) {
-      scrollContainer = detected;
-      observe(scrollContainer);
-    }
+    scrollContainer.value = findScrollableAncestor(elementRef.value, strategy);
 
-    if (scrollContainer === document.documentElement) {
+    if (scrollContainer.value === document.documentElement) {
       // If the scroll container is the document itself, the content viewport
       // starts at the top of the visible area
       containerRect.value = {
@@ -99,7 +88,7 @@ export default function useScrollContainer(elementRef) {
         width: window.innerWidth,
       };
     } else {
-      const rect = scrollContainer.getBoundingClientRect();
+      const rect = scrollContainer.value.getBoundingClientRect();
       containerRect.value = {
         top: Math.max(0, rect.top),
         bottom: Math.min(window.innerHeight, rect.bottom),
@@ -109,20 +98,18 @@ export default function useScrollContainer(elementRef) {
     }
   }
 
-  onMounted(() => {
-    if (!elementRef.value) {
-      return;
-    }
-    updateRect();
-    window.addEventListener('resize', updateRect);
-  });
+  onMounted(updateRect);
 
-  onUnmounted(() => {
-    window.removeEventListener('resize', updateRect);
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-    }
-  });
+  // The document element resizes with the window, so observing it via
+  // ResizeObserver is redundant — the window resize listener covers that case.
+  const observedContainer = computed(() =>
+    scrollContainer.value === document.documentElement ? null : scrollContainer.value,
+  );
+
+  // Both auto-dispose on scope unmount; useResizeObserver no-ops when the
+  // ResizeObserver API is unavailable or the target is null.
+  useEventListener(window, 'resize', updateRect);
+  useResizeObserver(observedContainer, updateRect);
 
   return { containerRect, updateRect };
 }
