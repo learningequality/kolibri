@@ -172,6 +172,12 @@ img.safe-html {
   opacity: 1;
 }
 
+.embedded-content-viewer {
+  max-width: 960px;
+  margin: 40px auto;
+  overflow: hidden;
+}
+
 math.safe-html {
   @include text-style(normal, 32px, 130%);
 

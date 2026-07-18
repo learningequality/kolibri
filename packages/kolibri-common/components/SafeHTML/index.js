@@ -162,6 +162,10 @@ export function createSafeHTML(customComponents = {}, { allowedOrigins } = {}) {
               },
               mapChildren(node.childNodes),
             );
+            // Wrap embedded ContentViewers in a layout container
+            if (component === 'ContentViewer') {
+              return h('div', { class: 'embedded-content-viewer' }, [childVNode]);
+            }
             return childVNode;
           }
 
