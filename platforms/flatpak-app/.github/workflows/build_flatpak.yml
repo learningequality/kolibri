@@ -1,0 +1,80 @@
+name: Build Flatpak
+on:
+  workflow_call:
+    inputs:
+      whl-url:
+        description: 'URL for the Kolibri whl file'
+        required: false
+        type: string
+      whl-file-name:
+        description: 'Artifact name containing the Kolibri whl file'
+        required: false
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: false
+        type: string
+    outputs:
+      bundle-file-name:
+        description: "Flatpak bundle file name"
+        value: ${{ jobs.build_flatpak.outputs.bundle-file-name }}
+  workflow_dispatch:
+    inputs:
+      whl-url:
+        description: 'URL for the Kolibri whl file'
+        required: false
+        type: string
+      whl-file-name:
+        description: 'Artifact name containing the Kolibri whl file'
+        required: false
+        type: string
+jobs:
+  build_flatpak:
+    name: Build Flatpak bundle
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      options: --privileged
+    outputs:
+      bundle-file-name: ${{ steps.bundle-name.outputs.bundle-file-name }}
+    steps:
+      - name: Validate whl reference inputs
+        if: ${{ (inputs.whl-url && inputs.whl-file-name) || (!inputs.whl-url && !inputs.whl-file-name) }}
+        run: |
+          echo "Specify exactly one of whl-url / whl-file-name."
+          exit 1
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        if: ${{ !inputs.ref }}
+      - name: Checkout repository (specific ref)
+        uses: actions/checkout@v6
+        if: ${{ inputs.ref }}
+        with:
+          repository: learningequality/kolibri-installer-gnome
+          ref: ${{ inputs.ref }}
+      - name: Prepare Kolibri module from URL
+        if: ${{ inputs.whl-url }}
+        run: ./build-aux/flatpak/prepare-kolibri-module.py --url "${{ inputs.whl-url }}"
+      - name: Download Kolibri wheel artifact
+        if: ${{ inputs.whl-file-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.whl-file-name }}
+          path: whl-artifact
+      - name: Prepare Kolibri module from artifact
+        if: ${{ inputs.whl-file-name }}
+        run: ./build-aux/flatpak/prepare-kolibri-module.py --file "whl-artifact/${{ inputs.whl-file-name }}"
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: org.learningequality.Kolibri.Devel.flatpak
+          manifest-path: build-aux/flatpak/org.learningequality.Kolibri.Devel.json
+          cache-key: kolibri-gnome-${{ github.sha }}
+      - name: Expose bundle file name
+        id: bundle-name
+        run: echo "bundle-file-name=org.learningequality.Kolibri.Devel.flatpak" >> "$GITHUB_OUTPUT"
+      - name: Upload Flatpak bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: org.learningequality.Kolibri.Devel.flatpak
+          path: org.learningequality.Kolibri.Devel.flatpak

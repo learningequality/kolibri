@@ -275,6 +275,9 @@ class PublicDBusInterface(object):
 
     def __update_cached_properties(self):
         self.__skeleton.props.app_key = self.__kolibri_service.context.app_key
+        self.__skeleton.props.app_initialize_url = (
+            self.__kolibri_service.context.app_initialize_url
+        )
         self.__skeleton.props.base_url = self.__kolibri_service.context.base_url
         self.__skeleton.props.extra_url = self.__kolibri_service.context.extra_url
         self.__skeleton.props.is_device_provisioned = (

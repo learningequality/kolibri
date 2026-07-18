@@ -40,6 +40,23 @@ It will also take advantage of having the following Kolibri plugins installed:
 If so, they will be automatically registered before Kolibri is
 initialized.
 
+### Providing the Kolibri wheel (Flatpak builds)
+
+When building the Flatpak (with `flatpak-builder` or GNOME Builder), the Kolibri
+wheel is a build input — it is **not** committed to this repository. Before
+building, generate the Kolibri module manifest by pointing the prepare script at
+a wheel:
+
+    # From a release / built wheel URL:
+    ./build-aux/flatpak/prepare-kolibri-module.py --url <URL_TO_KOLIBRI_WHL>
+
+    # …or from a local wheel file:
+    ./build-aux/flatpak/prepare-kolibri-module.py --file <PATH_TO_KOLIBRI_WHL>
+
+This writes `build-aux/flatpak/modules/python3-kolibri.json` (git-ignored). The
+Flatpak build fails until this is done. In CI this runs automatically from the
+`whl-url` / `whl-file-name` workflow input.
+
 ### Developer documentation
 
 #### Setup repository

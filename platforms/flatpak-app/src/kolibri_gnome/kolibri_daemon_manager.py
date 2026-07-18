@@ -44,6 +44,7 @@ class KolibriDaemonManager(GObject.GObject):
     has_error = GObject.Property(type=bool, default=False)
     base_url = GObject.Property(type=str, default=None)
     app_key = GObject.Property(type=str, default=None)
+    app_initialize_url = GObject.Property(type=str, default=None)
     is_device_provisioned = GObject.Property(type=bool, default=True)
 
     __gsignals__ = {
@@ -85,6 +86,7 @@ class KolibriDaemonManager(GObject.GObject):
         self.props.has_error = False
         self.props.base_url = None
         self.props.app_key = None
+        self.props.app_initialize_url = None
         self.props.is_device_provisioned = True
 
     def init(self):
@@ -277,6 +279,9 @@ class KolibriDaemonManager(GObject.GObject):
     ):
         if self.props.app_key != dbus_proxy.props.app_key:
             self.props.app_key = dbus_proxy.props.app_key
+
+        if self.props.app_initialize_url != dbus_proxy.props.app_initialize_url:
+            self.props.app_initialize_url = dbus_proxy.props.app_initialize_url
 
         if self.props.base_url != dbus_proxy.props.base_url:
             self.props.base_url = dbus_proxy.props.base_url

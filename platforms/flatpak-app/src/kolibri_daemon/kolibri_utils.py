@@ -8,15 +8,17 @@ from .content_extensions_manager import ContentExtensionsManager
 
 logger = logging.getLogger(__name__)
 
-# These Kolibri plugins must be enabled for the application to function:
+# These Kolibri plugins must be enabled for the application to function.
+# "kolibri_app" is this project's bundled plugin (src/kolibri_app/kolibri_plugin.py),
+# which registers GetOSUserHook + CheckIsMeteredHook. It replaces the
+# kolibri.plugins.app interface, which was removed in Kolibri 0.19.
 REQUIRED_PLUGINS = [
-    "kolibri.plugins.app",
+    "kolibri_app",
 ]
 
 # These Kolibri plugins will be automatically enabled if they are available:
 OPTIONAL_PLUGINS = [
     "kolibri_app_desktop_xdg_plugin",
-    "kolibri_desktop_auth_plugin",
     "kolibri_dynamic_collections_plugin",
     "kolibri_zim_plugin",
 ]
