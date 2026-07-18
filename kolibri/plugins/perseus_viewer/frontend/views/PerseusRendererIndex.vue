@@ -44,6 +44,7 @@
   import ZipFile from 'kolibri-zip';
   import logger from 'kolibri-logging';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
+  import { computed } from 'vue';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import urls from 'kolibri/urls';
@@ -290,6 +291,7 @@
         showCorrectAnswer,
         interactive,
         lang,
+        registerAssessmentApi,
       } = useContentViewer(context);
 
       const { keypadAPI, keypadContextValue } = useKeypad();
@@ -305,6 +307,7 @@
         showCorrectAnswer,
         interactive,
         lang,
+        registerAssessmentApi,
       };
     },
     data: () => ({
@@ -358,6 +361,15 @@
       cleanUpPerseusFile(this.perseusFileUrl);
     },
     created() {
+      // Expose the public assessment API (checkAnswer + progressive-reveal
+      // hints) to consumers via the ContentViewer wrapper. The hint counts are
+      // registered as computeds so they stay reactive to this component's state.
+      this.registerAssessmentApi({
+        checkAnswer: this.checkAnswer,
+        takeHint: this.takeHint,
+        availableHints: computed(() => this.availableHints),
+        totalHints: computed(() => this.totalHints),
+      });
       this.itemRenderer = null;
       this.root = null;
       // React key for the current item; set per new item in renderNewItem.

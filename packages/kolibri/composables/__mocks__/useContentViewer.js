@@ -44,8 +44,6 @@ const MOCK_DEFAULTS = {
   thumbnailFiles: [],
   contentDirection: 'ltr',
   contentIsRtl: false,
-  availableHints: 0,
-  totalHints: 0,
   itemData: null,
   itemId: null,
   answerState: null,
@@ -61,8 +59,7 @@ const MOCK_DEFAULTS = {
 };
 
 const MOCK_METHODS = {
-  checkAnswer: jest.fn(() => null),
-  takeHint: jest.fn(() => null),
+  registerAssessmentApi: jest.fn(),
   reportError: jest.fn(),
   reportLoadingError: jest.fn(),
 };
