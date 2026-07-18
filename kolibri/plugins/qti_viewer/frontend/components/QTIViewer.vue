@@ -2,10 +2,10 @@
 
   <div class="qti-viewer">
     <KCircularLoader v-if="loading" />
-    <AssessmentItem
-      v-else-if="resourceType === 'imsqti_item_xmlv3p0'"
-      :xmlDoc="xmlDoc"
-    />
+    <template v-else-if="resourceType === 'imsqti_item_xmlv3p0'">
+      <AssessmentItem :xmlDoc="xmlDoc" />
+      <QTIHints :hints="revealedHints" />
+    </template>
   </div>
 
 </template>
@@ -17,8 +17,10 @@
   import logger from 'kolibri-logging';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
+  import useHints from '../composables/useHints';
   import { loadQTIPackage, parseXML } from '../utils/xml';
   import AssessmentItem from './AssessmentItem.vue';
+  import QTIHints from './QTIHints.vue';
 
   const logging = logger.getLogger(__filename);
 
@@ -26,6 +28,7 @@
     name: 'QTIViewer',
     components: {
       AssessmentItem,
+      QTIHints,
     },
     inheritAttrs: false,
     setup(props, context) {
@@ -37,6 +40,7 @@
         userId,
         interactive,
         reportLoadingError,
+        registerAssessmentApi,
       } = useContentViewer(context);
       const packageLoading = ref(true);
       // Store resources by identifier
@@ -117,6 +121,26 @@
         return _checkAnswer();
       };
 
+      const {
+        totalHints,
+        availableHints,
+        revealedHints,
+        takeHint: revealNextHint,
+      } = useHints(xmlDoc);
+
+      // Mirrors PerseusRendererIndex's takeHint: reveal the next hint, then emit
+      // the answer state so the learn UI can record that a hint was used.
+      const takeHint = () => {
+        if (revealNextHint()) {
+          const result = checkAnswer();
+          context.emit('hintTaken', { answerState: result?.answerState });
+        }
+      };
+
+      // Expose the public assessment API (checkAnswer + progressive-reveal
+      // hints) to consumers via the ContentViewer wrapper.
+      registerAssessmentApi({ checkAnswer, takeHint, availableHints, totalHints });
+
       provide('handlers', {
         interaction: () => context.emit('interaction'),
         answerGiven: () => context.emit('answerGiven', checkAnswer()),
@@ -152,14 +176,15 @@
         computed(() => interactive.value),
       );
 
+      // The public assessment API (checkAnswer + progressive-reveal hints) is
+      // registered above via registerAssessmentApi and re-exposed on the
+      // ContentViewer wrapper, so it does not need to be exposed on this instance.
+      // Only template bindings are returned here.
       return {
         loading,
         xmlDoc,
         resourceType,
-        /**
-         * @public
-         */
-        checkAnswer,
+        revealedHints,
       };
     },
   };

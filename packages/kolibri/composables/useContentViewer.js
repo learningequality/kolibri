@@ -1,12 +1,9 @@
 import { computed, inject } from 'vue';
 import { get } from '@vueuse/core';
-import logger from 'kolibri-logging';
 import { ContentErrorConstants } from 'kolibri/constants';
 import { getContentLangDir, languageDirections } from 'kolibri/utils/i18n';
 import { getRenderableFiles, getDefaultFile } from '../components/internal/ContentViewer/utils';
 import { CONTENT_VIEWER_CONTEXT_KEY } from '../components/internal/ContentViewer';
-
-const logging = logger.getLogger(__filename);
 
 /**
  * @typedef {import('vue').ComputedRef} Ref
@@ -27,6 +24,9 @@ const logging = logger.getLogger(__filename);
  * @property {Ref<boolean>} contentIsRtl - True when content reads right-to-left
  * @property {Function} reportError - Emit an error to the parent ContentViewer
  * @property {Function} reportLoadingError - Emit a content-loading error
+ * @property {Function} registerAssessmentApi - Register the assessment renderer's
+ * public API (checkAnswer, takeHint, availableHints, totalHints) so the ContentViewer
+ * wrapper re-exposes it to consumers via `this.$refs.contentViewer.<member>`
  * @property {Ref} itemData - Raw assessment item payload
  * @property {Ref<string>} itemId - Identifier of the current assessment item
  * @property {Ref<object>} answerState - Saved learner responses
@@ -155,6 +155,7 @@ export default function useContentViewer(
     progress,
     embedded,
     setCustomExtractors,
+    registerAssessmentApi,
   } = injectedContext;
 
   setCustomExtractors(customExtractors);
@@ -191,25 +192,6 @@ export default function useContentViewer(
     return contentDirection.value === languageDirections.RTL;
   });
 
-  const availableHints = computed(() => {
-    return 0;
-  });
-
-  const totalHints = computed(() => {
-    return 0;
-  });
-
-  // Methods
-  const checkAnswer = () => {
-    logging.warn('This content viewer has not implemented the checkAnswer method');
-    return null;
-  };
-
-  const takeHint = () => {
-    logging.warn('This content viewer has not implemented the takeHint method');
-    return null;
-  };
-
   const reportError = error => {
     emit('error', error);
   };
@@ -233,10 +215,7 @@ export default function useContentViewer(
     thumbnailFiles,
     contentDirection,
     contentIsRtl,
-    availableHints,
-    totalHints,
-    checkAnswer,
-    takeHint,
+    registerAssessmentApi,
     reportLoadingError,
     reportError,
     itemData,

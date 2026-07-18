@@ -575,6 +575,19 @@ export default [
     ],
   },
   {
+    title: 'Kolibri Hints',
+    items: [
+      {
+        identifier: 'kolibri-hint-multi',
+        title: 'Multiple hints',
+      },
+      {
+        identifier: 'kolibri-hint-image',
+        title: 'Hint with image',
+      },
+    ],
+  },
+  {
     title: 'Portable Custom Interactions',
     items: [
       {

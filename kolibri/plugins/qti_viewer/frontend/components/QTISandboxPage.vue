@@ -70,10 +70,20 @@
       </div>
 
       <div class="qti-sandbox-preview">
-        <h2>Preview</h2>
+        <div class="qti-preview-header">
+          <h2>Preview</h2>
+          <KButton
+            v-if="totalHints > 0"
+            class="show-hint-button"
+            :disabled="availableHints === 0"
+            :text="availableHints > 0 ? `Show hint (${availableHints} left)` : 'No more hints'"
+            @click="takeHint"
+          />
+        </div>
         <div class="qti-preview-container">
           <ContentViewer
             v-if="selectedXml"
+            :ref="setViewer"
             :itemData="selectedXml"
             :interactive="interactive"
             :answerState="answerState"
@@ -172,12 +182,22 @@
         inputtedXml: '',
         structure,
         newKeyName: '',
+        // Reactive handle to the current ContentViewer instance. $refs is not
+        // reactive, so the setViewer ref callback assigns it here as the viewer
+        // (un)mounts.
+        viewer: null,
       };
     },
 
     computed: {
       itemId() {
         return this.$route.params.itemId || null;
+      },
+      availableHints() {
+        return this.viewer?.availableHints || 0;
+      },
+      totalHints() {
+        return this.viewer?.totalHints || 0;
       },
       selectedXml: {
         get() {
@@ -193,6 +213,16 @@
     },
 
     methods: {
+      // Stable ref callback so its identity does not change between renders.
+      // An inline arrow function would be re-created each render, making Vue
+      // remove (invoke with null) then re-add the ref on every update, toggling
+      // `viewer` and triggering an infinite render loop.
+      setViewer(el) {
+        this.viewer = el;
+      },
+      takeHint() {
+        this.viewer?.takeHint();
+      },
       selectItem(item) {
         if (item && items[item.identifier] && item.identifier !== this.itemId) {
           this.inputtedXml = '';
@@ -269,6 +299,17 @@
 
     h2 {
       margin: 0 0 1rem;
+    }
+  }
+
+  .qti-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
     }
   }
 

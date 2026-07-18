@@ -1,4 +1,5 @@
-import { h, ref, onErrorCaptured, provide, computed } from 'vue';
+import { h, ref, onErrorCaptured, provide, computed, unref } from 'vue';
+import logger from 'kolibri-logging';
 import heartbeat from 'kolibri/heartbeat';
 import kolibri from 'kolibri';
 import { defaultLanguage } from 'kolibri/utils/i18n';
@@ -9,6 +10,8 @@ import { getRenderableFiles, getDefaultFile, getFilePreset } from './utils';
 import ContentViewerError from './ContentViewerError';
 
 export const CONTENT_VIEWER_CONTEXT_KEY = Symbol('contentViewerContext');
+
+const logging = logger.getLogger(__filename);
 
 // Module-level counter for unique viewer IDs
 let viewerIdCounter = 0;
@@ -285,6 +288,53 @@ export default {
       _customExtractors.value = extractors;
     }
 
+    // Assessment renderers (Perseus, QTI) register their public API through
+    // registerAssessmentApi (injected into the renderer via useContentViewer).
+    // We re-expose the registered members on this wrapper so consumers keep
+    // reaching the renderer through `this.$refs.contentViewer.<member>`. The
+    // methods are held as plain values; the hint counts must be a ref or a
+    // computed so the exposed computeds below stay reactive to the renderer's
+    // state. A single flag drives the reactivity: flipping it on registration
+    // re-runs the computeds, which then subscribe to the registered ref.
+    let registeredCheckAnswer = null;
+    let registeredTakeHint = null;
+    let registeredAvailableHints = null;
+    let registeredTotalHints = null;
+    const assessmentApiRegistered = ref(false);
+
+    function registerAssessmentApi(api = {}) {
+      registeredCheckAnswer = api.checkAnswer || null;
+      registeredTakeHint = api.takeHint || null;
+      registeredAvailableHints = api.availableHints || null;
+      registeredTotalHints = api.totalHints || null;
+      assessmentApiRegistered.value = true;
+    }
+
+    const availableHints = computed(() =>
+      assessmentApiRegistered.value ? unref(registeredAvailableHints) || 0 : 0,
+    );
+    const totalHints = computed(() =>
+      assessmentApiRegistered.value ? unref(registeredTotalHints) || 0 : 0,
+    );
+
+    function checkAnswer(...args) {
+      if (registeredCheckAnswer) {
+        return registeredCheckAnswer(...args);
+      }
+      logging.warn('This content viewer has not implemented the checkAnswer method');
+      return null;
+    }
+
+    function takeHint(...args) {
+      if (registeredTakeHint) {
+        return registeredTakeHint(...args);
+      }
+      logging.warn('This content viewer has not implemented the takeHint method');
+      return null;
+    }
+
+    context.expose({ checkAnswer, takeHint, availableHints, totalHints });
+
     // Provide props context to descendant components via useContentViewer
     const contentViewerContext = {
       contentNode: computed(() => props.contentNode),
@@ -307,6 +357,7 @@ export default {
       progress: computed(() => props.progress),
       embedded: computed(() => props.embedded),
       setCustomExtractors,
+      registerAssessmentApi,
     };
 
     provide(CONTENT_VIEWER_CONTEXT_KEY, contentViewerContext);
