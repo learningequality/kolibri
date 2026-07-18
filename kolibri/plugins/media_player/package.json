@@ -19,5 +19,8 @@
     "video.js": "^7.21.7",
     "vue": "catalog:",
     "vuex": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "catalog:"
   }
 }
