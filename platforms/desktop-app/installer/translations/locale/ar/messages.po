@@ -1,0 +1,1388 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-windows-installer\n"
+"POT-Creation-Date: 2026-03-23T13:17:46.281118+05:30\n"
+"PO-Revision-Date: 2026-03-23T13:17:46.281118+05:30\n"
+"Language: ar\n"
+"Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "[Messages]SetupAppTitle"
+msgid "Setup"
+msgstr "تثبيت"
+
+msgctxt "[Messages]SetupWindowTitle"
+msgid "Setup - %1"
+msgstr "تثبيت - %1"
+
+msgctxt "[Messages]UninstallAppTitle"
+msgid "Uninstall"
+msgstr "إزالة التثبيت"
+
+msgctxt "[Messages]UninstallAppFullTitle"
+msgid "%1 Uninstall"
+msgstr "إزالة تثبيت %1"
+
+msgctxt "[Messages]InformationTitle"
+msgid "Information"
+msgstr "معلومات"
+
+msgctxt "[Messages]ConfirmTitle"
+msgid "Confirm"
+msgstr "تأكيد"
+
+msgctxt "[Messages]ErrorTitle"
+msgid "Error"
+msgstr "خطأ"
+
+msgctxt "[Messages]SetupLdrStartupMessage"
+msgid "This will install %1. Do you wish to continue?"
+msgstr "هذا المعالج سيقوم بتثبيت %1. هل تريد المتابعة?"
+
+msgctxt "[Messages]LdrCannotCreateTemp"
+msgid "Unable to create a temporary file. Setup aborted"
+msgstr "تعذر إنشاء الملفات المؤقتة, تم فشل معالج التثبيت."
+
+msgctxt "[Messages]LdrCannotExecTemp"
+msgid "Unable to execute file in the temporary directory. Setup aborted"
+msgstr "تعذر تشغيل الملفات من المجلد المؤقت. فشل معالج التثبيت."
+
+msgctxt "[Messages]HelpTextNote"
+msgid ""
+msgstr ""
+
+msgctxt "[Messages]LastErrorMessage"
+msgid "%1.%n%nError %2: %3"
+msgstr "%1.%n%n خطأ %2: %3"
+
+msgctxt "[Messages]SetupFileMissing"
+msgid ""
+"The file %1 is missing from the installation directory. Please correct the "
+"problem or obtain a new copy of the program."
+msgstr ""
+"الملف %1 مفقود من دليل التثبيت. الرجاء تصحيح المشكلة أو الحصول على نسخة "
+"جديدة من البرنامج."
+
+msgctxt "[Messages]SetupFileCorrupt"
+msgid ""
+"The setup files are corrupted. Please obtain a new copy of the program."
+msgstr "ملفات الإعداد تالفة. الرجاء الحصول على نسخة جديدة من البرنامج."
+
+msgctxt "[Messages]SetupFileCorruptOrWrongVer"
+msgid ""
+"The setup files are corrupted, or are incompatible with this version of "
+"Setup. Please correct the problem or obtain a new copy of the program."
+msgstr ""
+"ملفات الإعداد تالفة أو غير متوافقة مع هذا الإصدار من برنامج الإعداد. الرجاء "
+"تصحيح المشكلة أو الحصول على نسخة جديدة من البرنامج."
+
+msgctxt "[Messages]InvalidParameter"
+msgid "An invalid parameter was passed on the command line:%n%n%1"
+msgstr "تم تمرير أوامر غير صالحة إلى سطر الأوامر : %n%n%1"
+
+msgctxt "[Messages]SetupAlreadyRunning"
+msgid "Setup is already running."
+msgstr "برنامج الإعداد قيد التشغيل بالفعل."
+
+msgctxt "[Messages]WindowsVersionNotSupported"
+msgid ""
+"This program does not support the version of Windows your computer is "
+"running."
+msgstr "لا يدعم هذا البرنامج إصدار Windows الذي يعمل به الكمبيوتر."
+
+msgctxt "[Messages]WindowsServicePackRequired"
+msgid "This program requires %1 Service Pack %2 or later."
+msgstr "هذا البرنامج يتطلب %1 حزمة الخدمة %2 أو أعلى."
+
+msgctxt "[Messages]NotOnThisPlatform"
+msgid "This program will not run on %1."
+msgstr "لن يتم تشغيل هذا البرنامج على %1."
+
+msgctxt "[Messages]OnlyOnThisPlatform"
+msgid "This program must be run on %1."
+msgstr "يجب تشغيل هذا البرنامج على %1."
+
+msgctxt "[Messages]OnlyOnTheseArchitectures"
+msgid ""
+"This program can only be installed on versions of Windows designed for the "
+"following processor architectures:%n%n%1"
+msgstr ""
+"يمكن تثبيت هذا البرنامج فقط على إصدارات Windows المصممة لهندسة المعالج "
+"التالية : %n%n%1"
+
+msgctxt "[Messages]WinVersionTooLowError"
+msgid "This program requires %1 version %2 or later."
+msgstr "هذا البرنامج يتطلب %1 الإصدار %2 أو أعلى."
+
+msgctxt "[Messages]WinVersionTooHighError"
+msgid "This program cannot be installed on %1 version %2 or later."
+msgstr "لا يمكن تثبيت هذا البرنامج على %1 الإصدار %2 أو أعلى."
+
+msgctxt "[Messages]AdminPrivilegesRequired"
+msgid ""
+"You must be logged in as an administrator when installing this program."
+msgstr "يجب أن يتم تسجيل دخولك كمسؤول عند تثبيت هذا البرنامج."
+
+msgctxt "[Messages]PowerUserPrivilegesRequired"
+msgid ""
+"You must be logged in as an administrator or as a member of the Power Users "
+"group when installing this program."
+msgstr ""
+"يجب أن يتم تسجيل دخولك كمسؤول أو أن تكون عضو في مجموعة المستخدمين المميزين "
+"عند تثبيت هذا البرنامج."
+
+msgctxt "[Messages]SetupAppRunningError"
+msgid ""
+"Setup has detected that %1 is currently running.%n%nPlease close all "
+"instances of it now, then click OK to continue, or Cancel to exit."
+msgstr ""
+"لقد كشف معالج الإعداد أن  %1 يعمل بالفعل. %n%n يرجى إغلاق كل أجزائه الآن , "
+"ثم إضغط حسنا للمتابعة أو إلغاء الأمر للخروج."
+
+msgctxt "[Messages]UninstallAppRunningError"
+msgid ""
+"Uninstall has detected that %1 is currently running.%n%nPlease close all "
+"instances of it now, then click OK to continue, or Cancel to exit."
+msgstr ""
+"كشف معالج إلغاء التثبيت بأن %1 يعمل بالفعل.%n%n يرجى إغلاق كل أجزائه الآن , "
+"ثم إضغط حسنا للمتابعة أو إلغاء الأمر للخروج."
+
+msgctxt "[Messages]PrivilegesRequiredOverrideTitle"
+msgid "Select Setup Install Mode"
+msgstr "تحديد وضع التثبيت"
+
+msgctxt "[Messages]PrivilegesRequiredOverrideInstruction"
+msgid "Select install mode"
+msgstr "تحديد وضع التثبيت"
+
+msgctxt "[Messages]PrivilegesRequiredOverrideText1"
+msgid ""
+"%1 can be installed for all users (requires administrative privileges), or "
+"for you only."
+msgstr ""
+"يمكن ل %1 أن يُثَبَّت عند جميع المستخدمين (يتطلب إمتيازات المسؤول), أو في "
+"حسابك  فقط."
+
+msgctxt "[Messages]PrivilegesRequiredOverrideText2"
+msgid ""
+"%1 can be installed for you only, or for all users (requires administrative "
+"privileges)."
+msgstr ""
+"يمكنك تثبيت %1  في حسابك فقط ، أو عند جميع المستخدمين (يتطلب إمتيازات "
+"المسؤول)."
+
+msgctxt "[Messages]PrivilegesRequiredOverrideAllUsers"
+msgid "Install for &all users"
+msgstr "التثبيت ل&كافة المستخدمين"
+
+msgctxt "[Messages]PrivilegesRequiredOverrideAllUsersRecommended"
+msgid "Install for &all users (recommended)"
+msgstr "تثبيت ل&كافة المستخدمين (مستحسن)"
+
+msgctxt "[Messages]PrivilegesRequiredOverrideCurrentUser"
+msgid "Install for &me only"
+msgstr "تثبيت في حسابي &فقط"
+
+msgctxt "[Messages]PrivilegesRequiredOverrideCurrentUserRecommended"
+msgid "Install for &me only (recommended)"
+msgstr "تثبيت في حسابي &فقط (مستحسن)"
+
+msgctxt "[Messages]ErrorCreatingDir"
+msgid "Setup was unable to create the directory \"%1\""
+msgstr "تعذر على برنامج الإعداد إنشاء المجلد \"%1\""
+
+msgctxt "[Messages]ErrorTooManyFilesInDir"
+msgid ""
+"Unable to create a file in the directory \"%1\" because it contains too many"
+" files"
+msgstr "تعذر إنشاء ملف في المجلد  \"%1\" لأنه يحتوي على ملفات كثيرة جداً"
+
+msgctxt "[Messages]ExitSetupTitle"
+msgid "Exit Setup"
+msgstr "الخروج من معالج التثبيت"
+
+msgctxt "[Messages]ExitSetupMessage"
+msgid ""
+"Setup is not complete. If you exit now, the program will not be "
+"installed.%n%nYou may run Setup again at another time to complete the "
+"installation.%n%nExit Setup?"
+msgstr ""
+"لم يكتمل الإعداد. إذا قمت بالخروج الآن، لن يتم تثبيت البرنامج.%n%n يمكنك "
+"تشغيل برنامج الإعداد مرة أخرى في وقت آخر لإكمال التثبيت.%n%n إنهاء الإعداد؟"
+
+msgctxt "[Messages]AboutSetupMenuItem"
+msgid "&About Setup..."
+msgstr "&حول الإعداد..."
+
+msgctxt "[Messages]AboutSetupTitle"
+msgid "About Setup"
+msgstr "حول برنامج الإعداد"
+
+msgctxt "[Messages]AboutSetupMessage"
+msgid "%1 version %2%n%3%n%n%1 home page:%n%4"
+msgstr "%1 الإصدار %2%n%3%n%n%1 صفحة الأنترنت:%n%4"
+
+msgctxt "[Messages]AboutSetupNote"
+msgid ""
+msgstr ""
+
+msgctxt "[Messages]TranslatorNote"
+msgid ""
+msgstr "تم ترجمة المعالج إلى اللغة العربية بواسطة ناصر بعزيز"
+
+msgctxt "[Messages]ButtonBack"
+msgid "< &Back"
+msgstr "< ال&سابق"
+
+msgctxt "[Messages]ButtonNext"
+msgid "&Next >"
+msgstr "ال&تالي >"
+
+msgctxt "[Messages]ButtonInstall"
+msgid "&Install"
+msgstr "&تثبيت"
+
+msgctxt "[Messages]ButtonOK"
+msgid "OK"
+msgstr "&حسنا"
+
+msgctxt "[Messages]ButtonCancel"
+msgid "Cancel"
+msgstr "إل&غاء الأمر"
+
+msgctxt "[Messages]ButtonYes"
+msgid "&Yes"
+msgstr "&نعم"
+
+msgctxt "[Messages]ButtonYesToAll"
+msgid "Yes to &All"
+msgstr "نعم لل&كل"
+
+msgctxt "[Messages]ButtonNo"
+msgid "&No"
+msgstr "&لا"
+
+msgctxt "[Messages]ButtonNoToAll"
+msgid "N&o to All"
+msgstr "لا &للكل"
+
+msgctxt "[Messages]ButtonFinish"
+msgid "&Finish"
+msgstr "إ&نهاء"
+
+msgctxt "[Messages]ButtonBrowse"
+msgid "&Browse..."
+msgstr "اس&تعراض..."
+
+msgctxt "[Messages]ButtonWizardBrowse"
+msgid "B&rowse..."
+msgstr "اس&تعراض..."
+
+msgctxt "[Messages]ButtonNewFolder"
+msgid "&Make New Folder"
+msgstr "إنشاء مجلد &جديد"
+
+msgctxt "[Messages]SelectLanguageTitle"
+msgid "Select Setup Language"
+msgstr "إختر لغة معالج التثبيت"
+
+msgctxt "[Messages]SelectLanguageLabel"
+msgid "Select the language to use during the installation."
+msgstr "حدد اللغة التي يجب استخدامها أثناء التثبيت."
+
+msgctxt "[Messages]ClickNext"
+msgid "Click Next to continue, or Cancel to exit Setup."
+msgstr "اضغط على  التالي للمتابعة، أو إلغاء الأمر لإنهاء عملية التثبيت."
+
+msgctxt "[Messages]BeveledLabel"
+msgid ""
+msgstr ""
+
+msgctxt "[Messages]BrowseDialogTitle"
+msgid "Browse For Folder"
+msgstr "تصفح لاختيار مجلد"
+
+msgctxt "[Messages]BrowseDialogLabel"
+msgid "Select a folder in the list below, then click OK."
+msgstr "حدد مجلدًا في القائمة أدناه، ثم انقر فوق حسنا."
+
+msgctxt "[Messages]NewFolderName"
+msgid "New Folder"
+msgstr "مجلد جديد"
+
+msgctxt "[Messages]WelcomeLabel1"
+msgid "Welcome to the [name] Setup Wizard"
+msgstr "مرحبا بكم في معالج تثبيت [name]"
+
+msgctxt "[Messages]WelcomeLabel2"
+msgid ""
+"This will install [name/ver] on your computer.%n%nIt is recommended that you"
+" close all other applications before continuing."
+msgstr ""
+"هذا المعالج سيقوم بتثبيت  [name/ver] على جهازك. %n%nمن المستحسن أن تقوم "
+"بإغلاق كافة التطبيقات الأخرى قبل المتابعة."
+
+msgctxt "[Messages]WizardPassword"
+msgid "Password"
+msgstr "كلمة المرور"
+
+msgctxt "[Messages]PasswordLabel1"
+msgid "This installation is password protected."
+msgstr "هذا التثبيت محمي بكلمة مرور."
+
+msgctxt "[Messages]PasswordLabel3"
+msgid ""
+"Please provide the password, then click Next to continue. Passwords are "
+"case-sensitive."
+msgstr ""
+"الرجاء تقديم كلمة المرور، ثم اضغط على التالي للمتابعة. كلمات المرور حساسة "
+"لحالة الأحرف."
+
+msgctxt "[Messages]PasswordEditLabel"
+msgid "&Password:"
+msgstr "&كلمة المرور:"
+
+msgctxt "[Messages]IncorrectPassword"
+msgid "The password you entered is not correct. Please try again."
+msgstr "كلمة المرور التي أدخلتها غير صحيحة. يرجى إعادة المحاولة."
+
+msgctxt "[Messages]WizardLicense"
+msgid "License Agreement"
+msgstr "اتفاقية الترخيص"
+
+msgctxt "[Messages]LicenseLabel"
+msgid "Please read the following important information before continuing."
+msgstr "يرجى قراءة المعلومات الهامة التالية قبل المتابعة."
+
+msgctxt "[Messages]LicenseLabel3"
+msgid ""
+"Please read the following License Agreement. You must accept the terms of "
+"this agreement before continuing with the installation."
+msgstr ""
+"الرجاء قراءة اتفاقية الترخيص التالية. يجب قبول شروط هذه الاتفاقية قبل متابعة"
+" التثبيت."
+
+msgctxt "[Messages]LicenseAccepted"
+msgid "I &accept the agreement"
+msgstr "قرأت وأ&وافق على كل ما ذكر في هذه الإتفاقية"
+
+msgctxt "[Messages]LicenseNotAccepted"
+msgid "I &do not accept the agreement"
+msgstr "أنا &لا أوافق على هذه الإتفاقية"
+
+msgctxt "[Messages]WizardInfoBefore"
+msgid "Information"
+msgstr "معلومات"
+
+msgctxt "[Messages]InfoBeforeLabel"
+msgid "Please read the following important information before continuing."
+msgstr "يرجى قراءة المعلومات الهامة التالية قبل المتابعة."
+
+msgctxt "[Messages]InfoBeforeClickLabel"
+msgid "When you are ready to continue with Setup, click Next."
+msgstr "عندما تكون جاهزًا للاستمرار في عملية التثبيت اضغط على  التالي."
+
+msgctxt "[Messages]WizardInfoAfter"
+msgid "Information"
+msgstr "معلومات"
+
+msgctxt "[Messages]InfoAfterLabel"
+msgid "Please read the following important information before continuing."
+msgstr "يرجى قراءة المعلومات الهامة التالية قبل المتابعة."
+
+msgctxt "[Messages]InfoAfterClickLabel"
+msgid "When you are ready to continue with Setup, click Next."
+msgstr "عندما تكون جاهزًا للاستمرار في عملية  التثبيت اضغط على  التالي."
+
+msgctxt "[Messages]WizardUserInfo"
+msgid "User Information"
+msgstr "معلومات المستخدم"
+
+msgctxt "[Messages]UserInfoDesc"
+msgid "Please enter your information."
+msgstr "يرجى إدخال معلوماتك."
+
+msgctxt "[Messages]UserInfoName"
+msgid "&User Name:"
+msgstr "إسم ال&مستخدم :"
+
+msgctxt "[Messages]UserInfoOrg"
+msgid "&Organization:"
+msgstr "المن&ظمة:"
+
+msgctxt "[Messages]UserInfoSerial"
+msgid "&Serial Number:"
+msgstr "&الرقم التسلسلي:"
+
+msgctxt "[Messages]UserInfoNameRequired"
+msgid "You must enter a name."
+msgstr "يجب إدخال إسم."
+
+msgctxt "[Messages]WizardSelectDir"
+msgid "Select Destination Location"
+msgstr "تحديد موقع الوِجْهة"
+
+msgctxt "[Messages]SelectDirDesc"
+msgid "Where should [name] be installed?"
+msgstr "أين يجب تثبيت [name]؟"
+
+msgctxt "[Messages]SelectDirLabel3"
+msgid "Setup will install [name] into the following folder."
+msgstr "سيقوم معالج التثبيت بتثبيت  [name] في المجلد التالي."
+
+msgctxt "[Messages]SelectDirBrowseLabel"
+msgid ""
+"To continue, click Next. If you would like to select a different folder, "
+"click Browse."
+msgstr ""
+"للمتابعة، انقر فوق التالي. إذا كنت ترغب في تحديد مجلد آخر، انقر فوق استعراض."
+
+msgctxt "[Messages]DiskSpaceGBLabel"
+msgid "At least [gb] GB of free disk space is required."
+msgstr "تحتاج على الأقل [gb] GB من المساحة لتثبيت البرنامج."
+
+msgctxt "[Messages]DiskSpaceMBLabel"
+msgid "At least [mb] MB of free disk space is required."
+msgstr "تحتاج على الأقل [mb] MB من المساحة لتثبيت البرنامج."
+
+msgctxt "[Messages]CannotInstallToNetworkDrive"
+msgid "Setup cannot install to a network drive."
+msgstr "يتعذر على برنامج الإعداد التثبيت على محرك أقراص من خلال الشبكة."
+
+msgctxt "[Messages]CannotInstallToUNCPath"
+msgid "Setup cannot install to a UNC path."
+msgstr "يتعذر على برنامج الإعداد تثبيت مسار UNC."
+
+msgctxt "[Messages]InvalidPath"
+msgid ""
+"You must enter a full path with drive letter; for example:%n%nC:\\APP%n%nor "
+"a UNC path in the form:%n%n\\\\server\\share"
+msgstr ""
+"يجب إدخال مسار كامل مع حرف محرك الأقراص; على سبيل المثال: %n%nC:\\APP%n%أو "
+"مسار UNC في النموذج:%n%n\\\\server\\share"
+
+msgctxt "[Messages]InvalidDrive"
+msgid ""
+"The drive or UNC share you selected does not exist or is not accessible. "
+"Please select another."
+msgstr ""
+"محرك الأقراص أو مشاركة UNC التي حددتها غير موجود أو غير قابل للوصول. الرجاء "
+"تحديد آخر."
+
+msgctxt "[Messages]DiskSpaceWarningTitle"
+msgid "Not Enough Disk Space"
+msgstr "مساحة القرص غير كافية"
+
+msgctxt "[Messages]DiskSpaceWarning"
+msgid ""
+"Setup requires at least %1 KB of free space to install, but the selected "
+"drive only has %2 KB available.%n%nDo you want to continue anyway?"
+msgstr ""
+"Sيتطلب الإعداد على الأقل %1 KB من المساحة الفارغة للتثبيت، ولكن محرك الأقراص"
+" المحدد فيه فقط %2 KB متوفرة.%n%nهل تريد المتابعة على أية حال؟"
+
+msgctxt "[Messages]DirNameTooLong"
+msgid "The folder name or path is too long."
+msgstr "اسم المجلد أو المسار طويل جداً."
+
+msgctxt "[Messages]InvalidDirName"
+msgid "The folder name is not valid."
+msgstr "اسم المجلد غير صالح."
+
+msgctxt "[Messages]BadDirName32"
+msgid "Folder names cannot include any of the following characters:%n%n%1"
+msgstr "لا يمكن لأسماء المجلدات تضمين أي من الأحرف التالية:%n%n%1"
+
+msgctxt "[Messages]DirExistsTitle"
+msgid "Folder Exists"
+msgstr "المجلد موجود بالفعل"
+
+msgctxt "[Messages]DirExists"
+msgid ""
+"The folder:%n%n%1%n%nalready exists. Would you like to install to that "
+"folder anyway?"
+msgstr ""
+"المجلد:%n%n%1%n%n موجود بالفعل. هل ترغب في التثبيت على هذا المجلد على أي "
+"حال؟"
+
+msgctxt "[Messages]DirDoesntExistTitle"
+msgid "Folder Does Not Exist"
+msgstr "المجلد غير موجود"
+
+msgctxt "[Messages]DirDoesntExist"
+msgid ""
+"The folder:%n%n%1%n%ndoes not exist. Would you like the folder to be "
+"created?"
+msgstr "المجلد:%n%n%1%n%nغير موجود. هل تريد إنشاء المجلد؟"
+
+msgctxt "[Messages]WizardSelectComponents"
+msgid "Select Components"
+msgstr "تحديد المكونات"
+
+msgctxt "[Messages]SelectComponentsDesc"
+msgid "Which components should be installed?"
+msgstr "ما هي المكونات التي يجب تثبيتها؟"
+
+msgctxt "[Messages]SelectComponentsLabel2"
+msgid ""
+"Select the components you want to install; clear the components you do not "
+"want to install. Click Next when you are ready to continue."
+msgstr ""
+"حدد المكونات التي تريد تثبيتها ،  وقم بتعطيل المكونات التي لا تريد تثبيتها. "
+"انقر فوق \"التالي\" عندما تكون مستعدًا للمتابعة."
+
+msgctxt "[Messages]FullInstallation"
+msgid "Full installation"
+msgstr "تثبيت كامل"
+
+msgctxt "[Messages]CompactInstallation"
+msgid "Compact installation"
+msgstr "تثبيت محدود"
+
+msgctxt "[Messages]CustomInstallation"
+msgid "Custom installation"
+msgstr "تثبيت مخصص"
+
+msgctxt "[Messages]NoUninstallWarningTitle"
+msgid "Components Exist"
+msgstr "مكونات موجودة"
+
+msgctxt "[Messages]NoUninstallWarning"
+msgid ""
+"Setup has detected that the following components are already installed on "
+"your computer:%n%n%1%n%nDeselecting these components will not uninstall "
+"them.%n%nWould you like to continue anyway?"
+msgstr ""
+"اكتشف برنامج الإعداد أن المكونات التالية مثبتة بالفعل على جهاز الكمبيوتر "
+"الخاص بك: %n%n%1%n%nلن يؤدي إلغاء تحديد هذه المكونات إلى إزالة "
+"تثبيتها.%n%nهل ترغب في الاستمرار على أي حال?"
+
+msgctxt "[Messages]ComponentSize1"
+msgid "%1 KB"
+msgstr "%1 KB"
+
+msgctxt "[Messages]ComponentSize2"
+msgid "%1 MB"
+msgstr "%1 MB"
+
+msgctxt "[Messages]ComponentsDiskSpaceGBLabel"
+msgid "Current selection requires at least [gb] GB of disk space."
+msgstr "الاختيار الحالي يتطلب على الأقل [gb] GB من مساحة القرص."
+
+msgctxt "[Messages]ComponentsDiskSpaceMBLabel"
+msgid "Current selection requires at least [mb] MB of disk space."
+msgstr "الاختيار الحالي يتطلب على الأقل [mb] MB من مساحة القرص."
+
+msgctxt "[Messages]WizardSelectTasks"
+msgid "Select Additional Tasks"
+msgstr "حدد المهام الإضافية"
+
+msgctxt "[Messages]SelectTasksDesc"
+msgid "Which additional tasks should be performed?"
+msgstr "ما المهام الإضافية التي ينبغي تنفيذها؟"
+
+msgctxt "[Messages]SelectTasksLabel2"
+msgid ""
+"Select the additional tasks you would like Setup to perform while installing"
+" [name], then click Next."
+msgstr ""
+"حدد المهام الإضافية التي ترغب في أن يقوم الإعداد بتنفيذها أثناء تثبيت "
+"[name], ثم إضغط على التالي."
+
+msgctxt "[Messages]WizardSelectProgramGroup"
+msgid "Select Start Menu Folder"
+msgstr "حدد مجلد قائمة ابدأ"
+
+msgctxt "[Messages]SelectStartMenuFolderDesc"
+msgid "Where should Setup place the program's shortcuts?"
+msgstr "أين يجب أن يضع الإعداد اختصارات البرنامج؟"
+
+msgctxt "[Messages]SelectStartMenuFolderLabel3"
+msgid ""
+"Setup will create the program's shortcuts in the following Start Menu "
+"folder."
+msgstr ""
+"سيقوم برنامج الإعداد بإنشاء اختصارات البرنامج في مجلد قائمة ابدأ التالية."
+
+msgctxt "[Messages]SelectStartMenuFolderBrowseLabel"
+msgid ""
+"To continue, click Next. If you would like to select a different folder, "
+"click Browse."
+msgstr ""
+"للمتابعة، اضغط على  التالي. إذا كنت ترغب في تحديد مجلد آخر، انقر فوق "
+"استعراض."
+
+msgctxt "[Messages]MustEnterGroupName"
+msgid "You must enter a folder name."
+msgstr "يجب إدخال اسم مجلد."
+
+msgctxt "[Messages]GroupNameTooLong"
+msgid "The folder name or path is too long."
+msgstr "اسم المجلد أو المسار طويل جداً."
+
+msgctxt "[Messages]InvalidGroupName"
+msgid "The folder name is not valid."
+msgstr "اسم المجلد غير صالح."
+
+msgctxt "[Messages]BadGroupName"
+msgid "The folder name cannot include any of the following characters:%n%n%1"
+msgstr "لا يمكن أن يتضمن اسم المجلد أي من الأحرف التالية:%n%n%1"
+
+msgctxt "[Messages]NoProgramGroupCheck2"
+msgid "&Don't create a Start Menu folder"
+msgstr "&عدم إنشاء مجلد في قائمة ابدأ"
+
+msgctxt "[Messages]WizardReady"
+msgid "Ready to Install"
+msgstr "جاهز للتثبيت"
+
+msgctxt "[Messages]ReadyLabel1"
+msgid "Setup is now ready to begin installing [name] on your computer."
+msgstr "الإعداد جاهز الآن لبدء تثبيت [name] على جهازك."
+
+msgctxt "[Messages]ReadyLabel2a"
+msgid ""
+"Click Install to continue with the installation, or click Back if you want "
+"to review or change any settings."
+msgstr ""
+"اضغط على  \"تثبيت\" لمتابعة التثبيت، أو على \"السابق\" إذا كنت ترغب في "
+"مراجعة أو تغيير أية إعدادات."
+
+msgctxt "[Messages]ReadyLabel2b"
+msgid "Click Install to continue with the installation."
+msgstr "اضغط على  تثبيت للاستمرار في  عملية التثبيت."
+
+msgctxt "[Messages]ReadyMemoUserInfo"
+msgid "User information:"
+msgstr "معلومات المستخدم:"
+
+msgctxt "[Messages]ReadyMemoDir"
+msgid "Destination location:"
+msgstr "مسار الوِجْهة:"
+
+msgctxt "[Messages]ReadyMemoType"
+msgid "Setup type:"
+msgstr "نوع الإعداد:"
+
+msgctxt "[Messages]ReadyMemoComponents"
+msgid "Selected components:"
+msgstr "المكونات المحددة:"
+
+msgctxt "[Messages]ReadyMemoGroup"
+msgid "Start Menu folder:"
+msgstr "مجلد قائمة ابدأ:"
+
+msgctxt "[Messages]ReadyMemoTasks"
+msgid "Additional tasks:"
+msgstr "مهام إضافية:"
+
+msgctxt "[Messages]DownloadingLabel2"
+msgid "Downloading files..."
+msgstr "تحميل الملفات الإضافية..."
+
+msgctxt "[Messages]ButtonStopDownload"
+msgid "&Stop download"
+msgstr "إي&قاف التحميل"
+
+msgctxt "[Messages]StopDownload"
+msgid "Are you sure you want to stop the download?"
+msgstr "هل أنت متأكد من أنك ترغب في إيقاف التحميل؟"
+
+msgctxt "[Messages]ErrorDownloadAborted"
+msgid "Download aborted"
+msgstr "تم إلغاء التحميل"
+
+msgctxt "[Messages]ErrorDownloadFailed"
+msgid "Download failed: %1 %2"
+msgstr "فشل تحميل: %1 %2"
+
+msgctxt "[Messages]ErrorDownloadSizeFailed"
+msgid "Getting size failed: %1 %2"
+msgstr "خطأ في قراءة الحجم: %1 %2"
+
+msgctxt "[Messages]ErrorProgress"
+msgid "Invalid progress: %1 of %2"
+msgstr "تقدم غير صالح: %1 من %2"
+
+msgctxt "[Messages]ErrorFileSize"
+msgid "Invalid file size: expected %1, found %2"
+msgstr "حجم الملف غير صالح: المتوقع %1، الموجود %2"
+
+msgctxt "[Messages]ExtractingLabel"
+msgid "Extracting files..."
+msgstr "جاري فك ضغط الملفات الإضافية..."
+
+msgctxt "[Messages]ButtonStopExtraction"
+msgid "&Stop extraction"
+msgstr "إي&قاف فك الضغط"
+
+msgctxt "[Messages]StopExtraction"
+msgid "Are you sure you want to stop the extraction?"
+msgstr "هل حقا ترغب في إيقاف فك الضغط?"
+
+msgctxt "[Messages]ErrorExtractionAborted"
+msgid "Extraction aborted"
+msgstr "تم إيقاف عملية فك الضغط"
+
+msgctxt "[Messages]ErrorExtractionFailed"
+msgid "Extraction failed: %1"
+msgstr "فشل فك الضغط : %1"
+
+msgctxt "[Messages]ArchiveIncorrectPassword"
+msgid "The password is incorrect"
+msgstr "كلمة المرور خاطئة"
+
+msgctxt "[Messages]ArchiveIsCorrupted"
+msgid "The archive is corrupted"
+msgstr "الأرشيف تالف"
+
+msgctxt "[Messages]ArchiveUnsupportedFormat"
+msgid "The archive format is unsupported"
+msgstr "صيغة الأرشيف غير مدعومة"
+
+msgctxt "[Messages]WizardPreparing"
+msgid "Preparing to Install"
+msgstr "التحضير للتثبيت"
+
+msgctxt "[Messages]PreparingDesc"
+msgid "Setup is preparing to install [name] on your computer."
+msgstr "الإعداد يستعد لتثبيت [name] على جهازك."
+
+msgctxt "[Messages]PreviousInstallNotCompleted"
+msgid ""
+"The installation/removal of a previous program was not completed. You will "
+"need to restart your computer to complete that installation.%n%nAfter "
+"restarting your computer, run Setup again to complete the installation of "
+"[name]."
+msgstr ""
+"لم يكتمل التثبيت / إزالة البرنامج السابق. ستحتاج إلى إعادة تشغيل الكمبيوتر "
+"لإكمال هذا التثبيت.%n%nبعد إعادة تشغيل جهاز الكمبيوتر الخاص بك ، شغّل برنامج"
+" الإعداد مرة أخرى لإكمال تثبيت [name]."
+
+msgctxt "[Messages]CannotContinue"
+msgid "Setup cannot continue. Please click Cancel to exit."
+msgstr "لا يمكن لبرنامج الإعداد المتابعة. يرجى الضغط على  \"إلغاء\" للخروج."
+
+msgctxt "[Messages]ApplicationsFound"
+msgid ""
+"The following applications are using files that need to be updated by Setup."
+" It is recommended that you allow Setup to automatically close these "
+"applications."
+msgstr ""
+"تستخدم التطبيقات التالية الملفات التي تحتاج إلى تحديث بواسطة برنامج الإعداد."
+" يوصى بالسماح لبرنامج الإعداد بإغلاق هذه التطبيقات تلقائيًا."
+
+msgctxt "[Messages]ApplicationsFound2"
+msgid ""
+"The following applications are using files that need to be updated by Setup."
+" It is recommended that you allow Setup to automatically close these "
+"applications. After the installation has completed, Setup will attempt to "
+"restart the applications."
+msgstr ""
+"تستخدم التطبيقات التالية الملفات التي تحتاج إلى تحديث بواسطة برنامج الإعداد."
+" يوصى بالسماح لبرنامج الإعداد بإغلاق هذه التطبيقات تلقائيًا. بعد اكتمال "
+"التثبيت ، سيحاول برنامج الإعداد إعادة تشغيل التطبيقات."
+
+msgctxt "[Messages]CloseApplications"
+msgid "&Automatically close the applications"
+msgstr "أغلق التطبيقات &تلقائيًا"
+
+msgctxt "[Messages]DontCloseApplications"
+msgid "&Do not close the applications"
+msgstr "&لا تغلق التطبيقات"
+
+msgctxt "[Messages]ErrorCloseApplications"
+msgid ""
+"Setup was unable to automatically close all applications. It is recommended "
+"that you close all applications using files that need to be updated by Setup"
+" before continuing."
+msgstr ""
+"لم يتمكن الإعداد من إغلاق جميع التطبيقات تلقائيًا. يوصى بإغلاق جميع "
+"التطبيقات التي تستخدم الملفات التي تحتاج إلى تحديث بواسطة برنامج الإعداد قبل"
+" المتابعة."
+
+msgctxt "[Messages]PrepareToInstallNeedsRestart"
+msgid ""
+"Setup must restart your computer. After restarting your computer, run Setup "
+"again to complete the installation of [name].%n%nWould you like to restart "
+"now?"
+msgstr ""
+"برنامج الإعداد يجب أن يقوم بإعادة تشغيل الجهاز. بعد إعادة تشغيل جهازك, قم "
+"بتشغيل برنامج الإعداد مرة أخرى لإكمال تثبيت [name].%n%nهل ترغب في إعادة "
+"التشغيل الآن?"
+
+msgctxt "[Messages]WizardInstalling"
+msgid "Installing"
+msgstr "جاري التثبيت"
+
+msgctxt "[Messages]InstallingLabel"
+msgid "Please wait while Setup installs [name] on your computer."
+msgstr "يرجى الانتظار ريثما  يقوم برنامج الإعداد بتثبي [name] على جهازك."
+
+msgctxt "[Messages]FinishedHeadingLabel"
+msgid "Completing the [name] Setup Wizard"
+msgstr "إنهاء معالج تثبيت [name]"
+
+msgctxt "[Messages]FinishedLabelNoIcons"
+msgid "Setup has finished installing [name] on your computer."
+msgstr "إكتمل معالج التثبيت من تثبيت [name] على جهازك."
+
+msgctxt "[Messages]FinishedLabel"
+msgid ""
+"Setup has finished installing [name] on your computer. The application may "
+"be launched by selecting the installed shortcuts."
+msgstr ""
+"اكتمل معالج التثبيت من تثبيت [name] على جهازك. قد يتم تشغيل التطبيق عن طريق "
+"تحديد الاختصارات المثبتة."
+
+msgctxt "[Messages]ClickFinish"
+msgid "Click Finish to exit Setup."
+msgstr "إضغط على إنهاء للخروج من معالج التثبيت"
+
+msgctxt "[Messages]FinishedRestartLabel"
+msgid ""
+"To complete the installation of [name], Setup must restart your computer. "
+"Would you like to restart now?"
+msgstr ""
+"لاستكمال تثبيت [name], يجب على برنامج الإعداد إعادة تشغيل جهاز الكمبيوتر "
+"الخاص بك. هل ترغب في إعادة التشغيل الآن؟"
+
+msgctxt "[Messages]FinishedRestartMessage"
+msgid ""
+"To complete the installation of [name], Setup must restart your "
+"computer.%n%nWould you like to restart now?"
+msgstr ""
+"لاستكمال تثبيت [name], يجب على برنامج الإعداد إعادة تشغيل جهاز الكمبيوتر "
+"الخاص بك.%n%nهل ترغب في إعادة التشغيل الآن؟"
+
+msgctxt "[Messages]ShowReadmeCheck"
+msgid "Yes, I would like to view the README file"
+msgstr "نعم ، أرغب في عرض ملف إقرأني"
+
+msgctxt "[Messages]YesRadio"
+msgid "&Yes, restart the computer now"
+msgstr "&نعم أعد تشغيل الكومبيوتر الآن"
+
+msgctxt "[Messages]NoRadio"
+msgid "&No, I will restart the computer later"
+msgstr "&لا ، سأعيد تشغيل الكمبيوتر لاحقًا"
+
+msgctxt "[Messages]RunEntryExec"
+msgid "Run %1"
+msgstr "تشغيل %1"
+
+msgctxt "[Messages]RunEntryShellExec"
+msgid "View %1"
+msgstr "عرض %1"
+
+msgctxt "[Messages]ChangeDiskTitle"
+msgid "Setup Needs the Next Disk"
+msgstr "يحتاج برنامج الإعداد إلى القرص التالي"
+
+msgctxt "[Messages]SelectDiskLabel2"
+msgid ""
+"Please insert Disk %1 and click OK.%n%nIf the files on this disk can be "
+"found in a folder other than the one displayed below, enter the correct path"
+" or click Browse."
+msgstr ""
+"الرجاء إدراج القرص %1 وانقر فوق حسنا.%n%nإذا كان يمكن العثور على الملفات "
+"الموجودة على هذا القرص في مجلد غير الذي يظهر أدناه، أدخل المسار الصحيح أو "
+"انقر فوق استعراض."
+
+msgctxt "[Messages]PathLabel"
+msgid "&Path:"
+msgstr "&مسار :"
+
+msgctxt "[Messages]FileNotInDir2"
+msgid ""
+"The file \"%1\" could not be located in \"%2\". Please insert the correct "
+"disk or select another folder."
+msgstr ""
+"لم نتمكن من العثور على الملف \"%1\" في \"%2\". الرجاء إدراج القرص الصحيح أو "
+"تحديد مجلد آخر."
+
+msgctxt "[Messages]SelectDirectoryLabel"
+msgid "Please specify the location of the next disk."
+msgstr "الرجاء تحديد موقع القرص التالي."
+
+msgctxt "[Messages]SetupAborted"
+msgid ""
+"Setup was not completed.%n%nPlease correct the problem and run Setup again."
+msgstr ""
+"لم يتم إكمال التثبيت. %n%nالرجاء تصحيح المشكلة وتشغيل الإعداد مرة أخرى."
+
+msgctxt "[Messages]AbortRetryIgnoreSelectAction"
+msgid "Select action"
+msgstr "حدد إجراء"
+
+msgctxt "[Messages]AbortRetryIgnoreRetry"
+msgid "&Try again"
+msgstr "&حاول مجددا"
+
+msgctxt "[Messages]AbortRetryIgnoreIgnore"
+msgid "&Ignore the error and continue"
+msgstr "&تجاهل الخطأ والمتابعة"
+
+msgctxt "[Messages]AbortRetryIgnoreCancel"
+msgid "Cancel installation"
+msgstr "إلغاء التثبيت"
+
+msgctxt "[Messages]RetryCancelSelectAction"
+msgid "Select action"
+msgstr "قم بتحديد إجراء"
+
+msgctxt "[Messages]RetryCancelRetry"
+msgid "&Try again"
+msgstr "&حاول مجددا"
+
+msgctxt "[Messages]RetryCancelCancel"
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgctxt "[Messages]StatusClosingApplications"
+msgid "Closing applications..."
+msgstr "جاري إغلاق التطبيقات..."
+
+msgctxt "[Messages]StatusCreateDirs"
+msgid "Creating directories..."
+msgstr "جاري إنشاء المجلدات..."
+
+msgctxt "[Messages]StatusExtractFiles"
+msgid "Extracting files..."
+msgstr "يتم استخراج الملفات..."
+
+msgctxt "[Messages]StatusDownloadFiles"
+msgid "Downloading files..."
+msgstr "جاري تحميل الملفات..."
+
+msgctxt "[Messages]StatusCreateIcons"
+msgid "Creating shortcuts..."
+msgstr "يجري إنشاء الإختصارات..."
+
+msgctxt "[Messages]StatusCreateIniEntries"
+msgid "Creating INI entries..."
+msgstr "يتم إنشاء مدخلات INI..."
+
+msgctxt "[Messages]StatusCreateRegistryEntries"
+msgid "Creating registry entries..."
+msgstr "يجري الآن إنشاء مفاتيح السجل..."
+
+msgctxt "[Messages]StatusRegisterFiles"
+msgid "Registering files..."
+msgstr "يتم الآن تسجيل الملفات..."
+
+msgctxt "[Messages]StatusSavingUninstall"
+msgid "Saving uninstall information..."
+msgstr "جاري تسجيل معلومات إزالة التثبيت..."
+
+msgctxt "[Messages]StatusRunProgram"
+msgid "Finishing installation..."
+msgstr "جاري الإنتهاء من التثبيت..."
+
+msgctxt "[Messages]StatusRestartingApplications"
+msgid "Restarting applications..."
+msgstr "يتم إعادة تشغيل التطبيقات..."
+
+msgctxt "[Messages]StatusRollback"
+msgid "Rolling back changes..."
+msgstr "جاري التراجع عن التغييرات..."
+
+msgctxt "[Messages]ErrorInternal2"
+msgid "Internal error: %1"
+msgstr "خطأ داخلي: %1"
+
+msgctxt "[Messages]ErrorFunctionFailedNoCode"
+msgid "%1 failed"
+msgstr "فشل %1"
+
+msgctxt "[Messages]ErrorFunctionFailed"
+msgid "%1 failed; code %2"
+msgstr "فشل %1; رقم الخطء %2"
+
+msgctxt "[Messages]ErrorFunctionFailedWithMessage"
+msgid "%1 failed; code %2.%n%3"
+msgstr "فشل %1; رقم الخطء %2.%n%3"
+
+msgctxt "[Messages]ErrorExecutingProgram"
+msgid "Unable to execute file:%n%1"
+msgstr "الإعداد غير قابل على تشغيل الملف:%n%1"
+
+msgctxt "[Messages]ErrorRegOpenKey"
+msgid "Error opening registry key:%n%1\\%2"
+msgstr "خطأ في فتح مفتاح التسجيل:%n%1\\%2"
+
+msgctxt "[Messages]ErrorRegCreateKey"
+msgid "Error creating registry key:%n%1\\%2"
+msgstr "خطأ في إنشاء مفتاح التسجيل:%n%1\\%2"
+
+msgctxt "[Messages]ErrorRegWriteKey"
+msgid "Error writing to registry key:%n%1\\%2"
+msgstr "خطأ في الكتابة على مفتاح التسجيل:%n%1\\%2"
+
+msgctxt "[Messages]ErrorIniEntry"
+msgid "Error creating INI entry in file \"%1\"."
+msgstr "حدث خطأ في إنشاء إدخال INI في الملف \"%1\"."
+
+msgctxt "[Messages]FileAbortRetryIgnoreSkipNotRecommended"
+msgid "&Skip this file (not recommended)"
+msgstr "&تخطي هذا الملف (غير مستحسن)"
+
+msgctxt "[Messages]FileAbortRetryIgnoreIgnoreNotRecommended"
+msgid "&Ignore the error and continue (not recommended)"
+msgstr "&تجاهل الخطأ والمتابعة (غير مستحسن)"
+
+msgctxt "[Messages]SourceIsCorrupted"
+msgid "The source file is corrupted"
+msgstr "الملف المصدر تالف"
+
+msgctxt "[Messages]SourceDoesntExist"
+msgid "The source file \"%1\" does not exist"
+msgstr "الملف \"%1\"غير موجود"
+
+msgctxt "[Messages]SourceVerificationFailed"
+msgid "Verification of the source file failed: %1"
+msgstr "فشل التحقق من الملف المصدر: %1"
+
+msgctxt "[Messages]VerificationSignatureDoesntExist"
+msgid "The signature file \"%1\" does not exist"
+msgstr "ملف التوقيع \"%1\" غير موجود"
+
+msgctxt "[Messages]VerificationSignatureInvalid"
+msgid "The signature file \"%1\" is invalid"
+msgstr "ملف التوقيع \"%1\" غير صالح"
+
+msgctxt "[Messages]VerificationKeyNotFound"
+msgid "The signature file \"%1\" uses an unknown key"
+msgstr "ملف التوقيع \"%1\" يستخدم مفتاحًا غير معروف"
+
+msgctxt "[Messages]VerificationFileNameIncorrect"
+msgid "The name of the file is incorrect"
+msgstr "اسم الملف غير صحيح"
+
+msgctxt "[Messages]VerificationFileTagIncorrect"
+msgid "The tag of the file is incorrect"
+msgstr "علامة الملف غير صحيحة"
+
+msgctxt "[Messages]VerificationFileSizeIncorrect"
+msgid "The size of the file is incorrect"
+msgstr "حجم الملف غير صحيح"
+
+msgctxt "[Messages]VerificationFileHashIncorrect"
+msgid "The hash of the file is incorrect"
+msgstr "تجزئة الملف (hash) غير صحيحة"
+
+msgctxt "[Messages]ExistingFileReadOnly2"
+msgid ""
+"The existing file could not be replaced because it is marked read-only."
+msgstr "تعذر استبدال الملف الموجود لأنه تم تحديده للقراءة فقط."
+
+msgctxt "[Messages]ExistingFileReadOnlyRetry"
+msgid "&Remove the read-only attribute and try again"
+msgstr "&أزل وضع القراءة فقط عن الملفات ثم حاول مرة أخرى"
+
+msgctxt "[Messages]ExistingFileReadOnlyKeepExisting"
+msgid "&Keep the existing file"
+msgstr "&إحتفظ بالملفات الموجودة"
+
+msgctxt "[Messages]ErrorReadingExistingDest"
+msgid "An error occurred while trying to read the existing file:"
+msgstr "حدث خطأ أثناء محاولة قراءة الملف الموجود:"
+
+msgctxt "[Messages]FileExistsSelectAction"
+msgid "Select action"
+msgstr "اختر إجراء"
+
+msgctxt "[Messages]FileExists2"
+msgid "The file already exists."
+msgstr "الملف موجود بالفعل."
+
+msgctxt "[Messages]FileExistsOverwriteExisting"
+msgid "&Overwrite the existing file"
+msgstr "&استبدال الملف الموجود"
+
+msgctxt "[Messages]FileExistsKeepExisting"
+msgid "&Keep the existing file"
+msgstr "ا&بقاء الملف الموجود"
+
+msgctxt "[Messages]FileExistsOverwriteOrKeepAll"
+msgid "&Do this for the next conflicts"
+msgstr "ا&فعل هذا للنزاعات القادمة"
+
+msgctxt "[Messages]ExistingFileNewerSelectAction"
+msgid "Select action"
+msgstr "اختر إجراء"
+
+msgctxt "[Messages]ExistingFileNewer2"
+msgid "The existing file is newer than the one Setup is trying to install."
+msgstr "الملف الموجود أحدث من الملف الذي سيقوم معالج الإعداد بتثبيته."
+
+msgctxt "[Messages]ExistingFileNewerOverwriteExisting"
+msgid "&Overwrite the existing file"
+msgstr "&&استبدال الملف الموجود"
+
+msgctxt "[Messages]ExistingFileNewerKeepExisting"
+msgid "&Keep the existing file (recommended)"
+msgstr "ال&ابقاء على الملف الموجود (مستحسن)"
+
+msgctxt "[Messages]ExistingFileNewerOverwriteOrKeepAll"
+msgid "&Do this for the next conflicts"
+msgstr "ا&فعل هذا مع النزاعات القادمة"
+
+msgctxt "[Messages]ErrorChangingAttr"
+msgid ""
+"An error occurred while trying to change the attributes of the existing "
+"file:"
+msgstr "حدث خطأ أثناء محاولة تغيير سمات الملف الموجود:"
+
+msgctxt "[Messages]ErrorCreatingTemp"
+msgid ""
+"An error occurred while trying to create a file in the destination "
+"directory:"
+msgstr "حدث خطأ أثناء محاولة إنشاء ملف في الدليل الوجهة:"
+
+msgctxt "[Messages]ErrorReadingSource"
+msgid "An error occurred while trying to read the source file:"
+msgstr "حدث خطأ أثناء محاولة قراءة ملف مصدر:"
+
+msgctxt "[Messages]ErrorCopying"
+msgid "An error occurred while trying to copy a file:"
+msgstr "حدث خطأ أثناء محاولة نسخ ملف:"
+
+msgctxt "[Messages]ErrorDownloading"
+msgid "An error occurred while trying to download a file:"
+msgstr "حدث خطأ عند محاولة تحميل الملف :"
+
+msgctxt "[Messages]ErrorExtracting"
+msgid "An error occurred while trying to extract an archive:"
+msgstr "حدث خطأ عند محاولة استخراج ملفات الأرشيف :"
+
+msgctxt "[Messages]ErrorReplacingExistingFile"
+msgid "An error occurred while trying to replace the existing file:"
+msgstr "حدث خطأ أثناء محاولة استبدال الملف الموجود:"
+
+msgctxt "[Messages]ErrorRestartReplace"
+msgid "RestartReplace failed:"
+msgstr "فشل إعادة تشغيل \"استبدال\":"
+
+msgctxt "[Messages]ErrorRenamingTemp"
+msgid ""
+"An error occurred while trying to rename a file in the destination "
+"directory:"
+msgstr "حدث خطأ أثناء محاولة إعادة تسمية ملف في الدليل الوجهة:"
+
+msgctxt "[Messages]ErrorRegisterServer"
+msgid "Unable to register the DLL/OCX: %1"
+msgstr "تعذر تسجيل ملفات DLL/OCX: %1"
+
+msgctxt "[Messages]ErrorRegSvr32Failed"
+msgid "RegSvr32 failed with exit code %1"
+msgstr "فشل RegSvr32 مع رمز الخروج %1"
+
+msgctxt "[Messages]ErrorRegisterTypeLib"
+msgid "Unable to register the type library: %1"
+msgstr "الإعداد غير قادر على تسجيل مكتبة النوع: %1"
+
+msgctxt "[Messages]UninstallDisplayNameMark"
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+msgctxt "[Messages]UninstallDisplayNameMarks"
+msgid "%1 (%2, %3)"
+msgstr "%1 (%2, %3)"
+
+msgctxt "[Messages]UninstallDisplayNameMark32Bit"
+msgid "32-bit"
+msgstr "32-bit"
+
+msgctxt "[Messages]UninstallDisplayNameMark64Bit"
+msgid "64-bit"
+msgstr "64-bit"
+
+msgctxt "[Messages]UninstallDisplayNameMarkAllUsers"
+msgid "All users"
+msgstr "كافة المستخدمين"
+
+msgctxt "[Messages]UninstallDisplayNameMarkCurrentUser"
+msgid "Current user"
+msgstr "المستخدم الحالي"
+
+msgctxt "[Messages]ErrorOpeningReadme"
+msgid "An error occurred while trying to open the README file."
+msgstr "حدث خطأ أثناء محاولة فتح ملف إقرأني."
+
+msgctxt "[Messages]ErrorRestartingComputer"
+msgid "Setup was unable to restart the computer. Please do this manually."
+msgstr ""
+"لم يتمكن برنامج الإعداد من إعادة تشغيل الكمبيوتر. الرجاء القيام بذلك يدوياً."
+
+msgctxt "[Messages]UninstallNotFound"
+msgid "File \"%1\" does not exist. Cannot uninstall."
+msgstr "الملف \"%1\" غير موجود. لا يمكن إزالة التثبيت."
+
+msgctxt "[Messages]UninstallOpenError"
+msgid "File \"%1\" could not be opened. Cannot uninstall"
+msgstr "تعذر فتح \"%1\". لا يمكن إزالة التثبيت."
+
+msgctxt "[Messages]UninstallUnsupportedVer"
+msgid ""
+"The uninstall log file \"%1\" is in a format not recognized by this version "
+"of the uninstaller. Cannot uninstall"
+msgstr ""
+"ملف سجل الإزالة \"%1\" في تنسيق غير معروف من قبل هذا الإصدار من برنامج إلغاء"
+" التثبيت. لا يمكن إزالة التثبيت"
+
+msgctxt "[Messages]UninstallUnknownEntry"
+msgid "An unknown entry (%1) was encountered in the uninstall log"
+msgstr "إدخال غير معروف (%1) تمت مصادفته في سجل إلغاء التثبيت"
+
+msgctxt "[Messages]ConfirmUninstall"
+msgid ""
+"Are you sure you want to completely remove %1 and all of its components?"
+msgstr "هل أنت متأكد من أنك تريد إزالة %1 تماما, وجميع مكوناته?"
+
+msgctxt "[Messages]UninstallOnlyOnWin64"
+msgid "This installation can only be uninstalled on 64-bit Windows."
+msgstr "يمكن إلغاء تثبيت هذا التثبيت على Windows 64-بت فقط."
+
+msgctxt "[Messages]OnlyAdminCanUninstall"
+msgid ""
+"This installation can only be uninstalled by a user with administrative "
+"privileges."
+msgstr "يمكن إلغاء تثبيت هذا البرنامج فقط من قبل مستخدم له امتيازات إدارية."
+
+msgctxt "[Messages]UninstallStatusLabel"
+msgid "Please wait while %1 is removed from your computer."
+msgstr "يرجى الإنتظار ريثما يتم إزالة تثبيت %1 من جهازك."
+
+msgctxt "[Messages]UninstalledAll"
+msgid "%1 was successfully removed from your computer."
+msgstr "تم إزالة %1 تماما من جهازك بنجاح."
+
+msgctxt "[Messages]UninstalledMost"
+msgid ""
+"%1 uninstall complete.%n%nSome elements could not be removed. These can be "
+"removed manually."
+msgstr "اكتمل إزالة %1.%n%nتعذر إزالة بعض العناصر. يمكن إزالتها يدوياً."
+
+msgctxt "[Messages]UninstalledAndNeedsRestart"
+msgid ""
+"To complete the uninstallation of %1, your computer must be "
+"restarted.%n%nWould you like to restart now?"
+msgstr ""
+"لإكمال إلغاء تثبيت %1, يجب إعادة تشغيل الكمبيوتر.%n%nهل تريد إعادة تشغيل "
+"الآن؟"
+
+msgctxt "[Messages]UninstallDataCorrupted"
+msgid "\"%1\" file is corrupted. Cannot uninstall"
+msgstr "الملف \"%1\" تالف. لا يمكن إزالة التثبيت"
+
+msgctxt "[Messages]ConfirmDeleteSharedFileTitle"
+msgid "Remove Shared File?"
+msgstr "إزالة ملف مشترك؟"
+
+msgctxt "[Messages]ConfirmDeleteSharedFile2"
+msgid ""
+"The system indicates that the following shared file is no longer in use by "
+"any programs. Would you like for Uninstall to remove this shared file?%n%nIf"
+" any programs are still using this file and it is removed, those programs "
+"may not function properly. If you are unsure, choose No. Leaving the file on"
+" your system will not cause any harm."
+msgstr ""
+"يشير النظام إلى أن الملف المشترك التالي لم يعد في الاستخدام من قبل أي برامج."
+" هل ترغب في أن يقوم برنامج الإعداد  بإزالة هذا الملف المشترك?%n%nإذا كانت "
+"أية برامج لا تزال تستخدم هذا الملف وتتم إزالته، قد لا تعمل هذه البرامج بشكل "
+"صحيح. إذا كنت غير متأكد، اختر لا. ترك الملف على النظام الخاص بك لن يسبب أي "
+"ضرر."
+
+msgctxt "[Messages]SharedFileNameLabel"
+msgid "File name:"
+msgstr "اسم الملف:"
+
+msgctxt "[Messages]SharedFileLocationLabel"
+msgid "Location:"
+msgstr "الموقع :"
+
+msgctxt "[Messages]WizardUninstalling"
+msgid "Uninstall Status"
+msgstr "حالة إزالة التثبيت"
+
+msgctxt "[Messages]StatusUninstalling"
+msgid "Uninstalling %1..."
+msgstr "جاري إزالة تثبيت %1..."
+
+msgctxt "[Messages]ShutdownBlockReasonInstallingApp"
+msgid "Installing %1."
+msgstr "جاري تثبيت %1."
+
+msgctxt "[Messages]ShutdownBlockReasonUninstallingApp"
+msgid "Uninstalling %1."
+msgstr "جاري إزالة تثبيت %1."
+
+msgctxt "[CustomMessages]installservicetask"
+msgid "Run Kolibri automatically when the computer starts"
+msgstr ""
+
+msgctxt "[CustomMessages]newerversioninstalled"
+msgid ""
+"A newer version of {#AppName} (%1) is already installed. This installer "
+"contains version %2, which is older. The setup will now exit."
+msgstr ""
+
+msgctxt "[CustomMessages]sameversioninstalled"
+msgid ""
+"This version of %1 is already installed. Do you want to repair the "
+"installation by reinstalling it?"
+msgstr ""
+
+msgctxt "[CustomMessages]olderversioninstalled"
+msgid ""
+"An older version of {#AppName} (%1) was detected. Do you want to upgrade to "
+"version {#AppVersion}?"
+msgstr ""
+
+msgctxt "[CustomMessages]confirmuninstalldata"
+msgid ""
+"Do you want to completely remove all Kolibri user data? This includes all "
+"downloaded content, user accounts, and progress, and cannot be undone."
+msgstr ""
+
+msgctxt "[CustomMessages]criticalerror"
+msgid ""
+"A critical error occurred while trying to run a setup command: %1. The "
+"installation cannot continue."
+msgstr ""
+
+msgctxt "[CustomMessages]commanderror"
+msgid ""
+"A command required for setup failed to execute correctly: %1. Error Code: "
+"%2. The installation cannot continue."
+msgstr ""
+
+msgctxt "[CustomMessages]versionparseerror"
+msgid ""
+"Could not compare versions due to an invalid version format. Please "
+"uninstall the previous version manually and try again."
+msgstr ""
+
+msgctxt "[CustomMessages]migrationfailed"
+msgid ""
+"The installer failed to migrate user data from the old location (%1) to the "
+"new location (%2). Your data has not been moved. Please contact support for "
+"assistance."
+msgstr ""
+
+msgctxt "[CustomMessages]createdesktopicon"
+msgid "Create a &desktop icon"
+msgstr ""
+
+msgctxt "[CustomMessages]additionalicons"
+msgid "Additional icons:"
+msgstr ""
+
+msgctxt "[CustomMessages]launchprogram"
+msgid "Launch %1"
+msgstr ""
+
+msgctxt "[CustomMessages]installationtype"
+msgid "Installation Type:"
+msgstr ""

@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri-mac-app\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-10-29 08:54-0700\n"
+"PO-Revision-Date: 2019-12-05 17:50\n"
+"Last-Translator: learningequality\n"
+"Language-Team: Marathi\n"
+"Language: mr_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kolibri-mac-app\n"
+"X-Crowdin-Language: mr\n"
+"X-Crowdin-File: macapp.pot\n"
+
+#: src/main.py:190
+msgid "File"
+msgstr "फाइल"
+
+#: src/main.py:191
+msgid "New Window"
+msgstr "नवीन विंडो"
+
+#: src/main.py:192
+msgid "Close Window"
+msgstr "विंडो बंद करा"
+
+#: src/main.py:194
+msgid "Open Kolibri Home Folder"
+msgstr "कोलिब्री होम फोल्डर उघडा"
+
+#: src/main.py:198
+msgid "Edit"
+msgstr "बदल करा"
+
+#: src/main.py:199
+msgid "Undo"
+msgstr "पूर्ववत करा"
+
+#: src/main.py:200
+msgid "Redo"
+msgstr "पुन्हा करा"
+
+#: src/main.py:202
+msgid "Cut"
+msgstr "कट करा"
+
+#: src/main.py:203
+msgid "Copy"
+msgstr "कॉपी"
+
+#: src/main.py:204
+msgid "Paste"
+msgstr "पेस्ट करा"
+
+#: src/main.py:205
+msgid "Select All"
+msgstr "सर्व निवडा"
+
+#: src/main.py:208
+msgid "View"
+msgstr "पहा"
+
+#: src/main.py:209
+msgid "Reload"
+msgstr "रिलोड"
+
+#: src/main.py:210
+msgid "Actual Size"
+msgstr "मूळ आकार"
+
+#: src/main.py:211
+msgid "Zoom In"
+msgstr "झूम इन"
+
+#: src/main.py:212
+msgid "Zoom Out"
+msgstr "झूम आउट"
+
+#: src/main.py:214
+msgid "Open in Browser"
+msgstr "ब्राउझरमध्ये उघडा"
+
+#: src/main.py:217
+msgid "History"
+msgstr "इतिहास"
+
+#: src/main.py:218
+msgid "Back"
+msgstr "मागे"
+
+#: src/main.py:219
+msgid "Forward"
+msgstr "पुढे"
+
+#: src/main.py:222
+msgid "Help"
+msgstr "मदत"
+
+#: src/main.py:223
+msgid "Documentation"
+msgstr "माहिती"
+
+#: src/main.py:224
+msgid "Community Forums"
+msgstr "कम्युनिटी फोरम"
+
