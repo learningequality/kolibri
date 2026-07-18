@@ -227,6 +227,7 @@
   import StatusSummary from '../common/status/StatusSummary.vue';
   import SparklineBar from '../common/SparklineBar.vue';
   import useUnitDetail from '../../composables/useUnitDetail';
+  import useCourseNotificationPolling from '../../composables/useCourseNotificationPolling';
 
   const TABS = {
     LESSONS: 'lessons',
@@ -284,7 +285,12 @@
         resourceTally,
         objectivesForLesson,
         activeTestStatus,
+        fetchData,
       } = useUnitDetail(courseSessionId, unitContentnodeId);
+
+      // Re-fetch when a learner activity notification arrives for this course
+      // session so pre/post scores, objectives and lesson progress stay current.
+      useCourseNotificationPolling(store, courseSessionId, fetchData);
 
       const { className } = useClassSummary();
       const coachPageTitle = computed(() =>

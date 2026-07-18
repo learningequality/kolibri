@@ -385,6 +385,7 @@
   import CoachAppBarPage from '../CoachAppBarPage.vue';
   import useCourseSession from '../../composables/useCourseSession';
   import useClassSummary from '../../composables/useClassSummary.js';
+  import useCourseNotificationPolling from '../../composables/useCourseNotificationPolling';
   import { UnitPhase } from '../../constants/courseConstants';
   import UnitReportResource from '../../apiResources/unitReport';
   import { deriveUnitReportInfo } from '../../utils/scoreBucketing';
@@ -677,6 +678,8 @@
         },
         { immediate: true },
       );
+
+      useCourseNotificationPolling(store, courseSessionId, fetchAllUnitReports);
 
       const activeUnitReport = computed(() => unitReportInfo.value[activeUnit.value?.id] || null);
       const activeUnitTotalLearners = computed(

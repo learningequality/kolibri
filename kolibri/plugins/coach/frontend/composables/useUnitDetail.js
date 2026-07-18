@@ -148,5 +148,6 @@ export default function useUnitDetail(courseSessionId, unitContentnodeId) {
     resourceTally,
     objectivesForLesson,
     activeTestStatus,
+    fetchData,
   };
 }

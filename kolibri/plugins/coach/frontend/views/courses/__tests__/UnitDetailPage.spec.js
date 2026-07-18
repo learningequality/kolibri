@@ -6,6 +6,7 @@ import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../../../constants';
 // eslint-disable-next-line import-x/named
 import useUnitDetail, { useUnitDetailMock } from '../../../composables/useUnitDetail';
+import useCourseNotificationPolling from '../../../composables/useCourseNotificationPolling';
 import UnitDetailPage from '../UnitDetailPage.vue';
 
 const { learningObjectivesLabel$ } = coursesStrings;
@@ -13,6 +14,7 @@ const { learningObjectivesLabel$ } = coursesStrings;
 jest.mock('vue-router/composables', () => ({ useRoute: jest.fn(), useRouter: jest.fn() }));
 jest.mock('kolibri/store', () => ({ __esModule: true, default: { dispatch: jest.fn() } }));
 jest.mock('../../../composables/useUnitDetail');
+jest.mock('../../../composables/useCourseNotificationPolling');
 jest.mock('../../../composables/useClassSummary');
 jest.mock('../../CoachAppBarPage.vue', () => ({
   name: 'CoachAppBarPage',
@@ -68,6 +70,17 @@ describe('UnitDetailPage', () => {
     expect(useUnitDetail).toHaveBeenCalledWith(
       expect.objectContaining({ value: 'sess-1' }),
       expect.objectContaining({ value: 'unit-1' }),
+    );
+  });
+
+  it('re-fetches unit detail data on course-session notifications', () => {
+    const fetchData = jest.fn();
+    useUnitDetail.mockImplementation(() => useUnitDetailMock({ fetchData }));
+    render(UnitDetailPage);
+    expect(useCourseNotificationPolling).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ value: 'sess-1' }),
+      fetchData,
     );
   });
 

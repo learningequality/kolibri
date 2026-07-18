@@ -100,6 +100,7 @@ class ClassroomNotificationsSerializer(serializers.ModelSerializer):
             "contentnode_id",
             "object",
             "event",
+            "course_session_id",
         )
 
 
