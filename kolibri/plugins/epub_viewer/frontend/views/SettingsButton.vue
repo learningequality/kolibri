@@ -4,7 +4,6 @@
     icon="tune"
     :ariaLabel="$tr('toggleSettingsSideBar')"
     data-testid="settings button"
-    size="small"
     @click="$emit('click')"
   />
 

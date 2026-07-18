@@ -6,13 +6,14 @@
       @submit.prevent="submitSearch"
     >
       <div class="d-tr">
+        <!-- Esc closes the side bar (ancestor keyup); suppress the native field clear. -->
         <input
           ref="searchInput"
           v-model.trim="searchQuery"
           class="d-tc search-input"
           type="search"
           :aria-label="$tr('enterSearchQuery')"
-          @keyup.esc.stop
+          @keydown.esc.prevent
         >
         <KIconButton
           icon="search"

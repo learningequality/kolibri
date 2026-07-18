@@ -6,28 +6,10 @@
     :style="{ width: iframeWidth }"
     @changeFullscreen="isInFullscreen = $event"
   >
-    <div
-      class="fullscreen-header"
-      :style="{ backgroundColor: $themePalette.grey.v_200 }"
-    >
-      <KButton
-        :primary="false"
-        appearance="flat-button"
-        @click="$refs.html5Viewer.toggleFullscreen()"
-      >
-        <KIcon
-          v-if="isInFullscreen"
-          icon="fullscreen_exit"
-          class="fs-icon"
-        />
-        <KIcon
-          v-else
-          icon="fullscreen"
-          class="fs-icon"
-        />
-        {{ fullscreenText }}
-      </KButton>
-    </div>
+    <ViewerToolbar
+      :isInFullscreen="isInFullscreen"
+      @toggleFullscreen="$refs.html5Viewer.toggleFullscreen()"
+    />
     <div
       class="iframe-container"
       :style="containerStyle"
@@ -59,15 +41,17 @@
   import urls from 'kolibri/urls';
   import { now } from 'kolibri/utils/serverClock';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
   import Sandbox from 'kolibri-sandbox';
   import useContentViewer from 'kolibri/composables/useContentViewer';
 
   const defaultContentHeight = '500px';
-  const frameTopbarHeight = '37px';
+  const frameTopbarHeight = '48px';
   export default {
     name: 'Html5AppRendererIndex',
     components: {
       CoreFullscreen,
+      ViewerToolbar,
     },
     setup(props, context) {
       const {
@@ -110,9 +94,6 @@
       },
       iframeWidth() {
         return (this.options && this.options.width) || 'auto';
-      },
-      fullscreenText() {
-        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
       },
       userData() {
         return {
@@ -216,16 +197,6 @@
       },
     },
     $trs: {
-      exitFullscreen: {
-        message: 'Exit fullscreen',
-        context:
-          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on an html5 app.",
-      },
-      enterFullscreen: {
-        message: 'Enter fullscreen',
-        context:
-          'Learners can use the full screen button in the upper right corner to open an html5 app in fullscreen view.\n',
-      },
       contentFrameTitle: {
         message: 'Content viewer',
         context: 'Accessible title for the iframe that displays the content',
@@ -239,18 +210,7 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  $frame-topbar-height: 37px;
-
-  .fullscreen-header {
-    text-align: right;
-  }
-
-  .fs-icon {
-    position: relative;
-    top: 8px;
-    width: 24px;
-    height: 24px;
-  }
+  $frame-topbar-height: 48px;
 
   .html5-viewer {
     position: relative;

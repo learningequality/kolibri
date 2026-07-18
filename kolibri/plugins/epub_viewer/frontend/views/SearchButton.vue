@@ -4,7 +4,6 @@
     icon="search"
     :ariaLabel="$tr('toggleSearchSideBar')"
     data-testid="search button"
-    size="small"
     @click="$emit('click')"
   />
 

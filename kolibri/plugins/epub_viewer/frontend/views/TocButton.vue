@@ -4,7 +4,6 @@
     icon="list"
     :ariaLabel="$tr('toggleTocSideBar')"
     data-testid="toc button"
-    size="small"
     @click="$emit('click')"
   />
 
