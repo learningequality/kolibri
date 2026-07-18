@@ -22,7 +22,7 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
   constructor(player, options, ready) {
     super(player, options, ready);
 
-    this.icon = new LanguageIcon(player, {});
+    this.icon = new LanguageIcon(player, { vueParent: this.options_.vueParent });
 
     // Hackily add our icon to the button to avoid recreating all the button handling video.js adds
     const iconPlaceholder = this.menuButton_.el().getElementsByClassName('vjs-icon-placeholder')[0];
@@ -36,6 +36,7 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
   buildMenu() {
     return new LanguagesMenu(this.player(), {
       menuButton: this,
+      vueParent: this.options_.vueParent,
     });
   }
 
@@ -83,6 +84,7 @@ class LanguagesButton extends buttonMixin('TextTrackButton') {
         selectable: true,
         multiSelectable: false,
         selected: trackUtils.isEnabled(track),
+        vueParent: this.options_.vueParent,
       });
     });
   }

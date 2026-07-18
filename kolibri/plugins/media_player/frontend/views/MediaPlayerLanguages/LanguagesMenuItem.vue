@@ -17,10 +17,21 @@
 
 <script>
 
-  import { mapActions, mapState } from 'vuex';
+  import { computed } from 'vue';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'LanguagesMenuItem',
+    setup(props) {
+      const { language, setLanguage } = injectMediaPlayer();
+
+      const selected = computed(() => language.value === props.value);
+
+      return {
+        selected,
+        setLanguage,
+      };
+    },
     props: {
       label: {
         type: String,
@@ -31,14 +42,7 @@
         required: true,
       },
     },
-    computed: {
-      ...mapState('mediaPlayer/captions', ['language']),
-      selected() {
-        return this.language === this.value;
-      },
-    },
     methods: {
-      ...mapActions('mediaPlayer/captions', ['setLanguage']),
       /**
        * Accessible via parent component refs.
        * @public

@@ -69,6 +69,9 @@
           ? {
             backgroundColor: this.$themePalette.grey.v_400,
             borderLeftColor: this.$themeTokens.watch,
+            // Darken text on the grey highlight: annotation grey on grey.v_400
+            // is only 2:1, below the WCAG AA 4.5:1 threshold.
+            color: this.$themeTokens.text,
           }
           : {};
 
@@ -89,7 +92,7 @@
       },
       timeStyle() {
         return {
-          color: this.$themeTokens.annotation,
+          color: this.active ? this.$themeTokens.text : this.$themeTokens.annotation,
         };
       },
     },

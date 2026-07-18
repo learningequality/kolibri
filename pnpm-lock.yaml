@@ -566,9 +566,10 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
-      vuex:
+    devDependencies:
+      '@testing-library/vue':
         specifier: 'catalog:'
-        version: 3.6.2(vue@2.7.16)
+        version: 5.9.0(vue-template-compiler@2.7.16)(vue@2.7.16)
 
   kolibri/plugins/pdf_viewer:
     dependencies:

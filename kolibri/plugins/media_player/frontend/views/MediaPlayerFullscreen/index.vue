@@ -12,24 +12,35 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'MediaPlayerFullscreen',
     components: { CoreFullscreen },
-    data: () => ({
-      registered: false,
-    }),
-    computed: {
-      ...mapState('mediaPlayer', ['player']),
+    setup() {
+      const { player } = injectMediaPlayer();
+
+      return {
+        player,
+      };
     },
+    data: () => ({
+      // The handler wired to the current player's toggle. Re-init (VideoPlayer
+      // re-creates the player on a source change) swaps in a new player, so we
+      // detach the previous handler before wiring the new toggle. The videojs
+      // listener lives on the old toggle and dies with the disposed player.
+      onChangeFullscreen: null,
+    }),
     watch: {
       player(player) {
-        if (!player || this.registered) {
+        if (this.onChangeFullscreen) {
+          this.$off('changeFullscreen', this.onChangeFullscreen);
+          this.onChangeFullscreen = null;
+        }
+        if (!player) {
           return;
         }
-
         const toggle = player.getChild('ControlBar').getChild('MimicFullscreenToggle');
 
         if (!toggle) {
@@ -37,8 +48,8 @@
         }
 
         toggle.on('changeFullscreen', () => this.$refs.core.toggleFullscreen());
-        this.$on('changeFullscreen', isFullscreen => toggle.handleChangeFullscreen(isFullscreen));
-        this.registered = true;
+        this.onChangeFullscreen = isFullscreen => toggle.handleChangeFullscreen(isFullscreen);
+        this.$on('changeFullscreen', this.onChangeFullscreen);
       },
     },
     methods: {

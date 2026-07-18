@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import store from 'kolibri/store';
 import videojs from 'video.js';
 
 /**
@@ -16,7 +15,11 @@ export default function videojsVueMixin(videojsComponent, vueComponent) {
     /**
      * This is called by video.js code that usually constructs an element, but here we'll leverage
      * vue by calling it manually.
-     * @returns {Element} Root DOM element from the mounted Vue component
+     *
+     * Note: This is called FROM WITHIN the video.js Component constructor, so we must
+     * access vueParent from this.options_ (set by video.js) not from a property we try
+     * to set in our own constructor (which hasn't run yet).
+     * @returns {Element} Root element of the mounted Vue component
      */
     createEl() {
       return this.createVueComponent().$el;
@@ -29,7 +32,16 @@ export default function videojsVueMixin(videojsComponent, vueComponent) {
      */
     createVueComponent(options) {
       this.clearVueComponent();
-      this._vueComponent = new VueComponent(Object.assign({ store }, options)).$mount();
+
+      // Access vueParent from this.options_ which video.js sets up in its constructor
+      const vueParent = this.options_.vueParent;
+
+      const vueOptions = {
+        parent: vueParent,
+        ...options,
+      };
+
+      this._vueComponent = new VueComponent(vueOptions).$mount();
       return this.getVueComponent();
     }
 
