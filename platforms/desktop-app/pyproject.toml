@@ -34,7 +34,7 @@ dependencies = []
 # scope-noted heavy-dep resolution constraint.)
 build = [
     "wxPython==4.2.2; python_version >= '3.10'",
-    "cryptography==45.0.7; python_version >= '3.10'",
+    "cryptography==48.0.1; python_version >= '3.10'",
     # Source pinned cffi==1.14.4 exactly, but that release predates Python 3.10
     # (no cp310 wheel), and pinning it here re-resolved the workspace-shared
     # cryptography→cffi chain (kolibri-oidc-provider-plugin uses the same
