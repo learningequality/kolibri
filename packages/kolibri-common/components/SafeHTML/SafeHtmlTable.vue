@@ -5,6 +5,7 @@
     data-testid="table-container"
   >
     <table
+      class="safe-html"
       v-bind="$attrs"
       :style="[contentStyle, tableStyle]"
     >

@@ -188,6 +188,61 @@ describe('SafeHTML', () => {
     });
   });
 
+  describe('custom components', () => {
+    // Mirrors the QTI interaction components: classes and styles its own root,
+    // and re-renders off its own reactive state rather than a prop.
+    const CustomChoice = {
+      name: 'CustomChoice',
+      props: { identifier: { type: String, default: '' } },
+      data() {
+        return { selected: false };
+      },
+      render(h) {
+        return h(
+          'li',
+          {
+            class: ['custom-choice', this.selected ? 'is-selected' : ''],
+            on: { click: () => (this.selected = true) },
+          },
+          this.$slots.default,
+        );
+      },
+    };
+
+    function renderChoice() {
+      const SafeHTMLWithCustom = createSafeHTML({ 'custom-choice': CustomChoice });
+      return render(SafeHTMLWithCustom, {
+        props: { html: `<custom-choice identifier="A">${CONTENT_TEXT}</custom-choice>` },
+      });
+    }
+
+    it('keeps the component class on first render rather than overwriting it', () => {
+      renderChoice();
+      expect(screen.getByText(CONTENT_TEXT)).toHaveClass('custom-choice');
+    });
+
+    it('leaves the component to opt into safe-html itself', () => {
+      renderChoice();
+      expect(screen.getByText(CONTENT_TEXT)).not.toHaveClass('safe-html');
+    });
+
+    it('still passes the authored class through for components to read', () => {
+      const seen = [];
+      const ClassReader = {
+        name: 'ClassReader',
+        render(h) {
+          seen.push(this.$attrs.class);
+          return h('div');
+        },
+      };
+      const SafeHTMLWithCustom = createSafeHTML({ 'class-reader': ClassReader });
+      render(SafeHTMLWithCustom, {
+        props: { html: '<class-reader class="qti-labels-decimal"></class-reader>' },
+      });
+      expect(seen).toEqual(['qti-labels-decimal']);
+    });
+  });
+
   describe('object tag handling', () => {
     beforeEach(() => handleObjectTypes());
 

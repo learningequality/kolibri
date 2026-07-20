@@ -12,6 +12,7 @@
         @click="openLightbox"
       >
         <img
+          class="safe-html"
           :src="src"
           :alt="alt"
           :style="[contentStyle, imageStyle]"
