@@ -3,20 +3,16 @@
   <div>
     <template v-if="itemBody">
       <AnswerGuide
-        v-if="hasInlineChoice"
-        :text="inlineChoiceGuideText"
+        v-for="text in guides"
+        :key="text"
+        :text="text"
       />
       <div
-        v-if="hasInlineChoice"
-        class="qti-passage"
+        :class="{ 'qti-passage': guides.length }"
         :style="passageStyles"
       >
         <SafeHTML :html="itemBodyMarkup" />
       </div>
-      <SafeHTML
-        v-else
-        :html="itemBodyMarkup"
-      />
     </template>
   </div>
 
@@ -31,7 +27,8 @@
   import { useQTIContext } from '../composables/useQTIContext';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { QTIVariable } from '../utils/qti/declarations';
-  import AnswerGuide, { answerGuideStrings } from './AnswerGuide.vue';
+  import { getItemBodyGuides } from '../utils/itemBodyGuidance';
+  import AnswerGuide from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
@@ -108,16 +105,14 @@
         return itemBody.value?.innerHTML || '';
       });
 
-      // Inline-choice gaps are inline within the passage, so a single guide is shown once
-      // above the whole passage rather than per gap.
-      const hasInlineChoice = computed(() =>
-        Boolean(itemBody.value?.querySelector('qti-inline-choice-interaction')),
+      // Guides shown once above the passage for inline interactions that cannot render their
+      // own block-level guide
+      const guides = computed(() => getItemBodyGuides(itemBody.value));
+      const passageStyles = computed(() =>
+        guides.value.length
+          ? { borderColor: $themeTokens.fineLine, color: $themeTokens.text }
+          : null,
       );
-      const inlineChoiceGuideText = computed(() => answerGuideStrings.inlineChoice$());
-      const passageStyles = computed(() => ({
-        borderColor: $themeTokens.fineLine,
-        color: $themeTokens.text,
-      }));
 
       const { interaction, registerCheckAnswer } = inject('handlers');
       const QTI_CONTEXT = inject('QTI_CONTEXT');
@@ -182,8 +177,7 @@
       return {
         itemBody,
         itemBodyMarkup,
-        hasInlineChoice,
-        inlineChoiceGuideText,
+        guides,
         passageStyles,
       };
     },
