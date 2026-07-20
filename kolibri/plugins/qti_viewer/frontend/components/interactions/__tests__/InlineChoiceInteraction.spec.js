@@ -128,6 +128,43 @@ describe('Multiple gaps', () => {
     expect(buttons[0]).toHaveTextContent('26 April 1564');
     expect(buttons[1]).toHaveTextContent('23 April 1616');
   });
+
+  it('gives each gap a distinct, numbered accessible name', async () => {
+    renderAssessmentItem(xml());
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.notAnsweredGap$({ number: 1, total: 2 }),
+    );
+    expect(buttons[1]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.notAnsweredGap$({ number: 2, total: 2 }),
+    );
+
+    // The number carries into the answered state too.
+    await selectOption(0, 'choice_1');
+    expect(screen.getAllByRole('button')[0]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.answeredGap$({ number: 1, total: 2, selection: '26 April 1564' }),
+    );
+  });
+});
+
+describe('Content direction', () => {
+  // QTI choice text is content-derived, so its direction must be resolved from the content
+  // itself (dir="auto") rather than the app language. See docs/i18n.rst.
+  it('marks the interactive trigger label with dir="auto"', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml);
+    expect(container.querySelector('.qti-inline-choice-label')).toHaveAttribute('dir', 'auto');
+  });
+
+  it('marks the report-mode text with dir="auto"', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml, {
+      interactive: false,
+      answerState: { RESPONSE: 'Y' },
+    });
+    expect(container.querySelector('.qti-inline-choice-report')).toHaveAttribute('dir', 'auto');
+  });
 });
 
 describe('Answer state', () => {

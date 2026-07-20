@@ -7,7 +7,10 @@
     `componentOptions.propsData`/`children` off each choice vnode, and so DOMPurify
     keeps the tag and its text content when sanitizing the item body.
   -->
-  <span class="qti-inline-choice"><slot></slot></span>
+  <span
+    class="qti-inline-choice"
+    dir="auto"
+  ><slot></slot></span>
 
 </template>
 

@@ -27,7 +27,7 @@
   import { useQTIContext } from '../composables/useQTIContext';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { QTIVariable } from '../utils/qti/declarations';
-  import { getItemBodyGuides } from '../utils/itemBodyGuidance';
+  import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
   import AnswerGuide from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
@@ -100,10 +100,9 @@
         return props.xmlDoc.querySelector('qti-item-body');
       });
 
-      // Process item body for display
-      const itemBodyMarkup = computed(() => {
-        return itemBody.value?.innerHTML || '';
-      });
+      // Process item body for display. Inline gaps are annotated with their passage position so
+      // each can render a distinct accessible name; item bodies without gaps pass through as-is.
+      const itemBodyMarkup = computed(() => numberPassageGaps(itemBody.value));
 
       // Guides shown once above the passage for inline interactions that cannot render their
       // own block-level guide

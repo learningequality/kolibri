@@ -15,7 +15,10 @@
       :style="triggerStyles"
       :aria-label="triggerAriaLabel"
     >
-      <span class="qti-inline-choice-label">{{ triggerLabel }}</span>
+      <span
+        class="qti-inline-choice-label"
+        dir="auto"
+      >{{ triggerLabel }}</span>
       <KIcon
         icon="dropdown"
         class="qti-inline-choice-arrow"
@@ -23,11 +26,16 @@
       <KDropdownMenu
         :options="options"
         @select="onSelect"
-      />
+      >
+        <template #option="{ option }">
+          <span dir="auto">{{ option.label }}</span>
+        </template>
+      </KDropdownMenu>
     </button>
     <span
       v-else
       class="qti-inline-choice-report qti-inline-choice-trigger"
+      dir="auto"
       :style="triggerStyles"
     >{{ triggerLabel }}</span>
   </span>
@@ -42,7 +50,12 @@
   import { computed, inject } from 'vue';
   import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
-  import { BooleanProp, QTIIdentifierProp, StringProp } from '../../utils/props';
+  import {
+    BooleanProp,
+    NonNegativeIntProp,
+    QTIIdentifierProp,
+    StringProp,
+  } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
 
   export const inlineChoiceStrings = createTranslator('InlineChoiceInteractionStrings', {
@@ -59,9 +72,20 @@
       message: 'Selected: {selection}. Activate to change your answer.',
       context: 'Accessible label for an inline dropdown gap that has been answered',
     },
+    notAnsweredGap: {
+      message: 'Gap {number} of {total}: not answered. Activate to choose an answer.',
+      context:
+        'Accessible label for an unanswered inline dropdown gap when a passage has several gaps, so a screen-reader user can tell the gaps apart',
+    },
+    answeredGap: {
+      message: 'Gap {number} of {total}: selected {selection}. Activate to change your answer.',
+      context:
+        'Accessible label for an answered inline dropdown gap when a passage has several gaps, so a screen-reader user can tell the gaps apart',
+    },
   });
 
-  const { placeholder$, notAnswered$, answered$ } = inlineChoiceStrings;
+  const { placeholder$, notAnswered$, answered$, notAnsweredGap$, answeredGap$ } =
+    inlineChoiceStrings;
 
   const $themeTokens = themeTokens();
 
@@ -139,9 +163,19 @@
       const triggerLabel = computed(() =>
         isAnswered.value ? selectedText.value : placeholder.value,
       );
-      const triggerAriaLabel = computed(() =>
-        isAnswered.value ? answered$({ selection: selectedText.value }) : notAnswered$(),
-      );
+      // When a passage has several gaps, each accessible name is prefixed with the gap's
+      // position ("gap 2 of 3")
+      // A lone gap keeps the shorter, unnumbered wording.
+      const triggerAriaLabel = computed(() => {
+        const number = typedProps.dataGapNumber.value;
+        const total = typedProps.dataGapCount.value;
+        const numbered = total > 1;
+        if (isAnswered.value) {
+          const selection = selectedText.value;
+          return numbered ? answeredGap$({ number, total, selection }) : answered$({ selection });
+        }
+        return numbered ? notAnsweredGap$({ number, total }) : notAnswered$();
+      });
 
       const rootStyles = computed(() => ({ color: $themeTokens.text }));
       const triggerStyles = computed(() => ({
@@ -177,6 +211,10 @@
       responseIdentifier: QTIIdentifierProp(true),
       shuffle: BooleanProp(false, false),
       dataPrompt: StringProp(false),
+      // Position of this gap and the total gap count in the passage, injected by AssessmentItem
+      // (numberPassageGaps) purely to build a distinct accessible name per gap.
+      dataGapNumber: NonNegativeIntProp(false, 0),
+      dataGapCount: NonNegativeIntProp(false, 0),
       /* eslint-enable */
     },
   };
