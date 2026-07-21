@@ -13,16 +13,19 @@
 
 <script>
 
-  import { computed, provide, ref, watch } from 'vue';
+  import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
   import logger from 'kolibri-logging';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import useQTIResource from '../composables/useQTIResource';
   import useHints from '../composables/useHints';
+  import { resolveResponseProcessingNode } from '../utils/qti/declarations/templates';
   import { loadQTIPackage, parseXML } from '../utils/xml';
   import AssessmentItem from './AssessmentItem.vue';
   import QTIHints from './QTIHints.vue';
 
   const logging = logger.getLogger(__filename);
+
+  /** @typedef {import('./AssessmentItem.vue').CheckAnswerResult} CheckAnswerResult */
 
   export default {
     name: 'QTIViewer',
@@ -45,6 +48,8 @@
       const packageLoading = ref(true);
       // Store resources by identifier
       const resourcesMap = ref({});
+      // QTI package object for custom response processing template resolution
+      const qtiPackage = ref(null);
 
       // Reactively get current resource based on itemId
       const currentResource = computed(() => {
@@ -72,11 +77,30 @@
         return resourceXmlDoc.value;
       });
 
+      // Loading strategy: QTIViewer is responsible for ensuring all resources
+      // are fully loaded before AssessmentItem mounts. This means fetching the
+      // package, loading the item XML, and pre-resolving any response processing
+      // templates (which may need to be fetched from the zip). AssessmentItem
+      // can then assume all content is ready and operate synchronously.
+      const templateLoading = ref(false);
+      watch(
+        [xmlDoc, qtiPackage],
+        async ([doc, pkg]) => {
+          if (!doc) return;
+          const rpNode = doc.querySelector('qti-response-processing');
+          if (!rpNode) return;
+          templateLoading.value = true;
+          await resolveResponseProcessingNode(rpNode, pkg);
+          templateLoading.value = false;
+        },
+        { immediate: true },
+      );
+
       const loading = computed(() => {
         if (itemData.value) {
           return false;
         }
-        return packageLoading.value || resourceLoading.value;
+        return packageLoading.value || resourceLoading.value || templateLoading.value;
       });
 
       // Load and parse the QTI package
@@ -88,8 +112,9 @@
 
         try {
           packageLoading.value = true;
-          // Update the resources map
-          resourcesMap.value = await loadQTIPackage(file);
+          const result = await loadQTIPackage(file);
+          resourcesMap.value = result.resourcesMap;
+          qtiPackage.value = result.qtiPackage;
         } catch (err) {
           logging.error('Error loading QTI package:', err);
           reportLoadingError(err);
@@ -113,10 +138,27 @@
       // Initial load
       load();
 
+      // Signal to consumers that the viewer is mounted and its internal
+      // AssessmentItem has registered its checkAnswer handler, and pair it
+      // with a stopTracking on teardown. Follows the Kolibri content-viewer
+      // convention (see docs/frontend_architecture/single_page_apps.rst).
+      onMounted(() => context.emit('startTracking'));
+      onBeforeUnmount(() => context.emit('stopTracking'));
+
+      /**
+       * Registered checkAnswer handler; swapped in when an AssessmentItem mounts.
+       * @type {() => CheckAnswerResult|undefined}
+       */
       let _checkAnswer = () => {
         logging.warn('No AssessmentItem has registered a checkAnswer handler function');
       };
 
+      /**
+       * Run the registered AssessmentItem handler to score the current responses.
+       * @returns {CheckAnswerResult|undefined}
+       * The result from the registered handler, or `undefined` if no
+       * AssessmentItem has registered yet.
+       */
       const checkAnswer = () => {
         return _checkAnswer();
       };
@@ -141,14 +183,22 @@
       // hints) to consumers via the ContentViewer wrapper.
       registerAssessmentApi({ checkAnswer, takeHint, availableHints, totalHints });
 
+      /**
+       * Handlers provided to descendant components. The assessment item is
+       * instantiated at varying depths in the tree, so `registerCheckAnswer`
+       * lets it install a handler that reads its own responses and context.
+       * @typedef {object} QTIViewerHandlers
+       * @property {() => void} interaction - Fires the `interaction` event
+       * whenever a response variable changes.
+       * @property {() => void} answerGiven - Runs `checkAnswer` and emits the
+       * {@link CheckAnswerResult} via the `answerGiven` event.
+       * @property {Function} registerCheckAnswer - Install the handler invoked
+       * by `checkAnswer` / `answerGiven`. Signature:
+       * `(handler: () => CheckAnswerResult) => void`.
+       */
       provide('handlers', {
         interaction: () => context.emit('interaction'),
         answerGiven: () => context.emit('answerGiven', checkAnswer()),
-        // Because the actual assessment item can be instantiated at a variety of levels
-        // in the component hierarchy, we use this method to register a handler
-        // for checking the answer - this function is invoked in AssessmentItem.vue
-        // to allow direct reading of the assessment item responses and context to give
-        // the answer state (and in future, the score)
         registerCheckAnswer: checkAnswerHandler => {
           _checkAnswer = checkAnswerHandler;
         },
@@ -175,6 +225,8 @@
         'interactive',
         computed(() => interactive.value),
       );
+
+      provide('qtiPackage', qtiPackage);
 
       // The public assessment API (checkAnswer + progressive-reveal hints) is
       // registered above via registerAssessmentApi and re-exposed on the

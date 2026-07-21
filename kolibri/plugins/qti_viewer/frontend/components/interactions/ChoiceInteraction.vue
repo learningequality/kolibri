@@ -70,7 +70,7 @@
       );
 
       const isSelected = identifier => {
-        const variable = responses[typedProps.responseIdentifier.value];
+        const variable = responses.value[typedProps.responseIdentifier.value];
         if (!variable) {
           return false;
         }
@@ -82,7 +82,7 @@
           return;
         }
         const currentlySelected = isSelected(identifier);
-        const variable = responses[typedProps.responseIdentifier.value];
+        const variable = responses.value[typedProps.responseIdentifier.value];
         if (!variable) {
           return false;
         }

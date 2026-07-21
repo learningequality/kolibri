@@ -1,11 +1,33 @@
-import isBoolean from 'lodash/isBoolean';
-import isString from 'lodash/isString';
-import isArray from 'lodash/isArray';
-
 import { BASE_TYPE } from '../../constants';
 
+/**
+ * A coerced QTI value. Its concrete shape follows the variable's base type and
+ * cardinality: boolean, number, string, or point/pair tuples for single values;
+ * arrays of these for multiple/ordered cardinality; or null.
+ * @typedef {(boolean|number|string|Array<number|string>|Array<Array<number|string>>|null)} QTIValue
+ */
+
+/**
+ * Build a string key for a QTI value, suitable for use in frequency maps.
+ * For pair baseType, normalizes element order so (A,B) and (B,A) produce the same key.
+ * @param {QTIValue} v - The value to key
+ * @param {string} [baseType] - Optional QTI base type
+ * @returns {string} A string key
+ */
+export function qtiValueKey(v, baseType) {
+  if (typeof v === 'object' && v !== null) {
+    // Pairs are unordered: normalize by sorting so (B,A) keys the same as (A,B)
+    if (baseType === BASE_TYPE.PAIR && Array.isArray(v) && v.length === 2) {
+      const sorted = v[0] <= v[1] ? v : [v[1], v[0]];
+      return JSON.stringify(sorted);
+    }
+    return JSON.stringify(v);
+  }
+  return String(v);
+}
+
 export function coerceBoolean(value) {
-  if (isString(value)) {
+  if (typeof value === 'string') {
     return value === 'true';
   }
   return Boolean(value);
@@ -16,12 +38,18 @@ export function coerceNumber(value) {
 }
 
 export const validateNumber = value => {
-  value = coerceNumber(value);
-  return !isNaN(value) && isFinite(value);
+  // Reject types that Number() silently coerces (e.g. true→1, null→0,
+  // []→0) but that are not meaningful QTI numeric values. Only accept
+  // strings and numbers as input — everything else is a type error.
+  if (typeof value !== 'string' && typeof value !== 'number') {
+    return false;
+  }
+  const num = coerceNumber(value);
+  return !isNaN(num) && isFinite(num);
 };
 
 export const validateBoolean = value => {
-  if (isBoolean(value)) {
+  if (typeof value === 'boolean') {
     return true;
   }
   if (value === 'true' || value === 'false') {
@@ -48,10 +76,10 @@ function parseSpaceSeparated(str, coerceFn) {
  * @throws {TypeError} When `value` cannot be coerced to a point.
  */
 export function coercePoint(value) {
-  if (isArray(value) && value.length === 2) {
+  if (Array.isArray(value) && value.length === 2) {
     return [parseInt(value[0], 10), parseInt(value[1], 10)];
   }
-  if (isString(value)) {
+  if (typeof value === 'string') {
     const parts = parseSpaceSeparated(value, v => parseInt(v, 10));
     if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
       return parts;
@@ -82,10 +110,10 @@ export function validatePoint(value) {
  * @throws {TypeError} When `value` cannot be coerced to a pair.
  */
 export function coercePair(value) {
-  if (isArray(value) && value.length === 2) {
+  if (Array.isArray(value) && value.length === 2) {
     return [String(value[0]), String(value[1])];
   }
-  if (isString(value)) {
+  if (typeof value === 'string') {
     const parts = parseSpaceSeparated(value, String);
     if (parts.length === 2) {
       return parts;
@@ -153,8 +181,21 @@ export function validateFile(value) {
  * @throws {TypeError} When `value` cannot be coerced to the requested base type.
  */
 export function coerceValueWithBaseType(value, baseType) {
-  // Handle null/undefined/empty cases per QTI specification
-  if (value === null || value === undefined || value === 'NULL' || value === '') {
+  // Empty containers and empty strings are treated as NULL in QTI per
+  // qti-is-null
+  //   https://www.imsglobal.org/spec/qti/v3p0/info/#OpIsNull
+  // We also accept the string 'NULL' as null.
+  if (value === null || value === undefined || value === 'NULL') {
+    return null;
+  }
+  // Empty string is a valid value for string-like types (a candidate can
+  // submit an empty text entry); for all other types it represents no value.
+  if (
+    value === '' &&
+    baseType !== BASE_TYPE.STRING &&
+    baseType !== BASE_TYPE.IDENTIFIER &&
+    baseType !== BASE_TYPE.URI
+  ) {
     return null;
   }
 
@@ -168,7 +209,7 @@ export function coerceValueWithBaseType(value, baseType) {
       if (!validateNumber(value)) {
         throw new TypeError(`Cannot coerce ${value} to integer`);
       }
-      return parseInt(value);
+      return parseInt(value, 10);
     case BASE_TYPE.FLOAT:
       if (!validateNumber(value)) {
         throw new TypeError(`Cannot coerce ${value} to float`);

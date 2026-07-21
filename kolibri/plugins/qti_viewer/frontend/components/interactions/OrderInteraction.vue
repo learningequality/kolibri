@@ -109,7 +109,7 @@
       });
 
       function getVariable() {
-        return responses[responseIdentifier.value];
+        return responses.value[responseIdentifier.value];
       }
 
       const currentOrder = computed(() => {

@@ -12,7 +12,8 @@
     "kolibri-viewer": "workspace:*",
     "kolibri-zip": "workspace:*",
     "lodash": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "xspattern": "3.1.0"
   },
   "devDependencies": {
     "@testing-library/vue": "catalog:"
