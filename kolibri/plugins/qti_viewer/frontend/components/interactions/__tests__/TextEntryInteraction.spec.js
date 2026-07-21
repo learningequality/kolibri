@@ -135,6 +135,40 @@ describe('Zero value handling (regression)', () => {
   });
 });
 
+// `qti-input-width-N`
+describe('Custom widths', () => {
+  it('sizes each field to the character count named by its qti-input-width class', () => {
+    renderAssessmentItem(items['q20-textentry-composite'].xml);
+    const widths = screen.getAllByRole('textbox').map(input => input.style.width);
+    expect(widths).toEqual([
+      // the fixture leads with an unsized field, then walks the width vocabulary
+      '',
+      ...[1, 2, 3, 4, 5, 6, 10, 15, 20, 25, 30, 35, 40, 45, 50, 72].map(
+        chars => `calc(${chars}ch + 18px)`,
+      ),
+    ]);
+  });
+
+  it('caps a sized field at the width of its container', () => {
+    renderAssessmentItem(items['q20-textentry-composite'].xml);
+    expect(screen.getAllByRole('textbox')[16]).toHaveStyle({ maxWidth: '100%' });
+  });
+
+  it('applies the same width in report mode', () => {
+    renderAssessmentItem(items['amp-07-nextgen'].xml, { interactive: false });
+    expect(document.querySelector('.qti-text-entry-interaction-report')).toHaveStyle({
+      width: 'calc(10ch + 18px)',
+    });
+  });
+
+  it('falls back to an expected-length minimum when no width class is given', () => {
+    renderAssessmentItem(items['q20-textentry'].xml);
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveStyle({ width: '' });
+    expect(input).toHaveStyle({ minWidth: '20ch' });
+  });
+});
+
 describe('Numeric keypad', () => {
   const xml = () => items['amp-07-nextgen'].xml;
 

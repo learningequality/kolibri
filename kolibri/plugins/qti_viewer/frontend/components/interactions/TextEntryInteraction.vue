@@ -11,10 +11,7 @@
       :aria-label="textEntryLabel$()"
       :placeholder="placeholder"
       :inputmode="inputMode"
-      :style="{
-        minWidth: `${Math.min(expectedLength ?? 20, 20)}ch`,
-        border: `1px solid ${$themeTokens.fineLine}`,
-      }"
+      :style="{ ...widthStyle, border: `1px solid ${$themeTokens.fineLine}` }"
       type="text"
       autocomplete="off"
       @input="onInput"
@@ -24,6 +21,7 @@
     <div
       v-else
       :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
+      :style="widthStyle"
     >
       {{ reportDisplayValue || placeholder }}
     </div>
@@ -69,6 +67,11 @@
     FRAC: '⁄',
   };
   const ALWAYS_EXCLUDED_KEYS = ['PERCENT', 'PI', 'FRAC'];
+
+  const INPUT_WIDTH_CLASS = /(?:^|\s)qti-input-width-(\d+)(?=\s|$)/;
+  // Horizontal padding and border of .qti-text-entry-interaction, which is border-box sized.
+  const INPUT_HORIZONTAL_CHROME = '18px';
+  const DEFAULT_WIDTH_CHARS = 20;
 
   export default {
     name: 'TextEntryInteraction',
@@ -150,6 +153,26 @@
       });
 
       const attrsClass = computed(() => getContextAttrs().class);
+
+      // `qti-input-width-N`
+      const inputWidthChars = computed(() => {
+        const match = INPUT_WIDTH_CLASS.exec(attrsClass.value || '');
+        return match ? Number(match[1]) : null;
+      });
+
+      const widthStyle = computed(() => {
+        if (inputWidthChars.value === null) {
+          // expected-length is only a hint at the answer's size, so it just sets a floor
+          const expected =
+            props.expectedLength == null ? DEFAULT_WIDTH_CHARS : typedProps.expectedLength.value;
+          return { minWidth: `${Math.min(expected, DEFAULT_WIDTH_CHARS)}ch` };
+        }
+        // The character count is the room for the text, so the box-sizing chrome sits outside it.
+        return {
+          width: `calc(${inputWidthChars.value}ch + ${INPUT_HORIZONTAL_CHROME})`,
+          maxWidth: '100%',
+        };
+      });
 
       const inputDeclaration = computed(() => {
         return responses.value[typedProps.responseIdentifier.value];
@@ -323,6 +346,7 @@
         coreOutline: themeOutlineStyle(),
         inputAttrs,
         attrsClass,
+        widthStyle,
         inputEl,
         onInput,
         onFocus,
@@ -348,14 +372,14 @@
 <style scoped>
 
   .qti-text-entry-interaction {
-    display: block;
+    box-sizing: border-box;
+    display: inline-block;
     width: 100%;
     padding: 4px 8px;
     border-radius: 4px;
   }
 
   .qti-text-entry-interaction-report {
-    box-sizing: border-box;
     width: 100%;
     min-height: 1.5em;
     padding: 8px;
