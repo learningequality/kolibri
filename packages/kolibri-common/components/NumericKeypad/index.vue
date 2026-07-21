@@ -124,6 +124,7 @@
             class="close-btn"
             @click="dismiss"
             @mousedown.native.prevent
+            @keydown.native.enter.stop
           />
         </div>
       </div>

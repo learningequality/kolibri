@@ -57,7 +57,6 @@
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import { normalizeUserInput, localizeUserInput } from 'kolibri-common/utils/numeralNormalization';
   import useKeypad from 'kolibri-common/composables/useKeypad';
-  import numericKeypadStrings from 'kolibri-common/strings/numericKeypadStrings';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
   import { wrapPerseusMessages } from '../translationUtils';
@@ -653,18 +652,7 @@
         }
         return null;
       },
-      answerGiven(e) {
-        if (e) {
-          // This is a hack to prevent enter keydown event from propagating when the mobile keypad
-          // is open and the user is dismissing the keypad with the enter key. The only reliable
-          // marker for this is the ariaLabel of the button that is clicked.
-          if (
-            e.target.tagName === 'BUTTON' &&
-            e.target.ariaLabel === numericKeypadStrings.dismiss$()
-          ) {
-            return;
-          }
-        }
+      answerGiven() {
         const answer = this.checkAnswer();
         if (answer) {
           this.$emit('answerGiven', answer);
