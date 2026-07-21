@@ -1,11 +1,14 @@
-import { render, screen, waitFor } from '@testing-library/vue';
+import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line import-x/named
 import { createTranslator } from 'kolibri/utils/i18n';
+import { dragSortStrings } from 'kolibri-common/components/sortable/dragSortStrings';
 import RearrangeChannelsPage from '../RearrangeChannelsPage';
 import makeStore from '../../__tests__/utils/makeStore';
 import { PageNames } from '../../constants';
+
+const { moveItemUpLabel$ } = dragSortStrings;
 
 const { instructions$, noChannels$, successNotification$ } = createTranslator(
   RearrangeChannelsPage.name,
@@ -92,6 +95,24 @@ describe('RearrangeChannelsPage', () => {
     // would normally call itself once the pointer is released.
     const { onEnd } = Sortable.mock.results[0].value.options;
     onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
+
+    await waitFor(() => {
+      expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
+    });
+    const channelNames = MOCK_CHANNELS.map(channel => channel.name);
+    const matchesChannelName = text => channelNames.includes(text.trim());
+    const titles = screen.getAllByText(matchesChannelName).map(el => el.textContent.trim());
+    expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
+  });
+
+  it('handles a moveUp event properly', async () => {
+    await renderComponent();
+    await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
+
+    const upButtons = screen.getAllByRole('button', {
+      name: moveItemUpLabel$({ item: MOCK_CHANNELS[1].name }),
+    });
+    await fireEvent.click(upButtons[0]);
 
     await waitFor(() => {
       expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
