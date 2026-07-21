@@ -87,7 +87,7 @@ class ChannelUpdateAllNewTestCase(ChannelUpdateTestBase):
             new_resource_total_size,
             sum(
                 map(
-                    lambda x: x["file_size"],
+                    lambda x: x["file_size_bigint"],
                     self.upgraded_channel.get_resource_localfiles(
                         map(lambda x: x["id"], self.upgraded_channel.resources)
                     ),
@@ -204,7 +204,7 @@ class ChannelMixedTestCase(ChannelUpdateTestBase):
 
         self.assertEqual(
             new_resource_total_size,
-            sum(map(lambda x: x["file_size"], new_resource_local_files)),
+            sum(map(lambda x: x["file_size_bigint"], new_resource_local_files)),
         )
 
     def test_deleted_resources(self):
@@ -235,7 +235,7 @@ class ChannelMixedTestCase(ChannelUpdateTestBase):
             updated_resource_total_size,
             sum(
                 map(
-                    lambda x: x["file_size"],
+                    lambda x: x["file_size_bigint"],
                     self.upgraded_channel.updated_resource_localfiles,
                 )
             ),
@@ -422,7 +422,7 @@ class CourseUpgradeTestCase(ChannelUpdateTestBase):
         primary_size = sum(
             self.upgraded_channel.localfiles[
                 self.upgraded_channel.files[f_id]["local_file_id"]
-            ]["file_size"]
+            ]["file_size_bigint"]
             for f_id in self.upgraded_channel.node_to_files_map[
                 self.new_descendant["id"]
             ]

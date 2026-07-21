@@ -396,6 +396,8 @@ class ChannelImport:
             # the default return value without doing any other checks
             return self.base_row_mapper
 
+        _missing = object()
+
         def mapper(record, column):
             """
             A mapper function for the mappings object
@@ -404,10 +406,10 @@ class ChannelImport:
                 # If the column name is in our defined mappings object,
                 # then we need to try to find an alternate value
                 col_map = mappings.get(column)  # Get the string value for the mapping
-                if hasattr(record, col_map):
-                    # Is this mapping value another column of the table?
-                    # If so, return it straight away
-                    return getattr(record, col_map)
+                value = get_attribute(record, col_map, _missing)
+                if value is not _missing:
+                    # get_attribute handles both SQLAlchemy Row objects and plain dicts
+                    return value
                 elif hasattr(self, col_map):
                     # Otherwise, check to see if the import class has an attribute with this name
                     # We assume that if it is, then it is either a literal value or a callable method
@@ -1050,8 +1052,10 @@ class ChannelImport:
 
 class NoIncludedPresetsChannelImport(ChannelImport):
     """
-    Schema mapping for importing content databases published before the
-    included_presets bitmask (schema < 6). Backfills it from each file's own preset.
+    Schema mapping for importing content databases published before schema
+    VERSION_6, which introduced both the included_presets bitmask and the
+    file_size_bigint column. Backfills included_presets from each file's own
+    preset, and maps the legacy file_size column to file_size_bigint.
     """
 
     schema_mapping = {
@@ -1061,7 +1065,12 @@ class NoIncludedPresetsChannelImport(ChannelImport):
                 "available": "default_to_not_available",
             }
         },
-        LocalFile: {"per_row": {"available": "default_to_not_available"}},
+        LocalFile: {
+            "per_row": {
+                "available": "default_to_not_available",
+                "file_size_bigint": "file_size",
+            }
+        },
         File: {
             "per_row": {"available": "default_to_not_available"},
             "post": ["set_included_presets_from_preset"],
@@ -1095,17 +1104,13 @@ class NoLearningActivitiesChannelImport(NoIncludedPresetsChannelImport):
     """
 
     schema_mapping = {
+        **NoIncludedPresetsChannelImport.schema_mapping,
         ContentNode: {
             "per_row": {
                 "tree_id": "available_tree_id",
                 "available": "default_to_not_available",
             },
             "post": ["set_learning_activities_from_kind"],
-        },
-        LocalFile: {"per_row": {"available": "default_to_not_available"}},
-        File: {
-            "per_row": {"available": "default_to_not_available"},
-            "post": ["set_included_presets_from_preset"],
         },
     }
 
@@ -1167,7 +1172,7 @@ class NoVersionChannelImport(NoLearningActivitiesChannelImport):
             "per_row": {
                 "id": "checksum",
                 "extension": "extension",
-                "file_size": "file_size",
+                "file_size_bigint": "file_size",
                 "available": "get_none",
             },
         },
@@ -1263,11 +1268,15 @@ def initialize_import_manager(
     version_requested=False,
     force_upgrade=False,
 ):
-    # For old versions of content databases, we can only infer the schema version
-    min_version = channel_metadata.get(
-        "min_schema_version",
-        channel_metadata.get("inferred_schema_version"),
-    )
+    # For data-based imports the schema is the version the data was serialized at;
+    # for file-based imports use the channel's min_schema_version.
+    if isinstance(source, dict):
+        min_version = source["schema_version"]
+    else:
+        min_version = channel_metadata.get(
+            "min_schema_version",
+            channel_metadata.get("inferred_schema_version"),
+        )
 
     try:
         ImportClass = mappings.get(min_version)
