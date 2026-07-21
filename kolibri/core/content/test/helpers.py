@@ -120,8 +120,14 @@ class ChannelBuilder:
     def insert_into_default_db(self):
         ContentNode.objects.bulk_create(self._django_nodes)
         ChannelMetadata.objects.create(**self.channel)
+        # localfile_data() keys the fixture dict by raw DB column names (for the
+        # SQLAlchemy insertion path); translate those to ORM attnames for the model.
+        column_to_attname = {f.column: f.attname for f in LocalFile._meta.fields}
         LocalFile.objects.bulk_create(
-            (LocalFile(**l) for l in self.localfiles.values())
+            (
+                LocalFile(**{column_to_attname.get(k, k): v for k, v in l.items()})
+                for l in self.localfiles.values()
+            )
         )
         File.objects.bulk_create((File(**f) for f in self.files.values()))
 
@@ -376,7 +382,7 @@ class ChannelBuilder:
 
     def localfile_data(self, extension="mp4"):
         data = {
-            "file_size": random.randint(1, 1000),
+            "file_size_bigint": random.randint(1, 1000),
             "extension": extension,
             "available": False,
             "id": uuid4_hex(),

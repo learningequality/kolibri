@@ -411,6 +411,11 @@ class ContentImportTestBase(TransactionTestCase):
 
         super().setUp()
 
+    def load_fixture_data(self):
+        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
+        with open(data_path, mode="r", encoding="utf-8") as f:
+            return json.load(f)
+
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
@@ -419,9 +424,7 @@ class ContentImportTestBase(TransactionTestCase):
 
         metadata = load_metadata(self.schema_name)
 
-        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with open(data_path, mode="r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self.load_fixture_data()
 
         metadata.bind = self.content_engine
 
@@ -819,6 +822,10 @@ class NaiveImportTestBase(ContentNodeTestBase):
             assert channel.root.available
             assert channel.root.children.first().files.all()[0].local_file.available
 
+    def test_local_file_file_size_imported(self):
+        lf = LocalFile.objects.get(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2")
+        self.assertEqual(lf.file_size, 1234)
+
 
 class NaiveImportTestCase(NaiveImportTestBase, ContentImportTestBase):
     pass
@@ -888,15 +895,6 @@ class ImportLongDescriptionsTestCase(ContentImportTestBase, TransactionTestCase)
         """
         imported_tag = ContentTag.objects.get(id=self.utf_tag_id)
         assert len(imported_tag.tag_name) == len(self.utf_tag_name)
-
-
-class Version5ImportTestCase(NaiveImportTestCase):
-    """
-    Test case for importing a version 5 channel database.
-    """
-
-    name = VERSION_5
-    legacy_schema = VERSION_5
 
 
 class Version4ImportTestCase(NaiveImportTestCase):
@@ -1166,3 +1164,17 @@ class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
         self.assertTrue(result)
         delete_m2m_mock.assert_called_once_with(self.channel_id)
         delete_tree_mock.assert_called_once_with(1)
+
+
+class Version5ImportTestCase(NaiveImportTestCase):
+    """
+    Import a VERSION_5 (pre-rename) database declaring min_schema_version=VERSION_5,
+    so it routes through NoIncludedPresetsChannelImport and its file_size mapping.
+    """
+
+    name = VERSION_5
+
+    def load_fixture_data(self):
+        data = super().load_fixture_data()
+        data["content_channelmetadata"][0]["min_schema_version"] = VERSION_5
+        return data

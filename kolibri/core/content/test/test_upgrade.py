@@ -2,6 +2,7 @@ import tempfile
 import uuid
 
 from django.core.management import call_command
+from django.db import connection
 from django.test import TestCase
 from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
@@ -12,10 +13,14 @@ from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSIO
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
+from kolibri.core.content.models import LocalFile
 from kolibri.core.content.upgrade import file_included_presets_annotation
 from kolibri.core.content.upgrade import fix_multiple_trees_with_tree_id1
+from kolibri.core.content.upgrade import migrate_file_size_to_bigint
 from kolibri.core.content.upgrade import update_num_coach_contents
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
+from kolibri.core.content.utils.file_size_migration import drop_legacy_file_size_column
+from kolibri.core.content.utils.file_size_migration import localfile_columns
 from kolibri.core.content.utils.upgrade import diff_stats
 
 from .sqlalchemytesting import django_connection_engine
@@ -396,3 +401,49 @@ class DiffStatsVersionRequestedTestCase(TestCase):
             "diff_stats must pass version_requested=True to initialize_import_manager "
             "so that the annotated-DB import proceeds for both upgrades and downgrades.",
         )
+
+
+class MigrateFileSizeToBigintTestCase(TransactionTestCase):
+    def _add_file_size_col_if_absent(self):
+        if "file_size" not in localfile_columns(connection):
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "ALTER TABLE content_localfile ADD COLUMN file_size integer"
+                )
+
+    def _drop_file_size_col_if_present(self):
+        if "file_size" in localfile_columns(connection):
+            with connection.schema_editor() as editor:
+                drop_legacy_file_size_column(editor, LocalFile)
+
+    def setUp(self):
+        # Fresh DB migrations drop file_size; restore it to simulate an existing install.
+        self._add_file_size_col_if_absent()
+        super().setUp()
+
+    def tearDown(self):
+        # Restore file_size if the upgrade task dropped it.
+        self._add_file_size_col_if_absent()
+        call_command("flush", interactive=False)
+        super().tearDown()
+
+    def test_copies_file_size_to_bigint_and_drops_column(self):
+        LocalFile.objects.create(id="a" * 32, extension="mp4")
+        with connection.cursor() as cursor:
+            # 2_000_000_000 fits in a 32-bit integer column (max ~2.1 GB)
+            cursor.execute(
+                "UPDATE content_localfile SET file_size = %s WHERE id = %s",
+                [2_000_000_000, "a" * 32],
+            )
+
+        migrate_file_size_to_bigint()
+
+        lf = LocalFile.objects.get(id="a" * 32)
+        self.assertEqual(lf.file_size, 2_000_000_000)
+        self.assertNotIn("file_size", localfile_columns(connection))
+
+    def test_is_noop_when_file_size_column_absent(self):
+        # Drop the column to simulate a post-upgrade state.
+        self._drop_file_size_col_if_present()
+        # Should not raise even when column is absent.
+        migrate_file_size_to_bigint()

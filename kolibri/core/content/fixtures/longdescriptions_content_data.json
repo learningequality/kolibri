@@ -290,7 +290,7 @@
       "description": "test data",
       "id": "6199dde695db4ee4ab392222d5af1e5c",
       "last_updated": null,
-      "min_schema_version": "1",
+      "min_schema_version": "6",
       "thumbnail": "",
       "root_id": "da7ecc42e62553eebc8121242746e88a",
       "version": 0,
@@ -321,34 +321,34 @@
   ],
   "content_localfile": [
     {
-      "file_size": null,
       "id": "9f9438fe6b0d42dd8e913d7d04cfb2b2",
       "available": true,
-      "extension": "mp4"
+      "extension": "mp4",
+      "file_size_bigint": null
     },
     {
-      "file_size": null,
       "id": "725257a0570044acbd59f8cf6a68b2be",
       "available": true,
-      "extension": "mp4"
+      "extension": "mp4",
+      "file_size_bigint": null
     },
     {
-      "file_size": null,
       "id": "e00699f859624e0f875ac6fe1e13d648",
       "available": true,
-      "extension": "mp4"
+      "extension": "mp4",
+      "file_size_bigint": null
     },
     {
-      "file_size": null,
       "id": "4c30dc7619f74f97ae2ccd4fffd09bf2",
       "available": true,
-      "extension": "mp3"
+      "extension": "mp3",
+      "file_size_bigint": null
     },
     {
-      "file_size": null,
       "id": "8ad3fffedf144cba9492e16daec1e39a",
       "available": true,
-      "extension": "vtt"
+      "extension": "vtt",
+      "file_size_bigint": null
     }
   ],
   "content_assessmentmetadata": [

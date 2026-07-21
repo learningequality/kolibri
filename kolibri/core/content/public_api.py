@@ -139,7 +139,13 @@ class ImportMetadataViewset(GenericViewSet):
             table_name = qs.model._meta.db_table
             table = base.classes[table_name].__table__
             raw_fields = [col.name for col in table.columns.values()]
-            qs = qs.values(*raw_fields)
+            # values() requires Django attribute names, not DB column names —
+            # necessary when db_column differs from attname (e.g. file_size_bigint).
+            col_to_attname = {
+                field.column: field.attname for field in qs.model._meta.fields
+            }
+            attr_fields = [col_to_attname.get(col, col) for col in raw_fields]
+            qs = qs.values(*attr_fields)
             # Avoid using the Django queryset directly, as it will coerce the database values
             # via its field 'from_db_value' transformers, whereas import metadata is read
             # directly from the database.
