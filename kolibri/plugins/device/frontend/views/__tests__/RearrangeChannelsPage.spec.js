@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/vue';
+import { render, screen, waitFor } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line import-x/named
@@ -14,21 +14,15 @@ const { instructions$, noChannels$, successNotification$ } = createTranslator(
 
 jest.mock('../../composables/useContentTasks');
 jest.mock('kolibri-common/composables/usePageLoading');
-jest.mock('kolibri-common/components/sortable/DragContainer', () => ({
-  default: {
-    name: 'DragContainer',
-    props: ['items'],
-    template: `
-      <div>
-        <button data-testid="trigger-sort" @click="$emit('sort', { newArray: [items[1], items[0]] })">
-          Trigger Sort
-        </button>
-        <slot />
-      </div>
-    `,
-  },
- }
-));
+jest.mock(
+  'sortablejs',
+  () =>
+    jest.fn().mockImplementation((el, options) => ({
+      destroy: jest.fn(),
+      options,
+    })),
+  { virtual: true },
+);
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/composables/useSnackbar');
 
@@ -82,25 +76,29 @@ describe('RearrangeChannelsPage', () => {
   });
 
   it('shows a message when there are no channels', async () => {
-      RearrangeChannelsPage.methods.fetchChannels = () => Promise.resolve([]);
-      await renderComponent();
-      await waitFor(() => {
-        expect(screen.getByText(noChannels$())).toBeInTheDocument();
-      });
-    });
-
-    it('handles a successful @sort event properly', async () => {
-      await renderComponent();
-      await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
-
-      await fireEvent.click(screen.getByTestId('trigger-sort'));
-
-      await waitFor(() => {
-        expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
-      });
-      const titles = screen
-        .getAllByText(new RegExp(`^(${MOCK_CHANNELS[0].name}|${MOCK_CHANNELS[1].name})$`))
-        .map(el => el.textContent);
-      expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
+    RearrangeChannelsPage.methods.fetchChannels = () => Promise.resolve([]);
+    await renderComponent();
+    await waitFor(() => {
+      expect(screen.getByText(noChannels$())).toBeInTheDocument();
     });
   });
+
+  it('handles a successful @sort event properly', async () => {
+    const Sortable = require('sortablejs');
+    await renderComponent();
+    await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
+
+    // Simulate the drag ending by calling the onEnd callback SortableJS
+    // would normally call itself once the pointer is released.
+    const { onEnd } = Sortable.mock.results[0].value.options;
+    onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
+
+    await waitFor(() => {
+      expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
+    });
+    const channelNames = MOCK_CHANNELS.map(channel => channel.name);
+    const matchesChannelName = text => channelNames.includes(text.trim());
+    const titles = screen.getAllByText(matchesChannelName).map(el => el.textContent.trim());
+    expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
+  });
+});
