@@ -282,7 +282,7 @@ def get_new_resources_available_for_import(
     new_resource_nodes_total_size = (
         connection.execute(
             # This does the first step in the many to many lookup for File
-            select(func.sum(LocalFileTable.c.file_size)).where(
+            select(func.sum(LocalFileTable.c.file_size_bigint)).where(
                 LocalFileTable.c.id.in_(
                     select(LocalFileTable.c.id)
                     .select_from(
@@ -633,7 +633,7 @@ def get_automatically_updated_resources(destination, channel_id):
 
         # This does the first step in the many to many lookup for File
         updated_resources_total_size += connection.execute(
-            select(func.sum(LocalFileTable.c.file_size)).where(
+            select(func.sum(LocalFileTable.c.file_size_bigint)).where(
                 LocalFileTable.c.id.in_(
                     select(LocalFileTable.c.id)
                     .select_from(
