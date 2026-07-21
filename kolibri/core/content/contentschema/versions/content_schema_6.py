@@ -1,4 +1,5 @@
 # coding: utf-8
+from sqlalchemy import BigInteger
 from sqlalchemy import Boolean
 from sqlalchemy import CHAR
 from sqlalchemy import Column
@@ -38,7 +39,7 @@ class ContentLocalfile(Base):
     id = Column(String(32), primary_key=True)
     extension = Column(String(40), nullable=False)
     available = Column(Boolean, nullable=False)
-    file_size = Column(Integer)
+    file_size_bigint = Column(BigInteger)
 
 
 class ContentContentnode(Base):

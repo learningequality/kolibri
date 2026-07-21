@@ -36,8 +36,8 @@ class ContentLocalfile(Base):
 
     id = Column(String(32), primary_key=True)
     available = Column(Boolean, nullable=False)
-    file_size = Column(Integer)
     extension = Column(String(40), nullable=False)
+    file_size_bigint = Column(BigInteger)
 
 
 class ContentContentnode(Base):
