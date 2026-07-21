@@ -877,6 +877,9 @@ export default createTranslator('PerseusInternalMessages', {
     context:
       'A label for a button that will allow the user to input the mathematical constant theta (i.e., θ)',
   },
+  upArrow: 'Up arrow',
+  downArrow: 'Down arrow',
+  leftArrow: 'Left arrow',
   navOutOfParentheses: 'Navigate right out of a set of parentheses',
   navOutOfExponent: 'Navigate right out of an exponent',
   navOutOfBase: 'Navigate right out of a base',
@@ -884,4 +887,8 @@ export default createTranslator('PerseusInternalMessages', {
   navOutOfNumeratorIntoDenominator: 'Navigate right out of the numerator and into the denominator',
   navOutOfDenominator: 'Navigate right out of the denominator of a fraction',
   delete: 'Delete',
+  dismiss: {
+    message: 'Dismiss',
+    context: 'A label for a button that will dismiss/hide a keypad.',
+  },
 });
