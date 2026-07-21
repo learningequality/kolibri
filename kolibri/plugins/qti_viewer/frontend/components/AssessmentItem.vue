@@ -24,9 +24,8 @@
   import { computed, inject, provide, watch } from 'vue';
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
-  import { useQTIContext } from '../composables/useQTIContext';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
-  import { QTIVariable } from '../utils/qti/declarations';
+  import { useQTIContext } from '../composables/useQTIContext';
   import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
   import AnswerGuide from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
@@ -36,33 +35,6 @@
   import OrderInteraction from './interactions/OrderInteraction.vue';
   import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
   import InlineChoice from './interactions/InlineChoice.vue';
-
-  /**
-   * Extract QTI declarations of a specific type from an XML document.
-   * @param {Document} xmlDocument - The QTI XML document.
-   * @param {string} declarationType - 'response', 'outcome', or 'context'.
-   * @param {Function} interactionHandler - A function called when a variable value is set.
-   * @returns {object} Map of identifier to QTIVariable.
-   */
-  function getQTIDeclarations(xmlDocument, declarationType, interactionHandler) {
-    const declarations = {};
-
-    const selector = `qti-${declarationType}-declaration`;
-
-    const nodes = xmlDocument.querySelectorAll(selector);
-
-    for (const node of nodes) {
-      const variable = new QTIVariable(node, interactionHandler);
-      declarations[variable.identifier] = variable;
-    }
-    return declarations;
-  }
-
-  function clearObject(obj) {
-    for (const key in obj) {
-      delete obj[key];
-    }
-  }
 
   const $themeTokens = themeTokens();
 
