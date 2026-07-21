@@ -133,7 +133,7 @@
             vnode.componentOptions.propsData.fixed === true,
         }));
 
-      const variable = computed(() => responses[typedProps.responseIdentifier.value]);
+      const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
       const selectedValue = computed(() => variable.value?.value ?? null);
 
       const orderedChoices = computed(() => {
