@@ -8,7 +8,7 @@ import RearrangeChannelsPage from '../RearrangeChannelsPage';
 import makeStore from '../../__tests__/utils/makeStore';
 import { PageNames } from '../../constants';
 
-const { moveItemUpLabel$ } = dragSortStrings;
+const { moveItemUpLabel$, moveItemDownLabel$ } = dragSortStrings;
 
 const { instructions$, noChannels$, successNotification$ } = createTranslator(
   RearrangeChannelsPage.name,
@@ -113,6 +113,24 @@ describe('RearrangeChannelsPage', () => {
       name: moveItemUpLabel$({ item: MOCK_CHANNELS[1].name }),
     });
     await fireEvent.click(upButtons[0]);
+
+    await waitFor(() => {
+      expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
+    });
+    const channelNames = MOCK_CHANNELS.map(channel => channel.name);
+    const matchesChannelName = text => channelNames.includes(text.trim());
+    const titles = screen.getAllByText(matchesChannelName).map(el => el.textContent.trim());
+    expect(titles).toEqual([MOCK_CHANNELS[1].name, MOCK_CHANNELS[0].name]);
+  });
+
+  it('handles a moveDown event properly', async () => {
+    await renderComponent();
+    await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
+
+    const downButtons = screen.getAllByRole('button', {
+      name: moveItemDownLabel$({ item: MOCK_CHANNELS[0].name }),
+    });
+    await fireEvent.click(downButtons[0]);
 
     await waitFor(() => {
       expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
