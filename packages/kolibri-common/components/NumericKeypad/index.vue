@@ -64,8 +64,12 @@
               @mousedown.native.prevent
             />
           </div>
-          <div class="nav-pad">
+          <div
+            class="nav-pad"
+            :class="{ 'nav-pad-horizontal': !showVerticalNav }"
+          >
             <KIconButton
+              v-if="showVerticalNav"
               icon="chevronUp"
               :ariaLabel="upArrow$()"
               appearance="raised-button"
@@ -83,7 +87,10 @@
               @click="onPress('LEFT')"
               @mousedown.native.prevent
             />
-            <div class="nav-spacer"></div>
+            <div
+              v-if="showVerticalNav"
+              class="nav-spacer"
+            ></div>
             <KIconButton
               icon="chevronRight"
               :ariaLabel="rightArrow$()"
@@ -94,6 +101,7 @@
               @mousedown.native.prevent
             />
             <KIconButton
+              v-if="showVerticalNav"
               icon="chevronDown"
               :ariaLabel="downArrow$()"
               appearance="raised-button"
@@ -116,6 +124,7 @@
             class="close-btn"
             @click="dismiss"
             @mousedown.native.prevent
+            @keydown.native.enter.stop
           />
         </div>
       </div>
@@ -132,8 +141,8 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { injectKeypad } from '../../composables/useKeypad';
   import useScrollContainer from '../../composables/useScrollContainer';
-  import translator from '../../translator';
-  import { getLocalizedDigits } from '../../numeralNormalization';
+  import translator from '../../strings/numericKeypadStrings';
+  import { getLocalizedDigits } from '../../utils/numeralNormalization';
   import { fractionLayout, expressionLayout } from './keys';
 
   export default {
@@ -181,6 +190,8 @@
       const isExpression = computed(() => keypad.keypadConfig.value?.keypadType === 'EXPRESSION');
 
       const useTimes = computed(() => keypad.keypadConfig.value?.times);
+      const showVerticalNav = computed(() => keypad.keypadConfig.value?.showVerticalNav !== false);
+      const excludeKeys = computed(() => keypad.keypadConfig.value?.excludeKeys || []);
 
       const fineLine = themeTokens().fineLine;
 
@@ -213,11 +224,14 @@
         borderBottom: 'none',
       };
 
-      const visibleKeys = computed(() =>
-        isExpression.value
+      const visibleKeys = computed(() => {
+        const layout = isExpression.value
           ? expressionLayout(localizedDigits.value, useTimes.value)
-          : fractionLayout(localizedDigits.value),
-      );
+          : fractionLayout(localizedDigits.value);
+        return excludeKeys.value.length
+          ? layout.filter(k => !excludeKeys.value.includes(k.id))
+          : layout;
+      });
 
       const primaryKeys = computed(() => visibleKeys.value.filter(k => !k.secondary));
 
@@ -238,6 +252,7 @@
         active: keypad.active,
         dismiss: keypad.dismiss,
         isExpression,
+        showVerticalNav,
         primaryKeys,
         secondaryKeys,
         onPress,
@@ -322,6 +337,13 @@
     align-self: center;
   }
 
+  // LEFT/RIGHT, side by side, instead of the 3x3 cross.
+  .nav-pad-horizontal {
+    grid-template-rows: 44px;
+    grid-template-columns: repeat(2, 44px);
+    gap: 8px;
+  }
+
   .nav-spacer {
     grid-row: 2;
     grid-column: 2;
@@ -344,6 +366,16 @@
 
   .nav-down {
     grid-row: 3;
+    grid-column: 2;
+  }
+
+  .nav-pad-horizontal .nav-left {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .nav-pad-horizontal .nav-right {
+    grid-row: 1;
     grid-column: 2;
   }
 

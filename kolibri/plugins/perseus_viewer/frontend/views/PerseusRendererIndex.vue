@@ -56,14 +56,14 @@
   import { MathInputI18nContextProvider } from '@khanacademy/math-input';
   import { KeypadContext } from '@khanacademy/keypad-context';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
-  import perseusTranslator from '../translator';
-  import { wrapPerseusMessages } from '../translationUtils';
+  import { normalizeUserInput, localizeUserInput } from 'kolibri-common/utils/numeralNormalization';
+  import useKeypad from 'kolibri-common/composables/useKeypad';
+  import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import widgetSolver from '../widgetSolver';
-  import { normalizeUserInput, localizeUserInput } from '../numeralNormalization';
-  import useKeypad from '../composables/useKeypad';
+  import { wrapPerseusMessages } from '../translationUtils';
+  import perseusTranslator from '../translator';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
-  import NumericKeypad from './NumericKeypad';
 
   const translator = wrapPerseusMessages(perseusTranslator);
 
@@ -678,15 +678,7 @@
         }
         return null;
       },
-      answerGiven(e) {
-        if (e) {
-          // This is a hack to prevent enter keydown event from propagating when the mobile keypad
-          // is open and the user is dismissing the keypad with the enter key. The only reliable
-          // marker for this is the ariaLabel of the button that is clicked.
-          if (e.target.tagName === 'BUTTON' && e.target.ariaLabel === translator.dismiss) {
-            return;
-          }
-        }
+      answerGiven() {
         const answer = this.checkAnswer();
         if (answer) {
           this.$emit('answerGiven', answer);

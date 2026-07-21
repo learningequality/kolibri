@@ -8,7 +8,7 @@
  * Everything else (operator keys, grid positions, aria labels) is defined here
  * as module-level constants.
  */
-import translator from '../../translator';
+import translator from '../../strings/numericKeypadStrings';
 
 const {
   percent$,

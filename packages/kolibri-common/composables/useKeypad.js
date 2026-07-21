@@ -92,6 +92,10 @@ export default function useKeypad() {
     keypadConfig: readonly(keypadConfig),
     dismiss,
     handleKeyPress,
+    activate,
+    configure,
+    setCursor,
+    setKeyHandler,
     setDOMNode(el) {
       keypadAPI._domNode = el;
     },
@@ -109,6 +113,11 @@ export default function useKeypad() {
  * @property {import('vue').Ref<object>} keypadConfig - Keys and input mode to display
  * @property {() => void} dismiss - Hide the keypad
  * @property {Function} handleKeyPress - Forward a child's key press
+ * @property {() => void} activate - Show the keypad
+ * @property {(configuration: object, cb?: Function) => void} configure - Set keypad layout/config
+ * @property {(cursor: unknown) => void} setCursor - Update the opaque cursor value
+ * @property {(handler: (keyId: string) => unknown) => void} setKeyHandler - Register the
+ * handler invoked on each key press; its return value becomes the new cursor
  * @property {(el: HTMLElement) => void} setDOMNode - Register the keypad DOM node
  */
 
