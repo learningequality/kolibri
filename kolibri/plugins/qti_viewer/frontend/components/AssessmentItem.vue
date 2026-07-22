@@ -31,6 +31,7 @@
   import AnswerGuide from './AnswerGuide.vue';
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
+  import { useQTIContext } from '../composables/useQTIContext';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
@@ -105,8 +106,6 @@
       const lang = inject('lang', ref(null));
       // Hosts the shared keypad state
       useKeypad();
-
-      const responses = {};
 
       function setFromAnswerState() {
         for (const [id, variable] of Object.entries(responses.value)) {
