@@ -40,7 +40,7 @@
       context: 'Tells the learner how to reorder the answer choices using the keyboard',
     },
     inlineChoice: {
-      message: 'Choose the best inline option for each gap.',
+      message: 'Choose the best inline option for {count, plural, one {the} other {each}} gap.',
       context:
         'Tells the learner to complete the passage by choosing an option in each inline dropdown gap',
     },

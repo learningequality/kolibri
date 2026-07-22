@@ -50,7 +50,8 @@ describe('Smoke', () => {
 describe('Answer guide', () => {
   it('renders the inline-choice guide once above the passage', () => {
     renderAssessmentItem(items['shakespeare-biography'].xml);
-    expect(screen.getAllByText(answerGuideStrings.inlineChoice$())).toHaveLength(1);
+    // the shakespeare-biography passage has two gaps
+    expect(screen.getAllByText(answerGuideStrings.inlineChoice$({ count: 2 }))).toHaveLength(1);
   });
 
   it('wraps the passage in a bordered box', () => {
@@ -83,6 +84,19 @@ describe('Unanswered gap', () => {
       { label: 'Lancaster', value: 'L' },
       { label: 'York', value: 'Y' },
     ]);
+  });
+
+  // We override KDropdownMenu's `option` slot
+  it('renders each option with the menu layout classes and a direction-aware wrapper', () => {
+    renderAssessmentItem(xml());
+    const [menu] = findKDropdownMenus();
+    const vnode = menu.$scopedSlots.option({ option: menu.options[0] })[0];
+
+    expect(vnode.data.staticClass).toBe('ui-menu-option-content');
+    expect(vnode.data.attrs.dir).toBe('auto');
+    const [text] = vnode.children;
+    expect(text.data.staticClass).toBe('ui-menu-option-text');
+    expect(text.children[0].text).toBe('Gloucester');
   });
 });
 

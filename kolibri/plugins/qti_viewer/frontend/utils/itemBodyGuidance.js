@@ -2,10 +2,14 @@ import InlineChoiceInteraction from '../components/interactions/InlineChoiceInte
 import { answerGuideStrings } from '../components/AnswerGuide.vue';
 
 // Guides for inlines only, block interactions handle their own
-// Each entry: { tag, guide? } where `guide` (optional) returns the translated string to hoist
-// above the passage when that interaction is present.
+// Each entry: { tag, guide? } where `guide` (optional) takes the number of gaps that
+// interaction contributes to the passage — the guide wording is pluralised on it — and
+// returns the translated string to hoist above the passage when that interaction is present.
 const INLINE_INTERACTIONS = [
-  { tag: InlineChoiceInteraction.tag, guide: () => answerGuideStrings.inlineChoice$() },
+  {
+    tag: InlineChoiceInteraction.tag,
+    guide: count => answerGuideStrings.inlineChoice$({ count }),
+  },
 ];
 
 // A single selector matching every inline gap, so gaps are numbered across interaction types
@@ -23,7 +27,7 @@ export function getItemBodyGuides(itemBodyNode) {
   }
   return INLINE_INTERACTIONS.filter(
     interaction => interaction.guide && itemBodyNode.querySelector(interaction.tag),
-  ).map(interaction => interaction.guide());
+  ).map(interaction => interaction.guide(itemBodyNode.querySelectorAll(interaction.tag).length));
 }
 
 /**

@@ -19,7 +19,16 @@ describe('getItemBodyGuides', () => {
         <qti-inline-choice identifier="A">Alpha</qti-inline-choice>
       </qti-inline-choice-interaction>.</p>
     `);
-    expect(getItemBodyGuides(body)).toEqual([answerGuideStrings.inlineChoice$()]);
+    expect(getItemBodyGuides(body)).toEqual([answerGuideStrings.inlineChoice$({ count: 1 })]);
+  });
+
+  it('pluralises the inline-choice guide over the number of gaps in the passage', () => {
+    const gap = id =>
+      `<qti-inline-choice-interaction response-identifier="${id}">
+        <qti-inline-choice identifier="A">Alpha</qti-inline-choice>
+      </qti-inline-choice-interaction>`;
+    const body = itemBody(`<p>Pick ${gap('R1')} and ${gap('R2')}.</p>`);
+    expect(getItemBodyGuides(body)).toEqual([answerGuideStrings.inlineChoice$({ count: 2 })]);
   });
 
   it('returns no guide for an item body without inline interactions', () => {

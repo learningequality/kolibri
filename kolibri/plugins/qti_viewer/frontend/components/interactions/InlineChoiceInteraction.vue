@@ -27,8 +27,19 @@
         :options="options"
         @select="onSelect"
       >
+        <!--
+          The slot is overridden only to set dir="auto", so that a choice written in a
+          right-to-left script reads correctly. Overriding it replaces UiMenuOption's own
+          markup, so the two layout classes it supplies (row height, padding, truncation)
+          have to be reproduced here or every option loses its alignment.
+        -->
         <template #option="{ option }">
-          <span dir="auto">{{ option.label }}</span>
+          <div
+            class="ui-menu-option-content"
+            dir="auto"
+          >
+            <div class="ui-menu-option-text">{{ option.label }}</div>
+          </div>
         </template>
       </KDropdownMenu>
     </button>
