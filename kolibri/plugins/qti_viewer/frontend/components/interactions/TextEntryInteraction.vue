@@ -2,22 +2,44 @@
 
   <div class="qti-text-entry-interaction-wrapper">
     <AnswerGuide :text="answerGuideText" />
-    <input
-      v-if="interactive"
-      ref="inputEl"
-      v-bind="inputAttrs"
-      :value="rawValue"
-      :class="['qti-text-entry-interaction', attrsClass, $computedClass({ ':focus': coreOutline })]"
-      :aria-label="textEntryLabel$()"
-      :placeholder="placeholder"
-      :inputmode="inputMode"
-      :style="{ ...widthStyle, border: `1px solid ${$themeTokens.fineLine}` }"
-      type="text"
-      autocomplete="off"
-      @input="onInput"
-      @focus="onFocus"
-      @blur="onBlur"
-    >
+    <template v-if="interactive">
+      <input
+        ref="inputEl"
+        v-bind="inputAttrs"
+        :value="rawValue"
+        :class="[
+          'qti-text-entry-interaction',
+          attrsClass,
+          $computedClass({ ':focus': coreOutline }),
+        ]"
+        :aria-label="textEntryLabel$()"
+        :aria-invalid="showPatternError ? 'true' : undefined"
+        :aria-describedby="patternErrorId"
+        :placeholder="placeholder"
+        :inputmode="inputMode"
+        :style="{
+          ...widthStyle,
+          border: `1px solid ${showPatternError ? $themeTokens.error : $themeTokens.fineLine}`,
+        }"
+        type="text"
+        autocomplete="off"
+        @input="onInput"
+        @focus="onFocus"
+        @blur="onBlur"
+      >
+      <p
+        v-if="patternErrorId"
+        :id="patternErrorId"
+        class="qti-text-entry-interaction-error"
+        :style="{ color: $themeTokens.error }"
+      >
+        <KIcon
+          icon="error"
+          :color="$themeTokens.error"
+        />
+        {{ patternMaskMessage }}
+      </p>
+    </template>
     <div
       v-else
       :class="['qti-text-entry-interaction', 'qti-text-entry-interaction-report', attrsClass]"
@@ -33,6 +55,8 @@
 <script>
 
   import { computed, inject, nextTick, onBeforeUnmount, ref, unref, watch } from 'vue';
+  import { compile } from 'xspattern';
+  import logger from 'kolibri-logging';
   import { themeTokens, themeOutlineStyle } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import { injectKeypad } from 'kolibri-common/composables/useKeypad';
@@ -47,6 +71,8 @@
   } from '../../utils/props';
   import { BASE_TYPE } from '../../constants';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
+
+  const logging = logger.getLogger(__filename);
 
   const $themeTokens = themeTokens();
 
@@ -72,6 +98,8 @@
   // Horizontal padding and border of .qti-text-entry-interaction, which is border-box sized.
   const INPUT_HORIZONTAL_CHROME = '18px';
   const DEFAULT_WIDTH_CHARS = 20;
+
+  let patternMessageCount = 0;
 
   export default {
     name: 'TextEntryInteraction',
@@ -231,6 +259,40 @@
 
       const inputMode = computed(() => (isNumeric.value ? 'decimal' : undefined));
 
+      // --- Pattern mask
+      const patternMatcher = computed(() => {
+        const pattern = typedProps.patternMask.value;
+        if (!pattern) {
+          return null;
+        }
+        try {
+          return compile(pattern);
+        } catch (e) {
+          // An unparseable mask is an authoring error in the item, not a learner error.
+          logging.warn(`Ignoring invalid QTI pattern-mask "${pattern}":`, e.message);
+          return null;
+        }
+      });
+
+      // Per the QTI spec the mask flags an invalid response after entry — it never blocks
+      // keystrokes, and never gates commit(). This is presentational only.
+      const isPatternValid = computed(() => {
+        if (!patternMatcher.value || !rawValue.value) {
+          return true;
+        }
+        return patternMatcher.value(rawValue.value);
+      });
+
+      // Only surface the error once the learner has left the field
+      const touched = ref(false);
+      const showPatternError = computed(() => touched.value && !isPatternValid.value);
+
+      const patternMaskMessage = computed(() => getContextAttrs()['data-patternmask-message']);
+      const messageId = `qti-patternmask-message-${(patternMessageCount += 1)}`;
+      const patternErrorId = computed(() =>
+        showPatternError.value && patternMaskMessage.value ? messageId : undefined,
+      );
+
       // --- Keypad wiring
       // Caret is a plain index into the flat string here — not Perseus's
       // expression-tree cursor. The returned value feeds the composable's
@@ -319,6 +381,7 @@
       }
 
       function onBlur() {
+        touched.value = true;
         if (!commit(rawValue.value)) {
           // fallback
           rawValue.value = lastCommittedRaw.value;
@@ -347,6 +410,9 @@
         inputAttrs,
         attrsClass,
         widthStyle,
+        showPatternError,
+        patternMaskMessage,
+        patternErrorId,
         inputEl,
         onInput,
         onFocus,
@@ -377,6 +443,14 @@
     width: 100%;
     padding: 4px 8px;
     border-radius: 4px;
+  }
+
+  .qti-text-entry-interaction-error {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin: 4px 0 0;
+    font-size: 12px;
   }
 
   .qti-text-entry-interaction-report {

@@ -135,6 +135,76 @@ describe('Zero value handling (regression)', () => {
   });
 });
 
+// pattern-mask
+describe('Pattern mask', () => {
+  // pattern-mask="([0-9.]{0,6})" with a data-patternmask-message
+  const xml = () => items['q20-textentry-sv-3'].xml;
+  const patternMessage = 'Maximum of 6 digits or decimal points permitted';
+
+  it('does not flag an invalid value while it is still being typed', async () => {
+    renderAssessmentItem(xml());
+    await fireEvent.update(screen.getByRole('textbox'), '1234567');
+    expect(screen.queryByText(patternMessage)).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('flags an invalid value once the field is left', async () => {
+    renderAssessmentItem(xml());
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1234567');
+    await fireEvent.blur(input);
+    expect(screen.getByText(patternMessage)).toBeVisible();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('points the input at its message via aria-describedby', async () => {
+    renderAssessmentItem(xml());
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1234567');
+    await fireEvent.blur(input);
+    const messageId = input.getAttribute('aria-describedby');
+    expect(messageId).toBeTruthy();
+    expect(document.getElementById(messageId)).toHaveTextContent(patternMessage);
+  });
+
+  it('accepts a value that satisfies the mask', async () => {
+    renderAssessmentItem(xml());
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '12.34');
+    await fireEvent.blur(input);
+    expect(screen.queryByText(patternMessage)).not.toBeInTheDocument();
+  });
+
+  it('does not flag an empty field', async () => {
+    renderAssessmentItem(xml());
+    await fireEvent.blur(screen.getByRole('textbox'));
+    expect(screen.queryByText(patternMessage)).not.toBeInTheDocument();
+  });
+
+  // The mask is presentational: a response that violates it is still recorded, so the
+  // learner's work is never silently discarded.
+  it('still records a response that violates the mask', async () => {
+    const { checkAnswer } = renderAssessmentItem(xml());
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1234567');
+    await fireEvent.blur(input);
+    expect(checkAnswer().answerState.RESPONSE).toBe('1234567');
+  });
+
+  // An unparseable mask is an authoring error in the item; it must not break the question.
+  // The accompanying warning can't be asserted here — setup.js silences kolibri-logging.
+  it('ignores a malformed mask instead of throwing', async () => {
+    // Anchored on the hyphenated attribute: the item body also describes its own mask in
+    // prose as `patternmask="([0-9.]{0,6})"`, which a plain string replace would hit first.
+    renderAssessmentItem(xml().replace(/pattern-mask="[^"]*"/, 'pattern-mask="[unclosed"'));
+    const input = screen.getByRole('textbox');
+    await fireEvent.update(input, '1234567');
+    await fireEvent.blur(input);
+    expect(input).toHaveValue('1234567');
+    expect(screen.queryByText(patternMessage)).not.toBeInTheDocument();
+  });
+});
+
 // `qti-input-width-N`
 describe('Custom widths', () => {
   it('sizes each field to the character count named by its qti-input-width class', () => {
