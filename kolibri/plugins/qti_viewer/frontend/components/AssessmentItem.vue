@@ -1,10 +1,19 @@
 <template>
 
   <div>
-    <SafeHTML
-      v-if="itemBody"
-      :html="itemBodyMarkup"
-    />
+    <template v-if="itemBody">
+      <AnswerGuide
+        v-for="text in guides"
+        :key="text"
+        :text="text"
+      />
+      <div
+        :class="{ 'qti-passage': guides.length }"
+        :style="passageStyles"
+      >
+        <SafeHTML :html="itemBodyMarkup" />
+      </div>
+    </template>
   </div>
 
 </template>
@@ -15,12 +24,19 @@
   import { computed, inject, provide, watch } from 'vue';
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
+  import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { useQTIContext } from '../composables/useQTIContext';
+  import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
+  import AnswerGuide from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
   import TextEntryInteraction from './interactions/TextEntryInteraction.vue';
   import OrderInteraction from './interactions/OrderInteraction.vue';
+  import InlineChoiceInteraction from './interactions/InlineChoiceInteraction.vue';
+  import InlineChoice from './interactions/InlineChoice.vue';
+
+  const $themeTokens = themeTokens();
 
   const SafeHTML = createSafeHTML({
     [ChoiceInteraction.tag]: ChoiceInteraction,
@@ -28,6 +44,8 @@
     [SimpleChoice.tag]: SimpleChoice,
     [TextEntryInteraction.tag]: TextEntryInteraction,
     [OrderInteraction.tag]: OrderInteraction,
+    [InlineChoiceInteraction.tag]: InlineChoiceInteraction,
+    [InlineChoice.tag]: InlineChoice,
   });
 
   /** @typedef {import('../utils/qti/values.js').QTIValue} QTIValue */
@@ -46,6 +64,7 @@
   export default {
     name: 'AssessmentItem',
     components: {
+      AnswerGuide,
       SafeHTML,
     },
     setup(props) {
@@ -53,10 +72,18 @@
         return props.xmlDoc.querySelector('qti-item-body');
       });
 
-      // Process item body for display
-      const itemBodyMarkup = computed(() => {
-        return itemBody.value?.innerHTML || '';
-      });
+      // Process item body for display. Inline gaps are annotated with their passage position so
+      // each can render a distinct accessible name; item bodies without gaps pass through as-is.
+      const itemBodyMarkup = computed(() => numberPassageGaps(itemBody.value));
+
+      // Guides shown once above the passage for inline interactions that cannot render their
+      // own block-level guide
+      const guides = computed(() => getItemBodyGuides(itemBody.value));
+      const passageStyles = computed(() =>
+        guides.value.length
+          ? { borderColor: $themeTokens.fineLine, color: $themeTokens.text }
+          : null,
+      );
 
       const { interaction, registerCheckAnswer } = inject('handlers');
       const QTI_CONTEXT = inject('QTI_CONTEXT');
@@ -121,6 +148,8 @@
       return {
         itemBody,
         itemBodyMarkup,
+        guides,
+        passageStyles,
       };
     },
     props: {
@@ -132,3 +161,16 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .qti-passage {
+    padding: 1rem 1.125rem;
+    line-height: 2.25;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
+</style>

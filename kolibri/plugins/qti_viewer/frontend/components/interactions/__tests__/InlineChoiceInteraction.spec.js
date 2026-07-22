@@ -1,0 +1,265 @@
+import { screen, waitFor } from '@testing-library/vue';
+import shuffled from 'kolibri-common/utils/shuffled';
+import items from '../../__fixtures__/items';
+import { renderAssessmentItem } from '../../__tests__/helpers';
+import { answerGuideStrings } from '../../AnswerGuide.vue';
+import { inlineChoiceStrings } from '../InlineChoiceInteraction.vue';
+
+const smokeFixtures = [
+  ['q12-inline-choice-interaction', 1],
+  ['shakespeare-biography', 2],
+  ['vertical-inlinechoice-16', 1],
+  ['q12-inline-choice-sv-1', 17],
+];
+
+// tippy-based popovers do not open in jsdom, so the option list is never rendered to
+// the DOM. To exercise a learner selecting an option we reach the KDropdownMenu
+// instances and replay the `select` event they emit when an option is chosen — the
+// same event our component listens to in production.
+function findKDropdownMenus() {
+  const withVue = Array.from(document.body.querySelectorAll('*')).find(el => el.__vue__);
+  const root = withVue && withVue.__vue__.$root;
+  const menus = [];
+  const walk = vm => {
+    if (!vm) {
+      return;
+    }
+    if (vm.$options.name === 'KDropdownMenu') {
+      menus.push(vm);
+    }
+    (vm.$children || []).forEach(walk);
+  };
+  walk(root);
+  return menus;
+}
+
+async function selectOption(menuIndex, value) {
+  const menu = findKDropdownMenus()[menuIndex];
+  const option = menu.options.find(o => o.value === value);
+  menu.$emit('select', option);
+  await menu.$nextTick();
+}
+
+describe('Smoke', () => {
+  it.each(smokeFixtures)('%s renders %d inline-choice trigger(s)', (id, gapCount) => {
+    renderAssessmentItem(items[id].xml);
+    expect(screen.getAllByRole('button')).toHaveLength(gapCount);
+  });
+});
+
+describe('Answer guide', () => {
+  it('renders the inline-choice guide once above the passage', () => {
+    renderAssessmentItem(items['shakespeare-biography'].xml);
+    // the shakespeare-biography passage has two gaps
+    expect(screen.getAllByText(answerGuideStrings.inlineChoice$({ count: 2 }))).toHaveLength(1);
+  });
+
+  it('wraps the passage in a bordered box', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml);
+    expect(container.querySelector('.qti-passage')).toBeInTheDocument();
+  });
+});
+
+describe('Unanswered gap', () => {
+  const xml = () => items['q12-inline-choice-interaction'].xml;
+
+  it('shows the placeholder in the trigger', () => {
+    renderAssessmentItem(xml());
+    expect(screen.getByRole('button')).toHaveTextContent(inlineChoiceStrings.placeholder$());
+  });
+
+  it('exposes an accessible name describing the not-answered state', () => {
+    renderAssessmentItem(xml());
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.notAnswered$(),
+    );
+  });
+
+  it('wires the choice options into the dropdown in document order', () => {
+    renderAssessmentItem(xml());
+    const [menu] = findKDropdownMenus();
+    expect(menu.options).toEqual([
+      { label: 'Gloucester', value: 'G' },
+      { label: 'Lancaster', value: 'L' },
+      { label: 'York', value: 'Y' },
+    ]);
+  });
+
+  // We override KDropdownMenu's `option` slot
+  it('renders each option with the menu layout classes and a direction-aware wrapper', () => {
+    renderAssessmentItem(xml());
+    const [menu] = findKDropdownMenus();
+    const vnode = menu.$scopedSlots.option({ option: menu.options[0] })[0];
+
+    expect(vnode.data.staticClass).toBe('ui-menu-option-content');
+    expect(vnode.data.attrs.dir).toBe('auto');
+    const [text] = vnode.children;
+    expect(text.data.staticClass).toBe('ui-menu-option-text');
+    expect(text.children[0].text).toBe('Gloucester');
+  });
+});
+
+describe('Selecting an option', () => {
+  const xml = () => items['q12-inline-choice-interaction'].xml;
+
+  it('updates the trigger to show the selected choice text', async () => {
+    renderAssessmentItem(xml());
+    await selectOption(0, 'Y');
+    const button = screen.getByRole('button');
+    expect(button).toHaveTextContent('York');
+    expect(button).not.toHaveTextContent(inlineChoiceStrings.placeholder$());
+  });
+
+  it('updates the accessible name to reflect the answered state', async () => {
+    renderAssessmentItem(xml());
+    await selectOption(0, 'Y');
+    expect(screen.getByRole('button')).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.answered$({ selection: 'York' }),
+    );
+  });
+
+  it('stores the selected identifier in the response, readable via checkAnswer', async () => {
+    const { checkAnswer } = renderAssessmentItem(xml());
+    await selectOption(0, 'Y');
+    expect(checkAnswer().answerState.RESPONSE).toBe('Y');
+  });
+});
+
+describe('Multiple gaps', () => {
+  const xml = () => items['shakespeare-biography'].xml;
+
+  it('render and are answerable independently', async () => {
+    renderAssessmentItem(xml());
+    // Selecting in the first gap leaves the second gap on its placeholder.
+    await selectOption(0, 'choice_1');
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveTextContent('26 April 1564');
+    expect(buttons[1]).toHaveTextContent(inlineChoiceStrings.placeholder$());
+
+    await selectOption(1, 'choice_4');
+    expect(buttons[0]).toHaveTextContent('26 April 1564');
+    expect(buttons[1]).toHaveTextContent('23 April 1616');
+  });
+
+  it('gives each gap a distinct, numbered accessible name', async () => {
+    renderAssessmentItem(xml());
+    const buttons = screen.getAllByRole('button');
+    expect(buttons[0]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.notAnsweredGap$({ number: 1, total: 2 }),
+    );
+    expect(buttons[1]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.notAnsweredGap$({ number: 2, total: 2 }),
+    );
+
+    // The number carries into the answered state too.
+    await selectOption(0, 'choice_1');
+    expect(screen.getAllByRole('button')[0]).toHaveAttribute(
+      'aria-label',
+      inlineChoiceStrings.answeredGap$({ number: 1, total: 2, selection: '26 April 1564' }),
+    );
+  });
+});
+
+describe('Content direction', () => {
+  // QTI choice text is content-derived, so its direction must be resolved from the content
+  // itself (dir="auto") rather than the app language. See docs/i18n.rst.
+  it('marks the interactive trigger label with dir="auto"', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml);
+    expect(container.querySelector('.qti-inline-choice-label')).toHaveAttribute('dir', 'auto');
+  });
+
+  it('marks the report-mode text with dir="auto"', () => {
+    const { container } = renderAssessmentItem(items['q12-inline-choice-interaction'].xml, {
+      interactive: false,
+      answerState: { RESPONSE: 'Y' },
+    });
+    expect(container.querySelector('.qti-inline-choice-report')).toHaveAttribute('dir', 'auto');
+  });
+});
+
+describe('Answer state', () => {
+  const xml = () => items['q12-inline-choice-interaction'].xml;
+
+  it('restores the selected choice from injected answerState on mount', () => {
+    renderAssessmentItem(xml(), { answerState: { RESPONSE: 'Y' } });
+    expect(screen.getByRole('button')).toHaveTextContent('York');
+  });
+
+  it('reacts to external setAnswerState changes', async () => {
+    const { setAnswerState } = renderAssessmentItem(xml());
+    setAnswerState({ RESPONSE: 'L' });
+    await waitFor(() => expect(screen.getByRole('button')).toHaveTextContent('Lancaster'));
+  });
+
+  it('round-trips a selection through checkAnswer and setAnswerState', async () => {
+    const { checkAnswer, setAnswerState } = renderAssessmentItem(xml());
+    await selectOption(0, 'Y');
+    const result = checkAnswer();
+
+    setAnswerState({});
+    await waitFor(() =>
+      expect(screen.getByRole('button')).toHaveAttribute(
+        'aria-label',
+        inlineChoiceStrings.notAnswered$(),
+      ),
+    );
+
+    setAnswerState(result.answerState);
+    await waitFor(() => expect(screen.getByRole('button')).toHaveTextContent('York'));
+  });
+});
+
+describe('Non-interactive (report) mode', () => {
+  const xml = () => items['q12-inline-choice-interaction'].xml;
+
+  it('renders the selected answer as static text without a dropdown trigger', () => {
+    const { container } = renderAssessmentItem(xml(), {
+      interactive: false,
+      answerState: { RESPONSE: 'Y' },
+    });
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(container.querySelector('.qti-inline-choice-report')).toHaveTextContent('York');
+  });
+});
+
+describe('Shuffle', () => {
+  const candidateIdentifier = 'shuffle-seed-001';
+  const sourceIds = ['A', 'B', 'C', 'D'];
+  const shuffleXml = `<qti-assessment-item
+      xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"
+      identifier="inline-shuffle" title="Shuffle" adaptive="false" time-dependent="false">
+      <qti-response-declaration identifier="RESPONSE" cardinality="single" base-type="identifier"/>
+      <qti-item-body>
+        <p>Pick <qti-inline-choice-interaction response-identifier="RESPONSE" shuffle="true">
+          <qti-inline-choice identifier="A">Alpha</qti-inline-choice>
+          <qti-inline-choice identifier="B">Bravo</qti-inline-choice>
+          <qti-inline-choice identifier="C">Charlie</qti-inline-choice>
+          <qti-inline-choice identifier="D" fixed="true">Delta</qti-inline-choice>
+        </qti-inline-choice-interaction>.</p>
+      </qti-item-body>
+    </qti-assessment-item>`;
+
+  it('applies a seeded order that is consistent for a given candidate', () => {
+    renderAssessmentItem(shuffleXml, { candidateIdentifier });
+    const renderedIds = findKDropdownMenus()[0].options.map(o => o.value);
+
+    // Deterministic: the same candidate seed reproduces the same order.
+    const shuffleable = shuffled(['A', 'B', 'C'], candidateIdentifier);
+    const expected = ['A', 'B', 'C', 'D'].map(id => (id === 'D' ? 'D' : shuffleable.shift()));
+    expect(renderedIds).toEqual(expected);
+
+    // The shuffle actually reorders relative to source (guards against a no-op).
+    expect(renderedIds).not.toEqual(sourceIds);
+  });
+
+  it('keeps fixed choices in their original position', () => {
+    renderAssessmentItem(shuffleXml, { candidateIdentifier });
+    const renderedIds = findKDropdownMenus()[0].options.map(o => o.value);
+    // 'D' is fixed at the last position.
+    expect(renderedIds[renderedIds.length - 1]).toBe('D');
+  });
+});
