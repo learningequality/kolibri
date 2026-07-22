@@ -93,20 +93,6 @@
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
   }
 
-  // Plain-text label for a choice, joined from its (text) child vnodes.
-  function vnodeToText(vnode) {
-    if (!vnode) {
-      return '';
-    }
-    if (vnode.text) {
-      return vnode.text.trim();
-    }
-    if (vnode.children) {
-      return vnode.children.map(vnodeToText).join(' ').trim();
-    }
-    return '';
-  }
-
   export default {
     name: 'InlineChoiceInteraction',
     tag: 'qti-inline-choice-interaction',
@@ -123,8 +109,9 @@
         .filter(vnode => getComponentTag(vnode) === 'qti-inline-choice')
         .map(vnode => ({
           identifier: vnode.componentOptions.propsData.identifier,
+          // An inline choice is strictly plain text, so its children are only ever text vnodes.
           text: (vnode.componentOptions.children || [])
-            .map(vnodeToText)
+            .map(child => child.text || '')
             .join(' ')
             .replace(/\s+/g, ' ')
             .trim(),
