@@ -31,6 +31,7 @@ def execute_job(job_id, request_id):
             worker_process=str(os.getpid()),
             worker_thread=str(threading.get_ident()),
             worker_extra=str(request_id),
+            supervisor_id=str(request_id),
         )
         logger.info(
             "Completed Kolibri task worker for job {} (request {})".format(
