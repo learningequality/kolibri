@@ -7,6 +7,7 @@ import logging
 import os
 
 from java import jclass
+from task_identity import supervisor_id_from_request
 
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
@@ -26,7 +27,7 @@ def _extract_work_ids(work_infos):
     job_ids = set()
     request_ids = set()
     for work_info in work_infos:
-        request_ids.add(str(work_info.getId()))
+        request_ids.add(supervisor_id_from_request(work_info.getId()))
         tags = work_info.getTags()
         # Tags mix worker-class FQNs with our own; an explicit prefix identifies
         # ours rather than excluding known patterns.

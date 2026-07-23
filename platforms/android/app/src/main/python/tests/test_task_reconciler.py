@@ -14,14 +14,14 @@ def _make_work_info(request_id, tags):
 def test_extract_work_ids_splits_job_ids_and_request_ids():
     work_infos = [
         _make_work_info(
-            "req-a",
+            "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
             [
                 "kolibri:job:job-a",
                 "org.learningequality.Kolibri.task.TaskWorker",
             ],
         ),
         _make_work_info(
-            "req-b",
+            "5a3f8b2c-1d4e-4c6f-8a9b-0c1d2e3f4a5b",
             [
                 "kolibri:job:job-b",
                 "androidx.work.impl.workers.SomeWorker",
@@ -32,7 +32,11 @@ def test_extract_work_ids_splits_job_ids_and_request_ids():
     job_ids, request_ids = task_reconciler._extract_work_ids(work_infos)
 
     assert job_ids == {"job-a", "job-b"}
-    assert request_ids == {"req-a", "req-b"}
+    # Request ids are normalized to the dashless form Kolibri stores as owner.
+    assert request_ids == {
+        "3f2504e04f8941d39a0c0305e82c3301",
+        "5a3f8b2c1d4e4c6f8a9b0c1d2e3f4a5b",
+    }
 
 
 def test_do_reconciliation_reconciles_stalled_jobs_first_with_live_set():

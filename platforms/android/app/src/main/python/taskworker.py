@@ -2,6 +2,8 @@ import logging
 import os
 import threading
 
+from task_identity import supervisor_id_from_request
+
 from kolibri.core.tasks.worker import execute_job as kolibri_execute_job
 
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ def execute_job(job_id, request_id):
             worker_process=str(os.getpid()),
             worker_thread=str(threading.get_ident()),
             worker_extra=str(request_id),
-            supervisor_id=str(request_id),
+            supervisor_id=supervisor_id_from_request(request_id),
         )
         logger.info(
             "Completed Kolibri task worker for job {} (request {})".format(
