@@ -22,7 +22,10 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import cleanup_expired_deleted_users
 from kolibri.core.auth.tasks import cleanupsync
 from kolibri.core.auth.tasks import CleanUpSyncsValidator
+from kolibri.core.auth.tasks import DataPortalSyncJobValidator
+from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+from kolibri.core.auth.tasks import kdp_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
 from kolibri.core.auth.tasks import soud_sync_processing
@@ -35,8 +38,10 @@ from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
 
 from .helpers import clear_process_cache
+from .helpers import create_superuser
 from .helpers import provision_device
 
 DUMMY_PASSWORD = "password"
@@ -157,6 +162,10 @@ class FacilityTasksAPITestCase(APITestCase):
                 noninteractive=True,
             ),
         )
+        self.assertEqual(
+            mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
+            "kdp_sync_{}".format(self.facility.id),
+        )
 
     def test_startdataportalbulksync(self, mock_job_storage):
         facility2 = Facility.objects.create(name="facility 2")
@@ -198,12 +207,20 @@ class FacilityTasksAPITestCase(APITestCase):
             ),
         )
         self.assertEqual(
+            mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
+            "kdp_sync_{}".format(facility2.id),
+        )
+        self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[1][0][0].kwargs,
             dict(
                 facility=facility3.id,
                 chunk_size=200,
                 noninteractive=True,
             ),
+        )
+        self.assertEqual(
+            mock_job_storage.enqueue_job.call_args_list[1][0][0].job_id,
+            "kdp_sync_{}".format(facility3.id),
         )
 
     @patch("kolibri.core.auth.tasks.NetworkClient")
@@ -462,6 +479,27 @@ class FacilityTaskHelperTestCase(TestCase):
                 bytes_received=0,
             ),
         )
+
+    def test_dataportalsync_validator_sets_deterministic_job_id(self):
+        facility = Facility.objects.create(name="v-fac")
+        data = DataPortalSyncJobValidator(data={"type": "x", "facility": facility.id})
+        data.is_valid(raise_exception=True)
+        self.assertEqual(
+            data.validated_data["job_id"], "kdp_sync_{}".format(facility.id)
+        )
+
+    def test_dataportalsync_validator_resumesync_has_no_deterministic_job_id(self):
+        facility = Facility.objects.create(name="v-fac2")
+        data = DataPortalSyncJobValidator(
+            data={
+                "type": "x",
+                "facility": facility.id,
+                "command": "resumesync",
+                "sync_session_id": uuid4().hex,
+            }
+        )
+        data.is_valid(raise_exception=True)
+        self.assertNotIn("job_id", data.validated_data)
 
     @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
     @patch("kolibri.core.auth.tasks.NetworkClient")
@@ -980,3 +1018,78 @@ class CleanupExpiredDeletedUsersTaskTestCase(TestCase):
         cleanup_expired_deleted_users()
         self.assertFalse(FacilityUser.all_objects.filter(id=user.id).exists())
         mock_job.retry_in.assert_not_called()
+
+
+class KDPSyncDedupAPITestCase(APITestCase):
+    # Exercises the real job storage (no class-level mock) so a manual KDP sync
+    # can be observed deduplicating onto the scheduled recurring job.
+    databases = "__all__"
+
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = Facility.objects.create(name="facility")
+        cls.superuser = create_superuser(cls.facility)
+
+    def setUp(self):
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def _post_manual_kdp_sync(self, facility):
+        return self.client.post(
+            reverse("kolibri:core:task-list"),
+            {
+                "facility": facility.id,
+                "type": "kolibri.core.auth.tasks.dataportalsync",
+            },
+            format="json",
+        )
+
+    def _dataportalsync_jobs(self, facility):
+        return [
+            job
+            for job in job_storage.get_all_jobs()
+            if job.func == "kolibri.core.auth.tasks.dataportalsync"
+            and job.kwargs.get("facility") == facility.id
+        ]
+
+    def test_manual_kdp_sync_dedups_onto_scheduled(self):
+        facility = Facility.objects.create(name="dedup-fac")
+        job_storage.clear(force=True)
+        # Scheduled recurring KDP sync (as registration/upgrade sets up).
+        enqueue_automatic_kdp_sync(facility)
+        scheduled_id = kdp_sync_job_id(facility.id)
+        orm_before = job_storage.get_orm_job(scheduled_id)
+        self.assertIsNone(orm_before.repeat)  # recurring
+
+        response = self._post_manual_kdp_sync(facility)
+        self.assertEqual(response.status_code, 200)
+
+        # Exactly one dataportalsync job for this facility, and it is the
+        # scheduled one.
+        dp_jobs = self._dataportalsync_jobs(facility)
+        self.assertEqual(len(dp_jobs), 1)
+        self.assertEqual(dp_jobs[0].job_id, scheduled_id)
+        # Recurrence preserved (Task 1), run brought forward.
+        orm_after = job_storage.get_orm_job(scheduled_id)
+        self.assertIsNone(orm_after.repeat)
+        self.assertLessEqual(
+            orm_after.scheduled_time,
+            timezone.now() + datetime.timedelta(seconds=10),
+        )
+
+    def test_manual_kdp_sync_while_scheduled_running_returns_running_job(self):
+        facility = Facility.objects.create(name="running-fac")
+        job_storage.clear(force=True)
+        # Scheduled recurring KDP sync, moved to RUNNING before the manual click.
+        enqueue_automatic_kdp_sync(facility)
+        scheduled_id = kdp_sync_job_id(facility.id)
+        job_storage.mark_job_as_running(scheduled_id)
+
+        response = self._post_manual_kdp_sync(facility)
+        # The running job is returned instead of a second concurrent job.
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["id"], scheduled_id)
+        self.assertEqual(response.data["status"], State.RUNNING)
+
+        dp_jobs = self._dataportalsync_jobs(facility)
+        self.assertEqual(len(dp_jobs), 1)

@@ -291,11 +291,26 @@ class SyncJobValidator(JobValidator):
         }
 
 
+def kdp_sync_job_id(facility_id):
+    return "kdp_sync_{}".format(facility_id)
+
+
+class DataPortalSyncJobValidator(SyncJobValidator):
+    def validate(self, data):
+        job_data = super().validate(data)
+        # A normal push sync shares one deterministic id with the scheduled
+        # recurring sync so the two dedup (issue #14988). resumesync targets a
+        # specific session and must keep its own id.
+        if data["command"] == "sync":
+            job_data["job_id"] = kdp_sync_job_id(job_data["facility_id"])
+        return job_data
+
+
 facility_task_queue = "facility_task"
 
 
 @register_task(
-    validator=SyncJobValidator,
+    validator=DataPortalSyncJobValidator,
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
@@ -322,7 +337,7 @@ def enqueue_automatic_kdp_sync(facility):
     Uses a deterministic job ID to prevent duplicate schedules.
     Retries hourly on failure (e.g. when KDP is unreachable).
     """
-    validator = SyncJobValidator(
+    validator = DataPortalSyncJobValidator(
         data={
             "type": "kolibri.core.auth.tasks.dataportalsync",
             "facility": facility.id,
@@ -330,6 +345,7 @@ def enqueue_automatic_kdp_sync(facility):
     )
     validator.is_valid(raise_exception=True)
     job_data = validator.validated_data
+    # Discard any bring-forward reschedule; we set our own recurrence below.
     job_data.pop("enqueue_args", None)
     try:
         # Use enqueue_in (not enqueue) because only enqueue_in supports
@@ -339,7 +355,6 @@ def enqueue_automatic_kdp_sync(facility):
             interval=KDP_SYNC_INTERVAL,
             repeat=None,
             retry_interval=KDP_SYNC_RETRY_INTERVAL,
-            job_id="kdp_sync_{}".format(facility.id),
             **job_data,
         )
     except JobRunning:
