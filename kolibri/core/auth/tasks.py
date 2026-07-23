@@ -421,6 +421,15 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
             data.get("username"),
             data.get("password"),
         )
+        # A normal sync shares one deterministic id with any scheduled recurring
+        # sync to the same peer so the two dedup (issue #14988). This only applies
+        # when a concrete peer device is known; a baseurl-only schedule keeps its
+        # own random id.
+        device_id = job_data["extra_metadata"].get("device_id")
+        if data["command"] == "sync" and device_id:
+            job_data["job_id"] = "peer_sync_{}_{}".format(
+                job_data["facility_id"], device_id
+            )
         return job_data
 
 
@@ -454,6 +463,9 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
                 no_provision=True,
             )
         )
+        # A facility import is a one-off pull; it must not collapse onto a
+        # scheduled peer sync, so drop any inherited deterministic id.
+        job_data.pop("job_id", None)
         return job_data
 
 

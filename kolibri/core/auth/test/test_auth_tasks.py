@@ -535,6 +535,7 @@ class FacilityTaskHelperTestCase(TestCase):
 
         expected = dict(
             facility_id=facility_id,
+            job_id="peer_sync_{}_{}".format(facility_id, self.device.id),
             args=["sync"],
             enqueue_args={},
             kwargs=dict(
@@ -578,6 +579,71 @@ class FacilityTaskHelperTestCase(TestCase):
             facility_id=facility_id,
             noninteractive=True,
         )
+
+    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
+    @patch("kolibri.core.auth.tasks.NetworkClient")
+    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
+    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
+    def test_peerfacilitysync_validator_sets_deterministic_job_id(
+        self,
+        get_facility_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        facility_id = self.facility.id
+        data = dict(
+            type="kolibri.core.auth.tasks.peerfacilitysync",
+            facility=facility_id,
+            device_id=self.device.id,
+            baseurl="https://some.server.test/extra/stuff",
+            username="tester",
+            password="mypassword",
+        )
+        network_client = NetworkClient.build_for_address.return_value
+        network_client.base_url = "https://some.server.test/"
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = Mock()
+        get_facility_dataset_id.return_value = (facility_id, 456)
+        get_client_and_server_certs.return_value = None
+
+        validator = PeerFacilitySyncJobValidator(data=data)
+        validator.is_valid(raise_exception=True)
+        self.assertEqual(
+            validator.validated_data["job_id"],
+            "peer_sync_{}_{}".format(facility_id, self.device.id),
+        )
+
+    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
+    @patch("kolibri.core.auth.tasks.NetworkClient")
+    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
+    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
+    def test_peerfacilityimport_validator_has_no_deterministic_job_id(
+        self,
+        get_facility_dataset_id,
+        get_client_and_server_certs,
+        NetworkClient,
+        MorangoProfileController,
+    ):
+        facility_id = self.facility.id
+        data = dict(
+            type="kolibri.core.auth.tasks.peerfacilityimport",
+            facility=facility_id,
+            device_id=self.device.id,
+            baseurl="https://some.server.test/extra/stuff",
+            username="tester",
+            password="mypassword",
+        )
+        network_client = NetworkClient.build_for_address.return_value
+        network_client.base_url = "https://some.server.test/"
+        controller = MorangoProfileController.return_value
+        controller.create_network_connection.return_value = Mock()
+        get_facility_dataset_id.return_value = (facility_id, 456)
+        get_client_and_server_certs.return_value = None
+
+        validator = PeerFacilityImportJobValidator(data=data)
+        validator.is_valid(raise_exception=True)
+        self.assertNotIn("job_id", validator.validated_data)
 
     def test_validate_peer_sync_job__device_no_baseurl(self):
         facility_id = self.facility.id
