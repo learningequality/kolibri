@@ -995,6 +995,16 @@ class Storage:
             }
 
             if orm_job:
+                # Bringing a recurring job forward for an immediate run (e.g. a
+                # manual "Sync now" that lands on an already-scheduled recurring
+                # sync) must not silently cancel its recurrence. Preserve the
+                # existing schedule when the incoming enqueue is a plain one-off.
+                existing_is_recurring = orm_job.repeat is None or orm_job.repeat > 0
+                incoming_is_one_off = interval == 0 and repeat == 0
+                if existing_is_recurring and incoming_is_one_off:
+                    orm_job_data["interval"] = orm_job.interval
+                    orm_job_data["repeat"] = orm_job.repeat
+                    orm_job_data["retry_interval"] = orm_job.retry_interval
                 # Update existing job
                 for key, value in orm_job_data.items():
                     setattr(orm_job, key, value)
