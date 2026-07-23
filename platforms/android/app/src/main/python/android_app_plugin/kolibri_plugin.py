@@ -10,6 +10,7 @@ from kolibri.core.device.hooks import CheckIsMeteredHook
 from kolibri.core.device.hooks import GetOSUserHook
 from kolibri.core.tasks.hooks import JobHook
 from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.job import State
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
@@ -55,6 +56,9 @@ class AndroidJobHook(JobHook):
         job,
         orm_job,
     ):
+        self._enqueue_task(job, orm_job)
+
+    def _enqueue_task(self, job, orm_job):
         if orm_job.id:
             delay = 0
             if orm_job.scheduled_time:
@@ -85,6 +89,9 @@ class AndroidJobHook(JobHook):
             job.update_worker_info(extra=request_id)
 
     def update(self, job, orm_job, state=None, **kwargs):
+        if state == State.QUEUED:
+            self._enqueue_task(job, orm_job)
+
         currentLocale = Locale.getDefault().toLanguageTag()
 
         status = job.status(currentLocale)
