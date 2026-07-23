@@ -3,6 +3,7 @@ import math
 import os
 import shutil
 import tempfile
+import threading
 import unittest
 
 from mock import call
@@ -1023,3 +1024,317 @@ class TestRetryImport(unittest.TestCase):
                 retry_import(e),
                 "Expected no retry for {}".format(exception_class.__name__),
             )
+
+
+class _ThreadSafeRangeSession(object):
+    """
+    A minimal, thread-safe stand-in for a requests Session serving a fixed
+    byte string with HTTP range support. Unlike the MagicMock-based harness
+    above it keeps no shared per-response mutable state, so it can be used by
+    several threads at once (e.g. simulating multiple users streaming the same
+    remote file concurrently). Each response is built fresh per call.
+    """
+
+    def __init__(self, content):
+        self.content = content
+
+    def head(self, url, timeout=None, allow_redirects=False):
+        response = MagicMock()
+        response.url = url
+        response.status_code = 200
+        response.headers = {
+            "content-length": str(len(self.content)),
+            "accept-ranges": "bytes",
+        }
+        return response
+
+    def get(self, url, headers=None, stream=False, timeout=None):
+        start, end = 0, None
+        ranged = bool(headers and "Range" in headers)
+        if ranged:
+            start_s, end_s = headers["Range"].replace("bytes=", "").split("-")
+            start = int(start_s)
+            end = int(end_s) + 1 if end_s else None
+        data = self.content[start:end]
+        response_headers = {
+            "content-length": str(len(data)),
+            "accept-ranges": "bytes",
+        }
+        if end is not None:
+            response_headers["content-range"] = "bytes {}-{}/{}".format(
+                start, end - 1, len(self.content)
+            )
+        response = MagicMock()
+        response.url = url
+        response.status_code = 206 if ranged else 200
+        response.headers = response_headers
+        response.content = data
+
+        def iter_content(chunk_size=1):
+            for i in range(0, len(data), chunk_size):
+                yield data[i : i + chunk_size]
+
+        response.iter_content = iter_content
+        return response
+
+
+class TestRemoteFileDiskCacheReuse(unittest.TestCase):
+    """
+    Regression tests for the per-file chunk diskcache being reopened on every
+    read block while streaming a proxied remote file (see the SD-card slowness
+    issue). Serving a remote file must reuse a single diskcache handle for the
+    request rather than constructing a fresh ``diskcache.Cache`` per chunk.
+    """
+
+    source = "http://testserver/remote_video.mp4"
+
+    def setUp(self):
+        self.destdir = tempfile.mkdtemp()
+        self.dest = os.path.join(self.destdir, "remote_video.mp4")
+
+    def tearDown(self):
+        shutil.rmtree(self.destdir, ignore_errors=True)
+
+    def _make_content(self, num_chunks):
+        # A file spanning ``num_chunks`` chunks, with a partial final chunk so
+        # the file-size / last-chunk handling is exercised exactly.
+        return os.urandom((num_chunks - 1) * ChunkedFile.chunk_size + 731)
+
+    def _read_all(self, remote_file):
+        output = b""
+        chunk = remote_file.read(ChunkedFile.chunk_size)
+        while chunk:
+            output += chunk
+            chunk = remote_file.read(ChunkedFile.chunk_size)
+        return output
+
+    def test_diskcache_not_reopened_per_chunk_when_streaming(self):
+        num_chunks = 40
+        content = self._make_content(num_chunks)
+        session = _ThreadSafeRangeSession(content)
+
+        import kolibri.utils.file_transfer as file_transfer
+
+        real_cache = file_transfer.Cache
+        constructions = []
+
+        def counting_cache(*args, **kwargs):
+            constructions.append(args[0] if args else None)
+            return real_cache(*args, **kwargs)
+
+        with patch(
+            "kolibri.utils.file_transfer.SameHostSession", return_value=session
+        ), patch("kolibri.utils.file_transfer.Cache", side_effect=counting_cache):
+            remote_file = RemoteFile(self.dest, self.source)
+            output = self._read_all(remote_file)
+            remote_file.close()
+
+        self.assertEqual(output, content, "Streamed content does not match")
+        # Before the fix the diskcache is reconstructed several times per chunk,
+        # so this count scales with num_chunks (~3-4x). The per-file cache must
+        # instead be reused for the request, giving a small bound that does not
+        # grow with file size.
+        self.assertLessEqual(
+            len(constructions),
+            5,
+            "diskcache Cache was constructed {} times while streaming a "
+            "{}-chunk file; it must be reused across reads, not reopened per "
+            "chunk".format(len(constructions), num_chunks),
+        )
+
+    def test_concurrent_reads_of_same_remote_file(self):
+        # Simulates multiple users streaming the same remote video at once:
+        # several threads read the SAME dest/source concurrently, contending on
+        # the shared per-file chunk diskcache and chunk locks. This must remain
+        # correct (and must stay correct after the cache-reuse fix).
+        num_chunks = 20
+        content = self._make_content(num_chunks)
+        session = _ThreadSafeRangeSession(content)
+
+        results = {}
+        errors = {}
+
+        def reader(tid):
+            try:
+                remote_file = RemoteFile(self.dest, self.source)
+                results[tid] = self._read_all(remote_file)
+                remote_file.close()
+            except Exception as e:  # noqa: B902
+                errors[tid] = e
+
+        with patch("kolibri.utils.file_transfer.SameHostSession", return_value=session):
+            threads = [threading.Thread(target=reader, args=(i,)) for i in range(6)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+
+        self.assertEqual(errors, {}, "Concurrent reads raised: {}".format(errors))
+        self.assertEqual(len(results), 6)
+        for tid, output in results.items():
+            self.assertEqual(
+                output, content, "Thread {} read incorrect content".format(tid)
+            )
+
+        # The on-disk chunks must be complete and correct after concurrent
+        # downloads of the same file.
+        chunked_file = ChunkedFile(self.dest)
+        self.assertTrue(chunked_file.is_complete())
+        chunked_file.seek(0)
+        self.assertEqual(chunked_file.read(), content)
+
+    def test_single_read_content_correct(self):
+        # Baseline correctness guard for the streaming read path used above.
+        num_chunks = 5
+        content = self._make_content(num_chunks)
+        session = _ThreadSafeRangeSession(content)
+        with patch("kolibri.utils.file_transfer.SameHostSession", return_value=session):
+            remote_file = RemoteFile(self.dest, self.source)
+            output = self._read_all(remote_file)
+            remote_file.close()
+        self.assertEqual(output, content)
+
+    @unittest.skipIf(
+        os.name == "nt",
+        "This end-to-end flavor deletes a directory whose diskcache is held "
+        "open, which Windows forbids - so the stale-handle race cannot occur "
+        "there (delete() releases the handle first, and external eviction is "
+        "skipped when the file is blocked). The self-heal mechanism itself and "
+        "that safety invariant are covered cross-platform by "
+        "test_open_cache_reopens_when_incarnation_changes and "
+        "test_delete_releases_cache_handle.",
+    )
+    def test_cache_handle_self_heals_after_directory_recreated(self):
+        # A stale diskcache handle (pointing at a deleted, recreated chunk dir)
+        # must be detected and reopened, or chunk-lock coordination silently
+        # breaks (locks live as rows in the on-disk SQLite DB). This is the
+        # streamed-cache-eviction-mid-stream race.
+        from diskcache import Cache
+
+        dest = os.path.join(self.destdir, "self_heal.bin")
+        chunked_file = ChunkedFile(dest)
+        chunked_file.file_size = 5 * ChunkedFile.chunk_size
+        stale_handle = chunked_file.get_cache()
+
+        # Another process evicts and recreates this file's chunk dir.
+        shutil.rmtree(chunked_file.chunk_dir)
+        os.makedirs(chunked_file.chunk_dir)
+        fresh = Cache(chunked_file.cache_dir)
+        fresh.set("probe", 42)
+
+        healed_handle = chunked_file.get_cache()
+        self.assertIsNot(healed_handle, stale_handle, "stale handle was not dropped")
+        self.assertEqual(
+            healed_handle.get("probe"),
+            42,
+            "reopened handle does not see the live diskcache",
+        )
+        fresh.close()
+        chunked_file.close()
+
+    def test_chunk_dir_incarnation_falls_back_to_marker_without_inode(self):
+        # On filesystems that do not report a usable inode (st_ino == 0, e.g.
+        # FAT/exFAT, some Android storage), a marker file provides the same
+        # deletion/recreation signal.
+        dest = os.path.join(self.destdir, "marker.bin")
+        chunked_file = ChunkedFile(dest)
+        marker_path = os.path.join(chunked_file.chunk_dir, ".incarnation")
+
+        with patch(
+            "kolibri.utils.file_transfer.os.stat",
+            return_value=MagicMock(st_ino=0),
+        ):
+            token1 = chunked_file._chunk_dir_incarnation()
+            token2 = chunked_file._chunk_dir_incarnation()
+        # Same directory incarnation -> stable token from the marker file.
+        self.assertEqual(token1, token2)
+        self.assertTrue(os.path.exists(marker_path))
+
+        # Recreated directory -> marker gone -> different token.
+        shutil.rmtree(chunked_file.chunk_dir)
+        os.makedirs(chunked_file.chunk_dir)
+        with patch(
+            "kolibri.utils.file_transfer.os.stat",
+            return_value=MagicMock(st_ino=0),
+        ):
+            token3 = chunked_file._chunk_dir_incarnation()
+        self.assertNotEqual(token1, token3)
+
+    @unittest.skipIf(
+        os.name == "nt",
+        "This end-to-end flavor deletes a directory whose diskcache is held "
+        "open, which Windows forbids - so the stale-handle race cannot occur "
+        "there (delete() releases the handle first, and external eviction is "
+        "skipped when the file is blocked). The self-heal mechanism itself and "
+        "that safety invariant are covered cross-platform by "
+        "test_open_cache_reopens_when_incarnation_changes and "
+        "test_delete_releases_cache_handle.",
+    )
+    def test_stale_injected_cache_handle_is_dropped_not_closed(self):
+        # A borrowed (injected) handle that has gone stale must be dropped
+        # WITHOUT being closed - its owner may still use it - and the borrower
+        # must then take ownership of the fresh handle it opens. This is the
+        # FileDownload-re-injects-RemoteFile's-handle path at the heart of the
+        # eviction race.
+        dest = os.path.join(self.destdir, "injected.bin")
+        owner = ChunkedFile(dest)
+        owner.file_size = 3 * ChunkedFile.chunk_size
+        shared = owner.get_cache()
+
+        borrower = ChunkedFile(dest, cache=shared)
+        self.assertFalse(borrower._owns_cache)
+
+        # The directory is evicted and recreated underneath both objects.
+        shutil.rmtree(owner.chunk_dir)
+        os.makedirs(owner.chunk_dir)
+
+        healed = borrower.get_cache()
+        self.assertIsNot(healed, shared, "stale borrowed handle was not dropped")
+        self.assertTrue(
+            borrower._owns_cache, "borrower did not take ownership of new handle"
+        )
+        # The borrowed handle must not have been closed by the borrower; a
+        # closed diskcache raises on access.
+        try:
+            shared.get("probe")
+        except Exception as e:  # noqa: B902
+            self.fail("borrowed handle was closed by the borrower: {!r}".format(e))
+        owner.close()
+        borrower.close()
+
+    def test_open_cache_reopens_when_incarnation_changes(self):
+        # The self-heal mechanism, tested independently of a real deletion so it
+        # also runs on Windows: when the chunk-dir incarnation token changes
+        # (a deleted+recreated directory), _open_cache must drop the memoized
+        # handle and reopen, re-stamping the new incarnation.
+        dest = os.path.join(self.destdir, "reopen.bin")
+        chunked_file = ChunkedFile(dest)
+        chunked_file.file_size = 2 * ChunkedFile.chunk_size
+        first = chunked_file.get_cache()
+
+        with patch.object(
+            chunked_file, "_chunk_dir_incarnation", return_value="changed-token"
+        ):
+            second = chunked_file.get_cache()
+
+        self.assertIsNot(second, first, "handle was not reopened on incarnation change")
+        self.assertEqual(second._kolibri_chunk_incarnation, "changed-token")
+        chunked_file.close()
+
+    def test_delete_releases_cache_handle(self):
+        # Deleting a chunked file must release the diskcache handle before
+        # removing the directory - on Windows an open SQLite file would block
+        # removal (WinError 32). This invariant is what keeps the memoized
+        # handle safe there, so it is asserted on every platform.
+        dest = os.path.join(self.destdir, "del.bin")
+        chunked_file = ChunkedFile(dest)
+        chunked_file.file_size = ChunkedFile.chunk_size
+        chunked_file.get_cache()
+        self.assertIsNotNone(chunked_file._cache)
+
+        chunked_file.delete()
+
+        self.assertIsNone(
+            chunked_file._cache, "delete() did not release the cache handle"
+        )
+        self.assertFalse(os.path.exists(chunked_file.chunk_dir))
