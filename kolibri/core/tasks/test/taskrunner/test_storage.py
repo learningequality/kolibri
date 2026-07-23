@@ -288,45 +288,6 @@ class TestBackend:
         with pytest.raises(ValueError):
             defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=-1, interval=1)
 
-    def test_schedule_immediate_reenqueue_preserves_recurrence(self, defaultbackend):
-        job = Job(add, job_id="recurring-1")
-        # Schedule a daily-recurring job in the future.
-        defaultbackend.enqueue_at(
-            local_now() + datetime.timedelta(days=1),
-            job,
-            QUEUE,
-            interval=86400,
-            repeat=None,
-        )
-        # A manual "run now" re-enqueues the SAME job_id as a one-off.
-        defaultbackend.enqueue_job(Job(add, job_id="recurring-1"), QUEUE)
-
-        orm_job = defaultbackend.get_orm_job("recurring-1")
-        assert orm_job.interval == 86400  # recurrence preserved
-        assert orm_job.repeat is None  # forever preserved
-        # brought forward to run now
-        assert orm_job.scheduled_time <= local_now() + datetime.timedelta(seconds=5)
-
-    def test_schedule_reenqueue_with_new_interval_overwrites(self, defaultbackend):
-        job = Job(add, job_id="recurring-2")
-        defaultbackend.enqueue_at(
-            local_now() + datetime.timedelta(days=1),
-            job,
-            QUEUE,
-            interval=86400,
-            repeat=None,
-        )
-        defaultbackend.enqueue_at(
-            local_now() + datetime.timedelta(days=1),
-            Job(add, job_id="recurring-2"),
-            QUEUE,
-            interval=60,
-            repeat=5,
-        )
-        orm_job = defaultbackend.get_orm_job("recurring-2")
-        assert orm_job.interval == 60
-        assert orm_job.repeat == 5
-
     def test_reschedule_finished_job_no_delay(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
         defaultbackend.complete_job(job_id)

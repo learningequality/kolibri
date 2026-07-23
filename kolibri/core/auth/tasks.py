@@ -256,6 +256,36 @@ class SyncJobValidator(JobValidator):
     command = serializers.ChoiceField(choices=["sync", "resumesync"], default="sync")
     sync_session_id = HexOnlyUUIDField(format="hex", required=False, allow_null=True)
 
+    def run_validation(self, data):
+        job_data = super().run_validation(data)
+        self._bring_scheduled_sync_forward(job_data)
+        return job_data
+
+    def _bring_scheduled_sync_forward(self, job_data):
+        """
+        Bring an already-scheduled recurring sync forward to run now, preserving
+        its recurrence, instead of replacing it with a one-off (issue #14988).
+        Kept here rather than in the generic ``Storage.schedule`` so only syncs
+        get this behaviour; a running job is left untouched to dedup onto.
+        """
+        job_id = job_data.get("job_id")
+        # Respect an explicit enqueue_args (e.g. a scheduling request) as given.
+        if not job_id or job_data.get("enqueue_args"):
+            return
+        try:
+            orm_job = job_storage.get_orm_job(job_id)
+        except JobNotFound:
+            return
+        if orm_job.state == State.RUNNING:
+            return
+        if orm_job.repeat != 0:  # recurring: None (forever) or a positive count
+            job_data["enqueue_args"] = {
+                "enqueue_at": timezone.now(),
+                "repeat": orm_job.repeat,
+                "repeat_interval": orm_job.interval,
+                "retry_interval": orm_job.retry_interval,
+            }
+
     def validate(self, data):
         if not data.get("sync_session_id") and data["command"] == "resumesync":
             raise serializers.ValidationError(

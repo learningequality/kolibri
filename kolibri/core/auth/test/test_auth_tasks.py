@@ -1100,7 +1100,7 @@ class KDPSyncDedupAPITestCase(APITestCase):
         dp_jobs = self._dataportalsync_jobs(facility)
         self.assertEqual(len(dp_jobs), 1)
         self.assertEqual(dp_jobs[0].job_id, scheduled_id)
-        # Recurrence preserved (Task 1), run brought forward.
+        # Recurrence preserved by the sync validator, run brought forward.
         orm_after = job_storage.get_orm_job(scheduled_id)
         self.assertIsNone(orm_after.repeat)
         self.assertLessEqual(
