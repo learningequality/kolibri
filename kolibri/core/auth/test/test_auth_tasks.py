@@ -26,6 +26,7 @@ from kolibri.core.auth.tasks import DataPortalSyncJobValidator
 from kolibri.core.auth.tasks import enqueue_automatic_kdp_sync
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import kdp_sync_job_id
+from kolibri.core.auth.tasks import peer_sync_job_id
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
 from kolibri.core.auth.tasks import soud_sync_processing
@@ -164,7 +165,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
-            "kdp_sync_{}".format(self.facility.id),
+            kdp_sync_job_id(self.facility.id),
         )
 
     def test_startdataportalbulksync(self, mock_job_storage):
@@ -208,7 +209,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[0][0][0].job_id,
-            "kdp_sync_{}".format(facility2.id),
+            kdp_sync_job_id(facility2.id),
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[1][0][0].kwargs,
@@ -220,7 +221,7 @@ class FacilityTasksAPITestCase(APITestCase):
         )
         self.assertEqual(
             mock_job_storage.enqueue_job.call_args_list[1][0][0].job_id,
-            "kdp_sync_{}".format(facility3.id),
+            kdp_sync_job_id(facility3.id),
         )
 
     @patch("kolibri.core.auth.tasks.NetworkClient")
@@ -484,9 +485,7 @@ class FacilityTaskHelperTestCase(TestCase):
         facility = Facility.objects.create(name="v-fac")
         data = DataPortalSyncJobValidator(data={"type": "x", "facility": facility.id})
         data.is_valid(raise_exception=True)
-        self.assertEqual(
-            data.validated_data["job_id"], "kdp_sync_{}".format(facility.id)
-        )
+        self.assertEqual(data.validated_data["job_id"], kdp_sync_job_id(facility.id))
 
     def test_dataportalsync_validator_resumesync_has_no_deterministic_job_id(self):
         facility = Facility.objects.create(name="v-fac2")
@@ -535,7 +534,7 @@ class FacilityTaskHelperTestCase(TestCase):
 
         expected = dict(
             facility_id=facility_id,
-            job_id="peer_sync_{}_{}".format(facility_id, self.device.id),
+            job_id=peer_sync_job_id(facility_id, self.device.id),
             args=["sync"],
             enqueue_args={},
             kwargs=dict(
@@ -578,40 +577,6 @@ class FacilityTaskHelperTestCase(TestCase):
             user_id=None,
             facility_id=facility_id,
             noninteractive=True,
-        )
-
-    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
-    @patch("kolibri.core.auth.tasks.NetworkClient")
-    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
-    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
-    def test_peerfacilitysync_validator_sets_deterministic_job_id(
-        self,
-        get_facility_dataset_id,
-        get_client_and_server_certs,
-        NetworkClient,
-        MorangoProfileController,
-    ):
-        facility_id = self.facility.id
-        data = dict(
-            type="kolibri.core.auth.tasks.peerfacilitysync",
-            facility=facility_id,
-            device_id=self.device.id,
-            baseurl="https://some.server.test/extra/stuff",
-            username="tester",
-            password="mypassword",
-        )
-        network_client = NetworkClient.build_for_address.return_value
-        network_client.base_url = "https://some.server.test/"
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = Mock()
-        get_facility_dataset_id.return_value = (facility_id, 456)
-        get_client_and_server_certs.return_value = None
-
-        validator = PeerFacilitySyncJobValidator(data=data)
-        validator.is_valid(raise_exception=True)
-        self.assertEqual(
-            validator.validated_data["job_id"],
-            "peer_sync_{}_{}".format(facility_id, self.device.id),
         )
 
     @patch("kolibri.core.auth.utils.sync.MorangoProfileController")

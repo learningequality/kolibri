@@ -34,6 +34,7 @@ from kolibri.core.device import soud
 from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.tasks import generate_job_id
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
@@ -292,7 +293,11 @@ class SyncJobValidator(JobValidator):
 
 
 def kdp_sync_job_id(facility_id):
-    return "kdp_sync_{}".format(facility_id)
+    return generate_job_id("kdp_sync", facility_id)
+
+
+def peer_sync_job_id(facility_id, device_id):
+    return generate_job_id("peer_sync", facility_id, device_id)
 
 
 class DataPortalSyncJobValidator(SyncJobValidator):
@@ -427,9 +432,7 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
         # own random id.
         device_id = job_data["extra_metadata"].get("device_id")
         if data["command"] == "sync" and device_id:
-            job_data["job_id"] = "peer_sync_{}_{}".format(
-                job_data["facility_id"], device_id
-            )
+            job_data["job_id"] = peer_sync_job_id(job_data["facility_id"], device_id)
         return job_data
 
 
