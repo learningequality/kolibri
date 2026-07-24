@@ -299,6 +299,8 @@ android {
 		main {
 			python {
 				srcDir "src/main/python"
+				// Host-only pytest tests must not be bundled into the APK.
+				exclude "tests/**"
 			}
 		}
 	}
