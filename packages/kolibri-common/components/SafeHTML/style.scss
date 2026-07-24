@@ -87,49 +87,7 @@ b.safe-html {
   @include text-style(bold);
 }
 
-.table-container {
-  width: calc(100% + 32px);
-  padding: 0 16px;
-  margin-left: -16px;
-  overflow-x: auto;
-}
-
-.table-container:focus-visible {
-  outline: 3px solid rgb(51, 172, 245) !important;
-  outline-offset: -3px !important;
-}
-
-table.safe-html {
-  min-width: 640px;
-  margin: 16px auto;
-  font-size: 16px;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-
-caption.safe-html {
-  margin: 0 auto 12px;
-  font-weight: 600;
-}
-
-caption.safe-html.small-window {
-  text-align: start;
-}
-
-thead.safe-html {
-  font-weight: 600;
-}
-
-th.safe-html {
-  font-weight: 600;
-  text-align: left;
-}
-
-th.safe-html,
-td.safe-html {
-  min-width: 200px;
-  padding: 16px;
-}
+// Table styles live in SafeHtmlTable, which renders them.
 
 .image-container {
   display: flex;
