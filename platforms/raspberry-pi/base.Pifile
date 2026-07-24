@@ -20,7 +20,6 @@ RUN sed -i "s/raspberrypi/${hostname}/g" /etc/hosts
 RUN mkdir -p /etc/apt/keyrings
 INSTALL 644 files/learningequality.asc /etc/apt/keyrings/learningequality.asc
 INSTALL 644 files/learningequality-kolibri.sources /etc/apt/sources.list.d/
-INSTALL 644 files/learningequality-kolibri-server.sources /etc/apt/sources.list.d/
 
 RUN mkdir -p "/home/${user}/.kolibri"
 RUN mkdir -p /KOLIBRI_DATA/content
