@@ -1,0 +1,43 @@
+name: Test the self-hosted APT repo tooling
+on:
+  pull_request:
+    paths:
+      - "platforms/apt-repo/**"
+      - "platforms/debian-server/debian/postinst"
+      - "platforms/debian-server/debian/install"
+      - "platforms/debian-server/Makefile"
+      - ".github/workflows/platform-apt-repo-test.yml"
+  push:
+    branches:
+      - develop
+    paths:
+      - "platforms/apt-repo/**"
+      - "platforms/debian-server/debian/postinst"
+      - "platforms/debian-server/debian/install"
+      - "platforms/debian-server/Makefile"
+      - ".github/workflows/platform-apt-repo-test.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Run the apt-repo shell tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Install repo tooling
+        # APT_REPO_TESTS_STRICT below turns a missing-tool SKIP into a failure,
+        # so install everything the tests need (docker is preinstalled).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends reprepro gnupg dpkg-dev rsync
+      - name: Run the apt-repo tests
+        env:
+          APT_REPO_TESTS_STRICT: "1"
+        run: |
+          for t in platforms/apt-repo/tests/*.sh; do
+            # Executable => a test; lib.sh is sourced, not run.
+            [ -x "$t" ] || continue
+            echo "::group::$t"
+            "$t"
+            echo "::endgroup::"
+          done
