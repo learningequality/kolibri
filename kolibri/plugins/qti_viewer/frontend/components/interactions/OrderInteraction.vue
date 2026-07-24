@@ -7,7 +7,7 @@
   import { createTranslator } from 'kolibri/utils/i18n';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';

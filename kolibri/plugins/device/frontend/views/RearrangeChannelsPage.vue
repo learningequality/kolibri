@@ -62,7 +62,7 @@
 
 <script>
 
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import Draggable from 'kolibri-common/components/sortable/Draggable';

@@ -94,7 +94,7 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import { coachStrings } from '../../../common/commonCoachStrings';
   import CSVExporter from '../../../../csv/exporter';

@@ -5,6 +5,7 @@
 
   import Sortable from 'sortablejs';
   import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+  import { dragSortStrings } from '../draggable/dragSortStrings';
   import {
     SORTABLE_CLASS,
     HANDLE_CLASS,
@@ -12,7 +13,6 @@
     GHOST_CLASS,
     PLACED_CLASS,
   } from './classDefinitions';
-  import { dragSortStrings } from './dragSortStrings';
 
   export default {
     name: 'DragContainer',

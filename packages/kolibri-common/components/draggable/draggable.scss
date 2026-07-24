@@ -1,0 +1,35 @@
+@import '~kolibri-design-system/lib/styles/definitions';
+
+.draggable-item--mirror {
+  @extend %dropshadow-6dp;
+
+  z-index: 8;
+  cursor: grabbing;
+  border-radius: $radius;
+}
+
+.draggable-item--ghost {
+  visibility: hidden;
+}
+
+.draggable-item--placed {
+  animation-name: bounce-in;
+  animation-duration: $core-time;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale3d(1.05, 1.05, 1.05);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  50% {
+    transform: scale3d(0.98, 0.98, 0.98);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  100% {
+    transform: scale3d(1, 1, 1);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+}

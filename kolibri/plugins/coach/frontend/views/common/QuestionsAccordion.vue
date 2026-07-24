@@ -142,7 +142,7 @@
   import Draggable from 'kolibri-common/components/sortable/Draggable';
   import DragHandle from 'kolibri-common/components/sortable/DragHandle';
   import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragSortWidget from 'kolibri-common/components/sortable/DragSortWidget';
+  import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
