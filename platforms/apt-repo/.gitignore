@@ -1,0 +1,11 @@
+# Built Debian artifacts (keyring package build + round-trip test scratch debs)
+*.deb
+*.changes
+*.buildinfo
+*.build
+
+# debhelper / dpkg-buildpackage output under the keyring package
+keyring/debian/files
+keyring/debian/kolibri-archive-keyring/
+keyring/debian/*.substvars
+keyring/debian/*debhelper*
