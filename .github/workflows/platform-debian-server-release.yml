@@ -2,12 +2,21 @@ name: Release kolibri-server
 on:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      deb-artifact-name:
+        description: 'Artifact name of the already-built kolibri-server .deb to publish to the self-hosted APT repo'
+        required: true
+        type: string
     secrets:
       LP_CREDENTIALS:
         required: true
       GPG_SIGNING_KEY:
         required: true
       GPG_PASSPHRASE:
+        required: true
+      GH_UPLOADER_GCP_SA_CREDENTIALS:
+        required: true
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET:
         required: true
 permissions:
   contents: read
@@ -246,3 +255,18 @@ jobs:
       - name: Cleanup Launchpad credentials
         if: always()
         run: rm -f /tmp/lp-creds.txt
+  publish_apt_repo:
+    name: Publish the kolibri-server .deb to the self-hosted APT repo
+    # Releases an already-built .deb, passed in by the caller. To publish an
+    # existing release asset instead, dispatch platform-apt-repo-publish.yml
+    # directly with its deb-url input.
+    if: ${{ inputs.deb-artifact-name }}
+    needs: block_release_step
+    uses: ./.github/workflows/platform-apt-repo-publish.yml
+    with:
+      deb-artifact-name: ${{ inputs.deb-artifact-name }}
+    secrets:
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
