@@ -8,78 +8,74 @@
       <td v-if="editable"><!-- Actions --></td>
     </template>
     <template #tbody>
-      <DragContainer
+      <DraggableRegion
+        tag="tbody"
         :items="entries"
-        @sort="handleResourcesOrderChange"
+        @update:items="handleResourcesOrderChange"
       >
-        <transition-group
-          tag="tbody"
-          name="list"
+        <DraggableItem
+          v-for="(tableRow, index) in entries"
+          :key="tableRow.node_id"
+          tag="tr"
+          :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <Draggable
-            v-for="(tableRow, index) in entries"
-            :key="tableRow.node_id"
-          >
-            <tr :style="{ backgroundColor: $themeTokens.surface }">
-              <td>
-                <div class="resource-title">
-                  <DragHandle v-if="editable">
-                    <!-- Mousedown.prevent is needed to avoid user selection -->
-                    <DragSortWidget
-                      class="sort-widget"
-                      :isFirst="index === 0"
-                      :isLast="index === entries.length - 1"
-                      :itemLabel="tableRow.title"
-                      :position="index + 1"
-                      :total="entries.length"
-                      @moveUp="moveUpOne(index)"
-                      @moveDown="moveDownOne(index)"
-                      @mousedown.prevent
-                    />
-                  </DragHandle>
-                  <KIcon
-                    :icon="tableRow.kind"
-                    :color="tableRow.link ? $themeTokens.link : null"
-                    class="resource-icon"
-                  />
-                  <KRouterLink
-                    v-if="tableRow.link"
-                    :text="tableRow.title"
-                    :to="tableRow.link"
-                  />
-                  <span v-else>
-                    {{ tableRow.title }}
-                  </span>
-                </div>
-              </td>
-              <td>
-                <StatusSummary
-                  v-if="tableRow.tally"
-                  :tally="tableRow.tally"
-                  :verbose="true"
+          <td>
+            <div class="resource-title">
+              <DraggableHandle v-if="editable">
+                <!-- Mousedown.prevent is needed to avoid user selection -->
+                <DragSortWidget
+                  class="sort-widget"
+                  :isFirst="index === 0"
+                  :isLast="index === entries.length - 1"
+                  :itemLabel="tableRow.title"
+                  :position="index + 1"
+                  :total="entries.length"
+                  @moveUp="moveUpOne(index)"
+                  @moveDown="moveDownOne(index)"
+                  @mousedown.prevent
                 />
-                <KEmptyPlaceholder v-else />
-              </td>
-              <td>
-                <TimeDuration
-                  v-if="tableRow.tally"
-                  :seconds="tableRow.avgTimeSpent"
-                />
-                <KEmptyPlaceholder v-else />
-              </td>
-              <td v-if="editable">
-                <div class="actions">
-                  <KIconButton
-                    icon="clear"
-                    :ariaLabel="removeAction$()"
-                    @click="() => handleRemoveEntry(tableRow)"
-                  />
-                </div>
-              </td>
-            </tr>
-          </Draggable>
-        </transition-group>
-      </DragContainer>
+              </DraggableHandle>
+              <KIcon
+                :icon="tableRow.kind"
+                :color="tableRow.link ? $themeTokens.link : null"
+                class="resource-icon"
+              />
+              <KRouterLink
+                v-if="tableRow.link"
+                :text="tableRow.title"
+                :to="tableRow.link"
+              />
+              <span v-else>
+                {{ tableRow.title }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <StatusSummary
+              v-if="tableRow.tally"
+              :tally="tableRow.tally"
+              :verbose="true"
+            />
+            <KEmptyPlaceholder v-else />
+          </td>
+          <td>
+            <TimeDuration
+              v-if="tableRow.tally"
+              :seconds="tableRow.avgTimeSpent"
+            />
+            <KEmptyPlaceholder v-else />
+          </td>
+          <td v-if="editable">
+            <div class="actions">
+              <KIconButton
+                icon="clear"
+                :ariaLabel="removeAction$()"
+                @click="() => handleRemoveEntry(tableRow)"
+              />
+            </div>
+          </td>
+        </DraggableItem>
+      </DraggableRegion>
     </template>
   </CoreTable>
 
@@ -92,10 +88,10 @@
   import CoreTable from 'kolibri/components/CoreTable';
   import TimeDuration from 'kolibri-common/components/TimeDuration';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
   import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import { coachStrings } from '../../../common/commonCoachStrings';
   import CSVExporter from '../../../../csv/exporter';
   import * as csvFields from '../../../../csv/fields';
@@ -107,10 +103,10 @@
       CoreTable,
       StatusSummary,
       TimeDuration,
-      DragContainer,
-      DragHandle,
+      DraggableRegion,
+      DraggableHandle,
       DragSortWidget,
-      Draggable,
+      DraggableItem,
     },
     setup() {
       const { resourcesLabel$, removeAction$, progressLabel$ } = coreStrings;
@@ -146,12 +142,12 @@
       },
     },
     methods: {
-      handleResourcesOrderChange({ newArray }) {
+      handleResourcesOrderChange(newArray) {
         this.$emit('change', { newArray });
       },
       handleRemoveEntry(entry) {
         const newArray = this.entries.filter(({ node_id }) => node_id !== entry.node_id);
-        this.handleResourcesOrderChange({ newArray });
+        this.handleResourcesOrderChange(newArray);
       },
       moveUpOne(oldIndex) {
         this.swap(oldIndex, oldIndex - 1);
@@ -165,7 +161,7 @@
         newArray[newIndex] = newArray[oldIndex];
         newArray[oldIndex] = oldResource;
 
-        this.handleResourcesOrderChange({ newArray });
+        this.handleResourcesOrderChange(newArray);
       },
       /**
        * Triggers a CSV download of the resource progress data currently displayed in the table.
@@ -200,7 +196,7 @@
 
 <style lang="scss" scoped>
 
-  /deep/ .sortable-item--mirror {
+  /deep/ .draggable-item--mirror {
     /* Styles to fix styles errors for having a draggable tr with fixed position */
     height: auto !important;
 
