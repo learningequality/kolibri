@@ -7,6 +7,7 @@ import logging
 import os
 
 from java import jclass
+from task_identity import supervisor_id_from_request
 
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
@@ -17,12 +18,29 @@ logger = logging.getLogger(__name__)
 Task = jclass("org.learningequality.Kolibri.task.Task")
 
 
-def _get_workmanager_job_ids():
+def _extract_work_ids(work_infos):
     """
-    Get all active job IDs from WorkManager (ENQUEUED and RUNNING states)
+    Extract Kolibri job IDs and WorkManager request IDs from WorkInfo objects.
 
-    Returns:
-        set: Set of job ID strings
+    Returns (job_ids, request_ids) as sets of strings.
+    """
+    job_ids = set()
+    request_ids = set()
+    for work_info in work_infos:
+        request_ids.add(supervisor_id_from_request(work_info.getId()))
+        tags = work_info.getTags()
+        # Tags mix worker-class FQNs with our own; an explicit prefix identifies
+        # ours rather than excluding known patterns.
+        for tag in tags.toArray():
+            if tag.startswith("kolibri:job:"):
+                job_ids.add(tag[len("kolibri:job:") :])
+
+    return job_ids, request_ids
+
+
+def _get_active_work():
+    """
+    Active WorkManager job IDs and request IDs (ENQUEUED + RUNNING).
     """
     WorkManager = jclass("androidx.work.WorkManager")
     WorkInfo = jclass("androidx.work.WorkInfo")
@@ -38,17 +56,7 @@ def _get_workmanager_job_ids():
     work_query = WorkQuery.fromStates(states)
     work_info_list = work_manager.getWorkInfos(work_query).get()
 
-    # Extract Kolibri job IDs from tags
-    # Tags include both worker class FQNs and our job ID tag set via Task.enqueueOnce
-    # We use an explicit prefix to identify our tags rather than excluding known patterns
-    job_ids = set()
-    for work_info in work_info_list.toArray():
-        tags = work_info.getTags()
-        for tag in tags.toArray():
-            if tag.startswith("kolibri:job:"):
-                job_ids.add(tag[len("kolibri:job:") :])
-
-    return job_ids
+    return _extract_work_ids(work_info_list.toArray())
 
 
 def _get_kolibri_active_jobs():
@@ -126,13 +134,29 @@ def _do_reconciliation():
     logger.info("Starting task reconciliation")
 
     try:
+        # First, clear ownership of any supervised jobs whose WorkManager
+        # request is no longer live, so they can be re-dispatched. The live
+        # set is the pre-reconcile snapshot of active WorkManager request ids.
+        _, request_ids = _get_active_work()
+        job_storage.reconcile_stalled_jobs(live_supervisor_ids=request_ids)
+        logger.info(
+            f"Reconciled stalled jobs against {len(request_ids)} live "
+            "supervisor ids"
+        )
+
         kolibri_jobs = _get_kolibri_active_jobs()
         kolibri_job_ids = set(kolibri_jobs.keys())
         logger.info(
             f"Found {len(kolibri_job_ids)} active jobs in Kolibri database"
         )
 
-        workmanager_job_ids = _get_workmanager_job_ids()
+        # Post-reconcile WorkManager snapshot: reconcile's requeue re-enqueues
+        # jobs via the QUEUED hook, so they should be visible here to spare the
+        # membership sync a redundant enqueue. Correctness does not hinge on the
+        # timing, though: Task.enqueueOnce uses enqueueUniqueWork(job_id,
+        # REPLACE), so a membership-sync re-enqueue is idempotent and collapses
+        # any duplicate to a single worker regardless of snapshot timing.
+        workmanager_job_ids, _ = _get_active_work()
         logger.info(
             f"Found {len(workmanager_job_ids)} active tasks in WorkManager"
         )

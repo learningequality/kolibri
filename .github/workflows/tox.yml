@@ -385,6 +385,35 @@ jobs:
       - name: Run tests
         working-directory: ${{ matrix.working-directory }}
         run: uv run python -O -m pytest
+  # The Android host tests exercise the WorkManager task layer against real
+  # Kolibri core (supervisor ownership, reconciliation), so they need Kolibri's
+  # Django test settings and the kolibri/dist pythonpath. They live under the
+  # Chaquopy source dir but can't use the member's own pytest config, so run
+  # them from the repo root with the root pytest.ini. Pinned to Python 3.10 to
+  # match Chaquopy's embedded runtime (app/build.gradle python { version }).
+  android_platform_tests:
+    name: Platform tests (kolibri-installer-android)
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      - name: Install Python 3.10
+        run: uv python install 3.10
+      - name: Install dependencies
+        # --all-packages keeps root kolibri's runtime + test deps in the shared
+        # venv alongside the kolibri-installer-android member; the tests import
+        # kolibri.core.tasks and run real jobs through morango storage.
+        run: uv sync --group test --python 3.10 --all-packages
+      - name: Run tests
+        run: uv run python -O -m pytest platforms/android/app/src/main/python/tests -c pytest.ini --color=no
   # Single stable check for branch protection. Skipped matrix jobs don't
   # produce per-version check runs, so matrix-suffixed required checks hang
   # as "Expected" on PRs that skip the tests; require these jobs instead.
@@ -414,6 +443,7 @@ jobs:
       - sync_extras_plugin_tests
       - opensearch_plugin_tests
       - platform_tests
+      - android_platform_tests
     if: always()
     runs-on: ubuntu-latest
     steps:
