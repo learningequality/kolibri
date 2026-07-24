@@ -339,12 +339,9 @@ jobs:
         env:
           KOLIBRI_HOME: .kolibri
         run: uv run python -O -m pytest --reuse-db
-  # Tests for platforms/ members with their own test suites. Each member floors
-  # requires-python to root's range, so its real tested version is pinned per
-  # row. kolibri-server pins Python 3.10 and needs the distro-info system
-  # package; kolibri-app pins Python 3.10 and needs no system deps, no display,
-  # and no Kolibri whl (its test mocks wx and its tests/conftest.py stubs the
-  # build-only _version module).
+  # Tests for platforms/ members with their own suites, each pinned to Python
+  # 3.10. debian-server needs the distro-info system package; android's
+  # websockets test dep requires >= 3.10.
   platform_tests:
     name: Platform tests (${{ matrix.name }})
     needs: [pre_job, stage1_required_checks]
@@ -354,12 +351,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: kolibri-server
+          - name: debian-server
             working-directory: platforms/debian-server
             python-version: "3.10"
             system-packages: distro-info
-          - name: kolibri-app
+          - name: desktop-app
             working-directory: platforms/desktop-app
+            python-version: "3.10"
+          - name: android
+            working-directory: platforms/android
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v7.0.0
@@ -385,14 +385,12 @@ jobs:
       - name: Run tests
         working-directory: ${{ matrix.working-directory }}
         run: uv run python -O -m pytest
-  # The Android host tests exercise the WorkManager task layer against real
-  # Kolibri core (supervisor ownership, reconciliation), so they need Kolibri's
-  # Django test settings and the kolibri/dist pythonpath. They live under the
-  # Chaquopy source dir but can't use the member's own pytest config, so run
-  # them from the repo root with the root pytest.ini. Pinned to Python 3.10 to
-  # match Chaquopy's embedded runtime (app/build.gradle python { version }).
+  # Android host tests: the WorkManager task layer against real Kolibri core
+  # (supervisor ownership, reconciliation). Needs Kolibri's Django test settings
+  # and the kolibri/dist pythonpath, so runs from repo root with root pytest.ini,
+  # not the member's config. Python 3.10 matches Chaquopy's embedded runtime.
   android_platform_tests:
-    name: Platform tests (kolibri-installer-android)
+    name: Android host tests
     needs: [pre_job, stage1_required_checks]
     if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
     runs-on: ubuntu-latest
@@ -414,6 +412,33 @@ jobs:
         run: uv sync --group test --python 3.10 --all-packages
       - name: Run tests
         run: uv run python -O -m pytest platforms/android/app/src/main/python/tests -c pytest.ini --color=no
+  # Android JVM (Robolectric) unit tests. Need a JVM/Android toolchain (JDK 21,
+  # Android SDK, Chaquopy buildPython 3.10), so kept separate from platform_tests.
+  # Runs `gradle test` with no tar staged, proving it's decoupled from the dist.
+  android_jvm_tests:
+    name: Android JVM unit tests
+    needs: [pre_job, stage1_required_checks]
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && needs.stage1_required_checks.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+          cache-python: true
+      # Chaquopy's buildPython (the workspace .venv) must match its embedded 3.10.
+      - name: Provision Chaquopy buildPython (3.10)
+        run: uv sync --package kolibri-installer-android --python 3.10
+      - name: Run JVM unit tests
+        working-directory: platforms/android
+        run: ./gradlew test
   # Single stable check for branch protection. Skipped matrix jobs don't
   # produce per-version check runs, so matrix-suffixed required checks hang
   # as "Expected" on PRs that skip the tests; require these jobs instead.
@@ -444,6 +469,7 @@ jobs:
       - opensearch_plugin_tests
       - platform_tests
       - android_platform_tests
+      - android_jvm_tests
     if: always()
     runs-on: ubuntu-latest
     steps:
