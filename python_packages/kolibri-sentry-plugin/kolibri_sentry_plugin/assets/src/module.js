@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/vue';
 import kolibri from 'kolibri';
 import plugin_data from 'kolibri-plugin-data';
 import Vue, { watch } from 'vue';
-import store from 'kolibri/store';
 import useUser from 'kolibri/composables/useUser';
+import { error } from 'kolibri/utils/appError';
 import { currentLanguage } from 'kolibri/utils/i18n';
 
 if (plugin_data.sentryDSN) {
@@ -31,14 +31,11 @@ if (plugin_data.sentryDSN) {
   Sentry.init(initOptions);
   Sentry.setTag('lang', currentLanguage);
   Sentry.setTag('host', window.location.hostname);
-  store.watch(
-    state => state.error,
-    errorString => {
-      if (errorString) {
-        Sentry.captureException(errorString);
-      }
-    },
-  );
+  watch(error, errorString => {
+    if (errorString) {
+      Sentry.captureException(errorString);
+    }
+  });
 
   // Use the useUser composable to track user changes
   const user = useUser();
