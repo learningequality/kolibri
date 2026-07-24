@@ -124,8 +124,7 @@ jobs:
           name: ${{ inputs.tar-file-name }}
           path: platforms/android/tar
       # Install the member's Play Store build tooling from the shared workspace
-      # lock into the root .venv that Gradle's buildPython targets, then add the
-      # Chaquopy cext deps (kept out of the lock) that create_strings.py needs.
+      # lock into the root .venv that Gradle's buildPython targets.
       # Pin the venv to Python 3.10 so it matches Chaquopy's embedded runtime
       # (app/build.gradle `python { version = "3.10" }`); buildPython must be the
       # same minor version or `installDebugPythonRequirements` rejects it.
@@ -133,7 +132,6 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           uv sync --package kolibri-installer-android --extra build --python 3.10
-          uv pip install -r platforms/android/requirements.txt
       - name: Build the aab
         if: ${{ inputs.release }}
         env:
