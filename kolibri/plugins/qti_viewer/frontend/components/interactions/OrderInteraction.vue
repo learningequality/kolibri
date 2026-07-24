@@ -5,10 +5,10 @@
   import { computed, h, inject, watch } from 'vue';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
   import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, OrientationProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
@@ -144,7 +144,7 @@
         { immediate: true },
       );
 
-      function handleSort({ newArray }) {
+      function handleSort(newArray) {
         if (!interactive.value) {
           return;
         }
@@ -230,58 +230,50 @@
           ...nonChoiceContent,
           h(AnswerGuide, { props: { text: orderGuideText.value } }),
           h(
-            DragContainer,
+            DraggableRegion,
             {
               props: {
                 items,
+                tag: 'ul',
               },
-              on: { sort: handleSort },
+              attrs: { 'aria-label': orderListLabel$() },
+              class: listClasses(),
+              on: { 'update:items': handleSort },
             },
-            [
+            items.map((item, index) =>
               h(
-                'ul',
-                {
-                  attrs: { 'aria-label': orderListLabel$() },
-                  class: listClasses(),
-                },
-                items.map((item, index) =>
-                  h(Draggable, { key: item.identifier }, [
+                DraggableItem,
+                { props: { tag: 'li' }, key: item.identifier, class: 'qti-order-row-wrapper' },
+                [
+                  // Label sits outside the card, updates reactively
+                  renderLabel(index),
+                  h('div', { class: 'qti-order-row', style: rowStyle }, [
+                    h(DraggableHandle, [
+                      h(DragSortWidget, {
+                        props: {
+                          isFirst: index === 0,
+                          isLast: index === items.length - 1,
+                          horizontal: isHorizontal.value,
+                          itemLabel: textByIdentifier[item.identifier],
+                          position: index + 1,
+                          total: items.length,
+                        },
+                        on: {
+                          moveUp: () => moveItem(item.identifier, -1),
+                          moveDown: () => moveItem(item.identifier, 1),
+                          mousedown: e => e.preventDefault(),
+                        },
+                      }),
+                    ]),
                     h(
-                      'li',
-                      { class: 'qti-order-row-wrapper' },
-                      [
-                        // Label sits outside the card, updates reactively
-                        renderLabel(index),
-                        h('div', { class: 'qti-order-row', style: rowStyle }, [
-                          h(DragHandle, [
-                            h(DragSortWidget, {
-                              props: {
-                                isFirst: index === 0,
-                                isLast: index === items.length - 1,
-                                horizontal: isHorizontal.value,
-                                itemLabel: textByIdentifier[item.identifier],
-                                position: index + 1,
-                                total: items.length,
-                              },
-                              on: {
-                                moveUp: () => moveItem(item.identifier, -1),
-                                moveDown: () => moveItem(item.identifier, 1),
-                                mousedown: e => e.preventDefault(),
-                              },
-                            }),
-                          ]),
-                          h(
-                            'div',
-                            { class: 'qti-order-row-content' },
-                            contentByIdentifier[item.identifier],
-                          ),
-                        ]),
-                      ].filter(Boolean),
+                      'div',
+                      { class: 'qti-order-row-content' },
+                      contentByIdentifier[item.identifier],
                     ),
                   ]),
-                ),
+                ].filter(Boolean),
               ),
-            ],
+            ),
           ),
         ]);
       };
