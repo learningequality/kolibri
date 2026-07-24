@@ -1,0 +1,2 @@
+kolibri.sources etc/apt/sources.list.d/
+kolibri-archive-keyring.asc usr/share/keyrings/

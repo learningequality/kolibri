@@ -1,0 +1,18 @@
+Source: kolibri-archive-keyring
+Section: misc
+Priority: optional
+Maintainer: Learning Equality <info@learningequality.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://learningequality.org/kolibri
+
+Package: kolibri-archive-keyring
+Architecture: all
+Depends: ${misc:Depends}
+Description: Kolibri APT repository configuration and signing key
+ Configures the Kolibri self-hosted APT repository on
+ apt.learningequality.org by installing its deb822 source file and the
+ archive signing key used to verify its packages.
+ .
+ Installing this package lets apt fetch and upgrade Kolibri packages from
+ the canonical Kolibri APT repository without manually adding a source line.
