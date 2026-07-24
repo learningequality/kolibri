@@ -49,6 +49,15 @@ def _get_postgres_ssl_options(database_options):
     return ssl_options
 
 
+# ~608 days: the effectively-unlimited session length used when AUTO_LOGOUT_TIME
+# is 0 (e.g. the single-user app installers).
+UNLIMITED_SESSION_COOKIE_AGE = 52560000
+
+
+def _get_session_cookie_age(auto_logout_time):
+    return auto_logout_time or UNLIMITED_SESSION_COOKIE_AGE
+
+
 if not os.path.exists(conf.KOLIBRI_HOME):
     raise RuntimeError("The KOLIBRI_HOME dir does not exist")
 
@@ -446,9 +455,11 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SESSION_COOKIE_NAME = "kolibri"
 
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-SESSION_COOKIE_AGE = 1200
+SESSION_COOKIE_AGE = _get_session_cookie_age(
+    conf.OPTIONS["Deployment"]["AUTO_LOGOUT_TIME"]
+)
 
 apply_settings(sys.modules[__name__])
 
