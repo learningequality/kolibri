@@ -1,10 +1,10 @@
-import jQuery from 'jquery';
-/* eslint-disable import/no-unresolved */
+/* eslint-disable import-x/no-unresolved */
 /*
  * These files are temporarily brought in
  * for building new versions of our H5P vendor
  * bundle, so are not actually always present.
  */
+import jQuery from 'jquery';
 import './vendor/h5p/styles/h5p.css';
 import './vendor/h5p/styles/h5p-core-button.css';
 import './vendor/h5p/styles/h5p-confirmation-dialog.css';
