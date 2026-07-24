@@ -250,7 +250,6 @@ class WindowsServerManager:
 
         env = os.environ.copy()
         env["KOLIBRI_HOME"] = os.environ.get("KOLIBRI_HOME", KOLIBRI_HOME)
-        env["DJANGO_SETTINGS_MODULE"] = "kolibri_app.django_app_settings"
 
         return cmd, env
 
