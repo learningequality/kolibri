@@ -43,9 +43,6 @@ known-first-party = ["kolibri"]
 # on sys.path) that must precede `import zeroconf`, so it is neither unused (F401)
 # nor safe to reorder (I001).
 "app/src/main/python/monkey_patch_zeroconf.py" = ["F401", "I001"]
-# create_resource_files walks the locale tree inline; splitting it up would not
-# make the string-generation flow any clearer.
-"scripts/create_strings.py" = ["C901"]
 
 [tool.pytest.ini_options]
 testpaths = ["scripts/tests"]

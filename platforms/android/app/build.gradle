@@ -142,43 +142,6 @@ if (extractedKolibriDir.exists() && extractedKolibriDir.isDirectory()) {
 	println "Using default version (build Kolibri tar first for correct version)"
 }
 
-// Task to generate Android resource strings from Kolibri translations
-abstract class GenerateKolibriStringsTask extends DefaultTask {
-	@InputFile
-	abstract RegularFileProperty getScriptFile()
-
-	@Input
-	abstract Property<String> getPythonExecutable()
-
-	@OutputDirectory
-	abstract DirectoryProperty getResDir()
-
-	@Inject
-	abstract ExecOperations getExecOperations()
-
-	@TaskAction
-	void generateStrings() {
-		println "Generating Kolibri strings..."
-
-		def projectRoot = getScriptFile().get().asFile.parentFile.parentFile
-		def pythonExe = getPythonExecutable().get()
-
-		execOperations.exec {
-			workingDir projectRoot
-			commandLine pythonExe, 'scripts/create_strings.py'
-		}
-
-		println "Kolibri strings generated successfully"
-	}
-}
-
-tasks.register('generateKolibriStrings', GenerateKolibriStringsTask) {
-	dependsOn streamlineKolibriTar
-	getScriptFile().set(file('../scripts/create_strings.py'))
-	getResDir().set(file('src/main/res'))
-	getPythonExecutable().set(buildPythonExecutable)
-}
-
 // Make sure Kolibri is extracted before Python requirements are generated
 afterEvaluate {
 	tasks.matching { task ->
@@ -186,20 +149,6 @@ afterEvaluate {
 				task.name.contains('extractPythonBuildPackages')
 	}.all { task ->
 		task.dependsOn streamlineKolibriTar
-	}
-
-	// Generate strings before resources are processed or mapped
-	tasks.matching { task ->
-		task.name.contains('generateDebugResources') ||
-				task.name.contains('generateReleaseResources') ||
-				task.name.contains('mergeDebugResources') ||
-				task.name.contains('mergeReleaseResources') ||
-				task.name.contains('mapDebugSourceSetPaths') ||
-				task.name.contains('mapReleaseSourceSetPaths') ||
-				task.name.contains('extractDeepLinksDebug') ||
-				task.name.contains('extractDeepLinksRelease')
-	}.all { task ->
-		task.dependsOn generateKolibriStrings
 	}
 }
 
