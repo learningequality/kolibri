@@ -21,6 +21,7 @@ export default [
       'packages/kolibri-jest-config/**',
       'packages/kolibri-logging/**',
       'packages/build_kolibri_package.js',
+      'kolibri/**/h5p_build/**',
     ],
     rules: CJS_RULES,
   },

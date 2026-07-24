@@ -88,7 +88,7 @@ module.exports = (
   // The bundle's own buildConfig.js entry, alongside its webpack_config, may set
   // `skipMessageRegistration` to opt out of the frontend message registration bootstrap below.
   const configEntry = data.index !== null ? configData[data.index] : configData;
-  let webpackConfig = configEntry.webpack_config;
+  const webpackConfig = configEntry.webpack_config;
   if (typeof webpackConfig.entry === 'string') {
     webpackConfig.entry = {
       [data.name]: path.join(data.plugin_path, webpackConfig.entry),
