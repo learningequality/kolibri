@@ -33,6 +33,7 @@ import javax.inject.Inject
 
 // Task to extract Kolibri tar file, stripping unnecessary packages
 abstract class StreamlineKolibriTask extends DefaultTask {
+	@Optional
 	@InputFile
 	abstract RegularFileProperty getTarFile()
 
@@ -76,6 +77,8 @@ tasks.register('streamlineKolibriTar', StreamlineKolibriTask) {
 	def tarFile = file('../tar').listFiles()?.find { it.name.endsWith('.tar.gz') && it.name.startsWith('kolibri') }
 	getTarFile().set(tarFile)
 	getExtractedDir().set(file('../tar/extracted'))
+	// Skip extraction when no tar is staged, so `gradle test` runs standalone.
+	onlyIf { getTarFile().isPresent() }
 }
 
 // Determine which Python to use for build scripts
@@ -186,9 +189,11 @@ android {
 			buildPython buildPythonExecutable
 
 			pip {
-				// Install Kolibri from patched tar file
-				// The streamlineKolibriTar task extracts the tar before this runs
-				install "../tar/extracted"
+				// Install the extracted Kolibri tar, staged only for real APK/AAB
+				// builds; skipped for `gradle test`, which runs with no tar.
+				if (tarFile != null) {
+					install "../tar/extracted"
+				}
 				install "-r", "../requirements.txt"
 			}
 		}
