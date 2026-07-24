@@ -5,9 +5,7 @@ Reads language_info.json and uses our copy of Django's locale utilities
 to convert intl_code to locale format.
 """
 
-import json
-import os
-
+from build_tools.i18n.utils import available_languages
 from build_tools.i18n.utils import to_locale
 
 
@@ -18,32 +16,21 @@ def get_language_mapping():
     Returns:
         dict: Mapping from crowdin_code to locale code (underscore format)
     """
-    # Get the path to language_info.json relative to this script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(
-        script_dir, "..", "..", "kolibri", "locale", "language_info.json"
-    )
+    # to_locale handles script suffixes like 'hans' correctly
+    return {
+        lang["crowdin_code"]: to_locale(lang["intl_code"])
+        for lang in available_languages()
+    }
 
-    with open(json_path, "r", encoding="utf-8") as f:
-        languages = json.load(f)
 
-    mapping = {}
-
-    for lang in languages:
-        crowdin_code = lang["crowdin_code"]
-        intl_code = lang["intl_code"]
-
-        # Use to_locale to convert intl_code to locale format
-        # This handles script suffixes like 'hans' correctly
-        locale_code = to_locale(intl_code)
-
-        mapping[crowdin_code] = locale_code
-
-    return mapping
+def get_installer_language_mapping():
+    """Map crowdin_code -> raw intl_code (hyphen-lowercase), matching the
+    desktop-app installer's locale folder convention."""
+    return {lang["crowdin_code"]: lang["intl_code"] for lang in available_languages()}
 
 
 def main():
-    """Print the crowdin_code to locale code mapping in YAML format."""
+    """Print the underscore and installer (hyphen-lowercase) mappings for crowdin.yml."""
     mapping = get_language_mapping()
 
     print("# Generated mapping from crowdin_code to Django locale code")  # noqa: T201
@@ -51,6 +38,10 @@ def main():
 
     for crowdin_code, locale_code in sorted(mapping.items()):
         print(f'  "{crowdin_code}": "{locale_code}",')  # noqa: T201
+
+    print("  # Installer (hyphen-lowercase) mapping — %locale% placeholder")  # noqa: T201
+    for crowdin_code, intl_code in sorted(get_installer_language_mapping().items()):
+        print(f'  "{crowdin_code}": "{intl_code}",')  # noqa: T201
 
 
 if __name__ == "__main__":
