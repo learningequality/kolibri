@@ -1,6 +1,14 @@
 name: Release kolibri-server
 on:
   workflow_dispatch:
+  workflow_call:
+    secrets:
+      LP_CREDENTIALS:
+        required: true
+      GPG_SIGNING_KEY:
+        required: true
+      GPG_PASSPHRASE:
+        required: true
 permissions:
   contents: read
 jobs:
