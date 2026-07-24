@@ -1,6 +1,6 @@
 import os
 
-import yaml
+import pytest
 
 from build_tools.i18n.generate_mapping import get_installer_language_mapping
 from build_tools.i18n.generate_mapping import get_language_mapping
@@ -9,6 +9,10 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _crowdin_files():
+    # PyYAML rides in transitively via drf-yasg, which is gated to
+    # python_version >= '3.8'; skip the config-consistency checks on the
+    # 3.6/3.7 no-uv CI where it isn't installed.
+    yaml = pytest.importorskip("yaml")
     with open(os.path.join(REPO_ROOT, "crowdin.yml")) as f:
         return yaml.safe_load(f)["files"]
 
