@@ -5,18 +5,22 @@ requires-python = ">=3.7"
 dependencies = []
 
 [project.optional-dependencies]
-dev = [
-    "prek; python_version >= '3.8'",
-    "websockets>=16.0; python_version >= '3.10'",
-]
-test = [
-    "pytest",
-    "websockets>=16.0; python_version >= '3.10'",
-]
+# Build deps stay an extra; test and dev are dependency-groups so tox's
+# platform_tests matrix installs them via `uv sync --group test`.
 build = [
     "google-api-python-client==2.161.0; python_version >= '3.8'",
     "google-auth==2.38.0; python_version >= '3.8'",
     "google-auth-httplib2==0.2.0; python_version >= '3.8'",
+]
+
+[dependency-groups]
+test = [
+    "pytest",
+    "websockets>=16.0; python_version >= '3.10'",
+]
+dev = [
+    "prek; python_version >= '3.8'",
+    "websockets>=16.0; python_version >= '3.10'",
 ]
 
 [tool.ruff]
