@@ -26,4 +26,9 @@ export const dragSortStrings = createTranslator('DragSortStrings', {
     context:
       'Live region announcement of the full list order after focus leaves the reorderable list',
   },
+  itemMovedToRegion: {
+    message: 'Moved to {region}',
+    context:
+      'Live region announcement after an item is dragged into a named drop zone (e.g. a gap)',
+  },
 });

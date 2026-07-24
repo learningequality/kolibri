@@ -32,6 +32,7 @@ export function createDraggableUniverse({ name, delay } = {}) {
   // drag state
   const isDragging = ref(false);
   const activeRegion = ref(null);
+  const draggedItem = ref(null);
 
   const { sendPoliteMessage } = useKLiveRegion();
 
@@ -53,6 +54,7 @@ export function createDraggableUniverse({ name, delay } = {}) {
     sortableDefaults,
     isDragging,
     activeRegion,
+    draggedItem,
     sendPoliteMessage,
     registerRegion(el, api) {
       regions.set(el, api);

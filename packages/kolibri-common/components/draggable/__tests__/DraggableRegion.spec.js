@@ -1,0 +1,290 @@
+import { mount } from '@vue/test-utils';
+import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
+import DraggableUniverse from '../DraggableUniverse.vue';
+import DraggableRegion from '../DraggableRegion.vue';
+import { ITEM_CLASS } from '../classDefinitions';
+
+jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
+
+// Real SortableJS drives pointer events jsdom can't produce; we only need the
+// options object it's constructed with, so we can drive the region's own
+// lifecycle callbacks (onStart / onEnd / group.put) against real jsdom nodes.
+let mockInstances;
+jest.mock('sortablejs', () =>
+  jest.fn().mockImplementation((el, options) => {
+    mockInstances.push({ el, options });
+    return { destroy: jest.fn() };
+  }),
+);
+
+// A row element carrying the draggable marker class, so insertNodeAt has real
+// children to index into.
+function row(text) {
+  const el = document.createElement('div');
+  el.className = ITEM_CLASS;
+  el.textContent = text;
+  return el;
+}
+
+describe('DraggableRegion', () => {
+  let sendPoliteMessage;
+
+  beforeEach(() => {
+    mockInstances = [];
+    sendPoliteMessage = jest.fn();
+    useKLiveRegion.mockReturnValue({ sendPoliteMessage });
+    document.hasFocus = jest.fn(() => true);
+  });
+
+  // Mounts a lone region and returns its captured Sortable options.
+  async function mountRegion(propsData = {}) {
+    const wrapper = mount(DraggableRegion, {
+      propsData: { items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }], ...propsData },
+    });
+    await wrapper.vm.$nextTick();
+    return { wrapper, options: mockInstances[mockInstances.length - 1].options };
+  }
+
+  describe('capacity (group.put)', () => {
+    it('accepts a drop while below capacity and rejects it once full', async () => {
+      const { options } = await mountRegion({ items: [{ id: 'a' }], capacity: 2 });
+      expect(options.group.put()).toBe(true);
+      const { options: full } = await mountRegion({
+        items: [{ id: 'a' }, { id: 'b' }],
+        capacity: 2,
+      });
+      expect(full.group.put()).toBe(false);
+    });
+
+    it('never rejects when capacity is null (unlimited)', async () => {
+      const { options } = await mountRegion({ items: [{ id: 'a' }, { id: 'b' }], capacity: null });
+      expect(options.group.put()).toBe(true);
+    });
+
+    it('rejects every drop when disabled', async () => {
+      const { options } = await mountRegion({ items: [], capacity: 5, disabled: true });
+      expect(options.group.put()).toBe(false);
+    });
+
+    it('rejects when the accepts predicate returns false, even below capacity', async () => {
+      const { options } = await mountRegion({
+        items: [{ id: 'a' }],
+        capacity: 5,
+        accepts: () => false,
+      });
+      expect(options.group.put()).toBe(false);
+    });
+
+    it('sets pull to clone when the clone prop is set', async () => {
+      const { options } = await mountRegion({ clone: true });
+      expect(options.group.pull).toBe('clone');
+    });
+  });
+
+  describe('reorder within a region', () => {
+    it('emits the reordered array on a same-region move', async () => {
+      const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+      const { wrapper, options } = await mountRegion({ items });
+      const from = wrapper.element;
+      [row('a'), row('b'), row('c')].forEach(r => from.appendChild(r));
+      const item = from.children[0];
+
+      options.onEnd({
+        item,
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 2,
+      });
+
+      const emitted = wrapper.emitted('update:items');
+      expect(emitted).toHaveLength(1);
+      expect(emitted[0][0].map(i => i.id)).toEqual(['b', 'c', 'a']);
+    });
+
+    it('emits nothing for a no-op drag (same index)', async () => {
+      const { wrapper, options } = await mountRegion();
+      const from = wrapper.element;
+      from.appendChild(row('a'));
+      options.onEnd({
+        item: from.children[0],
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 1,
+        newDraggableIndex: 1,
+      });
+      expect(wrapper.emitted('update:items')).toBeUndefined();
+    });
+
+    it('reverts the DOM so the moved node is back under its source at its old index', async () => {
+      const { wrapper, options } = await mountRegion();
+      const from = wrapper.element;
+      [row('a'), row('b')].forEach(r => from.appendChild(r));
+      const item = from.children[0];
+      options.onEnd({
+        item,
+        from,
+        to: from,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 1,
+      });
+      expect(item.parentElement).toBe(from);
+      expect(from.children[0]).toBe(item);
+    });
+  });
+
+  describe('cross-region move and clone', () => {
+    // Two regions inside one universe so they share a SortableJS group and registry.
+    async function mountUniverse(targetProps = {}) {
+      const wrapper = mount({
+        components: { DraggableUniverse, DraggableRegion },
+        data() {
+          return {
+            source: [{ id: 'a' }, { id: 'b' }],
+            target: [{ id: 'x' }],
+            targetProps,
+          };
+        },
+        template: `
+          <DraggableUniverse>
+            <DraggableRegion :items="source" @update:items="source = $event" />
+            <DraggableRegion :items="target" v-bind="targetProps" @update:items="target = $event" />
+          </DraggableUniverse>
+        `,
+      });
+      await wrapper.vm.$nextTick();
+      const regions = wrapper.findAllComponents({ name: 'DraggableRegion' });
+      return {
+        wrapper,
+        sourceRegion: regions.at(0),
+        targetRegion: regions.at(1),
+        sourceOptions: mockInstances[0].options,
+        sourceEl: regions.at(0).element,
+        targetEl: regions.at(1).element,
+      };
+    }
+
+    it('moves an item: source loses it, target gains it at the drop index', async () => {
+      const { sourceRegion, targetRegion, sourceOptions, sourceEl, targetEl } =
+        await mountUniverse();
+      sourceEl.appendChild(row('a'));
+      sourceEl.appendChild(row('b'));
+      const item = sourceEl.children[0];
+
+      sourceOptions.onStart({ oldDraggableIndex: 0 });
+      sourceOptions.onEnd({
+        item,
+        from: sourceEl,
+        to: targetEl,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 1,
+        pullMode: true,
+      });
+
+      expect(sourceRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['b']);
+      expect(targetRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['x', 'a']);
+    });
+
+    it('clones an item: source is unchanged, target gains a copy, clone node removed', async () => {
+      const { sourceRegion, targetRegion, sourceOptions, sourceEl, targetEl } =
+        await mountUniverse();
+      sourceEl.appendChild(row('a'));
+      sourceEl.appendChild(row('b'));
+      const item = sourceEl.children[0];
+      const clone = row('a-clone');
+      sourceEl.appendChild(clone);
+
+      sourceOptions.onStart({ oldDraggableIndex: 0 });
+      sourceOptions.onEnd({
+        item,
+        clone,
+        from: sourceEl,
+        to: targetEl,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 0,
+        pullMode: 'clone',
+      });
+
+      expect(sourceRegion.emitted('update:items')).toBeUndefined();
+      expect(targetRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['a', 'x']);
+      expect(clone.parentNode).toBeNull();
+    });
+
+    it('announces the drop when the target region has a label', async () => {
+      const { sourceOptions, sourceEl, targetEl } = await mountUniverse({ label: 'Gap 1' });
+      sourceEl.appendChild(row('a'));
+      sourceEl.appendChild(row('b'));
+      sourceOptions.onStart({ oldDraggableIndex: 0 });
+      sourceOptions.onEnd({
+        item: sourceEl.children[0],
+        from: sourceEl,
+        to: targetEl,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 0,
+        pullMode: true,
+      });
+      expect(sendPoliteMessage).toHaveBeenCalledWith('Moved to Gap 1');
+    });
+
+    it('leaves data untouched when dropped outside the universe', async () => {
+      const { sourceRegion, sourceOptions, sourceEl } = await mountUniverse();
+      sourceEl.appendChild(row('a'));
+      sourceEl.appendChild(row('b'));
+      const stray = document.createElement('div');
+      sourceOptions.onStart({ oldDraggableIndex: 0 });
+      sourceOptions.onEnd({
+        item: sourceEl.children[0],
+        from: sourceEl,
+        to: stray,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 0,
+        pullMode: true,
+      });
+      expect(sourceRegion.emitted('update:items')).toBeUndefined();
+    });
+  });
+
+  describe('full-order announcement on focus-exit', () => {
+    it('announces the current order when focus leaves the region', async () => {
+      const { wrapper } = await mountRegion();
+      // Simulate DragSortWidget registrations via the provided callbacks.
+      const provided = wrapper.vm._provided;
+      provided.registerSortItem(0, 'First', 1);
+      provided.registerSortItem(1, 'Second', 2);
+      provided.registerSortItem(2, 'Third', 3);
+
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+      await wrapper.trigger('focusout', { relatedTarget: outside });
+
+      expect(sendPoliteMessage).toHaveBeenCalledWith(
+        'Current order: 1. First, 2. Second, 3. Third',
+      );
+      document.body.removeChild(outside);
+    });
+
+    it('does not announce when no items are registered', async () => {
+      const { wrapper } = await mountRegion();
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+      await wrapper.trigger('focusout', { relatedTarget: outside });
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
+      document.body.removeChild(outside);
+    });
+
+    it('does not announce on window blur (document not focused)', async () => {
+      document.hasFocus = jest.fn(() => false);
+      const { wrapper } = await mountRegion();
+      wrapper.vm._provided.registerSortItem(0, 'First', 1);
+      await wrapper.trigger('focusout', { relatedTarget: null });
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
+    });
+  });
+});
