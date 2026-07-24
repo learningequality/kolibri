@@ -15,44 +15,36 @@
       </p>
 
       <template v-else>
-        <DragContainer
+        <DraggableRegion
           class="container"
           :items="channels"
-          @sort="handleOrderChange"
+          @update:items="handleOrderChange"
         >
-          <transition-group
-            tag="div"
-            name="list"
-            class="wrapper"
+          <DraggableItem
+            v-for="(channel, index) in channels"
+            :key="channel.id"
           >
-            <Draggable
-              v-for="(channel, index) in channels"
-              :key="channel.id"
+            <DraggableHandle
+              :class="$computedClass(itemClass)"
+              class="item"
+              :style="{ backgroundColor: $themeTokens.surface }"
             >
-              <DragHandle>
-                <div
-                  :class="$computedClass(itemClass)"
-                  class="item"
-                  :style="{ backgroundColor: $themeTokens.surface }"
-                >
-                  <DragSortWidget
-                    class="sort-widget"
-                    :itemLabel="channel.name"
-                    :position="index + 1"
-                    :total="channels.length"
-                    :isFirst="index === 0"
-                    :isLast="index === channels.length - 1"
-                    @moveUp="shiftOne(index, -1)"
-                    @moveDown="shiftOne(index, +1)"
-                  />
-                  <div class="title">
-                    {{ channel.name }}
-                  </div>
-                </div>
-              </DragHandle>
-            </Draggable>
-          </transition-group>
-        </DragContainer>
+              <DragSortWidget
+                class="sort-widget"
+                :itemLabel="channel.name"
+                :position="index + 1"
+                :total="channels.length"
+                :isFirst="index === 0"
+                :isLast="index === channels.length - 1"
+                @moveUp="shiftOne(index, -1)"
+                @moveDown="shiftOne(index, +1)"
+              />
+              <div class="title">
+                {{ channel.name }}
+              </div>
+            </DraggableHandle>
+          </DraggableItem>
+        </DraggableRegion>
       </template>
     </KPageContainer>
   </ImmersivePage>
@@ -63,9 +55,9 @@
 <script>
 
   import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
   import client from 'kolibri/client';
   import urls from 'kolibri/urls';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -86,9 +78,9 @@
     },
     components: {
       DragSortWidget,
-      DragContainer,
-      DragHandle,
-      Draggable,
+      DraggableRegion,
+      DraggableHandle,
+      DraggableItem,
       ImmersivePage,
     },
     setup() {
@@ -154,15 +146,14 @@
         const adjacentItem = newArray[index + delta];
         newArray[index + delta] = newArray[index];
         newArray[index] = adjacentItem;
-        // This mimicks the object emitted by @sort event
-        this.handleOrderChange({ newArray });
+        this.handleOrderChange(newArray);
       },
-      handleOrderChange(event) {
+      handleOrderChange(newArray) {
         const oldArray = [...this.channels];
         // NOTE: have to update channels before POST because doing it after
         // causes a brief 'pick-up' animation after item is dropped.
-        this.channels = [...event.newArray];
-        this.postNewOrder(event.newArray.map(x => x.id))
+        this.channels = [...newArray];
+        this.postNewOrder(newArray.map(x => x.id))
           .then(() => {
             this.createSnackbar(this.$tr('successNotification'));
           })

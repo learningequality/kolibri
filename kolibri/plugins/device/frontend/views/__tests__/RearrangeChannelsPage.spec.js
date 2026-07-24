@@ -33,10 +33,8 @@ describe('RearrangeChannelsPage', () => {
   });
 
   async function simulateSort(wrapper) {
-    const dragContainer = wrapper.findComponent({ name: 'DragContainer' });
-    dragContainer.vm.$emit('sort', {
-      newArray: [wrapper.vm.channels[1], wrapper.vm.channels[0]],
-    });
+    const region = wrapper.findComponent({ name: 'DraggableRegion' });
+    region.vm.$emit('update:items', [wrapper.vm.channels[1], wrapper.vm.channels[0]]);
     expect(wrapper.vm.postNewOrder).toHaveBeenCalledWith(['2', '1']);
     await global.flushPromises();
   }
@@ -75,12 +73,10 @@ describe('RearrangeChannelsPage', () => {
     const spy = (wrapper.vm.handleOrderChange = jest.fn());
     const dragSortWidget = wrapper.findAllComponents({ name: 'DragSortWidget' }).at(1);
     dragSortWidget.vm.$emit('moveUp');
-    expect(spy).toHaveBeenCalledWith({
-      newArray: [
-        { id: '2', name: 'Channel 2' },
-        { id: '1', name: 'Channel 1' },
-      ],
-    });
+    expect(spy).toHaveBeenCalledWith([
+      { id: '2', name: 'Channel 2' },
+      { id: '1', name: 'Channel 1' },
+    ]);
   });
 
   it('handles a @moveDown event properly', async () => {
@@ -88,11 +84,9 @@ describe('RearrangeChannelsPage', () => {
     const spy = (wrapper.vm.handleOrderChange = jest.fn());
     const dragSortWidget = wrapper.findAllComponents({ name: 'DragSortWidget' }).at(0);
     dragSortWidget.vm.$emit('moveDown');
-    expect(spy).toHaveBeenCalledWith({
-      newArray: [
-        { id: '2', name: 'Channel 2' },
-        { id: '1', name: 'Channel 1' },
-      ],
-    });
+    expect(spy).toHaveBeenCalledWith([
+      { id: '2', name: 'Channel 2' },
+      { id: '1', name: 'Channel 1' },
+    ]);
   });
 });
