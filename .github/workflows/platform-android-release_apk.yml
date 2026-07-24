@@ -6,6 +6,14 @@ on:
         description: 'The version code to promote to the open testing track'
         required: true
         type: string
+  workflow_call:
+    inputs:
+      version-code:
+        required: true
+        type: string
+    secrets:
+      KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON:
+        required: true
 permissions:
   contents: read
 jobs:

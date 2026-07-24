@@ -55,11 +55,10 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.5.1
+    uses: ./.github/workflows/platform-macos-app-build_dmg.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v0.5.1
     secrets:
       KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
       KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
@@ -86,14 +85,19 @@ jobs:
     with:
       filename: ${{ needs.deb.outputs.deb-file-name }}
       release_id: ${{ github.event.release.id }}
+  server_deb:
+    name: Build kolibri-server DEB file
+    needs: whl
+    uses: ./.github/workflows/platform-debian-server-build_deb.yml
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.9
+    uses: ./.github/workflows/platform-windows-app-build_exe.yml
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v1.6.9
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -106,10 +110,11 @@ jobs:
       release_id: ${{ github.event.release.id }}
   zip:
     name: Build Raspberry Pi Image
-    needs: deb
+    needs: [deb, server_deb]
     uses: ./.github/workflows/platform-pi-build_img.yml
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+      server-deb-file-name: ${{ needs.server_deb.outputs.deb-file-name }}
   upload_zip:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: zip
@@ -119,11 +124,10 @@ jobs:
   apk:
     name: Build Android APK
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.2.0
+    uses: ./.github/workflows/platform-android-build_apk.yml
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       release: true
-      ref: v0.2.0
     secrets:
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD }}
@@ -233,12 +237,20 @@ jobs:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
     needs: [apk, block_release_step]
-    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@v0.2.0
+    uses: ./.github/workflows/platform-android-release_apk.yml
     with:
       version-code: ${{ needs.apk.outputs.version-code }}
-      ref: v0.2.0
     secrets:
       KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON: ${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}
+  server_release:
+    name: Release kolibri-server
+    if: ${{ !github.event.release.prerelease }}
+    needs: [server_deb, block_release_step]
+    uses: ./.github/workflows/platform-debian-server-release.yml
+    secrets:
+      LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   container_image_publish:
     name: Build and publish container image
     if: ${{ !github.event.release.prerelease }}
