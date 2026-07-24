@@ -34,102 +34,98 @@
       </div>
     </template>
 
-    <DragContainer
+    <DraggableRegion
       key="drag-container"
       :items="questions"
-      @sort="handleQuestionOrderChange"
-      @dragStart="handleDragStart"
+      @update:items="handleQuestionOrderChange"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
     >
-      <transition-group
-        tag="div"
-        name="list"
+      <DraggableItem
+        v-for="(question, index) in questions"
+        :key="`drag-${question.item}`"
+        tabindex="-1"
+        :style="{
+          background: $themeTokens.surface,
+        }"
       >
-        <Draggable
-          v-for="(question, index) in questions"
-          :key="`drag-${question.item}`"
-          tabindex="-1"
-          :style="{
-            background: $themeTokens.surface,
+        <AccordionItem
+          :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
+          :disabledTitle="questionItemsToReplace?.includes(question.item)"
+          :aria-selected="questionIsChecked(question)"
+          :headerAppearanceOverrides="{
+            userSelect: dragActive ? 'none !important' : 'text',
           }"
         >
-          <AccordionItem
-            :title="getDisplayQuestionTitle(question, getQuestionContent(question)?.title)"
-            :disabledTitle="questionItemsToReplace?.includes(question.item)"
-            :aria-selected="questionIsChecked(question)"
-            :headerAppearanceOverrides="{
-              userSelect: dragActive ? 'none !important' : 'text',
-            }"
-          >
-            <template #leading-actions>
-              <DragHandle v-if="isSortable">
-                <div>
-                  <DragSortWidget
-                    :isFirst="index === 0"
-                    :isLast="index === questions.length - 1"
-                    :itemLabel="
-                      getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
-                    "
-                    :position="index + 1"
-                    :total="questions.length"
-                    @moveUp="() => handleKeyboardDragUp(index)"
-                    @moveDown="() => handleKeyboardDragDown(index)"
-                  />
-                </div>
-              </DragHandle>
-              <KCheckbox
-                v-if="isSelectable"
-                class="accordion-item-checkbox"
-                :checked="questionIsChecked(question)"
-                :disabled="questionCheckboxDisabled(question)"
-                @change="
-                  (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
-                "
+          <template #leading-actions>
+            <DraggableHandle v-if="isSortable">
+              <div>
+                <DragSortWidget
+                  :isFirst="index === 0"
+                  :isLast="index === questions.length - 1"
+                  :itemLabel="
+                    getDisplayQuestionTitle(question, getQuestionContent(question)?.title)
+                  "
+                  :position="index + 1"
+                  :total="questions.length"
+                  @moveUp="() => handleKeyboardDragUp(index)"
+                  @moveDown="() => handleKeyboardDragDown(index)"
+                />
+              </div>
+            </DraggableHandle>
+            <KCheckbox
+              v-if="isSelectable"
+              class="accordion-item-checkbox"
+              :checked="questionIsChecked(question)"
+              :disabled="questionCheckboxDisabled(question)"
+              @change="
+                (value, $event) => handleQuestionCheckboxChange(question.item, value, $event)
+              "
+            />
+          </template>
+          <template #trailing-actions>
+            <span v-if="questionItemsToReplace?.includes(question.item)">
+              {{ replacingThisQuestionLabel$() }}
+            </span>
+            <slot
+              name="question-trailing-actions"
+              :question="question"
+            ></slot>
+          </template>
+          <template #content>
+            <div
+              :id="`question-panel-${question.item}`"
+              :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
+            >
+              <ContentViewer
+                v-if="questionContentExists(question)"
+                :ref="`contentRenderer-${question.item}`"
+                :contentNode="getQuestionContent(question)"
+                :itemId="question.question_id"
+                :allowHints="false"
+                :interactive="false"
+                :showCorrectAnswer="true"
+                @interaction="() => null"
+                @updateProgress="() => null"
+                @updateContentState="() => null"
+                @error="err => $emit('error', err)"
               />
-            </template>
-            <template #trailing-actions>
-              <span v-if="questionItemsToReplace?.includes(question.item)">
-                {{ replacingThisQuestionLabel$() }}
-              </span>
+              <div v-else>
+                <KIcon
+                  icon="warning"
+                  :style="{ fill: $themePalette.yellow.v_600 }"
+                />
+                {{ coreString('resourceNotFoundOnDevice') }}
+              </div>
               <slot
-                name="question-trailing-actions"
+                name="questionExtraContent"
                 :question="question"
               ></slot>
-            </template>
-            <template #content>
-              <div
-                :id="`question-panel-${question.item}`"
-                :style="{ userSelect: dragActive ? 'none !important' : 'text' }"
-              >
-                <ContentViewer
-                  v-if="questionContentExists(question)"
-                  :ref="`contentRenderer-${question.item}`"
-                  :contentNode="getQuestionContent(question)"
-                  :itemId="question.question_id"
-                  :allowHints="false"
-                  :interactive="false"
-                  :showCorrectAnswer="true"
-                  @interaction="() => null"
-                  @updateProgress="() => null"
-                  @updateContentState="() => null"
-                  @error="err => $emit('error', err)"
-                />
-                <div v-else>
-                  <KIcon
-                    icon="warning"
-                    :style="{ fill: $themePalette.yellow.v_600 }"
-                  />
-                  {{ coreString('resourceNotFoundOnDevice') }}
-                </div>
-                <slot
-                  name="questionExtraContent"
-                  :question="question"
-                ></slot>
-              </div>
-            </template>
-          </AccordionItem>
-        </Draggable>
-      </transition-group>
-    </DragContainer>
+            </div>
+          </template>
+        </AccordionItem>
+      </DraggableItem>
+    </DraggableRegion>
   </AccordionContainer>
 
 </template>
@@ -139,9 +135,9 @@
 
   import { computed, ref } from 'vue';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import Draggable from 'kolibri-common/components/sortable/Draggable';
-  import DragHandle from 'kolibri-common/components/sortable/DragHandle';
-  import DragContainer from 'kolibri-common/components/sortable/DragContainer';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
   import DragSortWidget from 'kolibri-common/components/draggable/DragSortWidget';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
@@ -151,9 +147,9 @@
   export default {
     name: 'QuestionsAccordion',
     components: {
-      Draggable,
-      DragHandle,
-      DragContainer,
+      DraggableItem,
+      DraggableHandle,
+      DraggableRegion,
       DragSortWidget,
       AccordionItem,
       AccordionContainer,
@@ -319,17 +315,21 @@
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
       },
-      handleQuestionOrderChange({ newArray }) {
-        this.$emit('sort', { newArray });
+      handleDragEnd() {
+        // Reset on drag end (not only on a reorder) so a drag that changes nothing
+        // still re-enables text selection.
         this.dragActive = false;
+      },
+      handleQuestionOrderChange(newArray) {
+        this.$emit('sort', { newArray });
       },
       handleKeyboardDragDown(oldIndex) {
         const newArray = this.moveDownOne(oldIndex, this.questions);
-        this.handleQuestionOrderChange({ newArray });
+        this.handleQuestionOrderChange(newArray);
       },
       handleKeyboardDragUp(oldIndex) {
         const newArray = this.moveUpOne(oldIndex, this.questions);
-        this.handleQuestionOrderChange({ newArray });
+        this.handleQuestionOrderChange(newArray);
       },
       handleQuestionCheckboxChange(questionItem, value, $event) {
         $event.stopPropagation();
