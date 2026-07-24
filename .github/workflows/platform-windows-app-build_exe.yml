@@ -54,6 +54,16 @@ jobs:
           exit 1
       - name: Check out code
         uses: actions/checkout@v7.0.0
+      - name: Verify signing secrets are present
+        if: ${{ inputs.release }}
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: >-
+          bash .github/scripts/verify-secrets.sh AZURE_TENANT_ID AZURE_CLIENT_ID AZURE_CLIENT_SECRET
       - uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true

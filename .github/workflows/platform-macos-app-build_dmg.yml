@@ -61,6 +61,18 @@ jobs:
           echo "Must specify exactly one reference for the whl file to build the DMG with."
           exit 1
       - uses: actions/checkout@v7.0.0
+      - name: Verify signing secrets are present
+        if: ${{ inputs.release }}
+        working-directory: ${{ github.workspace }}
+        env:
+          KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
+          KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
+          KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}
+          KOLIBRI_MAC_APP_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
+          KOLIBRI_MAC_APP_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
+          KOLIBRI_MAC_APP_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
+        run: >-
+          bash .github/scripts/verify-secrets.sh KOLIBRI_MAC_APP_IDENTITY KOLIBRI_MAC_APP_CERTIFICATE KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD KOLIBRI_MAC_APP_USERNAME KOLIBRI_MAC_APP_PASSWORD KOLIBRI_MAC_APP_TEAM_ID
       - uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
