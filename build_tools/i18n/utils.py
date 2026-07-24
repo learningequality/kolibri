@@ -39,7 +39,7 @@ KEY_ENG_NAME = "english_name"
 KEY_DEFAULT_FONT = "default_font"
 
 
-@functools.cache
+@functools.lru_cache(maxsize=None)
 def available_languages():
     """
     Returns all available languages including English and in-context language.
@@ -58,7 +58,7 @@ def local_locale_path(lang_object):
     return _local_locale_path_by_code(intl_code)
 
 
-@functools.cache
+@functools.lru_cache(maxsize=None)
 def _local_locale_path_by_code(intl_code):
     """
     Internal cached implementation that takes a hashable intl_code string.
