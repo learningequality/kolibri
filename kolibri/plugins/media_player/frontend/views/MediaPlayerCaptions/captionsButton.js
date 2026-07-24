@@ -10,6 +10,7 @@ class CaptionsButton extends buttonMixin('TextTrackButton') {
   buildMenu() {
     return new CaptionsMenu(this.player(), {
       menuButton: this,
+      vueParent: this.options_.vueParent,
     });
   }
 
@@ -45,7 +46,11 @@ class CaptionsButton extends buttonMixin('TextTrackButton') {
 
     this.hideThreshold_ = -1;
     const player = this.player();
-    return [new SubtitlesMenuItem(player, {}), new TranscriptMenuItem(player, {})];
+    const vueParent = this.options_.vueParent;
+    return [
+      new SubtitlesMenuItem(player, { vueParent }),
+      new TranscriptMenuItem(player, { vueParent }),
+    ];
   }
 }
 

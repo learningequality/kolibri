@@ -53,16 +53,34 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { computed } from 'vue';
   import { throttle } from 'frame-throttle';
   import { getLangDir } from 'kolibri/utils/i18n';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
   import TranscriptCue from './TranscriptCue';
 
   export default {
     name: 'MediaPlayerTranscript',
     components: { TranscriptCue },
     mixins: [commonCoreStrings],
+    setup() {
+      const { transcript, language, cues, activeCueIds, duration, seek } = injectMediaPlayer();
+
+      // Only rendered while the transcript is on (the parent gates it behind
+      // transcriptVisible), so transcript being true is the readiness signal.
+      const showing = computed(() => transcript.value);
+      const languageDir = computed(() => getLangDir(language.value));
+
+      return {
+        cues,
+        activeCueIds,
+        showing,
+        mediaDuration: duration,
+        languageDir,
+        seek,
+      };
+    },
     data() {
       return {
         // TODO figure if this is supposed to be used
@@ -73,19 +91,8 @@
       };
     },
     computed: {
-      ...mapState('mediaPlayer', ['player']),
-      ...mapState('mediaPlayer/captions', ['transcript', 'language', 'cues', 'activeCueIds']),
-      showing() {
-        return this.player && this.transcript;
-      },
-      mediaDuration() {
-        return this.player ? this.player.duration() : 0;
-      },
       capStyle() {
         return { color: this.$themeTokens.annotation };
-      },
-      languageDir() {
-        return getLangDir(this.language);
       },
     },
     watch: {
@@ -131,7 +138,7 @@
     methods: {
       handleSeekEvent(cueTime) {
         // Add 10ms to cueTime to avoid triggering two cues if they overlap on end and start time
-        this.player.currentTime(cueTime + 0.01);
+        this.seek(cueTime + 0.01);
       },
       /**
        * Move keyboard focus to the first or last cue in the transcript.
@@ -253,6 +260,9 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .media-player-transcript {
+    // Positioned so it is the offsetParent of the cues: the scroll logic reads
+    // each cue's offsetTop as an offset within this scroll container.
+    position: relative;
     overflow-x: hidden;
     overflow-y: auto;
   }

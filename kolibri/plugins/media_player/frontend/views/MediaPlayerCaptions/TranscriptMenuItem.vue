@@ -20,19 +20,21 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'TranscriptMenuItem',
     mixins: [commonCoreStrings],
-    computed: {
-      ...mapState('mediaPlayer/captions', {
-        selected: 'transcript',
-      }),
+    setup() {
+      const { transcript, toggleTranscript } = injectMediaPlayer();
+
+      return {
+        selected: transcript,
+        toggleTranscript,
+      };
     },
     methods: {
-      ...mapActions('mediaPlayer/captions', ['toggleTranscript']),
       /**
        * Accessible via parent component refs.
        * @public

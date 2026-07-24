@@ -161,11 +161,13 @@
       //
       // The keypad is a full-width bar pinned to the bottom of the content's
       // scrolling region, just above each host's bottom chrome. Rather than
-      // reason about each host's layout, we detect the nearest scrollable
+      // reason about each host's layout, we detect the outermost scrollable
       // ancestor and follow its visible viewport rect (clamped to the window).
+      // Outermost (not nearest) because the content nests inner scrollable
+      // cards (e.g. KPageContainer) that scroll within the real viewport.
       // A fixed-position bar at `window.innerHeight - rect.bottom` then sits at
       // that region's visible bottom regardless of how tall the content grows.
-      const { containerRect, updateRect } = useScrollContainer(anchor);
+      const { containerRect, updateRect } = useScrollContainer(anchor, { strategy: 'outermost' });
 
       const anchorStyle = computed(() => {
         const rect = containerRect.value;

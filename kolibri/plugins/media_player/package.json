@@ -17,7 +17,9 @@
     "lodash": "catalog:",
     "safe-json-parse": "^4.0.0",
     "video.js": "^7.21.7",
-    "vue": "catalog:",
-    "vuex": "catalog:"
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/vue": "catalog:"
   }
 }

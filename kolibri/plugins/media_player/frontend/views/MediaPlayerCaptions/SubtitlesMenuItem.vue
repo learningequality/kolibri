@@ -17,17 +17,19 @@
 
 <script>
 
-  import { mapState, mapActions } from 'vuex';
+  import { injectMediaPlayer } from '../../composables/useMediaPlayer';
 
   export default {
     name: 'SubtitlesMenuItem',
-    computed: {
-      ...mapState('mediaPlayer/captions', {
-        selected: 'subtitles',
-      }),
+    setup() {
+      const { subtitles, toggleSubtitles } = injectMediaPlayer();
+
+      return {
+        selected: subtitles,
+        toggleSubtitles,
+      };
     },
     methods: {
-      ...mapActions('mediaPlayer/captions', ['toggleSubtitles']),
       /**
        * Accessible via parent component refs.
        * @public

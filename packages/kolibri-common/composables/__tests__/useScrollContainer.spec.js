@@ -5,7 +5,7 @@ import useScrollContainer from '../useScrollContainer';
 // Mounts a harness modelling the Perseus DOM: an outer scroll viewport
 // (like .column-pane) wrapping an inner scrollable card (like KPageContainer)
 // wrapping the element handed to the composable.
-function mountHarness({ outerStyle = '', innerStyle = '' } = {}) {
+function mountHarness({ outerStyle = '', innerStyle = '', strategy } = {}) {
   let api;
   const Harness = {
     template: `
@@ -21,7 +21,7 @@ function mountHarness({ outerStyle = '', innerStyle = '' } = {}) {
     `,
     setup() {
       const target = ref(null);
-      api = useScrollContainer(target);
+      api = useScrollContainer(target, strategy ? { strategy } : undefined);
       return { target, outerStyle, innerStyle };
     },
   };
@@ -34,17 +34,38 @@ function stubRect(el, rect) {
 }
 
 describe('useScrollContainer', () => {
-  it('pins to the outermost scrollable ancestor, skipping inner scrollable cards', () => {
+  it("strategy 'outermost' pins to the outer viewport, skipping inner scrollable cards", () => {
     // Both the outer viewport and the inner card are scrollable. The inner card
     // (KPageContainer) scrolls *within* the outer viewport, so we must select
     // the outer one — selecting the inner one was the keypad positioning bug.
-    const api = mountHarness({ outerStyle: 'overflow-y: auto;', innerStyle: 'overflow-y: auto;' });
+    const api = mountHarness({
+      outerStyle: 'overflow-y: auto;',
+      innerStyle: 'overflow-y: auto;',
+      strategy: 'outermost',
+    });
     stubRect(screen.getByTestId('outer'), { top: 64, bottom: 500, left: 16, width: 400 });
     stubRect(screen.getByTestId('inner'), { top: 64, bottom: 900, left: 16, width: 380 });
 
     api.updateRect();
 
     expect(api.containerRect.value).toEqual({ top: 64, bottom: 500, left: 16, width: 400 });
+  });
+
+  it("strategy 'nearest' (default) pins to the closest scrollable ancestor", () => {
+    // Same nested-scroll DOM, but the default strategy tracks the inner card —
+    // what the media player layout wants, since it has no intermediate card.
+    const api = mountHarness({ outerStyle: 'overflow-y: auto;', innerStyle: 'overflow-y: auto;' });
+    stubRect(screen.getByTestId('outer'), { top: 64, bottom: 500, left: 16, width: 400 });
+    stubRect(screen.getByTestId('inner'), { top: 64, bottom: 900, left: 16, width: 380 });
+
+    api.updateRect();
+
+    expect(api.containerRect.value).toEqual({
+      top: 64,
+      bottom: window.innerHeight,
+      left: 16,
+      width: 380,
+    });
   });
 
   it('clamps the container rect to the viewport', () => {
