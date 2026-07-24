@@ -77,6 +77,13 @@ sign-and-upload: dist
 # Solution from: https://stackoverflow.com/a/43145972/405682
 VERSION:=$(shell dpkg-parsechangelog -S Version | sed -rne 's,([^-\+]+)+(\+dfsg)*.*,\1,p'i)
 UPSTREAM_PACKAGE:=kolibri-server_${VERSION}.orig.tar.gz
-orig:
+# Single-source the cutover snippet from platforms/apt-repo so the postinst and
+# the debian package's later migration share one canonical copy. It must exist
+# before orig tars the directory, so hang it off orig rather than off each
+# packaging target.
+migrate-apt-source.sh: ../apt-repo/migrate-apt-source.sh
+	cp $< $@
+
+orig: migrate-apt-source.sh
 	@echo "Creating .orig tarball: ../${UPSTREAM_PACKAGE}"
 	@tar --exclude-from=.tarignore -czf ../${UPSTREAM_PACKAGE} -C .. $(notdir $(CURDIR))
