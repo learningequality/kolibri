@@ -728,6 +728,16 @@ base_option_spec = {
                 In case a SoUD connects to this server, the SoUD should use this interval to resync every user.
             """,
         },
+        "AUTO_LOGOUT_TIME": {
+            "type": "integer",
+            "default": 1200,
+            "validator_args": {"min": 0},
+            "description": """
+                The maximum age in seconds of a user session before it expires and the user is
+                logged out, controlling Django's SESSION_COOKIE_AGE. A value of 0 means sessions
+                effectively never expire (used by the single-user app installers).
+            """,
+        },
         "PROJECT": {
             "type": "string",
             "skip_blank": True,

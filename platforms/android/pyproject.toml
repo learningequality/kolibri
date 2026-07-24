@@ -39,9 +39,6 @@ force-single-line = true
 known-first-party = ["kolibri"]
 
 [tool.ruff.lint.per-file-ignores]
-# Django settings module assembled from Kolibri's base settings via a star
-# import — the wildcard and the names it pulls in are intentional.
-"app/src/main/python/kolibri_app_settings.py" = ["F403", "F405"]
 # `import kolibri` is a side-effect import (it puts Kolibri's vendored zeroconf
 # on sys.path) that must precede `import zeroconf`, so it is neither unused (F401)
 # nor safe to reorder (I001).

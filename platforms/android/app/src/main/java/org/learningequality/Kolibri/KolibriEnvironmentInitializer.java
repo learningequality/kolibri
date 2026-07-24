@@ -84,11 +84,11 @@ public class KolibriEnvironmentInitializer {
       String versionName = BuildConfig.VERSION_NAME;
       environ.callAttr("__setitem__", "KOLIBRI_APK_VERSION_NAME", versionName);
 
-      // Django settings module
-      environ.callAttr("__setitem__", "DJANGO_SETTINGS_MODULE", "kolibri_app_settings");
-
       // Disable restart hooks (not needed on Android)
       environ.callAttr("__setitem__", "KOLIBRI_RESTART_HOOKS", "");
+
+      // Single-user embedded app: keep the session alive indefinitely
+      environ.callAttr("__setitem__", "KOLIBRI_AUTO_LOGOUT_TIME", "0");
 
       // Timezone
       TimeZone tz = TimeZone.getDefault();

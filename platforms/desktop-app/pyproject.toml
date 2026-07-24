@@ -81,12 +81,6 @@ extend = "../../pyproject.toml"
 target-version = "py310"
 
 [tool.ruff.lint.per-file-ignores]
-# django_app_settings.py re-exports Kolibri's base Django settings via a star
-# import so PyInstaller bundles the full settings namespace; the wildcard is
-# intentional (F403) and downstream names resolve from it (F405). Scoped here
-# as a per-file ignore rather than an inline suppression, matching
-# platforms/android.
-"src/kolibri_app/django_app_settings.py" = ["F403", "F405"]
 # Root ruff selects T20 (flake8-print), which the source repo's ruff did not.
 # These build/CLI tools write to stdout by design: the installer translation
 # scripts, the WebView2 IID extractor, the PyInstaller hook, and a diagnostic
