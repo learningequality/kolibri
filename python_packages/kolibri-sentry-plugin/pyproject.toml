@@ -29,7 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "kolibri>=0.15",
+    "kolibri>=0.20",
     "sentry-sdk==2.45.0",
 ]
 
