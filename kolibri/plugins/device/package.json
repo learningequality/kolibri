@@ -5,7 +5,7 @@
     "version": "0.0.1",
     "dependencies": {
         "@vueuse/core": "catalog:",
-        "js-cookie": "^3.0.5",
+        "js-cookie": "^3.0.7",
         "kolibri": "workspace:*",
         "kolibri-app": "workspace:*",
         "kolibri-common": "workspace:*",
