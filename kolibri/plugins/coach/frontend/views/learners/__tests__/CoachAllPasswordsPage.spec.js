@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import { ref } from 'vue';
-import store from 'kolibri/store';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
-import classSummaryModule from '../../../modules/classSummary';
+import store from '../../../store';
 import makeStore from '../../../__tests__/utils/makeStore';
 import CoachAllPasswordsPage from '../CoachAllPasswordsPage.vue';
 
@@ -44,9 +43,6 @@ function renderComponent({ learners = LEARNERS, className = CLASS_NAME } = {}) {
   testStore.state.classSummary.learnerMap = learnerMap;
   testStore.state.classSummary.name = className;
 
-  if (!store.hasModule('classSummary')) {
-    store.registerModule('classSummary', classSummaryModule);
-  }
   store.replaceState(testStore.state);
 
   return render(CoachAllPasswordsPage, { routes });

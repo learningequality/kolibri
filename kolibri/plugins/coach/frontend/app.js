@@ -11,7 +11,7 @@ import useFacility from 'kolibri-common/composables/useFacility';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { PageNames } from './constants';
 import routes from './routes';
-import pluginModule from './modules/pluginModule';
+import store from './store';
 import HomeActivityPage from './views/home/HomeActivityPage';
 
 const { fetchFacilities, facilities } = useFacilities();
@@ -31,32 +31,31 @@ function _channelListState(data) {
   }));
 }
 
-export function setChannelInfo(store) {
+function setChannelInfo() {
   return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
     channelsData => {
       store.commit('SET_CHANNEL_LIST', _channelListState(channelsData));
-      return channelsData;
     },
-    error => {
-      handleApiError({ error });
-      return error;
-    },
+    error => handleApiError({ error }),
   );
 }
 
-function initFacilityConfig() {
-  return fetchFacilityConfig().catch(() => {});
-}
-
 class CoachToolsModule extends KolibriApp {
-  get stateSetters() {
-    return [setChannelInfo, initFacilityConfig];
-  }
   get routes() {
     return routes;
   }
-  get pluginModule() {
-    return pluginModule;
+  get RootVue() {
+    return { ...super.RootVue, store };
+  }
+  startRootVue() {
+    // Route handlers read the channel list and the facility config, so both have to be
+    // resolved before the router handles the first navigation. `handleApiError` re-throws
+    // after setting the global error, so swallow the rejections rather than letting a
+    // failed fetch stop the app from mounting.
+    return Promise.all([
+      setChannelInfo().catch(() => {}),
+      fetchFacilityConfig().catch(() => {}),
+    ]).then(() => super.startRootVue());
   }
   ready() {
     const { snackbarIsVisible, clearSnackbar } = useSnackbar();
@@ -132,7 +131,7 @@ class CoachToolsModule extends KolibriApp {
         clearSnackbar();
       }
 
-      this.store.commit('SET_PAGE_NAME', to.name);
+      store.commit('SET_PAGE_NAME', to.name);
       if (
         to.name &&
         !to.params.classId &&
@@ -140,7 +139,7 @@ class CoachToolsModule extends KolibriApp {
           to.name,
         )
       ) {
-        this.store.dispatch('coachNotifications/stopPolling');
+        store.dispatch('coachNotifications/stopPolling');
       }
       // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
       if (
@@ -198,7 +197,7 @@ class CoachToolsModule extends KolibriApp {
           to.name,
         )
       ) {
-        promises.push(this.store.dispatch('initClassInfo', to.params.classId));
+        promises.push(store.dispatch('initClassInfo', to.params.classId));
       }
 
       if (get(isSuperuser) && facilities.value.length === 0) {
@@ -222,7 +221,7 @@ class CoachToolsModule extends KolibriApp {
     });
 
     router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+      store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     super.ready();
   }

@@ -72,10 +72,10 @@ const ROUTES = [
 ];
 
 // ── module-level store mock ───────────────────────────────────────────────────
-// CourseSummaryPage imports `store` directly from 'kolibri/store' (not via $store) for
+// CourseSummaryPage imports `store` directly from the coach store module (not via $store) for
 // classSummary getters and handleApiError dispatch. Provide those here so fetchAllUnitReports
 // doesn't throw and trigger console.error.
-jest.mock('kolibri/store', () => ({
+jest.mock('../../../store', () => ({
   __esModule: true,
   default: {
     dispatch: jest.fn(),

@@ -71,10 +71,10 @@
 
   import { computed } from 'vue';
   import uniq from 'lodash/uniq';
-  import store from 'kolibri/store';
   import { localeCompare } from 'kolibri/utils/i18n';
 
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+  import store from '../../../store';
   import { coachStrings } from '../commonCoachStrings';
   import IndividualLearnerSelectorTable from './IndividualLearnerSelector/IndividualLearnerSelectorTable.vue';
 

@@ -1,7 +1,7 @@
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import store from 'kolibri/store';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import store from '../../store';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 
 export function questionRootRedirectHandler(params, name, next) {

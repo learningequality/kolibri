@@ -12,7 +12,7 @@ import UnitDetailPage from '../UnitDetailPage.vue';
 const { learningObjectivesLabel$ } = coursesStrings;
 
 jest.mock('vue-router/composables', () => ({ useRoute: jest.fn(), useRouter: jest.fn() }));
-jest.mock('kolibri/store', () => ({ __esModule: true, default: { dispatch: jest.fn() } }));
+jest.mock('../../../store', () => ({ __esModule: true, default: { dispatch: jest.fn() } }));
 jest.mock('../../../composables/useUnitDetail');
 jest.mock('../../../composables/useCourseNotificationPolling');
 jest.mock('../../../composables/useClassSummary');

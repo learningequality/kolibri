@@ -1,11 +1,11 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
-import store from 'kolibri/store';
 // eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import { DateRangeFilters } from 'kolibri-common/constants/DateRangeFilters';
 import AttendanceSessionResource from 'kolibri-common/apiResources/AttendanceSessionResource';
+import store from '../../../store';
 import makeStore from '../../../__tests__/utils/makeStore';
 // eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
@@ -31,7 +31,7 @@ jest.mock('kolibri-common/composables/usePagination', () => {
 });
 jest.mock('../../../composables/useCoreCoach', () => {
   const { computed } = jest.requireActual('vue');
-  const store = jest.requireActual('kolibri/store').default;
+  const store = jest.requireActual('../../../store').default;
   return () => ({
     classId: computed(() => 'class-123'),
     className: computed(() => store.state.classSummary.name || ''),

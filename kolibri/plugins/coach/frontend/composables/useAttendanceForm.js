@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router/composables';
 import { localeCompare } from 'kolibri/utils/i18n';
-import store from 'kolibri/store';
+import store from '../store';
 import { PageNames } from '../constants';
 import useCoreCoach from './useCoreCoach';
 

@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import store from 'kolibri/store';
+import store from '../store';
 
 export default function useClassSummary() {
   /**

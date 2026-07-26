@@ -1,4 +1,3 @@
-import store from 'kolibri/store';
 import router from 'kolibri/router';
 import { handleApiError } from 'kolibri/utils/appError';
 import useUser from 'kolibri/composables/useUser';
@@ -7,6 +6,7 @@ import useFacilities from 'kolibri-common/composables/useFacilities';
 import useFacility from 'kolibri-common/composables/useFacility';
 import plugin_data from 'kolibri-plugin-data';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import store from '../store';
 import AllFacilitiesPage from '../views/AllFacilitiesPage';
 import CoachClassListPage from '../views/CoachClassListPage';
 import ClassLearnersListPage from '../views/ClassLearnersListPage';

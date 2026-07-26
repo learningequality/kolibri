@@ -14,9 +14,9 @@
 
   import { computed } from 'vue';
   import { useRoute } from 'vue-router/composables';
-  import store from 'kolibri/store';
   import AllPasswordsPage from 'kolibri-common/components/AllPasswordsPage';
   import useFacility from 'kolibri-common/composables/useFacility';
+  import store from '../../store';
   import { PageNames } from '../../constants';
   import { LastPages } from '../../constants/lastPagesConstants';
 
