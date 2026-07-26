@@ -21,7 +21,7 @@ const baseClient = clientFactory();
 // Disconnection handler interceptor
 baseClient.interceptors.request.use(function (config) {
   if (!get(connection.connected)) {
-    // If the vuex state records that we are not currently connected then cancel all
+    // If the connection state records that we are not currently connected then cancel all
     // outgoing requests.
     const source = CancelToken.source();
     config.cancelToken = source.token;

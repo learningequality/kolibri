@@ -12,7 +12,6 @@ JS libraries and Vue components
 The following libraries and components are available for import, in all module code, without need for bundling, e.g.:
 
 - ``vue`` - the Vue.js object
-- ``vuex`` - the Vuex object
 - ``kolibri-logging`` - our wrapper around the `loglevel logging module <https://github.com/pimterry/loglevel>`__
 - ``AppBarPage`` - a shared Vue.js page component (*AppBarPage.vue*)
 

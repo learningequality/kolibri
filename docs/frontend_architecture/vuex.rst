@@ -10,7 +10,7 @@ Vuex
 
   This documentation is maintained for reference while the migration is in progress.
 
-We use the `Vuex <https://vuex.vuejs.org/>`__ library to manage state. Generally Vuex should only store data that needs to persist / be accessed between views. If this is not necessary, than local component data is a better place to store the data.
+Historically we used the `Vuex <https://vuex.vuejs.org/>`__ library to manage state shared between components and views, and some plugins still do. Vuex is no longer part of the core framework, though — the core app neither installs it nor provides a shared store, and each plugin that has not yet migrated owns its own store.
 
 Migration to Composables
 -------------------------

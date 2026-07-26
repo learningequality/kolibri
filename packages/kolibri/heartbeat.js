@@ -227,7 +227,7 @@ export class HeartBeat {
   /*
    * Method to begin monitoring the disconnected state from the server.
    * This method can be called repeatedly as it will only initiate anything
-   * if the vuex state does not already indicate disconnection.
+   * if the connection state does not already indicate disconnection.
    */
   monitorDisconnect(code = 0) {
     if (get(this._connection.connected)) {
@@ -252,7 +252,7 @@ export class HeartBeat {
     }
   }
   /*
-   * Method to reset the vuex state to the connected state and restart server polling
+   * Method to reset the connection state to the connected state and restart server polling
    * on the regular heartbeat delay.
    */
   _setConnected() {

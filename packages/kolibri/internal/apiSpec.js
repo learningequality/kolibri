@@ -46,7 +46,6 @@ export default {
   'kolibri/heartbeat': require('kolibri/heartbeat'),
   'kolibri/router': require('kolibri/router'),
   'kolibri/rtlcss': require('kolibri/rtlcss'),
-  'kolibri/store': require('kolibri/store'),
   'kolibri/styles/themeConfig': require('kolibri/styles/themeConfig'),
   'kolibri/uiText/bytesForHumans': require('kolibri/uiText/bytesForHumans'),
   'kolibri/uiText/commonCoreStrings': require('kolibri/uiText/commonCoreStrings'),
@@ -69,5 +68,4 @@ export default {
   'kolibri/utils/validators': require('kolibri/utils/validators'),
   'kolibri-logging': require('kolibri-logging'),
   vue: require('vue'),
-  vuex: require('vuex'),
 };
