@@ -79,7 +79,7 @@
 
 <script>
 
-  import { mapState, mapActions, mapGetters } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import isEmpty from 'lodash/isEmpty';
   import ImmersivePage from 'kolibri/components/pages/ImmersivePage';
@@ -94,6 +94,7 @@
   import useContentTasks from '../../composables/useContentTasks';
   import SelectionBottomBar from '../ManageContentPage/SelectionBottomBar';
   import taskNotificationMixin from '../taskNotificationMixin';
+  import { cancelTask } from '../../modules/manageContent/utils';
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
@@ -258,10 +259,9 @@
       next();
     },
     methods: {
-      ...mapActions('manageContent', ['cancelTask']),
       cancelMetadataDownloadTask() {
         if (this.metadataDownloadTaskId) {
-          return this.cancelTask(this.metadataDownloadTaskId);
+          return cancelTask(this.$store, this.metadataDownloadTaskId);
         }
         return Promise.resolve();
       },

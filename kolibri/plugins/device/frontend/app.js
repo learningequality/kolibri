@@ -7,7 +7,7 @@ import KolibriApp from 'kolibri-app';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
-import pluginModule from './modules/pluginModule';
+import store from './store';
 
 let viewPlugin = false;
 
@@ -16,15 +16,12 @@ class DeviceManagementModule extends KolibriApp {
     return routes;
   }
   get RootVue() {
-    return RootVue;
-  }
-  get pluginModule() {
-    return pluginModule;
+    return { ...RootVue, store };
   }
   get isPinAuthenticated() {
     return Cookies.get(IsPinAuthenticated) === 'true';
   }
-  checkIfPinAuthenticationIsRequired(store, grantPluginAccess) {
+  checkIfPinAuthenticationIsRequired(grantPluginAccess) {
     const { isLearnerOnlyImport, isSuperuser, isFacilityAdmin, canManageContent } = useUser();
     if (
       get(isLearnerOnlyImport) &&
@@ -53,10 +50,10 @@ class DeviceManagementModule extends KolibriApp {
       next();
     });
     router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+      store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     router.beforeResolve((to, from, next) => {
-      this.checkIfPinAuthenticationIsRequired(this.store, function () {
+      this.checkIfPinAuthenticationIsRequired(function () {
         viewPlugin = true;
         next();
       });

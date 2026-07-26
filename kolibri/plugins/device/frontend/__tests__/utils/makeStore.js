@@ -1,6 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
-import { coreStoreFactory } from 'kolibri/store';
-import coreModule from '../../../../../core/frontend/state/modules/core';
+import createStore from 'kolibri-common/utils/createStore';
 import pluginModule from '../../modules/pluginModule';
 import { contentNodeGranularPayload } from './data';
 
@@ -68,15 +67,12 @@ const channelsOnDevice = [
 ];
 
 export default function makeStore() {
-  const store = coreStoreFactory(pluginModule);
-  store.registerModule('core', coreModule);
-  return store;
+  return createStore(pluginModule);
 }
 // Use for availableChannelsPage and all children:
 // channel-list-item
 export function makeAvailableChannelsPageStore({ channelList } = {}) {
-  const store = coreStoreFactory(cloneDeep(pluginModule));
-  store.registerModule('core', coreModule);
+  const store = createStore(cloneDeep(pluginModule));
   store.state.manageContent.channelList =
     channelList !== undefined ? channelList : [...channelsOnDevice];
   Object.assign(store.state.manageContent.wizard, {
@@ -99,8 +95,7 @@ export function makeAvailableChannelsPageStore({ channelList } = {}) {
 // Use for selectContentPage and all children:
 // contentTreeViewer
 export function makeSelectContentPageStore() {
-  const store = coreStoreFactory(cloneDeep(pluginModule));
-  store.registerModule('core', coreModule);
+  const store = createStore(cloneDeep(pluginModule));
   Object.assign(store.state.manageContent, {
     channelList: channelsOnDevice,
     taskList: [],
