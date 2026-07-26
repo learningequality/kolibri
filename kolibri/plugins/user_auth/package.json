@@ -13,8 +13,7 @@
         "lockr": "0.8.5",
         "lodash": "catalog:",
         "vue": "catalog:",
-        "vue-router": "catalog:",
-        "vuex": "catalog:"
+        "vue-router": "catalog:"
     },
     "devDependencies": {
         "@testing-library/jest-dom": "catalog:",

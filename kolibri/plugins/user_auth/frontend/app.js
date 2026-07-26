@@ -4,7 +4,6 @@ import router from 'kolibri/router';
 import KolibriApp from 'kolibri-app';
 import RootVue from './views/UserAuthIndex';
 import routes from './routes';
-import pluginModule from './modules/pluginModule';
 import useAuthFlow from './composables/useAuthFlow';
 
 class UserAuthModule extends KolibriApp {
@@ -13,9 +12,6 @@ class UserAuthModule extends KolibriApp {
   }
   get RootVue() {
     return RootVue;
-  }
-  get pluginModule() {
-    return pluginModule;
   }
   async ready() {
     const { initializeFlow } = useAuthFlow();
