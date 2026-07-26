@@ -1,4 +1,4 @@
-import store from 'kolibri/store';
+import store from '../store';
 import { PageNames } from '../constants';
 import CoursesRootPage from '../views/courses/CoursesRootPage.vue';
 import CourseSummaryPage from '../views/courses/CourseSummaryPage.vue';

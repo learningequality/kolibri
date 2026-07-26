@@ -3,8 +3,6 @@ import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { error } from 'kolibri/utils/appError';
 import NotificationsRoot from '../NotificationsRoot';
-import { coreStoreFactory as makeStore } from '../../../store';
-import coreModule from '../../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/utils/appError');
@@ -12,13 +10,10 @@ jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
 jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
 
 function makeWrapper(useUserMockObj = null) {
-  const store = makeStore();
-  store.registerModule('core', coreModule);
   if (useUserMockObj) {
     useUser.mockImplementation(() => useUserMock(useUserMockObj));
   }
   const wrapper = shallowMount(NotificationsRoot, {
-    store,
     computed: {
       mostRecentNotification: () => {
         return {
@@ -79,6 +74,10 @@ describe('NotificationsRoot', function () {
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
       const { wrapper } = makeWrapper({ isAdmin: true, isSuperuser: true });
+
+      // For an admin, created() fetches and overwrites `notifications` — let that
+      // settle before seeding our own.
+      await global.flushPromises();
 
       wrapper.vm.notifications = [
         {

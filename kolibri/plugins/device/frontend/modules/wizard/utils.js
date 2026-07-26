@@ -1,6 +1,5 @@
 import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelResource';
 import TaskResource from 'kolibri/apiResources/TaskResource';
-import coreStore from 'kolibri/store';
 import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { ErrorTypes } from '../../constants';
@@ -27,12 +26,12 @@ export function getRemoteChannelBundleByToken(token) {
  * Starts a task that downloads a Channel Metadata database.
  *
  * NOTE: cannot be normally dispatched as an action, since it uses `waitForTaskToComplete`
- * (which relies on the store singleton with a `.watch` method).
- * @param {object} store - The Vuex store instance; defaults to the core store singleton.
+ * (which relies on the passed store having a `.watch` method).
+ * @param {object} store - The Vuex store instance.
  * @returns {Promise<object>} Resolves with the channel content sizes when the task completes.
  * @throws {Error} If the wizard is not in an import mode when called.
  */
-export function downloadChannelMetadata(store = coreStore) {
+export function downloadChannelMetadata(store) {
   if (
     !store.getters['manageContent/wizard/inLocalImportMode'] &&
     !store.getters['manageContent/wizard/inRemoteImportMode'] &&
@@ -62,7 +61,7 @@ export function downloadChannelMetadata(store = coreStore) {
     .catch(() => Promise.reject({ errorType: ErrorTypes.CONTENT_DB_LOADING_ERROR }))
     .then(task => {
       // NOTE: store.watch is not available to dispatched actions
-      return waitForTaskToComplete(task.id, store);
+      return waitForTaskToComplete(store, task.id);
     })
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;

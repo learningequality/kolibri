@@ -1,10 +1,9 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { ref } from 'vue';
-import store from 'kolibri/store';
 import { handleApiError } from 'kolibri/utils/appError';
+import store from '../../../../store';
 import makeStore from '../../../../__tests__/utils/makeStore';
-import classSummaryModule from '../../../../modules/classSummary';
 // eslint-disable-next-line import-x/named
 import { useAttendance, useAttendanceMock } from '../../../../composables/useAttendance';
 import AttendanceBlock from '../AttendanceBlock.vue';
@@ -108,13 +107,7 @@ function makeWrapper({
   });
   testStore.state.classSummary.learnerMap = learnerMap;
 
-  // Ensure the classSummary module is registered on the singleton store
-  // so that store.getters['classSummary/learners'] is available
-  if (!store.hasModule('classSummary')) {
-    store.registerModule('classSummary', classSummaryModule);
-  }
-
-  // Point the kolibri/store singleton state at the test store state
+  // The coach store already owns the classSummary module, so it only needs the test state.
   store.replaceState(testStore.state);
 
   const wrapper = mount(AttendanceBlock, {

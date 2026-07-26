@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import logger from 'kolibri-logging';
 import ContentViewer from './components/internal/ContentViewer';
@@ -26,7 +25,6 @@ setupPluginMediator(coreApp);
 initializeTheme();
 
 // Register Vue plugins and components
-Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 

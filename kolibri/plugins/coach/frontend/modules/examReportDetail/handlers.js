@@ -1,8 +1,8 @@
 import { getExamReport } from 'kolibri-common/quizzes/utils';
 import { createTranslator } from 'kolibri/utils/i18n';
-import store from 'kolibri/store';
 import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import store from '../../store';
 
 const translator = createTranslator('ExamReportPageTitles', {
   examReportTitle: {

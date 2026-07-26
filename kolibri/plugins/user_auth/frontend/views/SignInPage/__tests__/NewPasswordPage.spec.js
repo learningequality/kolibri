@@ -5,7 +5,6 @@ import '@testing-library/jest-dom';
 import useUser from 'kolibri/composables/useUser';
 import { createTranslator } from 'kolibri/utils/i18n';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
-import { coreStoreFactory } from 'kolibri/store';
 import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
 import { setUnspecifiedPassword } from '../../../api';
 import useAuthFlow, { useAuthFlowMock } from '../../../composables/useAuthFlow'; // eslint-disable-line import-x/named
@@ -26,7 +25,6 @@ const mockLogin = jest.fn();
 const mockRouterPush = jest.fn();
 
 function renderComponent() {
-  const store = coreStoreFactory();
   useUser.mockImplementation(() => ({
     login: mockLogin,
     userFacilityId: ref(null),
@@ -46,7 +44,6 @@ function renderComponent() {
   return render(
     NewPasswordPage,
     {
-      store,
       props: {
         username: 'testuser',
         facilityId: 'facility_1',

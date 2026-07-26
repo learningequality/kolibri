@@ -52,7 +52,6 @@
     "./heartbeat": "./heartbeat",
     "./router": "./router",
     "./rtlcss": "./rtlcss",
-    "./store": "./store",
     "./styles/themeConfig": "./styles/themeConfig",
     "./uiText/bytesForHumans": "./uiText/bytesForHumans",
     "./uiText/commonCoreStrings": "./uiText/commonCoreStrings",
@@ -77,8 +76,7 @@
   },
   "exposes": [
     "kolibri-logging",
-    "vue",
-    "vuex"
+    "vue"
   ],
   "dependencies": {
     "@vueuse/core": "catalog:",
@@ -100,8 +98,7 @@
     "vue": "catalog:",
     "vue-intl": "3.1.0",
     "vue-meta": "catalog:",
-    "vue-router": "catalog:",
-    "vuex": "catalog:"
+    "vue-router": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

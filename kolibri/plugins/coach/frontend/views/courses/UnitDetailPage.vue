@@ -216,10 +216,10 @@
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { themePalette } from 'kolibri-design-system/lib/styles/theme';
-  import store from 'kolibri/store';
   import ContentIcon from 'kolibri-common/components/labels/ContentIcon';
   import AccordionContainer from 'kolibri-common/components/accordion/AccordionContainer';
   import AccordionItem from 'kolibri-common/components/accordion/AccordionItem';
+  import store from '../../store';
   import { coachStrings } from '../common/commonCoachStrings';
   import { PageNames } from '../../constants';
   import CoachAppBarPage from '../CoachAppBarPage.vue';

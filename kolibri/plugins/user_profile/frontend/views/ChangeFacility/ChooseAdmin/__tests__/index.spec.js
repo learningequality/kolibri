@@ -1,15 +1,10 @@
 import { computed } from 'vue';
-import { coreStoreFactory } from 'kolibri/store';
 import { shallowMount, mount } from '@vue/test-utils';
 import ChooseAdmin from '../index.vue';
-import coreModule from '../../../../../../../core/frontend/state/modules/core';
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ userId, sourceFacilityUsers } = {}) {
-  const store = coreStoreFactory();
-  store.registerModule('core', coreModule);
   return mount(ChooseAdmin, {
-    store,
     provide: {
       changeFacilityService: {
         send: sendMachineEvent,

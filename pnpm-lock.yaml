@@ -833,9 +833,6 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 2.7.16
-      vuex:
-        specifier: 'catalog:'
-        version: 3.6.2(vue@2.7.16)
 
   kolibri/plugins/qti_viewer:
     dependencies:
@@ -1013,9 +1010,6 @@ importers:
       vue-router:
         specifier: 'catalog:'
         version: 3.6.5(vue@2.7.16)
-      vuex:
-        specifier: 'catalog:'
-        version: 3.6.2(vue@2.7.16)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -1162,9 +1156,6 @@ importers:
       vue-router:
         specifier: 'catalog:'
         version: 3.6.5(vue@2.7.16)
-      vuex:
-        specifier: 'catalog:'
-        version: 3.6.2(vue@2.7.16)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'

@@ -376,9 +376,9 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import useSnackbar from 'kolibri/composables/useSnackbar';
-  import store from 'kolibri/store';
   import { handleApiError } from 'kolibri/utils/appError';
   import { pageLoading as appPageLoading } from 'kolibri-common/composables/usePageLoading';
+  import store from '../../store';
   import { PageNames } from '../../constants';
   import Recipients from '../common/Recipients.vue';
   import { coachStrings } from '../common/commonCoachStrings';

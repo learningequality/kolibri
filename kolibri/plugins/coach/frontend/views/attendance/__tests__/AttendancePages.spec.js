@@ -2,11 +2,11 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
 import { createLocalVue } from '@vue/test-utils';
-import store from 'kolibri/store';
 import { coreString } from 'kolibri/uiText/commonCoreStrings';
 // eslint-disable-next-line import-x/named
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar';
 import { attendanceStrings } from 'kolibri-common/strings/attendanceStrings';
+import store from '../../../store';
 import classSummaryModule from '../../../modules/classSummary';
 /* eslint-disable import-x/named */
 import { useAttendance, useAttendanceMock } from '../../../composables/useAttendance';
@@ -78,9 +78,6 @@ function setupTestStore(learners = MOCK_LEARNERS) {
   });
   testStore.state.classSummary.learnerMap = learnerMap;
 
-  if (!store.hasModule('classSummary')) {
-    store.registerModule('classSummary', classSummaryModule);
-  }
   store.replaceState(testStore.state);
 
   return testStore;
@@ -202,9 +199,6 @@ describe('AttendanceNewPage', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    if (store.hasModule('classSummary')) {
-      store.unregisterModule('classSummary');
-    }
   });
 
   it('renders learners sorted alphabetically', async () => {
@@ -412,9 +406,6 @@ describe('AttendanceEditPage', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    if (store.hasModule('classSummary')) {
-      store.unregisterModule('classSummary');
-    }
   });
 
   it('fetches session and records on mount and pre-populates learner toggles', async () => {

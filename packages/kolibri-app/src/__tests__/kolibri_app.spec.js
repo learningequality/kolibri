@@ -1,6 +1,5 @@
 import heartbeat from 'kolibri/heartbeat';
 import KolibriApp from '../index';
-import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock(
   'kolibri',
@@ -35,34 +34,6 @@ jest.mock('kolibri/router', () => {
   };
 });
 
-class TestApp extends KolibriApp {
-  get pluginModule() {
-    return {
-      state() {
-        return {
-          count: 0,
-        };
-      },
-      getters: {
-        countGetter(state) {
-          return state.count;
-        },
-      },
-      actions: {
-        incrementTwice(store) {
-          store.commit('increment');
-          store.commit('increment');
-        },
-      },
-      mutations: {
-        increment(state) {
-          return (state.count = state.count + 1);
-        },
-      },
-    };
-  }
-}
-
 describe('KolibriApp', function () {
   // Track pageshow handlers registered by ready() so each test can remove them
   // afterwards — preventing accumulated listeners from firing in subsequent tests.
@@ -85,27 +56,43 @@ describe('KolibriApp', function () {
     window.addEventListener = _origAddEventListener;
   });
 
-  it('should register the plugin vuex components', async function () {
-    const app = new TestApp();
-    app.store.registerModule('core', coreModule);
-    app.store.hotUpdate({
-      modules: {
-        core: {
-          actions: {
-            getCurrentSession: jest.fn().mockResolvedValue(),
-          },
-        },
-      },
-    });
+  it('mounts without a store when RootVue supplies none', async function () {
+    const app = new KolibriApp();
     await app.ready();
-    app.store.dispatch('incrementTwice');
-    expect(app.store.getters.countGetter).toEqual(2);
+    expect(app.rootvue.$store).toBeUndefined();
   });
 
-  it('boots when pluginModule provides no state (Vuex is optional)', async function () {
-    // The default pluginModule getter returns {} with no state() — an app that
-    // does not use Vuex should still boot without error.
-    await expect(new KolibriApp().ready()).resolves.toBeUndefined();
+  it('passes a store supplied through RootVue to the root Vue instance', async function () {
+    // A sentinel object rather than a real Vuex.Store — the `vuexInit` mixin that the
+    // shared Jest setup installs assigns `options.store` to `$store` verbatim.
+    const store = { state: {} };
+    class StoreApp extends KolibriApp {
+      get RootVue() {
+        return { render: h => h('div'), store };
+      }
+    }
+    const app = new StoreApp();
+    await app.ready();
+    expect(app.rootvue.$store).toBe(store);
+  });
+
+  // Asserted against startRootVue() rather than ready(), because apps that override
+  // ready() — the setup wizard — mount by calling startRootVue() directly.
+  it('waits for the DOM to be ready before mounting', async function () {
+    const readyState = jest.spyOn(document, 'readyState', 'get');
+    readyState.mockReturnValue('loading');
+
+    const app = new KolibriApp();
+    const mounted = app.startRootVue();
+    await global.flushPromises();
+    expect(app.rootvue).toBeUndefined();
+
+    readyState.mockReturnValue('complete');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await mounted;
+    expect(app.rootvue).toBeDefined();
+
+    readyState.mockRestore();
   });
 
   describe('pageshow session refresh', () => {
@@ -123,10 +110,7 @@ describe('KolibriApp', function () {
       originalGetEntriesByType = performance.getEntriesByType;
       getEntriesByTypeMock = jest.fn().mockReturnValue([]);
       performance.getEntriesByType = getEntriesByTypeMock;
-      // A bare TestApp.ready() is sufficient — no need to pre-register the core
-      // Vuex module, which would trigger a duplicate-registration warning on the
-      // singleton store shared across tests.
-      await new TestApp().ready();
+      await new KolibriApp().ready();
     });
 
     afterEach(() => {

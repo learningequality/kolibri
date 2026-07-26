@@ -1,7 +1,7 @@
 import omit from 'lodash/omit';
 import router from 'kolibri/router';
-import store from 'kolibri/store';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import store from '../store';
 import {
   showAvailableChannelsPage,
   showSelectContentPage,

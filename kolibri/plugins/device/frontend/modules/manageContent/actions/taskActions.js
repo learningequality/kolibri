@@ -1,28 +1,12 @@
 import logger from 'kolibri-logging';
-import coreStore from 'kolibri/store';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import client from 'kolibri/client';
 import urls from 'kolibri/urls';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/fp/pick';
-import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
 const logging = logger.getLogger(__filename);
-
-export function cancelTask(store, taskId) {
-  return new Promise(resolve => {
-    const cancelWatch = coreStore.watch(
-      state =>
-        (state.manageContent.taskList.find(task => task.id === taskId) || {}).status ===
-        TaskStatuses.CANCELED,
-      () => {
-        cancelWatch();
-        TaskResource.clear(taskId).then(resolve);
-      },
-    );
-    TaskResource.cancel(taskId);
-  });
-}
 
 function updateTasks(store, tasks) {
   const contentTasks = tasks.filter(task => Object.values(TaskTypes).includes(task.type));

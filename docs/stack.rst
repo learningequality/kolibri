@@ -26,7 +26,7 @@ Client
 The frontend user interface is built using `Vue <https://vuejs.org/>`__ and uses ES6 syntax transpiled by `Bublé <https://buble.surge.sh/guide/>`__. The client is responsible for:
 
 - Compositing and rendering the UI
-- Managing client-side state using `Vuex <https://vuex.vuejs.org/>`__
+- Managing client-side state, per plugin, using the deprecated `Vuex <https://vuex.vuejs.org/>`__ (see :doc:`frontend_architecture/vuex`)
 - Interacting with the server through the API
 
 

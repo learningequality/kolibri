@@ -9,17 +9,14 @@ import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 import { handleApiError } from 'kolibri/utils/appError';
 import RootVue from './views/FacilityIndex';
 import routes from './routes';
-import pluginModule from './modules/pluginModule';
+import store from './store';
 
 class FacilityManagementModule extends KolibriApp {
   get routes() {
     return routes;
   }
   get RootVue() {
-    return RootVue;
-  }
-  get pluginModule() {
-    return pluginModule;
+    return { ...RootVue, store };
   }
   ready() {
     const { isLearnerOnlyImport, isSuperuser } = useUser();
@@ -56,7 +53,7 @@ class FacilityManagementModule extends KolibriApp {
     });
     // reset module states after leaving their respective page
     router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+      store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     super.ready();
   }

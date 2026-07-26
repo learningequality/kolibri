@@ -1,6 +1,6 @@
 import { get } from '@vueuse/core';
-import store from 'kolibri/store';
 import router from 'kolibri/router';
+import store from '../store';
 import { ClassesPageNames, PageNames } from '../constants';
 import { showLessonPlaylist } from '../modules/lessonPlaylist/handlers';
 import { showClassAssignmentsPage } from '../modules/classAssignments/handlers';

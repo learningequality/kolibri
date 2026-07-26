@@ -6,7 +6,7 @@ const logging = logger.getLogger(__filename);
 
 /**
  * Wrapper around Vue Router.
- * Implements URL mapping to Vuex actions in addition to Vue components.
+ * Implements URL mapping to route handlers in addition to Vue components.
  * Otherwise intended as a mostly transparent replacement to vue-router.
  */
 class Router {

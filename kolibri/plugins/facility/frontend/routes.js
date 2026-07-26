@@ -1,9 +1,9 @@
-import store from 'kolibri/store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 import useFacilities from 'kolibri-common/composables/useFacilities';
 import useFacility from 'kolibri-common/composables/useFacility';
+import store from './store';
 import FacilityAllPasswordsPage from './views/FacilityAllPasswordsPage';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';

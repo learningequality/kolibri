@@ -11,7 +11,6 @@
         "kolibri-design-system": "catalog:",
         "kolibri-plugin-data": "workspace:*",
         "lodash": "catalog:",
-        "vue": "catalog:",
-        "vuex": "catalog:"
+        "vue": "catalog:"
     }
 }

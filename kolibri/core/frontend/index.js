@@ -6,16 +6,11 @@
 import './minimumBrowserRequirements';
 import coreApp from 'kolibri';
 import logging from 'kolibri-logging';
-import store from 'kolibri/store';
 import heartbeat from 'kolibri/heartbeat';
 import { i18nSetup } from 'kolibri/utils/i18n';
-import coreModule from './state/modules/core';
 
 // set up logging
 logging.setDefaultLevel(process.env.NODE_ENV === 'production' ? 2 : 0);
-
-// Register core module
-store.registerModule('core', coreModule);
 
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();
