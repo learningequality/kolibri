@@ -141,10 +141,6 @@ describe('TopicsPage', () => {
     ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
 
     store = makeStore({});
-    store.state.core = {
-      ...store.state.core,
-      loading: false,
-    };
     useDevicesWithFilter.mockReturnValue({
       devices: [
         {

@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
-import store from 'kolibri/store';
 import plugin_data from 'kolibri-plugin-data';
+import store from '../store';
 
 const allowDownloadOnMeteredConnection = ref(plugin_data.allowDownloadOnMeteredConnection);
 

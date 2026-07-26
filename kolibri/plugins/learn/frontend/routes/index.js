@@ -1,10 +1,10 @@
 import { get } from '@vueuse/core';
-import store from 'kolibri/store';
 import router from 'kolibri/router';
 import useUser from 'kolibri/composables/useUser';
 import { clearError } from 'kolibri/utils/appError';
 import useChannels from 'kolibri-common/composables/useChannels';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
+import store from '../store';
 import { PageNames, ClassesPageNames, KolibriStudioId } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';

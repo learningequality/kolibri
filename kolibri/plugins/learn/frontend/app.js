@@ -4,22 +4,25 @@ import useUser from 'kolibri/composables/useUser';
 import { get } from '@vueuse/core';
 import RootVue from './views/LearnIndex';
 import routes from './routes';
+import store from './store';
 import { prepareLearnApp } from './composables/useCoreLearn';
-import pluginModule from './modules/pluginModule';
 import { PageNames } from './constants';
 
 class LearnModule extends KolibriApp {
-  get stateSetters() {
-    return [prepareLearnApp];
-  }
   get routes() {
     return routes;
   }
   get RootVue() {
-    return RootVue;
+    return { ...RootVue, store };
   }
-  get pluginModule() {
-    return pluginModule;
+  startRootVue() {
+    // The classes route guard reads `inClasses` synchronously, so this has to be
+    // resolved before the router handles the first navigation — otherwise a cold
+    // load of a class page redirects to the library. A failure leaves the learn
+    // app flags at their defaults rather than blocking the app from mounting.
+    return prepareLearnApp()
+      .catch(() => {})
+      .then(() => super.startRootVue());
   }
   ready() {
     // If we are not logged in and are forbidden from accessing as guest
@@ -28,7 +31,7 @@ class LearnModule extends KolibriApp {
       const { isUserLoggedIn } = useUser();
       if (
         to.name !== PageNames.CONTENT_UNAVAILABLE &&
-        !this.store.state.allowGuestAccess &&
+        !store.state.allowGuestAccess &&
         !get(isUserLoggedIn)
       ) {
         // Pass the ?next param on to AuthMessage
@@ -46,7 +49,7 @@ class LearnModule extends KolibriApp {
 
     // after every navigation, block double-clicks
     router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('resetModuleState', { toRoute, fromRoute });
+      store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     super.ready();
   }
