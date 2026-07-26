@@ -17,7 +17,7 @@ jest.mock('kolibri/composables/useSnackbar');
 jest.mock('kolibri-common/apiResources/FacilityUserResource');
 jest.mock('kolibri-common/apiResources/RoleResource');
 jest.mock('kolibri-common/apiResources/MembershipResource');
-jest.mock('kolibri/store', () => ({
+jest.mock('../../../../../store', () => ({
   state: { userManagement: { facilityUsers: [] } },
 }));
 jest.mock('vue-router/composables', () => ({

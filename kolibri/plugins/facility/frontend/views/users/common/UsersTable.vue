@@ -129,7 +129,6 @@
 
 <script>
 
-  import store from 'kolibri/store';
   import cloneDeep from 'lodash/cloneDeep';
   import debounce from 'lodash/debounce';
   import pickBy from 'lodash/pickBy';
@@ -148,6 +147,7 @@
   import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
+  import store from '../../../store';
 
   import { Modals } from '../../../constants';
   import MoveToTrashModal from './MoveToTrashModal.vue';

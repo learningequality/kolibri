@@ -187,7 +187,6 @@
 
 <script>
 
-  import store from 'kolibri/store';
   import { ref, computed, nextTick, onBeforeMount, getCurrentInstance } from 'vue';
   import { useRouter, onBeforeRouteLeave } from 'vue-router/composables';
   import CatchErrors from 'kolibri/utils/CatchErrors';
@@ -208,6 +207,7 @@
   import PasswordTextbox from 'kolibri-common/components/userAccounts/PasswordTextbox';
   import { bulkUserManagementStrings } from 'kolibri-common/strings/bulkUserManagementStrings';
   import { picturePasswordStrings } from 'kolibri-common/strings/picturePasswords';
+  import store from '../../../../store';
 
   import CloseConfirmationGuard from '../../common/CloseConfirmationGuard.vue';
   import LearnerLimitReachedModal from '../../../LearnerLimitReachedModal.vue';

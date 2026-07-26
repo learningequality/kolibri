@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/vue';
 import { ref } from 'vue';
-import store from 'kolibri/store';
 import useFacility, { useFacilityMock } from 'kolibri-common/composables/useFacility'; // eslint-disable-line import-x/named
-import classEditManagementModule from '../../modules/classEditManagement';
+import store from '../../store';
 import makeStore from '../../__tests__/utils/makeStore';
 import FacilityAllPasswordsPage from '../FacilityAllPasswordsPage.vue';
 
@@ -36,9 +35,6 @@ function renderComponent({ learners = LEARNERS, className = CLASS_NAME } = {}) {
   testStore.state.classEditManagement.classLearners = learners;
   testStore.state.classEditManagement.currentClass = { id: 'class-1', name: className };
 
-  if (!store.hasModule('classEditManagement')) {
-    store.registerModule('classEditManagement', classEditManagementModule);
-  }
   store.replaceState(testStore.state);
 
   return render(FacilityAllPasswordsPage, { routes });
