@@ -6,6 +6,15 @@ import KolibriModule from 'kolibri-module';
 
 export const logging = logger.getLogger(__filename);
 
+function domReady() {
+  if (document.readyState !== 'loading') {
+    return Promise.resolve();
+  }
+  return new Promise(resolve =>
+    document.addEventListener('DOMContentLoaded', resolve, { once: true }),
+  );
+}
+
 /*
  * A class for single page apps that control routing and the root component.
  * Override the routes and RootVue getters.
@@ -32,11 +41,19 @@ export default class KolibriApp extends KolibriModule {
     };
   }
 
+  /*
+   * Mount the root component once the DOM is ready. Our bundles run as parser-blocking
+   * scripts, so KThemePlugin has deferred its ARIA live regions and overlay container to
+   * DOMContentLoaded, and components that announce during creation would otherwise write
+   * to elements that do not exist yet.
+   */
   startRootVue() {
-    this.rootvue = new Vue({
-      el: 'rootvue',
-      router: router.initRoutes(this.routes),
-      ...this.RootVue,
+    return domReady().then(() => {
+      this.rootvue = new Vue({
+        el: 'rootvue',
+        router: router.initRoutes(this.routes),
+        ...this.RootVue,
+      });
     });
   }
 

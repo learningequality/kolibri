@@ -76,6 +76,25 @@ describe('KolibriApp', function () {
     expect(app.rootvue.$store).toBe(store);
   });
 
+  // Asserted against startRootVue() rather than ready(), because apps that override
+  // ready() — the setup wizard — mount by calling startRootVue() directly.
+  it('waits for the DOM to be ready before mounting', async function () {
+    const readyState = jest.spyOn(document, 'readyState', 'get');
+    readyState.mockReturnValue('loading');
+
+    const app = new KolibriApp();
+    const mounted = app.startRootVue();
+    await global.flushPromises();
+    expect(app.rootvue).toBeUndefined();
+
+    readyState.mockReturnValue('complete');
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await mounted;
+    expect(app.rootvue).toBeDefined();
+
+    readyState.mockRestore();
+  });
+
   describe('pageshow session refresh', () => {
     let getEntriesByTypeMock;
     let originalGetEntriesByType;
