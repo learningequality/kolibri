@@ -1,28 +1,27 @@
 import router from 'kolibri/router';
 import logger from 'kolibri-logging';
 import Vue from 'vue';
-import store from 'kolibri/store';
 import heartbeat from 'kolibri/heartbeat';
 import KolibriModule from 'kolibri-module';
 
 export const logging = logger.getLogger(__filename);
 
 /*
- * A class for single page apps that control routing and vuex state.
- * Override the routes, mutations, initialState, and RootVue getters.
+ * A class for single page apps that control routing and the root component.
+ * Override the routes and RootVue getters.
  */
 export default class KolibriApp extends KolibriModule {
   /*
    * @return {Array[Object]} Array of objects that define vue-router route configurations.
-   *                         These will get passed to our internal router, so the handlers should
-   *                         be functions that invoke vuex actions.
+   *                         These will get passed to our internal router.
    */
   get routes() {
     return [];
   }
 
   /*
-   * @return {Object} A component definition for the root component of this single page app.
+   * @return {Object} Root options for this single page app — a component definition, plus
+   *                  any other `new Vue()` option the plugin needs, such as a `store`.
    */
   get RootVue() {
     // By default return the component that just renders router-view,
@@ -32,73 +31,16 @@ export default class KolibriApp extends KolibriModule {
       render: createElement => createElement('router-view'),
     };
   }
-  /*
-   * @return {Store} A convenience getter to return the vuex store.
-   */
-  get store() {
-    return store;
-  }
-  /*
-   * @return {Array[Function]} Array of vuex actions that will do initial state setting before the
-   *                           routes are handled. Use this to do initial state setup that needs to
-   *                           be dynamically determined, and done before every route in the app.
-   *                           Each function should return a promise that resolves when the state
-   *                           has been set. These will be invoked after the current session has
-   *                           been set in the vuex store, in order to allow these actions to
-   *                           reference getters that return data set by the heartbeat.
-   */
-  get stateSetters() {
-    return [];
-  }
-
-  // Vuex module for the plugin
-  get pluginModule() {
-    return {};
-  }
-
-  setupVue() {
-    if (!router._vueRouter) {
-      router.initRouter();
-    }
-
-    // Add the plugin-level mutations, getters, actions, but leave core module alone
-    this.store.hotUpdate({
-      actions: this.pluginModule.actions || {},
-      getters: this.pluginModule.getters || {},
-      mutations: this.pluginModule.mutations || {},
-    });
-
-    // Add the plugin state to the initial core module state, if any is provided.
-    // Vuex is deprecated, so pluginModule.state is optional — plugins should prefer
-    // setup()/composables for component state.
-    if (typeof this.pluginModule.state === 'function') {
-      this.store.replaceState({
-        ...this.store.state,
-        ...this.pluginModule.state(),
-      });
-    }
-
-    // Register plugin sub-modules
-    for (const [name, module] of Object.entries(this.pluginModule?.modules || {})) {
-      store.registerModule(name, module);
-    }
-  }
 
   startRootVue() {
-    this.rootvue = new Vue(
-      Object.assign(
-        {
-          el: 'rootvue',
-          store: store,
-          router: router.initRoutes(this.routes),
-        },
-        this.RootVue,
-      ),
-    );
+    this.rootvue = new Vue({
+      el: 'rootvue',
+      router: router.initRoutes(this.routes),
+      ...this.RootVue,
+    });
   }
 
   ready() {
-    this.setupVue();
     // Refresh session state when the user returns to the SPA via back/forward navigation,
     // so any auth changes that occurred since the page was cached are reflected immediately.
     window.addEventListener('pageshow', event => {
@@ -107,13 +49,6 @@ export default class KolibriApp extends KolibriModule {
         heartbeat.pollSessionEndPoint();
       }
     });
-    return heartbeat.startPolling().then(() => {
-      return Promise.all([
-        // Invoke each of the state setters before initializing the app.
-        ...this.stateSetters.map(setter => setter(this.store)),
-      ]).then(() => {
-        this.startRootVue();
-      });
-    });
+    return heartbeat.startPolling().then(() => this.startRootVue());
   }
 }
