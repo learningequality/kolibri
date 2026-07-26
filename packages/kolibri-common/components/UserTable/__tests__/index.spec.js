@@ -1,12 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri/constants';
-import { coreStoreFactory } from 'kolibri/store';
 import UserTable from '../index';
 
 function makeWrapper({ propsData } = {}) {
-  const store = coreStoreFactory();
   return mount(UserTable, {
-    store,
     propsData,
   });
 }

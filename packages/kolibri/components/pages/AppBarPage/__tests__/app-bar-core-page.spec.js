@@ -1,5 +1,4 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import Vuex, { Store } from 'vuex';
 import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import AppBarPage from '../index';
 
@@ -9,12 +8,6 @@ jest.mock('vue-router/composables', () => ({
 }));
 
 const localVue = createLocalVue();
-localVue.use(Vuex);
-const store = new Store({
-  state: {
-    core: {},
-  },
-});
 
 function createWrapper({ propsData = {}, slots = {} } = {}) {
   return mount(AppBarPage, {
@@ -26,7 +19,6 @@ function createWrapper({ propsData = {}, slots = {} } = {}) {
         methods: { focusFirstEl() {} },
       },
     },
-    store,
     localVue,
   });
 }

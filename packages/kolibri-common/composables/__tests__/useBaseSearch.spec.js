@@ -2,13 +2,11 @@ import { get, set } from '@vueuse/core';
 import Vue, { nextTick, ref, defineComponent, h } from 'vue';
 import { render } from '@testing-library/vue';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { coreStoreFactory } from 'kolibri/store';
 import { ContentNodeKinds, LearningActivities } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { useRoute, useRouter } from 'vue-router/composables'; // eslint-disable-line
 import Modalities from 'kolibri-constants/Modalities';
 import useBaseSearch, { injectBaseSearch } from '../useBaseSearch';
-import coreModule from '../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('vue-router/composables', () => ({
@@ -23,12 +21,9 @@ function prep(query = {}, descendant = null, filters = null) {
   const mockRouter = { push: jest.fn().mockReturnValue(Promise.resolve()) };
   useRoute.mockReturnValue(mockRoute);
   useRouter.mockReturnValue(mockRouter);
-  const store = coreStoreFactory({});
-  store.registerModule('core', coreModule);
   return {
     ...useBaseSearch({ descendant, filters }),
     router: mockRouter,
-    store,
     mockRoute,
   };
 }
@@ -45,8 +40,6 @@ function mountSearch() {
   };
   useRoute.mockReturnValue(mockRoute);
   useRouter.mockReturnValue(mockRouter);
-  const store = coreStoreFactory({});
-  store.registerModule('core', coreModule);
   let api = null;
   const Child = defineComponent({
     setup() {
@@ -60,7 +53,7 @@ function mountSearch() {
       return () => h(Child);
     },
   });
-  const utils = render(Parent, { store });
+  const utils = render(Parent);
   return { getApi: () => api, ...utils };
 }
 
@@ -509,8 +502,6 @@ describe(`useBaseSearch`, () => {
       const mockRoute = Vue.observable({ query: {}, name });
       useRoute.mockReturnValue(mockRoute);
       useRouter.mockReturnValue({ push: jest.fn().mockReturnValue(Promise.resolve()) });
-      const store = coreStoreFactory({});
-      store.registerModule('core', coreModule);
       let api = null;
       const Child = defineComponent({
         setup() {
@@ -524,7 +515,7 @@ describe(`useBaseSearch`, () => {
           return () => h(Child);
         },
       });
-      const utils = render(Parent, { store });
+      const utils = render(Parent);
       return { getApi: () => api, ...utils };
     }
 

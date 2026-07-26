@@ -1,5 +1,4 @@
 import urls from 'kolibri/urls';
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
@@ -11,7 +10,6 @@ jest.mock('kolibri/composables/useUser');
 
 const localVue = createLocalVue();
 
-localVue.use(Vuex);
 localVue.use(VueRouter);
 
 const router = new VueRouter();

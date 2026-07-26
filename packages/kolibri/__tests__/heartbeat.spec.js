@@ -1,5 +1,4 @@
 import mock from 'xhr-mock';
-import coreStore from 'kolibri/store';
 import redirectBrowser from 'kolibri/utils/redirectBrowser';
 import { get, set } from '@vueuse/core';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
@@ -8,7 +7,6 @@ import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
-import coreModule from '../../../kolibri/core/frontend/state/modules/core';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
 jest.mock('kolibri/utils/redirectBrowser');
@@ -24,8 +22,6 @@ jest.mock('kolibri/utils/browserInfo', () => {
     pageVisible: ref(true),
   };
 });
-
-coreStore.registerModule('core', coreModule);
 
 let mockSetSession;
 
