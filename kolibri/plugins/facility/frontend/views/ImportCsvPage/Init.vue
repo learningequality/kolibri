@@ -35,8 +35,8 @@
     <p>
       <label for="csv-file">
         {{ $tr('proceed') }}
-        <!-- MIME type first: app webviews pass only the first accept entry to the system
-             file picker, which greys out every file for a bare ".csv". -->
+        <!-- Both forms: providers that report a file's type rather than deriving it
+             from its name only match the MIME type. -->
         <input
           id="csv-file"
           ref="fileInput"

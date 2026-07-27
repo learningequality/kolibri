@@ -33,10 +33,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
+import org.learningequality.Kolibri.util.FileChooserUtils;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -212,12 +212,7 @@ public class WebViewActivity extends AppCompatActivity {
               pendingFilePickerCallback.onReceiveValue(null);
             }
             pendingFilePickerCallback = callback;
-            String[] accepted = params.getAcceptTypes();
-            String[] mimeTypes =
-                Arrays.stream(accepted != null ? accepted : new String[0])
-                    .filter(t -> t != null && !t.isEmpty())
-                    .toArray(String[]::new);
-            filePickerLauncher.launch(mimeTypes.length == 0 ? new String[] {"*/*"} : mimeTypes);
+            filePickerLauncher.launch(FileChooserUtils.toPickerMimeTypes(params.getAcceptTypes()));
             return true;
           }
         });
