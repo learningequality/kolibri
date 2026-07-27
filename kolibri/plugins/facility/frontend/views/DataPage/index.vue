@@ -193,7 +193,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import urls from 'kolibri/urls';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -212,6 +211,7 @@
   import SyncInterface from './SyncInterface';
   import ImportInterface from './ImportInterface';
   import LearnMoreModal from './LearnMoreModal.vue';
+  import downloadCsvFile from './downloadCsvFile';
 
   export default {
     name: 'DataPage',
@@ -350,16 +350,10 @@
         }
       },
       downloadSessionLog() {
-        window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file']('session', this.facilityId),
-          '_blank',
-        );
+        downloadCsvFile('session', this.facilityId);
       },
       downloadSummaryLog() {
-        window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file']('summary', this.facilityId),
-          '_blank',
-        );
+        downloadCsvFile('summary', this.facilityId);
       },
     },
     $trs: {
