@@ -1408,8 +1408,8 @@ describe('Resource REST methods', function () {
       expect(client).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/list/' }));
     });
 
-    it('should throw when no URL is registered for the action', function () {
-      expect(() => resource.request({ action: 'missing' })).toThrow(ReferenceError);
+    it('should reject when no URL is registered for the action', async function () {
+      await expect(resource.request({ action: 'missing' })).rejects.toThrow(ReferenceError);
     });
 
     it('should send query params and no body for a GET', async function () {
@@ -1446,6 +1446,25 @@ describe('Resource REST methods', function () {
       resolve({ data: [{ id: 'task' }] });
       const [firstResponse, secondResponse] = await Promise.all([first, second]);
       expect(firstResponse).toEqual(secondResponse);
+    });
+
+    it('should give each coalesced caller an independent copy of response.data', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      // Two custom-action-style GETs coalesce onto one request but must not share `data`.
+      const first = resource.request({ action: 'detail', routeParams: 'abc' });
+      const second = resource.request({ action: 'detail', routeParams: 'abc' });
+
+      expect(client).toHaveBeenCalledTimes(1);
+      const shared = { data: { id: 'abc', tags: [] } };
+      resolve(shared);
+      const [a, b] = await Promise.all([first, second]);
+
+      expect(a.data).not.toBe(b.data);
+      expect(a.data).not.toBe(shared.data);
+      a.data.tags.push('mutated');
+      expect(b.data.tags).toEqual([]);
     });
 
     it('should ignore query param ordering when matching in-flight requests', async function () {
@@ -1559,6 +1578,22 @@ describe('Resource REST methods', function () {
         expect.objectContaining({ url: '/api/list/', params: { queue: 'content' } }),
       );
     });
+
+    it('should hand each coalesced caller an independent copy of the data', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      // Both fire before the request settles, so they share one in-flight response.
+      const first = resource.list();
+      const second = resource.list();
+      resolve({ data: [{ id: 'one', tags: [] }] });
+      const [a, b] = await Promise.all([first, second]);
+
+      expect(a).not.toBe(b);
+      expect(a[0]).not.toBe(b[0]);
+      a[0].tags.push('mutated');
+      expect(b[0].tags).toEqual([]);
+    });
   });
 
   describe('create method', function () {
@@ -1576,7 +1611,7 @@ describe('Resource REST methods', function () {
     });
 
     it('should forward the multipart flag', async function () {
-      await resource.create({ name: 'test' }, { multipart: true });
+      await resource.create({ name: 'test' }, true);
       expect(client).toHaveBeenCalledWith(expect.objectContaining({ multipart: true }));
     });
   });
@@ -1729,17 +1764,19 @@ describe('Resource REST methods', function () {
 });
 
 describe('Resource.useRetrieve', () => {
-  let resource;
+  let resource, client;
 
   beforeEach(() => {
     resource = new Resources.Resource({ name: 'test' });
-    resource.retrieve = jest.fn().mockResolvedValue({ id: 'abc', name: 'test' });
+    client = jest.fn().mockResolvedValue({ data: { id: 'abc', name: 'test' } });
+    resource.client = client;
+    resource.getUrlFunction = jest.fn(action => urlFunctionFor(action));
   });
 
   it('should not fetch until fetchData is called', () => {
     const { data, loading } = resource.useRetrieve('abc');
 
-    expect(resource.retrieve).not.toHaveBeenCalled();
+    expect(client).not.toHaveBeenCalled();
     expect(data.value).toBe(null);
     expect(loading.value).toBe(false);
   });
@@ -1749,7 +1786,9 @@ describe('Resource.useRetrieve', () => {
 
     await fetchData();
 
-    expect(resource.retrieve).toHaveBeenCalledWith('abc', undefined);
+    expect(client).toHaveBeenCalledWith(
+      expect.objectContaining({ url: '/api/detail/abc', method: 'GET' }),
+    );
     expect(data.value).toEqual({ id: 'abc', name: 'test' });
   });
 
@@ -1758,7 +1797,7 @@ describe('Resource.useRetrieve', () => {
 
     await fetchData();
 
-    expect(resource.retrieve).toHaveBeenCalledWith('abc', { params: { fields: 'name' } });
+    expect(client).toHaveBeenCalledWith(expect.objectContaining({ params: { fields: 'name' } }));
   });
 
   it('should read the current value of a ref id at fetch time', async () => {
@@ -1766,11 +1805,11 @@ describe('Resource.useRetrieve', () => {
     const { fetchData } = resource.useRetrieve(id);
 
     await fetchData();
-    expect(resource.retrieve).toHaveBeenLastCalledWith('abc', undefined);
+    expect(client).toHaveBeenLastCalledWith(expect.objectContaining({ url: '/api/detail/abc' }));
 
     id.value = 'def';
     await fetchData();
-    expect(resource.retrieve).toHaveBeenLastCalledWith('def', undefined);
+    expect(client).toHaveBeenLastCalledWith(expect.objectContaining({ url: '/api/detail/def' }));
   });
 
   it('should read the current value of a getter id at fetch time', async () => {
@@ -1778,16 +1817,16 @@ describe('Resource.useRetrieve', () => {
     const { fetchData } = resource.useRetrieve(() => id);
 
     await fetchData();
-    expect(resource.retrieve).toHaveBeenLastCalledWith('abc', undefined);
+    expect(client).toHaveBeenLastCalledWith(expect.objectContaining({ url: '/api/detail/abc' }));
 
     id = 'def';
     await fetchData();
-    expect(resource.retrieve).toHaveBeenLastCalledWith('def', undefined);
+    expect(client).toHaveBeenLastCalledWith(expect.objectContaining({ url: '/api/detail/def' }));
   });
 
   it('should expose a failure as error', async () => {
     const failure = new Error('nope');
-    resource.retrieve.mockRejectedValue(failure);
+    client.mockRejectedValue(failure);
     const { data, error, fetchData } = resource.useRetrieve('abc');
 
     await fetchData();
@@ -1798,17 +1837,19 @@ describe('Resource.useRetrieve', () => {
 });
 
 describe('Resource.useList', () => {
-  let resource;
+  let resource, client;
 
   beforeEach(() => {
     resource = new Resources.Resource({ name: 'test' });
-    resource.list = jest.fn().mockResolvedValue([{ id: 'one' }, { id: 'two' }]);
+    client = jest.fn().mockResolvedValue({ data: [{ id: 'one' }, { id: 'two' }] });
+    resource.client = client;
+    resource.getUrlFunction = jest.fn(action => urlFunctionFor(action));
   });
 
   it('should not fetch until fetchData is called', () => {
     const { data, loading } = resource.useList();
 
-    expect(resource.list).not.toHaveBeenCalled();
+    expect(client).not.toHaveBeenCalled();
     expect(data.value).toBe(null);
     expect(loading.value).toBe(false);
   });
@@ -1818,18 +1859,21 @@ describe('Resource.useList', () => {
 
     await fetchData();
 
-    expect(resource.list).toHaveBeenCalledWith(undefined);
+    expect(client).toHaveBeenCalledWith(
+      expect.objectContaining({ url: '/api/list/', method: 'GET' }),
+    );
     expect(data.value).toEqual([{ id: 'one' }, { id: 'two' }]);
     expect(hasMore.value).toBe(false);
   });
 
   it('should pass params through to list', async () => {
-    const params = { member_of: 'facility' };
-    const { fetchData } = resource.useList(params);
+    const { fetchData } = resource.useList({ member_of: 'facility' });
 
     await fetchData();
 
-    expect(resource.list).toHaveBeenCalledWith(params);
+    expect(client).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { member_of: 'facility' } }),
+    );
   });
 
   it('should read the current value of ref params at fetch time', async () => {
@@ -1837,19 +1881,21 @@ describe('Resource.useList', () => {
     const { fetchData } = resource.useList(params);
 
     await fetchData();
-    expect(resource.list).toHaveBeenLastCalledWith({ member_of: 'one' });
+    expect(client).toHaveBeenLastCalledWith(
+      expect.objectContaining({ params: { member_of: 'one' } }),
+    );
 
     params.value = { member_of: 'two' };
     await fetchData();
-    expect(resource.list).toHaveBeenLastCalledWith({ member_of: 'two' });
+    expect(client).toHaveBeenLastCalledWith(
+      expect.objectContaining({ params: { member_of: 'two' } }),
+    );
   });
 
   describe('pagination', () => {
     beforeEach(() => {
-      resource.list = jest.fn().mockResolvedValue({
-        results: [{ id: 'one' }],
-        more: { limit: 1, offset: 1 },
-        count: 2,
+      client.mockResolvedValue({
+        data: { results: [{ id: 'one' }], more: { limit: 1, offset: 1 }, count: 2 },
       });
     });
 
@@ -1868,24 +1914,26 @@ describe('Resource.useList', () => {
 
       await fetchData();
 
-      resource.list.mockResolvedValue({ results: [{ id: 'two' }], more: null, count: 2 });
+      client.mockResolvedValue({ data: { results: [{ id: 'two' }], more: null, count: 2 } });
       await fetchMore();
 
-      expect(resource.list).toHaveBeenLastCalledWith({ limit: 1, offset: 1 });
+      expect(client).toHaveBeenLastCalledWith(
+        expect.objectContaining({ params: { limit: 1, offset: 1 } }),
+      );
       expect(data.value).toEqual([{ id: 'one' }, { id: 'two' }]);
       expect(hasMore.value).toBe(false);
     });
 
     it('should not fetch more when there is no more data', async () => {
-      resource.list.mockResolvedValue({ results: [{ id: 'one' }], more: null, count: 1 });
+      client.mockResolvedValue({ data: { results: [{ id: 'one' }], more: null, count: 1 } });
       const { hasMore, fetchData, fetchMore } = resource.useList();
 
       await fetchData();
-      resource.list.mockClear();
+      client.mockClear();
       await fetchMore();
 
       expect(hasMore.value).toBe(false);
-      expect(resource.list).not.toHaveBeenCalled();
+      expect(client).not.toHaveBeenCalled();
     });
   });
 });

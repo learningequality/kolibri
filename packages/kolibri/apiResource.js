@@ -1012,6 +1012,9 @@ export class Resource {
    *
    * Concurrent identical GET requests share a single in-flight request. Writes are never
    * de-duplicated.
+   *
+   * This method is `async` so that an unresolvable action surfaces as a rejection, not a
+   * synchronous throw - keeping the contract uniform with every method built on top of it.
    * @param {object} [options] - The request definition
    * @param {string} [options.method=GET] - A valid HTTP method name
    * @param {string} [options.action=list] - The name of the endpoint to target
@@ -1021,26 +1024,35 @@ export class Resource {
    * @param {object | Array} [options.data] - The request body, for writes
    * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
    * data
-   * @returns {Promise} - Promise that resolves with the full response object
+   * @returns {Promise} - Promise that resolves with the full response object. For GET, `data`
+   * is a deep copy unique to this caller (coalesced GETs would otherwise share one payload);
+   * the response metadata is shared.
    */
-  request({ method = 'GET', action = 'list', routeParams, params, data, multipart = false } = {}) {
+  async request({
+    method = 'GET',
+    action = 'list',
+    routeParams,
+    params,
+    data,
+    multipart = false,
+  } = {}) {
     const url = this.__resolveUrl(action, routeParams);
     if (method.toUpperCase() !== 'GET') {
       // General case (writes): no dedup, as two writes are two distinct intents.
       return this.client({ url, method, params, data, multipart });
     }
     const key = `${url}?${stableSerialize(params)}`;
-    if (this._inFlight.has(key)) {
-      // Attach to the pending GET instead of firing a new one.
-      return this._inFlight.get(key);
+    let promise = this._inFlight.get(key);
+    if (!promise) {
+      // Clear the entry once the request settles, whether it succeeded or failed - a lingering
+      // rejected promise would poison every subsequent request for this key.
+      promise = this.client({ url, method, params }).finally(() => {
+        this._inFlight.delete(key);
+      });
+      this._inFlight.set(key, promise);
     }
-    // Clear the entry once the request settles, whether it succeeded or failed - a lingering
-    // rejected promise would poison every subsequent request for this key.
-    const promise = this.client({ url, method, params }).finally(() => {
-      this._inFlight.delete(key);
-    });
-    this._inFlight.set(key, promise);
-    return promise;
+    // Coalesced GETs share one response, so clone `data` per caller.
+    return promise.then(response => ({ ...response, data: cloneDeep(response.data) }));
   }
 
   /**
@@ -1080,12 +1092,10 @@ export class Resource {
   /**
    * Create a single object against the resource's default list endpoint.
    * @param {object} data - The object to create
-   * @param {object} [options] - Additional request options
-   * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
-   * data
+   * @param {boolean} [multipart=false] - Whether to encode the body as multipart form data
    * @returns {Promise} - Promise that resolves with the created object
    */
-  async create(data, { multipart = false } = {}) {
+  async create(data, multipart = false) {
     const response = await this.request({ method: 'POST', data, multipart });
     this.__setBaseline(response.data);
     return response.data;
@@ -1152,13 +1162,11 @@ export class Resource {
    * Create several objects in a single request against the resource's default list endpoint.
    * Only works for resources whose endpoint accepts an array payload.
    * @param {object[]} data - The objects to create
-   * @param {object} [options] - Additional request options
-   * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
-   * data
+   * @param {boolean} [multipart=false] - Whether to encode the body as multipart form data
    * @returns {Promise} - Promise that resolves with the created objects
    * @throws {TypeError} - When `data` is not an array
    */
-  async bulkCreate(data, { multipart = false } = {}) {
+  async bulkCreate(data, multipart = false) {
     if (!Array.isArray(data)) {
       throw TypeError('An array of objects must be specified');
     }
@@ -1172,6 +1180,10 @@ export class Resource {
   /**
    * Delete every object matching the given query parameters, against the resource's default
    * list endpoint.
+   *
+   * Note: unlike `delete`, this does not clear the baselines of the removed objects - their
+   * ids are not known client-side (the delete is params-driven). This is a deliberate gap;
+   * bulk-deleted rows are rare to recreate-and-update within the same session.
    * @param {object} params - Query parameters narrowing what will be deleted
    * @returns {Promise} - Promise that resolves with the server's response data
    * @throws {TypeError} - When no query parameters are given, to prevent an unfiltered
@@ -1186,10 +1198,8 @@ export class Resource {
   }
 
   /**
-   * Reactive read of a single object by id, layered on `useFetch`. It owns no reactive logic
-   * of its own - it only builds the `fetchMethod`. Like `useFetch`, it does not fetch on its
-   * own: call the returned `fetchData` when the data is wanted.
-   *
+   * Reactive read of a single object by id, layered on `useFetch`.
+   *  Data is not refetched when the params change, caller must call `fetchData` again.
    * Example:
    * ```js
    * const { data: dataset, loading, error, fetchData } = FacilityDatasetResource.useRetrieve(
@@ -1199,8 +1209,7 @@ export class Resource {
    * watch(datasetId, () => fetchData());
    * ```
    * @param {string | import('vue').Ref<string> | (() => string)} id - The id of the object to
-   * retrieve. A ref or getter is read at fetch time, so `fetchData` always uses its current
-   * value.
+   * retrieve. A ref or getter is read at fetch time (not watched).
    * @param {object | import('vue').Ref<object> | (() => object)} [options] - Options passed
    * through to `retrieve`, i.e. `{ params }`.
    * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
@@ -1212,13 +1221,10 @@ export class Resource {
   }
 
   /**
-   * Reactive read of a collection, layered on `useFetch`. It owns no reactive logic of its
-   * own - it only builds the `fetchMethod` and `fetchMoreMethod`. Because `list` returns the
-   * server's `more` parameters for a paginated endpoint, `fetchMore` / `hasMore` /
-   * `loadingMore` / `count` work without any per-call-site pagination wiring.
+   * Reactive read of a collection, layered on `useFetch`.
    *
    * Like `useFetch`, it does not fetch on its own: call the returned `fetchData` when the data
-   * is wanted.
+   * is wanted. Data is not refetched when the params change, caller must call `fetchData` again.
    *
    * Example:
    * ```js
@@ -1227,8 +1233,7 @@ export class Resource {
    * onMounted(() => fetchData());
    * ```
    * @param {object | import('vue').Ref<object> | (() => object)} [params] - Query parameters
-   * passed to `list`. A ref or getter is read at fetch time, so `fetchData` always uses its
-   * current value.
+   * passed to `list`. A ref or getter is read at fetch time (not watched).
    * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
    */
   useList(params) {

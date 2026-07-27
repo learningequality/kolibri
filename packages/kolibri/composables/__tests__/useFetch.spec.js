@@ -235,6 +235,27 @@ describe('useFetch', () => {
       expect(data.value).toBe(response.results);
     });
 
+    it('data should be set to the array itself when fetchMoreMethod is passed but the response is a plain array', async () => {
+      // A list endpoint that is not paginated resolves a plain array even though a
+      // fetchMoreMethod is supplied; useFetch must handle that shape, not assume `.results`.
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const fetchMoreMethod = jest.fn();
+
+      const { data, hasMore, count, fetchData } = useFetch({
+        fetchMethod,
+        fetchMoreMethod,
+      });
+
+      const response = [{ id: 'one' }, { id: 'two' }];
+      fetchData({ id: 'fetch1', response });
+      resolveFetch('fetch1');
+      await nextTick();
+      expect(data.value).toBe(response);
+      expect(hasMore.value).toBe(false);
+      // Contract note: `count` stays null for the array shape even though the length is known.
+      expect(count.value).toBe(null);
+    });
+
     it('should set hasMore to false if response.more is not defined', async () => {
       const { fetchMethod, resolveFetch } = getSincronizableFetch();
       const fetchMoreMethod = jest.fn();

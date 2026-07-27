@@ -4,11 +4,11 @@ export default new Resource({
   name: 'task',
 
   startTask(task, multipart = false) {
-    return this.create(task, { multipart });
+    return this.create(task, multipart);
   },
 
   startTasks(tasks, multipart = false) {
-    return this.bulkCreate(tasks, { multipart });
+    return this.bulkCreate(tasks, multipart);
   },
 
   cancel(jobId) {
