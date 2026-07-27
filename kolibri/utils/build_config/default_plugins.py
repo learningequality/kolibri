@@ -8,6 +8,7 @@ DEFAULT_PLUGINS = [
     "kolibri.plugins.learn",
     "kolibri.plugins.media_player",
     "kolibri.plugins.pdf_viewer",
+    "kolibri.plugins.safe_html5_viewer",
     "kolibri.plugins.perseus_viewer",
     "kolibri.plugins.qti_viewer",
     "kolibri.plugins.setup_wizard",
