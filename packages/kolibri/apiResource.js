@@ -3,10 +3,17 @@ import cloneDeep from 'lodash/cloneDeep';
 import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
+import qs from 'qs';
+import { toValue } from '@vueuse/core';
 import urls from 'kolibri/urls';
+import useFetch from 'kolibri/composables/useFetch';
 import sanitizeError from './utils/sanitizeError';
 
 export const logging = logger.getLogger(__filename);
+
+// Serialize query parameters into a string that is stable regardless of key insertion order,
+// so that two equivalent parameter objects produce the same in-flight request key.
+const stableSerialize = params => qs.stringify(params, { sort: (a, b) => a.localeCompare(b) });
 
 /** Class representing a single API resource object */
 export class Model {
@@ -598,6 +605,12 @@ export class Resource {
       Object.defineProperty(this, key, optionsDefinitions[key]);
     });
     this.clearCache();
+    // Currently pending GET requests, keyed by resolved URL and query params. This is request
+    // coalescing, not a cache - an entry is removed as soon as its request settles.
+    this._inFlight = new Map();
+    // The last known server representation of each object, keyed by id. Only ever read to
+    // compute PATCH payloads in `update` - it is never served to reads.
+    this._baselines = new Map();
   }
 
   __cacheKey(...params) {
@@ -955,14 +968,276 @@ export class Resource {
     return this.accessDetailEndpoint('get', 'detail', id).then(response => response.data);
   }
 
-  list(params = {}) {
-    return this.accessListEndpoint('get', 'list', params).then(response => response.data);
+  /**
+   * Resolve the URL for a named action, applying any route parameters.
+   * @param {string} action - The name of the endpoint, as registered with the URL resolver
+   * @param {object | Array | string | number} [routeParams] - An object is passed as named
+   * kwargs, an array is spread as positional arguments, and any other value is passed as a
+   * single positional argument. Omit for a route that takes no parameters.
+   * @returns {string} - The resolved URL
+   * @throws {ReferenceError} - When no URL is registered for this action
+   */
+  __resolveUrl(action, routeParams) {
+    const urlFunction = this.getUrlFunction(action);
+    if (!urlFunction) {
+      throw ReferenceError(`No URL found for the ${action} action of the ${this.name} resource`);
+    }
+    if (routeParams === undefined || routeParams === null) {
+      return urlFunction();
+    }
+    if (Array.isArray(routeParams)) {
+      return urlFunction(...routeParams);
+    }
+    return urlFunction(routeParams);
   }
 
-  create(params = {}, multipart = false) {
-    return this.accessListEndpoint('post', 'list', params, multipart).then(
-      response => response.data,
-    );
+  /**
+   * Record the server's representation of an object, so that a subsequent `update` can diff
+   * against it. Objects without an id are ignored, as there is nothing to key them by.
+   * @param {object} object - An object as returned by the server
+   */
+  __setBaseline(object) {
+    if (!object || typeof object !== 'object') {
+      return;
+    }
+    const id = object[this.idKey];
+    if (id === undefined || id === null) {
+      return;
+    }
+    this._baselines.set(String(id), cloneDeep(object));
+  }
+
+  /**
+   * The single low-level primitive that every read, write, and custom action goes through.
+   *
+   * Concurrent identical GET requests share a single in-flight request. Writes are never
+   * de-duplicated.
+   * @param {object} [options] - The request definition
+   * @param {string} [options.method=GET] - A valid HTTP method name
+   * @param {string} [options.action=list] - The name of the endpoint to target
+   * @param {object | Array | string | number} [options.routeParams] - Parameters for the URL
+   * itself
+   * @param {object} [options.params] - Query parameters
+   * @param {object | Array} [options.data] - The request body, for writes
+   * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
+   * data
+   * @returns {Promise} - Promise that resolves with the full response object
+   */
+  request({ method = 'GET', action = 'list', routeParams, params, data, multipart = false } = {}) {
+    const url = this.__resolveUrl(action, routeParams);
+    if (method.toUpperCase() !== 'GET') {
+      // General case (writes): no dedup, as two writes are two distinct intents.
+      return this.client({ url, method, params, data, multipart });
+    }
+    const key = `${url}?${stableSerialize(params)}`;
+    if (this._inFlight.has(key)) {
+      // Attach to the pending GET instead of firing a new one.
+      return this._inFlight.get(key);
+    }
+    // Clear the entry once the request settles, whether it succeeded or failed - a lingering
+    // rejected promise would poison every subsequent request for this key.
+    const promise = this.client({ url, method, params }).finally(() => {
+      this._inFlight.delete(key);
+    });
+    this._inFlight.set(key, promise);
+    return promise;
+  }
+
+  /**
+   * Fetch a single object by id from the resource's default detail endpoint.
+   * @param {string} id - The id of the object to fetch
+   * @param {object} [options] - Additional request options
+   * @param {object} [options.params] - Query parameters
+   * @returns {Promise} - Promise that resolves with the object
+   * @throws {TypeError} - When `id` is missing
+   */
+  async retrieve(id, { params } = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    const response = await this.request({ action: 'detail', routeParams: id, params });
+    this.__setBaseline(response.data);
+    return response.data;
+  }
+
+  /**
+   * Fetch a collection of objects from the resource's default list endpoint. A custom
+   * list-shaped endpoint (e.g. a detail route that returns a collection) is authored as its
+   * own method over `request`, not through here.
+   * @param {object} [params] - Query parameters
+   * @returns {Promise} - Promise that resolves with the server's response data - either an
+   * array of objects, or a `{ results, more, count }` object when the endpoint is paginated
+   */
+  async list(params = {}) {
+    const response = await this.request({ params });
+    const results = Array.isArray(response.data) ? response.data : response.data?.results;
+    if (Array.isArray(results)) {
+      results.forEach(object => this.__setBaseline(object));
+    }
+    return response.data;
+  }
+
+  /**
+   * Create a single object against the resource's default list endpoint.
+   * @param {object} data - The object to create
+   * @param {object} [options] - Additional request options
+   * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
+   * data
+   * @returns {Promise} - Promise that resolves with the created object
+   */
+  async create(data, { multipart = false } = {}) {
+    const response = await this.request({ method: 'POST', data, multipart });
+    this.__setBaseline(response.data);
+    return response.data;
+  }
+
+  /**
+   * Update an object, sending only the fields that differ from the last representation the
+   * server gave us. When we have no such baseline, the provided fields are sent as-is - the
+   * diff is a payload optimization, never a correctness requirement.
+   * @param {string} id - The id of the object to update
+   * @param {object} data - The fields to update
+   * @param {object} [options] - Additional request options
+   * @param {object} [options.params] - Query parameters
+   * @returns {Promise} - Promise that resolves with the updated object
+   * @throws {TypeError} - When `id` is missing
+   */
+  async update(id, data = {}, { params } = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    const baseline = this._baselines.get(String(id));
+    let payload = data;
+    if (baseline) {
+      payload = {};
+      for (const key of Object.keys(data)) {
+        if (!isEqual(data[key], baseline[key])) {
+          payload[key] = data[key];
+        }
+      }
+      if (!Object.keys(payload).length) {
+        // Nothing changed, so there is nothing to send.
+        return cloneDeep(baseline);
+      }
+    }
+    const response = await this.request({
+      method: 'PATCH',
+      action: 'detail',
+      routeParams: id,
+      params,
+      data: payload,
+    });
+    this.__setBaseline(response.data);
+    return response.data;
+  }
+
+  /**
+   * Delete a single object by id.
+   * @param {string} id - The id of the object to delete
+   * @param {object} [options] - Additional request options
+   * @param {object} [options.params] - Query parameters
+   * @returns {Promise} - Promise that resolves with the id of the deleted object
+   * @throws {TypeError} - When `id` is missing
+   */
+  async delete(id, { params } = {}) {
+    if (!id) {
+      throw TypeError('An id must be specified');
+    }
+    await this.request({ method: 'DELETE', action: 'detail', routeParams: id, params });
+    this._baselines.delete(String(id));
+    return id;
+  }
+
+  /**
+   * Create several objects in a single request against the resource's default list endpoint.
+   * Only works for resources whose endpoint accepts an array payload.
+   * @param {object[]} data - The objects to create
+   * @param {object} [options] - Additional request options
+   * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
+   * data
+   * @returns {Promise} - Promise that resolves with the created objects
+   * @throws {TypeError} - When `data` is not an array
+   */
+  async bulkCreate(data, { multipart = false } = {}) {
+    if (!Array.isArray(data)) {
+      throw TypeError('An array of objects must be specified');
+    }
+    const response = await this.request({ method: 'POST', data, multipart });
+    if (Array.isArray(response.data)) {
+      response.data.forEach(object => this.__setBaseline(object));
+    }
+    return response.data;
+  }
+
+  /**
+   * Delete every object matching the given query parameters, against the resource's default
+   * list endpoint.
+   * @param {object} params - Query parameters narrowing what will be deleted
+   * @returns {Promise} - Promise that resolves with the server's response data
+   * @throws {TypeError} - When no query parameters are given, to prevent an unfiltered
+   * bulk delete
+   */
+  async bulkDelete(params = {}) {
+    if (!Object.keys(params).length) {
+      throw TypeError('Params must be specified to narrow what is being deleted');
+    }
+    const response = await this.request({ method: 'DELETE', params });
+    return response.data;
+  }
+
+  /**
+   * Reactive read of a single object by id, layered on `useFetch`. It owns no reactive logic
+   * of its own - it only builds the `fetchMethod`. Like `useFetch`, it does not fetch on its
+   * own: call the returned `fetchData` when the data is wanted.
+   *
+   * Example:
+   * ```js
+   * const { data: dataset, loading, error, fetchData } = FacilityDatasetResource.useRetrieve(
+   *   datasetId,
+   * );
+   * onMounted(() => fetchData());
+   * watch(datasetId, () => fetchData());
+   * ```
+   * @param {string | import('vue').Ref<string> | (() => string)} id - The id of the object to
+   * retrieve. A ref or getter is read at fetch time, so `fetchData` always uses its current
+   * value.
+   * @param {object | import('vue').Ref<object> | (() => object)} [options] - Options passed
+   * through to `retrieve`, i.e. `{ params }`.
+   * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
+   */
+  useRetrieve(id, options) {
+    return useFetch({
+      fetchMethod: () => this.retrieve(toValue(id), toValue(options)),
+    });
+  }
+
+  /**
+   * Reactive read of a collection, layered on `useFetch`. It owns no reactive logic of its
+   * own - it only builds the `fetchMethod` and `fetchMoreMethod`. Because `list` returns the
+   * server's `more` parameters for a paginated endpoint, `fetchMore` / `hasMore` /
+   * `loadingMore` / `count` work without any per-call-site pagination wiring.
+   *
+   * Like `useFetch`, it does not fetch on its own: call the returned `fetchData` when the data
+   * is wanted.
+   *
+   * Example:
+   * ```js
+   * const { data: users, loading, hasMore, fetchMore, fetchData } =
+   *   FacilityUserResource.useList(computed(() => ({ member_of: facilityId.value })));
+   * onMounted(() => fetchData());
+   * ```
+   * @param {object | import('vue').Ref<object> | (() => object)} [params] - Query parameters
+   * passed to `list`. A ref or getter is read at fetch time, so `fetchData` always uses its
+   * current value.
+   * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
+   */
+  useList(params) {
+    return useFetch({
+      fetchMethod: () => this.list(toValue(params)),
+      // `more` is the complete set of query parameters for the next page, so it replaces
+      // rather than extends the original params.
+      fetchMoreMethod: more => this.list(more),
+    });
   }
 
   /**

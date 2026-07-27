@@ -1,6 +1,36 @@
+import { ref } from 'vue';
 import * as Resources from '../apiResource';
 
 jest.mock('kolibri/urls');
+
+// Build a URL function of the shape the URL resolver produces. Route params - whether passed
+// as named kwargs (an object) or positional args - are substituted into the path, mirroring
+// how the real reverse() fills a route pattern. They never appear as a query string; query
+// params are a separate concern handled by the request `params` option.
+const urlFunctionFor =
+  action =>
+  (...args) => {
+    let segments;
+    if (args.length === 1 && args[0] !== null && typeof args[0] === 'object') {
+      // Named kwargs: use the values, ordered by key so the path is deterministic.
+      segments = Object.keys(args[0])
+        .sort()
+        .map(key => args[0][key]);
+    } else {
+      segments = args;
+    }
+    return `/api/${action}/${segments.join('/')}`;
+  };
+
+// A promise whose resolution is controlled by the test.
+const deferred = () => {
+  let resolve, reject;
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+};
 
 describe('Resource', function () {
   let resource, modelData;
@@ -1339,6 +1369,523 @@ describe('Model', function () {
     it('should coerce and id to a string', function () {
       model.set({ id: 123 });
       expect(model.attributes.id).toEqual('123');
+    });
+  });
+});
+
+describe('Resource REST methods', function () {
+  let resource, client;
+
+  beforeEach(function () {
+    resource = new Resources.Resource({ name: 'test' });
+    client = jest.fn().mockResolvedValue({ data: {} });
+    resource.client = client;
+    resource.getUrlFunction = jest.fn(action =>
+      action === 'missing' ? undefined : urlFunctionFor(action),
+    );
+  });
+
+  describe('request method', function () {
+    it('should resolve the URL from the action and named route params', async function () {
+      await resource.request({ action: 'detail', routeParams: { pk: 'abc' } });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/detail/abc' }));
+    });
+
+    it('should spread array route params as positional arguments', async function () {
+      await resource.request({ action: 'nested', routeParams: ['session', 'unit'] });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/nested/session/unit' }),
+      );
+    });
+
+    it('should pass a scalar route param as a single positional argument', async function () {
+      await resource.request({ action: 'detail', routeParams: 'abc' });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/detail/abc' }));
+    });
+
+    it('should resolve a URL with no route params', async function () {
+      await resource.request({ action: 'list' });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ url: '/api/list/' }));
+    });
+
+    it('should throw when no URL is registered for the action', function () {
+      expect(() => resource.request({ action: 'missing' })).toThrow(ReferenceError);
+    });
+
+    it('should send query params and no body for a GET', async function () {
+      await resource.request({ params: { queue: 'content' } });
+      expect(client).toHaveBeenCalledWith({
+        url: '/api/list/',
+        method: 'GET',
+        params: { queue: 'content' },
+      });
+    });
+
+    it('should send a body for a write', async function () {
+      await resource.request({ method: 'POST', data: { name: 'test' } });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ method: 'POST', data: { name: 'test' } }),
+      );
+    });
+
+    it('should forward the multipart flag for a write', async function () {
+      await resource.request({ method: 'POST', data: {}, multipart: true });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ multipart: true }));
+    });
+  });
+
+  describe('request de-duplication', function () {
+    it('should share a single in-flight request between identical concurrent GETs', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      const first = resource.request({ params: { queue: 'content' } });
+      const second = resource.request({ params: { queue: 'content' } });
+
+      expect(client).toHaveBeenCalledTimes(1);
+      resolve({ data: [{ id: 'task' }] });
+      const [firstResponse, secondResponse] = await Promise.all([first, second]);
+      expect(firstResponse).toEqual(secondResponse);
+    });
+
+    it('should ignore query param ordering when matching in-flight requests', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      const first = resource.request({ params: { a: 1, b: 2 } });
+      const second = resource.request({ params: { b: 2, a: 1 } });
+
+      expect(client).toHaveBeenCalledTimes(1);
+      resolve({ data: [] });
+      await Promise.all([first, second]);
+    });
+
+    it('should not de-duplicate GETs with different query params', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      const requests = Promise.all([
+        resource.request({ params: { queue: 'content' } }),
+        resource.request({ params: { queue: 'facility' } }),
+      ]);
+
+      expect(client).toHaveBeenCalledTimes(2);
+      resolve({ data: [] });
+      await requests;
+    });
+
+    it('should not de-duplicate GETs against different URLs', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      const requests = Promise.all([
+        resource.request({ action: 'detail', routeParams: 'one' }),
+        resource.request({ action: 'detail', routeParams: 'two' }),
+      ]);
+
+      expect(client).toHaveBeenCalledTimes(2);
+      resolve({ data: {} });
+      await requests;
+    });
+
+    it('should not de-duplicate writes', async function () {
+      const { promise, resolve } = deferred();
+      client.mockReturnValue(promise);
+
+      const requests = Promise.all([
+        resource.request({ method: 'POST', data: { name: 'test' } }),
+        resource.request({ method: 'POST', data: { name: 'test' } }),
+      ]);
+
+      expect(client).toHaveBeenCalledTimes(2);
+      resolve({ data: {} });
+      await requests;
+    });
+
+    it('should fire a new request once the previous one has resolved', async function () {
+      await resource.request({ params: { queue: 'content' } });
+      await resource.request({ params: { queue: 'content' } });
+      expect(client).toHaveBeenCalledTimes(2);
+    });
+
+    it('should fire a new request once the previous one has failed', async function () {
+      client.mockRejectedValue(new Error('nope'));
+      await expect(resource.request({ params: { queue: 'content' } })).rejects.toThrow();
+      await expect(resource.request({ params: { queue: 'content' } })).rejects.toThrow();
+      expect(client).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('retrieve method', function () {
+    it('should GET the detail URL and resolve with the response data', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'test' } });
+      const data = await resource.retrieve('abc');
+      expect(client).toHaveBeenCalledWith({
+        url: '/api/detail/abc',
+        method: 'GET',
+        params: undefined,
+      });
+      expect(data).toEqual({ id: 'abc', name: 'test' });
+    });
+
+    it('should pass query params through', async function () {
+      await resource.retrieve('abc', { params: { fields: 'name' } });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ params: { fields: 'name' } }));
+    });
+
+    it('should reject if no id is specified', async function () {
+      await expect(resource.retrieve()).rejects.toThrow(TypeError);
+    });
+  });
+
+  describe('list method', function () {
+    it('should resolve with an array from an unpaginated endpoint', async function () {
+      client.mockResolvedValue({ data: [{ id: 'one' }, { id: 'two' }] });
+      const data = await resource.list();
+      expect(data).toEqual([{ id: 'one' }, { id: 'two' }]);
+    });
+
+    it('should resolve with the pagination object from a paginated endpoint', async function () {
+      const paginated = { results: [{ id: 'one' }], more: { offset: 25 }, count: 90 };
+      client.mockResolvedValue({ data: paginated });
+      const data = await resource.list();
+      expect(data).toEqual(paginated);
+    });
+
+    it('should pass query params through', async function () {
+      client.mockResolvedValue({ data: [] });
+      await resource.list({ queue: 'content' });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/list/', params: { queue: 'content' } }),
+      );
+    });
+  });
+
+  describe('create method', function () {
+    it('should POST the data and resolve with the created object', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'test' } });
+      const data = await resource.create({ name: 'test' });
+      expect(client).toHaveBeenCalledWith({
+        url: '/api/list/',
+        method: 'POST',
+        params: undefined,
+        data: { name: 'test' },
+        multipart: false,
+      });
+      expect(data).toEqual({ id: 'abc', name: 'test' });
+    });
+
+    it('should forward the multipart flag', async function () {
+      await resource.create({ name: 'test' }, { multipart: true });
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ multipart: true }));
+    });
+  });
+
+  describe('update method', function () {
+    it('should PATCH the given fields as-is when there is no baseline', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'new' } });
+      const data = await resource.update('abc', { name: 'new' });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/api/detail/abc',
+          method: 'PATCH',
+          data: { name: 'new' },
+        }),
+      );
+      expect(data).toEqual({ id: 'abc', name: 'new' });
+    });
+
+    it('should PATCH only the changed fields when a baseline is known', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'old', description: 'same' } });
+      await resource.retrieve('abc');
+
+      client.mockClear();
+      client.mockResolvedValue({ data: { id: 'abc', name: 'new', description: 'same' } });
+      await resource.update('abc', { name: 'new', description: 'same' });
+
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ method: 'PATCH', data: { name: 'new' } }),
+      );
+    });
+
+    it('should not make a request when nothing has changed', async function () {
+      const object = { id: 'abc', name: 'old' };
+      client.mockResolvedValue({ data: object });
+      await resource.retrieve('abc');
+
+      client.mockClear();
+      const data = await resource.update('abc', { name: 'old' });
+
+      expect(client).not.toHaveBeenCalled();
+      expect(data).toEqual(object);
+    });
+
+    it('should refresh the baseline from the update response', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'old' } });
+      await resource.retrieve('abc');
+
+      client.mockResolvedValue({ data: { id: 'abc', name: 'new' } });
+      await resource.update('abc', { name: 'new' });
+
+      client.mockClear();
+      await resource.update('abc', { name: 'new' });
+
+      expect(client).not.toHaveBeenCalled();
+    });
+
+    it('should diff against a baseline recorded by list', async function () {
+      client.mockResolvedValue({ data: [{ id: 'abc', name: 'old', description: 'same' }] });
+      await resource.list();
+
+      client.mockClear();
+      client.mockResolvedValue({ data: { id: 'abc', name: 'new', description: 'same' } });
+      await resource.update('abc', { name: 'new', description: 'same' });
+
+      expect(client).toHaveBeenCalledWith(expect.objectContaining({ data: { name: 'new' } }));
+    });
+
+    it('should diff against a baseline recorded from a paginated list', async function () {
+      client.mockResolvedValue({
+        data: { results: [{ id: 'abc', name: 'old' }], more: null, count: 1 },
+      });
+      await resource.list();
+
+      client.mockClear();
+      await resource.update('abc', { name: 'old' });
+
+      expect(client).not.toHaveBeenCalled();
+    });
+
+    it('should reject if no id is specified', async function () {
+      await expect(resource.update()).rejects.toThrow(TypeError);
+    });
+  });
+
+  describe('delete method', function () {
+    it('should DELETE the detail URL and resolve with the id', async function () {
+      const id = await resource.delete('abc');
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ url: '/api/detail/abc', method: 'DELETE' }),
+      );
+      expect(id).toEqual('abc');
+    });
+
+    it('should discard the baseline for the deleted object', async function () {
+      client.mockResolvedValue({ data: { id: 'abc', name: 'old' } });
+      await resource.retrieve('abc');
+      await resource.delete('abc');
+
+      client.mockClear();
+      await resource.update('abc', { name: 'old' });
+
+      // With no baseline left, the fields are sent as-is rather than diffed away.
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({ method: 'PATCH', data: { name: 'old' } }),
+      );
+    });
+
+    it('should reject if no id is specified', async function () {
+      await expect(resource.delete()).rejects.toThrow(TypeError);
+    });
+  });
+
+  describe('bulkCreate method', function () {
+    it('should POST the array and resolve with the created objects', async function () {
+      const created = [{ id: 'one' }, { id: 'two' }];
+      client.mockResolvedValue({ data: created });
+      const data = await resource.bulkCreate([{ name: 'one' }, { name: 'two' }]);
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/api/list/',
+          method: 'POST',
+          data: [{ name: 'one' }, { name: 'two' }],
+        }),
+      );
+      expect(data).toEqual(created);
+    });
+
+    it('should reject if not given an array', async function () {
+      await expect(resource.bulkCreate({ name: 'one' })).rejects.toThrow(TypeError);
+    });
+  });
+
+  describe('bulkDelete method', function () {
+    it('should DELETE with the given query params', async function () {
+      await resource.bulkDelete({ collection: 'abc' });
+      expect(client).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: '/api/list/',
+          method: 'DELETE',
+          params: { collection: 'abc' },
+        }),
+      );
+    });
+
+    it('should reject if no params are specified, to prevent an unfiltered delete', async function () {
+      await expect(resource.bulkDelete()).rejects.toThrow(TypeError);
+      await expect(resource.bulkDelete({})).rejects.toThrow(TypeError);
+    });
+  });
+});
+
+describe('Resource.useRetrieve', () => {
+  let resource;
+
+  beforeEach(() => {
+    resource = new Resources.Resource({ name: 'test' });
+    resource.retrieve = jest.fn().mockResolvedValue({ id: 'abc', name: 'test' });
+  });
+
+  it('should not fetch until fetchData is called', () => {
+    const { data, loading } = resource.useRetrieve('abc');
+
+    expect(resource.retrieve).not.toHaveBeenCalled();
+    expect(data.value).toBe(null);
+    expect(loading.value).toBe(false);
+  });
+
+  it('should retrieve the object by id and expose it as data', async () => {
+    const { data, fetchData } = resource.useRetrieve('abc');
+
+    await fetchData();
+
+    expect(resource.retrieve).toHaveBeenCalledWith('abc', undefined);
+    expect(data.value).toEqual({ id: 'abc', name: 'test' });
+  });
+
+  it('should pass options through to retrieve', async () => {
+    const { fetchData } = resource.useRetrieve('abc', { params: { fields: 'name' } });
+
+    await fetchData();
+
+    expect(resource.retrieve).toHaveBeenCalledWith('abc', { params: { fields: 'name' } });
+  });
+
+  it('should read the current value of a ref id at fetch time', async () => {
+    const id = ref('abc');
+    const { fetchData } = resource.useRetrieve(id);
+
+    await fetchData();
+    expect(resource.retrieve).toHaveBeenLastCalledWith('abc', undefined);
+
+    id.value = 'def';
+    await fetchData();
+    expect(resource.retrieve).toHaveBeenLastCalledWith('def', undefined);
+  });
+
+  it('should read the current value of a getter id at fetch time', async () => {
+    let id = 'abc';
+    const { fetchData } = resource.useRetrieve(() => id);
+
+    await fetchData();
+    expect(resource.retrieve).toHaveBeenLastCalledWith('abc', undefined);
+
+    id = 'def';
+    await fetchData();
+    expect(resource.retrieve).toHaveBeenLastCalledWith('def', undefined);
+  });
+
+  it('should expose a failure as error', async () => {
+    const failure = new Error('nope');
+    resource.retrieve.mockRejectedValue(failure);
+    const { data, error, fetchData } = resource.useRetrieve('abc');
+
+    await fetchData();
+
+    expect(error.value).toBe(failure);
+    expect(data.value).toBe(null);
+  });
+});
+
+describe('Resource.useList', () => {
+  let resource;
+
+  beforeEach(() => {
+    resource = new Resources.Resource({ name: 'test' });
+    resource.list = jest.fn().mockResolvedValue([{ id: 'one' }, { id: 'two' }]);
+  });
+
+  it('should not fetch until fetchData is called', () => {
+    const { data, loading } = resource.useList();
+
+    expect(resource.list).not.toHaveBeenCalled();
+    expect(data.value).toBe(null);
+    expect(loading.value).toBe(false);
+  });
+
+  it('should expose an unpaginated array response as data', async () => {
+    const { data, hasMore, fetchData } = resource.useList();
+
+    await fetchData();
+
+    expect(resource.list).toHaveBeenCalledWith(undefined);
+    expect(data.value).toEqual([{ id: 'one' }, { id: 'two' }]);
+    expect(hasMore.value).toBe(false);
+  });
+
+  it('should pass params through to list', async () => {
+    const params = { member_of: 'facility' };
+    const { fetchData } = resource.useList(params);
+
+    await fetchData();
+
+    expect(resource.list).toHaveBeenCalledWith(params);
+  });
+
+  it('should read the current value of ref params at fetch time', async () => {
+    const params = ref({ member_of: 'one' });
+    const { fetchData } = resource.useList(params);
+
+    await fetchData();
+    expect(resource.list).toHaveBeenLastCalledWith({ member_of: 'one' });
+
+    params.value = { member_of: 'two' };
+    await fetchData();
+    expect(resource.list).toHaveBeenLastCalledWith({ member_of: 'two' });
+  });
+
+  describe('pagination', () => {
+    beforeEach(() => {
+      resource.list = jest.fn().mockResolvedValue({
+        results: [{ id: 'one' }],
+        more: { limit: 1, offset: 1 },
+        count: 2,
+      });
+    });
+
+    it('should expose the results, count and hasMore of a paginated response', async () => {
+      const { data, count, hasMore, fetchData } = resource.useList();
+
+      await fetchData();
+
+      expect(data.value).toEqual([{ id: 'one' }]);
+      expect(count.value).toBe(2);
+      expect(hasMore.value).toBe(true);
+    });
+
+    it('should fetch the next page using the servers more params and append the results', async () => {
+      const { data, hasMore, fetchData, fetchMore } = resource.useList({ limit: 1 });
+
+      await fetchData();
+
+      resource.list.mockResolvedValue({ results: [{ id: 'two' }], more: null, count: 2 });
+      await fetchMore();
+
+      expect(resource.list).toHaveBeenLastCalledWith({ limit: 1, offset: 1 });
+      expect(data.value).toEqual([{ id: 'one' }, { id: 'two' }]);
+      expect(hasMore.value).toBe(false);
+    });
+
+    it('should not fetch more when there is no more data', async () => {
+      resource.list.mockResolvedValue({ results: [{ id: 'one' }], more: null, count: 1 });
+      const { hasMore, fetchData, fetchMore } = resource.useList();
+
+      await fetchData();
+      resource.list.mockClear();
+      await fetchMore();
+
+      expect(hasMore.value).toBe(false);
+      expect(resource.list).not.toHaveBeenCalled();
     });
   });
 });

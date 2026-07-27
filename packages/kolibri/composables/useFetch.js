@@ -53,7 +53,10 @@ export default function useFetch(options) {
   const hasMore = computed(() => moreParams.value != null);
 
   const _setData = (response, loadingMore) => {
-    const responseData = fetchMoreMethod ? response.results : response;
+    // A list endpoint returns a plain array when it is not paginated, and a
+    // `{ results, more, count }` object when it is. Handle both, so that a fetchMoreMethod
+    // can be supplied without knowing up front which shape will come back.
+    const responseData = fetchMoreMethod && !Array.isArray(response) ? response.results : response;
 
     /**
      * For now, loading more just  works if the data is an array.
