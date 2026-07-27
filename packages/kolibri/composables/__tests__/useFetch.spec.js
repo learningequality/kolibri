@@ -1,5 +1,5 @@
 import Vue, { nextTick } from 'vue';
-import useFetch from 'kolibri-common/composables/useFetch.js';
+import useFetch from 'kolibri/composables/useFetch';
 
 const _eventDispatcher = new Vue();
 let _fetchCount = 0;

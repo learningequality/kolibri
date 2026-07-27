@@ -40,6 +40,7 @@
     "./components/pages/NotificationsRoot": "./components/pages/NotificationsRoot",
     "./components/pages/ScrollingHeader": "./components/pages/ScrollingHeader",
     "./composables/useContentViewer": "./composables/useContentViewer",
+    "./composables/useFetch": "./composables/useFetch",
     "./composables/useMinimumKolibriVersion": "./composables/useMinimumKolibriVersion",
     "./composables/useNav": "./composables/useNav",
     "./composables/useNow": "./composables/useNow",
