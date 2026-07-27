@@ -34,6 +34,7 @@ from kolibri.core.device import soud
 from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.discovery.models import NetworkLocation
+from kolibri.core.discovery.tasks import generate_job_id
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkClientError
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
@@ -255,6 +256,36 @@ class SyncJobValidator(JobValidator):
     command = serializers.ChoiceField(choices=["sync", "resumesync"], default="sync")
     sync_session_id = HexOnlyUUIDField(format="hex", required=False, allow_null=True)
 
+    def run_validation(self, data):
+        job_data = super().run_validation(data)
+        self._bring_scheduled_sync_forward(job_data)
+        return job_data
+
+    def _bring_scheduled_sync_forward(self, job_data):
+        """
+        Bring an already-scheduled recurring sync forward to run now, preserving
+        its recurrence, instead of replacing it with a one-off (issue #14988).
+        Kept here rather than in the generic ``Storage.schedule`` so only syncs
+        get this behaviour; a running job is left untouched to dedup onto.
+        """
+        job_id = job_data.get("job_id")
+        # Respect an explicit enqueue_args (e.g. a scheduling request) as given.
+        if not job_id or job_data.get("enqueue_args"):
+            return
+        try:
+            orm_job = job_storage.get_orm_job(job_id)
+        except JobNotFound:
+            return
+        if orm_job.state == State.RUNNING:
+            return
+        if orm_job.repeat != 0:  # recurring: None (forever) or a positive count
+            job_data["enqueue_args"] = {
+                "enqueue_at": timezone.now(),
+                "repeat": orm_job.repeat,
+                "repeat_interval": orm_job.interval,
+                "retry_interval": orm_job.retry_interval,
+            }
+
     def validate(self, data):
         if not data.get("sync_session_id") and data["command"] == "resumesync":
             raise serializers.ValidationError(
@@ -291,11 +322,30 @@ class SyncJobValidator(JobValidator):
         }
 
 
+def kdp_sync_job_id(facility_id):
+    return generate_job_id("kdp_sync", facility_id)
+
+
+def peer_sync_job_id(facility_id, device_id):
+    return generate_job_id("peer_sync", facility_id, device_id)
+
+
+class DataPortalSyncJobValidator(SyncJobValidator):
+    def validate(self, data):
+        job_data = super().validate(data)
+        # A normal push sync shares one deterministic id with the scheduled
+        # recurring sync so the two dedup (issue #14988). resumesync targets a
+        # specific session and must keep its own id.
+        if data["command"] == "sync":
+            job_data["job_id"] = kdp_sync_job_id(job_data["facility_id"])
+        return job_data
+
+
 facility_task_queue = "facility_task"
 
 
 @register_task(
-    validator=SyncJobValidator,
+    validator=DataPortalSyncJobValidator,
     permission_classes=[IsAdminForJob],
     track_progress=True,
     cancellable=False,
@@ -322,7 +372,7 @@ def enqueue_automatic_kdp_sync(facility):
     Uses a deterministic job ID to prevent duplicate schedules.
     Retries hourly on failure (e.g. when KDP is unreachable).
     """
-    validator = SyncJobValidator(
+    validator = DataPortalSyncJobValidator(
         data={
             "type": "kolibri.core.auth.tasks.dataportalsync",
             "facility": facility.id,
@@ -330,6 +380,7 @@ def enqueue_automatic_kdp_sync(facility):
     )
     validator.is_valid(raise_exception=True)
     job_data = validator.validated_data
+    # Discard any bring-forward reschedule; we set our own recurrence below.
     job_data.pop("enqueue_args", None)
     try:
         # Use enqueue_in (not enqueue) because only enqueue_in supports
@@ -339,7 +390,6 @@ def enqueue_automatic_kdp_sync(facility):
             interval=KDP_SYNC_INTERVAL,
             repeat=None,
             retry_interval=KDP_SYNC_RETRY_INTERVAL,
-            job_id="kdp_sync_{}".format(facility.id),
             **job_data,
         )
     except JobRunning:
@@ -406,6 +456,13 @@ class PeerFacilitySyncJobValidator(PeerSyncJobValidator):
             data.get("username"),
             data.get("password"),
         )
+        # A normal sync shares one deterministic id with any scheduled recurring
+        # sync to the same peer so the two dedup (issue #14988). This only applies
+        # when a concrete peer device is known; a baseurl-only schedule keeps its
+        # own random id.
+        device_id = job_data["extra_metadata"].get("device_id")
+        if data["command"] == "sync" and device_id:
+            job_data["job_id"] = peer_sync_job_id(job_data["facility_id"], device_id)
         return job_data
 
 
@@ -439,6 +496,9 @@ class PeerFacilityImportJobValidator(PeerFacilitySyncJobValidator):
                 no_provision=True,
             )
         )
+        # A facility import is a one-off pull; it must not collapse onto a
+        # scheduled peer sync, so drop any inherited deterministic id.
+        job_data.pop("job_id", None)
         return job_data
 
 
