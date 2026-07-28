@@ -1,5 +1,7 @@
+import base64
 import ctypes
 import ctypes.util
+import json
 import os
 import subprocess
 import webbrowser
@@ -25,9 +27,37 @@ if WINDOWS:
 
 LOADER_PAGE = "loading.html"
 
-# JS->Python bridge for hijacking window.print() on Windows; see __init__.
+# JS->Python bridge for the capabilities the hosted webview doesn't provide
+# itself; see _setup_bridge. Messages are JSON objects keyed on "type".
 BRIDGE_NAME = "kolibriBridge"
 BRIDGE_MSG_PRINT = "print"
+BRIDGE_MSG_DOWNLOAD = "download"
+
+
+def _bridge_script(source, message_type):
+    # Plain replace: % and str.format both collide with JS braces.
+    return source.replace("__BRIDGE__", BRIDGE_NAME).replace("__TYPE__", message_type)
+
+
+# JS-initiated window.print() is a no-op in WebView2 hosted via wxPython's html2
+# backend; intercept it and route to ICoreWebView2_16::ShowPrintUI via
+# webview2_native.
+PRINT_SCRIPT = _bridge_script(
+    """
+window.print = function () {
+  window.__BRIDGE__.postMessage(JSON.stringify({ type: '__TYPE__' }));
+};
+""",
+    BRIDGE_MSG_PRINT,
+)
+
+# The WebKit backends ignore an anchor's `download` attribute: the click navigates
+# the webview to the file, or is dropped entirely for data: URLs. scripts/download.js
+# fetches in the page — where the session cookie lives — and hands the bytes to Python.
+DOWNLOAD_SCRIPT = _bridge_script(
+    (files("kolibri_app") / "scripts" / "download.js").read_text(encoding="utf-8"),
+    BRIDGE_MSG_DOWNLOAD,
+)
 
 ZOOM_LEVELS = [
     html2.WEBVIEW_ZOOM_TINY,
@@ -58,6 +88,21 @@ def get_loader_html():
         loader_page = asset_files / "en" / LOADER_PAGE
     with loader_page.open("r", encoding="utf-8") as f:
         return f.read()
+
+
+def _download_filename(filename):
+    """
+    Reduce a page-supplied download name to a bare filename: it must not be able to
+    steer the write out of the directory the user picks.
+    """
+    name = os.path.basename((filename or "").replace("\\", "/").strip())
+    return "download" if name in ("", ".", "..") else name
+
+
+def _default_download_dir():
+    # wx resolves this per-platform (XDG user-dirs, the Windows known folder), so a
+    # localized install doesn't fall back to $HOME for want of a literal "Downloads".
+    return wx.StandardPaths.Get().GetUserDir(wx.StandardPaths.Dir_Downloads)
 
 
 def _open_in_file_manager(path):
@@ -152,7 +197,7 @@ class KolibriView(object):
 
         self._print_pending = False
 
-        self._setup_printing()
+        self._setup_bridge()
 
         if url is None:
             # If no URL is provided, show the loading screen directly.
@@ -261,23 +306,20 @@ class KolibriView(object):
 
         self.view.SetMenuBar(menu_bar)
 
-    def _setup_printing(self):
-        if WINDOWS:
-            # JS-initiated window.print() is a no-op in WebView2 hosted via
-            # wxPython's html2 backend; intercept and route to
-            # ICoreWebView2_16::ShowPrintUI via webview2_native. Other backends
-            # surface window.print() to a real dialog without help.
-            if self.webview.AddScriptMessageHandler(BRIDGE_NAME):
-                self.webview.AddUserScript(
-                    f"window.print = function () {{ window.{BRIDGE_NAME}.postMessage('{BRIDGE_MSG_PRINT}');}};",
-                    injectionTime=html2.WEBVIEW_INJECT_AT_DOCUMENT_START,
-                )
-                self.webview.Bind(
-                    html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED,
-                    self.OnScriptMessage,
-                )
-            else:
-                logging.warning(f"Failed to register {BRIDGE_NAME} script handler")
+    def _setup_bridge(self):
+        if not self.webview.AddScriptMessageHandler(BRIDGE_NAME):
+            logging.warning(f"Failed to register {BRIDGE_NAME} script handler")
+            return
+        self.webview.Bind(
+            html2.EVT_WEBVIEW_SCRIPT_MESSAGE_RECEIVED,
+            self.OnScriptMessage,
+        )
+        # Each backend is missing exactly one of the two: WebView2 has downloads
+        # but not window.print(), the WebKit backends the other way around.
+        self.webview.AddUserScript(
+            PRINT_SCRIPT if WINDOWS else DOWNLOAD_SCRIPT,
+            injectionTime=html2.WEBVIEW_INJECT_AT_DOCUMENT_START,
+        )
 
     def add_menu_item(self, menu, title, handler=None, item_id=None):
         item_id = item_id or wx.NewId()
@@ -326,8 +368,14 @@ class KolibriView(object):
             event.Veto()
 
     def OnScriptMessage(self, event):
-        message = event.GetString()
-        if message == BRIDGE_MSG_PRINT:
+        raw = event.GetString()
+        try:
+            message = json.loads(raw)
+            message_type = message["type"]
+        except (ValueError, TypeError, KeyError):
+            logging.warning(f"Unparseable {BRIDGE_NAME} message: {raw!r}")
+            return
+        if message_type == BRIDGE_MSG_PRINT:
             # Defer so we leave the WebView2 message callback before re-entering
             # the COM object. Coalesce rapid-fire calls (e.g. JS in a loop) so
             # we only enqueue one dialog.
@@ -335,8 +383,34 @@ class KolibriView(object):
                 return
             self._print_pending = True
             wx.CallAfter(self.show_print_dialog)
+        elif message_type == BRIDGE_MSG_DOWNLOAD:
+            wx.CallAfter(
+                self.save_download, message.get("filename"), message.get("data")
+            )
         else:
-            logging.warning(f"Unhandled {BRIDGE_NAME} message: {message!r}")
+            logging.warning(f"Unhandled {BRIDGE_NAME} message: {message_type!r}")
+
+    def save_download(self, filename, data):
+        try:
+            content = base64.b64decode(data or "", validate=True)
+        except (TypeError, ValueError):
+            logging.warning(f"Discarding undecodable download: {filename!r}")
+            return
+        with wx.FileDialog(
+            self.view,
+            _("Save file"),
+            defaultDir=_default_download_dir(),
+            defaultFile=_download_filename(filename),
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+        ) as dialog:
+            if dialog.ShowModal() == wx.ID_CANCEL:
+                return
+            path = dialog.GetPath()
+        try:
+            with open(path, "wb") as f:
+                f.write(content)
+        except OSError as e:
+            logging.warning(f"Failed to save download to {path}: {e}")
 
     def show_print_dialog(self):
         self._print_pending = False
