@@ -17,6 +17,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.Toast;
 import androidx.annotation.Keep;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
@@ -247,7 +248,20 @@ public class KolibriJavascriptBridge implements Notifier {
     return FileProvider.getUriForFile(activity, activity.getPackageName() + ".fileprovider", file);
   }
 
+  /** The download finishes out of sight of the page, and its notification is easy to miss. */
+  void announceDownloadStarted(String filename) {
+    toast(R.string.toast_download_started, filename);
+  }
+
+  private void toast(int messageResId, String filename) {
+    activity.runOnUiThread(
+        () ->
+            Toast.makeText(activity, activity.getString(messageResId, filename), Toast.LENGTH_SHORT)
+                .show());
+  }
+
   private void notifyDownloadComplete(String filename, Uri contentUri, String mimeType) {
+    toast(R.string.toast_download_complete, filename);
     Intent viewIntent = new Intent(Intent.ACTION_VIEW);
     viewIntent.setDataAndType(contentUri, mimeType);
     viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -268,6 +282,7 @@ public class KolibriJavascriptBridge implements Notifier {
   }
 
   private void notifyDownloadFailed(String filename) {
+    toast(R.string.toast_download_failed, filename);
     notifyDownload(activity.getString(R.string.notification_download_failed_title), filename, null);
   }
 

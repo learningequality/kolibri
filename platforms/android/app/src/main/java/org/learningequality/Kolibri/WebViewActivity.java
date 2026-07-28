@@ -277,13 +277,15 @@ public class WebViewActivity extends AppCompatActivity {
       long contentLength) {
     Uri uri = Uri.parse(url);
     String scheme = uri.getScheme();
-    String filename = resolveFilename(url, contentDisposition, mimetype);
-    if ("blob".equals(scheme) || "data".equals(scheme)) {
-      saveBlobDownload(url, filename, mimetype);
+    boolean inPage = "blob".equals(scheme) || "data".equals(scheme);
+    if (!inPage && !"http".equals(scheme) && !"https".equals(scheme)) {
+      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
       return;
     }
-    if (!"http".equals(scheme) && !"https".equals(scheme)) {
-      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
+    String filename = resolveFilename(url, contentDisposition, mimetype);
+    bridge.announceDownloadStarted(filename);
+    if (inPage) {
+      saveBlobDownload(url, filename, mimetype);
       return;
     }
     String cookie = CookieManager.getInstance().getCookie(url);
