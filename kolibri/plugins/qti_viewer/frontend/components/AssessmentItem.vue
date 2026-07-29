@@ -26,12 +26,11 @@
   import cloneDeep from 'lodash/cloneDeep';
   import { createSafeHTML } from 'kolibri-common/components/SafeHTML';
   import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
-  import { useQTIContext } from '../composables/useQTIContext';
-  import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
-  import AnswerGuide from './AnswerGuide.vue';
   import useKeypad from 'kolibri-common/composables/useKeypad';
   import NumericKeypad from 'kolibri-common/components/NumericKeypad';
   import { useQTIContext } from '../composables/useQTIContext';
+  import { getItemBodyGuides, numberPassageGaps } from '../utils/itemBodyGuidance';
+  import AnswerGuide from './AnswerGuide.vue';
   import ChoiceInteraction from './interactions/ChoiceInteraction.vue';
   import Prompt from './Prompt.vue';
   import SimpleChoice from './interactions/SimpleChoice.vue';
