@@ -35,11 +35,13 @@
     <p>
       <label for="csv-file">
         {{ $tr('proceed') }}
+        <!-- Both forms: providers that report a file's type rather than deriving it
+             from its name only match the MIME type. -->
         <input
           id="csv-file"
           ref="fileInput"
           type="file"
-          accept=".csv"
+          accept="text/csv,.csv"
           name="csv-file"
           @change="filesChanged"
         >

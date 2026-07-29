@@ -28,7 +28,7 @@
       </KTooltip>
 
       <KIconButton
-        v-if="!exportDisabled"
+        v-if="!disableExport"
         ref="exportButton"
         icon="download"
         :aria-label="coachString('exportCSVAction')"
@@ -50,7 +50,6 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import useUser from 'kolibri/composables/useUser';
   import { mapState } from 'vuex';
   import commonCoach from '../common';
   import { fetchClassSyncStatus } from '../../composables/fetchClassSyncStatus';
@@ -61,12 +60,6 @@
   export default {
     name: 'ReportsControls',
     mixins: [commonCoach],
-    setup() {
-      const { isAppContext } = useUser();
-      return {
-        isAppContext,
-      };
-    },
     props: {
       disableExport: {
         type: Boolean,
@@ -84,10 +77,6 @@
     },
     computed: {
       ...mapState('classSummary', ['learnerMap']),
-      exportDisabled() {
-        // Always disable in app mode until we add the ability to download files.
-        return this.isAppContext || this.disableExport;
-      },
       filteredLearnMap() {
         return Object.fromEntries(
           Object.entries(this.learnerMap || {}).filter(([key]) => this.userList.includes(key)),

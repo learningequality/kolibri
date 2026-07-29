@@ -53,12 +53,12 @@
 
 <script>
 
-  import urls from 'kolibri/urls';
   import { mapState, mapActions, mapGetters } from 'vuex';
   import useFacility from 'kolibri-common/composables/useFacility';
   import { UsersExportStatuses } from '../../../constants';
   import DataPageTaskProgress from '../DataPageTaskProgress';
   import CsvInfoModal from '../../CsvInfoModal';
+  import downloadCsvFile from '../downloadCsvFile';
 
   export default {
     name: 'ImportInterface',
@@ -88,10 +88,7 @@
         this.startExportUsers();
       },
       downloadCsv() {
-        window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file']('user', this.facilityId),
-          '_blank',
-        );
+        downloadCsvFile('user', this.facilityId);
       },
     },
     $trs: {

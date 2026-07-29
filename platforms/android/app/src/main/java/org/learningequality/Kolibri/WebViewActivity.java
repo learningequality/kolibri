@@ -33,10 +33,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.chaquo.python.Python;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
+import org.learningequality.Kolibri.util.FileChooserUtils;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -212,12 +212,7 @@ public class WebViewActivity extends AppCompatActivity {
               pendingFilePickerCallback.onReceiveValue(null);
             }
             pendingFilePickerCallback = callback;
-            String[] accepted = params.getAcceptTypes();
-            String[] mimeTypes =
-                Arrays.stream(accepted != null ? accepted : new String[0])
-                    .filter(t -> t != null && !t.isEmpty())
-                    .toArray(String[]::new);
-            filePickerLauncher.launch(mimeTypes.length == 0 ? new String[] {"*/*"} : mimeTypes);
+            filePickerLauncher.launch(FileChooserUtils.toPickerMimeTypes(params.getAcceptTypes()));
             return true;
           }
         });
@@ -282,13 +277,15 @@ public class WebViewActivity extends AppCompatActivity {
       long contentLength) {
     Uri uri = Uri.parse(url);
     String scheme = uri.getScheme();
-    String filename = resolveFilename(url, contentDisposition, mimetype);
-    if ("blob".equals(scheme) || "data".equals(scheme)) {
-      saveBlobDownload(url, filename, mimetype);
+    boolean inPage = "blob".equals(scheme) || "data".equals(scheme);
+    if (!inPage && !"http".equals(scheme) && !"https".equals(scheme)) {
+      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
       return;
     }
-    if (!"http".equals(scheme) && !"https".equals(scheme)) {
-      Log.w(TAG, "Unsupported download scheme, skipping: " + url);
+    String filename = resolveFilename(url, contentDisposition, mimetype);
+    bridge.announceDownloadStarted(filename);
+    if (inPage) {
+      saveBlobDownload(url, filename, mimetype);
       return;
     }
     String cookie = CookieManager.getInstance().getCookie(url);

@@ -14,15 +14,14 @@
       <!-- Screen-only header with Print button -->
       <KGrid v-show="!$isPrint">
         <KGridItem
-          :layout12="{ span: isAppContext ? 12 : 6, alignment: 'left' }"
-          :layout8="{ span: isAppContext ? 8 : 4, alignment: 'left' }"
-          :layout4="{ span: isAppContext ? 4 : 2, alignment: 'left' }"
+          :layout12="{ span: 6, alignment: 'left' }"
+          :layout8="{ span: 4, alignment: 'left' }"
+          :layout4="{ span: 2, alignment: 'left' }"
           class="header-row"
         >
           <h1 class="header-title">{{ allPasswordsHeader$() }}</h1>
         </KGridItem>
         <KGridItem
-          v-if="!isAppContext"
           :layout12="{ span: 6, alignment: 'right' }"
           :layout8="{ span: 4, alignment: 'right' }"
           :layout4="{ span: 2, alignment: 'right' }"
@@ -149,7 +148,6 @@
   import UserPicturePassword from 'kolibri-common/components/UserPicturePassword';
   import NoPasswordInfo from 'kolibri-common/components/NoPasswordInfo';
   import LearnerPasswordCard from 'kolibri-common/components/LearnerPasswordCard';
-  import useUser from 'kolibri/composables/useUser';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
@@ -162,7 +160,6 @@
       const showPrintDialog = ref(false);
       const printFormat = ref('images');
 
-      const { isAppContext } = useUser();
       const { windowBreakpoint } = useKResponsiveWindow();
 
       const {
@@ -240,7 +237,6 @@
       }
 
       return {
-        isAppContext,
         handleSortChange,
         showPrintDialog,
         printFormat,

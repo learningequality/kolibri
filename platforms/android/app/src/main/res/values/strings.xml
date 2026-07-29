@@ -11,5 +11,8 @@
     <string name="notification_task_text">Processing task in background…</string>
     <string name="notification_download_complete_title">Download complete</string>
     <string name="notification_download_failed_title">Download failed</string>
+    <string name="toast_download_started">Downloading %1$s…</string>
+    <string name="toast_download_complete">Saved %1$s to Downloads</string>
+    <string name="toast_download_failed">Could not download %1$s</string>
     <string name="os_user_name">Learner</string>
 </resources>

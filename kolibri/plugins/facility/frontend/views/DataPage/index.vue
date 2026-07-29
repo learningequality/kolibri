@@ -1,7 +1,7 @@
 <template>
 
   <FacilityAppBarPage :loading="pageLoading">
-    <KPageContainer v-if="canUploadDownloadFiles">
+    <KPageContainer>
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
@@ -130,7 +130,7 @@
       </KGrid>
     </KPageContainer>
 
-    <ImportInterface v-if="canUploadDownloadFiles" />
+    <ImportInterface />
     <SyncInterface />
 
     <LearnMoreModal
@@ -193,8 +193,6 @@
 <script>
 
   import { mapState, mapGetters, mapActions } from 'vuex';
-  import useUser from 'kolibri/composables/useUser';
-  import urls from 'kolibri/urls';
   import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -213,6 +211,7 @@
   import SyncInterface from './SyncInterface';
   import ImportInterface from './ImportInterface';
   import LearnMoreModal from './LearnMoreModal.vue';
+  import downloadCsvFile from './downloadCsvFile';
 
   export default {
     name: 'DataPage',
@@ -233,14 +232,12 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
-      const { isAppContext } = useUser();
       const { userIsMultiFacilityAdmin } = useFacilities();
       const { facilityId } = useFacility();
       return {
         pageLoading,
         windowIsMedium,
         windowIsSmall,
-        isAppContext,
         userIsMultiFacilityAdmin,
         facilityId,
       };
@@ -266,11 +263,6 @@
       ]),
       ...mapGetters(['facilityPageLinks']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
-      // NOTE: We disable CSV file upload/download on embedded web views like the Mac
-      // and Android apps
-      canUploadDownloadFiles() {
-        return !this.isAppContext;
-      },
       pollForTasks() {
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
@@ -358,16 +350,10 @@
         }
       },
       downloadSessionLog() {
-        window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file']('session', this.facilityId),
-          '_blank',
-        );
+        downloadCsvFile('session', this.facilityId);
       },
       downloadSummaryLog() {
-        window.open(
-          urls['kolibri:kolibri.plugins.facility:download_csv_file']('summary', this.facilityId),
-          '_blank',
-        );
+        downloadCsvFile('summary', this.facilityId);
       },
     },
     $trs: {

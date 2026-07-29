@@ -74,6 +74,8 @@ metadata.entry_points = monkey_patched_entry_points
 datas_list = [
     ('src/kolibri_app/assets', 'kolibri_app/assets'),
     ('src/kolibri_app/icons', 'kolibri_app/icons'),
+    # Scripts injected into the webview by view.py, read at import time.
+    ('src/kolibri_app/scripts', 'kolibri_app/scripts'),
 ] + locale_datas
 
 if sys.platform == "win32":

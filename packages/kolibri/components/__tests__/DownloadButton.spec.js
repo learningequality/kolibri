@@ -1,10 +1,8 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
-import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import kolibri from 'kolibri';
 import DownloadButton from '../DownloadButton';
 
-jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri');
 
 const getDownloadableFile = (isExercise = false) => {
@@ -25,25 +23,14 @@ const getDownloadableFile = (isExercise = false) => {
   };
 };
 
-// A helper function to render the component with the given props and some default mocks
-const renderComponent = props => {
-  const { useUserMock: useUserMockProps, ...componentProps } = props;
-
-  useUser.mockImplementation(() =>
-    useUserMock({
-      isAppContext: false,
-      ...useUserMockProps,
-    }),
-  );
-
-  return render(DownloadButton, {
+const renderComponent = props =>
+  render(DownloadButton, {
     props: {
       files: [],
       nodeTitle: '',
-      ...componentProps,
+      ...props,
     },
   });
-};
 
 const SAVE_BUTTON_TEXT = 'Save to device';
 
@@ -52,44 +39,25 @@ describe('DownloadButton', () => {
     Vue.options.components = {};
   });
 
-  it('does not render if isAppContext is true', () => {
-    renderComponent({
-      useUserMock: {
-        isAppContext: true,
-      },
-    });
-
-    expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
-  });
-
-  it('should not render if there are no downloadable files even if isAppContext is false', () => {
+  it('should not render if there are no downloadable files', () => {
     renderComponent({
       files: [],
-      useUserMock: {
-        isAppContext: false,
-      },
     });
 
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
-  it('should not render if isAppContext is false and there are only renderable exercise files', () => {
+  it('should not render if there are only renderable exercise files', () => {
     renderComponent({
       files: [getDownloadableFile(true)],
-      useUserMock: {
-        isAppContext: false,
-      },
     });
 
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
 
-  it('should render if isAppContext is false and there are renderable document files', async () => {
+  it('should render if there are renderable document files', () => {
     renderComponent({
       files: [getDownloadableFile()],
-      useUserMock: {
-        isAppContext: false,
-      },
     });
 
     expect(screen.getByText(SAVE_BUTTON_TEXT)).toBeInTheDocument();

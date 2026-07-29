@@ -21,20 +21,12 @@
 
 <script>
 
-  import useUser from 'kolibri/composables/useUser';
   import { validateObject } from 'kolibri/utils/objectSpecs';
   import { getRenderableFiles } from './internal/ContentViewer/utils';
   import { getFilePresetString } from './internal/filePresetStrings';
 
   export default {
     name: 'DownloadButton',
-    setup() {
-      const { isAppContext } = useUser();
-
-      return {
-        isAppContext,
-      };
-    },
     props: {
       files: {
         type: Array,
@@ -71,7 +63,7 @@
         return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
       },
       canDownload() {
-        return !this.isAppContext && this.downloadableFiles.length;
+        return this.downloadableFiles.length > 0;
       },
       fileOptions() {
         const options = this.files.map(file => {
