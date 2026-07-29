@@ -37,10 +37,11 @@
       <!--      creating the table-->
       <CoreTable>
         <template #tbody>
-          <tbody v-if="scheduledTasks.length > 0">
+          <tbody>
             <tr>
               <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
+              <th>{{ $tr('lastSyncLabel') }}</th>
               <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
@@ -57,6 +58,9 @@
                 <div>
                   {{ scheduleTime(task.repeat_interval, task.scheduled_datetime) }}
                 </div>
+              </td>
+              <td>
+                <KOptionalText :text="task.lastRunMsg" />
               </td>
 
               <td>
@@ -79,18 +83,9 @@
                 </KButton>
               </td>
             </tr>
-          </tbody>
-
-          <tbody v-else>
-            <tr>
-              <th>{{ coreString('deviceNameLabel') }}</th>
-              <th>{{ $tr('Schedule') }}</th>
-              <th>{{ coreString('statusLabel') }}</th>
-              <th></th>
-            </tr>
-            <tr>
+            <tr v-if="scheduledTasks.length === 0">
               <td
-                colspan="3"
+                colspan="5"
                 style="text-align: center"
               >
                 <b>{{ $tr('NoSync') }}</b>
@@ -125,7 +120,7 @@
     useDeviceFacilityFilter,
     useDevicesWithFilter,
   } from 'kolibri-common/components/syncComponentSet/SelectDeviceModalGroup/useDevices';
-  import { TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { getLastRunStatusMsg, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import useTaskPolling from '../../composables/useTaskPolling';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
   import { kdpNameTranslator } from './i18n';
@@ -212,6 +207,7 @@
             deviceName,
             deviceAvailable,
             isKDP,
+            lastRunMsg: getLastRunStatusMsg(task),
           };
         });
       },
@@ -277,6 +273,11 @@
     },
 
     $trs: {
+      lastSyncLabel: {
+        message: 'Last sync',
+        context:
+          'Column heading for when a scheduled sync last ran, e.g. "Finished 2 minutes ago".',
+      },
       syncSchedules: {
         message: 'Sync schedules',
         context: "Heading or title for 'manage sync schedule' page.",
