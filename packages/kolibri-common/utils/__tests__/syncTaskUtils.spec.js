@@ -3,10 +3,14 @@ import {
   syncStatusToDescriptionMap,
   removeStatusToDescriptionMap,
   removeFacilityTaskDisplayInfo,
+  getLastRunStatusMsg,
+  taskDisplayStatus,
+  taskIsFinished,
   SyncTaskStatuses,
   TaskStatuses,
   TaskTypes,
 } from '../syncTaskUtils';
+import { syncSchedule } from './syncSchedule';
 
 const CLEARABLE_STATUSES = ['COMPLETED', 'CANCELED', 'FAILED'];
 
@@ -97,6 +101,16 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
     });
   });
 
+  it('statusMsg is correct when a canceled task still carries its terminal sync_state', () => {
+    // A cancelled sync writes sync_state=CANCELLED before the job is marked
+    // CANCELED, so both are present on the row the user sees.
+    const task = makeTask('CANCELED');
+    task.extra_metadata.sync_state = SyncTaskStatuses.CANCELLED;
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: 'Canceled',
+    });
+  });
+
   const orderedStatusesMsgTests = [
     ['SESSION_CREATION', '1 of 7: Establishing connection'],
     ['REMOTE_QUEUING', '2 of 7: Remotely preparing data'],
@@ -157,6 +171,140 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       });
     },
   );
+});
+
+describe('syncTaskUtils re-scheduled recurring rows', () => {
+  const completedTask = () =>
+    syncSchedule({
+      lastFinishedStatus: TaskStatuses.COMPLETED,
+      minutesAgo: 2,
+    });
+
+  // A run that fails leaves sync_state on whichever step it got to, since
+  // nothing writes a terminal state on the failure path.
+  const failedTask = () =>
+    syncSchedule({
+      lastFinishedStatus: TaskStatuses.FAILED,
+      minutesAgo: 5,
+      hoursUntilNext: 1,
+      syncState: SyncTaskStatuses.PUSHING,
+      retryInterval: 3600,
+    });
+
+  const runningAgainTask = () =>
+    syncSchedule({
+      status: TaskStatuses.RUNNING,
+      lastFinishedStatus: TaskStatuses.COMPLETED,
+      syncState: SyncTaskStatuses.PUSHING,
+    });
+
+  const neverRunTask = () => syncSchedule({ syncState: SyncTaskStatuses.PENDING });
+
+  it('shows the finished run and when the next one is due', () => {
+    expect(syncFacilityTaskDisplayInfo(completedTask())).toMatchObject({
+      statusMsg: 'Finished 2 minutes ago, next sync in 1 day',
+      bytesTransferredMsg: '1 MB sent • 500 MB received',
+      deviceNameMsg: 'Kolibri Data Portal',
+      isRunning: false,
+      canClear: false,
+      canCancel: false,
+    });
+  });
+
+  it('shows a failed run and when it will be retried', () => {
+    expect(syncFacilityTaskDisplayInfo(failedTask())).toMatchObject({
+      statusMsg: 'Failed 5 minutes ago, retrying in 1 hour',
+      bytesTransferredMsg: '',
+      canClear: false,
+      canCancel: false,
+      canRetry: false,
+    });
+  });
+
+  it('calls the next run a sync, not a retry, when the schedule has no retry interval', () => {
+    // A schedule created with the retry checkbox off re-schedules a failed run
+    // onto its ordinary interval, so there is no retry to announce.
+    const task = failedTask();
+    task.retry_interval = null;
+    task.scheduled_datetime = new Date(Date.now() + 24 * 3600000).toISOString();
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: 'Failed 5 minutes ago, next sync in 1 day',
+    });
+  });
+
+  it.each([
+    [TaskStatuses.RUNNING, true],
+    [TaskStatuses.CANCELING, false],
+  ])('shows the live run, not the snapshot, when %s', (status, isRunning) => {
+    const task = { ...runningAgainTask(), status };
+    expect(taskDisplayStatus(task)).toEqual(status);
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: '6 of 7: Sending data',
+      bytesTransferredMsg: '',
+      isRunning,
+    });
+  });
+
+  it('treats a carried-over terminal sync_state as not-yet-started', () => {
+    const task = runningAgainTask();
+    task.extra_metadata.sync_state = SyncTaskStatuses.COMPLETED;
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: 'Waiting',
+      bytesTransferredMsg: '',
+    });
+  });
+
+  it('shows the run that just ended, not the snapshot, before the re-schedule lands', () => {
+    // Between a run finishing and the re-schedule that requeues the row, the
+    // row's own state describes the newer run and the snapshot the one before.
+    const task = syncSchedule({
+      status: TaskStatuses.COMPLETED,
+      lastFinishedStatus: TaskStatuses.FAILED,
+      minutesAgo: 60,
+    });
+    expect(taskDisplayStatus(task)).toEqual(TaskStatuses.COMPLETED);
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: 'Finished',
+      bytesTransferredMsg: '1 MB sent • 500 MB received',
+    });
+  });
+
+  it('announces the run a manual sync asked for, not the one before it', () => {
+    // Pressing Sync re-queues the schedule to run now, so its scheduled time is
+    // already past while it waits for the runner to pick it up.
+    const task = syncSchedule({
+      lastFinishedStatus: TaskStatuses.COMPLETED,
+      minutesAgo: 4,
+      hoursUntilNext: -1 / 60,
+    });
+    expect(taskDisplayStatus(task)).toEqual(TaskStatuses.QUEUED);
+    expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
+      statusMsg: 'Waiting',
+      bytesTransferredMsg: '',
+      isRunning: false,
+      canClear: false,
+      canCancel: false,
+      canRetry: false,
+    });
+  });
+
+  it('taskDisplayStatus is the last run only when the row is not running', () => {
+    expect(taskDisplayStatus(completedTask())).toEqual(TaskStatuses.COMPLETED);
+    expect(taskDisplayStatus(runningAgainTask())).toEqual(TaskStatuses.RUNNING);
+    expect(taskDisplayStatus(neverRunTask())).toEqual(TaskStatuses.QUEUED);
+  });
+
+  it('taskIsFinished follows the displayed status', () => {
+    expect(taskIsFinished(completedTask())).toBe(true);
+    expect(taskIsFinished(failedTask())).toBe(true);
+    expect(taskIsFinished(runningAgainTask())).toBe(false);
+    expect(taskIsFinished(neverRunTask())).toBe(false);
+  });
+
+  it('getLastRunStatusMsg describes the last run, and is null when there has been none', () => {
+    expect(getLastRunStatusMsg(completedTask())).toEqual('Finished 2 minutes ago');
+    expect(getLastRunStatusMsg(neverRunTask())).toBeNull();
+  });
 });
 
 describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {

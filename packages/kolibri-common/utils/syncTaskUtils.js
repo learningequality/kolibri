@@ -1,6 +1,8 @@
 import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
-import { getTaskString } from 'kolibri-common/uiText/tasks';
+import { getRelativeTaskTime, getTaskString } from 'kolibri-common/uiText/tasks';
 import bytesForHumans from 'kolibri/uiText/bytesForHumans';
+import { formatList } from 'kolibri/utils/i18n';
+import { now } from 'kolibri/utils/serverClock';
 
 export const TaskTypes = {
   REMOTECHANNELIMPORT: 'kolibri.core.content.tasks.remotechannelimport',
@@ -103,12 +105,81 @@ function formatNameWithId(name, id) {
 const PUSHPULLSTEPS = 7;
 const PULLSTEPS = 4;
 
+const FINISHED_STATUSES = [TaskStatuses.COMPLETED, TaskStatuses.FAILED, TaskStatuses.CANCELED];
+
+// Note the double-L: SyncTaskStatuses spells this differently to TaskStatuses.
+const FINISHED_SYNC_STATES = [
+  SyncTaskStatuses.COMPLETED,
+  SyncTaskStatuses.FAILED,
+  SyncTaskStatuses.CANCELLED,
+];
+
+const LIVE_STATUSES = [TaskStatuses.RUNNING, TaskStatuses.CANCELING];
+
+function describesOwnRun(task) {
+  // Pressing Sync brings a schedule forward to run now rather than making a
+  // second row, so a queued row whose time has passed is waiting to run.
+  return (
+    LIVE_STATUSES.includes(task.status) ||
+    FINISHED_STATUSES.includes(task.status) ||
+    new Date(task.scheduled_datetime) <= now()
+  );
+}
+
+// A re-queued row's own status describes the next run, not the one the user
+// watched.
+function showsLastRun(task) {
+  return Boolean(task.last_finished_datetime) && !describesOwnRun(task);
+}
+
+export function taskDisplayStatus(task) {
+  return showsLastRun(task) ? task.last_finished_status : task.status;
+}
+
+export function taskIsFinished(task) {
+  return FINISHED_STATUSES.includes(taskDisplayStatus(task));
+}
+
+// A repeating row never settles in a finished state of its own, so a moved
+// snapshot is the only mark that the run being watched has ended.
+export function runEndedSince(task, lastFinishedDatetime) {
+  return task.last_finished_datetime !== lastFinishedDatetime;
+}
+
+const relativeStatusToStringMap = {
+  [TaskStatuses.COMPLETED]: 'taskFinishedRelativeStatus',
+  [TaskStatuses.FAILED]: 'taskFailedRelativeStatus',
+  [TaskStatuses.CANCELED]: 'taskCanceledRelativeStatus',
+};
+
+export function getLastRunStatusMsg(task) {
+  const stringId = relativeStatusToStringMap[task.last_finished_status];
+  if (!task.last_finished_datetime || !stringId) {
+    return null;
+  }
+  return getTaskString(stringId, {
+    relativeTime: getRelativeTaskTime(task.last_finished_datetime),
+  });
+}
+
+function nextRunMsg(task) {
+  const relativeTime = getRelativeTaskTime(task.scheduled_datetime);
+  // A failed run only re-schedules onto retry_interval when the schedule has
+  // one; without it the next run is the ordinary recurrence, not a retry.
+  return task.last_finished_status === TaskStatuses.FAILED && task.retry_interval
+    ? getTaskString('syncNextRetryLabel', { relativeTime })
+    : getTaskString('syncNextRunLabel', { relativeTime });
+}
+
 // Consolidates logic on how Sync-Facility Tasks should be displayed
 export function syncFacilityTaskDisplayInfo(task) {
   let statusMsg;
   let bytesTransferredMsg = '';
   let deviceNameMsg = '';
   let headingMsg = '';
+
+  const isLastRun = showsLastRun(task);
+  const status = taskDisplayStatus(task);
 
   const facilityName = formatNameWithId(task.extra_metadata.facility_name, task.facility_id);
 
@@ -126,13 +197,22 @@ export function syncFacilityTaskDisplayInfo(task) {
       task.extra_metadata.device_id,
     );
   }
-  const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
+  // extra_metadata carries over between runs, so a run that has not reported a
+  // step yet still holds the previous run's sync_state.
+  const startingNewRun = describesOwnRun(task) && !FINISHED_STATUSES.includes(task.status);
+  const syncState =
+    startingNewRun && FINISHED_SYNC_STATES.includes(task.extra_metadata.sync_state)
+      ? SyncTaskStatuses.PENDING
+      : task.extra_metadata.sync_state;
+  const syncStep = syncTaskStatusToStepMap[syncState];
   const statusDescription =
-    syncStatusToDescriptionMap[task.extra_metadata.sync_state] ||
-    syncStatusToDescriptionMap[task.status] ||
+    syncStatusToDescriptionMap[syncState] ||
+    syncStatusToDescriptionMap[status] ||
     (() => getTaskString('taskUnknownStatus'));
 
-  if (task.status === TaskStatuses.COMPLETED) {
+  if (isLastRun) {
+    statusMsg = formatList([getLastRunStatusMsg(task), nextRunMsg(task)]);
+  } else if (status === TaskStatuses.COMPLETED) {
     statusMsg = getTaskString('taskFinishedStatus');
   } else if (syncStep) {
     statusMsg = getTaskString('syncStepAndDescription', {
@@ -141,19 +221,17 @@ export function syncFacilityTaskDisplayInfo(task) {
       description: statusDescription(),
     });
   } else {
-    if (task.type === TaskTypes.SYNCLOD && task.status === TaskStatuses.FAILED)
+    if (task.type === TaskTypes.SYNCLOD && status === TaskStatuses.FAILED)
       statusMsg = `${statusDescription()}: ${task.exception}`;
     else statusMsg = statusDescription();
   }
 
-  if (task.status === TaskStatuses.COMPLETED) {
+  if (status === TaskStatuses.COMPLETED) {
     bytesTransferredMsg = getTaskString('syncBytesSentAndReceived', {
       bytesReceived: bytesForHumans(task.extra_metadata.bytes_received),
       bytesSent: bytesForHumans(task.extra_metadata.bytes_sent),
     });
   }
-
-  const canClear = task.clearable;
 
   return {
     headingMsg,
@@ -163,10 +241,13 @@ export function syncFacilityTaskDisplayInfo(task) {
     }),
     bytesTransferredMsg,
     deviceNameMsg,
-    isRunning: Boolean(syncStep) && !canClear,
-    canClear,
-    canCancel: !canClear && task.cancellable,
-    canRetry: task.status === TaskStatuses.FAILED,
+    isRunning: task.status === TaskStatuses.RUNNING && Boolean(syncStep),
+    canClear: task.clearable,
+    // Only a live run can be cancelled: cancelling a queued job clears it,
+    // which for a repeating row would delete the schedule.
+    canCancel: LIVE_STATUSES.includes(task.status) && task.cancellable,
+    // A re-queued schedule retries itself, so it offers no retry either.
+    canRetry: !isLastRun && status === TaskStatuses.FAILED,
   };
 }
 

@@ -147,13 +147,6 @@
         context:
           'This is associated with the label "Last successful sync:", and the subject is the Facility.',
       },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      nextSync: {
-        message: 'Next sync: {relativeTime}',
-        context:
-          'Used to indicate the next scheduled sync of facility data. For example, "in 5 days".\'\n',
-      },
-      /* eslint-enable kolibri/vue-no-unused-translations */
       lastSync: {
         message: 'Last synced: {relativeTime}',
         context:
