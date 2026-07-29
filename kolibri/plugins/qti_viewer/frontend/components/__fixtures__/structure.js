@@ -332,6 +332,23 @@ export default [
     ],
   },
   {
+    title: 'Associate',
+    items: [
+      {
+        identifier: 'associate-interaction-1',
+        title: 'Capital Cities',
+      },
+      {
+        identifier: 'associate-interaction-fixed',
+        title: 'Associate - Fixed Choice',
+      },
+      {
+        identifier: 'associate-interaction-images',
+        title: 'Associate - Images',
+      },
+    ],
+  },
+  {
     title: 'Match',
     items: [
       {
