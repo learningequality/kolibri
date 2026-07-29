@@ -1,9 +1,10 @@
 <script>
 
   import get from 'lodash/get';
+  import isEqual from 'lodash/isEqual';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { computed, h, inject, watch } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { computed, h, inject, ref, watch } from 'vue';
+  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
@@ -55,6 +56,7 @@
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
+  const $themeBrand = themeBrand();
 
   function getComponentTag(vnode) {
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
@@ -131,27 +133,124 @@
         return max > 0 ? max : Math.floor(choices.length / 2);
       });
 
-      const { slots: pairSlots, pool, hydrate } = useAssociateSlots(orderedIdentifiers, rowCount);
+      const {
+        slots: pairSlots,
+        pool,
+        pairs,
+        place,
+        hydrate,
+      } = useAssociateSlots(orderedIdentifiers, rowCount);
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
 
-      watch(() => variable.value?.value, hydrate, { immediate: true });
+      // Only one of these is ever set: the learner either picks a response and
+      // then a slot, or picks a slot and then a response.
+      const selectedIdentifier = ref(null);
+      const activeSlot = ref(null);
+
+      function clearSelection() {
+        selectedIdentifier.value = null;
+        activeSlot.value = null;
+      }
+
+      function isActiveSlot(rowIndex, side) {
+        return activeSlot.value?.rowIndex === rowIndex && activeSlot.value?.side === side;
+      }
+
+      function selectResponse(identifier) {
+        if (!interactive.value) {
+          return;
+        }
+        if (activeSlot.value) {
+          place(identifier, activeSlot.value.rowIndex, activeSlot.value.side);
+          clearSelection();
+          return;
+        }
+        selectedIdentifier.value = selectedIdentifier.value === identifier ? null : identifier;
+      }
+
+      function selectSlot(rowIndex, side) {
+        if (!interactive.value) {
+          return;
+        }
+        if (selectedIdentifier.value) {
+          place(selectedIdentifier.value, rowIndex, side);
+          clearSelection();
+          return;
+        }
+        if (isActiveSlot(rowIndex, side)) {
+          clearSelection();
+          return;
+        }
+        // Picking up a filled slot's response is what lets two filled slots swap
+        // by clicking one then the other.
+        const occupant = pairSlots.value[rowIndex]?.[side];
+        selectedIdentifier.value = occupant || null;
+        activeSlot.value = occupant ? null : { rowIndex, side };
+      }
+
+      // Sync the variable value with the pair slots, and vice versa
+      watch(
+        () => variable.value?.value,
+        value => {
+          if (isEqual(value, pairs.value)) {
+            return;
+          }
+          hydrate(value);
+        },
+        { immediate: true },
+      );
+
+      watch(pairs, value => {
+        if (!interactive.value || !variable.value) {
+          return;
+        }
+        variable.value.value = value.map(pair => [...pair]);
+      });
+
+      watch(interactive, clearSelection);
 
       const poolStyles = computed(() => ({
         backgroundColor: $themePalette.grey.v_100,
         borderColor: $themeTokens.fineLine,
       }));
       const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
-      const chipStyles = computed(() => ({
-        backgroundColor: $themeTokens.surface,
-        borderColor: $themeTokens.fineLine,
-        color: $themeTokens.text,
-      }));
       const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
-      const slotStyles = filled =>
-        filled
-          ? { backgroundColor: $themePalette.grey.v_100, borderColor: $themeTokens.fineLine }
-          : { borderColor: $themeTokens.fineLine };
+
+      function chipStyles({ selected, candidate }) {
+        if (selected) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+          };
+        }
+        if (candidate) {
+          return {
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+          };
+        }
+        return {
+          backgroundColor: $themeTokens.surface,
+          borderColor: $themeTokens.fineLine,
+          color: $themeTokens.text,
+        };
+      }
+
+      function slotStyles({ filled, target, active }) {
+        if (target || active) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+          };
+        }
+        return {
+          backgroundColor: filled ? $themePalette.grey.v_100 : 'transparent',
+          borderColor: $themeTokens.fineLine,
+        };
+      }
 
       function slotLabel(identifier, rowIndex, side) {
         const number = rowIndex + 1;
@@ -162,10 +261,21 @@
         return response ? secondSlotFilled$({ number, response }) : secondSlotEmpty$({ number });
       }
 
-      function renderChip(identifier) {
+      function renderChip(identifier, { candidate = false, on } = {}) {
+        const selected = selectedIdentifier.value === identifier;
         return h(
           'div',
-          { class: 'qti-associate-chip', style: chipStyles.value },
+          {
+            class: [
+              'qti-associate-chip',
+              {
+                'qti-associate-chip-selected': selected,
+                'qti-associate-chip-candidate': candidate && !selected,
+              },
+            ],
+            style: chipStyles({ selected, candidate }),
+            on,
+          },
           contentByIdentifier[identifier],
         );
       }
@@ -178,13 +288,26 @@
       }
 
       function renderSlot(identifier, rowIndex, side) {
+        const filled = Boolean(identifier);
+        const active = isActiveSlot(rowIndex, side);
+        // A filled slot is never highlighted as a valid target, but clicking it
+        // still places there — it is how two responses swap.
+        const target = Boolean(selectedIdentifier.value) && !filled;
         return h(
           'div',
           {
             key: `${rowIndex}-${side}`,
-            class: ['qti-associate-slot', { 'qti-associate-slot-filled': Boolean(identifier) }],
-            style: slotStyles(Boolean(identifier)),
+            class: [
+              'qti-associate-slot',
+              {
+                'qti-associate-slot-filled': filled,
+                'qti-associate-slot-target': target,
+                'qti-associate-slot-active': active,
+              },
+            ],
+            style: slotStyles({ filled, target, active }),
             attrs: { 'aria-label': slotLabel(identifier, rowIndex, side) },
+            on: { click: () => selectSlot(rowIndex, side) },
           },
           [identifier ? renderChip(identifier) : renderPlaceholder()],
         );
@@ -209,7 +332,10 @@
             },
             pool.value.map(identifier =>
               h('li', { key: identifier, class: 'qti-associate-pool-entry' }, [
-                renderChip(identifier),
+                renderChip(identifier, {
+                  candidate: Boolean(activeSlot.value),
+                  on: { click: () => selectResponse(identifier) },
+                }),
               ]),
             ),
           ),
@@ -304,9 +430,18 @@
     max-width: $chip-max-size;
     padding-block: 8px;
     padding-inline: 12px;
+    cursor: pointer;
     border-style: solid;
     border-width: 1px;
     border-radius: 8px;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .qti-associate-chip-selected {
+    font-weight: 600;
   }
 
   .qti-associate-rows {
@@ -331,13 +466,25 @@
     align-items: center;
     min-height: 56px;
     padding: 8px;
+    cursor: pointer;
     border-style: dashed;
     border-width: 1px;
     border-radius: 8px;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .qti-associate-slot-filled {
     border-style: solid;
+  }
+
+  // Review mode has nothing to click
+  .qti-associate-readonly {
+    .qti-associate-chip,
+    .qti-associate-slot {
+      cursor: default;
+    }
   }
 
   .qti-associate-placeholder {
