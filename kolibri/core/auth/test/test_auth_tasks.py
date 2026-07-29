@@ -74,6 +74,8 @@ class dummy_orm_job_data:
     interval = 8600
     retry_interval = 5
     max_retries = 3
+    last_finished_state = None
+    last_finished_time = None
 
 
 @patch("kolibri.core.tasks.viewsets.tasks.job_storage")

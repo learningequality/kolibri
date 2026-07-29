@@ -98,6 +98,10 @@ class TasksViewSet(viewsets.GenericViewSet):
             "kwargs": job.kwargs,
             "extra_metadata": job.extra_metadata,
             "scheduled_datetime": orm_job.scheduled_time.isoformat(),
+            "last_finished_status": orm_job.last_finished_state,
+            "last_finished_datetime": orm_job.last_finished_time.isoformat()
+            if orm_job.last_finished_time
+            else None,
             "repeat": orm_job.repeat,
             "repeat_interval": orm_job.interval,
             "retry_interval": orm_job.retry_interval,
