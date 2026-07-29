@@ -475,11 +475,7 @@ class Storage:
 
             # filter only by the finished jobs, if we are not specified to force
             if not force:
-                queryset = queryset.filter(
-                    Q(state=State.COMPLETED)
-                    | Q(state=State.FAILED)
-                    | Q(state=State.CANCELED)
-                )
+                queryset = queryset.filter(state__in=State.FINISHED_STATES)
 
             if self._hooks:
                 for orm_job in queryset:
@@ -673,7 +669,7 @@ class Storage:
         orm_job = self.get_orm_job(job_id)
 
         # Only allow this function to be run on a job that is in a finished state.
-        if orm_job.state not in {State.COMPLETED, State.FAILED, State.CANCELED}:
+        if orm_job.state not in State.FINISHED_STATES:
             raise JobNotRestartable(
                 "Cannot reschedule job with state={}".format(orm_job.state)
             )
@@ -712,10 +708,7 @@ class Storage:
             current_retries = orm_job.retries if orm_job.retries is not None else 0
             kwargs["retries"] = current_retries + 1
 
-        elif (
-            orm_job.state in {State.COMPLETED, State.FAILED, State.CANCELED}
-            and kwargs["repeat"] != 0
-        ):
+        elif orm_job.state in State.FINISHED_STATES and kwargs["repeat"] != 0:
             # Otherwise, if we are in a finished state and repeat is not 0, then we can reschedule, either because
             # repeat is None, or because repeat is not None and is greater than 0.
             if kwargs["repeat"] is not None:
@@ -847,6 +840,9 @@ class Storage:
         self, job, orm_job, state, supervisor_id, kwargs, repeat=NO_VALUE
     ):
         if state is not None:
+            # orm_job.state is the state being left, until the assignment below.
+            if state == State.RUNNING and orm_job.state != State.RUNNING:
+                job.reset_for_new_run()
             orm_job.state = job.state = state
             # Ownership exists only in supervised states; a bare re-mark
             # preserves the owner, a terminal state clears it.
@@ -855,6 +851,9 @@ class Storage:
                     orm_job.supervisor_id = supervisor_id
             else:
                 orm_job.supervisor_id = None
+            if state in State.FINISHED_STATES:
+                orm_job.last_finished_state = state
+                orm_job.last_finished_time = self._now()
         # repeat is nullable, so None is a real value; NO_VALUE means "leave it".
         if repeat is not NO_VALUE:
             orm_job.repeat = repeat
