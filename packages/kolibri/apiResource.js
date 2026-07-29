@@ -4,6 +4,7 @@ import find from 'lodash/find';
 import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import qs from 'qs';
+import { ref, shallowRef, computed } from 'vue';
 import { toValue } from '@vueuse/core';
 import urls from 'kolibri/urls';
 import useFetch from 'kolibri/composables/useFetch';
@@ -608,9 +609,6 @@ export class Resource {
     // Currently pending GET requests, keyed by resolved URL and query params. This is request
     // coalescing, not a cache - an entry is removed as soon as its request settles.
     this._inFlight = new Map();
-    // The last known server representation of each object, keyed by id. Only ever read to
-    // compute PATCH payloads in `update` - it is never served to reads.
-    this._baselines = new Map();
   }
 
   __cacheKey(...params) {
@@ -992,29 +990,10 @@ export class Resource {
   }
 
   /**
-   * Record the server's representation of an object, so that a subsequent `update` can diff
-   * against it. Objects without an id are ignored, as there is nothing to key them by.
-   * @param {object} object - An object as returned by the server
-   */
-  __setBaseline(object) {
-    if (!object || typeof object !== 'object') {
-      return;
-    }
-    const id = object[this.idKey];
-    if (id === undefined || id === null) {
-      return;
-    }
-    this._baselines.set(String(id), cloneDeep(object));
-  }
-
-  /**
    * The single low-level primitive that every read, write, and custom action goes through.
    *
    * Concurrent identical GET requests share a single in-flight request. Writes are never
    * de-duplicated.
-   *
-   * This method is `async` so that an unresolvable action surfaces as a rejection, not a
-   * synchronous throw - keeping the contract uniform with every method built on top of it.
    * @param {object} [options] - The request definition
    * @param {string} [options.method=GET] - A valid HTTP method name
    * @param {string} [options.action=list] - The name of the endpoint to target
@@ -1024,9 +1003,8 @@ export class Resource {
    * @param {object | Array} [options.data] - The request body, for writes
    * @param {boolean} [options.multipart=false] - Whether to encode the body as multipart form
    * data
-   * @returns {Promise} - Promise that resolves with the full response object. For GET, `data`
-   * is a deep copy unique to this caller (coalesced GETs would otherwise share one payload);
-   * the response metadata is shared.
+   * @returns {Promise} - Promise that resolves with the full response object. A caller that
+   * coalesces onto an in-flight GET receives a deep copy of `data` unique to it.
    */
   async request({
     method = 'GET',
@@ -1037,22 +1015,35 @@ export class Resource {
     multipart = false,
   } = {}) {
     const url = this.__resolveUrl(action, routeParams);
+    // Log any request failure before re-raising it, so it surfaces with request context the way
+    // the legacy Model/Collection layer did. This only intercepts to log - the rejection still
+    // propagates to the caller unchanged.
+    const logAndRethrow = error => {
+      this.logError(error);
+      throw error;
+    };
     if (method.toUpperCase() !== 'GET') {
       // General case (writes): no dedup, as two writes are two distinct intents.
-      return this.client({ url, method, params, data, multipart });
+      return this.client({ url, method, params, data, multipart }).catch(logAndRethrow);
     }
     const key = `${url}?${stableSerialize(params)}`;
-    let promise = this._inFlight.get(key);
-    if (!promise) {
-      // Clear the entry once the request settles, whether it succeeded or failed - a lingering
-      // rejected promise would poison every subsequent request for this key.
-      promise = this.client({ url, method, params }).finally(() => {
+    const existing = this._inFlight.get(key);
+    if (existing) {
+      // Attached to an in-flight request another caller started - clone `data` so the two
+      // callers don't share one mutable payload.
+      return existing.then(response => ({ ...response, data: cloneDeep(response.data) }));
+    }
+    // Clear the entry once the request settles, whether it succeeded or failed - a lingering
+    // rejected promise would poison every subsequent request for this key. `logError` runs on the
+    // shared promise, so coalesced callers do not each re-log the same failure.
+    const promise = this.client({ url, method, params })
+      .catch(logAndRethrow)
+      .finally(() => {
         this._inFlight.delete(key);
       });
-      this._inFlight.set(key, promise);
-    }
-    // Coalesced GETs share one response, so clone `data` per caller.
-    return promise.then(response => ({ ...response, data: cloneDeep(response.data) }));
+    this._inFlight.set(key, promise);
+    // The originating caller's payload is unshared by construction, so it needs no copy.
+    return promise;
   }
 
   /**
@@ -1068,7 +1059,6 @@ export class Resource {
       throw TypeError('An id must be specified');
     }
     const response = await this.request({ action: 'detail', routeParams: id, params });
-    this.__setBaseline(response.data);
     return response.data;
   }
 
@@ -1082,10 +1072,6 @@ export class Resource {
    */
   async list(params = {}) {
     const response = await this.request({ params });
-    const results = Array.isArray(response.data) ? response.data : response.data?.results;
-    if (Array.isArray(results)) {
-      results.forEach(object => this.__setBaseline(object));
-    }
     return response.data;
   }
 
@@ -1097,26 +1083,26 @@ export class Resource {
    */
   async create(data, multipart = false) {
     const response = await this.request({ method: 'POST', data, multipart });
-    this.__setBaseline(response.data);
     return response.data;
   }
 
   /**
-   * Update an object, sending only the fields that differ from the last representation the
-   * server gave us. When we have no such baseline, the provided fields are sent as-is - the
-   * diff is a payload optimization, never a correctness requirement.
+   * Update an object. When a `baseline` snapshot is provided, only the fields that differ from
+   * it are sent, and an unchanged object issues no request at all.
    * @param {string} id - The id of the object to update
    * @param {object} data - The fields to update
    * @param {object} [options] - Additional request options
    * @param {object} [options.params] - Query parameters
+   * @param {object} [options.baseline] - The last server snapshot of this object. When present,
+   * `data` is diffed against it and only changed fields are sent; when omitted (or falsy),
+   * `data` is sent unchanged.
    * @returns {Promise} - Promise that resolves with the updated object
    * @throws {TypeError} - When `id` is missing
    */
-  async update(id, data = {}, { params } = {}) {
+  async update(id, data = {}, { params, baseline } = {}) {
     if (!id) {
       throw TypeError('An id must be specified');
     }
-    const baseline = this._baselines.get(String(id));
     let payload = data;
     if (baseline) {
       payload = {};
@@ -1137,7 +1123,6 @@ export class Resource {
       params,
       data: payload,
     });
-    this.__setBaseline(response.data);
     return response.data;
   }
 
@@ -1154,7 +1139,6 @@ export class Resource {
       throw TypeError('An id must be specified');
     }
     await this.request({ method: 'DELETE', action: 'detail', routeParams: id, params });
-    this._baselines.delete(String(id));
     return id;
   }
 
@@ -1171,19 +1155,12 @@ export class Resource {
       throw TypeError('An array of objects must be specified');
     }
     const response = await this.request({ method: 'POST', data, multipart });
-    if (Array.isArray(response.data)) {
-      response.data.forEach(object => this.__setBaseline(object));
-    }
     return response.data;
   }
 
   /**
    * Delete every object matching the given query parameters, against the resource's default
    * list endpoint.
-   *
-   * Note: unlike `delete`, this does not clear the baselines of the removed objects - their
-   * ids are not known client-side (the delete is params-driven). This is a deliberate gap;
-   * bulk-deleted rows are rare to recreate-and-update within the same session.
    * @param {object} params - Query parameters narrowing what will be deleted
    * @returns {Promise} - Promise that resolves with the server's response data
    * @throws {TypeError} - When no query parameters are given, to prevent an unfiltered
@@ -1198,51 +1175,198 @@ export class Resource {
   }
 
   /**
+   * @typedef {object} RetrieveObject
+   * @property {import('vue').Ref<object|null>} data - The retrieved object, or `null` before the
+   * first successful fetch.
+   * @property {import('vue').Ref<boolean>} loading - Whether a fetch is currently in flight.
+   * @property {import('vue').Ref<?object>} error - The error from the last fetch, or `null`.
+   * @property {() => Promise<void>} fetchData - Trigger the fetch. Takes no arguments - reads the
+   * bound `id`/`params` at call time.
+   */
+
+  /**
    * Reactive read of a single object by id, layered on `useFetch`.
-   *  Data is not refetched when the params change, caller must call `fetchData` again.
-   * Example:
-   * ```js
-   * const { data: dataset, loading, error, fetchData } = FacilityDatasetResource.useRetrieve(
-   *   datasetId,
-   * );
-   * onMounted(() => fetchData());
-   * watch(datasetId, () => fetchData());
-   * ```
+   * Data is not refetched when the params change, caller must call `fetchData` again.
    * @param {string | import('vue').Ref<string> | (() => string)} id - The id of the object to
    * retrieve. A ref or getter is read at fetch time (not watched).
-   * @param {object | import('vue').Ref<object> | (() => object)} [options] - Options passed
-   * through to `retrieve`, i.e. `{ params }`.
-   * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
+   * @param {object} [options] - Additional options.
+   * @param {object | import('vue').Ref<object> | (() => object)} [options.params] - Query
+   * parameters passed to `retrieve`. A ref or getter is read at fetch time (not watched).
+   * @param {(object: object) => void} [options.onSuccess] - Called with the retrieved object
+   * after each successful fetch. When pairing with `useUpdate`, seed both the working data and the
+   * baseline here - `onSuccess: obj => { form.value = { ...obj }; setBaseline(obj); }` - so they
+   * start in sync; setting the baseline alone leaves `isDirty` true until the working data is
+   * populated.
+   * @returns {RetrieveObject} The single-object fetch state and action.
    */
-  useRetrieve(id, options) {
-    return useFetch({
-      fetchMethod: () => this.retrieve(toValue(id), toValue(options)),
+  useRetrieve(id, { params, onSuccess } = {}) {
+    const { data, loading, error, fetchData } = useFetch({
+      fetchMethod: () => this.retrieve(toValue(id), { params: toValue(params) }),
+      onSuccess,
     });
+    return { data, loading, error, fetchData };
   }
 
   /**
    * Reactive read of a collection, layered on `useFetch`.
+   * Data is not refetched when the params change, caller must call `fetchData` again.
    *
-   * Like `useFetch`, it does not fetch on its own: call the returned `fetchData` when the data
-   * is wanted. Data is not refetched when the params change, caller must call `fetchData` again.
-   *
-   * Example:
-   * ```js
-   * const { data: users, loading, hasMore, fetchMore, fetchData } =
-   *   FacilityUserResource.useList(computed(() => ({ member_of: facilityId.value })));
-   * onMounted(() => fetchData());
-   * ```
+   * Pagination is driven by the endpoint's shape, and the two backend styles map to two usage
+   * modes:
+   *  - cursor / limit-offset endpoints emit a `more` cursor: append the next page with
+   *    `fetchMore()`, gated by `hasMore` (infinite scroll).
+   *  - page-number endpoints emit `page`/`total_pages`: show one page at a time by updating the
+   *    page in `params` and re-calling `fetchData()`, reading `page`/`totalPages` for the pager.
+   *    `hasMore`/`fetchMore` do not apply to these (`hasMore` stays `false`).
    * @param {object | import('vue').Ref<object> | (() => object)} [params] - Query parameters
    * passed to `list`. A ref or getter is read at fetch time (not watched).
+   * @param {object} [options] - Additional options.
+   * @param {(response: object) => void} [options.onSuccess] - Called with the raw list response
+   * after each successful `fetchData` - an array, or a `{ results, more, count }` /
+   * `{ results, page, total_pages, count }` object when paginated. Not called for `fetchMore`,
+   * so a consumer mirroring results into a cache must handle appended pages separately.
    * @returns {import('kolibri/composables/useFetch').FetchObject} The fetch state and actions.
+   * The returned `fetchData` takes no arguments.
    */
-  useList(params) {
+  useList(params, { onSuccess } = {}) {
     return useFetch({
       fetchMethod: () => this.list(toValue(params)),
+      onSuccess,
       // `more` is the complete set of query parameters for the next page, so it replaces
       // rather than extends the original params.
       fetchMoreMethod: more => this.list(more),
     });
+  }
+
+  /**
+   * @typedef {object} UpdateObject
+   * @property {import('vue').Ref<boolean>} isSaving - Whether a write is in flight. Stays true
+   * until the latest-issued write settles. The latest-issued write only wins the local
+   * bookkeeping (baseline / `isSaving` / `error`); writes are not serialised on the wire, so a
+   * rapidly re-issued save can still race server-side.
+   * @property {import('vue').Ref<Error|null>} error - The error from the last write, or `null`. On
+   * failure `create()`/`update()` set this and also reject.
+   * @property {import('vue').ComputedRef<boolean>} isDirty - Whether the working `data` differs
+   * from the last saved snapshot - the unsaved-changes signal an editor needs. Only meaningful
+   * when `data` has the same shape as the server object; a `data` that is a projection of a larger
+   * object reads dirty against the fuller baseline. On load, seed the working data alongside the
+   * baseline (see `useRetrieve`'s `onSuccess`), or this reads true before any edit.
+   * @property {(object: object|null) => void} setBaseline - Adopt a server snapshot as the
+   * baseline `update` diffs against (deep-copied); pass `null` to forget it. Typically wired to
+   * `useRetrieve`'s `onSuccess` to record the baseline on load.
+   * @property {() => Promise<object>} create - POST the bound `data` and record the created object
+   * as the next baseline. Rejects if the bound `id` is already set.
+   * @property {() => Promise<object>} update - PATCH only the fields of `data` that differ from
+   * the baseline. Rejects if the bound `id` is empty.
+   * @property {() => Promise<object>} save - Dispatch on the bound `id`: `create()` when empty,
+   * `update()` otherwise, so call sites need not branch.
+   */
+
+  /**
+   * A write helper bound to a single object of this resource, scoped to the calling component.
+   * Rather than taking the object per call, the identity (`id`) and the working payload (`data`)
+   * are bound once here, so this composable is bound to a single object at a time, never arbitrary
+   * items. After `create()` resolves, the caller can set the new `id` to keep editing the same
+   * object.
+   *
+   *  - when `id` is empty, `create()` is valid and `update()` rejects;
+   *  - when `id` is set, `update()` is valid and `create()` rejects.
+   *
+   * `create()`, `update()`, and `save()` take no arguments - they read the bound refs at call
+   * time.
+   * @param {string | import('vue').Ref<string> | (() => string)} id - The object's id, or empty
+   * for a not-yet-created object. A ref or getter is read at call time (not watched).
+   * @param {object | import('vue').Ref<object> | (() => object)} data - The working payload to
+   * send. A ref or getter is read at call time (not watched).
+   * @param {object} [options] - Additional options.
+   * @param {object | import('vue').Ref<object> | (() => object)} [options.params] - Query
+   * parameters for `update`.
+   * @param {boolean} [options.multipart] - Whether `create` should send multipart form data.
+   * @returns {UpdateObject} The write state and actions.
+   */
+  useUpdate(id, data, { params, multipart } = {}) {
+    const isSaving = ref(false);
+    const error = ref(null);
+    // The last server snapshot. Written only through setBaseline / create / update; reactive so
+    // `isDirty` can derive from it (shallow is enough - it is replaced wholesale, never mutated).
+    const baseline = shallowRef(null);
+
+    // Store a full copy, so later mutation of the caller's object cannot corrupt the snapshot
+    // we diff against.
+    const setBaseline = object => {
+      baseline.value = object == null ? null : cloneDeep(object);
+    };
+
+    // True when the working `data` differs from the last saved snapshot. Only meaningful when
+    // `data` has the same shape as the server object; a `data` that is a projection of a larger
+    // object (e.g. a subset of fields) will read dirty against the fuller baseline.
+    const isDirty = computed(
+      () => baseline.value != null && !isEqual(toValue(data), baseline.value),
+    );
+
+    // A monotonic token, captured per call and re-checked before touching shared state, so a
+    // superseded write's out-of-order response cannot record a stale baseline (which would make
+    // the next diff short-circuit to a silent no-op) or flip isSaving/error for a call still in
+    // flight.
+    let writeCount = 0;
+    const run = async request => {
+      const current = ++writeCount;
+      isSaving.value = true;
+      error.value = null;
+      try {
+        const saved = await request();
+        // The saved object is the freshest server truth, so it becomes the next baseline.
+        if (current === writeCount) {
+          setBaseline(saved);
+        }
+        return saved;
+      } catch (e) {
+        if (current === writeCount) {
+          error.value = e;
+        }
+        throw e;
+      } finally {
+        if (current === writeCount) {
+          isSaving.value = false;
+        }
+      }
+    };
+
+    const create = () => {
+      if (toValue(id)) {
+        return Promise.reject(
+          TypeError('create() called for an object that already has an id; use update()'),
+        );
+      }
+      return run(() => this.create(toValue(data), multipart));
+    };
+
+    const update = () => {
+      const currentId = toValue(id);
+      if (!currentId) {
+        return Promise.reject(TypeError('update() called without an id; use create()'));
+      }
+      // Only diff against the baseline when it belongs to the object currently bound. If `id`
+      // was rebound before a fresh baseline was installed, a stale baseline from the previous
+      // object could silently drop fields whose edited value coincides with the old one; a
+      // mismatched baseline degrades to a full PATCH, which is always correct.
+      const currentBaseline =
+        baseline.value != null && String(baseline.value[this.idKey]) === String(currentId)
+          ? baseline.value
+          : undefined;
+      return run(() =>
+        this.update(currentId, toValue(data), {
+          params: toValue(params),
+          baseline: currentBaseline,
+        }),
+      );
+    };
+
+    // Dispatch on the bound id so call sites need not branch: create a not-yet-persisted
+    // object, otherwise update the existing one.
+    const save = () => (toValue(id) ? update() : create());
+
+    return { isSaving, error, isDirty, setBaseline, create, update, save };
   }
 
   /**
@@ -1346,7 +1470,9 @@ export class Resource {
   logError(err) {
     // eslint-disable-next-line import-x/no-commonjs
     const router = require('kolibri/router').default;
-    if (!err.config) {
+    // Only log what we can describe. A network failure (or a cancellation) has no `response`, so
+    // reading `err.response.statusText` below would throw and mask the real error - bail early.
+    if (!err.config || !err.response) {
       return;
     }
     const sanitized = sanitizeError(err);
