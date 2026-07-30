@@ -238,6 +238,9 @@ android {
 	testOptions {
 		unitTests {
 			returnDefaultValues = true
+			// Robolectric needs the merged manifest and the appcompat resources to inflate an
+			// AppCompatActivity; without them setContentView dies in the vector-drawable setup.
+			includeAndroidResources = true
 		}
 	}
 

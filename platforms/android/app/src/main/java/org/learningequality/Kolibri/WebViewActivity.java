@@ -3,8 +3,8 @@ package org.learningequality.Kolibri;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -16,6 +16,7 @@ import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -43,13 +45,14 @@ import org.learningequality.Kolibri.util.FileChooserUtils;
  *
  * <p>Waits for the HTTP server, then calls Python to build an initialization URL with auth token.
  * Restores the user's last page via the saved path in SharedPreferences.
+ *
+ * <p>Android stops the server service once the app has been idle. The page is frozen while the
+ * activity is stopped, and reloaded only when it has to be — a new port, or a failed load.
  */
 public class WebViewActivity extends AppCompatActivity {
   private static final String TAG = "WebViewActivity";
   private static final int REQUEST_NOTIFICATION_PERMISSION = 1001;
   private static final int REQUEST_STORAGE_PERMISSION = 1002;
-  private static final String PREFS_NAME = "kolibri_webview";
-  private static final String PREF_LAST_PATH = "last_path";
   private static final String LOOPBACK_IP = "127.0.0.1";
   private static final String LOCALHOST = "localhost";
 
@@ -58,6 +61,7 @@ public class WebViewActivity extends AppCompatActivity {
   private FrameLayout fullscreenContainer;
   private View splashContainer;
   private boolean shouldClearHistory;
+  private boolean mainFrameLoadFailed;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
   private ActivityResultLauncher<String[]> filePickerLauncher;
   private final ExecutorService downloadExecutor = Executors.newCachedThreadPool();
@@ -81,6 +85,37 @@ public class WebViewActivity extends AppCompatActivity {
     super.onStart();
     // Restart the server service if Android stopped it while the app was idle
     startService(new Intent(this, KolibriServerService.class));
+    // LiveData does not re-deliver an unchanged value on returning to STARTED, so nothing else
+    // would thaw a page whose server never went away.
+    if (Boolean.TRUE.equals(
+        KolibriServerViewModel.getInstance().getServerReadyLiveData().getValue())) {
+      resumeWebView();
+    }
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    pauseWebView();
+  }
+
+  /**
+   * Keeps the page from issuing requests while the server may be away. {@code pauseTimers()} is
+   * process-wide — fine with a single WebView — and stops the heartbeat's setTimeout chain without
+   * stopping event-driven JS, so a file-chooser result still lands.
+   */
+  private void pauseWebView() {
+    if (webView != null) {
+      webView.onPause();
+      webView.pauseTimers();
+    }
+  }
+
+  private void resumeWebView() {
+    if (webView != null) {
+      webView.resumeTimers();
+      webView.onResume();
+    }
   }
 
   /**
@@ -239,6 +274,13 @@ public class WebViewActivity extends AppCompatActivity {
           }
 
           @Override
+          public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            // Same-document (hash) navigations never reach here, so a route change cannot clear
+            // a load failure.
+            mainFrameLoadFailed = false;
+          }
+
+          @Override
           public void onPageFinished(WebView view, String url) {
             // Injecting from onPageStarted doesn't reliably land in the new document on older
             // WebView builds (the script can still run against the outgoing page), which drops
@@ -262,7 +304,22 @@ public class WebViewActivity extends AppCompatActivity {
             if (url != null && !url.startsWith("data:")) {
               hideSplash();
             }
-            saveLastPath(url);
+            WebViewLocation.save(WebViewActivity.this, url);
+          }
+
+          @Override
+          public void onReceivedError(
+              WebView view, WebResourceRequest request, WebResourceError error) {
+            if (request.isForMainFrame()) {
+              mainFrameLoadFailed = true;
+            }
+          }
+
+          @Override
+          public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+            // Kolibri's router is in hash mode: route changes are same-document and never reach
+            // onPageFinished.
+            WebViewLocation.save(WebViewActivity.this, url);
           }
         });
 
@@ -353,53 +410,50 @@ public class WebViewActivity extends AppCompatActivity {
         .observe(
             this,
             ready -> {
+              // A foregrounded page is left running; only onStop freezes it.
               if (!ready) {
                 return;
               }
+              // Resume before loading — loadUrl on a paused WebView is not reliable.
+              resumeWebView();
               loadInitializeUrl();
             });
   }
 
-  /** Build the initialization URL on a background thread (calls Python) and load it. */
+  /** Builds the initialization URL on a background thread, because it calls Python. */
   private void loadInitializeUrl() {
-    // Read saved path to restore user's last page
-    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-    String nextUrl = prefs.getString(PREF_LAST_PATH, null);
-    Log.d(TAG, "Server ready, restoring path: " + nextUrl);
-
     new Thread(
             () -> {
+              // Reading the saved path hits SharedPreferences, so keep it off the UI thread too.
+              String nextUrl = WebViewLocation.getLastPath(this);
+              Log.d(TAG, "Server ready, restoring path: " + nextUrl);
               String url =
                   Python.getInstance()
                       .getModule("main")
                       .callAttr("get_initialize_url", nextUrl)
                       .toString();
-              runOnUiThread(
-                  () -> {
-                    if (webView != null) {
-                      shouldClearHistory = true;
-                      webView.loadUrl(url);
-                    }
-                  });
+              runOnUiThread(() -> loadIfOriginChanged(url));
             })
         .start();
   }
 
   /**
-   * Save the last loaded path from a localhost URL for restoring on next launch. Skips
-   * non-localhost URLs and data: URLs.
+   * Keeps the live page when the server came back on its old port: {@code url} is the initialize
+   * URL on the new port, so an unchanged origin means the page is still good. A page that failed to
+   * load is the WebView's error page, and is reloaded.
    */
-  private void saveLastPath(String url) {
-    if (url == null || url.startsWith("data:")) {
+  @VisibleForTesting
+  void loadIfOriginChanged(String url) {
+    if (webView == null) {
       return;
     }
-    Uri uri = Uri.parse(url);
-    if (!LOOPBACK_IP.equals(uri.getHost())) {
+    if (!mainFrameLoadFailed && WebViewLocation.isSameOrigin(webView.getUrl(), url)) {
+      Log.d(TAG, "Server came back on the same origin; leaving the page in place");
       return;
     }
-    String origin = uri.getScheme() + "://" + uri.getAuthority();
-    String path = url.substring(origin.length());
-    getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_LAST_PATH, path).apply();
+    shouldClearHistory = true;
+    WebViewLocation.noteInitializeUrl(url);
+    webView.loadUrl(url);
   }
 
   /** Hide the splash screen */
