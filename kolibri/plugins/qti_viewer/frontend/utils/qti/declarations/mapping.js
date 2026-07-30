@@ -38,7 +38,7 @@ export default class Mapping extends ScoringDeclaration {
     for (const entry of xmlNode.querySelectorAll('qti-map-entry')) {
       const mapKey = entry.getAttribute('map-key');
       const mappedValue = parseFloat(entry.getAttribute('mapped-value'));
-      if (entry.getAttribute('case-sensitive') === 'false') {
+      if (entry.getAttribute('case-sensitive') !== 'true') {
         this.ciEntries.push({
           key: this._normalizeMapKey(mapKey.toLowerCase()),
           value: mappedValue,
