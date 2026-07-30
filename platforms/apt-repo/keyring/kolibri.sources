@@ -2,4 +2,4 @@ Types: deb
 URIs: https://apt.learningequality.org/
 Suites: stable
 Components: main
-Signed-By: /etc/apt/keyrings/learningequality.asc
+Signed-By: /usr/share/keyrings/kolibri-archive-keyring.asc

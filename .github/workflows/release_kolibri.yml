@@ -247,10 +247,14 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     needs: [server_deb, block_release_step]
     uses: ./.github/workflows/platform-debian-server-release.yml
+    with:
+      deb-artifact-name: ${{ needs.server_deb.outputs.deb-file-name }}
     secrets:
       LP_CREDENTIALS: ${{ secrets.LP_CREDENTIALS }}
       GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      GH_UPLOADER_GCP_SA_CREDENTIALS: ${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
   container_image_publish:
     name: Build and publish container image
     if: ${{ !github.event.release.prerelease }}

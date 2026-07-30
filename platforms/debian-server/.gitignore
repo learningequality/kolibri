@@ -1,6 +1,10 @@
 # Launchpad OAuth credentials (owner-only, never committed)
 launchpad.credentials
 
+# Build-time copy of the canonical cutover snippet (single-sourced from
+# platforms/apt-repo/migrate-apt-source.sh by the orig target)
+migrate-apt-source.sh
+
 # Build artifacts
 debian/files
 debian/.debhelper

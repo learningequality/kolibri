@@ -1,0 +1,6 @@
+kolibri-archive-keyring (1.0) stable; urgency=medium
+
+  * Initial release: ship the apt.learningequality.org source file and archive
+    signing key for the Kolibri self-hosted APT repository.
+
+ -- Learning Equality <info@learningequality.org>  Wed, 22 Jul 2026 00:00:00 +0000

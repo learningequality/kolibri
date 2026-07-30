@@ -149,7 +149,7 @@ exclude-newer-package = {le-utils = "0 seconds", morango = "0 seconds"}
 members = [".", "python_packages/*", "platforms/*"]
 # platforms/ also holds non-Python members (raspberry-pi has no pyproject.toml);
 # the glob would otherwise error on them, so exclude those without a project.
-exclude = ["platforms/raspberry-pi"]
+exclude = ["platforms/raspberry-pi", "platforms/apt-repo"]
 
 [tool.setuptools]
 packages = ["kolibri"]

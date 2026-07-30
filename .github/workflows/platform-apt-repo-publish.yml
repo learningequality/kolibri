@@ -1,0 +1,99 @@
+name: Publish to the self-hosted APT repo
+on:
+  workflow_dispatch:
+    inputs:
+      deb-url:
+        description: 'URL for the .deb file to publish'
+        required: true
+  workflow_call:
+    inputs:
+      deb-artifact-name:
+        description: "Name of the uploaded .deb artifact to publish"
+        required: true
+        type: string
+    secrets:
+      GPG_SIGNING_KEY:
+        required: true
+      GPG_PASSPHRASE:
+        required: true
+      GH_UPLOADER_GCP_SA_CREDENTIALS:
+        required: true
+      KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET:
+        required: true
+permissions:
+  contents: read
+jobs:
+  publish:
+    name: Read-modify-write the reprepro repo on the release bucket
+    runs-on: ubuntu-latest
+    # A publish is a read-modify-write against shared bucket state, so it must
+    # never run concurrently with another publish nor be cancelled mid-write.
+    concurrency:
+      group: apt-repo-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7.0.0
+      # Exactly one of these runs: a workflow_call only has deb-artifact-name,
+      # a manual dispatch only has deb-url.
+      - name: Download the .deb from artifacts
+        if: ${{ inputs.deb-artifact-name }}
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.deb-artifact-name }}
+          path: dist
+      - name: Download the .deb from URL
+        if: ${{ inputs.deb-url }}
+        env:
+          DEB_URL: ${{ inputs.deb-url }}
+        run: curl -fsSL --create-dirs --output-dir dist --remote-name "$DEB_URL"
+      - name: Install reprepro and Debian packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro dpkg-dev debhelper
+      - name: Import the GPG signing key and preset its passphrase
+        id: gpg
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
+          # Derive the signing key id from the imported key (no separate secret),
+          # mirroring the release workflow.
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long --with-colons | grep ^sec | head -1 | cut -d: -f5)
+          echo "key-id=$GPG_KEY_ID" >> "$GITHUB_OUTPUT"
+          # reprepro signs Release via gpgme/gpg-agent (no CLI passphrase flag),
+          # so preset the passphrase or signing hangs on the pinentry prompt.
+          echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
+          gpg-connect-agent reloadagent /bye
+          # gpg-preset-passphrase ships in a version-specific libexec dir, not on PATH.
+          for candidate in /usr/lib/gnupg*/gpg-preset-passphrase; do
+            [ -x "$candidate" ] && PRESET="$candidate" && break
+          done
+          KEYGRIP=$(gpg --with-keygrip --list-secret-keys | grep Keygrip | head -1 | awk '{print $3}')
+          # gpg-preset-passphrase reads the passphrase from stdin only, so pipe
+          # it in: printf is a shell builtin, so the secret never reaches argv
+          # or the log, and no copy is written to disk.
+          printf '%s' "$GPG_PASSPHRASE" | "$PRESET" --preset "$KEYGRIP"
+      - uses: "google-github-actions/auth@v3"
+        with:
+          credentials_json: "${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}"
+      - name: Set up Cloud SDK
+        uses: "google-github-actions/setup-gcloud@v3"
+      - name: Build the kolibri-archive-keyring package
+        # Serves the version-less kolibri-archive-keyring.deb at the repo root
+        # (via publish.sh's KOLIBRI_KEYRING_DEB hook) so the new-user
+        # `curl .../kolibri-archive-keyring.deb` bootstrap resolves.
+        working-directory: platforms/apt-repo/keyring
+        run: dpkg-buildpackage -b -us -uc
+      - name: Publish the .deb into the reprepro repo
+        env:
+          KOLIBRI_APT_BUCKET: "${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/apt"
+          REPREPRO_SIGN_KEY: ${{ steps.gpg.outputs.key-id }}
+        run: |
+          KOLIBRI_KEYRING_DEB=$(ls "$GITHUB_WORKSPACE"/platforms/apt-repo/kolibri-archive-keyring_*.deb)
+          export KOLIBRI_KEYRING_DEB
+          bash platforms/apt-repo/publish.sh dist/*.deb
+      - name: Clean up GPG material
+        if: always()
+        run: |
+          gpgconf --kill gpg-agent || true
+          rm -rf ~/.gnupg

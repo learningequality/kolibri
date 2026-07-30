@@ -1,0 +1,8 @@
+Origin: Learning Equality
+Label: Kolibri
+Codename: stable
+Suite: stable
+Architectures: amd64 arm64
+Components: main
+Description: Kolibri self-hosted APT repository
+SignWith: __REPREPRO_SIGN_KEY__

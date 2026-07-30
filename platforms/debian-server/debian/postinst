@@ -5,6 +5,13 @@ set -e
 
 case "$1" in
   configure)
+    # Migrate any existing self-hosted github.io Kolibri apt source onto the
+    # canonical apt.learningequality.org host. No-op when no such source exists.
+    if [ -f /usr/share/kolibri-server/migrate-apt-source.sh ]; then
+      . /usr/share/kolibri-server/migrate-apt-source.sh
+      migrate_kolibri_apt_source
+    fi
+
     service kolibri stop || true
 
     # get KOLIBRI_USER from kolibri installer package:
