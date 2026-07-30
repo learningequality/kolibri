@@ -27,10 +27,9 @@ that only the Kolibri code underneath it changes:
 5. python /tmp/bench.py --runs 3 --compare /tmp/content_baseline.json \\
        -o /tmp/content_current.json
 
-Run both from the repository root, so `kolibri` resolves to the checked-out
-tree. The copy is not optional: the script does not exist at the merge-base
-of the branch that introduces it, and on any later branch that amends it the
-two captures would otherwise be measured by two different harnesses.
+The copy is not optional: the script does not exist at the merge-base of the
+branch that introduces it, and on a later branch that amends it the two
+captures would be measured by two different harnesses.
 
 Run both from the repository root, so that a development install imports
 kolibri from the checked-out tree and git_revision records which tree that was.
@@ -59,34 +58,30 @@ The first run downloads two large channel databases and logs the size of each.
 On-disk footprint is roughly three copies of each (pristine, working, drive
 folder) plus the Kolibri database.
 
---runs 3 is the default, and the lowest value worth capturing at. Measured on
-x86_64 Linux against sqlite, with KOLIBRI_HOME on btrfs: back-to-back --runs 1
-captures with no code change between them moved annotation by 5.0% — exactly
-the default --time-threshold — and the import phases by up to 4.9%, so a
---runs 1 verdict is close to a coin flip. Raise --runs if a phase still swings
-past the threshold with nothing changed. A phase whose mean is under
---min-phase-s cannot be settled by more runs; it is exempted from the verdict
-instead.
+--runs 3 is the default and is the value measured stable, on x86_64 Linux
+against sqlite with KOLIBRI_HOME on btrfs: the three samples of a phase spread
+by under 1% within a capture, and two captures taken twenty minutes apart on an
+idle machine agreed to within 1.7% on every phase. Back-to-back --runs 1
+captures moved annotation by 5.0%, exactly the default --time-threshold.
+
+Leave the machine idle for both captures; more runs cannot rescue a busy one.
+Contention moves every phase by a similar amount in the same direction —
+measured at 9-12% across the board, and 36% on annotation with a linter running
+— and the answer to that signature is to discard the capture and retake it. A
+phase whose mean is under --min-phase-s is exempted from the verdict rather
+than settled by more runs.
 
 Troubleshooting
 ---------------
-A cached pristine copy is trusted forever, and nothing re-verifies it. A run
-killed mid-download leaves a short <channel_id>-upgrade.sqlite3 in
-content/databases/, and the next run resumes that file rather than re-fetching
-it, so a resume against a database that has since changed on Studio can be
-cached as if it were sound. If this script raises DatabaseError while describing
-a channel, delete the copy under benchmark_channel_dbs/ and any leftover
--upgrade.sqlite3, then rerun.
+A cached pristine copy is trusted forever. Kolibri resumes a partial download,
+so a run killed mid-download leaves a short <channel_id>-upgrade.sqlite3 that
+the next run resumes rather than re-fetches. If this script raises
+DatabaseError while describing a channel, delete the copy under
+benchmark_channel_dbs/ and any leftover -upgrade.sqlite3, then rerun.
 
-On PostgreSQL, treat the annotation phase's absolute time with suspicion. The
-untimed reset deletes hundreds of thousands of rows, and before that reset
-VACUUMed, one measured run came out at 305s against 8s for the other channel on
-the same vendor — 100x the same channel's sqlite figure — because annotation's
-large UPDATEs were scanning dead tuples. reset_content_tables() now VACUUMs,
-which removes that particular cause, but postgres is not the axis this benchmark
-exists to protect and its absolute figures have had no tuning beyond that.
-Compare a postgres phase only against the same phase of a postgres baseline
-captured the same way.
+On PostgreSQL the untimed reset ends in VACUUM and then ANALYZE. Postgres is
+still not the axis this benchmark exists to protect, so compare a postgres
+phase only against the same phase of a postgres baseline captured the same way.
 """
 
 import argparse
@@ -254,18 +249,16 @@ def _lock_kolibri_home(home):
 
 
 def setup_kolibri(kolibri_home):
-    # Assignment, not the sibling's setdefault (viewset_serialization_benchmark
-    # .py:119-123): that script only reads data, so inheriting an exported
-    # KOLIBRI_HOME is harmless there. Here reset_content_tables() deletes every
-    # channel, content node and local file, and this repo's dev setup exports
-    # KOLIBRI_HOME as a matter of course. The default sits under ~/.cache rather
-    # than the sibling's /tmp for the reasons in the module docstring.
-    #
-    # Normalised the same way kolibri.utils.conf normalises it (conf.py:28), so
-    # that the raw os.environ reads elsewhere in this script — and the path
-    # recorded in the report's metadata — cannot diverge from the home Kolibri
-    # itself resolves for a ~-relative or relative --kolibri-home.
-    os.environ["KOLIBRI_HOME"] = os.path.abspath(os.path.expanduser(kolibri_home))
+    # Assignment, not setdefault: this repo's dev setup exports KOLIBRI_HOME as a
+    # matter of course, and reset_content_tables() would then delete every
+    # channel, content node and local file in a developer's real home.
+    home = os.path.abspath(os.path.expanduser(kolibri_home))
+    # conf.py creates KOLIBRI_HOME itself, but only one level deep: it raises
+    # "The parent of your KOLIBRI_HOME does not exist" otherwise. The default's
+    # parent is ~/.cache, which is not present on every platform, and a
+    # --kolibri-home naming a new nested path is an ordinary thing to pass.
+    os.makedirs(home, exist_ok=True)
+    os.environ["KOLIBRI_HOME"] = home
 
     # Before initialize(), which migrates the home: two processes doing that at
     # once is already a race, ahead of any content table either of them resets.
@@ -385,24 +378,26 @@ def run_timed(fn, *args):
 
 
 def _reclaim_deleted_space():
-    """VACUUM the destination database, so every iteration starts alike.
+    """Undo what a bulk delete leaves behind, so every iteration starts alike.
 
     Deleting a channel leaves the space behind: free pages in sqlite, dead
     tuples in postgres. Without reclaiming it, each iteration imports into a
     slightly more degraded database than the last, and the drift is systematic
-    rather than random — measured over six consecutive iterations on sqlite,
-    annotation climbed monotonically from 2.81s to 3.17s (+13%). Under the
-    before/after protocol the branch is always captured second, so that drift
-    lands entirely on the branch: a no-change self-comparison at --runs 3
-    failed the default 5% threshold on annotation with nothing changed at all.
-
-    VACUUM is untimed, and it runs after the deletes rather than before the
-    imports so that the reset's cost stays in one place.
+    rather than random — over six consecutive sqlite iterations, annotation
+    climbed monotonically from 2.81s to 3.17s (+13%). Under the before/after
+    protocol the branch is always captured second, so that drift would land
+    entirely on the branch.
     """
     from django.db import connection
 
     with connection.cursor() as cursor:
         cursor.execute("VACUUM")
+        if connection.vendor == "postgresql":
+            # VACUUM reclaims the dead tuples but leaves the planner's
+            # statistics describing rows that are gone, and the next import's
+            # annotation plans its large UPDATEs against them: annotation
+            # measured 362s with the VACUUM alone and 4.6s with this ANALYZE.
+            cursor.execute("ANALYZE")
 
 
 def reset_content_tables():
@@ -436,17 +431,12 @@ def reset_content_tables():
     Language.objects.all().delete()
     ContentTag.objects.all().delete()
     _reclaim_deleted_space()
-    # Around 30s on a full Khan Academy channel before the VACUUM above, almost
-    # all of it Django's cascade over the 228k-row File table. Paid twice per
-    # iteration on sqlite and once on any other vendor, because the second reset
-    # exists only to feed the sqlite-only fresh_import_no_attach phase. Logged
-    # at INFO rather than DEBUG for two reasons: initialize() reconfigures
-    # logging via dictConfig, so DEBUG never reaches the operator; and a silent
-    # half-minute in a capture that already runs for a long time reads like a
-    # hang. The batched lft/rght idiom from delete_content_tree_and_files
-    # (models.py:425-437) was measured here and came out slower (35.8s against
-    # 32.3s), as did deleting LocalFile first (33.3s), so the plain cascade
-    # stands.
+    # Around 30s on a full Khan Academy channel before the VACUUM, almost all of
+    # it Django's cascade over the 228k-row File table. Logged at INFO because
+    # initialize() reconfigures logging via dictConfig, so DEBUG would never
+    # reach the operator. The batched lft/rght idiom from
+    # delete_content_tree_and_files, and deleting LocalFile first, were both
+    # measured here and came out slower, so the plain cascade stands.
     logger.info("Content table reset took %.1fs", time.perf_counter() - start)
 
 
