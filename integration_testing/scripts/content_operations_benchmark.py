@@ -55,14 +55,9 @@ already-long run: --runs 3 over both channels is 18 imports. Budget upwards of
 two minutes of reset per iteration per channel; each reset logs its own time.
 Use --channels to work against one channel while tuning, then confirm with both.
 
-Each iteration also pays an untimed content-table reset before every import
-that has to start from empty — two on sqlite, one on any other vendor —
-around half a minute each on a channel this size, on top of the timed
-phases. Budget roughly two minutes per iteration per channel.
-
-The first run downloads two large channel databases. On-disk footprint is
-roughly three copies of each (pristine, working, drive folder) plus the
-Kolibri database; the run logs each database's size after download.
+The first run downloads two large channel databases and logs the size of each.
+On-disk footprint is roughly three copies of each (pristine, working, drive
+folder) plus the Kolibri database.
 
 --runs 3 is the default, and the lowest value worth capturing at. Measured on
 x86_64 Linux against sqlite, with KOLIBRI_HOME on btrfs: back-to-back --runs 1
@@ -75,10 +70,13 @@ instead.
 
 Troubleshooting
 ---------------
-A cached pristine copy is trusted forever. Kolibri's file transfer resumes a
-partial download, so a run killed mid-download can leave a short
-<channel_id>-upgrade.sqlite3 behind: if this script raises DatabaseError while
-describing a channel, the cached copy is truncated — delete it and rerun.
+A cached pristine copy is trusted forever, and nothing re-verifies it. A run
+killed mid-download leaves a short <channel_id>-upgrade.sqlite3 in
+content/databases/, and the next run resumes that file rather than re-fetching
+it, so a resume against a database that has since changed on Studio can be
+cached as if it were sound. If this script raises DatabaseError while describing
+a channel, delete the copy under benchmark_channel_dbs/ and any leftover
+-upgrade.sqlite3, then rerun.
 
 On PostgreSQL, treat the annotation phase's absolute time with suspicion. The
 untimed reset deletes hundreds of thousands of rows, and before that reset
@@ -645,6 +643,12 @@ _METADATA_PRECONDITIONS = (
     ),
     ("platform", "the protocol requires one machine", False),
     (
+        "python_version",
+        "the protocol requires one interpreter, and a git checkout does not "
+        "guarantee one",
+        False,
+    ),
+    (
         "kolibri_home",
         "two homes can sit on different filesystems, one of them possibly a "
         "tmpfs, which moves the I/O-bound phases on its own",
@@ -711,7 +715,15 @@ def _metadata_warnings(baseline, current):
 def _phase_verdict(b_entry, c_entry, time_threshold, min_phase_s):
     b_time = b_entry["mean_s"]
     c_time = c_entry["mean_s"]
-    diff_pct = ((c_time - b_time) / b_time * 100) if b_time > 0 else 0
+    if b_time > 0:
+        diff_pct = (c_time - b_time) / b_time * 100
+    else:
+        # A baseline of zero admits no ratio. Reporting 0% — the sibling's
+        # answer, where the only phase is always measurable — would pass a
+        # 0s -> 9s blow-up, so an unmeasurable baseline against a measurable
+        # current run is unbounded rather than flat. Both at zero stays flat,
+        # and the noise floor below exempts it anyway.
+        diff_pct = float("inf") if c_time > 0 else 0.0
     # Both means must be below the floor for the phase to be exempt. Testing the
     # baseline alone would exempt a 0.04s -> 4s blow-up, the loudest regression
     # this harness exists to catch.
@@ -842,8 +854,6 @@ def print_comparison(baseline, current, verdict):
             current["channels"][channel_id],
         )
     logger.info("%s", "-" * 78)
-    for warning in verdict["warnings"]:
-        logger.info("WARNING: %s", warning)
     logger.info("OVERALL VERDICT: %s", "PASS" if verdict["overall_pass"] else "FAIL")
 
 
@@ -863,10 +873,12 @@ def _log_channel_phases(channel_id, phases):
         )
 
 
-def _benchmark_channel(channel_id, args):
-    from kolibri.core.content.models import ContentNode
-    from kolibri.core.content.models import LocalFile
+def _prepare_channel(channel_id):
+    """Fetch, describe and stage one channel, returning what its phases need.
 
+    Keyed by name rather than returned as a tuple, so that the staging contract
+    is legible where _benchmark_channel splats it.
+    """
     pristine_path = ensure_pristine_copy(channel_id)
     # Describe the pristine copy, not the working copy: its schema version is
     # the one every phase is fed.
@@ -886,7 +898,17 @@ def _benchmark_channel(channel_id, args):
                 description["inferred_schema_version"],
             )
         )
-    drive_folder = prepare_drive_folder(channel_id, pristine_path)
+    return {
+        "pristine_path": pristine_path,
+        "description": description,
+        "drive_folder": prepare_drive_folder(channel_id, pristine_path),
+    }
+
+
+def _benchmark_channel(channel_id, args, pristine_path, description, drive_folder):
+    from kolibri.core.content.models import ContentNode
+    from kolibri.core.content.models import LocalFile
+
     if not args.quiet:
         logger.info(
             "Benchmarking %s %s: schema %s, %s",
@@ -951,8 +973,19 @@ def run_benchmark(args):
                 "Skipping phase %s: it needs a sqlite destination database", phase
             )
 
+    # Fetch, describe and stage every channel before timing any of them. A
+    # capture runs for hours, and the two things that can stop a channel dead —
+    # Studio no longer publishing that id, and a schema with no import class —
+    # are both known the moment its database is in hand. Discovering either
+    # after the first channel has been benchmarked in full throws that work
+    # away, for the same reason main() reads the baseline before the run.
+    prepared = [
+        (channel_id, _prepare_channel(channel_id)) for channel_id in args.channels
+    ]
+
     channel_reports = {
-        channel_id: _benchmark_channel(channel_id, args) for channel_id in args.channels
+        channel_id: _benchmark_channel(channel_id, args, **preparation)
+        for channel_id, preparation in prepared
     }
     return build_report(
         channel_reports, args.runs, args.time_threshold, args.min_phase_s
@@ -961,6 +994,10 @@ def run_benchmark(args):
 
 def main():
     args = parse_args()
+    if args.runs < 1:
+        # Otherwise the run downloads both channel databases and writes a report
+        # whose channels carry no phases at all — which without --compare exits 0.
+        raise SystemExit("--runs must be at least 1, got {}".format(args.runs))
     # Read the baseline and check the output directory before the run, not
     # after it. A capture takes tens of minutes to hours and there is no
     # compare-only mode, so a mistyped --compare path or an unwritable -o path
@@ -990,6 +1027,10 @@ def main():
     # Thresholds come from this run's flags, not from the baseline's recorded
     # ones: the operator's flags on the comparing run decide the verdict.
     verdict = compare_reports(baseline, report, args.time_threshold, args.min_phase_s)
+    # Warnings are not results: --quiet suppresses the tables, not the reasons a
+    # comparison may not stand.
+    for warning in verdict["warnings"]:
+        logger.warning("%s", warning)
     if not args.quiet:
         print_comparison(baseline, report, verdict)
     return 0 if verdict["overall_pass"] else 1
