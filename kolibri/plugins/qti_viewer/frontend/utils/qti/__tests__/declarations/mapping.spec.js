@@ -201,12 +201,12 @@ describe('Mapping', () => {
       expect(variable.score('Hello')).toBe(1);
     });
 
-    it('should match case-sensitively by default', () => {
+    it('should match case-insensitively by default', () => {
       const variable = buildMapping({
         mappingAttrs: 'default-value="0"',
         entries: `<qti-map-entry map-key="Hello" mapped-value="1" />`,
       });
-      expect(variable.score('hello')).toBe(0);
+      expect(variable.score('hello')).toBe(1);
       expect(variable.score('Hello')).toBe(1);
     });
 
