@@ -305,7 +305,7 @@ i18n-download-translations: i18n-extract-frontend
 	fi
 	@echo "✅ Translation files downloaded successfully"
 	rm -f kolibri/locale/.crowdin-download-marker
-	uv run python build_tools/i18n/cleanup_unsupported_languages.py
+	uv run python -m build_tools.i18n.cleanup_unsupported_languages
 	pnpm exec kolibri-i18n code-gen --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
 	pnpm exec kolibri-i18n create-message-files --pluginFile ./build_tools/build_plugins.txt --ignore '**/node_modules/!(kolibri-common)/**','**/static/**'
