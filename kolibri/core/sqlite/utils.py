@@ -7,8 +7,6 @@ from shutil import copyfile
 from django.conf import settings
 from django.core.management import call_command
 from django.db.utils import DatabaseError
-from sqlalchemy import exc
-from sqlalchemy import text
 
 from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 
@@ -44,34 +42,15 @@ def regenerate_database(connection):
         call_command("migrate", interactive=False, verbosity=False)
 
 
-def check_sqlite_integrity(connection):
-    """
-    Runs integrity check on sqlite db.
-    Raises ORM specific DatabaseError when db api communication is halted.
-    Raises sqlite3.DatabaseError when integrity check fails.
-    """
-    if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
-        return
-
-    if hasattr(connection, "name"):
-        # SQLAlchemy ORM db api connection
-        conn = connection.connect()
-    else:
-        # Django ORM db api connection cursor
-        conn = connection.cursor()
-
-    try:
-        result = conn.execute(text("PRAGMA integrity_check;")).fetchall()
-    except (DatabaseError, exc.DatabaseError):
-        raise
-    finally:
-        conn.close()
-
-    if not (len(result) == 1 and result[0] == ("ok",)):
-        raise sqlite3.DatabaseError
-
-
 def repair_sqlite_db(connection):
+    """
+    Back up the database behind a Django connection and attempt an in-place
+    repair. Django connections only.
+
+    Known broken: the ENGINE guard never passes in a real deployment, and the
+    repair destroys the database, leaving only the backup.
+    https://github.com/learningequality/kolibri/issues/15108
+    """
     from kolibri.core.deviceadmin.utils import default_backup_folder
     from kolibri.core.deviceadmin.utils import KWARGS_IO_WRITE
 
@@ -79,14 +58,8 @@ def repair_sqlite_db(connection):
         return
     # First let's do a file_backup
     dest_folder = default_backup_folder()
-    if hasattr(connection, "name"):
-        orm = "sqlalchemy"
-        conn_name = connection.name
-        original_path = connection.url.database
-    else:
-        orm = "django"
-        conn_name = connection.alias
-        original_path = connection.get_connection_params()["database"]
+    conn_name = connection.alias
+    original_path = connection.get_connection_params()["database"]
 
     if original_path == ":memory:":
         # If it's an in memory database we can't do anything
@@ -99,12 +72,6 @@ def repair_sqlite_db(connection):
         os.makedirs(dest_folder)
     backup_path = os.path.join(dest_folder, fname)
     copyfile(original_path, backup_path)
-
-    if orm == "sqlalchemy":
-        # Remove current file, it will be automatically regenerated
-        common_clean(conn_name, original_path)
-        logger.error("Regenerating {}".format(connection.name))
-        return
 
     # now, let's try to repair it, if possible:
     # os.remove(original_path)
