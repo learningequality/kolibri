@@ -1,11 +1,6 @@
 name: Build kolibri-server DEB file
 on:
   workflow_call:
-    inputs:
-      tar-file-name:
-        description: "Name of the Kolibri sdist tar artifact, used to derive the version"
-        required: true
-        type: string
     outputs:
       deb-file-name:
         description: "kolibri-server .deb file name"
@@ -32,22 +27,10 @@ jobs:
       - name: Install Debian build tooling
         working-directory: platforms/debian-server
         run: make install-build-deps
-      - name: Derive the Kolibri version from the tar artifact
-        id: version
-        env:
-          TAR_FILE_NAME: ${{ inputs.tar-file-name }}
-        run: |
-          VERSION="${TAR_FILE_NAME#kolibri-}"
-          VERSION="${VERSION%.tar.gz}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Building kolibri-server for Kolibri ${VERSION}"
       - name: Build the .deb
         working-directory: platforms/debian-server
-        env:
-          KOLIBRI_VERSION: ${{ steps.version.outputs.version }}
-        # Run make deb inside the uv env so the workspace kolibri is on PATH for
-        # the error-pages step; -d skips the Debian build-dependency check since
-        # we build against that workspace kolibri, not an apt-installed package.
+        # uv run: error-pages and the changelog generator use the workspace kolibri.
+        # -d: skip the Debian build-dep check, since that kolibri isn't apt-installed.
         run: uv run make deb DPKG_BUILDPACKAGE_FLAGS=-d
       - name: Identify the built .deb
         id: get-deb-filename
