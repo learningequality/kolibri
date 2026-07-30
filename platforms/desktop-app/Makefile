@@ -1,4 +1,4 @@
-.PHONY: clean get-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version write-version
+.PHONY: clean get-whl stage-workspace-whl install-whl clean-whl build-mac-app pyinstaller build-dmg compile-mo needs-version write-version
 
 PYTHON_EXEC := uv run python
 
@@ -17,8 +17,10 @@ guard-%:
 		exit 1; \
 	fi
 
+# kolibrisrc/ is what PyInstaller ships, so its kolibri/_version.py is the app version.
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell uv run --extra build python -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
+	$(eval KOLIBRI_VERSION ?= $(shell $(PYTHON_EXEC) ../../build_tools/read_kolibri_version.py kolibrisrc))
+	@test -n "$(KOLIBRI_VERSION)" || { echo "No Kolibri version in kolibrisrc/: stage a whl with 'make stage-workspace-whl'"; exit 1; }
 
 # Write the app version (= the bundled Kolibri version) to _version.py so
 # PyInstaller bundles it and kolibri_app.__init__ can
@@ -71,6 +73,17 @@ get-whl: clean-whl
 	wget -O "$(OUTPUT_PATH)" "$(whl)"
 	# Call the install-whl target with the clean path
 	$(MAKE) install-whl whl="$(OUTPUT_PATH)"
+
+# Shell block, not $(eval): the whl does not exist until `dist` has run.
+stage-workspace-whl: clean-whl
+	$(MAKE) -C ../.. dist
+	@WORKSPACE_WHL="$$(ls -t ../../dist/kolibri-*.whl 2>/dev/null | head -1)"; \
+	if [ -z "$$WORKSPACE_WHL" ]; then \
+		echo "Monorepo 'make dist' produced no kolibri-*.whl in ../../dist"; \
+		exit 1; \
+	fi; \
+	cp "$$WORKSPACE_WHL" whl/; \
+	$(MAKE) install-whl whl="whl/$$(basename "$$WORKSPACE_WHL")"
 
 dependencies:
 	PYINSTALLER_COMPILE_BOOTLOADER=1 uv sync --extra build --no-binary-package pyinstaller

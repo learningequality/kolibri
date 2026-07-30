@@ -3610,7 +3610,6 @@ build = [
     { name = "attrdict", marker = "python_full_version >= '3.10'" },
     { name = "cryptography", version = "45.0.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "dmgbuild", marker = "python_full_version >= '3.10' and sys_platform == 'darwin'" },
-    { name = "pkginfo", marker = "python_full_version >= '3.10'" },
     { name = "polib", marker = "python_full_version >= '3.10'" },
     { name = "pyinstaller", marker = "python_full_version >= '3.10'" },
     { name = "pywin32", marker = "python_full_version >= '3.10' and sys_platform == 'win32'" },
@@ -3633,7 +3632,6 @@ requires-dist = [
     { name = "attrdict", marker = "python_full_version >= '3.10' and extra == 'build'", specifier = "==2.0.1" },
     { name = "cryptography", marker = "python_full_version >= '3.10' and extra == 'build'", specifier = "==45.0.7" },
     { name = "dmgbuild", marker = "python_full_version >= '3.10' and sys_platform == 'darwin' and extra == 'build'", specifier = "==1.6.7" },
-    { name = "pkginfo", marker = "python_full_version >= '3.10' and extra == 'build'" },
     { name = "polib", marker = "python_full_version >= '3.10' and extra == 'build'", specifier = "==1.2.0" },
     { name = "pyinstaller", marker = "python_full_version >= '3.10' and extra == 'build'", specifier = "==6.20.0" },
     { name = "pywin32", marker = "python_full_version >= '3.10' and sys_platform == 'win32' and extra == 'build'", specifier = "==311" },
@@ -5420,15 +5418,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d8/b6/df3c1c9b616e9c0edbc4fbab6ddd09df9535849c64ba51fcb6531c32d4d8/pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca", size = 6161, upload-time = "2018-09-25T19:17:37.249Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9a/41/220f49aaea88bc6fa6cba8d05ecf24676326156c23b991e80b3f2fc24c77/pickleshare-0.7.5-py2.py3-none-any.whl", hash = "sha256:9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56", size = 6877, upload-time = "2018-09-25T19:17:35.817Z" },
-]
-
-[[package]]
-name = "pkginfo"
-version = "1.12.1.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/03/e26bf3d6453b7fda5bd2b84029a426553bb373d6277ef6b5ac8863421f87/pkginfo-1.12.1.2.tar.gz", hash = "sha256:5cd957824ac36f140260964eba3c6be6442a8359b8c48f4adf90210f33a04b7b", size = 451828, upload-time = "2025-02-19T15:27:37.188Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/3d/f4f2ba829efb54b6cd2d91349c7463316a9cc55a43fc980447416c88540f/pkginfo-1.12.1.2-py3-none-any.whl", hash = "sha256:c783ac885519cab2c34927ccfa6bf64b5a704d7c69afaea583dd9b7afe969343", size = 32717, upload-time = "2025-02-19T15:27:33.071Z" },
 ]
 
 [[package]]
