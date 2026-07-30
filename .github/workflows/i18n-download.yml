@@ -37,7 +37,10 @@ jobs:
       - name: Install gettext
         run: sudo apt-get update && sudo apt-get install -y gettext
       - name: Install Python dependencies
-        run: uv sync
+        # --all-packages installs the python_packages/* members; without them the
+        # Makefile's importability guard skips their message-file generation and
+        # their *-messages.json are never regenerated from the download.
+        run: uv sync --all-packages
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
       - name: Download source fonts
