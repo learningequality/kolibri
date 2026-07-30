@@ -54,6 +54,11 @@ Chunks:       [=====chunk1=====]         [===chunk2===]
 
 This reduces the number of HTTP requests when extracting multiple files. Concurrent reads from the same chunk are deduplicated into a single fetch.
 
+Chromium can answer a range request from its sparse cache with a body shorter than the `Content-Length` it declares, as a successful load. Two rules keep that from reaching the inflater:
+
+1. **Range requests for one URL never overlap.** Chunks end at the following entry's offset, so they are exactly adjacent; a read spilling past a chunk is served from both chunks, and one reaching the prefetched tail grows the tail downwards.
+2. **A response shorter than the range requested is rejected**, so anything that slips through is a described error rather than an opaque inflater `TypeError`.
+
 ### Large Media File Handling
 
 For large video/audio files, provide a `largeFileUrlGenerator` to serve them directly:

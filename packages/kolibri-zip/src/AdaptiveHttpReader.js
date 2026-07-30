@@ -12,7 +12,8 @@ const DEFAULT_CHUNK_SIZE = 500 * 1024; // 500KB
 const ZIP_LOCAL_HEADER_SIZE = 30;
 // Conservative estimate for extra field length (varies, typically 0-100 bytes).
 // ZIP64 extensions alone add 28 bytes, and tools may write timestamps, Unicode paths, etc.
-// Overestimating wastes negligible bandwidth; underestimating risks missing chunk coverage.
+// Overestimating wastes negligible bandwidth; underestimating risks missing chunk
+// coverage. Only the last entry relies on it; the rest are clamped to the next offset.
 const ZIP_EXTRA_FIELD_ESTIMATE = 100;
 
 // Tail prefetch heuristics for Central Directory estimation
@@ -70,6 +71,7 @@ export default class AdaptiveHttpReader extends Reader {
     this._fullData = null;
     this._chunks = null;
     this._tailChunk = null;
+    this._tailPromise = null;
     this.size = 0;
   }
 
@@ -199,39 +201,56 @@ export default class AdaptiveHttpReader extends Reader {
       return this._readFromChunk(chunk, index, length);
     }
 
-    // Prefetch tail on first read near end of file (EOCD triggers this)
-    if (!this._tailChunk && index + length >= this.size - EOCD_PROXIMITY_THRESHOLD) {
-      // Use promise deduplication to prevent concurrent tail fetches
-      if (!this._tailFetching) {
-        const tailSize = this._estimateTailSize();
-        const tailStart = Math.max(0, this.size - tailSize);
-        this._tailFetching = this._rangeRequest(tailStart, this.size - tailStart).then(tailData => {
-          this._tailChunk = { startOffset: tailStart, endOffset: this.size, data: tailData };
-          this._tailFetching = null;
-          return this._tailChunk;
-        });
-      }
-      const tailChunk = await this._tailFetching;
-      // The tail chunk always extends to EOF (endOffset === this.size), so reads
-      // can only miss if they start before the cached region. This happens when
-      // our CD size estimate was too small and zip.js needs earlier bytes.
-      if (index < tailChunk.startOffset) {
-        return this._rangeRequest(index, length);
-      }
-      const relativeStart = index - tailChunk.startOffset;
-      return tailChunk.data.slice(relativeStart, relativeStart + length);
-    }
-
     // Before configureChunks() is called, allow range requests for zip parsing
     if (!this.chunksConfigured) {
-      return this._rangeRequest(index, length);
+      // Before a tail exists, EOF proximity seeds one; after, any read reaching it grows it down.
+      const tailReach = this._tailChunk?.startOffset ?? this.size - EOCD_PROXIMITY_THRESHOLD;
+      if (index + length >= tailReach) {
+        await this._ensureTail(index);
+      }
+      return this._readRegion(index, index + length);
     }
 
     // After chunks are configured, all reads should be covered by chunks
-    throw new Error(
-      `No chunk covers range ${index}-${index + length}. ` +
-        `This may indicate a large file being extracted without a largeFileUrlGenerator.`,
+    return this._readAcrossChunks(index, length);
+  }
+
+  /**
+   * Read a span no single chunk covers from the chunks it crosses. Chunk ends are clamped
+   * to the next entry's offset, so zip.js's fixed 16-byte data-descriptor read can cross a
+   * boundary; requesting the span itself would overlap those chunks.
+   * @param {number} index - Start offset
+   * @param {number} length - Number of bytes to read
+   * @returns {Promise<Uint8Array>} The requested data
+   */
+  async _readAcrossChunks(index, length) {
+    const end = index + length;
+    // Walk the span first, so an uncovered span throws before anything is fetched.
+    const spanning = [];
+    let offset = index;
+    while (offset < end) {
+      const chunk = this._findChunk(offset);
+      if (!chunk) {
+        throw new Error(
+          `No chunk covers range ${index}-${end}. ` +
+            `This may indicate a large file being extracted without a largeFileUrlGenerator.`,
+        );
+      }
+      spanning.push(chunk);
+      offset = chunk.endOffset;
+    }
+
+    const result = new Uint8Array(length);
+    await Promise.all(
+      spanning.map(chunk => {
+        const partStart = Math.max(chunk.startOffset, index);
+        const partLength = Math.min(chunk.endOffset, end) - partStart;
+        return this._readFromChunk(chunk, partStart, partLength).then(part =>
+          result.set(part, partStart - index),
+        );
+      }),
     );
+    return result;
   }
 
   /**
@@ -275,7 +294,19 @@ export default class AdaptiveHttpReader extends Reader {
 
       xhr.addEventListener('load', () => {
         if (xhr.status === 206 || xhr.status === 200) {
-          resolve(new Uint8Array(xhr.response));
+          // No caller asks past EOF, so a short body is a fault, not a clip: slicing it
+          // would hand zip.js a truncated deflate stream (#15103).
+          const body = new Uint8Array(xhr.response);
+          if (body.byteLength < length) {
+            reject(
+              new Error(
+                `Truncated range response for bytes=${start}-${start + length - 1}: ` +
+                  `expected ${length} bytes, received ${body.byteLength}`,
+              ),
+            );
+            return;
+          }
+          resolve(body);
         } else {
           reject(new Error(`HTTP error: ${xhr.status}`));
         }
@@ -287,6 +318,54 @@ export default class AdaptiveHttpReader extends Reader {
   }
 
   /**
+   * Read [start, end), requesting only the bytes the prefetched tail does not already
+   * hold so the request cannot overlap the tail's own.
+   * @param {number} start - Start offset
+   * @param {number} end - End offset, exclusive
+   * @returns {Promise<Uint8Array>} The requested bytes
+   */
+  async _readRegion(start, end) {
+    // Clamp to EOF: the last chunk's end is an estimate, and a short body must stay a fault.
+    const stop = Math.min(end, this.size);
+    const tail = this._tailChunk;
+    if (!tail || stop <= tail.startOffset) {
+      return this._rangeRequest(start, stop - start);
+    }
+    if (start >= tail.startOffset) {
+      return tail.data.slice(start - tail.startOffset, stop - tail.startOffset);
+    }
+    const head = await this._rangeRequest(start, tail.startOffset - start);
+    const cached = tail.data.subarray(0, stop - tail.startOffset);
+    const region = new Uint8Array(head.length + cached.length);
+    region.set(head);
+    region.set(cached, head.length);
+    return region;
+  }
+
+  /**
+   * Seed or grow the tail chunk downwards to cover minStart, so a read below an
+   * underestimated central directory never re-requests the tail's bytes.
+   * @param {number} minStart - Lowest offset that must be covered
+   * @returns {Promise} Resolves once _tailChunk covers [<= minStart, size)
+   */
+  _ensureTail(minStart) {
+    const startOffset = Math.min(minStart, Math.max(0, this.size - this._estimateTailSize()));
+    // Chained, so concurrent callers each fetch only the bytes the tail still lacks.
+    this._tailPromise = Promise.resolve(this._tailPromise).then(async () => {
+      if (this._tailChunk && startOffset >= this._tailChunk.startOffset) {
+        return;
+      }
+      // _readRegion splices in whatever the current tail already holds.
+      this._tailChunk = {
+        startOffset,
+        endOffset: this.size,
+        data: await this._readRegion(startOffset, this.size),
+      };
+    });
+    return this._tailPromise;
+  }
+
+  /**
    * Build chunk boundaries from entry metadata.
    * Groups adjacent small files into chunks of approximately chunkSize.
    * Large files (>= largeMediaThreshold) are excluded from chunks.
@@ -294,17 +373,19 @@ export default class AdaptiveHttpReader extends Reader {
    * @returns {Array} Array of chunk objects with startOffset, endOffset, data, fetching
    */
   _buildChunks(entries) {
-    // Filter out directories and entries without offset, sort by offset
-    const fileEntries = entries
-      .filter(e => !e.directory && e.offset !== undefined)
-      .sort((a, b) => a.offset - b.offset);
-
-    if (fileEntries.length === 0) return [];
+    const sorted = entries.filter(e => e.offset !== undefined).sort((a, b) => a.offset - b.offset);
 
     const chunks = [];
     let currentChunk = null;
 
-    for (const entry of fileEntries) {
+    for (let i = 0; i < sorted.length; i++) {
+      const entry = sorted[i];
+      // Skipped rather than filtered out: a directory holds no data, but its local header
+      // still bounds the entry before it.
+      if (entry.directory) {
+        continue;
+      }
+
       // Only exclude files that will be served via URL generation (large audio/video).
       // Large non-media files (e.g. JS libraries, images) must remain in chunks
       // so they can be extracted in the frontend.
@@ -319,12 +400,15 @@ export default class AdaptiveHttpReader extends Reader {
       }
 
       const entryStart = entry.offset;
-      const entryEnd =
+      // The next entry's offset is a hard upper bound on where this entry's data can end.
+      const entryEnd = Math.min(
         entry.offset +
-        ZIP_LOCAL_HEADER_SIZE +
-        entry.filename.length +
-        ZIP_EXTRA_FIELD_ESTIMATE +
-        entry.compressedSize;
+          ZIP_LOCAL_HEADER_SIZE +
+          entry.filename.length +
+          ZIP_EXTRA_FIELD_ESTIMATE +
+          entry.compressedSize,
+        sorted[i + 1]?.offset ?? Infinity,
+      );
 
       if (!currentChunk) {
         // Start a new chunk with this entry
@@ -403,8 +487,7 @@ export default class AdaptiveHttpReader extends Reader {
     // Ensure chunk data is loaded (with promise deduplication for concurrent reads)
     if (!chunk.data) {
       if (!chunk.fetching) {
-        const chunkLength = chunk.endOffset - chunk.startOffset;
-        chunk.fetching = this._rangeRequest(chunk.startOffset, chunkLength).then(data => {
+        chunk.fetching = this._readRegion(chunk.startOffset, chunk.endOffset).then(data => {
           chunk.data = data;
           chunk.fetching = null;
         });
