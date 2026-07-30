@@ -6,6 +6,7 @@ from Java via KolibriServerService.
 """
 
 import logging
+import socket
 
 from auth import get_os_user_auth_token
 from magicbus.plugins import SimplePlugin
@@ -13,6 +14,7 @@ from org.learningequality.Kolibri import KolibriServerViewModel
 
 import kolibri.utils.logger as kolibri_logger
 from kolibri.core.device.utils import app_initialize_url
+from kolibri.utils import conf
 from kolibri.utils.server import BaseKolibriProcessBus
 from kolibri.utils.server import KolibriServerPlugin
 from kolibri.utils.server import ZeroConfPlugin
@@ -54,6 +56,32 @@ def get_initialize_url(next_url=None):
     return "http://127.0.0.1:{port}".format(port=_server_bus.port) + path
 
 
+def _resolve_server_port(port):
+    """Reuse the port the live page is on, when it is still bindable.
+
+    Binds rather than using port_is_available_on_host, which only probes for a
+    listener: a port since handed to another app's outbound connection reads as
+    free there, and cheroot then dies on EADDRINUSE.
+    """
+    if not port:
+        return 0
+    port = int(port)
+    host = conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]
+    # LISTEN_ADDRESS is validated as a dotted-quad, so the family is always AF_INET.
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        # Match cheroot, which binds with SO_REUSEADDR: without it a port left in
+        # TIME_WAIT reads as taken when the server can still have it.
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind((host, port))
+        except OSError:
+            logger.warning(
+                "Port %s is no longer free, electing an ephemeral port", port
+            )
+            return 0
+    return port
+
+
 class AndroidKolibriProcessBus(BaseKolibriProcessBus):
     """
     Kolibri process bus for Android with Chaquopy
@@ -62,8 +90,8 @@ class AndroidKolibriProcessBus(BaseKolibriProcessBus):
     Server handles both local WebView and remote peer connections.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, port=0):
+        super().__init__(port=port)
         self._setup_plugins()
 
     def _setup_plugins(self):
@@ -89,10 +117,12 @@ class AndroidKolibriProcessBus(BaseKolibriProcessBus):
         self.transition("EXITED")
 
 
-def start_server():
+def start_server(port=0):
     """
     Start the Kolibri HTTP server
     Called from Java KolibriServerService
+
+    port is a port to try to reuse (the live page's); 0 elects an ephemeral one.
 
     Runs HTTP server for both local WebView (via Service Worker)
     and remote peer connections. Blocks until server stops.
@@ -110,9 +140,11 @@ def start_server():
     # it, so a second start_server() call in the same process would fail.
     kolibri_logger._queue_logging_initialized_for_process = False
 
-    # Create and run server bus
+    # Resolve before constructing, not inside the bus: PIDPlugin writes bus.port to the
+    # PID file during construction, and KolibriServerPlugin reads it back and raises
+    # RunningException if that port is occupied.
     logger.info("Creating Kolibri server bus")
-    bus = AndroidKolibriProcessBus()
+    bus = AndroidKolibriProcessBus(port=_resolve_server_port(port))
     _server_bus = bus
 
     try:
