@@ -55,9 +55,10 @@ already-long run: --runs 3 over both channels is 18 imports. Budget upwards of
 two minutes of reset per iteration per channel; each reset logs its own time.
 Use --channels to work against one channel while tuning, then confirm with both.
 
-Each iteration also pays two untimed content-table resets, around half a
-minute each on a channel this size, on top of the timed phases. Budget
-roughly two minutes per iteration per channel.
+Each iteration also pays an untimed content-table reset before every import
+that has to start from empty — two on sqlite, one on any other vendor —
+around half a minute each on a channel this size, on top of the timed
+phases. Budget roughly two minutes per iteration per channel.
 
 The first run downloads two large channel databases. On-disk footprint is
 roughly three copies of each (pristine, working, drive folder) plus the
@@ -78,6 +79,16 @@ A cached pristine copy is trusted forever. Kolibri's file transfer resumes a
 partial download, so a run killed mid-download can leave a short
 <channel_id>-upgrade.sqlite3 behind: if this script raises DatabaseError while
 describing a channel, the cached copy is truncated — delete it and rerun.
+
+On PostgreSQL, treat the annotation phase's absolute time with suspicion. The
+untimed reset deletes hundreds of thousands of rows, and before that reset
+VACUUMed, one measured run came out at 305s against 8s for the other channel on
+the same vendor — 100x the same channel's sqlite figure — because annotation's
+large UPDATEs were scanning dead tuples. reset_content_tables() now VACUUMs,
+which removes that particular cause, but postgres is not the axis this benchmark
+exists to protect and its absolute figures have had no tuning beyond that.
+Compare a postgres phase only against the same phase of a postgres baseline
+captured the same way.
 """
 
 import argparse
@@ -107,28 +118,24 @@ logger = logging.getLogger(__name__)
 # needs it. Do not hoist them:
 #
 # - kolibri.utils.conf snapshots os.environ["KOLIBRI_HOME"] into a module
-#   constant on import (conf.py:28) and kolibri.utils.main reads that constant
-#   on import too (main.py:28), so importing either before setup_kolibri() sets
-#   the variable silently pins the run to ~/.kolibri — a developer's real home,
-#   whose content tables this script deletes.
-# - kolibri.core.content modules additionally define Django models, so they need
-#   an app registry, which only initialize() provides.
-# - kolibri must still be imported before Django, for its compat patches (e.g.
-#   the cgi module on Python 3.13+). setup_kolibri() is the first thing main()
-#   calls, so nothing reaches Django ahead of it.
-# - sqlalchemy is deferred for a reason of its own: set_env() prepends
-#   kolibri/dist to sys.path (env.py:212), and `make dist` installs the pinned
-#   sqlalchemy there. Until initialize() has run, that directory is not on the
-#   path, so on a dist tree a module-scope import raises ImportError; and where
-#   site-packages does hold a copy, importing it first makes it win for kolibri
-#   too, because sys.modules is keyed by name — the content code would then run
-#   against a version it is not pinned to.
+#   constant on import (conf.py:28), so importing it before setup_kolibri() sets
+#   the variable pins the run to ~/.kolibri — a developer's real home, whose
+#   content tables this script deletes.
+# - kolibri.core.content modules define Django models, which need the app
+#   registry that only initialize() provides.
+# - kolibri must still be imported before Django, for its compat patches.
+#   setup_kolibri() is the first thing main() calls, so nothing gets there first.
+# - set_env() prepends kolibri/dist to sys.path, where `make dist` installs the
+#   pinned sqlalchemy. Importing sqlalchemy ahead of initialize() either fails
+#   on a dist tree, or wins in sys.modules and unpins the content code.
 
-# Both channels are at schema 5 or below, so both are imported through a
-# mapping class rather than the plain importer. 1ceff536... is the older of the
-# two. Note that the class is resolved from min_schema_version, not the
-# inferred version, so both currently land on
-# NoLearningActivitiesChannelImport — the report records which.
+# Both channels are at schema 5 or below, so both import through a mapping class
+# rather than the plain importer, resolved from min_schema_version rather than
+# the inferred version; the report records which. That class maps ContentNode
+# with a "post" key, which disqualifies the table from the ATTACH path, so
+# neither fixture ATTACHes the 40k-row table today. Expect fresh_import_no_attach
+# to come out near-flat on both: the separated sqlalchemy statement counts, not
+# the time delta, are what show the phase took effect.
 BENCHMARK_CHANNELS = (
     "1ceff53605e55bef987d88e0908658c5",
     "c9d7f950ab6b5a1199e3d6c10d7f0103",
@@ -330,12 +337,6 @@ def describe_channel(db_path):
         "min_schema_version", metadata.get("inferred_schema_version")
     )
     import_class = mappings.get(min_version)
-    if import_class is None:
-        logger.warning(
-            "Channel %s has no import class for schema version %s",
-            metadata.get("id"),
-            min_version,
-        )
     return {
         "name": metadata.get("name"),
         "version": metadata.get("version"),
@@ -385,6 +386,27 @@ def run_timed(fn, *args):
     return elapsed, counts
 
 
+def _reclaim_deleted_space():
+    """VACUUM the destination database, so every iteration starts alike.
+
+    Deleting a channel leaves the space behind: free pages in sqlite, dead
+    tuples in postgres. Without reclaiming it, each iteration imports into a
+    slightly more degraded database than the last, and the drift is systematic
+    rather than random — measured over six consecutive iterations on sqlite,
+    annotation climbed monotonically from 2.81s to 3.17s (+13%). Under the
+    before/after protocol the branch is always captured second, so that drift
+    lands entirely on the branch: a no-change self-comparison at --runs 3
+    failed the default 5% threshold on annotation with nothing changed at all.
+
+    VACUUM is untimed, and it runs after the deletes rather than before the
+    imports so that the reset's cost stays in one place.
+    """
+    from django.db import connection
+
+    with connection.cursor() as cursor:
+        cursor.execute("VACUUM")
+
+
 def reset_content_tables():
     """Restore the "no content imported" state that fresh_import starts from.
 
@@ -415,8 +437,11 @@ def reset_content_tables():
     LocalFile.objects.all().delete()
     Language.objects.all().delete()
     ContentTag.objects.all().delete()
-    # Around 30s on a full Khan Academy channel, almost all of it Django's
-    # cascade over the 228k-row File table, and paid twice per iteration. Logged
+    _reclaim_deleted_space()
+    # Around 30s on a full Khan Academy channel before the VACUUM above, almost
+    # all of it Django's cascade over the 228k-row File table. Paid twice per
+    # iteration on sqlite and once on any other vendor, because the second reset
+    # exists only to feed the sqlite-only fresh_import_no_attach phase. Logged
     # at INFO rather than DEBUG for two reasons: initialize() reconfigures
     # logging via dictConfig, so DEBUG never reaches the operator; and a silent
     # half-minute in a capture that already runs for a long time reads like a
@@ -430,6 +455,7 @@ def reset_content_tables():
 def prepare_drive_folder(channel_id, pristine_path):
     """Give the enumeration phase a per-channel, byte-identical drive folder."""
     from kolibri.core.content.utils.paths import get_content_database_file_path
+    from kolibri.utils.conf import KOLIBRI_HOME
 
     folder = os.path.join(KOLIBRI_HOME, "benchmark_drive", channel_id)
     # datafolder forces the primary path rather than a fallback, and creates the
@@ -447,6 +473,28 @@ def _phase_enabled(phase):
     return phase not in SQLITE_ONLY_PHASES or connection.vendor == "sqlite"
 
 
+def _import_channel(channel_id):
+    """Import the staged channel database, failing loudly on a silent no-op.
+
+    import_channel_from_local_db returns False rather than raising when
+    check_and_delete_existing_channel decides there is nothing to import
+    (channel_import.py:819). Timing that is worse than not timing it: the phase
+    records a near-zero mean, and --compare reads a no-op measured against a
+    real baseline as an enormous improvement and passes it.
+
+    describe_channel loads channel_import before any phase runs, so the deferred
+    import below is a sys.modules lookup and does not land in the measurement.
+    """
+    from kolibri.core.content.utils.channel_import import import_channel_from_local_db
+
+    if not import_channel_from_local_db(channel_id):
+        raise SystemExit(
+            "Importing channel {} did nothing, so the phase would have measured "
+            "an empty import. The destination database was not in the state the "
+            "phase expects.".format(channel_id)
+        )
+
+
 def _time_upgrade_import(channel_id):
     """Time the upgrade path by making the stored version trail the file's.
 
@@ -461,7 +509,6 @@ def _time_upgrade_import(channel_id):
     file, so the stored version returns to the file's version on its own.
     """
     from kolibri.core.content.models import ChannelMetadata
-    from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 
     channel = ChannelMetadata.objects.get(id=channel_id)
     if channel.version < 1:
@@ -471,7 +518,7 @@ def _time_upgrade_import(channel_id):
         )
         return None
     ChannelMetadata.objects.filter(id=channel_id).update(version=channel.version - 1)
-    return run_timed(import_channel_from_local_db, channel_id)
+    return run_timed(_import_channel, channel_id)
 
 
 def run_channel_iteration(channel_id, pristine_path, drive_folder):
@@ -479,7 +526,6 @@ def run_channel_iteration(channel_id, pristine_path, drive_folder):
     from kolibri.core.content.models import LocalFile
     from kolibri.core.content.utils.annotation import update_content_metadata
     from kolibri.core.content.utils.channel_import import ChannelImport
-    from kolibri.core.content.utils.channel_import import import_channel_from_local_db
     from kolibri.core.content.utils.channels import get_channels_for_data_folder
 
     results = {}
@@ -490,7 +536,7 @@ def run_channel_iteration(channel_id, pristine_path, drive_folder):
     # fresh_import and fresh_import_no_attach readable against each other.
     reset_content_tables()
     restore_channel_db(channel_id, pristine_path)
-    results["fresh_import"] = run_timed(import_channel_from_local_db, channel_id)
+    results["fresh_import"] = run_timed(_import_channel, channel_id)
 
     # Untimed and unconditional, so identical in every capture. Annotation on an
     # all-unavailable tree propagates nothing; marking the local files available
@@ -515,9 +561,7 @@ def run_channel_iteration(channel_id, pristine_path, drive_folder):
         with patch.object(
             ChannelImport, "try_attaching_sqlite_database", lambda self: None
         ):
-            results["fresh_import_no_attach"] = run_timed(
-                import_channel_from_local_db, channel_id
-            )
+            results["fresh_import_no_attach"] = run_timed(_import_channel, channel_id)
 
     results["drive_enumeration"] = run_timed(get_channels_for_data_folder, drive_folder)
     return results
@@ -827,6 +871,21 @@ def _benchmark_channel(channel_id, args):
     # Describe the pristine copy, not the working copy: its schema version is
     # the one every phase is fed.
     description = describe_channel(pristine_path)
+    if description["import_class"] == "unmapped":
+        # Stop here rather than several minutes into the first phase.
+        # initialize_import_manager guards mappings.get() with except KeyError
+        # (channel_import.py:1282), which .get never raises, so ImportClass
+        # stays None and the import dies at :1306 with "'NoneType' object is not
+        # callable" — a failure that says nothing about the real cause.
+        raise SystemExit(
+            "Channel {} declares min_schema_version {} (inferred {}), which this "
+            "version of Kolibri has no import class for. Report the schema "
+            "version; do not substitute another channel.".format(
+                channel_id,
+                description["min_schema_version"],
+                description["inferred_schema_version"],
+            )
+        )
     drive_folder = prepare_drive_folder(channel_id, pristine_path)
     if not args.quiet:
         logger.info(
@@ -907,6 +966,12 @@ def main():
     # compare-only mode, so a mistyped --compare path or an unwritable -o path
     # discovered at the end throws the whole capture away.
     baseline = load_report(args.compare) if args.compare else None
+    if args.compare and os.path.abspath(args.compare) == os.path.abspath(args.output):
+        # A baseline costs hours to capture.
+        raise SystemExit(
+            "--compare and --output are the same path ({}); the new capture "
+            "would overwrite the baseline it is compared against.".format(args.output)
+        )
     output_dir = os.path.dirname(os.path.abspath(args.output))
     if not os.access(output_dir, os.W_OK):
         raise SystemExit("Output directory is not writable: {}".format(output_dir))
