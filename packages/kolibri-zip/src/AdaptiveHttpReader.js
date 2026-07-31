@@ -26,6 +26,11 @@ const CD_SIZE_RATIO = 0.03; // Estimate CD is ~3% of total file size
 // zip.js reads near the end of file looking for EOCD signature.
 const EOCD_PROXIMITY_THRESHOLD = 100;
 
+// Range requests in flight, keyed by URL, so an overlapping pair is never issued together
+// (#15103). Shared across readers: one built on navigation can outlive the requests of the
+// one it replaced.
+const inFlightRanges = new Map();
+
 /**
  * AdaptiveHttpReader extends zip.js's Reader to provide adaptive fast/lazy loading for zip files.
  *
@@ -280,12 +285,42 @@ export default class AdaptiveHttpReader extends Reader {
   }
 
   /**
-   * Make a range request for specific bytes.
+   * Make a range request for specific bytes, held back until no request for this URL has
+   * an overlapping range in flight.
    * @param {number} start - Start offset
    * @param {number} length - Number of bytes to read
    * @returns {Promise<Uint8Array>} The requested data
    */
-  _rangeRequest(start, length) {
+  async _rangeRequest(start, length) {
+    const end = start + length;
+    const inFlight = inFlightRanges.get(this.url) ?? new Set();
+    inFlightRanges.set(this.url, inFlight);
+
+    const overlapping = () => [...inFlight].filter(r => r.start < end && start < r.end);
+    // Re-checked after each wait: another deferred request may have started meanwhile.
+    for (let waiting = overlapping(); waiting.length; waiting = overlapping()) {
+      await Promise.allSettled(waiting.map(r => r.response));
+    }
+
+    const request = { start, end, response: this._sendRangeRequest(start, length) };
+    inFlight.add(request);
+    try {
+      return await request.response;
+    } finally {
+      inFlight.delete(request);
+      if (!inFlight.size) {
+        inFlightRanges.delete(this.url);
+      }
+    }
+  }
+
+  /**
+   * Issue the range request itself, rejecting a body shorter than the range asked for.
+   * @param {number} start - Start offset
+   * @param {number} length - Number of bytes to read
+   * @returns {Promise<Uint8Array>} The requested data
+   */
+  _sendRangeRequest(start, length) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('GET', this.url);

@@ -37,7 +37,7 @@ function createTestData(sizeBytes) {
 function createMockServer(data, url, options = {}) {
   const {
     supportsRanges = true,
-    // Given the honest slice, returns the body to send.
+    // Given the honest slice, returns the body to send - short, delayed, or both.
     rangeResponse = null,
   } = options;
 
@@ -49,7 +49,7 @@ function createMockServer(data, url, options = {}) {
   };
 
   xhrMock.reset();
-  xhrMock.get(url, (req, res) => {
+  xhrMock.get(url, async (req, res) => {
     stats.requestCount++;
     const rangeHeader = req.header('Range');
 
@@ -86,7 +86,7 @@ function createMockServer(data, url, options = {}) {
     const slicedData = data.slice(start, actualEnd + 1);
     // Content-Length below still declares the whole slice, so a shorter body is served
     // exactly as the browser cache served it in #15103.
-    const body = rangeResponse ? rangeResponse({ body: slicedData }) : slicedData;
+    const body = rangeResponse ? await rangeResponse({ body: slicedData }) : slicedData;
     stats.totalBytesSent += body.length;
 
     return res
@@ -1885,21 +1885,44 @@ describe('AdaptiveHttpReader', () => {
       expectations.noOverlappingRanges(stats);
     });
 
-    // The boundary of "reaches the tail", far outside the EOCD proximity window.
-    it('a read ending exactly at the tail start extends it, so the next read below fetches only new bytes', async () => {
-      const { reader, stats } = await setupReaderWithTail('below-tail.zip');
-      const before = rangeCount(stats);
+    // The mechanism behind the invariant: no read path above produces an overlapping pair,
+    // and if one ever did, the second request waits rather than issuing.
+    it('defers a range request overlapping one in flight until that one completes', async () => {
+      let releaseFirst;
+      const firstHeld = new Promise(resolve => (releaseFirst = resolve));
+      let heldOne = false;
+      const { reader, stats } = await setupReader(
+        { size: 100000, url: 'serialised.zip' },
+        {
+          maxFullLoadSize: 1000,
+          serverOptions: {
+            rangeResponse: async ({ body }) => {
+              if (!heldOne) {
+                heldOne = true;
+                await firstHeld;
+              }
+              return body;
+            },
+          },
+        },
+      );
 
-      const first = await reader.readUint8Array(96000, 1000);
-      const second = await reader.readUint8Array(95000, 3000);
+      const first = reader._rangeRequest(1000, 500);
+      const second = reader._rangeRequest(1400, 500);
+      while (!heldOne) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      await new Promise(resolve => setTimeout(resolve, 5));
 
-      expect(rangesSince(stats, before)).toEqual(['bytes=96000-96999', 'bytes=95000-95999']);
-      expect(reader._tailChunk.startOffset).toBe(95000);
-      expect(first.length).toBe(1000);
-      expectations.dataMatches(first, 96000);
-      expect(second.length).toBe(3000);
-      expectations.dataMatches(second, 95000);
-      expectations.noOverlappingRanges(stats);
+      // The two ranges share bytes 1400-1499, so the second is still held back.
+      expect(rangesSince(stats, 0)).toEqual(['bytes=1000-1499']);
+
+      releaseFirst();
+      const [firstBytes, secondBytes] = await Promise.all([first, second]);
+
+      expect(rangesSince(stats, 0)).toEqual(['bytes=1000-1499', 'bytes=1400-1899']);
+      expectations.dataMatches(firstBytes, 1000);
+      expectations.dataMatches(secondBytes, 1400);
     });
   });
 
