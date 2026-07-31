@@ -39,6 +39,7 @@
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonTaskStrings from 'kolibri-common/uiText/tasks';
+  import { taskIsFinished } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {
     name: 'TasksBar',
@@ -60,22 +61,24 @@
       totalTasks() {
         return this.tasks.length;
       },
-      clearableTasks() {
-        return this.tasks.filter(t => t.clearable);
+      // Splitting on `clearable` would count a repeating task as in progress
+      // forever, since it is re-queued the instant a run ends.
+      finishedTasks() {
+        return this.tasks.filter(taskIsFinished);
       },
       inProgressTasks() {
-        return this.tasks.filter(t => !t.clearable);
+        return this.tasks.filter(t => !taskIsFinished(t));
       },
       progress() {
         return (
-          ((this.clearableTasks.length + sumBy(this.inProgressTasks, 'percentage')) /
+          ((this.finishedTasks.length + sumBy(this.inProgressTasks, 'percentage')) /
             this.totalTasks) *
           100
         );
       },
       tasksString() {
         return this.$tr('someTasksComplete', {
-          done: this.clearableTasks.length,
+          done: this.finishedTasks.length,
           total: this.totalTasks,
         });
       },

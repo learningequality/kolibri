@@ -55,6 +55,11 @@ class Job(models.Model):
     # Maximum number of retries allowed for the job
     max_retries = models.IntegerField(null=True, blank=True)
 
+    # The outcome of the last finished run, which a repeating job's own state
+    # stops describing as soon as the job is re-queued.
+    last_finished_state = models.CharField(max_length=20, null=True, blank=True)
+    last_finished_time = models.DateTimeField(null=True, blank=True)
+
     # References the supervisor currently responsible for this job.
     # No FK constraint to avoid complexity with supervisor cleanup.
     supervisor_id = UUIDField(null=True, blank=True)

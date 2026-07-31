@@ -56,6 +56,7 @@ class KolibriServer:
         self.port = get_free_tcp_port()
         self.baseurl = "http://127.0.0.1:{}/".format(self.port)
         self.enable_automatic_download = enable_automatic_download
+        self._instance = None
         if seeded_kolibri_home is not None:
             shutil.rmtree(self.env["KOLIBRI_HOME"])
             shutil.copytree(seeded_kolibri_home, self.env["KOLIBRI_HOME"])
@@ -132,7 +133,8 @@ class KolibriServer:
     def kill(self):
         try:
             subprocess.Popen("kolibri stop", env=self.env, shell=True)
-            self._instance.kill()
+            if self._instance is not None:
+                self._instance.kill()
             shutil.rmtree(self.env["KOLIBRI_HOME"])
         except OSError:
             pass
@@ -188,6 +190,7 @@ class KolibriServer:
 class multiple_kolibri_servers:
     def __init__(self, count=2, **server_kwargs):
         self.server_count = count
+        self.servers = []
         self.server_kwargs = [
             {
                 key: value[i] if isinstance(value, (list, tuple)) else value
@@ -197,6 +200,19 @@ class multiple_kolibri_servers:
         ]
 
     def __enter__(self):
+        try:
+            self._start_servers()
+        except BaseException:
+            # Servers left running hold connections that stop every later test
+            # creating its own database. BaseException: Django exits rather than
+            # raises when it cannot clobber one.
+            self.__exit__(None, None, None)
+            raise
+        return self.servers
+
+    def _start_servers(self):
+        # the same instance is reused for every invocation, so start from scratch
+        self.servers = []
         # spin up the servers
         if "sqlite" in connection.vendor:
             tempserver = KolibriServer(
@@ -208,12 +224,15 @@ class multiple_kolibri_servers:
             tempserver.delete_model(DatabaseIDModel)
             preseeded_home = tempserver.env["KOLIBRI_HOME"]
 
-            self.servers = [
-                KolibriServer(
-                    seeded_kolibri_home=preseeded_home, **self.server_kwargs[i]
+            for i in range(self.server_count):
+                # track before starting, so a failed start is still shut down
+                server = KolibriServer(
+                    autostart=False,
+                    seeded_kolibri_home=preseeded_home,
+                    **self.server_kwargs[i],
                 )
-                for i in range(self.server_count)
-            ]
+                self.servers.append(server)
+                server.start()
 
             # calculate the DATABASE settings
             for server in self.servers:
@@ -259,17 +278,22 @@ class multiple_kolibri_servers:
                 server_conn.close()
                 server.start()
 
-        return self.servers
-
     def __exit__(self, typ, val, traceback):
-        # make sure all the servers are shut down
+        # kill every server before touching any database, so that a database that
+        # refuses to drop cannot abort the loop and leave later servers running
         for server in self.servers:
             server.kill()
+        for server in self.servers:
+            # a server abandoned before its alias was registered has no database
+            if server.db_alias not in connections.databases:
+                continue
             # destroy the test databases
             server_conn = connections[server.db_alias]
             try:
                 server_conn.creation.destroy_test_db()
-            except OSError:
+            except Exception:
+                # Nothing narrower will do: Django surfaces a missing database
+                # as a RuntimeError from _nodb_cursor.
                 pass
             server_conn.close()
             # Remove the database alias from settings to prevent subsequent tests

@@ -20,11 +20,13 @@ from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
+from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import CanManageContent
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.validation import JobValidator
+from kolibri.utils.time_utils import local_now
 
 DUMMY_PASSWORD = "password"
 
@@ -55,6 +57,8 @@ class dummy_orm_job_data:
     interval = 8600
     retry_interval = 5
     max_retries = 3
+    last_finished_state = None
+    last_finished_time = None
 
 
 class BaseAPITestCase(APITestCase):
@@ -280,6 +284,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "extra_metadata": {},
             "facility_id": None,
             "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+            "last_finished_status": None,
+            "last_finished_datetime": None,
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
@@ -340,6 +346,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {},
                 "facility_id": None,
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -359,6 +367,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {},
                 "facility_id": None,
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -444,6 +454,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "facility": "kolibri HQ",
             },
             "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+            "last_finished_status": None,
+            "last_finished_datetime": None,
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
@@ -537,6 +549,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                     "facility": "kolibri HQ",
                 },
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -558,6 +572,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                     "facility": "kolibri HQ",
                 },
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1221,6 +1237,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1240,6 +1258,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1259,6 +1279,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": dummy_orm_job_data.scheduled_time.isoformat(),
+                "last_finished_status": None,
+                "last_finished_datetime": None,
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1488,3 +1510,52 @@ class CSRFProtectedTaskTestCase(APITestCase):
             reverse("kolibri:core:task-list"), {}, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class RepeatingTaskResponseAPITestCase(BaseAPITestCase):
+    TASK_ID = "kolibri.core.tasks.test.test_api.add"
+
+    def setUp(self):
+        @register_task(permission_classes=[IsSuperAdmin], queue="kolibri")
+        def add(x, y):
+            return x + y
+
+        TaskRegistry[self.TASK_ID] = add
+        self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
+
+    def tearDown(self):
+        # Only drop what this case registered - clearing the whole registry
+        # leaves later test modules without the tasks they import.
+        del TaskRegistry[self.TASK_ID]
+        job_storage.clear(force=True)
+
+    def _run_and_reschedule_recurring_job(self):
+        job_id = job_storage.enqueue_at(
+            local_now(),
+            Job(self.TASK_ID, args=(1, 2)),
+            queue="kolibri",
+            interval=10,
+            repeat=None,
+        )
+        job_storage.complete_job(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
+
+    def _get_only_task(self):
+        response = self.client.get(reverse("kolibri:core:task-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        return response.data[0]
+
+    def test_rescheduled_recurring_job_reports_last_run(self):
+        self._run_and_reschedule_recurring_job()
+
+        task = self._get_only_task()
+
+        self.assertEqual(task["status"], State.QUEUED)
+        self.assertEqual(task["last_finished_status"], State.COMPLETED)
+        self.assertTrue(task["last_finished_datetime"])
+
+    def test_rescheduled_recurring_job_is_not_clearable(self):
+        self._run_and_reschedule_recurring_job()
+
+        self.assertFalse(self._get_only_task()["clearable"])

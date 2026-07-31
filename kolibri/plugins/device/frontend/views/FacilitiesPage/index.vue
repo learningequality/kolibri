@@ -204,7 +204,7 @@
   import RegisterFacilityModal from 'kolibri-common/components/syncComponentSet/RegisterFacilityModal';
   import ConfirmationRegisterModal from 'kolibri-common/components/syncComponentSet/ConfirmationRegisterModal';
   import SyncFacilityModalGroup from 'kolibri-common/components/syncComponentSet/SyncFacilityModalGroup';
-  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { runEndedSince, TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
   import some from 'lodash/some';
   import useSnackbar from 'kolibri/composables/useSnackbar';
   import { pageLoading } from 'kolibri-common/composables/usePageLoading';
@@ -331,10 +331,8 @@
           return false;
         }
         const prevTask = prevTasks.find(({ id }) => id === task.id);
-        if (!prevTask) {
-          return false;
-        }
-        return prevTask.status === TaskStatuses.RUNNING && task.status === TaskStatuses.QUEUED;
+        // A RUNNING -> QUEUED transition is missed whenever polling straddles it.
+        return Boolean(prevTask) && runEndedSince(task, prevTask.last_finished_datetime);
       },
       facilityOptions() {
         return [

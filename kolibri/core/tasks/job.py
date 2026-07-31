@@ -86,6 +86,12 @@ class State:
         CANCELING,
     }
 
+    FINISHED_STATES = {
+        FAILED,
+        CANCELED,
+        COMPLETED,
+    }
+
 
 JobStatus = namedtuple("Status", ("title", "text"))
 
@@ -262,6 +268,18 @@ class Job:
         # in API code) can update an owned job freely.
         self._supervisor_id = NO_VALUE
         self.func = callable_to_import_path(func)
+
+    def reset_for_new_run(self):
+        """
+        Clear the fields describing a single run, so a repeating job does not
+        inherit the previous run's progress or outcome. extra_metadata is kept:
+        it is what the task manager renders for the run that just finished.
+        """
+        self.exception = None
+        self.traceback = ""
+        self.progress = 0
+        self.total_progress = 0
+        self.result = None
 
     def _check_storage_attached(self):
         if self._storage is None:

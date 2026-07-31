@@ -92,12 +92,16 @@ class TasksViewSet(viewsets.GenericViewSet):
             "percentage": job.percentage_progress,
             "id": job.job_id,
             "cancellable": job.cancellable,
-            "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
+            "clearable": job.state in State.FINISHED_STATES,
             "facility_id": job.facility_id,
             "args": job.args,
             "kwargs": job.kwargs,
             "extra_metadata": job.extra_metadata,
             "scheduled_datetime": orm_job.scheduled_time.isoformat(),
+            "last_finished_status": orm_job.last_finished_state,
+            "last_finished_datetime": orm_job.last_finished_time.isoformat()
+            if orm_job.last_finished_time
+            else None,
             "repeat": orm_job.repeat,
             "repeat_interval": orm_job.interval,
             "retry_interval": orm_job.retry_interval,
@@ -323,7 +327,7 @@ class TasksViewSet(viewsets.GenericViewSet):
         """
         job_to_clear = self._get_job_for_pk(request, pk)
 
-        if job_to_clear.state not in (State.COMPLETED, State.FAILED, State.CANCELED):
+        if job_to_clear.state not in State.FINISHED_STATES:
             raise serializers.ValidationError(
                 "Cannot clear job with state: {}".format(job_to_clear.state)
             )

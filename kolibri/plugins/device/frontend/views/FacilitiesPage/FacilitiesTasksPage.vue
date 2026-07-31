@@ -16,7 +16,7 @@
         </template>
       </HeaderWithOptions>
 
-      <p v-if="facilityTasks.length === 0">
+      <p v-if="activeFacilityTasks.length === 0">
         {{ deviceString('emptyTasksMessage') }}
       </p>
       <div>

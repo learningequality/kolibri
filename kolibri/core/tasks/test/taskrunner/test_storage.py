@@ -484,6 +484,106 @@ class TestBackend:
         assert requeued_job.state == State.QUEUED
         assert requeued_orm_job.scheduled_time > previous_scheduled_time
 
+    def test_reschedule_recurring_job_keeps_last_finished(
+        self, defaultbackend, simplejob
+    ):
+        job_id = defaultbackend.enqueue_at(
+            local_now(), simplejob, QUEUE, interval=10, repeat=None
+        )
+        assert defaultbackend.get_orm_job(job_id).last_finished_state is None
+        defaultbackend.complete_job(job_id)
+
+        defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+
+        assert requeued_orm_job.state == State.QUEUED
+        assert requeued_orm_job.last_finished_state == State.COMPLETED
+        assert requeued_orm_job.last_finished_time is not None
+
+    def test_reschedule_with_delay_keeps_last_finished(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            job_id, delay=datetime.timedelta(seconds=5)
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+
+        assert requeued_orm_job.state == State.QUEUED
+        assert requeued_orm_job.last_finished_state == State.COMPLETED
+        assert requeued_orm_job.last_finished_time is not None
+
+    def test_last_finished_describes_the_most_recent_run(
+        self, defaultbackend, simplejob
+    ):
+        exception = ValueError("Error")
+        job_id = defaultbackend.enqueue_job(
+            simplejob, QUEUE, retry_interval=5, max_retries=3
+        )
+        defaultbackend.mark_job_as_failed(job_id, exception, "Traceback")
+        defaultbackend.reschedule_finished_job_if_needed(job_id, exception=exception)
+        assert defaultbackend.get_orm_job(job_id).last_finished_state == State.FAILED
+        defaultbackend.mark_job_as_running(job_id)
+
+        defaultbackend.complete_job(job_id)
+
+        assert defaultbackend.get_orm_job(job_id).last_finished_state == State.COMPLETED
+
+    def test_clear_leaves_rescheduled_recurring_job(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_at(
+            local_now(), simplejob, QUEUE, interval=10, repeat=None
+        )
+        defaultbackend.complete_job(job_id)
+        defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+        defaultbackend.clear(force=False)
+
+        assert defaultbackend.get_orm_job(job_id).state == State.QUEUED
+
+    def test_marking_running_clears_completed_run_fields(
+        self, defaultbackend, simplejob
+    ):
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_running(job_id)
+        defaultbackend.update_job_progress(job_id, 5, 10)
+        defaultbackend.complete_job(job_id, result="run one")
+
+        defaultbackend.mark_job_as_running(job_id)
+
+        job = defaultbackend.get_job(job_id)
+
+        assert job.progress == 0
+        assert job.total_progress == 0
+        assert job.result is None
+
+    def test_marking_running_clears_failed_run_fields(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_running(job_id)
+        defaultbackend.mark_job_as_failed(job_id, ValueError("Error"), "Traceback")
+
+        defaultbackend.mark_job_as_running(job_id)
+
+        job = defaultbackend.get_job(job_id)
+
+        assert job.exception is None
+        assert job.traceback == ""
+
+    def test_marking_running_keeps_last_finished(self, defaultbackend, simplejob):
+        job_id = defaultbackend.enqueue_at(
+            local_now(), simplejob, QUEUE, interval=10, repeat=None
+        )
+        defaultbackend.complete_job(job_id)
+        defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+        defaultbackend.mark_job_as_running(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+
+        assert orm_job.last_finished_state == State.COMPLETED
+        assert orm_job.last_finished_time is not None
+
     def test_reschedule_finished_job_invalid_state_queued(
         self, defaultbackend, simplejob
     ):

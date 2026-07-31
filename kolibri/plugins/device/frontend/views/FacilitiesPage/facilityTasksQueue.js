@@ -10,10 +10,13 @@ function taskFacilityMatch(task, facility) {
 }
 
 function isActiveTask(task) {
-  // Helper function filter tasks by whether they are 'active'
-  // i.e. has a user just queued a non-repeating task, or is a repeating task
-  // that is currently running.
-  return task.repeat !== null || task.status === TaskStatuses.RUNNING;
+  // A schedule that has never run is not a task the user is watching — it
+  // belongs on Manage sync schedule.
+  return (
+    task.repeat !== null ||
+    task.status === TaskStatuses.RUNNING ||
+    Boolean(task.last_finished_datetime)
+  );
 }
 
 export default {
@@ -50,12 +53,13 @@ export default {
       return this.facilityTasks.filter(isActiveTask);
     },
     facilityIsSyncing() {
-      return function isSyncing(facility) {
-        const inProcessSyncTasks = this.activeFacilityTasks.filter(
-          t => isSyncTask(t) && !t.clearable,
+      return facility =>
+        this.facilityTasks.some(
+          task =>
+            isSyncTask(task) &&
+            task.status === TaskStatuses.RUNNING &&
+            taskFacilityMatch(task, facility),
         );
-        return Boolean(inProcessSyncTasks.find(task => taskFacilityMatch(task, facility)));
-      };
     },
     facilityIsDeleting() {
       return function isDeleting(facility) {

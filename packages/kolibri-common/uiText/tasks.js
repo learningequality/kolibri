@@ -1,4 +1,5 @@
 import { createTranslator } from 'kolibri/utils/i18n';
+import { now } from 'kolibri/utils/serverClock';
 
 const taskStrings = createTranslator('TaskStrings', {
   // Generic Task strings
@@ -21,6 +22,20 @@ const taskStrings = createTranslator('TaskStrings', {
   taskFailedStatus: {
     message: 'Failed',
     context: 'Generic task status',
+  },
+  taskFinishedRelativeStatus: {
+    message: 'Finished {relativeTime}',
+    context:
+      'Status of a task run that has completed, with a relative time such as "2 minutes ago".',
+  },
+  taskFailedRelativeStatus: {
+    message: 'Failed {relativeTime}',
+    context: 'Status of a task run that has failed, with a relative time such as "5 minutes ago".',
+  },
+  taskCanceledRelativeStatus: {
+    message: 'Canceled {relativeTime}',
+    context:
+      'Status of a task run that was canceled, with a relative time such as "5 minutes ago".',
   },
   taskUnknownStatus: {
     message: 'Unknown',
@@ -84,6 +99,16 @@ const taskStrings = createTranslator('TaskStrings', {
     message: '{bytesSent} sent • {bytesReceived} received',
     context: 'Amounts of data transferred in sync task',
   },
+  syncNextRunLabel: {
+    message: 'next sync {relativeTime}',
+    context:
+      'When a repeating sync will next run. Shown after the status of its last run, e.g. "Finished 2 minutes ago, next sync in 1 day".',
+  },
+  syncNextRetryLabel: {
+    message: 'retrying {relativeTime}',
+    context:
+      'When a failed sync will be retried. Shown after the status of its last run, e.g. "Failed 5 minutes ago, retrying in 1 hour".',
+  },
 
   // Remove Facility Task strings
   removingFacilityStatus: {
@@ -118,6 +143,12 @@ const taskStrings = createTranslator('TaskStrings', {
 
 export function getTaskString(...args) {
   return taskStrings.$tr(...args);
+}
+
+// 'best fit' would render a day out as "tomorrow", which at 23:00 is an hour
+// off — ambiguous for a schedule.
+export function getRelativeTaskTime(datetime) {
+  return taskStrings.$formatRelative(datetime, { style: 'numeric', now: now() });
 }
 
 export default {

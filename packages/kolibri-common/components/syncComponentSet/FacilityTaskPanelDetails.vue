@@ -134,7 +134,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import commonTaskStrings from 'kolibri-common/uiText/tasks';
-  import { TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
+  import { taskDisplayStatus, TaskStatuses, TaskTypes } from 'kolibri-common/utils/syncTaskUtils';
 
   export default {
     name: 'FacilityTaskPanelDetails',
@@ -186,17 +186,20 @@
       },
     },
     computed: {
+      displayStatus() {
+        return taskDisplayStatus(this.task);
+      },
       taskIsCompleted() {
-        return this.task.status === TaskStatuses.COMPLETED;
+        return this.displayStatus === TaskStatuses.COMPLETED;
       },
       taskIsCanceling() {
-        return this.task.status === TaskStatuses.CANCELING;
+        return this.displayStatus === TaskStatuses.CANCELING;
       },
       taskIsCanceled() {
-        return this.task.status === TaskStatuses.CANCELED;
+        return this.displayStatus === TaskStatuses.CANCELED;
       },
       taskIsFailed() {
-        return this.task.status === TaskStatuses.FAILED || this.taskIsCanceled;
+        return this.displayStatus === TaskStatuses.FAILED || this.taskIsCanceled;
       },
       taskPercentage() {
         return this.task.percentage;
@@ -220,7 +223,7 @@
       },
       statusHidesLoader() {
         return (
-          this.task.status === TaskStatuses.PENDING ||
+          this.displayStatus === TaskStatuses.PENDING ||
           this.taskIsCompleted ||
           this.taskIsCanceling ||
           this.taskIsFailed

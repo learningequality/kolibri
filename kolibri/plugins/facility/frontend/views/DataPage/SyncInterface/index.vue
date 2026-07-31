@@ -120,7 +120,11 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import CoreMenu from 'kolibri/components/CoreMenu';
   import CoreMenuOption from 'kolibri/components/CoreMenu/CoreMenuOption';
-  import { TaskStatuses } from 'kolibri-common/utils/syncTaskUtils';
+  import {
+    runEndedSince,
+    taskDisplayStatus,
+    TaskStatuses,
+  } from 'kolibri-common/utils/syncTaskUtils';
   import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
   import useFacility from 'kolibri-common/composables/useFacility';
   import PrivacyModal from './PrivacyModal';
@@ -163,6 +167,7 @@
         kdpProject: null, // { name, token }
         modalShown: null,
         syncTaskId: '',
+        syncTaskLastFinished: null,
         isSyncing: false,
         syncHasFailed: false,
         Modals,
@@ -219,13 +224,19 @@
       pollSyncTask() {
         // Like facilityTaskQueue, just keep polling until component is destroyed
         TaskResource.get(this.syncTaskId).then(task => {
-          if (task.clearable) {
+          if (runEndedSince(task, this.syncTaskLastFinished)) {
             this.isSyncing = false;
-            TaskResource.clear(this.syncTaskId);
+            // Clearing a repeating row would delete the facility's sync
+            // schedule, and it is briefly clearable between the run ending and
+            // the re-schedule that requeues it.
+            if (task.clearable && task.repeat === 0) {
+              TaskResource.clear(this.syncTaskId);
+            }
             this.syncTaskId = '';
-            if (task.status === TaskStatuses.FAILED) {
+            const status = taskDisplayStatus(task);
+            if (status === TaskStatuses.FAILED) {
               this.syncHasFailed = true;
-            } else if (task.status === TaskStatuses.COMPLETED) {
+            } else if (status === TaskStatuses.COMPLETED) {
               this.fetchFacility();
             }
           } else if (this.syncTaskId) {
@@ -244,9 +255,12 @@
         this.fetchFacilityConfig();
         this.closeModal();
       },
-      handleSyncFacilitySuccess(taskId) {
+      handleSyncFacilitySuccess(task) {
         this.isSyncing = true;
-        this.syncTaskId = taskId;
+        this.syncTaskId = task.id;
+        // A manual sync may land on an existing schedule, which already carries
+        // the previous run's snapshot; the run we started is what changes it.
+        this.syncTaskLastFinished = task.last_finished_datetime;
         this.pollSyncTask();
       },
       handleSyncFacilityFailure() {
@@ -260,7 +274,7 @@
         this.closeModal();
         this.startKdpSyncTask(this.facilityId)
           .then(task => {
-            this.handleSyncFacilitySuccess(task.id);
+            this.handleSyncFacilitySuccess(task);
           })
           .catch(() => {
             this.handleSyncFacilityFailure();
@@ -273,7 +287,7 @@
           device_id: peerData.id,
         })
           .then(task => {
-            this.handleSyncFacilitySuccess(task.id);
+            this.handleSyncFacilitySuccess(task);
           })
           .catch(() => {
             this.handleSyncFacilityFailure();
