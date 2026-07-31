@@ -100,7 +100,7 @@
 
   .bottom-bar {
     height: 54px;
-    padding: 8px 8px 0;
+    padding: 8px 40px 0;
     overflow: hidden;
     text-align: center;
   }

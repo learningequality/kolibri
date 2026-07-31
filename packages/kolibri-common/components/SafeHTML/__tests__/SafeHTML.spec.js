@@ -377,6 +377,20 @@ describe('SafeHTML', () => {
       expect(container.querySelector('video')).not.toBeInTheDocument();
     });
 
+    it('wraps the ContentViewer in an embedded layout container', () => {
+      kolibri.canHandleElement = jest.fn().mockReturnValue(true);
+
+      const { container } = render(SafeHTML, {
+        props: {
+          html: '<video src="video.mp4"></video>',
+        },
+      });
+
+      expect(
+        container.querySelector('.embedded-content-viewer > [data-testid="content-viewer"]'),
+      ).toBeInTheDocument();
+    });
+
     it('renders original element when canHandleElement returns false', () => {
       kolibri.canHandleElement = jest.fn().mockReturnValue(false);
 

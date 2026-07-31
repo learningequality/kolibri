@@ -3,6 +3,7 @@
   <div
     class="table-container"
     data-testid="table-container"
+    :style="{ '--table-focus-outline': $themeTokens.focusOutline }"
   >
     <table
       class="safe-html"
@@ -99,9 +100,50 @@
 
 <style scoped>
 
+  /* Negative margins cancel the extra width, so wide tables scroll full-bleed. */
   .table-container {
-    margin: 1em 0;
+    width: calc(100% + 32px);
+    padding: 0 16px;
+    margin: 1em -16px;
     overflow-x: auto;
+  }
+
+  .table-container:focus-visible {
+    outline: 3px solid var(--table-focus-outline) !important;
+    outline-offset: -3px !important;
+  }
+
+  table.safe-html {
+    min-width: 640px;
+    margin: 16px auto;
+    font-size: 16px;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  /* Slot content carries the parent's scope id, not this component's. */
+  /deep/ caption.safe-html {
+    margin: 0 auto 12px;
+    font-weight: 600;
+  }
+
+  /deep/ caption.safe-html.small-window {
+    text-align: start;
+  }
+
+  /deep/ thead.safe-html {
+    font-weight: 600;
+  }
+
+  /deep/ th.safe-html {
+    font-weight: 600;
+    text-align: left;
+  }
+
+  /deep/ th.safe-html,
+  /deep/ td.safe-html {
+    min-width: 200px;
+    padding: 16px;
   }
 
 </style>

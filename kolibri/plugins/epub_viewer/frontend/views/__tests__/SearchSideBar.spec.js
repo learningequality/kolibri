@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import { defineComponent, ref } from 'vue';
 import SearchSideBar from '../SearchSideBar';
 
@@ -49,5 +49,38 @@ describe('Search side bar', () => {
 
     const input = screen.getByRole('searchbox');
     expect(input).toHaveFocus();
+  });
+
+  it('should let escape from the input reach the ancestor that closes the side bar', async () => {
+    const closeSideBar = jest.fn();
+    const Parent = defineComponent({
+      components: { SearchSideBar },
+      setup() {
+        // eslint-disable-next-line vue/no-unused-properties
+        return { closeSideBar };
+      },
+      template: ` <div @keyup.esc="closeSideBar">
+        <SearchSideBar :book="{}" />
+      </div> `,
+    });
+
+    render(Parent, { attachTo: document.body });
+
+    await fireEvent.keyUp(screen.getByRole('searchbox'), { key: 'Escape' });
+
+    expect(closeSideBar).toHaveBeenCalled();
+  });
+
+  it('should suppress the native search field clear on escape', () => {
+    renderComponent();
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true,
+    });
+    screen.getByRole('searchbox').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
   });
 });

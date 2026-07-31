@@ -1,14 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
 import { createTranslator } from 'kolibri/utils/i18n';
+import { viewerToolbarStrings } from 'kolibri-common/components/ViewerToolbar';
 import TopBar from '../TopBar';
 import TocButton from '../TocButton';
 import SettingsButton from '../SettingsButton';
 import SearchButton from '../SearchButton';
 
+const { enterFullscreen$ } = viewerToolbarStrings;
 const { toggleTocSideBar$ } = createTranslator(TocButton.name, TocButton.$trs);
 const { toggleSettingsSideBar$ } = createTranslator(SettingsButton.name, SettingsButton.$trs);
 const { toggleSearchSideBar$ } = createTranslator(SearchButton.name, SearchButton.$trs);
-const { toggleFullscreen$ } = createTranslator(TopBar.name, TopBar.$trs);
 
 function renderTopBar(props = {}) {
   return render(TopBar, {
@@ -85,7 +86,7 @@ describe('Top bar', () => {
   it('emits event when fullscreen button is clicked', async () => {
     const { emitted } = renderTopBar();
 
-    await fireEvent.click(screen.getByRole('button', { name: toggleFullscreen$() }));
+    await fireEvent.click(screen.getByRole('button', { name: enterFullscreen$() }));
 
     expect(emitted().fullscreenButtonClicked).toBeTruthy();
   });

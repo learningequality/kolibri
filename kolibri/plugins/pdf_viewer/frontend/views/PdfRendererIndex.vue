@@ -1,122 +1,121 @@
 <template>
 
-  <CoreFullscreen
-    ref="pdfViewer"
-    class="pdf-viewer"
-    :class="{
-      'pdf-controls-open': showControls,
-      'pdf-full-screen': isInFullscreen,
-      'pdf-embedded': embedded,
-      'pdf-mobile-embedded': mobileEmbedded,
-    }"
-    :style="{ backgroundColor: $themeTokens.text }"
-    @changeFullscreen="isInFullscreen = $event"
+  <EmbeddedReadCard
+    :active="mobileEmbedded"
+    @read="$refs.pdfViewer.toggleFullscreen()"
   >
-    <KLinearLoader
-      v-if="documentLoading || firstPageHeight === null"
-      class="progress-bar"
-      :delay="false"
-      :type="loadingProgress > 0 ? 'determinate' : 'indeterminate'"
-      :progress="loadingProgress * 100"
-    />
+    <CoreFullscreen
+      ref="pdfViewer"
+      class="pdf-viewer"
+      :class="{
+        'pdf-controls-open': showControls,
+        'pdf-full-screen': isInFullscreen,
+        'pdf-embedded': embeddedInline,
+        'pdf-mobile-embedded': mobileEmbedded,
+      }"
+      :style="pdfViewerStyle"
+      @changeFullscreen="isInFullscreen = $event"
+    >
+      <KLinearLoader
+        v-if="documentLoading || firstPageHeight === null"
+        class="progress-bar"
+        :delay="false"
+        :type="loadingProgress > 0 ? 'determinate' : 'indeterminate'"
+        :progress="loadingProgress * 100"
+      />
 
-    <template v-else>
-      <transition name="slide">
-        <div
-          class="fullscreen-header pdf-controls-container"
-          :style="{ backgroundColor: $themePalette.grey.v_200 }"
+      <template v-else>
+        <transition
+          v-if="!mobileEmbedded"
+          name="slide"
         >
-          <div>
-            <KIconButton
-              v-if="outline && outline.length > 0"
-              class="controls"
-              :ariaLabel="coreString('bookmarksLabel')"
-              :tooltip="coreString('bookmarksLabel')"
-              aria-controls="sidebar-container"
-              icon="menu"
-              @click="toggleSideBar"
-            />
-          </div>
-          <div>
-            <KIconButton
-              class="button-zoom-in controls"
-              :ariaLabel="coreString('zoomIn')"
-              aria-controls="pdf-container"
-              icon="add"
-              @click="zoomIn"
-            />
-            <KIconButton
-              class="button-zoom-out controls"
-              :ariaLabel="coreString('zoomOut')"
-              aria-controls="pdf-container"
-              icon="remove"
-              @click="zoomOut"
-            />
-            <KButton
-              class="fullscreen-button"
-              :primary="false"
-              appearance="flat-button"
-              :icon="isInFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-              @click="$refs.pdfViewer.toggleFullscreen()"
-            >
-              {{ fullscreenText }}
-            </KButton>
-          </div>
-        </div>
-      </transition>
-      <KGrid
-        class="full-height-container"
-        gutter="0"
-      >
-        <KGridItem
-          v-if="showSideBar"
-          class="full-height-container"
-          :layout8="{ span: 2 }"
-          :layout12="{ span: 3 }"
-        >
-          <SideBar
-            id="sidebar-container"
-            class="scroller-height"
-            :style="{ position: 'sticky', top: 0 }"
-            :outline="outline || []"
-            :goToDestination="goToDestination"
-            :focusDestPage="focusDestPage"
-          />
-        </KGridItem>
-        <KGridItem
-          ref="pdfContainer"
-          class="full-height-container"
-          :layout8="{ span: showSideBar ? 6 : 8 }"
-          :layout12="{ span: showSideBar ? 9 : 12 }"
-        >
-          <RecyclableScroller
-            id="pdf-container"
-            ref="recycleList"
-            :items="pdfPages"
-            :buffer="itemHeight * 2"
-            :emitUpdate="true"
-            class="pdf-container scroller-height"
-            keyField="index"
-            @update="handleUpdate"
+          <ViewerToolbar
+            class="pdf-controls-container"
+            :isInFullscreen="isInFullscreen"
+            @toggleFullscreen="$refs.pdfViewer.toggleFullscreen()"
           >
-            <template #default="{ item }">
-              <PdfPage
-                :key="item.index"
-                :pageNum="item.index + 1"
-                :pdfPage="pdfPages[item.index].page"
-                :pageReady="pdfPages[item.index].resolved"
-                :firstPageHeight="firstPageHeight || 0"
-                :firstPageWidth="firstPageWidth || 0"
-                :scale="scale || 1"
-                :totalPages="pdfPages.length"
-                :eventBus="eventBus"
+            <template #left>
+              <KIconButton
+                v-if="outline && outline.length > 0"
+                :ariaLabel="coreString('bookmarksLabel')"
+                :tooltip="coreString('bookmarksLabel')"
+                aria-controls="sidebar-container"
+                icon="menu"
+                @click="toggleSideBar"
               />
             </template>
-          </RecyclableScroller>
-        </KGridItem>
-      </KGrid>
-    </template>
-  </CoreFullscreen>
+            <template #right>
+              <KIconButton
+                class="button-zoom-in"
+                :ariaLabel="coreString('zoomIn')"
+                aria-controls="pdf-container"
+                icon="add"
+                @click="zoomIn"
+              />
+              <KIconButton
+                class="button-zoom-out"
+                :ariaLabel="coreString('zoomOut')"
+                aria-controls="pdf-container"
+                icon="remove"
+                @click="zoomOut"
+              />
+            </template>
+          </ViewerToolbar>
+        </transition>
+        <KGrid
+          class="full-height-container"
+          gutter="0"
+        >
+          <KGridItem
+            v-if="showSideBar"
+            class="full-height-container"
+            :layout8="{ span: 2 }"
+            :layout12="{ span: 3 }"
+          >
+            <SideBar
+              id="sidebar-container"
+              class="scroller-height"
+              :style="{ position: 'sticky', top: 0 }"
+              :outline="outline || []"
+              :goToDestination="goToDestination"
+              :focusDestPage="focusDestPage"
+            />
+          </KGridItem>
+          <KGridItem
+            ref="pdfContainer"
+            class="full-height-container"
+            :layout8="{ span: showSideBar ? 6 : 8 }"
+            :layout12="{ span: showSideBar ? 9 : 12 }"
+          >
+            <RecyclableScroller
+              id="pdf-container"
+              ref="recycleList"
+              :items="pdfPages"
+              :buffer="itemHeight * 2"
+              :emitUpdate="true"
+              class="pdf-container scroller-height"
+              keyField="index"
+              @update="handleUpdate"
+            >
+              <template #default="{ item }">
+                <PdfPage
+                  :key="item.index"
+                  :pageNum="item.index + 1"
+                  :pdfPage="pdfPages[item.index].page"
+                  :pageReady="pdfPages[item.index].resolved"
+                  :firstPageHeight="firstPageHeight || 0"
+                  :firstPageWidth="firstPageWidth || 0"
+                  :scale="scale || 1"
+                  :totalPages="pdfPages.length"
+                  :eventBus="eventBus"
+                />
+              </template>
+            </RecyclableScroller>
+          </KGridItem>
+        </KGrid>
+      </template>
+    </CoreFullscreen>
+  </EmbeddedReadCard>
 
 </template>
 
@@ -133,6 +132,8 @@
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoreFullscreen from 'kolibri-common/components/CoreFullscreen';
+  import EmbeddedReadCard from 'kolibri-common/components/EmbeddedReadCard';
+  import ViewerToolbar from 'kolibri-common/components/ViewerToolbar';
   import useContentViewer from 'kolibri/composables/useContentViewer';
   import { ref, computed } from 'vue';
   import '../utils/domPolyfills';
@@ -153,7 +154,9 @@
       SideBar,
       PdfPage,
       CoreFullscreen,
+      EmbeddedReadCard,
       RecyclableScroller,
+      ViewerToolbar,
     },
     mixins: [commonCoreStrings],
     setup(props, context) {
@@ -202,6 +205,26 @@
       outline: null,
     }),
     computed: {
+      // Fullscreen reached from an embedded PDF should look like standalone fullscreen.
+      embeddedInline() {
+        return this.embedded && !this.isInFullscreen;
+      },
+      mobileEmbedded() {
+        return this.embeddedInline && this.windowIsSmall;
+      },
+      pdfViewerStyle() {
+        const style = {
+          backgroundColor: this.embeddedInline ? this.$themeTokens.surface : this.$themeTokens.text,
+        };
+        if (this.embeddedInline && !this.mobileEmbedded) {
+          // The mobile-embedded preview gets its card border from EmbeddedReadCard.
+          style.border = `1px solid ${this.$themeTokens.fineLine}`;
+          if (!this.windowIsSmall) {
+            style.minHeight = '400px';
+          }
+        }
+        return style;
+      },
       // Returns whether or not the current device is iOS.
       // Probably not perfect, but worked in testing.
       iOS() {
@@ -235,9 +258,6 @@
           this.visitedPages = value;
         },
       },
-      fullscreenText() {
-        return this.isInFullscreen ? this.$tr('exitFullscreen') : this.$tr('enterFullscreen');
-      },
       debouncedShowVisiblePages() {
         // So as not to share debounced functions between instances of the same component
         // and also to allow access to the cancel method of the debounced function
@@ -246,6 +266,10 @@
         return debounce(this.showVisiblePages, renderDebounceTime);
       },
       screenSizeMultiplier() {
+        if (this.mobileEmbedded) {
+          // Shrink the rendered pages so the preview fits within the card.
+          return 1.2;
+        }
         if (this.windowIsLarge) {
           return 1.25;
         }
@@ -256,7 +280,23 @@
       },
     },
     watch: {
+      mobileEmbedded() {
+        // screenSizeMultiplier depends on mobileEmbedded; re-derive scale so
+        // pages re-render at the appropriate size when entering/leaving the
+        // preview state.
+        this.$nextTick(() => {
+          if (this.firstPageWidth) {
+            this.scale = this.viewerWidth() / (this.firstPageWidth * this.screenSizeMultiplier);
+          }
+        });
+      },
       recycleListIsMounted(newVal) {
+        // Re-fit now the scroller exists; deferred until it applies its classes.
+        if (newVal === true && this.firstPageWidth) {
+          this.$nextTick(() => {
+            this.scale = this.viewerWidth() / (this.firstPageWidth * this.screenSizeMultiplier);
+          });
+        }
         // On iOS pinch zooming always targets the document no matter what.
         // meta viewport attrs for `user-scalable` are ignored in iOS because
         // Apple considered it an a11y issue not to. So pinch-zooming on iOS
@@ -281,11 +321,9 @@
       },
       showSideBar() {
         this.$nextTick(() => {
-          if (!this.$refs.pdfContainer || !this.$refs.pdfContainer.$el) {
-            return;
+          if (this.firstPageWidth) {
+            this.scale = this.viewerWidth() / (this.firstPageWidth * this.screenSizeMultiplier);
           }
-          const containerWidth = this.$refs.pdfContainer.$el.clientWidth;
-          this.scale = containerWidth / (this.firstPageWidth * this.screenSizeMultiplier);
         });
       },
     },
@@ -323,7 +361,7 @@
           const viewPort = firstPage.getViewport({ scale: 1 });
           this.firstPageHeight = viewPort.height;
           this.firstPageWidth = viewPort.width;
-          this.scale = this.$el.clientWidth / (this.firstPageWidth * this.screenSizeMultiplier);
+          this.scale = this.viewerWidth() / (this.firstPageWidth * this.screenSizeMultiplier);
 
           // init pdfPages array
           // ensuring that firstPageToRender is resolved so that we do not refetch the page
@@ -340,7 +378,7 @@
 
           const outline = await pdfDocument.getOutline();
           this.outline = outline;
-          this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
+          this.showSideBar = outline && outline.length > 0 && this.windowIsLarge && !this.embedded; // Remove if other tabs are already implemented
           // Reduce the scale slightly if we are showing the sidebar
           // at first load.
           this.scale = this.showSideBar ? 0.75 * this.scale : this.scale;
@@ -461,6 +499,14 @@
         for (let i = startIndex; i <= endIndex; i++) {
           this.showPage(i);
         }
+      },
+      // The scroller is the box pages lay out in; before it exists, fall back to
+      // the viewer (never `this.$el`, which is the card wrapper, not the viewer).
+      viewerWidth() {
+        if (this.$refs.recycleList && this.$refs.recycleList.$el) {
+          return this.$refs.recycleList.$el.clientWidth;
+        }
+        return this.$refs.pdfViewer ? this.$refs.pdfViewer.$el.clientWidth : 0;
       },
       zoomIn() {
         this.setScale(Math.min(scaleIncrement * 20, this.scale + scaleIncrement));
@@ -673,18 +719,6 @@
         });
       },
     },
-    $trs: {
-      exitFullscreen: {
-        message: 'Exit fullscreen',
-        context:
-          "Learners can use the Esc key or the 'exit fullscreen' button to close the fullscreen view on the PDF Viewer.",
-      },
-      enterFullscreen: {
-        message: 'Enter fullscreen',
-        context:
-          'Learners can use the full screen button in the upper right corner to open a PDF in fullscreen view.',
-      },
-    },
   };
 
 </script>
@@ -693,36 +727,28 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-  $controls-height: 40px;
+  $controls-height: 48px;
 
   .pdf-viewer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
 
     position: relative;
+    // No `flex: 1` — its `flex-basis: 0` would beat `.pdf-embedded`'s height.
+    height: 100%;
+    min-height: 0;
     overflow-y: hidden;
   }
 
+  // Stable gutter, else the fit is measured before the scrollbar it causes.
   .pdf-container {
     position: relative;
     overflow-y: auto;
+    scrollbar-gutter: stable;
   }
 
   .scroller-height {
     height: calc(100% - #{$controls-height});
-  }
-
-  .controls {
-    position: relative;
-    z-index: 0; // Hide icons with transition
-    margin: 0 4px;
-  }
-
-  .pdf-controls-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 8px;
   }
 
   .progress-bar {
@@ -735,20 +761,6 @@
     .vue-recycle-scroller-item-wrapper {
       overflow-x: auto;
     }
-  }
-
-  .fullscreen-button {
-    margin: 0;
-
-    svg {
-      position: relative;
-      top: 8px;
-    }
-  }
-
-  .fullscreen-header {
-    display: flex;
-    height: $controls-height;
   }
 
   .slide-enter-active {
@@ -765,7 +777,7 @@
 
   .slide-enter,
   .slide-leave-to {
-    transform: translateY(-40px);
+    transform: translateY(-56px);
   }
 
   .full-height-container {
@@ -774,6 +786,35 @@
 
   /deep/ .full-height-container > div {
     height: 100%;
+  }
+
+  .pdf-embedded {
+    height: 25vh;
+
+    .scroller-height {
+      height: calc(100% - #{$controls-height});
+    }
+
+    /deep/ .pdf-page {
+      margin: 2px auto;
+    }
+  }
+
+  // No toolbar in the card, so the pages get its full height.
+  .pdf-embedded.pdf-mobile-embedded {
+    .scroller-height {
+      height: 100%;
+    }
+
+    .pdf-container,
+    /deep/ .vue-recycle-scroller-item-wrapper {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
   }
 
   /deep/ .resize-observer {
