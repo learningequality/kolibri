@@ -254,10 +254,12 @@ i18n-extract-frontend:
 	# buildConfig.js via the *installed* package (webpack_json.py files(module)), so
 	# skip any plugin whose package is not importable here — e.g. `make dist`, which
 	# installs only the root project, not the python_packages/* members. Where the
-	# members are installed (uv sync --all-packages) they extract normally.
+	# members are installed (uv sync --all-packages) they extract normally. The guard
+	# must run under uv: a bare `python` is the system interpreter, which never sees
+	# the members, so every plugin would be skipped however the project was synced.
 	@for dir in $(I18N_PLUGIN_FRONTEND_DIRS); do \
 		module=$$(basename $$dir); \
-		if ! python -c "import $$module" >/dev/null 2>&1; then \
+		if ! uv run python -c "import $$module" >/dev/null 2>&1; then \
 			echo "Skipping frontend messages for $$module (package not installed)"; \
 			continue; \
 		fi; \
@@ -303,7 +305,7 @@ i18n-download-translations: i18n-extract-frontend
 	fi
 	@echo "✅ Translation files downloaded successfully"
 	rm -f kolibri/locale/.crowdin-download-marker
-	uv run python build_tools/i18n/cleanup_unsupported_languages.py
+	uv run python -m build_tools.i18n.cleanup_unsupported_languages
 	pnpm exec kolibri-i18n code-gen --output-dir ./packages/kolibri/utils/internal
 	$(MAKE) i18n-django-compilemessages
 	pnpm exec kolibri-i18n create-message-files --pluginFile ./build_tools/build_plugins.txt --ignore '**/node_modules/!(kolibri-common)/**','**/static/**'
@@ -313,7 +315,7 @@ i18n-download-translations: i18n-extract-frontend
 	# package is not importable here (same reason as i18n-extract-frontend).
 	@for dir in $(I18N_PLUGIN_FRONTEND_DIRS); do \
 		module=$$(basename $$dir); \
-		if ! python -c "import $$module" >/dev/null 2>&1; then \
+		if ! uv run python -c "import $$module" >/dev/null 2>&1; then \
 			echo "Skipping message files for $$module (package not installed)"; \
 			continue; \
 		fi; \
