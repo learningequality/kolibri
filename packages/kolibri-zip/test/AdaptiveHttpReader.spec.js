@@ -52,10 +52,12 @@ function createMockServer(data, url, options = {}) {
   xhrMock.get(url, async (req, res) => {
     stats.requestCount++;
     const rangeHeader = req.header('Range');
+    const bypassedCache = req.header('Cache-Control') === 'no-cache';
 
     stats.requests.push({
       type: rangeHeader ? 'range' : 'full',
       rangeHeader,
+      bypassedCache,
     });
 
     if (!rangeHeader) {
@@ -86,7 +88,9 @@ function createMockServer(data, url, options = {}) {
     const slicedData = data.slice(start, actualEnd + 1);
     // Content-Length below still declares the whole slice, so a shorter body is served
     // exactly as the browser cache served it in #15103.
-    const body = rangeResponse ? await rangeResponse({ body: slicedData }) : slicedData;
+    const body = rangeResponse
+      ? await rangeResponse({ body: slicedData, bypassedCache })
+      : slicedData;
     stats.totalBytesSent += body.length;
 
     return res
@@ -734,15 +738,39 @@ describe('AdaptiveHttpReader', () => {
       console.error.mockRestore(); // eslint-disable-line no-console
     });
 
-    it('rejects a range response whose body is shorter than the requested range', async () => {
-      const { reader } = await setupReader(
+    it('refetches a short range response with the cache bypassed', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 5 * 1024 * 1024, url: 'cache-truncated-range.zip' },
+        {
+          serverOptions: {
+            rangeResponse: ({ body, bypassedCache }) => (bypassedCache ? body : body.slice(0, 120)),
+          },
+        },
+      );
+
+      const result = await reader.readUint8Array(1000, 500);
+
+      expect(result.length).toBe(500);
+      expectations.dataMatches(result, 1000);
+      const ranges = stats.requests.filter(r => r.type === 'range');
+      expect(ranges.map(r => [r.rangeHeader, r.bypassedCache])).toEqual([
+        ['bytes=1000-1499', false],
+        ['bytes=1000-1499', true],
+      ]);
+    });
+
+    it('rejects a range response still short once the cache is bypassed', async () => {
+      const { reader, stats } = await setupReader(
         { size: 5 * 1024 * 1024, url: 'truncated-range.zip' },
         { serverOptions: { rangeResponse: ({ body }) => body.slice(0, 120) } },
       );
 
       await expect(reader.readUint8Array(1000, 500)).rejects.toThrow(
-        'Truncated range response for bytes=1000-1499: expected 500 bytes, received 120',
+        'Truncated range response for bytes=1000-1499: expected 500 bytes, received 120, ' +
+          'then 120 with the cache bypassed',
       );
+      // One refetch, not a retry loop.
+      expectations.rangeRequestCount(stats, 2);
     });
 
     it('accepts a chunk range that extends past the end of the file', async () => {

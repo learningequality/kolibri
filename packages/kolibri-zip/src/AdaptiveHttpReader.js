@@ -302,7 +302,7 @@ export default class AdaptiveHttpReader extends Reader {
       await Promise.allSettled(waiting.map(r => r.response));
     }
 
-    const request = { start, end, response: this._sendRangeRequest(start, length) };
+    const request = { start, end, response: this._fetchCompleteRange(start, length) };
     inFlight.add(request);
     try {
       return await request.response;
@@ -315,33 +315,48 @@ export default class AdaptiveHttpReader extends Reader {
   }
 
   /**
-   * Issue the range request itself, rejecting a body shorter than the range asked for.
+   * Fetch a range, re-fetching past the browser cache if the response is short.
    * @param {number} start - Start offset
    * @param {number} length - Number of bytes to read
    * @returns {Promise<Uint8Array>} The requested data
    */
-  _sendRangeRequest(start, length) {
+  async _fetchCompleteRange(start, length) {
+    const body = await this._sendRangeXhr(start, length);
+    if (body.byteLength >= length) {
+      return body;
+    }
+    // No caller asks past EOF, so a short body is a partial cache hit (#15103).
+    const refetched = await this._sendRangeXhr(start, length, true);
+    if (refetched.byteLength < length) {
+      throw new Error(
+        `Truncated range response for bytes=${start}-${start + length - 1}: ` +
+          `expected ${length} bytes, received ${body.byteLength}, ` +
+          `then ${refetched.byteLength} with the cache bypassed`,
+      );
+    }
+    return refetched;
+  }
+
+  /**
+   * Issue the range request itself, resolving whatever body arrives.
+   * @param {number} start - Start offset
+   * @param {number} length - Number of bytes to read
+   * @param {boolean} [bypassCache] - Force a network fetch rather than a cached response
+   * @returns {Promise<Uint8Array>} The response body, of any length
+   */
+  _sendRangeXhr(start, length, bypassCache = false) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('GET', this.url);
       xhr.responseType = 'arraybuffer';
       xhr.setRequestHeader('Range', `bytes=${start}-${start + length - 1}`);
+      if (bypassCache) {
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+      }
 
       xhr.addEventListener('load', () => {
         if (xhr.status === 206 || xhr.status === 200) {
-          // No caller asks past EOF, so a short body is a fault, not a clip: slicing it
-          // would hand zip.js a truncated deflate stream (#15103).
-          const body = new Uint8Array(xhr.response);
-          if (body.byteLength < length) {
-            reject(
-              new Error(
-                `Truncated range response for bytes=${start}-${start + length - 1}: ` +
-                  `expected ${length} bytes, received ${body.byteLength}`,
-              ),
-            );
-            return;
-          }
-          resolve(body);
+          resolve(new Uint8Array(xhr.response));
         } else {
           reject(new Error(`HTTP error: ${xhr.status}`));
         }

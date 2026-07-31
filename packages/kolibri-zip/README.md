@@ -54,10 +54,9 @@ Chunks:       [=====chunk1=====]         [===chunk2===]
 
 This reduces the number of HTTP requests when extracting multiple files. Concurrent reads from the same chunk are deduplicated into a single fetch.
 
-Two concurrent range requests for one URL whose ranges partly overlap make Chromium answer the second from its sparse cache entry with a body shorter than the `Content-Length` it declares, as a successful load. Two rules keep that from reaching the inflater:
+Range requests for one URL never overlap: chunks end at the following entry's offset, a read spilling past a chunk is served from both chunks, and one reaching the prefetched tail grows the tail downwards. A request that would still overlap one in flight waits for it rather than issuing.
 
-1. **Range requests for one URL never overlap.** Chunks end at the following entry's offset, so they are exactly adjacent; a read spilling past a chunk is served from both chunks, and one reaching the prefetched tail grows the tail downwards. A request that would still overlap one in flight waits for it rather than issuing.
-2. **A response shorter than the range requested is rejected**, so anything that slips through is a described error rather than an opaque inflater `TypeError`.
+That does not make a short response impossible: Chromium's in-memory cache serves a partial hit as fewer bytes than the `Content-Length` it declares, sized to a 4096-byte sparse-entry boundary (#15103). The body is always a correct prefix, so a short one is refetched with `Cache-Control: no-cache`, and only becomes an error — a described one, rather than an opaque inflater `TypeError` — if that is short too.
 
 ### Large Media File Handling
 
