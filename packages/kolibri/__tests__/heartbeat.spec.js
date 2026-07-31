@@ -5,6 +5,7 @@ import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-di
 import useSnackbar, { useSnackbarMock } from 'kolibri/composables/useSnackbar'; // eslint-disable-line
 import { ref } from 'vue';
 import { DisconnectionErrorCodes } from 'kolibri/constants';
+import { pageVisible } from 'kolibri/utils/browserInfo';
 import { HeartBeat } from '../heartbeat.js';
 import { trs } from '../internal/disconnection';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
@@ -214,6 +215,30 @@ describe('HeartBeat', function () {
       set(heartBeat._connection.reconnectTime, 'fork');
       heartBeat.monitorDisconnect();
       expect(get(heartBeat._connection.reconnectTime)).toEqual('fork');
+    });
+    describe('reconnect backoff', function () {
+      beforeEach(function () {
+        // Re-arm after the outer beforeEach's monitorDisconnect()
+        set(heartBeat._connection.connected, true);
+      });
+      afterEach(function () {
+        set(pageVisible, true);
+      });
+      it('should retry soon when a page the user is looking at loses the server', function () {
+        set(pageVisible, true);
+        heartBeat.monitorDisconnect();
+        expect(get(heartBeat._connection.reconnectTime)).toEqual(5);
+      });
+      it('should back off completely when the page is not visible', function () {
+        set(pageVisible, false);
+        heartBeat.monitorDisconnect();
+        expect(get(heartBeat._connection.reconnectTime)).toEqual(600);
+      });
+      it('should back off for a server overload rather than an unreachable server', function () {
+        set(pageVisible, true);
+        heartBeat.monitorDisconnect(502);
+        expect(get(heartBeat._connection.reconnectTime)).toEqual(60);
+      });
     });
   });
   describe('_checkSession method', function () {

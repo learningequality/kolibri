@@ -234,7 +234,7 @@ export class HeartBeat {
       // We have not already registered that we have been disconnected
       set(this._connection.connected, false);
       let reconnectionTime;
-      if (get(pageVisible)) {
+      if (!get(pageVisible)) {
         // If current page is not visible, back off completely
         // user can force reconnect with interface when they return
         reconnectionTime = MAX_RECONNECT_TIME;
