@@ -32,7 +32,7 @@ jobs:
       group: apt-repo-publish
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       # Exactly one of these runs: a workflow_call only has deb-artifact-name,
       # a manual dispatch only has deb-url.
       - name: Download the .deb from artifacts

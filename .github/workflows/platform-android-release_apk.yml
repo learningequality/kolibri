@@ -26,7 +26,7 @@ jobs:
     env:
       SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - name: Set up uv
         uses: astral-sh/setup-uv@v8.2.0
         with:

@@ -35,7 +35,7 @@ jobs:
           tag='${{ inputs.release-tag }}'
           echo "kolibri_version=${tag#v}" >> "$GITHUB_OUTPUT"
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4.1.0
       - name: Set up Docker Buildx
@@ -80,13 +80,13 @@ jobs:
             KOLIBRI_VERSION=${{ steps.parse-version.outputs.kolibri_version }}
             KOLIBRI_VERSION_SPEC===${{ steps.parse-version.outputs.kolibri_version }}
       - name: Generate Docker Hub artifact attestation
-        uses: actions/attest@v4.1.0
+        uses: actions/attest@v4.2.0
         with:
           subject-name: index.docker.io/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
       - name: Generate Github artifact attestation
-        uses: actions/attest@v4.1.0
+        uses: actions/attest@v4.2.0
         with:
           subject-name: ghcr.io/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}

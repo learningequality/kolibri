@@ -28,7 +28,7 @@ jobs:
       version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Set up uv
@@ -69,7 +69,7 @@ jobs:
     needs: check_version
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Set up uv
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -189,7 +189,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -226,7 +226,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
       - name: Install dependencies
         run: |
           sudo apt-get update

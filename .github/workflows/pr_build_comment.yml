@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - name: Find PR by head SHA
         id: find-pr
         uses: actions/github-script@v9

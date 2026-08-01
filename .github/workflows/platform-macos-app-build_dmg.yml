@@ -60,7 +60,7 @@ jobs:
         run: |
           echo "Must specify exactly one reference for the whl file to build the DMG with."
           exit 1
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - name: Verify signing secrets are present
         if: ${{ inputs.release }}
         working-directory: ${{ github.workspace }}
