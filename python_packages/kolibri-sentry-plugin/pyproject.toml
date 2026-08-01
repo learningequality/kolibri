@@ -30,7 +30,7 @@ classifiers = [
 ]
 dependencies = [
     "kolibri>=0.20",
-    "sentry-sdk==2.45.0",
+    "sentry-sdk==2.66.1",
 ]
 
 [project.urls]
