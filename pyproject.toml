@@ -84,7 +84,7 @@ base = [
     "pytz==2026.2",
     "python-dateutil==2.9.0.post0",
     "sqlalchemy==1.4.52",
-    "semver==2.13.0",
+    "semver==3.0.4",
     "django-redis-cache==3.0.1",
     "redis==3.5.3",
     "html5lib==1.1",
