@@ -67,7 +67,7 @@ jobs:
             type=raw,value=latest,enable=${{ inputs.tag-latest }}
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v7.2.0
+        uses: docker/build-push-action@v7.3.0
         with:
           context: ./docker
           file: docker/Dockerfile
