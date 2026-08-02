@@ -23,7 +23,7 @@ jobs:
     name: Run the apt-repo shell tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - name: Install repo tooling
         # APT_REPO_TESTS_STRICT below turns a missing-tool SKIP into a failure,
         # so install everything the tests need (docker is preinstalled).

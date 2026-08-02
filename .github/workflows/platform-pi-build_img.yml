@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "Must specify only one reference for the deb file to build the image with."
           exit 1
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
       - name: Download the debfile from URL and install
         if: ${{ inputs.deb-url }}
         working-directory: platforms/raspberry-pi

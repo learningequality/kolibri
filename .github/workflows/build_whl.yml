@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo apt-get -y -qq update
           sudo apt-get install -y gettext sqlite3 binutils-aarch64-linux-gnu binutils-arm-linux-gnueabihf
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           lfs: true
@@ -34,7 +34,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version-file: 'package.json'
           cache: 'pnpm'
