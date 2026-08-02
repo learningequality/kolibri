@@ -22,7 +22,7 @@
     "browserslist-config-kolibri": "workspace:*",
     "commander": "^15.0.0",
     "css-loader": "7.1.2",
-    "css-minimizer-webpack-plugin": "7.0.4",
+    "css-minimizer-webpack-plugin": "8.0.0",
     "enhanced-resolve": "^5.20.1",
     "kolibri": "workspace:*",
     "kolibri-glob": "workspace:*",
