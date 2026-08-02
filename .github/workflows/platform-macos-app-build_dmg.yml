@@ -73,7 +73,7 @@ jobs:
           KOLIBRI_MAC_APP_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
         run: >-
           bash .github/scripts/verify-secrets.sh KOLIBRI_MAC_APP_IDENTITY KOLIBRI_MAC_APP_CERTIFICATE KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD KOLIBRI_MAC_APP_USERNAME KOLIBRI_MAC_APP_PASSWORD KOLIBRI_MAC_APP_TEAM_ID
-      - uses: astral-sh/setup-uv@v8.2.0
+      - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
           cache-python: true

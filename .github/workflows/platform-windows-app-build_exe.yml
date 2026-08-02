@@ -64,7 +64,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: >-
           bash .github/scripts/verify-secrets.sh AZURE_TENANT_ID AZURE_CLIENT_ID AZURE_CLIENT_SECRET
-      - uses: astral-sh/setup-uv@v8.2.0
+      - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
           cache-python: true
