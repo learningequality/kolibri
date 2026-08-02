@@ -82,11 +82,8 @@
       },
     },
     created() {
-      FacilityUserResource.fetchCollection({
-        force: true,
-        getParams: {
-          member_of: this.state.sourceFacility,
-        },
+      FacilityUserResource.list({
+        member_of: this.state.sourceFacility,
       }).then(users => {
         if (Object.keys(users).length === 1) {
           this.lastUserOnDevice = true;

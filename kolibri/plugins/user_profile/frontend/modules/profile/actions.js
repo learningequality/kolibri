@@ -10,20 +10,19 @@ export function updateUserProfile(store, { updates }) {
 
   const { currentUserId, setSession } = useUser();
 
-  return FacilityUserResource.saveModel({
-    id: get(currentUserId),
-    data: updates,
-    exists: true,
-  }).then(() => {
+  return FacilityUserResource.accessDetailEndpoint(
+    'patch',
+    'detail',
+    get(currentUserId),
+    updates,
+  ).then(() => {
     setSession({ session: updates });
   });
 }
 
 export function updateUserProfilePassword(store, password) {
   const { currentUserId } = useUser();
-  return FacilityUserResource.saveModel({
-    id: get(currentUserId),
-    data: { password },
-    exists: true,
+  return FacilityUserResource.accessDetailEndpoint('patch', 'detail', get(currentUserId), {
+    password,
   });
 }

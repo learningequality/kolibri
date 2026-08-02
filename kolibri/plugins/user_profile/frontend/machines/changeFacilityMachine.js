@@ -294,9 +294,8 @@ const states = {
   fetchSourceFacilityUsers: {
     invoke: {
       src: context => {
-        return FacilityUserResource.fetchCollection({
-          getParams: { member_of: context.sourceFacility },
-          force: true,
+        return FacilityUserResource.list({
+          member_of: context.sourceFacility,
         }).then(users => {
           return users;
         });

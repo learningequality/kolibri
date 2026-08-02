@@ -169,7 +169,7 @@
       function pollTask() {
         if (taskId.value === null) {
           // first, try to see if there's already one running
-          TaskResource.fetchCollection()
+          TaskResource.list()
             .then(allTasks => {
               const tasks = allTasks.filter(
                 t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser',
@@ -236,7 +236,7 @@
               isPolling = false;
             });
         } else {
-          TaskResource.fetchModel({ id: taskId.value, force: true })
+          TaskResource.get(taskId.value)
             .then(startedTask => {
               task.value = startedTask;
               if (startedTask.status == TaskStatuses.COMPLETED) {

@@ -170,7 +170,7 @@
     methods: {
       // Have to query FacilityUser again since we don't put demographic info on the session
       setFacilityUser() {
-        FacilityUserResource.fetchModel({ id: this.currentUserId }).then(facilityUser => {
+        FacilityUserResource.get(this.currentUserId).then(facilityUser => {
           this.birthYear = facilityUser.birth_year;
           this.gender = facilityUser.gender;
           this.fullName = facilityUser.full_name;
