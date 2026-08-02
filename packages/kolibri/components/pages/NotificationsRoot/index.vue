@@ -158,7 +158,7 @@
       async getNotifications() {
         if (this.isAdmin) {
           try {
-            const notifications = await PingbackNotificationResource.fetchCollection();
+            const notifications = await PingbackNotificationResource.list();
             this.notifications = _notificationListState(notifications);
           } catch (error) {
             this.dispatchError(error);
@@ -167,11 +167,9 @@
       },
       async saveDismissedNotification(notificationId) {
         try {
-          await PingbackNotificationDismissedResource.saveModel({
-            data: {
-              user: this.currentUserId,
-              notification: notificationId,
-            },
+          await PingbackNotificationDismissedResource.create({
+            user: this.currentUserId,
+            notification: notificationId,
           });
           this.removeNotification(notificationId);
         } catch (error) {

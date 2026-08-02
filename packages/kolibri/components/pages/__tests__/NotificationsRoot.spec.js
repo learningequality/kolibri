@@ -2,14 +2,20 @@ import { shallowMount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri/constants';
 import useUser, { useUserMock } from 'kolibri/composables/useUser'; // eslint-disable-line
 import { error } from 'kolibri/utils/appError';
+import PingbackNotificationResource from '../NotificationsRoot/internal/PingbackNotificationResource';
+import PingbackNotificationDismissedResource from '../NotificationsRoot/internal/PingbackNotificationDismissedResource';
 import NotificationsRoot from '../NotificationsRoot';
 import { coreStoreFactory as makeStore } from '../../../store';
 import coreModule from '../../../../../kolibri/core/frontend/state/modules/core';
 
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri/utils/appError');
-jest.mock('../NotificationsRoot/internal/PingbackNotificationResource');
-jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource');
+jest.mock('../NotificationsRoot/internal/PingbackNotificationResource', () => ({
+  list: jest.fn(),
+}));
+jest.mock('../NotificationsRoot/internal/PingbackNotificationDismissedResource', () => ({
+  create: jest.fn(),
+}));
 
 function makeWrapper(useUserMockObj = null) {
   const store = makeStore();
@@ -37,6 +43,10 @@ function makeWrapper(useUserMockObj = null) {
 describe('NotificationsRoot', function () {
   beforeEach(() => {
     error.value = null;
+    PingbackNotificationResource.list.mockReset();
+    PingbackNotificationDismissedResource.create.mockReset();
+    PingbackNotificationResource.list.mockResolvedValue([]);
+    PingbackNotificationDismissedResource.create.mockResolvedValue({});
   });
 
   it('smoke test', () => {
@@ -78,20 +88,35 @@ describe('NotificationsRoot', function () {
     });
 
     it('notification modal should be rendered if the user is an admin/superuser, a notification exists, and there is a recent notification', async () => {
+      PingbackNotificationResource.list.mockResolvedValue([{ id: 2 }]);
       const { wrapper } = makeWrapper({ isAdmin: true, isSuperuser: true });
 
-      wrapper.vm.notifications = [
-        {
-          id: 2,
-          title: 'title',
-          msg: 'notification',
-          linkText: 'linktext',
-          linkUrl: 'url',
-        },
-      ];
+      await PingbackNotificationResource.list.mock.results[0].value;
       await wrapper.vm.$nextTick();
 
       expect(wrapper.findComponent({ name: 'UpdateNotification' }).exists()).toBeTruthy();
+    });
+
+    it('fetches notifications with list for admin users', async () => {
+      const { wrapper } = makeWrapper({ isAdmin: true, isSuperuser: true });
+
+      await PingbackNotificationResource.list.mock.results[0].value;
+      await wrapper.vm.$nextTick();
+
+      expect(PingbackNotificationResource.list).toHaveBeenCalledTimes(1);
+    });
+
+    it('creates a dismissed notification when dismissing the update modal', async () => {
+      const { wrapper } = makeWrapper({ isAdmin: true, currentUserId: 'test-user' });
+      wrapper.vm.notifications = [{ id: 1 }];
+
+      await wrapper.vm.dismissUpdateModal();
+
+      expect(PingbackNotificationDismissedResource.create).toHaveBeenCalledWith({
+        user: 'test-user',
+        notification: 1,
+      });
+      expect(wrapper.vm.notifications).toEqual([]);
     });
 
     it('notification modal should not be rendered if notifications do not exist', async () => {
