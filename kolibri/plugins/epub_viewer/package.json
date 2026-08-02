@@ -18,7 +18,7 @@
     "marks-pane": "^1.0.9",
     "path-webpack": "^0.0.3",
     "url-polyfill": "^1.1.12",
-    "uuid": "^11.1.0",
+    "uuid": "^14.0.1",
     "vue": "catalog:",
     "vue-focus-lock": "^1.4.1",
     "web-streams-polyfill": "^4.2.0",
