@@ -116,6 +116,7 @@ logger = logging.getLogger(__name__)
 REMOTE_ETAG_CACHE_KEY = "remote_content_etag_{}"
 
 REMOTE_URL_PARAM = "baseurl"
+BASE_LANGUAGE_PARAM = "lang_code"
 
 
 def get_cache_key(*args, **kwargs):
@@ -204,6 +205,17 @@ class RemoteMixin:
     def _should_proxy_request(self, request):
         return REMOTE_URL_PARAM in request.GET
 
+    def _unsupported_remote_filter_response(self, request):
+        if BASE_LANGUAGE_PARAM in request.GET:
+            return Response(
+                {
+                    "error": "unsupported_filter",
+                    "unsupported_filters": [BASE_LANGUAGE_PARAM],
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return None
+
     def _get_request_headers(self, request):
         return {
             "Accept": request.META.get("HTTP_ACCEPT"),
@@ -231,6 +243,9 @@ class RemoteMixin:
         return response_data
 
     def _hande_proxied_request(self, request):
+        unsupported_response = self._unsupported_remote_filter_response(request)
+        if unsupported_response is not None:
+            return unsupported_response
         full_path = request.get_full_path().split("?")[0]
         remote_path = full_path.replace(
             "/{}api/content/".format(
@@ -286,6 +301,7 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available", label="Available")
+    lang_code = CharFilter(method="filter_lang_code", label="Language code")
     contains_exercise = BooleanFilter(
         method="filter_contains_exercise", label="Has exercises"
     )
@@ -293,7 +309,10 @@ class ChannelMetadataFilter(FilterSet):
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "contains_exercise", "contains_quiz")
+        fields = ("available", "lang_code", "contains_exercise", "contains_quiz")
+
+    def filter_lang_code(self, queryset, name, value):
+        return queryset.filter(included_languages__lang_code__in=value.split(",")).distinct()
 
     def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
@@ -484,6 +503,7 @@ contentnode_filter_fields = [
     "keywords",
     "channels",
     "languages",
+    "lang_code",
     "tree_id",
     "lft__gt",
     "rght__lt",
@@ -512,6 +532,7 @@ class ContentNodeFilter(FilterSet):
     keywords = CharFilter(method="filter_keywords")
     channels = UUIDInFilter(field_name="channel_id")
     languages = CharInFilter(field_name="lang_id")
+    lang_code = CharInFilter(method="filter_lang_code")
     categories__isnull = BooleanFilter(field_name="categories", lookup_expr="isnull")
     lft__gt = NumberFilter(field_name="lft", lookup_expr="gt")
     rght__lt = NumberFilter(field_name="rght", lookup_expr="lt")
@@ -547,6 +568,9 @@ class ContentNodeFilter(FilterSet):
 
     def filter_ids(self, queryset, name, value):
         return queryset.filter_by_uuids(value)
+
+    def filter_lang_code(self, queryset, name, value):
+        return queryset.filter(included_languages__lang_code__in=value).distinct()
 
     def filter_by_authors(self, queryset, name, value):
         """

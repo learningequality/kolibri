@@ -220,6 +220,12 @@ class ContentNode(base_models.ContentNode):
     modality = models.CharField(
         max_length=50, blank=True, null=True, choices=modalities.choices
     )
+    included_languages = SortedManyToManyField(
+        "Language",
+        related_name="contentnodes",
+        verbose_name="languages",
+        blank=True,
+    )
 
     objects = ContentNodeManager()
 

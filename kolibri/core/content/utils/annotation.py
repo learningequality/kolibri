@@ -4,6 +4,7 @@ import os
 from itertools import groupby
 from math import ceil
 
+from django.db import connection as django_connection
 from django.db.models import Count
 from django.db.models import Max
 from django.db.models import Sum
@@ -673,6 +674,49 @@ def recurse_annotation_up_tree(channel_id):
     )
 
     bridge.end()
+    calculate_contentnode_included_languages(channel_id)
+
+
+def calculate_contentnode_included_languages(channel_id):
+    through = ContentNode.included_languages.through
+    node_table = ContentNode._meta.db_table
+    through_table = through._meta.db_table
+    source_column = through._meta.get_field("contentnode").column
+    target_column = through._meta.get_field("language").column
+    sort_column = through._meta.get_field("sort_value").column
+
+    with django_connection.cursor() as cursor:
+        cursor.execute(
+            "DELETE FROM {through_table} WHERE {source_column} IN "
+            "(SELECT id FROM {node_table} WHERE channel_id = %s)".format(
+                through_table=django_connection.ops.quote_name(through_table),
+                source_column=django_connection.ops.quote_name(source_column),
+                node_table=django_connection.ops.quote_name(node_table),
+            ),
+            [channel_id],
+        )
+        cursor.execute(
+            "INSERT INTO {through_table} "
+            "({source_column}, {target_column}, {sort_column}) "
+            "SELECT ancestor.id, descendant.lang_id, 0 "
+            "FROM {node_table} ancestor "
+            "JOIN {node_table} descendant ON "
+            "ancestor.tree_id = descendant.tree_id AND "
+            "descendant.lft >= ancestor.lft AND "
+            "descendant.rght <= ancestor.rght "
+            "WHERE ancestor.channel_id = %s AND "
+            "descendant.channel_id = %s AND "
+            "descendant.available = %s AND "
+            "descendant.lang_id IS NOT NULL "
+            "GROUP BY ancestor.id, descendant.lang_id".format(
+                through_table=django_connection.ops.quote_name(through_table),
+                source_column=django_connection.ops.quote_name(source_column),
+                target_column=django_connection.ops.quote_name(target_column),
+                sort_column=django_connection.ops.quote_name(sort_column),
+                node_table=django_connection.ops.quote_name(node_table),
+            ),
+            [channel_id, channel_id, True],
+        )
 
 
 def calculate_dummy_progress_for_annotation(node_ids, exclude_node_ids, total_progress):
