@@ -801,14 +801,14 @@ wheels = [
 
 [[package]]
 name = "colorlog"
-version = "6.10.1"
+version = "6.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/61/f083b5ac52e505dfc1c624eafbf8c7589a0d7f32daa398d2e7590efa5fda/colorlog-6.10.1.tar.gz", hash = "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321", size = 17162, upload-time = "2025-10-16T16:14:11.978Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8c/55/ba79756cb90c8d69d599d57785398ac87bba7b19c80e87f4e8a562197c93/colorlog-6.12.0.tar.gz", hash = "sha256:2a7924c1dadf18b22a0eb8b06d1c7b01d5341707ec1641eb6fcc4fde0c3e8e5f", size = 18151, upload-time = "2026-07-23T13:40:40.71Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/c1/e419ef3723a074172b68aaa89c9f3de486ed4c2399e2dbd8113a4fdcaf9e/colorlog-6.10.1-py3-none-any.whl", hash = "sha256:2d7e8348291948af66122cff006c9f8da6255d224e7cf8e37d8de2df3bad8c9c", size = 11743, upload-time = "2025-10-16T16:14:10.512Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/19/0b6647bf5e331521e55d2b63bfbdc210bd9cd605189273f03614a05f702d/colorlog-6.12.0-py3-none-any.whl", hash = "sha256:30d392604e9110045a2c2aeefc27d7a017abbab63f3a8aee594eac0801df784e", size = 12239, upload-time = "2026-07-23T13:40:39.562Z" },
 ]
 
 [[package]]
@@ -3388,7 +3388,7 @@ base = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
     { name = "colorama", specifier = "==0.4.6" },
-    { name = "colorlog", specifier = "==6.10.1" },
+    { name = "colorlog", specifier = "==6.12.0" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
     { name = "django", specifier = "==3.2.25" },
@@ -3425,7 +3425,7 @@ dev = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
     { name = "colorama", specifier = "==0.4.6" },
-    { name = "colorlog", specifier = "==6.10.1" },
+    { name = "colorlog", specifier = "==6.12.0" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "coreapi", marker = "python_full_version >= '3.8'", specifier = "==2.3.3" },
     { name = "diskcache", specifier = "==5.6.3" },
@@ -3477,7 +3477,7 @@ docs = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
     { name = "colorama", specifier = "==0.4.6" },
-    { name = "colorlog", specifier = "==6.10.1" },
+    { name = "colorlog", specifier = "==6.12.0" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
     { name = "django", specifier = "==3.2.25" },
@@ -3519,7 +3519,7 @@ load-test = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
     { name = "colorama", specifier = "==0.4.6" },
-    { name = "colorlog", specifier = "==6.10.1" },
+    { name = "colorlog", specifier = "==6.12.0" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
     { name = "django", specifier = "==3.2.25" },
@@ -3558,7 +3558,7 @@ test = [
     { name = "cheroot", specifier = "==10.0.1" },
     { name = "click", specifier = "==8.0.4" },
     { name = "colorama", specifier = "==0.4.6" },
-    { name = "colorlog", specifier = "==6.10.1" },
+    { name = "colorlog", specifier = "==6.12.0" },
     { name = "configobj", specifier = "==5.0.8" },
     { name = "diskcache", specifier = "==5.6.3" },
     { name = "django", specifier = "==3.2.25" },
