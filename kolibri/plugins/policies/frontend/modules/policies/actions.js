@@ -10,10 +10,9 @@ export function updateUserProfile(store, { updates }) {
 
   const { currentUserId, setSession } = useUser();
 
-  return FacilityUserResource.saveModel({
+  return FacilityUserResource.update({
     id: get(currentUserId),
     data: updates,
-    exists: true,
   }).then(() => {
     setSession({ session: updates });
   });
@@ -21,9 +20,8 @@ export function updateUserProfile(store, { updates }) {
 
 export function updateUserProfilePassword(store, password) {
   const { currentUserId } = useUser();
-  return FacilityUserResource.saveModel({
+  return FacilityUserResource.update({
     id: get(currentUserId),
     data: { password },
-    exists: true,
   });
 }
