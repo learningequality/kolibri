@@ -1224,8 +1224,8 @@ importers:
         specifier: workspace:*
         version: link:../kolibri-logging
       launch-editor-middleware:
-        specifier: ^2.12.0
-        version: 2.12.0
+        specifier: ^2.14.1
+        version: 2.14.1
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
@@ -7266,11 +7266,8 @@ packages:
   kolibri-design-system@5.7.0:
     resolution: {integrity: sha512-+ol8VBIfTbSbLGmSvtGehZUhEFejWJDAzGNujRL62DHs9NhDjpmjBGehvk/y7BV13FwxFR4tOFhW9RxnYx7eBg==}
 
-  launch-editor-middleware@2.12.0:
-    resolution: {integrity: sha512-SgU5QWoR+Grq1sQedvS/RlfoyO6bdvrztpP+2RRg8UzE7Jz2Yup5J4jiFfm2J9dYBCQYD26AbJVbjnvgwdL6Pw==}
-
-  launch-editor@2.12.0:
-    resolution: {integrity: sha512-giOHXoOtifjdHqUamwKq6c49GzBdLjvxrd2D+Q4V6uOHopJv7p9VJxikDsQ/CBXZbEITgUqSVHXLTG3VhPP1Dg==}
+  launch-editor-middleware@2.14.1:
+    resolution: {integrity: sha512-Y8rM8ujxag67bXKCML5RLK5neOwj9rcgYlhgPAG0roa3sM6gjBjq7Bl/mE63XcdAmjMMsPtJhd1ry8+wstwQew==}
 
   launch-editor@2.14.1:
     resolution: {integrity: sha512-QWBrQsMpH7gPr965dsKD/3cKWiNoTjpATQf++Xq63N6sKRGMwlVXz41O1IZTMfZQgBctD/K5Zt06+/I6pP6+HA==}
@@ -16944,14 +16941,9 @@ snapshots:
       vue2-teleport: 1.1.4
       xstate: 4.38.3
 
-  launch-editor-middleware@2.12.0:
+  launch-editor-middleware@2.14.1:
     dependencies:
-      launch-editor: 2.12.0
-
-  launch-editor@2.12.0:
-    dependencies:
-      picocolors: 1.1.1
-      shell-quote: 1.8.3
+      launch-editor: 2.14.1
 
   launch-editor@2.14.1:
     dependencies:

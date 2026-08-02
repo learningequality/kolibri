@@ -27,7 +27,7 @@
     "kolibri": "workspace:*",
     "kolibri-glob": "workspace:*",
     "kolibri-logging": "workspace:*",
-    "launch-editor-middleware": "^2.12.0",
+    "launch-editor-middleware": "^2.14.1",
     "lodash": "catalog:",
     "mini-css-extract-plugin": "^2.9.4",
     "node-sass": "9.0.0",
