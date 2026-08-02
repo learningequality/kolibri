@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/vue';
+import { render, screen, waitFor, within } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import { createTranslator } from 'kolibri/utils/i18n';
 import AvailableChannelsPage from '../AvailableChannelsPage';
 import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
+import WithImportDetails from '../ManageContentPage/ChannelPanel/WithImportDetails';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
 import { PageNames } from '../../constants';
 
@@ -14,10 +15,12 @@ const { channelTokenButtonLabel$, importResourcesHeader$ } = createTranslator(
   AvailableChannelsPage.name,
   AvailableChannelsPage.$trs,
 );
+
 const { numChannelsAvailable$ } = createTranslator(
   FilteredChannelListContainer.name,
   FilteredChannelListContainer.$trs,
 );
+const { onYourDevice$ } = createTranslator(WithImportDetails.name, WithImportDetails.$trs);
 
 function createRouter() {
   return new VueRouter({
@@ -81,5 +84,38 @@ describe('AvailableChannelsPage', () => {
         numChannelsAvailable$({ count: 4 }),
       );
     });
+  });
+
+  it('if there are no channels, then filters do not appear', async () => {
+    const store = makeAvailableChannelsPageStore();
+    store.commit('manageContent/wizard/SET_AVAILABLE_CHANNELS', []);
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
+
+  it('shows the "on device" indicator only for channels that are installed', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    // Scoped check: find each channel's own box, then look only inside it
+    function isOnDevice(channelName) {
+      const channelBox = screen.getByText(channelName).closest('.channel-list-item');
+      return within(channelBox).queryByText(onYourDevice$()) !== null;
+    }
+
+    // Awesome and Kaetze are installed (available: true in fixture data)
+    expect(isOnDevice('Awesome Channel')).toBe(true);
+    expect(isOnDevice('Kaetze Channel')).toBe(true);
+    // Bird (available: false) and Hunden (not in installed channelList) should not show it
+    expect(isOnDevice('Bird Channel')).toBe(false);
+    expect(isOnDevice('Hunden Channel')).toBe(false);
   });
 });
