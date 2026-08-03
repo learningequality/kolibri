@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
 import org.learningequality.Kolibri.util.FileChooserUtils;
+import org.learningequality.Kolibri.util.PickedFiles;
 
 /**
  * Main activity that displays Kolibri in a WebView using HTTP + Service Worker
@@ -64,7 +65,7 @@ public class WebViewActivity extends AppCompatActivity {
   private boolean mainFrameLoadFailed;
   private ValueCallback<Uri[]> pendingFilePickerCallback;
   private ActivityResultLauncher<String[]> filePickerLauncher;
-  private final ExecutorService downloadExecutor = Executors.newCachedThreadPool();
+  private final ExecutorService fileExecutor = Executors.newCachedThreadPool();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -209,9 +210,14 @@ public class WebViewActivity extends AppCompatActivity {
             uri -> {
               ValueCallback<Uri[]> callback = pendingFilePickerCallback;
               pendingFilePickerCallback = null;
-              if (callback != null) {
-                callback.onReceiveValue(uri != null ? new Uri[] {uri} : null);
+              if (callback == null) {
+                return;
               }
+              if (uri == null) {
+                callback.onReceiveValue(null);
+                return;
+              }
+              deliverPickedFile(callback, uri);
             });
 
     if (BuildConfig.DEBUG) {
@@ -326,6 +332,15 @@ public class WebViewActivity extends AppCompatActivity {
     webView.setDownloadListener(this::handleDownload);
   }
 
+  /** Copying takes as long as the file is big, so it happens off the UI thread. */
+  private void deliverPickedFile(ValueCallback<Uri[]> callback, Uri picked) {
+    fileExecutor.execute(
+        () -> {
+          Uri copy = PickedFiles.copyToPrivateCache(this, picked);
+          runOnUiThread(() -> callback.onReceiveValue(copy == null ? null : new Uri[] {copy}));
+        });
+  }
+
   private void handleDownload(
       String url,
       String userAgent,
@@ -346,7 +361,7 @@ public class WebViewActivity extends AppCompatActivity {
       return;
     }
     String cookie = CookieManager.getInstance().getCookie(url);
-    downloadExecutor.execute(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype));
+    fileExecutor.execute(() -> bridge.downloadHttp(url, userAgent, cookie, filename, mimetype));
   }
 
   /**
@@ -472,6 +487,6 @@ public class WebViewActivity extends AppCompatActivity {
       webView.destroy();
       webView = null;
     }
-    downloadExecutor.shutdown();
+    fileExecutor.shutdown();
   }
 }
