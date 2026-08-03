@@ -252,6 +252,24 @@ export class HeartBeat {
     }
   }
   /*
+   * Method to check whether a request that failed like a disconnection really means the server
+   * has gone away, by polling the session endpoint first. If it has, that poll fails too and
+   * _checkSession calls monitorDisconnect.
+   */
+  confirmDisconnect(code = 0) {
+    if (!get(this._connection.connected)) {
+      // Every request is cancelled while disconnected and lands back here, so polling from
+      // each one would trample the reconnect backoff.
+      return Promise.resolve();
+    }
+    if (!this._enabled) {
+      // Nothing is polling the session endpoint, so there is nothing to confirm against.
+      this.monitorDisconnect(code);
+      return Promise.resolve();
+    }
+    return this.pollSessionEndPoint();
+  }
+  /*
    * Method to reset the connection state to the connected state and restart server polling
    * on the regular heartbeat delay.
    */

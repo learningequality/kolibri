@@ -241,6 +241,67 @@ describe('HeartBeat', function () {
       });
     });
   });
+  describe('confirmDisconnect method', function () {
+    let heartBeat, snackbar;
+    beforeEach(function () {
+      // xhr-mock logs console.error when a handler rejects.
+      jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line no-console
+      snackbar = {
+        snackbarIsVisible: ref(false),
+        snackbarOptions: ref({
+          text: '',
+          autoDismiss: true,
+        }),
+      };
+      useSnackbar.mockImplementation(() => useSnackbarMock(snackbar));
+      heartBeat = new HeartBeat();
+      heartBeat._enabled = true;
+      // useConnection is shared, so an earlier disconnection test leaves it disconnected.
+      set(heartBeat._connection.connected, true);
+      jest.spyOn(heartBeat, '_sessionUrl').mockReturnValue('url');
+      jest.spyOn(heartBeat, '_wait').mockImplementation(() => {});
+    });
+    afterEach(function () {
+      console.error.mockRestore(); // eslint-disable-line no-console
+    });
+    it('should leave the page connected when the session endpoint still answers', function () {
+      mock.put(/.*/, {
+        status: 200,
+        body: JSON.stringify({ user_id: 'test_user_id', id: 'test_id' }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return heartBeat.confirmDisconnect().then(() => {
+        expect(get(heartBeat._connection.connected)).toEqual(true);
+        expect(get(snackbar.snackbarIsVisible)).toEqual(false);
+      });
+    });
+    it('should declare the disconnection when the session endpoint is unreachable too', function () {
+      mock.put(/.*/, () => Promise.reject(new Error()));
+      return heartBeat.confirmDisconnect().then(() => {
+        expect(get(heartBeat._connection.connected)).toEqual(false);
+        expect(get(snackbar.snackbarIsVisible)).toEqual(true);
+      });
+    });
+    it('should leave a disconnection it has already declared to the reconnect backoff', function () {
+      let polls = 0;
+      mock.put(/.*/, () => {
+        polls += 1;
+        return Promise.reject(new Error());
+      });
+      return heartBeat
+        .confirmDisconnect()
+        .then(() => heartBeat.confirmDisconnect())
+        .then(() => {
+          expect(polls).toEqual(1);
+        });
+    });
+    it('should declare the disconnection unconfirmed when nothing is polling the session', function () {
+      heartBeat._enabled = false;
+      return heartBeat.confirmDisconnect().then(() => {
+        expect(get(heartBeat._connection.connected)).toEqual(false);
+      });
+    });
+  });
   describe('_checkSession method', function () {
     let heartBeat;
     beforeEach(function () {
