@@ -25,3 +25,10 @@ def _install_fake_module(name, **attrs):
 # including first-party modules like auth, imports for real against these.
 _install_fake_module("java", jclass=MagicMock(return_value=MagicMock()))
 _install_fake_module("java.util", Locale=MagicMock())
+# main imports our own Java classes through the same bridge; the parent
+# packages have to exist for the `from ... import` to resolve.
+_install_fake_module("org")
+_install_fake_module("org.learningequality")
+_install_fake_module(
+    "org.learningequality.Kolibri", KolibriServerViewModel=MagicMock()
+)

@@ -234,7 +234,7 @@ export class HeartBeat {
       // We have not already registered that we have been disconnected
       set(this._connection.connected, false);
       let reconnectionTime;
-      if (get(pageVisible)) {
+      if (!get(pageVisible)) {
         // If current page is not visible, back off completely
         // user can force reconnect with interface when they return
         reconnectionTime = MAX_RECONNECT_TIME;
@@ -250,6 +250,24 @@ export class HeartBeat {
       createDisconnectedSnackbar(this.pollSessionEndPoint);
       this._wait();
     }
+  }
+  /*
+   * Method to check whether a request that failed like a disconnection really means the server
+   * has gone away, by polling the session endpoint first. If it has, that poll fails too and
+   * _checkSession calls monitorDisconnect.
+   */
+  confirmDisconnect(code = 0) {
+    if (!get(this._connection.connected)) {
+      // Every request is cancelled while disconnected and lands back here, so polling from
+      // each one would trample the reconnect backoff.
+      return Promise.resolve();
+    }
+    if (!this._enabled) {
+      // Nothing is polling the session endpoint, so there is nothing to confirm against.
+      this.monitorDisconnect(code);
+      return Promise.resolve();
+    }
+    return this.pollSessionEndPoint();
   }
   /*
    * Method to reset the connection state to the connected state and restart server polling

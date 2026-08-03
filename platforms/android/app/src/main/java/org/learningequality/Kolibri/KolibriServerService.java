@@ -85,8 +85,9 @@ public class KolibriServerService extends Service {
                 Python py = Python.getInstance();
                 PyObject mainModule = py.getModule("main");
 
-                // This blocks until server stops
-                mainModule.callAttr("start_server");
+                // Same process as the activity, so the live page's port is readable here.
+                // Blocks until the server stops.
+                mainModule.callAttr("start_server", WebViewLocation.getLastPort());
 
                 Log.i(TAG, "Kolibri HTTP server stopped");
               } catch (Exception e) {
