@@ -471,31 +471,40 @@ class ChannelImport:
             return "INSERT OR IGNORE"
         return "INSERT OR REPLACE"
 
+    def _sqlite_attach_column_expression(self, source_columns, mapper):
+        """
+        The SQL expression a per_row mapping resolves to on the ATTACH path, or
+        None if it cannot be expressed in SQL. The order mirrors
+        generate_row_mapper: source column wins over class attribute.
+        """
+        if mapper in source_columns:
+            return "source." + mapper
+        if hasattr(self, mapper):
+            mapattr = getattr(self, mapper)
+            if not callable(mapattr):
+                return convert_to_sqlite_value(mapattr)
+        return None
+
     def raw_attached_sqlite_table_import(self, model, table_mapper):
         self.check_cancelled()
 
         source_table = self.source.get_table(model)
+        source_columns = set(source_table.columns.keys())
         DestinationTable = self.destination.get_table(model)
 
-        # check the schema map and set up any fields to map to constant values
-        field_constants = {}
+        # check the schema map and resolve any mapped fields to SQL expressions
+        field_expressions = {}
         schema_map = self.schema_mapping.get(model)
         if schema_map:
             for field, mapper in schema_map.get("per_row", {}).items():
-                if hasattr(self, mapper):
-                    mapattr = getattr(self, mapper)
-                    if callable(mapattr):
-                        raise Exception(
-                            "Can't use SQLITE table import method with callable column mappers"
-                        )
-                    else:
-                        field_constants[field] = mapattr
-                else:
+                expression = self._sqlite_attach_column_expression(
+                    source_columns, mapper
+                )
+                if expression is None:
                     raise Exception(
-                        "Can't use SQLITE table import method with mapping attribute '{}'".format(
-                            mapper
-                        )
+                        f"Can't use SQLITE table import method for column '{field}' with mapping '{mapper}'"
                     )
+                field_expressions[field] = expression
 
         # enumerate the columns we're going to be writing into, excluding any we're meant to ignore
         dest_columns = [
@@ -505,10 +514,10 @@ class ChannelImport:
         # build a list of values (constants or source table column references) to be inserted
         source_vals = []
         for col in dest_columns:
-            if col in field_constants:
-                # insert the literal constant value, if we have one
-                val = convert_to_sqlite_value(field_constants[col])
-            elif col in source_table.columns.keys():
+            if col in field_expressions:
+                # a mapped column wins even when the source carries that name too
+                val = field_expressions[col]
+            elif col in source_columns:
                 # pull the value from the column on the source table if it exists
                 val = "source." + col
             else:
@@ -716,6 +725,11 @@ class ChannelImport:
         # Check whether we can directly "attach" the sqlite database and do a one-line transfer
         # First check that we are not doing any mapping to construct the tables
         can_use_attach = table_mapper == self.base_table_mapper
+        # Check that the table is in the source database (otherwise we can't use the ATTACH method)
+        try:
+            source_table = self.source.get_table(model)
+        except ClassNotFoundError:
+            return False
         # Now check that the schema mapping doesn't contain anything that we don't know how to handle
         schema_map = self.schema_mapping.get(model)
         if schema_map:
@@ -723,20 +737,16 @@ class ChannelImport:
             can_use_attach = (
                 can_use_attach and len(set(schema_map.keys()) - set(["per_row"])) == 0
             )
-            # Check that all the row mappings defined for this table are things we can handle
+            # Check that all the row mappings defined for this table are things we can express in SQL
+            source_columns = set(source_table.columns.keys())
             for row_mapping in set(schema_map.get("per_row", {}).values()):
-                if hasattr(self, row_mapping):
-                    if callable(getattr(self, row_mapping)):
-                        return False
-                else:
+                if (
+                    self._sqlite_attach_column_expression(source_columns, row_mapping)
+                    is None
+                ):
                     return False
         # Check that the engine being used is sqlite, and it's been attached
         can_use_attach = can_use_attach and self._sqlite_db_attached
-        # Check that the table is in the source database (otherwise we can't use the ATTACH method)
-        try:
-            self.source.get_table(model)
-        except ClassNotFoundError:
-            return False
 
         return can_use_attach
 
