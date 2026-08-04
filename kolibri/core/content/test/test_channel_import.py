@@ -359,9 +359,8 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
         channel_import = self.make_import(
             {"per_row": {"available": "no_such_mapping"}}, ["id", "available"]
         )
-        # Match on the message: everything here but the source table is a
-        # MagicMock, so a bare assertRaises(Exception) would go green on any
-        # incidental TypeError rather than on the mapping check.
+        # Match on the message: with everything but the source table a MagicMock,
+        # a bare assertRaises(Exception) would go green on an incidental TypeError.
         with self.assertRaisesRegex(Exception, "no_such_mapping"):
             channel_import.raw_attached_sqlite_table_import(
                 LocalFile, channel_import.base_table_mapper
@@ -1285,3 +1284,52 @@ class Version5ImportTestCase(NaiveImportTestCase):
         data = super().load_fixture_data()
         data["content_channelmetadata"][0]["min_schema_version"] = VERSION_5
         return data
+
+    def _localfile_file_sizes(self):
+        return dict(LocalFile.objects.values_list("id", "file_size"))
+
+    def _reimport_from_scratch(self):
+        # The flush is load-bearing: check_and_delete_existing_channel cancels a
+        # re-import at the same channel version, so without it set_content_fixture
+        # imports nothing and the caller's assertions pass vacuously.
+        call_command("flush", interactive=False)
+        self.set_content_fixture()
+
+    @unittest.skipIf(
+        "sqlite3" not in settings.DATABASES["default"]["ENGINE"],
+        "SQLite only test",
+    )
+    def test_localfile_imported_via_attach(self):
+        # content_localfile's only mappings are a constant and the file_size
+        # rename, both expressible in SQL, so it must transfer in one statement.
+        attached_models = []
+        unpatched = ChannelImport.raw_attached_sqlite_table_import
+
+        def record(channel_import, model, table_mapper):
+            attached_models.append(model)
+            return unpatched(channel_import, model, table_mapper)
+
+        with patch.object(ChannelImport, "raw_attached_sqlite_table_import", record):
+            self._reimport_from_scratch()
+
+        self.assertIn(LocalFile, attached_models)
+
+    @unittest.skipIf(
+        "sqlite3" not in settings.DATABASES["default"]["ENGINE"],
+        "SQLite only test",
+    )
+    def test_file_size_matches_row_path(self):
+        attached = self._localfile_file_sizes()
+        # The fixture carries both a set size and NULLs, so the comparison
+        # below is not vacuous.
+        self.assertIn(1234, attached.values())
+        self.assertIn(None, attached.values())
+
+        # A no-op leaves _sqlite_db_attached False, so every model falls back
+        # to the Python row mapper.
+        with patch.object(
+            ChannelImport, "try_attaching_sqlite_database", lambda self: None
+        ):
+            self._reimport_from_scratch()
+
+        self.assertEqual(attached, self._localfile_file_sizes())
