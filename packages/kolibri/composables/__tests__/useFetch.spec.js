@@ -1,5 +1,5 @@
 import Vue, { nextTick } from 'vue';
-import useFetch from 'kolibri-common/composables/useFetch.js';
+import useFetch from 'kolibri/composables/useFetch';
 
 const _eventDispatcher = new Vue();
 let _fetchCount = 0;
@@ -218,6 +218,53 @@ describe('useFetch', () => {
       });
     });
   });
+  describe('onSuccess', () => {
+    it('should call onSuccess with the response after a successful fetch', async () => {
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const onSuccess = jest.fn();
+
+      const { fetchData } = useFetch({ fetchMethod, onSuccess });
+
+      fetchData({ id: 'fetch1', response: 'response1' });
+      resolveFetch('fetch1');
+      await nextTick();
+
+      expect(onSuccess).toHaveBeenCalledWith('response1');
+    });
+
+    it('should not call onSuccess for a fetch superseded by a newer one', async () => {
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const onSuccess = jest.fn();
+
+      const { fetchData } = useFetch({ fetchMethod, onSuccess });
+
+      fetchData({ id: 'fetch1', response: 'response1' });
+      fetchData({ id: 'fetch2', response: 'response2' });
+
+      // The stale fetch resolves last, but must not fire onSuccess - only the latest wins, so a
+      // side effect like a baseline snapshot stays in sync with `data`.
+      resolveFetch('fetch2');
+      resolveFetch('fetch1');
+      await nextTick();
+
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(onSuccess).toHaveBeenCalledWith('response2');
+    });
+
+    it('should not call onSuccess when the fetch fails', async () => {
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const onSuccess = jest.fn();
+
+      const { fetchData } = useFetch({ fetchMethod, onSuccess });
+
+      fetchData({ id: 'fetch1', error: 'error1' });
+      resolveFetch('fetch1');
+      await nextTick();
+
+      expect(onSuccess).not.toHaveBeenCalled();
+    });
+  });
+
   describe('fetchMore', () => {
     it('data should be set to response.results of fetchData if fetchMoreMethod is passed', async () => {
       const { fetchMethod, resolveFetch } = getSincronizableFetch();
@@ -233,6 +280,27 @@ describe('useFetch', () => {
       resolveFetch('fetch1');
       await nextTick();
       expect(data.value).toBe(response.results);
+    });
+
+    it('data should be set to the array itself when fetchMoreMethod is passed but the response is a plain array', async () => {
+      // A list endpoint that is not paginated resolves a plain array even though a
+      // fetchMoreMethod is supplied; useFetch must handle that shape, not assume `.results`.
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const fetchMoreMethod = jest.fn();
+
+      const { data, hasMore, count, fetchData } = useFetch({
+        fetchMethod,
+        fetchMoreMethod,
+      });
+
+      const response = [{ id: 'one' }, { id: 'two' }];
+      fetchData({ id: 'fetch1', response });
+      resolveFetch('fetch1');
+      await nextTick();
+      expect(data.value).toBe(response);
+      expect(hasMore.value).toBe(false);
+      // Contract note: `count` stays null for the array shape even though the length is known.
+      expect(count.value).toBe(null);
     });
 
     it('should set hasMore to false if response.more is not defined', async () => {
@@ -537,6 +605,49 @@ describe('useFetch', () => {
         // Should not concatenate the response of fetch2 even if it resolves after fetch3
         expect(data.value).toEqual(secondFetchResponse.results);
       });
+    });
+  });
+
+  describe('page-number pagination', () => {
+    it('should expose page and totalPages from a page-number response', async () => {
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const { data, page, totalPages, count, hasMore, fetchData } = useFetch({
+        fetchMethod,
+        fetchMoreMethod: jest.fn(),
+      });
+
+      fetchData({
+        id: 'fetch1',
+        response: { results: [{ id: 'a' }], page: 2, total_pages: 4, count: 90 },
+      });
+      resolveFetch('fetch1');
+      await nextTick();
+
+      expect(data.value).toEqual([{ id: 'a' }]);
+      expect(page.value).toBe(2);
+      expect(totalPages.value).toBe(4);
+      expect(count.value).toBe(90);
+      // No `more` cursor, so the append-style pagination is inert for this shape.
+      expect(hasMore.value).toBe(false);
+    });
+
+    it('should leave page and totalPages null for a more-cursor response', async () => {
+      const { fetchMethod, resolveFetch } = getSincronizableFetch();
+      const { page, totalPages, hasMore, fetchData } = useFetch({
+        fetchMethod,
+        fetchMoreMethod: jest.fn(),
+      });
+
+      fetchData({
+        id: 'fetch1',
+        response: { results: [{ id: 'a' }], more: { cursor: 'x' }, count: 5 },
+      });
+      resolveFetch('fetch1');
+      await nextTick();
+
+      expect(page.value).toBe(null);
+      expect(totalPages.value).toBe(null);
+      expect(hasMore.value).toBe(true);
     });
   });
 });

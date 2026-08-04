@@ -8,7 +8,7 @@ export default new Resource({
   },
 
   startTasks(tasks, multipart = false) {
-    return this.create(tasks, multipart);
+    return this.bulkCreate(tasks, multipart);
   },
 
   cancel(jobId) {

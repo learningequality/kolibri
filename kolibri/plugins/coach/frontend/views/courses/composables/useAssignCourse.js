@@ -2,7 +2,7 @@ import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
-import useFetch from 'kolibri-common/composables/useFetch.js';
+import useFetch from 'kolibri/composables/useFetch';
 import { useCourses } from '../../../composables/useCourses';
 
 /**
@@ -161,7 +161,7 @@ export default function useAssignCourse({ classId }) {
 }
 
 /**
- * @typedef {import('kolibri-common/composables/useFetch.js').FetchObject} FetchObject
+ * @typedef {import('kolibri/composables/useFetch').FetchObject} FetchObject
  */
 
 /**

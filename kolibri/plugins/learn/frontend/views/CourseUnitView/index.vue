@@ -107,7 +107,7 @@
   import { computed, nextTick, ref, toRef, watch } from 'vue';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import Modalities from 'kolibri-constants/Modalities';
-  import useFetch from 'kolibri-common/composables/useFetch.js';
+  import useFetch from 'kolibri/composables/useFetch';
   import { injectPreviousRoute } from 'kolibri-common/composables/usePreviousRoute';
   import { LearnerCourseResource } from '../../apiResources';
   import ResourceLayout from '../ResourceLayout/index.vue';
