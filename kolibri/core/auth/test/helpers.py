@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
 
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.device.models import clear_device_settings_memo
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import provision_device as _provision_device  # noqa
 
@@ -22,6 +23,7 @@ DUMMY_PASSWORD = "password"
 
 
 def clear_process_cache():
+    clear_device_settings_memo()
     try:
         process_cache = caches["process_cache"]
         process_cache.clear()

@@ -1,5 +1,6 @@
 import platform
 import time
+from copy import deepcopy
 from uuid import uuid4
 
 from django.conf import settings
@@ -61,25 +62,63 @@ class DevicePermissions(models.Model):
 
 DEVICE_SETTINGS_CACHE_KEY = "device_settings_cache_key"
 
+# DeviceSettings is read many times per request (e.g. locale middleware); each
+# process_cache read costs. Memoize in-process on top of it. Writes clear the
+# memo; the TTL bounds staleness from writes in other processes.
+_DEVICE_SETTINGS_MEMO_TTL = 1.0
+
+
+class _DeviceSettingsMemo(object):
+    # Deep copies in and out so each caller gets its own instance, as deserializing
+    # from process_cache did — callers mutate the model in place before saving,
+    # including in-place mutation of the extra_settings dict.
+    def __init__(self):
+        self._value = None
+        self._expires_at = 0.0
+
+    def get(self):
+        if self._value is not None and time.monotonic() < self._expires_at:
+            return deepcopy(self._value)
+        return None
+
+    def set(self, value):
+        self._value = deepcopy(value)
+        self._expires_at = time.monotonic() + _DEVICE_SETTINGS_MEMO_TTL
+
+    def clear(self):
+        self._value = None
+        self._expires_at = 0.0
+
+
+_device_settings_memo = _DeviceSettingsMemo()
+
+
+def clear_device_settings_memo():
+    """Drop the in-process memo. Lets the test suite reset it alongside process_cache."""
+    _device_settings_memo.clear()
+
 
 class DeviceSettingsQuerySet(QuerySet):
     def delete(self, **kwargs):
+        _device_settings_memo.clear()
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return super().delete(**kwargs)
 
 
 class DeviceSettingsManager(models.Manager.from_queryset(DeviceSettingsQuerySet)):
     def get(self, **kwargs):
-        model = None
+        model = _device_settings_memo.get()
+        if isinstance(model, DeviceSettings):
+            return model
 
-        # load from cache
-        if DEVICE_SETTINGS_CACHE_KEY in cache:
-            model = cache.get(DEVICE_SETTINGS_CACHE_KEY)
+        # Single get; a miss returns None and falls through to the DB below.
+        model = cache.get(DEVICE_SETTINGS_CACHE_KEY)
 
         # ensure cached value is of correct type, otherwise allow .get to raise if not created
         if not isinstance(model, DeviceSettings):
             model = super().get(**kwargs)
             cache.set(DEVICE_SETTINGS_CACHE_KEY, model, 600)
+        _device_settings_memo.set(model)
         return model
 
 
@@ -175,6 +214,8 @@ class DeviceSettings(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        # Clear up front so a failed full_clean leaves no stale memo behind.
+        _device_settings_memo.clear()
         self.pk = 1
         self.full_clean()
         out = super().save(*args, **kwargs)
@@ -182,6 +223,7 @@ class DeviceSettings(models.Model):
         return out
 
     def delete(self, *args, **kwargs):
+        _device_settings_memo.clear()
         out = super().delete(*args, **kwargs)
         cache.delete(DEVICE_SETTINGS_CACHE_KEY)
         return out

@@ -1,7 +1,10 @@
+from unittest import mock
+
 import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+import kolibri.core.device.models as device_models
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import get_device_hostname
 from kolibri.core.device.utils import get_device_setting
@@ -22,6 +25,46 @@ class DeviceSettingsTestCase(TestCase):
         ds = DeviceSettings.objects.create()
         ds2 = DeviceSettings.objects.get()
         self.assertEqual(ds, ds2)
+
+    def test_repeated_gets_served_from_in_process_memo(self):
+        DeviceSettings.objects.create()
+        with mock.patch.object(
+            device_models, "cache", wraps=device_models.cache
+        ) as cache_spy:
+            DeviceSettings.objects.get()
+            DeviceSettings.objects.get()
+            DeviceSettings.objects.get()
+        # First read populates the in-process memo; the rest are served from it
+        # without touching the process_cache backend.
+        self.assertEqual(cache_spy.get.call_count, 1)
+
+    def test_memo_does_not_share_mutable_fields(self):
+        DeviceSettings.objects.create()
+        ds = DeviceSettings.objects.get()
+        # Mutating a JSON field in place must not reach the memoized instance.
+        ds.extra_settings["enable_automatic_download"] = "mutated"
+        self.assertNotEqual(
+            DeviceSettings.objects.get().extra_settings["enable_automatic_download"],
+            "mutated",
+        )
+
+    def test_save_invalidates_in_process_memo(self):
+        DeviceSettings.objects.create(language_id="en")
+        # Populate the memo, then save through an instance fetched off the
+        # memoized path, so the assertion can only pass if save() cleared it.
+        DeviceSettings.objects.get()
+        ds = DeviceSettings.objects.filter(pk=1).first()
+        ds.language_id = "es"
+        ds.save()
+        self.assertEqual(DeviceSettings.objects.get().language_id, "es")
+
+    def test_delete_invalidates_in_process_memo(self):
+        DeviceSettings.objects.create()
+        # Populate the memo before deleting.
+        DeviceSettings.objects.get()
+        DeviceSettings.objects.all().delete()
+        with self.assertRaises(DeviceSettings.DoesNotExist):
+            DeviceSettings.objects.get()
 
     def test_delete_setting(self):
         ds = DeviceSettings.objects.create()

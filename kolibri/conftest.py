@@ -108,6 +108,10 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def clear_process_cache():
     process_cache.clear()
+    # Reset the in-process memo too, so a value cached in one test can't leak.
+    from kolibri.core.device.models import clear_device_settings_memo
+
+    clear_device_settings_memo()
 
 
 @pytest.fixture(scope="session", autouse=True)
