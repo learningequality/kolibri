@@ -126,9 +126,11 @@ logger = logging.getLogger(__name__)
 # rather than the plain importer, resolved from min_schema_version rather than
 # the inferred version; the report records which. That class maps ContentNode
 # with a "post" key, which disqualifies the table from the ATTACH path, so
-# neither fixture ATTACHes the 40k-row table today. Expect fresh_import_no_attach
-# to come out near-flat on both: the separated sqlalchemy statement counts, not
-# the time delta, are what show the phase took effect.
+# neither fixture ATTACHes the 40k-row table today. content_localfile does
+# ATTACH, though: its mappings are a constant and the file_size rename, both
+# expressible in SQL. So expect fresh_import to beat fresh_import_no_attach by
+# roughly that table's cost. On c9d7f950 its 77k rows collapse from 78 batched
+# inserts into one INSERT ... SELECT, which the statement counts show directly.
 BENCHMARK_CHANNELS = (
     "1ceff53605e55bef987d88e0908658c5",
     "c9d7f950ab6b5a1199e3d6c10d7f0103",
