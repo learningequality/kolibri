@@ -16,7 +16,7 @@ const { channelTokenButtonLabel$, importResourcesHeader$ } = createTranslator(
   AvailableChannelsPage.$trs,
 );
 
-const { numChannelsAvailable$ } = createTranslator(
+const { numChannelsAvailable$, allLanguages$ } = createTranslator(
   FilteredChannelListContainer.name,
   FilteredChannelListContainer.$trs,
 );
@@ -117,5 +117,24 @@ describe('AvailableChannelsPage', () => {
     // Bird (available: false) and Hunden (not in installed channelList) should not show it
     expect(isOnDevice('Bird Channel')).toBe(false);
     expect(isOnDevice('Hunden Channel')).toBe(false);
+  });
+  it('shows the correct language filter options', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    // The dropdown's currently-selected value is also rendered separately from the
+    // options list, so we scope our search to just the options list to avoid duplicates.
+    const optionsList = document.querySelector('.ui-select-options');
+    // These language names come from fixture data (lang_name), not app translations,
+    // so we store them in variables rather than passing literals directly to getByText.
+    const englishLanguageName = 'English';
+    const germanLanguageName = 'German';
+    expect(within(optionsList).getByText(allLanguages$())).toBeInTheDocument();
+    expect(within(optionsList).getByText(englishLanguageName)).toBeInTheDocument();
+    expect(within(optionsList).getByText(germanLanguageName)).toBeInTheDocument();
   });
 });
