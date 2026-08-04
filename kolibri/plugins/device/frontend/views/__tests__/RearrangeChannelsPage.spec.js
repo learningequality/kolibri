@@ -90,12 +90,17 @@ describe('RearrangeChannelsPage', () => {
     const Sortable = require('sortablejs');
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
-
+    // DragContainer creates the Sortable instance inside mounted() -> $nextTick(),
+    // which is one tick after the channel list itself renders. On a slow/busy CI
+    // machine this can still be pending when the line above resolves, so we wait
+    // for it explicitly instead of assuming it already happened.
+    await waitFor(() => {
+      expect(Sortable.mock.results.length).toBeGreaterThan(0);
+    });
     // Simulate the drag ending by calling the onEnd callback SortableJS
     // would normally call itself once the pointer is released.
     const { onEnd } = Sortable.mock.results[0].value.options;
     onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
-
     await waitFor(() => {
       expect(createSnackbar).toHaveBeenCalledWith(successNotification$());
     });
@@ -128,6 +133,13 @@ describe('RearrangeChannelsPage', () => {
     RearrangeChannelsPage.methods.postNewOrder = () => Promise.reject();
     await renderComponent();
     await waitFor(() => screen.getByText(MOCK_CHANNELS[0].name));
+
+    // See comment in the "successful @sort event" test above — Sortable is
+    // constructed one tick after the channel list renders, so we wait for it
+    // explicitly to avoid a race on slow/busy CI machines.
+    await waitFor(() => {
+      expect(Sortable.mock.results.length).toBeGreaterThan(0);
+    });
 
     const { onEnd } = Sortable.mock.results[0].value.options;
     onEnd({ oldIndex: 0, newIndex: 1, item: document.createElement('div') });
