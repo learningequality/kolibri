@@ -30,6 +30,16 @@
         </div>
       </section>
       <KButton
+        :primary="false"
+        appearance="raised-button"
+        :text="previewAction$()"
+        :disabled="loading || !course"
+        class="preview-button"
+        data-testid="preview-button"
+        @click="openPreview"
+      />
+
+      <KButton
         v-if="descOverflowing"
         class="view-more"
         appearance="basic-link"
@@ -202,6 +212,7 @@
         selectRecipientsLabel$,
         preTestLabel$,
         postTestLabel$,
+        previewAction$,
       } = coursesStrings;
 
       const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
@@ -266,6 +277,13 @@
         return message;
       });
 
+      function openPreview() {
+        const previewRouteName = route.params.courseSessionId
+          ? PageNames.COURSE_SUMMARY_ASSIGN_COURSE_PREVIEW
+          : PageNames.COURSES_ASSIGN_COURSE_PREVIEW;
+        router.push(overrideRoute(route, { name: previewRouteName }));
+      }
+
       // Description expansion
       const descExpanded = ref(false);
       const courseDescriptionRef = templateRef('courseDescriptionRef');
@@ -282,6 +300,8 @@
         selectRecipients,
         numTestQuestions,
         isPreviewMode,
+        openPreview,
+        previewAction$,
 
         courseSubtitle,
         backAction$,
@@ -371,6 +391,10 @@
     display: block;
     margin-bottom: 32px;
     text-align: right;
+  }
+
+  .preview-button {
+    margin-bottom: 16px;
   }
 
 </style>

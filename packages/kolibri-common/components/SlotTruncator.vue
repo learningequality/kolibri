@@ -110,12 +110,14 @@
   }
 
   .truncated {
+    position: relative;
     overflow: hidden;
   }
 
   .overlay {
     position: absolute;
     width: 100%;
+    pointer-events: none;
     background: linear-gradient(rgba(255, 255, 255, 0) 75%, rgba(255, 255, 255, 1));
   }
 

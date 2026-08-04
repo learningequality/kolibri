@@ -213,6 +213,14 @@ export const coursesStrings = createTranslator('CoursesStrings', {
     message: 'Resume Course',
     context: 'Action label for button to resume a course',
   },
+  previewAction: {
+    message: 'Preview',
+    context: 'Action label for button to preview course resources before starting or assigning.',
+  },
+  previewCourseResourcesTitle: {
+    message: 'Preview Course Resources',
+    context: 'Title for the side panel that shows a browsable tree of course resources.',
+  },
   unitNumberLabel: {
     message: 'Unit {number}',
     context: 'Label for the unit number shown in the course unit view',
