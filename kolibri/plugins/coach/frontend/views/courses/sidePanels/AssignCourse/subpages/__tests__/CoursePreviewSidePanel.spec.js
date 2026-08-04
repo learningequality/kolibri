@@ -8,7 +8,7 @@ import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { PageNames } from '../../../../../../constants';
 import CoursePreviewSidePanel from '../CoursePreviewSidePanel.vue';
 
-const { backAction$, saveToBookmarks$ } = coreStrings;
+const { backAction$, saveToBookmarks$, noResultsLabel$, defaultErrorMessage$ } = coreStrings;
 const { selectCourseLabel$ } = coursesStrings;
 const TEST_ROUTES = [
   { path: '/', name: PageNames.COURSES_ASSIGN_COURSE_DETAILS },
@@ -216,7 +216,7 @@ describe('CoursePreviewSidePanel', () => {
     expect(screen.getByRole('button', { name: backAction$() })).toBeInTheDocument();
   });
 
-  it('hides the back button rather than navigating to a stale parent when the topic fetch fails', async () => {
+  it('renders an error message and exits the preview via the back button when the topic fetch fails', async () => {
     mockRoute.query = { previewTopicId: 'topic-C', previewContentId: undefined };
     mockRoute.params = { courseId: 'course-1' };
     ContentNodeResource.fetchTree.mockRejectedValue(new Error('network error'));
@@ -224,7 +224,33 @@ describe('CoursePreviewSidePanel', () => {
     render(CoursePreviewSidePanel, { routes: TEST_ROUTES });
     await flushPromises();
 
-    expect(screen.queryByRole('button', { name: backAction$() })).not.toBeInTheDocument();
+    expect(screen.getByText(defaultErrorMessage$())).toBeInTheDocument();
+
+    await fireEvent.click(screen.getByRole('button', { name: backAction$() }));
+
+    expect(push).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: PageNames.COURSES_ASSIGN_COURSE_DETAILS,
+        query: expect.objectContaining({
+          previewTopicId: undefined,
+          previewContentId: undefined,
+        }),
+      }),
+    );
+  });
+
+  it('renders a "no resources" message when a topic has no children', async () => {
+    ContentNodeResource.fetchTree.mockResolvedValue({
+      id: 'topic-B',
+      title: 'Topic B',
+      parent: 'topic-A',
+      children: { results: [] },
+    });
+
+    render(CoursePreviewSidePanel, { routes: TEST_ROUTES });
+    await flushPromises();
+
+    expect(screen.getByText(noResultsLabel$())).toBeInTheDocument();
   });
 
   it('does not crash when previewContentId is already set before the topic fetch resolves', async () => {

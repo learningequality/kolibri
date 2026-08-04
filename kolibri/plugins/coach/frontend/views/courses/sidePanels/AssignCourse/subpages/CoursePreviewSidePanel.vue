@@ -34,30 +34,39 @@
           :items="breadcrumbItems"
         />
 
-        <KCardGrid layout="1-1-1">
-          <component
-            :is="child.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
-            v-for="child in children"
-            :key="child.id"
-            :to="child.is_leaf ? getResourceRoute(child.id) : getTopicRoute(child.id)"
-            :contentNode="child"
-            :headingLevel="3"
-            :showBookmarkButton="false"
-          />
-        </KCardGrid>
+        <template v-if="children.length">
+          <KCardGrid layout="1-1-1">
+            <component
+              :is="child.is_leaf ? 'AccessibleResourceCard' : 'AccessibleFolderCard'"
+              v-for="child in children"
+              :key="child.id"
+              :to="child.is_leaf ? getResourceRoute(child.id) : getTopicRoute(child.id)"
+              :contentNode="child"
+              :headingLevel="3"
+              :showBookmarkButton="false"
+            />
+          </KCardGrid>
 
-        <KButton
-          v-if="hasMore && !loadingMore"
-          :primary="false"
-          class="load-more-button"
-          :text="viewMoreAction$()"
-          @click="fetchMore"
-        />
-        <KCircularLoader
-          v-if="loadingMore"
-          :delay="false"
-        />
+          <KButton
+            v-if="hasMore && !loadingMore"
+            :primary="false"
+            class="load-more-button"
+            :text="viewMoreAction$()"
+            @click="fetchMore"
+          />
+          <KCircularLoader
+            v-if="loadingMore"
+            :delay="false"
+          />
+        </template>
+        <p v-else>
+          {{ noResultsLabel$() }}
+        </p>
       </div>
+      <p v-else>
+        <KIcon icon="error" />
+        {{ defaultErrorMessage$() }}
+      </p>
     </template>
   </SidePanelLayout>
 
@@ -69,7 +78,7 @@
   import { ref, computed, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router/composables';
   import SidePanelLayout from 'kolibri-common/components/courses/sidePanel/SidePanelLayout';
-  import useFetch from 'kolibri-common/composables/useFetch';
+  import useFetch from 'kolibri/composables/useFetch';
   import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
   import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
@@ -91,7 +100,7 @@
       const route = useRoute();
       const router = useRouter();
       const topic = ref(null);
-      const { viewMoreAction$ } = coreStrings;
+      const { viewMoreAction$, noResultsLabel$, defaultErrorMessage$ } = coreStrings;
       const { previewCourseResourcesTitle$, selectCourseLabel$ } = coursesStrings;
 
       const currentTopicId = computed(() => route.query.previewTopicId ?? route.params.courseId);
@@ -115,6 +124,7 @@
       const {
         data: children,
         loading,
+        error,
         hasMore,
         fetchMore,
         loadingMore,
@@ -181,20 +191,25 @@
       function goBackHandler() {
         if (previewContentId.value) {
           router.push(overrideRoute(route, { query: { previewContentId: undefined } }));
-        } else if (currentTopicId.value !== route.params.courseId) {
-          router.push(getTopicRoute(topic.value.parent));
-        } else {
+        } else if (error.value || currentTopicId.value === route.params.courseId) {
+          // On a failed fetch, topic.value is stale (from whatever topic preceded the one
+          // that failed to load), so its parent can't be trusted as a back target — exit
+          // the preview entirely instead.
           exitPreview();
+        } else {
+          router.push(getTopicRoute(topic.value.parent));
         }
       }
 
-      // topic.value isn't reset when a new topic starts fetching, so while loading,
-      // or if the fetch fails, it may still hold stale data (or none at all). Hide
-      // the back button in both cases rather than navigating to a wrong/missing parent.
+      // topic.value isn't reset when a new topic starts fetching, so while loading it may
+      // still hold stale data (or none at all). Hide the back button in that case rather
+      // than navigating to a wrong/missing parent; once the fetch settles (success or
+      // error), goBackHandler has enough information to navigate safely again.
       const goBack = computed(() => {
         const isAmbiguousParent = computed(
           () =>
             !previewContentId.value &&
+            !error.value &&
             currentTopicId.value !== route.params.courseId &&
             topic.value?.id !== currentTopicId.value,
         );
@@ -214,7 +229,9 @@
         getResourceRoute,
         goBack,
         viewMoreAction$,
+        noResultsLabel$,
         previewCourseResourcesTitle$,
+        defaultErrorMessage$,
       };
     },
   };
