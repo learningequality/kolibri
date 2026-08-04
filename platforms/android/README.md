@@ -17,18 +17,15 @@ workspace member. Open **`platforms/android/`** (not the monorepo root) as the
 Android Studio project — Android Studio maps the enclosing monorepo as the VCS
 root above it, so history and `git blame` still work.
 
-The build consumes the shared workspace rather than a standalone checkout, so in
-the monorepo prefer these over the standalone commands shown below:
+The build consumes the shared workspace rather than a standalone checkout:
 
-- **Python / `buildPython`:** resolves to the shared root `.venv`. Create it from
-  the monorepo root with `uv sync --group dev --all-packages` (not a standalone
-  `uv venv`).
-- **Kolibri tar:** stage the workspace-built tar with `make stage-workspace-tar`
-  — it builds `kolibri-*.tar.gz` from the monorepo and copies it into `tar/`,
-  replacing the `make get-tar tar=<URL>` download.
+- **Python / `buildPython`:** resolves to the shared root `.venv`, no activation
+  needed. Create it with `uv sync --group dev --all-packages` from anywhere in
+  the workspace.
 - **Chaquopy runtime:** the embedded runtime (`requirements.txt`) stays
   Chaquopy-resolved and out of the workspace lock — install it into the shared
-  `.venv` with `uv pip install -r requirements.txt` as before.
+  `.venv` with `uv pip install -r requirements.txt`.
+- **Kolibri tar:** `make stage-workspace-tar` builds it from the monorepo into `tar/`.
 
 The nested `AGENTS.md` / `CLAUDE.md` in this directory remain the
 Android-specific developer docs.
@@ -39,16 +36,15 @@ Android-specific developer docs.
 # 1. Ensure JDK 21 is installed
 java -version
 
-# 2. Setup Python environment (recommended)
-uv sync --extra build
+# 2. Set up the shared workspace Python environment
+uv sync --group dev --all-packages
 uv pip install -r requirements.txt
-source .venv/bin/activate
 
 # 3. Setup Android SDK and emulator
 make setup
 
-# 4. Download Kolibri tar file
-make get-tar tar=https://github.com/learningequality/kolibri/releases/download/v0.17.0/kolibri-0.17.0.tar.gz
+# 4. Build & stage the workspace Kolibri tar
+make stage-workspace-tar
 
 # 5. Build!
 make kolibri.apk.unsigned
@@ -67,35 +63,8 @@ Output: `dist/kolibri-*.apk`
 
 - **Python 3.10+** - For build scripts and Chaquopy
 
-### Initial Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/learningequality/kolibri-installer-android.git
-   cd kolibri-installer-android
-   ```
-
-2. **Set up Python virtual environment**
-   ```bash
-   uv venv
-   source .venv/bin/activate
-   uv pip install ".[build]" -r requirements.txt
-   ```
-
-3. **Set up Android SDK** (automatically downloads SDK, NDK, emulator)
-   ```bash
-   make setup
-   ```
-
-4. **Get Kolibri tar file**
-   ```bash
-   make get-tar tar=<URL_TO_KOLIBRI_TAR>
-   ```
-
-5. **Build the APK**
-   ```bash
-   make kolibri.apk.unsigned
-   ```
+For the Python environment and Kolibri tar, see
+[Monorepo & Android Studio](#monorepo--android-studio) above.
 
 ## Architecture
 
@@ -189,6 +158,7 @@ make kolibri.apk
 ```bash
 make help                  # Show all available targets
 make setup                 # Setup SDK, NDK, and emulator
+make stage-workspace-tar   # Build & stage the workspace Kolibri tar into tar/ (no download)
 make kolibri.apk.unsigned  # Build debug APK
 make kolibri.apk           # Build release APK (requires signing keys)
 make kolibri.aab           # Build release AAB for Play Store

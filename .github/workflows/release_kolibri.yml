@@ -87,10 +87,7 @@ jobs:
       release_id: ${{ github.event.release.id }}
   server_deb:
     name: Build kolibri-server DEB file
-    needs: whl
     uses: ./.github/workflows/platform-debian-server-build_deb.yml
-    with:
-      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
   exe:
     name: Build EXE file
     needs: whl

@@ -7,11 +7,6 @@ The .deb version is bound to the Kolibri version, replacing the old independent
 correctly, so we convert them the same way kolibri-installer-debian converts
 Kolibri's own .deb: a pre-release or dev segment gains a leading ``~`` so it
 sorts *before* the corresponding final release.
-
-Version source (two contexts, one authoritative source per context):
-  * PR build: the caller passes ``KOLIBRI_VERSION`` parsed from the whl job's
-    ``kolibri-<version>.tar.gz`` artifact — the version actually built.
-  * release / local: no tar exists, so we fall back to ``import kolibri``.
 """
 
 import argparse

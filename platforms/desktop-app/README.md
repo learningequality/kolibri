@@ -46,7 +46,7 @@ Cross-platform Kolibri app
   ```
 
 - **Install Build Dependencies:**
-This step installs PyInstaller, pkginfo, and other Python packages required by the build process:
+This step installs PyInstaller and other Python packages required by the build process:
   ```
   make dependencies
   ```
@@ -59,16 +59,18 @@ If you plan to make changes to the kolibri-app wrapper code and want it recogniz
 
 
 ## Build the Application
-The general workflow is to fetch a specific Kolibri Python wheel (`.whl`) and then use PyInstaller to package it.
+The general workflow is to stage a Kolibri Python wheel (`.whl`) and then use PyInstaller to package it.
 
-- **Fetch and Prepare the Kolibri Wheel:**
-You'll need the URL of the Kolibri `.whl` file for the version you intend to package. You can find release URLs on the [Kolibri GitHub Releases page](https://github.com/learningequality/kolibri/releases).
+- **Build and Prepare the Workspace Kolibri Wheel:**
+Bundles the Kolibri you have checked out:
+  ```
+  make stage-workspace-whl
+  ```
+
+- **Or Fetch and Prepare a Kolibri Wheel from a URL:**
+Requires a wheel with `kolibri/_version.py` — no [published release](https://github.com/learningequality/kolibri/releases) has one yet.
   ```
   make get-whl whl="<URL_TO_KOLIBRI_WHL_FILE>"
-  ```
-  **Example:**
-  ```
-  make get-whl whl="https://github.com/learningequality/kolibri/releases/download/v0.18.0/kolibri-0.18.0-py2.py3-none-any.whl"
   ```
   This command will:
   *   Download the wheel into the `whl/` directory.

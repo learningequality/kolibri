@@ -201,6 +201,8 @@ set-no-uv-python-version-for-tests:
 	echo "__version__ = version = \"$$VERSION\"" >> kolibri/_version.py; \
 	echo "Set version to $$VERSION"
 
+# Plaintext copy read out of our sdist by kolibri-installer-debian (pinned
+# v0.16.1) — deleting it reddens `deb`. Nothing in this repo reads it.
 writeversion:
 	uv run python -c "import kolibri; print(kolibri.__version__)" > kolibri/VERSION
 	@echo ""
@@ -224,7 +226,7 @@ dist: setrequirements writeversion staticdeps staticdeps-cext strip-staticdeps b
 	ls -l dist
 
 pex:
-	ls dist/*.whl | while read whlfile; do version=$$(uv run --script ./build_tools/read_whl_version.py $$whlfile); uvx --from "pex==2.1.153" pex $$whlfile --disable-cache -o dist/kolibri-`echo $$version | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
+	ls dist/*.whl | while read whlfile; do version=$$(uv run --script ./build_tools/read_kolibri_version.py $$whlfile); uvx --from "pex==2.1.153" pex $$whlfile --disable-cache -o dist/kolibri-`echo $$version | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
 
 # Kolibri plugins packaged under python_packages/. Each entry is the inner
 # <dist>/<module> dir (the importable package). kolibri_plugin.py marks a real

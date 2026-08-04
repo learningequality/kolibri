@@ -40,9 +40,7 @@ error-pages:
 	kolibri manage loadingpage --reload --output-dir $(CURDIR)/error_pages --version-text $(shell dpkg-parsechangelog -SVersion)
 
 # Generate debian/changelog with the .deb version bound to the Kolibri version.
-# Set KOLIBRI_VERSION=<pep440> (the PR build parses it from the whl artifact);
-# make exports it into the recipe env, where the generator reads it. Unset, the
-# generator falls back to the installed kolibri (release/local).
+# Set KOLIBRI_VERSION=<pep440> to pin it, else the generator imports kolibri.
 changelog:
 	uv run python scripts/generate_changelog.py
 

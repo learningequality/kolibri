@@ -95,7 +95,7 @@ if (venvPython.exists()) {
 def extractedKolibriDir = file('../tar/extracted')
 def tarFile = file('../tar').listFiles()?.find { it.name.endsWith('.tar.gz') && it.name.startsWith('kolibri') }
 
-if (tarFile != null && tarFile.exists() && !new File(extractedKolibriDir, 'kolibri/VERSION').exists()) {
+if (tarFile != null && tarFile.exists() && !new File(extractedKolibriDir, 'kolibri/_version.py').exists()) {
 	StreamlineKolibriTask.extract(tarFile, extractedKolibriDir, this)
 }
 
@@ -104,13 +104,19 @@ def calculatedVersionName
 def calculatedVersionCode
 
 if (extractedKolibriDir.exists() && extractedKolibriDir.isDirectory()) {
-	// Read VERSION_NAME from Kolibri's VERSION file
-	def kolibriVersionFile = new File(extractedKolibriDir, 'kolibri/VERSION')
-	if (!kolibriVersionFile.exists()) {
-		throw new GradleException("Kolibri VERSION file not found at: ${kolibriVersionFile}")
+	if (!new File(extractedKolibriDir, 'kolibri/_version.py').exists()) {
+		throw new GradleException("No kolibri/_version.py in ${extractedKolibriDir}." +
+				" Pre-monorepo tars lack it; run 'make stage-workspace-tar'.")
 	}
 
-	def kolibriVersion = kolibriVersionFile.text.trim()
+	def versionOutput = new ByteArrayOutputStream()
+	exec {
+		commandLine buildPythonExecutable,
+				file('../../../build_tools/read_kolibri_version.py').absolutePath,
+				extractedKolibriDir.absolutePath
+		standardOutput = versionOutput
+	}
+	def kolibriVersion = versionOutput.toString().trim()
 	def buildType = System.getenv("RELEASE_KEYALIAS") == "LE_RELEASE_KEY" ? "official" :
 			System.getenv("RELEASE_KEYALIAS") == "LE_DEV_KEY" ? "dev" : "debug"
 	calculatedVersionName = "${kolibriVersion}-${buildType}"

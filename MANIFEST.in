@@ -3,6 +3,7 @@ include CONTRIBUTING.md
 include CHANGELOG.md
 include LICENSE
 include README.md
+# Read out of the sdist by an external installer repo — see `writeversion` in the Makefile.
 include kolibri/VERSION
 recursive-include kolibri/locale *.mo
 recursive-include kolibri/locale *.json
