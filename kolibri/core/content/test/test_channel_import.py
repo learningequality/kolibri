@@ -45,6 +45,7 @@ from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
 from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
+from kolibri.core.content.utils.sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import load_metadata
 
@@ -259,6 +260,112 @@ class BaseChannelImportClassGenTableMapperTestCase(TestCase):
         table_map = "test_map_method"
         with self.assertRaises(AttributeError):
             channel_import.generate_table_mapper(table_map=table_map)
+
+
+@patch("kolibri.core.content.utils.channel_import.Bridge")
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+@patch("kolibri.core.content.utils.channel_import.apps")
+class BaseChannelImportClassAttachMethodTestCase(TestCase):
+    """
+    Testcase for the guard that decides whether a table can be transferred by
+    attaching the source database and issuing a single INSERT ... SELECT.
+    """
+
+    def make_import(self, schema_map, source_columns):
+        # A str source leaves source_data None, so the guard isn't short-circuited.
+        channel_import = ChannelImport(uuid.uuid4().hex, "")
+        channel_import._sqlite_db_attached = True
+        channel_import.schema_mapping = {LocalFile: schema_map}
+        source_table = MagicMock()
+        source_table.columns.keys.return_value = source_columns
+        channel_import.source.get_table.return_value = source_table
+        return channel_import
+
+    def can_attach(self, schema_map, source_columns):
+        channel_import = self.make_import(schema_map, source_columns)
+        return channel_import.can_use_sqlite_attach_method(
+            LocalFile, channel_import.base_table_mapper
+        )
+
+    def test_rename_mapping_can_attach(self, apps_mock, tree_id_mock, BridgeMock):
+        # The schema 5 content_localfile shape.
+        self.assertTrue(
+            self.can_attach(
+                {"per_row": {"file_size_bigint": "file_size"}},
+                ["id", "extension", "available", "file_size"],
+            )
+        )
+
+    def test_constant_mapping_can_attach(self, apps_mock, tree_id_mock, BridgeMock):
+        self.assertTrue(
+            self.can_attach(
+                {"per_row": {"available": "default_to_not_available"}},
+                ["id", "available"],
+            )
+        )
+
+    def test_callable_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+        self.assertFalse(
+            self.can_attach({"per_row": {"available": "get_none"}}, ["id", "available"])
+        )
+
+    def test_unknown_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+        self.assertFalse(
+            self.can_attach(
+                {"per_row": {"available": "no_such_mapping"}}, ["id", "available"]
+            )
+        )
+
+    def test_per_table_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+        self.assertFalse(
+            self.can_attach(
+                {
+                    "per_table": "generate_local_file_from_file",
+                    "per_row": {"id": "checksum"},
+                },
+                ["id", "checksum"],
+            )
+        )
+
+    def test_source_column_wins_over_callable_attribute(
+        self, apps_mock, tree_id_mock, BridgeMock
+    ):
+        # Contrived: a source column named after a callable method is the only
+        # way to observe, through the public guard, that the source wins.
+        self.assertTrue(
+            self.can_attach(
+                {"per_row": {"available": "get_none"}},
+                ["id", "available", "get_none"],
+            )
+        )
+
+    def test_missing_source_table_cannot_attach(
+        self, apps_mock, tree_id_mock, BridgeMock
+    ):
+        channel_import = self.make_import(
+            {"per_row": {"file_size_bigint": "file_size"}},
+            ["id", "extension", "available", "file_size"],
+        )
+        channel_import.source.get_table.side_effect = ClassNotFoundError
+        self.assertFalse(
+            channel_import.can_use_sqlite_attach_method(
+                LocalFile, channel_import.base_table_mapper
+            )
+        )
+
+    def test_raw_attached_import_raises_for_unknown_mapping(
+        self, apps_mock, tree_id_mock, BridgeMock
+    ):
+        channel_import = self.make_import(
+            {"per_row": {"available": "no_such_mapping"}}, ["id", "available"]
+        )
+        # Match on the message: everything here but the source table is a
+        # MagicMock, so a bare assertRaises(Exception) would go green on any
+        # incidental TypeError rather than on the mapping check.
+        with self.assertRaisesRegex(Exception, "no_such_mapping"):
+            channel_import.raw_attached_sqlite_table_import(
+                LocalFile, channel_import.base_table_mapper
+            )
 
 
 @patch("kolibri.core.content.utils.channel_import.Bridge")
