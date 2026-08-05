@@ -205,6 +205,37 @@ describe('candidatesFor', () => {
   });
 });
 
+describe('canPlace while moving between rows', () => {
+  it('discounts the use held by the row the target is leaving', () => {
+    const { canPlace, place } = setup({ matchMax: { ...MATCH_MAX, M: 1 } });
+    place('M', 0, 0);
+
+    // M has no uses left, so it cannot be added to another row
+    expect(canPlace('M', 1, 0)).toBe(false);
+    // but moving it out of row 0 frees the one use it holds
+    expect(canPlace('M', 1, 0, { fromRow: 0 })).toBe(true);
+  });
+
+  it('still refuses a row that already holds that target', () => {
+    const { canPlace, place } = setup({
+      sourceIds: ['r1', 'r2'],
+      targetIds: ['h1', 'h2'],
+      matchMax: { r1: 0, r2: 0, h1: 1, h2: 1 },
+    });
+    place('h1', 0, 0);
+
+    expect(canPlace('h1', 0, 1, { fromRow: 0 })).toBe(false);
+  });
+
+  it('does not let a move breach max-associations, since the total is unchanged', () => {
+    const { canPlace, place } = setup({ maxAssociations: 1 });
+    place('M', 0, 0);
+
+    expect(canPlace('R', 1, 0)).toBe(false);
+    expect(canPlace('M', 1, 0, { fromRow: 0 })).toBe(true);
+  });
+});
+
 describe('pairs', () => {
   it('reports each entry as a directed pair, source first', () => {
     const { pairs, place } = setup();

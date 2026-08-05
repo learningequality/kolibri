@@ -203,6 +203,148 @@ describe('Shuffle', () => {
   });
 });
 
+// SortableJS cannot be driven in jsdom, so a drag is exercised the way the
+// abstraction reports it: useDraggableRegion's handleEnd inserts into the
+// destination region first, then emits the source region's remaining items.
+function findRegions() {
+  const mounted = Array.from(document.body.querySelectorAll('*')).find(el => el.__vue__);
+  const regions = [];
+  const walk = vm => {
+    if (!vm) {
+      return;
+    }
+    if (vm.$options.name === 'DraggableRegion') {
+      regions.push(vm);
+    }
+    (vm.$children || []).forEach(walk);
+  };
+  walk(mounted && mounted.__vue__.$root);
+  return regions;
+}
+
+function regionLabelled(label) {
+  return findRegions().find(region => region.label === label);
+}
+
+async function dragInto(targetLabel, identifier, sourceLabel) {
+  const source = regionLabelled(sourceLabel);
+  const target = regionLabelled(targetLabel);
+  const sourceItemsBeforeDrag = source.items;
+
+  source.$emit('dragstart');
+  target.$emit('update:items', [...target.items, { identifier }]);
+  source.$emit(
+    'update:items',
+    sourceItemsBeforeDrag.filter(item => item.identifier !== identifier),
+  );
+  await target.$nextTick();
+}
+
+describe('Placing by drag', () => {
+  const poolLabel = () => responsePoolLabel$();
+  const rowFor = source => rowLabel$({ source });
+
+  it('adds a target dragged from the pool onto a row', async () => {
+    renderAssessmentItem(items['match-example-1'].xml);
+
+    await dragInto(rowFor('Capulet'), 'R', poolLabel());
+
+    expect(
+      screen.getByLabelText(
+        entryFilled$({ number: 1, source: 'Capulet', response: 'Romeo and Juliet' }),
+      ),
+    ).toBeVisible();
+  });
+
+  it('leaves the target in the pool, since it has uses left', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await dragInto(rowFor('Capulet'), 'M', poolLabel());
+
+    expect(poolChip(container, "A Midsummer-Night's Dream")).not.toHaveClass(
+      'qti-match-chip-exhausted',
+    );
+  });
+
+  it('moves a target between rows without losing it on the way', async () => {
+    // h1 has match-max="2" and is already at its limit, so the move only works
+    // if the origin's use is freed before the destination checks for room
+    renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h1'],
+        ],
+      },
+    });
+
+    await dragInto(rowFor('Possess Gills'), 'h1', rowFor('Asexual'));
+
+    expect(
+      screen.getByLabelText(
+        entryFilled$({ number: 1, source: 'Possess Gills', response: 'Birds' }),
+      ),
+    ).toBeVisible();
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Asexual' }))).toBeVisible();
+  });
+
+  it('takes the pairing out when a target is dragged back to the pool', async () => {
+    renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    await dragInto(poolLabel(), 'R', rowFor('Capulet'));
+
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+
+  it('refuses a drop onto a row that is already full', async () => {
+    renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    // Capulet is match-max="1", so it has no room for a second target
+    await dragInto(rowFor('Capulet'), 'T', poolLabel());
+
+    expect(
+      screen.getByLabelText(
+        entryFilled$({ number: 1, source: 'Capulet', response: 'Romeo and Juliet' }),
+      ),
+    ).toBeVisible();
+  });
+
+  it('updates the response variable after a drag', async () => {
+    const { checkAnswer } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await dragInto(rowFor('Prospero'), 'T', poolLabel());
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toEqual([['P', 'T']]);
+    });
+  });
+
+  it('leaves an exhausted target out of the pool region items', () => {
+    renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h1'],
+        ],
+      },
+    });
+
+    const identifiers = regionLabelled(responsePoolLabel$()).items.map(item => item.identifier);
+    expect(identifiers).not.toContain('h1');
+    expect(identifiers).toContain('h2');
+  });
+
+  it('disables the regions in review mode', () => {
+    renderAssessmentItem(items['match-example-1'].xml, { interactive: false });
+
+    expect(findRegions().every(region => region.disabled)).toBe(true);
+  });
+});
+
 describe('Placing by click', () => {
   it('places a selected response into the entry clicked next', async () => {
     const { container } = renderAssessmentItem(items['match-example-1'].xml);

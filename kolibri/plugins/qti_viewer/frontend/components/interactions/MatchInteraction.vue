@@ -4,6 +4,10 @@
   import { computed, h, inject, ref, watch } from 'vue';
   import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import useDraggableUniverse from 'kolibri-common/components/draggable/useDraggableUniverse';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
@@ -117,6 +121,7 @@
         canPlace,
         place,
         clear,
+        remove,
         candidatesFor,
         hydrate,
       } = useMatchRows({
@@ -125,6 +130,10 @@
         matchMaxOf,
         maxAssociations: computed(() => typedProps.maxAssociations.value),
       });
+
+      const { isDragging, draggedItem } = useDraggableUniverse();
+
+      let dragOriginRow = null;
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
 
@@ -177,6 +186,30 @@
           return;
         }
         activeEntry.value = { rowIndex, entryIndex };
+      }
+
+      function reconcileRow(rowIndex, newItems) {
+        if (!interactive.value) {
+          return;
+        }
+        const identifiers = newItems.map(item => item.identifier);
+        const current = rows.value[rowIndex];
+
+        const arrived = identifiers.find(identifier => !current.includes(identifier));
+        if (arrived) {
+          if (dragOriginRow !== null && dragOriginRow !== rowIndex) {
+            remove(arrived, dragOriginRow);
+          }
+          place(arrived, rowIndex, rows.value[rowIndex].length);
+          return;
+        }
+
+        // Only the row the drag started from can report a departure; a move to
+        // another row has already taken the target out above.
+        const departed = current.find(identifier => !identifiers.includes(identifier));
+        if (departed && dragOriginRow === rowIndex) {
+          remove(departed, rowIndex);
+        }
       }
 
       // The variable is derived from the rows, so ignore the change our own
@@ -262,27 +295,30 @@
         });
       }
 
+      // The whole chip is the drag handle, so DraggableHandle renders the chip
+      // itself rather than wrapping it in another element.
       function renderChip(
         identifier,
-        { exhausted = false, selected = false, candidate = false, on } = {},
+        { exhausted = false, selected = false, candidate = false, draggable = true, on } = {},
       ) {
-        return h(
-          'div',
-          {
-            class: [
-              'qti-match-chip',
-              {
-                'qti-match-chip-exhausted': exhausted,
-                'qti-match-chip-selected': selected,
-                'qti-match-chip-candidate': candidate && !selected,
-              },
-            ],
-            style: chipStyles({ exhausted, selected, candidate }),
-            attrs: exhausted ? { 'aria-disabled': 'true' } : {},
-            on,
-          },
-          [...contentByIdentifier[identifier]],
-        );
+        const data = {
+          class: [
+            'qti-match-chip',
+            {
+              'qti-match-chip-exhausted': exhausted,
+              'qti-match-chip-selected': selected,
+              'qti-match-chip-candidate': candidate && !selected,
+            },
+          ],
+          style: chipStyles({ exhausted, selected, candidate }),
+          attrs: exhausted ? { 'aria-disabled': 'true' } : {},
+          on,
+        };
+        const content = [...contentByIdentifier[identifier]];
+        if (!draggable) {
+          return h('div', data, content);
+        }
+        return h(DraggableHandle, { ...data, props: { tag: 'div' } }, content);
       }
 
       function renderPlaceholder() {
@@ -300,31 +336,60 @@
         );
       }
 
+      // Whether the pool should offer this target for the entry awaiting one
+      function isCandidateForActiveEntry(identifier) {
+        if (!activeEntry.value) {
+          return false;
+        }
+        const { rowIndex, entryIndex } = activeEntry.value;
+        return candidatesFor(rowIndex, entryIndex).includes(identifier);
+      }
+
+      // What is being offered for placement right now, by pointer or by drag
+      function offeredIdentifier() {
+        if (selectedIdentifier.value) {
+          return selectedIdentifier.value;
+        }
+        return isDragging.value ? draggedItem.value?.identifier : null;
+      }
+
       function renderEntry(identifier, rowIndex, entryIndex) {
         const filled = Boolean(identifier);
         const active = isActiveEntry(rowIndex, entryIndex);
+        const offered = offeredIdentifier();
         // A filled position is still a valid target here, because a target may
         // be replaced — so unlike associate, filled positions do highlight.
         const target = Boolean(
-          selectedIdentifier.value && canPlace(selectedIdentifier.value, rowIndex, entryIndex),
+          offered && canPlace(offered, rowIndex, entryIndex, { fromRow: dragOriginRow }),
         );
+        const data = {
+          key: `${rowIndex}-${entryIndex}`,
+          class: [
+            'qti-match-entry',
+            {
+              'qti-match-entry-filled': filled,
+              'qti-match-entry-target': target,
+              'qti-match-entry-active': active,
+            },
+          ],
+          style: entryStyles({ filled, target, active }),
+          attrs: { 'aria-label': entryLabel(identifier, rowIndex, entryIndex) },
+        };
+        // A filled entry is one of its row region's draggable items; the
+        // trailing empty one is not, so SortableJS's indexes stay aligned.
+        if (!filled) {
+          return h('div', { ...data, on: { click: () => selectEntry(rowIndex, entryIndex) } }, [
+            renderPlaceholder(),
+          ]);
+        }
         return h(
-          'div',
+          DraggableItem,
           {
-            key: `${rowIndex}-${entryIndex}`,
-            class: [
-              'qti-match-entry',
-              {
-                'qti-match-entry-filled': filled,
-                'qti-match-entry-target': target,
-                'qti-match-entry-active': active,
-              },
-            ],
-            style: entryStyles({ filled, target, active }),
-            attrs: { 'aria-label': entryLabel(identifier, rowIndex, entryIndex) },
-            on: { click: () => selectEntry(rowIndex, entryIndex) },
+            ...data,
+            props: { tag: 'div', disabled: !interactive.value },
+            nativeOn: { click: () => selectEntry(rowIndex, entryIndex) },
           },
-          [filled ? renderChip(identifier) : renderPlaceholder()],
+          [renderChip(identifier)],
         );
       }
 
@@ -340,24 +405,49 @@
             responsePoolLabel$(),
           ),
           h(
-            'ul',
-            { class: 'qti-match-pool-items', attrs: { 'aria-label': responsePoolLabel$() } },
-            pool.value.map(identifier =>
-              h('li', { key: identifier, class: 'qti-match-pool-entry' }, [
-                renderChip(identifier, {
-                  exhausted: isExhausted(identifier),
-                  selected: selectedIdentifier.value === identifier,
-                  candidate: Boolean(
-                    activeEntry.value &&
-                      candidatesFor(
-                        activeEntry.value.rowIndex,
-                        activeEntry.value.entryIndex,
-                      ).includes(identifier),
-                  ),
-                  on: { click: () => selectResponse(identifier) },
-                }),
-              ]),
-            ),
+            DraggableRegion,
+            {
+              props: {
+                tag: 'ul',
+                // Exhausted chips stay visible but are not draggable, so they
+                // are left out of the region's items to keep its indexes aligned
+                items: pool.value
+                  .filter(identifier => !isExhausted(identifier))
+                  .map(identifier => ({ identifier })),
+                sortable: false,
+                disabled: !interactive.value,
+                label: responsePoolLabel$(),
+              },
+              class: 'qti-match-pool-items',
+              attrs: { 'aria-label': responsePoolLabel$() },
+              on: {
+                dragstart: () => {
+                  dragOriginRow = null;
+                },
+              },
+            },
+            pool.value.map(identifier => {
+              const exhausted = isExhausted(identifier);
+              const chip = renderChip(identifier, {
+                exhausted,
+                draggable: !exhausted,
+                selected: selectedIdentifier.value === identifier,
+                candidate: isCandidateForActiveEntry(identifier),
+                on: { click: () => selectResponse(identifier) },
+              });
+              if (exhausted) {
+                return h('li', { key: identifier, class: 'qti-match-pool-entry' }, [chip]);
+              }
+              return h(
+                DraggableItem,
+                {
+                  key: identifier,
+                  class: 'qti-match-pool-entry',
+                  props: { tag: 'li', disabled: !interactive.value },
+                },
+                [chip],
+              );
+            }),
           ),
         ]);
       }
@@ -390,10 +480,23 @@
                 '→',
               ),
               h(
-                'div',
+                DraggableRegion,
                 {
+                  props: {
+                    tag: 'div',
+                    items: row.map(identifier => ({ identifier })),
+                    sortable: false,
+                    disabled: !interactive.value,
+                    label: rowLabel$({ source: labelFor(sourceId) }),
+                  },
                   class: 'qti-match-entries',
                   attrs: { 'aria-label': rowLabel$({ source: labelFor(sourceId) }) },
+                  on: {
+                    dragstart: () => {
+                      dragOriginRow = rowIndex;
+                    },
+                    'update:items': newItems => reconcileRow(rowIndex, newItems),
+                  },
                 },
                 entriesFor(rowIndex).map((identifier, entryIndex) =>
                   renderEntry(identifier, rowIndex, entryIndex),

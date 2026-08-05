@@ -91,9 +91,13 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
    * @param {string} identifier - The target being placed
    * @param {number} rowIndex - Which row
    * @param {number} entryIndex - Which position within the row
+   * @param {object} [options] - Placement context
+   * @param {?number} [options.fromRow] - A row the target is being moved out
+   * of, whose use is discounted. Without it a target on its last use would
+   * report that it cannot be moved to a row it is about to have room in.
    * @returns {boolean} True when the placement is allowed
    */
-  function canPlace(identifier, rowIndex, entryIndex) {
+  function canPlace(identifier, rowIndex, entryIndex, { fromRow = null } = {}) {
     const row = rows.value[rowIndex];
     if (!row || !targets().includes(identifier)) {
       return false;
@@ -106,15 +110,18 @@ export default function useMatchRows({ sourceIds, targetIds, matchMaxOf, maxAsso
     if (row.includes(identifier)) {
       return false;
     }
+    const movingOut =
+      fromRow !== null && fromRow !== rowIndex && (rows.value[fromRow] || []).includes(identifier);
     const appending = current === null;
     if (appending && row.length >= rowCapacity(rowIndex)) {
       return false;
     }
-    if (appending && countPairs(rows.value) >= maxPairs()) {
+    if (appending && !movingOut && countPairs(rows.value) >= maxPairs()) {
       return false;
     }
-    // Replacing frees the use the displaced target was holding
-    return remainingOf(identifier) > 0;
+    // Replacing frees the use the displaced target was holding, and so does
+    // moving the target out of the row it currently sits in
+    return remainingOf(identifier) + (movingOut ? 1 : 0) > 0;
   }
 
   function place(identifier, rowIndex, entryIndex) {
