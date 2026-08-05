@@ -484,6 +484,10 @@
 <style lang="scss">
 
   $chip-max-size: 100px;
+  $chip-padding-block: 8px;
+  $chip-padding-inline: 12px;
+  $chip-border-width: 1px;
+  $chip-content-max-size: $chip-max-size - 2 * ($chip-padding-inline + $chip-border-width);
 
   .qti-associate-pool {
     padding: 0.75rem;
@@ -502,6 +506,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    align-items: center;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -512,16 +517,49 @@
     align-items: center;
     justify-content: center;
     max-width: $chip-max-size;
-    padding-block: 8px;
-    padding-inline: 12px;
+    padding-block: $chip-padding-block;
+    padding-inline: $chip-padding-inline;
+    overflow: hidden;
     cursor: pointer;
     border-style: solid;
-    border-width: 1px;
+    border-width: $chip-border-width;
     border-radius: 8px;
     transition:
       background-color 0.2s ease,
       border-color 0.2s ease,
       color 0.2s ease;
+
+    .image-container,
+    .img-wrapper,
+    .img-button {
+      width: $chip-content-max-size;
+      min-width: 0;
+      max-width: none;
+      height: $chip-content-max-size;
+      margin: 0;
+    }
+
+    .img-wrapper {
+      box-shadow: none;
+    }
+
+    // Selecting or dragging the chip wins over opening the lightbox
+    .img-button {
+      pointer-events: none;
+    }
+
+    .expand-btn {
+      display: none;
+    }
+
+    // scale-down rather than contain so a small image is never blown up
+    img {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      object-fit: scale-down;
+    }
   }
 
   .qti-associate-chip-selected {
