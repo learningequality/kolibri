@@ -44,10 +44,10 @@
       context:
         'Tells the learner to complete the passage by choosing an option in each inline dropdown gap',
     },
-    associate: {
+    chooseThenTarget: {
       message: 'Choose a response, then choose a target.',
       context:
-        'Tells the learner how to build each pair in a connect-pairs (associate) interaction: pick a response from the pool, then pick the answer slot to put it in',
+        'Tells the learner how to build each pair in a connect-pairs or match interaction: pick a response from the pool, then pick the answer slot to put it in',
     },
     shortAnswer: {
       message: 'Short answer only:',

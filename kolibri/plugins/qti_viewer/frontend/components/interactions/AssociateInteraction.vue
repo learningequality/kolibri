@@ -455,7 +455,7 @@
 
         return h('div', [
           ...nonChoiceContent,
-          h(AnswerGuide, { props: { text: answerGuideStrings.associate$() } }),
+          h(AnswerGuide, { props: { text: answerGuideStrings.chooseThenTarget$() } }),
           h(
             'div',
             {

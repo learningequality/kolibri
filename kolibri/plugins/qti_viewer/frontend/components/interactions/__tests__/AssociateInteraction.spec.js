@@ -48,7 +48,7 @@ describe('Smoke', () => {
   it('renders the associate answer guide', () => {
     renderAssessmentItem(items['associate-interaction-1'].xml);
     expect(
-      screen.getByText(answerGuideStrings.associate$(), {
+      screen.getByText(answerGuideStrings.chooseThenTarget$(), {
         selector: 'p.qti-selection-instructions',
       }),
     ).toBeVisible();

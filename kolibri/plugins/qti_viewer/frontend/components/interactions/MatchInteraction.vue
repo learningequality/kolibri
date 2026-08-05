@@ -1,0 +1,463 @@
+<script>
+
+  import isEqual from 'lodash/isEqual';
+  import { computed, h, inject, watch } from 'vue';
+  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { createTranslator } from 'kolibri/utils/i18n';
+  import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
+  import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
+  import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
+  import useTypedProps from '../../composables/useTypedProps';
+  import useMatchRows from '../../composables/useMatchRows';
+
+  const SET_TAG = 'qti-simple-match-set';
+  const CHOICE_TAG = 'qti-simple-associable-choice';
+
+  export const matchStrings = createTranslator('MatchInteractionStrings', {
+    responsePoolLabel: {
+      message: 'Response pool',
+      context:
+        'Label for the set of answers a learner drags or picks from when matching in a match question',
+    },
+    emptyEntryPlaceholder: {
+      message: 'Answer',
+      context: 'Placeholder shown in an empty answer slot of a match question',
+    },
+    entryEmpty: {
+      message: 'Add a response for {source}',
+      context:
+        'Accessible label for the empty answer slot on one row of a match question. {source} is the item being matched, e.g. a scientist being matched to a field.',
+    },
+    entryFilled: {
+      message: 'Response {number, number} for {source}: {response}',
+      context:
+        'Accessible label for a filled answer slot on one row of a match question. A row can hold several responses, so {number} is the position within that row.',
+    },
+    rowLabel: {
+      message: 'Responses matched with {source}',
+      context: 'Accessible label for the group of answers a learner has matched with one item',
+    },
+  });
+
+  const { responsePoolLabel$, emptyEntryPlaceholder$, entryEmpty$, entryFilled$, rowLabel$ } =
+    matchStrings;
+
+  const $themeTokens = themeTokens();
+  const $themePalette = themePalette();
+
+  const interactionCSSVars = { '--qti-match-color-primary': $themeTokens.primary };
+
+  function choicesIn(setVNode) {
+    const children = setVNode?.componentOptions?.children || [];
+    return children.filter(vnode => getComponentTag(vnode) === CHOICE_TAG);
+  }
+
+  export default {
+    name: 'QtiMatchInteraction',
+    tag: 'qti-match-interaction',
+
+    setup(props, { slots, attrs }) {
+      const QTI_CONTEXT = inject('QTI_CONTEXT');
+      const responses = inject('responses');
+      const interactive = inject('interactive');
+      const typedProps = useTypedProps(props);
+
+      // The sets are static: parse the slot vnodes once rather than every render.
+      const allContent = (slots.default && slots.default()) || [];
+      const nonSetContent = allContent.filter(vnode => getComponentTag(vnode) !== SET_TAG);
+      const setVNodes = allContent.filter(vnode => getComponentTag(vnode) === SET_TAG);
+
+      // The first set defines the sources, the second the targets a source is
+      // paired with. Every row is one source; the pool is the whole second set.
+      const sourceChoices = choicesIn(setVNodes[0]).map(vnode => ({
+        identifier: vnode.componentOptions.propsData.identifier,
+        fixed: isFixed(vnode),
+      }));
+      const targetChoices = choicesIn(setVNodes[1]).map(vnode => ({
+        identifier: vnode.componentOptions.propsData.identifier,
+        fixed: isFixed(vnode),
+      }));
+
+      const contentByIdentifier = {};
+      const textByIdentifier = {};
+      const matchMaxByIdentifier = {};
+      [...choicesIn(setVNodes[0]), ...choicesIn(setVNodes[1])].forEach(vnode => {
+        const { identifier, matchMax } = vnode.componentOptions.propsData;
+        contentByIdentifier[identifier] = vnode.componentOptions.children || [];
+        textByIdentifier[identifier] = choiceText(vnode);
+        matchMaxByIdentifier[identifier] = matchMax === undefined ? 1 : Number(matchMax);
+      });
+
+      const matchMaxOf = identifier => matchMaxByIdentifier[identifier] ?? 1;
+      const labelFor = identifier => textByIdentifier[identifier] || identifier;
+
+      // Shuffle randomises each set independently, so the two are seeded apart:
+      // sets of equal length would otherwise take the same permutation.
+      const seed = () => QTI_CONTEXT.value.candidateIdentifier;
+      const sourceIds = computed(() =>
+        orderChoices(sourceChoices, { shuffle: typedProps.shuffle.value, seed: seed() }).map(
+          choice => choice.identifier,
+        ),
+      );
+      const targetIds = computed(() =>
+        orderChoices(targetChoices, {
+          shuffle: typedProps.shuffle.value,
+          seed: `${seed()}-targets`,
+        }).map(choice => choice.identifier),
+      );
+
+      const { rows, pool, pairs, entriesFor, isExhausted, hydrate } = useMatchRows({
+        sourceIds,
+        targetIds,
+        matchMaxOf,
+        maxAssociations: computed(() => typedProps.maxAssociations.value),
+      });
+
+      const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
+
+      // The variable is derived from the rows, so ignore the change our own
+      // write causes and only rebuild from a value that came from elsewhere.
+      watch(
+        () => variable.value?.value,
+        value => {
+          if (isEqual(value, pairs.value)) {
+            return;
+          }
+          hydrate(value);
+        },
+        { immediate: true },
+      );
+
+      const poolStyles = computed(() => ({
+        backgroundColor: $themePalette.grey.v_100,
+        borderColor: $themeTokens.fineLine,
+      }));
+      const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
+      const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
+
+      function chipStyles({ exhausted }) {
+        return {
+          backgroundColor: $themeTokens.surface,
+          borderColor: $themeTokens.fineLine,
+          color: exhausted ? $themeTokens.annotation : $themeTokens.text,
+        };
+      }
+
+      function entryStyles(filled) {
+        return {
+          backgroundColor: filled ? $themePalette.grey.v_100 : 'transparent',
+          borderColor: $themeTokens.fineLine,
+        };
+      }
+
+      function entryLabel(identifier, rowIndex, entryIndex) {
+        const source = labelFor(sourceIds.value[rowIndex]);
+        if (!identifier) {
+          return entryEmpty$({ source });
+        }
+        return entryFilled$({
+          number: entryIndex + 1,
+          source,
+          response: labelFor(identifier),
+        });
+      }
+
+      function renderChip(identifier, { exhausted = false } = {}) {
+        return h(
+          'div',
+          {
+            class: ['qti-match-chip', { 'qti-match-chip-exhausted': exhausted }],
+            style: chipStyles({ exhausted }),
+            attrs: exhausted ? { 'aria-disabled': 'true' } : {},
+          },
+          [...contentByIdentifier[identifier]],
+        );
+      }
+
+      function renderPlaceholder() {
+        return h(
+          'span',
+          {
+            class: 'qti-match-placeholder',
+            style: placeholderStyles.value,
+            attrs: { 'aria-hidden': 'true' },
+          },
+          [
+            h('KIcon', { props: { icon: 'plus' }, class: 'qti-match-placeholder-icon' }),
+            h('span', emptyEntryPlaceholder$()),
+          ],
+        );
+      }
+
+      function renderEntry(identifier, rowIndex, entryIndex) {
+        const filled = Boolean(identifier);
+        return h(
+          'div',
+          {
+            key: `${rowIndex}-${entryIndex}`,
+            class: ['qti-match-entry', { 'qti-match-entry-filled': filled }],
+            style: entryStyles(filled),
+            attrs: { 'aria-label': entryLabel(identifier, rowIndex, entryIndex) },
+          },
+          [filled ? renderChip(identifier) : renderPlaceholder()],
+        );
+      }
+
+      function renderPool() {
+        return h('div', { class: 'qti-match-pool', style: poolStyles.value }, [
+          h(
+            'p',
+            {
+              class: 'qti-match-pool-label',
+              style: poolLabelStyles.value,
+              attrs: { 'aria-hidden': 'true' },
+            },
+            responsePoolLabel$(),
+          ),
+          h(
+            'ul',
+            { class: 'qti-match-pool-items', attrs: { 'aria-label': responsePoolLabel$() } },
+            pool.value.map(identifier =>
+              h('li', { key: identifier, class: 'qti-match-pool-entry' }, [
+                renderChip(identifier, { exhausted: isExhausted(identifier) }),
+              ]),
+            ),
+          ),
+        ]);
+      }
+
+      function renderRows() {
+        return h(
+          'ol',
+          { class: 'qti-match-rows' },
+          rows.value.map((row, rowIndex) => {
+            const sourceId = sourceIds.value[rowIndex];
+            return h('li', { key: sourceId, class: 'qti-match-row' }, [
+              h(
+                'div',
+                {
+                  class: 'qti-match-source',
+                  style: {
+                    backgroundColor: $themeTokens.surface,
+                    borderColor: $themeTokens.fineLine,
+                  },
+                },
+                [...contentByIdentifier[sourceId]],
+              ),
+              h(
+                'span',
+                {
+                  class: 'qti-match-arrow',
+                  style: { color: $themeTokens.annotation },
+                  attrs: { 'aria-hidden': 'true' },
+                },
+                '→',
+              ),
+              h(
+                'div',
+                {
+                  class: 'qti-match-entries',
+                  attrs: { 'aria-label': rowLabel$({ source: labelFor(sourceId) }) },
+                },
+                entriesFor(rowIndex).map((identifier, entryIndex) =>
+                  renderEntry(identifier, rowIndex, entryIndex),
+                ),
+              ),
+            ]);
+          }),
+        );
+      }
+
+      return () => {
+        if (!sourceChoices.length || !targetChoices.length) {
+          return;
+        }
+
+        return h('div', [
+          ...nonSetContent,
+          h(AnswerGuide, { props: { text: answerGuideStrings.chooseThenTarget$() } }),
+          h(
+            'div',
+            {
+              class: [
+                attrs.class || '',
+                'qti-match-interaction',
+                { 'qti-match-readonly': !interactive.value },
+              ],
+              style: interactionCSSVars,
+            },
+            [renderPool(), renderRows()],
+          ),
+        ]);
+      };
+    },
+    props: {
+      /* eslint-disable vue/no-unused-properties */
+      responseIdentifier: QTIIdentifierProp(true),
+      shuffle: BooleanProp(false, false),
+      maxAssociations: NonNegativeIntProp(false, 0),
+      minAssociations: NonNegativeIntProp(false, 0),
+      /* eslint-enable */
+    },
+  };
+
+</script>
+
+
+<!-- Not scoped: the chips wrap authored QTI content, whose vnodes are created by
+     the item body's SafeHTML render and so carry a different scope id. -->
+<style lang="scss">
+
+  $chip-max-size: 100px;
+  $chip-padding-block: 8px;
+  $chip-padding-inline: 12px;
+  $chip-border-width: 1px;
+  $chip-content-max-size: $chip-max-size - 2 * ($chip-padding-inline + $chip-border-width);
+
+  .qti-match-pool {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
+  .qti-match-pool-label {
+    margin: 0 0 0.5rem;
+    font-size: 12px;
+  }
+
+  .qti-match-pool-items {
+    display: flex;
+    // Not the default `stretch`: an entry taller than the chip it holds shows up
+    // as empty space the moment a drag puts a shadow on it.
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .qti-match-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: $chip-max-size;
+    padding-block: $chip-padding-block;
+    padding-inline: $chip-padding-inline;
+    overflow: hidden;
+    border-style: solid;
+    border-width: $chip-border-width;
+    border-radius: 8px;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+
+    // Authored content is scaled down to the response size rather than the chip
+    // growing to the content. SafeHTML styles images for page-level display,
+    // which is furniture a chip has no room for.
+    .image-container,
+    .img-wrapper,
+    .img-button {
+      width: $chip-content-max-size;
+      min-width: 0;
+      max-width: none;
+      height: $chip-content-max-size;
+      margin: 0;
+    }
+
+    .img-wrapper {
+      box-shadow: none;
+    }
+
+    .img-button {
+      pointer-events: none;
+    }
+
+    .expand-btn {
+      display: none;
+    }
+
+    img {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      object-fit: scale-down;
+    }
+  }
+
+  // Every use spent, so it can no longer be matched with anything
+  .qti-match-chip-exhausted {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .qti-match-rows {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .qti-match-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .qti-match-source {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-height: 56px;
+    padding-block: $chip-padding-block;
+    padding-inline: $chip-padding-inline;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+
+  .qti-match-arrow {
+    flex-shrink: 0;
+  }
+
+  .qti-match-entries {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    min-height: 56px;
+  }
+
+  .qti-match-entry {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px;
+    border-style: dashed;
+    border-width: 1px;
+    border-radius: 8px;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .qti-match-entry-filled {
+    border-style: solid;
+  }
+
+  .qti-match-placeholder {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+</style>
