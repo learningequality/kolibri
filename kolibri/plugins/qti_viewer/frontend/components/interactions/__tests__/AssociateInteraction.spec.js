@@ -32,6 +32,13 @@ function poolChip(container, text) {
   ).find(chip => chip.textContent.trim() === text);
 }
 
+// A placed response stays in the pool, disabled, so the pool never reflows.
+function availablePoolChips(container) {
+  return Array.from(container.querySelectorAll('.qti-associate-pool-entry .qti-associate-chip'))
+    .filter(chip => !chip.classList.contains('qti-associate-chip-disabled'))
+    .map(chip => chip.textContent.trim());
+}
+
 describe('Smoke', () => {
   it('renders the prompt', () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
@@ -83,7 +90,7 @@ describe('Pair rows', () => {
 });
 
 describe('Restoring an answer', () => {
-  it('fills slots from injected answerState and takes those responses out of the pool', () => {
+  it('fills slots from injected answerState and disables those responses in the pool', () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
       answerState: {
         RESPONSE: [
@@ -96,20 +103,59 @@ describe('Restoring an answer', () => {
     expect(
       screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'France' })),
     ).toBeVisible();
-    expect(poolEntries(container).sort()).toEqual(['Japan', 'Tokyo']);
+    expect(poolEntries(container)).toHaveLength(6);
+    expect(availablePoolChips(container).sort()).toEqual(['Japan', 'Tokyo']);
   });
 
   it('re-renders when the answer state changes', async () => {
     const { container, setAnswerState } = renderAssessmentItem(
       items['associate-interaction-1'].xml,
     );
-    expect(poolEntries(container)).toHaveLength(6);
+    expect(availablePoolChips(container)).toHaveLength(6);
 
     setAnswerState({ RESPONSE: [['C3', 'C6']] });
 
     await waitFor(() => {
-      expect(poolEntries(container).sort()).toEqual(['Berlin', 'France', 'Germany', 'Paris']);
+      expect(availablePoolChips(container).sort()).toEqual([
+        'Berlin',
+        'France',
+        'Germany',
+        'Paris',
+      ]);
     });
+  });
+});
+
+describe('Placed responses in the pool', () => {
+  it('keeps the response in place, disabled, rather than removing it', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const orderBefore = poolEntries(container);
+
+    await fireEvent.click(poolChip(container, 'France'));
+    await fireEvent.click(screen.getByLabelText(firstSlotEmpty$({ number: 1 })));
+
+    expect(poolEntries(container)).toEqual(orderBefore);
+    expect(poolChip(container, 'France')).toHaveClass('qti-associate-chip-disabled');
+    expect(poolChip(container, 'France')).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('does not let a disabled response be picked up from the pool', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      answerState: { RESPONSE: [['C1', 'C4']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'France'));
+
+    expect(container.querySelectorAll('.qti-associate-slot-target')).toHaveLength(0);
+  });
+
+  it('leaves a disabled response out of the draggable items', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      answerState: { RESPONSE: [['C1', 'C4']] },
+    });
+
+    expect(poolChip(container, 'France').closest('.draggable-item')).toBeNull();
+    expect(poolChip(container, 'Japan').closest('.draggable-item')).not.toBeNull();
   });
 });
 
@@ -181,10 +227,10 @@ describe('Placing by drag', () => {
     expect(
       screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'France' })),
     ).toBeVisible();
-    expect(poolChip(container, 'France')).toBeUndefined();
+    expect(poolChip(container, 'France')).toHaveClass('qti-associate-chip-disabled');
   });
 
-  it('returns the displaced response to the pool when dropped on a filled slot', async () => {
+  it('frees the displaced response in the pool when dropped on a filled slot', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
       answerState: { RESPONSE: [['C1', 'C4']] },
     });
@@ -192,8 +238,8 @@ describe('Placing by drag', () => {
     await dragInto(firstSlotFilled$({ number: 1, response: 'France' }), 'C3');
 
     expect(screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'Japan' }))).toBeVisible();
-    expect(poolChip(container, 'France')).toBeDefined();
-    expect(poolChip(container, 'Japan')).toBeUndefined();
+    expect(poolChip(container, 'France')).not.toHaveClass('qti-associate-chip-disabled');
+    expect(poolChip(container, 'Japan')).toHaveClass('qti-associate-chip-disabled');
   });
 
   it('swaps two responses when one filled slot is dropped on the other', async () => {
@@ -263,7 +309,7 @@ describe('Placing by click', () => {
     expect(
       screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'France' })),
     ).toBeVisible();
-    expect(poolChip(container, 'France')).toBeUndefined();
+    expect(poolChip(container, 'France')).toHaveClass('qti-associate-chip-disabled');
   });
 
   it('places into a slot chosen before the response', async () => {
@@ -341,10 +387,10 @@ describe('Placing by click', () => {
     expect(
       screen.getByLabelText(firstSlotFilled$({ number: 2, response: 'France' })),
     ).toBeVisible();
-    expect(poolChip(container, 'France')).toBeUndefined();
+    expect(poolChip(container, 'France')).toHaveClass('qti-associate-chip-disabled');
   });
 
-  it('returns the displaced response to the pool when a filled slot is reused', async () => {
+  it('frees the displaced response in the pool when a filled slot is reused', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
 
     await fireEvent.click(poolChip(container, 'France'));
@@ -355,7 +401,7 @@ describe('Placing by click', () => {
     );
 
     expect(screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'Japan' }))).toBeVisible();
-    expect(poolChip(container, 'France')).toBeDefined();
+    expect(poolChip(container, 'France')).not.toHaveClass('qti-associate-chip-disabled');
   });
 
   it('ignores clicks in review mode', async () => {

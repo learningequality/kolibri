@@ -104,6 +104,7 @@ export default function useAssociateSlots(identifiers, rowCount) {
   return {
     slots,
     pool,
+    placed,
     pairs,
     place,
     clear,

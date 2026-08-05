@@ -140,6 +140,7 @@
       const {
         slots: pairSlots,
         pool,
+        placed,
         pairs,
         place,
         remove,
@@ -165,7 +166,9 @@
       }
 
       function selectResponse(identifier) {
-        if (!interactive.value) {
+        // A response already in a slot is shown disabled in the pool; it is
+        // picked up from its slot, not from here.
+        if (!interactive.value || placed.value.has(identifier)) {
           return;
         }
         if (activeSlot.value) {
@@ -247,7 +250,14 @@
       const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
       const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
 
-      function chipStyles({ selected, candidate }) {
+      function chipStyles({ selected, candidate, disabled }) {
+        if (disabled) {
+          return {
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themeTokens.fineLine,
+            color: $themeTokens.annotation,
+          };
+        }
         if (selected) {
           return {
             backgroundColor: $themeBrand.primary.v_50,
@@ -293,8 +303,29 @@
 
       // The whole chip is the drag handle, so DraggableHandle renders the chip
       // itself rather than wrapping it in another element.
+      function renderChipBody(identifier, { disabled = false, candidate = false, on } = {}) {
+        const selected = !disabled && selectedIdentifier.value === identifier;
+        const data = {
+          class: [
+            'qti-associate-chip',
+            {
+              'qti-associate-chip-selected': selected,
+              'qti-associate-chip-candidate': candidate && !selected,
+              'qti-associate-chip-disabled': disabled,
+            },
+          ],
+          style: chipStyles({ selected, candidate, disabled }),
+        };
+        // A placed response is rendered twice — disabled in the pool and again
+        // in its slot.
+        const content = [...contentByIdentifier[identifier]];
+        if (disabled) {
+          return h('div', { ...data, attrs: { 'aria-disabled': 'true' } }, content);
+        }
+        return h(DraggableHandle, { ...data, props: { tag: 'div' }, on }, content);
+      }
+
       function renderChip(identifier, { tag = 'div', itemClass, candidate = false, on } = {}) {
-        const selected = selectedIdentifier.value === identifier;
         return h(
           DraggableItem,
           {
@@ -302,25 +333,14 @@
             key: identifier,
             class: itemClass,
           },
-          [
-            h(
-              DraggableHandle,
-              {
-                props: { tag: 'div' },
-                class: [
-                  'qti-associate-chip',
-                  {
-                    'qti-associate-chip-selected': selected,
-                    'qti-associate-chip-candidate': candidate && !selected,
-                  },
-                ],
-                style: chipStyles({ selected, candidate }),
-                on,
-              },
-              contentByIdentifier[identifier],
-            ),
-          ],
+          [renderChipBody(identifier, { candidate, on })],
         );
+      }
+
+      function renderPlacedPoolEntry(identifier) {
+        return h('li', { key: identifier, class: 'qti-associate-pool-entry' }, [
+          renderChipBody(identifier, { disabled: true }),
+        ]);
       }
 
       function renderPlaceholder() {
@@ -392,13 +412,15 @@
               attrs: { 'aria-label': responsePoolLabel$() },
               on: { 'update:items': reconcilePool },
             },
-            pool.value.map(identifier =>
-              renderChip(identifier, {
-                tag: 'li',
-                itemClass: 'qti-associate-pool-entry',
-                candidate: Boolean(activeSlot.value),
-                on: { click: () => selectResponse(identifier) },
-              }),
+            orderedIdentifiers.value.map(identifier =>
+              placed.value.has(identifier)
+                ? renderPlacedPoolEntry(identifier)
+                : renderChip(identifier, {
+                  tag: 'li',
+                  itemClass: 'qti-associate-pool-entry',
+                  candidate: Boolean(activeSlot.value),
+                  on: { click: () => selectResponse(identifier) },
+                }),
             ),
           ),
         ]);
@@ -504,6 +526,11 @@
 
   .qti-associate-chip-selected {
     font-weight: 600;
+  }
+
+  .qti-associate-chip-disabled {
+    cursor: default;
+    opacity: 0.55;
   }
 
   .qti-associate-rows {
