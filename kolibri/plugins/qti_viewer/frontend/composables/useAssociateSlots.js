@@ -59,6 +59,17 @@ export default function useAssociateSlots(identifiers, rowCount) {
     stored.value = next;
   }
 
+  // Send a response back to the pool, wherever it currently sits
+  function remove(identifier) {
+    const next = slots.value;
+    const origin = locate(next, identifier);
+    if (!origin) {
+      return;
+    }
+    next[origin[0]][origin[1]] = null;
+    stored.value = next;
+  }
+
   function candidatesFor(rowIndex, side) {
     const current = slots.value[rowIndex]?.[side] ?? null;
     // The slot's own response stays a candidate so the candidate can step past
@@ -96,6 +107,7 @@ export default function useAssociateSlots(identifiers, rowCount) {
     pairs,
     place,
     clear,
+    remove,
     candidatesFor,
     hydrate,
   };

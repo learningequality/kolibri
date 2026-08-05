@@ -6,6 +6,10 @@
   import { computed, h, inject, ref, watch } from 'vue';
   import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import DraggableRegion from 'kolibri-common/components/draggable/DraggableRegion';
+  import DraggableItem from 'kolibri-common/components/draggable/DraggableItem';
+  import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
+  import useDraggableUniverse from 'kolibri-common/components/draggable/useDraggableUniverse';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
@@ -138,8 +142,11 @@
         pool,
         pairs,
         place,
+        remove,
         hydrate,
       } = useAssociateSlots(orderedIdentifiers, rowCount);
+
+      const { isDragging } = useDraggableUniverse();
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
 
@@ -187,6 +194,29 @@
         const occupant = pairSlots.value[rowIndex]?.[side];
         selectedIdentifier.value = occupant || null;
         activeSlot.value = occupant ? null : { rowIndex, side };
+      }
+
+      function reconcilePool(newItems) {
+        if (!interactive.value) {
+          return;
+        }
+        newItems
+          .map(item => item.identifier)
+          .filter(identifier => !pool.value.includes(identifier))
+          .forEach(remove);
+      }
+
+      function reconcileSlot(rowIndex, side, newItems) {
+        if (!interactive.value) {
+          return;
+        }
+        const current = pairSlots.value[rowIndex]?.[side] ?? null;
+        const incoming = newItems
+          .map(item => item.identifier)
+          .find(identifier => identifier !== current);
+        if (incoming) {
+          place(incoming, rowIndex, side);
+        }
       }
 
       // Sync the variable value with the pair slots, and vice versa
@@ -261,22 +291,35 @@
         return response ? secondSlotFilled$({ number, response }) : secondSlotEmpty$({ number });
       }
 
-      function renderChip(identifier, { candidate = false, on } = {}) {
+      // The whole chip is the drag handle, so DraggableHandle renders the chip
+      // itself rather than wrapping it in another element.
+      function renderChip(identifier, { tag = 'div', itemClass, candidate = false, on } = {}) {
         const selected = selectedIdentifier.value === identifier;
         return h(
-          'div',
+          DraggableItem,
           {
-            class: [
-              'qti-associate-chip',
-              {
-                'qti-associate-chip-selected': selected,
-                'qti-associate-chip-candidate': candidate && !selected,
-              },
-            ],
-            style: chipStyles({ selected, candidate }),
-            on,
+            props: { tag, disabled: !interactive.value },
+            key: identifier,
+            class: itemClass,
           },
-          contentByIdentifier[identifier],
+          [
+            h(
+              DraggableHandle,
+              {
+                props: { tag: 'div' },
+                class: [
+                  'qti-associate-chip',
+                  {
+                    'qti-associate-chip-selected': selected,
+                    'qti-associate-chip-candidate': candidate && !selected,
+                  },
+                ],
+                style: chipStyles({ selected, candidate }),
+                on,
+              },
+              contentByIdentifier[identifier],
+            ),
+          ],
         );
       }
 
@@ -290,13 +333,21 @@
       function renderSlot(identifier, rowIndex, side) {
         const filled = Boolean(identifier);
         const active = isActiveSlot(rowIndex, side);
-        // A filled slot is never highlighted as a valid target, but clicking it
-        // still places there — it is how two responses swap.
-        const target = Boolean(selectedIdentifier.value) && !filled;
+        const label = slotLabel(identifier, rowIndex, side);
+        // A filled slot is never highlighted as a valid target, but it still
+        // accepts a drop or a click — that is how two responses swap.
+        const target = Boolean(selectedIdentifier.value || isDragging.value) && !filled;
         return h(
-          'div',
+          DraggableRegion,
           {
             key: `${rowIndex}-${side}`,
+            props: {
+              tag: 'div',
+              items: filled ? [{ identifier }] : [],
+              sortable: false,
+              disabled: !interactive.value,
+              label,
+            },
             class: [
               'qti-associate-slot',
               {
@@ -306,8 +357,11 @@
               },
             ],
             style: slotStyles({ filled, target, active }),
-            attrs: { 'aria-label': slotLabel(identifier, rowIndex, side) },
-            on: { click: () => selectSlot(rowIndex, side) },
+            attrs: { 'aria-label': label },
+            // DraggableRegion does not re-emit $listeners, so the click has to
+            // be bound natively.
+            nativeOn: { click: () => selectSlot(rowIndex, side) },
+            on: { 'update:items': newItems => reconcileSlot(rowIndex, side, newItems) },
           },
           [identifier ? renderChip(identifier) : renderPlaceholder()],
         );
@@ -325,18 +379,26 @@
             responsePoolLabel$(),
           ),
           h(
-            'ul',
+            DraggableRegion,
             {
+              props: {
+                tag: 'ul',
+                items: pool.value.map(identifier => ({ identifier })),
+                sortable: false,
+                disabled: !interactive.value,
+                label: responsePoolLabel$(),
+              },
               class: 'qti-associate-pool-items',
               attrs: { 'aria-label': responsePoolLabel$() },
+              on: { 'update:items': reconcilePool },
             },
             pool.value.map(identifier =>
-              h('li', { key: identifier, class: 'qti-associate-pool-entry' }, [
-                renderChip(identifier, {
-                  candidate: Boolean(activeSlot.value),
-                  on: { click: () => selectResponse(identifier) },
-                }),
-              ]),
+              renderChip(identifier, {
+                tag: 'li',
+                itemClass: 'qti-associate-pool-entry',
+                candidate: Boolean(activeSlot.value),
+                on: { click: () => selectResponse(identifier) },
+              }),
             ),
           ),
         ]);

@@ -126,6 +126,30 @@ describe('place', () => {
   });
 });
 
+describe('remove', () => {
+  it('sends a placed response back to the pool', () => {
+    const { slots, pool, place, remove } = setup();
+    place('C4', 1, SECOND);
+
+    remove('C4');
+
+    expect(slots.value[1]).toEqual([null, null]);
+    expect(pool.value).toEqual(CHOICES);
+  });
+
+  it('ignores a response that is not placed', () => {
+    const { slots, pool, remove } = setup();
+    remove('C4');
+
+    expect(slots.value).toEqual([
+      [null, null],
+      [null, null],
+      [null, null],
+    ]);
+    expect(pool.value).toEqual(CHOICES);
+  });
+});
+
 describe('candidatesFor', () => {
   it('offers every response for an empty slot', () => {
     const { candidatesFor } = setup();

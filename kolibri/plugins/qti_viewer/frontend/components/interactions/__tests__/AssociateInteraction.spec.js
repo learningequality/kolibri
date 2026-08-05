@@ -135,6 +135,124 @@ describe('Shuffle', () => {
   });
 });
 
+// SortableJS cannot be driven in jsdom, so a drag is exercised the way the
+// abstraction reports it: useDraggableRegion's handleEnd inserts into the
+// destination region first, then emits the source region's remaining items.
+function findRegions() {
+  const mounted = Array.from(document.body.querySelectorAll('*')).find(el => el.__vue__);
+  const regions = [];
+  const walk = vm => {
+    if (!vm) {
+      return;
+    }
+    if (vm.$options.name === 'DraggableRegion') {
+      regions.push(vm);
+    }
+    (vm.$children || []).forEach(walk);
+  };
+  walk(mounted && mounted.__vue__.$root);
+  return regions;
+}
+
+function regionLabelled(label) {
+  return findRegions().find(region => region.label === label);
+}
+
+async function dragInto(label, identifier) {
+  const regions = findRegions();
+  const target = regions.find(region => region.label === label);
+  const source = regions.find(region => region.items.some(item => item.identifier === identifier));
+  const sourceItemsBeforeDrag = source.items;
+
+  target.$emit('update:items', [...target.items, { identifier }]);
+  source.$emit(
+    'update:items',
+    sourceItemsBeforeDrag.filter(item => item.identifier !== identifier),
+  );
+  await target.$nextTick();
+}
+
+describe('Placing by drag', () => {
+  it('fills an empty slot dragged onto from the pool', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await dragInto(firstSlotEmpty$({ number: 1 }), 'C1');
+
+    expect(
+      screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'France' })),
+    ).toBeVisible();
+    expect(poolChip(container, 'France')).toBeUndefined();
+  });
+
+  it('returns the displaced response to the pool when dropped on a filled slot', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      answerState: { RESPONSE: [['C1', 'C4']] },
+    });
+
+    await dragInto(firstSlotFilled$({ number: 1, response: 'France' }), 'C3');
+
+    expect(screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'Japan' }))).toBeVisible();
+    expect(poolChip(container, 'France')).toBeDefined();
+    expect(poolChip(container, 'Japan')).toBeUndefined();
+  });
+
+  it('swaps two responses when one filled slot is dropped on the other', async () => {
+    renderAssessmentItem(items['associate-interaction-1'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['C1', 'C4'],
+          ['C2', 'C5'],
+        ],
+      },
+    });
+
+    await dragInto(firstSlotFilled$({ number: 2, response: 'Germany' }), 'C1');
+
+    expect(
+      screen.getByLabelText(firstSlotFilled$({ number: 2, response: 'France' })),
+    ).toBeVisible();
+    expect(
+      screen.getByLabelText(firstSlotFilled$({ number: 1, response: 'Germany' })),
+    ).toBeVisible();
+  });
+
+  it('empties the slot when a response is dragged back to the pool', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      answerState: { RESPONSE: [['C1', 'C4']] },
+    });
+
+    await dragInto(responsePoolLabel$(), 'C1');
+
+    expect(screen.getByLabelText(firstSlotEmpty$({ number: 1 }))).toBeVisible();
+    expect(poolChip(container, 'France')).toBeDefined();
+  });
+
+  it('updates the response variable after a drag completes a pair', async () => {
+    const { checkAnswer } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await dragInto(firstSlotEmpty$({ number: 1 }), 'C2');
+    await dragInto(secondSlotEmpty$({ number: 1 }), 'C5');
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toEqual([['C2', 'C5']]);
+    });
+  });
+
+  it('disables the regions in review mode', () => {
+    renderAssessmentItem(items['associate-interaction-1'].xml, { interactive: false });
+
+    expect(findRegions().every(region => region.disabled)).toBe(true);
+  });
+
+  it('labels each region so the drop is announced', () => {
+    renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    expect(regionLabelled(responsePoolLabel$())).toBeDefined();
+    expect(regionLabelled(firstSlotEmpty$({ number: 1 }))).toBeDefined();
+    expect(regionLabelled(secondSlotEmpty$({ number: 3 }))).toBeDefined();
+  });
+});
+
 describe('Placing by click', () => {
   it('places a selected response into the slot clicked next', async () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
