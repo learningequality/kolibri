@@ -86,3 +86,11 @@ repos:
         description: Prevents accidentally committing binary files that should be LFS pointers (issue #7099)
         entry: python .pre-commit-hooks/check_lfs_pointers.py
         language: system
+      - id: check-workflow-permissions
+        name: Reusable workflow callers grant the permissions their callees request
+        description: A mismatch aborts the whole run at load time with startup_failure, before any job starts
+        entry: python .pre-commit-hooks/check_workflow_permissions.py
+        language: python
+        additional_dependencies: [PyYAML]
+        pass_filenames: false
+        files: ^\.github/workflows/.*\.ya?ml$
