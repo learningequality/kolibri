@@ -327,7 +327,6 @@
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
-  import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
 
   export default {
@@ -612,10 +611,6 @@
         this.goToQuestion(opt.value);
       },
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
-        // Clear the learner classroom cache here as its progress data is now
-        // stale
-        LearnerClassroomResource.clearCache();
-
         const data = {};
 
         if (interaction) {

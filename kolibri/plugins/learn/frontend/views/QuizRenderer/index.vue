@@ -179,7 +179,6 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { LearnerClassroomResource } from '../../apiResources';
   import AnswerHistory from './AnswerHistory';
   import QuizReport from './QuizReport';
 
@@ -374,10 +373,6 @@
     },
     methods: {
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
-        // Clear the learner classroom cache here as its progress data is now
-        // stale
-        LearnerClassroomResource.clearCache();
-
         const data = {};
 
         if (interaction) {

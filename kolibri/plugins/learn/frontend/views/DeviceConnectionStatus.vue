@@ -41,10 +41,10 @@
         const isFetched = ref(false);
         const allDevices = ref([]);
         const getStudio = async () => {
-          const response = await RemoteChannelResource.getKolibriStudioStatus();
+          const studioStatus = await RemoteChannelResource.getKolibriStudioStatus_v2();
           set(allDevices, [
             {
-              ...response.data,
+              ...studioStatus,
               id: KolibriStudioId,
               instance_id: KolibriStudioId,
             },
