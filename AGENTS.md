@@ -157,7 +157,7 @@ Lint the diff, not the tree.
 - `prek run --all-files` hands every hook the whole repo, so `lint-frontend`'s `files:` filter still matches every `.js`/`.vue`/`.scss`/`.css` in the tree — even on a branch that changed none.
 - That is 64 `node` workers and 24.8 GB RSS, enough to OOM-kill a 31 GB host.
 - CI runs it on a disposable runner (`.github/workflows/pre-commit.yml`) — not a reason to run it locally.
-- Scoped forms respect the filters: frontend hooks lint only the frontend files in your diff. `(no files to check)Skipped` when there are none is a pass, not a gap.
+- On a diff with no frontend files, the scoped forms print `(no files to check)Skipped` — a pass, not a gap.
 
 Do NOT use `npx jest` or invoke Jest directly — always use `pnpm test-jest`. Always use `prek` as the single entry point for linting — do not invoke ESLint or other linters directly.
 
