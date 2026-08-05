@@ -13,10 +13,9 @@
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
   import useAssociateSlots from '../../composables/useAssociateSlots';
+  import useSlotListbox from '../../composables/useSlotListbox';
 
   const CHOICE_TAG = 'qti-simple-associable-choice';
-
-  let interactionCounter = 0;
 
   export const associateStrings = createTranslator('AssociateInteractionStrings', {
     responsePoolLabel: {
@@ -75,9 +74,6 @@
       const responses = inject('responses');
       const interactive = inject('interactive');
       const typedProps = useTypedProps(props);
-
-      interactionCounter += 1;
-      const listboxId = `qti-associate-${interactionCounter}`;
 
       // Choices are static: parse the slot vnodes once rather than on every render.
       const allContent = (slots.default && slots.default()) || [];
@@ -156,8 +152,7 @@
       }
 
       function selectSlot(rowIndex, side) {
-        // A press that never became a focus must not suppress the next tab
-        focusFromPointer = false;
+        listbox.forgetPointer();
         if (!interactive.value) {
           return;
         }
@@ -178,86 +173,15 @@
       }
 
       // Keyboard navigation is only for the slots, not the pool
-      const focusedSlot = ref(null);
-
-      function isFocusedSlot(rowIndex, side) {
-        return focusedSlot.value?.rowIndex === rowIndex && focusedSlot.value?.side === side;
-      }
-
-      function optionId(rowIndex, side, index) {
-        return `${listboxId}-${rowIndex}-${side}-${index}`;
-      }
-
-      function activeIndexFor(rowIndex, side) {
-        const current = pairSlots.value[rowIndex]?.[side];
-        if (!current) {
-          return 0;
-        }
-        return Math.max(0, candidatesFor(rowIndex, side).indexOf(current));
-      }
-
-      // Only a focus the learner tabbed to fills the slot. A pointer press also
-      // focuses it, and auto-filling then would answer a slot the learner only
-      // meant to choose as a click target. A press always precedes the focus it
-      // causes, which is what distinguishes the two.
-      let focusFromPointer = false;
-
-      function onSlotPointerDown() {
-        focusFromPointer = true;
-      }
-
-      function onSlotFocus(rowIndex, side) {
-        if (!interactive.value) {
-          return;
-        }
-        focusedSlot.value = { rowIndex, side };
-        const fromPointer = focusFromPointer;
-        focusFromPointer = false;
-        if (fromPointer) {
-          return;
-        }
-        clearSelection();
-        const candidates = candidatesFor(rowIndex, side);
-        if (candidates.length && !pairSlots.value[rowIndex]?.[side]) {
-          place(candidates[0], rowIndex, side);
-        }
-      }
-
-      function onSlotBlur(rowIndex, side) {
-        if (isFocusedSlot(rowIndex, side)) {
-          focusedSlot.value = null;
-        }
-      }
-
-      const ARROW_OFFSETS = { ArrowDown: 1, ArrowUp: -1 };
-
-      function onSlotKeydown(event, rowIndex, side) {
-        if (!interactive.value) {
-          return;
-        }
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          clear(rowIndex, side);
-          return;
-        }
-        const candidates = candidatesFor(rowIndex, side);
-        if (!candidates.length) {
-          return;
-        }
-        let next;
-        if (event.key in ARROW_OFFSETS) {
-          next = activeIndexFor(rowIndex, side) + ARROW_OFFSETS[event.key];
-        } else if (event.key === 'Home') {
-          next = 0;
-        } else if (event.key === 'End') {
-          next = candidates.length - 1;
-        } else {
-          return;
-        }
-        event.preventDefault();
-        const clamped = Math.min(Math.max(next, 0), candidates.length - 1);
-        place(candidates[clamped], rowIndex, side);
-      }
+      const listbox = useSlotListbox({
+        candidatesFor,
+        currentValue: (rowIndex, side) => pairSlots.value[rowIndex]?.[side] ?? null,
+        commit: place,
+        clear,
+        labelFor: identifier => textByIdentifier[identifier] || identifier,
+        disabled: computed(() => !interactive.value),
+        onKeyboardFocus: clearSelection,
+      });
 
       function reconcilePool(newItems) {
         if (!interactive.value) {
@@ -422,28 +346,6 @@
         );
       }
 
-      function renderSlotOptions(rowIndex, side) {
-        const current = pairSlots.value[rowIndex]?.[side];
-        return h(
-          'ul',
-          { class: 'qti-visually-hidden', attrs: { role: 'presentation' } },
-          candidatesFor(rowIndex, side).map((identifier, index) =>
-            h(
-              'li',
-              {
-                key: identifier,
-                attrs: {
-                  id: optionId(rowIndex, side, index),
-                  role: 'option',
-                  'aria-selected': String(identifier === current),
-                },
-              },
-              textByIdentifier[identifier] || identifier,
-            ),
-          ),
-        );
-      }
-
       function renderSlot(identifier, rowIndex, side) {
         const filled = Boolean(identifier);
         const active = isActiveSlot(rowIndex, side);
@@ -471,29 +373,12 @@
               },
             ],
             style: slotStyles({ filled, target, active }),
-            attrs: {
-              'aria-label': label,
-              // Tab reaches the slots and skips the pool entirely, so the slot
-              // itself is the listbox the arrow keys drive.
-              ...(interactive.value
-                ? {
-                  role: 'listbox',
-                  tabindex: '0',
-                  'aria-activedescendant': isFocusedSlot(rowIndex, side)
-                    ? optionId(rowIndex, side, activeIndexFor(rowIndex, side))
-                    : null,
-                }
-                : {}),
-            },
+            attrs: { 'aria-label': label, ...listbox.slotAttrs(rowIndex, side) },
             // DraggableRegion does not re-emit $listeners, so these have to be
             // bound natively.
             nativeOn: {
-              mousedown: onSlotPointerDown,
-              touchstart: onSlotPointerDown,
               click: () => selectSlot(rowIndex, side),
-              keydown: event => onSlotKeydown(event, rowIndex, side),
-              focus: () => onSlotFocus(rowIndex, side),
-              blur: () => onSlotBlur(rowIndex, side),
+              ...listbox.handlers(rowIndex, side),
             },
             on: { 'update:items': newItems => reconcileSlot(rowIndex, side, newItems) },
           },
@@ -501,7 +386,7 @@
             // The visible value is the listbox's trigger: its content repeats
             // the selected option, which the listbox already announces.
             identifier ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
-            interactive.value ? renderSlotOptions(rowIndex, side) : null,
+            interactive.value ? listbox.renderOptions(rowIndex, side) : null,
           ].filter(Boolean),
         );
       }
