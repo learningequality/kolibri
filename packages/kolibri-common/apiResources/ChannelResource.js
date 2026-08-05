@@ -11,4 +11,9 @@ export default new Resource({
   fetchFilterOptions(id) {
     return this.getListEndpoint('filter_options', { id });
   },
+  // Unlike `fetchFilterOptions`, resolves with `response.data`, not the whole response.
+  async fetchFilterOptions_v2(id) {
+    const { data } = await this.request({ action: 'filter_options', params: { id } });
+    return data;
+  },
 });

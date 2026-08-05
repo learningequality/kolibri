@@ -3,9 +3,7 @@ import { Resource } from 'kolibri/apiResource';
 /**
  * Gets all of the Classrooms in which a Learner is enrolled.
  * @example To get Classrooms without assignments and progress:
- * LearnerClassroomResource.fetchCollection({
- *   getParams: { no_assignments: true },
- * })
+ * LearnerClassroomResource.list({ no_assignments: true })
  */
 export const LearnerClassroomResource = new Resource({
   name: 'learnerclassroom',
@@ -24,7 +22,7 @@ export const LearnerCourseResource = new Resource({
   name: 'learnercourse',
   namespace: 'kolibri.plugins.learn',
   async getResumeData(id) {
-    const response = await this.accessDetailEndpoint('get', 'resume', id);
+    const response = await this.request({ action: 'resume', routeParams: id });
     return response.data;
   },
 });
