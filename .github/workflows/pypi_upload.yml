@@ -12,8 +12,6 @@ on:
         description: 'Should this be uploaded to testpypi?'
         required: true
         type: boolean
-permissions:
-  contents: read
 jobs:
   deploy:
     runs-on: ubuntu-latest
