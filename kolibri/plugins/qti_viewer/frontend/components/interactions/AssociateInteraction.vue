@@ -1,8 +1,6 @@
 <script>
 
-  import get from 'lodash/get';
   import isEqual from 'lodash/isEqual';
-  import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, ref, watch } from 'vue';
   import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
@@ -11,6 +9,7 @@
   import DraggableHandle from 'kolibri-common/components/draggable/DraggableHandle';
   import useDraggableUniverse from 'kolibri-common/components/draggable/useDraggableUniverse';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
+  import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
   import useAssociateSlots from '../../composables/useAssociateSlots';
@@ -67,31 +66,6 @@
   // Exposed as a custom property so the :focus rule below can use a theme colour
   const interactionCSSVars = { '--qti-associate-color-primary': $themeTokens.primary };
 
-  function getComponentTag(vnode) {
-    return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
-  }
-
-  // Plain-text label per choice, used for the slots' accessible names and for
-  // the keyboard listbox options. Image content contributes its alt text, which
-  // is all a response made of a single image has to identify it by.
-  function vnodeToText(vnode) {
-    if (!vnode) {
-      return '';
-    }
-    if (vnode.text) {
-      return vnode.text.trim();
-    }
-    const alt = vnode.componentOptions?.propsData?.alt ?? vnode.data?.attrs?.alt;
-    if (alt) {
-      return String(alt).trim();
-    }
-    const children = vnode.componentOptions?.children ?? vnode.children;
-    if (children) {
-      return children.map(vnodeToText).join(' ').trim();
-    }
-    return '';
-  }
-
   export default {
     name: 'QtiAssociateInteraction',
     tag: 'qti-associate-interaction',
@@ -112,38 +86,23 @@
 
       const choices = choiceVNodes.map(vnode => ({
         identifier: vnode.componentOptions.propsData.identifier,
-        fixed:
-          vnode.componentOptions.propsData.fixed === 'true' ||
-          vnode.componentOptions.propsData.fixed === true,
+        fixed: isFixed(vnode),
       }));
 
       const contentByIdentifier = {};
       const textByIdentifier = {};
       choiceVNodes.forEach(vnode => {
         const { identifier } = vnode.componentOptions.propsData;
-        const children = vnode.componentOptions.children || [];
-        contentByIdentifier[identifier] = children;
-        textByIdentifier[identifier] = children
-          .map(vnodeToText)
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+        contentByIdentifier[identifier] = vnode.componentOptions.children || [];
+        textByIdentifier[identifier] = choiceText(vnode);
       });
 
-      const orderedIdentifiers = computed(() => {
-        if (!typedProps.shuffle.value) {
-          return choices.map(choice => choice.identifier);
-        }
-        // Seeded by the candidate so the presentation is stable across reloads,
-        // and choices with fixed="true" keep their authored positions.
-        const shuffleable = shuffled(
-          choices.filter(choice => !choice.fixed),
-          QTI_CONTEXT.value.candidateIdentifier,
-        );
-        return choices
-          .map(choice => (choice.fixed ? choice : shuffleable.shift()))
-          .map(choice => choice.identifier);
-      });
+      const orderedIdentifiers = computed(() =>
+        orderChoices(choices, {
+          shuffle: typedProps.shuffle.value,
+          seed: QTI_CONTEXT.value.candidateIdentifier,
+        }).map(choice => choice.identifier),
+      );
 
       const rowCount = computed(() => {
         const max = typedProps.maxAssociations.value;

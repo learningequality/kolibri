@@ -1,10 +1,9 @@
 <script>
 
-  import get from 'lodash/get';
-  import shuffled from 'kolibri-common/utils/shuffled';
   import { computed, h, inject, provide } from 'vue';
   import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
+  import { getComponentTag, isFixed, orderChoices } from '../../utils/choices';
   import { BooleanProp, NonNegativeIntProp, QTIIdentifierProp } from '../../utils/props';
   import useTypedProps from '../../composables/useTypedProps';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
@@ -26,10 +25,6 @@
     '--qti-choice-color-annotation': $themePalette.grey.v_400,
     '--qti-choice-color-primary': $themeTokens.primary,
   };
-
-  function getComponentTag(vnode) {
-    return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
-  }
 
   /**
    * Safely normalizes a response value to an array.
@@ -113,29 +108,6 @@
       provide('isSelected', isSelected);
       provide('toggleSelection', toggleSelection);
 
-      const getShuffledOrder = choices => {
-        if (!typedProps.shuffle.value) {
-          return choices;
-        }
-
-        const shuffleable = choices.filter(choice => !choice.fixed);
-
-        const shuffledChoices = shuffled([...shuffleable], QTI_CONTEXT.value.candidateIdentifier);
-
-        // Merge back maintaining fixed positions
-        const result = [];
-
-        for (const choice of choices) {
-          if (choice.fixed) {
-            result.push(choice);
-          } else {
-            result.push(shuffledChoices.shift());
-          }
-        }
-
-        return result;
-      };
-
       // Return render function
       return () => {
         const allContent = slots.default();
@@ -152,13 +124,13 @@
         const choices = choiceVNodes.map(vnode => ({
           vnode,
           identifier: vnode.componentOptions.propsData.identifier,
-          fixed:
-            vnode.componentOptions.propsData.fixed === 'true' ||
-            vnode.componentOptions.propsData.fixed === true,
+          fixed: isFixed(vnode),
         }));
 
-        // Get shuffled order (or original if shuffle=false)
-        const orderedChoices = getShuffledOrder(choices);
+        const orderedChoices = orderChoices(choices, {
+          shuffle: typedProps.shuffle.value,
+          seed: QTI_CONTEXT.value.candidateIdentifier,
+        });
 
         const choicesList = h(
           'ul',
