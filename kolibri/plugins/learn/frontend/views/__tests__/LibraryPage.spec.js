@@ -90,7 +90,7 @@ describe('LibraryPage', () => {
         fetchChannels: jest.fn(() => Promise.resolve([CHANNEL])),
       }),
     );
-    ContentNodeResource.fetchCollection.mockImplementation(() =>
+    ContentNodeResource.list.mockImplementation(() =>
       Promise.resolve([{ id: 'test', title: 'test', channel_id: CHANNEL_ID }]),
     );
   });

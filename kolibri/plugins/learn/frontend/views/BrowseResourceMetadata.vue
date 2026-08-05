@@ -341,15 +341,16 @@
       },
     },
     mounted() {
-      ContentNodeResource.fetchRecommendationsFor(this.content.id).then(recommendations => {
+      ContentNodeResource.fetchRecommendationsFor_v2(this.content.id).then(recommendations => {
         const threeRecs = recommendations.splice(0, 3);
         this.recommendations = threeRecs.length ? threeRecs : null;
       });
 
       if (this.showLocationsInChannel) {
         // Retreives any topics in this same channel
-        ContentNodeResource.fetchCollection({
-          getParams: { content_id: this.content.content_id, channel_id: this.content.channel_id },
+        ContentNodeResource.list({
+          content_id: this.content.content_id,
+          channel_id: this.content.channel_id,
         }).then((locations = []) => {
           locations = locations.filter(loc => loc.id !== this.content.id);
           if (locations && locations.length) {

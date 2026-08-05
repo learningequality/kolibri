@@ -257,7 +257,7 @@
       function _loadTopicsContent(shouldResolve, baseurl) {
         const id = props.id;
         return Promise.all([
-          ContentNodeResource.fetchModel({ id, getParams: { baseurl } }),
+          ContentNodeResource.retrieve(id, { params: { baseurl } }),
           fetchChannels({ baseurl }),
         ]).then(
           ([fetchedContent]) => {
@@ -326,7 +326,7 @@
           fetchContentNodeTreeProgress(more);
         }
         // Fetch additional content nodes
-        return ContentNodeResource.fetchTree(more)
+        return ContentNodeResource.fetchTree_v2(more)
           .then(({ children }) => {
             viewResourcesContents.value = [...viewResourcesContents.value, ...children.results];
             moreResourcesContentAvailable.value = children.more;
@@ -637,7 +637,7 @@
         if (this.isUserLoggedIn && !this.baseurl) {
           this.fetchContentNodeTreeProgress(treeParams);
         }
-        return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
+        return ContentNodeResource.fetchTree_v2(treeParams).then(ancestor => {
           let parent;
           let nextFolders;
           if (fetchGrandparent) {

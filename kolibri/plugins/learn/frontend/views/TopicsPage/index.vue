@@ -441,7 +441,7 @@
           fetchContentNodeTreeProgress({ id, params });
         }
         return Promise.all([
-          ContentNodeResource.fetchTree({
+          ContentNodeResource.fetchTree_v2({
             id,
             params,
           }),
@@ -783,7 +783,7 @@
           if (this.isUserLoggedIn && !this.deviceId) {
             this.fetchContentNodeTreeProgress(more);
           }
-          return ContentNodeResource.fetchTree(more)
+          return ContentNodeResource.fetchTree_v2(more)
             .then(data => {
               const child = this.contents[parentIndex];
               child.children.results = child.children.results.concat(data.children.results);
@@ -813,7 +813,7 @@
           if (this.isUserLoggedIn && !this.deviceId) {
             this.fetchContentNodeTreeProgress(more);
           }
-          return ContentNodeResource.fetchTree(more)
+          return ContentNodeResource.fetchTree_v2(more)
             .then(data => {
               this.contents = this.contents.concat(data.children.results);
               this.topic = {
