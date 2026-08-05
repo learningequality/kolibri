@@ -1,8 +1,8 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { computed, h, inject, watch } from 'vue';
-  import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
+  import { computed, h, inject, ref, watch } from 'vue';
+  import { themeBrand, themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
   import { createTranslator } from 'kolibri/utils/i18n';
   import AnswerGuide, { answerGuideStrings } from '../AnswerGuide.vue';
   import { choiceText, getComponentTag, isFixed, orderChoices } from '../../utils/choices';
@@ -44,6 +44,7 @@
 
   const $themeTokens = themeTokens();
   const $themePalette = themePalette();
+  const $themeBrand = themeBrand();
 
   const interactionCSSVars = { '--qti-match-color-primary': $themeTokens.primary };
 
@@ -106,7 +107,19 @@
         }).map(choice => choice.identifier),
       );
 
-      const { rows, pool, pairs, entriesFor, isExhausted, hydrate } = useMatchRows({
+      const {
+        rows,
+        pool,
+        pairs,
+        entriesFor,
+        currentValue,
+        isExhausted,
+        canPlace,
+        place,
+        clear,
+        candidatesFor,
+        hydrate,
+      } = useMatchRows({
         sourceIds,
         targetIds,
         matchMaxOf,
@@ -114,6 +127,57 @@
       });
 
       const variable = computed(() => responses.value[typedProps.responseIdentifier.value]);
+
+      // Only one of these is ever set: the learner either picks a response and
+      // then a target, or picks a target and then a response.
+      const selectedIdentifier = ref(null);
+      const activeEntry = ref(null);
+
+      function clearSelection() {
+        selectedIdentifier.value = null;
+        activeEntry.value = null;
+      }
+
+      function isActiveEntry(rowIndex, entryIndex) {
+        return (
+          activeEntry.value?.rowIndex === rowIndex && activeEntry.value?.entryIndex === entryIndex
+        );
+      }
+
+      function selectResponse(identifier) {
+        if (!interactive.value || isExhausted(identifier)) {
+          return;
+        }
+        if (activeEntry.value) {
+          place(identifier, activeEntry.value.rowIndex, activeEntry.value.entryIndex);
+          clearSelection();
+          return;
+        }
+        selectedIdentifier.value = selectedIdentifier.value === identifier ? null : identifier;
+      }
+
+      function selectEntry(rowIndex, entryIndex) {
+        if (!interactive.value) {
+          return;
+        }
+        if (selectedIdentifier.value) {
+          place(selectedIdentifier.value, rowIndex, entryIndex);
+          clearSelection();
+          return;
+        }
+        if (isActiveEntry(rowIndex, entryIndex)) {
+          clearSelection();
+          return;
+        }
+        // A target is reusable, so there is nothing to pick up and carry from a
+        // filled position: clicking it takes that pairing back out instead.
+        if (currentValue(rowIndex, entryIndex)) {
+          clear(rowIndex, entryIndex);
+          clearSelection();
+          return;
+        }
+        activeEntry.value = { rowIndex, entryIndex };
+      }
 
       // The variable is derived from the rows, so ignore the change our own
       // write causes and only rebuild from a value that came from elsewhere.
@@ -128,6 +192,15 @@
         { immediate: true },
       );
 
+      watch(pairs, value => {
+        if (!interactive.value || !variable.value) {
+          return;
+        }
+        variable.value.value = value.map(pair => [...pair]);
+      });
+
+      watch(interactive, clearSelection);
+
       const poolStyles = computed(() => ({
         backgroundColor: $themePalette.grey.v_100,
         borderColor: $themeTokens.fineLine,
@@ -135,15 +208,42 @@
       const poolLabelStyles = computed(() => ({ color: $themeTokens.annotation }));
       const placeholderStyles = computed(() => ({ color: $themeTokens.annotation }));
 
-      function chipStyles({ exhausted }) {
+      function chipStyles({ exhausted, selected, candidate }) {
+        if (exhausted) {
+          return {
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themeTokens.fineLine,
+            color: $themeTokens.annotation,
+          };
+        }
+        if (selected) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+          };
+        }
+        if (candidate) {
+          return {
+            backgroundColor: $themeTokens.surface,
+            borderColor: $themeTokens.primary,
+            color: $themeTokens.primary,
+          };
+        }
         return {
           backgroundColor: $themeTokens.surface,
           borderColor: $themeTokens.fineLine,
-          color: exhausted ? $themeTokens.annotation : $themeTokens.text,
+          color: $themeTokens.text,
         };
       }
 
-      function entryStyles(filled) {
+      function entryStyles({ filled, target, active }) {
+        if (target || active) {
+          return {
+            backgroundColor: $themeBrand.primary.v_50,
+            borderColor: $themeTokens.primary,
+          };
+        }
         return {
           backgroundColor: filled ? $themePalette.grey.v_100 : 'transparent',
           borderColor: $themeTokens.fineLine,
@@ -162,13 +262,24 @@
         });
       }
 
-      function renderChip(identifier, { exhausted = false } = {}) {
+      function renderChip(
+        identifier,
+        { exhausted = false, selected = false, candidate = false, on } = {},
+      ) {
         return h(
           'div',
           {
-            class: ['qti-match-chip', { 'qti-match-chip-exhausted': exhausted }],
-            style: chipStyles({ exhausted }),
+            class: [
+              'qti-match-chip',
+              {
+                'qti-match-chip-exhausted': exhausted,
+                'qti-match-chip-selected': selected,
+                'qti-match-chip-candidate': candidate && !selected,
+              },
+            ],
+            style: chipStyles({ exhausted, selected, candidate }),
             attrs: exhausted ? { 'aria-disabled': 'true' } : {},
+            on,
           },
           [...contentByIdentifier[identifier]],
         );
@@ -191,13 +302,27 @@
 
       function renderEntry(identifier, rowIndex, entryIndex) {
         const filled = Boolean(identifier);
+        const active = isActiveEntry(rowIndex, entryIndex);
+        // A filled position is still a valid target here, because a target may
+        // be replaced — so unlike associate, filled positions do highlight.
+        const target = Boolean(
+          selectedIdentifier.value && canPlace(selectedIdentifier.value, rowIndex, entryIndex),
+        );
         return h(
           'div',
           {
             key: `${rowIndex}-${entryIndex}`,
-            class: ['qti-match-entry', { 'qti-match-entry-filled': filled }],
-            style: entryStyles(filled),
+            class: [
+              'qti-match-entry',
+              {
+                'qti-match-entry-filled': filled,
+                'qti-match-entry-target': target,
+                'qti-match-entry-active': active,
+              },
+            ],
+            style: entryStyles({ filled, target, active }),
             attrs: { 'aria-label': entryLabel(identifier, rowIndex, entryIndex) },
+            on: { click: () => selectEntry(rowIndex, entryIndex) },
           },
           [filled ? renderChip(identifier) : renderPlaceholder()],
         );
@@ -219,7 +344,18 @@
             { class: 'qti-match-pool-items', attrs: { 'aria-label': responsePoolLabel$() } },
             pool.value.map(identifier =>
               h('li', { key: identifier, class: 'qti-match-pool-entry' }, [
-                renderChip(identifier, { exhausted: isExhausted(identifier) }),
+                renderChip(identifier, {
+                  exhausted: isExhausted(identifier),
+                  selected: selectedIdentifier.value === identifier,
+                  candidate: Boolean(
+                    activeEntry.value &&
+                      candidatesFor(
+                        activeEntry.value.rowIndex,
+                        activeEntry.value.entryIndex,
+                      ).includes(identifier),
+                  ),
+                  on: { click: () => selectResponse(identifier) },
+                }),
               ]),
             ),
           ),
@@ -347,6 +483,7 @@
     padding-block: $chip-padding-block;
     padding-inline: $chip-padding-inline;
     overflow: hidden;
+    cursor: pointer;
     border-style: solid;
     border-width: $chip-border-width;
     border-radius: 8px;
@@ -389,10 +526,22 @@
     }
   }
 
+  .qti-match-chip-selected {
+    font-weight: 600;
+  }
+
   // Every use spent, so it can no longer be matched with anything
   .qti-match-chip-exhausted {
     cursor: default;
     opacity: 0.55;
+  }
+
+  // Review mode has nothing to click
+  .qti-match-readonly {
+    .qti-match-chip,
+    .qti-match-entry {
+      cursor: default;
+    }
   }
 
   .qti-match-rows {
@@ -442,6 +591,7 @@
     align-items: center;
     min-height: 40px;
     padding: 8px;
+    cursor: pointer;
     border-style: dashed;
     border-width: 1px;
     border-radius: 8px;

@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/vue';
+import { fireEvent, screen, waitFor, within } from '@testing-library/vue';
 import items from '../../__fixtures__/items';
 import { renderAssessmentItem } from '../../__tests__/helpers';
 import { answerGuideStrings } from '../../AnswerGuide.vue';
@@ -200,6 +200,181 @@ describe('Shuffle', () => {
       'Romeo and Juliet',
       'The Tempest',
     ]);
+  });
+});
+
+describe('Placing by click', () => {
+  it('places a selected response into the entry clicked next', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
+    await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
+
+    expect(
+      screen.getByLabelText(
+        entryFilled$({ number: 1, source: 'Capulet', response: 'Romeo and Juliet' }),
+      ),
+    ).toBeVisible();
+  });
+
+  it('places into an entry chosen before the response', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.click(entriesOfRow(container, 'Prospero')[0]);
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+
+    expect(
+      screen.getByLabelText(
+        entryFilled$({ number: 1, source: 'Prospero', response: 'The Tempest' }),
+      ),
+    ).toBeVisible();
+  });
+
+  it('highlights every entry a selected response could go in', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+
+    await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
+
+    // one empty entry per source, and the target has four uses
+    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(4);
+    expect(poolChip(container, 'Romeo and Juliet')).toHaveClass('qti-match-chip-selected');
+  });
+
+  it('highlights a filled entry too, since a response can be replaced', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+
+    const filled = entriesOfRow(container, 'Capulet')[0];
+    expect(filled).toHaveClass('qti-match-entry-filled');
+    expect(filled).toHaveClass('qti-match-entry-target');
+  });
+
+  it('does not highlight an entry already holding that response', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
+
+    expect(entriesOfRow(container, 'Capulet')[0]).not.toHaveClass('qti-match-entry-target');
+  });
+
+  it('highlights the pool once an entry is selected', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
+
+    expect(container.querySelectorAll('.qti-match-chip-candidate')).toHaveLength(3);
+  });
+
+  it('deselects a response when it is clicked again', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+
+    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+  });
+
+  it('takes a pairing back out when its entry is clicked', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      answerState: { RESPONSE: [['C', 'R']] },
+    });
+
+    await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
+
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+
+  it('ignores a response with no uses left', async () => {
+    const { container } = renderAssessmentItem(items['match-example-2'].xml, {
+      answerState: {
+        RESPONSE: [
+          ['r1', 'h1'],
+          ['r2', 'h1'],
+        ],
+      },
+    });
+
+    await fireEvent.click(poolChip(container, 'Birds'));
+
+    expect(container.querySelectorAll('.qti-match-entry-target')).toHaveLength(0);
+  });
+
+  it('ignores clicks in review mode', async () => {
+    const { container } = renderAssessmentItem(items['match-example-1'].xml, {
+      interactive: false,
+    });
+
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+    await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
+
+    expect(screen.getByLabelText(entryEmpty$({ source: 'Capulet' }))).toBeVisible();
+  });
+});
+
+describe('Response variable', () => {
+  it('reports each pairing source first', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['match-example-1'].xml);
+
+    await fireEvent.click(poolChip(container, 'Romeo and Juliet'));
+    await fireEvent.click(entriesOfRow(container, 'Capulet')[0]);
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toEqual([['C', 'R']]);
+    });
+  });
+
+  it('reports every pairing of a row holding more than one', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['match-example-2'].xml);
+
+    await fireEvent.click(poolChip(container, 'Birds'));
+    await fireEvent.click(entriesOfRow(container, 'Endothermic')[0]);
+    await fireEvent.click(poolChip(container, 'Mammals'));
+    await fireEvent.click(entriesOfRow(container, 'Endothermic')[1]);
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toEqual([
+        ['r2', 'h1'],
+        ['r2', 'h3'],
+      ]);
+    });
+  });
+
+  it('scores through the mapping when the answer is correct', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['match-example-1'].xml);
+
+    const matches = [
+      ['Capulet', 'Romeo and Juliet'],
+      ['Demetrius', "A Midsummer-Night's Dream"],
+      ['Lysander', "A Midsummer-Night's Dream"],
+      ['Prospero', 'The Tempest'],
+    ];
+    for (const [source, target] of matches) {
+      await fireEvent.click(poolChip(container, target));
+      await fireEvent.click(entriesOfRow(container, source)[0]);
+    }
+
+    // 1 + 0.5 + 0.5 + 1 from the fixture's qti-mapping. A source/target
+    // transposition would miss every map key and score 0, so this is the check
+    // that the directed pairs come out the right way round.
+    await waitFor(() => {
+      expect(checkAnswer().outcomes.SCORE).toBe(3);
+    });
+  });
+
+  it('does not write to the variable in review mode', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['match-example-1'].xml, {
+      interactive: false,
+    });
+
+    await fireEvent.click(poolChip(container, 'The Tempest'));
+
+    expect(checkAnswer().answerState.RESPONSE).toBeNull();
   });
 });
 
