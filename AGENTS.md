@@ -145,11 +145,19 @@ kolibri/
 ```bash
 pytest kolibri/path/to/test/                          # Python (directory)
 pytest kolibri/core/auth/test/ -k test_login          # Python (filter by name)
-pnpm test-jest path/to/file.spec.js                # Frontend (single file)
-pnpm test-jest --testPathPattern learn              # Frontend (filter by pattern)
-prek run --all-files                                  # Lint (all files)
+pnpm test-jest path/to/file.spec.js                   # Frontend (single file)
+pnpm test-jest --testPathPattern learn                # Frontend (filter by pattern)
+prek run                                              # Lint (staged files)
+prek run --from-ref upstream/develop --to-ref HEAD    # Lint (whole branch, committed)
 prek run --files path/to/File.vue                     # Lint (specific file)
 ```
+
+Lint the diff, not the tree.
+
+- `prek run --all-files` hands every hook the whole repo, so `lint-frontend`'s `files:` filter still matches every `.js`/`.vue`/`.scss`/`.css` in the tree — even on a branch that changed none.
+- That is 64 `node` workers and 24.8 GB RSS, enough to OOM-kill a 31 GB host.
+- CI runs it on a disposable runner (`.github/workflows/pre-commit.yml`) — not a reason to run it locally.
+- On a diff with no frontend files, the scoped forms print `(no files to check)Skipped` — a pass, not a gap.
 
 Do NOT use `npx jest` or invoke Jest directly — always use `pnpm test-jest`. Always use `prek` as the single entry point for linting — do not invoke ESLint or other linters directly.
 
