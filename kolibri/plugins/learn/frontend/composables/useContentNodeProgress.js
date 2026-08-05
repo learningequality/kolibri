@@ -40,10 +40,7 @@ export default function useContentNodeProgress() {
    * @public
    */
   function fetchContentNodeProgress(getParams) {
-    return ContentNodeProgressResource.fetchCollection({
-      getParams,
-      force: true,
-    }).then(progressData => {
+    return ContentNodeProgressResource.list(getParams).then(progressData => {
       const progresses = progressData ? progressData : [];
       for (const progress of progresses) {
         setContentNodeProgress(progress);
@@ -64,7 +61,7 @@ export default function useContentNodeProgress() {
    * @public
    */
   function fetchContentNodeTreeProgress({ id, params }) {
-    return ContentNodeProgressResource.fetchTree({
+    return ContentNodeProgressResource.fetchTree_v2({
       params,
       id,
     }).then(progressData => {

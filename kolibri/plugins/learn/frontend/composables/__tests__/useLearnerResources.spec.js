@@ -224,7 +224,7 @@ function finishClasses(classes) {
 
 describe(`useLearnerResources`, () => {
   beforeEach(() => {
-    LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
+    LearnerClassroomResource.list.mockResolvedValue(TEST_CLASSES);
     return fetchClasses();
   });
 
@@ -448,21 +448,21 @@ describe(`useLearnerResources`, () => {
 
   describe(`learnerFinishedAllClasses`, () => {
     it(`returns 'true' if a learner has no classes`, () => {
-      LearnerClassroomResource.fetchCollection.mockResolvedValue([]);
+      LearnerClassroomResource.list.mockResolvedValue([]);
       return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(true);
       });
     });
 
     it(`returns 'false' if a learner hasn't finished all lessons and quizzes yet`, () => {
-      LearnerClassroomResource.fetchCollection.mockResolvedValue(TEST_CLASSES);
+      LearnerClassroomResource.list.mockResolvedValue(TEST_CLASSES);
       return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(false);
       });
     });
 
     it(`returns 'true' if a learner finished all lessons and quizzes`, () => {
-      LearnerClassroomResource.fetchCollection.mockResolvedValue(finishClasses(TEST_CLASSES));
+      LearnerClassroomResource.list.mockResolvedValue(finishClasses(TEST_CLASSES));
       return fetchClasses().then(() => {
         expect(learnerFinishedAllClasses.value).toBe(true);
       });
