@@ -17,6 +17,8 @@
 
   const CHOICE_TAG = 'qti-simple-associable-choice';
 
+  let interactionCounter = 0;
+
   export const associateStrings = createTranslator('AssociateInteractionStrings', {
     responsePoolLabel: {
       message: 'Response pool',
@@ -62,11 +64,16 @@
   const $themePalette = themePalette();
   const $themeBrand = themeBrand();
 
+  // Exposed as a custom property so the :focus rule below can use a theme colour
+  const interactionCSSVars = { '--qti-associate-color-primary': $themeTokens.primary };
+
   function getComponentTag(vnode) {
     return get(vnode, ['componentOptions', 'Ctor', 'extendOptions', 'tag']);
   }
 
-  // Plain-text label per choice, used for the slots' accessible names.
+  // Plain-text label per choice, used for the slots' accessible names and for
+  // the keyboard listbox options. Image content contributes its alt text, which
+  // is all a response made of a single image has to identify it by.
   function vnodeToText(vnode) {
     if (!vnode) {
       return '';
@@ -74,8 +81,13 @@
     if (vnode.text) {
       return vnode.text.trim();
     }
-    if (vnode.children) {
-      return vnode.children.map(vnodeToText).join(' ').trim();
+    const alt = vnode.componentOptions?.propsData?.alt ?? vnode.data?.attrs?.alt;
+    if (alt) {
+      return String(alt).trim();
+    }
+    const children = vnode.componentOptions?.children ?? vnode.children;
+    if (children) {
+      return children.map(vnodeToText).join(' ').trim();
     }
     return '';
   }
@@ -89,6 +101,9 @@
       const responses = inject('responses');
       const interactive = inject('interactive');
       const typedProps = useTypedProps(props);
+
+      interactionCounter += 1;
+      const listboxId = `qti-associate-${interactionCounter}`;
 
       // Choices are static: parse the slot vnodes once rather than on every render.
       const allContent = (slots.default && slots.default()) || [];
@@ -143,7 +158,9 @@
         placed,
         pairs,
         place,
+        clear,
         remove,
+        candidatesFor,
         hydrate,
       } = useAssociateSlots(orderedIdentifiers, rowCount);
 
@@ -180,6 +197,8 @@
       }
 
       function selectSlot(rowIndex, side) {
+        // A press that never became a focus must not suppress the next tab
+        focusFromPointer = false;
         if (!interactive.value) {
           return;
         }
@@ -197,6 +216,88 @@
         const occupant = pairSlots.value[rowIndex]?.[side];
         selectedIdentifier.value = occupant || null;
         activeSlot.value = occupant ? null : { rowIndex, side };
+      }
+
+      // Keyboard navigation is only for the slots, not the pool
+      const focusedSlot = ref(null);
+
+      function isFocusedSlot(rowIndex, side) {
+        return focusedSlot.value?.rowIndex === rowIndex && focusedSlot.value?.side === side;
+      }
+
+      function optionId(rowIndex, side, index) {
+        return `${listboxId}-${rowIndex}-${side}-${index}`;
+      }
+
+      function activeIndexFor(rowIndex, side) {
+        const current = pairSlots.value[rowIndex]?.[side];
+        if (!current) {
+          return 0;
+        }
+        return Math.max(0, candidatesFor(rowIndex, side).indexOf(current));
+      }
+
+      // Only a focus the learner tabbed to fills the slot. A pointer press also
+      // focuses it, and auto-filling then would answer a slot the learner only
+      // meant to choose as a click target. A press always precedes the focus it
+      // causes, which is what distinguishes the two.
+      let focusFromPointer = false;
+
+      function onSlotPointerDown() {
+        focusFromPointer = true;
+      }
+
+      function onSlotFocus(rowIndex, side) {
+        if (!interactive.value) {
+          return;
+        }
+        focusedSlot.value = { rowIndex, side };
+        const fromPointer = focusFromPointer;
+        focusFromPointer = false;
+        if (fromPointer) {
+          return;
+        }
+        clearSelection();
+        const candidates = candidatesFor(rowIndex, side);
+        if (candidates.length && !pairSlots.value[rowIndex]?.[side]) {
+          place(candidates[0], rowIndex, side);
+        }
+      }
+
+      function onSlotBlur(rowIndex, side) {
+        if (isFocusedSlot(rowIndex, side)) {
+          focusedSlot.value = null;
+        }
+      }
+
+      const ARROW_OFFSETS = { ArrowDown: 1, ArrowUp: -1 };
+
+      function onSlotKeydown(event, rowIndex, side) {
+        if (!interactive.value) {
+          return;
+        }
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          clear(rowIndex, side);
+          return;
+        }
+        const candidates = candidatesFor(rowIndex, side);
+        if (!candidates.length) {
+          return;
+        }
+        let next;
+        if (event.key in ARROW_OFFSETS) {
+          next = activeIndexFor(rowIndex, side) + ARROW_OFFSETS[event.key];
+        } else if (event.key === 'Home') {
+          next = 0;
+        } else if (event.key === 'End') {
+          next = candidates.length - 1;
+        } else {
+          return;
+        }
+        event.preventDefault();
+        const clamped = Math.min(Math.max(next, 0), candidates.length - 1);
+        place(candidates[clamped], rowIndex, side);
       }
 
       function reconcilePool(newItems) {
@@ -325,13 +426,17 @@
         return h(DraggableHandle, { ...data, props: { tag: 'div' }, on }, content);
       }
 
-      function renderChip(identifier, { tag = 'div', itemClass, candidate = false, on } = {}) {
+      function renderChip(
+        identifier,
+        { tag = 'div', itemClass, candidate = false, ariaHidden = false, on } = {},
+      ) {
         return h(
           DraggableItem,
           {
             props: { tag, disabled: !interactive.value },
             key: identifier,
             class: itemClass,
+            attrs: ariaHidden ? { 'aria-hidden': 'true' } : {},
           },
           [renderChipBody(identifier, { candidate, on })],
         );
@@ -344,10 +449,40 @@
       }
 
       function renderPlaceholder() {
-        return h('span', { class: 'qti-associate-placeholder', style: placeholderStyles.value }, [
-          h('KIcon', { props: { icon: 'plus' }, class: 'qti-associate-placeholder-icon' }),
-          h('span', emptySlotPlaceholder$()),
-        ]);
+        return h(
+          'span',
+          {
+            class: 'qti-associate-placeholder',
+            style: placeholderStyles.value,
+            attrs: { 'aria-hidden': 'true' },
+          },
+          [
+            h('KIcon', { props: { icon: 'plus' }, class: 'qti-associate-placeholder-icon' }),
+            h('span', emptySlotPlaceholder$()),
+          ],
+        );
+      }
+
+      function renderSlotOptions(rowIndex, side) {
+        const current = pairSlots.value[rowIndex]?.[side];
+        return h(
+          'ul',
+          { class: 'qti-visually-hidden', attrs: { role: 'presentation' } },
+          candidatesFor(rowIndex, side).map((identifier, index) =>
+            h(
+              'li',
+              {
+                key: identifier,
+                attrs: {
+                  id: optionId(rowIndex, side, index),
+                  role: 'option',
+                  'aria-selected': String(identifier === current),
+                },
+              },
+              textByIdentifier[identifier] || identifier,
+            ),
+          ),
+        );
       }
 
       function renderSlot(identifier, rowIndex, side) {
@@ -377,13 +512,38 @@
               },
             ],
             style: slotStyles({ filled, target, active }),
-            attrs: { 'aria-label': label },
-            // DraggableRegion does not re-emit $listeners, so the click has to
-            // be bound natively.
-            nativeOn: { click: () => selectSlot(rowIndex, side) },
+            attrs: {
+              'aria-label': label,
+              // Tab reaches the slots and skips the pool entirely, so the slot
+              // itself is the listbox the arrow keys drive.
+              ...(interactive.value
+                ? {
+                  role: 'listbox',
+                  tabindex: '0',
+                  'aria-activedescendant': isFocusedSlot(rowIndex, side)
+                    ? optionId(rowIndex, side, activeIndexFor(rowIndex, side))
+                    : null,
+                }
+                : {}),
+            },
+            // DraggableRegion does not re-emit $listeners, so these have to be
+            // bound natively.
+            nativeOn: {
+              mousedown: onSlotPointerDown,
+              touchstart: onSlotPointerDown,
+              click: () => selectSlot(rowIndex, side),
+              keydown: event => onSlotKeydown(event, rowIndex, side),
+              focus: () => onSlotFocus(rowIndex, side),
+              blur: () => onSlotBlur(rowIndex, side),
+            },
             on: { 'update:items': newItems => reconcileSlot(rowIndex, side, newItems) },
           },
-          [identifier ? renderChip(identifier) : renderPlaceholder()],
+          [
+            // The visible value is the listbox's trigger: its content repeats
+            // the selected option, which the listbox already announces.
+            identifier ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
+            interactive.value ? renderSlotOptions(rowIndex, side) : null,
+          ].filter(Boolean),
         );
       }
 
@@ -460,6 +620,7 @@
                 'qti-associate-interaction',
                 { 'qti-associate-readonly': !interactive.value },
               ],
+              style: interactionCSSVars,
             },
             [renderPool(), renderRows()],
           ),
@@ -600,6 +761,11 @@
     transition:
       background-color 0.2s ease,
       border-color 0.2s ease;
+  }
+
+  .qti-associate-slot:focus {
+    outline: 3px solid var(--qti-associate-color-primary, #4368f3);
+    outline-offset: 2px;
   }
 
   .qti-associate-slot-filled {

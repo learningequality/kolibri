@@ -495,6 +495,171 @@ describe('Response variable', () => {
   });
 });
 
+describe('Keyboard', () => {
+  function slotAt(container, index) {
+    return container.querySelectorAll('.qti-associate-slot')[index];
+  }
+
+  function optionsOf(slot) {
+    return Array.from(slot.querySelectorAll('[role="option"]')).map(option => ({
+      text: option.textContent.trim(),
+      selected: option.getAttribute('aria-selected'),
+      id: option.id,
+    }));
+  }
+
+  function activeOptionText(slot) {
+    const id = slot.getAttribute('aria-activedescendant');
+    return slot.querySelector(`#${id}`).textContent.trim();
+  }
+
+  it('exposes each slot as a listbox that tab can reach', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    slots(container).forEach(slot => {
+      expect(slot).toHaveAttribute('role', 'listbox');
+      expect(slot).toHaveAttribute('tabindex', '0');
+    });
+  });
+
+  it('keeps the response pool out of the tab order', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const pool = container.querySelector('.qti-associate-pool');
+
+    expect(pool.querySelectorAll('[tabindex="0"]')).toHaveLength(0);
+    expect(pool.querySelectorAll('button, a, input, select')).toHaveLength(0);
+  });
+
+  it('hides the options visually while exposing them to a screen reader', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const slot = slotAt(container, 0);
+
+    expect(slot.querySelector('[role="option"]').closest('.qti-visually-hidden')).not.toBeNull();
+    expect(optionsOf(slot)).toHaveLength(6);
+  });
+
+  it('fills the slot with the first valid response when focused', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const slot = slotAt(container, 0);
+    const firstCandidate = optionsOf(slot)[0].text;
+
+    await fireEvent.focus(slot);
+
+    expect(slotAt(container, 0)).toHaveAttribute(
+      'aria-label',
+      firstSlotFilled$({ number: 1, response: firstCandidate }),
+    );
+  });
+
+  it('does not fill the slot when a pointer press is what focused it', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const slot = slotAt(container, 0);
+
+    // A press always precedes the focus it causes
+    await fireEvent.mouseDown(slot);
+    await fireEvent.focus(slot);
+
+    expect(slotAt(container, 0)).toHaveAttribute('aria-label', firstSlotEmpty$({ number: 1 }));
+  });
+
+  it('cycles the value in place with the arrow keys', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const candidates = optionsOf(slotAt(container, 0)).map(option => option.text);
+
+    await fireEvent.focus(slotAt(container, 0));
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowDown' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[1]);
+
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowUp' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+  });
+
+  it('clamps at the ends and jumps with Home and End', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const candidates = optionsOf(slotAt(container, 0)).map(option => option.text);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowUp' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'End' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[candidates.length - 1]);
+
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowDown' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[candidates.length - 1]);
+
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'Home' });
+    expect(activeOptionText(slotAt(container, 0))).toBe(candidates[0]);
+  });
+
+  it('tracks the current value with aria-selected', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowDown' });
+
+    const options = optionsOf(slotAt(container, 0));
+    expect(options.filter(option => option.selected === 'true')).toHaveLength(1);
+    expect(options[1].selected).toBe('true');
+  });
+
+  it('keeps the slot own response among its candidates so cycling is reversible', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+    const before = optionsOf(slotAt(container, 0)).map(option => option.text);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'ArrowDown' });
+
+    expect(optionsOf(slotAt(container, 0)).map(option => option.text)).toEqual(before);
+  });
+
+  it('empties the slot on Escape', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.keyDown(slotAt(container, 0), { key: 'Escape' });
+
+    expect(slotAt(container, 0)).toHaveAttribute('aria-label', firstSlotEmpty$({ number: 1 }));
+  });
+
+  it('records the pair built with the keyboard in the response variable', async () => {
+    const { container, checkAnswer } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    await fireEvent.focus(slotAt(container, 0));
+    await fireEvent.blur(slotAt(container, 0));
+    await fireEvent.focus(slotAt(container, 1));
+    await fireEvent.blur(slotAt(container, 1));
+
+    await waitFor(() => {
+      expect(checkAnswer().answerState.RESPONSE).toHaveLength(1);
+    });
+  });
+
+  it('names an image response by its alt text', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-images'].xml);
+
+    expect(optionsOf(slotAt(container, 0)).map(option => option.text)).toEqual(
+      expect.arrayContaining(['A blue circle', 'A pink square', 'A green triangle']),
+    );
+  });
+
+  it('is not reachable or operable in review mode', async () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      interactive: false,
+    });
+    const slot = slotAt(container, 0);
+
+    expect(slot).not.toHaveAttribute('tabindex');
+    expect(slot).not.toHaveAttribute('role', 'listbox');
+    expect(slot.querySelectorAll('[role="option"]')).toHaveLength(0);
+
+    await fireEvent.focus(slot);
+    expect(slotAt(container, 0)).toHaveAttribute('aria-label', firstSlotEmpty$({ number: 1 }));
+  });
+});
+
 describe('Review mode', () => {
   it('marks the interaction read-only', async () => {
     const { container, setInteractive } = renderAssessmentItem(
