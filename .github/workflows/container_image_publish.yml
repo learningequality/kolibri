@@ -17,10 +17,6 @@ on:
     inputs: *workflow_inputs
 env:
   IMAGE_NAME: ${{ github.repository }}
-permissions:
-  contents: read
-  packages: write
-  id-token: write
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -28,6 +24,7 @@ jobs:
       contents: read
       packages: write
       attestations: write
+      id-token: write
     steps:
       - name: Parse Kolibri version
         id: parse-version

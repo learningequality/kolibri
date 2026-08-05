@@ -5,7 +5,6 @@ on:
 permissions:
   contents: write
   packages: write
-  id-token: write
 jobs:
   latest_release:
     name: Check if this release is the latest release
@@ -257,6 +256,11 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     needs: [pypi_upload, latest_release]
     uses: ./.github/workflows/container_image_publish.yml
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     with:
       release-tag: ${{ github.event.release.tag_name }}
       tag-latest: ${{ needs.latest_release.outputs.is_latest_release == 'true' }}
