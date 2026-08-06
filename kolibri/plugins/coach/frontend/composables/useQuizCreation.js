@@ -1,11 +1,12 @@
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
+import { useRoute } from 'vue-router/composables';
 import shuffled from 'kolibri-common/utils/shuffled.js';
 import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { validateObject, objectWithDefaults } from 'kolibri/utils/objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject, getCurrentInstance, watch } from 'vue';
+import { computed, ref, provide, inject, watch } from 'vue';
 import { fetchExamWithContent } from 'kolibri-common/quizzes/utils';
 // TODO: Probably move this to this file's local dir
 import selectQuestions, { exerciseToQuestionArray } from '../utils/selectQuestions.js';
@@ -41,7 +42,7 @@ const fieldsToSave = [
 ];
 
 export default function useQuizCreation() {
-  const store = getCurrentInstance()?.proxy?.$store;
+  const route = useRoute();
   // -----------
   // Local state
   // -----------
@@ -55,7 +56,7 @@ export default function useQuizCreation() {
   const _quiz = ref(objectWithDefaults({}, Quiz));
 
   /** @type {ref<QuizSection>} The section that is currently selected for editing */
-  const activeSectionIndex = computed(() => Number(store?.state?.route?.params?.sectionIndex || 0));
+  const activeSectionIndex = computed(() => Number(route.params.sectionIndex || 0));
 
   /**
    * @type {ref<string[]>} The `QuizQuestion.items` that are currently selected for action in

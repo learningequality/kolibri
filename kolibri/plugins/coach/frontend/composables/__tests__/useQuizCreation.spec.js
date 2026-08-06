@@ -1,5 +1,6 @@
 import { nextTick } from 'vue';
 import { get } from '@vueuse/core';
+import * as vueRouterComposables from 'vue-router/composables';
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 import { objectWithDefaults } from 'kolibri/utils/objectSpecs';
 import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
@@ -7,6 +8,10 @@ import { QuizExercise, QuizQuestion } from '../quizCreationSpecs.js';
 import useQuizCreation from '../useQuizCreation.js';
 
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
+
+jest.spyOn(vueRouterComposables, 'useRoute').mockReturnValue({
+  params: {},
+});
 
 const VALID_EXERCISE_ID = 'af26e1b4f3b94f3e8f4f3b4f3e8f4f3a';
 
