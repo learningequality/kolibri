@@ -51,50 +51,38 @@ export const NetworkLocationResource = new Resource({
   fetchFacilities,
 
   /**
-   * @name fetchModel
-   * @function
-   * @returns {NetworkLocation}
+   * Refresh the cached connection status for a network location.
+   * @param {string} id - network location id
+   * @returns {NetworkLocation} the updated network location record
    */
+  async updateConnectionStatus_v2(id) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'update_connection_status',
+      routeParams: id,
+    });
+    return response.data;
+  },
 
   /**
-   * @name fetchCollection
-   * @function
-   * @returns {NetworkLocation[]}
+   * Fetch the facilities advertised by a remote network location.
+   * @param {string} id - network location id
+   * @returns {{facilities: [{id: string}]}} the facilities listing from the remote device
    */
+  async fetchFacilities_v2(id) {
+    const response = await this.request({ action: 'facilities_detail', routeParams: id });
+    return response.data;
+  },
 });
 
 export const StaticNetworkLocationResource = new Resource({
   name: 'staticnetworklocation',
   updateConnectionStatus,
   fetchFacilities,
-
-  /**
-   * @name fetchModel
-   * @function
-   * @returns {NetworkLocation}
-   */
-
-  /**
-   * @name fetchCollection
-   * @function
-   * @returns {NetworkLocation[]}
-   */
 });
 
 export const DynamicNetworkLocationResource = new Resource({
   name: 'dynamicnetworklocation',
   updateConnectionStatus,
   fetchFacilities,
-
-  /**
-   * @name fetchModel
-   * @function
-   * @returns {NetworkLocation}
-   */
-
-  /**
-   * @name fetchCollection
-   * @function
-   * @returns {NetworkLocation[]}
-   */
 });

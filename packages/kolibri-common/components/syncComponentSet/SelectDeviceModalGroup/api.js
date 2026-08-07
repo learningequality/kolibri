@@ -9,14 +9,14 @@ import RemoteChannelResource from 'kolibri-common/apiResources/RemoteChannelReso
 /** @typedef {NLR.NetworkLocation} NetworkLocation */
 
 export function createDevice(address) {
-  return StaticNetworkLocationResource.createModel({
+  return StaticNetworkLocationResource.create({
     base_url: address.base_url,
     nickname: address.nickname,
-  }).save();
+  });
 }
 
 export function deleteDevice(id) {
-  return StaticNetworkLocationResource.deleteModel({ id });
+  return StaticNetworkLocationResource.delete(id);
 }
 
 /**
@@ -25,7 +25,7 @@ export function deleteDevice(id) {
  * @returns {Promise<NetworkLocation[]>} the matching network locations
  */
 export function fetchDevices(params = {}) {
-  return NetworkLocationResource.fetchCollection({ force: true, getParams: params });
+  return NetworkLocationResource.list(params);
 }
 
 /**
@@ -43,7 +43,7 @@ export function fetchDevices(params = {}) {
  */
 export function deviceHasMatchingFacility(device, facility) {
   // TODO: ideally we could pass along the filters directly to the API
-  return NetworkLocationResource.fetchFacilities(device.id).then(({ facilities }) => {
+  return NetworkLocationResource.fetchFacilities_v2(device.id).then(({ facilities }) => {
     return Boolean(facilities.find(matches(facility)));
   });
 }
@@ -54,16 +54,9 @@ export function deviceHasMatchingFacility(device, facility) {
  * @param {NetworkLocation} device - network location hosting the channel
  * @returns {Promise<boolean>} true when the channel is available at the device
  */
-export function channelIsAvailableAtDevice(channelId, device) {
-  return RemoteChannelResource.fetchModel({
-    id: channelId,
-    getParams: {
-      baseurl: device.base_url,
-    },
-    force: true,
-  }).then(() => {
-    return true;
-  });
+export async function channelIsAvailableAtDevice(channelId, device) {
+  await RemoteChannelResource.retrieve(channelId, { params: { baseurl: device.base_url } });
+  return true;
 }
 
 /**
@@ -72,5 +65,5 @@ export function channelIsAvailableAtDevice(channelId, device) {
  * @returns {Promise<NetworkLocation>} the refreshed network location record
  */
 export function updateConnectionStatus(device) {
-  return NetworkLocationResource.updateConnectionStatus(device.id);
+  return NetworkLocationResource.updateConnectionStatus_v2(device.id);
 }
