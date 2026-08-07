@@ -1,16 +1,15 @@
 import fnmatch
 import logging
 import os
+import sqlite3
 
 from django.core.cache import cache
-from sqlalchemy.exc import DatabaseError
-from sqlalchemy.sql import select
 
 from kolibri.core.discovery.utils.filesystem import enumerate_mounted_disk_partitions
 from kolibri.utils.uuids import is_valid_uuid
 
 from .paths import get_content_database_dir_path
-from .sqlalchemybridge import Bridge
+from .source_db import SourceDB
 
 logger = logging.getLogger(__name__)
 
@@ -80,23 +79,12 @@ def enumerate_content_database_file_paths(content_database_dir):
 
 
 def read_channel_metadata_from_db_file(channeldbpath):
-    # import here to avoid circular imports whenever kolibri.core.content.models imports utils too
-    from kolibri.core.content.models import ChannelMetadata
-
-    source = Bridge(sqlite_file_path=channeldbpath)
-
-    ChannelMetadataTable = source.get_table(ChannelMetadata)
-
-    source_channel_metadata = dict(
-        source.execute(select(ChannelMetadataTable)).fetchone()
-    )
-
-    # Use the inferred version from the SQLAlchemy Bridge object, and set it as additional
-    # metadata on the channel data
-
-    source_channel_metadata["inferred_schema_version"] = source.schema_version
-
-    source.end()
+    with SourceDB(channeldbpath) as source:
+        # Version first: an unrecognised schema must raise SchemaNotFoundError, not
+        # the ValueError that reading an absent table would give.
+        inferred_schema_version = source.schema_version
+        source_channel_metadata = source.rows("content_channelmetadata")[0]
+        source_channel_metadata["inferred_schema_version"] = inferred_schema_version
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with
     # the latest schema.
@@ -113,7 +101,7 @@ def get_channels_for_data_folder(datafolder):
     ):
         try:
             channel = read_channel_metadata_from_db_file(path)
-        except DatabaseError:
+        except sqlite3.DatabaseError:
             logger.warning(
                 "Tried to import channel from database file {}, but the file was corrupted.".format(
                     path

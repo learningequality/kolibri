@@ -4,6 +4,7 @@ A file to contain specific logic to handle version upgrades in Kolibri.
 
 import logging
 import os
+import sqlite3
 
 from django.db import connection
 from le_utils.constants import content_kinds
@@ -73,7 +74,7 @@ def import_external_content_dbs():
                         channel_id=channel_id
                     )
                 )
-            except DatabaseError:
+            except (sqlite3.DatabaseError, DatabaseError):
                 logger.warning(
                     "Tried to import channel {channel_id}, but database file was corrupted.".format(
                         channel_id=channel_id

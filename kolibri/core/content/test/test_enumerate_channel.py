@@ -4,9 +4,14 @@ import tempfile
 from django.test import TestCase
 from mock import patch
 
+from kolibri.core.content.constants.schema_versions import V020BETA1
+from kolibri.core.content.constants.schema_versions import VERSION_6
+from kolibri.core.content.test.helpers import FrozenSchemaDBMixin
+from kolibri.core.content.test.helpers import load_content_fixture_data
 from kolibri.core.content.upgrade import import_external_content_dbs
 from kolibri.core.content.utils.channels import get_channel_ids_for_content_database_dir
 from kolibri.core.content.utils.channels import get_channels_for_data_folder
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.paths import get_content_database_dir_path
 
 
@@ -58,3 +63,30 @@ class EnumerateChannelTestCase(TestCase):
         # Make sure that the corrupted database file is not going to be listed
         self.assertNotIn("6199dde695db4ee4ab392222d5af1e5c", channels)
         os.remove(db_file)  # Remove database file for future tests
+
+
+class ReadChannelMetadataTestCase(FrozenSchemaDBMixin, TestCase):
+    def build_with_channel_row(self, schema_name):
+        return (
+            self.build(schema_name),
+            load_content_fixture_data(schema_name)["content_channelmetadata"][0],
+        )
+
+    def test_reads_the_channel_row_and_the_inferred_version(self):
+        db_path, channel = self.build_with_channel_row(VERSION_6)
+
+        metadata = read_channel_metadata_from_db_file(db_path)
+
+        self.assertEqual(channel["id"], metadata["id"])
+        self.assertEqual(channel["name"], metadata["name"])
+        self.assertEqual(channel["version"], metadata["version"])
+        self.assertEqual(channel["root_id"], metadata["root_id"])
+        self.assertEqual(VERSION_6, metadata["inferred_schema_version"])
+
+    def test_back_fills_root_id_from_root_pk(self):
+        db_path, channel = self.build_with_channel_row(V020BETA1)
+
+        metadata = read_channel_metadata_from_db_file(db_path)
+
+        self.assertEqual(V020BETA1, metadata["inferred_schema_version"])
+        self.assertEqual(channel["root_pk"], metadata["root_id"])

@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 from argparse import SUPPRESS
 
 from django.core.management.base import BaseCommand
@@ -113,7 +114,7 @@ class Command(BaseCommand):
             db_channel = ChannelMetadata.objects.get(id=channel_id)
             # the version in the primary database is older than the one on disk
             return disk_channel["version"] > db_channel.version
-        except DatabaseError:
+        except sqlite3.DatabaseError:
             # problem with the database on disk; it can't be considered newer
             return False
         except ChannelMetadata.DoesNotExist:
@@ -126,7 +127,7 @@ class Command(BaseCommand):
             import_channel_from_local_db(channel_id)
         except (InvalidSchemaVersionError, FutureSchemaError):
             logger.warning("Database file was incompatible; skipping.")
-        except DatabaseError:
+        except (sqlite3.DatabaseError, DatabaseError):
             logger.warning("Database file was corrupted; skipping.")
 
     def annotate_channel(self, channel_id):
