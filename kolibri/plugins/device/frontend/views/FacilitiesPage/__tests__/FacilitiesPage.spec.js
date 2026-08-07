@@ -1,3 +1,4 @@
+import { ref } from 'vue';
 import { render, screen } from '@testing-library/vue';
 import TaskResource from 'kolibri/apiResources/TaskResource';
 import FacilityResource from 'kolibri-common/apiResources/FacilityResource';
@@ -20,7 +21,7 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   list: jest.fn(),
 }));
 jest.mock('kolibri-common/apiResources/FacilityResource', () => ({
-  fetchCollection: jest.fn(),
+  useList: jest.fn(),
 }));
 
 const { syncing$ } = crossComponentTranslator(FacilityNameAndSyncStatus);
@@ -32,9 +33,13 @@ const FACILITY = {
   last_successful_sync: null,
 };
 
-async function renderPage(tasks) {
+async function renderPage(tasks, { loading = false } = {}) {
   TaskResource.list.mockResolvedValue(tasks);
-  FacilityResource.fetchCollection.mockResolvedValue([FACILITY]);
+  FacilityResource.useList.mockReturnValue({
+    data: ref([FACILITY]),
+    loading: ref(loading),
+    fetchData: jest.fn(),
+  });
   render(FacilitiesPage, {
     routes: [{ path: '/facilities/tasks', name: 'FACILITIES_TASKS_PAGE' }],
   });
@@ -53,5 +58,13 @@ describe('FacilitiesPage', () => {
 
     expect(screen.getByText(FACILITY_NAME)).toBeInTheDocument();
     expect(screen.queryByText(syncing$())).not.toBeInTheDocument();
+  });
+
+  it('keeps the facility rows on screen while a refetch is in flight', async () => {
+    await renderPage([syncSchedule({ lastFinishedStatus: TaskStatuses.COMPLETED })], {
+      loading: true,
+    });
+
+    expect(screen.getByText(FACILITY_NAME)).toBeInTheDocument();
   });
 });

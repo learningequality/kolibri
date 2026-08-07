@@ -36,9 +36,25 @@ export default function useLodDeviceUsers() {
   const { tasks } = useTaskPolling(SOUD_QUEUE);
   const { createSnackbar } = useSnackbar();
   const importLodMachineState = ref(null);
-  const users = ref([]);
-  const loading = ref(true);
   const showCannotRemoveUser = ref(false);
+
+  const {
+    data: usersData,
+    loading,
+    error: fetchUsersError,
+    fetchData: fetchUsers,
+  } = FacilityUserResource.useList();
+  const users = computed(() =>
+    (usersData.value || []).map(user => ({ ...user, kind: UserType(user) })),
+  );
+
+  watch(fetchUsersError, err => {
+    if (err) {
+      // fetchData resolves on failure rather than rejecting, so this is the only place the
+      // error surfaces. handleApiError's default re-throw would escape the watcher.
+      handleApiError({ error: err, shouldThrow: false });
+    }
+  });
 
   const setupImportLodMachineService = () => {
     const service = interpret(getImportLodUsersMachine());
@@ -86,25 +102,6 @@ export default function useLodDeviceUsers() {
   const selectedFacility = computed(() => importMachineContext.value.selectedFacility || null);
   const remoteAdmin = computed(() => importMachineContext.value.remoteAdmin || null);
   const remoteUsers = computed(() => importMachineContext.value.remoteUsers || []);
-
-  async function fetchUsers({ force } = {}) {
-    loading.value = true;
-
-    try {
-      const response = await FacilityUserResource.fetchCollection({
-        force,
-      });
-      loading.value = false;
-      response.forEach(user => {
-        user.kind = UserType(user);
-      });
-      users.value = response;
-    } catch (error) {
-      handleApiError({ error });
-    }
-
-    loading.value = false;
-  }
 
   async function removeUser(userId) {
     const user = users.value.find(user => user.id === userId);
@@ -194,7 +191,7 @@ export default function useLodDeviceUsers() {
     }
 
     if (needsRefetchUsers) {
-      fetchUsers({ force: true });
+      fetchUsers();
     }
   });
 
@@ -204,7 +201,7 @@ export default function useLodDeviceUsers() {
         name: PageNames.USERS_PAGE,
       });
     }
-    fetchUsers({ force: true });
+    fetchUsers();
   });
 
   onUnmounted(() => {
@@ -240,7 +237,7 @@ export default function useLodDeviceUsers() {
  * message should be shown.
  * @property {import('xstate').Interpreter} importLodMachineService The XState service managing the
  * import process.
- * @property {Function} fetchUsers Function to fetch the users from the LOD device.
+ * @property {() => Promise<void>} fetchUsers Function to fetch the users from the LOD device.
  * @property {Function} removeUser Function to remove a user from the LOD device.
  * @property {Function} resetShowCannotRemoveUser Function to reset the
  * "cannot remove user" message.
