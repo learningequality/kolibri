@@ -65,8 +65,8 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
     const topicIds = results
       .filter(({ kind }) => kind === ContentNodeKinds.TOPIC || kind === ContentNodeKinds.CHANNEL)
       .map(topic => topic.id);
-    return ContentNodeResource.fetchDescendantsAssessments(topicIds)
-      .then(({ data: topicsWithAssessmentCounts }) => {
+    return ContentNodeResource.fetchDescendantsAssessments_v2(topicIds)
+      .then(topicsWithAssessmentCounts => {
         const topicsWithAssessmentCountsMap = topicsWithAssessmentCounts.reduce((acc, topic) => {
           acc[topic.id] = topic.num_assessments;
           return acc;

@@ -115,7 +115,7 @@
        * bookmark's ID to delete it.
        */
       function getBookmarks() {
-        BookmarksResource.fetchCollection({ force: true }).then(data => {
+        BookmarksResource.list().then(data => {
           bookmarks.value = data.reduce((memo, bookmark) => {
             memo[bookmark.contentnode_id] = bookmark.id;
             return memo;

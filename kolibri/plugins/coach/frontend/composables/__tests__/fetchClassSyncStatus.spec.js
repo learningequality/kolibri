@@ -5,7 +5,7 @@ import { fetchClassSyncStatus } from '../fetchClassSyncStatus';
 jest.mock('kolibri-common/apiResources/UserSyncStatusResource', () => ({
   __esModule: true,
   default: {
-    fetchCollection: jest.fn(),
+    list: jest.fn(),
   },
 }));
 
@@ -27,20 +27,17 @@ describe('fetchClassSyncStatus', () => {
       { user: 'user-1', status: 'SYNCING' },
       { user: 'user-2', status: 'SYNCED' },
     ];
-    UserSyncStatusResource.fetchCollection.mockResolvedValue(mockData);
+    UserSyncStatusResource.list.mockResolvedValue(mockData);
 
     const result = await fetchClassSyncStatus('class-123');
 
-    expect(UserSyncStatusResource.fetchCollection).toHaveBeenCalledWith({
-      force: true,
-      getParams: { member_of: 'class-123' },
-    });
+    expect(UserSyncStatusResource.list).toHaveBeenCalledWith({ member_of: 'class-123' });
     expect(result).toEqual(mockData);
   });
 
   it('calls handleApiError and returns the error on failure', async () => {
     const error = new Error('Network error');
-    UserSyncStatusResource.fetchCollection.mockRejectedValue(error);
+    UserSyncStatusResource.list.mockRejectedValue(error);
 
     const result = await fetchClassSyncStatus('class-123');
 

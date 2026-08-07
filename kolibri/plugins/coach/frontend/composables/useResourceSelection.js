@@ -77,7 +77,7 @@ export default function useResourceSelection({
   const topic = ref(null);
 
   const fetchBookmarks = async params => {
-    const response = await ContentNodeResource.fetchBookmarks(params);
+    const response = await ContentNodeResource.fetchBookmarks_v2(params);
     if (bookmarks?.annotator) {
       const annotatedResults = await bookmarks.annotator(response.results);
       return {
@@ -94,17 +94,15 @@ export default function useResourceSelection({
         params: { limit: 25, available: true, ...bookmarks?.filters },
       }),
     fetchMoreMethod: more =>
-      ContentNodeResource.fetchBookmarks({
+      ContentNodeResource.fetchBookmarks_v2({
         params: more,
       }),
   });
 
   const fetchChannels = async () => {
-    const result = await ChannelResource.fetchCollection({
-      getParams: {
-        available: true,
-        ...channels?.filters,
-      },
+    const result = await ChannelResource.list({
+      available: true,
+      ...channels?.filters,
     });
     if (channels?.annotator) {
       return channels.annotator(result);
@@ -162,7 +160,7 @@ export default function useResourceSelection({
   const { displayingSearchResults } = useSearchObject;
 
   const fetchTree = async (params = {}) => {
-    const newTopic = await ContentNodeResource.fetchTree(params);
+    const newTopic = await ContentNodeResource.fetchTree_v2(params);
     if (topic.value?.id !== newTopic.id) {
       topic.value = newTopic;
     }

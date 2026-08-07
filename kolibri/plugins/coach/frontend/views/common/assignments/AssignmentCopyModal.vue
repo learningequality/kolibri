@@ -131,7 +131,7 @@
     },
     methods: {
       getLearnerGroupsForClassroom(classroomId) {
-        return LearnerGroupResource.fetchCollection({ getParams: { parent: classroomId } });
+        return LearnerGroupResource.list({ parent: classroomId });
       },
       handleSubmit() {
         if (this.stage === this.Stages.SELECT_CLASSROOM) {
