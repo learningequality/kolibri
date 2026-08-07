@@ -368,7 +368,7 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        TaskResource.deleteModel({ id: this.currentTask.id })
+        TaskResource.delete(this.currentTask.id)
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             this.goBack();
@@ -418,11 +418,7 @@
         };
         let promise;
         if (this.currentTask) {
-          promise = TaskResource.saveModel({
-            id: this.currentTask.id,
-            data: { enqueue_args },
-            exists: true,
-          });
+          promise = TaskResource.update(this.currentTask.id, { enqueue_args });
         } else {
           const taskParams = {
             type: this.taskType,
@@ -462,7 +458,7 @@
           };
           return;
         }
-        NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
+        NetworkLocationResource.retrieve(this.deviceId).then(device => {
           this.device = device;
         });
       },
