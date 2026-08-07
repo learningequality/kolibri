@@ -6,6 +6,8 @@ import '@testing-library/jest-dom';
 import { i18nSetup } from 'kolibri/utils/i18n';
 import { coursesStrings } from 'kolibri-common/strings/coursesStrings';
 import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
+import { Resource } from 'kolibri/apiResource';
+import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSummaryPage from '../CourseSummaryPage.vue';
 import { PageNames } from '../../../constants';
 import { RouteSegments, COMPACT_UUID_PATTERN } from '../../../routes/utils';
@@ -180,6 +182,15 @@ function renderPage(routeName, params = {}) {
 
 describe('CourseSummaryPage', () => {
   beforeAll(() => i18nSetup(true));
+
+  beforeEach(() => {
+    // The automock stubs out `useList` wholesale, which leaves the assign-course side panel
+    // without a fetch object.
+    ContentNodeResource.list.mockResolvedValue([]);
+    ContentNodeResource.useList.mockImplementation(
+      Resource.prototype.useList.bind(ContentNodeResource),
+    );
+  });
 
   describe('CourseSummaryPage — tab routing', () => {
     beforeEach(() => {

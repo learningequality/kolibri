@@ -340,13 +340,7 @@
         addUpdatingCourseId(course.id);
 
         try {
-          await CourseSessionResource.saveModel({
-            id: course.id,
-            data: {
-              active: newActiveState,
-            },
-            exists: true,
-          });
+          await CourseSessionResource.update(course.id, { active: newActiveState });
 
           // Update local state instead of refetching all courses
           updateCourse(course.id, { active: newActiveState });
@@ -380,7 +374,7 @@
         addUpdatingCourseId(course.id);
 
         try {
-          await CourseSessionResource.deleteModel({ id: course.id });
+          await CourseSessionResource.delete(course.id);
           // Remove course from local state instead of refetching all courses
           removeCourse(course.id);
           createSnackbar(courseDeleted$());
@@ -444,7 +438,7 @@
 
         if (selection === actions.edit) {
           try {
-            const courseContent = await ContentNodeResource.fetchModel({ id: course.course });
+            const courseContent = await ContentNodeResource.retrieve(course.course);
             selectCourse(courseContent);
             assignCourseComposable.setCourseVisibility(course.active);
             assignCourseComposable.setExistingAssignment(course);

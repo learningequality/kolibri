@@ -258,7 +258,7 @@
       };
 
       const loading = ref(true);
-      ContentNodeResource.fetchTree({ id: route.params.courseId })
+      ContentNodeResource.fetchTree_v2({ id: route.params.courseId })
         .then(results => {
           course.value = results;
           loading.value = false;
