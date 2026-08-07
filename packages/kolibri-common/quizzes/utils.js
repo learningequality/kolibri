@@ -145,12 +145,7 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
 export async function convertExamQuestionSources(exam) {
   if (exam.data_model_version === 0) {
     const ids = uniq(exam.question_sources.map(item => item.exercise_id));
-    const exercises = await ContentNodeResource.fetchCollection({
-      getParams: {
-        ids,
-        no_available_filtering: true,
-      },
-    });
+    const exercises = await ContentNodeResource.list({ ids, no_available_filtering: true });
     const questionIds = exercises.reduce((nodeIds, node) => {
       nodeIds[node.id] = node.assessmentmetadata ? node.assessmentmetadata.assessment_item_ids : [];
       return nodeIds;
@@ -201,12 +196,7 @@ export async function fetchExamWithContent(exam) {
       }, []),
     );
 
-    return ContentNodeResource.fetchCollection({
-      getParams: {
-        ids,
-        no_available_filtering: true,
-      },
-    }).then(exercises => {
+    return ContentNodeResource.list({ ids, no_available_filtering: true }).then(exercises => {
       return {
         exam,
         exercises,
@@ -237,7 +227,7 @@ export function annotateQuestionSourcesWithCounter(questionSources) {
 
 // idk the best place to place this function
 export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interactionIndex = 0) {
-  return ExamResource.fetchModel({ id: examId }).then(examData => {
+  return ExamResource.retrieve(examId).then(examData => {
     return fetchExamWithContent(examData).then(({ exam, exercises }) => {
       // When all the Exercises are not available on the server
       if (exam.question_count === 0) {

@@ -59,8 +59,8 @@ function mountSearch() {
 
 describe(`useBaseSearch`, () => {
   beforeEach(() => {
-    ContentNodeResource.fetchCollection = jest.fn();
-    ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+    ContentNodeResource.list = jest.fn();
+    ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
     useUser.mockImplementation(() => useUserMock());
   });
   describe(`searchTerms computed ref`, () => {
@@ -213,27 +213,25 @@ describe(`useBaseSearch`, () => {
     });
   });
   describe('search method', () => {
-    it('should call ContentNodeResource.fetchCollection when searchTerms changes', async () => {
+    it('should call ContentNodeResource.list when searchTerms changes', async () => {
       const { mockRoute } = prep();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       mockRoute.query = { categories: 'test1,test2' };
       await nextTick();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories: ['test1', 'test2'],
-          max_results: 25,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
+      expect(ContentNodeResource.list).toHaveBeenCalledWith({
+        categories: ['test1', 'test2'],
+        max_results: 25,
+        include_coach_content: false,
+        exclude_modalities: Modalities.COURSE,
+        exclude_course_ancestry: true,
       });
     });
-    it('should not call ContentNodeResource.fetchCollection if there is no search', () => {
+    it('should not call ContentNodeResource.list if there is no search', () => {
       const { search } = prep();
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockClear();
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       search();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+      expect(ContentNodeResource.list).not.toHaveBeenCalled();
     });
     it('should clear labels and more if there is no search', () => {
       const { search, labels, more } = prep();
@@ -243,34 +241,30 @@ describe(`useBaseSearch`, () => {
       expect(get(labels)).toBeNull();
       expect(get(more)).toBeNull();
     });
-    it('should call ContentNodeResource.fetchCollection if there is no search but a descendant is set', () => {
+    it('should call ContentNodeResource.list if there is no search but a descendant is set', () => {
       const { search } = prep({}, ref({ tree_id: 1, lft: 10, rght: 20 }));
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          tree_id: 1,
-          lft__gt: 10,
-          rght__lt: 20,
-          max_results: 1,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
+      expect(ContentNodeResource.list).toHaveBeenCalledWith({
+        tree_id: 1,
+        lft__gt: 10,
+        rght__lt: 20,
+        max_results: 1,
+        include_coach_content: false,
+        exclude_modalities: Modalities.COURSE,
+        exclude_course_ancestry: true,
       });
     });
-    it('should call ContentNodeResource.fetchCollection if there is no search but a filter is set', () => {
+    it('should call ContentNodeResource.list if there is no search but a filter is set', () => {
       const { search } = prep({}, null, { kind: ContentNodeKinds.EXERCISE });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          kind: ContentNodeKinds.EXERCISE,
-          max_results: 1,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
+      expect(ContentNodeResource.list).toHaveBeenCalledWith({
+        kind: ContentNodeKinds.EXERCISE,
+        max_results: 1,
+        include_coach_content: false,
+        exclude_modalities: Modalities.COURSE,
+        exclude_course_ancestry: true,
       });
     });
     it('should set labels and clear more if there is no search but a descendant is set', async () => {
@@ -279,39 +273,35 @@ describe(`useBaseSearch`, () => {
         available: ['labels'],
         languages: [],
       };
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({ labels: labelsSet }));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({ labels: labelsSet }));
       set(more, { test: 'test' });
       search();
       await nextTick();
       expect(get(more)).toBeNull();
       expect(get(labels)).toEqual(labelsSet);
     });
-    it('should call ContentNodeResource.fetchCollection when searchTerms exist', () => {
+    it('should call ContentNodeResource.list when searchTerms exist', () => {
       const { search } = prep({ categories: 'test1,test2' });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          categories: ['test1', 'test2'],
-          max_results: 25,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
+      expect(ContentNodeResource.list).toHaveBeenCalledWith({
+        categories: ['test1', 'test2'],
+        max_results: 25,
+        include_coach_content: false,
+        exclude_modalities: Modalities.COURSE,
+        exclude_course_ancestry: true,
       });
     });
     it('should set keywords when defined', () => {
       const { search } = prep({ keywords: `this is just a test` });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       search();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: {
-          question: `this is just a test`,
-          max_results: 25,
-          include_coach_content: false,
-          exclude_modalities: Modalities.COURSE,
-          exclude_course_ancestry: true,
-        },
+      expect(ContentNodeResource.list).toHaveBeenCalledWith({
+        question: `this is just a test`,
+        max_results: 25,
+        include_coach_content: false,
+        exclude_modalities: Modalities.COURSE,
+        exclude_course_ancestry: true,
       });
     });
     it('should set results, labels, and more with returned data', async () => {
@@ -324,7 +314,7 @@ describe(`useBaseSearch`, () => {
         cursor: 'adalskdjsadlkjsadlkjsalkd',
       };
       const expectedResults = [{ id: 'node-id1' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
+      ContentNodeResource.list.mockReturnValue(
         Promise.resolve({
           labels: expectedLabels,
           results: expectedResults,
@@ -341,35 +331,35 @@ describe(`useBaseSearch`, () => {
   describe('searchMore method', () => {
     it('should not call anything when not displaying search terms', () => {
       const { searchMore } = prep();
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockClear();
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+      expect(ContentNodeResource.list).not.toHaveBeenCalled();
     });
     it('should not call anything when more is null', () => {
       const { more, searchMore } = prep({ categories: 'test1' });
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockClear();
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       set(more, null);
       searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+      expect(ContentNodeResource.list).not.toHaveBeenCalled();
     });
     it('should not call anything when moreLoading is true', () => {
       const { more, moreLoading, searchMore } = prep({ categories: 'test1' });
-      ContentNodeResource.fetchCollection.mockClear();
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockClear();
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       set(more, {});
       set(moreLoading, true);
       searchMore();
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+      expect(ContentNodeResource.list).not.toHaveBeenCalled();
     });
-    it('should pass the more object directly to getParams', () => {
+    it('should pass the more object directly as the query parameters', () => {
       const { more, searchMore } = prep({ categories: 'test1,test2,test3' });
-      ContentNodeResource.fetchCollection.mockReturnValue(Promise.resolve({}));
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({}));
       const moreExpected = { test: 'this', not: 'that' };
       set(more, moreExpected);
       searchMore();
-      expect(ContentNodeResource.fetchCollection).toHaveBeenCalledWith({ getParams: moreExpected });
+      expect(ContentNodeResource.list).toHaveBeenCalledWith(moreExpected);
     });
     it('should set results, more and labels', async () => {
       const { labels, more, results, searchMore, search } = prep({
@@ -383,7 +373,7 @@ describe(`useBaseSearch`, () => {
         cursor: 'adalskdjsadlkjsadlkjsalkd',
       };
       const originalResults = [{ id: 'originalId', content_id: 'first' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
+      ContentNodeResource.list.mockReturnValue(
         Promise.resolve({
           labels: expectedLabels,
           results: originalResults,
@@ -393,7 +383,7 @@ describe(`useBaseSearch`, () => {
       search();
       await nextTick();
       const expectedResults = [{ id: 'node-id1', content_id: 'second' }];
-      ContentNodeResource.fetchCollection.mockReturnValue(
+      ContentNodeResource.list.mockReturnValue(
         Promise.resolve({
           labels: expectedLabels,
           results: expectedResults,
@@ -463,13 +453,11 @@ describe(`useBaseSearch`, () => {
 
   describe('selectFilterCombination', () => {
     it('applies every filter and strips all matched words', async () => {
-      ContentNodeResource.fetchCollection.mockReturnValue(
-        Promise.resolve({ results: [], labels: {} }),
-      );
+      ContentNodeResource.list.mockReturnValue(Promise.resolve({ results: [], labels: {} }));
       const api = mountSearch().getApi();
       api.setKeywords('watch math');
       await nextTick();
-      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.list.mockClear();
       api.selectFilterCombination([
         {
           filterKey: 'learning_activities',
@@ -482,10 +470,8 @@ describe(`useBaseSearch`, () => {
       ]);
       await nextTick();
       await nextTick();
-      const calls = ContentNodeResource.fetchCollection.mock.calls.filter(
-        c => c[0] && c[0].getParams && c[0].getParams.max_results === 25,
-      );
-      const params = calls[calls.length - 1][0].getParams;
+      const calls = ContentNodeResource.list.mock.calls.filter(c => c[0]?.max_results === 25);
+      const params = calls[calls.length - 1][0];
       expect(params.learning_activities).toEqual(['WATCHVAL']);
       expect(params.categories).toEqual(['MATHVAL']);
       expect(params.question).toBeUndefined();
@@ -526,10 +512,10 @@ describe(`useBaseSearch`, () => {
 
     it('discards a label response for a baseurl that is no longer current', async () => {
       const resolvers = {};
-      ContentNodeResource.fetchCollection = jest.fn(
-        ({ getParams }) =>
+      ContentNodeResource.list = jest.fn(
+        params =>
           new Promise(resolve => {
-            resolvers[getParams.baseurl || 'local'] = resolve;
+            resolvers[params.baseurl || 'local'] = resolve;
           }),
       );
       const baseurl = ref(undefined);
@@ -556,8 +542,8 @@ describe(`useBaseSearch`, () => {
 
     it("does not leave another device's labels on display when the fetch fails", async () => {
       let rejectRemote;
-      ContentNodeResource.fetchCollection = jest.fn(({ getParams }) =>
-        getParams.baseurl
+      ContentNodeResource.list = jest.fn(params =>
+        params.baseurl
           ? new Promise((resolve, reject) => {
               rejectRemote = reject;
             })
@@ -590,7 +576,7 @@ describe(`useBaseSearch`, () => {
     it('discards a slower, older autocomplete response that resolves after a newer one', async () => {
       const api = mountSearch().getApi();
       const resolvers = [];
-      ContentNodeResource.fetchCollection.mockImplementation(
+      ContentNodeResource.list.mockImplementation(
         () => new Promise(resolve => resolvers.push(resolve)),
       );
 
@@ -614,11 +600,11 @@ describe(`useBaseSearch`, () => {
 
     it('cancels the pending debounced fetch on unmount', () => {
       const { getApi, unmount } = mountSearch();
-      ContentNodeResource.fetchCollection.mockClear();
+      ContentNodeResource.list.mockClear();
       getApi().keyWordAutoCompleteHandler('fraction');
       unmount();
       jest.advanceTimersByTime(300);
-      expect(ContentNodeResource.fetchCollection).not.toHaveBeenCalled();
+      expect(ContentNodeResource.list).not.toHaveBeenCalled();
     });
   });
 });
