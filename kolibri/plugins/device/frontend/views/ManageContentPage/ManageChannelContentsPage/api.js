@@ -6,7 +6,7 @@ import { getChannelWithContentSizes } from '../../../modules/wizard/apiChannelMe
 import { getDeviceInfo } from '../../../modules/deviceInfo/handlers';
 
 export function fetchPageData(channelId) {
-  const studioChannelPromise = RemoteChannelResource.fetchModel({ id: channelId, force: true })
+  const studioChannelPromise = RemoteChannelResource.retrieve(channelId)
     .then(channel => {
       this.studioChannel = channel;
     })
@@ -28,13 +28,11 @@ export function fetchPageData(channelId) {
 }
 
 export function fetchNodeWithAncestors(nodeId) {
-  return ContentNodeGranularResource.fetchModel({
-    id: nodeId,
-    getParams: {
+  return ContentNodeGranularResource.retrieve(nodeId, {
+    params: {
       // Set this param to only show resources that are 'available'
       for_export: true,
     },
-    force: true,
   });
 }
 

@@ -3,7 +3,7 @@ import ChannelResource from '../../apiResources/deviceChannel';
 // Gets Metadata for Channels whose DBs have been downloaded onto the server.
 // Response includes all of the file/resource sizes.
 export function getChannelWithContentSizes(channelId, filterPartialChannels = true) {
-  const getParams = {
+  const params = {
     include_fields: [
       'total_resources',
       'total_file_size',
@@ -14,13 +14,7 @@ export function getChannelWithContentSizes(channelId, filterPartialChannels = tr
     ],
   };
   if (filterPartialChannels) {
-    getParams.partial = false;
+    params.partial = false;
   }
-  return new Promise((resolve, reject) => {
-    ChannelResource.fetchModel({
-      id: channelId,
-      getParams,
-      force: true,
-    }).then(resolve, reject);
-  });
+  return ChannelResource.retrieve(channelId, { params });
 }

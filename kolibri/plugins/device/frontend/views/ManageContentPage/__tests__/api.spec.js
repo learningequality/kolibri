@@ -18,17 +18,17 @@ const installedPublishedChannel = {
 
 describe('fetchChannelAtSource (Studio source)', () => {
   beforeAll(() => {
-    ChannelResource.fetchModel = jest.fn();
+    ChannelResource.retrieve = jest.fn();
   });
 
   afterEach(() => {
-    ChannelResource.fetchModel.mockReset();
-    RemoteChannelResource.fetchModel.mockReset();
+    ChannelResource.retrieve.mockReset();
+    RemoteChannelResource.retrieve.mockReset();
   });
 
   it('draft channel (version=0): resolves with [installedChannel, null] when Studio returns 404', () => {
-    ChannelResource.fetchModel.mockResolvedValue(installedDraftChannel);
-    RemoteChannelResource.fetchModel.mockRejectedValue({ status: 404 });
+    ChannelResource.retrieve.mockResolvedValue(installedDraftChannel);
+    RemoteChannelResource.retrieve.mockRejectedValue({ status: 404 });
     return fetchChannelAtSource({ channel_id: 'draft_channel' }).then(([installed, source]) => {
       expect(installed).toEqual(installedDraftChannel);
       expect(source).toBeNull();
@@ -37,8 +37,8 @@ describe('fetchChannelAtSource (Studio source)', () => {
 
   it('draft channel (version=0): resolves with [installedChannel, studioChannel] when Studio has a version', () => {
     const studioChannel = { id: 'draft_channel', version: 2 };
-    ChannelResource.fetchModel.mockResolvedValue(installedDraftChannel);
-    RemoteChannelResource.fetchModel.mockResolvedValue(studioChannel);
+    ChannelResource.retrieve.mockResolvedValue(installedDraftChannel);
+    RemoteChannelResource.retrieve.mockResolvedValue(studioChannel);
     return fetchChannelAtSource({ channel_id: 'draft_channel' }).then(([installed, source]) => {
       expect(installed).toEqual(installedDraftChannel);
       expect(source).toEqual(studioChannel);
@@ -46,8 +46,8 @@ describe('fetchChannelAtSource (Studio source)', () => {
   });
 
   it('non-draft channel: rejects when Studio returns 404', () => {
-    ChannelResource.fetchModel.mockResolvedValue(installedPublishedChannel);
-    RemoteChannelResource.fetchModel.mockRejectedValue({ status: 404 });
+    ChannelResource.retrieve.mockResolvedValue(installedPublishedChannel);
+    RemoteChannelResource.retrieve.mockRejectedValue({ status: 404 });
     return expect(fetchChannelAtSource({ channel_id: 'published_channel' })).rejects.toBe(
       'CHANNEL_NOT_ON_STUDIO',
     );
@@ -55,8 +55,8 @@ describe('fetchChannelAtSource (Studio source)', () => {
 
   it('non-draft channel: resolves with [installedChannel, studioChannel] when Studio responds', () => {
     const studioChannel = { id: 'published_channel', version: 7 };
-    ChannelResource.fetchModel.mockResolvedValue(installedPublishedChannel);
-    RemoteChannelResource.fetchModel.mockResolvedValue(studioChannel);
+    ChannelResource.retrieve.mockResolvedValue(installedPublishedChannel);
+    RemoteChannelResource.retrieve.mockResolvedValue(studioChannel);
     return fetchChannelAtSource({ channel_id: 'published_channel' }).then(([installed, source]) => {
       expect(installed).toEqual(installedPublishedChannel);
       expect(source).toEqual(studioChannel);

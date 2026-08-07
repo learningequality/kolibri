@@ -98,7 +98,7 @@ export function showAvailableChannelsPage(store, params, route) {
     selectedDrivePromise = Promise.resolve({});
     availableChannelsPromise = new Promise((resolve, reject) => {
       getInstalledChannelsPromise(store).then(() => {
-        return RemoteChannelResource.fetchCollection({ getParams: { token: params.token } })
+        return RemoteChannelResource.list({ token: params.token })
           .then(remoteChannels => {
             if (!params.token) {
               return store
@@ -191,33 +191,26 @@ export function showSelectContentPage(store, params) {
     availableSpacePromise = getAvailableSpaceOnDrive();
     transferredChannelPromise = new Promise((resolve, reject) => {
       const { token } = params;
-      RemoteChannelResource.fetchModel({
-        id: channel_id,
-        force: true,
-        getParams: token ? { token } : {},
-      })
-        // Force fetching because using cached version switches
-        // between returning an array and returning an object
-        .then(
-          channel => {
-            resolve(token ? { ...channel, token } : channel);
-          },
-          error => {
-            if (error.response.status === 404) {
-              // For draft channels (version 0) already on the device, fall back to
-              // on-device channel data so the user can still browse and import content.
-              return channelDataPromise.then(installedChannel => {
-                if (installedChannel && installedChannel.version === 0) {
-                  resolve(installedChannel);
-                } else {
-                  reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
-                }
-              });
-            } else {
-              reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
-            }
-          },
-        );
+      RemoteChannelResource.retrieve(channel_id, { params: token ? { token } : {} }).then(
+        channel => {
+          resolve(token ? { ...channel, token } : channel);
+        },
+        error => {
+          if (error.response.status === 404) {
+            // For draft channels (version 0) already on the device, fall back to
+            // on-device channel data so the user can still browse and import content.
+            return channelDataPromise.then(installedChannel => {
+              if (installedChannel && installedChannel.version === 0) {
+                resolve(installedChannel);
+              } else {
+                reject({ error: ContentWizardErrors.CHANNEL_NOT_FOUND_ON_STUDIO });
+              }
+            });
+          } else {
+            reject({ error: ContentWizardErrors.KOLIBRI_STUDIO_UNAVAILABLE });
+          }
+        },
+      );
     });
   }
 
@@ -275,11 +268,7 @@ export function updateTreeViewTopic(store, topic) {
     const { selectedPeer } = store.state.manageContent.wizard;
     fetchArgs.importing_from_peer_id = selectedPeer.id;
   }
-  return ContentNodeGranularResource.fetchModel({
-    id: topic.id,
-    getParams: fetchArgs,
-    force: true,
-  })
+  return ContentNodeGranularResource.retrieve(topic.id, { params: fetchArgs })
     .then(contents => {
       store.commit('manageContent/wizard/SET_CURRENT_TOPIC_NODE', contents);
       store.dispatch('manageContent/wizard/updatePathBreadcrumbs', topic);

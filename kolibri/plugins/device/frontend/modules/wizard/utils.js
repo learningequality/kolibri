@@ -13,13 +13,11 @@ import { getChannelWithContentSizes } from './apiChannelMetadata';
  * @returns {Promise<object>} Resolves with the remote channel object.
  */
 export function getRemoteChannelByToken(token) {
-  return RemoteChannelResource.fetchModel({ id: token, force: true });
+  return RemoteChannelResource.retrieve(token);
 }
 
 export function getRemoteChannelBundleByToken(token) {
-  // force: true so a draft token doesn't return a stale cached version for the
-  // same channel id (the resource caches models by id across token lookups).
-  return RemoteChannelResource.fetchCollection({ getParams: { token }, force: true });
+  return RemoteChannelResource.list({ token });
 }
 
 /**
