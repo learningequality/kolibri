@@ -39,7 +39,7 @@ export default {
       });
     },
     clearCompletedFacilityTasks() {
-      return TaskResource.clearAll('facility_task');
+      return TaskResource.clearAll_v2('facility_task');
     },
   },
   beforeMount() {

@@ -64,7 +64,7 @@ export function downloadChannelMetadata(store) {
     .then(completedTask => {
       const { taskId, cancelled } = completedTask;
       if (taskId && !cancelled) {
-        return TaskResource.clear(taskId)
+        return TaskResource.clear_v2(taskId)
           .then(() => {
             return getChannelWithContentSizes(transferredChannel.id);
           })

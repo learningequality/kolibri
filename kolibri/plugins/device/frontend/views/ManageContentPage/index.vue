@@ -261,7 +261,7 @@
         this.$router.push({ name: PageNames.MANAGE_CHANNEL, params: { channel_id: channelId } });
       },
       handleClickClearAll() {
-        TaskResource.clearAll();
+        TaskResource.clearAll_v2();
       },
       /**
        * Refreshes the channel list after a watched content task completes.

@@ -244,7 +244,7 @@
           if (val) {
             this.metadataDownloadTaskId = val.id;
             if (val.clearable) {
-              TaskResource.clear(val.id);
+              TaskResource.clear_v2(val.id);
             }
           } else {
             this.metadataDownloadTaskId = '';

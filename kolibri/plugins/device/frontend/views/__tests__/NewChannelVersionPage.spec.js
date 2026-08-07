@@ -22,7 +22,7 @@ jest.mock('../ManageContentPage/api', () => ({
   }),
 }));
 jest.mock('kolibri/apiResources/TaskResource', () => ({
-  clear: jest.fn().mockResolvedValue({}),
+  clear_v2: jest.fn().mockResolvedValue({}),
   startTask: jest.fn().mockResolvedValue({ id: 'task-1', extra_metadata: {} }),
 }));
 
