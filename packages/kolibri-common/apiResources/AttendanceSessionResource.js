@@ -5,4 +5,8 @@ export default new Resource({
   fetchRecentSessions(getParams) {
     return this.fetchListCollection('recent', getParams);
   },
+  async fetchRecentSessions_v2(params) {
+    const response = await this.request({ action: 'recent', params });
+    return response.data;
+  },
 });

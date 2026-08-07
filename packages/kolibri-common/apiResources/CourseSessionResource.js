@@ -10,12 +10,30 @@ export default new Resource({
       data: data,
     }).then(response => response.data);
   },
+  async activateTest_v2({ id, data }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'activate_test',
+      routeParams: id,
+      data,
+    });
+    return response.data;
+  },
   closeTest({ id, data }) {
     return client({
       url: this.getUrlFunction('close_test')(id),
       method: 'POST',
       data: data,
     }).then(response => response.data);
+  },
+  async closeTest_v2({ id, data }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'close_test',
+      routeParams: id,
+      data,
+    });
+    return response.data;
   },
   activeTest({ id }) {
     return client({
@@ -28,5 +46,9 @@ export default new Resource({
       url: this.getUrlFunction('last_unit_test')(id),
       method: 'GET',
     }).then(response => response.data);
+  },
+  async lastUnitTest_v2({ id }) {
+    const response = await this.request({ action: 'last_unit_test', routeParams: id });
+    return response.data;
   },
 });
