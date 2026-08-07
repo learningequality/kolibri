@@ -7,6 +7,9 @@ from rest_framework.test import APITestCase
 from kolibri.core.content import base_models
 from kolibri.core.content import models as content
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import EXPORT_SCHEMA_VERSIONS
+from kolibri.core.content.constants.schema_versions import VERSION_5
+from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.test.helpers import ChannelBuilder
 
 
@@ -71,6 +74,14 @@ class ImportMetadataTestCase(APITestCase):
                         value = field.from_db_value(value, None, connection)
                     self.assertEqual(value, getattr(obj, field.attname))
 
+    def _get_metadata(self, schema_version):
+        response = self.client.get(
+            reverse("kolibri:core:importmetadata-detail", kwargs={"pk": self.node.id})
+            + "?schema_version={}".format(schema_version)
+        )
+        self.assertEqual(response.status_code, 200)
+        return response.data
+
     def test_import_metadata_nodes(self):
         self._assert_data(content.ContentNode, self.all_nodes)
 
@@ -131,6 +142,31 @@ class ImportMetadataTestCase(APITestCase):
             + "?schema_version={}".format(CONTENT_SCHEMA_VERSION)
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_import_metadata_columns_match_frozen_map(self):
+        for version in EXPORT_SCHEMA_VERSIONS:
+            data = self._get_metadata(version)
+            # Iterate the frozen map rather than the response, as the response
+            # also carries a non-table `schema_version` key.
+            for table, columns in for_version(version).items():
+                rows = data[table]
+                if not rows:
+                    continue
+                with self.subTest(version=version, table=table):
+                    self.assertEqual(sorted(rows[0].keys()), sorted(columns))
+
+    def test_schema_5_localfiles_use_file_size(self):
+        localfiles = self._get_metadata(VERSION_5)[content.LocalFile._meta.db_table]
+        self.assertTrue(localfiles)
+        for row in localfiles:
+            self.assertIn("file_size", row)
+            self.assertNotIn("file_size_bigint", row)
+
+    def test_schema_5_files_have_no_included_presets(self):
+        files = self._get_metadata(VERSION_5)[content.File._meta.db_table]
+        self.assertTrue(files)
+        for row in files:
+            self.assertNotIn("included_presets", row)
 
     def test_import_metadata_with_descendants_returns_ancestors_and_descendants(self):
         """Test that descendants=true returns both ancestors and descendants (ancestors first)."""
