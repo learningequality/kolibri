@@ -22,6 +22,7 @@ from kolibri.core.content.constants.schema_versions import (
 )
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.errors import SchemaNotFoundError
 from kolibri.core.mixins import UUIDValidationError
 from kolibri.core.mixins import validate_uuids
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
@@ -272,10 +273,6 @@ def get_default_db_string():
         port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
         dbname=destination_db["NAME"],
     )
-
-
-class SchemaNotFoundError(Exception):
-    pass
 
 
 class Bridge:
