@@ -29,7 +29,7 @@ jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri-common/apiResources/LocalNotificationResource', () => ({
   __esModule: true,
-  default: { fetchCollection: jest.fn(), deleteModel: jest.fn() },
+  default: { list: jest.fn(), delete: jest.fn() },
 }));
 
 describe('ImpactStoryBanner', () => {
@@ -40,14 +40,14 @@ describe('ImpactStoryBanner', () => {
   });
 
   it('renders nothing while no notification has been fetched', async () => {
-    LocalNotificationResource.fetchCollection.mockResolvedValue([]);
+    LocalNotificationResource.list.mockResolvedValue([]);
     render(ImpactStoryBanner);
-    await waitFor(() => expect(LocalNotificationResource.fetchCollection).toHaveBeenCalled());
+    await waitFor(() => expect(LocalNotificationResource.list).toHaveBeenCalled());
     expect(screen.queryByText(title$())).not.toBeInTheDocument();
   });
 
   it('renders title, dismiss control, QR, WhatsApp number, and story-form link when a notification arrives', async () => {
-    LocalNotificationResource.fetchCollection.mockResolvedValue([FAKE_ROW]);
+    LocalNotificationResource.list.mockResolvedValue([FAKE_ROW]);
     render(ImpactStoryBanner);
 
     await waitFor(() => expect(screen.getByText(title$())).toBeInTheDocument());
@@ -75,14 +75,12 @@ describe('ImpactStoryBanner', () => {
   });
 
   it('dismisses by deleting the row and hides itself', async () => {
-    LocalNotificationResource.fetchCollection.mockResolvedValue([FAKE_ROW]);
-    LocalNotificationResource.deleteModel.mockResolvedValue();
+    LocalNotificationResource.list.mockResolvedValue([FAKE_ROW]);
+    LocalNotificationResource.delete.mockResolvedValue();
     render(ImpactStoryBanner);
     await waitFor(() => expect(screen.getByText(title$())).toBeInTheDocument());
     await fireEvent.click(screen.getByRole('button', { name: dismiss$() }));
-    await waitFor(() =>
-      expect(LocalNotificationResource.deleteModel).toHaveBeenCalledWith({ id: FAKE_ROW.id }),
-    );
+    await waitFor(() => expect(LocalNotificationResource.delete).toHaveBeenCalledWith(FAKE_ROW.id));
     await waitFor(() => expect(screen.queryByText(title$())).not.toBeInTheDocument());
   });
 
@@ -90,6 +88,6 @@ describe('ImpactStoryBanner', () => {
     useUser.mockImplementation(() => useUserMock({ isSuperuser: false }));
     render(ImpactStoryBanner);
     await Promise.resolve();
-    expect(LocalNotificationResource.fetchCollection).not.toHaveBeenCalled();
+    expect(LocalNotificationResource.list).not.toHaveBeenCalled();
   });
 });

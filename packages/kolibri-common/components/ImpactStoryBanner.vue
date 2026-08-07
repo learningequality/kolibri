@@ -94,7 +94,7 @@
       // Hard gate: super-admin-only, English-only. Skips the fetch entirely
       // for non-applicable users.
       if (isSuperuser.value && currentLanguage === 'en') {
-        LocalNotificationResource.fetchCollection().then(async rows => {
+        LocalNotificationResource.list().then(async rows => {
           notification.value = rows[0] || null;
           if (notification.value && !windowIsSmall.value) {
             qrSrc.value = await QRCode.toDataURL(whatsappHref.value, {
@@ -109,7 +109,7 @@
         if (!notification.value) {
           return;
         }
-        await LocalNotificationResource.deleteModel({ id: notification.value.id });
+        await LocalNotificationResource.delete(notification.value.id);
         notification.value = null;
       }
 
