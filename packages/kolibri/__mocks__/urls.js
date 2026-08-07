@@ -1,8 +1,12 @@
-let returnedUrl = 'test';
+let resolveUrl = () => 'test';
 
 const urlsObject = {
   __setUrl(url) {
-    returnedUrl = url;
+    resolveUrl = () => url;
+  },
+  // The default collapses every route to one URL, hiding a wrong action name or route parameter.
+  __echoUrls() {
+    resolveUrl = (name, ...args) => `/${[name, ...args].join('/')}`;
   },
 };
 
@@ -11,7 +15,7 @@ const urls = new Proxy(urlsObject, {
     if (obj[prop]) {
       return obj[prop];
     }
-    return () => returnedUrl;
+    return (...args) => resolveUrl(String(prop), ...args);
   },
 });
 
