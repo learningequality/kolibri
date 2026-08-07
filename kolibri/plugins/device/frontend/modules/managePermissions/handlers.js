@@ -8,16 +8,14 @@ import { handleApiError } from 'kolibri/utils/appError';
 import { pageLoading } from 'kolibri-common/composables/usePageLoading';
 
 function fetchDevicePermissions() {
-  return DevicePermissionsResource.fetchCollection({ force: true }).then(
-    function transform(permissions) {
-      // returns object, where userid is the key
-      return mapValues(groupBy(permissions, 'user'), head);
-    },
-  );
+  return DevicePermissionsResource.list().then(function transform(permissions) {
+    // returns object, where userid is the key
+    return mapValues(groupBy(permissions, 'user'), head);
+  });
 }
 
 function fetchFacilityUsers() {
-  return FacilityUserResource.fetchCollection();
+  return FacilityUserResource.list();
 }
 
 export function showManagePermissionsPage(store, route) {

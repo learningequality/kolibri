@@ -15,8 +15,8 @@ import { pageLoading } from 'kolibri-common/composables/usePageLoading';
  * permissions and user data.
  */
 function fetchUserPermissions(userId) {
-  const permissionsPromise = DevicePermissionsResource.fetchModel({ id: userId, force: true });
-  const userPromise = FacilityUserResource.fetchModel({ id: userId });
+  const permissionsPromise = DevicePermissionsResource.retrieve(userId);
+  const userPromise = FacilityUserResource.retrieve(userId);
   return permissionsPromise
     .then(function onPermissionsSuccess(permissions) {
       return userPromise.then(function onUserSuccess(user) {

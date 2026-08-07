@@ -10,22 +10,25 @@ import { handleApiError } from 'kolibri/utils/appError';
  */
 export function addOrUpdateUserPermissions(store, payload) {
   const permissions = {
-    user: payload.userId,
     is_superuser: payload.is_superuser,
     can_manage_content: payload.can_manage_content,
   };
 
-  return DevicePermissionsResource.saveModel({ id: payload.userId, data: permissions })
+  // showUserPermissionsPage's 404 branch substitutes a defaults object with no `user` key, so
+  // its absence means the row does not exist yet - PATCHing it would 404.
+  const savePromise = store.state.permissions.user
+    ? DevicePermissionsResource.update(payload.userId, permissions)
+    : DevicePermissionsResource.create({ user: payload.userId, ...permissions });
+
+  return savePromise
     .then(permissionsModel => {
-      return FacilityUserResource.fetchModel({ id: payload.userId, force: true }).then(
-        userModel => {
-          store.commit('SET_STATE', {
-            user: userModel,
-            permissions: permissionsModel,
-          });
-          return userModel;
-        },
-      );
+      return FacilityUserResource.retrieve(payload.userId).then(userModel => {
+        store.commit('SET_STATE', {
+          user: userModel,
+          permissions: permissionsModel,
+        });
+        return userModel;
+      });
     })
     .catch(error => handleApiError({ error }));
 }
