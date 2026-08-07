@@ -361,13 +361,7 @@
         this.manageModalVisibilityAndPreferences();
 
         set(this.updatingVisibilityLessons, lesson.id, lesson.id);
-        return LessonResource.saveModel({
-          id: lesson.id,
-          data: {
-            active: newActiveState,
-          },
-          exists: true,
-        })
+        return LessonResource.update(lesson.id, { active: newActiveState })
           .then(() => {
             return this.$store.dispatch(
               'lessonsRoot/refreshClassLessons',

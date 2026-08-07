@@ -81,15 +81,13 @@
         );
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
 
-        LessonResource.saveModel({
-          data: {
-            title,
-            description: this.currentLesson.description,
-            resources: this.currentLesson.resources,
-            collection: selectedClassroomId,
-            assignments: selectedCollectionIds,
-            learner_ids: adHocLearnerIds,
-          },
+        LessonResource.create({
+          title,
+          description: this.currentLesson.description,
+          resources: this.currentLesson.resources,
+          collection: selectedClassroomId,
+          assignments: selectedCollectionIds,
+          learner_ids: adHocLearnerIds,
         })
           .then(() => {
             // If copied to the same classroom, update the class summary
@@ -119,7 +117,7 @@
       },
       handleSubmitDelete() {
         const { id } = this.currentLesson;
-        return LessonResource.deleteModel({ id })
+        return LessonResource.delete(id)
           .then(() => {
             this.$router.replace(
               this.$router.getRoute('LESSONS_ROOT', { classId: this.classId }),

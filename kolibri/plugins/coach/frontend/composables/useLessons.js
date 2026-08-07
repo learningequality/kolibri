@@ -34,7 +34,7 @@ export function useLessons() {
     });
     const loadRequirements = [
       // Fetch learner groups for the New Lesson Modal
-      LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
+      LearnerGroupResource.list({ parent: classId }),
       store.dispatch('lessonsRoot/refreshClassLessons', classId),
     ];
 

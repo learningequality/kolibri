@@ -16,10 +16,8 @@ export function addToResourceCache(store, { node }) {
 
 export function updateCurrentLesson(store, lessonId) {
   return Promise.all([
-    LessonResource.fetchModel({
-      id: lessonId,
-    }),
-    LessonResource.fetchLessonsSizes({ id: lessonId }),
+    LessonResource.retrieve(lessonId),
+    LessonResource.fetchLessonsSizes_v2({ id: lessonId }),
   ]).then(
     ([lesson, lessonSizes]) => {
       const size = lessonSizes[0] && lessonSizes[0][lessonId];
@@ -47,11 +45,9 @@ export function getResourceCache(store, resourceIds) {
   }
 
   if (nonCachedResourceIds.length) {
-    return ContentNodeResource.fetchCollection({
-      getParams: {
-        ids: nonCachedResourceIds,
-        no_available_filtering: true,
-      },
+    return ContentNodeResource.list({
+      ids: nonCachedResourceIds,
+      no_available_filtering: true,
     }).then(contentNodes => {
       contentNodes.forEach(contentNode => {
         const channel = store.getters.getChannelForNode(contentNode);
@@ -68,10 +64,7 @@ export function getResourceCache(store, resourceIds) {
 }
 
 export function saveLessonResources(store, { lessonId, resources }) {
-  return LessonResource.saveModel({
-    id: lessonId,
-    data: { resources },
-  }).then(lesson => {
+  return LessonResource.update(lessonId, { resources }).then(lesson => {
     // Update the class summary now that there is a change to a lesson
     return store.dispatch('classSummary/refreshClassSummary', null, { root: true }).then(() => {
       return lesson;

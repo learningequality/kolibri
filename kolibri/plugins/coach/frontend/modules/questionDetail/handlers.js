@@ -57,7 +57,7 @@ function showQuestionDetailView(params) {
   }
   return promise
     .then(exam => {
-      return ContentNodeResource.fetchModel({ id: exerciseNodeId }).then(exercise => {
+      return ContentNodeResource.retrieve(exerciseNodeId).then(exercise => {
         exercise.assessmentmetadata = exercise.assessmentmetadata || {};
         let title;
         if (exam) {
