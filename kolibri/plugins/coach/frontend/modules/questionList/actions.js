@@ -18,29 +18,25 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
   if (quizId) {
     pk = quizId;
     resource = QuizDifficulties;
-    itemPromise = ExamResource.fetchModel({
-      id: quizId,
-    }).then(fetchExamWithContent);
+    itemPromise = ExamResource.retrieve(quizId).then(fetchExamWithContent);
   } else {
     pk = exerciseId;
     practiceQuiz =
       get(store.rootState.classSummary.contentMap[pk], ['options', 'modality']) === Modalities.QUIZ;
     resource = practiceQuiz ? PracticeQuizDifficulties : ExerciseDifficulties;
-    itemPromise = ContentNodeResource.fetchModel({
-      id: store.rootState.classSummary.contentMap[pk].node_id,
-      getParams: { no_available_filtering: true },
-    });
+    itemPromise = ContentNodeResource.retrieve(
+      store.rootState.classSummary.contentMap[pk].node_id,
+      { params: { no_available_filtering: true } },
+    );
   }
 
-  const difficultiesPromise = resource.fetchDetailCollection(
-    'detail',
+  const difficultiesPromise = resource.fetchDifficultQuestions(
     pk,
     pickBy({
       classroom_id: classId,
       lesson_id: lessonId,
       group_id: groupId,
     }),
-    true,
   );
 
   return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
