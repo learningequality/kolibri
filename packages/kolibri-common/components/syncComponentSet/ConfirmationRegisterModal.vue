@@ -82,10 +82,8 @@
           token: this.token,
         })
           .then(() => {
-            FacilityDatasetResource.saveModel({
-              id: this.targetFacility.dataset.id,
-              data: { registered: true },
-              exists: true,
+            FacilityDatasetResource.update(this.targetFacility.dataset.id, {
+              registered: true,
             }).then(() => {
               this.$emit('success', this.targetFacility);
               this.submitting = false;

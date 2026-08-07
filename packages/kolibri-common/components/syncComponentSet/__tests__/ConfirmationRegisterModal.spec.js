@@ -37,7 +37,7 @@ jest.mock('kolibri-common/apiResources/PortalResource', () => ({
 }));
 
 jest.mock('kolibri-common/apiResources/FacilityDatasetResource', () => ({
-  saveModel: jest.fn(() => Promise.resolve()),
+  update: jest.fn(() => Promise.resolve()),
 }));
 
 describe('ConfirmationRegisterModal', () => {
@@ -87,10 +87,8 @@ describe('ConfirmationRegisterModal', () => {
         name: sampleFacility.name,
         token: sampleToken,
       });
-      expect(FacilityDatasetResource.saveModel).toHaveBeenCalledWith({
-        id: sampleFacility.dataset.id,
-        data: { registered: true },
-        exists: true,
+      expect(FacilityDatasetResource.update).toHaveBeenCalledWith(sampleFacility.dataset.id, {
+        registered: true,
       });
     });
   });

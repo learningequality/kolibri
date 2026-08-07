@@ -1,22 +1,17 @@
 import { Resource } from 'kolibri/apiResource';
-import urls from 'kolibri/urls';
 
 export default new Resource({
   name: 'portal',
-  validateToken(token) {
-    const url = urls['kolibri:core:portal_validate_token']();
-    return this.client({
-      url,
-      method: 'get',
-      params: { token },
-    });
+  async validateToken(token) {
+    const response = await this.request({ action: 'validate_token', params: { token } });
+    return response.data;
   },
-  registerFacility({ facility_id, token }) {
-    const url = urls['kolibri:core:portal_register']();
-    return this.client({
-      url,
-      method: 'post',
+  async registerFacility({ facility_id, token }) {
+    const response = await this.request({
+      method: 'POST',
+      action: 'register',
       data: { facility_id, token },
     });
+    return response.data;
   },
 });
