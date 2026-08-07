@@ -312,10 +312,9 @@
         const pageNumbers = Array.from({ length: totalPages.value }, (_, i) => i + 1);
         return Promise.all(
           pageNumbers.map(page =>
-            AttendanceSessionResource.fetchCollection({
-              getParams: { collection: classId.value, ...params, page },
-              force: true,
-            }).then(data => data.results),
+            AttendanceSessionResource.list({ collection: classId.value, ...params, page }).then(
+              data => data.results,
+            ),
           ),
         ).then(pages => pages.flat());
       }

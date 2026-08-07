@@ -13,10 +13,7 @@ const sessionCount = ref(0);
 export function useAttendance() {
   function fetchSessions(classId, params = {}) {
     attendanceLoading.value = true;
-    return AttendanceSessionResource.fetchCollection({
-      getParams: { collection: classId, ...params },
-      force: true,
-    })
+    return AttendanceSessionResource.list({ collection: classId, ...params })
       .then(data => {
         sessions.value = data.results;
         totalPages.value = data.total_pages || 1;
@@ -29,17 +26,14 @@ export function useAttendance() {
   }
 
   function fetchSession(sessionId) {
-    return AttendanceSessionResource.fetchModel({
-      id: sessionId,
-      force: true,
-    }).then(data => {
+    return AttendanceSessionResource.retrieve(sessionId).then(data => {
       currentSession.value = data;
       return data;
     });
   }
 
   function fetchRecentSessions(classId, limit = 5) {
-    return AttendanceSessionResource.fetchRecentSessions({
+    return AttendanceSessionResource.fetchRecentSessions_v2({
       collection: classId,
       limit,
     }).then(data => {
@@ -49,27 +43,19 @@ export function useAttendance() {
   }
 
   function createSession(data) {
-    return AttendanceSessionResource.saveModel({
-      data,
-    });
+    return AttendanceSessionResource.create(data);
   }
 
   function updateSession(sessionId, data) {
-    return AttendanceSessionResource.saveModel({
-      id: sessionId,
-      data,
-    });
+    return AttendanceSessionResource.update(sessionId, data);
   }
 
   function fetchRecords(sessionId) {
-    return AttendanceRecordResource.fetchCollection({
-      getParams: { attendance_session: sessionId },
-      force: true,
-    });
+    return AttendanceRecordResource.list({ attendance_session: sessionId });
   }
 
   function bulkUpdateRecords(sessionId, records) {
-    return AttendanceRecordResource.bulkUpdate({
+    return AttendanceRecordResource.bulkUpdate_v2({
       attendance_session: sessionId,
       records,
     });

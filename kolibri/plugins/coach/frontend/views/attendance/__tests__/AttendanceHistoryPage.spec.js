@@ -214,7 +214,7 @@ describe('AttendanceHistoryPage', () => {
       CSVExporter.mockClear();
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS, className: 'My Class' });
 
-      AttendanceSessionResource.fetchCollection.mockResolvedValue({
+      AttendanceSessionResource.list.mockResolvedValue({
         results: MOCK_SESSIONS,
         total_pages: 1,
         count: 2,
@@ -242,7 +242,7 @@ describe('AttendanceHistoryPage', () => {
       const { wrapper } = makeWrapper({ sessions: MOCK_SESSIONS });
 
       // Mock the resource to return a paginated response for the single-page export
-      AttendanceSessionResource.fetchCollection.mockResolvedValue({
+      AttendanceSessionResource.list.mockResolvedValue({
         results: MOCK_SESSIONS,
         total_pages: 1,
         count: 2,
@@ -315,14 +315,14 @@ describe('AttendanceHistoryPage', () => {
       });
 
       // Mock the resource to return page-specific paginated responses
-      AttendanceSessionResource.fetchCollection.mockImplementation(({ getParams }) => {
+      AttendanceSessionResource.list.mockImplementation(params => {
         const pageData = {
           1: page1Sessions,
           2: page2Sessions,
           3: page3Sessions,
         };
         return Promise.resolve({
-          results: pageData[getParams.page] || [],
+          results: pageData[params.page] || [],
           total_pages: 3,
           count: 5,
         });
@@ -333,15 +333,15 @@ describe('AttendanceHistoryPage', () => {
       await global.flushPromises();
 
       // Should have fetched all 3 pages
-      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledTimes(3);
-      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
-        expect.objectContaining({ getParams: expect.objectContaining({ page: 1 }) }),
+      expect(AttendanceSessionResource.list).toHaveBeenCalledTimes(3);
+      expect(AttendanceSessionResource.list).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1 }),
       );
-      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
-        expect.objectContaining({ getParams: expect.objectContaining({ page: 2 }) }),
+      expect(AttendanceSessionResource.list).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 2 }),
       );
-      expect(AttendanceSessionResource.fetchCollection).toHaveBeenCalledWith(
-        expect.objectContaining({ getParams: expect.objectContaining({ page: 3 }) }),
+      expect(AttendanceSessionResource.list).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 3 }),
       );
 
       // Should have exported exactly 5 sessions from all 3 pages
