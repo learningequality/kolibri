@@ -433,16 +433,10 @@
     },
     methods: {
       handleOpenQuiz() {
-        const promise = ExamResource.saveModel({
-          id: this.$route.params.quizId,
-          data: {
-            active: true,
-            draft: false,
-          },
-          exists: true,
-        });
-
-        return promise
+        return ExamResource.update(this.$route.params.quizId, {
+          active: true,
+          draft: false,
+        })
           .then(data => {
             this.showConfirmationModal = false;
             this.createSnackbar(this.coachString('quizOpenedMessage'));
@@ -463,15 +457,7 @@
           });
       },
       handleCloseQuiz() {
-        const promise = ExamResource.saveModel({
-          id: this.$route.params.quizId,
-          data: {
-            archive: true,
-          },
-          exists: true,
-        });
-
-        return promise
+        return ExamResource.update(this.$route.params.quizId, { archive: true })
           .then(() => {
             this.$store.dispatch('classSummary/refreshClassSummary');
             this.showCancellationModal = false;
@@ -516,15 +502,9 @@
           ? this.coachString('quizVisibleToLearners')
           : this.coachString('quizNotVisibleToLearners');
 
-        const promise = ExamResource.saveModel({
-          id: this.$route.params.quizId,
-          data: {
-            active: newActiveState,
-          },
-          exists: true,
-        });
-
-        return promise.then(() => {
+        return ExamResource.update(this.$route.params.quizId, {
+          active: newActiveState,
+        }).then(() => {
           this.$store.dispatch('classSummary/refreshClassSummary');
           this.showConfirmationModal = false;
           this.showRemoveReportVisibilityModal = false;

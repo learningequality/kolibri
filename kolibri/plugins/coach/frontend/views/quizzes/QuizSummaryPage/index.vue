@@ -296,7 +296,7 @@
           // This ensures backward compatibility for all question_sources versions
           question_sources: (await convertExamQuestionSources(this.exam)).question_sources,
         };
-        ExamResource.saveModel({ data: newQuiz })
+        ExamResource.create(newQuiz)
           .then(result => {
             this.showSnackbarNotification('quizCopied');
             // If exam was copied to the current classroom, add it to the classSummary module

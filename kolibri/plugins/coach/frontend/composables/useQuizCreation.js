@@ -1,4 +1,6 @@
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
 import uniq from 'lodash/uniq';
 import { useRoute } from 'vue-router/composables';
 import shuffled from 'kolibri-common/utils/shuffled.js';
@@ -54,6 +56,23 @@ export default function useQuizCreation() {
    *   should derive. This will be validated and sent to the API when the user saves the quiz.
    */
   const _quiz = ref(objectWithDefaults({}, Quiz));
+
+  /** @type {ComputedRef<object>} The fields of `_quiz` that get sent to the API */
+  const _examPayload = computed(() => {
+    const payload = pick(get(_quiz), fieldsToSave);
+    if (payload.draft) {
+      payload.question_sources = get(allSections).map(section => ({
+        ...omit(section, 'section_id'),
+        questions: section.questions.map(question => omit(question, 'item')),
+      }));
+    }
+    return payload;
+  });
+
+  const { setBaseline: setExamBaseline, save: saveExam } = ExamResource.useUpdate(
+    () => get(_quiz).id,
+    _examPayload,
+  );
 
   /** @type {ref<QuizSection>} The section that is currently selected for editing */
   const activeSectionIndex = computed(() => Number(route.params.sectionIndex || 0));
@@ -273,7 +292,10 @@ export default function useQuizCreation() {
       set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
       addSection();
     } else {
-      const exam = await ExamResource.fetchModel({ id: quizId });
+      const exam = await ExamResource.retrieve(quizId);
+      // `setExamBaseline` deep copies, so snapshotting here survives `fetchExamWithContent`
+      // rewriting `exam.question_sources` in place.
+      setExamBaseline(exam);
       const { exam: quiz, exercises } = await fetchExamWithContent(exam);
       // Put the exercises into the local cache
       for (const exercise of exercises) {
@@ -296,31 +318,9 @@ export default function useQuizCreation() {
       return Promise.reject(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
     }
 
-    const quizData = get(_quiz);
+    const id = get(_quiz).id;
 
-    const id = quizData.id;
-
-    const finalQuiz = {};
-
-    for (const field of fieldsToSave) {
-      finalQuiz[field] = quizData[field];
-    }
-
-    if (finalQuiz.draft) {
-      const questionSourcesWithoutResourcePool = get(allSections).map(section => {
-        const sectionToSave = { ...section };
-        delete sectionToSave.section_id;
-        sectionToSave.questions = section.questions.map(question => {
-          const questionToSave = { ...question };
-          delete questionToSave.item;
-          return questionToSave;
-        });
-        return sectionToSave;
-      });
-      finalQuiz.question_sources = questionSourcesWithoutResourcePool;
-    }
-
-    return ExamResource.saveModel({ id, data: finalQuiz }).then(exam => {
+    return saveExam().then(exam => {
       if (id !== exam.id) {
         updateQuiz({ id: exam.id });
       }

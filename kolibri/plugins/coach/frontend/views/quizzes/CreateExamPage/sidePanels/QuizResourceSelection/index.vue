@@ -782,9 +782,7 @@
         if (this.settings.selectPracticeQuiz) {
           if (this.$route.name === PageNames.QUIZ_PREVIEW_RESOURCE) {
             try {
-              const contentNode = await ContentNodeResource.fetchModel({
-                id: this.$route.query.contentId,
-              });
+              const contentNode = await ContentNodeResource.retrieve(this.$route.query.contentId);
               this.setWorkingResourcePool([contentNode]);
             } catch (e) {
               this.handleApiError({ error: e });
