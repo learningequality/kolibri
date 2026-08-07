@@ -11,14 +11,8 @@ If you modify the schema here, it has implications for the content import pipeli
 because we will need to calculate these values during content import (as they will
 not be present in the content databases distributed by Studio).
 
-In the case where new fields are added that do not need to be added to an export schema
-the generate_schema command should be run like this:
-
-    `kolibri manage generate_schema current`
-
-This will just regenerate the current schema for SQLAlchemy, so that we can use SQLAlchemy
-to calculate these fields if needed (this can frequently be more efficient than using the
-Django ORM for these calculations).
+Adding a field here that is not part of an export schema needs no `generate_schema` run.
+See base_models.py for when a new export schema version is needed.
 """
 
 import os

@@ -1,0 +1,76 @@
+"""
+Frozen column map for content schema version 1.
+
+Written by `kolibri manage generate_schema` — do not edit by hand.
+"""
+
+COLUMNS = {
+    "content_assessmentmetadata": (
+        "id",
+        "assessment_item_ids",
+        "number_of_assessments",
+        "mastery_model",
+        "randomize",
+        "is_manipulable",
+        "contentnode_id",
+    ),
+    "content_channelmetadata": (
+        "id",
+        "name",
+        "description",
+        "author",
+        "version",
+        "thumbnail",
+        "last_updated",
+        "min_schema_version",
+        "root_id",
+    ),
+    "content_contentnode": (
+        "id",
+        "title",
+        "content_id",
+        "channel_id",
+        "description",
+        "sort_order",
+        "license_owner",
+        "author",
+        "kind",
+        "available",
+        "stemmed_metaphone",
+        "lft",
+        "rght",
+        "tree_id",
+        "level",
+        "lang_id",
+        "license_description",
+        "license_name",
+        "parent_id",
+    ),
+    "content_contentnode_has_prerequisite": (
+        "id",
+        "from_contentnode_id",
+        "to_contentnode_id",
+    ),
+    "content_contentnode_related": ("id", "from_contentnode_id", "to_contentnode_id"),
+    "content_contentnode_tags": ("id", "contentnode_id", "contenttag_id"),
+    "content_contenttag": ("id", "tag_name"),
+    "content_file": (
+        "id",
+        "available",
+        "preset",
+        "supplementary",
+        "thumbnail",
+        "priority",
+        "contentnode_id",
+        "lang_id",
+        "local_file_id",
+    ),
+    "content_language": (
+        "id",
+        "lang_code",
+        "lang_subcode",
+        "lang_name",
+        "lang_direction",
+    ),
+    "content_localfile": ("id", "extension", "available", "file_size"),
+}

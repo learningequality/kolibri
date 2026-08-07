@@ -1,6 +1,4 @@
-import json
 import logging
-import os
 import tempfile
 import unittest
 import uuid
@@ -47,8 +45,9 @@ from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.sqlalchemybridge import ClassNotFoundError
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
-from kolibri.core.content.utils.sqlalchemybridge import load_metadata
 
+from .helpers import build_content_db_from_frozen_schema
+from .helpers import load_content_fixture_data
 from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 
@@ -481,15 +480,6 @@ class MaliciousDatabaseTestCase(TestCase):
             self.fail("Channel imported without a valid root node")
 
 
-SCHEMA_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__), "../fixtures/{name}_content_schema"
-)
-
-DATA_PATH_TEMPLATE = os.path.join(
-    os.path.dirname(__file__), "../fixtures/{name}_content_data.json"
-)
-
-
 class ContentImportTestBase(TransactionTestCase):
     """This is run using a TransactionTestCase,
     as by default, Django runs each test inside an atomic context in order to easily roll back
@@ -518,9 +508,7 @@ class ContentImportTestBase(TransactionTestCase):
         super().setUp()
 
     def load_fixture_data(self):
-        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with open(data_path, mode="r", encoding="utf-8") as f:
-            return json.load(f)
+        return load_content_fixture_data(self.data_name)
 
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
     def set_content_fixture(self, db_path_mock):
@@ -528,22 +516,9 @@ class ContentImportTestBase(TransactionTestCase):
         db_path_mock.return_value = self.content_db_path
         self.content_engine = create_engine("sqlite:///" + self.content_db_path)
 
-        metadata = load_metadata(self.schema_name)
-
-        data = self.load_fixture_data()
-
-        metadata.bind = self.content_engine
-
-        metadata.create_all()
-
-        conn = self.content_engine.connect()
-
-        # Write data for each fixture into the table
-        for table in metadata.sorted_tables:
-            if data[table.name]:
-                conn.execute(table.insert(), data[table.name])
-
-        conn.close()
+        build_content_db_from_frozen_schema(
+            self.content_db_path, self.schema_name, self.load_fixture_data()
+        )
 
         with patch(
             "kolibri.core.content.utils.sqlalchemybridge.get_engine",
@@ -643,9 +618,7 @@ def alternate_existing_channel(request):
 
 class ContentImportDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
-        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with open(data_path, mode="r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self.load_fixture_data()
         self.content_engine = create_engine("sqlite://")
 
         data["schema_version"] = self.name
@@ -660,9 +633,7 @@ class ContentImportDataTestBase(ContentImportTestBase):
 
 class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
-        data_path = DATA_PATH_TEMPLATE.format(name=self.data_name)
-        with open(data_path, mode="r", encoding="utf-8") as fp:
-            data = json.load(fp)
+        data = self.load_fixture_data()
         self.content_engine = create_engine("sqlite://")
 
         partial_data = {key: [] for key in data}

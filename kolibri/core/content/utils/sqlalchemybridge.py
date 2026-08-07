@@ -17,6 +17,9 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import UnaryExpression
 
+from kolibri.core.content.constants.schema_versions import (
+    coerce_version_name_to_valid_module_path,
+)
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.mixins import UUIDValidationError
@@ -181,12 +184,6 @@ SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
     + __SQLALCHEMY_CLASSES_PATH
     + (__SQLALCHEMY_CLASSES_MODULE_NAME,)
 )
-
-
-def coerce_version_name_to_valid_module_path(name):
-    # Only required to support the legacy schema versions that
-    # use Kolibri versions explicitly in their name.
-    return name.replace(".", "").replace("-", "")
 
 
 def load_metadata(name):
