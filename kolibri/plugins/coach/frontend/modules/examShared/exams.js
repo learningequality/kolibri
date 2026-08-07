@@ -1,7 +1,7 @@
 import ExamResource from 'kolibri-common/apiResources/ExamResource';
 
 export function createExam(store, exam) {
-  return ExamResource.saveModel({ data: exam });
+  return ExamResource.create(exam);
 }
 
 export function examState(exam) {

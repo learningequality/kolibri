@@ -17,18 +17,13 @@ export function displayModal(store, modalName) {
 }
 
 export function createGroup(store, { groupName, classId }) {
-  return LearnerGroupResource.saveModel({
-    data: {
-      parent: classId,
-      name: groupName,
-    },
+  return LearnerGroupResource.create({
+    parent: classId,
+    name: groupName,
   }).then(
     group => {
       const groups = store.state.groups;
       groups.push(_groupState(group));
-
-      // Clear cache for future fetches
-      LearnerGroupResource.clearCache();
 
       store.commit('SET_GROUPS', groups);
       // We have updated the groups, so update the classSummary
@@ -41,11 +36,7 @@ export function createGroup(store, { groupName, classId }) {
 
 export function renameGroup(store, { groupId, newGroupName }) {
   pageLoading.value = true;
-  return LearnerGroupResource.saveModel({
-    id: groupId,
-    data: { name: newGroupName },
-    exists: true,
-  }).then(
+  return LearnerGroupResource.update(groupId, { name: newGroupName }).then(
     () => {
       const groups = store.state.groups;
       const groupIndex = groups.findIndex(group => group.id === groupId);
@@ -62,7 +53,7 @@ export function renameGroup(store, { groupId, newGroupName }) {
 }
 
 export function deleteGroup(store, groupId) {
-  return LearnerGroupResource.deleteModel({ id: groupId }).then(
+  return LearnerGroupResource.delete(groupId).then(
     () => {
       const groups = store.state.groups;
       const updatedGroups = groups.filter(group => group.id !== groupId);
@@ -74,15 +65,12 @@ export function deleteGroup(store, groupId) {
 
 function _addMultipleUsersToGroup(store, groupId, userIds) {
   return new Promise((resolve, reject) => {
-    MembershipResource.saveCollection({
-      getParams: {
-        collection: groupId,
-      },
-      data: uniq(userIds).map(userId => ({
+    MembershipResource.bulkCreate(
+      uniq(userIds).map(userId => ({
         collection: groupId,
         user: userId,
       })),
-    }).then(
+    ).then(
       () => {
         const groups = Array(...store.state.groups);
         const groupIndex = groups.findIndex(group => group.id === groupId);
@@ -91,9 +79,6 @@ function _addMultipleUsersToGroup(store, groupId, userIds) {
           const userObject = store.state.classUsers.find(user => user.id === userId);
           groups[groupIndex].users.push(userObject);
         });
-
-        // Clear cache for future fetches
-        LearnerGroupResource.clearCache();
 
         store.commit('SET_GROUPS', groups);
         resolve();
@@ -105,7 +90,7 @@ function _addMultipleUsersToGroup(store, groupId, userIds) {
 
 function _removeMultipleUsersFromGroup(store, groupId, userIds) {
   return new Promise((resolve, reject) => {
-    MembershipResource.deleteCollection({
+    MembershipResource.bulkDelete({
       user_ids: userIds,
       collection: groupId,
     }).then(
@@ -115,9 +100,6 @@ function _removeMultipleUsersFromGroup(store, groupId, userIds) {
         groups[groupIndex].users = groups[groupIndex].users.filter(
           user => !userIds.includes(user.id),
         );
-
-        // Clear cache for future fetches
-        LearnerGroupResource.clearCache();
 
         store.commit('SET_GROUPS', groups);
         resolve();

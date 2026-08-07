@@ -32,7 +32,7 @@ function _channelListState(data) {
 }
 
 function setChannelInfo() {
-  return ChannelResource.fetchCollection({ getParams: { available: true } }).then(
+  return ChannelResource.list({ available: true }).then(
     channelsData => {
       store.commit('SET_CHANNEL_LIST', _channelListState(channelsData));
     },
