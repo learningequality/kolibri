@@ -11,14 +11,21 @@ Publishing model
 ----------------
 
 The repo is a `reprepro <https://salsa.debian.org/debian/reprepro>`_ tree that
-lives on the release GCS bucket under its ``apt/`` path. Each release does a
-**read-modify-write** so prior packages and versions persist (a ``kolibri``-only
-release leaves the existing ``kolibri-server`` package live):
+lives on the release GCS bucket under ``downloads/kolibri/apt``, alongside the
+release downloads. Each release does a **read-modify-write** so prior packages
+and versions persist (a ``kolibri``-only release leaves the existing
+``kolibri-server`` package live):
 
 1. ``gcloud storage rsync`` the full repo tree **down** from the bucket.
-2. ``reprepro includedeb stable`` the new ``.deb``\(s).
+2. ``reprepro includedeb stable`` the new ``.deb``\(s), skipping any version
+   already published — a published version is immutable, and reprepro rejects
+   same-version bytes that differ.
 3. Export the served ``pubkey.asc`` from the signing key.
-4. ``gcloud storage rsync -c -d`` the tree back **up**.
+4. Sync back **up** a prefix at a time, ``pool`` first so no index is published
+   naming a file that is not there yet. ``--checksums-only`` because reprepro
+   rewrites ``db/*.db`` in place without changing size or mtime, and
+   ``Cache-Control`` per prefix: pool files never change once published, while a
+   cached index served against a newer pool is a client-side hash mismatch.
 
 ``publish.sh`` implements this; its header documents the env contract.
 ``conf/distributions.in`` is the suite config template, with the ``SignWith``

@@ -49,7 +49,7 @@ jobs:
       - name: Install reprepro and Debian packaging tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y reprepro dpkg-dev debhelper
+          sudo apt-get install -y reprepro dpkg-dev debhelper build-essential
       - name: Import the GPG signing key and preset its passphrase
         id: gpg
         env:
@@ -86,7 +86,7 @@ jobs:
         run: dpkg-buildpackage -b -us -uc
       - name: Publish the .deb into the reprepro repo
         env:
-          KOLIBRI_APT_BUCKET: "${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/apt"
+          KOLIBRI_APT_BUCKET: ${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}
           REPREPRO_SIGN_KEY: ${{ steps.gpg.outputs.key-id }}
         run: |
           KOLIBRI_KEYRING_DEB=$(ls "$GITHUB_WORKSPACE"/platforms/apt-repo/kolibri-archive-keyring_*.deb)

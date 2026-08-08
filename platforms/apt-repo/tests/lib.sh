@@ -63,6 +63,98 @@ setup_workdir() {
   trap 'gpgconf --kill gpg-agent >/dev/null 2>&1 || true; rm -rf "$WORK"' EXIT
 }
 
+# fake_gcloud — put a stub `gcloud` on PATH that serves the `gcloud storage`
+# subset publish.sh uses out of a local tree, so the tests drive publish.sh's
+# real (and only) gs:// path without touching GCS. Buckets live under
+# $FAKE_GCS_ROOT/<bucket>/…; every rsync invocation is appended to
+# $FAKE_GCS_RSYNC_LOG. Unknown flags are rejected, as the real CLI does, so a
+# flag that only exists in gsutil fails the test rather than passing silently.
+# Export FAKE_LS_MODE=transient to make `storage ls` fail the way a throttled or
+# unauthenticated call does.
+fake_gcloud() {
+  FAKE_GCS_ROOT="$WORK/gcs"
+  FAKE_GCS_RSYNC_LOG="$WORK/gcloud_rsync.log"
+  mkdir -p "$FAKE_GCS_ROOT" "$WORK/bin"
+  : > "$FAKE_GCS_RSYNC_LOG"
+  export FAKE_GCS_ROOT FAKE_GCS_RSYNC_LOG
+  cat > "$WORK/bin/gcloud" <<'EOF'
+#!/bin/sh
+set -eu
+no_objects() {
+  echo "ERROR: (gcloud.storage.ls) One or more URLs matched no objects." >&2
+  exit 1
+}
+# gs://bucket/path -> $FAKE_GCS_ROOT/bucket/path; local paths pass through.
+localise() {
+  case "$1" in
+    gs://*) echo "$FAKE_GCS_ROOT/${1#gs://}" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+[ "${1:-}" = storage ] || { echo "fake gcloud: unhandled args: $*" >&2; exit 100; }
+cmd=$2
+shift 2
+
+case "$cmd" in
+  ls)
+    [ "${FAKE_LS_MODE:-}" != transient ] || {
+      echo "ERROR: (gcloud.storage.ls) HTTPError 503: The service is currently unavailable." >&2
+      exit 1
+    }
+    dir=$(localise "${1%"/**"}")
+    [ -d "$dir" ] || no_objects
+    found=$(find "$dir" -type f)
+    [ -n "$found" ] || no_objects
+    echo "$found"
+    ;;
+  rsync)
+    echo "rsync $*" >> "$FAKE_GCS_RSYNC_LOG"
+    delete=0
+    src=""
+    dst=""
+    for arg in "$@"; do
+      case "$arg" in
+        -r|--recursive|--checksums-only|--cache-control=*) ;;
+        --delete-unmatched-destination-objects) delete=1 ;;
+        -*) echo "ERROR: (gcloud.storage.rsync) unrecognized arguments: $arg" >&2; exit 2 ;;
+        *) if [ -z "$src" ]; then src=$arg; else dst=$arg; fi ;;
+      esac
+    done
+    src=$(localise "$src")
+    dst=$(localise "$dst")
+    mkdir -p "$src" "$dst"
+    if [ "$delete" -eq 1 ]; then
+      rsync -a --delete "$src/" "$dst/"
+    else
+      rsync -a "$src/" "$dst/"
+    fi
+    ;;
+  cp)
+    src=""
+    dst=""
+    for arg in "$@"; do
+      case "$arg" in
+        --cache-control=*) ;;
+        -*) echo "ERROR: (gcloud.storage.cp) unrecognized arguments: $arg" >&2; exit 2 ;;
+        *) if [ -z "$src" ]; then src=$arg; else dst=$arg; fi ;;
+      esac
+    done
+    dst=$(localise "$dst")
+    mkdir -p "${dst%/*}"
+    cp "$(localise "$src")" "$dst"
+    ;;
+  *)
+    echo "fake gcloud: unhandled storage command: $cmd" >&2
+    exit 100
+    ;;
+esac
+EOF
+  chmod +x "$WORK/bin/gcloud"
+  PATH="$WORK/bin:$PATH"
+  export PATH
+}
+
 # make_ephemeral_signing_key — generate an unprotected ed25519 key under
 # $WORK/gnupg; set GNUPGHOME + FPR (its fingerprint). %no-protection stops
 # reprepro's non-interactive Release signing hanging on a pinentry prompt.
