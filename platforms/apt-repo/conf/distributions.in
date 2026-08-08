@@ -2,7 +2,7 @@ Origin: Learning Equality
 Label: Kolibri
 Codename: stable
 Suite: stable
-Architectures: amd64 arm64
+Architectures: amd64 i386 arm64 armhf
 Components: main
 Description: Kolibri self-hosted APT repository
 SignWith: __REPREPRO_SIGN_KEY__
