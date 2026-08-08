@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Read-modify-write publish of the Kolibri self-hosted APT repo.
-# See README.rst for the publishing model.
+# See README.md for the publishing model.
 #
 # Usage: publish.sh DEB_PATH [DEB_PATH...]
 #
