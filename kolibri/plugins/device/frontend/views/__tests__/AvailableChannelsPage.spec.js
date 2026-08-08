@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/vue';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import { createTranslator } from 'kolibri/utils/i18n';
 import AvailableChannelsPage from '../AvailableChannelsPage';
@@ -136,5 +136,42 @@ describe('AvailableChannelsPage', () => {
     expect(within(optionsList).getByText(allLanguages$())).toBeInTheDocument();
     expect(within(optionsList).getByText(englishLanguageName)).toBeInTheDocument();
     expect(within(optionsList).getByText(germanLanguageName)).toBeInTheDocument();
+  });
+
+  it('filters the channel list when a language filter option is selected', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    // KSelect is a custom dropdown, not a native <select>: clicking its label
+    // toggles the options list open, same as a real user would.
+    const dropdownLabel = document.querySelector('.ui-select-label');
+    await fireEvent.click(dropdownLabel);
+
+    const optionsList = document.querySelector('.ui-select-options');
+    const germanLanguageName = 'German';
+    await fireEvent.click(within(optionsList).getByText(germanLanguageName));
+
+    // Only Hunden and Kaetze channels have lang_code 'de' in the fixture data.
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toHaveTextContent(
+        numChannelsAvailable$({ count: 2 }),
+      );
+    });
+
+    const awesomeChannelName = 'Awesome Channel';
+    const birdChannelName = 'Bird Channel';
+    const hundenChannelName = 'Hunden Channel';
+    const kaetzeChannelName = 'Kaetze Channel';
+    // The component uses v-show (not v-if) to filter, so hidden channels stay in
+    // the DOM with display: none rather than being removed — we must check
+    // visibility, not just presence.
+    expect(screen.getByText(awesomeChannelName)).not.toBeVisible();
+    expect(screen.getByText(birdChannelName)).not.toBeVisible();
+    expect(screen.getByText(hundenChannelName)).toBeVisible();
+    expect(screen.getByText(kaetzeChannelName)).toBeVisible();
   });
 });
