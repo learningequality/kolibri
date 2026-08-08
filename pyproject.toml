@@ -114,6 +114,8 @@ test = [
     "pytest-pythonpath==0.7.2; python_version < '3.14'",
     "attrs==19.2.0",
     "parameterized==0.8.1",
+    # Morango falls back to pure-Python RSA without this.
+    "cryptography>=40",
 ]
 dev = [
     {include-group = "test"},
