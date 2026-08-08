@@ -7,18 +7,18 @@ import os
 import sqlite3
 
 from django.db import connection
+from django.db import transaction
+from django.db.models import IntegerField
+from django.db.models import Sum
+from django.db.models.functions import Cast
 from le_utils.constants import content_kinds
 from le_utils.constants import library as library_constants
-from sqlalchemy import and_
-from sqlalchemy import cast
-from sqlalchemy import exists
-from sqlalchemy import func
-from sqlalchemy import Integer
-from sqlalchemy import select
+
+# import_channel_from_local_db still goes through channel_import.py, which raises
+# SQLAlchemy errors.
 from sqlalchemy.exc import DatabaseError
 
 from kolibri.core.auth.models import FacilityDataset
-from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
 from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
@@ -27,9 +27,11 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.tasks import backfill_content_request_priority
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
+from kolibri.core.content.utils.annotation import available_children_rollup
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_ordered_categories
 from kolibri.core.content.utils.annotation import calculate_ordered_grade_levels
+from kolibri.core.content.utils.annotation import has_available_children
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
@@ -44,7 +46,6 @@ from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import annotate_modality
 from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
-from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.upgrade import version_upgrade
@@ -145,6 +146,27 @@ def fix_multiple_trees_with_tree_id1():
             )
 
 
+def _rollup_over_available_children(field, leaf_value):
+    """
+    Set field on every leaf from leaf_value, then sum it up the tree.
+    """
+    with transaction.atomic():
+        ContentNode.objects.exclude(kind=content_kinds.TOPIC).update(
+            **{field: leaf_value}
+        )
+
+        for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
+            # Go from the deepest level to the shallowest
+            for level in range(get_channel_node_depth(channel_id), 0, -1):
+                ContentNode.objects.filter(
+                    level=level - 1, channel_id=channel_id, kind=content_kinds.TOPIC
+                ).filter(
+                    # A sum over no available children is NULL, so leave those
+                    # topics at the value they already carry.
+                    has_available_children()
+                ).update(**{field: available_children_rollup(Sum(field))})
+
+
 # This was introduced in 0.12.4, so only annotate
 # when upgrading from versions prior to this.
 @version_upgrade(old_version="<0.12.4")
@@ -153,72 +175,11 @@ def update_num_coach_contents():
     Function to set num_coach_content on all topic trees to account for
     those that were imported before annotations were performed
     """
-    bridge = Bridge(app_name=KolibriContentConfig.label)
-
-    ContentNodeTable = bridge.get_table(ContentNode)
-
-    connection = bridge.get_connection()
-
-    child = ContentNodeTable.alias()
-
     logger.info("Updating num_coach_content on existing channels")
 
-    # start a transaction
-
-    trans = connection.begin()
-
-    # Update all leaf ContentNodes to have num_coach_content to 1 or 0
-    connection.execute(
-        ContentNodeTable.update()
-        .where(
-            # That are not topics
-            ContentNodeTable.c.kind != content_kinds.TOPIC
-        )
-        .values(num_coach_contents=cast(ContentNodeTable.c.coach_content, Integer()))
+    _rollup_over_available_children(
+        "num_coach_contents", Cast("coach_content", IntegerField())
     )
-
-    # Expression to capture all available child nodes of a contentnode
-    available_nodes = select(child.c.available).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    # Expression that sums the total number of coach contents for each child node
-    # of a contentnode
-    coach_content_num = select(func.sum(child.c.num_coach_contents)).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-        node_depth = get_channel_node_depth(channel_id)
-
-        # Go from the deepest level to the shallowest
-        for level in range(node_depth, 0, -1):
-            # Only modify topic availability here
-            connection.execute(
-                ContentNodeTable.update()
-                .where(
-                    and_(
-                        ContentNodeTable.c.level == level - 1,
-                        ContentNodeTable.c.channel_id == channel_id,
-                        ContentNodeTable.c.kind == content_kinds.TOPIC,
-                    )
-                )
-                # Because we have set availability to False on all topics as a starting point
-                # we only need to make updates to topics with available children.
-                .where(exists(available_nodes))
-                .values(num_coach_contents=coach_content_num.scalar_subquery())
-            )
-
-    # commit the transaction
-    trans.commit()
-
-    bridge.end()
 
 
 # This was introduced in 0.13.0, so only annotate
@@ -229,72 +190,11 @@ def update_on_device_resources():
     Function to set on_device_resource on all topic trees to account for
     those that were imported before annotations were performed
     """
-    bridge = Bridge(app_name=KolibriContentConfig.label)
-
-    ContentNodeTable = bridge.get_table(ContentNode)
-
-    connection = bridge.get_connection()
-
-    child = ContentNodeTable.alias()
-
     logger.info("Updating on_device_resource on existing channels")
 
-    # start a transaction
-
-    trans = connection.begin()
-
-    # Update all leaf ContentNodes to have on_device_resource to 1 or 0
-    connection.execute(
-        ContentNodeTable.update()
-        .where(
-            # That are not topics
-            ContentNodeTable.c.kind != content_kinds.TOPIC
-        )
-        .values(on_device_resources=cast(ContentNodeTable.c.available, Integer()))
+    _rollup_over_available_children(
+        "on_device_resources", Cast("available", IntegerField())
     )
-
-    # Expression to capture all available child nodes of a contentnode
-    available_nodes = select(child.c.available).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    # Expression that sums the total number of coach contents for each child node
-    # of a contentnode
-    on_device_num = select(func.sum(child.c.on_device_resources)).where(
-        and_(
-            child.c.available == True,  # noqa
-            ContentNodeTable.c.id == child.c.parent_id,
-        )
-    )
-
-    for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-        node_depth = get_channel_node_depth(channel_id)
-
-        # Go from the deepest level to the shallowest
-        for level in range(node_depth, 0, -1):
-            # Only modify topic availability here
-            connection.execute(
-                ContentNodeTable.update()
-                .where(
-                    and_(
-                        ContentNodeTable.c.level == level - 1,
-                        ContentNodeTable.c.channel_id == channel_id,
-                        ContentNodeTable.c.kind == content_kinds.TOPIC,
-                    )
-                )
-                # Because we have set availability to False on all topics as a starting point
-                # we only need to make updates to topics with available children.
-                .where(exists(available_nodes))
-                .values(on_device_resources=on_device_num)
-            )
-
-    # commit the transaction
-    trans.commit()
-
-    bridge.end()
 
 
 # This was introduced in 0.15.0, so only annotate
