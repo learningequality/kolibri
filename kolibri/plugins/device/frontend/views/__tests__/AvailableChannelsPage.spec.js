@@ -16,11 +16,15 @@ const { channelTokenButtonLabel$, importResourcesHeader$ } = createTranslator(
   AvailableChannelsPage.$trs,
 );
 
-const { numChannelsAvailable$, allLanguages$ } = createTranslator(
+const { numChannelsAvailable$, allLanguages$, titleFilterPlaceholder$ } = createTranslator(
   FilteredChannelListContainer.name,
   FilteredChannelListContainer.$trs,
 );
-const { onYourDevice$ } = createTranslator(WithImportDetails.name, WithImportDetails.$trs);
+
+const { onYourDevice$, selectResourcesAction$ } = createTranslator(
+  WithImportDetails.name,
+  WithImportDetails.$trs,
+);
 
 function createRouter() {
   return new VueRouter({
@@ -173,5 +177,93 @@ describe('AvailableChannelsPage', () => {
     expect(screen.getByText(birdChannelName)).not.toBeVisible();
     expect(screen.getByText(hundenChannelName)).toBeVisible();
     expect(screen.getByText(kaetzeChannelName)).toBeVisible();
+  });
+
+  it('filters the channel list by keyword when the title filter is used', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText(titleFilterPlaceholder$());
+    await fireEvent.update(searchInput, 'Bird');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toHaveTextContent(
+        numChannelsAvailable$({ count: 1 }),
+      );
+    });
+
+    const awesomeChannelName = 'Awesome Channel';
+    const birdChannelName = 'Bird Channel';
+    const hundenChannelName = 'Hunden Channel';
+    const kaetzeChannelName = 'Kaetze Channel';
+    expect(screen.getByText(birdChannelName)).toBeVisible();
+    expect(screen.getByText(awesomeChannelName)).not.toBeVisible();
+    expect(screen.getByText(hundenChannelName)).not.toBeVisible();
+    expect(screen.getByText(kaetzeChannelName)).not.toBeVisible();
+  });
+
+  it('filters the channel list using the language and title filters together', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    // Select German in the language filter first.
+    const dropdownLabel = document.querySelector('.ui-select-label');
+    await fireEvent.click(dropdownLabel);
+    const optionsList = document.querySelector('.ui-select-options');
+    const germanLanguageName = 'German';
+    await fireEvent.click(within(optionsList).getByText(germanLanguageName));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toHaveTextContent(
+        numChannelsAvailable$({ count: 2 }),
+      );
+    });
+
+    // Then narrow further by keyword. Both Hunden and Kaetze are German, but
+    // only Kaetze should remain once we filter by name too.
+    const searchInput = screen.getByPlaceholderText(titleFilterPlaceholder$());
+    await fireEvent.update(searchInput, 'Kaetze');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toHaveTextContent(
+        numChannelsAvailable$({ count: 1 }),
+      );
+    });
+
+    const awesomeChannelName = 'Awesome Channel';
+    const birdChannelName = 'Bird Channel';
+    const hundenChannelName = 'Hunden Channel';
+    const kaetzeChannelName = 'Kaetze Channel';
+    expect(screen.getByText(kaetzeChannelName)).toBeVisible();
+    expect(screen.getByText(awesomeChannelName)).not.toBeVisible();
+    expect(screen.getByText(birdChannelName)).not.toBeVisible();
+    expect(screen.getByText(hundenChannelName)).not.toBeVisible();
+  });
+
+  it('links each channel to its select resources page', async () => {
+    const store = makeAvailableChannelsPageStore();
+    await renderComponent({ store });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('available')).toBeInTheDocument();
+    });
+
+    const awesomeChannelName = 'Awesome Channel';
+    const channelBox = screen.getByText(awesomeChannelName).closest('.channel-list-item');
+    const selectLink = within(channelBox).getByRole('link', { name: selectResourcesAction$() });
+
+    // The link's :to prop resolves to the SELECT_CONTENT route with this channel's id.
+    expect(selectLink).toHaveAttribute(
+      'href',
+      expect.stringContaining('/content/channel/awesome_channel'),
+    );
   });
 });
