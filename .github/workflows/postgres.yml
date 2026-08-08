@@ -28,6 +28,10 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
+        # Discarded at job end, so durability buys nothing and every COMMIT
+        # would otherwise cost an fsync.
+        command: >-
+          -c fsync=off -c synchronous_commit=off -c full_page_writes=off
     steps:
       - uses: actions/checkout@v7.0.1
         with:
