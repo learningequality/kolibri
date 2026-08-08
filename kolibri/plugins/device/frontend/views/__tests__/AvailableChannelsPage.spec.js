@@ -1,15 +1,21 @@
 import { render, screen, waitFor, within, fireEvent } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import { createTranslator } from 'kolibri/utils/i18n';
+import { coreStrings } from 'kolibri/uiText/commonCoreStrings';
 import AvailableChannelsPage from '../AvailableChannelsPage';
+import ChannelTokenModal from '../AvailableChannelsPage/ChannelTokenModal';
 import FilteredChannelListContainer from '../ManageContentPage/FilteredChannelListContainer';
 import WithImportDetails from '../ManageContentPage/ChannelPanel/WithImportDetails';
 import { makeAvailableChannelsPageStore } from '../../__tests__/utils/makeStore';
+import { getRemoteChannelBundleByToken } from '../../modules/wizard/utils';
 import { PageNames } from '../../constants';
 
 jest.mock('kolibri/urls');
 jest.mock('kolibri/client');
 jest.mock('kolibri-common/composables/usePageLoading');
+jest.mock('../../modules/wizard/utils', () => ({
+  getRemoteChannelBundleByToken: jest.fn(),
+}));
 
 const { channelTokenButtonLabel$, importResourcesHeader$ } = createTranslator(
   AvailableChannelsPage.name,
@@ -25,6 +31,8 @@ const { onYourDevice$, selectResourcesAction$ } = createTranslator(
   WithImportDetails.name,
   WithImportDetails.$trs,
 );
+const { channelTokenLabel$ } = createTranslator(ChannelTokenModal.name, ChannelTokenModal.$trs);
+const { continueAction$ } = coreStrings;
 
 function createRouter() {
   return new VueRouter({
@@ -43,10 +51,13 @@ function createRouter() {
 async function renderComponent({ store } = {}) {
   const router = createRouter();
   await router.push({ name: 'AVAILABLE_CHANNELS' });
-  return render(AvailableChannelsPage, {
+  const result = render(AvailableChannelsPage, {
     store: store || makeAvailableChannelsPageStore(),
     router,
   });
+  // Return the router alongside the usual render result so tests can inspect
+  // navigation (route name/params) after actions like submitting a token.
+  return { ...result, router };
 }
 
 describe('AvailableChannelsPage', () => {
@@ -265,5 +276,89 @@ describe('AvailableChannelsPage', () => {
       'href',
       expect.stringContaining('/content/channel/awesome_channel'),
     );
+  });
+
+  describe('submitting an unlisted channel token', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('navigates to the select content page for a new (not-yet-installed) channel', async () => {
+      const store = makeAvailableChannelsPageStore();
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const { router } = await renderComponent({ store });
+
+      const newChannel = { id: 'new_channel', version: 1 };
+      getRemoteChannelBundleByToken.mockResolvedValue([newChannel]);
+
+      // Open the token modal via the "unlisted channel" button.
+      const tokenButton = screen.getByText(channelTokenButtonLabel$());
+      await fireEvent.click(tokenButton);
+
+      const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'some-token');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      await fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(router.currentRoute.name).toEqual('SELECT_CONTENT');
+        expect(router.currentRoute.params.channel_id).toEqual('new_channel');
+      });
+    });
+
+    it('adds the token to the url query when it points to multiple channels', async () => {
+      const store = makeAvailableChannelsPageStore();
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const { router } = await renderComponent({ store });
+
+      const collectionChannels = [
+        { id: 'collection_channel_1', version: 1 },
+        { id: 'collection_channel_2', version: 1 },
+      ];
+      getRemoteChannelBundleByToken.mockResolvedValue(collectionChannels);
+
+      const tokenButton = screen.getByText(channelTokenButtonLabel$());
+      await fireEvent.click(tokenButton);
+
+      const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'collection-token');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      await fireEvent.click(submitButton);
+
+      // No page redirect happens for a collection token — instead the token is
+      // added to the current page's own url query so the channel list can use it.
+      await waitFor(() => {
+        expect(router.currentRoute.name).toEqual('AVAILABLE_CHANNELS');
+        expect(router.currentRoute.query.token).toEqual('collection-token');
+      });
+    });
+
+    it('navigates to the new channel version page when an installed channel has a newer version', async () => {
+      const store = makeAvailableChannelsPageStore();
+      store.commit('manageContent/wizard/SET_TRANSFER_TYPE', 'remoteimport');
+      const { router } = await renderComponent({ store });
+
+      // Awesome Channel is already installed at version 10 in the fixture data;
+      // a token pointing to a newer version of the same channel should redirect
+      // to the version-upgrade page rather than straight to select content.
+      const updatedChannel = { id: 'awesome_channel', version: 11 };
+      getRemoteChannelBundleByToken.mockResolvedValue([updatedChannel]);
+
+      const tokenButton = screen.getByText(channelTokenButtonLabel$());
+      await fireEvent.click(tokenButton);
+
+      const textbox = await screen.findByRole('textbox', { name: channelTokenLabel$() });
+      await fireEvent.update(textbox, 'update-token');
+
+      const submitButton = screen.getByRole('button', { name: continueAction$() });
+      await fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(router.currentRoute.name).toEqual('NEW_CHANNEL_VERSION_PAGE');
+        expect(router.currentRoute.params.channel_id).toEqual('awesome_channel');
+      });
+    });
   });
 });
