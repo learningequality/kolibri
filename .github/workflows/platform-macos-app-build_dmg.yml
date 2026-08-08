@@ -95,9 +95,8 @@ jobs:
         run: make install-whl whl=whl/${{ inputs.whl-file-name }}
       - name: Setup app signing certificate
         if: ${{ inputs.release }}
-        env:
-          KEYCHAIN_PASSWORD: ${{ hashFiles('*')}}
         run: |
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
           security create-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
           security set-keychain-settings -lut 21600 temp.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
