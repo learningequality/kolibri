@@ -43,3 +43,17 @@ CURRENT_SCHEMA_VERSION = "current"
 # exceptionally difficult for us to backfill, such as deleting a model field that
 # we cannot meaningfully infer the content of from other metadata.
 MIN_CONTENT_SCHEMA_VERSION = VERSION_5
+
+# Every version we can provide import metadata for, oldest first.
+EXPORT_SCHEMA_VERSIONS = [
+    str(version)
+    for version in range(
+        int(MIN_CONTENT_SCHEMA_VERSION), int(CONTENT_SCHEMA_VERSION) + 1
+    )
+]
+
+
+def coerce_version_name_to_valid_module_path(name):
+    # Only required to support the legacy schema versions that
+    # use Kolibri versions explicitly in their name.
+    return name.replace(".", "").replace("-", "")

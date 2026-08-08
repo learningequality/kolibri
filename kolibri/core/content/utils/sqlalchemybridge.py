@@ -17,8 +17,12 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import UnaryExpression
 
+from kolibri.core.content.constants.schema_versions import (
+    coerce_version_name_to_valid_module_path,
+)
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.errors import SchemaNotFoundError
 from kolibri.core.mixins import UUIDValidationError
 from kolibri.core.mixins import validate_uuids
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
@@ -183,12 +187,6 @@ SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE = ".".join(
 )
 
 
-def coerce_version_name_to_valid_module_path(name):
-    # Only required to support the legacy schema versions that
-    # use Kolibri versions explicitly in their name.
-    return name.replace(".", "").replace("-", "")
-
-
 def load_metadata(name):
     module = importlib.import_module(
         SQLALCHEMY_CLASSES_MODULE_PATH_TEMPLATE.format(
@@ -275,10 +273,6 @@ def get_default_db_string():
         port=":" + destination_db.get("PORT") if destination_db.get("PORT") else "",
         dbname=destination_db["NAME"],
     )
-
-
-class SchemaNotFoundError(Exception):
-    pass
 
 
 class Bridge:

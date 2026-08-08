@@ -22,8 +22,7 @@ To make updates to fields with this purpose, please use the models defined in th
 models.py in this module.
 
 To faciltitate importing from different versions of exported channel databases
-a SQLAlchemy schema for the new schema must be generated using the
-generate_schema management command.
+the new schema must be frozen using the generate_schema management command.
 
 In the case where no updates have yet been made to the schema_versions constants,
 the command can be run without arguments, and it will auto increment:
@@ -34,9 +33,6 @@ If the schema_versions file has already been updated, then the 'version' paramet
 passed to the command should be the value of the new version e.g. VERSION_3:
 
     `kolibri manage generate_schema 3`
-
-Note that in both these cases the current schema that is used for doing
-SQLAlchemy operations on the default Django database will also be updated.
 
 In order to track updates to models or fields, the CONTENT_SCHEMA_VERSION value in
 kolibri/core/content/constants/schema_versions.py must be

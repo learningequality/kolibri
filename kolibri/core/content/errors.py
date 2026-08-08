@@ -7,3 +7,7 @@ class InvalidStorageFilenameError(KolibriError):
 
 class InsufficientStorageSpaceError(KolibriError):
     pass
+
+
+class SchemaNotFoundError(KolibriError):
+    pass

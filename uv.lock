@@ -2521,50 +2521,6 @@ wheels = [
 ]
 
 [[package]]
-name = "inflect"
-version = "7.4.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version == '3.8.*' and platform_python_implementation != 'PyPy'",
-    "python_full_version == '3.8.*' and platform_python_implementation == 'PyPy'",
-]
-dependencies = [
-    { name = "more-itertools", version = "10.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-    { name = "typeguard", version = "4.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e1/dc/02614acece4d578e709c606594c989cfd9f15cf6401444e5603e60df9b26/inflect-7.4.0.tar.gz", hash = "sha256:904baa17cc2cb74827a6c27b95692e95670dadc72b208b3e8c1c05aeed47026b", size = 72730, upload-time = "2024-09-07T13:06:35.437Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f7/e0/c5684d7c058d8f2a9210c322dee32bd025c11d19e5ba23c82ac9188253f9/inflect-7.4.0-py3-none-any.whl", hash = "sha256:85af0997ee2bda942b1c1eed8c8a827abda91aa3e22d1efaa0eea817f9350ce7", size = 34781, upload-time = "2024-09-07T13:06:33.461Z" },
-]
-
-[[package]]
-name = "inflect"
-version = "7.5.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
-    "python_full_version == '3.10.*'",
-    "python_full_version >= '3.9.2' and python_full_version < '3.10' and platform_python_implementation == 'PyPy'",
-    "python_full_version >= '3.9.2' and python_full_version < '3.10' and platform_python_implementation != 'PyPy'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2' and platform_python_implementation == 'PyPy'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2' and platform_python_implementation != 'PyPy'",
-    "python_full_version == '3.9' and platform_python_implementation == 'PyPy'",
-    "python_full_version == '3.9' and platform_python_implementation != 'PyPy'",
-]
-dependencies = [
-    { name = "more-itertools", version = "10.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "typeguard", version = "4.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/78/c6/943357d44a21fd995723d07ccaddd78023eace03c1846049a2645d4324a3/inflect-7.5.0.tar.gz", hash = "sha256:faf19801c3742ed5a05a8ce388e0d8fe1a07f8d095c82201eb904f5d27ad571f", size = 73751, upload-time = "2024-12-28T17:11:18.897Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8a/eb/427ed2b20a38a4ee29f24dbe4ae2dafab198674fe9a85e3d6adf9e5f5f41/inflect-7.5.0-py3-none-any.whl", hash = "sha256:2aea70e5e70c35d8350b8097396ec155ffd68def678c7ff97f51aa69c1d92344", size = 35197, upload-time = "2024-12-28T17:11:15.931Z" },
-]
-
-[[package]]
 name = "inflection"
 version = "0.5.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3237,7 +3193,6 @@ dev = [
     { name = "setuptools", version = "75.3.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
     { name = "setuptools", version = "81.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "setuptools-scm", marker = "python_full_version >= '3.8'" },
-    { name = "sqlacodegen", marker = "python_full_version >= '3.8'" },
     { name = "sqlalchemy" },
     { name = "tzlocal" },
     { name = "whitenoise" },
@@ -3467,7 +3422,6 @@ dev = [
     { name = "semver", specifier = "==2.13.0" },
     { name = "setuptools", specifier = "<82" },
     { name = "setuptools-scm", marker = "python_full_version >= '3.8'", specifier = ">=8,<10" },
-    { name = "sqlacodegen", marker = "python_full_version >= '3.8'", specifier = "==2.3.0.post1" },
     { name = "sqlalchemy", specifier = "==1.4.52" },
     { name = "tzlocal", specifier = "==4.2" },
     { name = "whitenoise", specifier = "==5.3.0" },
@@ -7063,20 +7017,6 @@ wheels = [
 ]
 
 [[package]]
-name = "sqlacodegen"
-version = "2.3.0.post1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "inflect", version = "7.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-    { name = "inflect", version = "7.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "sqlalchemy", marker = "python_full_version >= '3.8'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/dd/a1/14365d345df9d8abd898f20dc6a84df2db0fb9b03b79576e0dd678716522/sqlacodegen-2.3.0.post1.tar.gz", hash = "sha256:daf34a2557fad3dad8cc4f6d625b66ac4671cb7e9ec8319eb958b47314872a99", size = 21017, upload-time = "2023-03-06T07:47:52.391Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/43/89ee0124f76d4e523c22eef66f3c5e6d50f3513c31144f08df7b9237af8b/sqlacodegen-2.3.0.post1-py2.py3-none-any.whl", hash = "sha256:674d58f54559912c2f785276b50a2f9c52ec7ec9d9aea50a118a002392cb17c3", size = 13216, upload-time = "2023-03-06T07:47:50.216Z" },
-]
-
-[[package]]
 name = "sqlalchemy"
 version = "1.4.52"
 source = { registry = "https://pypi.org/simple" }
@@ -7340,49 +7280,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/eb/79/72064e6a701c2183016abbbfedaba506d81e30e232a68c9f0d6f6fcd1574/traitlets-5.14.3.tar.gz", hash = "sha256:9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7", size = 161621, upload-time = "2024-04-19T11:11:49.746Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/00/c0/8f5d070730d7836adc9c9b6408dec68c6ced86b304a9b26a14df072a6e8c/traitlets-5.14.3-py3-none-any.whl", hash = "sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f", size = 85359, upload-time = "2024-04-19T11:11:46.763Z" },
-]
-
-[[package]]
-name = "typeguard"
-version = "4.4.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version == '3.8.*' and platform_python_implementation != 'PyPy'",
-    "python_full_version == '3.8.*' and platform_python_implementation == 'PyPy'",
-]
-dependencies = [
-    { name = "importlib-metadata", marker = "python_full_version == '3.8.*'" },
-    { name = "typing-extensions", version = "4.13.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.8.*'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/79/5a/91b7c8cfc2e96962442abc9d65c650436dd831910b4d7878980d6596fb98/typeguard-4.4.0.tar.gz", hash = "sha256:463bd8697a65a4aa576a63767c369b1ecfba8a5ba735edfe3223127b6ecfa28c", size = 74399, upload-time = "2024-10-27T10:58:12.977Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/61/a3/00203767544b597a9e3c57b29a84967b3230f00bdd9aa6a52a73187043b4/typeguard-4.4.0-py3-none-any.whl", hash = "sha256:8ca34c14043f53b2caae7040549ba431770869bcd6287cfa8239db7ecb882b4a", size = 35736, upload-time = "2024-10-27T10:58:11.149Z" },
-]
-
-[[package]]
-name = "typeguard"
-version = "4.5.1"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
-    "python_full_version == '3.10.*'",
-    "python_full_version >= '3.9.2' and python_full_version < '3.10' and platform_python_implementation == 'PyPy'",
-    "python_full_version >= '3.9.2' and python_full_version < '3.10' and platform_python_implementation != 'PyPy'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2' and platform_python_implementation == 'PyPy'",
-    "python_full_version > '3.9' and python_full_version < '3.9.2' and platform_python_implementation != 'PyPy'",
-    "python_full_version == '3.9' and platform_python_implementation == 'PyPy'",
-    "python_full_version == '3.9' and platform_python_implementation != 'PyPy'",
-]
-dependencies = [
-    { name = "importlib-metadata", marker = "python_full_version == '3.9.*'" },
-    { name = "typing-extensions", version = "4.15.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/e8/66e25efcc18542d58706ce4e50415710593721aae26e794ab1dec34fb66f/typeguard-4.5.1.tar.gz", hash = "sha256:f6f8ecbbc819c9bc749983cc67c02391e16a9b43b8b27f15dc70ed7c4a007274", size = 80121, upload-time = "2026-02-19T16:09:03.392Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/91/88/b55b3117287a8540b76dbdd87733808d4d01c8067a3b339408c250bb3600/typeguard-4.5.1-py3-none-any.whl", hash = "sha256:44d2bf329d49a244110a090b55f5f91aa82d9a9834ebfd30bcc73651e4a8cc40", size = 36745, upload-time = "2026-02-19T16:09:01.6Z" },
 ]
 
 [[package]]

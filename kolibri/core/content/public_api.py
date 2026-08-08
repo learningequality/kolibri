@@ -11,7 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from kolibri.core.content import models
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
-from kolibri.core.content.utils.sqlalchemybridge import BASES
+from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.utils.pagination import ValuesViewsetCursorPagination
 
 
@@ -122,7 +122,7 @@ class ImportMetadataViewset(GenericViewSet):
         channel_metadata = models.ChannelMetadata.objects.filter(id=node.channel_id)
 
         cursor = connection.cursor()
-        base = BASES[content_schema]
+        version_columns = for_version(content_schema)
 
         for qs in [
             nodes,
@@ -137,8 +137,7 @@ class ImportMetadataViewset(GenericViewSet):
             channel_metadata,
         ]:
             table_name = qs.model._meta.db_table
-            table = base.classes[table_name].__table__
-            raw_fields = [col.name for col in table.columns.values()]
+            raw_fields = version_columns[table_name]
             # values() requires Django attribute names, not DB column names —
             # necessary when db_column differs from attname (e.g. file_size_bigint).
             col_to_attname = {

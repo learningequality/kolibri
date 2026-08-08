@@ -1,8 +1,13 @@
 import copy
 import json
 import logging
+import os
 import random
+import shutil
+import sqlite3
+import tempfile
 import uuid
+from contextlib import closing
 from itertools import chain
 
 from le_utils.constants import content_kinds
@@ -15,6 +20,8 @@ from le_utils.constants.labels.levels import LEVELSLIST
 from le_utils.constants.labels.needs import NEEDSLIST
 from le_utils.constants.labels.subjects import SUBJECTSLIST
 
+from kolibri.core.content.contentschema import schema_ddl_path
+from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
@@ -22,6 +29,8 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_types_tools import renderable_files_presets
 
 logger = logging.getLogger(__name__)
+
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "..", "fixtures")
 
 
 def to_dict(instance):
@@ -453,3 +462,63 @@ class ChannelBuilder:
             "categories": ",".join(set(choices(SUBJECTSLIST, k=random.randint(1, 10)))),
             "learner_needs": ",".join(set(choices(NEEDSLIST, k=random.randint(1, 5)))),
         }
+
+
+def load_content_fixture_data(schema_name):
+    """
+    The JSON fixture rows for a schema version, as a mapping of table name to row dicts.
+    """
+    path = os.path.join(FIXTURE_DIR, "{}_content_data.json".format(schema_name))
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def build_content_db_from_frozen_schema(db_path, schema_name, data):
+    """
+    `data` maps a table name to a list of row dicts.
+    """
+    with open(schema_ddl_path(schema_name)) as f:
+        ddl = f.read()
+
+    with closing(sqlite3.connect(db_path)) as conn:
+        # These files are rebuilt per test and never outlive it, so an fsync per
+        # statement is pure cost — it dominates the build otherwise.
+        conn.executescript("PRAGMA synchronous=OFF; PRAGMA journal_mode=MEMORY")
+        conn.executescript(ddl)
+
+        for table, table_columns in for_version(schema_name).items():
+            rows = data.get(table)
+            if not rows:
+                continue
+            # Legacy fixtures are ragged, so insert only the columns the table
+            # declares and the first row supplies.
+            use = [column for column in table_columns if column in rows[0]]
+            conn.executemany(
+                'INSERT INTO "{}" ({}) VALUES ({})'.format(
+                    table,
+                    ", ".join('"{}"'.format(column) for column in use),
+                    ", ".join("?" for _ in use),
+                ),
+                [[row.get(column) for column in use] for row in rows],
+            )
+
+        conn.commit()
+
+
+class FrozenSchemaDBMixin:
+    """
+    Builds content databases at a frozen schema version, in a per-test temporary
+    directory.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.directory)
+
+    def build(self, schema_name):
+        db_path = os.path.join(self.directory, "{}.sqlite3".format(schema_name))
+        build_content_db_from_frozen_schema(
+            db_path, schema_name, load_content_fixture_data(schema_name)
+        )
+        return db_path
