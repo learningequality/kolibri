@@ -45,7 +45,7 @@ install-dependencies:
 	sudo apt-get install -y fdisk file kpartx qemu-utils qemu-user-static unzip p7zip-full wget xz-utils units
 	$(MAKE) pimod
 
-images/base.img:
+images/base.img: images/source.img
 	sudo pimod/pimod.sh base.Pifile
 
 images/Kolibri.img:
@@ -53,8 +53,10 @@ images/Kolibri.img:
 
 images: install-dependencies
 	mkdir -p images
-	$(MAKE) images/source.img
-	$(MAKE) images/base.img
+# kolibri.Pifile reads only base.img, so an existing base image makes the source
+# image redundant. Guard rather than let make chase the prerequisite, which would
+# re-download and then rebuild the base image it already has.
+	[ -f images/base.img ] || $(MAKE) images/base.img
 	$(MAKE) images/Kolibri.img
 
 zipfile: images
