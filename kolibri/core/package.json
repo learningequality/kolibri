@@ -4,10 +4,11 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/core": "^8.0.0",
+    "@babel/preset-env": "^8.0.0",
     "@vueuse/core": "catalog:",
     "babel-loader": "^10.1.1",
+    "babel-plugin-polyfill-corejs3": "^1.0.0",
     "browserslist-config-kolibri": "workspace:*",
     "core-js": "catalog:",
     "kolibri": "workspace:*",

@@ -14,9 +14,10 @@
   "author": "Learning Equality",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/core": "^8.0.0",
+    "@babel/preset-env": "^8.0.0",
     "babel-loader": "^10.1.1",
+    "babel-plugin-polyfill-corejs3": "^1.0.0",
     "css-loader": "7.1.2",
     "css-minimizer-webpack-plugin": "8.0.0",
     "eslint-plugin-compat": "^6.0.2",
@@ -31,7 +32,7 @@
     "webpack-cli": "^7.0.2"
   },
   "dependencies": {
-    "core-js": "3.47",
+    "core-js": "catalog:",
     "dayjs": "^1.11.20",
     "iri": "^1.3.1",
     "is-language-code": "^3.1.0",

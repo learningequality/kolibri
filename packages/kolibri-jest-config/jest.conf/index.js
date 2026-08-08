@@ -1,5 +1,4 @@
 const path = require('node:path');
-const babelConfig = require('./babel.config');
 
 const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),
@@ -13,9 +12,6 @@ module.exports = {
     __version: 'testversion',
     __copyrightYear: '2018',
     __webpack_public_path__: 'webpack_public_path',
-    'vue-jest': {
-      babelConfig,
-    },
   },
   rootDir: path.resolve(process.cwd()),
   moduleFileExtensions: ['js', 'json', 'vue'],
@@ -26,7 +22,7 @@ module.exports = {
   },
   transform: {
     '^.+\\.js$': 'babel-jest',
-    '^.+\\.vue$': 'vue-jest',
+    '^.+\\.vue$': '@vue/vue2-jest',
   },
   transformIgnorePatterns: [
     // Ignore all node_modules except kolibri packages

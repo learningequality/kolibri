@@ -43,8 +43,8 @@
   "devDependencies": {
     "@crowdin/cli": "^4.14.1",
     "@types/jest": "^30.0.0",
+    "@vue/vue2-jest": "^29.2.6",
     "@vueuse/shared": "^11.3.0",
-    "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^30.3.0",
     "browserslist-config-kolibri": "workspace:*",
     "concurrently": "^8.0.1",
@@ -60,7 +60,6 @@
     "kolibri-logging": "workspace:*",
     "kolibri-plugin-data": "workspace:*",
     "rewire": "^6.0.0",
-    "vue-jest": "^3.0.0",
     "vue-template-compiler": "2.7.16",
     "webpack": "^5.104.0"
   },
@@ -98,13 +97,17 @@
       "vue-demi"
     ],
     "overrides": {
-      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0",
-      "vue-jest>vue-template-es2015-compiler": "npm:vue-template-babel-compiler@^2.0.0"
+      "@khanacademy/math-input>mathquill": "github:Khan/mathquill#v1.0.0"
     },
     "packageExtensions": {
       "@khanacademy/perseus@*": {
         "dependencies": {
           "@swc/helpers": "^0.5.18"
+        }
+      },
+      "recast@*": {
+        "dependencies": {
+          "@babel/parser": "^7.29.7"
         }
       }
     }
