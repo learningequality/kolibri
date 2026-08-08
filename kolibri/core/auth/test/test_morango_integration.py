@@ -53,6 +53,7 @@ from ..models import FacilityUser
 from ..models import LearnerGroup
 from ..models import Membership
 from ..models import Role
+from . import sync_scenarios
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -345,34 +346,14 @@ class EcosystemTestCase(MultipleServerTestCase):
 
     def _create_objects(self, server):
         fac = Facility.objects.using(server.db_alias).first()
-        admin_username = uuid.uuid4().hex[:30]
-        learner_username = uuid.uuid4().hex[:30]
-        server.create_model(
-            FacilityUser,
-            username=admin_username,
-            password=DUMMY_PASSWORD,
+        server.run_scenario(
+            sync_scenarios.create_admin_learner_classroom,
             facility_id=fac.id,
+            admin_username=uuid.uuid4().hex[:30],
+            learner_username=uuid.uuid4().hex[:30],
+            classroom_name=uuid.uuid4().hex,
+            group_name=uuid.uuid4().hex,
         )
-        server.create_model(
-            FacilityUser,
-            username=learner_username,
-            password=DUMMY_PASSWORD,
-            facility_id=fac.id,
-        )
-        admin = FacilityUser.objects.using(server.db_alias).get(username=admin_username)
-        learner = FacilityUser.objects.using(server.db_alias).get(
-            username=learner_username
-        )
-
-        name = uuid.uuid4().hex
-        server.create_model(Classroom, parent_id=fac.id, name=name)
-        class_id = Classroom.objects.using(server.db_alias).get(name=name).id
-        name = uuid.uuid4().hex
-        server.create_model(LearnerGroup, parent_id=class_id, name=name)
-        lg_id = LearnerGroup.objects.using(server.db_alias).get(name=name).id
-        server.create_model(Membership, user_id=learner.id, collection_id=class_id)
-        server.create_model(Membership, user_id=learner.id, collection_id=lg_id)
-        server.create_model(Role, collection_id=fac.id, user_id=admin.id, kind="admin")
 
     def assertServerQuerysetEqual(self, s1, s2, dataset_id):
         models = syncable_models.get_models(PROFILE_FACILITY_DATA)

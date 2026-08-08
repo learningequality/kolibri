@@ -79,6 +79,19 @@ class KolibriServer:
             env=self.env,
         )
 
+    def run_scenario(self, func, **kwargs):
+        """
+        Call `func` in this server's process, with kwargs passed as JSON. One
+        Django startup for a whole scenario, rather than one per model created.
+        `func` has to be importable there, so it lives in a module, not a test.
+        """
+        kwarg_text = json.dumps(kwargs, default=str)
+        self.pipe_shell(
+            'import json; from {module} import {name}; kwargs = json.loads("""{}"""); {name}(**kwargs)'.format(
+                kwarg_text, module=func.__module__, name=func.__name__
+            )
+        )
+
     def create_model(self, model, **kwargs):
         kwarg_text = json.dumps(kwargs, default=str)
         self.pipe_shell(
