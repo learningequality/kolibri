@@ -265,7 +265,7 @@ def set_leaf_nodes_invisible(
     if clear_admin_imported:
         values_dict["admin_imported"] = False
 
-    # Each batch commits on its own, as it did under SQLAlchemy's autocommit.
+    # Deliberately not wrapped in a transaction: each batch commits on its own.
     while min_boundary < max_rght:
         _batch_queryset(
             channel_id,
@@ -331,7 +331,7 @@ def set_leaf_node_availability_from_local_file_availability(
             output_field=BooleanField(),
         )
 
-    # Each batch commits on its own, as it did under SQLAlchemy's autocommit.
+    # Deliberately not wrapped in a transaction: each batch commits on its own.
     while min_boundary < max_rght:
         _batch_queryset(
             channel_id,

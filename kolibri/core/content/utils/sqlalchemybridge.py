@@ -1,7 +1,6 @@
 import importlib
 import logging
 import os
-import re
 from uuid import UUID
 
 from django.apps import apps
@@ -393,41 +392,6 @@ def _by_uuids(field, ids, validate, include, vendor=None):
             )
         except UUIDValidationError:
             # the value is not a valid hex code for a UUID, so fall through to the
-            # empty case and don't return any results
-            pass
-    return UnaryExpression(field, modifier=operators.custom_op(empty_query))
-
-
-checksum_re = re.compile("^[0-9a-f]{32}$")
-
-
-def _validate_checksums(checksums):
-    for checksum in checksums:
-        if not checksum_re.match(checksum):
-            raise ValueError("Invalid checksum: {}".format(checksum))
-
-
-def filter_by_checksums(field, checksums):
-    query = "IN ("
-    # trick to workaround postgresql, it does not allow returning ():
-    empty_query = "IS NULL"
-    if checksums:
-        if len(checksums) > 10000:
-            logger.warning(
-                """
-                More than 10000 UUIDs passed to filter by checksums method,
-                these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
-            """
-            )
-        try:
-            _validate_checksums(checksums)
-            checksums_list = ["'{}'".format(identifier) for identifier in checksums]
-            return UnaryExpression(
-                field,
-                modifier=operators.custom_op(query + ",".join(checksums_list) + ")"),
-            )
-        except ValueError:
-            # the value is not a valid hex code for a checksum, so fall through to the
             # empty case and don't return any results
             pass
     return UnaryExpression(field, modifier=operators.custom_op(empty_query))
