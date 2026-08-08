@@ -81,7 +81,7 @@ def get_channel_annotation_stats(channel_id, checksums=None):  # noqa
         .values(available=exists(contentnode_statement))
     )
 
-    node_depth = get_channel_node_depth(bridge, channel_id)
+    node_depth = get_channel_node_depth(channel_id)
 
     child = ContentNodeTable.alias()
 

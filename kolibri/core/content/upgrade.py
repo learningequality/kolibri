@@ -195,7 +195,7 @@ def update_num_coach_contents():
     )
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-        node_depth = get_channel_node_depth(bridge, channel_id)
+        node_depth = get_channel_node_depth(channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):
@@ -271,7 +271,7 @@ def update_on_device_resources():
     )
 
     for channel_id in ChannelMetadata.objects.all().values_list("id", flat=True):
-        node_depth = get_channel_node_depth(bridge, channel_id)
+        node_depth = get_channel_node_depth(channel_id)
 
         # Go from the deepest level to the shallowest
         for level in range(node_depth, 0, -1):

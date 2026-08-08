@@ -1,11 +1,17 @@
+import os
+import shutil
 import tempfile
 import uuid
 
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.db import connection
 from django.db import DataError
+from django.db.models import Exists
+from django.db.models import OuterRef
 from django.test import TestCase
 from django.test import TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 from le_utils.constants import content_kinds
 from mock import patch
 
@@ -30,18 +36,106 @@ from kolibri.core.content.utils.annotation import (
 )
 from kolibri.core.content.utils.annotation import set_leaf_nodes_invisible
 from kolibri.core.content.utils.annotation import set_local_file_availability_from_disk
-
-from .sqlalchemytesting import django_connection_engine
-
-
-def get_engine(connection_string):
-    return django_connection_engine()
-
+from kolibri.core.content.utils.content_db import content_db
+from kolibri.core.content.utils.content_db import create_schema
+from kolibri.core.content.utils.tree import get_channel_node_depth
 
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
+class ChannelNodeDepthTestCase(TestCase):
+    def test_a_channel_with_no_nodes_is_zero_deep(self):
+        # Callers iterate range(depth, 0, -1), which raises on None.
+        self.assertEqual(0, get_channel_node_depth(uuid.uuid4().hex))
+
+    def test_depth_counts_the_levels_below_the_root(self):
+        channel_id = uuid.uuid4().hex
+        parent = None
+        for title in ("root", "child", "grandchild"):
+            parent = ContentNode.objects.create(
+                id=uuid.uuid4().hex,
+                content_id=uuid.uuid4().hex,
+                channel_id=channel_id,
+                parent=parent,
+                title=title,
+                kind=content_kinds.TOPIC,
+                available=False,
+            )
+        self.assertEqual(2, get_channel_node_depth(channel_id))
+
+
+class ExistsInUpdateEvaluatesPerRowTestCase(TransactionTestCase):
+    """
+    The leaf availability passes set available=Exists(...) in an update(), which
+    is only correct if Django evaluates that Exists once per row, matching
+    OuterRef("id") to the row being updated. Evaluated once for the whole
+    statement instead, every node would come out with the same availability.
+    """
+
+    databases = "__all__"
+    fixtures = ["content_test.json"]
+
+    def test_update_with_exists_correlates_to_the_row_being_updated(self):
+        available_checksum = (
+            File.objects.filter(
+                supplementary=False, contentnode__channel_id=test_channel_id
+            )
+            .exclude(contentnode__kind=content_kinds.TOPIC)
+            .order_by("id")
+            .values_list("local_file_id", flat=True)
+            .first()
+        )
+        LocalFile.objects.all().update(available=False)
+        LocalFile.objects.filter(id=available_checksum).update(available=True)
+        ContentNode.objects.all().update(available=False)
+
+        # Computed off the fixture rows in Python, so that a subquery that lost
+        # its correlation cannot produce the expected set as well.
+        nodes_with_an_available_file = {
+            contentnode_id
+            for contentnode_id, supplementary, local_file_id in File.objects.values_list(
+                "contentnode_id", "supplementary", "local_file_id"
+            )
+            if not supplementary and local_file_id == available_checksum
+        }
+        non_topic_ids = {
+            node_id
+            for node_id, kind in ContentNode.objects.filter(
+                channel_id=test_channel_id
+            ).values_list("id", "kind")
+            if kind != content_kinds.TOPIC
+        }
+        expected = non_topic_ids & nodes_with_an_available_file
+        # An uncorrelated EXISTS flags every non-topic node or none of them, so
+        # the expected set has to be neither for the outcome assertion to bite.
+        self.assertTrue(expected)
+        self.assertTrue(expected < non_topic_ids)
+
+        with CaptureQueriesContext(connection) as captured:
+            ContentNode.objects.filter(channel_id=test_channel_id).exclude(
+                kind=content_kinds.TOPIC
+            ).update(
+                available=Exists(
+                    File.objects.filter(
+                        contentnode=OuterRef("id"),
+                        supplementary=False,
+                        local_file__available=True,
+                    )
+                )
+            )
+
+        self.assertEqual(
+            expected,
+            set(
+                ContentNode.objects.filter(available=True).values_list("id", flat=True)
+            ),
+        )
+        self.assertEqual(1, len(captured.captured_queries))
+        sql = captured.captured_queries[0]["sql"]
+        self.assertIn("EXISTS", sql)
+        self.assertIn('"content_contentnode"."id"', sql)
+
+
 class SetContentNodesInvisibleTestCase(TransactionTestCase):
     databases = "__all__"
     fixtures = ["content_test.json"]
@@ -67,6 +161,13 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
         set_leaf_nodes_invisible(test_channel_id)
         test.refresh_from_db()
         self.assertTrue(test.available)
+
+    def test_include_ids_absent_from_the_channel_change_nothing(self):
+        # No MPTT constraint applies in any range, which must select nothing rather
+        # than fall back to an unconstrained update that hides the whole channel.
+        ContentNode.objects.all().update(available=True)
+        set_leaf_nodes_invisible(test_channel_id, node_ids=[uuid.uuid4().hex])
+        self.assertEqual(0, ContentNode.objects.filter(available=False).count())
 
     def test_all_nodes_available_include_all(self):
         ContentNode.objects.all().update(available=True)
@@ -224,7 +325,6 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
         super().tearDown()
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class AnnotationFromLocalFileAvailability(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -475,6 +575,19 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         node.refresh_from_db()
         self.assertFalse(node.admin_imported)
 
+    def test_admin_imported_false_writes_false_not_null(self):
+        # assertFalse above passes on None, and the fixture leaves admin_imported
+        # NULL — which is the coalesce branch of the value expression.
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        self.assertIsNone(node.admin_imported)
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id, admin_imported=False
+        )
+        node.refresh_from_db()
+        self.assertIs(False, node.admin_imported)
+
     def test_all_local_files_admin_imported_false_no_overwrite(self):
         ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
@@ -518,7 +631,6 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         super().tearDown()
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class AnnotationTreeRecursion(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -748,7 +860,6 @@ class AnnotationTreeRecursion(TransactionTestCase):
         super().tearDown()
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileAvailableByChecksum(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -775,7 +886,6 @@ class LocalFileAvailableByChecksum(TransactionTestCase):
         super().tearDown()
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileUnAvailableByChecksum(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -802,10 +912,54 @@ class LocalFileUnAvailableByChecksum(TransactionTestCase):
         super().tearDown()
 
 
+class LocalFileAvailabilityDestinationTestCase(TransactionTestCase):
+    checksum = "6bdfea4a01830fdd4a585181c0b8068c"
+
+    def setUp(self):
+        super().setUp()
+        self.directory = tempfile.mkdtemp()
+        self.path = os.path.join(self.directory, "destination.sqlite3")
+        self.storage_file = os.path.join(self.directory, "storage.mp4")
+        open(self.storage_file, "w").close()
+        with content_db(self.path) as alias:
+            create_schema(alias)
+            LocalFile.objects.using(alias).create(
+                id=self.checksum, extension="mp4", available=False
+            )
+
+    def tearDown(self):
+        # Removing a directory holding an open SQLite file fails on Windows, so
+        # this also checks the connection was released.
+        shutil.rmtree(self.directory)
+        super().tearDown()
+
+    def _destination_availability(self):
+        with content_db(self.path) as alias:
+            return LocalFile.objects.using(alias).get(id=self.checksum).available
+
+    def test_marks_availability_in_the_destination_file(self):
+        mark_local_files_as_available([self.checksum], destination=self.path)
+        self.assertTrue(self._destination_availability())
+
+    def test_marking_a_destination_leaves_the_default_database_untouched(self):
+        # The same checksum in both databases, so only the routing distinguishes them.
+        LocalFile.objects.create(id=self.checksum, extension="mp4", available=False)
+        mark_local_files_as_available([self.checksum], destination=self.path)
+        self.assertTrue(self._destination_availability())
+        self.assertFalse(LocalFile.objects.get(id=self.checksum).available)
+
+    @patch("kolibri.core.content.utils.annotation.get_content_storage_file_path")
+    def test_disk_availability_reads_the_destination_file(self, path_mock):
+        # The default database holds no LocalFile, so the row this marks can only
+        # have come from the read against the destination.
+        path_mock.return_value = self.storage_file
+        set_local_file_availability_from_disk(destination=self.path)
+        self.assertTrue(self._destination_availability())
+
+
 mock_content_file = tempfile.mkstemp()
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileByDisk(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -1114,7 +1268,6 @@ class SetChannelMetadataFieldsTestCase(TestCase):
         self.assertTrue(self.channel.public)
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class AncestorAnnotationTestCase(TransactionTestCase):
     def test_ancestors(self):
         builder = ChannelBuilder()
@@ -1137,3 +1290,30 @@ class AncestorAnnotationTestCase(TransactionTestCase):
                 )
         except ValidationError:
             self.fail("Did not coerce to proper JSON")
+
+    def test_ancestors_are_byte_identical_to_the_rendered_json(self):
+        # The two tests above compare after JSONField.from_db_value has parsed the
+        # column, so neither would notice a spacing or escaping change.
+        builder = ChannelBuilder()
+        builder._django_nodes[0].title = 'Title with "A title!" in it!'
+        builder.insert_into_default_db()
+        channel_id = builder.channel["id"]
+        set_channel_ancestors(channel_id)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, ancestors FROM content_contentnode WHERE channel_id = %s",
+                [channel_id],
+            )
+            rows = cursor.fetchall()
+        self.assertTrue(rows)
+        for node_id, ancestors in rows:
+            node = ContentNode.objects.get(id=node_id)
+            expected = "[{}]".format(
+                ",".join(
+                    '{{"id": "{}","title": "{}"}}'.format(
+                        ancestor.id, ancestor.title.replace('"', '\\"')
+                    )
+                    for ancestor in node.get_ancestors()
+                )
+            )
+            self.assertEqual(expected, ancestors)
