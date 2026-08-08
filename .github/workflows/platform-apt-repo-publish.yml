@@ -12,9 +12,7 @@ on:
         required: true
         type: string
     secrets:
-      GPG_SIGNING_KEY:
-        required: true
-      GPG_PASSPHRASE:
+      DEBIAN_REPO_SIGNING_KEY:
         required: true
       GH_UPLOADER_GCP_SA_CREDENTIALS:
         required: true
@@ -50,29 +48,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y reprepro dpkg-dev debhelper build-essential
-      - name: Import the GPG signing key and preset its passphrase
+      - name: Import the Debian repo signing key
         id: gpg
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-          # Derive the signing key id from the imported key (no separate secret),
-          # mirroring the release workflow.
-          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format long --with-colons | grep ^sec | head -1 | cut -d: -f5)
+          # Same key, keyring layout and loopback pinentry as the release_ppa
+          # workflow in learningequality/kolibri-installer-debian, which publishes
+          # the Pages repos this one replaces.
+          GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME
+          echo "GNUPGHOME=$GNUPGHOME" >> "$GITHUB_ENV"
+          echo "pinentry-mode loopback" > "$GNUPGHOME/gpg.conf"
+          echo "allow-loopback-pinentry" > "$GNUPGHOME/gpg-agent.conf"
+          echo "${{ secrets.DEBIAN_REPO_SIGNING_KEY }}" | gpg --batch --import
+          # The repo must be signed by the key kolibri-archive-keyring ships, or no
+          # client trusting that keyring can verify it. Take the key id from the
+          # committed key and require the imported secret key to match.
+          GPG_KEY_ID=$(gpg --show-keys --with-colons platforms/apt-repo/keyring/kolibri-archive-keyring.asc | awk -F: '/^fpr:/ {print $10; exit}')
+          gpg --list-secret-keys "$GPG_KEY_ID" >/dev/null 2>&1 || {
+            echo "::error::DEBIAN_REPO_SIGNING_KEY does not hold $GPG_KEY_ID, the key shipped in kolibri-archive-keyring.asc"
+            exit 1
+          }
+          echo "$GPG_KEY_ID:6:" | gpg --batch --import-ownertrust
           echo "key-id=$GPG_KEY_ID" >> "$GITHUB_OUTPUT"
-          # reprepro signs Release via gpgme/gpg-agent (no CLI passphrase flag),
-          # so preset the passphrase or signing hangs on the pinentry prompt.
-          echo "allow-preset-passphrase" >> ~/.gnupg/gpg-agent.conf
-          gpg-connect-agent reloadagent /bye
-          # gpg-preset-passphrase ships in a version-specific libexec dir, not on PATH.
-          for candidate in /usr/lib/gnupg*/gpg-preset-passphrase; do
-            [ -x "$candidate" ] && PRESET="$candidate" && break
-          done
-          KEYGRIP=$(gpg --with-keygrip --list-secret-keys | grep Keygrip | head -1 | awk '{print $3}')
-          # gpg-preset-passphrase reads the passphrase from stdin only, so pipe
-          # it in: printf is a shell builtin, so the secret never reaches argv
-          # or the log, and no copy is written to disk.
-          printf '%s' "$GPG_PASSPHRASE" | "$PRESET" --preset "$KEYGRIP"
       - uses: "google-github-actions/auth@v3"
         with:
           credentials_json: "${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}"
@@ -96,4 +93,4 @@ jobs:
         if: always()
         run: |
           gpgconf --kill gpg-agent || true
-          rm -rf ~/.gnupg
+          rm -rf "$GNUPGHOME"

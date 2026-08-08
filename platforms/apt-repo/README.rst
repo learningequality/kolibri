@@ -106,9 +106,10 @@ CI secrets, actually running ``seed_old_pages.sh`` for the cutover release, the
 readthedocs user-manual update, and archiving the old Pages repos are **admin/ops
 tasks tracked on #13720**, not code in this directory.
 
-**Key-match assumption:** the private half of ``GPG_SIGNING_KEY`` must match the
-committed client trust key ``platforms/raspberry-pi/files/learningequality.asc``
-(the byte-identical source of ``keyring/kolibri-archive-keyring.asc``). If the
-self-hosted repo historically used a different key than the PPA, ops must
-reconcile them before the cutover (reprepro fails loudly at publish rather than
-shipping a silently-broken repo).
+**Key match:** the private half of ``DEBIAN_REPO_SIGNING_KEY`` — the same secret
+the ``kolibri-installer-debian`` Pages publish uses — must be the committed
+client trust key ``platforms/raspberry-pi/files/learningequality.asc`` (the
+byte-identical source of ``keyring/kolibri-archive-keyring.asc``), which is also
+the key that signs the old Pages repos. The publish workflow derives the signing
+key id from that committed key and aborts if the imported secret does not hold
+it, rather than shipping a repo no client can verify.
