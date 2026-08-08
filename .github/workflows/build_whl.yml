@@ -45,7 +45,7 @@ jobs:
       # Restore the webpack filesystem cache so PR builds only recompile their
       # own diff. The unique key always misses (forcing a fresh save at job end),
       # while restore-keys pulls the most recent cache for the same lockfile —
-      # primed on `develop` by warm_build_cache.yml so fork PRs get a hit too.
+      # primed on `develop` by pr_build_kolibri.yml so fork PRs get a hit too.
       - name: Cache webpack build
         uses: actions/cache@v6.1.0
         with:
