@@ -7,6 +7,7 @@ include README.md
 include kolibri/VERSION
 recursive-include kolibri/locale *.mo
 recursive-include kolibri/locale *.json
+recursive-include kolibri/locale *.po
 graft kolibri/core
 recursive-include kolibri/deployment *
 recursive-include kolibri/dist *

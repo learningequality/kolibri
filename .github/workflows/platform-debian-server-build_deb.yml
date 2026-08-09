@@ -7,6 +7,9 @@ on:
         value: ${{ jobs.build_deb.outputs.deb-file-name }}
 permissions:
   contents: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   build_deb:
     name: Build kolibri-server DEB file

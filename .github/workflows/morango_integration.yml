@@ -12,6 +12,9 @@ concurrency:
 permissions:
   contents: read
   actions: read
+env:
+  # Skips setuptools_scm's `git archive` file listing; see Makefile.
+  SETUPTOOLS_SCM_IGNORE_VCS_ROOTS: ${{ github.workspace }}
 jobs:
   pre_job:
     name: Path match check
