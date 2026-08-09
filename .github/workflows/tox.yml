@@ -39,8 +39,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          # Don't cache, only saves 1-2s per run.
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -68,8 +68,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -116,7 +115,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
+          enable-cache: false
       - name: Install dependencies
         run: |
           uv pip install --system --group base --group test
@@ -162,8 +161,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.9
         run: uv python install 3.9
       - name: Install dependencies
@@ -207,8 +205,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -238,8 +235,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -263,10 +259,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          # cache-python breaks on Windows due to symlink/reparse point issues
-          # when restoring cached Python installations
-          cache-python: false
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -287,8 +280,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -319,8 +311,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -368,8 +359,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install system dependencies
@@ -401,8 +391,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.10
         run: uv python install 3.10
       - name: Install dependencies
@@ -431,8 +420,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       # Chaquopy's buildPython (the workspace .venv) must match its embedded 3.10.
       - name: Provision Chaquopy buildPython (3.10)
         run: uv sync --package kolibri-installer-android --python 3.10

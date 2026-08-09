@@ -41,8 +41,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - name: Install dependencies
@@ -86,7 +85,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
+          enable-cache: false
       - name: Install dependencies
         run: |
           uv pip install --system --group base --group test
@@ -134,8 +133,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install Python 3.9
         run: uv python install 3.9
       - name: Install dependencies

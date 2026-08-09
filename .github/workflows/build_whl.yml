@@ -29,8 +29,8 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          # Don't cache, only saves 1-2s per run.
+          enable-cache: false
       - name: Install pnpm
         uses: pnpm/action-setup@v6.0.9
       - name: Use Node.js

@@ -274,8 +274,9 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
+          # This job never checks out the repo, it only downloads the WHL.
+          ignore-empty-workdir: true
       - name: Install Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
       - uses: actions/download-artifact@v8

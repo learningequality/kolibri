@@ -20,8 +20,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
         with:
-          enable-cache: true
-          cache-python: true
+          enable-cache: false
       - name: Install the workspace so kolibri resolves from it
         run: uv sync --all-packages
       - name: Install Debian build tooling
