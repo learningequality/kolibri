@@ -92,9 +92,6 @@ export default function useDraggableRegion(props, emit, rootElRef) {
 
     // 2. Apply the change to our sorable data.
     if (to === from) {
-      if (oldDraggableIndex === newDraggableIndex) {
-        return;
-      }
       emit('update:items', reordered(props.items, oldDraggableIndex, newDraggableIndex));
       addBounce(item);
       return;
