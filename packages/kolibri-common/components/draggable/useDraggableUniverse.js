@@ -18,8 +18,12 @@ let universeCounter = 0;
  * Build a universe context. Kept separate from `provide` so a region with no
  * `<DraggableUniverse>` ancestor can create its own standalone context.
  * @param {object} [options] - universe configuration
- * @param {string} [options.name] - explicit group name; defaults to a unique id
- * @param {number} [options.delay] - press-and-hold delay (ms) before a drag begins
+ * @param {string} [options.name] - explicit group name; defaults to a unique id.
+ * Intentionally initial-value-only: it is read once here, and a universe keeps the
+ * group name it was created with for its whole lifetime. Regions cannot be moved
+ * between groups after mount.
+ * @param {number} [options.delay] - initial press-and-hold delay (ms) before a drag
+ * begins; set `delay.value` on the returned context to change it afterwards
  * @returns {object} the universe context
  */
 export function createDraggableUniverse({ name, delay } = {}) {
@@ -36,8 +40,11 @@ export function createDraggableUniverse({ name, delay } = {}) {
 
   const { sendPoliteMessage } = useKLiveRegion();
 
+  // Reactive so a universe can change the press-and-hold delay after its regions
+  // have mounted; each region watches this and updates its SortableJS instance.
+  const dragDelay = ref(delay == null ? 250 : delay);
+
   const sortableDefaults = {
-    delay: delay == null ? 250 : delay,
     forceFallback: true,
     fallbackOnBody: false, // keep the clone inside the region subtree so overrides still match
     draggable: `.${ITEM_CLASS}`,
@@ -52,6 +59,7 @@ export function createDraggableUniverse({ name, delay } = {}) {
   return {
     groupName,
     sortableDefaults,
+    delay: dragDelay,
     isDragging,
     activeRegion,
     draggedItem,

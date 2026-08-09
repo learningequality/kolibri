@@ -1,9 +1,14 @@
 import Sortable from 'sortablejs';
-import { onMounted, onBeforeUnmount, provide } from 'vue';
+import { onMounted, onBeforeUnmount, provide, watch } from 'vue';
 import { injectDraggableUniverse, createDraggableUniverse } from './useDraggableUniverse';
 import { DISABLED_CLASS, PLACED_CLASS } from './classDefinitions';
 import { removeNode, insertNodeAt } from './domUtils';
 import { dragSortStrings } from './dragSortStrings';
+
+// Default `clone` transform: a copy that is a distinct object but keeps every field
+// of the original, identifiers included. Consumers whose clones need independent
+// identities pass their own transform.
+const shallowClone = original => ({ ...original });
 
 /**
  * Wire up the SortableJS instance and reconciliation for one region. Call from the
@@ -98,8 +103,11 @@ export default function useDraggableRegion(props, emit, rootElRef) {
       return;
     }
     const movedItem = props.items[oldDraggableIndex];
-    target.insertAt(movedItem, newDraggableIndex);
-    if (pullMode !== 'clone') {
+    if (pullMode === 'clone') {
+      // a copy, so the two regions never share a reference to the same item
+      target.insertAt(cloneItem(movedItem), newDraggableIndex);
+    } else {
+      target.insertAt(movedItem, newDraggableIndex);
       emit(
         'update:items',
         props.items.filter((_, i) => i !== oldDraggableIndex),
@@ -119,6 +127,39 @@ export default function useDraggableRegion(props, emit, rootElRef) {
     }
     return props.accepts(universe.draggedItem.value, universe.activeRegion.value);
   }
+
+  function cloneItem(original) {
+    return typeof props.clone === 'function' ? props.clone(original) : shallowClone(original);
+  }
+
+  function groupOption() {
+    return {
+      name: universe.groupName,
+      pull: props.clone ? 'clone' : true,
+      // a closure, so capacity/disabled/accepts are re-read on every drop check
+      put: canAccept,
+    };
+  }
+
+  // SortableJS copies its options at construction, so anything reactive has to be
+  // pushed into the instance when it changes (see the watchers below).
+  function updateOption(name, value) {
+    if (sortable) {
+      sortable.option(name, value);
+    }
+  }
+
+  watch(
+    () => props.sortable,
+    sort => updateOption('sort', sort),
+  );
+  // on the pull mode rather than on `clone` itself, so an inline transform function
+  // being a new identity on each render does not churn the instance
+  watch(
+    () => Boolean(props.clone),
+    () => updateOption('group', groupOption()),
+  );
+  watch(universe.delay, delay => updateOption('delay', delay));
 
   function handleFocusOut(event) {
     // window/tab blur: relatedTarget is null but focus hasn't actually left
@@ -155,13 +196,10 @@ export default function useDraggableRegion(props, emit, rootElRef) {
 
     sortable = new Sortable(el, {
       ...universe.sortableDefaults,
+      delay: universe.delay.value,
       sort: props.sortable,
       filter: `.${DISABLED_CLASS}`,
-      group: {
-        name: universe.groupName,
-        pull: props.clone ? 'clone' : true,
-        put: canAccept,
-      },
+      group: groupOption(),
       onStart: handleStart,
       onEnd: handleEnd,
     });

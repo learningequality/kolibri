@@ -20,9 +20,25 @@ describe('useDraggableUniverse', () => {
     expect(createDraggableUniverse({ name: 'gaps' }).groupName).toBe('gaps');
   });
 
-  it('honours a custom delay in the shared SortableJS defaults', () => {
-    expect(createDraggableUniverse({ delay: 0 }).sortableDefaults.delay).toBe(0);
-    expect(createDraggableUniverse().sortableDefaults.delay).toBe(250);
+  it('honours a custom delay', () => {
+    expect(createDraggableUniverse({ delay: 0 }).delay.value).toBe(0);
+    expect(createDraggableUniverse().delay.value).toBe(250);
+  });
+
+  it('tracks later changes to the delay prop', async () => {
+    let injected = null;
+    const Child = {
+      render: () => null,
+      setup() {
+        injected = injectDraggableUniverse();
+      },
+    };
+    const wrapper = mount(DraggableUniverse, {
+      propsData: { delay: 250 },
+      slots: { default: Child },
+    });
+    await wrapper.setProps({ delay: 0 });
+    expect(injected.delay.value).toBe(0);
   });
 
   it('resolves a registered region element back to its API', () => {

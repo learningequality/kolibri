@@ -12,8 +12,9 @@ jest.mock('kolibri-design-system/lib/composables/useKLiveRegion');
 let mockInstances;
 jest.mock('sortablejs', () =>
   jest.fn().mockImplementation((el, options) => {
-    mockInstances.push({ el, options });
-    return { destroy: jest.fn() };
+    const instance = { el, options, option: jest.fn(), destroy: jest.fn() };
+    mockInstances.push(instance);
+    return instance;
   }),
 );
 
@@ -42,7 +43,8 @@ describe('DraggableRegion', () => {
       propsData: { items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }], ...propsData },
     });
     await wrapper.vm.$nextTick();
-    return { wrapper, options: mockInstances[mockInstances.length - 1].options };
+    const instance = mockInstances[mockInstances.length - 1];
+    return { wrapper, options: instance.options, sortable: instance };
   }
 
   describe('capacity (group.put)', () => {
@@ -74,10 +76,42 @@ describe('DraggableRegion', () => {
       });
       expect(options.group.put()).toBe(false);
     });
+  });
 
-    it('sets pull to clone when the clone prop is set', async () => {
-      const { options } = await mountRegion({ clone: true });
-      expect(options.group.pull).toBe('clone');
+  describe('options that change after mount', () => {
+    it('pushes a flipped sortable prop into the SortableJS instance', async () => {
+      const { wrapper, sortable } = await mountRegion({ sortable: true });
+      await wrapper.setProps({ sortable: false });
+      expect(sortable.option).toHaveBeenCalledWith('sort', false);
+    });
+
+    it('pushes a flipped clone prop into the SortableJS instance', async () => {
+      const { wrapper, sortable } = await mountRegion({ clone: false });
+      await wrapper.setProps({ clone: true });
+      expect(sortable.option).toHaveBeenCalledWith(
+        'group',
+        expect.objectContaining({ pull: 'clone' }),
+      );
+    });
+
+    it("pushes the universe's changed delay into the SortableJS instance", async () => {
+      const wrapper = mount({
+        components: { DraggableUniverse, DraggableRegion },
+        data() {
+          return { delay: 250, items: [{ id: 'a' }] };
+        },
+        template: `
+          <DraggableUniverse :delay="delay">
+            <DraggableRegion :items="items" />
+          </DraggableUniverse>
+        `,
+      });
+      await wrapper.vm.$nextTick();
+      const sortable = mockInstances[mockInstances.length - 1];
+      expect(sortable.options.delay).toBe(250);
+
+      await wrapper.setData({ delay: 0 });
+      expect(sortable.option).toHaveBeenCalledWith('delay', 0);
     });
   });
 
@@ -136,37 +170,38 @@ describe('DraggableRegion', () => {
     });
   });
 
-  describe('cross-region move and clone', () => {
-    // Two regions inside one universe so they share a SortableJS group and registry.
-    async function mountUniverse(targetProps = {}) {
-      const wrapper = mount({
-        components: { DraggableUniverse, DraggableRegion },
-        data() {
-          return {
-            source: [{ id: 'a' }, { id: 'b' }],
-            target: [{ id: 'x' }],
-            targetProps,
-          };
-        },
-        template: `
-          <DraggableUniverse>
-            <DraggableRegion :items="source" @update:items="source = $event" />
-            <DraggableRegion :items="target" v-bind="targetProps" @update:items="target = $event" />
-          </DraggableUniverse>
-        `,
-      });
-      await wrapper.vm.$nextTick();
-      const regions = wrapper.findAllComponents({ name: 'DraggableRegion' });
-      return {
-        wrapper,
-        sourceRegion: regions.at(0),
-        targetRegion: regions.at(1),
-        sourceOptions: mockInstances[0].options,
-        sourceEl: regions.at(0).element,
-        targetEl: regions.at(1).element,
-      };
-    }
+  // Two regions inside one universe so they share a SortableJS group and registry.
+  async function mountUniverse(targetProps = {}, { sourceProps = {}, sourceItems } = {}) {
+    const wrapper = mount({
+      components: { DraggableUniverse, DraggableRegion },
+      data() {
+        return {
+          source: sourceItems || [{ id: 'a' }, { id: 'b' }],
+          target: [{ id: 'x' }],
+          sourceProps,
+          targetProps,
+        };
+      },
+      template: `
+        <DraggableUniverse>
+          <DraggableRegion :items="source" v-bind="sourceProps" @update:items="source = $event" />
+          <DraggableRegion :items="target" v-bind="targetProps" @update:items="target = $event" />
+        </DraggableUniverse>
+      `,
+    });
+    await wrapper.vm.$nextTick();
+    const regions = wrapper.findAllComponents({ name: 'DraggableRegion' });
+    return {
+      wrapper,
+      sourceRegion: regions.at(0),
+      targetRegion: regions.at(1),
+      sourceOptions: mockInstances[0].options,
+      sourceEl: regions.at(0).element,
+      targetEl: regions.at(1).element,
+    };
+  }
 
+  describe('cross-region move', () => {
     it('moves an item: source loses it, target gains it at the drop index', async () => {
       const { sourceRegion, targetRegion, sourceOptions, sourceEl, targetEl } =
         await mountUniverse();
@@ -182,16 +217,15 @@ describe('DraggableRegion', () => {
         oldIndex: 0,
         oldDraggableIndex: 0,
         newDraggableIndex: 1,
-        pullMode: true,
       });
 
       expect(sourceRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['b']);
       expect(targetRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['x', 'a']);
     });
 
-    it('clones an item: source is unchanged, target gains a copy, clone node removed', async () => {
-      const { sourceRegion, targetRegion, sourceOptions, sourceEl, targetEl } =
-        await mountUniverse();
+    // SortableJS builds a clone node for every drag, whether or not it is shown
+    it('removes the clone node SortableJS left in the source region', async () => {
+      const { sourceOptions, sourceEl, targetEl } = await mountUniverse();
       sourceEl.appendChild(row('a'));
       sourceEl.appendChild(row('b'));
       const item = sourceEl.children[0];
@@ -207,11 +241,8 @@ describe('DraggableRegion', () => {
         oldIndex: 0,
         oldDraggableIndex: 0,
         newDraggableIndex: 0,
-        pullMode: 'clone',
       });
 
-      expect(sourceRegion.emitted('update:items')).toBeUndefined();
-      expect(targetRegion.emitted('update:items')[0][0].map(i => i.id)).toEqual(['a', 'x']);
       expect(clone.parentNode).toBeNull();
     });
 
@@ -227,7 +258,6 @@ describe('DraggableRegion', () => {
         oldIndex: 0,
         oldDraggableIndex: 0,
         newDraggableIndex: 0,
-        pullMode: true,
       });
       expect(sendPoliteMessage).toHaveBeenCalledWith('Moved to Gap 1');
     });
@@ -245,9 +275,79 @@ describe('DraggableRegion', () => {
         oldIndex: 0,
         oldDraggableIndex: 0,
         newDraggableIndex: 0,
-        pullMode: true,
       });
       expect(sourceRegion.emitted('update:items')).toBeUndefined();
+    });
+  });
+
+  describe('cross-region clone', () => {
+    // Drags the first source item onto the front of the target region, as a clone.
+    async function dropClone({ sourceProps, sourceItems } = {}) {
+      const context = await mountUniverse(
+        {},
+        { sourceProps: sourceProps || { clone: true }, sourceItems },
+      );
+      const { sourceOptions, sourceEl, targetEl } = context;
+      sourceEl.appendChild(row('a'));
+      sourceEl.appendChild(row('b'));
+      sourceOptions.onStart({ oldDraggableIndex: 0 });
+      sourceOptions.onEnd({
+        item: sourceEl.children[0],
+        from: sourceEl,
+        to: targetEl,
+        oldIndex: 0,
+        oldDraggableIndex: 0,
+        newDraggableIndex: 0,
+        pullMode: 'clone',
+      });
+      return context;
+    }
+
+    it('sets pull to clone when the clone prop is set', async () => {
+      const { options } = await mountRegion({ clone: true });
+      expect(options.group.pull).toBe('clone');
+    });
+
+    it('leaves the source array untouched', async () => {
+      const { sourceRegion } = await dropClone();
+      expect(sourceRegion.emitted('update:items')).toBeUndefined();
+    });
+
+    it('inserts a copy, not the source object itself', async () => {
+      const { sourceRegion, targetRegion } = await dropClone();
+      const inserted = targetRegion.emitted('update:items')[0][0][0];
+      const original = sourceRegion.props('items')[0];
+      expect(inserted).not.toBe(original);
+      expect(inserted).toEqual(original);
+    });
+
+    it('does not mutate the source item when the clone is changed', async () => {
+      const { sourceRegion, targetRegion } = await dropClone();
+      const inserted = targetRegion.emitted('update:items')[0][0][0];
+      inserted.id = 'changed';
+      inserted.matched = true;
+      expect(sourceRegion.props('items')[0]).toEqual({ id: 'a' });
+    });
+
+    it('keeps the identifier field the source data uses', async () => {
+      const { targetRegion } = await dropClone({
+        sourceItems: [
+          { identifier: 'CHOICE_A', text: 'Alpha' },
+          { identifier: 'CHOICE_B', text: 'Beta' },
+        ],
+      });
+      expect(targetRegion.emitted('update:items')[0][0][0]).toEqual({
+        identifier: 'CHOICE_A',
+        text: 'Alpha',
+      });
+    });
+
+    it('uses a transform function passed as the clone prop', async () => {
+      let next = 0;
+      const { targetRegion } = await dropClone({
+        sourceProps: { clone: original => ({ ...original, uid: `copy-${++next}` }) },
+      });
+      expect(targetRegion.emitted('update:items')[0][0][0]).toEqual({ id: 'a', uid: 'copy-1' });
     });
   });
 

@@ -36,9 +36,11 @@
         type: Number,
         default: null,
       },
-      // if true: copy not move
+      // Copy instead of move when dragging out of this region. `true` copies each
+      // item with a shallow copy that keeps its identifiers; pass a function to
+      // build the copy yourself, e.g. to assign a new id.
       clone: {
-        type: Boolean,
+        type: [Boolean, Function],
         default: false,
       },
       // for the items
