@@ -4,6 +4,7 @@ import 'web-streams-polyfill/polyfill';
 
 import xhrMock from 'xhr-mock';
 import AdaptiveHttpReader from '../src/AdaptiveHttpReader';
+import { findRangeOverlaps } from './rangeOverlaps';
 
 // Ensure URL APIs exist for jest.spyOn (jsdom doesn't provide them)
 if (!global.URL.createObjectURL) {
@@ -34,7 +35,11 @@ function createTestData(sizeBytes) {
 
 // Mock server that tracks requests
 function createMockServer(data, url, options = {}) {
-  const { supportsRanges = true } = options;
+  const {
+    supportsRanges = true,
+    // Given the honest slice, returns the body to send - short, delayed, or both.
+    rangeResponse = null,
+  } = options;
 
   const stats = {
     requestCount: 0,
@@ -44,13 +49,15 @@ function createMockServer(data, url, options = {}) {
   };
 
   xhrMock.reset();
-  xhrMock.get(url, (req, res) => {
+  xhrMock.get(url, async (req, res) => {
     stats.requestCount++;
     const rangeHeader = req.header('Range');
+    const bypassedCache = req.header('Cache-Control') === 'no-cache';
 
     stats.requests.push({
       type: rangeHeader ? 'range' : 'full',
       rangeHeader,
+      bypassedCache,
     });
 
     if (!rangeHeader) {
@@ -79,14 +86,19 @@ function createMockServer(data, url, options = {}) {
     }
 
     const slicedData = data.slice(start, actualEnd + 1);
-    stats.totalBytesSent += slicedData.length;
+    // Content-Length below still declares the whole slice, so a shorter body is served
+    // exactly as the browser cache served it in #15103.
+    const body = rangeResponse
+      ? await rangeResponse({ body: slicedData, bypassedCache })
+      : slicedData;
+    stats.totalBytesSent += body.length;
 
     return res
       .status(206)
       .header('Content-Range', `bytes ${start}-${actualEnd}/${data.length}`)
       .header('Content-Length', slicedData.length.toString())
       .header('Accept-Ranges', 'bytes')
-      .body(slicedData.buffer);
+      .body(body.buffer);
   });
 
   return stats;
@@ -189,6 +201,24 @@ function createEntries(...specs) {
   );
 }
 
+/**
+ * Range headers recorded after the given baseline.
+ * @param {object} stats - Mock server stats
+ * @param {number} baseline - Number of range requests to skip
+ * @returns {Array<string>} Range headers issued since the baseline
+ */
+function rangesSince(stats, baseline) {
+  return stats.requests
+    .filter(r => r.type === 'range')
+    .slice(baseline)
+    .map(r => r.rangeHeader);
+}
+
+// Range requests recorded so far.
+function rangeCount(stats) {
+  return rangesSince(stats, 0).length;
+}
+
 // =============================================================================
 // Assertion Helpers
 // =============================================================================
@@ -268,6 +298,14 @@ const expectations = {
    */
   noAdditionalRequests: (stats, baseline) => {
     expect(stats.requestCount).toBe(baseline);
+  },
+
+  /**
+   * Assert no two range requests asked for overlapping bytes (#15103).
+   * @param {object} stats - Mock server stats
+   */
+  noOverlappingRanges: stats => {
+    expect(findRangeOverlaps(rangesSince(stats, 0))).toEqual([]);
   },
 
   /**
@@ -698,6 +736,67 @@ describe('AdaptiveHttpReader', () => {
 
       await expect(reader.readUint8Array(1000, 500)).rejects.toThrow('Network error');
       console.error.mockRestore(); // eslint-disable-line no-console
+    });
+
+    it('refetches a short range response with the cache bypassed', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 5 * 1024 * 1024, url: 'cache-truncated-range.zip' },
+        {
+          serverOptions: {
+            rangeResponse: ({ body, bypassedCache }) => (bypassedCache ? body : body.slice(0, 120)),
+          },
+        },
+      );
+
+      const result = await reader.readUint8Array(1000, 500);
+
+      expect(result.length).toBe(500);
+      expectations.dataMatches(result, 1000);
+      const ranges = stats.requests.filter(r => r.type === 'range');
+      expect(ranges.map(r => [r.rangeHeader, r.bypassedCache])).toEqual([
+        ['bytes=1000-1499', false],
+        ['bytes=1000-1499', true],
+      ]);
+    });
+
+    it('rejects a range response still short once the cache is bypassed', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 5 * 1024 * 1024, url: 'truncated-range.zip' },
+        { serverOptions: { rangeResponse: ({ body }) => body.slice(0, 120) } },
+      );
+
+      await expect(reader.readUint8Array(1000, 500)).rejects.toThrow(
+        'Truncated range response for bytes=1000-1499: expected 500 bytes, received 120, ' +
+          'then 120 with the cache bypassed',
+      );
+      // One refetch, not a retry loop.
+      expectations.rangeRequestCount(stats, 2);
+    });
+
+    it('accepts a chunk range that extends past the end of the file', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 100000, url: 'chunk-past-eof.zip' },
+        { maxFullLoadSize: 1000 },
+      );
+      // Chunk ends are padded estimates, so the last chunk routinely runs past EOF.
+      reader._chunks = [{ startOffset: 99500, endOffset: 100500, data: null, fetching: null }];
+
+      const result = await reader.readUint8Array(99600, 100);
+
+      expect(result.length).toBe(100);
+      expectations.dataMatches(result, 99600);
+      expect(rangesSince(stats, 0)).toEqual(['bytes=99500-99999']);
+    });
+
+    it('accepts a whole-file 200 from a server that ignores Range', async () => {
+      const { reader } = await setupReader(
+        { size: 5 * 1024 * 1024, url: 'no-range-support.zip' },
+        { maxFullLoadSize: 1000, serverOptions: { supportsRanges: false } },
+      );
+
+      // A longer-than-range body is not truncation. The mis-slice of a whole-file response
+      // is pre-existing, so only non-rejection is asserted.
+      await expect(reader.readUint8Array(1000, 500)).resolves.toBeInstanceOf(Uint8Array);
     });
   });
 
@@ -1220,6 +1319,67 @@ describe('AdaptiveHttpReader', () => {
       expect(chunks[1].startOffset).toBe(6630);
       expect(chunks[2].startOffset).toBe(57080);
     });
+
+    it('bounds an entry by the following entry offset when the local extra field is shorter than the estimate', () => {
+      // chunkSize: 1 forces each entry into its own chunk, so the boundary is observable
+      const reader = createReader('test.zip', { chunkSize: 1 });
+      const entries = createEntries(['a.txt', 0, 100], ['b.txt', 145, 100]);
+
+      const chunks = reader._buildChunks(entries);
+
+      // Unclamped, a.txt would end at 0 + 30 + 5 + 100 + 100 = 235, past b.txt's offset
+      expect(chunks[0].endOffset).toBe(145);
+      expect(chunks[1].startOffset).toBe(145);
+    });
+
+    it('produces non-overlapping chunk ranges for tightly packed entries', () => {
+      const reader = createReader('test.zip', { chunkSize: 200 });
+      const entries = createEntries(
+        ...Array.from({ length: 10 }, (_, i) => [`f${i}.txt`, i * 150, 100]),
+      );
+
+      const chunks = reader._buildChunks(entries);
+
+      expect(chunks.length).toBeGreaterThan(1);
+      for (let i = 1; i < chunks.length; i++) {
+        expect(chunks[i].startOffset).toBeGreaterThanOrEqual(chunks[i - 1].endOffset);
+      }
+    });
+
+    it('bounds an entry by a following directory or excluded media entry', () => {
+      const withDirectory = createReader('test.zip', { chunkSize: 1 });
+      const directoryChunks = withDirectory._buildChunks(
+        createEntries(
+          ['a.txt', 0, 100],
+          ['sub/', 145, 0, { directory: true }],
+          ['b.txt', 400, 100],
+        ),
+      );
+
+      // The directory is dropped from chunks but still occupies a local header at 145
+      expect(directoryChunks[0].endOffset).toBe(145);
+
+      const withMedia = createReader('test.zip', { chunkSize: 1, largeMediaThreshold: 500 });
+      const mediaChunks = withMedia._buildChunks(
+        createEntries(
+          ['a.txt', 0, 100],
+          ['v.mp4', 145, 600 * 1024, { uncompressedSize: 600 * 1024 }],
+        ),
+      );
+
+      expect(mediaChunks[0].endOffset).toBe(145);
+    });
+
+    it('keeps the extra-field estimate for the last entry in the archive', () => {
+      const reader = createReader('test.zip', { chunkSize: 1 });
+
+      const chunks = reader._buildChunks(createEntries(['a.txt', 0, 100]));
+
+      // Nothing follows a.txt, so the estimate is the only available bound
+      expect(chunks[0].endOffset).toBe(
+        ZIP_LOCAL_HEADER_SIZE + 'a.txt'.length + ZIP_EXTRA_FIELD_ESTIMATE + 100,
+      );
+    });
   });
 
   describe('Chunked fetching - _findChunk()', () => {
@@ -1584,6 +1744,24 @@ describe('AdaptiveHttpReader', () => {
       await expect(reader.readUint8Array(200, 200)).rejects.toThrow('No chunk covers range');
     });
 
+    it('serves a read that spans a chunk boundary from both chunks', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 100000, url: 'read-across-chunks.zip' },
+        { maxFullLoadSize: 1000, chunkSize: 1, largeMediaThreshold: 50000 },
+      );
+
+      // Clamping a.txt's end to b.txt's offset makes the chunks adjacent at 150, so a
+      // 16-byte data-descriptor read at 140 crosses the boundary
+      reader.configureChunks(createEntries(['a.txt', 0, 100], ['b.txt', 150, 100]));
+
+      const result = await reader.readUint8Array(140, 16);
+
+      expect(result.length).toBe(16);
+      expectations.dataMatches(result, 140);
+      expect(rangesSince(stats, 0)).toEqual(['bytes=0-149', 'bytes=150-384']);
+      expectations.noOverlappingRanges(stats);
+    });
+
     it('in lazy mode reading large file data throws error after chunks configured', async () => {
       const { reader } = await setupReader(
         { size: 100000, url: 'read-large-file.zip' },
@@ -1662,6 +1840,117 @@ describe('AdaptiveHttpReader', () => {
       expect(result.length).toBe(100);
       // Should have made an additional range request for the out-of-bounds read
       expect(rangesAfterFallback).toBeGreaterThan(rangesAfterTail);
+    });
+  });
+
+  describe('Non-overlapping range requests', () => {
+    // For a 100000 byte file the tail estimate is floor(100000 * 0.03) = 3000,
+    // so the prefetched tail covers [97000, 100000).
+    const TAIL_START = 97000;
+
+    // A lazy-mode reader whose prefetched tail is already populated.
+    async function setupReaderWithTail(url) {
+      const { reader, stats } = await setupReader({ size: 100000, url }, { maxFullLoadSize: 1000 });
+      await reader.readUint8Array(99950, 50);
+      expect(reader._tailChunk.startOffset).toBe(TAIL_START);
+      return { reader, stats };
+    }
+
+    it('a chunk that extends past the tail start only requests the bytes below it', async () => {
+      const { reader, stats } = await setupReaderWithTail('chunk-past-tail.zip');
+      const before = rangeCount(stats);
+
+      reader._chunks = [{ startOffset: 96000, endOffset: 98000, data: null, fetching: null }];
+      const result = await reader.readUint8Array(96500, 1000);
+
+      expect(rangesSince(stats, before)).toEqual(['bytes=96000-96999']);
+      expect(result.length).toBe(1000);
+      expectations.dataMatches(result, 96500);
+      expectations.noOverlappingRanges(stats);
+    });
+
+    it('grows the tail downwards, fetching only the bytes it does not already hold', async () => {
+      const { reader, stats } = await setupReaderWithTail('extend-tail.zip');
+      const before = rangeCount(stats);
+
+      // Ends exactly at the tail start: the boundary of "reaches the tail", and far outside
+      // the EOCD proximity window that used to be the trigger
+      const first = await reader.readUint8Array(96000, 1000);
+      // Wholly inside the grown tail
+      const cached = await reader.readUint8Array(96500, 3500);
+      // Below it again, so the tail grows a second time
+      const lower = await reader.readUint8Array(95000, 3000);
+
+      expect(rangesSince(stats, before)).toEqual(['bytes=96000-96999', 'bytes=95000-95999']);
+      expect(reader._tailChunk.startOffset).toBe(95000);
+      expect(first.length).toBe(1000);
+      expectations.dataMatches(first, 96000);
+      expect(cached.length).toBe(3500);
+      expectations.dataMatches(cached, 96500);
+      expect(lower.length).toBe(3000);
+      expectations.dataMatches(lower, 95000);
+      expectations.noOverlappingRanges(stats);
+    });
+
+    it('concurrent near-EOF reads below the tail issue one request per byte range', async () => {
+      const { reader, stats } = await setupReader(
+        { size: 100000, url: 'concurrent-tail.zip' },
+        { maxFullLoadSize: 1000 },
+      );
+
+      const [first, second] = await Promise.all([
+        reader.readUint8Array(96000, 4000),
+        reader.readUint8Array(95000, 5000),
+      ]);
+
+      // The tail seeds low enough for the first read, then grows down by only the bytes the
+      // second one lacks.
+      expect(rangesSince(stats, 0)).toEqual(['bytes=96000-99999', 'bytes=95000-95999']);
+      expect(first.length).toBe(4000);
+      expectations.dataMatches(first, 96000);
+      expect(second.length).toBe(5000);
+      expectations.dataMatches(second, 95000);
+      expectations.noOverlappingRanges(stats);
+    });
+
+    // The mechanism behind the invariant: no read path above produces an overlapping pair,
+    // and if one ever did, the second request waits rather than issuing.
+    it('defers a range request overlapping one in flight until that one completes', async () => {
+      let releaseFirst;
+      const firstHeld = new Promise(resolve => (releaseFirst = resolve));
+      let heldOne = false;
+      const { reader, stats } = await setupReader(
+        { size: 100000, url: 'serialised.zip' },
+        {
+          maxFullLoadSize: 1000,
+          serverOptions: {
+            rangeResponse: async ({ body }) => {
+              if (!heldOne) {
+                heldOne = true;
+                await firstHeld;
+              }
+              return body;
+            },
+          },
+        },
+      );
+
+      const first = reader._rangeRequest(1000, 500);
+      const second = reader._rangeRequest(1400, 500);
+      while (!heldOne) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+      await new Promise(resolve => setTimeout(resolve, 5));
+
+      // The two ranges share bytes 1400-1499, so the second is still held back.
+      expect(rangesSince(stats, 0)).toEqual(['bytes=1000-1499']);
+
+      releaseFirst();
+      const [firstBytes, secondBytes] = await Promise.all([first, second]);
+
+      expect(rangesSince(stats, 0)).toEqual(['bytes=1000-1499', 'bytes=1400-1899']);
+      expectations.dataMatches(firstBytes, 1000);
+      expectations.dataMatches(secondBytes, 1400);
     });
   });
 

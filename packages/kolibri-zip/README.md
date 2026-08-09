@@ -54,6 +54,10 @@ Chunks:       [=====chunk1=====]         [===chunk2===]
 
 This reduces the number of HTTP requests when extracting multiple files. Concurrent reads from the same chunk are deduplicated into a single fetch.
 
+Range requests for one URL never overlap: chunks end at the following entry's offset, a read spilling past a chunk is served from both chunks, and one reaching the prefetched tail grows the tail downwards. A request that would still overlap one in flight waits for it rather than issuing.
+
+That does not make a short response impossible: Chromium's in-memory cache serves a partial hit as fewer bytes than the `Content-Length` it declares, sized to a 4096-byte sparse-entry boundary (#15103). The body is always a correct prefix, so a short one is refetched with `Cache-Control: no-cache`, and only becomes an error — a described one, rather than an opaque inflater `TypeError` — if that is short too.
+
 ### Large Media File Handling
 
 For large video/audio files, provide a `largeFileUrlGenerator` to serve them directly:

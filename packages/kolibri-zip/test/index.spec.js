@@ -8,6 +8,7 @@ import xhrMock from 'xhr-mock';
 import { zipSync, strToU8 } from 'fflate';
 import ZipFile from '../src/index';
 import { Mapper } from '../src/fileUtils';
+import { findRangeOverlaps } from './rangeOverlaps';
 
 // Override global with Node's implementation (jsdom's version doesn't work correctly)
 global.TextEncoder = TextEncoder;
@@ -963,6 +964,29 @@ describe('ZipFile lazy loading', () => {
   });
 
   describe('Chunked fetching integration', () => {
+    it('issues no overlapping range requests while extracting every file', async () => {
+      // zip.js forces its own 64KB chunkSize, so >64KB of entry data is what gets a second
+      // chunk - and chunk boundaries are where the ranges used to overlap.
+      const zipContents = {};
+      for (let i = 0; i < 40; i++) {
+        zipContents[`content/file${i}.json`] = strToU8(
+          `{"index": ${i}, "pad": "${'x'.repeat(5000)}"}`,
+        );
+      }
+      const zipData = zipSync(zipContents, { level: 0 });
+      setupTrackingMockServer(zipData, 'overlap.zip');
+
+      const zip = new ZipFile('overlap.zip', { maxFullLoadSize: 1000 });
+      for (let i = 0; i < 40; i++) {
+        await zip.file(`content/file${i}.json`);
+      }
+
+      const ranges = requestLog.filter(r => r.range).map(r => r.range);
+      // More than tail + one chunk, so a chunk boundary was crossed and this is not vacuous.
+      expect(ranges.length).toBeGreaterThan(2);
+      expect(findRangeOverlaps(ranges)).toEqual([]);
+    });
+
     it('extracting many small files sequentially uses chunked fetching - reduces request count', async () => {
       // Create a zip with many small files (simulating H5P)
       const zipContents = {};
