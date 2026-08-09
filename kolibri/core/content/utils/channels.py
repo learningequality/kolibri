@@ -83,7 +83,13 @@ def read_channel_metadata_from_db_file(channeldbpath):
         # Version first: an unrecognised schema must raise SchemaNotFoundError, not
         # the ValueError that reading an absent table would give.
         inferred_schema_version = source.schema_version
-        source_channel_metadata = source.rows("content_channelmetadata")[0]
+        source_channel_metadata = next(
+            iter(source.rows("content_channelmetadata")), None
+        )
+        if source_channel_metadata is None:
+            raise ValueError(
+                "No channel metadata in database file {}".format(channeldbpath)
+            )
         source_channel_metadata["inferred_schema_version"] = inferred_schema_version
 
     # Adds an attribute `root_id` when `root_id` does not exist to match with

@@ -26,12 +26,29 @@ class SourceDBTestCase(FrozenSchemaDBMixin, TestCase):
 
     def test_rows_are_dicts_keyed_by_column(self):
         with SourceDB(self.build(VERSION_6)) as source:
-            rows = source.rows("content_channelmetadata")
+            rows = list(source.rows("content_channelmetadata"))
             self.assertTrue(rows)
             for row in rows:
                 self.assertEqual(
                     source.columns("content_channelmetadata"), list(row.keys())
                 )
+
+    def test_rows_projects_in_the_requested_order(self):
+        # Requested in an order the table does not declare, because the PostgreSQL
+        # COPY path pairs a positional value generator with this column list: a
+        # projection that fell back to table order would misalign every row.
+        with SourceDB(self.build(VERSION_6)) as source:
+            rows = list(source.rows("content_channelmetadata", columns=["name", "id"]))
+            self.assertTrue(rows)
+            for row in rows:
+                self.assertEqual(["name", "id"], list(row))
+
+    def test_rows_of_an_unknown_table_raises_without_being_iterated(self):
+        # A bare generator would defer this to the first next();
+        # read_channel_metadata_from_db_file relies on it being raised at the call.
+        with SourceDB(self.build(VERSION_6)) as source:
+            with self.assertRaises(ValueError):
+                source.rows("no_such_table")
 
     def test_columns_of_an_absent_table_is_empty(self):
         with SourceDB(self.build(V020BETA1)) as source:

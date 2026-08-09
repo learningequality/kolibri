@@ -27,4 +27,6 @@ class BuildContentDBFromFrozenSchemaTestCase(FrozenSchemaDBMixin, TestCase):
         # rest do not, and it still has to be inserted.
         fixture = load_content_fixture_data(V020BETA1)["content_contentnode"]
         with SourceDB(self.build(V020BETA1)) as source:
-            self.assertEqual(len(fixture), len(source.rows("content_contentnode")))
+            self.assertEqual(
+                len(fixture), len(list(source.rows("content_contentnode")))
+            )
