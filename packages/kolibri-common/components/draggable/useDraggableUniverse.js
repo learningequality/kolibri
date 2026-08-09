@@ -1,4 +1,5 @@
 import { ref, provide, inject } from 'vue';
+import { v4 as uuidv4 } from 'uuid';
 import useKLiveRegion from 'kolibri-design-system/lib/composables/useKLiveRegion';
 import {
   ITEM_CLASS,
@@ -11,14 +12,12 @@ import {
 
 const DraggableUniverseSymbol = Symbol('draggableUniverse');
 
-// Backs the generated group name so distinct universes never share a group
-let universeCounter = 0;
-
 /**
  * Build a universe context. Kept separate from `provide` so a region with no
  * `<DraggableUniverse>` ancestor can create its own standalone context.
  * @param {object} [options] - universe configuration
- * @param {string} [options.name] - explicit group name; defaults to a unique id.
+ * @param {string} [options.name] - explicit group name, the way to deliberately share
+ * one group across separate component trees; defaults to a generated unique id.
  * Intentionally initial-value-only: it is read once here, and a universe keeps the
  * group name it was created with for its whole lifetime. Regions cannot be moved
  * between groups after mount.
@@ -27,8 +26,7 @@ let universeCounter = 0;
  * @returns {object} the universe context
  */
 export function createDraggableUniverse({ name, delay } = {}) {
-  universeCounter += 1;
-  const groupName = name || `draggable-universe-${universeCounter}`;
+  const groupName = name || `draggable-universe-${uuidv4()}`;
 
   // each region's root element -> its API
   const regions = new Map();
