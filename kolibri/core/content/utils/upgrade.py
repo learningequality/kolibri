@@ -9,7 +9,6 @@ from sqlalchemy import func
 from sqlalchemy import or_
 from sqlalchemy import select
 
-from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ContentNode
@@ -90,25 +89,20 @@ def diff_stats(
                 no_upgrade=True,
             )
 
-        # create all fields/tables at the annotated destination db, based on the current schema version
-        bridge = Bridge(
-            sqlite_file_path=destination_path, schema_version=CURRENT_SCHEMA_VERSION
-        )
-        bridge.Base.metadata.create_all(bridge.engine)
-
-        # initialize import manager based on annotated destination path, pulling from source db path
+        # initialize import manager based on annotated destination path, pulling from
+        # source db path. It creates the content tables in that file itself.
         channel_metadata = read_channel_metadata_from_db_file(source_path)
-        import_manager = channel_import.initialize_import_manager(
+        # The importer's alias must be released before the annotation below opens its
+        # own on the same file: two write connections to one SQLite file lock out.
+        with channel_import.initialize_import_manager(
             channel_metadata,
             source_path,
             cancel_check=False,
             destination=destination_path,
             version_requested=True,
-        )
-
-        # import channel data from source db path
-        import_manager.import_channel_data()
-        import_manager.end()
+        ) as import_manager:
+            # import channel data from source db path
+            import_manager.import_channel_data()
 
         # annotate file availability on destination db
         annotation.set_local_file_availability_from_disk(destination=destination_path)

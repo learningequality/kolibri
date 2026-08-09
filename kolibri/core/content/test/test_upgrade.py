@@ -372,7 +372,6 @@ class FileIncludedPresetsAnnotationTestCase(TestCase):
 
 @patch("kolibri.core.content.utils.upgrade.channel_import.initialize_import_manager")
 @patch("kolibri.core.content.utils.upgrade.transfer_channel")
-@patch("kolibri.core.content.utils.upgrade.Bridge")
 @patch("kolibri.core.content.utils.upgrade.get_current_job", return_value=None)
 @patch(
     "kolibri.core.content.utils.upgrade.read_channel_metadata_from_db_file",
@@ -412,7 +411,6 @@ class DiffStatsVersionRequestedTestCase(TestCase):
         get_new_resources_mock,
         read_metadata_mock,
         get_current_job_mock,
-        BridgeMock,
         transfer_channel_mock,
         initialize_import_manager_mock,
     ):
