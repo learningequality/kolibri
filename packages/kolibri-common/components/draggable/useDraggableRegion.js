@@ -27,6 +27,9 @@ export default function useDraggableRegion(props, emit, rootElRef) {
 
   let sortable = null;
 
+  // frame handle for the deferred focus-exit announcement, null when none is queued
+  let pendingAnnouncement = null;
+
   // used only for the full-order announcement when focus leaves the region.
   const registeredItems = {};
 
@@ -161,15 +164,7 @@ export default function useDraggableRegion(props, emit, rootElRef) {
   );
   watch(universe.delay, delay => updateOption('delay', delay));
 
-  function handleFocusOut(event) {
-    // window/tab blur: relatedTarget is null but focus hasn't actually left
-    if (!document.hasFocus()) {
-      return;
-    }
-    // focus moved to another row inside this region: not a list-exit, don't announce
-    if (event.relatedTarget && rootElRef.value.contains(event.relatedTarget)) {
-      return;
-    }
+  function announceOrder() {
     const entries = Object.values(registeredItems);
     if (!entries.length) {
       return;
@@ -179,6 +174,37 @@ export default function useDraggableRegion(props, emit, rootElRef) {
       .map((entry, index) => `${index + 1}. ${entry.label}`)
       .join(', ');
     universe.sendPoliteMessage(currentOrder$({ order }));
+  }
+
+  function handleFocusOut(event) {
+    // window/tab blur: relatedTarget is null but focus hasn't actually left
+    if (!document.hasFocus()) {
+      return;
+    }
+    // focus moved to another row inside this region: not a list-exit, don't announce
+    if (event.relatedTarget && rootElRef.value.contains(event.relatedTarget)) {
+      return;
+    }
+    // A keyboard move re-renders the region, which detaches the moved row and blurs
+    // the move button with a null relatedTarget before focus is restored to it. Wait
+    // a frame and look at where focus actually settled, so a move does not get
+    // reported as a list-exit — and so the order we read is the post-move one.
+    cancelPendingAnnouncement();
+    pendingAnnouncement = requestAnimationFrame(() => {
+      pendingAnnouncement = null;
+      const el = rootElRef.value;
+      if (!el || !document.hasFocus() || el.contains(document.activeElement)) {
+        return;
+      }
+      announceOrder();
+    });
+  }
+
+  function cancelPendingAnnouncement() {
+    if (pendingAnnouncement !== null) {
+      cancelAnimationFrame(pendingAnnouncement);
+      pendingAnnouncement = null;
+    }
   }
 
   // Provided for the a11y move buttons
@@ -207,6 +233,7 @@ export default function useDraggableRegion(props, emit, rootElRef) {
 
   onBeforeUnmount(() => {
     const el = rootElRef.value;
+    cancelPendingAnnouncement();
     if (sortable) {
       sortable.destroy();
       sortable = null;

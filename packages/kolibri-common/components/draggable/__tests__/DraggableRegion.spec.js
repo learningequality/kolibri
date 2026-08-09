@@ -38,9 +38,10 @@ describe('DraggableRegion', () => {
   });
 
   // Mounts a lone region and returns its captured Sortable options.
-  async function mountRegion(propsData = {}) {
+  async function mountRegion(propsData = {}, mountOptions = {}) {
     const wrapper = mount(DraggableRegion, {
       propsData: { items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }], ...propsData },
+      ...mountOptions,
     });
     await wrapper.vm.$nextTick();
     const instance = mockInstances[mockInstances.length - 1];
@@ -352,31 +353,46 @@ describe('DraggableRegion', () => {
   });
 
   describe('full-order announcement on focus-exit', () => {
+    // The announcement waits a frame to see where focus settled.
+    function nextFrame() {
+      return new Promise(resolve => requestAnimationFrame(() => resolve()));
+    }
+
+    // A region in the document, so document.activeElement can be inside it.
+    async function mountAttachedRegion() {
+      const { wrapper } = await mountRegion({}, { attachTo: document.body });
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+      return { wrapper, outside };
+    }
+
     it('announces the current order when focus leaves the region', async () => {
-      const { wrapper } = await mountRegion();
+      const { wrapper, outside } = await mountAttachedRegion();
       // Simulate DragSortWidget registrations via the provided callbacks.
       const provided = wrapper.vm._provided;
       provided.registerSortItem(0, 'First', 1);
       provided.registerSortItem(1, 'Second', 2);
       provided.registerSortItem(2, 'Third', 3);
 
-      const outside = document.createElement('button');
-      document.body.appendChild(outside);
       await wrapper.trigger('focusout', { relatedTarget: outside });
+      outside.focus();
+      await nextFrame();
 
       expect(sendPoliteMessage).toHaveBeenCalledWith(
         'Current order: 1. First, 2. Second, 3. Third',
       );
       document.body.removeChild(outside);
+      wrapper.destroy();
     });
 
     it('does not announce when no items are registered', async () => {
-      const { wrapper } = await mountRegion();
-      const outside = document.createElement('button');
-      document.body.appendChild(outside);
+      const { wrapper, outside } = await mountAttachedRegion();
       await wrapper.trigger('focusout', { relatedTarget: outside });
+      outside.focus();
+      await nextFrame();
       expect(sendPoliteMessage).not.toHaveBeenCalled();
       document.body.removeChild(outside);
+      wrapper.destroy();
     });
 
     it('does not announce on window blur (document not focused)', async () => {
@@ -384,6 +400,7 @@ describe('DraggableRegion', () => {
       const { wrapper } = await mountRegion();
       wrapper.vm._provided.registerSortItem(0, 'First', 1);
       await wrapper.trigger('focusout', { relatedTarget: null });
+      await nextFrame();
       expect(sendPoliteMessage).not.toHaveBeenCalled();
     });
   });
