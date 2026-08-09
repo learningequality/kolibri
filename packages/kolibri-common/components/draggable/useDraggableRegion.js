@@ -70,6 +70,11 @@ export default function useDraggableRegion(props, emit, rootElRef) {
 
     const { item, clone, from, to, oldIndex, oldDraggableIndex, newDraggableIndex, pullMode } = evt;
 
+    // exit early if the item was dropped back in its original position
+    if (from === to && oldDraggableIndex === newDraggableIndex) {
+      return;
+    }
+
     // 1. Undo SortableJS's DOM mutation
     removeNode(item);
     if (clone && clone.parentNode) {
