@@ -18,17 +18,11 @@ from kolibri.core.content.upgrade import file_included_presets_annotation
 from kolibri.core.content.upgrade import fix_multiple_trees_with_tree_id1
 from kolibri.core.content.upgrade import migrate_file_size_to_bigint
 from kolibri.core.content.upgrade import update_num_coach_contents
+from kolibri.core.content.upgrade import update_on_device_resources
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
 from kolibri.core.content.utils.file_size_migration import drop_legacy_file_size_column
 from kolibri.core.content.utils.file_size_migration import localfile_columns
 from kolibri.core.content.utils.upgrade import diff_stats
-
-from .sqlalchemytesting import django_connection_engine
-
-
-def get_engine(connection_string):
-    return django_connection_engine()
-
 
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
@@ -186,7 +180,6 @@ class FixMultipleTreesWithId1TestCase(TransactionTestCase):
         import_mock.assert_called_with(root_node_2.channel_id)
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class UpdateNumCoachContents(TransactionTestCase):
     fixtures = ["content_test.json"]
 
@@ -298,6 +291,37 @@ class UpdateNumCoachContents(TransactionTestCase):
         update_num_coach_contents()
         parent_node.refresh_from_db()
         self.assertEqual(parent_node.num_coach_contents, 1)
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super().tearDown()
+
+
+class UpdateOnDeviceResources(TransactionTestCase):
+    fixtures = ["content_test.json"]
+
+    def setUp(self):
+        super().setUp()
+        ContentNode.objects.all().update(available=True, on_device_resources=0)
+        self.root_node = ContentNode.objects.get(parent__isnull=True)
+        self.leaves = (
+            self.root_node.get_descendants().exclude(kind=content_kinds.TOPIC).count()
+        )
+
+    def test_root_counts_its_available_leaf_descendants(self):
+        update_on_device_resources()
+        self.root_node.refresh_from_db()
+        self.assertEqual(self.leaves, self.root_node.on_device_resources)
+
+    def test_an_unavailable_leaf_is_not_counted(self):
+        leaf = (
+            self.root_node.get_descendants().exclude(kind=content_kinds.TOPIC).first()
+        )
+        leaf.available = False
+        leaf.save()
+        update_on_device_resources()
+        self.root_node.refresh_from_db()
+        self.assertEqual(self.leaves - 1, self.root_node.on_device_resources)
 
     def tearDown(self):
         call_command("flush", interactive=False)

@@ -43,6 +43,7 @@ from kolibri.core.content.utils.search import metadata_bitmasks
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
+from kolibri.core.mixins import FilterByChecksumQuerysetMixin
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -280,7 +281,9 @@ class File(base_models.File):
         return PRESET_LOOKUP.get(self.preset, "Unknown format")
 
 
-class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
+class LocalFileQueryset(
+    models.QuerySet, FilterByUUIDQuerysetMixin, FilterByChecksumQuerysetMixin
+):
     def delete_unused_files(self):
         for file in self.get_unused_files().values("id", "extension"):
             try:

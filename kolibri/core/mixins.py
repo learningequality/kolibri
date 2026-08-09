@@ -3,10 +3,12 @@ Mixins for Django REST Framework ViewSets and Django Querysets
 """
 
 import logging
+import re
 from uuid import UUID
 
 from django.core.exceptions import EmptyResultSet
 from django.db.models import ForeignKey
+from django.db.models import Q
 from django.db.models import QuerySet
 from django.db.models.fields import CharField
 from django.db.models.lookups import In
@@ -138,6 +140,16 @@ CharField.register_lookup(UUIDIn)
 ForeignKey.register_lookup(UUIDIn)
 
 
+class ChecksumIn(UUIDIn):
+    lookup_name = "checksumin"
+
+
+CharField.register_lookup(ChecksumIn)
+# File.local_file_id is a relation, and a lookup not registered here does not
+# resolve through one.
+ForeignKey.register_lookup(ChecksumIn)
+
+
 class UUIDValidationError(Exception):
     pass
 
@@ -193,3 +205,32 @@ class FilterByUUIDQuerysetMixin:
         if include:
             return self.filter(**kwargs)
         return self.exclude(**kwargs)
+
+
+checksum_re = re.compile("^[0-9a-f]{32}$")
+
+
+def checksums_q(field_name, checksums):
+    """
+    Q matching field_name against checksums as inline literals, as a workaround to
+    the SQLITE_MAX_VARIABLE_NUMBER.
+
+    A malformed or empty list raises EmptyResultSet at compile time rather than
+    matching zero rows, so ORing this with another condition drops this branch and
+    leaves that condition standing alone.
+    """
+    if len(checksums) > 10000:
+        logger.warning(
+            """
+            More than 10000 checksums passed to the checksums_q method,
+            these should be batched into separate querysets to avoid SQL Query too large errors in SQLite
+        """
+        )
+    if not all(checksum_re.match(checksum) for checksum in checksums):
+        return Q(pk__in=[])
+    return Q(**{"{}__checksumin".format(field_name): checksums})
+
+
+class FilterByChecksumQuerysetMixin:
+    def filter_by_checksums(self, checksums):
+        return self.filter(checksums_q(self.model._meta.pk.attname, checksums))

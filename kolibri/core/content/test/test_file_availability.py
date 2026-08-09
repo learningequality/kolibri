@@ -17,19 +17,11 @@ from kolibri.core.content.utils.file_availability import (
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.utils.cache import process_cache
 
-from .sqlalchemytesting import django_connection_engine
-
-
-def get_engine(connection_string):
-    return django_connection_engine()
-
-
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 file_id_1 = "6bdfea4a01830fdd4a585181c0b8068c"
 file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileByDisk(TransactionTestCase):
     databases = "__all__"
 
@@ -130,7 +122,6 @@ local_file_qs = LocalFile.objects.filter(
 ).values_list("id", flat=True)
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileRemote(TransactionTestCase):
     databases = "__all__"
 
