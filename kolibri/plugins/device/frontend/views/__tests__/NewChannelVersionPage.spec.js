@@ -1,6 +1,7 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { render, waitFor } from '@testing-library/vue';
 import VueRouter from 'vue-router';
 import NewChannelVersionPage from '../ManageContentPage/NewChannelVersionPage';
+import { fetchChannelAtSource } from '../ManageContentPage/api';
 import { makeSelectContentPageStore } from '../../__tests__/utils/makeStore';
 
 jest.mock('kolibri/urls');
@@ -26,37 +27,52 @@ jest.mock('kolibri/apiResources/TaskResource', () => ({
   startTask: jest.fn().mockResolvedValue({ id: 'task-1', extra_metadata: {} }),
 }));
 
-const localVue = createLocalVue();
-localVue.use(VueRouter);
-
-function makeWrapper(routeQuery = {}) {
-  const store = makeSelectContentPageStore();
-  const router = new VueRouter({
+function createRouter() {
+  return new VueRouter({
     routes: [
-      {
-        name: 'NEW_CHANNEL_VERSION_PAGE',
-        path: '/content/manage_channel/:channel_id/upgrade',
-      },
+      { name: 'NEW_CHANNEL_VERSION_PAGE', path: '/content/manage_channel/:channel_id/upgrade' },
       { name: 'MANAGE_CONTENT_PAGE', path: '/content' },
       { name: 'MANAGE_TASKS', path: '/content/tasks' },
     ],
   });
-  router.push({
+}
+
+async function renderComponent(routeQuery = {}) {
+  const store = makeSelectContentPageStore();
+  const router = createRouter();
+  await router.push({
     name: 'NEW_CHANNEL_VERSION_PAGE',
     params: { channel_id: 'awesome_channel' },
     query: routeQuery,
   });
-  return mount(NewChannelVersionPage, { localVue, store, router });
+  return render(NewChannelVersionPage, { store, router });
 }
 
 describe('NewChannelVersionPage', () => {
-  it('includes token in params when token is in route query', () => {
-    const wrapper = makeWrapper({ token: 'my-special-token' });
-    expect(wrapper.vm.params.token).toEqual('my-special-token');
+  beforeEach(() => {
+    // Mock call history isn't automatically reset between tests, so without this
+    // the second test could see stale calls left over from the first.
+    jest.clearAllMocks();
   });
 
-  it('does not include token in params when token is absent from route query', () => {
-    const wrapper = makeWrapper({});
-    expect(wrapper.vm.params.token).toBeUndefined();
+  it('includes the token in the channel lookup params when a token is present in the route query', async () => {
+    await renderComponent({ token: 'my-special-token' });
+
+    await waitFor(() => {
+      expect(fetchChannelAtSource).toHaveBeenCalledWith(
+        expect.objectContaining({ token: 'my-special-token' }),
+      );
+    });
+  });
+
+  it('does not include a token in the channel lookup params when the route query has no token', async () => {
+    await renderComponent({});
+
+    await waitFor(() => {
+      expect(fetchChannelAtSource).toHaveBeenCalled();
+    });
+
+    const calledParams = fetchChannelAtSource.mock.calls[0][0];
+    expect(calledParams.token).toBeUndefined();
   });
 });
