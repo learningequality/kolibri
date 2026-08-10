@@ -21,11 +21,9 @@
           <ContentViewer
             v-if="itemId"
             ref="contentViewer"
-            :lang="content.lang"
-            :files="content.files"
+            :contentNode="content"
             :extraFields="extraFields"
             :itemId="itemId"
-            :assessment="true"
             :allowHints="false"
             :answerState="currentAttempt.answer"
             :userId="userId"
