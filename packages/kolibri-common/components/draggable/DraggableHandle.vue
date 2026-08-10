@@ -35,7 +35,7 @@
 <style lang="scss" scoped>
 
   .draggable-handle {
-    cursor: pointer;
+    cursor: grab;
   }
 
 </style>

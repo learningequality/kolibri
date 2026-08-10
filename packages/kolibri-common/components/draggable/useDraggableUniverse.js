@@ -42,6 +42,9 @@ export function createDraggableUniverse({ name, delay } = {}) {
   // have mounted; each region watches this and updates its SortableJS instance.
   const dragDelay = ref(delay == null ? 250 : delay);
 
+  const prefersReducedMotion =
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
   const sortableDefaults = {
     forceFallback: true,
     fallbackOnBody: false, // keep the clone inside the region subtree so overrides still match
@@ -51,7 +54,7 @@ export function createDraggableUniverse({ name, delay } = {}) {
     ghostClass: GHOST_CLASS,
     chosenClass: CHOSEN_CLASS,
     dragClass: DRAG_CLASS,
-    animation: 150,
+    animation: prefersReducedMotion ? 0 : 150,
   };
 
   return {
