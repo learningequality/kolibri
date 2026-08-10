@@ -2,7 +2,6 @@ import Modalities from 'kolibri-constants/Modalities';
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
 import CourseSessionResource from 'kolibri-common/apiResources/CourseSessionResource';
 import { ref, computed, provide, inject, watch } from 'vue';
-import useFetch from 'kolibri/composables/useFetch';
 import { useCourses } from '../../../composables/useCourses';
 
 /**
@@ -31,23 +30,12 @@ export default function useAssignCourse({ classId }) {
   const originalGroupIds = ref([]);
   const originalLearnerIds = ref([]);
 
-  const coursesFetch = useFetch({
-    fetchMethod: () => {
-      return ContentNodeResource.fetchCollection({
-        getParams: {
-          available: true,
-          max_results: 25,
-          modality: Modalities.COURSE,
-          keywords: searchKeywords.value,
-        },
-      });
-    },
-    fetchMoreMethod: moreParams => {
-      return ContentNodeResource.fetchCollection({
-        getParams: moreParams,
-      });
-    },
-  });
+  const coursesFetch = ContentNodeResource.useList(() => ({
+    available: true,
+    max_results: 25,
+    modality: Modalities.COURSE,
+    keywords: searchKeywords.value,
+  }));
 
   const isLoading = computed(() => coursesFetch.loading.value);
 
@@ -89,17 +77,17 @@ export default function useAssignCourse({ classId }) {
 
   const assignCourse = () => {
     const isEditing = courseSessionId.value != null;
-    return CourseSessionResource.saveModel({
-      id: isEditing ? courseSessionId.value : undefined,
-      data: {
-        active: isEditing ? courseSessionVisible.value : false,
-        collection: classId.value,
-        course: selectedCourse.value.id,
-        assignments: selectedGroupIds.value,
-        learner_ids: selectedLearnerIds.value,
-      },
-      exists: isEditing,
-    }).then(response => {
+    const data = {
+      active: isEditing ? courseSessionVisible.value : false,
+      collection: classId.value,
+      course: selectedCourse.value.id,
+      assignments: selectedGroupIds.value,
+      learner_ids: selectedLearnerIds.value,
+    };
+    const savePromise = isEditing
+      ? CourseSessionResource.update(courseSessionId.value, data)
+      : CourseSessionResource.create(data);
+    return savePromise.then(response => {
       // Refresh local course list so the changes show immediately
       refreshClassCourses();
       return response;

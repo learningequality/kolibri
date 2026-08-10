@@ -271,13 +271,7 @@
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
 
-        const promise = LessonResource.saveModel({
-          id: this.lesson.id,
-          data: {
-            active: newActiveState,
-          },
-          exists: true,
-        });
+        const promise = LessonResource.update(this.lesson.id, { active: newActiveState });
 
         this.manageModalVisibilityAndPreferences();
 

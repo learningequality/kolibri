@@ -7,10 +7,7 @@ import { handleApiError } from 'kolibri/utils/appError';
  * @returns {Promise<Array|Error>} Array of sync status objects, or Error on failure.
  */
 export function fetchClassSyncStatus(classId) {
-  return UserSyncStatusResource.fetchCollection({
-    force: true,
-    getParams: { member_of: classId },
-  }).catch(error => {
+  return UserSyncStatusResource.list({ member_of: classId }).catch(error => {
     handleApiError({ error });
     return error;
   });

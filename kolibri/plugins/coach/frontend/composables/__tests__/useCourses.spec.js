@@ -63,7 +63,7 @@ describe('useCourses', () => {
 
     it('should toggle during refreshClassCourses', async () => {
       let resolveCollection;
-      CourseSessionResource.fetchCollection.mockReturnValue(
+      CourseSessionResource.list.mockReturnValue(
         new Promise(resolve => {
           resolveCollection = resolve;
         }),
@@ -88,19 +88,16 @@ describe('useCourses', () => {
     ];
 
     it('should fetch course sessions with correct parameters', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue([]);
+      CourseSessionResource.list.mockResolvedValue([]);
       const { refreshClassCourses, classId } = useCourses();
 
       await refreshClassCourses();
 
-      expect(CourseSessionResource.fetchCollection).toHaveBeenCalledWith({
-        getParams: { collection: classId.value },
-        force: true,
-      });
+      expect(CourseSessionResource.list).toHaveBeenCalledWith({ collection: classId.value });
     });
 
     it('should map backend fields for compatibility', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue([
+      CourseSessionResource.list.mockResolvedValue([
         { id: 'session-1', course: 'content-1', missing_resource: true },
       ]);
 
@@ -111,7 +108,7 @@ describe('useCourses', () => {
     });
 
     it('should return empty array when no course sessions exist', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue([]);
+      CourseSessionResource.list.mockResolvedValue([]);
 
       const { refreshClassCourses } = useCourses();
       const result = await refreshClassCourses();
@@ -120,7 +117,7 @@ describe('useCourses', () => {
     });
 
     it('should update courses state', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue(mockCourseSessions);
+      CourseSessionResource.list.mockResolvedValue(mockCourseSessions);
 
       const { refreshClassCourses, courses } = useCourses();
       await refreshClassCourses();
@@ -131,7 +128,7 @@ describe('useCourses', () => {
     });
 
     it('should return course sessions on success', async () => {
-      CourseSessionResource.fetchCollection.mockResolvedValue([mockCourseSessions[0]]);
+      CourseSessionResource.list.mockResolvedValue([mockCourseSessions[0]]);
 
       const { refreshClassCourses } = useCourses();
       const result = await refreshClassCourses();

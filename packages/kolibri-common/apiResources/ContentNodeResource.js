@@ -88,6 +88,10 @@ export default new Resource({
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
   },
+  async fetchDescendantsAssessments_v2(ids) {
+    const { data } = await this.request({ action: 'descendants_assessments', params: { ids } });
+    return data;
+  },
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
@@ -129,6 +133,25 @@ export default new Resource({
       return response.data;
     });
   },
+  // As in `fetchModel` above, a cache hit ignores `params`.
+  async retrieve(id, { params } = {}) {
+    if (this.cache[id]) {
+      return cloneDeep(this.cache[id]);
+    }
+    const data = await Resource.prototype.retrieve.call(this, id, { params });
+    this.cacheData(data);
+    return data;
+  },
+  async list(params) {
+    const data = await Resource.prototype.list.call(this, params);
+    this.cacheData(data);
+    return data;
+  },
+  async _requestAndCache(options) {
+    const { data } = await this.request(options);
+    this.cacheData(data);
+    return data;
+  },
   cacheData(data) {
     if (Array.isArray(data)) {
       for (const model of data) {
@@ -163,11 +186,17 @@ export default new Resource({
       return response.data;
     });
   },
+  async fetchTree_v2({ id, params }) {
+    return this._requestAndCache({ action: 'tree_detail', routeParams: id, params });
+  },
   fetchBookmarks({ params }) {
     const url = urls['kolibri:core:contentnode_bookmarks_list']();
     return this.client({ url, params }).then(response => {
       this.cacheData(response.data);
       return response.data;
     });
+  },
+  async fetchBookmarks_v2({ params }) {
+    return this._requestAndCache({ action: 'bookmarks_list', params });
   },
 });

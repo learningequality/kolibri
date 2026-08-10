@@ -30,12 +30,10 @@ describe('useQuizResources', () => {
     },
   ];
 
-  const descendantsResponse = {
-    data: [
-      { id: 'topic1', num_assessments: 2 },
-      { id: 'topic2', num_assessments: 1 },
-    ],
-  };
+  const descendantsResponse = [
+    { id: 'topic1', num_assessments: 2 },
+    { id: 'topic2', num_assessments: 1 },
+  ];
 
   beforeEach(() => {
     // Reset mocks before each test
@@ -50,8 +48,7 @@ describe('useQuizResources', () => {
       loading: ref(false),
     }));
 
-    // Mock ContentNodeResource.fetchDescendantsAssessments
-    ContentNodeResource.fetchDescendantsAssessments.mockResolvedValue(descendantsResponse);
+    ContentNodeResource.fetchDescendantsAssessments_v2.mockResolvedValue(descendantsResponse);
   });
 
   describe('initialization', () => {
@@ -99,19 +96,17 @@ describe('useQuizResources', () => {
         sampleResults[2], // Exercise remains unchanged
       ]);
 
-      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);
     });
 
     it('should filter out topics with no assessments', async () => {
-      ContentNodeResource.fetchDescendantsAssessments.mockResolvedValue({
-        data: [
-          { id: 'topic1', num_assessments: 0 }, // No assessments
-          { id: 'topic2', num_assessments: 1 },
-        ],
-      });
+      ContentNodeResource.fetchDescendantsAssessments_v2.mockResolvedValue([
+        { id: 'topic1', num_assessments: 0 }, // No assessments
+        { id: 'topic2', num_assessments: 1 },
+      ]);
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
       const result = await annotateTopicsWithDescendantCounts(sampleResults);
@@ -127,7 +122,7 @@ describe('useQuizResources', () => {
 
     it('should handle API errors gracefully', async () => {
       const error = new Error('API Error');
-      ContentNodeResource.fetchDescendantsAssessments.mockRejectedValue(error);
+      ContentNodeResource.fetchDescendantsAssessments_v2.mockRejectedValue(error);
 
       const { annotateTopicsWithDescendantCounts } = useQuizResources();
       const result = await annotateTopicsWithDescendantCounts(sampleResults);
@@ -154,7 +149,7 @@ describe('useQuizResources', () => {
       ]);
 
       // Verify that the API call to fetch descendant assessments was made with correct topic IDs
-      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);
@@ -177,7 +172,7 @@ describe('useQuizResources', () => {
       expect(get(quizResources.resources)).toEqual([...initialResources, ...expectedNewResources]);
 
       // Verify that the API call was made correctly during fetchMore as well
-      expect(ContentNodeResource.fetchDescendantsAssessments).toHaveBeenCalledWith([
+      expect(ContentNodeResource.fetchDescendantsAssessments_v2).toHaveBeenCalledWith([
         'topic1',
         'topic2',
       ]);

@@ -203,7 +203,7 @@
     methods: {
       fetchOutsideClassroom() {
         this.fetchingOutside = true;
-        ClassSummaryResource.fetchModel({ id: this.targetClassId, force: true }).then(summary => {
+        ClassSummaryResource.retrieve(this.targetClassId).then(summary => {
           const summaryGroupMap = {};
           summary.groups.forEach(group => {
             summaryGroupMap[group.id] = group;

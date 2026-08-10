@@ -46,11 +46,7 @@ export default {
         store.commit('SET_CURRENT_CLASSROOM_ID', classroomId);
       }
       return notificationsResource
-        .fetchCollection({
-          getParams: {
-            classroom_id: classroomId,
-          },
-        })
+        .list({ classroom_id: classroomId })
         .then(data => {
           store.commit('SET_NOTIFICATIONS', data.results);
           if (!store.state.poller) {
@@ -76,10 +72,7 @@ export default {
         params.after = after;
       }
       return notificationsResource
-        .fetchCollection({
-          getParams: params,
-          force: true,
-        })
+        .list(params)
         .then(data => {
           if (data.results.length > 0) {
             store.commit('INSERT_NOTIFICATIONS', data.results);
@@ -100,14 +93,11 @@ export default {
       }
       const limit = 25;
       return notificationsResource
-        .fetchCollection({
-          getParams: {
-            classroom_id: classroomId,
-            before: lastNotification.timestamp,
-            limit,
-            ...(params || {}),
-          },
-          force: true,
+        .list({
+          classroom_id: classroomId,
+          before: lastNotification.timestamp,
+          limit,
+          ...(params || {}),
         })
         .then(data => {
           if (data.results.length > 0) {

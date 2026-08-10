@@ -599,9 +599,7 @@
 
         if (action === MENU_ACTIONS.EDIT_RECIPIENTS) {
           try {
-            const courseContent = await ContentNodeResource.fetchModel({
-              id: courseSession.value.course,
-            });
+            const courseContent = await ContentNodeResource.retrieve(courseSession.value.course);
             assignCourse.selectCourse(courseContent);
             assignCourse.setCourseVisibility(courseSession.value.active);
             assignCourse.setExistingAssignment(courseSession.value);

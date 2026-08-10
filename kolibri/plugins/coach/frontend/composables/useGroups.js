@@ -29,14 +29,8 @@ export function useGroups() {
     setGroupsLoading(true);
 
     const promises = [
-      FacilityUserResource.fetchCollection({
-        getParams: { member_of: classId },
-        force: true,
-      }),
-      LearnerGroupResource.fetchCollection({
-        getParams: { parent: classId },
-        force: true,
-      }),
+      FacilityUserResource.list({ member_of: classId }),
+      LearnerGroupResource.list({ parent: classId }),
     ];
     const shouldResolve = samePageCheckGenerator(route);
     return Promise.all(promises).then(
@@ -44,10 +38,7 @@ export function useGroups() {
         if (shouldResolve()) {
           const groups = groupsCollection.map(group => ({ ...group, users: [] }));
           const groupUsersPromises = groups.map(group =>
-            FacilityUserResource.fetchCollection({
-              getParams: { member_of: group.id },
-              force: true,
-            }),
+            FacilityUserResource.list({ member_of: group.id }),
           );
 
           Promise.all(groupUsersPromises).then(

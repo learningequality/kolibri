@@ -49,7 +49,7 @@ function showExerciseDetailView({
   // Passed in exerciseId is the content_id of the contentNode
   // Map this to the id of the content node to do this fetch
   exerciseId = store.state.classSummary.contentMap[exerciseId].node_id;
-  return ContentNodeResource.fetchModel({ id: exerciseId }).then(
+  return ContentNodeResource.retrieve(exerciseId).then(
     exercise => {
       store.commit('exerciseDetail/SET_STATE', {
         questionId,

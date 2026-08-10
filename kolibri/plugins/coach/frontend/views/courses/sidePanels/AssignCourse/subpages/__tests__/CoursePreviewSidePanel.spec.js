@@ -35,7 +35,7 @@ describe('CoursePreviewSidePanel', () => {
 
   it('renders the topic once its fetch resolves', async () => {
     const topicTitle = 'Topic B';
-    ContentNodeResource.fetchTree.mockResolvedValue({
+    ContentNodeResource.fetchTree_v2.mockResolvedValue({
       id: 'topic-B',
       title: topicTitle,
       parent: 'topic-A',
@@ -50,7 +50,7 @@ describe('CoursePreviewSidePanel', () => {
 
   it('does not render a bookmark button on resource cards', async () => {
     const resourceTitle = 'Resource 1';
-    ContentNodeResource.fetchTree.mockResolvedValue({
+    ContentNodeResource.fetchTree_v2.mockResolvedValue({
       id: 'topic-B',
       title: 'Topic B',
       parent: 'topic-A',
@@ -75,7 +75,7 @@ describe('CoursePreviewSidePanel', () => {
 
   describe('breadcrumb "Courses" crumb', () => {
     it('links to the course picker when assigning a new course', async () => {
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         id: 'topic-B',
         title: 'Topic B',
         parent: 'topic-A',
@@ -95,7 +95,7 @@ describe('CoursePreviewSidePanel', () => {
 
     it('is omitted when previewing from an already-assigned course summary', async () => {
       mockRoute.params = { courseId: 'course-1', courseSessionId: 'session-1' };
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         id: 'topic-B',
         title: 'Topic B',
         parent: 'topic-A',
@@ -112,12 +112,12 @@ describe('CoursePreviewSidePanel', () => {
   describe('goBack', () => {
     it('goes from a resource back to its topic', async () => {
       mockRoute.query = { previewTopicId: 'topic-B', previewContentId: 'resource-1' };
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         id: 'topic-B',
         parent: 'topic-A',
         children: { results: [] },
       });
-      ContentNodeResource.fetchModel.mockResolvedValue({ id: 'resource-1', ancestors: [] });
+      ContentNodeResource.retrieve.mockResolvedValue({ id: 'resource-1', ancestors: [] });
 
       render(CoursePreviewSidePanel, { routes: TEST_ROUTES });
       await flushPromises();
@@ -135,7 +135,7 @@ describe('CoursePreviewSidePanel', () => {
     });
 
     it('goes from a topic up to its parent topic', async () => {
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         id: 'topic-B',
         parent: 'topic-A',
         children: { results: [] },
@@ -158,7 +158,7 @@ describe('CoursePreviewSidePanel', () => {
 
     it('exits preview when going back from the course root', async () => {
       mockRoute.query = { previewTopicId: 'course-1', previewContentId: undefined };
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         id: 'course-1',
         parent: null,
         children: { results: [] },
@@ -187,14 +187,14 @@ describe('CoursePreviewSidePanel', () => {
       resolveTopicC = resolve;
     });
 
-    ContentNodeResource.fetchTree.mockImplementation(({ id }) => {
+    ContentNodeResource.fetchTree_v2.mockImplementation(({ id }) => {
       if (id === 'topic-B') {
         return Promise.resolve({ id: 'topic-B', parent: 'topic-A', children: { results: [] } });
       }
       if (id === 'topic-C') {
         return topicCFetch;
       }
-      throw new Error(`unexpected fetchTree id: ${id}`);
+      throw new Error(`unexpected fetchTree_v2 id: ${id}`);
     });
 
     render(CoursePreviewSidePanel, { routes: TEST_ROUTES });
@@ -219,7 +219,7 @@ describe('CoursePreviewSidePanel', () => {
   it('renders an error message and exits the preview via the back button when the topic fetch fails', async () => {
     mockRoute.query = { previewTopicId: 'topic-C', previewContentId: undefined };
     mockRoute.params = { courseId: 'course-1' };
-    ContentNodeResource.fetchTree.mockRejectedValue(new Error('network error'));
+    ContentNodeResource.fetchTree_v2.mockRejectedValue(new Error('network error'));
 
     render(CoursePreviewSidePanel, { routes: TEST_ROUTES });
     await flushPromises();
@@ -240,7 +240,7 @@ describe('CoursePreviewSidePanel', () => {
   });
 
   it('renders a "no resources" message when a topic has no children', async () => {
-    ContentNodeResource.fetchTree.mockResolvedValue({
+    ContentNodeResource.fetchTree_v2.mockResolvedValue({
       id: 'topic-B',
       title: 'Topic B',
       parent: 'topic-A',
@@ -255,10 +255,10 @@ describe('CoursePreviewSidePanel', () => {
 
   it('does not crash when previewContentId is already set before the topic fetch resolves', async () => {
     mockRoute.query = { previewTopicId: 'topic-B', previewContentId: 'resource-1' };
-    ContentNodeResource.fetchModel.mockResolvedValue({ id: 'resource-1', ancestors: [] });
+    ContentNodeResource.retrieve.mockResolvedValue({ id: 'resource-1', ancestors: [] });
 
     let resolveTopicB;
-    ContentNodeResource.fetchTree.mockImplementation(
+    ContentNodeResource.fetchTree_v2.mockImplementation(
       () =>
         new Promise(resolve => {
           resolveTopicB = resolve;

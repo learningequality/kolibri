@@ -13,10 +13,7 @@ const translator = createTranslator('LessonRootActionTexts', {
 });
 
 export function refreshClassLessons(store, classId) {
-  return LessonResource.fetchCollection({
-    getParams: { collection: classId },
-    force: true,
-  })
+  return LessonResource.list({ collection: classId })
     .then(lessons => {
       // Fetch lesson sizes before commiting new lessons
       // so that they can be commited together with their sizes.
@@ -43,7 +40,7 @@ export function refreshClassLessons(store, classId) {
 }
 
 export function fetchLessonsSizes(store, classId, shouldCommit = true) {
-  return LessonResource.fetchLessonsSizes({ collection: classId })
+  return LessonResource.fetchLessonsSizes_v2({ collection: classId })
     .then(sizes => {
       if (shouldCommit) {
         store.commit('SET_CLASS_LESSONS_SIZES', sizes);
@@ -61,9 +58,7 @@ export function createLesson(store, { classId, payload }) {
       ...payload,
       collection: classId,
     };
-    return LessonResource.saveModel({
-      data,
-    })
+    return LessonResource.create(data)
       .then(newLesson => {
         const { createSnackbar } = useSnackbar();
         createSnackbar(translator.$tr('newLessonCreated'));

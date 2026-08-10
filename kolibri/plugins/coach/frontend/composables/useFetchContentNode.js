@@ -12,10 +12,7 @@ export default function useFetchContentNode(contentId) {
     if (!contentId) {
       return;
     }
-    ContentNodeResource.fetchModel({
-      id: contentId,
-      getParams: { no_available_filtering: true },
-    })
+    ContentNodeResource.retrieve(contentId, { params: { no_available_filtering: true } })
       .then(node => {
         loading.value = false;
         contentNode.value = node;

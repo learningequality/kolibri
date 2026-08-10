@@ -10,4 +10,8 @@ export default new Resource({
   fetchQuizzesSizes(getParams = {}) {
     return this.fetchListCollection('size', getParams);
   },
+  async fetchQuizzesSizes_v2(params = {}) {
+    const response = await this.request({ action: 'size', params });
+    return response.data;
+  },
 });

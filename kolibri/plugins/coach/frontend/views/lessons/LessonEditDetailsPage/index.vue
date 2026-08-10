@@ -24,6 +24,7 @@
 
 <script>
 
+  import cloneDeep from 'lodash/cloneDeep';
   import LessonResource from 'kolibri-common/apiResources/LessonResource';
   import commonCoreStrings from 'kolibri/uiText/commonCoreStrings';
   import useUser from 'kolibri/composables/useUser';
@@ -64,6 +65,7 @@
           assignments: [],
           active: false,
         },
+        lessonBaseline: null,
         loading: true,
         disabled: false,
       };
@@ -92,11 +94,7 @@
           : Promise.resolve();
 
       Promise.all([initClassInfoPromise, fetchFacilitiesPromise])
-        .then(() =>
-          LessonResource.fetchModel({
-            id: this.$route.params.lessonId,
-          }),
-        )
+        .then(() => LessonResource.retrieve(this.$route.params.lessonId))
         .then(lesson => this.setData(lesson))
         .catch(error => this.setError(error));
     },
@@ -104,6 +102,9 @@
       // @public
       setData(data) {
         this.lesson = data;
+        // `this.lesson`'s arrays are handed to AssignmentDetailsModal, which mutates them in
+        // place, so a shallow copy would diff the baseline against itself.
+        this.lessonBaseline = cloneDeep(data);
         this.loading = false;
         pageLoading.value = false;
       },
@@ -125,7 +126,9 @@
           learner_ids: newDetails.learner_ids,
         };
 
-        return LessonResource.saveModel({ id: this.$route.params.lessonId, data })
+        return LessonResource.update(this.$route.params.lessonId, data, {
+          baseline: this.lessonBaseline,
+        })
           .then(() => {
             this.goBackToSummaryPage().then(() => {
               this.showSnackbarNotification('changesSaved');

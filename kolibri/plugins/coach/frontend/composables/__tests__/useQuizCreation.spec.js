@@ -7,7 +7,7 @@ import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri/constants';
 import { QuizExercise, QuizQuestion } from '../quizCreationSpecs.js';
 import useQuizCreation from '../useQuizCreation.js';
 
-ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
+ExamResource.create = jest.fn(() => Promise.resolve({}));
 
 jest.spyOn(vueRouterComposables, 'useRoute').mockReturnValue({
   params: {},
@@ -116,7 +116,7 @@ describe('useQuizCreation', () => {
     describe('Quiz CRUD', () => {
       it('Can save the quiz', () => {
         expect(() => saveQuiz()).not.toThrow();
-        expect(ExamResource.saveModel).toHaveBeenCalled();
+        expect(ExamResource.create).toHaveBeenCalled();
       });
 
       it('Can update the quiz given a subset of valid properties', () => {

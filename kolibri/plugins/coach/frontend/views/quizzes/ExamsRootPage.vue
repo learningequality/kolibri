@@ -473,16 +473,7 @@
     },
     methods: {
       handleOpenQuiz(quizId) {
-        const promise = ExamResource.saveModel({
-          id: quizId,
-          data: {
-            active: true,
-            draft: false,
-          },
-          exists: true,
-        });
-
-        return promise
+        return ExamResource.update(quizId, { active: true, draft: false })
           .then(() => {
             this.refreshClassSummary();
             this.showOpenConfirmationModal = false;
@@ -505,15 +496,7 @@
         new CSVExporter(columns, fileName).export(this.filteredExams);
       },
       handleCloseQuiz(quizId) {
-        const promise = ExamResource.saveModel({
-          id: quizId,
-          data: {
-            archive: true,
-          },
-          exists: true,
-        });
-
-        return promise
+        return ExamResource.update(quizId, { archive: true })
           .then(() => {
             this.refreshClassSummary();
             this.showCloseConfirmationModal = false;
@@ -534,12 +517,7 @@
       },
       fetchResources() {
         this.isLoading = true;
-        ChannelResource.fetchCollection({
-          getParams: {
-            contains_exercise: true,
-            available: true,
-          },
-        }).then(data => {
+        ChannelResource.list({ contains_exercise: true, available: true }).then(data => {
           this.channels = data;
           this.isLoading = false;
         });

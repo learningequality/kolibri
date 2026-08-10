@@ -25,9 +25,8 @@ export async function showLessonResourceContentPreview(store, params) {
 
 function _prepLessonContentPreview(store, classId, lessonId, contentId) {
   const cache = store.state.lessonSummary.resourceCache || {};
-  return ContentNodeResource.fetchModel({
-    id: contentId,
-    getParams: { no_available_filtering: true },
+  return ContentNodeResource.retrieve(contentId, {
+    params: { no_available_filtering: true },
   }).then(
     contentNode => {
       store.commit('lessonSummary/SET_STATE', {

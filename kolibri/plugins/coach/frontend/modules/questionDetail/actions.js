@@ -3,28 +3,25 @@ import Modalities from 'kolibri-constants/Modalities';
 import AttemptLogResource from 'kolibri-common/apiResources/AttemptLogResource';
 
 export function setLearners(store, params) {
-  const { questionId, exerciseId, quizId, classId, groupId, learnerId } = params;
-  const getParams = {
+  const { questionId, exerciseId, quizId, classId, groupId } = params;
+  const queryParams = {
     item: questionId,
     content: exerciseId,
   };
   if (quizId) {
-    getParams.content = quizId;
+    queryParams.content = quizId;
   }
   if (classId) {
-    getParams.classroom = classId;
+    queryParams.classroom = classId;
   }
   if (groupId) {
-    getParams.learner_group = groupId;
+    queryParams.learner_group = groupId;
   }
   const practiceQuiz =
     exerciseId &&
     get(store.rootState.classSummary.contentMap[exerciseId], ['options', 'modality']) ===
       Modalities.QUIZ;
-  return AttemptLogResource.fetchCollection({
-    getParams,
-    force: !learnerId,
-  }).then(attemptLogs => {
+  return AttemptLogResource.list(queryParams).then(attemptLogs => {
     let learners;
     // Add learner information to each attemptLog to turn this into
     // a list of learners with attempt information intermixed.

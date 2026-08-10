@@ -7,12 +7,7 @@ const fetchDifficultQuestions = async exam => {
   if (exam.draft) {
     return [];
   }
-  const correctnessStats = await QuizDifficulties.fetchDetailCollection(
-    'detail',
-    exam.id,
-    undefined,
-    true,
-  );
+  const correctnessStats = await QuizDifficulties.fetchDifficultQuestions(exam.id);
 
   const allQuestions = exam.question_sources.reduce(
     (qs, section) => [...qs, ...section.questions],
@@ -35,7 +30,7 @@ const fetchDifficultQuestions = async exam => {
 };
 
 export async function fetchQuizSummaryPageData(examId) {
-  const _exam = await ExamResource.fetchModel({ id: examId });
+  const _exam = await ExamResource.retrieve(examId);
 
   const { exam, exercises } = await fetchExamWithContent(_exam);
 
@@ -65,5 +60,5 @@ export function clientAssigmentState(listOfIDs, classId) {
 }
 
 export function deleteExam(examId) {
-  return ExamResource.deleteModel({ id: examId });
+  return ExamResource.delete(examId);
 }

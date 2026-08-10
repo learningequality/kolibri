@@ -29,17 +29,14 @@ export function useCourses() {
   }
 
   async function deleteCourse(courseId) {
-    await CourseSessionResource.deleteModel({ id: courseId });
+    await CourseSessionResource.delete(courseId);
     removeCourse(courseId);
   }
 
   async function refreshClassCourses() {
     setCoursesAreLoading(true);
     try {
-      const courseSessions = await CourseSessionResource.fetchCollection({
-        getParams: { collection: classId.value },
-        force: true,
-      });
+      const courseSessions = await CourseSessionResource.list({ collection: classId.value });
 
       // Map backend fields for compatibility
       const mappedSessions = courseSessions.map(session => {

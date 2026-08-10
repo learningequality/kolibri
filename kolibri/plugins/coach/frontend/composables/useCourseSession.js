@@ -87,10 +87,10 @@ export default function useCourseSession(courseSessionId) {
       pageLoading.value = false;
       return;
     }
-    CourseSessionResource.fetchModel({ id: courseSessionId.value })
+    CourseSessionResource.retrieve(courseSessionId.value)
       .then(session => {
         courseSession.value = session;
-        return ContentNodeResource.fetchTree({ id: session.course }).catch(() => {
+        return ContentNodeResource.fetchTree_v2({ id: session.course }).catch(() => {
           contentMissing.value = true;
           return null;
         });
@@ -98,7 +98,7 @@ export default function useCourseSession(courseSessionId) {
       .then(courseData => {
         course.value = courseData;
         if (!courseData) return null;
-        return CourseSessionResource.lastUnitTest({ id: courseSessionId.value });
+        return CourseSessionResource.lastUnitTest_v2({ id: courseSessionId.value });
       })
       .then(testData => {
         lastUnitTest.value = testData;
@@ -203,7 +203,7 @@ export default function useCourseSession(courseSessionId) {
    */
   function activateTest(testType) {
     dataLoading.value = true;
-    return CourseSessionResource.activateTest({
+    return CourseSessionResource.activateTest_v2({
       id: courseSession.value.id,
       data: {
         unit_contentnode_id: activeUnit.value.id,
@@ -233,7 +233,7 @@ export default function useCourseSession(courseSessionId) {
    */
   function closeTest() {
     dataLoading.value = true;
-    return CourseSessionResource.closeTest({
+    return CourseSessionResource.closeTest_v2({
       id: courseSession.value.id,
       data: {
         unit_contentnode_id: activeTest.value.unit_contentnode_id,
@@ -266,9 +266,8 @@ export default function useCourseSession(courseSessionId) {
    * @returns {Promise} Resolves with the updated course session
    */
   function toggleCourseActive() {
-    return CourseSessionResource.saveModel({
-      id: courseSession.value.id,
-      data: { active: !courseSession.value.active },
+    return CourseSessionResource.update(courseSession.value.id, {
+      active: !courseSession.value.active,
     })
       .then(result => {
         courseSession.value = { ...courseSession.value, active: result.active };
@@ -301,7 +300,7 @@ export default function useCourseSession(courseSessionId) {
    */
   function refreshCourseSessionData() {
     if (!courseSessionId.value) return Promise.resolve();
-    return CourseSessionResource.fetchModel({ id: courseSessionId.value })
+    return CourseSessionResource.retrieve(courseSessionId.value)
       .then(session => {
         courseSession.value = session;
       })
