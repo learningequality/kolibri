@@ -395,12 +395,43 @@ describe('DraggableRegion', () => {
       wrapper.destroy();
     });
 
+    it('does not announce anything for items that have been unregistered', async () => {
+      const { wrapper } = await mountRegion();
+      const provided = wrapper.vm._provided;
+      provided.registerSortItem(0, 'First', 1);
+      provided.registerSortItem(1, 'Second', 2);
+      provided.registerSortItem(2, 'Third', 3);
+      [0, 1, 2].forEach(uid => provided.unregisterSortItem(uid));
+
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+      await wrapper.trigger('focusout', { relatedTarget: outside });
+
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
+      document.body.removeChild(outside);
+    });
+
     it('does not announce on window blur (document not focused)', async () => {
       document.hasFocus = jest.fn(() => false);
       const { wrapper } = await mountRegion();
       wrapper.vm._provided.registerSortItem(0, 'First', 1);
       await wrapper.trigger('focusout', { relatedTarget: null });
       await nextFrame();
+      expect(sendPoliteMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('no announcement on row-to-row focus movement', () => {
+    it('does not announce when focus moves to another row inside the region', async () => {
+      const { wrapper } = await mountRegion();
+      const provided = wrapper.vm._provided;
+      provided.registerSortItem(0, 'First', 1);
+      provided.registerSortItem(1, 'Second', 2);
+      const secondRow = row('Second');
+      wrapper.element.appendChild(secondRow);
+
+      await wrapper.trigger('focusout', { relatedTarget: secondRow });
+
       expect(sendPoliteMessage).not.toHaveBeenCalled();
     });
   });
