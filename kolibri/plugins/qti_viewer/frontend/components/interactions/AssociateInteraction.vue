@@ -386,6 +386,7 @@
             // The visible value is the listbox's trigger: its content repeats
             // the selected option, which the listbox already announces.
             identifier ? renderChip(identifier, { ariaHidden: true }) : renderPlaceholder(),
+            listbox.renderStepper(),
             interactive.value ? listbox.renderOptions(rowIndex, side) : null,
           ].filter(Boolean),
         );

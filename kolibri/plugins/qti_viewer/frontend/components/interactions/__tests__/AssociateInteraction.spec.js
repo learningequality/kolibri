@@ -530,6 +530,26 @@ describe('Keyboard', () => {
     expect(pool.querySelectorAll('button, a, input, select')).toHaveLength(0);
   });
 
+  // Decorative: the arrows say the value can be stepped, and CSS shows them only
+  // while the slot holds keyboard focus. A reader gets the value from the options.
+  it('gives each slot an up/down affordance that is hidden from screen readers', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
+
+    slots(container).forEach(slot => {
+      const stepper = slot.querySelector('.qti-slot-stepper');
+      expect(stepper).not.toBeNull();
+      expect(stepper).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
+
+  it('leaves the up/down affordance out in review mode', () => {
+    const { container } = renderAssessmentItem(items['associate-interaction-1'].xml, {
+      interactive: false,
+    });
+
+    expect(container.querySelectorAll('.qti-slot-stepper')).toHaveLength(0);
+  });
+
   it('hides the options visually while exposing them to a screen reader', () => {
     const { container } = renderAssessmentItem(items['associate-interaction-1'].xml);
     const slot = slotAt(container, 0);

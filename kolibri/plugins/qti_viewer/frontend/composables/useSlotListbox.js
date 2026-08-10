@@ -147,6 +147,22 @@ export default function useSlotListbox({
     },
 
     /**
+     * The up/down affordance, telling a sighted keyboard learner that the slot's
+     * value can be stepped. Decorative: the options below carry the value for a
+     * screen reader, and CSS reveals this only while the slot has keyboard focus.
+     * @returns {?object} The vnode for the stepper, or null while disabled
+     */
+    renderStepper() {
+      if (isDisabled()) {
+        return null;
+      }
+      return h('span', { class: 'qti-slot-stepper', attrs: { 'aria-hidden': 'true' } }, [
+        h('KIcon', { props: { icon: 'chevronUp' }, class: 'qti-slot-stepper-icon' }),
+        h('KIcon', { props: { icon: 'chevronDown' }, class: 'qti-slot-stepper-icon' }),
+      ]);
+    },
+
+    /**
      * The options the slot owns. Visually hidden, so a screen reader steps
      * through the responses a sighted learner sees in the pool while the slot
      * shows only the current one.
