@@ -125,6 +125,7 @@ export default function useSlotListbox({
       return {
         role: 'listbox',
         tabindex: '0',
+        'data-focus': 'true',
         'aria-activedescendant':
           focusedKey.value === keyOf(address) ? optionId(address, activeIndex(address)) : null,
       };
