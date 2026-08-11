@@ -4,7 +4,6 @@ import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
@@ -14,13 +13,6 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
-
-from .sqlalchemytesting import django_connection_engine
-
-
-def get_engine(connection_string):
-    return django_connection_engine()
-
 
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
@@ -103,8 +95,7 @@ class UnavailableContentDeletion(TestCase):
         self.assertEqual(deleted, 0)
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
-class DeleteContentTestCase(TransactionTestCase):
+class DeleteContentTestCase(TestCase):
     """
     Testcase for delete content management command
     """
@@ -190,7 +181,3 @@ class DeleteContentTestCase(TransactionTestCase):
         self.assertFalse(channel_stats_clear_mock.called)
         self._call_delete_command(node_ids=self._get_node_ids())
         self.assertTrue(channel_stats_clear_mock.called)
-
-    def tearDown(self):
-        call_command("flush", interactive=False)
-        super().tearDown()

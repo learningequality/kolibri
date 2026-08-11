@@ -70,10 +70,6 @@ def delete_metadata(
 
         with db_lock():
             removed_resources.update(propagate_forced_localfile_removal(unused_files))
-        # Separate these operations as running the SQLAlchemy code in the latter
-        # seems to cause the Django ORM interactions in the former to roll back
-        # Not quite sure what is causing it, but presumably due to transaction
-        # scopes.
         reannotate_all_channels()
 
     if delete_all_metadata:

@@ -37,6 +37,12 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 4.3.0
+    hooks:
+      - id: sqlfluff-fix
+        # The SQL in the tree is generated DDL, so reformat it and nothing else.
+        args: [--rules, layout]
   - repo: local
     hooks:
       - id: lint-frontend

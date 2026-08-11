@@ -129,8 +129,7 @@ class ChannelBuilder:
     def insert_into_default_db(self):
         ContentNode.objects.bulk_create(self._django_nodes)
         ChannelMetadata.objects.create(**self.channel)
-        # localfile_data() keys the fixture dict by raw DB column names (for the
-        # SQLAlchemy insertion path); translate those to ORM attnames for the model.
+        # localfile_data() keys by raw DB column names, not model attnames.
         column_to_attname = {f.column: f.attname for f in LocalFile._meta.fields}
         LocalFile.objects.bulk_create(
             (

@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = sqlite
+# A CREATE INDEX carrying one of the 88-character generated index names cannot be
+# broken any further, so a lower limit leaves it unfixable and the hook then fails.
+max_line_length = 160

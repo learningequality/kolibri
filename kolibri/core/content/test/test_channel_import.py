@@ -650,9 +650,9 @@ class MaliciousDatabaseTestCase(TestCase):
 
 
 class ContentImportTestBase(TransactionTestCase):
-    """Run as a TransactionTestCase, and flushed in tearDown rather than rolled
-    back: the importer can only suppress SQLite's foreign key checking outside an
-    atomic block, and these fixtures are not parent-first."""
+    """Run as a TransactionTestCase: the importer can only suppress SQLite's
+    foreign key checking outside an atomic block, and these fixtures are not
+    parent-first."""
 
     @property
     def schema_name(self):
@@ -686,10 +686,6 @@ class ContentImportTestBase(TransactionTestCase):
 
         import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
         update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
-
-    def tearDown(self):
-        call_command("flush", interactive=False)
-        super().tearDown()
 
 
 @pytest.fixture(scope="class")

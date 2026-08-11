@@ -11,7 +11,6 @@ renderable_preset_bits = {
     preset: 2**index for index, preset in enumerate(RENDERABLE_PRESETS_ORDER)
 }
 
-# Retained for the SQLAlchemy importability paths (unchanged behaviour).
 renderable_files_presets = set()
 
 available_presets_bitmask = 0

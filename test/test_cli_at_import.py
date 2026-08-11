@@ -7,33 +7,37 @@ of these cli methods will result in an error and test failure.
 
 from mock import patch
 
+# Patched inside each test, after kolibri is imported: env.set_env() prepends
+# kolibri/dist to sys.path, so resolving Django earlier can bind a different copy.
+DJANGO_CONNECT = "django.db.backends.base.base.BaseDatabaseWrapper.connect"
 
-@patch("sqlalchemy.create_engine")
-def test_status_no_db_access(create_engine_mock):
+
+def test_status_no_db_access():
     """
     Tests that status does not try to access the database
     """
-    try:
-        from kolibri.utils import cli
+    from kolibri.utils import cli
 
-        cli.status.callback()
-    except SystemExit:
-        pass
-    create_engine_mock.assert_not_called()
+    with patch(DJANGO_CONNECT) as connect_mock:
+        try:
+            cli.status.callback()
+        except SystemExit:
+            pass
+    connect_mock.assert_not_called()
 
 
-@patch("sqlalchemy.create_engine")
-def test_stop_no_db_access(create_engine_mock):
+def test_stop_no_db_access():
     """
-    Tests that status does not try to access the database
+    Tests that stop does not try to access the database
     """
-    try:
-        from kolibri.utils import cli
+    from kolibri.utils import cli
 
-        cli.stop.callback()
-    except SystemExit:
-        pass
-    create_engine_mock.assert_not_called()
+    with patch(DJANGO_CONNECT) as connect_mock:
+        try:
+            cli.stop.callback()
+        except SystemExit:
+            pass
+    connect_mock.assert_not_called()
 
 
 @patch("kolibri.utils.conf.OPTIONS")
