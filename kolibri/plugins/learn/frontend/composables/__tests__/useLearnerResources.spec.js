@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 
 import ContentNodeResource from 'kolibri-common/apiResources/ContentNodeResource';
-import { ClassesPageNames } from '../../constants';
+import { ClassesPageNames, PageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
 import useLearnerResources, { setResumableContentNodes } from '../useLearnerResources';
 
@@ -17,6 +17,7 @@ const {
   getClass,
   getClassActiveLessons,
   getClassActiveQuizzes,
+  getClassCourseLink,
   getClassLessonLink,
   getClassQuizLink,
   fetchClasses,
@@ -611,6 +612,22 @@ describe(`useLearnerResources`, () => {
         params: {
           classId: 'class-1',
           lessonId: 'class-1-active-lesson-1',
+        },
+      });
+    });
+  });
+
+  describe(`getClassCourseLink`, () => {
+    it(`returns a vue-router link to the course welcome page`, () => {
+      expect(
+        getClassCourseLink({
+          id: 'class-1-active-course-1',
+          collection: 'class-1',
+        }),
+      ).toEqual({
+        name: PageNames.COURSE_WELCOME,
+        params: {
+          courseSessionId: 'class-1-active-course-1',
         },
       });
     });
