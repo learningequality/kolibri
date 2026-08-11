@@ -101,6 +101,11 @@ class ChunkedFileDoesNotExist(Exception):
 
 CHUNK_SUFFIX = ".chunks"
 
+# Marker file used to detect when a chunk directory has been deleted and
+# recreated, on filesystems that do not report a usable inode (see
+# ChunkedFile._chunk_dir_incarnation).
+INCARNATION_MARKER = ".incarnation"
+
 
 class TransferFileBase(BufferedIOBase, ABC):
     """Abstract base class for file transfer destination objects."""
@@ -182,8 +187,17 @@ class ChunkedFileDirectoryManager:
             if file_size <= evicted_file_size:
                 break
             file_stats = chunked_file_stats[chunked_file_dir]
+            try:
+                shutil.rmtree(chunked_file_dir)
+            except OSError as e:
+                # The directory may be in use - for example a diskcache handle
+                # held open while a file is being streamed, which blocks removal
+                # on Windows. Skip it rather than aborting the whole eviction.
+                logger.warning(
+                    "Could not evict chunked file {}: {}".format(chunked_file_dir, e)
+                )
+                continue
             evicted_file_size += file_stats["size"]
-            shutil.rmtree(chunked_file_dir)
         return evicted_file_size
 
     def evict_files(self, file_size):
@@ -213,9 +227,24 @@ class ChunkedFile(TransferFileBase):
     # Set chunk size to 128KB
     chunk_size = 128 * 1024
 
-    def __init__(self, filepath, raise_if_empty=False, raise_if_exists=False):
+    def __init__(
+        self, filepath, raise_if_empty=False, raise_if_exists=False, cache=None
+    ):
         self.filepath = filepath
         self.chunk_dir = filepath + CHUNK_SUFFIX
+        # The diskcache handle is opened lazily and then reused for the lifetime
+        # of this object, rather than being reopened for every cache access.
+        # Opening a diskcache constructs a SQLite connection (with pragmas and
+        # fsyncs), which is cheap on fast storage but very expensive on slow
+        # storage like SD cards, where reopening it per read block made serving
+        # proxied remote files pathologically slow. A caller may inject an
+        # existing handle (see ``cache``) so that related objects for the same
+        # file (e.g. a RemoteFile and the FileDownload streaming into it) share
+        # one handle; an injected handle is not owned and so is not closed here.
+        # These are assigned before the early returns below so that close() on a
+        # partially constructed instance does not raise.
+        self._cache = cache
+        self._owns_cache = cache is None
         if raise_if_empty and not os.path.exists(self.chunk_dir):
             raise FileNotFoundError("Chunked file does not exist")
         if raise_if_exists and os.path.exists(self.filepath):
@@ -224,19 +253,96 @@ class ChunkedFile(TransferFileBase):
         self.position = 0
         self._file_size = None
 
+    def _chunk_dir_incarnation(self):
+        """
+        Return a token identifying the current on-disk incarnation of the chunk
+        directory, so that a deletion + recreation (e.g. streamed cache
+        eviction) can be detected and a stale diskcache handle dropped. Prefers
+        the directory inode (a cheap stat), and falls back to a marker file on
+        filesystems that do not report a usable inode (e.g. FAT/exFAT, some
+        Android storage), where st_ino is 0.
+        """
+        try:
+            inode = os.stat(self.chunk_dir).st_ino
+            if inode:
+                # The inode changes when the directory is deleted and recreated.
+                # We deliberately do not pair it with mtime/ctime: those change
+                # whenever a chunk file is written into the directory, which
+                # would churn the token during normal streaming. The residual
+                # risk is a recreated directory being assigned the exact same
+                # inode number (POSIX inode recycling) while a stale handle is
+                # still held - vanishingly unlikely, and only reachable in the
+                # already-narrow eviction-mid-stream race.
+                return inode
+            marker = os.path.join(self.chunk_dir, INCARNATION_MARKER)
+            try:
+                with open(marker) as f:
+                    return f.read()
+            except FileNotFoundError:
+                token = os.urandom(8).hex()
+                try:
+                    # Atomic create so concurrent openers agree on one token.
+                    with open(marker, "x") as f:
+                        f.write(token)
+                    return token
+                except FileExistsError:
+                    with open(marker) as f:
+                        return f.read()
+        except OSError:
+            # The directory was removed between the _check_for_chunk_dir guard
+            # and here (eviction racing a stream). Normalize to the exception
+            # callers already handle, rather than letting a bare OSError escape
+            # and fail the download hard.
+            raise ChunkedFileDoesNotExist("Chunked file does not exist")
+
+    @contextmanager
     def _open_cache(self):
         self._check_for_chunk_dir()
-        return Cache(self.cache_dir)
+        incarnation = self._chunk_dir_incarnation()
+        if self._cache is not None and (
+            getattr(self._cache, "_kolibri_chunk_incarnation", None) != incarnation
+        ):
+            # The chunk directory was deleted and recreated (e.g. by streamed
+            # cache eviction) since this handle was opened, so it points at the
+            # old, now-deleted diskcache. Drop it and reopen against the live
+            # directory, matching the pre-memoization behaviour of always using
+            # the current cache. This matters for correctness, not just leaks:
+            # chunk locks live as rows in the on-disk SQLite DB, so a stale
+            # handle would silently fail to coordinate with other readers.
+            self._close_cache()
+        if self._cache is None:
+            cache = Cache(self.cache_dir)
+            # Stamp the handle with the incarnation it was opened against so a
+            # later deletion/recreation can be detected.
+            cache._kolibri_chunk_incarnation = incarnation
+            self._cache = cache
+            # We opened this handle, so this instance owns and must close it.
+            self._owns_cache = True
+        yield self._cache
+
+    def get_cache(self):
+        """
+        Return the reused diskcache handle for this file, opening it if needed.
+        Used to share a single handle with a FileDownload for the same file.
+        """
+        with self._open_cache() as cache:
+            return cache
 
     def _initialize(self):
         os.makedirs(self.chunk_dir, exist_ok=True)
         self.cache_dir = os.path.join(self.chunk_dir, ".cache")
-        self.position = 0
+        # NB: do not reset self.position here. _initialize is also invoked by
+        # ensure_writable() to recreate a directory that was cleaned up mid-read,
+        # and resetting the read cursor there would silently rewind an
+        # in-progress read. __init__ sets the initial position separately.
 
     def ensure_writable(self):
         try:
             self._check_for_chunk_dir()
         except ChunkedFileDoesNotExist:
+            # The chunk directory was removed by another process; recreate it.
+            # Any cache handle we still hold is detected as stale and reopened on
+            # next use (see _open_cache), so we don't need to touch it here.
             self._initialize()
 
     @property
@@ -472,10 +578,20 @@ class ChunkedFile(TransferFileBase):
         return md5.hexdigest()
 
     def delete(self):
+        # Release our diskcache handle before removing the directory: on Windows
+        # the open SQLite file would otherwise block removal (WinError 32).
+        self._close_cache()
         shutil.rmtree(self.chunk_dir)
 
+    def _close_cache(self):
+        # Only close a handle we opened ourselves; an injected handle is owned
+        # (and closed) by whoever provided it.
+        if self._owns_cache and self._cache is not None:
+            self._cache.close()
+        self._cache = None
+
     def close(self):
-        pass
+        self._close_cache()
 
     def __enter__(self):
         return self
@@ -772,12 +888,20 @@ class FileDownload(Transfer):
         timeout=Transfer.DEFAULT_TIMEOUT,
         retry_wait=30,
         full_ranges=True,
+        cache=None,
     ):
 
         # Allow an existing requests.Session to be passed in, so it can be
         # reused for speed. The default blocks cross-host redirects so a
         # caller-supplied baseurl can't pivot us onto another host.
         self.session = session or SameHostSession()
+
+        # Allow an existing diskcache handle to be passed in, so the chunked
+        # destination file reuses it rather than opening its own. This lets a
+        # RemoteFile streaming a proxied file share one handle across itself and
+        # every FileDownload it spawns, instead of reopening the diskcache once
+        # per downloaded chunk.
+        self._cache = cache
 
         # A flag to allow the download to remain in the chunked file directory
         # for easier clean up when it is just a temporary download.
@@ -815,6 +939,7 @@ class FileDownload(Transfer):
                 self.dest,
                 raise_if_empty=self.full_ranges,
                 raise_if_exists=self.full_ranges,
+                cache=self._cache,
             )
         except FileNotFoundError:
             # No chunked file exists, use TransferFile for direct download
@@ -1133,6 +1258,11 @@ class RemoteFile(ChunkedFile):
 
     def _start_transfer(self, start=None, end=None):
         if not self.is_complete(start=start, end=end):
+            # Recreate the chunk directory (and drop any stale cache handle) if
+            # it was cleaned up by another process since we opened it, so that
+            # sharing our cache handle below opens against a directory that
+            # exists rather than raising.
+            self.ensure_writable()
             self.transfer = FileDownload(
                 self.remote_url,
                 self.filepath,
@@ -1140,6 +1270,9 @@ class RemoteFile(ChunkedFile):
                 end_range=end,
                 finalize_download=False,
                 full_ranges=False,
+                # Share this file's diskcache handle with the download, so
+                # streaming a file doesn't reopen the diskcache once per chunk.
+                cache=self.get_cache(),
             )
             with self._open_cache() as cache:
                 header_info = cache.get(self.remote_url)
@@ -1171,3 +1304,5 @@ class RemoteFile(ChunkedFile):
             self.transfer.close()
         if self._dest_file_handle:
             self._dest_file_handle.close()
+        # Close the reused diskcache handle shared with any FileDownload.
+        super().close()

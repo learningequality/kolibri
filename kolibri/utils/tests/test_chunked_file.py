@@ -5,6 +5,8 @@ import shutil
 import tempfile
 import unittest
 
+from mock import patch
+
 from kolibri.utils.file_transfer import CHUNK_SUFFIX
 from kolibri.utils.file_transfer import ChunkedFile
 from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
@@ -48,6 +50,9 @@ class TestChunkedFile(unittest.TestCase):
         self.data = _write_test_data_to_chunked_file(self.chunked_file)
 
     def tearDown(self):
+        # Release the reused diskcache handle before removing the directory, or
+        # the open SQLite file blocks removal on Windows and pollutes later tests.
+        self.chunked_file.close()
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
         shutil.rmtree(self.file_path, ignore_errors=True)
 
@@ -167,7 +172,9 @@ class TestChunkedFile(unittest.TestCase):
         self.assertEqual(missing_ranges, expected_ranges)
 
     def test_get_missing_chunk_ranges_slice_no_download(self):
-        # Remove some chunks
+        # Remove some chunks. Release our handle first so the directory can be
+        # removed on Windows (an open SQLite file blocks removal there).
+        self.chunked_file.close()
         shutil.rmtree(self.chunked_file.chunk_dir)
 
         start = self.chunk_size
@@ -182,7 +189,9 @@ class TestChunkedFile(unittest.TestCase):
         self.assertEqual(missing_ranges, expected_ranges)
 
     def test_get_missing_chunk_ranges_slice_no_download_not_chunk_size_ranges(self):
-        # Remove some chunks
+        # Remove some chunks. Release our handle first so the directory can be
+        # removed on Windows (an open SQLite file blocks removal there).
+        self.chunked_file.close()
         shutil.rmtree(self.chunked_file.chunk_dir)
 
         start = self.chunk_size // 3
@@ -274,6 +283,9 @@ class TestChunkedFile(unittest.TestCase):
         os.remove(self.file_path)
 
     def test_file_removed_by_parallel_process_after_opening(self):
+        # Release our handle so the directory can actually be removed on Windows
+        # (an open SQLite file blocks removal there).
+        self.chunked_file.close()
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
         self.chunked_file._file_size = None
         with self.assertRaises(ChunkedFileDoesNotExist):
@@ -390,6 +402,29 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             sorted(list(manager._get_chunked_file_dirs())),
             sorted([]),
         )
+
+    def test_evict_files_skips_undeletable_directory(self):
+        # If a directory cannot be removed (e.g. a diskcache handle held open
+        # while streaming, which blocks removal on Windows), eviction must skip
+        # it - not count it as freed, and not abort the whole pass.
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        blocked = sorted(manager._get_chunked_file_dirs())[0]
+        real_rmtree = shutil.rmtree
+
+        def guarded_rmtree(path, *args, **kwargs):
+            if path == blocked:
+                raise OSError("directory in use")
+            return real_rmtree(path, *args, **kwargs)
+
+        with patch(
+            "kolibri.utils.file_transfer.shutil.rmtree", side_effect=guarded_rmtree
+        ):
+            evicted = manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3)
+
+        # Two of the three directories are evicted; the blocked one is skipped
+        # and its size is not counted toward the freed total.
+        self.assertEqual(evicted, TOTAL_CHUNKED_FILE_SIZE * 2)
+        self.assertEqual(sorted(manager._get_chunked_file_dirs()), [blocked])
 
     def test_evict_files_exact_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
