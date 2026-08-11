@@ -95,7 +95,6 @@ import subprocess
 import sys
 import time
 from contextlib import contextmanager
-from contextlib import ExitStack
 from datetime import datetime
 from unittest.mock import patch
 
@@ -107,8 +106,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Every kolibri, Django and sqlalchemy import is deferred into the function that
-# needs it. Do not hoist them:
+# Every kolibri and Django import is deferred into the function that needs it.
+# Do not hoist them:
 #
 # - kolibri.utils.conf snapshots os.environ["KOLIBRI_HOME"] into a module
 #   constant on import (conf.py:28), so importing it before setup_kolibri() sets
@@ -118,9 +117,6 @@ logger = logging.getLogger(__name__)
 #   registry that only initialize() provides.
 # - kolibri must still be imported before Django, for its compat patches.
 #   setup_kolibri() is the first thing main() calls, so nothing gets there first.
-# - set_env() prepends kolibri/dist to sys.path, where `make dist` installs the
-#   pinned sqlalchemy. Importing sqlalchemy ahead of initialize() either fails
-#   on a dist tree, or wins in sys.modules and unpins the content code.
 
 # Both channels are at schema 5 or below, so both import through a mapping class
 # rather than the plain importer, resolved from min_schema_version rather than
@@ -341,32 +337,20 @@ def describe_channel(db_path):
 
 @contextmanager
 def count_statements():
-    """Count SQL statements issued through SQLAlchemy and through Django.
+    """Count SQL statements issued on Django's default connection.
 
-    An executemany batch counts as one statement, not one per row. The counters
-    stay live through every timed phase; both captures pay the same overhead, so
-    the comparison between them stays fair.
+    Source database reads go through a raw sqlite3 connection, so no phase
+    counts them. An executemany batch counts as one statement, not one per row.
     """
     from django.db import connection
-    from sqlalchemy import event
-    from sqlalchemy.engine import Engine
 
-    counts = {"sqlalchemy": 0, "django": 0}
-
-    def on_sqlalchemy(conn, cursor, statement, params, context, executemany):
-        counts["sqlalchemy"] += 1
+    counts = {"django": 0}
 
     def on_django(execute, sql, params, many, context):
         counts["django"] += 1
         return execute(sql, params, many, context)
 
-    # Listening on the class covers every engine, including those the channel
-    # import creates later. The removal is registered as soon as the listener is
-    # added: a leaked listener inflates every later phase's sqlalchemy count.
-    with ExitStack() as stack:
-        event.listen(Engine, "before_cursor_execute", on_sqlalchemy)
-        stack.callback(event.remove, Engine, "before_cursor_execute", on_sqlalchemy)
-        stack.enter_context(connection.execute_wrapper(on_django))
+    with connection.execute_wrapper(on_django):
         yield counts
 
 
@@ -768,9 +752,7 @@ def _compare_channel(b_channel, c_channel, time_threshold, min_phase_s):
 def compare_reports(baseline, current, time_threshold, min_phase_s):
     """Compare two reports phase by phase and return a verdict dict.
 
-    Statement counts are deliberately not consulted: Django's query log does not
-    see SQLAlchemy statements, so the two are not comparable across the
-    migration this benchmark exists to measure. They are diagnostics only.
+    Statement counts never affect the verdict.
     """
     warnings, fatal = _metadata_warnings(baseline, current)
     b_channels = baseline.get("channels", {})
@@ -819,18 +801,14 @@ def _print_channel_comparison(channel_id, phases, b_channel, c_channel):
             "" if verdict["enforced"] else " (not enforced: below noise floor)",
         )
     for phase in phases:
-        b_statements = b_channel["phases"][phase]["statements"]
-        c_statements = c_channel["phases"][phase]["statements"]
+        b_statements = b_channel["phases"][phase]["statements"]["django"]
+        c_statements = c_channel["phases"][phase]["statements"]["django"]
         logger.info(
-            "  %-24s statements (diagnostics only): sqlalchemy %s -> %s "
-            "(%+d), django %s -> %s (%+d)",
+            "  %-24s statements (diagnostics only): django %s -> %s (%+d)",
             phase,
-            b_statements["sqlalchemy"],
-            c_statements["sqlalchemy"],
-            c_statements["sqlalchemy"] - b_statements["sqlalchemy"],
-            b_statements["django"],
-            c_statements["django"],
-            c_statements["django"] - b_statements["django"],
+            b_statements,
+            c_statements,
+            c_statements - b_statements,
         )
 
 
@@ -851,14 +829,13 @@ def _log_channel_phases(channel_id, phases):
     for phase, entry in phases.items():
         logger.info(
             "  %s %s: mean %.2fs (min %.2fs, max %.2fs, std %.2fs), "
-            "%s sqlalchemy / %s django statements",
+            "%s django statements",
             channel_id,
             phase,
             entry["mean_s"],
             entry["min_s"],
             entry["max_s"],
             entry["std_s"],
-            entry["statements"]["sqlalchemy"],
             entry["statements"]["django"],
         )
 
