@@ -15,13 +15,6 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.paths import get_content_storage_file_path
 
-from .sqlalchemytesting import django_connection_engine
-
-
-def get_engine(connection_string):
-    return django_connection_engine()
-
-
 test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 
@@ -103,7 +96,6 @@ class UnavailableContentDeletion(TestCase):
         self.assertEqual(deleted, 0)
 
 
-@patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class DeleteContentTestCase(TransactionTestCase):
     """
     Testcase for delete content management command
