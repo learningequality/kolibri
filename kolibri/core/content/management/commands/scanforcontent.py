@@ -3,7 +3,7 @@ import sqlite3
 from argparse import SUPPRESS
 
 from django.core.management.base import BaseCommand
-from sqlalchemy.exc import DatabaseError
+from django.db import DatabaseError
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.paths import get_all_content_dir_paths

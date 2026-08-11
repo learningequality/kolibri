@@ -1,21 +1,22 @@
 import tempfile
 import uuid
 
+from django.apps import apps
+from django.db import connections
 from django.test import TestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
 from le_utils.constants import modalities
 from mock import patch
-from sqlalchemy import create_engine
 
-from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.annotation import mark_local_files_as_available
 from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
-from kolibri.core.content.utils.sqlalchemybridge import load_metadata
+from kolibri.core.content.utils.content_db import content_db
+from kolibri.core.content.utils.content_db import create_schema
 from kolibri.core.content.utils.upgrade import count_removed_resources
 from kolibri.core.content.utils.upgrade import get_automatically_updated_resources
 from kolibri.core.content.utils.upgrade import get_import_data_for_update
@@ -38,22 +39,35 @@ class ChannelUpdateTestBase(TestCase):
     def set_content_fixture(cls):
         _, cls.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
 
-        cls.content_engine = create_engine("sqlite:///" + cls.content_db_path)
+        # Bound once: the property re-encodes its own nodes on every access.
+        data = cls.upgraded_channel.data
 
-        metadata = load_metadata(CURRENT_SCHEMA_VERSION)
-
-        metadata.bind = cls.content_engine
-
-        metadata.create_all()
-
-        conn = cls.content_engine.connect()
-
-        # Write data for each fixture into the table
-        for table in metadata.sorted_tables:
-            if table.name in cls.upgraded_channel.data:
-                conn.execute(table.insert(), cls.upgraded_channel.data[table.name])
-
-        conn.close()
+        with content_db(cls.content_db_path) as alias:
+            create_schema(alias)
+            connection = connections[alias]
+            # The builder's node order does not satisfy the self-referential parent_id.
+            with connection.constraint_checks_disabled(), connection.cursor() as cursor:
+                for model in apps.get_app_config("content").get_models():
+                    rows = data.get(model._meta.db_table)
+                    if not rows:
+                        continue
+                    # ChannelBuilder keys its node rows by field name and its file
+                    # rows by column name, so translate whatever is not already one.
+                    columns = {
+                        field.name: field.column
+                        for field in model._meta.concrete_fields
+                    }
+                    keys = list(rows[0])
+                    cursor.executemany(
+                        "INSERT INTO {} ({}) VALUES ({})".format(
+                            model._meta.db_table,
+                            ", ".join(
+                                '"{}"'.format(columns.get(key, key)) for key in keys
+                            ),
+                            ", ".join(["%s"] * len(keys)),
+                        ),
+                        [tuple(row[key] for key in keys) for row in rows],
+                    )
 
         cls.channel_id = cls.upgraded_channel.channel["id"]
 

@@ -1,15 +1,11 @@
 import logging
 import os
 
+from django.db import transaction
 from django.db.models import Q
 from le_utils.constants import content_kinds
 from le_utils.constants import modalities
-from sqlalchemy import and_
-from sqlalchemy import func
-from sqlalchemy import or_
-from sqlalchemy import select
 
-from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.content.constants.transfer_types import COPY_METHOD
 from kolibri.core.content.constants.transfer_types import DOWNLOAD_METHOD
 from kolibri.core.content.models import ContentNode
@@ -17,11 +13,11 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import channel_import
-from kolibri.core.content.utils.annotation import CONTENT_APP_NAME
 from kolibri.core.content.utils.channel_transfer import transfer_channel
 from kolibri.core.content.utils.channels import CHANNEL_UPDATE_STATS_CACHE_KEY
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
+from kolibri.core.content.utils.content_db import content_db
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -34,9 +30,6 @@ from kolibri.core.content.utils.importability_annotation import (
 )
 from kolibri.core.content.utils.paths import get_annotated_content_database_file_path
 from kolibri.core.content.utils.paths import get_upgrade_content_database_file_path
-from kolibri.core.content.utils.sqlalchemybridge import Bridge
-from kolibri.core.content.utils.sqlalchemybridge import coerce_key
-from kolibri.core.content.utils.sqlalchemybridge import filter_by_uuids
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.cache import process_cache
@@ -90,25 +83,20 @@ def diff_stats(
                 no_upgrade=True,
             )
 
-        # create all fields/tables at the annotated destination db, based on the current schema version
-        bridge = Bridge(
-            sqlite_file_path=destination_path, schema_version=CURRENT_SCHEMA_VERSION
-        )
-        bridge.Base.metadata.create_all(bridge.engine)
-
-        # initialize import manager based on annotated destination path, pulling from source db path
+        # initialize import manager based on annotated destination path, pulling from
+        # source db path. It creates the content tables in that file itself.
         channel_metadata = read_channel_metadata_from_db_file(source_path)
-        import_manager = channel_import.initialize_import_manager(
+        # The importer's alias must be released before the annotation below opens its
+        # own on the same file: two write connections to one SQLite file lock out.
+        with channel_import.initialize_import_manager(
             channel_metadata,
             source_path,
             cancel_check=False,
             destination=destination_path,
             version_requested=True,
-        )
-
-        # import channel data from source db path
-        import_manager.import_channel_data()
-        import_manager.end()
+        ) as import_manager:
+            # import channel data from source db path
+            import_manager.import_channel_data()
 
         # annotate file availability on destination db
         annotation.set_local_file_availability_from_disk(destination=destination_path)
@@ -187,6 +175,39 @@ def diff_stats(
 batch_size = 1000
 
 
+def _batches(sliceable):
+    """
+    Yield successive batch_size slices of a queryset or list, until it runs dry.
+
+    Each slice is materialised: a queryset handed on to filter_by_uuids goes over as
+    a subquery instead, run against whichever database that queryset belongs to.
+    """
+    i = 0
+    while True:
+        batch = list(sliceable[i : i + batch_size])
+        if not batch:
+            return
+        yield batch
+        i += batch_size
+
+
+def _destination_nodes(alias):
+    # ContentNodeManager forces an order_by(tree_id, lft) onto every queryset, which
+    # corrupts a distinct values_list and leaks columns into a subquery.
+    return ContentNode.objects.using(alias).order_by()
+
+
+def _unavailable_file_size(alias, nodes):
+    """
+    The total size of the local files these nodes need and the device does not have.
+    """
+    return annotation.total_file_size(
+        LocalFile.objects.using(alias).filter(
+            available=False, files__contentnode__in=nodes
+        )
+    )
+
+
 def get_new_resources_available_for_import(
     destination, channel_id, exclude_node_ids=None, exclude_content_ids=None
 ):
@@ -194,209 +215,110 @@ def get_new_resources_available_for_import(
     Queries the destination db to get leaf nodes.
     Subtract total number of leaf nodes by the count of leaf nodes on default db to get the number of new resources.
     """
-    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
-    # SQL Alchemy reference to the content node table
-    ContentNodeTable = bridge.get_table(ContentNode)
-    # SQL Alchemy reference to the file table - a mapping from
-    # contentnodes to the files that they use
-    FileTable = bridge.get_table(File)
-    # SQL Alchemy reference to the localfile table which tracks
-    # information about the files on disk, such as availability
-    LocalFileTable = bridge.get_table(LocalFile)
-    connection = bridge.get_connection()
+    with content_db(destination) as alias:
+        # To efficiently get the node ids of all new nodes in the channel
+        # we are going to iterate over the currently existing nodes for the
+        # channel in the default database, and cache their existence in the
+        # temporary upgrade database by flagging them as 'available' in there
+        # We can then read out all of the unavailable ContentNodes in order
+        # to get a complete list of the newly available ids.
+        # We wrap this all in a transaction so that we can roll it back afterwards
+        # but this is mostly just not to leave the upgrade DB in a messy state
+        # and could be removed if it becomes a performance concern
 
-    # To efficiently get the node ids of all new nodes in the channel
-    # we are going to iterate over the currently existing nodes for the
-    # channel in the default database, and cache their existence in the
-    # temporary upgrade database by flagging them as 'available' in there
-    # We can then read out all of the unavailable ContentNodes in order
-    # to get a complete list of the newly available ids.
-    # We wrap this all in a transaction so that we can roll it back afterwards
-    # but this is mostly just not to leave the upgrade DB in a messy state
-    # and could be removed if it becomes a performance concern
+        channel_nodes = _destination_nodes(alias).filter(channel_id=channel_id)
 
-    # Create a queryset for the node ids of resources currently in this channel
-    # we will slice this later in a while loop in order to efficiently process this
-    # this is necessary otherwise we would end up querying tens of thousands of node ids
-    # for a large channel, which would then be impossible to pass into an update query
-    # for the temporary upgrade DB without causing an excessively large query
-    # greater than 1MB, which is the default max for SQLite
-    current_resource_node_id_queryset = (
-        ContentNode.objects.filter(channel_id=channel_id)
-        .exclude(kind=content_kinds.TOPIC)
-        .values_list("id", flat=True)
-    )
+        # Create a queryset for the node ids of resources currently in this channel
+        # we will slice this later in batches in order to efficiently process this
+        # this is necessary otherwise we would end up querying tens of thousands of node ids
+        # for a large channel, which would then be impossible to pass into an update query
+        # for the temporary upgrade DB without causing an excessively large query
+        # greater than 1MB, which is the default max for SQLite
+        current_resource_node_id_queryset = (
+            ContentNode.objects.filter(channel_id=channel_id)
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("id", flat=True)
+        )
 
-    i = 0
+        with transaction.atomic(using=alias):
+            # Set everything to False to start with
+            channel_nodes.update(available=False)
 
-    # start a transaction
-
-    trans = connection.begin()
-
-    # Set everything to False to start with
-    connection.execute(
-        ContentNodeTable.update()
-        .where(ContentNodeTable.c.channel_id == channel_id)
-        .values(available=False)
-    )
-
-    node_ids = current_resource_node_id_queryset[i : i + batch_size]
-    while node_ids:
-        # Set everything to False to start with
-        connection.execute(
-            ContentNodeTable.update()
-            .where(
-                and_(
-                    filter_by_uuids(
-                        ContentNodeTable.c.id, node_ids, vendor=bridge.engine.name
-                    ),
-                    ContentNodeTable.c.channel_id == channel_id,
+            for node_ids in _batches(current_resource_node_id_queryset):
+                channel_nodes.filter_by_uuids(node_ids, validate=False).update(
+                    available=True
                 )
+
+            new_resource_nodes = channel_nodes.exclude(kind=content_kinds.TOPIC).filter(
+                available=False
             )
-            .values(available=True)
-        )
-        i += batch_size
-        node_ids = current_resource_node_id_queryset[i : i + batch_size]
 
-    renderable_contentnodes = (
-        select(FileTable.c.contentnode_id)
-        .where(FileTable.c.supplementary == False)  # noqa
-        .where(
-            or_(*(FileTable.c.preset == preset for preset in renderable_files_presets))
-        )
-    )
+            renderable_new_resource_nodes = new_resource_nodes.filter(
+                # File orders by priority, which a subquery would have to select.
+                id__in=File.objects.using(alias)
+                .order_by()
+                .filter(supplementary=False, preset__in=renderable_files_presets)
+                .values("contentnode_id")
+            )
 
-    contentnode_filter_expression = and_(
-        ContentNodeTable.c.channel_id == channel_id,
-        ContentNodeTable.c.kind != content_kinds.TOPIC,
-        ContentNodeTable.c.available == False,  # noqa
-        ContentNodeTable.c.id.in_(renderable_contentnodes),
-    )
-
-    if exclude_node_ids:
-        contentnode_filter_expression = and_(
-            contentnode_filter_expression,
-            ~ContentNodeTable.c.id.in_(list(exclude_node_ids)),
-        )
-
-    new_resource_nodes_total_size = (
-        connection.execute(
-            # This does the first step in the many to many lookup for File
-            select(func.sum(LocalFileTable.c.file_size_bigint)).where(
-                LocalFileTable.c.id.in_(
-                    select(LocalFileTable.c.id)
-                    .select_from(
-                        # and LocalFile.
-                        LocalFileTable.join(
-                            FileTable.join(
-                                ContentNodeTable,
-                                FileTable.c.contentnode_id == ContentNodeTable.c.id,
-                            ),  # This does the actual correlation between file and local file
-                            FileTable.c.local_file_id == LocalFileTable.c.id,
-                        )
-                    )
-                    .where(
-                        and_(
-                            # Filter only for files that are unavailable so we show
-                            # the import size
-                            LocalFileTable.c.available == False,  # noqa
-                            contentnode_filter_expression,
-                        )
-                    )
+            if exclude_node_ids:
+                renderable_new_resource_nodes = renderable_new_resource_nodes.exclude(
+                    id__in=list(exclude_node_ids)
                 )
+
+            new_resource_nodes_total_size = _unavailable_file_size(
+                alias, renderable_new_resource_nodes
             )
-        ).fetchone()[0]
-        or 0
-    )
 
-    new_resource_node_ids_statement = select(ContentNodeTable.c.id).where(
-        and_(
-            ContentNodeTable.c.channel_id == channel_id,
-            ContentNodeTable.c.kind != content_kinds.TOPIC,
-            ContentNodeTable.c.available == False,  # noqa
+            new_resource_node_ids = list(
+                new_resource_nodes.values_list("id", flat=True)
+            )
+
+            if exclude_node_ids:
+                new_resource_node_ids = [
+                    nid for nid in new_resource_node_ids if nid not in exclude_node_ids
+                ]
+
+            # The availability flags written above are scratch state. Django refuses
+            # to run further queries once this is set, so it has to come last.
+            transaction.set_rollback(True, using=alias)
+
+        # Create a queryset for the content_ids of resources currently in this channel
+        # we will slice this later in batches in order to efficiently process this
+        # this is necessary otherwise we would end up querying tens of thousands of node ids
+        # for a large channel, which would then be impossible to pass into an update query
+        # for the temporary upgrade DB without causing an excessively large query
+        # greater than 1MB, which is the default max for SQLite
+        current_resource_content_id_queryset = (
+            ContentNode.objects.filter(channel_id=channel_id)
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("content_id", flat=True)
         )
-    )
 
-    new_resource_node_ids = [
-        coerce_key(c[0])
-        for c in connection.execute(new_resource_node_ids_statement).fetchall()
-    ]
+        with transaction.atomic(using=alias):
+            # Set everything to False to start with
+            channel_nodes.update(available=False)
 
-    if exclude_node_ids:
-        new_resource_node_ids = [
-            nid for nid in new_resource_node_ids if nid not in exclude_node_ids
-        ]
-
-    trans.rollback()
-
-    # Create a queryset for the content_ids of resources currently in this channel
-    # we will slice this later in a while loop in order to efficiently process this
-    # this is necessary otherwise we would end up querying tens of thousands of node ids
-    # for a large channel, which would then be impossible to pass into an update query
-    # for the temporary upgrade DB without causing an excessively large query
-    # greater than 1MB, which is the default max for SQLite
-    current_resource_content_id_queryset = (
-        ContentNode.objects.filter(channel_id=channel_id)
-        .exclude(kind=content_kinds.TOPIC)
-        .values_list("content_id", flat=True)
-    )
-
-    i = 0
-
-    # start a transaction
-
-    trans = connection.begin()
-
-    # Set everything to False to start with
-    connection.execute(
-        ContentNodeTable.update()
-        .where(ContentNodeTable.c.channel_id == channel_id)
-        .values(available=False)
-    )
-
-    content_ids = current_resource_content_id_queryset[i : i + batch_size]
-    while content_ids:
-        # Set everything to False to start with
-        connection.execute(
-            ContentNodeTable.update()
-            .where(
-                and_(
-                    filter_by_uuids(
-                        ContentNodeTable.c.content_id,
-                        content_ids,
-                        vendor=bridge.engine.name,
-                    ),
-                    ContentNodeTable.c.channel_id == channel_id,
+            for content_ids in _batches(current_resource_content_id_queryset):
+                channel_nodes.filter_by_content_ids(content_ids, validate=False).update(
+                    available=True
                 )
+
+            new_resource_content_ids = list(
+                channel_nodes.exclude(kind=content_kinds.TOPIC)
+                .filter(available=False)
+                .values_list("content_id", flat=True)
+                .distinct()
             )
-            .values(available=True)
-        )
-        i += batch_size
-        content_ids = current_resource_content_id_queryset[i : i + batch_size]
 
-    new_resource_content_ids_statement = (
-        select(ContentNodeTable.c.content_id)
-        .where(
-            and_(
-                ContentNodeTable.c.channel_id == channel_id,
-                ContentNodeTable.c.kind != content_kinds.TOPIC,
-                ContentNodeTable.c.available == False,  # noqa
-            )
-        )
-        .distinct()
-    )
+            if exclude_content_ids:
+                new_resource_content_ids = [
+                    cid
+                    for cid in new_resource_content_ids
+                    if cid not in exclude_content_ids
+                ]
 
-    new_resource_content_ids = [
-        coerce_key(c[0])
-        for c in connection.execute(new_resource_content_ids_statement).fetchall()
-    ]
-
-    if exclude_content_ids:
-        new_resource_content_ids = [
-            cid for cid in new_resource_content_ids if cid not in exclude_content_ids
-        ]
-
-    trans.rollback()
+            transaction.set_rollback(True, using=alias)
 
     return (
         new_resource_node_ids,
@@ -411,51 +333,35 @@ def count_removed_resources(destination, channel_id):
     Subtract available leaf nodes count on default db by available
     leaf nodes based on destination db leaf node content_ids.
     """
-    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
-    connection = bridge.get_connection()
-    ContentNodeTable = bridge.get_table(ContentNode)
-    resource_node_ids_statement = (
-        select(ContentNodeTable.c.id)
-        .where(
-            and_(
-                ContentNodeTable.c.channel_id == channel_id,
-                ContentNodeTable.c.kind != content_kinds.TOPIC,
-            )
-        )
-        .limit(batch_size)
-    )
-
-    i = 0
-
-    resource_node_ids = [
-        coerce_key(cid[0])
-        for cid in connection.execute(resource_node_ids_statement.offset(i)).fetchall()
-    ]
-
-    content_ids_after_upgrade = set()
-
-    # Batch the query here, as passing too many uuids into Django could cause
-    # the a SQL query too large error. This will happen around about 30000+ uuids.
-    # Could probably batch at 10000 rather than 1000 - but using 1000 to be defensive.
-
-    while resource_node_ids:
-        content_ids_after_upgrade.update(
-            (
-                ContentNode.objects.filter_by_uuids(resource_node_ids, validate=False)
-                .exclude(kind=content_kinds.TOPIC)
-                .filter(available=True, channel_id=channel_id)
-                .values_list("content_id", flat=True)
-                .distinct()
-            )
+    with content_db(destination) as alias:
+        # Ordered explicitly: an OFFSET without an ORDER BY may repeat or skip rows
+        # between batches.
+        resource_node_id_queryset = (
+            ContentNode.objects.using(alias)
+            .order_by("id")
+            .filter(channel_id=channel_id)
+            .exclude(kind=content_kinds.TOPIC)
+            .values_list("id", flat=True)
         )
 
-        i += batch_size
-        resource_node_ids = [
-            coerce_key(cid[0])
-            for cid in connection.execute(
-                resource_node_ids_statement.offset(i)
-            ).fetchall()
-        ]
+        content_ids_after_upgrade = set()
+
+        # Batch the query here, as passing too many uuids into Django could cause
+        # the a SQL query too large error. This will happen around about 30000+ uuids.
+        # Could probably batch at 10000 rather than 1000 - but using 1000 to be defensive.
+
+        for resource_node_ids in _batches(resource_node_id_queryset):
+            content_ids_after_upgrade.update(
+                (
+                    ContentNode.objects.filter_by_uuids(
+                        resource_node_ids, validate=False
+                    )
+                    .exclude(kind=content_kinds.TOPIC)
+                    .filter(available=True, channel_id=channel_id)
+                    .values_list("content_id", flat=True)
+                    .distinct()
+                )
+            )
 
     total_resources_after_upgrade = len(content_ids_after_upgrade)
 
@@ -469,20 +375,17 @@ def count_removed_resources(destination, channel_id):
     )
 
 
-def _get_available_course_bounds(ContentNodeTable, connection, channel_id):
+def _get_available_course_bounds(alias, channel_id):
     # Resolve courses available on the device and their upgrade-DB tree bounds once,
     # before the batching loop.
-    courses_on_destination_statement = select(
-        ContentNodeTable.c.id, ContentNodeTable.c.lft, ContentNodeTable.c.rght
-    ).where(
-        and_(
-            ContentNodeTable.c.channel_id == channel_id,
-            ContentNodeTable.c.options.like(f'%"modality": "{modalities.COURSE}"%'),
-        )
-    )
     courses_on_destination = {
-        coerce_key(row[0]): (row[1], row[2])
-        for row in connection.execute(courses_on_destination_statement).fetchall()
+        node_id: (lft, rght)
+        for node_id, lft, rght in _destination_nodes(alias)
+        .filter(
+            channel_id=channel_id,
+            options__contains='"modality": "{}"'.format(modalities.COURSE),
+        )
+        .values_list("id", "lft", "rght")
     }
 
     available_course_ids = set(
@@ -506,161 +409,85 @@ def get_automatically_updated_resources(destination, channel_id):
     Queries the destination db to get the leaf node ids, where local file objects are unavailable.
     Get the available node ids related to those missing file objects.
     """
-    bridge = Bridge(app_name=CONTENT_APP_NAME, sqlite_file_path=destination)
-    connection = bridge.get_connection()
-    ContentNodeTable = bridge.get_table(ContentNode)
-    # SQL Alchemy reference to the file table - a mapping from
-    # contentnodes to the files that they use
-    FileTable = bridge.get_table(File)
-    # SQL Alchemy reference to the localfile table which tracks
-    # information about the files on disk, such as availability
-    LocalFileTable = bridge.get_table(LocalFile)
-    # get unavailable local file ids on the destination db
-    unavailable_local_file_ids_statement = select(LocalFileTable.c.id).where(
-        LocalFileTable.c.available == False  # noqa
-    )
-    # get the ContentNode ids where File objects are missing in the destination db,
-    # along with lft/rght for course-descendant detection
-    contentnodes_statement = (
-        select(
-            ContentNodeTable.c.id,
-            ContentNodeTable.c.lft,
-            ContentNodeTable.c.rght,
-        )
-        .select_from(
-            FileTable.join(
-                ContentNodeTable, FileTable.c.contentnode_id == ContentNodeTable.c.id
+    with content_db(destination) as alias:
+        # the ContentNode ids where File objects are missing in the destination db,
+        # along with lft/rght for course-descendant detection. Ordered explicitly: an
+        # OFFSET without an ORDER BY may repeat or skip rows between batches.
+        contentnode_queryset = (
+            ContentNode.objects.using(alias)
+            .order_by("id")
+            .filter(
+                files__local_file_id__in=LocalFile.objects.using(alias)
+                .filter(available=False)
+                .values("id"),
+                files__supplementary=False,
+                files__preset__in=renderable_files_presets,
             )
-        )
-        .where(
-            and_(
-                FileTable.c.local_file_id.in_(unavailable_local_file_ids_statement),
-                FileTable.c.supplementary == False,  # noqa
-                or_(
-                    *(
-                        FileTable.c.preset == preset
-                        for preset in renderable_files_presets
-                    )
-                ),
-            )
-        )
-        .distinct()
-        .limit(batch_size)
-    )
-
-    available_course_bounds = _get_available_course_bounds(
-        ContentNodeTable, connection, channel_id
-    )
-
-    i = 0
-
-    updated_resource_ids = set()
-
-    updated_resource_content_ids = set()
-
-    pending_course_node_ids = set()
-
-    contentnodes = [
-        (coerce_key(row[0]), row[1], row[2])
-        for row in connection.execute(contentnodes_statement.offset(i)).fetchall()
-    ]
-
-    while contentnodes:
-        node_ids_in_upgrade = [row[0] for row in contentnodes]
-        contentnodes_tree_values = {row[0]: (row[1], row[2]) for row in contentnodes}
-
-        for c in (
-            ContentNode.objects.filter_by_uuids(node_ids_in_upgrade, validate=False)
-            .filter(available=True, channel_id=channel_id)
-            .values_list("id", "content_id")
-        ):
-            updated_resource_ids.add(c[0])
-            updated_resource_content_ids.add(c[1])
-            contentnodes_tree_values.pop(c[0], None)
-
-        # Add it to a pending array so that we can fetch its ids and content ids later
-        # against the destination db.
-        if available_course_bounds and contentnodes_tree_values:
-            for node_id, (
-                contentnode_lft,
-                contentnode_rght,
-            ) in contentnodes_tree_values.items():
-                if any(
-                    contentnode_lft > course_lft and contentnode_rght < course_rght
-                    for (course_lft, course_rght) in available_course_bounds
-                ):
-                    pending_course_node_ids.add(node_id)
-
-        i += batch_size
-
-        contentnodes = [
-            (coerce_key(row[0]), row[1], row[2])
-            for row in connection.execute(contentnodes_statement.offset(i)).fetchall()
-        ]
-
-    if pending_course_node_ids:
-        rows = connection.execute(
-            select(ContentNodeTable.c.id, ContentNodeTable.c.content_id).where(
-                filter_by_uuids(
-                    ContentNodeTable.c.id,
-                    list(pending_course_node_ids),
-                    vendor=bridge.engine.name,
-                )
-            )
-        ).fetchall()
-        for nid, cid in rows:
-            updated_resource_ids.add(coerce_key(nid))
-            updated_resource_content_ids.add(coerce_key(cid))
-
-    # Do this after we have fetched all the ids and made them unique
-    # otherwise, because we are getting our ids from the File table, we could
-    # end up with a duplicate count of file sizes
-
-    updated_resources_total_size = 0
-
-    i = 0
-
-    # Coerce to lists
-    updated_resource_ids = list(updated_resource_ids)
-    updated_resource_content_ids = list(updated_resource_content_ids)
-
-    ids_batch = updated_resource_ids[i : i + batch_size]
-
-    while ids_batch:
-        contentnode_filter_expression = filter_by_uuids(
-            ContentNodeTable.c.id, ids_batch, vendor=bridge.engine.name
+            .values_list("id", "lft", "rght")
+            .distinct()
         )
 
-        # This does the first step in the many to many lookup for File
-        updated_resources_total_size += connection.execute(
-            select(func.sum(LocalFileTable.c.file_size_bigint)).where(
-                LocalFileTable.c.id.in_(
-                    select(LocalFileTable.c.id)
-                    .select_from(
-                        # and LocalFile.
-                        LocalFileTable.join(
-                            FileTable.join(
-                                ContentNodeTable,
-                                FileTable.c.contentnode_id == ContentNodeTable.c.id,
-                            ),  # This does the actual correlation between file and local file
-                            FileTable.c.local_file_id == LocalFileTable.c.id,
-                        )
-                    )
-                    .where(
-                        and_(
-                            # Filter only for files that are unavailable so we show
-                            # the import size
-                            LocalFileTable.c.available == False,  # noqa
-                            contentnode_filter_expression,
-                        )
-                    )
-                )
+        available_course_bounds = _get_available_course_bounds(alias, channel_id)
+
+        updated_resource_ids = set()
+
+        updated_resource_content_ids = set()
+
+        pending_course_node_ids = set()
+
+        for contentnodes in _batches(contentnode_queryset):
+            node_ids_in_upgrade = [row[0] for row in contentnodes]
+            contentnodes_tree_values = {
+                row[0]: (row[1], row[2]) for row in contentnodes
+            }
+
+            for c in (
+                ContentNode.objects.filter_by_uuids(node_ids_in_upgrade, validate=False)
+                .filter(available=True, channel_id=channel_id)
+                .values_list("id", "content_id")
+            ):
+                updated_resource_ids.add(c[0])
+                updated_resource_content_ids.add(c[1])
+                contentnodes_tree_values.pop(c[0], None)
+
+            # Add it to a pending array so that we can fetch its ids and content ids later
+            # against the destination db.
+            if available_course_bounds and contentnodes_tree_values:
+                for node_id, (
+                    contentnode_lft,
+                    contentnode_rght,
+                ) in contentnodes_tree_values.items():
+                    if any(
+                        contentnode_lft > course_lft and contentnode_rght < course_rght
+                        for (course_lft, course_rght) in available_course_bounds
+                    ):
+                        pending_course_node_ids.add(node_id)
+
+        if pending_course_node_ids:
+            for nid, cid in (
+                _destination_nodes(alias)
+                .filter_by_uuids(list(pending_course_node_ids), validate=False)
+                .values_list("id", "content_id")
+            ):
+                updated_resource_ids.add(nid)
+                updated_resource_content_ids.add(cid)
+
+        # Do this after we have fetched all the ids and made them unique
+        # otherwise, because we are getting our ids from the File table, we could
+        # end up with a duplicate count of file sizes
+
+        updated_resources_total_size = 0
+
+        # Coerce to lists
+        updated_resource_ids = list(updated_resource_ids)
+        updated_resource_content_ids = list(updated_resource_content_ids)
+
+        for ids_batch in _batches(updated_resource_ids):
+            batch_nodes = _destination_nodes(alias).filter_by_uuids(
+                ids_batch, validate=False
             )
-        ).fetchone()[0]
 
-        i += batch_size
-
-        ids_batch = updated_resource_ids[i : i + batch_size]
+            updated_resources_total_size += _unavailable_file_size(alias, batch_nodes)
 
     return (
         updated_resource_ids,

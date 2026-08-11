@@ -92,13 +92,25 @@ class SourceDB:
         """
         return self._shape.get(table, [])
 
-    def rows(self, table):
+    def rows(self, table, columns=None):
+        """
+        Stream the table's rows as dicts, projected onto `columns` in that order
+        when one is given.
+
+        The table check is made here rather than inside the generator, so that a
+        caller which never iterates still gets the error.
+        """
         if table not in self._shape:
             raise ValueError("No table named {} in {}".format(table, self.path))
-        return [
-            dict(row)
-            for row in self._connection.execute('SELECT * FROM "{}"'.format(table))
-        ]
+        selection = (
+            "*"
+            if columns is None
+            else ", ".join('"{}"'.format(column) for column in columns)
+        )
+        cursor = self._connection.execute(
+            'SELECT {} FROM "{}"'.format(selection, table)
+        )
+        return (dict(row) for row in cursor)
 
     @cached_property
     def schema_version(self):

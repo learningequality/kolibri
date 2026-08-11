@@ -542,14 +542,12 @@ def run_channel_iteration(channel_id, pristine_path, drive_folder):
     if _phase_enabled("fresh_import_no_attach"):
         reset_content_tables()
         restore_channel_db(channel_id, pristine_path)
-        # A no-op leaves _sqlite_db_attached False (the class attribute default,
-        # channel_import.py:217), so can_use_sqlite_attach_method returns False
-        # for every model at :734 and each one falls back to sqlite_table_import.
-        # Patching the base class is enough: no subclass overrides it.
-        # try_detaching_sqlite_database needs no patch — with nothing attached
-        # its DETACH raises OperationalError, which it already swallows (:929-933).
+        # A no-op leaves _sqlite_db_attached False (the class attribute default),
+        # so can_use_sqlite_attach_method returns False for every model and each
+        # one falls back to sqlite_table_import. Patching the base class is
+        # enough: no subclass overrides it.
         with patch.object(
-            ChannelImport, "try_attaching_sqlite_database", lambda self: None
+            ChannelImport, "try_attaching_sqlite_database", lambda self, stack: None
         ):
             results["fresh_import_no_attach"] = run_timed(_import_channel, channel_id)
 

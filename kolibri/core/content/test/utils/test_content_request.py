@@ -25,8 +25,6 @@ from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.test.helpers import ChannelBuilder
-from kolibri.core.content.test.sqlalchemytesting import django_connection_engine
-from kolibri.core.content.utils import sqlalchemybridge as _sabridge
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.content_request import _get_import_metadata
@@ -52,7 +50,6 @@ from kolibri.core.content.utils.content_request import (
 )
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.file_availability import LocationError
-from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -2250,20 +2247,6 @@ class TestImportMetadataChannelUpgrade:
         self.leaf_2 = import_metadata_responses["leaf_2"]
         self.folder_3 = import_metadata_responses["folder_3"]
 
-        # --- SharingPool patch so the local import (import_channel_from_data) uses
-        # Django's connection and can see in-memory test data.
-        default_cs = get_default_db_string()
-        _orig_get_engine = _sabridge.get_engine
-
-        def _patched_get_engine_mock(connection_string):
-            if connection_string == default_cs:
-                return django_connection_engine()
-            return _orig_get_engine(connection_string)
-
-        _engine_patch = mock.patch.object(
-            _sabridge, "get_engine", side_effect=_patched_get_engine_mock
-        )
-
         # Mocking _get_import_metadata to return the prepared metadata responses for the test channel
         def _get_import_metadata_mock(client, download):
             node_id = download.contentnode_id
@@ -2299,7 +2282,7 @@ class TestImportMetadataChannelUpgrade:
             side_effect=_process_content_requests_mock,
         )
 
-        with _engine_patch, _get_import_metadata_patch, _preferred_patch, _process_content_requests_patch:
+        with _get_import_metadata_patch, _preferred_patch, _process_content_requests_patch:
             yield
 
     def _upgrade_channel_version_on_server(self):

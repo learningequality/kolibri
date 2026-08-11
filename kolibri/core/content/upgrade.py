@@ -7,16 +7,13 @@ import os
 import sqlite3
 
 from django.db import connection
+from django.db import DatabaseError
 from django.db import transaction
 from django.db.models import IntegerField
 from django.db.models import Sum
 from django.db.models.functions import Cast
 from le_utils.constants import content_kinds
 from le_utils.constants import library as library_constants
-
-# import_channel_from_local_db still goes through channel_import.py, which raises
-# SQLAlchemy errors.
-from sqlalchemy.exc import DatabaseError
 
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map

@@ -1,18 +1,27 @@
 import logging
+import os
+import sqlite3
 import tempfile
 import unittest
 import uuid
+from contextlib import contextmanager
+from contextlib import ExitStack
 
 import pytest
 from django.conf import settings
 from django.core.management import call_command
+from django.db import connections
+from django.db import DatabaseError
+from django.db import IntegrityError
+from django.db import OperationalError
+from django.db.models import AutoField
+from django.db.utils import ConnectionDoesNotExist
 from django.test import TestCase
 from django.test import TransactionTestCase
 from mock import call
 from mock import MagicMock
 from mock import Mock
 from mock import patch
-from sqlalchemy import create_engine
 
 from kolibri.core.content import models as content
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
@@ -25,6 +34,8 @@ from kolibri.core.content.constants.schema_versions import VERSION_2
 from kolibri.core.content.constants.schema_versions import VERSION_3
 from kolibri.core.content.constants.schema_versions import VERSION_4
 from kolibri.core.content.constants.schema_versions import VERSION_5
+from kolibri.core.content.constants.schema_versions import VERSION_6
+from kolibri.core.content.contentschema.columns import for_version
 from kolibri.core.content.models import AssessmentMetaData
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -41,17 +52,27 @@ from kolibri.core.content.utils.channel_import import BATCH_SIZE
 from kolibri.core.content.utils.channel_import import ChannelImport
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channel_import import import_channel_from_local_db
+from kolibri.core.content.utils.channel_import import initialize_import_manager
 from kolibri.core.content.utils.channel_import import topological_sort
+from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
+from kolibri.core.content.utils.content_db import content_db
 from kolibri.core.content.utils.content_types_tools import renderable_preset_bits
-from kolibri.core.content.utils.sqlalchemybridge import ClassNotFoundError
-from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
+from kolibri.core.content.utils.source_db import SourceDB
 
 from .helpers import build_content_db_from_frozen_schema
+from .helpers import FrozenSchemaDBMixin
 from .helpers import load_content_fixture_data
-from .sqlalchemytesting import django_connection_engine
 from .test_content_app import ContentNodeTestBase
 
 logger = logging.getLogger(__name__)
+
+
+def dict_source():
+    """
+    The smallest dict source a ChannelImport constructor accepts. A fresh dict per
+    call, so that a test mutating one cannot reach another.
+    """
+    return {"schema_version": CONTENT_SCHEMA_VERSION}
 
 
 class UtilityTestCase(TestCase):
@@ -61,7 +82,6 @@ class UtilityTestCase(TestCase):
         self.assertGreater(sorted_models.index(File), sorted_models.index(LocalFile))
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
 @patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
 @patch("kolibri.core.content.utils.channel_import.apps")
 class BaseChannelImportClassConstructorTestCase(TestCase):
@@ -69,27 +89,15 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
     Testcase for the base channel import class constructor
     """
 
-    def test_channel_id(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_channel_id(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
 
     @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
-    def test_two_bridges(self, db_path_mock, apps_mock, tree_id_mock, BridgeMock):
+    def test_get_config(self, db_path_mock, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        db_path_mock.return_value = idValue
-        ChannelImport(idValue, "source")
-        BridgeMock.assert_has_calls(
-            [
-                call(sqlite_file_path="source"),
-                call(app_name="content", schema_version=CONTENT_SCHEMA_VERSION),
-            ]
-        )
-
-    @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
-    def test_get_config(self, db_path_mock, apps_mock, tree_id_mock, BridgeMock):
-        idValue = uuid.uuid4().hex
-        ChannelImport(idValue, "")
+        ChannelImport(idValue, dict_source())
         apps_mock.assert_has_calls(
             [
                 call.get_app_config("content"),
@@ -97,13 +105,105 @@ class BaseChannelImportClassConstructorTestCase(TestCase):
             ]
         )
 
-    def test_tree_id(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_tree_id(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        ChannelImport(idValue, "")
+        ChannelImport(idValue, dict_source())
         tree_id_mock.assert_called_once_with()
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+class BaseChannelImportClassFileSourceTestCase(FrozenSchemaDBMixin, TestCase):
+    """
+    The source half of the constructor, against a real channel database file.
+    """
+
+    def build_with_an_undeclared_column(self):
+        """
+        A VERSION_6 file carrying a column VERSION_6 does not declare, as a Studio
+        export does. Superset matching still resolves it to VERSION_6.
+        """
+        db_path = self.build(VERSION_6)
+        with sqlite3.connect(db_path) as connection:
+            connection.execute(
+                "ALTER TABLE content_contentnode ADD COLUMN studio_only_column"
+            )
+        connection.close()
+        return db_path
+
+    def test_a_file_source_is_read_through_source_db(self, tree_id_mock):
+        db_path = self.build(VERSION_6)
+        with ChannelImport(uuid.uuid4().hex, db_path) as channel_import:
+            self.assertIsInstance(channel_import.source, SourceDB)
+            self.assertEqual(db_path, channel_import.source.path)
+
+    def test_the_source_shape_comes_from_the_version_not_the_file(self, tree_id_mock):
+        # Reading the file's own columns instead would import studio_only_column's
+        # namesakes wherever a later schema added one, silently overriding the
+        # model default for a channel published at an older version.
+        with ChannelImport(
+            uuid.uuid4().hex, self.build_with_an_undeclared_column()
+        ) as channel_import:
+            self.assertEqual(for_version(VERSION_6), channel_import._source_shape)
+            self.assertNotIn(
+                "studio_only_column",
+                channel_import._source_shape["content_contentnode"],
+            )
+
+
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+class DestinationColumnsTestCase(TestCase):
+    """
+    The destination columns and their widths, derived from the Django model fields.
+    """
+
+    def test_each_model_writes_the_export_schema_columns_in_order(self, tree_id_mock):
+        channel_import = ChannelImport(uuid.uuid4().hex, dict_source())
+        for model in channel_import.content_models:
+            pk = model._meta.pk
+            # The auto integer primary keys of the many to many through tables are
+            # left to the database, so that imported rows cannot collide.
+            expected = [
+                column
+                for column in for_version(CONTENT_SCHEMA_VERSION)[model._meta.db_table]
+                if not (isinstance(pk, AutoField) and column == pk.column)
+            ]
+            self.assertEqual(
+                expected,
+                [column for column, _ in channel_import._destination_columns(model)],
+            )
+
+    def test_annotated_fields_are_not_written(self, tree_id_mock):
+        channel_import = ChannelImport(uuid.uuid4().hex, dict_source())
+        columns = [
+            column for column, _ in channel_import._destination_columns(ContentNode)
+        ]
+        # An empty column list would satisfy the exclusions vacuously.
+        self.assertIn("title", columns)
+        for annotated in (
+            "ancestors",
+            "on_device_resources",
+            "num_coach_contents",
+            "admin_imported",
+            "modality",
+        ):
+            self.assertNotIn(annotated, columns)
+
+    def test_a_foreign_key_column_is_as_wide_as_the_key_it_points_at(
+        self, tree_id_mock
+    ):
+        # A ForeignKey's own max_length is None. Taking it would stop the PostgreSQL
+        # path truncating these columns, and let the database raise instead.
+        channel_import = ChannelImport(uuid.uuid4().hex, dict_source())
+        widths = {
+            column: channel_import._column_max_length(field)
+            for column, field in channel_import._destination_columns(ContentNode)
+        }
+        self.assertEqual(
+            {"parent_id": 32, "lang_id": 14, "id": None},
+            {column: widths.get(column) for column in ("parent_id", "lang_id", "id")},
+        )
+
+
 @patch(
     "kolibri.core.content.utils.channel_import.ChannelImport.get_all_destination_tree_ids"
 )
@@ -113,71 +213,70 @@ class BaseChannelImportClassMethodUniqueTreeIdTestCase(TestCase):
     Testcase for the base channel import class unique tree id generator
     """
 
-    def test_empty(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_empty(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = []
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 1)
 
-    def test_one_one(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_one_one(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 2)
 
-    def test_one_two(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_one_two(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [2]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 1)
 
-    def test_two_one_two(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_two_one_two(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 2]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 3)
 
-    def test_two_one_three(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_two_one_three(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 3]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 2)
 
-    def test_three_one_two_three(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_three_one_two_three(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 2, 3]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 4)
 
-    def test_three_one_two_four(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_three_one_two_four(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 2, 4]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 3)
 
-    def test_three_one_three_four(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_three_one_three_four(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 3, 4]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 2)
 
-    def test_three_one_three_five(self, apps_mock, tree_ids_mock, BridgeMock):
+    def test_three_one_three_five(self, apps_mock, tree_ids_mock):
         tree_ids_mock.return_value = [1, 3, 5]
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         self.assertEqual(channel_import.find_unique_tree_id(), 2)
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
 @patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
 @patch("kolibri.core.content.utils.channel_import.apps")
 class BaseChannelImportClassGenRowMapperTestCase(TestCase):
@@ -185,18 +284,18 @@ class BaseChannelImportClassGenRowMapperTestCase(TestCase):
     Testcase for the base channel import class row mapper generator
     """
 
-    def test_base_mapper(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_base_mapper(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         mapper = channel_import.generate_row_mapper()
         record = MagicMock()
         record.test_attr = "test_val"
         self.assertEqual(mapper(record, "test_attr"), "test_val")
 
-    def test_column_name_mapping(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_column_name_mapping(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         mappings = {"test_attr": "test_attr_mapped"}
         mapper = channel_import.generate_row_mapper(mappings=mappings)
@@ -204,9 +303,9 @@ class BaseChannelImportClassGenRowMapperTestCase(TestCase):
         record.test_attr_mapped = "test_val"
         self.assertEqual(mapper(record, "test_attr"), "test_val")
 
-    def test_method_mapping(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_method_mapping(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         mappings = {"test_attr": "test_map_method"}
         mapper = channel_import.generate_row_mapper(mappings=mappings)
@@ -216,9 +315,9 @@ class BaseChannelImportClassGenRowMapperTestCase(TestCase):
         channel_import.test_map_method = test_map_method
         self.assertEqual(mapper(record, "test_attr"), "test_val")
 
-    def test_no_column_mapping(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_no_column_mapping(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         mappings = {"test_attr": "test_attr_mapped"}
         mapper = channel_import.generate_row_mapper(mappings=mappings)
@@ -227,7 +326,6 @@ class BaseChannelImportClassGenRowMapperTestCase(TestCase):
             mapper(record, "test_attr")
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
 @patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
 @patch("kolibri.core.content.utils.channel_import.apps")
 class BaseChannelImportClassGenTableMapperTestCase(TestCase):
@@ -235,16 +333,16 @@ class BaseChannelImportClassGenTableMapperTestCase(TestCase):
     Testcase for the base channel import class table mapper generator
     """
 
-    def test_base_mapper(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_base_mapper(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         mapper = channel_import.generate_table_mapper()
         self.assertEqual(mapper, channel_import.base_table_mapper)
 
-    def test_method_mapping(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_method_mapping(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         table_map = "test_map_method"
         test_map_method = Mock()
@@ -252,32 +350,36 @@ class BaseChannelImportClassGenTableMapperTestCase(TestCase):
         mapper = channel_import.generate_table_mapper(table_map=table_map)
         self.assertEqual(mapper, test_map_method)
 
-    def test_no_column_mapping(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_no_column_mapping(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
         table_map = "test_map_method"
         with self.assertRaises(AttributeError):
             channel_import.generate_table_mapper(table_map=table_map)
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
 @patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
 @patch("kolibri.core.content.utils.channel_import.apps")
-class BaseChannelImportClassAttachMethodTestCase(TestCase):
+class BaseChannelImportClassAttachMethodTestCase(FrozenSchemaDBMixin, TestCase):
     """
     Testcase for the guard that decides whether a table can be transferred by
     attaching the source database and issuing a single INSERT ... SELECT.
     """
 
+    def setUp(self):
+        super().setUp()
+        # The guard short-circuits on a dict source, so this has to be a file — and a
+        # real one at a real schema version, because the constructor resolves the
+        # source's version. Its contents are irrelevant: every case replaces the shape.
+        self.source_path = self.build(VERSION_6)
+
     def make_import(self, schema_map, source_columns):
-        # A str source leaves source_data None, so the guard isn't short-circuited.
-        channel_import = ChannelImport(uuid.uuid4().hex, "")
+        channel_import = ChannelImport(uuid.uuid4().hex, self.source_path)
+        self.addCleanup(channel_import.end)
         channel_import._sqlite_db_attached = True
         channel_import.schema_mapping = {LocalFile: schema_map}
-        source_table = MagicMock()
-        source_table.columns.keys.return_value = source_columns
-        channel_import.source.get_table.return_value = source_table
+        channel_import._source_shape = {LocalFile._meta.db_table: tuple(source_columns)}
         return channel_import
 
     def can_attach(self, schema_map, source_columns):
@@ -286,7 +388,7 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
             LocalFile, channel_import.base_table_mapper
         )
 
-    def test_rename_mapping_can_attach(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_rename_mapping_can_attach(self, apps_mock, tree_id_mock):
         # The schema 5 content_localfile shape.
         self.assertTrue(
             self.can_attach(
@@ -295,7 +397,7 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
             )
         )
 
-    def test_constant_mapping_can_attach(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_constant_mapping_can_attach(self, apps_mock, tree_id_mock):
         self.assertTrue(
             self.can_attach(
                 {"per_row": {"available": "default_to_not_available"}},
@@ -303,19 +405,19 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
             )
         )
 
-    def test_callable_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_callable_mapping_cannot_attach(self, apps_mock, tree_id_mock):
         self.assertFalse(
             self.can_attach({"per_row": {"available": "get_none"}}, ["id", "available"])
         )
 
-    def test_unknown_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_unknown_mapping_cannot_attach(self, apps_mock, tree_id_mock):
         self.assertFalse(
             self.can_attach(
                 {"per_row": {"available": "no_such_mapping"}}, ["id", "available"]
             )
         )
 
-    def test_per_table_mapping_cannot_attach(self, apps_mock, tree_id_mock, BridgeMock):
+    def test_per_table_mapping_cannot_attach(self, apps_mock, tree_id_mock):
         self.assertFalse(
             self.can_attach(
                 {
@@ -326,9 +428,7 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
             )
         )
 
-    def test_source_column_wins_over_callable_attribute(
-        self, apps_mock, tree_id_mock, BridgeMock
-    ):
+    def test_source_column_wins_over_callable_attribute(self, apps_mock, tree_id_mock):
         # Contrived: a source column named after a callable method is the only
         # way to observe, through the public guard, that the source wins.
         self.assertTrue(
@@ -338,14 +438,13 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
             )
         )
 
-    def test_missing_source_table_cannot_attach(
-        self, apps_mock, tree_id_mock, BridgeMock
-    ):
+    def test_missing_source_table_cannot_attach(self, apps_mock, tree_id_mock):
         channel_import = self.make_import(
             {"per_row": {"file_size_bigint": "file_size"}},
             ["id", "extension", "available", "file_size"],
         )
-        channel_import.source.get_table.side_effect = ClassNotFoundError
+        # A source whose schema version does not declare content_localfile at all.
+        channel_import._source_shape = {}
         self.assertFalse(
             channel_import.can_use_sqlite_attach_method(
                 LocalFile, channel_import.base_table_mapper
@@ -353,72 +452,149 @@ class BaseChannelImportClassAttachMethodTestCase(TestCase):
         )
 
     def test_raw_attached_import_raises_for_unknown_mapping(
-        self, apps_mock, tree_id_mock, BridgeMock
+        self, apps_mock, tree_id_mock
     ):
         channel_import = self.make_import(
             {"per_row": {"available": "no_such_mapping"}}, ["id", "available"]
         )
-        # Match on the message: with everything but the source table a MagicMock,
-        # a bare assertRaises(Exception) would go green on an incidental TypeError.
+        # Match on the message, so that an incidental failure further down the
+        # method cannot pass for the mapping check raising.
         with self.assertRaisesRegex(Exception, "no_such_mapping"):
             channel_import.raw_attached_sqlite_table_import(
                 LocalFile, channel_import.base_table_mapper
             )
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+class AliasReleaseTestCase(FrozenSchemaDBMixin, TestCase):
+    """
+    An import that fails partway must release both the source it opened and the
+    destination alias it registered.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.destination = os.path.join(self.directory, "destination.sqlite3")
+
+    def write_a_destination_that_is_not_a_database(self):
+        # It opens as a database, so the constructor only fails once it queries,
+        # which is after the alias is registered and the source is open.
+        with open(self.destination, "w") as f:
+            f.write("not a database")
+
+    def test_a_failing_import_releases_its_alias(self, tree_id_mock):
+        with self.assertRaises(RuntimeError):
+            with ChannelImport(
+                uuid.uuid4().hex, dict_source(), destination=self.destination
+            ) as channel_import:
+                alias = channel_import.destination
+                raise RuntimeError("import failed partway")
+
+        with self.assertRaises(ConnectionDoesNotExist):
+            connections[alias]
+
+    def test_a_failing_constructor_releases_its_alias(self, tree_id_mock):
+        self.write_a_destination_that_is_not_a_database()
+
+        # There is no instance to read the alias off, and iterating connections
+        # only yields the aliases in settings, so record what the constructor was
+        # handed on the way past.
+        opened = []
+
+        @contextmanager
+        def record(path=None):
+            with content_db(path) as alias:
+                opened.append(alias)
+                yield alias
+
+        with patch("kolibri.core.content.utils.channel_import.content_db", record):
+            with self.assertRaises(DatabaseError):
+                ChannelImport(
+                    uuid.uuid4().hex, dict_source(), destination=self.destination
+                )
+
+        with self.assertRaises(ConnectionDoesNotExist):
+            connections[opened[0]]
+
+    def test_a_failing_constructor_closes_the_source(self, tree_id_mock):
+        self.write_a_destination_that_is_not_a_database()
+        # Held here: a constructor that raises hands back no instance to read it off.
+        source = SourceDB(self.build(VERSION_6))
+
+        with patch(
+            "kolibri.core.content.utils.channel_import.SourceDB", return_value=source
+        ):
+            with self.assertRaises(DatabaseError):
+                ChannelImport(
+                    uuid.uuid4().hex, source.path, destination=self.destination
+                )
+
+        with self.assertRaises(sqlite3.ProgrammingError):
+            source.rows("content_channelmetadata")
+
+
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+class AttachedSourceDatabaseTestCase(FrozenSchemaDBMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.destination = os.path.join(self.directory, "destination.sqlite3")
+
+    @unittest.skipIf(
+        "sqlite3" not in settings.DATABASES["default"]["ENGINE"],
+        "SQLite only test",
+    )
+    def test_a_failing_detach_does_not_propagate(self, tree_id_mock):
+        # The detach unwinds after the import has committed, so a raise here would
+        # skip the annotation that follows and leave the channel unannotated.
+        @contextmanager
+        def attach_but_fail_to_detach(alias, path, name):
+            yield
+            raise OperationalError("database sourcedb is locked")
+
+        with ChannelImport(
+            uuid.uuid4().hex, self.build(VERSION_6), destination=self.destination
+        ) as channel_import:
+            with patch(
+                "kolibri.core.content.utils.channel_import.attached_database",
+                attach_but_fail_to_detach,
+            ):
+                with ExitStack() as stack:
+                    channel_import.try_attaching_sqlite_database(stack)
+                    self.assertTrue(channel_import._sqlite_db_attached)
+
+            self.assertFalse(channel_import._sqlite_db_attached)
+
+
+@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
+class ImportInsideATransactionTestCase(TestCase):
+    @unittest.skipIf(
+        "sqlite3" not in settings.DATABASES["default"]["ENGINE"],
+        "SQLite only test",
+    )
+    def test_a_sqlite_import_inside_a_transaction_is_refused(self, tree_id_mock):
+        # A TestCase runs inside an atomic block, which is exactly where SQLite
+        # ignores the foreign key suppression the import depends on.
+        with ChannelImport(uuid.uuid4().hex, dict_source()) as channel_import:
+            with self.assertRaises(RuntimeError):
+                channel_import.import_channel_data()
+
+
 @patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
 @patch("kolibri.core.content.utils.channel_import.apps")
-class BaseChannelImportClassTableImportTestCase(TestCase):
+class BaseChannelImportClassOtherMethodsTestCase(TransactionTestCase):
     """
-    Testcase for the base channel import class table import method
+    Testcase for the base channel import class remaining methods.
+
+    Not a TestCase: import_channel_data refuses to run inside a transaction.
     """
 
-    def test_no_merge_records_bulk_insert_no_flush(
-        self, apps_mock, tree_id_mock, BridgeMock
-    ):
+    def test_import_channel_methods_called(self, apps_mock, tree_id_mock):
         idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
+        channel_import = ChannelImport(idValue, dict_source())
         self.assertEqual(channel_import.channel_id, idValue)
-        record_mock = MagicMock(spec=["__table__"])
-        record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
-        channel_import.destination.get_class.return_value = record_mock
-        channel_import.table_import(
-            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * (BATCH_SIZE // 10)
-        )
-        channel_import.destination.execute.assert_called_once()
-
-    def test_no_merge_records_bulk_insert_flush(
-        self, apps_mock, tree_id_mock, BridgeMock
-    ):
-        idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
-        self.assertEqual(channel_import.channel_id, idValue)
-        record_mock = MagicMock(spec=["__table__"])
-        record_mock.__table__.columns.items.return_value = [("test_attr", MagicMock())]
-        channel_import.destination.get_class.return_value = record_mock
-        channel_import.table_import(
-            MagicMock(), lambda x, y: "test_val", lambda x: [{}] * (BATCH_SIZE + 1)
-        )
-        self.assertEqual(channel_import.destination.execute.call_count, 2)
-
-
-@patch("kolibri.core.content.utils.channel_import.Bridge")
-@patch("kolibri.core.content.utils.channel_import.ChannelImport.find_unique_tree_id")
-@patch("kolibri.core.content.utils.channel_import.apps")
-class BaseChannelImportClassOtherMethodsTestCase(TestCase):
-    """
-    Testcase for the base channel import class remaining methods
-    """
-
-    def test_import_channel_methods_called(self, apps_mock, tree_id_mock, BridgeMock):
-        idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
-        self.assertEqual(channel_import.channel_id, idValue)
-        model_mock = Mock(spec=["__name__"])
-        channel_import.content_models = [model_mock]
+        channel_import.content_models = [ContentTag]
         mapping_mock = Mock()
-        channel_import.schema_mapping = {model_mock: mapping_mock}
+        channel_import.schema_mapping = {ContentTag: mapping_mock}
         with patch.object(channel_import, "generate_row_mapper"), patch.object(
             channel_import, "generate_table_mapper"
         ), patch.object(channel_import, "table_import"), patch.object(
@@ -435,37 +611,30 @@ class BaseChannelImportClassOtherMethodsTestCase(TestCase):
             channel_import.check_and_delete_existing_channel.assert_called_once()
             channel_import.execute_post_operations.assert_called_once()
 
-    def test_end(self, apps_mock, tree_id_mock, BridgeMock):
-        idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
-        self.assertEqual(channel_import.channel_id, idValue)
-        channel_import.end()
-        channel_import.destination.end.assert_has_calls([call(), call()])
-
-    @patch("kolibri.core.content.utils.channel_import.select")
-    def test_destination_tree_ids(
-        self, select_mock, apps_mock, tree_id_mock, BridgeMock
-    ):
-        idValue = uuid.uuid4().hex
-        channel_import = ChannelImport(idValue, "")
-        self.assertEqual(channel_import.channel_id, idValue)
-        class_mock = Mock()
-        channel_import.destination.get_class.return_value = class_mock
-        channel_import.get_all_destination_tree_ids()
-        channel_import.destination.assert_has_calls(
-            [
-                call.execute().fetchall(),
-            ]
+    def test_destination_tree_ids(self, apps_mock, tree_id_mock):
+        # bulk_create rather than create, which would have MPTT assign the tree_ids.
+        ContentNode.objects.bulk_create(
+            ContentNode(
+                id=uuid.uuid4().hex,
+                title="node",
+                content_id=uuid.uuid4().hex,
+                channel_id=uuid.uuid4().hex,
+                tree_id=tree_id,
+                lft=1,
+                rght=2,
+                level=0,
+            )
+            for tree_id in (3, 1, 3)
         )
+        channel_import = ChannelImport(uuid.uuid4().hex, dict_source())
+        self.assertEqual([1, 3], channel_import.get_all_destination_tree_ids())
 
 
 class MaliciousDatabaseTestCase(TestCase):
     @patch("kolibri.core.content.utils.channel_import.set_channel_ancestors")
-    @patch("kolibri.core.content.utils.channel_import.Bridge")
-    @patch("kolibri.core.content.utils.channel_import.select")
-    def test_non_existent_root_node(self, select_mock, bridge_mock, ancestor_mock):
+    def test_non_existent_root_node(self, ancestor_mock):
         channel_id = "6199dde695db4ee4ab392222d5af1e5c"
-        import_manager = ChannelImport(channel_id, "source")
+        import_manager = ChannelImport(channel_id, dict_source())
 
         ChannelMetadata.objects.create(
             id=channel_id, name="test", min_schema_version="1", root_id=channel_id
@@ -481,13 +650,9 @@ class MaliciousDatabaseTestCase(TestCase):
 
 
 class ContentImportTestBase(TransactionTestCase):
-    """This is run using a TransactionTestCase,
-    as by default, Django runs each test inside an atomic context in order to easily roll back
-    any changes to the DB. However, as we are setting things in the Django DB using SQLAlchemy
-    these changes are not caught by this atomic context, and data will persist across tests.
-    In order to deal with this, we call an explicit db flush at the end of every test case,
-    both this flush and the SQLAlchemy insertions can cause issues with the atomic context used
-    by Django."""
+    """Run as a TransactionTestCase, and flushed in tearDown rather than rolled
+    back: the importer can only suppress SQLite's foreign key checking outside an
+    atomic block, and these fixtures are not parent-first."""
 
     @property
     def schema_name(self):
@@ -514,33 +679,17 @@ class ContentImportTestBase(TransactionTestCase):
     def set_content_fixture(self, db_path_mock):
         _, self.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
         db_path_mock.return_value = self.content_db_path
-        self.content_engine = create_engine("sqlite:///" + self.content_db_path)
 
         build_content_db_from_frozen_schema(
             self.content_db_path, self.schema_name, self.load_fixture_data()
         )
 
-        with patch(
-            "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-            new=self.get_engine,
-        ):
-            import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
-            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
-        self.content_engine.dispose()
-
-    def get_engine(self, connection_string):
-        if connection_string == get_default_db_string():
-            return django_connection_engine()
-        return self.content_engine
+        import_channel_from_local_db("6199dde695db4ee4ab392222d5af1e5c")
+        update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
 
     def tearDown(self):
         call_command("flush", interactive=False)
         super().tearDown()
-
-    @classmethod
-    def tearDownClass(cls):
-        django_connection_engine().dispose()
-        super().tearDownClass()
 
 
 @pytest.fixture(scope="class")
@@ -619,22 +768,16 @@ def alternate_existing_channel(request):
 class ContentImportDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
         data = self.load_fixture_data()
-        self.content_engine = create_engine("sqlite://")
 
         data["schema_version"] = self.name
 
-        with patch(
-            "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-            new=self.get_engine,
-        ):
-            import_channel_from_data(data)
-            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+        import_channel_from_data(data)
+        update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
 
 
 class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
     def set_content_fixture(self):
         data = self.load_fixture_data()
-        self.content_engine = create_engine("sqlite://")
 
         partial_data = {key: [] for key in data}
 
@@ -707,15 +850,10 @@ class ContentImportPartialChannelDataTestBase(ContentImportTestBase):
         remainder_data["content_channelmetadata"] = data["content_channelmetadata"]
         remainder_data["schema_version"] = self.name
 
-        with patch(
-            "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-            new=self.get_engine,
-        ):
-            import_channel_from_data(partial_data, partial=True)
-            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
-            import_channel_from_data(remainder_data, partial=True)
-            update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
-        self.content_engine.dispose()
+        import_channel_from_data(partial_data, partial=True)
+        update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
+        import_channel_from_data(remainder_data, partial=True)
+        update_content_metadata("6199dde695db4ee4ab392222d5af1e5c")
 
 
 class NaiveImportTestBase(ContentNodeTestBase):
@@ -864,40 +1002,36 @@ class NaiveImportTestBase(ContentNodeTestBase):
             self.assertEqual(f.included_presets, expected)
 
     def test_existing_localfiles_are_not_overwritten(self):
-        with patch(
-            "kolibri.core.content.utils.sqlalchemybridge.get_engine",
-            new=self.get_engine,
-        ):
-            channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
-            channel = ChannelMetadata.objects.get(id=channel_id)
+        channel = ChannelMetadata.objects.get(id=channel_id)
 
-            # mark LocalFile objects as available
-            for f in channel.root.children.first().files.all():
-                f.local_file.available = True
-                f.local_file.save()
+        # mark LocalFile objects as available
+        for f in channel.root.children.first().files.all():
+            f.local_file.available = True
+            f.local_file.save()
 
-            # channel's not yet available, as we haven't done the annotation
-            assert not channel.root.available
+        # channel's not yet available, as we haven't done the annotation
+        assert not channel.root.available
 
-            # propagate availability up the tree
-            set_leaf_node_availability_from_local_file_availability(channel_id)
-            recurse_annotation_up_tree(channel_id=channel_id)
+        # propagate availability up the tree
+        set_leaf_node_availability_from_local_file_availability(channel_id)
+        recurse_annotation_up_tree(channel_id=channel_id)
 
-            # after reloading, channel should now be available
-            channel.root.refresh_from_db()
-            assert channel.root.available
+        # after reloading, channel should now be available
+        channel.root.refresh_from_db()
+        assert channel.root.available
 
-            # set the channel version to a low number to ensure we trigger a re-import of metadata
-            ChannelMetadata.objects.filter(id=channel_id).update(version=-1)
+        # set the channel version to a low number to ensure we trigger a re-import of metadata
+        ChannelMetadata.objects.filter(id=channel_id).update(version=-1)
 
-            # reimport the metadata
-            self.set_content_fixture()
+        # reimport the metadata
+        self.set_content_fixture()
 
-            # after reloading, the files and their ancestor ContentNodes should all still be available
-            channel.root.refresh_from_db()
-            assert channel.root.available
-            assert channel.root.children.first().files.all()[0].local_file.available
+        # after reloading, the files and their ancestor ContentNodes should all still be available
+        channel.root.refresh_from_db()
+        assert channel.root.available
+        assert channel.root.children.first().files.all()[0].local_file.available
 
     def test_local_file_file_size_imported(self):
         lf = LocalFile.objects.get(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2")
@@ -1093,10 +1227,7 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
         super().setUpClass()
 
 
-@patch("kolibri.core.content.utils.channel_import.Bridge")
 @patch("kolibri.core.content.utils.channel_import.logger")
-@patch("kolibri.core.content.utils.channel_import.select")
-@patch("kolibri.core.content.utils.channel_import.apps")
 class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
     name = CONTENT_SCHEMA_VERSION
     legacy_schema = None
@@ -1110,126 +1241,112 @@ class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
     def tearDown(self):
         return super().tearDown()
 
-    def test_channel_already_exists(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_channel_already_exists(self, logger_mock):
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertFalse(result)
 
-    def test_partial_import_no_deletion(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_partial_import_no_deletion(self, logger_mock):
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version
         self.channel_import.partial = True
 
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
 
-    def test_partial_import_with_deletion(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_partial_import_with_deletion(self, logger_mock):
         # Simulate partial import with the same version
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version - 1
         self.channel_import.partial = True
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertFalse(result)
 
-    def test_full_import_with_newer_version(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_full_import_with_newer_version(self, logger_mock):
         # Simulate full import with a newer version
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version + 1
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
 
-    def test_channel_not_exists(self, select_mock, logger_mock, apps_mock, BridgeMock):
+    def test_channel_not_exists(self, logger_mock):
         # Simulate channel not existing in the database
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
 
-    def test_downgrade_blocked_without_version_requested(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_downgrade_blocked_without_version_requested(self, logger_mock):
         # Regression: the existing downgrade block must be preserved when
         # version_requested is False (the default).
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import = ChannelImport(self.channel_id, dict_source())
         self.channel_import.channel_version = self.channel_version - 1
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertFalse(result)
 
-    def test_downgrade_allowed_with_version_requested(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_downgrade_allowed_with_version_requested(self, logger_mock):
         # Downgrade is allowed when version_requested=True.
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import = ChannelImport(
+            self.channel_id, dict_source(), version_requested=True
+        )
         self.channel_import.channel_version = self.channel_version - 1
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
 
-    def test_upgrade_allowed_with_version_requested(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_upgrade_allowed_with_version_requested(self, logger_mock):
         # Upgrade still works when version_requested=True.
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import = ChannelImport(
+            self.channel_id, dict_source(), version_requested=True
+        )
         self.channel_import.channel_version = self.channel_version + 1
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertTrue(result)
 
-    def test_same_version_blocked_even_with_version_requested(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_same_version_blocked_even_with_version_requested(self, logger_mock):
         # Same version is still blocked even when version_requested=True.
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import = ChannelImport(
+            self.channel_id, dict_source(), version_requested=True
+        )
         self.channel_import.channel_version = self.channel_version
         result = self.channel_import.check_and_delete_existing_channel()
         self.assertFalse(result)
 
-    def test_downgrade_with_version_requested_cleans_up_tree(
-        self, select_mock, logger_mock, apps_mock, BridgeMock
-    ):
+    def test_downgrade_with_version_requested_cleans_up_tree(self, logger_mock):
         # When downgrading with version_requested=True, old tree data is cleaned up.
         self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
         self.current_channel.version = self.channel_version
         self.current_channel.save()
-        self.channel_import = ChannelImport(self.channel_id, "", version_requested=True)
+        self.channel_import = ChannelImport(
+            self.channel_id, dict_source(), version_requested=True
+        )
         self.channel_import.channel_version = self.channel_version - 1
 
-        # Make the destination Bridge's execute().fetchone() return a root node.
-        # self.destination == BridgeMock.return_value (Bridge is patched at class level).
-        BridgeMock.return_value.execute.return_value.fetchone.return_value = {
-            "tree_id": 1
-        }
+        root_tree_id = ContentNode.objects.get(id=self.current_channel.root_id).tree_id
 
         with patch.object(
             self.channel_import, "delete_old_channel_many_to_many_fields"
@@ -1240,7 +1357,132 @@ class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
 
         self.assertTrue(result)
         delete_m2m_mock.assert_called_once_with(self.channel_id)
-        delete_tree_mock.assert_called_once_with(1)
+        delete_tree_mock.assert_called_once_with(root_tree_id)
+
+
+class UnversionedChecksumsBatchingTestCase(ContentImportTestBase):
+    """
+    An unversioned channel with more unique checksums than fit in one batch.
+    """
+
+    name = NO_VERSION
+    legacy_schema = None
+
+    def load_fixture_data(self):
+        data = super().load_fixture_data()
+        # generate_local_file_from_file yields one LocalFile per distinct checksum,
+        # and it is a generator, so this is the production path that batches an
+        # iterator rather than a list.
+        template = data["content_file"][0]
+        contentnode_id = data["content_contentnode"][0]["id"]
+        existing = len({row["checksum"] for row in data["content_file"]})
+        for i in range(BATCH_SIZE + 1 - existing):
+            data["content_file"].append(
+                dict(
+                    template,
+                    id="{:032x}".format(i + 1),
+                    checksum="{:032x}".format(i + 1),
+                    contentnode_id=contentnode_id,
+                )
+            )
+        return data
+
+    def test_every_unique_checksum_is_imported(self):
+        self.assertEqual(BATCH_SIZE + 1, LocalFile.objects.count())
+
+
+class BatchedRowImportTestCase(ContentImportTestBase):
+    """
+    A channel larger than one batch, imported through the Python row path.
+    """
+
+    name = CONTENT_SCHEMA_VERSION
+    legacy_schema = None
+
+    def load_fixture_data(self):
+        data = super().load_fixture_data()
+        # Enough content_contenttag rows to need more than two batches. ContentTag
+        # has no foreign keys, so the extra rows need no matching parent.
+        template = data["content_contenttag"][0]
+        for i in range(2 * BATCH_SIZE + 1 - len(data["content_contenttag"])):
+            data["content_contenttag"].append(
+                dict(template, id="{:032x}".format(i + 1), tag_name="tag{}".format(i))
+            )
+        return data
+
+    def set_content_fixture(self):
+        # A no-op attach leaves _sqlite_db_attached False, so every model falls
+        # back to the row mapper, which is the path that batches.
+        with patch.object(
+            ChannelImport, "try_attaching_sqlite_database", lambda self, stack: None
+        ):
+            super().set_content_fixture()
+
+    def test_every_row_past_the_first_batch_is_imported(self):
+        # Consuming the row iterator by advancing an offset into it skips a whole
+        # batch for every batch it takes: rows BATCH_SIZE..2*BATCH_SIZE are lost.
+        self.assertEqual(2 * BATCH_SIZE + 1, ContentTag.objects.count())
+
+
+class ReferentiallyBrokenChannelTestCase(TransactionTestCase):
+    """
+    A channel carrying a dangling reference must fail rather than commit.
+    """
+
+    def setUp(self):
+        _, self.content_db_path = tempfile.mkstemp(suffix=".sqlite3")
+        self.addCleanup(os.remove, self.content_db_path)
+        data = load_content_fixture_data(CONTENT_SCHEMA_VERSION)
+        data["content_file"].append(
+            dict(
+                data["content_file"][0],
+                id="{:032x}".format(1),
+                contentnode_id="{:032x}".format(2),
+            )
+        )
+        build_content_db_from_frozen_schema(
+            self.content_db_path, CONTENT_SCHEMA_VERSION, data
+        )
+        super().setUp()
+
+    def tearDown(self):
+        call_command("flush", interactive=False)
+        super().tearDown()
+
+    @patch("kolibri.core.content.utils.channel_import.get_content_database_file_path")
+    def test_dangling_reference_is_not_committed(self, db_path_mock):
+        channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        db_path_mock.return_value = self.content_db_path
+        with self.assertRaises(IntegrityError):
+            import_channel_from_local_db(channel_id)
+        self.assertFalse(ContentNode.objects.filter(channel_id=channel_id).exists())
+
+
+class DestinationFileImportTestCase(FrozenSchemaDBMixin, TestCase):
+    """
+    An import into a destination file, which is how diff_stats builds the database
+    it compares the default one against.
+    """
+
+    def test_rows_land_in_the_destination_file_not_the_default_database(self):
+        source = self.build(CONTENT_SCHEMA_VERSION)
+        destination = os.path.join(self.directory, "destination.sqlite3")
+        expected = len(
+            load_content_fixture_data(CONTENT_SCHEMA_VERSION)["content_contentnode"]
+        )
+
+        with initialize_import_manager(
+            read_channel_metadata_from_db_file(source),
+            source,
+            cancel_check=False,
+            destination=destination,
+            version_requested=True,
+        ) as import_manager:
+            self.assertTrue(import_manager.import_channel_data())
+
+        with content_db(destination) as alias:
+            self.assertEqual(expected, ContentNode.objects.using(alias).count())
+        self.assertFalse(ContentNode.objects.exists())
 
 
 class Version5ImportTestCase(NaiveImportTestCase):
@@ -1299,7 +1541,7 @@ class Version5ImportTestCase(NaiveImportTestCase):
         # A no-op leaves _sqlite_db_attached False, so every model falls back
         # to the Python row mapper.
         with patch.object(
-            ChannelImport, "try_attaching_sqlite_database", lambda self: None
+            ChannelImport, "try_attaching_sqlite_database", lambda self, stack: None
         ):
             self._reimport_from_scratch()
 
