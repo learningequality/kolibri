@@ -4,7 +4,6 @@ import uuid
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 from le_utils.constants import file_formats
 from le_utils.constants import format_presets
@@ -96,7 +95,7 @@ class UnavailableContentDeletion(TestCase):
         self.assertEqual(deleted, 0)
 
 
-class DeleteContentTestCase(TransactionTestCase):
+class DeleteContentTestCase(TestCase):
     """
     Testcase for delete content management command
     """
@@ -182,7 +181,3 @@ class DeleteContentTestCase(TransactionTestCase):
         self.assertFalse(channel_stats_clear_mock.called)
         self._call_delete_command(node_ids=self._get_node_ids())
         self.assertTrue(channel_stats_clear_mock.called)
-
-    def tearDown(self):
-        call_command("flush", interactive=False)
-        super().tearDown()

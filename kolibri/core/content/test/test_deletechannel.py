@@ -1,7 +1,6 @@
 import uuid
 
-from django.core.management import call_command
-from django.test import TransactionTestCase
+from django.test import TestCase
 from mock import call
 from mock import patch
 
@@ -9,7 +8,7 @@ from kolibri.core.content import models as content
 from kolibri.core.content.utils.content_delete import delete_content
 
 
-class DeleteChannelTestCase(TransactionTestCase):
+class DeleteChannelTestCase(TestCase):
     """
     Testcase for delete channel management command
     """
@@ -80,7 +79,3 @@ class DeleteChannelTestCase(TransactionTestCase):
         num_files = content.LocalFile.objects.filter(available=True).count()
         self.delete_channel()
         os_remove_mock.assert_has_calls([call(path)] * num_files)
-
-    def tearDown(self):
-        call_command("flush", interactive=False)
-        super().tearDown()
