@@ -1,32 +1,113 @@
 CREATE TABLE "content_contenttag" ("id" char(32) NOT NULL PRIMARY KEY, "tag_name" varchar(30) NOT NULL);
-CREATE TABLE "content_contentnode_has_prerequisite" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "from_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED, "to_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_contentnode_has_prerequisite" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "from_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "to_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_contentnode_has_prerequisite_from_contentnode_id_1085c145" ON "content_contentnode_has_prerequisite" ("from_contentnode_id");
-CREATE UNIQUE INDEX "content_contentnode_has_prerequisite_from_contentnode_id_to_contentnode_id_c9e1d527_uniq" ON "content_contentnode_has_prerequisite" ("from_contentnode_id", "to_contentnode_id");
+CREATE UNIQUE INDEX "content_contentnode_has_prerequisite_from_contentnode_id_to_contentnode_id_c9e1d527_uniq" ON "content_contentnode_has_prerequisite" (
+    "from_contentnode_id", "to_contentnode_id"
+);
 CREATE INDEX "content_contentnode_has_prerequisite_to_contentnode_id_5561f92c" ON "content_contentnode_has_prerequisite" ("to_contentnode_id");
-CREATE TABLE "content_contentnode_related" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "from_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED, "to_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_contentnode_related" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "from_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "to_contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_contentnode_related_from_contentnode_id_f56e3999" ON "content_contentnode_related" ("from_contentnode_id");
-CREATE UNIQUE INDEX "content_contentnode_related_from_contentnode_id_to_contentnode_id_fc2ed20c_uniq" ON "content_contentnode_related" ("from_contentnode_id", "to_contentnode_id");
+CREATE UNIQUE INDEX "content_contentnode_related_from_contentnode_id_to_contentnode_id_fc2ed20c_uniq" ON "content_contentnode_related" (
+    "from_contentnode_id", "to_contentnode_id"
+);
 CREATE INDEX "content_contentnode_related_to_contentnode_id_42e82421" ON "content_contentnode_related" ("to_contentnode_id");
-CREATE TABLE "content_contentnode_tags" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED, "contenttag_id" char(32) NOT NULL REFERENCES "content_contenttag" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_contentnode_tags" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "contenttag_id" char(32) NOT NULL REFERENCES "content_contenttag" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_contentnode_tags_contentnode_id_4ea196dd" ON "content_contentnode_tags" ("contentnode_id");
 CREATE UNIQUE INDEX "content_contentnode_tags_contentnode_id_contenttag_id_64a4ac15_uniq" ON "content_contentnode_tags" ("contentnode_id", "contenttag_id");
 CREATE INDEX "content_contentnode_tags_contenttag_id_9518e093" ON "content_contentnode_tags" ("contenttag_id");
-CREATE TABLE "content_contentnode" ("id" char(32) NOT NULL PRIMARY KEY, "license_name" varchar(50) NULL, "license_description" text NULL, "title" varchar(200) NOT NULL, "coach_content" bool NOT NULL, "content_id" char(32) NOT NULL, "channel_id" char(32) NOT NULL, "description" text NULL, "sort_order" real NULL, "license_owner" varchar(200) NOT NULL, "author" varchar(200) NOT NULL, "kind" varchar(200) NOT NULL, "available" bool NOT NULL, "options" text NULL, "grade_levels" text NULL, "resource_types" text NULL, "learning_activities" text NULL, "accessibility_labels" text NULL, "categories" text NULL, "learner_needs" text NULL, "duration" integer unsigned NULL CHECK ("duration" >= 0), "lft" integer unsigned NOT NULL CHECK ("lft" >= 0), "rght" integer unsigned NOT NULL CHECK ("rght" >= 0), "tree_id" integer unsigned NOT NULL CHECK ("tree_id" >= 0), "level" integer unsigned NOT NULL CHECK ("level" >= 0), "lang_id" varchar(14) NULL REFERENCES "content_language" ("id") DEFERRABLE INITIALLY DEFERRED, "parent_id" char(32) NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_contentnode" (
+    "id" char(32) NOT NULL PRIMARY KEY,
+    "license_name" varchar(50) NULL,
+    "license_description" text NULL,
+    "title" varchar(200) NOT NULL,
+    "coach_content" bool NOT NULL,
+    "content_id" char(32) NOT NULL,
+    "channel_id" char(32) NOT NULL,
+    "description" text NULL,
+    "sort_order" real NULL,
+    "license_owner" varchar(200) NOT NULL,
+    "author" varchar(200) NOT NULL,
+    "kind" varchar(200) NOT NULL,
+    "available" bool NOT NULL,
+    "options" text NULL,
+    "grade_levels" text NULL,
+    "resource_types" text NULL,
+    "learning_activities" text NULL,
+    "accessibility_labels" text NULL,
+    "categories" text NULL,
+    "learner_needs" text NULL,
+    "duration" integer unsigned NULL CHECK ("duration" >= 0),
+    "lft" integer unsigned NOT NULL CHECK ("lft" >= 0),
+    "rght" integer unsigned NOT NULL CHECK ("rght" >= 0),
+    "tree_id" integer unsigned NOT NULL CHECK ("tree_id" >= 0),
+    "level" integer unsigned NOT NULL CHECK ("level" >= 0),
+    "lang_id" varchar(14) NULL REFERENCES "content_language" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "parent_id" char(32) NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_contentnode_channel_id_77d3faec" ON "content_contentnode" ("channel_id");
 CREATE INDEX "content_contentnode_content_id_790eac82" ON "content_contentnode" ("content_id");
 CREATE INDEX "content_contentnode_lang_id_600d594b" ON "content_contentnode" ("lang_id");
 CREATE INDEX "content_contentnode_parent_id_47178783" ON "content_contentnode" ("parent_id");
 CREATE INDEX "content_contentnode_tree_id_d115ca94" ON "content_contentnode" ("tree_id");
-CREATE TABLE "content_language" ("id" varchar(14) NOT NULL PRIMARY KEY, "lang_code" varchar(3) NOT NULL, "lang_subcode" varchar(10) NULL, "lang_name" varchar(100) NULL, "lang_direction" varchar(3) NOT NULL);
+CREATE TABLE "content_language" (
+    "id" varchar(14) NOT NULL PRIMARY KEY,
+    "lang_code" varchar(3) NOT NULL,
+    "lang_subcode" varchar(10) NULL,
+    "lang_name" varchar(100) NULL,
+    "lang_direction" varchar(3) NOT NULL
+);
 CREATE INDEX "content_language_lang_code_7a423afe" ON "content_language" ("lang_code");
 CREATE INDEX "content_language_lang_subcode_6ca3c58e" ON "content_language" ("lang_subcode");
-CREATE TABLE "content_file" ("id" char(32) NOT NULL PRIMARY KEY, "preset" varchar(150) NOT NULL, "supplementary" bool NOT NULL, "thumbnail" bool NOT NULL, "priority" integer NULL, "included_presets" integer NULL, "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED, "lang_id" varchar(14) NULL REFERENCES "content_language" ("id") DEFERRABLE INITIALLY DEFERRED, "local_file_id" varchar(32) NOT NULL REFERENCES "content_localfile" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_file" (
+    "id" char(32) NOT NULL PRIMARY KEY,
+    "preset" varchar(150) NOT NULL,
+    "supplementary" bool NOT NULL,
+    "thumbnail" bool NOT NULL,
+    "priority" integer NULL,
+    "included_presets" integer NULL,
+    "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "lang_id" varchar(14) NULL REFERENCES "content_language" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "local_file_id" varchar(32) NOT NULL REFERENCES "content_localfile" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_file_contentnode_id_d4089e6e" ON "content_file" ("contentnode_id");
 CREATE INDEX "content_file_lang_id_364540cd" ON "content_file" ("lang_id");
 CREATE INDEX "content_file_local_file_id_9780c2ab" ON "content_file" ("local_file_id");
 CREATE INDEX "content_file_priority_073dafe4" ON "content_file" ("priority");
-CREATE TABLE "content_localfile" ("id" varchar(32) NOT NULL PRIMARY KEY, "extension" varchar(40) NOT NULL, "available" bool NOT NULL, "file_size_bigint" bigint NULL);
-CREATE TABLE "content_assessmentmetadata" ("id" char(32) NOT NULL PRIMARY KEY, "assessment_item_ids" text NOT NULL, "number_of_assessments" integer NOT NULL, "mastery_model" text NOT NULL, "randomize" bool NOT NULL, "is_manipulable" bool NOT NULL, "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_localfile" (
+    "id" varchar(32) NOT NULL PRIMARY KEY, "extension" varchar(40) NOT NULL, "available" bool NOT NULL, "file_size_bigint" bigint NULL
+);
+CREATE TABLE "content_assessmentmetadata" (
+    "id" char(32) NOT NULL PRIMARY KEY,
+    "assessment_item_ids" text NOT NULL,
+    "number_of_assessments" integer NOT NULL,
+    "mastery_model" text NOT NULL,
+    "randomize" bool NOT NULL,
+    "is_manipulable" bool NOT NULL,
+    "contentnode_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_assessmentmetadata_contentnode_id_19cbc70a" ON "content_assessmentmetadata" ("contentnode_id");
-CREATE TABLE "content_channelmetadata" ("id" char(32) NOT NULL PRIMARY KEY, "name" varchar(200) NOT NULL, "description" varchar(400) NOT NULL, "tagline" varchar(150) NULL, "author" varchar(400) NOT NULL, "version" integer NOT NULL, "thumbnail" text NOT NULL, "last_updated" varchar NULL, "min_schema_version" varchar(50) NOT NULL, "root_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE TABLE "content_channelmetadata" (
+    "id" char(32) NOT NULL PRIMARY KEY,
+    "name" varchar(200) NOT NULL,
+    "description" varchar(400) NOT NULL,
+    "tagline" varchar(150) NULL,
+    "author" varchar(400) NOT NULL,
+    "version" integer NOT NULL,
+    "thumbnail" text NOT NULL,
+    "last_updated" varchar NULL,
+    "min_schema_version" varchar(50) NOT NULL,
+    "root_id" char(32) NOT NULL REFERENCES "content_contentnode" ("id") DEFERRABLE INITIALLY DEFERRED
+);
 CREATE INDEX "content_channelmetadata_root_id_ba963469" ON "content_channelmetadata" ("root_id");
