@@ -82,10 +82,7 @@
       const activeLessons = computed(() => getClassActiveLessons(classId.value));
       const activeQuizzes = computed(() => getClassActiveQuizzes(classId.value));
 
-      const polling = useTimeoutPoll(
-        () => fetchClass({ classId: classId.value, force: true }),
-        30000,
-      );
+      const polling = useTimeoutPoll(() => fetchClass({ classId: classId.value }), 30000);
       polling.resume();
 
       onBeforeUnmount(polling.pause);

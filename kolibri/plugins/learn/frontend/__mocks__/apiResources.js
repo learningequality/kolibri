@@ -1,3 +1,3 @@
 export const LearnerClassroomResource = {
-  fetchCollection: jest.fn(),
+  list: jest.fn(),
 };

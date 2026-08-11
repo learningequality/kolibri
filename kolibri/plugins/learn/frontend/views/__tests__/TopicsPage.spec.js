@@ -138,7 +138,7 @@ describe('TopicsPage', () => {
       }),
     );
 
-    ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
+    ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC);
 
     store = makeStore({});
     useDevicesWithFilter.mockReturnValue({
@@ -163,7 +163,7 @@ describe('TopicsPage', () => {
         windowBreakpoint: ref(4),
       }));
 
-      ContentNodeResource.fetchTree.mockResolvedValue({
+      ContentNodeResource.fetchTree_v2.mockResolvedValue({
         ...DEFAULT_TOPIC,
         options: { modality: 'CUSTOM_NAVIGATION' },
       });
@@ -346,7 +346,7 @@ describe('TopicsPage', () => {
           }),
         );
 
-        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
+        ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC);
 
         useKResponsiveWindow.mockImplementation(() => ({
           windowIsSmall: true,
@@ -461,7 +461,7 @@ describe('TopicsPage', () => {
       });
 
       it('shows correct breadcrumbs at a non-Channel Topic', async () => {
-        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
+        ContentNodeResource.fetchTree_v2.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
         useBaseSearch.mockImplementation(() =>
           useBaseSearchMock({
             displayingSearchResults: false,

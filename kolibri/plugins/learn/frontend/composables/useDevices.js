@@ -41,11 +41,10 @@ function canAccessStudio() {
 
 function fetchDevices() {
   return Promise.all([
-    canAccessStudio() ? RemoteChannelResource.getKolibriStudioStatus() : Promise.resolve(null),
+    canAccessStudio() ? RemoteChannelResource.getKolibriStudioStatus_v2() : Promise.resolve(null),
     NetworkLocationResource.list(),
-  ]).then(([studioResponse, devices]) => {
+  ]).then(([studio, devices]) => {
     if (canAccessStudio()) {
-      const studio = studioResponse.data;
       devices = devices.filter(device => isMinimumKolibriVersion(device.kolibri_version));
       if (studio.available && isMinimumKolibriVersion(studio.kolibri_version || '0.15.0')) {
         return [
@@ -71,7 +70,7 @@ export function setCurrentDevice(id) {
     set(currentDevice, KolibriStudioDeviceData);
     return Promise.resolve(KolibriStudioDeviceData);
   }
-  return NetworkLocationResource.fetchModel({ id }).then(device => {
+  return NetworkLocationResource.retrieve(id).then(device => {
     set(currentDevice, device);
     return device;
   });

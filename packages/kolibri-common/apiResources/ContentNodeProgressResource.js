@@ -17,4 +17,8 @@ export default new Resource({
       return response.data;
     });
   },
+  async fetchTree_v2({ id, params }) {
+    const { data } = await this.request({ action: 'tree', routeParams: id, params });
+    return data;
+  },
 });

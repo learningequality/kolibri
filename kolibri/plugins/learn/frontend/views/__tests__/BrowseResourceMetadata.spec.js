@@ -29,8 +29,8 @@ jest.mock('kolibri-plugin-data', () => {
 
 const promise = new Promise(() => []);
 
-ContentNodeResource.fetchRecommendationsFor = jest.fn(() => promise);
-ContentNodeResource.fetchCollection = jest.fn(() => promise);
+ContentNodeResource.fetchRecommendationsFor_v2 = jest.fn(() => promise);
+ContentNodeResource.list = jest.fn(() => promise);
 
 const baseContentNode = {
   id: '2ea9bda8703241be89b5b9fd87f88815',

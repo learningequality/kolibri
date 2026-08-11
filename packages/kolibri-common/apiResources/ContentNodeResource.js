@@ -85,6 +85,11 @@ export default new Resource({
   fetchRandomCollection({ getParams: params }) {
     return this.getListEndpoint('random', params);
   },
+  // Unlike `fetchRandomCollection`, takes plain params and resolves with `response.data`.
+  async fetchRandomCollection_v2(params) {
+    const { data } = await this.request({ action: 'random', params });
+    return data;
+  },
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
   },
@@ -94,6 +99,10 @@ export default new Resource({
   },
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
+  },
+  async fetchRecommendationsFor_v2(id, params) {
+    const { data } = await this.request({ action: 'recommendations_for', routeParams: id, params });
+    return data;
   },
   fetchResume(params = { resume: true }) {
     const url = urls['kolibri:core:usercontentnode_list']();

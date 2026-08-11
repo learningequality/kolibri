@@ -152,14 +152,10 @@
       const cameFromWelcome = ref(previousRoute?.value?.name === PageNames.COURSE_WELCOME);
 
       const fetchCourseWithUnits = async () => {
-        const courseData = await LearnerCourseResource.fetchModel({
-          id: props.courseId,
-        });
-        const unitsData = await ContentNodeResource.fetchCollection({
-          getParams: {
-            parent: courseData.course_id,
-            modality: Modalities.UNIT,
-          },
+        const courseData = await LearnerCourseResource.retrieve(props.courseId);
+        const unitsData = await ContentNodeResource.list({
+          parent: courseData.course_id,
+          modality: Modalities.UNIT,
         });
         return {
           course: courseData,
@@ -183,7 +179,7 @@
         fetchData: fetchUnitTreeData,
       } = useFetch({
         fetchMethod: () =>
-          ContentNodeResource.fetchTree({
+          ContentNodeResource.fetchTree_v2({
             id: props.unitId,
             // Include unavailable nodes so missing resources show a
             // warning in the navigation panel instead of disappearing.

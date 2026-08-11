@@ -52,7 +52,7 @@
         if (!picturePasswordPending.value) return;
 
         const [user] = await Promise.all([
-          FacilityUserResource.fetchModel({ id: get(currentUserId) }),
+          FacilityUserResource.retrieve(get(currentUserId)),
           fetchFacilityConfig(),
         ]);
 

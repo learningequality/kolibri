@@ -294,12 +294,11 @@ export default function useLearnerResources() {
    * to this composable's store
    * @param {object} params - Request parameters
    * @param {string} params.classId - Classroom id to load
-   * @param {boolean} [params.force] - Cache won't be used when `true`
    * @returns {Promise} - Resolves with the loaded classroom
    * @public
    */
-  function fetchClass({ classId, force = false }) {
-    return LearnerClassroomResource.fetchModel({ id: classId, force }).then(classroom => {
+  function fetchClass({ classId }) {
+    return LearnerClassroomResource.retrieve(classId).then(classroom => {
       const updatedClasses = [...get(classes).filter(c => c.id !== classId), classroom];
       set(classes, updatedClasses);
       setClassData(classroom);
@@ -310,19 +309,17 @@ export default function useLearnerResources() {
   /**
    * Fetches current learner's classes
    * and saves data to this composable's store
-   * @param {object} [params] - Request parameters
-   * @param {boolean} [params.force] - Cache won't be used when `true`
    * @returns {Promise} - Resolves once the classes store has been populated
    * @public
    */
-  function fetchClasses({ force = false } = {}) {
-    return LearnerClassroomResource.fetchCollection({ force }).then(collection => {
+  function fetchClasses() {
+    return LearnerClassroomResource.list().then(collection => {
       set(classes, collection);
     });
   }
 
   function fetchLesson({ lessonId } = {}) {
-    return LearnerLessonResource.fetchModel({ id: lessonId }).then(lesson => {
+    return LearnerLessonResource.retrieve(lessonId).then(lesson => {
       _cacheLessonResources(lesson);
       return lesson;
     });
@@ -413,12 +410,11 @@ export default function useLearnerResources() {
    * to this composable's store
    * @param {object} params - Request parameters
    * @param {string} params.courseSessionId - Learner course session id
-   * @param {boolean} [params.force] - Cache won't be used when `true`
    * @returns {Promise<object>} Course data
    * @public
    */
-  async function fetchCourse({ courseSessionId, force = false }) {
-    const course = await LearnerCourseResource.fetchModel({ id: courseSessionId, force });
+  async function fetchCourse({ courseSessionId }) {
+    const course = await LearnerCourseResource.retrieve(courseSessionId);
 
     if (!course) {
       throw new Error('Course not found');
@@ -430,7 +426,7 @@ export default function useLearnerResources() {
 
     // Fetch course content tree and learner course progress
     const [content, progressResponse] = await Promise.all([
-      course.course_id ? ContentNodeResource.fetchTree({ id: course.course_id }) : null,
+      course.course_id ? ContentNodeResource.fetchTree_v2({ id: course.course_id }) : null,
       LearnerCourseResource.getResumeData(course.id),
     ]);
 
@@ -445,13 +441,11 @@ export default function useLearnerResources() {
   /**
    * Fetches current learner's courses
    * and saves data to this composable's store
-   * @param {object} [params] - Request parameters
-   * @param {boolean} [params.force] - Cache won't be used when `true`
    * @returns {Promise<Array>} - Resolves with the loaded course collection
    * @public
    */
-  async function fetchCourses({ force = false } = {}) {
-    const collection = await LearnerCourseResource.fetchCollection({ force });
+  async function fetchCourses() {
+    const collection = await LearnerCourseResource.list();
     set(courses, collection);
     return collection;
   }

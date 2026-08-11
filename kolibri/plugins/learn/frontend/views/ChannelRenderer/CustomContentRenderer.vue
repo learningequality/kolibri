@@ -144,18 +144,16 @@
         // limit to channel, defaults to true
         const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
 
-        return ContentNodeResource.fetchCollection({
-          getParams: {
-            ids: options.ids,
-            authors: options.authors,
-            tags: options.tags,
-            parent: options.parent === 'self' ? this.topic.id : options.parent,
-            channel_id: limitToChannel ? this.topic.channel_id : undefined,
-            max_results: options.maxResults ? options.maxResults : 50,
-            kind: kind,
-            kind_in: kinds,
-            descendant_of: options.descendantOf,
-          },
+        return ContentNodeResource.list({
+          ids: options.ids,
+          authors: options.authors,
+          tags: options.tags,
+          parent: options.parent === 'self' ? this.topic.id : options.parent,
+          channel_id: limitToChannel ? this.topic.channel_id : undefined,
+          max_results: options.maxResults ? options.maxResults : 50,
+          kind: kind,
+          kind_in: kinds,
+          descendant_of: options.descendantOf,
         })
           .then(contentNodes => {
             const { more, results } = contentNodes;
@@ -180,9 +178,7 @@
       fetchMore(message) {
         const { options } = message;
 
-        return ContentNodeResource.fetchCollection({
-          getParams: options,
-        })
+        return ContentNodeResource.list(options)
           .then(contentNodes => {
             const { more, results } = contentNodes;
 
@@ -204,7 +200,7 @@
       },
 
       fetchContentModel(message) {
-        return ContentNodeResource.fetchModel({ id: message.id })
+        return ContentNodeResource.retrieve(message.id)
           .then(contentNode => {
             return createReturnMsg({ message, data: contentNode });
           })
@@ -228,12 +224,10 @@
         } else {
           // limit to channel, defaults to true
           const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
-          searchPromise = ContentNodeResource.fetchCollection({
-            getParams: {
-              search: keyword,
-              channels: limitToChannel ? this.topic.channel_id : undefined,
-              max_results: options.maxResults ? options.maxResults : 50,
-            },
+          searchPromise = ContentNodeResource.list({
+            search: keyword,
+            channels: limitToChannel ? this.topic.channel_id : undefined,
+            max_results: options.maxResults ? options.maxResults : 50,
           }).then(searchResults => {
             return {
               maxResults: options.maxResults ? options.maxResults : 50,
@@ -258,7 +252,7 @@
       navigateTo(message) {
         const id = message.nodeId;
         const context = {};
-        return ContentNodeResource.fetchModel({ id })
+        return ContentNodeResource.retrieve(id)
           .then(contentNode => {
             if (contentNode && contentNode.kind === 'topic') {
               router.push(
@@ -323,14 +317,14 @@
         return this.sandbox.mediator.sendMessage(newMsg);
       },
       sendChannelFilterOptions(message) {
-        return ChannelResource.fetchFilterOptions(this.topic.channel_id)
-          .then(response => {
+        return ChannelResource.fetchFilterOptions_v2(this.topic.channel_id)
+          .then(filterOptions => {
             return createReturnMsg({
               message,
               data: {
-                availableAuthors: response.data.available_authors,
-                availableTags: response.data.available_tags,
-                availableKinds: response.data.available_kinds,
+                availableAuthors: filterOptions.available_authors,
+                availableTags: filterOptions.available_tags,
+                availableKinds: filterOptions.available_kinds,
               },
             });
           })
@@ -348,16 +342,14 @@
         // limit to channel, defaults to true
         const limitToChannel = 'limitToChannel' in options ? options.limitToChannel : true;
 
-        return ContentNodeResource.fetchRandomCollection({
-          getParams: {
-            parent: options.parent === 'self' ? this.topic.id : options.parent,
-            channel_id: limitToChannel ? this.topic.channel_id : undefined,
-            max_results: options.maxResults ? options.maxResults : 10,
-            kind: onlyContent ? 'content' : undefined,
-            kind_in: kinds,
-            // Time seed to avoid cache
-            seed: Date.now().toString(),
-          },
+        return ContentNodeResource.fetchRandomCollection_v2({
+          parent: options.parent === 'self' ? this.topic.id : options.parent,
+          channel_id: limitToChannel ? this.topic.channel_id : undefined,
+          max_results: options.maxResults ? options.maxResults : 10,
+          kind: onlyContent ? 'content' : undefined,
+          kind_in: kinds,
+          // Time seed to avoid cache
+          seed: Date.now().toString(),
         })
           .then(contentNodes => {
             return createReturnMsg({

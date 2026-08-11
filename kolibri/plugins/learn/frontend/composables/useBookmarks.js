@@ -100,10 +100,7 @@ export default function useBookmarks() {
    * @public
    */
   async function fetchBookmarks(getParams) {
-    const bookmarksData = await BookmarksResource.fetchCollection({
-      getParams,
-      force: true,
-    });
+    const bookmarksData = await BookmarksResource.list(getParams);
     const bookmarks = bookmarksData ? bookmarksData : [];
     for (const bookmark of bookmarks) {
       setBookmark(bookmark);

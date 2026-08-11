@@ -313,7 +313,7 @@
       },
       navigateTo(message) {
         const id = message.nodeId;
-        return ContentNodeResource.fetchModel({ id })
+        return ContentNodeResource.retrieve(id)
           .then(contentNode => {
             router.push(
               this.genContentLinkKeepCurrentBackLink(contentNode.id, contentNode.is_leaf),

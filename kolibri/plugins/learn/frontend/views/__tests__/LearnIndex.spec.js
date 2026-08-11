@@ -9,7 +9,7 @@ import LearnIndex from '../LearnIndex';
 jest.mock('kolibri-common/composables/useFacility');
 jest.mock('kolibri/composables/useUser');
 jest.mock('kolibri-common/apiResources/FacilityUserResource', () => ({
-  fetchModel: jest.fn(),
+  retrieve: jest.fn(),
 }));
 
 async function flushUi() {
@@ -40,7 +40,7 @@ describe('LearnIndex picture password modal', () => {
 
   it('shows the modal and keeps the flag set while the modal is open', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: '3.7.12' });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: '3.7.12' });
 
     renderComponent();
     await flushUi();
@@ -51,7 +51,7 @@ describe('LearnIndex picture password modal', () => {
 
   it('clears the flag when the modal is dismissed', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: '3.7.12' });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: '3.7.12' });
 
     renderComponent();
     await flushUi();
@@ -68,7 +68,7 @@ describe('LearnIndex picture password modal', () => {
 
   it('does not show the modal when picture_password is null', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: null });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: null });
 
     renderComponent();
     await flushUi();
@@ -78,7 +78,7 @@ describe('LearnIndex picture password modal', () => {
 
   it('keeps the flag set when picture_password is null but facility has picture passwords enabled', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: null });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: null });
 
     renderComponent({
       facilityConfig: ref({ picture_password_settings: { icon_style: 'standard' } }),
@@ -91,7 +91,7 @@ describe('LearnIndex picture password modal', () => {
 
   it('clears the flag when picture_password is null and user is not a learner, even if facility has picture passwords enabled', async () => {
     sessionStorage.setItem(PICTURE_PASSWORD_ASSIGNED_MODAL_PENDING, 'true');
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: null });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: null });
 
     renderComponent({
       facilityConfig: ref({ picture_password_settings: { icon_style: 'standard' } }),
@@ -104,12 +104,12 @@ describe('LearnIndex picture password modal', () => {
   });
 
   it('does not fetch user data when the flag is not set', async () => {
-    FacilityUserResource.fetchModel.mockResolvedValue({ picture_password: '3.7.12' });
+    FacilityUserResource.retrieve.mockResolvedValue({ picture_password: '3.7.12' });
 
     renderComponent();
     await flushUi();
 
-    expect(FacilityUserResource.fetchModel).not.toHaveBeenCalled();
+    expect(FacilityUserResource.retrieve).not.toHaveBeenCalled();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

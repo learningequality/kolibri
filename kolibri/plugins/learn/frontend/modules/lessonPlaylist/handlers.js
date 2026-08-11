@@ -18,7 +18,7 @@ export function showLessonPlaylist(store, { lessonId }) {
     fetchContentNodeProgress({ lesson: lessonId });
   }
   const contentNodePromise = ContentNodeResource.fetchLessonResources(lessonId);
-  return LearnerLessonResource.fetchModel({ id: lessonId })
+  return LearnerLessonResource.retrieve(lessonId)
     .then(lesson => {
       store.commit('SET_PAGE_NAME', ClassesPageNames.LESSON_PLAYLIST);
       store.commit('lessonPlaylist/SET_CURRENT_LESSON', lesson);

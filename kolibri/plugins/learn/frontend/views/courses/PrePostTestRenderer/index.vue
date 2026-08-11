@@ -164,7 +164,6 @@
   import get from 'lodash/get';
   import { coursesStrings } from 'kolibri-common/strings/coursesStrings.js';
   import shuffled from 'kolibri-common/utils/shuffled';
-  import { LearnerClassroomResource } from '../../../apiResources';
   import ResourceLayout from '../../ResourceLayout/index.vue';
   import CourseInterstitial from '../../CourseUnitView/CourseInterstitial.vue';
   import { PRE_POST_TEST_CRITERION, TestType } from '../../../constants';
@@ -369,10 +368,6 @@
     },
     methods: {
       setAndSaveCurrentExamAttemptLog({ close, interaction } = {}) {
-        // Clear the learner classroom cache here as its progress data is now
-        // stale
-        LearnerClassroomResource.clearCache();
-
         const data = {};
 
         if (interaction) {

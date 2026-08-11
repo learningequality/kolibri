@@ -171,9 +171,7 @@ export default function useDownloadRequests(store) {
     if (!contentRequest) {
       return Promise.resolve();
     }
-    ContentRequestResource.deleteModel({
-      id: contentRequest.id,
-    });
+    ContentRequestResource.delete(contentRequest.id);
     Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
     createSnackbar({
       text: downloadRequestsTranslator.$tr('resourceRemoved'),

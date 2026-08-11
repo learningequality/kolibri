@@ -379,7 +379,7 @@
             baseurl: this.baseurl,
           },
         };
-        return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
+        return ContentNodeResource.fetchTree_v2(treeParams).then(ancestor => {
           let parent;
           if (fetchGrandparent) {
             parent = ancestor.children.results.find(c => c.id === this.contentNode.parent);
@@ -392,7 +392,7 @@
       },
       loadRecommendedContent() {
         if (!this.baseurl) {
-          return ContentNodeResource.fetchRecommendationsFor(this.contentNodeId).then(data => {
+          return ContentNodeResource.fetchRecommendationsFor_v2(this.contentNodeId).then(data => {
             this.recommendedContentNodes = data;
           });
         }

@@ -17,7 +17,7 @@ describe('Bookmark Page', () => {
   const fakeBookmarks = [{ bookmark: { id: 1 } }, { bookmark: { id: 2 } }, { bookmark: { id: 3 } }];
 
   beforeEach(async () => {
-    ContentNodeResource.fetchBookmarks.mockResolvedValue({
+    ContentNodeResource.fetchBookmarks_v2.mockResolvedValue({
       results: fakeBookmarks,
       more: { available: true, limit: 25 },
     });
@@ -46,7 +46,7 @@ describe('Bookmark Page', () => {
       expect(wrapper.find("[data-testid='load-more-button']")).toBeTruthy();
     });
     it('clicking the load more button calls the load more function', async () => {
-      const mockFetchBookmarks = ContentNodeResource.fetchBookmarks.mockResolvedValue({
+      const mockFetchBookmarks = ContentNodeResource.fetchBookmarks_v2.mockResolvedValue({
         results: fakeBookmarks,
       });
       await wrapper.find("[data-testid='load-more-button']").vm.$emit('click');

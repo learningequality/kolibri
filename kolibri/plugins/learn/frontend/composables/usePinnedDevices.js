@@ -21,7 +21,7 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
   });
 
   function fetchPinsForUser() {
-    return PinnedDeviceResource.fetchCollection({ force: true }).then(pins => {
+    return PinnedDeviceResource.list().then(pins => {
       const updatedPins = {};
       for (const pin of pins) {
         updatedPins[pin.instance_id] = pin;
@@ -51,7 +51,7 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
     delete newMap[instance_id];
     set(userPinsMap, newMap);
     createSnackbar(PinStrings.$tr('pinRemoved'));
-    return PinnedDeviceResource.deleteModel({ id });
+    return PinnedDeviceResource.delete(id);
   }
 
   function _isPinnedDevice(device) {

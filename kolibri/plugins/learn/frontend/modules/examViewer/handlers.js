@@ -23,10 +23,7 @@ export function showExam(store, params, alreadyOnQuiz, route) {
     handleError('You must be logged in as a learner to view this page');
     pageLoading.value = false;
   } else {
-    const promises = [
-      LearnerClassroomResource.fetchModel({ id: classId }),
-      ExamResource.fetchModel({ id: examId }),
-    ];
+    const promises = [LearnerClassroomResource.retrieve(classId), ExamResource.retrieve(examId)];
     const shouldResolve = samePageCheckGenerator(route);
     Promise.all(promises).then(
       ([classroom, exam]) => {

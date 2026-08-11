@@ -52,8 +52,8 @@ async function makeWrapper({
   isUserLoggedIn = false,
 } = {}) {
   const store = makeStore();
-  ContentNodeResource.fetchCollection.mockResolvedValue([]);
-  ContentNodeResource.fetchModel.mockResolvedValue({
+  ContentNodeResource.list.mockResolvedValue([]);
+  ContentNodeResource.retrieve.mockResolvedValue({
     id: CONTENT_ID,
     admin_imported: isContentAdminImported,
     channel_id: CHANNEL_ID,

@@ -299,12 +299,10 @@
           fetchResumableContentNodes();
         }
         const shouldResolve = samePageCheckGenerator();
-        return ContentNodeResource.fetchCollection({
-          getParams: {
-            parent__isnull: true,
-            include_coach_content: get(hasRole),
-            baseurl,
-          },
+        return ContentNodeResource.list({
+          parent__isnull: true,
+          include_coach_content: get(hasRole),
+          baseurl,
         }).then(
           channelCollection => {
             if (shouldResolve()) {
